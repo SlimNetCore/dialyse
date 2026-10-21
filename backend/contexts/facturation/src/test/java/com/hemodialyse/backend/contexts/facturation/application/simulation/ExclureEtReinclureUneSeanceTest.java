@@ -21,8 +21,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ExclureEtReinclureUneSeanceTest {
 
     private final SimulationFixture decor = new SimulationFixture();
-    private final ExclureUneSeance exclure = new ExclureUneSeance(decor.seances, decor.absences, decor.simuler, decor.unite);
-    private final ReinclureUneSeance reinclure = new ReinclureUneSeance(decor.seances, decor.absences, decor.simuler, decor.unite);
+    private final ExclureUneSeance exclure = new ExclureUneSeance(decor.seances, decor.absences, decor.simuler, decor.unite, decor.garde);
+    private final ReinclureUneSeance reinclure = new ReinclureUneSeance(decor.seances, decor.absences, decor.simuler, decor.unite, decor.garde);
 
     private static ExclureUneSeance.Commande commande(MotifDAbsence motif, String commentaire) {
         return new ExclureUneSeance.Commande(motif, commentaire, UTILISATEUR);

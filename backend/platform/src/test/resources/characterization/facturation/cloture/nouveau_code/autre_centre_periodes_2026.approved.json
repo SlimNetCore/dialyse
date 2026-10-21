@@ -1,0 +1,105 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "annee" : 2026,
+    "centerId" : "<CENTRE_B>",
+    "periodes" : [ {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-01",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-02",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-03",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-04",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-05",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-06",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-07",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-08",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-09",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-10",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-11",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    }, {
+      "clotureLe" : null,
+      "cloturePar" : null,
+      "mois" : "2026-12",
+      "motifDeReouverture" : null,
+      "rouvertLe" : null,
+      "rouvertPar" : null,
+      "statut" : "OUVERT"
+    } ]
+  }
+}

@@ -1381,3 +1381,37 @@ CREATE TABLE IF NOT EXISTS event_publication
     PRIMARY KEY (id)
 );
 CREATE INDEX IF NOT EXISTS event_publication_by_completion_date_idx ON event_publication (completion_date);
+
+-- Clôture mensuelle de facturation (migration V42, slice F7, ADR 0037)
+CREATE TABLE IF NOT EXISTS periodes_facturation
+(
+    center_id         UUID                     NOT NULL,
+    annee             INTEGER                  NOT NULL,
+    mois              INTEGER                  NOT NULL,
+    statut            VARCHAR(10)              NOT NULL DEFAULT 'OUVERT',
+    cloturee_par      UUID,
+    cloturee_le       TIMESTAMP WITH TIME ZONE,
+    rouverte_par      UUID,
+    rouverte_le       TIMESTAMP WITH TIME ZONE,
+    motif_reouverture VARCHAR(500),
+    PRIMARY KEY (center_id, annee, mois),
+    CONSTRAINT ck_periodes_facturation_mois CHECK (mois BETWEEN 1 AND 12),
+    CONSTRAINT ck_periodes_facturation_statut CHECK (statut IN ('OUVERT', 'CLOTURE'))
+);
+
+CREATE TABLE IF NOT EXISTS periodes_facturation_journal
+(
+    id                            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    center_id                     UUID                     NOT NULL,
+    annee                         INTEGER                  NOT NULL,
+    mois                          INTEGER                  NOT NULL,
+    type_acte                     VARCHAR(12)              NOT NULL,
+    effectue_par                  UUID                     NOT NULL,
+    effectue_le                   TIMESTAMP WITH TIME ZONE NOT NULL,
+    motif                         VARCHAR(500),
+    seances_eligibles_restantes   INTEGER,
+    CONSTRAINT ck_periodes_facturation_journal_type CHECK (type_acte IN ('CLOTURE', 'REOUVERTURE'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_periodes_facturation_journal_mois
+    ON periodes_facturation_journal (center_id, annee, mois, id);

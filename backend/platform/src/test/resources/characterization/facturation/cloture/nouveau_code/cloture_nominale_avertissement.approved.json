@@ -1,0 +1,12 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "clotureLe" : "<HORODATAGE>",
+    "cloturePar" : "<ADMIN_A>",
+    "mois" : "2026-08",
+    "seancesEligiblesRestantes" : 2,
+    "statut" : "CLOTURE"
+  }
+}

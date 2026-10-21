@@ -57,6 +57,33 @@ class PeriodeDeFacturationTest {
     }
 
     @Test
+    void should_cover_only_its_month_when_it_is_a_whole_month() {
+        assertThat(PeriodeDeFacturation.deMois(YearMonth.of(2026, 8)).moisCouverts()).containsExactly(YearMonth.of(2026, 8));
+    }
+
+    @Test
+    void should_cover_every_month_the_interval_touches_even_by_one_day() {
+        PeriodeDeFacturation periode = new PeriodeDeFacturation(LocalDate.of(2026, 7, 31), LocalDate.of(2026, 10, 1));
+
+        assertThat(periode.moisCouverts()).containsExactly(YearMonth.of(2026, 7), YearMonth.of(2026, 8),
+                YearMonth.of(2026, 9), YearMonth.of(2026, 10));
+    }
+
+    @Test
+    void should_cover_the_months_of_two_years_in_order() {
+        PeriodeDeFacturation periode = new PeriodeDeFacturation(LocalDate.of(2026, 12, 15), LocalDate.of(2027, 1, 15));
+
+        assertThat(periode.moisCouverts()).containsExactly(YearMonth.of(2026, 12), YearMonth.of(2027, 1));
+    }
+
+    @Test
+    void should_cover_one_month_for_a_one_day_interval() {
+        LocalDate jour = LocalDate.of(2026, 2, 28);
+
+        assertThat(new PeriodeDeFacturation(jour, jour).moisCouverts()).containsExactly(YearMonth.of(2026, 2));
+    }
+
+    @Test
     void should_reject_a_missing_month() {
         assertThatThrownBy(() -> PeriodeDeFacturation.deMois(null))
                 .isInstanceOf(IllegalArgumentException.class).hasMessage("Le mois est obligatoire");

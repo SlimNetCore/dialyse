@@ -1,0 +1,10 @@
+[ {
+  "annee" : "2026",
+  "mois" : "8",
+  "statut" : "OUVERT",
+  "cloturee_par" : "<ADMIN_A>",
+  "cloturee_le_nulle" : "false",
+  "rouverte_par" : "<AUTRE_ADMIN_A>",
+  "rouverte_le_nulle" : "false",
+  "motif_reouverture" : "Facture oubliee du patient Amrani"
+} ]

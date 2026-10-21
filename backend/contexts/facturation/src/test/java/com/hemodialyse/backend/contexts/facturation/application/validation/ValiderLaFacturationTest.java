@@ -2,7 +2,9 @@ package com.hemodialyse.backend.contexts.facturation.application.validation;
 
 import com.hemodialyse.backend.contexts.facturation.application.simulation.DemandeDeSimulation;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.doubles.FacturesEnMemoire;
+import com.hemodialyse.backend.contexts.facturation.doubles.MoisDeFacturationEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.ParametresEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.PublicationEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
@@ -66,6 +68,8 @@ class ValiderLaFacturationTest {
     private final SequenceEnMemoire sequence = new SequenceEnMemoire();
     private final FacturesEnMemoire factures = new FacturesEnMemoire();
     private final PublicationEnMemoire publication = new PublicationEnMemoire();
+    private final MoisDeFacturationEnMemoire moisDeFacturation = new MoisDeFacturationEnMemoire();
+    private final GardeDesMoisClos garde = new GardeDesMoisClos(moisDeFacturation);
     private final List<LocalDate> datesDeTva = new ArrayList<>();
     private final ValiderLaFacturation valider;
 
@@ -75,7 +79,7 @@ class ValiderLaFacturationTest {
             return new TauxDeTva(date.isBefore(LocalDate.of(2026, 9, 1)) ? new BigDecimal("9") : new BigDecimal("19"));
         };
         valider = new ValiderLaFacturation(seances, parametres, sequence, tva, factures, seances, publication,
-                new UniteDeTravailDirecte(), Clock.fixed(MAINTENANT, ZoneOffset.UTC), new Identifiants()::suivant);
+                new UniteDeTravailDirecte(), Clock.fixed(MAINTENANT, ZoneOffset.UTC), new Identifiants()::suivant, garde);
         seances.forfait(FORFAIT_HD, CENTRE, "Forfait HD", new BigDecimal("3500.00"));
         seances.forfait(FORFAIT_PREMIUM, CENTRE, "Forfait HD Premium", new BigDecimal("5200.00"));
         seances.patient(AMRANI, CENTRE, "P-001", "Amrani", "Lina", "PERMANENT", "ASS-001", PAYEUR, AGENCE);
@@ -308,12 +312,57 @@ class ValiderLaFacturationTest {
     }
 
     @Test
+    void should_refuse_the_validation_of_a_closed_month_without_emitting_nor_moving_the_sequence() {
+        seance(AMRANI, 2, "VALIDEE");
+        moisDeFacturation.poserClos(CENTRE, YearMonth.of(2026, 8));
+
+        assertThatThrownBy(() -> valider.valider(CENTRE, AOUT, AUTEUR))
+                .isInstanceOf(com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationClos.class)
+                .hasMessageContaining("2026-08");
+
+        assertThat(factures.emises()).isEmpty();
+        assertThat(sequence.courante(CENTRE, 2026)).isEqualTo(41);
+        assertThat(publication.publies()).isEmpty();
+    }
+
+    @Test
+    void should_refuse_a_period_when_any_month_it_covers_is_closed_and_lock_the_months_in_order() {
+        seance(AMRANI, 2, "VALIDEE");
+        moisDeFacturation.poserClos(CENTRE, YearMonth.of(2026, 9));
+        DemandeDeSimulation aoutAOctobre = new DemandeDeSimulation(null, LocalDate.of(2026, 8, 15), LocalDate.of(2026, 10, 15), true);
+
+        assertThatThrownBy(() -> valider.valider(CENTRE, aoutAOctobre, AUTEUR))
+                .isInstanceOf(com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationClos.class)
+                .hasMessageContaining("2026-09");
+
+        assertThat(factures.emises()).isEmpty();
+        assertThat(moisDeFacturation.moisVerrouilles()).containsExactly(YearMonth.of(2026, 8), YearMonth.of(2026, 9));
+    }
+
+    @Test
+    void should_refuse_a_closed_month_even_when_it_has_nothing_to_emit() {
+        moisDeFacturation.poserClos(CENTRE, YearMonth.of(2026, 8));
+
+        assertThatThrownBy(() -> valider.valider(CENTRE, AOUT, AUTEUR))
+                .isInstanceOf(com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationClos.class);
+    }
+
+    @Test
+    void should_validate_normally_when_only_another_month_or_another_centre_is_closed() {
+        seance(AMRANI, 2, "VALIDEE");
+        moisDeFacturation.poserClos(CENTRE, YearMonth.of(2026, 7));
+        moisDeFacturation.poserClos(new CentreId(UUID.randomUUID()), YearMonth.of(2026, 8));
+
+        assertThat(valider.valider(CENTRE, AOUT, AUTEUR).facturesEmises()).isEqualTo(1);
+    }
+
+    @Test
     void should_fail_the_whole_validation_when_a_seance_is_no_longer_eligible_at_the_link() {
         seance(AMRANI, 2, "VALIDEE");
         LiaisonQuiEchoue echec = new LiaisonQuiEchoue();
         ValiderLaFacturation fragile = new ValiderLaFacturation(seances, parametres, sequence,
                 (centre, date) -> TauxDeTva.AUCUN, factures, echec, publication, new UniteDeTravailDirecte(),
-                Clock.fixed(MAINTENANT, ZoneOffset.UTC), UUID::randomUUID);
+                Clock.fixed(MAINTENANT, ZoneOffset.UTC), UUID::randomUUID, garde);
 
         assertThatThrownBy(() -> fragile.valider(CENTRE, AOUT, AUTEUR)).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Une ou plusieurs seances ne sont plus eligibles a la validation");

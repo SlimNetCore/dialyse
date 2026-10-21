@@ -1,0 +1,25 @@
+[ {
+  "annee" : "2026",
+  "mois" : "8",
+  "type_acte" : "CLOTURE",
+  "effectue_par" : "<ADMIN_A>",
+  "effectue_le" : "<HORODATAGE>",
+  "motif" : null,
+  "seances_eligibles_restantes" : "0"
+}, {
+  "annee" : "2026",
+  "mois" : "8",
+  "type_acte" : "REOUVERTURE",
+  "effectue_par" : "<ADMIN_A>",
+  "effectue_le" : "<HORODATAGE>",
+  "motif" : "correction",
+  "seances_eligibles_restantes" : null
+}, {
+  "annee" : "2026",
+  "mois" : "8",
+  "type_acte" : "CLOTURE",
+  "effectue_par" : "<AUTRE_ADMIN_A>",
+  "effectue_le" : "<HORODATAGE>",
+  "motif" : null,
+  "seances_eligibles_restantes" : "0"
+} ]

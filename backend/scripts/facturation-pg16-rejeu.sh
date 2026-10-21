@@ -9,7 +9,8 @@
 # sortie. Chaine Flyway V1..Vn (psql), constat KB-FAC-07 sur le schema Flyway pur (l'ancien MERGE ... KEY de
 # FacturationSettingsJdbcAdapter, syntaxe H2, doit ECHOUER), puis contrats PostgreSQL : parametres de facturation (contexte
 # facturation, UPDATE puis INSERT) et regles de TVA (contexte comptabilite : ajout, lecture par identifiant, remplacement,
-# desactivation).
+# desactivation) ; F7 (cloture mensuelle : migration V42 additive et idempotente, aucune ligne au depart, unicite, CHECK, verrou
+# de ligne SELECT ... FOR UPDATE entre cloture et validation concurrentes, creation simultanee de la ligne d'un mois).
 # A lancer en arriere-plan avec un log : backend/scripts/facturation-pg16-rejeu.sh 55442 > rejeu.log 2>&1 &
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Code de sortie : 0 si tout est vert, 1 sinon.
 set -uo pipefail
@@ -61,6 +62,12 @@ echo "-- F4 : l'index unique de la cle d'idempotence existe"
 echo "-- F4 : V41 est idempotente (rejeu sans erreur)"
 "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V41__facturation_mode_reference_et_cle_des_reglements.sql" >/dev/null && echo "rejeu V41 ok" || RC=1
 
+echo "-- F7 (migration V42) : les deux tables de la cloture mensuelle existent et sont VIDES (aucun mois clos au depart)"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM information_schema.tables WHERE table_name IN ('periodes_facturation', 'periodes_facturation_journal')" | tr -d '\r' | grep -qx 2   && echo "tables presentes (2/2)" || { echo "ATTENDU : 2 tables"; RC=1; }
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT (SELECT count(*) FROM periodes_facturation) + (SELECT count(*) FROM periodes_facturation_journal)" | tr -d '\r' | grep -qx 0   && echo "aucune ligne au depart" || { echo "ATTENDU : 0 ligne"; RC=1; }
+echo "-- F7 : V42 est idempotente (rejeu sans erreur)"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V42__facturation_cloture_mensuelle.sql" >/dev/null && echo "rejeu V42 ok" || RC=1
+
 cd "$RACINE/backend"
 echo "=== Contrat PostgreSQL des parametres (contexte facturation) ==="
 ./mvnw -o -pl contexts/facturation -am test -Dtest='ParametresPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
@@ -80,6 +87,8 @@ echo "=== Contrats PostgreSQL des lectures de pilotage F5 (totaux stockes, annee
 echo "=== Contrats PostgreSQL des ports publies F6 (periode facturee, factures emises et reglements encaisses hors reprise ; reprise des soldes) ==="
 ./mvnw -o -pl contexts/facturation -am test -Dtest='LecturesPubliquesPostgresContractIT,RepriseDesSoldesPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrats PostgreSQL de la cloture mensuelle F7 (unicite, CHECK, fuseau ; verrou de ligne : cloture et validation concurrentes, creation simultanee de la ligne) ==="
+./mvnw -o -pl contexts/facturation -am test -Dtest=MoisDeFacturationPostgresContractIT,MoisDeFacturationConcurrentPostgresContractIT -Dsurefire.failIfNoSpecifiedTests=false   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrat PostgreSQL des deux requetes de la synthese mensuelle lues dans platform (part de TTC par ligne : gabarit dynamique et gabarit statique, compares a H2) ==="
 ./mvnw -o -pl platform -am test -Dtest='SyntheseMensuelleSqlPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1

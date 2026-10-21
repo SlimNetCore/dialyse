@@ -1,0 +1,24 @@
+{
+  "seances" : [ {
+    "id" : "<S_AMRANI_03>",
+    "date_seance" : "2026-08-03",
+    "statut" : "VALIDEE",
+    "facture_id" : null,
+    "statut_avant_exclusion" : null,
+    "exclusion_absence_id" : null,
+    "forfait_override_id" : null
+  }, {
+    "id" : "<S_BELKACEM_04>",
+    "date_seance" : "2026-08-04",
+    "statut" : "SIGNEE",
+    "facture_id" : null,
+    "statut_avant_exclusion" : null,
+    "exclusion_absence_id" : null,
+    "forfait_override_id" : null
+  } ],
+  "factures" : [ ],
+  "sequences" : [ {
+    "seq_value" : "41"
+  } ],
+  "absences" : [ 0 ]
+}

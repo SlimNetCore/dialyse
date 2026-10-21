@@ -63,6 +63,8 @@ import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptesCl
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.JournauxDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.MappingComptableDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
+import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PeriodesComptables;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PlanComptableEnLecture;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -144,6 +146,12 @@ public class ComptabiliteConfiguration {
     @Bean
     PeriodeComptableRepository comptabilitePeriodes(JdbcTemplate jdbc) {
         return new PeriodeComptableRepositoryJdbc(jdbc);
+    }
+
+    /** Lecture publiée de l'état des périodes comptables, consommée par la Facturation (slice F7, RG-FAC-044). */
+    @Bean
+    PeriodesComptables comptabilitePeriodesComptables(PeriodeComptableRepository periodes) {
+        return (centre, mois) -> periodes.duMoisOuOuverte(new CentreId(centre), mois).estCloturee();
     }
 
     @Bean

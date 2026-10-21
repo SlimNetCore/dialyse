@@ -1,0 +1,19 @@
+[ {
+  "annee" : "2026",
+  "mois" : "8",
+  "statut" : "CLOTURE",
+  "cloturee_par" : "<ADMIN_A>",
+  "cloturee_le_nulle" : "false",
+  "rouverte_par" : null,
+  "rouverte_le_nulle" : "true",
+  "motif_reouverture" : null
+}, {
+  "annee" : "2026",
+  "mois" : "9",
+  "statut" : "OUVERT",
+  "cloturee_par" : "<ADMIN_A>",
+  "cloturee_le_nulle" : "false",
+  "rouverte_par" : "<ADMIN_A>",
+  "rouverte_le_nulle" : "false",
+  "motif_reouverture" : "motif"
+} ]

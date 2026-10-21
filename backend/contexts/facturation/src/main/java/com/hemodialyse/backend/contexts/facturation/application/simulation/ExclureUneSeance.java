@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.application.simulation;
 
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.Exclusion;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.MotifDAbsence;
@@ -22,19 +23,22 @@ public final class ExclureUneSeance {
     private final AbsencesDesPatients absences;
     private final SimulerLaFacturation simulation;
     private final UniteDeTravail uniteDeTravail;
+    private final GardeDesMoisClos garde;
 
     public ExclureUneSeance(SeancesDeFacturation seances, AbsencesDesPatients absences, SimulerLaFacturation simulation,
-                            UniteDeTravail uniteDeTravail) {
+                            UniteDeTravail uniteDeTravail, GardeDesMoisClos garde) {
         this.seances = seances;
         this.absences = absences;
         this.simulation = simulation;
         this.uniteDeTravail = uniteDeTravail;
+        this.garde = garde;
     }
 
     public Simulation executer(CentreId centre, UUID seanceId, Commande commande, DemandeDeSimulation demande) {
         return uniteDeTravail.executer(() -> {
             SeanceDeFacturation seance = seances.trouver(centre, seanceId)
                     .orElseThrow(() -> new IllegalStateException("Seance introuvable ou non modifiable pour exclusion"));
+            garde.exigerOuvert(centre, seance.date());
             Exclusion exclusion = seance.exclure(commande.motif(), commande.commentaire());
             demande.periode();
             seances.exclure(centre, seanceId, exclusion.statutAvant());

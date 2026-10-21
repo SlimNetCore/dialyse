@@ -1,0 +1,11 @@
+{
+  "status" : 409,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PERIODE_DEJA_CLOTUREE",
+    "detail" : "La periode de facturation 2026-08 est deja cloturee",
+    "instance" : "/api/v1/facturation/periodes/2026-08/cloturer",
+    "status" : 409,
+    "title" : "Periode deja cloturee"
+  }
+}

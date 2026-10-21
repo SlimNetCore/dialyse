@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.application.validation;
 
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.DemandeDeSimulation;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
@@ -36,7 +37,8 @@ import java.util.function.Supplier;
  * numéro suivant de la séquence du centre pour l'année du jour (KB-FAC-23 reproduit), est datée du jour (KB-FAC-36 reproduit) et
  * fige le taux de TVA en vigueur à la fin de la période (KB-FAC-22 corrigé). Les séances sont ensuite liées à leur facture.
  * <p>
- * La validation est refusée, sans rien émettre, si une séance éligible n'a pas de forfait (KB-FAC-32) ou si un numéro réservé est
+ * La validation est refusée {@code PERIODE_DE_FACTURATION_CLOTUREE} si un mois de la période est clos (RG-FAC-041) ; le mois est
+ * verrouillé jusqu'au commit, donc une clôture concurrente attend la fin de l'émission. Elle est aussi refusée, sans rien émettre, si une séance éligible n'a pas de forfait (KB-FAC-32) ou si un numéro réservé est
  * déjà pris (KB-FAC-24/25). Sans séance éligible, rien n'est émis, la séquence ne bouge pas et aucun événement n'est publié
  * (KB-FAC-27/29 corrigés). Sinon l'événement {@link FacturationValideeEvent} annonce l'émission (période, nombre de factures, total).
  */
@@ -50,13 +52,14 @@ public final class ValiderLaFacturation {
     private final LiaisonDesSeances liaison;
     private final PublicationDeLaValidation publication;
     private final UniteDeTravail uniteDeTravail;
+    private final GardeDesMoisClos garde;
     private final Clock horloge;
     private final Supplier<UUID> identifiants;
 
     public ValiderLaFacturation(SeancesFacturables seances, ParametresDeFacturationRepository parametres,
                                 SequenceDeFacturation sequence, TauxDeTvaApplicable tva, Factures factures,
                                 LiaisonDesSeances liaison, PublicationDeLaValidation publication, UniteDeTravail uniteDeTravail,
-                                Clock horloge, Supplier<UUID> identifiants) {
+                                Clock horloge, Supplier<UUID> identifiants, GardeDesMoisClos garde) {
         this.seances = seances;
         this.parametres = parametres;
         this.sequence = sequence;
@@ -65,6 +68,7 @@ public final class ValiderLaFacturation {
         this.liaison = liaison;
         this.publication = publication;
         this.uniteDeTravail = uniteDeTravail;
+        this.garde = garde;
         this.horloge = horloge;
         this.identifiants = identifiants;
     }
@@ -75,6 +79,7 @@ public final class ValiderLaFacturation {
     public ResultatDeLaValidation valider(CentreId centre, DemandeDeSimulation demande, UUID auteur) {
         return uniteDeTravail.executer(() -> {
             PeriodeDeFacturation periode = demande.periode();
+            garde.exigerOuverts(centre, periode);
             List<SeanceFacturable> facturables = seances.dansLaPeriode(centre, periode);
             if (facturables.isEmpty()) {
                 return ResultatDeLaValidation.RIEN_EMIS;

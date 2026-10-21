@@ -1,0 +1,9 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "mois" : "2026-08",
+    "statut" : "OUVERT"
+  }
+}

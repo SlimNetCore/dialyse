@@ -1,0 +1,8 @@
+[ {
+  "evenement" : "PeriodeDeFacturationRouverte",
+  "centre" : "<CENTRE_A>",
+  "mois" : "2026-09",
+  "rouvertPar" : "<ADMIN_A>",
+  "rouverte" : "<HORODATAGE>",
+  "motif" : "motif"
+} ]

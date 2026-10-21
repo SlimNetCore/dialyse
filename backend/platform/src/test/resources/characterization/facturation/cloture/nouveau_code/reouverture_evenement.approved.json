@@ -1,0 +1,8 @@
+[ {
+  "evenement" : "PeriodeDeFacturationRouverte",
+  "centre" : "<CENTRE_A>",
+  "mois" : "2026-08",
+  "rouvertPar" : "<AUTRE_ADMIN_A>",
+  "rouverte" : "<HORODATAGE>",
+  "motif" : "Facture oubliee du patient Amrani"
+} ]

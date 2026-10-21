@@ -1,0 +1,8 @@
+[ {
+  "evenement" : "PeriodeDeFacturationCloturee",
+  "centre" : "<CENTRE_A>",
+  "mois" : "2026-08",
+  "cloturePar" : "<ADMIN_A>",
+  "cloturee" : "<HORODATAGE>",
+  "seancesEligiblesRestantes" : 2
+} ]

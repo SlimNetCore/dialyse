@@ -1,0 +1,38 @@
+{
+  "seances" : [ {
+    "id" : "<S_AMRANI_20_JUILLET>",
+    "date_seance" : "2026-07-20",
+    "statut" : "VALIDEE",
+    "facture_id" : null,
+    "statut_avant_exclusion" : null,
+    "exclusion_absence_id" : null,
+    "forfait_override_id" : null
+  }, {
+    "id" : "<S_BELKACEM_10_AOUT>",
+    "date_seance" : "2026-08-10",
+    "statut" : "VALIDEE",
+    "facture_id" : null,
+    "statut_avant_exclusion" : null,
+    "exclusion_absence_id" : null,
+    "forfait_override_id" : null
+  }, {
+    "id" : "<S_AMRANI_05_SEPTEMBRE>",
+    "date_seance" : "2026-09-05",
+    "statut" : "FACTUREE",
+    "facture_id" : "<UUID_GENERE_1>",
+    "statut_avant_exclusion" : null,
+    "exclusion_absence_id" : null,
+    "forfait_override_id" : null
+  } ],
+  "factures" : [ {
+    "numero_facture" : "FAC-<ANNEE>-0042",
+    "patient_id" : "<P_AMRANI>",
+    "period_start" : "2026-09-01",
+    "period_end" : "2026-09-30",
+    "total_ttc" : "3815.00"
+  } ],
+  "sequences" : [ {
+    "seq_value" : "42"
+  } ],
+  "absences" : [ 0 ]
+}

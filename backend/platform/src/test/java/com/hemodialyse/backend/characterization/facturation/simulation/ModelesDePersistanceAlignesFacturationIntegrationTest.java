@@ -170,6 +170,39 @@ class ModelesDePersistanceAlignesFacturationIntegrationTest {
     }
 
     /**
+     * Slice F7 : les mois de facturation et leur journal (SQL direct, {@code MoisDeFacturationJdbc}), comparés à la description
+     * figée du schéma de production (migration V42) : les types, longueurs et nullités du DDL H2 de {@code schema.sql} sont les mêmes.
+     */
+    @Test
+    void periodes_de_facturation_ecrites_par_la_slice_f7() {
+        assertEquals(attendues(
+                        "center_id[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "annee[longueur=null, precision=32, echelle=0, nullable=NO]",
+                        "mois[longueur=null, precision=32, echelle=0, nullable=NO]",
+                        "statut[longueur=10, precision=null, echelle=null, nullable=NO]",
+                        "cloturee_par[longueur=null, precision=null, echelle=null, nullable=YES]",
+                        "cloturee_le[longueur=null, precision=null, echelle=null, nullable=YES]",
+                        "rouverte_par[longueur=null, precision=null, echelle=null, nullable=YES]",
+                        "rouverte_le[longueur=null, precision=null, echelle=null, nullable=YES]",
+                        "motif_reouverture[longueur=500, precision=null, echelle=null, nullable=YES]"),
+                colonnes("periodes_facturation", "center_id", "annee", "mois", "statut", "cloturee_par", "cloturee_le",
+                        "rouverte_par", "rouverte_le", "motif_reouverture"),
+                "colonnes de periodes_facturation");
+        assertEquals(attendues(
+                        "center_id[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "annee[longueur=null, precision=32, echelle=0, nullable=NO]",
+                        "mois[longueur=null, precision=32, echelle=0, nullable=NO]",
+                        "type_acte[longueur=12, precision=null, echelle=null, nullable=NO]",
+                        "effectue_par[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "effectue_le[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "motif[longueur=500, precision=null, echelle=null, nullable=YES]",
+                        "seances_eligibles_restantes[longueur=null, precision=32, echelle=0, nullable=YES]"),
+                colonnes("periodes_facturation_journal", "center_id", "annee", "mois", "type_acte", "effectue_par",
+                        "effectue_le", "motif", "seances_eligibles_restantes"),
+                "colonnes de periodes_facturation_journal");
+    }
+
+    /**
      * Slice F4 : les règlements, lus et écrits en SQL direct par le contexte facturation (ReglementsJdbc), comparés à la
      * description figée du schéma de production (V1 et migration V41 : mode, référence de paiement, clé d'idempotence).
      */

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PERIODE_COMPTABLE_CLOTUREE",
+    "detail" : "La periode comptable 2026-08 est cloturee : la periode de facturation ne peut pas etre rouverte",
+    "instance" : "/api/v1/facturation/periodes/2026-08/rouvrir",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

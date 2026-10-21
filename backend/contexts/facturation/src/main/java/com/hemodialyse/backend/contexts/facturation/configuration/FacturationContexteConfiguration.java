@@ -2,6 +2,17 @@ package com.hemodialyse.backend.contexts.facturation.configuration;
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.FacturesEmises;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PeriodesComptables;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.ClotureComptable;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.CloturerLeMois;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.ConsulterLesPeriodes;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.PublicationDesPeriodes;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.RouvrirLeMois;
+import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationRepository;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.ClotureComptableComptabilite;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.messaging.PublicationDesPeriodesSpring;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.MoisDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ReglementsEncaisses;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.FacturesEmisesJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.ReglementsEncaissesJdbc;
@@ -133,21 +144,21 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    ExclureUneSeance facturationExclureUneSeance(SeancesDeFacturation seances, AbsencesDesPatients absences,
+    ExclureUneSeance facturationExclureUneSeance(SeancesDeFacturation seances, AbsencesDesPatients absences, GardeDesMoisClos garde,
                                                  SimulerLaFacturation simulation, UniteDeTravail uniteDeTravail) {
-        return new ExclureUneSeance(seances, absences, simulation, uniteDeTravail);
+        return new ExclureUneSeance(seances, absences, simulation, uniteDeTravail, garde);
     }
 
     @Bean
-    ReinclureUneSeance facturationReinclureUneSeance(SeancesDeFacturation seances, AbsencesDesPatients absences,
+    ReinclureUneSeance facturationReinclureUneSeance(SeancesDeFacturation seances, AbsencesDesPatients absences, GardeDesMoisClos garde,
                                                      SimulerLaFacturation simulation, UniteDeTravail uniteDeTravail) {
-        return new ReinclureUneSeance(seances, absences, simulation, uniteDeTravail);
+        return new ReinclureUneSeance(seances, absences, simulation, uniteDeTravail, garde);
     }
 
     @Bean
-    ChangerLeForfaitDUneSeance facturationChangerLeForfait(SeancesDeFacturation seances, ForfaitsDuCentre forfaits,
+    ChangerLeForfaitDUneSeance facturationChangerLeForfait(SeancesDeFacturation seances, ForfaitsDuCentre forfaits, GardeDesMoisClos garde,
                                                            SimulerLaFacturation simulation, UniteDeTravail uniteDeTravail) {
-        return new ChangerLeForfaitDUneSeance(seances, forfaits, simulation, uniteDeTravail, Clock.systemUTC());
+        return new ChangerLeForfaitDUneSeance(seances, forfaits, simulation, uniteDeTravail, Clock.systemUTC(), garde);
     }
 
     @Bean
@@ -256,12 +267,50 @@ public class FacturationContexteConfiguration {
         return new ReglementsEncaissesJdbc(jdbc);
     }
 
+    /** Clôture mensuelle de facturation (slice F7, ADR 0037). */
+    @Bean
+    MoisDeFacturationRepository facturationMoisDeFacturation(JdbcTemplate jdbc) {
+        return new MoisDeFacturationJdbc(jdbc);
+    }
+
+    @Bean
+    GardeDesMoisClos facturationGardeDesMoisClos(MoisDeFacturationRepository mois) {
+        return new GardeDesMoisClos(mois);
+    }
+
+    @Bean
+    ClotureComptable facturationClotureComptable(PeriodesComptables periodes) {
+        return new ClotureComptableComptabilite(periodes);
+    }
+
+    @Bean
+    PublicationDesPeriodes facturationPublicationDesPeriodes(ApplicationEventPublisher publisher) {
+        return new PublicationDesPeriodesSpring(publisher);
+    }
+
+    @Bean
+    CloturerLeMois facturationCloturerLeMois(MoisDeFacturationRepository mois, SeancesFacturables seances,
+                                             PublicationDesPeriodes publication, UniteDeTravail uniteDeTravail) {
+        return new CloturerLeMois(mois, seances, publication, uniteDeTravail, Clock.systemUTC());
+    }
+
+    @Bean
+    RouvrirLeMois facturationRouvrirLeMois(MoisDeFacturationRepository mois, ClotureComptable comptabilite,
+                                           PublicationDesPeriodes publication, UniteDeTravail uniteDeTravail) {
+        return new RouvrirLeMois(mois, comptabilite, publication, uniteDeTravail, Clock.systemUTC());
+    }
+
+    @Bean
+    ConsulterLesPeriodes facturationConsulterLesPeriodes(MoisDeFacturationRepository mois) {
+        return new ConsulterLesPeriodes(mois);
+    }
+
     @Bean
     ValiderLaFacturation facturationValiderLaFacturation(SeancesFacturables seances, ParametresDeFacturationRepository parametres,
                                                          SequenceDeFacturation sequence, TauxDeTvaApplicable tva, Factures factures,
                                                          LiaisonDesSeances liaison, PublicationDeLaValidation publication,
-                                                         UniteDeTravail uniteDeTravail) {
+                                                         UniteDeTravail uniteDeTravail, GardeDesMoisClos garde) {
         return new ValiderLaFacturation(seances, parametres, sequence, tva, factures, liaison, publication, uniteDeTravail,
-                Clock.systemUTC(), UUID::randomUUID);
+                Clock.systemUTC(), UUID::randomUUID, garde);
     }
 }

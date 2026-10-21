@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.application.simulation;
 
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeanceDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
@@ -21,14 +22,16 @@ public final class ChangerLeForfaitDUneSeance {
     private final ForfaitsDuCentre forfaits;
     private final SimulerLaFacturation simulation;
     private final UniteDeTravail uniteDeTravail;
+    private final GardeDesMoisClos garde;
     private final Clock horloge;
 
     public ChangerLeForfaitDUneSeance(SeancesDeFacturation seances, ForfaitsDuCentre forfaits, SimulerLaFacturation simulation,
-                                      UniteDeTravail uniteDeTravail, Clock horloge) {
+                                      UniteDeTravail uniteDeTravail, Clock horloge, GardeDesMoisClos garde) {
         this.seances = seances;
         this.forfaits = forfaits;
         this.simulation = simulation;
         this.uniteDeTravail = uniteDeTravail;
+        this.garde = garde;
         this.horloge = horloge;
     }
 
@@ -38,6 +41,7 @@ public final class ChangerLeForfaitDUneSeance {
                     .orElseThrow(() -> new IllegalArgumentException("Forfait introuvable pour ce centre"));
             SeanceDeFacturation seance = seances.trouver(centre, seanceId).orElseThrow(
                     () -> new IllegalStateException("Seance introuvable ou non modifiable pour changement forfait"));
+            garde.exigerOuvert(centre, seance.date());
             seance.verifierQueLeForfaitPeutChanger();
             demande.periode();
             seances.poserLeForfait(centre, seanceId, forfait, auteur, horloge.instant());

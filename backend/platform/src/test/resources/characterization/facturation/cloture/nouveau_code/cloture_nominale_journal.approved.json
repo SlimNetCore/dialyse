@@ -1,0 +1,9 @@
+[ {
+  "annee" : "2026",
+  "mois" : "8",
+  "type_acte" : "CLOTURE",
+  "effectue_par" : "<ADMIN_A>",
+  "effectue_le" : "<HORODATAGE>",
+  "motif" : null,
+  "seances_eligibles_restantes" : "2"
+} ]

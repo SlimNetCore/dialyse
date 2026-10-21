@@ -1,0 +1,22 @@
+{
+  "seances" : [ {
+    "id" : "<S_ZERROUKI_03>",
+    "date_seance" : "2026-08-03",
+    "statut" : "FACTUREE",
+    "facture_id" : "<UUID_GENERE_1>",
+    "statut_avant_exclusion" : null,
+    "exclusion_absence_id" : null,
+    "forfait_override_id" : null
+  } ],
+  "factures" : [ {
+    "numero_facture" : "FAC-<ANNEE>-0042",
+    "patient_id" : "<P_CENTRE_B>",
+    "period_start" : "2026-08-01",
+    "period_end" : "2026-08-31",
+    "total_ttc" : "1090.00"
+  } ],
+  "sequences" : [ {
+    "seq_value" : "42"
+  } ],
+  "absences" : [ 0 ]
+}

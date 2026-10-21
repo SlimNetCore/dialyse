@@ -1,0 +1,11 @@
+{
+  "status" : 409,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PERIODE_NON_CLOTUREE",
+    "detail" : "La periode de facturation 2026-08 n'est pas cloturee",
+    "instance" : "/api/v1/facturation/periodes/2026-08/rouvrir",
+    "status" : 409,
+    "title" : "Periode non cloturee"
+  }
+}

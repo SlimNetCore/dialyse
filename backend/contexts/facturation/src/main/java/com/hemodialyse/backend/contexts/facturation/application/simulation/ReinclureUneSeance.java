@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.application.simulation;
 
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.Reinclusion;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeanceDeFacturation;
@@ -20,19 +21,22 @@ public final class ReinclureUneSeance {
     private final AbsencesDesPatients absences;
     private final SimulerLaFacturation simulation;
     private final UniteDeTravail uniteDeTravail;
+    private final GardeDesMoisClos garde;
 
     public ReinclureUneSeance(SeancesDeFacturation seances, AbsencesDesPatients absences, SimulerLaFacturation simulation,
-                              UniteDeTravail uniteDeTravail) {
+                              UniteDeTravail uniteDeTravail, GardeDesMoisClos garde) {
         this.seances = seances;
         this.absences = absences;
         this.simulation = simulation;
         this.uniteDeTravail = uniteDeTravail;
+        this.garde = garde;
     }
 
     public Simulation executer(CentreId centre, UUID seanceId, DemandeDeSimulation demande) {
         return uniteDeTravail.executer(() -> {
             SeanceDeFacturation seance = seances.trouver(centre, seanceId)
                     .orElseThrow(() -> new IllegalStateException("Seance introuvable ou non reinclusable"));
+            garde.exigerOuvert(centre, seance.date());
             Reinclusion reinclusion = seance.reinclure();
             demande.periode();
             seances.reinclure(centre, seanceId, reinclusion.statutRetabli());

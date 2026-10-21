@@ -18,7 +18,7 @@ class ChangerLeForfaitDUneSeanceTest {
 
     private final SimulationFixture decor = new SimulationFixture();
     private final ChangerLeForfaitDUneSeance changer =
-            new ChangerLeForfaitDUneSeance(decor.seances, decor.seances, decor.simuler, decor.unite, decor.horloge);
+            new ChangerLeForfaitDUneSeance(decor.seances, decor.seances, decor.simuler, decor.unite, decor.horloge, decor.garde);
 
     @Test
     void should_impose_the_forfait_on_the_seance_and_recompute_the_simulation() {

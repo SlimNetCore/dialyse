@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.contexts.facturation.application.simulation;
 
+import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.doubles.AbsencesEnMemoire;
+import com.hemodialyse.backend.contexts.facturation.doubles.MoisDeFacturationEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.ParametresEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SequenceEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
@@ -42,6 +44,8 @@ class SimulationFixture {
     final SequenceEnMemoire sequence = new SequenceEnMemoire();
     final AbsencesEnMemoire absences = new AbsencesEnMemoire();
     final UniteDeTravailDirecte unite = new UniteDeTravailDirecte();
+    final MoisDeFacturationEnMemoire moisDeFacturation = new MoisDeFacturationEnMemoire();
+    final GardeDesMoisClos garde = new GardeDesMoisClos(moisDeFacturation);
     final List<LocalDate> datesDeTvaDemandees = new ArrayList<>();
     TauxDeTva tva = new TauxDeTva(new BigDecimal("9"));
 

@@ -1,0 +1,41 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "generatedAt" : "<HORODATAGE>",
+    "invoices" : [ {
+      "lines" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "lineHt" : 3500.0,
+        "seanceCount" : 1,
+        "unitPriceHt" : 3500.0
+      } ],
+      "numeroFacture" : "FAC-<ANNEE>-0042",
+      "patientCode" : "CLO-001",
+      "patientFullName" : "Amrani Lina",
+      "patientId" : "<P_AMRANI>",
+      "patientStatusSnapshot" : "PERMANENT",
+      "previewKey" : "<P_AMRANI>",
+      "seanceIds" : [ "<S_AMRANI_03_AOUT>" ],
+      "seances" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "forfaitPrixHt" : 3500.0,
+        "seanceDate" : "2026-08-03",
+        "seanceId" : "<S_AMRANI_03_AOUT>",
+        "seanceStatus" : "VALIDEE"
+      } ],
+      "totalHt" : 3500.0,
+      "totalTtc" : 3815.0,
+      "totalTva" : 315.0
+    } ],
+    "periodEnd" : "2026-08-31",
+    "periodStart" : "2026-08-01",
+    "totalFactures" : 1,
+    "totalHt" : 3500.0,
+    "totalTtc" : 3815.0,
+    "totalTva" : 315.0
+  }
+}
