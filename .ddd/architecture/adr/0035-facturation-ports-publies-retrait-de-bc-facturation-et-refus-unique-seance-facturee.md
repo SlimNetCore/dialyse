@@ -43,3 +43,32 @@ importaient `application`/`domain` du contexte (exemptions de la règle ArchUnit
 - Le frontend doit gérer le nouveau code d'erreur (fiche F6).
 - Stock (`SeanceBillingStatusJdbcAdapter.isBilled`) et blocage de suppression d'un forfait (`ReferentialAdminTables`) lisent
   encore une table de la Séance / une table de la Facturation sans passer par un port : hors F6, à reprendre avec le contexte Séance.
+
+## Amendement 2026-10-21 (revue F5/F6) : lectures SQL de la synthèse dans `platform`, non déplacées
+
+Décision utilisateur : les deux requêtes qui calculent la **part de TTC par ligne** (`line_ht × total_ttc / total_ht`, avec
+`CASE WHEN total_ht = 0 THEN 0`) restent dans `platform` et **ne sont pas déplacées** dans le module. Elles lisent `factures` et
+`facture_lignes` (et `agence`, `caisse_assurance`) en dehors du module Facturation :
+
+| Requête | Où | Lecteur |
+|---|---|---|
+| Gabarit dynamique (une colonne HT/TTC par caisse) | `FacturationSyntheseMensuelleReportService.buildDynamicTemplate` | `platform` (Jasper) |
+| Gabarit statique (CNAS, CASNOS, CAMSSP, Autres) | `reports/synthese_mensuelle_facturation.jrxml` | `platform` (Jasper, voie `/documents/print`) |
+
+Ces deux lecteurs s'ajoutent à Stock et au Référentiel dans la liste des lecteurs restants de tables de la Facturation (section
+« Conséquences »). **Justification** : le tableau forfait × caisse est lu par le gabarit Jasper lui-même (source SQL), et les deux voies
+sont conservées (ADR 0034 §3) ; ne pas changer le mode de lecture évite de modifier le rendu des deux voies.
+
+**Constat PostgreSQL 16** (rejeu jetable, port 55442, `backend/scripts/facturation-pg16-rejeu.sh`, test
+`SyntheseMensuelleSqlPostgresContractIT`, propriété `-Dfacturation.pg16.url`) : les deux requêtes, extraites telles que Jasper les
+exécute (`$P{…}` liés), donnent sur PostgreSQL 16 les **mêmes montants que sur H2 à deux décimales** (précision imprimée) sur un jeu
+contenant un total enregistré différent de la somme des lignes, une division à résultat périodique (1,00 × 3,57 / 3,00) et une
+facture hors période. Type des colonnes : `NUMERIC`/`DECIMAL` sur les deux bases. **Division par zéro** : sans la garde, H2 et
+PostgreSQL échouent tous deux (erreur SQL) ; avec la garde `CASE WHEN f.total_ht = 0 THEN 0`, une facture à total HT nul et à ligne
+positive donne un TTC de 0 sur les deux bases (comportement identique, aucune correction nécessaire). Les échelles internes
+(`numeric` sans scale fixe sur PostgreSQL) peuvent différer au-delà de la 2e décimale : seul le rendu à deux décimales est garanti.
+
+**Pour ramener ces lectures dans le module** : ajouter à `LectureDeLaSynthese` / `SyntheseMensuelle` les lignes forfait × caisse
+(HT, TTC proratisé par ligne), alimenter la voie dynamique par une `JRBeanCollectionDataSource`, et remplacer la requête SQL du
+gabarit statique par la même source (le gabarit statique est lu par le module Documents, hors Facturation : il faudrait un port de
+lecture publié ou l'abandon de cette voie). Goldens PDF des deux voies à rejouer ; retrait des deux lecteurs de la liste ci-dessus.

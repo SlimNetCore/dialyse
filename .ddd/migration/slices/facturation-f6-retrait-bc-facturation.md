@@ -87,3 +87,12 @@ ces cas ne se produisent plus ; le frontend ne référençait pas `SEANCE_BILLED
 ## État final
 
 `backend/bc-facturation` supprimé. Facturation hors F7 terminée. Reste : F7 (clôture mensuelle, nouvelle fonctionnalité, ADR 0009).
+
+### Corrections de la revue F5/F6 (2026-10-21)
+
+- **M2** : requêtes de production 22.2/22.3 limitées aux règlements d'auteur `REPRISE` (critère exact du code), 22.4 (encaissements réels à garder) et 22.5 (modèles de numérotation `REPRISE-`) ajoutées.
+- **m2** : `ModeleDeNumerotation.saisi` refuse un préfixe `REPRISE-` (400, insensible à la casse) ; KB-FAC-74.
+- **m3/m4/m8** : documentation passée à l'événement v3 (ADR 0036), classes supprimées retirées de la documentation client et de la context map.
+- **m5** : test de relecture d'une publication v2 (`factures` ignoré, `nombreDeFactures` = 0) et traitement par le consommateur.
+- **m6** : le frontend affiche la clé i18n `SEANCES.FACTUREE_NON_MODIFIABLE` (4 langues) au lieu du `detail` français.
+- **n1** : dépendance `poi` redondante retirée du pom du module.

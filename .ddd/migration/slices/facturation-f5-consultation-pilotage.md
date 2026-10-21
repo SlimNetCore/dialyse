@@ -141,3 +141,13 @@ Refonte sur place (ADR 0024) : mêmes URL, pas de façade ni de flag ; retour ar
   est refusé, aussi par la voie documents) : masquer ou désactiver le bouton pour les autres profils ;
 - **chiffres de la synthèse qui changent** (totaux enregistrés, Montant TVA, colonne Excel en plus) : prévenir la direction et la
   comptabilité ; aucun changement de JSON.
+
+### Corrections de la revue F5/F6 (2026-10-21)
+
+- **M1/m1** : `POST /documents/print/{modeleId}` applique, quand le type du modèle chargé est la synthèse, la garde de profil, le 403 de
+  centre et les totaux enregistrés (comme `/documents/print`). Règle de profil unique `ProfilDeLaSynthese` : ADMIN ou SECRETAIRE, y
+  compris pour un compte multi-rôles ; écart : MEDECIN + INFIRMIER passe de 200 à 403 sur `/facturation/synthese/print` (KB-FAC-73).
+  Goldens `par_identifiant_de_modele_*_nouveau_code` et `profils_multi_roles_trois_voies_nouveau_code`.
+- **M3** : requêtes de part de TTC non déplacées, rejouées sur PostgreSQL 16 (`SyntheseMensuelleSqlPostgresContractIT`), consignées dans l'ADR 0035 (amendement).
+- **Frontend** : le bouton de la synthèse reste réservé à ADMIN/SECRETAIRE (déjà le cas) ; aucune route `/print/{modeleId}` appelée.
+- **Dette** : `LocalDate.now()` reste dans les normaliseurs de goldens (`<AUJOURD_HUI>`, alias nommé dans le harnais) ; une exécution à cheval sur minuit peut les faire échouer.

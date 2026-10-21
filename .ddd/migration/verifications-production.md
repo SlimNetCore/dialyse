@@ -701,23 +701,48 @@ JOIN factures f ON f.id = e.source_id AND f.center_id = e.center_id
 WHERE f.numero_facture LIKE 'REPRISE-%'
 ORDER BY e.center_id, e.date_ecriture, f.numero_facture;
 
--- 22.2 écritures de règlement dont la source est un règlement d'une facture de reprise
+-- 22.2 écritures de règlement dont la source est un règlement de reprise (auteur REPRISE sur une facture de reprise : critère exact du code)
 SELECT e.center_id, e.journal_code, e.numero_piece, e.date_ecriture, e.statut, e.updated_at, r.code_reglement, r.montant, f.numero_facture
 FROM ecritures_comptables e
 JOIN facture_reglements r ON r.id = e.source_id AND r.center_id = e.center_id
 JOIN factures f ON f.id = r.facture_id
 WHERE f.numero_facture LIKE 'REPRISE-%'
+  AND r.saisi_par = 'REPRISE'
 ORDER BY e.center_id, e.date_ecriture, f.numero_facture;
 
 -- 22.3 totaux par centre et par statut (exportées ou non : une écriture exportée vers le logiciel comptable demande une extourne, pas une suppression)
 SELECT e.center_id, e.statut, COUNT(*) AS ecritures
 FROM ecritures_comptables e
 WHERE e.source_id IN (SELECT id FROM factures WHERE numero_facture LIKE 'REPRISE-%')
-   OR e.source_id IN (SELECT r.id FROM facture_reglements r JOIN factures f ON f.id = r.facture_id WHERE f.numero_facture LIKE 'REPRISE-%')
+   OR e.source_id IN (SELECT r.id FROM facture_reglements r JOIN factures f ON f.id = r.facture_id WHERE f.numero_facture LIKE 'REPRISE-%' AND r.saisi_par = 'REPRISE')
 GROUP BY e.center_id, e.statut
 ORDER BY e.center_id, e.statut;
+
+-- 22.4 encaissements REELS saisis dans la plateforme sur une facture de reprise (auteur différent de REPRISE) : a GARDER, ne pas extourner
+SELECT e.center_id, e.journal_code, e.numero_piece, e.date_ecriture, e.statut, r.code_reglement, r.montant, r.saisi_par, f.numero_facture
+FROM ecritures_comptables e
+JOIN facture_reglements r ON r.id = e.source_id AND r.center_id = e.center_id
+JOIN factures f ON f.id = r.facture_id
+WHERE f.numero_facture LIKE 'REPRISE-%'
+  AND COALESCE(r.saisi_par, '') <> 'REPRISE'
+ORDER BY e.center_id, e.date_ecriture, f.numero_facture;
+
+-- 22.5 modèles de numérotation et numéros existants commençant par REPRISE- hors reprise des soldes (ils seraient exclus de la comptabilité)
+-- (a) modèles de numérotation (la saisie les refuse désormais en 400)
+SELECT center_id, code_format, updated_at, updated_by
+FROM facturation_settings
+WHERE UPPER(TRIM(code_format)) LIKE 'REPRISE-%';
+-- (b) factures REPRISE-% qui ne sont pas des factures de reprise (une facture de reprise n'a ni TVA ni autre auteur de règlement que REPRISE)
+SELECT f.center_id, f.numero_facture, f.date_facturation, f.total_tva, f.total_ttc
+FROM factures f
+WHERE f.numero_facture LIKE 'REPRISE-%'
+  AND (f.total_tva <> 0
+       OR NOT EXISTS (SELECT 1 FROM facture_reglements r WHERE r.facture_id = f.id AND r.saisi_par = 'REPRISE'))
+ORDER BY f.center_id, f.date_facturation;
 ```
 
+- **22.5 attendu** : aucune ligne. Sinon ces factures ne sont pas comptabilisées par le code : changer le modèle de numérotation puis comptabiliser les ventes manquantes (`POST /api/v1/comptabilite/rebuild`) après décision du comptable.
+- **Note pour le comptable** : seules les écritures de 22.1 (factures de reprise) et 22.2 (règlements dont l'auteur est `REPRISE`) sont des candidates à l'extourne, car ce sont exactement les pièces que le code n'envoie plus en comptabilité. La requête 22.4 liste les vrais encaissements (banque, caisse) saisis ensuite sur ces factures : ils restent comptabilisés par le code et **ne doivent pas être extournés**. 22.3 ne compte que les candidates (22.1 et 22.2).
 - **Attendu** : aucune ligne si le rebuild n'a jamais été lancé sur des centres ayant fait une reprise de soldes ; sinon transmettre les totaux
   de 22.3 au comptable (la procédure d'extourne se décide avec lui : écriture inverse datée d'une période ouverte, ou suppression si la
   pièce n'a pas été exportée et la période est ouverte). Aucune écriture n'est modifiée par le déploiement.

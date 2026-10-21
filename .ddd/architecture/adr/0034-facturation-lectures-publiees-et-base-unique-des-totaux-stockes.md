@@ -32,6 +32,14 @@ recalculait le TTC **par ligne** sans arrondi puis l'affichait arrondi à la pai
    `POST /documents/print` avec `SYNTHESE_FACTURATION_MENSUELLE` exige le **même profil** que `/facturation/synthese/print`
    (administrateur ou secrétaire ; le médecin seul, l'infirmier, tout autre rôle et un compte sans rôle sont refusés) et le même
    contrôle de centre. Les autres types de document de `/documents/print` ne changent pas.
+   **Amendement 2026-10-21 (revue F5/F6, M1 et m1).** (a) `POST /documents/print/{modeleId}` appliquait ni profil ni centre :
+   quand le **type du modèle chargé** (jamais un paramètre du client, `trim` + majuscules) est la synthèse, il applique la même
+   garde de profil, le même contrôle de centre (403) et pose les mêmes totaux enregistrés que `/documents/print`. (b) La règle de
+   profil est écrite une seule fois, `ProfilDeLaSynthese` (langage publié) : **le rôle ADMIN ou le rôle SECRETAIRE, même pour un
+   compte à plusieurs rôles** ; `@PreAuthorize` de `/facturation/synthese/print` (qui autorisait MEDECIN, le médecin seul étant
+   refusé plus loin par `RoleScopeFilter`) et la garde des deux voies documents l'utilisent. Écart observable : un compte
+   MEDECIN + INFIRMIER recevait 200 sur `/facturation/synthese/print` et 403 sur la voie documents ; il reçoit 403 partout
+   (KB-FAC-73). `/facturation/dashboard` garde `ADMIN`, `MEDECIN`, `SECRETAIRE` (hors périmètre de l'impression).
 5. **Totaux stockés = base unique** (décision utilisateur) : les « Montant HT / TVA / TTC » de la synthèse (deux voies) sont la
    somme de `total_ht`, `total_tva`, `total_ttc` des factures de la période, comme le tableau de bord et la Direction. Elles
    comptent donc aussi les factures sans ligne. Dans le tableau forfait x caisse, le HT d'une ligne reste `line_ht` et son TTC est
@@ -51,7 +59,7 @@ recalculait le TTC **par ligne** sans arrondi puis l'affichait arrondi à la pai
 ## Conséquences
 
 - Le tableau de bord, la synthèse (deux voies) et la Direction partagent la même base de montants ; la synthèse affiche
-  désormais un « Montant TVA » (gabarit dynamique) et les montants globaux deviennent ceux des factures. À valider avec la direction
+  désormais un « Montant TVA » (**les deux gabarits**, dynamique et statique `synthese_mensuelle_facturation.jrxml`) et les montants globaux deviennent ceux des factures. À valider avec la direction
   et la comptabilité avant déploiement ; contrôles SQL dans `verifications-production.md` (point 21).
 - Le frontend doit gérer le 403 de centre et le profil de la synthèse (voir la fiche de slice).
 - `bc-facturation` ne contient plus de classe Java : le module Maven lui-même est retiré en F6.
