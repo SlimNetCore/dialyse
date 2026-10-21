@@ -16,6 +16,12 @@ import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {AuthStore} from '../../core/state/auth.store';
+import {
+  httpErrorDetail,
+  httpErrorStatus,
+  ROLES_SYNTHESE_FACTURATION,
+  TYPE_DOCUMENT_SYNTHESE_FACTURATION,
+} from '../../core/api/http-error-detail';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ModelesDocumentStore} from './state/modeles-document.store';
 import {ModeleTemplateDialogComponent} from './modele-template-dialog.component';
@@ -196,21 +202,35 @@ export class ModelesDocumentComponent implements OnInit {
     });
   }
 
+  /** La synthèse mensuelle de facturation n'est imprimable que par ADMIN et SECRETAIRE (403 côté serveur sinon). */
+  canTestPrint(row: any): boolean {
+    const typeDoc = this.val(row, 'TYPE_DOCUMENT', 'type_document');
+    return typeDoc !== TYPE_DOCUMENT_SYNTHESE_FACTURATION
+      || ROLES_SYNTHESE_FACTURATION.some((role) => this.auth.hasRole(role));
+  }
+
   testPrint(row: any): void {
     const centerId = this.auth.centerId();
     const typeDoc = this.val(row, 'TYPE_DOCUMENT', 'type_document');
-    if (!centerId) return;
+    if (!centerId || !this.canTestPrint(row)) return;
 
     this.api.printDocument(centerId, typeDoc, {}).subscribe({
       next: (blob: Blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
       },
-      error: (err) => this.snack.open(
-        this.translate.instant('REPORTING.MODELES_DOCUMENT.PRINT_ERROR', {detail: err?.message ?? ''}),
-        this.translate.instant('COMMON.OK'),
-        {duration: 5000},
-      ),
+      error: async (err: unknown) => {
+        const detail = await httpErrorDetail(err);
+        const forbidden = httpErrorStatus(err) === 403;
+        this.snack.open(
+          detail
+            ?? (forbidden
+              ? this.translate.instant('FACTURATION.ERROR.SYNTHESE_FORBIDDEN')
+              : this.translate.instant('REPORTING.MODELES_DOCUMENT.PRINT_ERROR', {detail: (err as Error)?.message ?? ''})),
+          this.translate.instant('COMMON.OK'),
+          {duration: 6000},
+        );
+      },
     });
   }
 

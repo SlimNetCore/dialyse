@@ -15,6 +15,7 @@ import {createPagedListState, PagedListState} from '../../../core/state/paged-li
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 import {ReferentialApiService, RefItem} from '../../../core/api/referential-api.service';
+import {buildPaymentPayload, reglementErrorMessage} from './reglement-payment.util';
 
 export type ReglementPreviewRow = ReglementInvoiceRow & {
   hasDraft: boolean;
@@ -44,6 +45,11 @@ export type ReglementState = PagedListState<ReglementInvoiceRow> & {
   successMessage: string | null;
   paymentDrafts: Record<string, string>;
   saveCycleKey: number;
+  /** Mode (facultatif) et référence (facultative) appliqués aux règlements du lot saisi. */
+  modeReglement: string | null;
+  referencePaiement: string;
+  /** Clé d'idempotence par facture, réutilisée tant que l'envoi n'a pas réussi. */
+  idempotenceKeys: Record<string, string>;
 };
 
 const initialState: ReglementState = {
@@ -68,6 +74,9 @@ const initialState: ReglementState = {
   successMessage: null,
   paymentDrafts: {},
   saveCycleKey: 0,
+  modeReglement: null,
+  referencePaiement: '',
+  idempotenceKeys: {},
 };
 
 export const ReglementStore = signalStore(
@@ -213,7 +222,15 @@ export const ReglementStore = signalStore(
       patchState(store, {error: null, successMessage: null});
     },
     setPaymentDraft(factureId: string, value: string): void {
-      patchState(store, {paymentDrafts: {...store.paymentDrafts(), [factureId]: value}});
+      // Nouvelle saisie : la clé d'idempotence de la facture est régénérée au prochain envoi.
+      const {[factureId]: _old, ...keys} = store.idempotenceKeys();
+      patchState(store, {paymentDrafts: {...store.paymentDrafts(), [factureId]: value}, idempotenceKeys: keys});
+    },
+    setModeReglement(mode: string | null): void {
+      patchState(store, {modeReglement: mode || null});
+    },
+    setReferencePaiement(reference: string): void {
+      patchState(store, {referencePaiement: reference});
     },
     clearAllDrafts(): void {
       patchState(store, {paymentDrafts: {}});
@@ -304,18 +321,21 @@ export const ReglementStore = signalStore(
       )
     ),
 
-    savePayment: rxMethod<{ centerId: string; factureId: string; montant: number; userId: string }>(pipe(
+    savePayment: rxMethod<{ centerId: string; factureId: string; montant: number; userId?: string }>(pipe(
         tap(({factureId}) => patchState(store, {
           savingFactureIds: [...store.savingFactureIds(), factureId],
           error: null,
           successMessage: null,
         })),
-        switchMap(({centerId, factureId, montant, userId}) =>
-          api.registerFacturePayment(factureId, {
-            centerId,
-            montant,
-            userId,
-          }).pipe(
+        switchMap(({centerId, factureId, montant}) => {
+          const prepared = buildPaymentPayload(centerId, factureId, montant, store.modeReglement(),
+            store.referencePaiement(), store.idempotenceKeys());
+          patchState(store, {idempotenceKeys: prepared.keys});
+          return api.registerFacturePayment(factureId, prepared.payload).pipe(
+            tap(() => {
+              const {[factureId]: _done, ...keys} = store.idempotenceKeys();
+              patchState(store, {idempotenceKeys: keys});
+            }),
             switchMap((updatedRow) =>
               api.getReglementDashboard(centerId, {
                 year: store.year(),
@@ -349,15 +369,15 @@ export const ReglementStore = signalStore(
               });
               return EMPTY;
             })
-          )
-        )
+          );
+        })
       )
     ),
 
-    batchSavePayments: rxMethod<{ centerId: string; userId: string }>(
+    batchSavePayments: rxMethod<{ centerId: string; userId?: string }>(
       pipe(
         tap(() => patchState(store, {batchSaving: true, error: null, successMessage: null})),
-        switchMap(({centerId, userId}) => {
+        switchMap(({centerId}) => {
           const drafts = store.paymentDrafts();
           const entries = Object.entries(drafts)
             .filter(([, v]) => {
@@ -371,10 +391,25 @@ export const ReglementStore = signalStore(
             return EMPTY;
           }
 
-          const requests$ = entries.map(({factureId, montant}) =>
-            api.registerFacturePayment(factureId, {centerId, montant, userId}).pipe(
-              map((row) => ({ok: true, factureId, row} as const)),
-              catchError(() => of({ok: false, factureId, row: null} as const))
+          // Clés d'idempotence : créées ici, conservées en cas d'échec (renvoi sans doublon), retirées au succès.
+          let keys = store.idempotenceKeys();
+          const prepared = entries.map(({factureId, montant}) => {
+            const built = buildPaymentPayload(centerId, factureId, montant, store.modeReglement(),
+              store.referencePaiement(), keys);
+            keys = built.keys;
+            return {factureId, payload: built.payload};
+          });
+          patchState(store, {idempotenceKeys: keys});
+
+          const requests$ = prepared.map(({factureId, payload}) =>
+            api.registerFacturePayment(factureId, payload).pipe(
+              map((row) => ({ok: true, factureId, row, message: null} as const)),
+              catchError((err: unknown) => of({
+                ok: false,
+                factureId,
+                row: null,
+                message: reglementErrorMessage(err)
+              } as const))
             )
           );
 
@@ -398,13 +433,22 @@ export const ReglementStore = signalStore(
                 }
               }
 
+              const remainingKeys = {...store.idempotenceKeys()};
+              for (const result of results) {
+                if (result.ok) delete remainingKeys[result.factureId];
+              }
+              // Tout a échoué : le motif du backend (403, 422 remboursement, 400…) ; échec partiel : message de lot.
+              const firstFailure = results.find((r) => !r.ok)?.message ?? null;
+
               patchState(store, {
                 rows,
                 paymentDrafts: newDrafts,
+                idempotenceKeys: remainingKeys,
                 batchSaving: false,
                 saveCycleKey: store.saveCycleKey() + 1,
+                ...(failCount === 0 ? {modeReglement: null, referencePaiement: ''} : {}),
                 successMessage: failCount === 0 ? 'REGLEMENT_MODULE.SUCCESS.BATCH_SAVED' : null,
-                error: failCount > 0 ? `REGLEMENT_MODULE.ERROR.BATCH_PARTIAL|${successCount}|${failCount}` : null,
+                error: failCount === 0 ? null : successCount === 0 ? firstFailure : 'REGLEMENT_MODULE.ERROR.BATCH_PARTIAL',
               });
 
               return api.getReglementDashboard(centerId, {
@@ -501,21 +545,7 @@ export const ReglementStore = signalStore(
   }))
 );
 
-function errorMessage(err: unknown): string {
-  if (err && typeof err === 'object') {
-    const value = err as Record<string, unknown>;
-    if (typeof value['message'] === 'string') {
-      return value['message'];
-    }
-    if (value['error'] && typeof value['error'] === 'object') {
-      const nested = value['error'] as Record<string, unknown>;
-      if (typeof nested['message'] === 'string') {
-        return nested['message'];
-      }
-    }
-  }
-  return 'REGLEMENT_MODULE.ERROR.GENERIC';
-}
+const errorMessage = reglementErrorMessage;
 
 
 

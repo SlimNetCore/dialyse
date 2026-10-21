@@ -26,6 +26,7 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
+import {MODES_DE_REGLEMENT} from './state/reglement-payment.util';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {ReglementInvoiceRow} from '../../core/api/backend-api.service';
@@ -224,7 +225,8 @@ export class ReglementWorkspaceComponent {
   protected readonly rowClassFn = (row: ReglementPreviewRow) => ({
     'row-has-draft': !!row.hasDraft,
   });
-  protected readonly years = Array.from({length: 6}, (_, index) => new Date().getFullYear() - index);
+  protected readonly modes = MODES_DE_REGLEMENT;
+  protected readonly years =Array.from({length: 6}, (_, index) => new Date().getFullYear() - index);
   protected readonly months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   private readonly appShell = inject(AppShellStore);
   protected readonly centerId = computed(() => this.appShell.currentCenterId());
@@ -336,10 +338,18 @@ export class ReglementWorkspaceComponent {
     }
   }
 
+  protected onModeChange(value: string): void {
+    this.store.setModeReglement(value || null);
+  }
+
+  protected onReferenceInput(value: string): void {
+    this.store.setReferencePaiement(value);
+  }
+
   protected onBatchSave(): void {
     const centerId = this.centerId();
     if (!centerId) return;
-    this.store.batchSavePayments({centerId, userId: this.userId()});
+    this.store.batchSavePayments({centerId});
   }
 
   protected trackByFactureId(_index: number, row: ReglementPreviewRow): string {

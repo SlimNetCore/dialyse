@@ -63,6 +63,13 @@
     }
   </header>
 
+  @if (store.error(); as storeError) {
+    <div class="banner banner-error" data-testid="station-erreur" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ storeError | translate }}</span>
+    </div>
+  }
+
   <div class="panes">
     <aside [attr.aria-label]="'SEANCES.STATION.QUEUE_TITLE' | translate" class="app-panel queue-pane">
       <div class="pane-head">

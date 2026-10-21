@@ -40,6 +40,10 @@ describe('ReglementWorkspaceComponent', () => {
     agences: vi.fn(() => []),
     centresPayeurs: vi.fn(() => []),
     savingFactureIds: vi.fn(() => []),
+    modeReglement: vi.fn(() => null),
+    referencePaiement: vi.fn(() => ''),
+    setModeReglement: vi.fn(),
+    setReferencePaiement: vi.fn(),
     setYear: vi.fn(),
     setMonth: vi.fn(),
     setCaisseId: vi.fn(),
@@ -86,8 +90,18 @@ describe('ReglementWorkspaceComponent', () => {
     expect(storeMock.setPaymentDraft).toHaveBeenCalledWith('fac-1', '1000');
     expect(storeMock.batchSavePayments).toHaveBeenCalledWith({
       centerId: '11111111-1111-1111-1111-111111111111',
-      userId: 'sec-user',
     });
+  });
+
+  it('transmet le mode et la référence saisis au store', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    component['onModeChange']('ESPECES');
+    component['onModeChange']('');
+    component['onReferenceInput']('REF-1');
+
+    expect(storeMock.setModeReglement).toHaveBeenNthCalledWith(1, 'ESPECES');
+    expect(storeMock.setModeReglement).toHaveBeenNthCalledWith(2, null);
+    expect(storeMock.setReferencePaiement).toHaveBeenCalledWith('REF-1');
   });
 });
 

@@ -22,6 +22,7 @@ import {
 } from '../../../core/api/backend-api.service';
 import {RefItem, ReferentialApiService} from '../../../core/api/referential-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
+import {seanceFactureeNonModifiableMessage} from '../../../core/api/http-error-detail';
 
 function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
@@ -944,7 +945,10 @@ export function scanErrorMessage(err: unknown): string {
   return e?.status === 422 && typeof detail === 'string' && detail.trim() ? detail : 'SEANCES.INVALID_QR_OR_PATIENT';
 }
 
-function errorMessage(err: unknown): string {
+/** Message d'erreur de store : refus « séance facturée » unifié, sinon detail/message du backend (texte ou clé i18n). */
+export function errorMessage(err: unknown): string {
+  const facturee = seanceFactureeNonModifiableMessage(err);
+  if (facturee) return facturee;
   if (err && typeof err === 'object') {
     const e = err as Record<string, unknown>;
     if (e['error'] && typeof e['error'] === 'object') {

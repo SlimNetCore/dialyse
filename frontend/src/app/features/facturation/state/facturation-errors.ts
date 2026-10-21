@@ -1,3 +1,20 @@
+import {httpErrorDetail, httpErrorStatus} from '../../../core/api/http-error-detail';
+
+/**
+ * Erreur d'impression de la synthèse (réponse blob) : `detail` du backend s'il existe (lu dans le blob d'erreur),
+ * sinon message dédié au 403, sinon message générique d'impression. `translatable` = `message` est une clé i18n.
+ */
+export async function synthesePrintError(err: unknown): Promise<{ message: string; translatable: boolean }> {
+  const detail = await httpErrorDetail(err);
+  if (detail) {
+    return {message: detail, translatable: false};
+  }
+  if (httpErrorStatus(err) === 403) {
+    return {message: 'FACTURATION.ERROR.SYNTHESE_FORBIDDEN', translatable: true};
+  }
+  return {message: 'COMMON.PRINT_ERROR', translatable: true};
+}
+
 /** Message d'erreur affichable : une clé i18n (ou un texte brut du backend) et ses paramètres de traduction. */
 export type FacturationErrorState = {
   error: string;
@@ -11,6 +28,7 @@ const CODE_SEANCES_SANS_FORFAIT = 'SEANCES_SANS_FORFAIT';
  * Traduit une erreur HTTP de la facturation (ProblemDetail du backend) :
  * - 409 NUMERO_DE_FACTURE_DEJA_PRIS et 422 SEANCES_SANS_FORFAIT : messages dédiés ;
  * - autres 400/403/422 : le `detail` du backend, tel quel ;
+ * - 403 sans detail (centre différent de la session, profil insuffisant) : message dédié ;
  * - sinon : le message technique s'il existe, à défaut le message générique.
  */
 export function facturationErrorState(err: unknown): FacturationErrorState {
@@ -30,6 +48,9 @@ export function facturationErrorState(err: unknown): FacturationErrorState {
   }
   if ((status === 400 || status === 403 || status === 422) && detail) {
     return {error: detail, errorParams: null};
+  }
+  if (status === 403) {
+    return {error: 'FACTURATION.ERROR.FORBIDDEN', errorParams: null};
   }
   if (typeof e['message'] === 'string') {
     return {error: e['message'], errorParams: null};

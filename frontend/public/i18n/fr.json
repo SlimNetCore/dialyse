@@ -1222,7 +1222,13 @@
       "NUMERO_DEJA_PRIS": "Le numéro de facture est déjà pris, aucune facture n'a été émise. Relancez la validation ; si le message persiste, contactez l'administrateur : la séquence de numérotation est peut-être en retard.",
       "SEANCES_SANS_FORFAIT": "Émission impossible : {{count}} séance(s) n'ont pas de forfait. Corrigez la prise en charge du patient, ou imposez un forfait à ces séances dans la simulation, puis validez de nouveau.",
       "NO_PREVIEW": "Aucun aperçu disponible. Lancez d'abord le calcul.",
-      "GENERIC": "Erreur lors de l'opération de facturation."
+      "GENERIC": "Erreur lors de l'opération de facturation.",
+      "FORBIDDEN": "Accès refusé : le centre demandé diffère de celui de votre session, ou votre profil ne permet pas cette action.",
+      "SYNTHESE_FORBIDDEN": "Impression refusée : la synthèse de facturation est réservée aux profils ADMIN et SECRÉTAIRE, et au centre de votre session."
+    },
+    "SYNTHESE": {
+      "INFO": "Les montants de la synthèse reprennent les totaux enregistrés sur les factures.",
+      "RESERVED": "Synthèse réservée aux profils administrateur et secrétaire."
     }
   },
   "REGLEMENT_MODULE": {
@@ -1306,7 +1312,21 @@
     },
     "ERROR": {
       "GENERIC": "Erreur lors du traitement du règlement.",
-      "BATCH_PARTIAL": "Règlements partiellement enregistrés (certains ont échoué)."
+      "BATCH_PARTIAL": "Règlements partiellement enregistrés (certains ont échoué).",
+      "FORBIDDEN": "Accès refusé : le centre demandé ne correspond pas au centre de votre session.",
+      "REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE": "Le remboursement dépasse le total déjà réglé."
+    },
+    "PAYMENT_OPTIONS": {
+      "MODE": "Mode de règlement",
+      "MODE_NONE": "Non précisé (banque)",
+      "REFERENCE": "Référence de paiement",
+      "HINT": "Le mode et la référence sont facultatifs et s'appliquent à tous les règlements saisis. Un montant négatif est un remboursement ; il ne peut pas dépasser le total déjà réglé.",
+      "MODES": {
+        "BANQUE": "Banque",
+        "CHEQUE": "Chèque",
+        "CAISSE": "Caisse",
+        "ESPECES": "Espèces"
+      }
     },
     "BATCH": {
       "SAVE_BUTTON": "Sauvegarder le règlement",
@@ -1328,6 +1348,8 @@
       "DATE": "Date",
       "MONTANT": "Montant",
       "SAISI_PAR": "Saisi par",
+      "MODE": "Mode",
+      "REFERENCE": "Référence",
       "TOTAL": "Total réglé",
       "CODE": "Code réglement",
       "EMPTY": "Aucun paiement enregistré pour cette facture.",
@@ -1662,6 +1684,7 @@
     "MEDICAL_SAVED": "Volet médical enregistré",
     "SESSION_VALIDATED": "Séance validée",
     "SESSION_SIGNED_BY_DOCTOR": "Séance signée par le médecin",
+    "FACTUREE_NON_MODIFIABLE": "Cette séance est facturée : elle n'est plus modifiable.",
     "DELETE": {
       "COLUMN": "Actions",
       "ACTION": "Supprimer la séance",

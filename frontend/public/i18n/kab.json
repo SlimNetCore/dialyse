@@ -1222,7 +1222,13 @@
       "NUMERO_DEJA_PRIS": "Uṭṭun n ufeter yettwaseqdac yakan, ulac afeter i yettwasefken. Ɛreḍ tikkelt-nniḍen asentem; ma yella izen yeqqim, nermes anedbal: ahat amḍan n uṭṭunen yeqqen.",
       "SEANCES_SANS_FORFAIT": "Asefk ur izmir ara: {{count}} n tmsirin ur sɛint ara afurki. Ṣeḥḥ tuṭṭfa n unelmad neɣ sewḥel afurki i tmsirin-agi deg usemsel, sakin sentem tikkelt-nniḍen.",
       "NO_PREVIEW": "Ulac preview. Ma ulac aḥsab, bdu s usiḍen.",
-      "GENERIC": "Ameskar n ufeter ur yeddi ara."
+      "GENERIC": "Ameskar n ufeter ur yeddi ara.",
+      "FORBIDDEN": "Anekcum yettwagdel: tamkarḍit i d-yettwasuter yemgarad d tin n tɣimit-ik, neɣ amaɣnu-inek ur yeǧǧi ara ameskar-a.",
+      "SYNTHESE_FORBIDDEN": "Asiggez yettwagdel: tasemlest n ufeter d tamezwarut i yimaɣnuten ADMIN d SECRÉTAIRE kan, d tamkarḍit n tɣimit-ik."
+    },
+    "SYNTHESE": {
+      "INFO": "Cfawat n tsemlest rzant ɣer ussemma i yettwaseklen deg ifatar.",
+      "RESERVED": "Tasemlest tettwaḥrez i yimaɣnuten n unedbal d tbṛaɣt kan."
     }
   },
   "SEANCES": {
@@ -1438,6 +1444,7 @@
     "MEDICAL_SAVED": "Aḥric asnajyan yettwasekles",
     "SESSION_VALIDATED": "Tamsirt tettwaqbel",
     "SESSION_SIGNED_BY_DOCTOR": "Aṭbib yezml ɣef tmsirt",
+    "FACTUREE_NON_MODIFIABLE": "Tiɣimit-a tettwafeṭren: ur tettwasnifel ara ugar.",
     "DELETE": {
       "COLUMN": "Tigawin",
       "ACTION": "Kkes tiɣimit",
@@ -1635,7 +1642,21 @@
     },
     "ERROR": {
       "GENERIC": "Tella tuccḍa deg wesefrek n uxelleṣ.",
-      "BATCH_PARTIAL": "Kra n ixelleṣen ttwaseklen (kra yufrar)."
+      "BATCH_PARTIAL": "Kra n ixelleṣen ttwaseklen (kra yufrar).",
+      "FORBIDDEN": "Anekcum yettwagi: dakken amaxzen yettwasuter ur yemṣadda ara d wanda i d-tekcemeḍ.",
+      "REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE": "Tuɣalin n tedrimt tɛedda amḍan akk i yettwaxelleṣen."
+    },
+    "PAYMENT_OPTIONS": {
+      "MODE": "Askar n uxelleṣ",
+      "MODE_NONE": "Ur yettwasbadu ara (tabanka)",
+      "REFERENCE": "Aɣbalu n uxelleṣ",
+      "HINT": "Askar d uɣbalu ulac-iten d ilelli, ad ttwasnen ɣef akk ixelleṣen yettwaskecmen. Azal s ayen imnaɣ d tuɣalin n tedrimt; ur izmir ara ad yaɛdu amḍan akk i yettwaxelleṣen.",
+      "MODES": {
+        "BANQUE": "Tabanka",
+        "CHEQUE": "Ccek",
+        "CAISSE": "Taqeṣṣa",
+        "ESPECES": "Idrimen n ufus"
+      }
     },
     "BATCH": {
       "SAVE_BUTTON": "Sekles axelleṣ",
@@ -1657,6 +1678,8 @@
       "DATE": "Azemz",
       "MONTANT": "Azal",
       "SAISI_PAR": "Yesekcem",
+      "MODE": "Askar",
+      "REFERENCE": "Aɣbalu",
       "TOTAL": "Azal asemday",
       "CODE": "Acode",
       "EMPTY": "Ulac axelleṣ i yettwasekles i tfatura-a.",

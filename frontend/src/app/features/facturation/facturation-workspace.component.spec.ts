@@ -7,7 +7,8 @@ import {AuthStore} from '../../core/state/auth.store';
 import {TranslateService} from '@ngx-translate/core';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {of} from 'rxjs';
+import {of, throwError} from 'rxjs';
+import {HttpErrorResponse} from '@angular/common/http';
 
 describe('FacturationWorkspaceComponent', () => {
   const facturationStoreMock = {
@@ -40,6 +41,7 @@ describe('FacturationWorkspaceComponent', () => {
 
   const authMock = {
     username: vi.fn(() => 'billing.user'),
+    hasRole: vi.fn((role: string) => role === 'SECRETAIRE'),
   };
 
   const translateMock = {
@@ -146,5 +148,29 @@ describe('FacturationWorkspaceComponent', () => {
       periodEnd: '2026-08-31',
       format: 'PDF',
     });
+  });
+
+  it('reserve la synthese a ADMIN et SECRETAIRE : refuse l impression pour les autres profils', () => {
+    authMock.hasRole.mockImplementation((role: string) => role === 'MEDECIN');
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    expect(component['canPrintSynthese']()).toBe(false);
+    component['onPrintMonthlySummary']();
+    expect(apiMock.printFacturationSynthese).not.toHaveBeenCalled();
+
+    authMock.hasRole.mockImplementation((role: string) => role === 'ADMIN');
+    expect(TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent())['canPrintSynthese']()).toBe(true);
+    authMock.hasRole.mockImplementation((role: string) => role === 'SECRETAIRE');
+  });
+
+  it('affiche le detail du backend quand l impression de la synthese est refusee en 403 (blob d erreur)', async () => {
+    const errorBlob = new Blob([JSON.stringify({detail: 'Centre différent de la session'})], {type: 'application/json'});
+    apiMock.printFacturationSynthese.mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 403, error: errorBlob})) as never);
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    component['onPrintMonthlySummary']();
+    await vi.waitFor(() => expect(snackBarMock.open).toHaveBeenCalled());
+
+    expect(snackBarMock.open.mock.calls[0][0]).toBe('Centre différent de la session');
   });
 });

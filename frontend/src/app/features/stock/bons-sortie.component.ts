@@ -16,6 +16,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
+import {seanceFactureeNonModifiableMessage} from '../../core/api/http-error-detail';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonSortie, LotDisponible, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
@@ -222,8 +223,11 @@ export class BonsSortieComponent implements OnDestroy {
       complete: () => this.saving.set(false),
       error: (e) => {
         this.saving.set(false);
+        const facturee = seanceFactureeNonModifiableMessage(e);
         const detail = e?.error?.message;
-        const msg = detail
+        const msg = facturee
+          ? this.translate.instant(facturee)
+          : detail
           ? this.translate.instant('STOCK.BON_SORTIE.SAVE_ERROR_DETAIL', {detail})
           : this.translate.instant('STOCK.BON_SORTIE.SAVE_ERROR');
         this.snack.open(msg, this.translate.instant('COMMON.RETRY'), {duration: 5000});

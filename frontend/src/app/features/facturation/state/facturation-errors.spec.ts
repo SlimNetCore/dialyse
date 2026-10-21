@@ -1,6 +1,6 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {describe, expect, it} from 'vitest';
-import {facturationErrorState} from './facturation-errors';
+import {facturationErrorState, synthesePrintError} from './facturation-errors';
 import {exclusionEstValide} from './facturation-exclusion';
 
 const http = (status: number, error: unknown) => new HttpErrorResponse({status, error});
@@ -29,9 +29,28 @@ describe('facturationErrorState', () => {
     }
   });
 
+  it('403 sans detail : message dédié (centre différent de la session / profil insuffisant)', () => {
+    expect(facturationErrorState(http(403, {})).error).toBe('FACTURATION.ERROR.FORBIDDEN');
+  });
+
   it('sans detail, repli sur le message existant puis sur le message générique', () => {
     expect(facturationErrorState(http(500, {})).error).toContain('500');
     expect(facturationErrorState({}).error).toBe('FACTURATION.ERROR.GENERIC');
+  });
+});
+
+describe('synthesePrintError', () => {
+  it('403 : detail lu dans le blob d erreur JSON', async () => {
+    const blob = new Blob([JSON.stringify({detail: 'Profil insuffisant'})], {type: 'application/json'});
+    expect(await synthesePrintError(http(403, blob))).toEqual({message: 'Profil insuffisant', translatable: false});
+  });
+
+  it('403 sans detail lisible : message dédié ; autre erreur : message générique d impression', async () => {
+    expect(await synthesePrintError(http(403, new Blob(['pas du json'])))).toEqual({
+      message: 'FACTURATION.ERROR.SYNTHESE_FORBIDDEN',
+      translatable: true
+    });
+    expect(await synthesePrintError(http(500, null))).toEqual({message: 'COMMON.PRINT_ERROR', translatable: true});
   });
 });
 

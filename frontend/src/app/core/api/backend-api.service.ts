@@ -716,7 +716,13 @@ export type RegisterFacturePaymentPayload = {
   centerId: string;
   montant: number;
   dateReglement?: string;
+  /** Ignoré par le backend (l'auteur est l'utilisateur de la session) ; ne plus l'envoyer. */
   userId?: string;
+  /** BANQUE | CHEQUE | CAISSE | ESPECES ; facultatif (sans mode = banque). */
+  modeReglement?: string;
+  referencePaiement?: string;
+  /** UUID : un renvoi avec la même clé pour la même facture ne crée pas de doublon. */
+  cleIdempotence?: string;
 };
 
 export type FacturePaymentItem = {
@@ -726,6 +732,9 @@ export type FacturePaymentItem = {
   dateReglement: string;
   saisiPar: string;
   codeReglement?: string | null;
+  /** Additifs F4, omis quand absents. */
+  modeReglement?: string | null;
+  referencePaiement?: string | null;
 };
 
 @Injectable({ providedIn: 'root' })

@@ -544,3 +544,23 @@ mat-card {
 
 
 
+
+/* ─── Mode / référence de paiement (appliqués aux règlements du lot) ──── */
+.payment-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.payment-options mat-form-field {
+  min-width: 200px;
+}
+
+.payment-options-hint {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}

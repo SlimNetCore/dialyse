@@ -153,14 +153,16 @@
                 <mat-icon>design_services</mat-icon>
               </button>
             }
-            <button
-              (click)="testPrint(m)"
-              color="primary"
-              mat-icon-button
-              [matTooltip]="'REPORTING.TEST_PRINT_TOOLTIP' | translate"
-            >
-              <mat-icon>print</mat-icon>
-            </button>
+            @if (canTestPrint(m)) {
+              <button
+                (click)="testPrint(m)"
+                color="primary"
+                mat-icon-button
+                [matTooltip]="'REPORTING.TEST_PRINT_TOOLTIP' | translate"
+              >
+                <mat-icon>print</mat-icon>
+              </button>
+            }
             <button (click)="remove(m)" [matTooltip]="'COMMON.DELETE' | translate" color="warn" mat-icon-button>
               <mat-icon>delete</mat-icon>
             </button>

@@ -58,6 +58,18 @@
           <td *matCellDef="let p" class="col-right amount-settled" mat-cell>{{ p.montant | number:'1.2-2' }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="modeReglement">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.MODE' | translate }}</th>
+          <td *matCellDef="let p" mat-cell>
+            {{ p.modeReglement ? ('REGLEMENT_MODULE.PAYMENT_OPTIONS.MODES.' + p.modeReglement | translate) : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="referencePaiement">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.REFERENCE' | translate }}</th>
+          <td *matCellDef="let p" mat-cell>{{ p.referencePaiement || '—' }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="saisiPar">
           <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.SAISI_PAR' | translate }}</th>
           <td *matCellDef="let p" mat-cell>{{ p.saisiPar }}</td>

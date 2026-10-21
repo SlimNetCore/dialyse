@@ -100,6 +100,24 @@
         </button>
       </div>
 
+      <div class="payment-options">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.MODE' | translate }}</mat-label>
+          <mat-select (valueChange)="onModeChange($event)" [value]="store.modeReglement() ?? ''">
+            <mat-option value="">{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.MODE_NONE' | translate }}</mat-option>
+            @for (mode of modes; track mode) {
+              <mat-option [value]="mode">{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.MODES.' + mode | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.REFERENCE' | translate }}</mat-label>
+          <input #refInput (input)="onReferenceInput(refInput.value)" [value]="store.referencePaiement()" maxlength="120"
+                 matInput type="text">
+        </mat-form-field>
+        <p class="payment-options-hint">{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.HINT' | translate }}</p>
+      </div>
+
       @if (store.loading() || store.dashboardLoading() || store.referentialsLoading() || store.batchSaving()) {
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       }

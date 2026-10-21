@@ -266,6 +266,20 @@ describe('SeanceStore', () => {
     expect(store.pendingSeances()[1].regularisationDeverrouilleeAt).toBeUndefined();
     expect(store.error()).toBeTruthy();
   });
+  it('should show the unified invoiced-session refusal with the backend detail, or the i18n fallback', () => {
+    const store = TestBed.inject(SeanceStore);
+    const refus = (detail?: string) => ({
+      status: 422, error: {code: 'SEANCE_FACTUREE_NON_MODIFIABLE', ...(detail ? {detail} : {})},
+    });
+
+    mockApi.updateSeance.mockReturnValueOnce(throwError(() => refus('Séance facturée.')));
+    store.saveDate({seanceId: SEANCE_ID, centerId: CENTER_ID, dateSeance: '2026-07-25'});
+    expect(store.error()).toBe('Séance facturée.');
+
+    mockApi.updateSeance.mockReturnValueOnce(throwError(() => refus()));
+    store.saveDate({seanceId: SEANCE_ID, centerId: CENTER_ID, dateSeance: '2026-07-25'});
+    expect(store.error()).toBe('SEANCES.FACTUREE_NON_MODIFIABLE');
+  });
   it('should load the unvalidated sessions of the previous days, oldest first, and clear them on error', () => {
     mockApi.listSeances.mockReturnValueOnce(of({items: [{id: 'old1', status: 'CREE'}], total: 1, page: 0, size: 50}));
     const store = TestBed.inject(SeanceStore);

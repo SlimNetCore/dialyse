@@ -1222,7 +1222,13 @@
       "NUMERO_DEJA_PRIS": "The invoice number is already taken; no invoice was issued. Run the validation again; if the message persists, contact the administrator: the numbering sequence may be behind.",
       "SEANCES_SANS_FORFAIT": "Cannot issue invoices: {{count}} session(s) have no package. Fix the patient's coverage, or force a package on these sessions in the simulation, then validate again.",
       "NO_PREVIEW": "No preview available. Run a calculation first.",
-      "GENERIC": "Billing operation failed."
+      "GENERIC": "Billing operation failed.",
+      "FORBIDDEN": "Access denied: the requested center differs from your session's center, or your profile does not allow this action.",
+      "SYNTHESE_FORBIDDEN": "Printing denied: the billing summary is restricted to ADMIN and SECRETARY profiles, and to your session's center."
+    },
+    "SYNTHESE": {
+      "INFO": "The summary amounts reflect the totals recorded on the invoices.",
+      "RESERVED": "Summary reserved for administrator and secretary profiles."
     }
   },
   "REGLEMENT_MODULE": {
@@ -1306,7 +1312,21 @@
     },
     "ERROR": {
       "GENERIC": "An error occurred while processing the payment.",
-      "BATCH_PARTIAL": "Payments partially saved (some failed)."
+      "BATCH_PARTIAL": "Payments partially saved (some failed).",
+      "FORBIDDEN": "Access denied: the requested center does not match your session center.",
+      "REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE": "The refund exceeds the total already paid."
+    },
+    "PAYMENT_OPTIONS": {
+      "MODE": "Payment method",
+      "MODE_NONE": "Not specified (bank)",
+      "REFERENCE": "Payment reference",
+      "HINT": "Method and reference are optional and apply to all entered payments. A negative amount is a refund; it cannot exceed the total already paid.",
+      "MODES": {
+        "BANQUE": "Bank",
+        "CHEQUE": "Cheque",
+        "CAISSE": "Cash desk",
+        "ESPECES": "Cash"
+      }
     },
     "BATCH": {
       "SAVE_BUTTON": "Save payments",
@@ -1328,6 +1348,8 @@
       "DATE": "Date",
       "MONTANT": "Amount",
       "SAISI_PAR": "Entered by",
+      "MODE": "Method",
+      "REFERENCE": "Reference",
       "TOTAL": "Total paid",
       "CODE": "Ref.",
       "EMPTY": "No payment recorded for this invoice.",
@@ -1662,6 +1684,7 @@
     "MEDICAL_SAVED": "Medical section saved",
     "SESSION_VALIDATED": "Session validated",
     "SESSION_SIGNED_BY_DOCTOR": "Session signed by doctor",
+    "FACTUREE_NON_MODIFIABLE": "This session is invoiced: it can no longer be modified.",
     "DELETE": {
       "COLUMN": "Actions",
       "ACTION": "Delete the session",

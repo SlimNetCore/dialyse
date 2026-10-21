@@ -11,6 +11,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
 import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 import {AuthStore} from '../../../core/state/auth.store';
+import {seanceFactureeNonModifiableMessage} from '../../../core/api/http-error-detail';
 import {WebSocketService} from '../../../core/ws/websocket.service';
 import {prescriptionChangee} from '../../dossier-medical/prescription-realtime.util';
 import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service';
@@ -199,7 +200,8 @@ export class AdministrationAnemieSeanceComponent {
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(err?.error?.detail || err?.statusText || 'Erreur enregistrement');
+        this.error.set(seanceFactureeNonModifiableMessage(err)
+          || err?.error?.detail || err?.statusText || 'Erreur enregistrement');
       },
     });
   }

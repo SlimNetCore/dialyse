@@ -26,6 +26,7 @@ function summary(status: string, generateurEtat?: string) {
 
 function fakeStore() {
   return {
+    error: signal<string | null>(null),
     qrCode: signal(''), scanning: signal(false), scanState: signal('idle'), scanMessage: signal(''),
     lastScan: signal(null), scanConfirmation: signal<unknown>(null), cancelScanConfirmation: vi.fn(),
     summary: signal<unknown>(null), summaryLoading: signal(false),
@@ -114,6 +115,14 @@ describe('SeanceStationComponent', () => {
       date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
     });
     expect(store.loadArticlesStock).toHaveBeenCalledWith({centerId: CENTER_ID});
+  });
+
+  it('affiche le refus « séance facturée » du serveur dans un bandeau d\'alerte', () => {
+    store.error.set('SEANCES.FACTUREE_NON_MODIFIABLE');
+    const {root} = render();
+    const banner = root.querySelector('[data-testid="station-erreur"]');
+    expect(banner?.getAttribute('role')).toBe('alert');
+    expect(banner?.textContent).toContain('SEANCES.FACTUREE_NON_MODIFIABLE');
   });
 
   const DATES = {

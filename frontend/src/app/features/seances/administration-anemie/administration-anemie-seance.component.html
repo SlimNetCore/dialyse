@@ -5,7 +5,7 @@
   </h3>
 
   @if (error()) {
-    <div class="admin-anemie-error">{{ error() }}</div>
+    <div class="admin-anemie-error">{{ error()! | translate }}</div>
   }
 
   @if (loadingPrescription()) {

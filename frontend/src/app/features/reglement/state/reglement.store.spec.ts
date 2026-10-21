@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {provideZonelessChangeDetection} from '@angular/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {of} from 'rxjs';
+import {of, throwError} from 'rxjs';
 import {ReglementStore} from './reglement.store';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {ReferentialApiService} from '../../../core/api/referential-api.service';
@@ -123,13 +123,50 @@ describe('ReglementStore', () => {
     const store = TestBed.inject(ReglementStore);
     store.loadPage({centerId: CENTER_ID, userId: 'secretaire', page: 0, size: 20});
     store.savePayment({centerId: CENTER_ID, factureId: 'fac-1', montant: 1000, userId: 'secretaire'});
-    expect(apiMock.registerFacturePayment).toHaveBeenCalledWith('fac-1', {
-      centerId: CENTER_ID,
-      montant: 1000,
-      userId: 'secretaire',
-    });
+    const [, payload] = apiMock.registerFacturePayment.mock.calls[0];
+    expect(payload.centerId).toBe(CENTER_ID);
+    expect(payload.montant).toBe(1000);
+    expect(payload.userId).toBeUndefined();
+    expect(payload.modeReglement).toBeUndefined();
+    expect(payload.referencePaiement).toBeUndefined();
+    expect(payload.cleIdempotence).toMatch(/^[0-9a-f-]{36}$/);
     expect(store.rows()[0].etat).toBe('REGLEE');
     expect(store.rows()[0].soldeType).toBe('REGLE');
+    expect(store.idempotenceKeys()['fac-1']).toBeUndefined();
+  });
+
+  it('envoie le mode et la référence du lot, et les vide après succès', () => {
+    const store = TestBed.inject(ReglementStore);
+    store.loadPage({centerId: CENTER_ID, userId: 'secretaire', page: 0, size: 20});
+    store.setModeReglement('CHEQUE');
+    store.setReferencePaiement('  CHQ-123 ');
+    store.setPaymentDraft('fac-1', '500');
+    store.batchSavePayments({centerId: CENTER_ID});
+    const [, payload] = apiMock.registerFacturePayment.mock.calls[0];
+    expect(payload.modeReglement).toBe('CHEQUE');
+    expect(payload.referencePaiement).toBe('CHQ-123');
+    expect(store.modeReglement()).toBeNull();
+    expect(store.referencePaiement()).toBe('');
+    expect(store.hasDrafts()).toBe(false);
+  });
+
+  it('réutilise la clé d\'idempotence après un échec, la régénère après une nouvelle saisie', () => {
+    const store = TestBed.inject(ReglementStore);
+    store.loadPage({centerId: CENTER_ID, userId: 'secretaire', page: 0, size: 20});
+    apiMock.registerFacturePayment.mockReturnValue(throwError(() => ({
+      status: 422,
+      error: {code: 'REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE', detail: 'x'}
+    })));
+    store.setPaymentDraft('fac-1', '-500');
+    store.batchSavePayments({centerId: CENTER_ID});
+    store.batchSavePayments({centerId: CENTER_ID});
+    const first = apiMock.registerFacturePayment.mock.calls[0][1].cleIdempotence;
+    expect(apiMock.registerFacturePayment.mock.calls[1][1].cleIdempotence).toBe(first);
+    expect(store.error()).toBe('REGLEMENT_MODULE.ERROR.REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE');
+
+    store.setPaymentDraft('fac-1', '-400');
+    store.batchSavePayments({centerId: CENTER_ID});
+    expect(apiMock.registerFacturePayment.mock.calls[2][1].cleIdempotence).not.toBe(first);
   });
 });
 

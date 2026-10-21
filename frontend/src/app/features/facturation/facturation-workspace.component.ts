@@ -29,6 +29,8 @@ import {BackendApiService, FacturationPreviewInvoice} from '../../core/api/backe
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 import {MOTIFS_ABSENCE, MotifAbsence} from '../../core/api/absence-patient-api.service';
 import {exclusionEstValide} from './state/facturation-exclusion';
+import {synthesePrintError} from './state/facturation-errors';
+import {ROLES_SYNTHESE_FACTURATION} from '../../core/api/http-error-detail';
 
 /** Exclusion en cours de saisie pour une séance de la simulation. */
 type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentaire: string };
@@ -67,6 +69,9 @@ export class FacturationWorkspaceComponent {
 
   protected readonly currentCenterId = computed(() => this.appShell.currentCenterId());
   protected readonly currentUsername = computed(() => this.auth.username() ?? 'system');
+
+  /** La synthèse mensuelle est réservée à ADMIN et SECRETAIRE (le backend refuse les autres en 403). */
+  protected readonly canPrintSynthese = computed(() => ROLES_SYNTHESE_FACTURATION.some((role) => this.auth.hasRole(role)));
 
   protected readonly motifs = MOTIFS_ABSENCE;
   protected readonly exclusionDraft = signal<ExclusionDraft | null>(null);
@@ -369,7 +374,7 @@ export class FacturationWorkspaceComponent {
 
   protected onPrintMonthlySummary(): void {
     const centerId = this.currentCenterId();
-    if (!centerId) {
+    if (!centerId || !this.canPrintSynthese()) {
       return;
     }
     const period = this.resolveSummaryPeriod();
@@ -384,11 +389,12 @@ export class FacturationWorkspaceComponent {
         window.open(url, '_blank', 'noopener');
         setTimeout(() => URL.revokeObjectURL(url), 10_000);
       },
-      error: () => {
+      error: async (err: unknown) => {
+        const {message, translatable} = await synthesePrintError(err);
         this.snackBar.open(
-          this.translate.instant('COMMON.PRINT_ERROR'),
+          translatable ? this.translate.instant(message) : message,
           this.translate.instant('COMMON.OK'),
-          {duration: 4000}
+          {duration: 6000}
         );
       },
     });
