@@ -87,8 +87,8 @@ erreur. <em>Source :</em> <code>ApiExceptionHandler</code>.</p>
 </div></div>
 <div class="rule" id="RG-TRV-015"><div class="rid">RG-TRV-015</div><div class="rtxt"><p>Deux erreurs de séance ont un code dédié (HTTP 422) : <code>SEANCE_STOCK_EXIT_DATE_IMMUTABLE</code> (la date
 d&#39;une
-sortie de stock rattachée à une séance est immuable) et <code>SEANCE_BILLED_STOCK_EXIT_IMMUTABLE</code> (le stock d&#39;une séance
-facturée ne se modifie plus). <em>Source :</em> <code>ApiExceptionHandler</code> (voir RG-SEA-002 et RG-SEA-023).</p>
+sortie de stock rattachée à une séance est immuable) et <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> (toute modification d&#39;une séance facturée, y compris son stock, depuis la slice F6 )
+. <em>Source :</em> <code>ApiExceptionHandler</code> (voir RG-SEA-002 et RG-SEA-023).</p>
 </div></div>
 <div class="rule" id="RG-TRV-016"><div class="rid">RG-TRV-016</div><div class="rtxt"><p>Toute erreur affichée à l&#39;utilisateur est traduite à partir de son <code>code</code> (jamais le texte brut du
 serveur quand une clé de traduction existe) ; l&#39;erreur s&#39;affiche <strong>à l&#39;endroit de l&#39;action</strong> (formulaire, panneau),
@@ -1549,7 +1549,7 @@ volet médical.</p>
 </div></div>
 <div class="rule" id="RG-SEA-002"><div class="rid">RG-SEA-002</div><div class="rtxt"><p>Une séance <strong>facturée</strong> ne peut plus être modifiée : date, forfait, volets paramédical et médical,
 consommables (« La seance facturee ne peut plus etre modifiee »). L&#39;entrée de stock liée à une séance facturée est
-également immuable (<code>SEANCE_BILLED_STOCK_EXIT_IMMUTABLE</code>).</p>
+également immuable. Tous ces refus répondent 422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> (la suppression garde <code>SEANCE_FACTUREE_NON_SUPPRIMABLE</code>).</p>
 </div></div>
 <div class="rule" id="RG-SEA-003"><div class="rid">RG-SEA-003</div><div class="rtxt"><p>Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
 introuvable ».</p>
@@ -1912,7 +1912,7 @@ quantité ; le manque éventuel est signalé (« Stock insuffisant … manque »
 courant</strong> de l&#39;article.</p>
 </div></div>
 <div class="rule" id="RG-STK-032"><div class="rid">RG-STK-032</div><div class="rtxt"><p>Les sorties liées à une séance sont immuables si la séance est <strong>facturée</strong>
-(<code>SEANCE_BILLED_STOCK_EXIT_IMMUTABLE</code>) et leur date ne peut être changée (<code>SEANCE_STOCK_EXIT_DATE_IMMUTABLE</code>).
+(422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code>) et leur date ne peut être changée (<code>SEANCE_STOCK_EXIT_DATE_IMMUTABLE</code>).
     Corriger un bon de sortie restitue d&#39;abord les quantités aux lots d&#39;origine puis recrée les sorties ; les
     sorties
     recréées gardent la <strong>date du bon</strong> et l&#39;<strong>heure de création du bon</strong> comme heure de
@@ -2797,10 +2797,11 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
             <code>SeanceDeFacturation</code>, <code>ExclureUneSeance</code>, <code>ReinclureUneSeance</code>, <code>ChangerLeForfaitDUneSeance</code>
             → <code>SimulationControleur</code> ; ACL <code>AbsencesDesPatientsLegacy</code> (ADR 0031).</p>
 </div></div>
-<div class="rule" id="RG-FAC-024"><div class="rid">RG-FAC-024</div><div class="rtxt"><p>Le tableau de bord de facturation d&#39;un mois présente : chiffre d&#39;affaires HT et TTC, séances
-facturées, patients facturés, factures créées, ventilation par caisse d&#39;assurance et par état
-du patient. Accès : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>. Une synthèse imprimable est disponible (modèle de document,
-chapitre documents).</p>
+<div class="rule" id="RG-FAC-024"><div class="rid">RG-FAC-024</div><div class="rtxt"><p>Le tableau de bord de facturation d&#39;un mois présente : chiffre d&#39;affaires HT et TTC, séances facturées, patients facturés, factures créées, ventilation par caisse d&#39;assurance et par état du patient. Les montants sont les <strong>totaux enregistrés sur les factures</strong> émises dans le mois (date de facturation, bornes incluses), jamais recalculés. Les « séances facturées » comptent les séances au statut FACTUREE dont la date tombe dans le mois, alors que les ventilations comptent les séances rattachées aux factures du mois : les deux nombres peuvent différer. Le mois est obligatoire. Accès : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> (le médecin seul est refusé) ; le <strong>centre demandé doit être celui de la session</strong> (403 sinon).</p>
+</div></div>
+<div class="rule" id="RG-FAC-025"><div class="rid">RG-FAC-025</div><div class="rtxt"><p>La <strong>synthèse mensuelle de facturation</strong> s&#39;imprime sur une période (début et fin incluses, sans plafond de durée) en PDF, Excel ou HTML. Deux voies : l&#39;impression de la Facturation (une colonne HT et TTC par caisse, indicateurs, barres de répartition) et le modèle de document « Synthèse mensuelle facturation » (quatre colonnes CNAS, CASNOS, CAMSSP, Autres). Les <strong>montants globaux</strong> (HT, TVA, TTC) sont la somme des totaux enregistrés des factures de la période, y compris les factures sans ligne ; dans le tableau, le TTC d&#39;une ligne est sa part du TTC enregistré de la facture. Sans facture dans la période, le document est vide. Les deux voies exigent le même profil (<code>ADMIN</code> ou <code>SECRETAIRE</code>) et le centre de la session (403 sinon).</p>
+</div></div>
+<div class="rule" id="RG-FAC-026"><div class="rid">RG-FAC-026</div><div class="rtxt"><p>La part financière du pilotage de la Direction (vue d&#39;ensemble, répartition par caisse, absences) lit la Facturation : chiffre d&#39;affaires HT et TTC (totaux enregistrés), nombre de factures, <strong>encaissé</strong> (somme signée des règlements de toutes dates des factures émises dans la période), chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture).</p>
 </div></div>
 <h2>12.4 Validation de la facturation</h2>
     <div class="rule" id="RG-FAC-030">
@@ -2867,19 +2868,41 @@ chapitre documents).</p>
 </div></div>
 <h2>12.5 Règlements des factures</h2>
 <div class="rule" id="RG-REG-001"><div class="rid">RG-REG-001</div><div class="rtxt"><p>Un règlement est rattaché à une facture et à un centre : montant <strong>non nul</strong> (un montant négatif est
-accepté et correspond à un remboursement ou à une correction), date obligatoire, auteur (« system » par défaut), code
-<code>REG-</code> + 8 caractères généré. Accès : <code>ADMIN</code>, <code>SECRETAIRE</code>.</p>
+est un <strong>remboursement</strong>, voir RG-REG-005), date (le jour d&#39;exécution si elle est absente, jamais contrôlée), <strong>auteur =
+l&#39;utilisateur de la session</strong> (« system » s&#39;il est inconnu ; le <code>userId</code> du corps est ignoré), code
+<code>REG-</code> + 8 caractères généré, montant arrondi au centime. Le centre du corps ou de la requête doit être celui de la session (403
+sinon, en écriture comme en lecture). Accès : <code>ADMIN</code>, <code>SECRETAIRE</code>. Un règlement enregistré ne se modifie ni ne
+s&#39;annule : le seul moyen de corriger est un remboursement.</p>
 </div></div>
-<div class="rule" id="RG-REG-002"><div class="rid">RG-REG-002</div><div class="rtxt"><p><strong>Situation d&#39;une facture</strong> = comparaison du montant facturé et du total réglé : <code>NON_REGLEE</code> (rien
-de réglé, reste = total), <code>PARTIELLEMENT_REGLEE</code> (reste &gt; 0), <code>REGLEE</code> (soldée ;
-si le réglé dépasse le facturé, la situation est « trop-perçu » et le montant excédentaire est affiché). Les montants
-sont arrondis au centime.</p>
+<div class="rule" id="RG-REG-002"><div class="rid">RG-REG-002</div><div class="rtxt"><p><strong>Situation d&#39;une facture</strong> = lecture calculée de la <strong>somme signée</strong> des règlements contre le total
+TTC figé : <code>NON_REGLEE</code> (somme nulle, reste = total), <code>PARTIELLEMENT_REGLEE</code> (reste &gt; 0), <code>REGLEE</code> (soldée ;
+si le réglé dépasse le facturé, la situation est « trop-perçu » et le montant excédentaire est affiché : le
+<strong>trop-perçu est accepté</strong>). Les montants sont arrondis au centime.</p>
 </div></div>
 <div class="rule" id="RG-REG-003"><div class="rid">RG-REG-003</div><div class="rtxt"><p>La recherche et le tableau de bord des règlements portent sur une <strong>année</strong> (2000 à 3000) et
 facultativement un <strong>mois</strong> (1 à 12), une caisse, une agence ou un centre payeur ; les listes sont
 paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
 </div></div>
-<div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche la génération d&#39;une écriture de trésorerie (RG-CPT-002).</p>
+<div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche, après son enregistrement, la génération d&#39;une écriture de
+trésorerie (RG-CPT-002) par l&#39;événement <code>FactureReglementRecordedEvent</code> (langage publié du contexte <code>facturation</code>,
+porteur de l&#39;identifiant du règlement, du montant signé et du mode) → <code>ReglementEncaisseComptabiliteListener</code>. Un mois
+comptable clos n&#39;empêche pas le règlement : l&#39;écriture est alors à régénérer (<code>POST /comptabilite/rebuild</code>).</p>
+</div></div>
+<div class="rule" id="RG-REG-005"><div class="rid">RG-REG-005</div><div class="rtxt"><p><strong>Remboursement</strong> (à valider par le métier) : un règlement négatif ne peut pas dépasser le <strong>total déjà
+réglé</strong> de la facture (somme signée, trop-perçu compris) : refus <strong>422</strong> <code>REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE</code>. Il est
+comptabilisé par l&#39;écriture de <strong>sens inverse</strong> de l&#39;encaissement (débit du compte client, crédit de la banque ou de la
+caisse), libellée « Remboursement … ».</p>
+</div></div>
+<div class="rule" id="RG-REG-008"><div class="rid">RG-REG-008</div><div class="rtxt"><p><strong>Export CSV des règlements</strong> : une cellule de texte (numéro de facture, assurance, nom, prénom, caisse, agence, centre payeur) qui commence par <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>, une tabulation ou un retour chariot est précédée d&#39;une apostrophe, pour qu&#39;un tableur ne l&#39;exécute pas comme une formule ; les montants ne sont pas modifiés. L&#39;auteur des réglages de facturation, des types de TVA et des règlements est l&#39;utilisateur connecté (l&#39;identité envoyée dans la requête est ignorée).</p>
+</div></div>
+<div class="rule" id="RG-REG-006"><div class="rid">RG-REG-006</div><div class="rtxt"><p><strong>Mode de règlement et référence de paiement</strong> (à valider par le métier) : un règlement peut porter un
+mode (<code>BANQUE</code>, <code>CHEQUE</code>, <code>CAISSE</code>, <code>ESPECES</code>) et une référence libre (≤ 120 caractères). <code>CAISSE</code> et <code>ESPECES</code> sont
+comptabilisés au journal de caisse ; <code>BANQUE</code>, <code>CHEQUE</code> et l&#39;absence de mode (anciens règlements, reprise de données) au
+journal de banque <code>BQ</code>. Un mode inconnu est refusé (400).</p>
+</div></div>
+<div class="rule" id="RG-REG-007"><div class="rid">RG-REG-007</div><div class="rtxt"><p><strong>Clé d&#39;idempotence</strong> (à valider par le métier) : le corps peut porter une clé (<code>cleIdempotence</code>,
+≤ 120 caractères) ; un renvoi pour la même facture et le même centre avec la même clé ne crée ni règlement, ni
+événement, ni écriture et répond la situation courante de la facture. Sans clé, un renvoi crée un second règlement.</p>
 </div></div>
 <h2>12.6 Comptabilité (plan SCF)</h2>
 <div class="rule" id="RG-CPT-001"><div class="rid">RG-CPT-001</div><div class="rtxt"><p><strong>Écriture de ventes</strong> par facture, dans le journal que le centre a choisi pour les ventes (<code>VE</code> par
@@ -2903,10 +2926,10 @@ centre et type de tiers ; statut <code>VALIDEE</code>. <strong>Idempotence</stro
 </div></div>
 <div class="rule" id="RG-CPT-002"><div class="rid">RG-CPT-002</div><div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque (<code>BQ</code> par défaut, débit
   512) ou en caisse (<code>CA</code> par défaut, débit 530, si le mode
-est « caisse ») ; crédit du compte client ; montant en valeur absolue ; <strong>une écriture par
-        règlement</strong> (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Le mode
-    par défaut
-    du règlement enregistré est « banque ». Comme la vente, l&#39;écriture est générée <strong>après l&#39;enregistrement
+est « caisse » ou « espèces ») ; crédit du compte client ; <strong>un remboursement</strong> (règlement négatif) est l&#39;écriture de
+  sens inverse (débit du compte client, crédit de la trésorerie) pour la valeur absolue du montant ; <strong>une écriture par
+        règlement</strong> (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Sans mode
+    (anciens règlements), le règlement est comptabilisé en « banque » (RG-REG-006). Comme la vente, l&#39;écriture est générée <strong>après l&#39;enregistrement
         du
         règlement</strong>, dans sa propre transaction : un refus n&#39;annule jamais le règlement, qui reste à
     régénérer (RG-CPT-024).</p>

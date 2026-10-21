@@ -106,7 +106,7 @@
   quantité ; le manque éventuel est signalé (« Stock insuffisant … manque »). Chaque sortie est valorisée au **PMP
   courant** de l'article.
 - **RG-STK-032** — Les sorties liées à une séance sont immuables si la séance est **facturée**
-  (`SEANCE_BILLED_STOCK_EXIT_IMMUTABLE`) et leur date ne peut être changée (`SEANCE_STOCK_EXIT_DATE_IMMUTABLE`).
+  (422 `SEANCE_FACTUREE_NON_MODIFIABLE`) et leur date ne peut être changée (`SEANCE_STOCK_EXIT_DATE_IMMUTABLE`).
   Corriger un bon de sortie restitue d'abord les quantités aux lots d'origine puis recrée les sorties ; les sorties
   recréées gardent la **date du bon** et l' **heure de création du bon** comme heure de saisie (RG-STK-041).
 - **RG-STK-033** — Accès : `ADMIN`, `PHARMACIEN`, `INFIRMIER`. La liste des lots disponibles d'un article est triée

@@ -14,7 +14,9 @@
   volet médical.
 - **RG-SEA-002** — Une séance **facturée** ne peut plus être modifiée : date, forfait, volets paramédical et médical,
   consommables (« La seance facturee ne peut plus etre modifiee »). L'entrée de stock liée à une séance facturée est
-  également immuable (`SEANCE_BILLED_STOCK_EXIT_IMMUTABLE`).
+  également immuable. Tous ces refus répondent 422 `SEANCE_FACTUREE_NON_MODIFIABLE` (date, forfait, validation, signature
+  du médecin, consommables, volets, déverrouillage, administration de traitement, bon de sortie) ; la suppression garde
+  `SEANCE_FACTUREE_NON_SUPPRIMABLE` (RG-SEA-050).
 - **RG-SEA-003** — Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
   introuvable ».
 - **RG-SEA-050** — **Suppression d'une séance** (`ADMIN` seul, écran « Historique des séances » ;

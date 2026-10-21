@@ -138,6 +138,51 @@ n'accepte pas `ON CONFLICT` : la création de la ligne d'une année nouvelle est
 commun.
 Fiche : `.ddd/migration/slices/facturation-f3-validation-emission.md`, ADR 0032.
 
+## 6 sexies. Facturation, slice F4 : règlements des factures (2026-10-21)
+
+Même module `contexts/facturation` ; le module legacy `bc-reglement` (agrégat, spécification, repository, cas d'usage) est
+retiré avec ses quatre classes de `platform`. Particularités : (1) **l'agrégat est un seul règlement immuable** (`Reglement`) ;
+la situation de la facture est une **lecture calculée** (`SituationDeFacture.evaluer`) de la somme signée contre le total TTC,
+jamais un état stocké ; (2) la règle qui a besoin d'une lecture (un remboursement ne dépasse pas le total réglé) est servie par un
+**verrou de la facture** (`SELECT ... FOR UPDATE`, portable H2 et PostgreSQL) pris avant tout contrôle : ce même verrou rend
+l'idempotence et le contrôle sûrs sous concurrence, avec un index unique en filet et un **test de concurrence déterministe**
+(la publication de l'événement garde la transaction ouverte pendant que la seconde attend) ; (3) l'**événement d'intégration
+change de contrat sans casser les tests anciens** : version 2 avec identifiant et mode, le chemin « v1 » d'abord conservé pour deux tests a été retiré à la revue (migrer les tests plutôt que garder un chemin sans producteur) ; la
+Comptabilité traite « source = règlement » (idempotent) ; livraison **au plus une fois** (écouteur en mémoire après commit, rattrapage par `/rebuild`) ; (4) un champ additif de la réponse JSON est **omis quand il est
+absent** (`@JsonInclude(NON_NULL)`) pour que les goldens existants restent valables ; (5) l'**export Excel/CSV** est déplacé tel quel
+dans le contrôleur du module (dépendance POI ajoutée au module). Écarts décidés : KB-FAC-37, 39, 42/43, 47 corrigés, 40 ajouté,
+auteur corrigé ; 38, 41, 44 à 46, 48 à 51 reproduits. Pièges rencontrés : (a) un test d'intégration préexistant utilisait un
+`User` Spring sans centre : refusé en 403 par la garde de centre, la fixture porte désormais son centre ; (b) quand le
+premier golden d'un test échoue, les suivants ne sont pas comparés : sauvegarder le dossier des goldens avant d'approuver,
+puis comparer (`diff -r`) pour ne laisser passer que les écarts décidés ; (c) un `approve` écrase aussi sur place les goldens
+dont le contenu change : les renommer `_nouveau_code` et retirer l'ancien nom.
+Fiche : `.ddd/migration/slices/facturation-f4-reglements.md`, ADR 0033.
+
+## 6 septies. Facturation, slice F5 : consultation et pilotage (2026-10-21)
+
+Lectures seules, aucun agrégat. Le tableau de bord devient un **cas d'usage de lecture** du module (port de lecture, adaptateur
+JDBC, contrat exécuté contre le double en mémoire, H2 et PostgreSQL 16) ; le **rendu Jasper reste dans la plateforme** derrière un
+port (`ImpressionDeLaSynthese`, comme le bon d'intervention GMAO) et le module ne porte que les données et les barres de texte.
+Les trois services de la Direction **gardent leur endpoint, leurs alertes et leur garde de société** et ne changent que leur source
+financière : une **lecture publiée** (`SyntheseFinanciereDesCentres`) qui remplace six requêtes SQL dispersées, sans ACL à traduire.
+Écarts décidés : 403 de centre (KB-FAC-52) et profil de la voie documents (KB-FAC-60) corrigés ; **base unique des totaux
+stockés** pour la synthèse (chiffres affichés qui changent, ADR 0034) ; le reste reproduit. Pièges rencontrés : (a) `DocumentRestController`
+attrape `Exception` autour de l'impression, donc un refus 403 levé dedans devient un 500 : les gardes se placent **avant** le
+`try` ; (b) un paramètre de gabarit posé par le client doit être écarté quand le serveur pose la même clé (totaux) ; (c) les
+tests de goldens : un 403 n'a pas la forme d'un PDF, il faut changer l'assertion (`golden` au lieu de `goldenPdf`) pour ces
+scénarios et ajouter le scénario positif (chacun lit son centre). Fiche : `.ddd/migration/slices/facturation-f5-consultation-pilotage.md`, ADR 0034.
+
+## 6 octies. Facturation, slice F6 : retrait de `bc-facturation` et ports publiés (2026-10-21)
+
+Retrait mécanique du module vide (pom racine, `platform`, `Dockerfile`, scripts PIT) puis **derniers consommateurs par le langage
+publié**. Leçons : (a) quand A dépend de B (Facturation de Comptabilité), un port que A fournit à B se **publie côté B** (type
+simple) et A l'implémente dans son ACL : sinon cycle Maven ; (b) le SQL de la reprise de soldes se **déplace tel quel** derrière le
+port publié, les ACL de `platform` ne font plus que traduire ; (c) pour vider les exemptions ArchUnit, les types de données
+(`SyntheseMensuelle`, formats) sortent de `application` vers `publishedlanguage` ; (d) un refus unique (`SeanceFactureeNonModifiableException`,
+sous-classe d'`IllegalStateException` pour ne casser aucun test unitaire) se règle par un handler dédié, plus spécifique que les
+génériques ; (e) un écart décidé = goldens `*_nouveau_code` après relecture du diff, anciens goldens retirés. Fiche :
+`.ddd/migration/slices/facturation-f6-retrait-bc-facturation.md`, ADR 0035.
+
 ## 7. Refaire sur un autre projet
 1. Cartographier (scan, glossaire) et choisir une petite slice verticale.
 2. Écrire le filet de caractérisation HTTP et le rendre vert sur l'existant.

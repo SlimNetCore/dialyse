@@ -40,9 +40,10 @@
   **HTTP 500** `INTERNAL_ERROR`. Une déconnexion du client en cours de réponse n'est jamais journalisée comme une
   erreur. *Source :* `ApiExceptionHandler`.
 - **RG-TRV-015** — Deux erreurs de séance ont un code dédié (HTTP 422) : `SEANCE_STOCK_EXIT_DATE_IMMUTABLE` (la date
-  d'une
-  sortie de stock rattachée à une séance est immuable) et `SEANCE_BILLED_STOCK_EXIT_IMMUTABLE` (le stock d'une séance
-  facturée ne se modifie plus). *Source :* `ApiExceptionHandler` (voir RG-SEA-002 et RG-SEA-023).
+  d'une sortie de stock rattachée à une séance est immuable) et `SEANCE_FACTUREE_NON_MODIFIABLE` (toute modification
+  d'une séance facturée est refusée, y compris son stock ; remplace depuis la slice F6 les anciens codes
+  `BUSINESS_RULE_VIOLATION` et `SEANCE_BILLED_STOCK_EXIT_IMMUTABLE` pour ce cas). *Source :* `ApiExceptionHandler` (voir
+  RG-SEA-002 et RG-SEA-023).
 - **RG-TRV-016** — Toute erreur affichée à l'utilisateur est traduite à partir de son `code` (jamais le texte brut du
   serveur quand une clé de traduction existe) ; l'erreur s'affiche **à l'endroit de l'action** (formulaire, panneau),
   pas

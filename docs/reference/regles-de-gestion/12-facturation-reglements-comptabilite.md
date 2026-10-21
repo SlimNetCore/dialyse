@@ -3,10 +3,9 @@
 > Préfixes `RG-FAC` (facturation et TVA), `RG-REG` (règlements), `RG-CPT` (comptabilité). Le système **n'accepte à la
 facturation que des séances validées et couvertes**, **fige** prix, TVA et
 > payeur sur chaque facture, **calcule le solde** de chaque facture et **génère les écritures comptables équilibrées**.
-> Sources : `FacturationDomainService` (tableau de bord), `Simulation`, `Facture`, `ValiderLaFacturation`, `TypeTVA`,
-> `RegleTva`, `GererLesTypesDeTva`, `ParametresDeFacturation`, `ModeleDeNumerotation`, `SeanceFacturationJdbcAdapter`,
-> `FactureReglementAggregate`,
-> `FactureReglementStatusSpecification`, `ReglementService`, `ComptabiliteService`, `GenerateurEcritureComptable`,
+> Sources : `ConsulterLeTableauDeBord`, `ImprimerLaSynthese`, `SyntheseFinanciereDesCentres`, `Simulation`, `Facture`, `ValiderLaFacturation`, `RegleTva`,
+> `GererLesTypesDeTva`, `ParametresDeFacturation`, `ModeleDeNumerotation`,
+> `Reglement`, `SituationDeFacture`, `EnregistrerUnReglement`, `RedactionDesEcritures`,
 > `EcritureComptable`, `MappingComptable`, `RegleTVA`, listeners comptables,
 > contrôleurs `Facturation*`, `TypesTvaControleur`, `ParametresFacturationControleur`, `Reglement*`, `Comptabilite*`.
 
@@ -95,10 +94,28 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   séances (RG-SEA-001) : la séance exclue reste consultable, n'est plus facturable, n'est plus « réalisée » (RG-ABS-012)
   et n'accepte pas de volet médical. *Source :* `SeanceDeFacturation`, `ExclureUneSeance`, `ReinclureUneSeance`,
   `ChangerLeForfaitDUneSeance` → `SimulationControleur` ; ACL `AbsencesDesPatientsLegacy` (ADR 0031).
-- **RG-FAC-024** — Le tableau de bord de facturation d'un mois présente : chiffre d'affaires HT et TTC, séances
-  facturées, patients facturés, factures créées, ventilation par caisse d'assurance et par état
-  du patient. Accès : `ADMIN`, `MEDECIN`, `SECRETAIRE`. Une synthèse imprimable est disponible (modèle de document,
-  chapitre documents).
+- **RG-FAC-024** — Le tableau de bord de facturation d'un mois (`GET /api/v1/facturation/dashboard`) présente : chiffre
+  d'affaires HT et TTC, séances facturées, patients facturés, factures créées, ventilation par caisse d'assurance et par
+  état du patient. Les montants sont les **totaux enregistrés sur les factures** émises dans le mois (date de
+  facturation, bornes incluses), jamais recalculés. Les « séances facturées » comptent les séances au statut `FACTUREE`
+  dont la date tombe dans le mois, alors que les ventilations comptent les séances rattachées aux factures du mois : les
+  deux nombres peuvent différer. Le mois est obligatoire. Accès : `ADMIN`, `MEDECIN`, `SECRETAIRE` (le médecin seul est
+  refusé) ; le **centre demandé doit être celui de la session** (403 sinon). *Source :* `ConsulterLeTableauDeBord` →
+  `TableauDeBordControleur` (ADR 0034).
+- **RG-FAC-025** — La **synthèse mensuelle de facturation** s'imprime sur une période (début et fin incluses, aucun
+  plafond de durée) en PDF, Excel ou HTML (PDF embarqué). Deux voies coexistent : `POST /api/v1/facturation/synthese/print`
+  (tableau forfait x caisse, une colonne HT et TTC par caisse, indicateurs, barres de répartition par caisse et par
+  situation du patient) et `POST /api/v1/documents/print` avec le type `SYNTHESE_FACTURATION_MENSUELLE` (gabarit à
+  quatre colonnes CNAS, CASNOS, CAMSSP, Autres). Les **montants globaux** (HT, TVA, TTC) sont la somme des totaux
+  enregistrés des factures de la période (RG-FAC-024), y compris les factures sans ligne ; dans le tableau, le TTC d'une
+  ligne est sa part du TTC enregistré de la facture. Sans facture dans la période, le document est vide. Les deux voies exigent
+  le même profil (`ADMIN` ou `SECRETAIRE` ; `MEDECIN` seul refusé) et le **centre de la session** (403 sinon). *Source :*
+  `ImprimerLaSynthese`, `SyntheseControleur`, `FacturationSyntheseMensuelleReportService` (rendu, plateforme), `DocumentRestController`.
+- **RG-FAC-026** — La **part financière du pilotage de la Direction** (vue d'ensemble, répartition par caisse, absences)
+  lit la Facturation par son langage publié `SyntheseFinanciereDesCentres` : chiffre d'affaires HT et TTC (totaux enregistrés),
+  nombre de factures, **encaissé** (somme signée des règlements de toutes dates des factures émises dans la période),
+  chiffre d'affaires par mois et HT par caisse (agence figée sur la facture). *Source :* `DirectionDashboardQueryService`,
+  `DirectionBreakdownQueryService`, `DirectionAbsencesQueryService` (plateforme).
 
 ## 12.4 Validation de la facturation
 
@@ -137,16 +154,38 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 ## 12.5 Règlements des factures
 
 - **RG-REG-001** — Un règlement est rattaché à une facture et à un centre : montant **non nul** (un montant négatif est
-  accepté et correspond à un remboursement ou à une correction), date obligatoire, auteur (« system » par défaut), code
-  `REG-` + 8 caractères généré. Accès : `ADMIN`, `SECRETAIRE`.
-- **RG-REG-002** — **Situation d'une facture** = comparaison du montant facturé et du total réglé : `NON_REGLEE` (rien
-  de réglé, reste = total), `PARTIELLEMENT_REGLEE` (reste > 0), `REGLEE` (soldée ;
-  si le réglé dépasse le facturé, la situation est « trop-perçu » et le montant excédentaire est affiché). Les montants
-  sont arrondis au centime.
+  un **remboursement**, voir RG-REG-005), date (le jour d'exécution si elle est absente, jamais contrôlée), **auteur =
+  l'utilisateur de la session** (« system » s'il est inconnu ; le `userId` du corps est ignoré), code `REG-` + 8
+  caractères généré, montant arrondi au centime. Le centre du corps ou de la requête doit être celui de la session (403
+  sinon, en écriture comme en lecture). Accès : `ADMIN`, `SECRETAIRE`. Un règlement enregistré ne se modifie ni ne
+  s'annule : le seul moyen de corriger est un remboursement.
+- **RG-REG-002** — **Situation d'une facture** = lecture calculée de la **somme signée** des règlements contre le total
+  TTC figé : `NON_REGLEE` (somme nulle, reste = total), `PARTIELLEMENT_REGLEE` (reste > 0), `REGLEE` (soldée ;
+  si le réglé dépasse le facturé, la situation est « trop-perçu » et le montant excédentaire est affiché : le
+  **trop-perçu est accepté**). Les montants sont arrondis au centime.
+- **RG-REG-005** — **Remboursement** (à valider par le métier) : un règlement négatif ne peut pas dépasser le **total déjà
+  réglé** de la facture (somme signée, trop-perçu compris) : refus **422** `REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE`. Il est
+  comptabilisé par l'écriture de **sens inverse** de l'encaissement (débit du compte client, crédit de la banque ou de la
+  caisse), libellée « Remboursement … » (décision du 2026-10-21).
+- **RG-REG-008** — **Export CSV des règlements** : une cellule de texte (numéro de facture, assurance, nom, prénom, caisse,
+  agence, centre payeur) qui commence par `=`, `+`, `-`, `@`, une tabulation ou un retour chariot est précédée d'une
+  apostrophe `'`, pour qu'un tableur ne l'exécute pas comme une formule ; les montants ne sont pas modifiés.
+- **Auteur** (réglages de facturation, types de TVA, règlements) : l'utilisateur connecté ; l'identité envoyée dans la requête
+  est ignorée.
+- **RG-REG-006** — **Mode de règlement et référence de paiement** (à valider par le métier) : un règlement peut porter un
+  mode (`BANQUE`, `CHEQUE`, `CAISSE`, `ESPECES`) et une référence libre (≤ 120 caractères). `CAISSE` et `ESPECES` sont
+  comptabilisés au journal de caisse ; `BANQUE`, `CHEQUE` et l'absence de mode (anciens règlements, reprise de données) au
+  journal de banque `BQ`. Un mode inconnu est refusé (400).
+- **RG-REG-007** — **Clé d'idempotence** (à valider par le métier) : le corps peut porter une clé (`cleIdempotence`,
+  ≤ 120 caractères) ; un renvoi pour la même facture et le même centre avec la même clé ne crée ni règlement, ni
+  événement, ni écriture et répond la situation courante de la facture. Sans clé, un renvoi crée un second règlement.
 - **RG-REG-003** — La recherche et le tableau de bord des règlements portent sur une **année** (2000 à 3000) et
   facultativement un **mois** (1 à 12), une caisse, une agence ou un centre payeur ; les listes sont
   paginées (page ≥ 0, taille > 0) et exportables en Excel ou PDF.
-- **RG-REG-004** — Chaque règlement enregistré déclenche la génération d'une écriture de trésorerie (RG-CPT-002).
+- **RG-REG-004** — Chaque règlement enregistré déclenche, après son enregistrement, la génération d'une écriture de
+  trésorerie (RG-CPT-002) par l'événement `FactureReglementRecordedEvent` (langage publié du contexte `facturation`,
+  porteur de l'identifiant du règlement, du montant signé et du mode) → `ReglementEncaisseComptabiliteListener`. Un mois
+  comptable clos n'empêche pas le règlement : l'écriture est alors à régénérer (`POST /comptabilite/rebuild`).
 
 ## 12.6 Comptabilité (plan SCF)
 
@@ -165,10 +204,10 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   `ComptabilisationDesVentesEtReglements`.
 - **RG-CPT-002** — **Écriture de règlement** : journal choisi pour les règlements en banque (`BQ` par défaut, débit
     512) ou en caisse (`CA` par défaut, débit 530, si le mode
-  est « caisse ») ; crédit du compte client ; montant en valeur absolue ; **une écriture par
-         règlement** (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Le mode par
-         défaut
-         du règlement enregistré est « banque ». Comme la vente, l'écriture est générée **après l'enregistrement du
+  est « caisse » ou « espèces ») ; crédit du compte client ; **un remboursement** (règlement négatif) est l'écriture de
+  sens inverse (débit du compte client, crédit de la trésorerie) pour la valeur absolue du montant ; **une écriture par
+         règlement** (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Sans mode
+         (anciens règlements), le règlement est comptabilisé en « banque » (RG-REG-006). Comme la vente, l'écriture est générée **après l'enregistrement du
          règlement**, dans sa propre transaction : un refus n'annule jamais le règlement, qui reste à régénérer
          (RG-CPT-024).
 - **RG-CPT-003** — Toute écriture comporte **au moins deux lignes** et doit être **équilibrée** (total débit = total
@@ -346,3 +385,10 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   `ComptabiliserLesVentesEtReglements.facturesSansEcriture/reconstruire` → `VentesEtReglementsControleur`
   (`/ventes/non-comptabilisees`, `/rebuild`) ; `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore`
   (`chercherVentesNonComptabilisees`, `reconstruireVentes`).
+- **RG-CPT-025** — **Les soldes d'ouverture ne sont pas comptabilisés par la plateforme.** Les factures de reprise
+  (numéro commençant par `REPRISE-`, créées par l'import « soldes d'ouverture ») et leurs règlements de reprise (auteur
+  `REPRISE`) sont exclus de la liste des factures sans écriture, de la régénération des écritures (`/rebuild`) et de la
+  comptabilisation automatique d'une période : ces soldes figurent déjà dans la comptabilité de l'ancien logiciel. Un
+  encaissement saisi ensuite dans la plateforme sur une facture de reprise reste un règlement ordinaire. *Source :*
+  `FacturesEmisesJdbc`, `ReglementsEncaissesJdbc` (contexte `facturation`, ports publiés par la Comptabilité) ; décision
+  du 2026-10-21 (KB-FAC-67).
