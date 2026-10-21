@@ -23,3 +23,7 @@ Thumbs.db
 
 # Golden masters (caracterisation) : fichiers recus non versionnes
 *.received.json
+
+# Fichiers temporaires locaux (cookie d authentification de test, traces)
+backend/tmp-*.txt
+backend/tmp-*.log
