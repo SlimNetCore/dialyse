@@ -125,14 +125,14 @@ du profil `prod` : `validate`). Le profil par défaut (`application.yml`) est `u
 - **Si `update`** : les colonnes manquantes sont créées automatiquement au démarrage, aucune ligne n'est supprimée ; mais le schéma réel
   peut différer de V5 (points 1 et 2). Notez la valeur et envisagez `validate` (décision hors de cette livraison).
 
-## 8. Version Flyway et migrations (V34, V35, V36, V37, V38)
+## 8. Version Flyway et migrations (V34 à V41)
 ```sql
 SELECT max(installed_rank) AS dernier_rang, max(version::int) AS version_courante
 FROM flyway_schema_history WHERE success AND version ~ '^[0-9]+$';
 
 SELECT version, description, success, checksum
 FROM flyway_schema_history
-WHERE version IN ('34', '35', '36', '37', '38')
+WHERE version IN ('34', '35', '36', '37', '38', '39', '40', '41')
 ORDER BY installed_rank;
 ```
 Le numéro **36 a deux histoires** : l'**ancienne V36** (projection nouveau vers legacy, schéma `gmao`) a été supprimée du dépôt et n'a
@@ -146,10 +146,12 @@ G4, additive et ré-exécutable), dont la description Flyway est **`gmao taches 
     déploiement, V35 sera appliquée au démarrage ;
   - la ligne **36** est **soit absente** (la V36 actuelle sera appliquée au premier démarrage du nouveau code : cas attendu),
     **soit présente avec la description `gmao taches intervention`** et `success = true` (déjà déployée) ;
-  - version courante inférieure à 34 avant déploiement ; 35 ou 36 après.
+  - les lignes **39** (Facturation F2, § 18), **40** (Facturation F3, § 19) et **41** (Facturation F4, règlements, § 20) sont
+    **absentes** avant le déploiement qui les apporte ; après déploiement, présentes avec `success = true` ;
+  - version courante inférieure à 34 avant déploiement ; 35, 36 ou 41 après selon le lot déployé.
 - **Si la ligne 36 existe avec une autre description** (ancienne V36, projection) : ne la supprimez pas ici ; la validation Flyway
   échouerait au démarrage du nouveau code (checksum différent). Dites-le avant déploiement.
-- **Si des lignes 34, 37 ou 38 existent** : même consigne, ne rien supprimer, le signaler.
+- **Si des lignes 34, 37, 38, 39, 40 ou 41 existent avant le déploiement qui les apporte** : même consigne, ne rien supprimer, le signaler.
 - **Checksum** de la V36 actuelle : calculé par Flyway sur le fichier. Si la ligne 36 est déjà présente, comparez la valeur lue
   ci-dessus à celle que le nouveau backend annonce (`flyway info`, ou journal de démarrage) : elle doit être identique.
 - Le nettoyage d'une base de **dev locale** est décrit (avec sa requête de contrôle sur la description) dans la section
@@ -542,10 +544,191 @@ FROM factures;
   19.7 et 19.8 sont informatifs.
 - La ligne **40** apparaît dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
 
+## 20. Facturation F4 : règlements, remboursements, mode et clé d'idempotence (migration V41, 2026-10-21)
+
+Lecture seule (SELECT). À exécuter avant le déploiement (20.1 à 20.7) puis après (20.8, 20.9).
+
+```sql
+-- 20.1 avant V41 : les trois colonnes n'existent pas (aucune ligne attendue) ; après V41 : trois lignes, toutes YES
+SELECT column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'facture_reglements' AND column_name IN ('mode_reglement', 'reference_paiement', 'cle_idempotence');
+
+-- 20.2 règlements sans facture dans le centre (orphelins : la route ne les voit pas, la Comptabilité les relit)
+SELECT fr.center_id, count(*) AS reglements_orphelins
+FROM facture_reglements fr
+LEFT JOIN factures f ON f.id = fr.facture_id AND f.center_id = fr.center_id
+WHERE f.id IS NULL
+GROUP BY fr.center_id;
+
+-- 20.3 FACTURES (pas leurs écritures : voir 20.10) dont la somme signée des règlements est négative ou dont un remboursement
+-- n'a aucun règlement préalable (le nouveau code refuse ces remboursements ; les anciens restent en base)
+SELECT f.center_id, f.numero_facture, SUM(fr.montant) AS total_regle,
+       SUM(CASE WHEN fr.montant < 0 THEN fr.montant ELSE 0 END) AS total_rembourse
+FROM facture_reglements fr
+JOIN factures f ON f.id = fr.facture_id AND f.center_id = fr.center_id
+GROUP BY f.center_id, f.numero_facture
+HAVING SUM(fr.montant) < 0 OR (SUM(CASE WHEN fr.montant < 0 THEN fr.montant ELSE 0 END) < 0
+                                AND SUM(CASE WHEN fr.montant > 0 THEN fr.montant ELSE 0 END) = 0);
+
+-- 20.4 factures en trop-perçu (information : le trop-perçu reste accepté)
+SELECT f.center_id, count(*) AS factures_en_trop_percu, sum(r.regle - f.total_ttc) AS total_trop_percu
+FROM factures f
+JOIN (SELECT facture_id, center_id, SUM(montant) AS regle FROM facture_reglements GROUP BY facture_id, center_id) r
+  ON r.facture_id = f.id AND r.center_id = f.center_id
+WHERE r.regle > f.total_ttc
+GROUP BY f.center_id;
+
+-- 20.5 doublons probables : même facture, même date, même montant et même auteur, plusieurs fois (envois répétés, KB-FAC-39)
+SELECT fr.center_id, fr.facture_id, fr.date_reglement, fr.montant, fr.saisi_par, count(*) AS occurrences
+FROM facture_reglements fr
+GROUP BY fr.center_id, fr.facture_id, fr.date_reglement, fr.montant, fr.saisi_par
+HAVING count(*) > 1
+ORDER BY occurrences DESC
+LIMIT 50;
+
+-- 20.6 auteurs saisis (information : avant F4 le texte libre du corps, « system » par défaut ; ensuite l'identifiant de l'utilisateur)
+SELECT CASE WHEN saisi_par ~* '^[0-9a-f-]{36}$' THEN 'identifiant d''utilisateur'
+            WHEN saisi_par IS NULL THEN 'vide' ELSE 'texte libre' END AS nature, count(*) AS reglements
+FROM facture_reglements
+GROUP BY 1;
+
+-- 20.7 règlements sans code (les règlements de reprise ont un code REP-…, les autres REG-…)
+SELECT center_id, count(*) FILTER (WHERE code_reglement IS NULL) AS sans_code,
+       count(*) FILTER (WHERE code_reglement LIKE 'REP-%') AS de_reprise
+FROM facture_reglements
+GROUP BY center_id;
+
+-- 20.8 après déploiement : règlements par mode (les anciens règlements ont un mode NULL, comptabilisés en banque)
+SELECT coalesce(mode_reglement, '(sans mode)') AS mode, count(*) AS reglements
+FROM facture_reglements
+GROUP BY 1
+ORDER BY 2 DESC;
+
+-- 20.9 après déploiement : l'index d'unicité de la clé d'idempotence existe et aucune clé n'est répétée pour une facture
+SELECT indexname FROM pg_indexes WHERE indexname = 'ux_facture_reglements_cle_idempotence';
+SELECT center_id, facture_id, cle_idempotence, count(*) FROM facture_reglements
+WHERE cle_idempotence IS NOT NULL GROUP BY 1, 2, 3 HAVING count(*) > 1;
+
+-- 20.10 avant déploiement : ÉCRITURES de remboursement déjà passées en valeur absolue (source = règlement négatif), à extourner
+-- avec le comptable ; le nouveau code ne les réécrit pas (écriture de sens inverse seulement pour les nouveaux remboursements)
+SELECT e.center_id, e.journal_code, e.numero_piece, e.date_ecriture, fr.montant AS montant_du_reglement
+FROM ecritures_comptables e
+JOIN facture_reglements fr ON fr.id = e.source_id AND fr.center_id = e.center_id
+WHERE fr.montant < 0
+ORDER BY e.center_id, e.date_ecriture;
+```
+
+- **Attendu** : 20.1 aucune ligne avant, trois lignes `YES` après ; 20.2 aucune ligne (sinon les lister, ils ne sont visibles
+  d'aucun écran) ; 20.3 : rapporter le nombre (ces factures ont un total réglé incohérent à régulariser par le métier) ; 20.4 à 20.8
+  informatifs (20.5 : transmettre le nombre de lignes, pour décider d'un nettoyage ; ne rien supprimer sans validation écrite) ; 20.9 une
+  ligne puis aucune. **20.10** liste les écritures de remboursement passées en valeur absolue (sens d'encaissement) avant F4 :
+  rapporter le nombre et les pièces, à extourner par le comptable (20.3 ne liste que les factures concernées).
+- La ligne **41** apparaît dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
+- Les règlements comptabilisés en valeur absolue avant F4 (remboursements) restent tels quels dans la comptabilité : voir
+  `known-bugs.md` § « Décisions F4 » pour l'écart sur l'argent et la régularisation à décider avec le comptable.
+
+## 21. Facturation F5 : totaux enregistrés des factures et chiffres de la synthèse (aucune migration, 2026-10-21)
+
+Lecture seule (SELECT). À exécuter avant le déploiement ; aucune migration. La synthèse mensuelle affiche désormais les totaux
+enregistrés des factures (HT, TVA, TTC) au lieu du TTC recalculé par ligne : ces contrôles mesurent l'écart attendu.
+
+```sql
+-- 21.1 factures dont le TTC enregistré n'est pas HT + TVA (incohérence à signaler ; aucune ligne attendue)
+SELECT center_id, numero_facture, total_ht, total_tva, total_ttc, total_ht + total_tva - total_ttc AS ecart
+FROM factures
+WHERE total_ttc <> total_ht + total_tva
+ORDER BY center_id, date_facturation;
+
+-- 21.2 écart entre les totaux enregistrés et la somme des lignes, par centre et par mois (la nouvelle synthèse suit les premiers)
+SELECT f.center_id, TO_CHAR(f.date_facturation, 'YYYY-MM') AS mois,
+       SUM(f.total_ht) AS ht_enregistre, SUM(l.ht_lignes) AS ht_lignes,
+       SUM(f.total_ttc) AS ttc_enregistre,
+       SUM(l.ht_lignes * (1 + f.tva_rate / 100)) AS ttc_ancienne_synthese,
+       SUM(f.total_ttc) - SUM(l.ht_lignes * (1 + f.tva_rate / 100)) AS ecart_ttc
+FROM factures f
+LEFT JOIN (SELECT facture_id, SUM(line_ht) AS ht_lignes FROM facture_lignes GROUP BY facture_id) l ON l.facture_id = f.id
+GROUP BY f.center_id, TO_CHAR(f.date_facturation, 'YYYY-MM')
+ORDER BY f.center_id, mois;
+
+-- 21.3 factures dont le HT enregistré diffère de la somme de leurs lignes (la part de TTC par ligne suppose l'égalité ; aucune ligne attendue)
+SELECT f.center_id, f.numero_facture, f.total_ht, COALESCE(SUM(l.line_ht), 0) AS somme_lignes
+FROM factures f
+LEFT JOIN facture_lignes l ON l.facture_id = f.id
+GROUP BY f.center_id, f.numero_facture, f.total_ht
+HAVING f.total_ht <> COALESCE(SUM(l.line_ht), 0)
+ORDER BY f.center_id, f.numero_facture;
+
+-- 21.4 factures sans ligne (comptées maintenant dans les montants globaux de la synthèse ; aucune ligne attendue)
+SELECT f.center_id, f.numero_facture, f.total_ht, f.total_ttc
+FROM factures f
+WHERE NOT EXISTS (SELECT 1 FROM facture_lignes l WHERE l.facture_id = f.id)
+ORDER BY f.center_id, f.numero_facture;
+
+-- 21.5 factures dont le HT enregistré est nul alors que des lignes existent (part de TTC par ligne mise à zéro ; aucune ligne attendue)
+SELECT f.center_id, f.numero_facture, f.total_ttc
+FROM factures f
+WHERE f.total_ht = 0 AND EXISTS (SELECT 1 FROM facture_lignes l WHERE l.facture_id = f.id AND l.line_ht <> 0)
+ORDER BY f.center_id, f.numero_facture;
+
+-- 21.6 factures sans caisse (agence figée absente ou caisse introuvable) : colonne « Inconnu » de la synthèse
+SELECT f.center_id, COUNT(*) AS factures_sans_caisse
+FROM factures f
+LEFT JOIN agence a ON a.id = f.agence_id_snapshot
+LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id
+WHERE ca.id IS NULL
+GROUP BY f.center_id
+ORDER BY f.center_id;
+```
+
+- **Attendu** : 21.1, 21.3, 21.4 et 21.5 aucune ligne (sinon les lister : elles expliquent un écart entre la synthèse et le détail) ;
+  21.2 : transmettre les écarts par centre et par mois (c'est ce que la direction verra changer dans la synthèse imprimée) ;
+  21.6 informatif.
+- Aucune migration : rien à voir dans `flyway_schema_history`.
+
+
+## 22. Facturation F6 : factures et règlements de reprise comptabilisés par erreur (aucune migration, 2026-10-21)
+
+Depuis F6 (KB-FAC-67), le rebuild comptable exclut les factures de reprise des soldes d'ouverture (`numero_facture` commençant par
+`REPRISE-`) et leurs règlements. Les écritures **déjà générées** pour ces pièces avant le déploiement sont à repérer (SELECT seulement) ;
+leur extourne est à décider avec le comptable et n'est pas exécutée par le code.
+
+```sql
+-- 22.1 écritures de ventes (journal VE) dont la source est une facture de reprise
+SELECT e.center_id, e.journal_code, e.numero_piece, e.date_ecriture, e.statut, e.updated_at, f.numero_facture, f.total_ttc
+FROM ecritures_comptables e
+JOIN factures f ON f.id = e.source_id AND f.center_id = e.center_id
+WHERE f.numero_facture LIKE 'REPRISE-%'
+ORDER BY e.center_id, e.date_ecriture, f.numero_facture;
+
+-- 22.2 écritures de règlement dont la source est un règlement d'une facture de reprise
+SELECT e.center_id, e.journal_code, e.numero_piece, e.date_ecriture, e.statut, e.updated_at, r.code_reglement, r.montant, f.numero_facture
+FROM ecritures_comptables e
+JOIN facture_reglements r ON r.id = e.source_id AND r.center_id = e.center_id
+JOIN factures f ON f.id = r.facture_id
+WHERE f.numero_facture LIKE 'REPRISE-%'
+ORDER BY e.center_id, e.date_ecriture, f.numero_facture;
+
+-- 22.3 totaux par centre et par statut (exportées ou non : une écriture exportée vers le logiciel comptable demande une extourne, pas une suppression)
+SELECT e.center_id, e.statut, COUNT(*) AS ecritures
+FROM ecritures_comptables e
+WHERE e.source_id IN (SELECT id FROM factures WHERE numero_facture LIKE 'REPRISE-%')
+   OR e.source_id IN (SELECT r.id FROM facture_reglements r JOIN factures f ON f.id = r.facture_id WHERE f.numero_facture LIKE 'REPRISE-%')
+GROUP BY e.center_id, e.statut
+ORDER BY e.center_id, e.statut;
+```
+
+- **Attendu** : aucune ligne si le rebuild n'a jamais été lancé sur des centres ayant fait une reprise de soldes ; sinon transmettre les totaux
+  de 22.3 au comptable (la procédure d'extourne se décide avec lui : écriture inverse datée d'une période ouverte, ou suppression si la
+  pièce n'a pas été exportée et la période est ouverte). Aucune écriture n'est modifiée par le déploiement.
+- Aucune migration : rien à voir dans `flyway_schema_history`.
+- Vérifier avant l'exécution les noms de colonnes (`journal_code`, `numero_piece`, `statut`, `updated_at` : date d'export d'une écriture exportée, ADR 0026, `source_id`) sur le schéma de production.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
 G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
 toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18 ; pour F3, les points
-19.1 à 19.6.
+19.1 à 19.6 ; pour F4, les points 20.1 à 20.5 et 20.10 (V41, remboursements et écritures de remboursement historiques) ; pour F5, le point 21.2
+(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable).

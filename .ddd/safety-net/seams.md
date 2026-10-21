@@ -143,3 +143,46 @@ factures nommées `<FACTURE_n>` par ordre de numéro.
 | `FacturationDomainService.java:54,93,99,117` (`LocalDate.now()` : date de facture, taux de TVA, année de séquence) | injecter une `Clock`                                                                                                                                   | aucun ; permettrait de rejouer une validation à une date donnée (KB-FAC-22/23) sans fixture relative au jour |
 | `FactureJdbcAdapter.java:89-114` (`nextInvoiceNumber`, lecture puis écriture sans verrou)                          | aucun seam : le verrou est la correction elle-même (KB-FAC-24, Q6) ; la course n est observable que par un test concurrent non déterministe, non écrit | flaky si tenté                                                                                               |
 | `FacturationApplicationService.java:33-48` (période et `OffsetDateTime.now()` de l événement)                      | aucun : correction KB-FAC-28/29                                                                                                                        | —                                                                                                            |
+
+# Seams — slice facturation-f4-reglements (2026-10-21)
+
+Aucun seam appliqué ni nécessaire : `seamAllowed` inchangé (vide), aucun fichier de production modifié. Le jour d'exécution (`LocalDate.now()` de
+`RegisterFacturePaymentCommand.effectiveDate`) n'est observé que comme date par défaut (remplacée par `<AUJOURD_HUI>`) ; identifiants et codes
+aléatoires normalisés ; règlements dont l'ordre importe posés en SQL avec horodatage fixe.
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne | Refactoring mécanique | Risque |
+|---|---|---|
+| `ReglementUseCase.java` (`RegisterFacturePaymentCommand.effectiveDate`, `LocalDate.now()`) | injecter une `Clock` (ou passer la date par l'application) | aucun ; permettrait de figer la date par défaut sans normalisation |
+| `FactureReglementAggregate.java` (`enregistrerPaiement`, `UUID.randomUUID()`) | injecter un générateur d'identifiants | aucun ; permettrait des codes `REG-` fixes |
+| `FactureReglementJdbcAdapter.java` (`ORDER BY created_at` sans départage, `CURRENT_TIMESTAMP`) | aucun seam : le départage est la correction elle-même (KB-FAC-49) | observable seulement avec des horodatages distincts |
+
+# Seams — slice facturation-f5-consultation-pilotage (2026-10-21)
+
+Aucun seam appliqué ni nécessaire : `seamAllowed` inchangé (vide), aucun fichier de production modifié. Non-déterminisme maîtrisé sans seam :
+dates de fixtures fixes (2026) ; la date de facturation d'une facture émise par `POST /facturation/validate` (jour de validation) est ramenée par SQL à une
+date fixe avant lecture ; l'instant de génération des lectures Direction (`generatedAt`) est remplacé par `<HORODATAGE>` ; le PDF de la synthèse ne porte
+aucun horodatage d'édition (texte extrait par PDFBox) ; défauts de période de la Direction vérifiés par assertion relative à `LocalDate.now()`.
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne | Refactoring mécanique | Risque |
+|---|---|---|
+| `DirectionDashboardQueryService.java:82-83` (`LocalDate.now()` pour `to`/`from` par défaut), `DirectionBreakdownQueryService.java:81`, `DirectionAbsencesQueryService.java:79` (`LocalDate.now(ZoneOffset.UTC)`) | injecter une `Clock` (le fuseau diffère entre les deux services : KB-FAC-63) | aucun ; figerait les défauts de période sans assertion relative |
+| `FacturationSyntheseMensuelleReportService.java:53-54, 79-80` (fichier `.jrxml`/`.jasper` temporaire dans le dossier système) | passer le gabarit en mémoire (`JasperCompileManager.compileReport(InputStream)`) | à décider avec la conception de F5 (le test vérifie seulement l'absence de fichier résiduel) |
+| `FacturationSyntheseMensuelleReportService.java:501-508` (`bar`, privé) | extraire en méthode statique de paquet pour le tester seul | aucun ; le filet HTTP verrouille déjà les arrondis des barres (2,5 -> 3 ; 7,5 -> 8) |
+
+# Seams — slice facturation-f6-retrait-bc-facturation (2026-10-21)
+
+Aucun seam appliqué ni nécessaire : `seamAllowed` inchangé (vide), aucun fichier de production modifié. Non-déterminisme maîtrisé sans seam :
+fixtures à identifiants fixes et NOMMÉS ; dates 2026 fixes sauf la déclaration d'absence, bornée à 60 jours en arrière, dont les jours sont relatifs
+au jour d'exécution mais NOMMÉS (`<J_MOINS_20_DEBUT_DE_PERIODE>`, …) ; `patient_code` (`PAT-XXXXXXXX`) et `code_reglement` (`REG-`/`REP-`) aléatoires masqués ;
+`saisi_par` fixé par un utilisateur d'identifiant fixe.
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne | Refactoring mécanique | Risque |
+|---|---|---|
+| `OpeningBalanceJdbcAdapter.java` (`UUID.randomUUID()` des identifiants de facture/ligne/règlement, `OffsetDateTime.now()`, code `REP-` aléatoire) | injecter un générateur d'identifiants et une `Clock` | aucun ; les goldens masquent déjà ces valeurs |
+| `AbsencePatientService` (`aujourdhui()`, fenêtre de déclaration de 60 jours) | injecter la `Clock` déjà présente jusqu'à la date | aucun ; permettrait des dates fixes pour les absences (aujourd'hui jours relatifs nommés) |

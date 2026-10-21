@@ -108,7 +108,11 @@ Filet F1 vert sur le legacy puis sur le nouveau code ; écarts décidés tracés
 
 **Retiré du legacy** : `TvaTypesRestController`, `TvaTypeRequest`, `TypeTvaApplicationService`, `TypeTvaDomainService`,
 `TypeTvaUseCase`, `FacturationSettingsUpdateRequest`, les routes `/settings` de `FacturationRestController`, les caches
-`tva-types-list` et `tva-active`. **Reste** (simulation et validation, jusqu'à F2/F3) : `TypeTVA`,
+`tva-types-list` et `tva-active`. **Retiré le 2026-10-21 (revue F1-F4)** : `TypeTVA`, `TypeTvaRepositoryPort`, `TypeTvaJdbcAdapter` (aucun consommateur depuis F3).
+**Auteur (KB-FAC-R01, décision 2026-10-21)** : l'auteur des réglages et des types de TVA est l'utilisateur de la session
+(`"system"` si la session ne le donne pas) ; `userId` du corps reste exigé (400 si blanc) mais est ignoré ; goldens `_nouveau_code`.
+Les écrans `facturation-settings.component.ts` et `tva-types.component.ts` envoient encore `userId` : contrat inchangé, rien à
+casser. Historique : **Reste** (simulation et validation, jusqu'à F2/F3) : `TypeTVA`,
 `TypeTvaRepositoryPort`
 / `TypeTvaJdbcAdapter.findActiveAt`, `FacturationSettingsRepositoryPort` / `FacturationSettingsJdbcAdapter` — ce dernier
 corrigé de la même façon (lecture sans écriture, écriture portable) car la validation le lit aussi.

@@ -112,7 +112,7 @@ Crons métier : chacun devient une **politique** dans son contexte propriétaire
 |---|---|---|---|
 | GMAO | **restant** — candidat n°1 | `bc-gmao` + adapters `platform` | 1 (isolé, risque bas) |
 | Comptabilité | restant | `bc-comptabilite`, listeners, cron 03:15 | 2 (déjà événementiel ; filet de caractérisation d'abord, 0 test) |
-| Facturation | restant | `bc-facturation`, `bc-reglement`, `SeanceFacturationJdbcAdapter` | 3 (ACL de lecture des séances legacy le temps de la migration) |
+| Facturation | restant | `bc-facturation`, `bc-reglement` (**retirés**, F4 et F6, 2026-10-21), `SeanceFacturationJdbcAdapter` | 3 (ACL de lecture des séances legacy le temps de la migration) |
 | Absences patients | restant | `bc-seance/domain/absence`, cron 02:30 | 4 |
 | Stock | restant | `bc-stock`, `bc-article` | 5 |
 | Planification | restant | `bc-seance/domain/{planning,infirmier}`, Timefold | 6 |

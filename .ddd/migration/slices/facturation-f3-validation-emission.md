@@ -191,18 +191,9 @@ l'ajout de deux tests qui tuent les deux survivants (identité de la facture, nu
    quand le
    frontend le permet.
 
-### Reste à retirer avec F4..F6
+### Retiré par F6
 
-Conservé car encore lu par F4/F5/F6 ou par un test de consommateur : `FacturationRestController` (`/dashboard`,
-`/synthese/print`), `FacturationDomainService.dashboard`, `FacturationUseCase.dashboard`,
-`FacturationApplicationService`,
-`SeanceFacturationPort.loadDashboard` / `SeanceFacturationJdbcAdapter.loadDashboard` et les types
-`FacturationDashboard*`,
-`TypeTVA`, `TypeTvaRepositoryPort` / `TypeTvaJdbcAdapter` (référencés par le test de caractérisation
-`MappingTvaConsommateursCharacterizationIntegrationTest`, à retirer avec F6), lectures de `factures` / `facture_lignes`
-des
-rapports, de la Direction, des Absences, du Stock et des Règlements (F4), `OpeningBalanceJdbcAdapter` et
-`MigrationRollbackJdbcAdapter` (reprise de données).
+Retiré ou passé par le langage publié par la slice F6 (fiche `facturation-f6-retrait-bc-facturation.md`, 2026-10-21) : le module `bc-facturation` n'existe plus.
 
 ### Plan de bascule
 
@@ -222,3 +213,10 @@ production : `verifications-production.md` point 19. **Frontend à adapter** (no
   période) ;
 - l' **auteur** de l'émission est l'utilisateur de la session (le champ `userId` du corps reste exigé) ;
 - écran réservé à `ADMIN` (comportement inchangé pour `MEDECIN`, déjà refusé).
+
+## Correctif 2026-10-21 : événement v3 borné et table `event_publication` en H2 (KB-FAC-72, ADR 0036)
+
+- Cause : en H2, Modulith créait `serialized_event VARCHAR(4000)` ; l'événement v2 (une ligne par facture) le dépassait dès ~20 factures ; la validation entière était annulée.
+- Correction 1 : `event_publication` créée dans `db/schema.sql` (colonne `VARCHAR(1000000)`), initialisation Modulith désactivée dans `application.yml` ; V35 inchangée.
+- Correction 2 : `FacturationValideeEvent` v3 = centre, période, `nombreDeFactures`, séances facturées, total TTC, instant. La Comptabilité relit les factures de la période sans écriture (inchangé : elle n'utilisait pas la liste) ; écritures identiques.
+- Tests : validation de 300 factures sur H2 (échouait avant) ; goldens d'événement migrés (forme seule) ; `ValiderLaFacturationTest` : assertions sur les factures émises au lieu de l'événement.

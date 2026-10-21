@@ -168,22 +168,9 @@ change pas.
 4. L'auteur de l'absence est l'utilisateur de la session ; `userId` du corps n'est plus utilisé que pour la surcharge de
    forfait.
 
-### Reste à retirer avec F3..F6
+### Retiré par F6
 
-Legacy conservé car encore lu par la validation (F3) : `FacturationRestController` (`/validate`, `/dashboard`,
-`/synthese/print`), `FacturationDomainService` (`preview` interne à `validate`, `validate`, `dashboard`, réglages),
-`FacturationUseCase` (`validate`, `dashboard`, réglages), `FacturationApplicationService`, `SeanceFacturationPort` /
-`SeanceFacturationJdbcAdapter` (`findEligibleSeances` et le calcul du forfait pour `validate`, `markAsBilled`,
-`loadDashboard`),
-`TypeTvaRepositoryPort` / `TypeTvaJdbcAdapter.findActiveAt`, `FactureRepositoryPort.currentInvoiceSequence` /
-`nextInvoiceNumber`, `FactureNumberTemplate`, `FacturationPreviewQuery/Result/Invoice/Line/Seance` (portés par
-`validate`),
-`SeanceEligibleForFacturationSpecification`. **Retiré en F2** : les trois routes de simulation du contrôleur,
-`FacturationUseCase.preview/excludeSeance/updateSeanceForfait`,
-`FacturationDomainService.excludeSeance/updateSeanceForfait`,
-`SeanceFacturationPort.markAsAbsent/overrideForfait`, les trois requêtes `FacturationPreview*Request`, les deux
-commandes,
-`FacturationRestControllerTest` (son seul test portait sur la route retirée).
+Retiré ou passé par le langage publié par la slice F6 (fiche `facturation-f6-retrait-bc-facturation.md`, 2026-10-21) : le module `bc-facturation` n'existe plus.
 
 ### Plan de bascule
 
