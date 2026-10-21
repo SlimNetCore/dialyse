@@ -152,6 +152,42 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002). *Source :*
   `FacturationValideeEvent` (langage publié du contexte `facturation`) → `FacturationValideeComptabiliteListener`.
 
+## 12.4 bis Clôture mensuelle de facturation
+
+- **RG-FAC-040** — **Clôture d'un mois** (`POST /api/v1/facturation/periodes/{mois}/cloturer`, mois `AAAA-MM`, `ADMIN`) : un
+  mois par centre, **sans aucune précondition** (l'administrateur décide, y compris un mois futur ou sans séance). La réponse
+  porte l'**avertissement chiffré** `seancesEligiblesRestantes` : nombre de séances du centre dans ce mois encore éligibles à la
+  facturation (statut `VALIDEE` ou `SIGNEE`, non facturées, non exclues). Le centre du corps (facultatif) ou de la requête doit
+  être celui de la session (403 sinon) ; l'auteur est l'utilisateur de la session. Clôturer deux fois le même mois est refusé
+  (409 `PERIODE_DEJA_CLOTUREE`, la première clôture reste). Mois illisible : 400 `MOIS_INVALIDE`. *Source :* `MoisDeFacturation`,
+  `CloturerLeMois` (contexte `facturation`, ADR 0037).
+- **RG-FAC-041** — **Effets d'un mois clos** : sont refusés (422 `PERIODE_DE_FACTURATION_CLOTUREE`, message avec le mois) la
+  **validation** de la facturation dont la période touche au moins un mois clos du centre (tout mois couvert par l'intervalle,
+  même d'un seul jour), et l'**exclusion**, la **réinclusion** et le **changement de forfait** d'une séance dont la date est
+  dans un mois clos (la période demandée n'y change rien). Restent permis : la simulation (`POST /preview`), toutes les
+  lectures, les règlements (RG-REG-001) et la comptabilisation des factures déjà émises. Les autres mois et les autres centres ne
+  sont pas touchés. Aucun mois n'est clos par défaut. *Source :* `GardeDesMoisClos` (appelée par `ValiderLaFacturation`,
+  `ExclureUneSeance`, `ReinclureUneSeance`, `ChangerLeForfaitDUneSeance`).
+- **RG-FAC-042** — **Clôture et émission se sérialisent** pour un même (centre, mois) : la ligne du mois est verrouillée
+  (`SELECT ... FOR UPDATE`) jusqu'à la fin de la transaction de la clôture, de la réouverture, de la validation et de chaque
+  modification de la simulation. Une validation en cours fait attendre la clôture (qui compte alors des séances restantes
+  exactes) ; une clôture en cours fait attendre la validation, qui est ensuite refusée (RG-FAC-041). Les mois d'un intervalle
+  se verrouillent du plus ancien au plus récent. *Source :* `MoisDeFacturationJdbc.verrouiller`.
+- **RG-FAC-043** — **Réouverture** (`POST /api/v1/facturation/periodes/{mois}/rouvrir`, `ADMIN`) : le **motif est
+  obligatoire** (400 `MOTIF_DE_REOUVERTURE_OBLIGATOIRE` ; 500 caractères au plus), l'auteur est l'utilisateur de la session ;
+  rouvrir un mois qui n'est pas clos est refusé (409 `PERIODE_NON_CLOTUREE`). Un mois rouvert peut être clos à nouveau.
+  *Source :* `RouvrirLeMois`.
+- **RG-FAC-044** — La réouverture est refusée (422 `PERIODE_COMPTABLE_CLOTUREE`) si la **période comptable du même mois et du
+  même centre est clôturée** (RG-CPT-005) : la Facturation lit cet état par le langage publié `PeriodesComptables` de la
+  Comptabilité ; on ne rouvre pas la facturation d'un mois dont la comptabilité est close. *Source :* `ClotureComptable`
+  (ACL `ClotureComptableComptabilite`).
+- **RG-FAC-045** — **Traçabilité et lecture** : chaque clôture (auteur, instant, séances éligibles restantes) et chaque
+  réouverture (auteur, instant, motif) est ajoutée à un **journal append-only** (`periodes_facturation_journal`) et publiée
+  par un évènement d'intégration (`PeriodeDeFacturationCloturee`, `PeriodeDeFacturationRouverte`, jamais publié si l'acte est
+  refusé ; aucun consommateur pour l'instant). `GET /api/v1/facturation/periodes?annee=AAAA` (`ADMIN`, 2000 à 2100, 400
+  `ANNEE_INVALIDE` sinon) donne l'état des 12 mois du centre : ouvert ou clôturé, dernière clôture (par, le), dernière
+  réouverture (par, le, motif). *Source :* `PeriodesDeFacturationControleur`, `ConsulterLesPeriodes`.
+
 ## 12.5 Règlements des factures
 
 - **RG-REG-001** — Un règlement est rattaché à une facture et à un centre : montant **non nul** (un montant négatif est

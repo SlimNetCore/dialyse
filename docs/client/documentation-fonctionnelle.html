@@ -2865,6 +2865,19 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
             <code>FacturationValideeEvent</code> (langage publié du contexte <code>facturation</code>) → <code>FacturationValideeComptabiliteListener</code>.
         </p>
 </div></div>
+<h2>12.4 bis Clôture mensuelle de facturation</h2>
+<div class="rule" id="RG-FAC-040"><div class="rid">RG-FAC-040</div><div class="rtxt"><p><strong>Clôture d&#39;un mois</strong> (<code>POST /api/v1/facturation/periodes/{mois}/cloturer</code>, mois <code>AAAA-MM</code>, <code>ADMIN</code>) : un mois par centre, <strong>sans aucune précondition</strong> (l&#39;administrateur décide). La réponse porte l&#39;<strong>avertissement chiffré</strong> <code>seancesEligiblesRestantes</code> : nombre de séances du centre dans ce mois encore éligibles à la facturation (statut <code>VALIDEE</code> ou <code>SIGNEE</code>, non facturées, non exclues). Clôturer deux fois le même mois est refusé (409 <code>PERIODE_DEJA_CLOTUREE</code>).</p>
+</div></div>
+<div class="rule" id="RG-FAC-041"><div class="rid">RG-FAC-041</div><div class="rtxt"><p><strong>Effets d&#39;un mois clos</strong> : sont refusés (422 <code>PERIODE_DE_FACTURATION_CLOTUREE</code>, avec le mois) la <strong>validation</strong> dont la période touche au moins un mois clos du centre, et l&#39;<strong>exclusion</strong>, la <strong>réinclusion</strong> et le <strong>changement de forfait</strong> d&#39;une séance dont la date est dans un mois clos. Restent permis : la simulation, les lectures et les règlements. Les autres mois et les autres centres ne sont pas touchés ; aucun mois n&#39;est clos par défaut.</p>
+</div></div>
+<div class="rule" id="RG-FAC-042"><div class="rid">RG-FAC-042</div><div class="rtxt"><p><strong>Clôture et émission se sérialisent</strong> pour un même centre et un même mois (verrou du mois jusqu&#39;à la fin de la transaction) : une validation en cours fait attendre la clôture ; une clôture en cours fait attendre la validation, qui est ensuite refusée.</p>
+</div></div>
+<div class="rule" id="RG-FAC-043"><div class="rid">RG-FAC-043</div><div class="rtxt"><p><strong>Réouverture</strong> (<code>POST /api/v1/facturation/periodes/{mois}/rouvrir</code>, <code>ADMIN</code>) : le <strong>motif est obligatoire</strong> (400 <code>MOTIF_DE_REOUVERTURE_OBLIGATOIRE</code>), l&#39;auteur est l&#39;utilisateur de la session ; rouvrir un mois qui n&#39;est pas clos est refusé (409 <code>PERIODE_NON_CLOTUREE</code>). Un mois rouvert peut être clos à nouveau.</p>
+</div></div>
+<div class="rule" id="RG-FAC-044"><div class="rid">RG-FAC-044</div><div class="rtxt"><p>La réouverture est refusée (422 <code>PERIODE_COMPTABLE_CLOTUREE</code>) si la <strong>période comptable du même mois et du même centre est clôturée</strong> (RG-CPT-005).</p>
+</div></div>
+<div class="rule" id="RG-FAC-045"><div class="rid">RG-FAC-045</div><div class="rtxt"><p><strong>Traçabilité et lecture</strong> : chaque clôture (auteur, instant, séances restantes) et chaque réouverture (auteur, instant, motif) est ajoutée à un <strong>journal</strong> qui ne se modifie jamais et publiée par un évènement (aucun consommateur pour l&#39;instant). <code>GET /api/v1/facturation/periodes?annee=AAAA</code> donne l&#39;état des 12 mois du centre : ouvert ou clôturé, dernière clôture, dernière réouverture avec son motif.</p>
+</div></div>
 <h2>12.5 Règlements des factures</h2>
 <div class="rule" id="RG-REG-001"><div class="rid">RG-REG-001</div><div class="rtxt"><p>Un règlement est rattaché à une facture et à un centre : montant <strong>non nul</strong> (un montant négatif est
 est un <strong>remboursement</strong>, voir RG-REG-005), date (le jour d&#39;exécution si elle est absente, jamais contrôlée), <strong>auteur =

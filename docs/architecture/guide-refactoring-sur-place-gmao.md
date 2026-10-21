@@ -183,6 +183,19 @@ sous-classe d'`IllegalStateException` pour ne casser aucun test unitaire) se rè
 génériques ; (e) un écart décidé = goldens `*_nouveau_code` après relecture du diff, anciens goldens retirés. Fiche :
 `.ddd/migration/slices/facturation-f6-retrait-bc-facturation.md`, ADR 0035.
 
+## 6 nonies. Facturation, slice F7 : clôture mensuelle (nouvelle fonctionnalité, 2026-10-21)
+
+Aucun legacy à caractériser : TDD du domaine (`MoisDeFacturation`), puis application, JDBC, HTTP, goldens `*_nouveau_code`. Leçons :
+(a) un invariant temporel qui doit tenir **face à une écriture concurrente** se protège par un **verrou de ligne** pris dans la
+transaction de l'écriture (`SELECT ... FOR UPDATE`, ligne du mois créée ouverte si absente), pas par une simple lecture ; la preuve est
+un test déterministe à deux transactions qui échoue si l'on retire le verrou (`MoisDeFacturationConcurrentContrat`) ; (b) la garde est un
+service d'application (`GardeDesMoisClos`) injecté dans les quatre cas d'usage concernés, ce qui garde les contrôleurs et le domaine
+du calcul intacts et laisse tous les scénarios existants verts tant qu'aucun mois n'est clos ; (c) un état lu dans un autre contexte
+(période comptable) passe par un port **publié côté fournisseur** (`PeriodesComptables`) et une ACL fine, jamais par sa table ;
+(d) un nom déjà pris par un autre concept (`PeriodeDeFacturation` = intervalle de dates) impose de nommer le nouvel agrégat
+(`MoisDeFacturation`) plutôt que de renommer l'existant ; (e) sans écouteur, le registre d'événements n'enregistre rien : on ne
+fabrique pas un écouteur factice. Fiche : `.ddd/migration/slices/facturation-f7-cloture-mensuelle.md`, ADR 0037.
+
 ## 7. Refaire sur un autre projet
 1. Cartographier (scan, glossaire) et choisir une petite slice verticale.
 2. Écrire le filet de caractérisation HTTP et le rendre vert sur l'existant.
