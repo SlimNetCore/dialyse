@@ -1,0 +1,29 @@
+{
+  "base" : [ {
+    "commentaire" : "note initiale de detection",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "commentaire_avant" : {
+    "valeur" : "note initiale de detection"
+  },
+  "qualification_sans_commentaire" : {
+    "status" : 200
+  }
+}

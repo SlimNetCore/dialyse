@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "detail" : "Cette absence n'est plus modifiable",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_02>/rattrapage",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

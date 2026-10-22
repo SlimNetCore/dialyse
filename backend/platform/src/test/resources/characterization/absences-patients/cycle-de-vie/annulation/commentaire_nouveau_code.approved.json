@@ -1,0 +1,96 @@
+{
+  "base_apres_commentaire_trop_long" : [ {
+    "commentaire" : "commentaire d'origine",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "base_apres_refus" : [ {
+    "commentaire" : "commentaire d'origine",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "base_finale" : [ {
+    "commentaire" : "nouveau commentaire",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  } ],
+  "commentaire_absent" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "commentaire_blanc" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "commentaire_de_1001_caracteres" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "commentaire_nul" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "commentaire_valide" : {
+    "status" : 200
+  },
+  "commentaire_vide" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "identifiant_non_uuid" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "json_illisible" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "annulation_de_la_premiere" : {
+    "status" : 200
+  },
+  "autre_patient_meme_jour" : {
+    "status" : 201
+  },
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-5>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_3>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "erreur de saisie",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-4>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_1>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "DECLAREE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-4>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_2>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "deuxieme_meme_jour" : {
+    "code" : "ABSENCE_EXISTANTE",
+    "status" : 422
+  },
+  "meme_patient_autre_jour" : {
+    "status" : 201
+  },
+  "premiere" : {
+    "status" : 201
+  },
+  "redeclaration_apres_annulation" : {
+    "code" : "ABSENCE_EXISTANTE",
+    "status" : 422
+  }
+}

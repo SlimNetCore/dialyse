@@ -1,0 +1,91 @@
+{
+  "admin_avec_commentaire" : {
+    "corps" : {
+      "commentaire" : "absence non excusee",
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-8>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_FIXTURE_01>",
+      "montantHt" : 10000.00,
+      "motif" : "NON_JUSTIFIEE",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : null,
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : "<HORODATAGE>",
+      "source" : "DECLAREE",
+      "statut" : "NON_JUSTIFIEE",
+      "tauxTva" : 19.00
+    },
+    "status" : 200
+  },
+  "admin_commentaire_blanc" : {
+    "code" : "ABSENCE_COMMENTAIRE_REQUIS",
+    "status" : 422
+  },
+  "admin_sans_commentaire" : {
+    "code" : "ABSENCE_COMMENTAIRE_REQUIS",
+    "status" : 422
+  },
+  "base_apres_refus_et_cumul" : [ {
+    "commentaire" : "cumul",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_SECRETAIRE>",
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_MEDECIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "TRANSPORT",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_MEDECIN>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "base_finale" : [ {
+    "commentaire" : "reconfirme",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_SECRETAIRE>",
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_MEDECIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "NON_JUSTIFIEE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_MEDECIN>",
+    "source" : "DECLAREE",
+    "statut" : "NON_JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "infirmier_avec_commentaire" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  },
+  "medecin_avec_commentaire_meme_motif" : {
+    "status" : 200
+  },
+  "medecin_et_infirmier_cumules" : {
+    "status" : 200
+  },
+  "secretaire_avec_commentaire" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  },
+  "secretaire_sans_commentaire" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  }
+}

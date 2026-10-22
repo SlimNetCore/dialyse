@@ -1,0 +1,10 @@
+{
+  "existante_dans_deux_jours" : {
+    "code" : "ABSENCE_EXISTANTE",
+    "status" : 422
+  },
+  "existante_il_y_a_70_jours" : {
+    "code" : "ABSENCE_EXISTANTE",
+    "status" : 422
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "a_qualifier_par_admin" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-12>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-12>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_02>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "justifiee_par_secretaire_correction_interdite_prime_sur_periode_facturee" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  }
+}

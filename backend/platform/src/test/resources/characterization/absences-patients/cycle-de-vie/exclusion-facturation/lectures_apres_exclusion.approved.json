@@ -1,0 +1,78 @@
+{
+  "liste" : {
+    "corps" : {
+      "items" : [ {
+        "commentaire" : null,
+        "dateRattrapage" : null,
+        "dateSeance" : "<J-2>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : false,
+        "forfaitLibelle" : "Forfait HD",
+        "id" : "<ABS_2>",
+        "montantHt" : 10000.00,
+        "motif" : "NON_JUSTIFIEE",
+        "patientId" : "<P_BELKACEM>",
+        "patientNom" : "Omar Belkacem",
+        "prixTtc" : 11900.00,
+        "qualifieeLe" : "<HORODATAGE>",
+        "source" : "DECLAREE",
+        "statut" : "NON_JUSTIFIEE",
+        "tauxTva" : 19.00
+      }, {
+        "commentaire" : "grippe",
+        "dateRattrapage" : null,
+        "dateSeance" : "<J-3>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : false,
+        "forfaitLibelle" : "Forfait HD",
+        "id" : "<ABS_1>",
+        "montantHt" : 10000.00,
+        "motif" : "MALADIE",
+        "patientId" : "<P_AMRANI>",
+        "patientNom" : "Lina Amrani",
+        "prixTtc" : 11900.00,
+        "qualifieeLe" : "<HORODATAGE>",
+        "source" : "DECLAREE",
+        "statut" : "JUSTIFIEE",
+        "tauxTva" : 19.00
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 2
+    },
+    "status" : 200
+  },
+  "liste_apres_reinclusion" : {
+    "corps" : {
+      "items" : [ {
+        "commentaire" : null,
+        "dateRattrapage" : null,
+        "dateSeance" : "<J-2>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : false,
+        "forfaitLibelle" : "Forfait HD",
+        "id" : "<ABS_2>",
+        "montantHt" : 10000.00,
+        "motif" : "NON_JUSTIFIEE",
+        "patientId" : "<P_BELKACEM>",
+        "patientNom" : "Omar Belkacem",
+        "prixTtc" : 11900.00,
+        "qualifieeLe" : "<HORODATAGE>",
+        "source" : "DECLAREE",
+        "statut" : "NON_JUSTIFIEE",
+        "tauxTva" : 19.00
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "status" : 200
+  },
+  "synthese" : {
+    "corps" : {
+      "aQualifier" : 0,
+      "enRetard" : 0
+    },
+    "status" : 200
+  }
+}

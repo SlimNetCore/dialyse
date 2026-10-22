@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_DATE_FUTURE",
+    "detail" : "Le rattrapage ne peut pas être dans le futur",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/rattrapage",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

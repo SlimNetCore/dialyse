@@ -1,0 +1,23 @@
+{
+  "autre_type_et_hemodialyse" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 10700.00,
+    "status" : 201,
+    "tauxTva" : 7.00
+  },
+  "autre_type_seul" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 10000.00,
+    "status" : 201,
+    "tauxTva" : 0.00
+  },
+  "type_en_minuscules" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 10000.00,
+    "status" : 201,
+    "tauxTva" : 0.00
+  }
+}

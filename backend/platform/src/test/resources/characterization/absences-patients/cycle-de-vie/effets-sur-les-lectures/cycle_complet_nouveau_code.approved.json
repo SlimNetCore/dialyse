@@ -1,0 +1,462 @@
+{
+  "1_apres_les_trois_declarations" : {
+    "liste" : {
+      "corps" : {
+        "items" : [ {
+          "commentaire" : null,
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-1>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_3>",
+          "montantHt" : 10000.00,
+          "motif" : null,
+          "patientId" : "<P_CHIKHI>",
+          "patientNom" : "Nadia Chikhi",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : null,
+          "source" : "DECLAREE",
+          "statut" : "A_QUALIFIER",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : "grippe",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-7>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_2>",
+          "montantHt" : 10000.00,
+          "motif" : "MALADIE",
+          "patientId" : "<P_BELKACEM>",
+          "patientNom" : "Omar Belkacem",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "JUSTIFIEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : null,
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-8>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : true,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_1>",
+          "montantHt" : 10000.00,
+          "motif" : null,
+          "patientId" : "<P_AMRANI>",
+          "patientNom" : "Lina Amrani",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : null,
+          "source" : "DECLAREE",
+          "statut" : "A_QUALIFIER",
+          "tauxTva" : 19.00
+        } ],
+        "page" : 0,
+        "size" : 20,
+        "total" : 3
+      },
+      "status" : 200
+    },
+    "seances_de_rattrapage" : {
+      "corps" : [ "<J-4>", "<J-2>" ],
+      "status" : 200
+    },
+    "synthese" : {
+      "corps" : {
+        "aQualifier" : 2,
+        "enRetard" : 1
+      },
+      "status" : 200
+    }
+  },
+  "2_lectures" : {
+    "liste" : {
+      "corps" : {
+        "items" : [ {
+          "commentaire" : null,
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-1>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_3>",
+          "montantHt" : 10000.00,
+          "motif" : null,
+          "patientId" : "<P_CHIKHI>",
+          "patientNom" : "Nadia Chikhi",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : null,
+          "source" : "DECLAREE",
+          "statut" : "A_QUALIFIER",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : "grippe",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-7>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_2>",
+          "montantHt" : 10000.00,
+          "motif" : "MALADIE",
+          "patientId" : "<P_BELKACEM>",
+          "patientNom" : "Omar Belkacem",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "JUSTIFIEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : null,
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-8>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_1>",
+          "montantHt" : 10000.00,
+          "motif" : "VOYAGE",
+          "patientId" : "<P_AMRANI>",
+          "patientNom" : "Lina Amrani",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "JUSTIFIEE",
+          "tauxTva" : 19.00
+        } ],
+        "page" : 0,
+        "size" : 20,
+        "total" : 3
+      },
+      "status" : 200
+    },
+    "seances_de_rattrapage" : {
+      "corps" : [ "<J-4>", "<J-2>" ],
+      "status" : 200
+    },
+    "synthese" : {
+      "corps" : {
+        "aQualifier" : 1,
+        "enRetard" : 0
+      },
+      "status" : 200
+    }
+  },
+  "2_qualification_de_a1" : {
+    "status" : 200
+  },
+  "3_lectures" : {
+    "liste" : {
+      "corps" : {
+        "items" : [ {
+          "commentaire" : null,
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-1>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_3>",
+          "montantHt" : 10000.00,
+          "motif" : null,
+          "patientId" : "<P_CHIKHI>",
+          "patientNom" : "Nadia Chikhi",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : null,
+          "source" : "DECLAREE",
+          "statut" : "A_QUALIFIER",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : "grippe",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-7>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_2>",
+          "montantHt" : 10000.00,
+          "motif" : "MALADIE",
+          "patientId" : "<P_BELKACEM>",
+          "patientNom" : "Omar Belkacem",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "JUSTIFIEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : null,
+          "dateRattrapage" : "<J-4>",
+          "dateSeance" : "<J-8>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_1>",
+          "montantHt" : 10000.00,
+          "motif" : "VOYAGE",
+          "patientId" : "<P_AMRANI>",
+          "patientNom" : "Lina Amrani",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "RATTRAPEE",
+          "tauxTva" : 19.00
+        } ],
+        "page" : 0,
+        "size" : 20,
+        "total" : 3
+      },
+      "status" : 200
+    },
+    "seances_de_rattrapage" : {
+      "corps" : {
+        "code" : "ABSENCE_NON_MODIFIABLE",
+        "detail" : "Cette absence n'est plus modifiable",
+        "instance" : "/api/v1/absences-patients/<ABS_1>/seances-rattrapage",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "status" : 422
+    },
+    "synthese" : {
+      "corps" : {
+        "aQualifier" : 1,
+        "enRetard" : 0
+      },
+      "status" : 200
+    }
+  },
+  "3_rattrapage_de_a1" : {
+    "status" : 200
+  },
+  "4_annulation_de_a3" : {
+    "status" : 200
+  },
+  "4_lectures" : {
+    "liste" : {
+      "corps" : {
+        "items" : [ {
+          "commentaire" : "patient present",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-1>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_3>",
+          "montantHt" : 10000.00,
+          "motif" : null,
+          "patientId" : "<P_CHIKHI>",
+          "patientNom" : "Nadia Chikhi",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : null,
+          "source" : "DECLAREE",
+          "statut" : "ANNULEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : "grippe",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-7>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_2>",
+          "montantHt" : 10000.00,
+          "motif" : "MALADIE",
+          "patientId" : "<P_BELKACEM>",
+          "patientNom" : "Omar Belkacem",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "JUSTIFIEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : null,
+          "dateRattrapage" : "<J-4>",
+          "dateSeance" : "<J-8>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_1>",
+          "montantHt" : 10000.00,
+          "motif" : "VOYAGE",
+          "patientId" : "<P_AMRANI>",
+          "patientNom" : "Lina Amrani",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "RATTRAPEE",
+          "tauxTva" : 19.00
+        } ],
+        "page" : 0,
+        "size" : 20,
+        "total" : 3
+      },
+      "status" : 200
+    },
+    "seances_de_rattrapage" : {
+      "corps" : {
+        "code" : "ABSENCE_NON_MODIFIABLE",
+        "detail" : "Cette absence n'est plus modifiable",
+        "instance" : "/api/v1/absences-patients/<ABS_1>/seances-rattrapage",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "status" : 422
+    },
+    "synthese" : {
+      "corps" : {
+        "aQualifier" : 0,
+        "enRetard" : 0
+      },
+      "status" : 200
+    }
+  },
+  "5_annulation_refusee_du_rattrapage_de_a1" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  },
+  "5_lectures_apres_le_refus_d_annulation_du_rattrapage" : {
+    "liste" : {
+      "corps" : {
+        "items" : [ {
+          "commentaire" : "patient present",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-1>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_3>",
+          "montantHt" : 10000.00,
+          "motif" : null,
+          "patientId" : "<P_CHIKHI>",
+          "patientNom" : "Nadia Chikhi",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : null,
+          "source" : "DECLAREE",
+          "statut" : "ANNULEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : "grippe",
+          "dateRattrapage" : null,
+          "dateSeance" : "<J-7>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_2>",
+          "montantHt" : 10000.00,
+          "motif" : "MALADIE",
+          "patientId" : "<P_BELKACEM>",
+          "patientNom" : "Omar Belkacem",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "JUSTIFIEE",
+          "tauxTva" : 19.00
+        }, {
+          "commentaire" : null,
+          "dateRattrapage" : "<J-4>",
+          "dateSeance" : "<J-8>",
+          "declareeLe" : "<HORODATAGE>",
+          "enRetard" : false,
+          "forfaitLibelle" : "Forfait HD",
+          "id" : "<ABS_1>",
+          "montantHt" : 10000.00,
+          "motif" : "VOYAGE",
+          "patientId" : "<P_AMRANI>",
+          "patientNom" : "Lina Amrani",
+          "prixTtc" : 11900.00,
+          "qualifieeLe" : "<HORODATAGE>",
+          "source" : "DECLAREE",
+          "statut" : "RATTRAPEE",
+          "tauxTva" : 19.00
+        } ],
+        "page" : 0,
+        "size" : 20,
+        "total" : 3
+      },
+      "status" : 200
+    },
+    "seances_de_rattrapage" : {
+      "corps" : {
+        "code" : "ABSENCE_NON_MODIFIABLE",
+        "detail" : "Cette absence n'est plus modifiable",
+        "instance" : "/api/v1/absences-patients/<ABS_1>/seances-rattrapage",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "status" : 422
+    },
+    "synthese" : {
+      "corps" : {
+        "aQualifier" : 0,
+        "enRetard" : 0
+      },
+      "status" : 200
+    }
+  },
+  "6_base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-4>",
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_INFIRMIER>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_1>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_MEDECIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_MEDECIN>",
+    "source" : "DECLAREE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "grippe",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-7>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_SECRETAIRE>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_2>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_SECRETAIRE>",
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "patient present",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-1>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_3>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_CHIKHI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  } ],
+  "7_absence_a2_declaree_avec_motif" : {
+    "status" : 200
+  }
+}

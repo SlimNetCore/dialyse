@@ -1,0 +1,34 @@
+{
+  "absence_du_centre_B_par_admin_A" : {
+    "code" : "ABSENCE_INTROUVABLE",
+    "status" : 404
+  },
+  "absence_du_centre_B_par_admin_B" : {
+    "status" : 200
+  },
+  "absence_inconnue" : {
+    "code" : "ABSENCE_INTROUVABLE",
+    "status" : 404
+  },
+  "base_B" : [ {
+    "commentaire" : "c",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN_B>",
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_CENTRE_B>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN_B>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ]
+}

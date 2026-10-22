@@ -1,0 +1,97 @@
+{
+  "base" : [ {
+    "commentaire" : "grippe",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_SECRETAIRE>",
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_02>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "NON_JUSTIFIEE",
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "NON_JUSTIFIEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-3>",
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_03>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_MEDECIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_CHIKHI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-3>",
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_04>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_DAHMANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  } ],
+  "justifiee_par_admin" : {
+    "status" : 200
+  },
+  "justifiee_par_infirmier" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  },
+  "justifiee_par_medecin" : {
+    "status" : 200
+  },
+  "non_justifiee_par_secretaire" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  }
+}

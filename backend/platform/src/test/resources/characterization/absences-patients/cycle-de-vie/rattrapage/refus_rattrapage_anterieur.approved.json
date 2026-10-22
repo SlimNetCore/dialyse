@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_RATTRAPAGE_ANTERIEUR",
+    "detail" : "Le rattrapage doit avoir lieu après la séance manquée",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/rattrapage",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

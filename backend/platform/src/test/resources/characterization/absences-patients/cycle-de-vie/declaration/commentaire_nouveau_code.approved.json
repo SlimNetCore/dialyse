@@ -1,0 +1,103 @@
+{
+  "autre_avec_commentaire" : {
+    "status" : 201
+  },
+  "autre_commentaire_blanc" : {
+    "code" : "ABSENCE_COMMENTAIRE_REQUIS",
+    "status" : 422
+  },
+  "autre_sans_commentaire" : {
+    "code" : "ABSENCE_COMMENTAIRE_REQUIS",
+    "status" : 422
+  },
+  "base" : [ {
+    "commentaire" : "demenagement",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-6>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_4>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "AUTRE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "visite a domicile",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-3>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_3>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-2>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_2>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "fievre",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-1>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_1>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "commentaire_sans_motif" : {
+    "status" : 201
+  },
+  "motif_et_commentaire_a_rogner" : {
+    "status" : 201
+  },
+  "motif_et_commentaire_blanc" : {
+    "status" : 201
+  }
+}

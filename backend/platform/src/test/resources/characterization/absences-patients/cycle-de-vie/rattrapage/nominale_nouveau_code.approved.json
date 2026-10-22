@@ -1,0 +1,44 @@
+{
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-5>",
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  } ],
+  "reponse" : {
+    "corps" : {
+      "commentaire" : null,
+      "dateRattrapage" : "<J-5>",
+      "dateSeance" : "<J-8>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_FIXTURE_01>",
+      "montantHt" : 10000.00,
+      "motif" : null,
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : null,
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : null,
+      "source" : "AUTOMATIQUE",
+      "statut" : "RATTRAPEE",
+      "tauxTva" : 19.00
+    },
+    "status" : 200
+  }
+}

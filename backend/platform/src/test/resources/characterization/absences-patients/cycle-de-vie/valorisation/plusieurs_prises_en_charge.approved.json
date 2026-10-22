@@ -1,0 +1,23 @@
+{
+  "deux_effectifs_le_plus_recent_premium" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 17850.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "deux_effectifs_le_plus_recent_premium_ordre_inverse" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 17850.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "effectif_ancien_contre_demande_recent" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}

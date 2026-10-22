@@ -1,0 +1,115 @@
+{
+  "annuler_centre_B_par_admin_A" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/annulation",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "status" : 403
+  },
+  "base_apres_les_refus" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "base_finale" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-2>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<UUID_GENERE_1>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "centre_illisible" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "declarer_centre_A_explicite" : {
+    "status" : 201
+  },
+  "declarer_centre_B_par_admin_A" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/absences-patients",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "status" : 403
+  },
+  "qualifier_centre_B_par_admin_A" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/qualification",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "status" : 403
+  },
+  "rattraper_centre_B_par_admin_A" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/rattrapage",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "status" : 403
+  },
+  "superadmin_sans_centre_de_session_avec_centerId_refuse_par_le_filtre_de_perimetre" : {
+    "code" : "ROLE_SCOPE",
+    "status" : 403
+  }
+}

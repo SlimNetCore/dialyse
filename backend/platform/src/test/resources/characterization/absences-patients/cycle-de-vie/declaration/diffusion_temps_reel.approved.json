@@ -1,0 +1,19 @@
+{
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J-3>",
+        "patientId" : "<P_AMRANI>",
+        "patientNom" : "Amrani",
+        "patientPrenom" : "Lina",
+        "saisie" : "ABSENCE",
+        "targetRoles" : "MEDECIN"
+      },
+      "timestamp" : "<HORODATAGE>",
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ]
+}

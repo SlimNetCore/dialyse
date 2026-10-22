@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Access Denied",
+    "instance" : "/api/v1/absences-patients",
+    "status" : 403,
+    "title" : "Acces refuse"
+  },
+  "status" : 403
+}

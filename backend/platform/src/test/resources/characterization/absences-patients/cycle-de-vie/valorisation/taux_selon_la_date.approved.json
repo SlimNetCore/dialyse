@@ -1,0 +1,30 @@
+{
+  "il_y_a_19_jours_premier_jour_nouvelle_regle" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "il_y_a_20_jours_dernier_jour_ancienne_regle" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 10900.00,
+    "status" : 201,
+    "tauxTva" : 9.00
+  },
+  "il_y_a_21_jours_ancienne_regle" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 10900.00,
+    "status" : 201,
+    "tauxTva" : 9.00
+  },
+  "il_y_a_5_jours_nouvelle_regle" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}

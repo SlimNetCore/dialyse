@@ -1,0 +1,111 @@
+[ {
+  "forfaitHt" : "10000.00",
+  "taux" : "19.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 10000.00",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}, {
+  "forfaitHt" : "10.10",
+  "taux" : "5.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 10.10",
+    "montantHt" : 10.10,
+    "prixTtc" : 10.61,
+    "status" : 201,
+    "tauxTva" : 5.00
+  }
+}, {
+  "forfaitHt" : "3333.33",
+  "taux" : "19.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 3333.33",
+    "montantHt" : 3333.33,
+    "prixTtc" : 3966.66,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}, {
+  "forfaitHt" : "100.05",
+  "taux" : "9.50",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 100.05",
+    "montantHt" : 100.05,
+    "prixTtc" : 109.55,
+    "status" : 201,
+    "tauxTva" : 9.50
+  }
+}, {
+  "forfaitHt" : "0.00",
+  "taux" : "19.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 0.00",
+    "montantHt" : 0.00,
+    "prixTtc" : 0.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}, {
+  "forfaitHt" : "4500.00",
+  "taux" : "0.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 4500.00",
+    "montantHt" : 4500.00,
+    "prixTtc" : 4500.00,
+    "status" : 201,
+    "tauxTva" : 0.00
+  }
+}, {
+  "forfaitHt" : "0.01",
+  "taux" : "19.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 0.01",
+    "montantHt" : 0.01,
+    "prixTtc" : 0.01,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}, {
+  "forfaitHt" : "0.05",
+  "taux" : "10.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 0.05",
+    "montantHt" : 0.05,
+    "prixTtc" : 0.06,
+    "status" : 201,
+    "tauxTva" : 10.00
+  }
+}, {
+  "forfaitHt" : "12345.67",
+  "taux" : "7.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 12345.67",
+    "montantHt" : 12345.67,
+    "prixTtc" : 13209.87,
+    "status" : 201,
+    "tauxTva" : 7.00
+  }
+}, {
+  "forfaitHt" : "99999999.99",
+  "taux" : "19.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 99999999.99",
+    "montantHt" : 99999999.99,
+    "prixTtc" : 118999999.99,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}, {
+  "forfaitHt" : "2500.50",
+  "taux" : "9.00",
+  "valeur" : {
+    "forfaitLibelle" : "Forfait 2500.50",
+    "montantHt" : 2500.50,
+    "prixTtc" : 2725.55,
+    "status" : 201,
+    "tauxTva" : 9.00
+  }
+} ]

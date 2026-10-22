@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_INTROUVABLE",
+    "detail" : "Absence introuvable",
+    "instance" : "/api/v1/absences-patients/<UUID_GENERE_1>/rattrapage",
+    "status" : 404,
+    "title" : "Absence introuvable"
+  },
+  "status" : 404
+}

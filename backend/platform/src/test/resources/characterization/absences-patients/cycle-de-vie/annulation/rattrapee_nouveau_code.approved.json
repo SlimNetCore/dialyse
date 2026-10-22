@@ -1,0 +1,81 @@
+{
+  "base" : [ {
+    "commentaire" : "grippe",
+    "date_rattrapage" : "<J-5>",
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-5>",
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_02>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-5>",
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_03>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_CHIKHI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  } ],
+  "rattrapee_par_admin" : {
+    "corps" : {
+      "code" : "ABSENCE_NON_MODIFIABLE",
+      "detail" : "Cette absence n'est plus modifiable",
+      "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/annulation",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "status" : 422
+  },
+  "rattrapee_par_medecin" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  },
+  "rattrapee_par_secretaire" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "status" : 422
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_CORRECTION_INTERDITE",
+    "detail" : "Seuls un administrateur ou un médecin peuvent corriger une absence déjà qualifiée",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/qualification",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

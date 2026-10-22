@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_COMMENTAIRE_REQUIS",
+    "detail" : "Un commentaire est obligatoire pour modifier une qualification",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/qualification",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

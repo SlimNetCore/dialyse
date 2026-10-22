@@ -1,0 +1,69 @@
+{
+  "liste" : {
+    "corps" : {
+      "items" : [ {
+        "commentaire" : "precision",
+        "dateRattrapage" : null,
+        "dateSeance" : "<J>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : false,
+        "forfaitLibelle" : "Forfait HD",
+        "id" : "<ABS_3>",
+        "montantHt" : 10000.00,
+        "motif" : "AUTRE",
+        "patientId" : "<P_CHIKHI>",
+        "patientNom" : "Nadia Chikhi",
+        "prixTtc" : 11900.00,
+        "qualifieeLe" : "<HORODATAGE>",
+        "source" : "DECLAREE",
+        "statut" : "JUSTIFIEE",
+        "tauxTva" : 19.00
+      }, {
+        "commentaire" : null,
+        "dateRattrapage" : null,
+        "dateSeance" : "<J-3>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : false,
+        "forfaitLibelle" : "Forfait HD",
+        "id" : "<ABS_2>",
+        "montantHt" : 10000.00,
+        "motif" : null,
+        "patientId" : "<P_BELKACEM>",
+        "patientNom" : "Omar Belkacem",
+        "prixTtc" : 11900.00,
+        "qualifieeLe" : null,
+        "source" : "DECLAREE",
+        "statut" : "A_QUALIFIER",
+        "tauxTva" : 19.00
+      }, {
+        "commentaire" : null,
+        "dateRattrapage" : null,
+        "dateSeance" : "<J-4>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : true,
+        "forfaitLibelle" : "Forfait HD",
+        "id" : "<ABS_1>",
+        "montantHt" : 10000.00,
+        "motif" : null,
+        "patientId" : "<P_AMRANI>",
+        "patientNom" : "Lina Amrani",
+        "prixTtc" : 11900.00,
+        "qualifieeLe" : null,
+        "source" : "DECLAREE",
+        "statut" : "A_QUALIFIER",
+        "tauxTva" : 19.00
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 3
+    },
+    "status" : 200
+  },
+  "synthese" : {
+    "corps" : {
+      "aQualifier" : 2,
+      "enRetard" : 1
+    },
+    "status" : 200
+  }
+}

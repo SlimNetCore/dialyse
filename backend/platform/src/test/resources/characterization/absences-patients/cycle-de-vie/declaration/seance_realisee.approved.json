@@ -1,0 +1,130 @@
+{
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_5>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_4>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-3>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_3>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-2>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_2>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-1>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_1>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "seance_ABSENT" : {
+    "status" : 201
+  },
+  "seance_BROUILLON" : {
+    "status" : 201
+  },
+  "seance_CREE" : {
+    "status" : 201
+  },
+  "seance_FACTUREE" : {
+    "code" : "ABSENCE_SEANCE_REALISEE",
+    "status" : 422
+  },
+  "seance_SIGNEE" : {
+    "code" : "ABSENCE_SEANCE_REALISEE",
+    "status" : 422
+  },
+  "seance_VALIDEE" : {
+    "code" : "ABSENCE_SEANCE_REALISEE",
+    "status" : 422
+  },
+  "seance_d_un_autre_centre_validee" : {
+    "status" : 201
+  },
+  "seance_d_un_autre_patient_validee" : {
+    "status" : 201
+  }
+}

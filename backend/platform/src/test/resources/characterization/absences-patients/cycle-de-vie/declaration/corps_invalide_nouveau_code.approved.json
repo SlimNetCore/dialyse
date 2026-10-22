@@ -1,0 +1,70 @@
+{
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-3>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<UUID_GENERE_1>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "champ_inconnu_ignore" : {
+    "code" : "ABSENCE_EXISTANTE",
+    "status" : 422
+  },
+  "corps_vide" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "date_absente" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "date_illisible" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "json_illisible" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "motif_blanc" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "motif_en_minuscules" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "motif_inconnu" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "motif_nul" : {
+    "status" : 201
+  },
+  "motif_vide" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  },
+  "patient_absent" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "patient_non_uuid" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  }
+}

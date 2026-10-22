@@ -1,0 +1,8 @@
+{
+  "corps" : {
+    "code" : "ROLE_SCOPE",
+    "detail" : "Ce profil n'a pas accès à cette ressource.",
+    "title" : "Accès refusé"
+  },
+  "status" : 403
+}

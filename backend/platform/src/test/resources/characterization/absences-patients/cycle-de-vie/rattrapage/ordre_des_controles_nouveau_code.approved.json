@@ -1,0 +1,63 @@
+{
+  "annulee_vers_une_date_sans_seance" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  },
+  "annulee_vers_une_seance_libre" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  },
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-4>",
+    "date_seance" : "<J-9>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "x",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_02>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  } ],
+  "rattrapee_vers_sa_propre_date" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  },
+  "rattrapee_vers_une_autre_seance" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  },
+  "rattrapee_vers_une_date_sans_seance" : {
+    "code" : "ABSENCE_NON_MODIFIABLE",
+    "status" : 422
+  }
+}

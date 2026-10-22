@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_RATTRAPAGE_SANS_SEANCE",
+    "detail" : "Aucune séance réalisée pour ce patient à la date de rattrapage",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/rattrapage",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

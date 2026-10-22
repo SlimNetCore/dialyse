@@ -1,0 +1,37 @@
+{
+  "base" : {
+    "absences" : [ {
+      "commentaire" : "grippe",
+      "date_rattrapage" : null,
+      "date_seance" : "<J-3>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_1>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "MALADIE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    } ],
+    "seances" : [ {
+      "date_seance" : "<J-3>",
+      "exclusion_absence_id" : "<ABS_1>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "VALIDEE"
+    } ]
+  },
+  "exclusion" : {
+    "status" : 200
+  }
+}

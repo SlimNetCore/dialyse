@@ -1,0 +1,21 @@
+{
+  "base" : {
+    "absences" : [ ],
+    "seances" : [ {
+      "date_seance" : "<J-61>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    } ]
+  },
+  "exclusion" : {
+    "refus" : {
+      "code" : "ABSENCE_DELAI_DEPASSE",
+      "status" : 422
+    },
+    "status" : 422
+  }
+}

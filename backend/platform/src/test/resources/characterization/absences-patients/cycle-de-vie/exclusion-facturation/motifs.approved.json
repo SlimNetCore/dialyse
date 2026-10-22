@@ -1,0 +1,130 @@
+{
+  "AUTRE" : {
+    "status" : 200
+  },
+  "HOSPITALISATION" : {
+    "status" : 200
+  },
+  "NON_JUSTIFIEE" : {
+    "status" : 200
+  },
+  "VOYAGE" : {
+    "status" : 200
+  },
+  "base" : {
+    "absences" : [ {
+      "commentaire" : "precision",
+      "date_rattrapage" : null,
+      "date_seance" : "<J-6>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_4>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "AUTRE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    }, {
+      "commentaire" : null,
+      "date_rattrapage" : null,
+      "date_seance" : "<J-5>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_3>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "NON_JUSTIFIEE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "NON_JUSTIFIEE",
+      "taux_tva" : "19.00"
+    }, {
+      "commentaire" : null,
+      "date_rattrapage" : null,
+      "date_seance" : "<J-4>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_2>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "VOYAGE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    }, {
+      "commentaire" : null,
+      "date_rattrapage" : null,
+      "date_seance" : "<J-3>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_1>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "HOSPITALISATION",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    } ],
+    "seances" : [ {
+      "date_seance" : "<J-6>",
+      "exclusion_absence_id" : "<ABS_4>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_04>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "SIGNEE"
+    }, {
+      "date_seance" : "<J-5>",
+      "exclusion_absence_id" : "<ABS_3>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_03>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "SIGNEE"
+    }, {
+      "date_seance" : "<J-4>",
+      "exclusion_absence_id" : "<ABS_2>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_02>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "SIGNEE"
+    }, {
+      "date_seance" : "<J-3>",
+      "exclusion_absence_id" : "<ABS_1>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "SIGNEE"
+    } ]
+  }
+}

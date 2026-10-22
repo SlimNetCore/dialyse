@@ -1,0 +1,58 @@
+{
+  "aujourd_hui" : {
+    "status" : 200
+  },
+  "avant_l_absence" : {
+    "code" : "ABSENCE_RATTRAPAGE_ANTERIEUR",
+    "status" : 422
+  },
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-6>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : null,
+    "date_rattrapage" : "<J>",
+    "date_seance" : "<J-6>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_02>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  } ],
+  "dans_le_futur" : {
+    "code" : "ABSENCE_DATE_FUTURE",
+    "status" : 422
+  },
+  "meme_jour_que_l_absence" : {
+    "code" : "ABSENCE_RATTRAPAGE_ANTERIEUR",
+    "status" : 422
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "base" : [ {
+    "commentaire" : "grippe",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-4>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_SECRETAIRE>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_1>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_SECRETAIRE>",
+    "montant_ht" : "10000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_SECRETAIRE>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "reponse" : {
+    "corps" : {
+      "commentaire" : "grippe",
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-4>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_1>",
+      "montantHt" : 10000.00,
+      "motif" : "MALADIE",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : null,
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : "<HORODATAGE>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "tauxTva" : 19.00
+    },
+    "status" : 201
+  }
+}

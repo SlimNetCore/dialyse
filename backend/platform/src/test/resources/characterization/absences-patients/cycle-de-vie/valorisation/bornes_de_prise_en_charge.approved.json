@@ -1,0 +1,37 @@
+{
+  "dernier_jour" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 17850.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "forfait_d_un_autre_centre" : {
+    "forfaitLibelle" : null,
+    "montantHt" : 0.00,
+    "prixTtc" : 0.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "lendemain_de_la_fin_repli_sur_la_plus_recente" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 17850.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "premier_jour" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 17850.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "veille_du_debut" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}

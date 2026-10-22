@@ -1,0 +1,195 @@
+{
+  "a1_requalifiee" : {
+    "status" : 200
+  },
+  "a2_rattrapee" : {
+    "status" : 200
+  },
+  "a3_annulation_refusee" : {
+    "refus" : {
+      "code" : "ABSENCE_D_EXCLUSION",
+      "status" : 422
+    },
+    "status" : 422
+  },
+  "base_apres_reinclusions" : {
+    "absences" : [ ],
+    "seances" : [ {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    }, {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_02>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    }, {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_03>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    }, {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_04>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    }, {
+      "date_seance" : "<J-4>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_05>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    } ]
+  },
+  "base_avant_reinclusions" : {
+    "absences" : [ {
+      "commentaire" : "finalement non excusee",
+      "date_rattrapage" : null,
+      "date_seance" : "<J-9>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_1>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "NON_JUSTIFIEE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "NON_JUSTIFIEE",
+      "taux_tva" : "19.00"
+    }, {
+      "commentaire" : null,
+      "date_rattrapage" : "<J-4>",
+      "date_seance" : "<J-9>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_2>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "VOYAGE",
+      "patient_id" : "<P_BELKACEM>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "RATTRAPEE",
+      "taux_tva" : "19.00"
+    }, {
+      "commentaire" : null,
+      "date_rattrapage" : null,
+      "date_seance" : "<J-9>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_3>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "VOYAGE",
+      "patient_id" : "<P_CHIKHI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    }, {
+      "commentaire" : null,
+      "date_rattrapage" : null,
+      "date_seance" : "<J-9>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_4>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "VOYAGE",
+      "patient_id" : "<P_DAHMANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    } ],
+    "seances" : [ {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : "<ABS_1>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "VALIDEE"
+    }, {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : "<ABS_2>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_02>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "VALIDEE"
+    }, {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : "<ABS_3>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_03>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "VALIDEE"
+    }, {
+      "date_seance" : "<J-9>",
+      "exclusion_absence_id" : "<ABS_4>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_04>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "VALIDEE"
+    }, {
+      "date_seance" : "<J-4>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_05>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    } ]
+  },
+  "reinclusion_s1" : {
+    "status" : 200
+  },
+  "reinclusion_s2" : {
+    "status" : 200
+  },
+  "reinclusion_s3" : {
+    "status" : 200
+  },
+  "reinclusion_s4_inchangee" : {
+    "status" : 200
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "base" : {
+    "absences" : [ {
+      "commentaire" : "erreur",
+      "date_rattrapage" : null,
+      "date_seance" : "<J-3>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : null,
+      "forfait_id" : null,
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_FIXTURE_01>",
+      "modifiee_le" : null,
+      "modifiee_par" : null,
+      "montant_ht" : "10000.00",
+      "motif" : null,
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_SECRETAIRE>",
+      "source" : "AUTOMATIQUE",
+      "statut" : "ANNULEE",
+      "taux_tva" : "19.00"
+    } ],
+    "seances" : [ {
+      "date_seance" : "<J-3>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "VALIDEE",
+      "statut_avant_exclusion" : null
+    } ]
+  },
+  "exclusion" : {
+    "refus" : {
+      "code" : "ABSENCE_EXISTANTE",
+      "status" : 422
+    },
+    "status" : 422
+  }
+}

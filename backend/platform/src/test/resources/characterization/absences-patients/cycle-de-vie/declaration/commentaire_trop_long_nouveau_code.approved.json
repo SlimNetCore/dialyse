@@ -1,0 +1,12 @@
+{
+  "lignes_en_base" : {
+    "total" : 1
+  },
+  "mille" : {
+    "status" : 201
+  },
+  "mille_un" : {
+    "code" : "BAD_REQUEST",
+    "status" : 400
+  }
+}

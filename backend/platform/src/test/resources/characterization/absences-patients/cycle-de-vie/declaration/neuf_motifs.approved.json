@@ -1,0 +1,37 @@
+[ {
+  "motif" : "HOSPITALISATION",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "MALADIE",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "VOYAGE",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "TRANSPORT",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "FAMILIAL",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "REFUS_PATIENT",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "DECES",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "AUTRE",
+  "status" : 201,
+  "statut" : "JUSTIFIEE"
+}, {
+  "motif" : "NON_JUSTIFIEE",
+  "status" : 201,
+  "statut" : "NON_JUSTIFIEE"
+} ]

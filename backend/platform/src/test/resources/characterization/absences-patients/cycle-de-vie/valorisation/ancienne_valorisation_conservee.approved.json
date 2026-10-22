@@ -1,0 +1,31 @@
+{
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Ancien forfait",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "8403.36",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "10000.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "AUTOMATIQUE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "19.00"
+  } ],
+  "qualification" : {
+    "forfaitLibelle" : "Ancien forfait",
+    "montantHt" : 8403.36,
+    "prixTtc" : 10000.00,
+    "status" : 200,
+    "statut" : "JUSTIFIEE",
+    "tauxTva" : 19.00
+  }
+}

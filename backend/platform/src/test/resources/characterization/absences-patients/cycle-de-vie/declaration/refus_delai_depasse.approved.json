@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_DELAI_DEPASSE",
+    "detail" : "Une absence ne peut plus être déclarée au-delà de 60 jours",
+    "instance" : "/api/v1/absences-patients",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

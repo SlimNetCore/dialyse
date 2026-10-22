@@ -1,0 +1,30 @@
+{
+  "base" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-3>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : null,
+    "forfait_libelle" : null,
+    "id" : "<ABS_1>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "0.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "0.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "DECLAREE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "valeur" : {
+    "forfaitLibelle" : null,
+    "montantHt" : 0.00,
+    "prixTtc" : 0.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}

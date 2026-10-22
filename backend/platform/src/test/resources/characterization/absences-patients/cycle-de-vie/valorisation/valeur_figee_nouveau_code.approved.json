@@ -1,0 +1,61 @@
+{
+  "a_la_declaration" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "apres_qualification" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 200,
+    "statut" : "JUSTIFIEE",
+    "tauxTva" : 19.00
+  },
+  "apres_rattrapage" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 200,
+    "statut" : "RATTRAPEE",
+    "tauxTva" : 19.00
+  },
+  "apres_refus_d_annulation_d_une_rattrapee" : {
+    "forfaitLibelle" : null,
+    "montantHt" : null,
+    "prixTtc" : null,
+    "status" : 422,
+    "statut" : "",
+    "tauxTva" : null
+  },
+  "base_apres_tout" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : "<J-4>",
+    "date_seance" : "<J-10>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN>",
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_1>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : "VOYAGE",
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN>",
+    "source" : "DECLAREE",
+    "statut" : "RATTRAPEE",
+    "taux_tva" : "19.00"
+  } ],
+  "nouvelle_absence_valorisee_au_nouveau_monde" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 16350.00,
+    "status" : 201,
+    "tauxTva" : 9.00
+  }
+}

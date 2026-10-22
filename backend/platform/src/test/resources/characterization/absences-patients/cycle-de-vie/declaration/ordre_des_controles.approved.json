@@ -1,0 +1,27 @@
+{
+  "base" : [ ],
+  "patient_du_centre_B" : {
+    "code" : "PATIENT_INTROUVABLE",
+    "status" : 422
+  },
+  "patient_inconnu_et_date_future" : {
+    "code" : "PATIENT_INTROUVABLE",
+    "status" : 422
+  },
+  "periode_facturee_et_seance_realisee" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "periode_facturee_il_y_a_70_jours" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "seance_realisee_demain" : {
+    "code" : "ABSENCE_SEANCE_REALISEE",
+    "status" : 422
+  },
+  "seance_realisee_il_y_a_70_jours" : {
+    "code" : "ABSENCE_SEANCE_REALISEE",
+    "status" : 422
+  }
+}

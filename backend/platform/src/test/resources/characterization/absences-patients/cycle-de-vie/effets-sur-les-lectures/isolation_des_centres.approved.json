@@ -1,0 +1,44 @@
+{
+  "liste_A" : {
+    "corps" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "status" : 200
+  },
+  "liste_B" : {
+    "corps" : {
+      "items" : [ {
+        "commentaire" : null,
+        "dateRattrapage" : null,
+        "dateSeance" : "<J-3>",
+        "declareeLe" : "<HORODATAGE>",
+        "enRetard" : false,
+        "forfaitLibelle" : "Forfait du centre B",
+        "id" : "<ABS_1>",
+        "montantHt" : 1000.00,
+        "motif" : "MALADIE",
+        "patientId" : "<P_CENTRE_B>",
+        "patientNom" : "Rania Zerrouki",
+        "prixTtc" : 1090.00,
+        "qualifieeLe" : "<HORODATAGE>",
+        "source" : "DECLAREE",
+        "statut" : "JUSTIFIEE",
+        "tauxTva" : 9.00
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "status" : 200
+  },
+  "synthese_A" : {
+    "corps" : {
+      "aQualifier" : 0,
+      "enRetard" : 0
+    },
+    "status" : 200
+  }
+}

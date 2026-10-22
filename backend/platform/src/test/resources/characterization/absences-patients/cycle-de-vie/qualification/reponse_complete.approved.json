@@ -1,0 +1,44 @@
+{
+  "qualification_d_une_absence_a_qualifier_depuis_3_jours" : {
+    "corps" : {
+      "commentaire" : null,
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-3>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_FIXTURE_02>",
+      "montantHt" : 10000.00,
+      "motif" : "TRANSPORT",
+      "patientId" : "<P_BELKACEM>",
+      "patientNom" : null,
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : "<HORODATAGE>",
+      "source" : "AUTOMATIQUE",
+      "statut" : "JUSTIFIEE",
+      "tauxTva" : 19.00
+    },
+    "status" : 200
+  },
+  "qualification_d_une_absence_a_qualifier_depuis_4_jours" : {
+    "corps" : {
+      "commentaire" : null,
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-4>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_FIXTURE_01>",
+      "montantHt" : 10000.00,
+      "motif" : "TRANSPORT",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : null,
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : "<HORODATAGE>",
+      "source" : "AUTOMATIQUE",
+      "statut" : "JUSTIFIEE",
+      "tauxTva" : 19.00
+    },
+    "status" : 200
+  }
+}

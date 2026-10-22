@@ -1,0 +1,49 @@
+{
+  "base_A" : [ ],
+  "base_B" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-2>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : "<U_ADMIN_B>",
+    "forfait_id" : "<F_CENTRE_B>",
+    "forfait_libelle" : "Forfait du centre B",
+    "id" : "<ABS_1>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN_B>",
+    "montant_ht" : "1000.00",
+    "motif" : "MALADIE",
+    "patient_id" : "<P_CENTRE_B>",
+    "prix_ttc" : "1090.00",
+    "qualifiee_le" : "<HORODATAGE>",
+    "qualifiee_par" : "<U_ADMIN_B>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE",
+    "taux_tva" : "9.00"
+  } ],
+  "patient_B_par_admin_A" : {
+    "code" : "PATIENT_INTROUVABLE",
+    "status" : 422
+  },
+  "patient_B_par_admin_B" : {
+    "corps" : {
+      "commentaire" : null,
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-2>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait du centre B",
+      "id" : "<ABS_1>",
+      "montantHt" : 1000.00,
+      "motif" : "MALADIE",
+      "patientId" : "<P_CENTRE_B>",
+      "patientNom" : null,
+      "prixTtc" : 1090.00,
+      "qualifieeLe" : "<HORODATAGE>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "tauxTva" : 9.00
+    },
+    "status" : 201
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "pec_qui_commence_dans_10_jours" : {
+    "forfaitLibelle" : "Forfait Premium",
+    "montantHt" : 15000.00,
+    "prixTtc" : 17850.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "pec_recente_sans_forfait" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "pec_terminee_depuis_100_jours" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 11900.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  },
+  "seule_pec_sans_forfait" : {
+    "forfaitLibelle" : null,
+    "montantHt" : 0.00,
+    "prixTtc" : 0.00,
+    "status" : 201,
+    "tauxTva" : 19.00
+  }
+}

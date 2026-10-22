@@ -1,0 +1,9 @@
+{
+  "centre_A_sans_regle_centre_B_a_9" : {
+    "forfaitLibelle" : "Forfait HD",
+    "montantHt" : 10000.00,
+    "prixTtc" : 10000.00,
+    "status" : 201,
+    "tauxTva" : 0.00
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "base_apres_exclusion" : {
+    "absences" : [ {
+      "commentaire" : null,
+      "date_rattrapage" : null,
+      "date_seance" : "<J-3>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_1>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "VOYAGE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    } ],
+    "seances" : [ {
+      "date_seance" : "<J-3>",
+      "exclusion_absence_id" : "<ABS_1>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "SIGNEE"
+    } ]
+  },
+  "base_apres_reinclusion" : {
+    "absences" : [ ],
+    "seances" : [ {
+      "date_seance" : "<J-3>",
+      "exclusion_absence_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "SIGNEE",
+      "statut_avant_exclusion" : null
+    } ]
+  },
+  "base_apres_seconde_exclusion" : {
+    "absences" : [ {
+      "commentaire" : "fievre",
+      "date_rattrapage" : null,
+      "date_seance" : "<J-3>",
+      "declaree_le" : "<HORODATAGE>",
+      "declaree_par" : "<U_ADMIN>",
+      "forfait_id" : "<F_HD>",
+      "forfait_libelle" : "Forfait HD",
+      "id" : "<ABS_2>",
+      "modifiee_le" : "<HORODATAGE>",
+      "modifiee_par" : "<U_ADMIN>",
+      "montant_ht" : "10000.00",
+      "motif" : "MALADIE",
+      "patient_id" : "<P_AMRANI>",
+      "prix_ttc" : "11900.00",
+      "qualifiee_le" : "<HORODATAGE>",
+      "qualifiee_par" : "<U_ADMIN>",
+      "source" : "DECLAREE",
+      "statut" : "JUSTIFIEE",
+      "taux_tva" : "19.00"
+    } ],
+    "seances" : [ {
+      "date_seance" : "<J-3>",
+      "exclusion_absence_id" : "<ABS_2>",
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "id" : "<SEANCE_01>",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "SIGNEE"
+    } ]
+  },
+  "exclusion" : {
+    "status" : 200
+  },
+  "reinclusion" : {
+    "status" : 200
+  },
+  "seconde_exclusion" : {
+    "status" : 200
+  }
+}

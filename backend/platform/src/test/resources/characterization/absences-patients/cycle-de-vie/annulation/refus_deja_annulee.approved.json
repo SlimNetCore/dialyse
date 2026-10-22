@@ -1,0 +1,10 @@
+{
+  "corps" : {
+    "code" : "ABSENCE_DEJA_ANNULEE",
+    "detail" : "L'absence est déjà annulée",
+    "instance" : "/api/v1/absences-patients/<ABS_FIXTURE_01>/annulation",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "status" : 422
+}

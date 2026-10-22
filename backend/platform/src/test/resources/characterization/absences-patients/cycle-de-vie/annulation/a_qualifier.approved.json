@@ -1,0 +1,113 @@
+{
+  "admin" : {
+    "corps" : {
+      "commentaire" : "patient present",
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-8>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_FIXTURE_01>",
+      "montantHt" : 10000.00,
+      "motif" : null,
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : null,
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : null,
+      "source" : "AUTOMATIQUE",
+      "statut" : "ANNULEE",
+      "tauxTva" : 19.00
+    },
+    "status" : 200
+  },
+  "base" : [ {
+    "commentaire" : "patient present",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_01>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_ADMIN>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "erreur de saisie",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_02>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_SECRETAIRE>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_BELKACEM>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "erreur de saisie",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_03>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_MEDECIN>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_CHIKHI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  }, {
+    "commentaire" : "erreur de saisie",
+    "date_rattrapage" : null,
+    "date_seance" : "<J-8>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : null,
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<ABS_FIXTURE_04>",
+    "modifiee_le" : "<HORODATAGE>",
+    "modifiee_par" : "<U_INFIRMIER>",
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_DAHMANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "ANNULEE",
+    "taux_tva" : "19.00"
+  } ],
+  "infirmier" : {
+    "status" : 200
+  },
+  "medecin" : {
+    "status" : 200
+  },
+  "secretaire" : {
+    "status" : 200
+  }
+}
