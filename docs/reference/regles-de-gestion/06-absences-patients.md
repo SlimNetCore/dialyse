@@ -59,11 +59,15 @@
   patient (`ABSENCE_RATTRAPAGE_DEJA_UTILISEE`). La perte n'est alors plus comptabilisée. À l'écran, l'utilisateur
   **choisit la séance dans une liste** (`GET /absences-patients/{id}/seances-rattrapage` : séances réalisées du patient
   après la séance manquée, jusqu'à aujourd'hui, pas déjà utilisées) au lieu de saisir une date ; sans séance éligible,
-  l'écran renvoie au poste infirmier (le patient doit d'abord venir et être scanné).
+  l'écran renvoie au poste infirmier (le patient doit d'abord venir et être scanné). **Cette liste n'est proposée que
+  pour une absence encore rattrapable** : pour une absence déjà rattrapée ou annulée (plus modifiable, RG-ABS-003), elle
+  est refusée en **422** `ABSENCE_NON_MODIFIABLE` (était : proposée quand même, KB-ABS-04, corrigé à la slice A1).
 - **RG-ABS-022** — Annulation : commentaire obligatoire (`ABSENCE_COMMENTAIRE_REQUIS`) ; déjà annulée :
   `ABSENCE_DEJA_ANNULEE` ; mêmes droits de
   correction que RG-ABS-020 pour une absence déjà qualifiée.
-- **RG-ABS-023** — Absence inconnue du centre : `ABSENCE_INTROUVABLE`.
+- **RG-ABS-023** — Absence inconnue **ou d'un autre centre** (indistinguables) : `ABSENCE_INTROUVABLE` ; **404** sur la
+  consultation (liste des séances de rattrapage, slice A1 ; était 422, KB-ABS-03 corrigé), 422 sur les écritures
+  jusqu'à leur refonte (slice A2).
 - **RG-ABS-024** — **Clôture avec la facturation** : toute création, qualification, rattrapage ou annulation est refusée
   si une facture du patient couvre
   la date de la séance (`ABSENCE_PERIODE_FACTUREE`).
@@ -119,9 +123,17 @@
 
 - **RG-ABS-050** — La liste des absences est paginée et filtrable (statut, motif, patient, période), limitée au centre ;
   accès `ADMIN`, `SECRETAIRE`,
-  `MEDECIN`, `INFIRMIER` (y compris profils restreints, voir RG-SEC-022/023).
+  `MEDECIN`, `INFIRMIER` (y compris profils restreints, voir RG-SEC-022/023). Tri : date de séance la plus récente
+  d'abord, puis identifiant. **Pagination bornée** : `page` et `size` négatifs sont refusés (400 `BAD_REQUEST`),
+  `size` est **plafonnée à 100** (la taille effective figure dans la réponse), `size = 0` ne renvoie aucun élément mais
+  le total (KB-ABS-02, corrigé à la slice A1). Chaque ligne porte `enRetard` (RG-ABS-043, jour courant en UTC).
 - **RG-ABS-051** — Le suivi de la semaine (dimanche → samedi) renvoie les absences non annulées et les séances
   réalisées, pour colorer le planning :
   les séances réalisées (validées par l'infirmier à la présence du patient) s'affichent avec un soleil sur fond jaune.
 - **RG-ABS-052** — Les absences alimentent le tableau de bord de la direction (volumes, perte valorisée, taux — voir
   RG-DIR) sans donnée nominative.
+- **RG-ABS-053** — **Paramètres illisibles de la consultation** : un statut ou un motif inconnu (ou en minuscules), un
+  identifiant (centre, patient, absence) qui n'est pas un UUID, une date qui n'est pas au format `AAAA-MM-JJ`, une
+  `page` ou une `size` non numérique est refusé en **400** `BAD_REQUEST` (était : 500 `INTERNAL_ERROR`, KB-ABS-01,
+  corrigé à la slice A1). Un filtre vide (`statut=`) est ignoré ; `du` après `au` ne retient aucune absence.
+  *Source :* `AbsencesControleur`, `ConsultationDesAbsencesAdvice` (contexte `absences-patients`).

@@ -6,10 +6,8 @@ import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
 import com.hemodialyse.backend.domain.absence.model.MotifAbsence;
 import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
 import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort;
-import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort.SeanceRealisee;
 import com.hemodialyse.backend.domain.absence.port.AbsencePatientRepositoryPort;
 import com.hemodialyse.backend.domain.absence.service.ValorisationAbsenceService;
-import com.hemodialyse.backend.domain.planning.service.PlanningSemaineService;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,30 +63,8 @@ public class AbsencePatientService {
         return LocalDate.now(clock);
     }
 
-    /**
-     * Suivi de la semaine (dimanche → samedi) contenant {@code date}, pour colorer le planning : absences non annulées
-     * et séances réalisées (validées par l'infirmier à la présence du patient).
-     */
-    public SuiviSemaine semaine(UUID centerId, LocalDate date) {
-        LocalDate debut = PlanningSemaineService.debutSemaine(date);
-        LocalDate fin = debut.plusDays(6);
-        List<AbsenceSemaine> liste = absences.findBetween(centerId, debut, fin).stream()
-                .map(a -> new AbsenceSemaine(a.id(), a.patientId(), a.dateSeance(), a.statut(), a.motif()))
-                .toList();
-        return new SuiviSemaine(liste, donnees.seancesRealisees(centerId, debut, fin));
-    }
-
-    public record SuiviSemaine(List<AbsenceSemaine> absences, List<SeanceRealisee> seancesRealisees) {
-    }
-
-    public record AbsenceSemaine(UUID absenceId, UUID patientId, LocalDate dateSeance, StatutAbsence statut,
-                                 MotifAbsence motif) {
-    }
-
-    public PagedResult<AbsenceLigne> lister(UUID centerId, AbsenceFiltre filtre, int page, int size) {
-        return absences.findPaged(centerId, filtre, page, size);
-    }
-
+    // La consultation (liste, semaine, séances de rattrapage) est passée au contexte absences-patients (slice A1). La
+    // synthèse reste ici pour le contrôle de nuit (controlerCentre, notification) jusqu'à la slice A3.
     public Synthese synthese(UUID centerId) {
         return new Synthese(absences.countAQualifier(centerId),
                 absences.countEnRetard(centerId, aujourdhui().minusDays(AbsencePatient.DELAI_QUALIFICATION_JOURS)));
@@ -131,19 +107,6 @@ public class AbsencePatientService {
         }
         a.rattraper(dateRattrapage, utilisateur, aujourdhui(), Instant.now(clock));
         return absences.save(a);
-    }
-
-    /**
-     * Séances qui peuvent rattraper cette absence : séances réalisées du patient, après la séance manquée et jusqu'à
-     * aujourd'hui, qui ne rattrapent pas déjà une autre absence (de la plus ancienne à la plus récente).
-     */
-    public List<LocalDate> seancesDeRattrapage(UUID centerId, UUID id) {
-        AbsencePatient a = absences.findById(centerId, id)
-                .orElseThrow(() -> new BusinessException("ABSENCE_INTROUVABLE", "Absence introuvable"));
-        List<LocalDate> utilisees = absences.datesRattrapage(centerId, a.patientId());
-        return donnees.datesSeancesRealisees(centerId, a.patientId(), a.dateSeance().plusDays(1), aujourdhui()).stream()
-                .filter((date) -> !utilisees.contains(date))
-                .toList();
     }
 
     public AbsencePatient annuler(UUID centerId, UUID id, String motifAnnulation, UUID utilisateur,

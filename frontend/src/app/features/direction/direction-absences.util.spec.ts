@@ -24,7 +24,7 @@ const overview: AbsencesOverview = {
   total: stats(9), centres: [centre('a', 6), centre('b', 3)],
   motifs: [{motif: 'MALADIE', nb: 6, valorisationHt: 600}, {motif: 'VOYAGE', nb: 2, valorisationHt: 200},
     {motif: 'AUTRE', nb: null, valorisationHt: null}],
-  mensuel: [],
+  mensuel: [], centresMasques: 0,
 };
 
 describe('direction absences util', () => {

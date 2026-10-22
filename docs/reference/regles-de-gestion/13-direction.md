@@ -31,6 +31,16 @@
 - **RG-DIR-011** — Tout taux calculé sur moins de 5 patients est masqué, ainsi que toute valorisation ou variation qui
   permettrait de déduire l'effectif. Une alerte sur un taux n'est jamais levée sur une
   valeur masquée ; les variations en temps réel ignorent un indicateur qui devient masqué ou publiable.
+- **RG-DIR-012** — **Absences : masquage par centre.** Un centre dont les absences comptabilisées sont au nombre de 1 à 4
+  est **masqué** (`null`) dans tous les chiffres qui en découlent : nombre d'absences, répartition justifiées / non
+  justifiées / à qualifier, valorisation HT et TTC, taux d'absentéisme et part du chiffre d'affaires ; chaque effectif par
+  statut de 1 à 4 est aussi masqué, y compris pour un centre publié, ainsi que le nombre d'absences rattrapées (1 à 4). Les
+  séances réalisées et le chiffre d'affaires du centre restent publiés. **Un centre masqué est exclu du total**, des motifs
+  consolidés et du mensuel, qui ne portent que sur les centres publiés ; la réponse indique `centresMasques` (nombre de
+  centres exclus) et l'écran l'affiche. Ainsi la différence total moins centres publiés ne redonne pas le centre masqué
+  (KB-ABS-07). Limite connue : si un seul effectif par statut d'un centre publié est masqué, il se déduit par différence avec le
+  nombre d'absences du centre (dix absences dont neuf justifiées...) : le seuil protège les petits effectifs, pas toutes les
+  inférences. Décision de l'utilisateur du 2026-10-22 (« masquer par centre seulement ») ; à valider avec la direction.
 
 ## 13.3 Vue d'ensemble et finances
 
@@ -92,7 +102,7 @@
 - **RG-DIR-070** — Par centre et total : nombre d'absences **comptabilisées** (ni rattrapées ni annulées), répartition
   par motif (« non qualifié » pour celles en attente), valorisation (HT et TTC), **taux
   d'absentéisme** = absences / (absences + séances réalisées) en %, et **part du chiffre d'affaires HT** = valorisation
-  HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués. Sources : RG-ABS. La répartition par
+  HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués, y compris dans les totaux (RG-DIR-012). Sources : RG-ABS. La répartition par
   motif est présentée en tableau (nombre, part, valorisation) **et en deux graphiques en anneau** : l'un par **nombre
   d'absences**, l'autre par **valeur HT** ; les motifs masqués (effectif faible) et à zéro n'y figurent pas, et aucun
   graphique n'est affiché s'il ne reste aucun motif publiable. *Source :* `DirectionDashboardComponent`.

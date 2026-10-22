@@ -593,11 +593,15 @@
     <mat-card class="block" data-testid="direction-absences">
       <h2>{{ 'DIRECTION.ABSENCES.TITLE' | translate }}</h2>
       <p class="muted">{{ 'DIRECTION.ABSENCES.HINT' | translate }}</p>
+      @if (ab.centresMasques > 0) {
+        <p class="muted" data-testid="direction-absences-masques">
+          {{ 'DIRECTION.ABSENCES.MASKED_NOTE' | translate: {count: ab.centresMasques} }}</p>
+      }
       @if (absencesHeadline(); as h) {
         <div class="kpis" data-testid="direction-absences-kpis">
           <mat-card class="kpi">
             <span>{{ 'DIRECTION.ABSENCES.KPI_NB' | translate }}</span>
-            <strong data-testid="direction-absences-nb">{{ h.nbAbsences }}</strong>
+            <strong data-testid="direction-absences-nb">{{ headcount(h.nbAbsences) }}</strong>
           </mat-card>
           <mat-card class="kpi">
             <span>{{ 'DIRECTION.ABSENCES.KPI_TAUX' | translate }}</span>
@@ -605,7 +609,7 @@
           </mat-card>
           <mat-card class="kpi">
             <span>{{ 'DIRECTION.ABSENCES.KPI_VALORISATION' | translate }}</span>
-            <strong>{{ h.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+            <strong>{{ h.valorisationHt === null ? '—' : (h.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}</strong>
           </mat-card>
           <mat-card class="kpi">
             <span>{{ 'DIRECTION.ABSENCES.KPI_PART_CA' | translate }}</span>
@@ -633,13 +637,13 @@
             @for (row of absencesRows(); track row.centerId ?? 'total') {
               <tr [class.total]="row.total">
                 <td>{{ row.nom ?? ('DIRECTION.TOTAL' | translate) }}</td>
-                <td class="num">{{ row.stats.nbAbsences }}</td>
-                <td class="num">{{ row.stats.nbJustifiees }}</td>
-                <td class="num">{{ row.stats.nbNonJustifiees }}</td>
-                <td [class.warn]="row.stats.nbAQualifier > 0" class="num">{{ row.stats.nbAQualifier }}</td>
-                <td class="num">{{ row.stats.nbRattrapees }}</td>
+                <td class="num">{{ headcount(row.stats.nbAbsences) }}</td>
+                <td class="num">{{ headcount(row.stats.nbJustifiees) }}</td>
+                <td class="num">{{ headcount(row.stats.nbNonJustifiees) }}</td>
+                <td [class.warn]="(row.stats.nbAQualifier ?? 0) > 0" class="num">{{ headcount(row.stats.nbAQualifier) }}</td>
+                <td class="num">{{ headcount(row.stats.nbRattrapees) }}</td>
                 <td class="num">{{ pct(row.stats.tauxAbsenteisme) }}</td>
-                <td class="num">{{ row.stats.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="num">{{ row.stats.valorisationHt === null ? '—' : (row.stats.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}</td>
                 <td class="num">{{ row.stats.caHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
                 <td class="num"><strong>{{ pct(row.stats.partCaHt) }}</strong></td>
               </tr>

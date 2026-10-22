@@ -214,6 +214,11 @@
 - **RG-SEA-043** — Le détail du tableau de bord se demande pour `presence` (séances réalisées du mois) ou `absence`
   (absences du suivi du mois, hors annulées, avec leur statut) ; toute autre valeur est refusée
   (« kind must be 'presence' or 'absence' »).
+- **RG-SEA-051** — **Garde de centre du tableau de bord** : le tableau de bord mensuel, son détail et son export
+  (`/seances/dashboard`, `/dashboard/details`, `/dashboard/export`) n'acceptent que le centre de la session ; un autre
+  centre est refusé en **403** `ACCESS_DENIED` (RG-TRV-002). Avant, un administrateur lisait le tableau de bord d'un
+  autre centre en changeant l'identifiant (KB-ABS-05, corrigé). Le calendrier du centre (`/seances/calendar`) n'a pas
+  encore cette garde.
 - **RG-SEA-044** — **Calendrier du centre** : jours fériés (libellé) et jours de fermeture exceptionnelle (motif) par
   mois ; ajout et suppression réservés à `ADMIN`, bornés au centre.
   Ces jours bloquent les séances prévues, les absences automatiques et le planning de la semaine. **Point

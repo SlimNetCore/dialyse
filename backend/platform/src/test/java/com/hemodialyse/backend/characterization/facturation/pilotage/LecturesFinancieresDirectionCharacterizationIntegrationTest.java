@@ -154,6 +154,18 @@ class LecturesFinancieresDirectionCharacterizationIntegrationTest extends Pilota
         absence(CENTRE_A, P_BELKACEM, "2026-02-06", "JUSTIFIEE", "50.00", "50.00");
         absence(CENTRE_A, P_CHIKHI, "2026-02-07", "RATTRAPEE", "999.00", "999.00");
 
+        // KB-ABS-07 corrigé : 2 absences comptabilisées au centre A (< 5) -> chiffres d'absence masqués, dont la part du CA
+        goldenNode("absences_part_du_ca_fevrier_2026_nouveau_code", vueDesAbsences());
+
+        // Au-delà du seuil (5 absences comptabilisées au centre A) : la part du CA reste publiée et calculée comme avant
+        // (valorisation HT 250,00 / CA HT 2 400,50 = 10,41 %)
+        absence(CENTRE_A, P_AMRANI, "2026-02-08", "JUSTIFIEE", "30.00", "30.00");
+        absence(CENTRE_A, P_BELKACEM, "2026-02-09", "A_QUALIFIER", "20.00", "20.00");
+        absence(CENTRE_A, P_CHIKHI, "2026-02-10", "NON_JUSTIFIEE", "50.00", "59.50");
+        goldenNode("absences_part_du_ca_au_dela_du_seuil", vueDesAbsences());
+    }
+
+    private ObjectNode vueDesAbsences() throws Exception {
         JsonNode r = json(doGet(DIRECTION + "/absences?from=2026-02-01&to=2026-02-28", direction()));
 
         ObjectNode vue = mapper.createObjectNode();
@@ -162,7 +174,7 @@ class LecturesFinancieresDirectionCharacterizationIntegrationTest extends Pilota
         for (JsonNode c : r.path("centres")) {
             parCentre.set(new Scrubber().scrubString(c.path("centerId").asString()), c.path("stats"));
         }
-        goldenNode("absences_part_du_ca_fevrier_2026", vue);
+        return vue;
     }
 
     @Test
@@ -206,7 +218,7 @@ class LecturesFinancieresDirectionCharacterizationIntegrationTest extends Pilota
 
         golden("overview_societe_sans_centre", doGet(DIRECTION + "/overview?from=2026-02-01&to=2026-02-28", direction3));
         golden("breakdown_societe_sans_centre", doGet(DIRECTION + "/breakdown?from=2026-02-01&to=2026-02-28", direction3));
-        golden("absences_societe_sans_centre", doGet(DIRECTION + "/absences?from=2026-02-01&to=2026-02-28", direction3));
+        golden("absences_societe_sans_centre_nouveau_code", doGet(DIRECTION + "/absences?from=2026-02-01&to=2026-02-28", direction3));
     }
 
     private void absence(UUID centre, UUID patient, String jour, String statut, String ht, String ttc) {

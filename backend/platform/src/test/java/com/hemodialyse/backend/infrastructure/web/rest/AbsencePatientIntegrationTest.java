@@ -61,6 +61,8 @@ class AbsencePatientIntegrationTest {
     @Autowired
     private AbsencePatientService service;
     @Autowired
+    private com.hemodialyse.backend.domain.absence.port.AbsencePatientRepositoryPort repository;
+    @Autowired
     private SeanceRestController seances;
     @Autowired
     private DirectionAbsencesQueryService direction;
@@ -68,6 +70,24 @@ class AbsencePatientIntegrationTest {
     private RoleScopeFilter roleScopeFilter;
     private UUID absent;
     private UUID present;
+
+    /** Lecture de contrôle des écritures (la consultation HTTP est dans le contexte absences-patients). */
+    private com.hemodialyse.backend.domain.shared.PagedResult<AbsenceLigne> lister(UUID centre, AbsenceFiltre filtre) {
+        return repository.findPaged(centre, filtre, 0, 20);
+    }
+
+    private static void connecteEnAdminDuCentre(UUID centre) {
+        UserPrincipal p = UserPrincipal.create(UUID.randomUUID().toString(), centre.toString(), "admin", "",
+                List.of("ADMIN"), true);
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(p, null,
+                        p.getAuthorities()));
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void deconnecte() {
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    }
 
     private static UserPrincipal principal(String role) {
         return UserPrincipal.create(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "u-" + role, "",
@@ -115,7 +135,7 @@ class AbsencePatientIntegrationTest {
         assertEquals(0, service.detecter(C1, jour), "détection idempotente");
         assertEquals(0, service.detecter(C2, jour), "autre centre : aucun patient");
 
-        AbsenceLigne ligne = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0);
+        AbsenceLigne ligne = lister(C1, AbsenceFiltre.aucun()).items().get(0);
         AbsencePatient a = ligne.absence();
         assertEquals(absent, a.patientId());
         assertEquals(StatutAbsence.A_QUALIFIER, a.statut());
@@ -124,7 +144,7 @@ class AbsencePatientIntegrationTest {
         assertEquals(new BigDecimal("10000.00"), a.valeur().montantHt());
         assertEquals("Forfait test", a.valeur().forfaitLibelle());
         assertNotNull(ligne.patientNom());
-        assertEquals(0, service.lister(C2, AbsenceFiltre.aucun(), 0, 20).total(), "isolation par centre");
+        assertEquals(0, lister(C2, AbsenceFiltre.aucun()).total(), "isolation par centre");
     }
 
     @Test
@@ -172,9 +192,10 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
-    @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
     @SuppressWarnings("unchecked")
     void the_monthly_dashboard_counts_the_tracked_absences_and_the_performed_sessions() {
+        // KB-ABS-05 : le tableau de bord est gardé par le centre de la session ; l'administrateur du centre 1 est connecté
+        connecteEnAdminDuCentre(C1);
         service.detecter(C1, jour);   // le patient sans séance réalisée est absent
         seance(C1, absent, jour, "CREE");   // une séance seulement créée n'est pas une présence
         jdbc.update("INSERT INTO absence_patient (id, center_id, patient_id, date_seance, source, statut, prix_ttc, "
@@ -184,11 +205,17 @@ class AbsencePatientIntegrationTest {
         int mois = jour.getMonthValue();
 
         var c1 = (java.util.Map<String, Object>) seances.dashboard(C1, annee, mois).getBody();
-        var c2 = (java.util.Map<String, Object>) seances.dashboard(C2, annee, mois).getBody();
 
         assertEquals(1L, c1.get("presenceCount"), "seule la séance validée est une présence");
         assertEquals(1L, c1.get("absenceCount"), "l'absence suivie compte, l'absence annulée non");
+        final int an = annee;
+        final int mo = mois;
+        assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                () -> seances.dashboard(C2, an, mo), "le centre 2 n'est pas celui de la session");
+        connecteEnAdminDuCentre(C2);
+        var c2 = (java.util.Map<String, Object>) seances.dashboard(C2, annee, mois).getBody();
         assertEquals(0L, c2.get("absenceCount"), "isolation par centre");
+        connecteEnAdminDuCentre(C1);
         var absences = (java.util.Map<String, Object>) seances.dashboardDetails(C1, annee, mois, "absence").getBody();
         var presences = (java.util.Map<String, Object>) seances.dashboardDetails(C1, annee, mois, "presence").getBody();
         assertEquals(1, absences.get("total"));
@@ -204,7 +231,7 @@ class AbsencePatientIntegrationTest {
     @Test
     void a_validated_billing_period_closes_the_absences_of_that_patient() {
         service.detecter(C1, jour);
-        UUID id = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0).absence().id();
+        UUID id = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence().id();
         Date debut = Date.valueOf(jour.minusDays(10));
         Date fin = Date.valueOf(jour.plusDays(1));
         jdbc.update("INSERT INTO factures (id, center_id, patient_id, numero_facture, period_start, period_end, "
@@ -219,43 +246,8 @@ class AbsencePatientIntegrationTest {
         assertEquals("ABSENCE_PERIODE_FACTUREE", assertThrows(BusinessException.class,
                 () -> service.declarer(C1, absent, jour.minusDays(1), null, null, USER)).getCode());
         service.detecter(C1, jour.minusDays(2)); // l'autre patient (non facturé) est détecté, pas celui-ci
-        assertEquals(0, service.lister(C1, new AbsenceFiltre(null, null, absent, jour.minusDays(2), jour.minusDays(2)),
-                0, 20).total(), "pas de nouvelle absence dans une période clôturée");
-    }
-
-    @Test
-    void the_week_view_lists_the_non_cancelled_absences_of_the_week_of_the_centre() {
-        service.declarer(C1, absent, jour, MotifAbsence.MALADIE, null, USER);
-        // Un autre jour de la MÊME semaine (dimanche → samedi) : indépendant du jour où le test s'exécute.
-        LocalDate autreJourDeLaSemaine = com.hemodialyse.backend.domain.planning.service.PlanningSemaineService
-                .debutSemaine(jour).plusDays(3);
-        var semaine = service.semaine(C1, autreJourDeLaSemaine).absences();
-
-        assertEquals(1, semaine.size());
-        assertEquals(absent, semaine.get(0).patientId());
-        assertEquals(StatutAbsence.JUSTIFIEE, semaine.get(0).statut());
-        assertEquals(0, service.semaine(C2, jour).absences().size(), "isolation par centre");
-        assertEquals(0, service.semaine(C1, jour.plusDays(14)).absences().size(), "autre semaine");
-
-        service.annuler(C1, semaine.get(0).absenceId(), "Erreur", USER, true);
-        assertEquals(0, service.semaine(C1, jour).absences().size(), "une absence annulée disparaît du planning");
-    }
-
-    @Test
-    void the_week_view_lists_the_sessions_validated_by_the_nurse_of_the_center_only() {
-        LocalDate debut = com.hemodialyse.backend.domain.planning.service.PlanningSemaineService.debutSemaine(jour);
-        jdbc.update("DELETE FROM seances WHERE center_id = ?", C1);   // repart de zéro (séance du setup)
-        seance(C1, absent, debut, "CREE");        // créée mais pas encore validée : pas « réalisée »
-        seance(C1, absent, debut.plusDays(1), "VALIDEE");
-        seance(C1, present, debut.plusDays(2), "FACTUREE");
-        seance(C3, patient(C3), debut.plusDays(1), "VALIDEE");   // autre centre
-
-        var realisees = service.semaine(C1, jour).seancesRealisees();
-
-        assertEquals(2, realisees.size());
-        assertEquals(java.util.Set.of(debut.plusDays(1), debut.plusDays(2)),
-                realisees.stream().map(s -> s.dateSeance()).collect(java.util.stream.Collectors.toSet()));
-        assertEquals(0, service.semaine(C2, jour).seancesRealisees().size(), "isolation par centre");
+        assertEquals(0, lister(C1, new AbsenceFiltre(null, null, absent, jour.minusDays(2), jour.minusDays(2)))
+                .total(), "pas de nouvelle absence dans une période clôturée");
     }
 
     @Test
@@ -293,7 +285,7 @@ class AbsencePatientIntegrationTest {
         AbsencePatient corrigee = service.qualifier(C1, a.id(), MotifAbsence.NON_JUSTIFIEE, "Contrôle", USER, true);
         assertEquals(StatutAbsence.NON_JUSTIFIEE, corrigee.statut());
         assertEquals(StatutAbsence.NON_JUSTIFIEE,
-                service.lister(C1, new AbsenceFiltre(null, MotifAbsence.NON_JUSTIFIEE, null, null, null), 0, 20)
+                lister(C1, new AbsenceFiltre(null, MotifAbsence.NON_JUSTIFIEE, null, null, null))
                         .items().get(0).absence().statut());
         assertEquals("ABSENCE_INTROUVABLE", assertThrows(BusinessException.class,
                         () -> service.qualifier(C2, a.id(), MotifAbsence.MALADIE, null, USER, true)).getCode(),
@@ -303,7 +295,7 @@ class AbsencePatientIntegrationTest {
     @Test
     void a_make_up_session_cancels_the_loss_only_when_a_session_exists() {
         service.detecter(C1, jour);
-        UUID id = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0).absence().id();
+        UUID id = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence().id();
         LocalDate rattrapage = jour.plusDays(2);
 
         assertEquals("ABSENCE_RATTRAPAGE_SANS_SEANCE", assertThrows(BusinessException.class,
@@ -312,23 +304,6 @@ class AbsencePatientIntegrationTest {
         assertEquals(StatutAbsence.RATTRAPEE, service.rattraper(C1, id, rattrapage, USER).statut());
         assertEquals("ABSENCE_NON_MODIFIABLE", assertThrows(BusinessException.class,
                 () -> service.qualifier(C1, id, MotifAbsence.MALADIE, "x", USER, true)).getCode());
-    }
-
-    @Test
-    void the_make_up_candidates_are_the_patient_sessions_after_the_missed_day_not_already_used() {
-        service.detecter(C1, jour);
-        UUID id = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0).absence().id();
-        assertEquals(List.of(), service.seancesDeRattrapage(C1, id), "aucune séance réalisée : aucun candidat");
-
-        seance(C1, absent, jour.plusDays(1), "VALIDEE");
-        seance(C1, absent, jour.plusDays(3), "SIGNEE");
-        seance(C1, absent, jour.plusDays(2), "CREE");          // pas réalisée : jamais proposée
-        seance(C1, absent, jour.minusDays(1), "VALIDEE");      // avant l'absence : jamais proposée
-        seance(C1, present, jour.plusDays(1), "VALIDEE");      // autre patient : jamais proposée
-
-        assertEquals(List.of(jour.plusDays(1), jour.plusDays(3)), service.seancesDeRattrapage(C1, id));
-        assertEquals("ABSENCE_INTROUVABLE", assertThrows(BusinessException.class,
-                () -> service.seancesDeRattrapage(C2, id)).getCode(), "une absence d'un autre centre est introuvable");
     }
 
     @Test
@@ -344,8 +319,6 @@ class AbsencePatientIntegrationTest {
 
         assertEquals("ABSENCE_RATTRAPAGE_DEJA_UTILISEE", assertThrows(BusinessException.class,
                 () -> service.rattraper(C1, seconde.id(), rattrapage, USER)).getCode());
-        assertEquals(List.of(rattrapage.plusDays(1)), service.seancesDeRattrapage(C1, seconde.id()),
-                "la séance déjà utilisée n'est plus proposée");
         assertEquals(StatutAbsence.RATTRAPEE,
                 service.rattraper(C1, seconde.id(), rattrapage.plusDays(1), USER).statut());
     }
@@ -357,7 +330,7 @@ class AbsencePatientIntegrationTest {
 
         assertEquals(1, service.reconcilier(C1, jour.minusDays(1), jour.plusDays(1)));
 
-        AbsencePatient a = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0).absence();
+        AbsencePatient a = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
         assertEquals(StatutAbsence.ANNULEE, a.statut());
         assertEquals(0, service.synthese(C1).aQualifier());
     }
@@ -384,17 +357,21 @@ class AbsencePatientIntegrationTest {
 
         assertEquals(2, o.centres().size());
         CentreAbsences c1 = o.centres().stream().filter(c -> c.centerId().equals(C1)).findFirst().orElseThrow();
-        assertEquals(1, c1.stats().nbAbsences());
+        // KB-ABS-07 : une seule absence comptabilisée -> tous les chiffres qui en dépendent sont masqués
+        assertNull(c1.stats().nbAbsences());
+        assertNull(c1.stats().nbJustifiees());
+        assertNull(c1.stats().nbAQualifier());
         assertEquals(1, c1.stats().nbSeances());
-        assertEquals(0, new BigDecimal("10000.00").compareTo(c1.stats().valorisationHt()));
-        assertEquals(0, new BigDecimal("11900.00").compareTo(c1.stats().valorisationTtc()));
-        assertEquals(0, new BigDecimal("10.00").compareTo(c1.stats().partCaHt()), "10 000 / 100 000 de CA HT");
-        assertEquals(0, new BigDecimal("50.00").compareTo(c1.stats().tauxAbsenteisme()), "1 absence / (1 + 1 séance)");
-        assertEquals(1, o.total().nbAbsences(), "l'autre société est exclue");
-        assertNull(o.motifs().get(0).nb(), "un seul cas : effectif masqué");
-        assertNull(o.motifs().get(0).valorisationHt(), "la valorisation d'un effectif masqué l'est aussi");
-        assertEquals("NON_QUALIFIE", o.motifs().get(0).motif());
-        assertNull(o.mensuel().get(0).nbAbsences());
+        assertNull(c1.stats().valorisationHt());
+        assertNull(c1.stats().valorisationTtc());
+        assertNull(c1.stats().partCaHt());
+        assertNull(c1.stats().tauxAbsenteisme());
+        // « masquer par centre seulement » : le centre masqué est exclu du total, des motifs et du mensuel (pas de différence)
+        assertEquals(1, o.centresMasques());
+        assertEquals(0L, o.total().nbAbsences(), "le seul centre est masqué : le total ne porte que sur les centres publiés");
+        assertEquals(0, o.total().nbSeances());
+        assertTrue(o.motifs().isEmpty());
+        assertTrue(o.mensuel().isEmpty());
         assertTrue(o.centres().stream().noneMatch(c -> c.centerId().equals(C3)));
     }
 

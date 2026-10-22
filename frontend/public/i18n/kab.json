@@ -439,6 +439,7 @@
       "KPI_TAUX": "Afmir n tmettant",
       "KPI_VALORISATION": "Azal HT",
       "KPI_PART_CA": "% n uɣrud HT",
+      "MASKED_NOTE": "Total, reasons and monthly figures only cover published centres: {{count}} centre(s) with fewer than 5 absences masked.",
       "COL_NB": "Tamettant",
       "COL_JUSTIFIEES": "Yettwasefran",
       "COL_NON_JUSTIFIEES": "Ur yettwasefran ara",

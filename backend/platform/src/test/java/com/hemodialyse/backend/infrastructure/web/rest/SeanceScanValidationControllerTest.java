@@ -47,7 +47,8 @@ class SeanceScanValidationControllerTest {
 
     private final SeanceUseCase useCase = mock(SeanceUseCase.class);
     private final NotificationService notif = mock(NotificationService.class);
-    private final SeanceRestController controller = new SeanceRestController(useCase, notif, mock(JdbcTemplate.class));
+    private final SeanceRestController controller = new SeanceRestController(useCase, notif, mock(JdbcTemplate.class),
+            mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class));
 
     private static void connectedAs(String username, String role) {
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, "n/a",

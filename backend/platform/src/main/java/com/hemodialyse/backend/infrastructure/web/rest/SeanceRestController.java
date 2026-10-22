@@ -10,6 +10,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.security.CurrentUser;
 import com.hemodialyse.backend.infrastructure.web.dto.request.*;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -44,13 +45,16 @@ public class SeanceRestController {
     private final SeanceUseCase seanceUseCase;
     private final NotificationService notificationService;
     private final JdbcTemplate jdbc;
+    private final CenterAccessGuard centerAccessGuard;
 
     public SeanceRestController(SeanceUseCase seanceUseCase,
                                 NotificationService notificationService,
-                                JdbcTemplate jdbc) {
+                                JdbcTemplate jdbc,
+                                CenterAccessGuard centerAccessGuard) {
         this.seanceUseCase = seanceUseCase;
         this.notificationService = notificationService;
         this.jdbc = jdbc;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
@@ -640,6 +644,8 @@ public class SeanceRestController {
     public ResponseEntity<?> dashboard(@RequestParam UUID centerId,
                                        @RequestParam int year,
                                        @RequestParam int month) {
+        // KB-ABS-05 : un centre autre que celui de la session est refusé (403), comme /absences-patients
+        centerAccessGuard.requireCenter(centerId);
         return ResponseEntity.ok(buildSeanceDashboard(centerId, year, month));
     }
 
@@ -649,6 +655,7 @@ public class SeanceRestController {
                                               @RequestParam int year,
                                               @RequestParam int month,
                                               @RequestParam String kind) {
+        centerAccessGuard.requireCenter(centerId); // KB-ABS-05
         return ResponseEntity.ok(buildSeanceDashboardDetails(centerId, year, month, kind));
     }
 
@@ -658,6 +665,7 @@ public class SeanceRestController {
                                              @RequestParam int year,
                                              @RequestParam int month,
                                              @RequestParam(defaultValue = "csv") String format) {
+        centerAccessGuard.requireCenter(centerId); // KB-ABS-05 (même donnée que le tableau de bord)
         Map<String, Object> dashboard = buildSeanceDashboard(centerId, year, month);
         if ("pdf".equalsIgnoreCase(format)) {
             byte[] pdf = exportDashboardPdf(dashboard);

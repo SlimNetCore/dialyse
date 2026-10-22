@@ -439,6 +439,7 @@
       "KPI_TAUX": "Taux d'absentéisme",
       "KPI_VALORISATION": "Valorisation HT",
       "KPI_PART_CA": "% du CA HT",
+      "MASKED_NOTE": "Le total, les motifs et le mensuel ne portent que sur les centres publiés : {{count}} centre(s) de moins de 5 absences masqué(s).",
       "COL_NB": "Absences",
       "COL_JUSTIFIEES": "Justifiées",
       "COL_NON_JUSTIFIEES": "Non justifiées",

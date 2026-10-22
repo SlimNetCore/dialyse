@@ -433,16 +433,19 @@ export type MotifAbsenceStat = {
   valorisationHt: number | null;
 };
 
-/** Indicateurs d'absence d'un centre (ou totaux) : % exprimés en points de pourcentage, `null` sans base de calcul. */
+/**
+ * Indicateurs d'absence d'un centre (ou totaux) : % exprimés en points de pourcentage, `null` sans base de calcul.
+ * Les chiffres issus des absences sont `null` quand leur effectif est trop faible (k-anonymat, 1 à 4).
+ */
 export type AbsencesStats = {
-  nbAbsences: number;
-  nbJustifiees: number;
-  nbNonJustifiees: number;
-  nbAQualifier: number;
-  nbRattrapees: number;
+  nbAbsences: number | null;
+  nbJustifiees: number | null;
+  nbNonJustifiees: number | null;
+  nbAQualifier: number | null;
+  nbRattrapees: number | null;
   nbSeances: number;
-  valorisationHt: number;
-  valorisationTtc: number;
+  valorisationHt: number | null;
+  valorisationTtc: number | null;
   caHt: number;
   tauxAbsenteisme: number | null;
   partCaHt: number | null;
@@ -472,6 +475,8 @@ export type AbsencesOverview = {
   centres: CentreAbsences[];
   motifs: MotifAbsenceStat[];
   mensuel: MoisAbsences[];
+  /** Centres de 1 à 4 absences, masqués et exclus du total, des motifs consolidés et du mensuel. */
+  centresMasques: number;
 };
 
 /** Niveau d'occupation de la capacité théorique d'un centre. */

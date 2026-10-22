@@ -5,7 +5,7 @@
     "scan": "done",
     "discover": "done",
     "strategic": "done",
-    "tactical": "done",
+    "tactical": "in-progress",
     "architecture": "done",
     "plan": "done",
     "slices": "pending",
@@ -36,11 +36,13 @@
     "facturation-f4-reglements": "built",
     "facturation-f5-consultation-pilotage": "built",
     "facturation-f6-retrait-bc-facturation": "built",
-    "facturation-f7-cloture-mensuelle": "built"
+    "facturation-f7-cloture-mensuelle": "built",
+    "absences-patients-a1-consultation": "built"
   },
   "contexts": {
     "gmao": "architected",
     "comptabilite": "modeled",
-    "facturation": "architected"
+    "facturation": "architected",
+    "absences-patients": "modeled"
   }
 }

@@ -62,11 +62,19 @@ public class DirectionAbsencesQueryService {
 
     private static AbsencesStats stats(Cumul c, long seances, BigDecimal caHt) {
         long comptabilisees = c.comptabilisees();
-        BigDecimal taux = pourcentage(BigDecimal.valueOf(comptabilisees),
+        // KB-ABS-07 : un effectif de 1 à 4 absences comptabilisées est masqué (null) dans TOUS les chiffres qui en
+        // dépendent (effectifs par statut, valorisation, taux, part du CA), sinon le masquage des motifs et du mensuel
+        // serait contournable par les stats. Les rattrapées ont leur propre seuil.
+        boolean masque = AnonymityPolicy.mask(comptabilisees) == null;
+        BigDecimal taux = masque ? null : pourcentage(BigDecimal.valueOf(comptabilisees),
                 BigDecimal.valueOf(comptabilisees + seances));
-        BigDecimal partCa = pourcentage(c.valorisationHt(), caHt);
-        return new AbsencesStats(comptabilisees, c.justifiees, c.nonJustifiees, c.aQualifier, c.rattrapees, seances,
-                c.valorisationHt(), c.valorisationTtc(), caHt, taux, partCa);
+        BigDecimal partCa = masque ? null : pourcentage(c.valorisationHt(), caHt);
+        // chaque effectif par statut a son propre seuil : un statut de 1 à 4 absences est masqué même si le centre est publié
+        return new AbsencesStats(AnonymityPolicy.mask(comptabilisees),
+                masque ? null : AnonymityPolicy.mask(c.justifiees),
+                masque ? null : AnonymityPolicy.mask(c.nonJustifiees),
+                masque ? null : AnonymityPolicy.mask(c.aQualifier), AnonymityPolicy.mask(c.rattrapees),
+                seances, masque ? null : c.valorisationHt(), masque ? null : c.valorisationTtc(), caHt, taux, partCa);
     }
 
     private static BigDecimal pourcentage(BigDecimal numerateur, BigDecimal denominateur) {
@@ -93,7 +101,7 @@ public class DirectionAbsencesQueryService {
         List<CentreInfo> centres = dashboard.societe(societeId).centres();
         if (centres.isEmpty()) {
             return new AbsencesOverview(societeId, start, end, OffsetDateTime.now(ZoneOffset.UTC),
-                    stats(new Cumul(), 0, BigDecimal.ZERO), List.of(), List.of(), List.of());
+                    stats(new Cumul(), 0, BigDecimal.ZERO), List.of(), List.of(), List.of(), 0);
         }
         List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
         String in = String.join(",", ids.stream().map(i -> "?").toList());
@@ -128,11 +136,16 @@ public class DirectionAbsencesQueryService {
                     }
                 }, params);
 
+        // KB-ABS-07 (décision du 2026-10-22 : « masquer par centre seulement ») : un centre de 1 à 4 absences comptabilisées
+        // est masqué ET exclu du total, des motifs consolidés et du mensuel, qui ne portent que sur les centres publiés ;
+        // sinon la différence total - centres publiés redonnerait le centre masqué.
         List<CentreAbsences> lignes = new ArrayList<>();
         Cumul total = new Cumul();
         Map<String, Cumul> motifsTotal = new TreeMap<>();
         long seancesTotal = 0;
         BigDecimal caTotal = BigDecimal.ZERO;
+        List<UUID> idsPublies = new ArrayList<>();
+        int centresMasques = 0;
         for (CentreInfo centre : centres) {
             Cumul c = parCentre.getOrDefault(centre.id(), new Cumul());
             long nbSeances = seances.getOrDefault(centre.id(), 0L);
@@ -140,13 +153,21 @@ public class DirectionAbsencesQueryService {
             Map<String, Cumul> motifs = motifsParCentre.getOrDefault(centre.id(), Map.of());
             lignes.add(new CentreAbsences(centre.id(), centre.nom(), centre.actif(), stats(c, nbSeances, caHt),
                     motifs(motifs)));
+            if (AnonymityPolicy.mask(c.comptabilisees()) == null) {
+                centresMasques++;
+                continue;
+            }
+            idsPublies.add(centre.id());
             total.ajouter(c);
             motifs.forEach((m, v) -> motifsTotal.computeIfAbsent(m, k -> new Cumul()).ajouter(v));
             seancesTotal += nbSeances;
             caTotal = caTotal.add(caHt);
         }
+        List<MoisAbsences> mensuel = idsPublies.isEmpty() ? List.of()
+                : mensuel(String.join(",", idsPublies.stream().map(i -> "?").toList()),
+                parametres(idsPublies, start, end));
         return new AbsencesOverview(societeId, start, end, OffsetDateTime.now(ZoneOffset.UTC),
-                stats(total, seancesTotal, caTotal), lignes, motifs(motifsTotal), mensuel(in, params));
+                stats(total, seancesTotal, caTotal), lignes, motifs(motifsTotal), mensuel, centresMasques);
     }
 
     private List<MoisAbsences> mensuel(String in, Object[] params) {
@@ -214,10 +235,11 @@ public class DirectionAbsencesQueryService {
     /**
      * Indicateurs d'absence d'un centre (ou totaux). {@code nbAbsences} = absences comptabilisées (non rattrapées, non
      * annulées) ; {@code tauxAbsenteisme} = absences / (absences + séances réalisées), en % ; {@code partCaHt} =
-     * valorisation HT / chiffre d'affaires HT facturé de la période, en % (null si pas de CA).
+     * valorisation HT / chiffre d'affaires HT facturé de la période, en % (null si pas de CA). Tous les chiffres
+     * issus des absences comptabilisées sont {@code null} lorsque leur effectif est de 1 à 4 (k-anonymat, KB-ABS-07).
      */
-    public record AbsencesStats(long nbAbsences, long nbJustifiees, long nbNonJustifiees, long nbAQualifier,
-                                long nbRattrapees, long nbSeances, BigDecimal valorisationHt,
+    public record AbsencesStats(Long nbAbsences, Long nbJustifiees, Long nbNonJustifiees, Long nbAQualifier,
+                                Long nbRattrapees, long nbSeances, BigDecimal valorisationHt,
                                 BigDecimal valorisationTtc, BigDecimal caHt, BigDecimal tauxAbsenteisme,
                                 BigDecimal partCaHt) {
     }
@@ -238,6 +260,6 @@ public class DirectionAbsencesQueryService {
 
     public record AbsencesOverview(UUID societeId, LocalDate from, LocalDate to, OffsetDateTime generatedAt,
                                    AbsencesStats total, List<CentreAbsences> centres, List<MotifAbsenceStat> motifs,
-                                   List<MoisAbsences> mensuel) {
+                                   List<MoisAbsences> mensuel, int centresMasques) {
     }
 }

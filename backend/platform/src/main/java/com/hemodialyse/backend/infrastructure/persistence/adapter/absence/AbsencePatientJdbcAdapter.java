@@ -141,13 +141,6 @@ public class AbsencePatientJdbcAdapter implements AbsencePatientRepositoryPort {
     }
 
     @Override
-    public List<AbsencePatient> findBetween(UUID centerId, LocalDate from, LocalDate to) {
-        return jdbc.query("SELECT " + COLONNES + " FROM absence_patient a WHERE a.center_id = ? "
-                        + "AND a.date_seance BETWEEN ? AND ? AND a.statut <> 'ANNULEE' ORDER BY a.date_seance, a.id",
-                MAPPER, centerId, Date.valueOf(from), Date.valueOf(to));
-    }
-
-    @Override
     public List<LocalDate> datesRattrapage(UUID centerId, UUID patientId) {
         return jdbc.query("SELECT date_rattrapage FROM absence_patient WHERE center_id = ? AND patient_id = ? "
                         + "AND statut = ? AND date_rattrapage IS NOT NULL",

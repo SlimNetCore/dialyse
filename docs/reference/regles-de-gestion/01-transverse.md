@@ -60,7 +60,7 @@
 - **RG-TRV-022** — Exceptions bornées : les vues dont le volume est borné par construction (grille d'une semaine de
   planning,
   liste des salles d'une page) renvoient l'ensemble de la période sans pagination. *Sources :*
-  `AbsencePatientService.semaine`.
+  `SuivreLaSemaine` (suivi de la semaine des absences).
 
 ## 1.4 Valeurs métier (shared kernel)
 

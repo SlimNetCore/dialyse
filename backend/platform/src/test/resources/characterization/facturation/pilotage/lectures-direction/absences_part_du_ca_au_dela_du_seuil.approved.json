@@ -2,16 +2,16 @@
   "centres" : {
     "<CENTRE_A>" : {
       "caHt" : 2400.50,
-      "nbAQualifier" : 0,
-      "nbAbsences" : 2,
-      "nbJustifiees" : 1,
-      "nbNonJustifiees" : 1,
-      "nbRattrapees" : 1,
+      "nbAQualifier" : null,
+      "nbAbsences" : 5,
+      "nbJustifiees" : null,
+      "nbNonJustifiees" : null,
+      "nbRattrapees" : null,
       "nbSeances" : 3,
-      "partCaHt" : 6.25,
-      "tauxAbsenteisme" : 40.00,
-      "valorisationHt" : 150.00,
-      "valorisationTtc" : 169.00
+      "partCaHt" : 10.41,
+      "tauxAbsenteisme" : 62.50,
+      "valorisationHt" : 250.00,
+      "valorisationTtc" : 278.50
     },
     "<CENTRE_B>" : {
       "caHt" : 400.00,
@@ -42,15 +42,15 @@
   },
   "total" : {
     "caHt" : 2800.50,
-    "nbAQualifier" : 0,
-    "nbAbsences" : 2,
-    "nbJustifiees" : 1,
-    "nbNonJustifiees" : 1,
-    "nbRattrapees" : 1,
+    "nbAQualifier" : null,
+    "nbAbsences" : 5,
+    "nbJustifiees" : null,
+    "nbNonJustifiees" : null,
+    "nbRattrapees" : null,
     "nbSeances" : 4,
-    "partCaHt" : 5.36,
-    "tauxAbsenteisme" : 33.33,
-    "valorisationHt" : 150.00,
-    "valorisationTtc" : 169.00
+    "partCaHt" : 8.93,
+    "tauxAbsenteisme" : 55.56,
+    "valorisationHt" : 250.00,
+    "valorisationTtc" : 278.50
   }
 }

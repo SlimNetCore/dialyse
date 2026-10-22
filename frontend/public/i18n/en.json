@@ -439,6 +439,7 @@
       "KPI_TAUX": "Absenteeism rate",
       "KPI_VALORISATION": "Value excl. VAT",
       "KPI_PART_CA": "% of revenue excl. VAT",
+      "MASKED_NOTE": "Total, reasons and monthly figures only cover published centres: {{count}} centre(s) with fewer than 5 absences masked.",
       "COL_NB": "Absences",
       "COL_JUSTIFIEES": "Justified",
       "COL_NON_JUSTIFIEES": "Unjustified",

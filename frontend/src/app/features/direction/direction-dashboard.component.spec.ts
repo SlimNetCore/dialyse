@@ -14,8 +14,14 @@ const stats: AbsencesStats = {
   valorisationHt: 900, valorisationTtc: 1071, caHt: 9000, tauxAbsenteisme: 10, partCaHt: 10,
 };
 
-const absences = (motifs: AbsencesOverview['motifs']): AbsencesOverview => ({
-  societeId: 's', from: '2026-10-01', to: '2026-10-05', generatedAt: '', total: stats, centres: [], motifs, mensuel: [],
+/** Effectif de 1 à 4 absences : tous les chiffres issus des absences sont masqués (k-anonymat, KB-ABS-07). */
+const statsMasquees: AbsencesStats = {
+  nbAbsences: null, nbJustifiees: null, nbNonJustifiees: null, nbAQualifier: null, nbRattrapees: null, nbSeances: 90,
+  valorisationHt: null, valorisationTtc: null, caHt: 9000, tauxAbsenteisme: null, partCaHt: null,
+};
+
+const absences = (motifs: AbsencesOverview['motifs'], total: AbsencesStats = stats): AbsencesOverview => ({
+  societeId: 's', from: '2026-10-01', to: '2026-10-05', generatedAt: '', total, centres: [], motifs, mensuel: [], centresMasques: total === stats ? 0 : 1,
 });
 
 /** jsdom n'a pas de canvas : le graphique est remplacé par une directive sans rendu. */
@@ -44,10 +50,10 @@ describe('DirectionDashboardComponent — mois en cours et motifs d\'absence', (
   let to: ReturnType<typeof signal<string>>;
   const mois = periodForPreset('MONTH', new Date());
 
-  async function render(motifs: AbsencesOverview['motifs'] = []) {
+  async function render(motifs: AbsencesOverview['motifs'] = [], total: AbsencesStats = stats) {
     from = signal('');
     to = signal('');
-    store = fakeStore({from, to, absences: signal(absences(motifs))});
+    store = fakeStore({from, to, absences: signal(absences(motifs, total))});
     await TestBed.configureTestingModule({
       imports: [DirectionDashboardComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [provideZonelessChangeDetection(), {provide: DirectionStore, useValue: store}],
@@ -105,6 +111,20 @@ describe('DirectionDashboardComponent — mois en cours et motifs d\'absence', (
     };
     expect(cmp.motifsNbChart().datasets[0].data).toEqual([6, 3]);
     expect(cmp.motifsValeurChart().datasets[0].data).toEqual([600, 300]);
+  });
+
+  it('affiche « < 5 » et un tiret quand les chiffres d\'absence sont masqués par le k-anonymat', async () => {
+    const {root} = await render([], statsMasquees);
+
+    expect(root.querySelector('[data-testid="direction-absences-nb"]')!.textContent).toContain('< 5');
+    expect(root.querySelector('[data-testid="direction-absences-kpis"]')!.textContent).toContain('—');
+    expect(root.querySelector('[data-testid="direction-absences-masques"]')).not.toBeNull();
+  });
+
+  it('affiche les chiffres d\'absence tels quels au-delà du seuil', async () => {
+    const {root} = await render([], stats);
+
+    expect(root.querySelector('[data-testid="direction-absences-nb"]')!.textContent).toContain('9');
   });
 
   it('n\'affiche pas de graphiques sans aucun motif publiable', async () => {

@@ -64,21 +64,6 @@ class AbsencePatientRestControllerTest {
     }
 
     @Test
-    void the_list_is_paginated_filtered_and_scoped_to_the_guarded_center() {
-        AbsencePatient a = absence();
-        AbsenceFiltre filtre = new AbsenceFiltre(StatutAbsence.A_QUALIFIER, null, null, null, null);
-        when(service.lister(centre, filtre, 2, 10)).thenReturn(PagedResult.of(List.of(new AbsenceLigne(a, "Ali")), 31, 2, 10));
-
-        PagedResult<AbsenceResponse> page =
-                controller.lister(null, StatutAbsence.A_QUALIFIER, null, null, null, null, 2, 10).getBody();
-
-        assertEquals(31, page.total());
-        assertEquals(2, page.page());
-        assertEquals("Ali", page.items().get(0).patientNom());
-        assertEquals(0, new BigDecimal("1000.00").compareTo(page.items().get(0).montantHt()));
-    }
-
-    @Test
     void declaring_passes_the_user_and_rejects_an_unknown_reason() {
         Authentication nurse = auth("INFIRMIER");
         when(service.declarer(eq(centre), eq(patient), eq(jour), eq(MotifAbsence.MALADIE), eq(null), any()))
@@ -146,13 +131,4 @@ class AbsencePatientRestControllerTest {
                 .getStatusCode().value());
     }
 
-    @Test
-    void the_summary_is_exposed() {
-        when(service.synthese(centre)).thenReturn(new AbsencePatientService.Synthese(4, 1));
-
-        var body = controller.synthese(null).getBody();
-
-        assertEquals(4, body.aQualifier());
-        assertEquals(1, body.enRetard());
-    }
 }

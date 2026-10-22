@@ -25,6 +25,7 @@ COPY bc-migration/pom.xml ./bc-migration/pom.xml
 COPY contexts/gmao/pom.xml ./contexts/gmao/pom.xml
 COPY contexts/comptabilite/pom.xml ./contexts/comptabilite/pom.xml
 COPY contexts/facturation/pom.xml ./contexts/facturation/pom.xml
+COPY contexts/absences-patients/pom.xml ./contexts/absences-patients/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline

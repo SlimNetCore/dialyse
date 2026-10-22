@@ -49,5 +49,20 @@ class FrontieresDesContextesTest {
                     FACTURATION + ".domain..", FACTURATION + ".application..", FACTURATION + ".infrastructure..",
                     FACTURATION + ".interfaces..", FACTURATION + ".configuration..")
             .because("la Facturation ne s'utilise que par son langage publié (ADR 0030..0034)");
+
+    private static final String ABSENCES = "com.hemodialyse.backend.contexts.absencespatients";
+
+    /**
+     * Slice A1 : le contexte Absences de patients n'a pas encore de langage publié ; le legacy ne l'utilise donc d'aucune
+     * façon (le module est câblé par sa configuration, scannée par Spring). Le langage publié (lecture du pilotage,
+     * déclaration de l'exclusion) arrive avec les slices A2 et A4.
+     */
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_pas_le_contexte_des_absences_de_patients = noClasses()
+            .that().resideOutsideOfPackage(ABSENCES + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    ABSENCES + ".domain..", ABSENCES + ".application..", ABSENCES + ".infrastructure..",
+                    ABSENCES + ".interfaces..", ABSENCES + ".configuration..")
+            .because("les Absences de patients ne s'utiliseront que par leur langage publié (A2, A4)");
 }
 
