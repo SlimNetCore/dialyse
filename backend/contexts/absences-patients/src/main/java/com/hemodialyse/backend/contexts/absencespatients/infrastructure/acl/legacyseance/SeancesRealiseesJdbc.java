@@ -40,4 +40,11 @@ public class SeancesRealiseesJdbc implements SeancesRealisees {
                 (rs, i) -> rs.getDate(1).toLocalDate(), centre.valeur(), patient.valeur(), Date.valueOf(du),
                 Date.valueOf(au));
     }
+
+    @Override
+    public boolean realisee(CentreId centre, PatientId patient, LocalDate jour) {
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM seances s WHERE s.center_id = ? AND s.patient_id = ? "
+                + "AND s.date_seance = ? AND " + REALISEE, Integer.class, centre.valeur(), patient.valeur(), Date.valueOf(jour));
+        return n != null && n > 0;
+    }
 }

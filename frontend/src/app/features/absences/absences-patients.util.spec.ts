@@ -16,7 +16,9 @@ describe('absences-patients util', () => {
     expect(actionPossible('qualifier', 'JUSTIFIEE', false)).toBe(false);
     expect(actionPossible('annuler', 'NON_JUSTIFIEE', false)).toBe(false);
     expect(actionPossible('qualifier', 'JUSTIFIEE', true)).toBe(true);
-    expect(actionPossible('rattrapage', 'JUSTIFIEE', false)).toBe(true);
+    expect(actionPossible('rattrapage', 'JUSTIFIEE', false)).toBe(false);
+    expect(actionPossible('rattrapage', 'A_QUALIFIER', false)).toBe(false);
+    expect(actionPossible('rattrapage', 'JUSTIFIEE', true)).toBe(true);
     expect(actionPossible('rattrapage', 'RATTRAPEE', true)).toBe(false);
     expect(actionPossible('annuler', 'ANNULEE', true)).toBe(false);
   });

@@ -9,17 +9,12 @@ import java.util.UUID;
 /**
  * Racine d'agrégat : absence d'un patient à une séance prévue. Une seule absence par patient et par jour.
  * <p>
- * Cycle de vie : {@code A_QUALIFIER} → {@code JUSTIFIEE | NON_JUSTIFIEE} (qualification par un motif) →
- * {@code RATTRAPEE} (séance de rattrapage : la perte est annulée) ; {@code ANNULEE} à tout moment avec un commentaire
- * (patient finalement présent, saisie erronée). Une absence annulée est définitive.
- * Seules les absences {@linkplain StatutAbsence#comptabilisee() comptabilisées} pèsent sur la valorisation.
+ * Reste au legacy pour la détection de nuit et la réconciliation (slice A3) : une absence détectée est « à qualifier » et
+ * s'annule quand la séance est saisie après coup. Le cycle de vie complet (déclaration, qualification, rattrapage,
+ * annulation) est dans le contexte absences-patients (slice A2).
  */
 public final class AbsencePatient {
 
-    /**
-     * Une absence se déclare au plus {@value} jours après la séance manquée.
-     */
-    public static final int DELAI_DECLARATION_JOURS = 60;
     /**
      * Délai de qualification attendu : au-delà, l'absence est signalée « en retard ».
      */
@@ -80,75 +75,8 @@ public final class AbsencePatient {
                 null, maintenant, StatutAbsence.A_QUALIFIER, null, null, null, null, null, null, null);
     }
 
-    /**
-     * Absence déclarée par un utilisateur ; si un motif est fourni elle est qualifiée d'emblée. La date doit être
-     * passée ou du jour, et pas plus ancienne que {@link #DELAI_DECLARATION_JOURS} jours.
-     */
-    public static AbsencePatient declaree(UUID centerId, UUID patientId, LocalDate dateSeance, MotifAbsence motif,
-                                          String commentaire, ValeurAbsence valeur, UUID parUtilisateur,
-                                          LocalDate aujourdhui, Instant maintenant) {
-        if (dateSeance == null) throw new IllegalArgumentException("Date de séance requise");
-        if (dateSeance.isAfter(aujourdhui)) {
-            throw new BusinessException("ABSENCE_DATE_FUTURE", "Une absence ne peut pas être déclarée à une date future");
-        }
-        if (dateSeance.isBefore(aujourdhui.minusDays(DELAI_DECLARATION_JOURS))) {
-            throw new BusinessException("ABSENCE_DELAI_DEPASSE",
-                    "Une absence ne peut plus être déclarée au-delà de " + DELAI_DECLARATION_JOURS + " jours");
-        }
-        AbsencePatient a = new AbsencePatient(UUID.randomUUID(), centerId, patientId, dateSeance,
-                SourceAbsence.DECLAREE, valeur, parUtilisateur, maintenant, StatutAbsence.A_QUALIFIER, null, null,
-                null, null, null, null, null);
-        if (motif != null) a.qualifier(motif, commentaire, parUtilisateur, maintenant);
-        return a;
-    }
-
     private static String nettoyer(String s) {
         return s == null || s.isBlank() ? null : s.trim();
-    }
-
-    /**
-     * Qualifie (ou requalifie) l'absence par un motif. Le motif {@code AUTRE} exige un commentaire ; une absence
-     * rattrapée ou annulée ne se qualifie plus.
-     */
-    public void qualifier(MotifAbsence nouveauMotif, String nouveauCommentaire, UUID par, Instant maintenant) {
-        exigerModifiable();
-        if (nouveauMotif == null) throw new BusinessException("ABSENCE_MOTIF_REQUIS", "Le motif est obligatoire");
-        String c = nettoyer(nouveauCommentaire);
-        if (nouveauMotif.commentaireRequis() && c == null) {
-            throw new BusinessException("ABSENCE_COMMENTAIRE_REQUIS", "Un commentaire est obligatoire pour ce motif");
-        }
-        boolean requalification = statut != StatutAbsence.A_QUALIFIER;
-        if (requalification && c == null) {
-            throw new BusinessException("ABSENCE_COMMENTAIRE_REQUIS",
-                    "Un commentaire est obligatoire pour modifier une qualification");
-        }
-        this.motif = nouveauMotif;
-        this.commentaire = c;
-        this.statut = nouveauMotif.justifiante() ? StatutAbsence.JUSTIFIEE : StatutAbsence.NON_JUSTIFIEE;
-        this.qualifieePar = par;
-        this.qualifieeLe = maintenant;
-        toucher(par, maintenant);
-    }
-
-    /**
-     * Enregistre la séance de rattrapage : la perte n'est plus comptabilisée. Le rattrapage ne précède pas
-     * l'absence et ne peut pas être dans le futur.
-     */
-    public void rattraper(LocalDate dateRattrapageSeance, UUID par, LocalDate aujourdhui, Instant maintenant) {
-        exigerModifiable();
-        if (dateRattrapageSeance == null) {
-            throw new BusinessException("ABSENCE_RATTRAPAGE_DATE_REQUISE", "La date de rattrapage est obligatoire");
-        }
-        if (!dateRattrapageSeance.isAfter(dateSeance)) {
-            throw new BusinessException("ABSENCE_RATTRAPAGE_ANTERIEUR",
-                    "Le rattrapage doit avoir lieu après la séance manquée");
-        }
-        if (dateRattrapageSeance.isAfter(aujourdhui)) {
-            throw new BusinessException("ABSENCE_DATE_FUTURE", "Le rattrapage ne peut pas être dans le futur");
-        }
-        this.statut = StatutAbsence.RATTRAPEE;
-        this.dateRattrapage = dateRattrapageSeance;
-        toucher(par, maintenant);
     }
 
     /**
@@ -165,19 +93,6 @@ public final class AbsencePatient {
         this.statut = StatutAbsence.ANNULEE;
         this.commentaire = c;
         toucher(par, maintenant);
-    }
-
-    /**
-     * Vrai si l'absence attend sa qualification depuis plus de {@link #DELAI_QUALIFICATION_JOURS} jours.
-     */
-    public boolean qualificationEnRetard(LocalDate aujourdhui) {
-        return statut == StatutAbsence.A_QUALIFIER && dateSeance.plusDays(DELAI_QUALIFICATION_JOURS).isBefore(aujourdhui);
-    }
-
-    private void exigerModifiable() {
-        if (statut == StatutAbsence.ANNULEE || statut == StatutAbsence.RATTRAPEE) {
-            throw new BusinessException("ABSENCE_NON_MODIFIABLE", "Cette absence n'est plus modifiable");
-        }
     }
 
     private void toucher(UUID par, Instant maintenant) {

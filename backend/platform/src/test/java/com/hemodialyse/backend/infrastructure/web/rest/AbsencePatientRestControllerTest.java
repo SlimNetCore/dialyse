@@ -1,96 +1,32 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.absence.AbsencePatientService;
-import com.hemodialyse.backend.application.notification.SaisieInfirmierNotifier;
-import com.hemodialyse.backend.domain.absence.model.AbsenceFiltre;
-import com.hemodialyse.backend.domain.absence.model.AbsenceLigne;
-import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
-import com.hemodialyse.backend.domain.absence.model.MotifAbsence;
-import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
-import com.hemodialyse.backend.domain.absence.model.ValeurAbsence;
-import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
-import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
-import com.hemodialyse.backend.infrastructure.web.rest.AbsencePatientRestController.AbsenceResponse;
-import com.hemodialyse.backend.infrastructure.web.rest.AbsencePatientRestController.AnnulationRequest;
-import com.hemodialyse.backend.infrastructure.web.rest.AbsencePatientRestController.DeclarationRequest;
-import com.hemodialyse.backend.infrastructure.web.rest.AbsencePatientRestController.QualificationRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Contrôleur des absences de patients : le centre vient du garde, la liste est paginée, la correction n'est permise
- * qu'à l'administrateur et au médecin, et un motif inconnu est refusé.
+ * Contrôleur de la détection des absences de patients (slice A3 à venir) : le centre vient du garde. La déclaration, la
+ * qualification, le rattrapage et l'annulation sont testés dans le contexte absences-patients (slice A2).
  */
 class AbsencePatientRestControllerTest {
 
     private final CenterAccessGuard guard = mock(CenterAccessGuard.class);
     private final AbsencePatientService service = mock(AbsencePatientService.class);
     private final UUID centre = UUID.randomUUID();
-    private final UUID patient = UUID.randomUUID();
     private final LocalDate jour = LocalDate.now().minusDays(1);
-    private final SaisieInfirmierNotifier saisieNotifier = mock(SaisieInfirmierNotifier.class);
-    private final AbsencePatientRestController controller = new AbsencePatientRestController(service, guard, saisieNotifier);
+    private final AbsencePatientRestController controller = new AbsencePatientRestController(service, guard);
 
     AbsencePatientRestControllerTest() {
         when(guard.requireCenter(any())).thenReturn(CenterId.of(centre));
-    }
-
-    private static Authentication auth(String role) {
-        UserPrincipal p = UserPrincipal.create(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "u", "",
-                List.of(role), true);
-        return new UsernamePasswordAuthenticationToken(p, null, p.getAuthorities());
-    }
-
-    private AbsencePatient absence() {
-        return AbsencePatient.detectee(centre, patient, jour,
-                ValeurAbsence.depuisHt(null, null, new BigDecimal("1000"), new BigDecimal("19")), Instant.now());
-    }
-
-    @Test
-    void declaring_passes_the_user_and_rejects_an_unknown_reason() {
-        Authentication nurse = auth("INFIRMIER");
-        when(service.declarer(eq(centre), eq(patient), eq(jour), eq(MotifAbsence.MALADIE), eq(null), any()))
-                .thenReturn(absence());
-
-        var cree = controller.declarer(null, new DeclarationRequest(patient, jour, "MALADIE", null), nurse);
-
-        assertEquals(201, cree.getStatusCode().value());
-        assertThrows(IllegalArgumentException.class, () -> controller.declarer(null,
-                new DeclarationRequest(patient, jour, "VACANCES", null), nurse));
-    }
-
-    @Test
-    void only_admin_and_doctor_may_correct_a_qualified_absence() {
-        UUID id = UUID.randomUUID();
-        when(service.qualifier(eq(centre), eq(id), eq(MotifAbsence.VOYAGE), eq("x"), any(), eq(true))).thenReturn(absence());
-        when(service.qualifier(eq(centre), eq(id), eq(MotifAbsence.VOYAGE), eq("x"), any(), eq(false))).thenReturn(absence());
-
-        for (String role : List.of("ADMIN", "MEDECIN", "SECRETAIRE", "INFIRMIER")) {
-            controller.qualifier(null, id, new QualificationRequest("VOYAGE", "x"), auth(role));
-        }
-
-        boolean corrige = true;
-        verify(service, org.mockito.Mockito.times(2)).qualifier(eq(centre), eq(id), eq(MotifAbsence.VOYAGE), eq("x"),
-                any(), eq(corrige));
-        verify(service, org.mockito.Mockito.times(2)).qualifier(eq(centre), eq(id), eq(MotifAbsence.VOYAGE), eq("x"),
-                any(), eq(false));
     }
 
     @Test
@@ -103,32 +39,4 @@ class AbsencePatientRestControllerTest {
         assertEquals(12, body.creees());
         assertEquals(2, body.annulees());
     }
-
-    @Test
-    void every_absence_entry_notifies_the_doctor_of_the_center() {
-        UUID id = UUID.randomUUID();
-        AbsencePatient a = absence();
-        when(service.declarer(eq(centre), eq(patient), eq(jour), eq(null), eq(null), any())).thenReturn(a);
-        when(service.qualifier(eq(centre), eq(id), eq(MotifAbsence.VOYAGE), eq("x"), any(), eq(false))).thenReturn(a);
-        when(service.rattraper(eq(centre), eq(id), eq(jour), any())).thenReturn(a);
-        when(service.annuler(eq(centre), eq(id), eq("Erreur"), any(), eq(false))).thenReturn(a);
-        Authentication nurse = auth("INFIRMIER");
-
-        controller.declarer(null, new DeclarationRequest(patient, jour, null, null), nurse);
-        controller.qualifier(null, id, new QualificationRequest("VOYAGE", "x"), nurse);
-        controller.rattraper(null, id, new AbsencePatientRestController.RattrapageRequest(jour), nurse);
-        controller.annuler(null, id, new AnnulationRequest("Erreur"), nurse);
-
-        org.mockito.Mockito.verify(saisieNotifier, org.mockito.Mockito.times(4)).saisie(centre, "ABSENCE", patient, jour);
-    }
-
-    @Test
-    void cancelling_uses_the_guarded_center() {
-        UUID id = UUID.randomUUID();
-        when(service.annuler(eq(centre), eq(id), eq("Erreur"), any(), eq(false))).thenReturn(absence());
-
-        assertEquals(200, controller.annuler(null, id, new AnnulationRequest("Erreur"), auth("SECRETAIRE"))
-                .getStatusCode().value());
-    }
-
 }

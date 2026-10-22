@@ -85,7 +85,7 @@ import java.util.UUID;
  * Composition root du contexte Facturation : seul endroit qui connaît toutes les couches. Slice F1 : paramètres de
  * facturation du centre ; slice F2 : simulation de facturation ; slice F3 : validation et émission des factures. Les noms de beans sont préfixés {@code facturation} (un seul
  * contexte Spring avec le legacy et les autres contextes) ; l'horloge n'est pas un bean, pour ne pas concurrencer celle de la
- * Comptabilité. {@link AbsencesDesPatients} passe par le langage publié {@link DeclarationDesAbsences}, fourni par le module Absences (platform).
+ * Comptabilité. {@link AbsencesDesPatients} passe par le langage publié {@link DeclarationDesAbsences}, fourni par le contexte {@code absences-patients} (A2).
  */
 @Configuration(proxyBeanMethods = false)
 public class FacturationContexteConfiguration {

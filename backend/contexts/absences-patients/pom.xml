@@ -22,9 +22,26 @@
     </properties>
 
     <dependencies>
+        <!-- Langages publiés lus par les Absences (slice A2) : Comptabilité (ParametrageFiscal, taux de TVA) et Facturation
+             (FacturationDuPatient, période facturée ; DeclarationDesAbsences, fournie via l'ACL de platform). Seuls points
+             d'entrée vers ces contextes (ArchUnit). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-comptabilite</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-facturation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

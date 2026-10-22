@@ -73,7 +73,9 @@ class ArchitectureHexagonaleTest {
     static final ArchRule les_autres_contextes_seulement_par_leur_langage_publie = noClasses()
             .that().resideInAPackage(RACINE + "..")
             .should().dependOnClassesThat().resideInAnyPackage(
-                    "com.hemodialyse.backend.contexts.comptabilite..",
+                    "com.hemodialyse.backend.contexts.comptabilite.domain..", "com.hemodialyse.backend.contexts.comptabilite.application..",
+                    "com.hemodialyse.backend.contexts.comptabilite.infrastructure..", "com.hemodialyse.backend.contexts.comptabilite.interfaces..",
+                    "com.hemodialyse.backend.contexts.comptabilite.configuration..",
                     "com.hemodialyse.backend.contexts.gmao..",
                     "com.hemodialyse.backend.contexts.facturation.domain..",
                     "com.hemodialyse.backend.contexts.facturation.application..",

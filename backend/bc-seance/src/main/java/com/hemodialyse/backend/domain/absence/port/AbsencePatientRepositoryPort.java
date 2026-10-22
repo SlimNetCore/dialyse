@@ -16,17 +16,17 @@ public interface AbsencePatientRepositoryPort {
 
     AbsencePatient save(AbsencePatient absence);
 
-    Optional<AbsencePatient> findById(UUID centerId, UUID id);
+    /**
+     * SEAM A2 (accord de l'utilisateur) : écrit l'état de l'absence seulement si elle est encore « à qualifier » en base, pour qu'un lot de
+     * nuit (réconciliation) n'écrase jamais une absence que le contexte absences-patients a qualifiée ou rattrapée entre-temps.
+     *
+     * @return vrai si la ligne a été écrite
+     */
+    boolean saveIfAQualifier(AbsencePatient absence);
 
     Optional<AbsencePatient> findByPatientAndDate(UUID centerId, UUID patientId, LocalDate dateSeance);
 
     PagedResult<AbsenceLigne> findPaged(UUID centerId, AbsenceFiltre filtre, int page, int size);
-
-    /**
-     * Dates de séances déjà utilisées comme rattrapage d'une autre absence de ce patient : une séance ne rattrape
-     * qu'une seule absence.
-     */
-    java.util.List<LocalDate> datesRattrapage(UUID centerId, UUID patientId);
 
     long countAQualifier(UUID centerId);
 

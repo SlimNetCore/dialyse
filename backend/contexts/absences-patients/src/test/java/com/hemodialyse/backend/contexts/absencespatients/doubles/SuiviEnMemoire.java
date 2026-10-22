@@ -136,4 +136,10 @@ public class SuiviEnMemoire implements LectureDesAbsences, SeancesRealisees, Nom
                 .forEach(s -> jours.add(s.date()));
         return List.copyOf(jours);
     }
+
+    @Override
+    public boolean realisee(CentreId centre, PatientId patient, LocalDate jour) {
+        return seances.stream().anyMatch(s -> s.centre().equals(centre) && s.patient().equals(patient)
+                && s.date().equals(jour) && STATUTS_REALISES.contains(s.statut()));
+    }
 }

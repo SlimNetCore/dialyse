@@ -16,7 +16,8 @@
 - **RG-ABS-003** — Statuts : `A_QUALIFIER` → `JUSTIFIEE` ou `NON_JUSTIFIEE` (qualification par un motif) → `RATTRAPEE`
   (séance de
   remplacement) ; `ANNULEE` possible à tout moment. Une absence **rattrapée ou annulée n'est plus modifiable**
-  (`ABSENCE_NON_MODIFIABLE`) ; l'annulation est définitive.
+  (`ABSENCE_NON_MODIFIABLE`) ; l'annulation est définitive. **Une absence rattrapée ne s'annule pas** (`ABSENCE_NON_MODIFIABLE`, sa date de
+  rattrapage est conservée ; était : annulable par `ADMIN` et `MEDECIN`, KB-ABS-10, corrigé à la slice A2).
 - **RG-ABS-004** — Motifs : hospitalisation, maladie, voyage, transport, familial, refus du patient, décès, autre (tous
   **justifiants**) et
   « non justifiée » (seul motif non justifiant, donne le statut `NON_JUSTIFIEE`).
@@ -52,11 +53,14 @@
   profil autorisé :
   seuls `ADMIN` et `MEDECIN` corrigent une absence déjà qualifiée (`ABSENCE_CORRECTION_INTERDITE`) ; la première
   qualification est ouverte à
-  `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`.
+  `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`. Ordre des contrôles (A2, KB-ABS-18 aligné) : absence existante, droit de
+  correction, état (non modifiable, déjà annulée), période facturée, puis les valeurs.
 - **RG-ABS-021** — Rattrapage : la date est obligatoire (`ABSENCE_RATTRAPAGE_DATE_REQUISE`), **postérieure** à la séance
   manquée (`ABSENCE_RATTRAPAGE_ANTERIEUR`), non future (`ABSENCE_DATE_FUTURE`) et le patient doit avoir une séance
   réalisée à cette date (`ABSENCE_RATTRAPAGE_SANS_SEANCE`). **Une séance ne rattrape qu'une seule absence** du
-  patient (`ABSENCE_RATTRAPAGE_DEJA_UTILISEE`). La perte n'est alors plus comptabilisée. À l'écran, l'utilisateur
+  patient (`ABSENCE_RATTRAPAGE_DEJA_UTILISEE`). **Le rattrapage est réservé à `ADMIN` et `MEDECIN`**, pour toute absence, même « à
+  qualifier » (`ABSENCE_CORRECTION_INTERDITE` sinon ; était ouvert aux quatre profils, KB-ABS-13, corrigé à la slice A2). La
+  perte n'est alors plus comptabilisée. À l'écran, l'utilisateur
   **choisit la séance dans une liste** (`GET /absences-patients/{id}/seances-rattrapage` : séances réalisées du patient
   après la séance manquée, jusqu'à aujourd'hui, pas déjà utilisées) au lieu de saisir une date ; sans séance éligible,
   l'écran renvoie au poste infirmier (le patient doit d'abord venir et être scanné). **Cette liste n'est proposée que
@@ -66,8 +70,7 @@
   `ABSENCE_DEJA_ANNULEE` ; mêmes droits de
   correction que RG-ABS-020 pour une absence déjà qualifiée.
 - **RG-ABS-023** — Absence inconnue **ou d'un autre centre** (indistinguables) : `ABSENCE_INTROUVABLE` ; **404** sur la
-  consultation (liste des séances de rattrapage, slice A1 ; était 422, KB-ABS-03 corrigé), 422 sur les écritures
-  jusqu'à leur refonte (slice A2).
+  consultation (liste des séances de rattrapage, slice A1 ; était 422, KB-ABS-03 corrigé) **et sur les écritures** (slice A2).
 - **RG-ABS-024** — **Clôture avec la facturation** : toute création, qualification, rattrapage ou annulation est refusée
   si une facture du patient couvre
   la date de la séance (`ABSENCE_PERIODE_FACTUREE`).
@@ -136,4 +139,34 @@
   identifiant (centre, patient, absence) qui n'est pas un UUID, une date qui n'est pas au format `AAAA-MM-JJ`, une
   `page` ou une `size` non numérique est refusé en **400** `BAD_REQUEST` (était : 500 `INTERNAL_ERROR`, KB-ABS-01,
   corrigé à la slice A1). Un filtre vide (`statut=`) est ignoré ; `du` après `au` ne retient aucune absence.
-  *Source :* `AbsencesControleur`, `ConsultationDesAbsencesAdvice` (contexte `absences-patients`).
+  *Source :* `AbsencesControleur`, `EntreesDesAbsencesAdvice` (contexte `absences-patients`).
+
+- **RG-ABS-054** — **Écritures concurrentes** (slice A2, KB-ABS-11 corrigé) : chaque écriture est une transaction qui verrouille
+  l'absence (un rattrapage verrouille toutes les absences du patient). Une écriture qui arrive pendant une autre attend, puis
+  voit l'état validé (donc `ABSENCE_DEJA_ANNULEE` plutôt qu'une double annulation). Deux déclarations du même patient et du même
+  jour : la perdante reçoit **409** `ABSENCE_ECRITURE_CONCURRENTE` (était : erreur technique 500 le plus souvent) ; une
+  déclaration qui lit l'absence déjà créée reçoit toujours 422 `ABSENCE_EXISTANTE`, y compris quand cette absence est annulée.
+  Une séance de rattrapage ne sert qu'à une absence **rattrapée** (index unique partiel, migration V43 ; une absence annulée
+  ne réserve rien).
+  *Source :* `AbsencesJdbc`, `ErreursMetierDesAbsencesAdvice`, `V43__absences_patients_unicite_du_rattrapage.sql`.
+- **RG-ABS-055** — **Entrées illisibles des écritures** (KB-ABS-17 aligné, slice A2) : JSON illisible, date ou identifiant du
+  corps illisible, `centerId` ou identifiant du chemin qui n'est pas un UUID, motif inconnu, commentaire de plus de **1000**
+  caractères : **400** `BAD_REQUEST` (étaient 500) ; corps qui n'est pas du JSON : **415** `UNSUPPORTED_MEDIA_TYPE` (était 500) ;
+  champ obligatoire absent : 400 `VALIDATION_ERROR` (inchangé).
+  *Source :* `AbsencesEcrituresControleur`, `EntreesDesAbsencesAdvice`, `Commentaire`.
+- **RG-ABS-056** — **Valeur figée** (slice A2) : forfait, montants et taux ne s'écrivent qu'à la création, aucune commande ne les
+  écrit ensuite. La règle de choix du forfait (effectif avant demandé, même hors période ; repli sur la prise en charge la plus
+  récente portant un forfait) et le taux (règle `HEMODIALYSE` exacte, exonérée = 0 %) sont reproduits du legacy (KB-ABS-16,
+  KB-CPT-19). Le taux est renvoyé avec l'échelle de la base (`0.00`, était `0`, KB-ABS-15). Un commentaire donné sans motif à la
+  déclaration est **conservé** (était perdu, KB-ABS-12), et une qualification sans commentaire **garde** le commentaire déjà présent
+  (était : effacé, KB-ABS-14 aligné) ; une annulation ou une requalification **remplace** le commentaire par le nouveau.
+  *Source :* `Valorisation`, `ForfaitsDesPatientsJdbc`, `TauxDeTvaComptabilite`.
+- **RG-ABS-057** — **Exclusion et réinclusion d'une séance** (Facturation, ADR 0031, slice A2) : l'exclusion déclare l'absence par
+  le même cas d'usage, dans la transaction de l'exclusion, et **diffuse la saisie temps réel** `ABSENCE` après validation (KB-ABS-19,
+  était : aucune diffusion). **L'absence d'une exclusion ne s'annule pas** (l'origine est lue sur la séance exclue qui y est liée) :
+  **422** `ABSENCE_D_EXCLUSION`, « réincluez la séance dans la facturation » ; elle peut en revanche être requalifiée ou rattrapée.
+  **Seule la réinclusion la retire**, quel que soit son état (KB-ABS-20 : une séance exclue ne reste plus bloquée) ; une absence annulée
+  héritée d'avant A2 n'est jamais supprimée par l'application : la réinclusion est alors refusée (**422**
+  `ABSENCE_D_EXCLUSION_MODIFIEE`), à traiter avec l'administrateur (liste : `verifications-production.md` § 24.4). Une absence déjà
+  supprimée : la réinclusion réussit.
+  *Source :* `ExclusionDeLaFacturation`, `AnnulerUneAbsence`, `RetirerLAbsenceDeLExclusion`, `ExclusionsDeSeancesJdbc`, `SignalementDesSaisiesLegacy`.

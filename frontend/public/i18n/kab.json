@@ -1252,6 +1252,8 @@
       "SYNTHESE_FORBIDDEN": "Asiggez yettwagdel: tasemlest n ufeter d tamezwarut i yimaɣnuten ADMIN d SECRÉTAIRE kan, d tamkarḍit n tɣimit-ik.",
       "PERIODE_CLOTUREE": "Aggur n usiggez {{mois}} yettwagdel: tigawt tegdel. Ales taldi n uggur (s wacuɣer) ma yelaq.",
       "PERIODE_CLOTUREE_SANS_MOIS": "Aggur n usiggez yettwagdel: tigawt tegdel.",
+      "ABSENCE_D_EXCLUSION_MODIFIEE": "Ugur i yettwaqqnen d usefsex-a yettwasefsex: tasaɣ ur tezmir ara ad tettwarr, nermes anedbal.",
+      "ABSENCE_ECRITURE_CONCURRENTE": "Tigawt-nniḍen tetteddu ɣef ugur-a neɣ ɣef unarun-a: ɛreḍ tikkelt-nniḍen deg kra n wakud.",
       "PERIODE_DEJA_CLOTUREE": "Aggur-a yettwagdel yakan.",
       "PERIODE_NON_CLOTUREE": "Aggur-a ur yettwagdel ara: ulac ayen ara talseḍ ad teldiḍ.",
       "PERIODE_COMPTABLE_CLOTUREE": "Tamzizdig n uṭṭubbu n uggur-a tettwagdel: asiggez ur yezmir ara ad yettwaldi daɣen.",
@@ -2751,7 +2753,9 @@
       "ABSENCE_DEJA_ANNULEE": "Tamettant tettwasefsex yakan.",
       "ABSENCE_PERIODE_FACTUREE": "Tafaturt n tallit-a tettwasentem: tamettant tettwasdel.",
       "ABSENCE_PERIODE_INVALIDE": "Tallit mačči d tameɣtut: tazwara ilaq ad tezwir taggara (iḍelli ugar).",
-      "ABSENCE_PERIODE_TROP_LONGUE": "Tallit ɣezzifet barka: 366 n wussan afellay."
+      "ABSENCE_PERIODE_TROP_LONGUE": "Tallit ɣezzifet barka: 366 n wussan afellay.",
+      "ABSENCE_ECRITURE_CONCURRENTE": "Ugur-a yettwabeddel zik-nni sɣur wayeḍ: ales asali syin ɛreḍ tikkelt-nniḍen.",
+      "ABSENCE_D_EXCLUSION": "Ugur-a yekka-d seg usefsex n tsaɣ si usiggez: err-d tasaɣ ɣer usiggez akken ad tekkseḍ."
     }
   },
   "NAV": {

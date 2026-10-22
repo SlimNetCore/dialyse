@@ -7,7 +7,6 @@ import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryServi
 import com.hemodialyse.backend.domain.absence.model.AbsenceFiltre;
 import com.hemodialyse.backend.domain.absence.model.AbsenceLigne;
 import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
-import com.hemodialyse.backend.domain.absence.model.MotifAbsence;
 import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.infrastructure.security.RoleScopeFilter;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,7 +52,6 @@ class AbsencePatientIntegrationTest {
     private static final UUID C1 = UUID.fromString("99995000-0000-0000-0000-0000000000c1");
     private static final UUID C2 = UUID.fromString("99995000-0000-0000-0000-0000000000c2");
     private static final UUID C3 = UUID.fromString("99995000-0000-0000-0000-0000000000c3");
-    private static final UUID USER = UUID.randomUUID();
     private final LocalDate jour = LocalDate.now().minusDays(5);
     @Autowired
     private WebApplicationContext context;
@@ -229,9 +228,8 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
-    void a_validated_billing_period_closes_the_absences_of_that_patient() {
+    void a_validated_billing_period_stops_the_detection_for_that_patient() {
         service.detecter(C1, jour);
-        UUID id = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence().id();
         Date debut = Date.valueOf(jour.minusDays(10));
         Date fin = Date.valueOf(jour.plusDays(1));
         jdbc.update("INSERT INTO factures (id, center_id, patient_id, numero_facture, period_start, period_end, "
@@ -239,12 +237,6 @@ class AbsencePatientIntegrationTest {
                 UUID.randomUUID(), C1, absent, "ZT-AB-CLOT", debut, fin, fin, new BigDecimal("19.00"),
                 BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ONE);
 
-        assertEquals("ABSENCE_PERIODE_FACTUREE", assertThrows(BusinessException.class,
-                () -> service.qualifier(C1, id, MotifAbsence.MALADIE, null, USER, true)).getCode());
-        assertEquals("ABSENCE_PERIODE_FACTUREE", assertThrows(BusinessException.class,
-                () -> service.annuler(C1, id, "Erreur", USER, true)).getCode());
-        assertEquals("ABSENCE_PERIODE_FACTUREE", assertThrows(BusinessException.class,
-                () -> service.declarer(C1, absent, jour.minusDays(1), null, null, USER)).getCode());
         service.detecter(C1, jour.minusDays(2)); // l'autre patient (non facturé) est détecté, pas celui-ci
         assertEquals(0, lister(C1, new AbsenceFiltre(null, null, absent, jour.minusDays(2), jour.minusDays(2)))
                 .total(), "pas de nouvelle absence dans une période clôturée");
@@ -262,68 +254,6 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
-    void declaring_is_refused_for_a_duplicate_a_present_patient_or_an_unknown_patient() {
-        service.detecter(C1, jour);
-        assertEquals("ABSENCE_EXISTANTE", assertThrows(BusinessException.class,
-                () -> service.declarer(C1, absent, jour, null, null, USER)).getCode());
-        assertEquals("ABSENCE_SEANCE_REALISEE", assertThrows(BusinessException.class,
-                () -> service.declarer(C1, present, jour, null, null, USER)).getCode());
-        assertEquals("PATIENT_INTROUVABLE", assertThrows(BusinessException.class,
-                () -> service.declarer(C1, UUID.randomUUID(), jour, null, null, USER)).getCode());
-        assertEquals("PATIENT_INTROUVABLE", assertThrows(BusinessException.class,
-                () -> service.declarer(C2, absent, jour, null, null, USER)).getCode(), "patient d'un autre centre");
-    }
-
-    @Test
-    void a_declared_absence_with_a_reason_is_qualified_and_its_correction_is_restricted() {
-        LocalDate hier = LocalDate.now().minusDays(1);
-        AbsencePatient a = service.declarer(C1, absent, hier, MotifAbsence.HOSPITALISATION, null, USER);
-        assertEquals(StatutAbsence.JUSTIFIEE, a.statut());
-
-        assertEquals("ABSENCE_CORRECTION_INTERDITE", assertThrows(BusinessException.class,
-                () -> service.qualifier(C1, a.id(), MotifAbsence.NON_JUSTIFIEE, "Contrôle", USER, false)).getCode());
-        AbsencePatient corrigee = service.qualifier(C1, a.id(), MotifAbsence.NON_JUSTIFIEE, "Contrôle", USER, true);
-        assertEquals(StatutAbsence.NON_JUSTIFIEE, corrigee.statut());
-        assertEquals(StatutAbsence.NON_JUSTIFIEE,
-                lister(C1, new AbsenceFiltre(null, MotifAbsence.NON_JUSTIFIEE, null, null, null))
-                        .items().get(0).absence().statut());
-        assertEquals("ABSENCE_INTROUVABLE", assertThrows(BusinessException.class,
-                        () -> service.qualifier(C2, a.id(), MotifAbsence.MALADIE, null, USER, true)).getCode(),
-                "une absence d'un autre centre est introuvable");
-    }
-
-    @Test
-    void a_make_up_session_cancels_the_loss_only_when_a_session_exists() {
-        service.detecter(C1, jour);
-        UUID id = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence().id();
-        LocalDate rattrapage = jour.plusDays(2);
-
-        assertEquals("ABSENCE_RATTRAPAGE_SANS_SEANCE", assertThrows(BusinessException.class,
-                () -> service.rattraper(C1, id, rattrapage, USER)).getCode());
-        seance(C1, absent, rattrapage, "VALIDEE");
-        assertEquals(StatutAbsence.RATTRAPEE, service.rattraper(C1, id, rattrapage, USER).statut());
-        assertEquals("ABSENCE_NON_MODIFIABLE", assertThrows(BusinessException.class,
-                () -> service.qualifier(C1, id, MotifAbsence.MALADIE, "x", USER, true)).getCode());
-    }
-
-    @Test
-    void a_session_can_make_up_only_one_absence() {
-        LocalDate premiereAbsence = jour.minusDays(1);
-        AbsencePatient premiere = service.declarer(C1, absent, premiereAbsence, MotifAbsence.MALADIE, null, USER);
-        AbsencePatient seconde = service.declarer(C1, absent, jour, MotifAbsence.MALADIE, null, USER);
-        LocalDate rattrapage = jour.plusDays(2);
-        seance(C1, absent, rattrapage, "VALIDEE");
-        seance(C1, absent, rattrapage.plusDays(1), "VALIDEE");
-
-        service.rattraper(C1, premiere.id(), rattrapage, USER);
-
-        assertEquals("ABSENCE_RATTRAPAGE_DEJA_UTILISEE", assertThrows(BusinessException.class,
-                () -> service.rattraper(C1, seconde.id(), rattrapage, USER)).getCode());
-        assertEquals(StatutAbsence.RATTRAPEE,
-                service.rattraper(C1, seconde.id(), rattrapage.plusDays(1), USER).statut());
-    }
-
-    @Test
     void a_session_entered_late_cancels_the_detected_absence() {
         service.detecter(C1, jour);
         seance(C1, absent, jour, "SIGNEE");
@@ -333,6 +263,28 @@ class AbsencePatientIntegrationTest {
         AbsencePatient a = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
         assertEquals(StatutAbsence.ANNULEE, a.statut());
         assertEquals(0, service.synthese(C1).aQualifier());
+    }
+
+    /**
+     * Seam A2 : une absence que le contexte absences-patients a qualifiée ou rattrapée entre la lecture du lot de nuit et son
+     * écriture n'est jamais ré-annulée (ni son motif ni sa date de rattrapage écrasés).
+     */
+    @Test
+    void the_night_reconciliation_never_overwrites_an_absence_handled_in_the_meantime() {
+        service.detecter(C1, jour);
+        AbsencePatient lue = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
+        seance(C1, absent, jour, "SIGNEE");
+        jdbc.update("UPDATE absence_patient SET statut = 'RATTRAPEE', motif = 'MALADIE', date_rattrapage = ? WHERE id = ?",
+                Date.valueOf(jour.plusDays(2)), lue.id());
+
+        lue.annuler("Séance réalisée à cette date", null, java.time.Instant.now());
+        assertFalse(repository.saveIfAQualifier(lue), "la ligne n'est plus à qualifier");
+        assertEquals(0, service.reconcilier(C1, jour.minusDays(1), jour.plusDays(1)), "rien à réconcilier");
+
+        AbsencePatient relue = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
+        assertEquals(StatutAbsence.RATTRAPEE, relue.statut());
+        assertEquals(jour.plusDays(2), relue.dateRattrapage());
+        assertNotNull(relue.motif());
     }
 
     @Test

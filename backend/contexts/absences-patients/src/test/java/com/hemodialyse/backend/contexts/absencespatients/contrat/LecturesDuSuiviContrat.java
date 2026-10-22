@@ -277,4 +277,23 @@ public abstract class LecturesDuSuiviContrat {
         assertThat(seances().joursDuPatient(CENTRE, AMRANI, JOUR.plusDays(4), JOUR.plusDays(8))).isEmpty();
         assertThat(seances().joursDuPatient(CENTRE, AMRANI, JOUR.plusDays(5), JOUR)).as("bornes inversées").isEmpty();
     }
+
+    @Test
+    void une_seance_est_realisee_ce_jour_la_si_elle_est_validee_signee_ou_facturee_pour_ce_patient_et_ce_centre() {
+        poserLaSeance(CENTRE, AMRANI, JOUR, "VALIDEE");
+        poserLaSeance(CENTRE, AMRANI, JOUR.plusDays(1), "SIGNEE");
+        poserLaSeance(CENTRE, AMRANI, JOUR.plusDays(2), "FACTUREE");
+        poserLaSeance(CENTRE, AMRANI, JOUR.plusDays(3), "CREE");
+        poserLaSeance(CENTRE, AMRANI, JOUR.plusDays(4), "ABSENT");
+        poserLaSeance(AUTRE_CENTRE, BELKACEM, JOUR, "VALIDEE");
+
+        assertThat(seances().realisee(CENTRE, AMRANI, JOUR)).isTrue();
+        assertThat(seances().realisee(CENTRE, AMRANI, JOUR.plusDays(1))).isTrue();
+        assertThat(seances().realisee(CENTRE, AMRANI, JOUR.plusDays(2))).isTrue();
+        assertThat(seances().realisee(CENTRE, AMRANI, JOUR.plusDays(3))).isFalse();
+        assertThat(seances().realisee(CENTRE, AMRANI, JOUR.plusDays(4))).isFalse();
+        assertThat(seances().realisee(CENTRE, AMRANI, JOUR.plusDays(5))).isFalse();
+        assertThat(seances().realisee(CENTRE, BELKACEM, JOUR)).isFalse();
+        assertThat(seances().realisee(AUTRE_CENTRE, AMRANI, JOUR)).isFalse();
+    }
 }

@@ -91,9 +91,13 @@ public class AbsencePatientJdbcAdapter implements AbsencePatientRepositoryPort {
     }
 
     @Override
-    public Optional<AbsencePatient> findById(UUID centerId, UUID id) {
-        return jdbc.query("SELECT " + COLONNES + " FROM absence_patient a WHERE a.center_id = ? AND a.id = ?", MAPPER,
-                centerId, id).stream().findFirst();
+    public boolean saveIfAQualifier(AbsencePatient a) {
+        return jdbc.update("UPDATE absence_patient SET statut = ?, motif = ?, commentaire = ?, qualifiee_par = ?, "
+                        + "qualifiee_le = ?, date_rattrapage = ?, modifiee_par = ?, modifiee_le = ? "
+                        + "WHERE id = ? AND center_id = ? AND statut = 'A_QUALIFIER'",
+                a.statut().name(), a.motif() == null ? null : a.motif().name(), a.commentaire(), a.qualifieePar(),
+                timestamp(a.qualifieeLe()), a.dateRattrapage() == null ? null : Date.valueOf(a.dateRattrapage()),
+                a.modifieePar(), timestamp(a.modifieeLe()), a.id(), a.centerId()) > 0;
     }
 
     @Override
@@ -138,13 +142,6 @@ public class AbsencePatientJdbcAdapter implements AbsencePatientRepositoryPort {
                 (rs, i) -> new AbsenceLigne(MAPPER.mapRow(rs, i), nomComplet(rs.getString("p_prenom"), rs.getString("p_nom"))),
                 pageArgs.toArray());
         return PagedResult.of(items, total == null ? 0 : total, page, size);
-    }
-
-    @Override
-    public List<LocalDate> datesRattrapage(UUID centerId, UUID patientId) {
-        return jdbc.query("SELECT date_rattrapage FROM absence_patient WHERE center_id = ? AND patient_id = ? "
-                        + "AND statut = ? AND date_rattrapage IS NOT NULL",
-                (rs, i) -> rs.getDate(1).toLocalDate(), centerId, patientId, StatutAbsence.RATTRAPEE.name());
     }
 
     @Override

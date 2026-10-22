@@ -50,6 +50,8 @@ describe('facturationErrorState', () => {
       [400, 'MOTIF_DE_REOUVERTURE_OBLIGATOIRE', 'MOTIF_OBLIGATOIRE'],
       [400, 'MOIS_INVALIDE', 'MOIS_INVALIDE'],
       [400, 'ANNEE_INVALIDE', 'ANNEE_INVALIDE'],
+      [422, 'ABSENCE_D_EXCLUSION_MODIFIEE', 'ABSENCE_D_EXCLUSION_MODIFIEE'],
+      [409, 'ABSENCE_ECRITURE_CONCURRENTE', 'ABSENCE_ECRITURE_CONCURRENTE'],
     ];
     for (const [status, code, cle] of cas) {
       expect(facturationErrorState(http(status, {code, detail: 'texte du backend'})))

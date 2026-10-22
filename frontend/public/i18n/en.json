@@ -1252,6 +1252,8 @@
       "SYNTHESE_FORBIDDEN": "Printing denied: the billing summary is restricted to ADMIN and SECRETARY profiles, and to your session's center.",
       "PERIODE_CLOTUREE": "Billing month {{mois}} is closed: operation refused. Reopen the month (with a reason) if needed.",
       "PERIODE_CLOTUREE_SANS_MOIS": "The billing month is closed: operation refused.",
+      "ABSENCE_D_EXCLUSION_MODIFIEE": "The absence linked to this exclusion was cancelled: the session cannot be included again, contact the administrator.",
+      "ABSENCE_ECRITURE_CONCURRENTE": "Another operation is in progress on this absence or patient: try again in a moment.",
       "PERIODE_DEJA_CLOTUREE": "This month is already closed.",
       "PERIODE_NON_CLOTUREE": "This month is not closed: there is nothing to reopen.",
       "PERIODE_COMPTABLE_CLOTUREE": "The accounting period of this month is closed: billing cannot be reopened.",
@@ -3111,7 +3113,9 @@
       "ABSENCE_DEJA_ANNULEE": "The absence is already cancelled.",
       "ABSENCE_PERIODE_FACTUREE": "Billing for this period is validated: the absence is closed.",
       "ABSENCE_PERIODE_INVALIDE": "Invalid period: the start must precede the end (yesterday at the latest).",
-      "ABSENCE_PERIODE_TROP_LONGUE": "Period too long: 366 days maximum."
+      "ABSENCE_PERIODE_TROP_LONGUE": "Period too long: 366 days maximum.",
+      "ABSENCE_ECRITURE_CONCURRENTE": "This absence was just changed by someone else: refresh and try again.",
+      "ABSENCE_D_EXCLUSION": "This absence comes from a session excluded from billing: include the session again in billing to remove it."
     }
   },
   "NAV": {

@@ -82,4 +82,40 @@ class SessionLegacyTest {
         connecte("quelqu'un", "ROLE_ADMIN");
         assertThrows(AccessDeniedException.class, () -> session.centre(null));
     }
+
+    /** Principal avec identité : accesseurs {@code getCenterId()} et {@code getId()}. */
+    public record PrincipalIdentifie(String centreId, String id) {
+        public String getCenterId() {
+            return centreId;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
+    @Test
+    void l_intervenant_est_l_utilisateur_de_la_session_avec_le_droit_de_correction_de_l_administrateur_et_du_medecin() {
+        UUID utilisateur = new UUID(5, 5);
+        for (String role : List.of("ROLE_ADMIN", "ROLE_MEDECIN")) {
+            connecte(new PrincipalIdentifie(CENTRE.toString(), utilisateur.toString()), role);
+            var intervenant = session.intervenant();
+            assertEquals(utilisateur, intervenant.utilisateur().valeur());
+            assertEquals(com.hemodialyse.backend.contexts.absencespatients.domain.DroitDeCorrection.ACCORDE, intervenant.droit());
+        }
+        for (String role : List.of("ROLE_SECRETAIRE", "ROLE_INFIRMIER")) {
+            connecte(new PrincipalIdentifie(CENTRE.toString(), utilisateur.toString()), role);
+            assertEquals(com.hemodialyse.backend.contexts.absencespatients.domain.DroitDeCorrection.REFUSE, session.intervenant().droit());
+        }
+    }
+
+    @Test
+    void l_intervenant_sans_identite_lisible_n_a_pas_d_utilisateur_et_sans_session_il_est_refuse() {
+        connecte(new Principal(CENTRE.toString()), "ROLE_ADMIN");
+        assertEquals(null, session.intervenant().utilisateur());
+        connecte(new PrincipalIdentifie(CENTRE.toString(), "pas-un-uuid"), "ROLE_ADMIN");
+        assertEquals(null, session.intervenant().utilisateur());
+        SecurityContextHolder.clearContext();
+        assertThrows(AccessDeniedException.class, session::intervenant);
+    }
 }

@@ -116,6 +116,9 @@ describe('AbsencesPatientsStore', () => {
     expect(store.saving()).toBe(false);
     expect(absencePatientErrorKey(erreurServeur('ABSENCE_CORRECTION_INTERDITE')))
       .toBe('ABSENCES.ERR.ABSENCE_CORRECTION_INTERDITE');
+    expect(absencePatientErrorKey(erreurServeur('ABSENCE_ECRITURE_CONCURRENTE')))
+      .toBe('ABSENCES.ERR.ABSENCE_ECRITURE_CONCURRENTE');
+    expect(absencePatientErrorKey(erreurServeur('ABSENCE_D_EXCLUSION'))).toBe('ABSENCES.ERR.ABSENCE_D_EXCLUSION');
     expect(absencePatientErrorKey(erreurServeur('INCONNU'))).toBe('ABSENCES.ERR.SAVE');
     expect(absencePatientErrorKey(new Error('boom'))).toBe('ABSENCES.ERR.SAVE');
   });

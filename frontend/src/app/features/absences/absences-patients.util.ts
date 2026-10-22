@@ -21,12 +21,12 @@ export const estModifiable = (statut: StatutAbsence): boolean =>
   statut === 'A_QUALIFIER' || statut === 'JUSTIFIEE' || statut === 'NON_JUSTIFIEE';
 
 /**
- * Action proposée sur une absence : toute absence modifiable peut être rattrapée ; qualifier ou annuler une absence
+ * Action proposée sur une absence modifiable : le rattrapage est réservé à l'administrateur et au médecin (A2) ; qualifier ou annuler une absence
  * déjà qualifiée (correction) est réservé à l'administrateur et au médecin.
  */
 export function actionPossible(mode: ActionAbsence, statut: StatutAbsence, peutCorriger: boolean): boolean {
   if (!estModifiable(statut)) return false;
-  if (mode === 'rattrapage') return true;
+  if (mode === 'rattrapage') return peutCorriger; // A2 : le rattrapage exige le droit de correction (KB-ABS-13)
   return statut === 'A_QUALIFIER' || peutCorriger;
 }
 

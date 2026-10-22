@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyidentite;
 
+import com.hemodialyse.backend.contexts.absencespatients.application.Intervenant;
 import com.hemodialyse.backend.contexts.absencespatients.application.SessionCourante;
+import com.hemodialyse.backend.contexts.absencespatients.domain.DroitDeCorrection;
+import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -19,6 +22,7 @@ import java.util.UUID;
 public class SessionLegacy implements SessionCourante {
 
     private static final String ROLE_SUPERADMIN = "ROLE_SUPERADMIN";
+    private static final java.util.Set<String> ROLES_DE_CORRECTION = java.util.Set.of("ROLE_ADMIN", "ROLE_MEDECIN");
 
     private static boolean possedeUnCentre(Object principal) {
         try {
@@ -70,5 +74,30 @@ public class SessionLegacy implements SessionCourante {
             throw new AccessDeniedException("Accès refusé : le centre demandé ne correspond pas à la session");
         }
         return new CentreId(centreDeSession);
+    }
+
+    /**
+     * L'utilisateur de la session (accesseur {@code getId()} du principal, chaîne UUID, lu comme {@code getCenterId()}) ; nul
+     * si la session ne le donne pas. Le droit de correction est celui de l'administrateur et du médecin (RG-ABS-020).
+     */
+    @Override
+    public Intervenant intervenant() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification == null || !authentification.isAuthenticated() || authentification.getPrincipal() == null) {
+            throw new AccessDeniedException("Contexte d'authentification invalide : utilisateur introuvable");
+        }
+        boolean droit = authentification.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .anyMatch(ROLES_DE_CORRECTION::contains);
+        return new Intervenant(lireLUtilisateur(authentification.getPrincipal()),
+                droit ? DroitDeCorrection.ACCORDE : DroitDeCorrection.REFUSE);
+    }
+
+    private static UtilisateurId lireLUtilisateur(Object principal) {
+        try {
+            Object brut = principal.getClass().getMethod("getId").invoke(principal);
+            return brut == null || brut.toString().isBlank() ? null : new UtilisateurId(UUID.fromString(brut.toString()));
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+            return null;
+        }
     }
 }

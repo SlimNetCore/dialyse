@@ -1252,6 +1252,8 @@
       "SYNTHESE_FORBIDDEN": "Impression refusée : la synthèse de facturation est réservée aux profils ADMIN et SECRÉTAIRE, et au centre de votre session.",
       "PERIODE_CLOTUREE": "Le mois de facturation {{mois}} est clôturé : opération refusée. Rouvrez le mois (avec un motif) si nécessaire.",
       "PERIODE_CLOTUREE_SANS_MOIS": "Le mois de facturation est clôturé : opération refusée.",
+      "ABSENCE_D_EXCLUSION_MODIFIEE": "L’absence liée à cette exclusion a été annulée : la séance ne peut pas être réincluse, contactez l’administrateur.",
+      "ABSENCE_ECRITURE_CONCURRENTE": "Une autre opération est en cours sur cette absence ou ce patient : réessayez dans un instant.",
       "PERIODE_DEJA_CLOTUREE": "Ce mois est déjà clôturé.",
       "PERIODE_NON_CLOTUREE": "Ce mois n'est pas clôturé : il n'y a rien à rouvrir.",
       "PERIODE_COMPTABLE_CLOTUREE": "La période comptable de ce mois est clôturée : la réouverture de la facturation est impossible.",
@@ -3111,7 +3113,9 @@
       "ABSENCE_DEJA_ANNULEE": "L'absence est déjà annulée.",
       "ABSENCE_PERIODE_FACTUREE": "La facturation de cette période est validée : l'absence est clôturée.",
       "ABSENCE_PERIODE_INVALIDE": "Période invalide : le début doit précéder la fin (hier au plus tard).",
-      "ABSENCE_PERIODE_TROP_LONGUE": "Période trop longue : 366 jours au maximum."
+      "ABSENCE_PERIODE_TROP_LONGUE": "Période trop longue : 366 jours au maximum.",
+      "ABSENCE_ECRITURE_CONCURRENTE": "Cette absence vient d’être modifiée par une autre personne : actualisez puis recommencez.",
+      "ABSENCE_D_EXCLUSION": "Cette absence vient de l’exclusion d’une séance de la facturation : réincluez la séance dans la facturation pour la retirer."
     }
   },
   "NAV": {

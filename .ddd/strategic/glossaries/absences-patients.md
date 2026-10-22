@@ -32,6 +32,13 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, rép
 | Délai de qualification | Trois jours après la séance manquée : au-delà, une absence « à qualifier » est en retard | `DelaiDeQualification` | `DELAI_QUALIFICATION_JOURS` | — | RG-ABS-043 | proposed |
 | Séance de rattrapage proposée | Séance réalisée du patient, après la séance manquée, au plus tard aujourd'hui, qui ne rattrape pas déjà une autre absence ; proposée seulement pour une absence encore rattrapable | `SeancesDeRattrapage`, `ListerLesSeancesDeRattrapage` | `seancesDeRattrapage` | — | RG-ABS-021 ; 422 `ABSENCE_NON_MODIFIABLE` si rattrapée ou annulée | proposed |
 | Centre masqué (Direction) | Centre de 1 à 4 absences comptabilisées, dont les chiffres d'absence sont masqués et exclus du total de la Direction | `AbsencesStats` (champs `null`), `centresMasques` | — | — | RG-DIR-012, KB-ABS-07 | proposed |
+| Droit de correction | Droit de l'administrateur et du médecin de corriger une absence qualifiée, d'annuler une absence qualifiée et de rattraper une absence | `DroitDeCorrection` | `peutCorriger` | — | RG-ABS-020, 021, 022 ; le rattrapage l'exige pour toute absence (A2) | proposed |
+| Écriture concurrente | Écriture refusée parce qu'une autre vient de prendre la même absence ou le même jour du même patient ; l'utilisateur relit puis recommence | `EcritureConcurrente` (409 `ABSENCE_ECRITURE_CONCURRENTE`) | — (dernière écriture gagnante) | conflit | RG-ABS-054 | proposed |
+| Absence d'une exclusion | Absence que la Facturation déclare quand elle exclut une séance ; non annulable, seule la réinclusion de la séance la retire | `RetirerLAbsenceDeLExclusion`, `ExclusionsDeSeances` | `retirer` | — | RG-ABS-057 ; ADR 0031, KB-ABS-20 | proposed |
+| Intervenant | Celui qui écrit une absence : l'utilisateur de la session et son droit de correction | `Intervenant` | `utilisateur`, `peutCorriger` | — | A2 | proposed |
+
+## Questions ouvertes (termes proposés le 2026-10-22, slice A2)
+1. Valider « droit de correction », « écriture concurrente », « absence d'une exclusion », « intervenant ». `AbsenceSuivie` reste le modèle de lecture, `AbsencePatient` est l'agrégat d'écriture (réponse à la question 3 de A1).
 
 ## Questions ouvertes (termes proposés le 2026-10-22, slice A1)
 1. Valider les cinq termes ci-dessus (absence suivie, suivi de la semaine, délai de qualification, séance de rattrapage proposée, centre masqué).

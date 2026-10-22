@@ -3,7 +3,6 @@ package com.hemodialyse.backend.application.absence;
 import com.hemodialyse.backend.domain.absence.model.AbsenceFiltre;
 import com.hemodialyse.backend.domain.absence.model.AbsenceLigne;
 import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
-import com.hemodialyse.backend.domain.absence.model.MotifAbsence;
 import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
 import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort;
 import com.hemodialyse.backend.domain.absence.port.AbsencePatientRepositoryPort;
@@ -20,9 +19,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Suivi des absences de patients : déclaration, qualification, rattrapage, annulation et détection automatique des
- * séances prévues non réalisées. Toujours borné au centre ; les corrections d'une absence déjà qualifiée sont réservées
- * aux profils autorisés ({@code peutCorriger}).
+ * Détection automatique des absences de patients (séances prévues non réalisées) : contrôle de nuit, réconciliation et
+ * rattrapage d'une période passée. Reste au legacy jusqu'à la slice A3 ; la consultation (A1) et le cycle de vie (A2 :
+ * déclaration, qualification, rattrapage, annulation) sont dans le contexte absences-patients. Toujours borné au centre.
  */
 @Service
 public class AbsencePatientService {
@@ -52,13 +51,6 @@ public class AbsencePatientService {
         this.clock = clock;
     }
 
-    private static void exigerDroitDeCorrection(AbsencePatient a, boolean peutCorriger) {
-        if (a.statut() != StatutAbsence.A_QUALIFIER && !peutCorriger) {
-            throw new BusinessException("ABSENCE_CORRECTION_INTERDITE",
-                    "Seuls un administrateur ou un médecin peuvent corriger une absence déjà qualifiée");
-        }
-    }
-
     private LocalDate aujourdhui() {
         return LocalDate.now(clock);
     }
@@ -68,53 +60,6 @@ public class AbsencePatientService {
     public Synthese synthese(UUID centerId) {
         return new Synthese(absences.countAQualifier(centerId),
                 absences.countEnRetard(centerId, aujourdhui().minusDays(AbsencePatient.DELAI_QUALIFICATION_JOURS)));
-    }
-
-    public AbsencePatient declarer(UUID centerId, UUID patientId, LocalDate dateSeance, MotifAbsence motif,
-                                   String commentaire, UUID utilisateur) {
-        donnees.nomPatient(centerId, patientId)
-                .orElseThrow(() -> new BusinessException("PATIENT_INTROUVABLE", "Patient introuvable"));
-        absences.findByPatientAndDate(centerId, patientId, dateSeance).ifPresent(existante -> {
-            throw new BusinessException("ABSENCE_EXISTANTE", "Une absence existe déjà pour ce patient à cette date");
-        });
-        exigerPeriodeOuverte(centerId, patientId, dateSeance);
-        if (donnees.seanceRealisee(centerId, patientId, dateSeance)) {
-            throw new BusinessException("ABSENCE_SEANCE_REALISEE",
-                    "Le patient a une séance réalisée à cette date : il n'est pas absent");
-        }
-        AbsencePatient a = AbsencePatient.declaree(centerId, patientId, dateSeance, motif, commentaire,
-                valorisation.valoriser(centerId, patientId, dateSeance), utilisateur, aujourdhui(), Instant.now(clock));
-        return absences.save(a);
-    }
-
-    public AbsencePatient qualifier(UUID centerId, UUID id, MotifAbsence motif, String commentaire, UUID utilisateur,
-                                    boolean peutCorriger) {
-        AbsencePatient a = charger(centerId, id);
-        exigerDroitDeCorrection(a, peutCorriger);
-        a.qualifier(motif, commentaire, utilisateur, Instant.now(clock));
-        return absences.save(a);
-    }
-
-    public AbsencePatient rattraper(UUID centerId, UUID id, LocalDate dateRattrapage, UUID utilisateur) {
-        AbsencePatient a = charger(centerId, id);
-        if (!donnees.seanceRealisee(centerId, a.patientId(), dateRattrapage)) {
-            throw new BusinessException("ABSENCE_RATTRAPAGE_SANS_SEANCE",
-                    "Aucune séance réalisée pour ce patient à la date de rattrapage");
-        }
-        if (absences.datesRattrapage(centerId, a.patientId()).contains(dateRattrapage)) {
-            throw new BusinessException("ABSENCE_RATTRAPAGE_DEJA_UTILISEE",
-                    "Cette séance rattrape déjà une autre absence de ce patient");
-        }
-        a.rattraper(dateRattrapage, utilisateur, aujourdhui(), Instant.now(clock));
-        return absences.save(a);
-    }
-
-    public AbsencePatient annuler(UUID centerId, UUID id, String motifAnnulation, UUID utilisateur,
-                                  boolean peutCorriger) {
-        AbsencePatient a = charger(centerId, id);
-        exigerDroitDeCorrection(a, peutCorriger);
-        a.annuler(motifAnnulation, utilisateur, Instant.now(clock));
-        return absences.save(a);
     }
 
     /**
@@ -152,8 +97,8 @@ public class AbsencePatientService {
                 AbsencePatient a = ligne.absence();
                 if (donnees.seanceRealisee(centerId, a.patientId(), a.dateSeance())) {
                     a.annuler("Séance réalisée à cette date", null, Instant.now(clock));
-                    absences.save(a);
-                    annulees++;
+                    // seam A2 : une absence qualifiée ou rattrapée entre la lecture et l'écriture n'est pas ré-annulée
+                    if (absences.saveIfAQualifier(a)) annulees++;
                 }
             }
             page++;
@@ -207,23 +152,6 @@ public class AbsencePatientService {
 
     public List<UUID> centres() {
         return donnees.centresActifs();
-    }
-
-    /**
-     * Charge l'absence à modifier ; refusée si la facturation du patient est validée pour sa période (clôture).
-     */
-    private AbsencePatient charger(UUID centerId, UUID id) {
-        AbsencePatient a = absences.findById(centerId, id)
-                .orElseThrow(() -> new BusinessException("ABSENCE_INTROUVABLE", "Absence introuvable"));
-        exigerPeriodeOuverte(centerId, a.patientId(), a.dateSeance());
-        return a;
-    }
-
-    private void exigerPeriodeOuverte(UUID centerId, UUID patientId, LocalDate date) {
-        if (donnees.periodeFacturee(centerId, patientId, date)) {
-            throw new BusinessException("ABSENCE_PERIODE_FACTUREE",
-                    "La facturation de cette période est validée : l'absence est clôturée");
-        }
     }
 
     public record Synthese(long aQualifier, long enRetard) {

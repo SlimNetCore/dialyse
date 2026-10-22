@@ -4,7 +4,6 @@ import com.hemodialyse.backend.domain.absence.model.ValeurAbsence;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -28,8 +27,6 @@ public interface AbsenceDonneesPort {
      * (plus de déclaration ni de modification).
      */
     boolean periodeFacturee(UUID centerId, UUID patientId, LocalDate date);
-
-    Optional<String> nomPatient(UUID centerId, UUID patientId);
 
     /**
      * Centres sur lesquels exécuter le contrôle automatique.

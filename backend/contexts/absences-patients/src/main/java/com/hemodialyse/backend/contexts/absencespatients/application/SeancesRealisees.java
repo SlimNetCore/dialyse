@@ -22,4 +22,9 @@ public interface SeancesRealisees {
      * Jours (du plus ancien au plus récent, sans doublon) où ce patient a une séance réalisée entre ces deux dates incluses.
      */
     List<LocalDate> joursDuPatient(CentreId centre, PatientId patient, LocalDate du, LocalDate au);
+
+    /**
+     * Le patient a une séance réalisée ce jour-là.
+     */
+    boolean realisee(CentreId centre, PatientId patient, LocalDate jour);
 }

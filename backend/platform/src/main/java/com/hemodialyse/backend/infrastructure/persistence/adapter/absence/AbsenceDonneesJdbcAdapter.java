@@ -9,7 +9,6 @@ import java.sql.Date;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -75,13 +74,6 @@ public class AbsenceDonneesJdbcAdapter implements AbsenceDonneesPort {
     @Override
     public boolean periodeFacturee(UUID centerId, UUID patientId, LocalDate date) {
         return facturation.periodeFacturee(centerId, patientId, date);
-    }
-
-    @Override
-    public Optional<String> nomPatient(UUID centerId, UUID patientId) {
-        return jdbc.query("SELECT prenom, nom FROM patients WHERE center_id = ? AND id = ?",
-                        (rs, i) -> AbsencePatientJdbcAdapter.nomComplet(rs.getString(1), rs.getString(2)), centerId, patientId)
-                .stream().findFirst();
     }
 
     @Override

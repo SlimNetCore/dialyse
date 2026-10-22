@@ -15,4 +15,9 @@ public interface SessionCourante {
      * n'est pas le sien (RG-ABS-023) ; {@code null} signifie « celui de ma session ».
      */
     CentreId centre(UUID centreDemande);
+
+    /**
+     * Celui qui écrit : l'utilisateur de la session et son droit de correction (administrateur ou médecin).
+     */
+    Intervenant intervenant();
 }

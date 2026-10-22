@@ -783,6 +783,49 @@ SELECT conname, contype FROM pg_constraint WHERE conrelid = 'periodes_facturatio
   (`SELECT center_id, annee, mois FROM periodes_comptables WHERE cloturee` pour les repérer).
 - Annoncer aux administrateurs que clôturer est **immédiat et sans précondition** : lire l'avertissement chiffré avant de confirmer.
 
+## 24. Absences de patients A2 : unicité du rattrapage (migration V43, 2026-10-22)
+
+V43 crée un **index unique partiel** sur `absence_patient (center_id, patient_id, date_rattrapage) WHERE statut = 'RATTRAPEE'`. Elle ne modifie
+aucune donnée, mais **échoue (Flyway l'annule, rien n'est touché) s'il existe déjà un doublon** : le contrôle 24.1 doit donc rendre 0 ligne
+AVANT le déploiement (décision 6 du 2026-10-21 : « unicité du rattrapage par contrainte, APRÈS vérification en production »). **SELECT seulement.**
+
+```sql
+-- 24.1 BLOQUANT : une même séance de rattrapage utilisée par plusieurs absences rattrapées d'un patient (attendu : 0 ligne)
+SELECT center_id, patient_id, date_rattrapage, COUNT(*) AS nb_absences_rattrapees
+FROM absence_patient
+WHERE statut = 'RATTRAPEE' AND date_rattrapage IS NOT NULL
+GROUP BY center_id, patient_id, date_rattrapage
+HAVING COUNT(*) > 1
+ORDER BY center_id, patient_id, date_rattrapage;
+
+-- 24.2 absences rattrapées sans date de rattrapage (attendu : 0 ligne ; l'index ne les couvre pas, à corriger avec les experts métier)
+SELECT center_id, COUNT(*) AS rattrapees_sans_date FROM absence_patient
+WHERE statut = 'RATTRAPEE' AND date_rattrapage IS NULL GROUP BY center_id;
+
+-- 24.3 INFORMATIF : absences ANNULEES qui ont gardé leur date de rattrapage (annulation d'une rattrapée, KB-ABS-10). Elles ne réservent plus
+-- la séance ; l'index les ignore volontairement. Rapporter le nombre, ne rien modifier.
+SELECT center_id, COUNT(*) AS annulees_avec_date_de_rattrapage FROM absence_patient
+WHERE statut = 'ANNULEE' AND date_rattrapage IS NOT NULL GROUP BY center_id;
+
+-- 24.4 INFORMATIF, À TRAITER À LA MAIN : absences d'une exclusion de séance déjà ANNULEES (annulation permise avant A2). La séance reste ABSENT
+-- et sa réinclusion est refusée (ABSENCE_D_EXCLUSION_MODIFIEE) ; aucune ligne n'est supprimée par l'application. Rapporter la liste ; la sortie
+-- (réinclure puis supprimer la ligne) exige la validation écrite de l'utilisateur.
+SELECT a.center_id, s.id AS seance_id, a.id AS absence_id, a.patient_id, a.date_seance, a.statut, a.commentaire
+FROM absence_patient a JOIN seances s ON s.exclusion_absence_id = a.id AND s.center_id = a.center_id
+WHERE a.statut = 'ANNULEE'
+ORDER BY a.center_id, a.date_seance;
+
+-- 24.5 après déploiement : V43 appliquée et index présent (attendu : une ligne success = true ; un index uq_absence_patient_rattrapage)
+SELECT version, description, success FROM flyway_schema_history WHERE version = '43';
+SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'absence_patient' AND indexname = 'uq_absence_patient_rattrapage';
+```
+
+- **Si 24.1 rend des lignes** : ne déployez pas V43 (la migration échouerait ET l'application ne démarrerait pas, Flyway s'exécutant au démarrage). Pour chaque ligne, un expert métier décide quelle absence garde la séance ; l'autre repasse
+  par l'interface (la correction passe par l'application, pas par un `UPDATE` ici). Ne rien supprimer.
+- **Comportements nouveaux à annoncer aux utilisateurs** (écarts décidés le 21 et le 22/10, voir `.ddd/migration/slices/absences-patients-a2-cycle-de-vie.md`) :
+  une absence rattrapée ne s'annule plus ; seuls l'administrateur et le médecin rattrapent ; entrées illisibles en 400 ; une écriture concurrente sur
+  la même absence ou le même jour reçoit 409 (relire puis recommencer) ; l'absence créée par l'exclusion d'une séance ne s'annule plus (seule la réinclusion la retire).
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
@@ -790,4 +833,4 @@ G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
 toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18 ; pour F3, les points
 19.1 à 19.6 ; pour F4, les points 20.1 à 20.5 et 20.10 (V41, remboursements et écritures de remboursement historiques) ; pour F5, le point 21.2
-(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23 (V42 : tables créées, aucun mois clos au départ).
+(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23 (V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant V43**, 24.3 et 24.4 à rapporter).

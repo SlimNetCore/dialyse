@@ -36,4 +36,18 @@ public final class Identifiants {
             requis(valeur, "Absence");
         }
     }
+
+    /** Identité de l'utilisateur qui écrit (contexte Identité et accès, référencé par identité ; tracé par l'absence). */
+    public record UtilisateurId(UUID valeur) {
+        public UtilisateurId {
+            requis(valeur, "Utilisateur");
+        }
+    }
+
+    /** Identité d'un forfait (contexte Patient et couverture, référencé par identité). */
+    public record ForfaitId(UUID valeur) {
+        public ForfaitId {
+            requis(valeur, "Forfait");
+        }
+    }
 }
