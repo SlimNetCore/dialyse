@@ -1,0 +1,156 @@
+{
+  "filtres vides (statut=)" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 12
+  },
+  "from apres to" : {
+    "ids" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "from=J+1 (futur seul)" : {
+    "ids" : [ "<ABS_09>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "from=J-5 (inclus)" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 6
+  },
+  "from=J-8 to=J-4" : {
+    "ids" : [ "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 4
+  },
+  "from=to=J-1" : {
+    "ids" : [ "<ABS_01>", "<ABS_02>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 2
+  },
+  "motif=DECES (aucune)" : {
+    "ids" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "motif=MALADIE" : {
+    "ids" : [ "<ABS_05>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "motif=NON_JUSTIFIEE" : {
+    "ids" : [ "<ABS_06>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "patientId d'un autre centre (absence posee dans A)" : {
+    "ids" : [ "<ABS_11>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "patientId=AMRANI" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_05>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 4
+  },
+  "patientId=FANTOME" : {
+    "ids" : [ "<ABS_10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "patientId=inconnu" : {
+    "ids" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "statut=ANNULEE" : {
+    "ids" : [ "<ABS_08>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "statut=A_QUALIFIER" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 7
+  },
+  "statut=A_QUALIFIER&from=J-4&to=J-1" : {
+    "ids" : [ "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 4
+  },
+  "statut=A_QUALIFIER&motif=MALADIE (incoherent)" : {
+    "ids" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "statut=JUSTIFIEE" : {
+    "ids" : [ "<ABS_05>", "<ABS_10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 2
+  },
+  "statut=JUSTIFIEE&motif=VOYAGE&patientId=FANTOME" : {
+    "ids" : [ "<ABS_10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "statut=NON_JUSTIFIEE" : {
+    "ids" : [ "<ABS_06>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "statut=RATTRAPEE" : {
+    "ids" : [ "<ABS_07>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "to=J-5 (inclus)" : {
+    "ids" : [ "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 7
+  }
+}

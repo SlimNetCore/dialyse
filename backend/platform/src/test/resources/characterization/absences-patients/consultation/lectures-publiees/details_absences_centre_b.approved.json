@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "dateSeance" : "<ANCRE+1>",
+      "patientId" : "<P_CENTRE_B>",
+      "patientNom" : "Zerrouki",
+      "patientPrenom" : "Rania",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "MONDAY"
+    } ],
+    "kind" : "absence",
+    "month" : 3,
+    "total" : 1,
+    "year" : 2026
+  }
+}

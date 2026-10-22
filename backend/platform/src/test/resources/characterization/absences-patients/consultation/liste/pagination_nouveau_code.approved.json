@@ -1,0 +1,112 @@
+{
+  "defaut (page 0, size 20)" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 12
+  },
+  "filtre + pagination" : {
+    "ids" : [ "<ABS_02>", "<ABS_03>" ],
+    "page" : 1,
+    "size" : 2,
+    "status" : 200,
+    "total" : 7
+  },
+  "page=-1" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "La page ne peut pas être négative",
+      "instance" : "/api/v1/absences-patients",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "page=abc" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : page",
+      "instance" : "/api/v1/absences-patients",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "size=-1" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "La taille de la page ne peut pas être négative",
+      "instance" : "/api/v1/absences-patients",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "size=0" : {
+    "ids" : [ ],
+    "page" : 0,
+    "size" : 0,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=1000" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 100,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=11 page=1" : {
+    "ids" : [ "<ABS_12>" ],
+    "page" : 1,
+    "size" : 11,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=12 (exact)" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 12,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=5 page=0" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>" ],
+    "page" : 0,
+    "size" : 5,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=5 page=1" : {
+    "ids" : [ "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>" ],
+    "page" : 1,
+    "size" : 5,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=5 page=2" : {
+    "ids" : [ "<ABS_11>", "<ABS_12>" ],
+    "page" : 2,
+    "size" : 5,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=5 page=3 (au dela)" : {
+    "ids" : [ ],
+    "page" : 3,
+    "size" : 5,
+    "status" : 200,
+    "total" : 12
+  },
+  "size=abc" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : size",
+      "instance" : "/api/v1/absences-patients",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  }
+}

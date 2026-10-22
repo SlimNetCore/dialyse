@@ -1,0 +1,45 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "absenceCount" : 1,
+    "absenceDetails" : {
+      "absenceCount" : 1,
+      "blockedDays" : 0,
+      "expectedByWeekday" : {
+        "DIMANCHE" : 0,
+        "JEUDI" : 0,
+        "LUNDI" : 0,
+        "MARDI" : 0,
+        "MERCREDI" : 0,
+        "SAMEDI" : 0,
+        "VENDREDI" : 0
+      },
+      "expectedFromSchedule" : 0,
+      "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+      "patientsConsidered" : 1,
+      "periodEnd" : "<ANCRE+30>",
+      "periodStart" : "<ANCRE>",
+      "presenceCount" : 3
+    },
+    "ageDistribution" : {
+      "0-17" : 0,
+      "18-39" : 0,
+      "40-59" : 0,
+      "60+" : 0,
+      "INCONNU" : 1
+    },
+    "effectifPatients" : 1,
+    "expectedSeances" : 0,
+    "month" : 3,
+    "presenceCount" : 3,
+    "sexeDistribution" : {
+      "AUTRE" : 0,
+      "F" : 1,
+      "M" : 0
+    },
+    "totalSeances" : 3,
+    "year" : 2026
+  }
+}

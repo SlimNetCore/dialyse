@@ -1,0 +1,102 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "dateSeance" : "<ANCRE+1>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "MONDAY"
+    }, {
+      "dateSeance" : "<ANCRE+1>",
+      "patientId" : "<P_BELKACEM>",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "NON_JUSTIFIEE",
+      "weekday" : "MONDAY"
+    }, {
+      "dateSeance" : "<ANCRE+1>",
+      "patientId" : "<P_CHIKHI>",
+      "patientNom" : "Chikhi",
+      "patientPrenom" : "   ",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "A_QUALIFIER",
+      "weekday" : "MONDAY"
+    }, {
+      "dateSeance" : "<ANCRE+2>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "TUESDAY"
+    }, {
+      "dateSeance" : "<ANCRE+2>",
+      "patientId" : "<P_BELKACEM>",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "NON_JUSTIFIEE",
+      "weekday" : "TUESDAY"
+    }, {
+      "dateSeance" : "<ANCRE+2>",
+      "patientId" : "<P_CHIKHI>",
+      "patientNom" : "Chikhi",
+      "patientPrenom" : "   ",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "RATTRAPEE",
+      "weekday" : "TUESDAY"
+    }, {
+      "dateSeance" : "<ANCRE+3>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "WEDNESDAY"
+    }, {
+      "dateSeance" : "<ANCRE+4>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "THURSDAY"
+    }, {
+      "dateSeance" : "<ANCRE+5>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "FRIDAY"
+    }, {
+      "dateSeance" : "<ANCRE+30>",
+      "patientId" : "<P_DAHMANI>",
+      "patientNom" : "Dahmani",
+      "patientPrenom" : "Yasmine",
+      "present" : false,
+      "scheduled" : true,
+      "status" : "JUSTIFIEE",
+      "weekday" : "TUESDAY"
+    } ],
+    "kind" : "absence",
+    "month" : 3,
+    "total" : 10,
+    "year" : 2026
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "GET /direction/absences [ADMIN]" : 403,
+  "GET /direction/absences [DIRECTION]" : 200,
+  "GET /direction/absences [INFIRMIER]" : 403,
+  "GET /direction/absences [MEDECIN]" : 403,
+  "GET /direction/absences [SECRETAIRE]" : 403,
+  "GET /direction/absences [SUPERADMIN]" : 403,
+  "GET /seances/dashboard [ADMIN]" : 200,
+  "GET /seances/dashboard [DIRECTION]" : 403,
+  "GET /seances/dashboard [INFIRMIER]" : 200,
+  "GET /seances/dashboard [MEDECIN]" : 200,
+  "GET /seances/dashboard [SECRETAIRE]" : 200,
+  "GET /seances/dashboard [SUPERADMIN]" : 403,
+  "GET /seances/dashboard/details [ADMIN]" : 200,
+  "GET /seances/dashboard/details [DIRECTION]" : 403,
+  "GET /seances/dashboard/details [INFIRMIER]" : 200,
+  "GET /seances/dashboard/details [MEDECIN]" : 200,
+  "GET /seances/dashboard/details [SECRETAIRE]" : 200,
+  "GET /seances/dashboard/details [SUPERADMIN]" : 403
+}

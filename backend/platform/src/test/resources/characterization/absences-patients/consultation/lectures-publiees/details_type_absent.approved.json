@@ -1,0 +1,12 @@
+{
+  "status" : 500,
+  "contentType" : "application/problem+json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "INTERNAL_ERROR",
+    "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+    "instance" : "/api/v1/seances/dashboard/details",
+    "status" : 500,
+    "title" : "Erreur interne"
+  }
+}

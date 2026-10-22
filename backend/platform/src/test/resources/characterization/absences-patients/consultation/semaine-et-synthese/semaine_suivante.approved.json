@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "absences" : [ {
+      "absenceId" : "<ABS_07>",
+      "dateSeance" : "<ANCRE+7>",
+      "motif" : null,
+      "patientId" : "<P_AMRANI>",
+      "statut" : "A_QUALIFIER"
+    } ],
+    "seancesRealisees" : [ {
+      "dateSeance" : "<ANCRE+7>",
+      "patientId" : "<P_AMRANI>"
+    } ]
+  }
+}

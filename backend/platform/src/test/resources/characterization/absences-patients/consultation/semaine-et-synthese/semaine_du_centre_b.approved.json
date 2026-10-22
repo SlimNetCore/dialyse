@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "absences" : [ {
+      "absenceId" : "<ABS_08>",
+      "dateSeance" : "<ANCRE+1>",
+      "motif" : null,
+      "patientId" : "<P_CENTRE_B>",
+      "statut" : "A_QUALIFIER"
+    } ],
+    "seancesRealisees" : [ {
+      "dateSeance" : "<ANCRE+2>",
+      "patientId" : "<P_CENTRE_B>"
+    } ]
+  }
+}

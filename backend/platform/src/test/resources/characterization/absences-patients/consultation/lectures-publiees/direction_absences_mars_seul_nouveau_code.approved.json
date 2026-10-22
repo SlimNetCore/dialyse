@@ -1,0 +1,131 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "centres" : [ {
+      "actif" : true,
+      "centerId" : "<CENTRE_A>",
+      "motifs" : [ {
+        "motif" : "MALADIE",
+        "nb" : 5,
+        "valorisationHt" : 500.00
+      }, {
+        "motif" : "NON_JUSTIFIEE",
+        "nb" : null,
+        "valorisationHt" : null
+      }, {
+        "motif" : "NON_QUALIFIE",
+        "nb" : null,
+        "valorisationHt" : null
+      }, {
+        "motif" : "TRANSPORT",
+        "nb" : null,
+        "valorisationHt" : null
+      }, {
+        "motif" : "VOYAGE",
+        "nb" : null,
+        "valorisationHt" : null
+      } ],
+      "nom" : "Centre Alpha",
+      "stats" : {
+        "caHt" : 0,
+        "nbAQualifier" : null,
+        "nbAbsences" : 10,
+        "nbJustifiees" : 7,
+        "nbNonJustifiees" : null,
+        "nbRattrapees" : null,
+        "nbSeances" : 12,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : 45.45,
+        "valorisationHt" : 1060.00,
+        "valorisationTtc" : 1259.50
+      }
+    }, {
+      "actif" : true,
+      "centerId" : "<CENTRE_B>",
+      "motifs" : [ {
+        "motif" : "MALADIE",
+        "nb" : null,
+        "valorisationHt" : null
+      } ],
+      "nom" : "Centre Beta",
+      "stats" : {
+        "caHt" : 0,
+        "nbAQualifier" : null,
+        "nbAbsences" : null,
+        "nbJustifiees" : null,
+        "nbNonJustifiees" : null,
+        "nbRattrapees" : 0,
+        "nbSeances" : 3,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : null,
+        "valorisationHt" : null,
+        "valorisationTtc" : null
+      }
+    }, {
+      "actif" : true,
+      "centerId" : "<CENTRE_VIDE>",
+      "motifs" : [ ],
+      "nom" : "Centre Vide",
+      "stats" : {
+        "caHt" : 0,
+        "nbAQualifier" : 0,
+        "nbAbsences" : 0,
+        "nbJustifiees" : 0,
+        "nbNonJustifiees" : 0,
+        "nbRattrapees" : 0,
+        "nbSeances" : 0,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : null,
+        "valorisationHt" : 0,
+        "valorisationTtc" : 0
+      }
+    } ],
+    "centresMasques" : 1,
+    "from" : "<ANCRE>",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ {
+      "annee" : 2026,
+      "mois" : 3,
+      "nbAbsences" : 10,
+      "valorisationHt" : 1060.00
+    } ],
+    "motifs" : [ {
+      "motif" : "MALADIE",
+      "nb" : 5,
+      "valorisationHt" : 500.00
+    }, {
+      "motif" : "NON_JUSTIFIEE",
+      "nb" : null,
+      "valorisationHt" : null
+    }, {
+      "motif" : "NON_QUALIFIE",
+      "nb" : null,
+      "valorisationHt" : null
+    }, {
+      "motif" : "TRANSPORT",
+      "nb" : null,
+      "valorisationHt" : null
+    }, {
+      "motif" : "VOYAGE",
+      "nb" : null,
+      "valorisationHt" : null
+    } ],
+    "societeId" : "<SOCIETE_1>",
+    "to" : "<ANCRE+30>",
+    "total" : {
+      "caHt" : 0,
+      "nbAQualifier" : null,
+      "nbAbsences" : 10,
+      "nbJustifiees" : 7,
+      "nbNonJustifiees" : null,
+      "nbRattrapees" : null,
+      "nbSeances" : 12,
+      "partCaHt" : null,
+      "tauxAbsenteisme" : 45.45,
+      "valorisationHt" : 1060.00,
+      "valorisationTtc" : 1259.50
+    }
+  }
+}

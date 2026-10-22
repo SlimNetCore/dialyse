@@ -1,0 +1,16 @@
+{
+  "centerId = centre de la session" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 12
+  },
+  "centerId absent" : {
+    "ids" : [ "<ABS_09>", "<ABS_01>", "<ABS_02>", "<ABS_03>", "<ABS_04>", "<ABS_05>", "<ABS_06>", "<ABS_07>", "<ABS_08>", "<ABS_10>", "<ABS_11>", "<ABS_12>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 12
+  }
+}

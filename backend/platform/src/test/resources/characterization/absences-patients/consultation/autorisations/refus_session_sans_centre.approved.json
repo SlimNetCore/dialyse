@@ -1,0 +1,12 @@
+{
+  "status" : 403,
+  "contentType" : "application/problem+json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement",
+    "instance" : "/api/v1/absences-patients/synthese",
+    "status" : 403,
+    "title" : "Acces refuse"
+  }
+}

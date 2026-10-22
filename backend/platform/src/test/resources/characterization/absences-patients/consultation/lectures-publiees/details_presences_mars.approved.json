@@ -1,0 +1,120 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "dateSeance" : "<ANCRE+6>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "SATURDAY"
+    }, {
+      "dateSeance" : "<ANCRE+6>",
+      "patientId" : "<P_BELKACEM>",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "SIGNEE",
+      "weekday" : "SATURDAY"
+    }, {
+      "dateSeance" : "<ANCRE+6>",
+      "patientId" : "<P_CHIKHI>",
+      "patientNom" : "Chikhi",
+      "patientPrenom" : "   ",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "FACTUREE",
+      "weekday" : "SATURDAY"
+    }, {
+      "dateSeance" : "<ANCRE+6>",
+      "patientId" : "<P_DAHMANI>",
+      "patientNom" : "Dahmani",
+      "patientPrenom" : "Yasmine",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "SATURDAY"
+    }, {
+      "dateSeance" : "<ANCRE+7>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "SUNDAY"
+    }, {
+      "dateSeance" : "<ANCRE+7>",
+      "patientId" : "<P_BELKACEM>",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "SIGNEE",
+      "weekday" : "SUNDAY"
+    }, {
+      "dateSeance" : "<ANCRE+8>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "MONDAY"
+    }, {
+      "dateSeance" : "<ANCRE+8>",
+      "patientId" : "<P_BELKACEM>",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "SIGNEE",
+      "weekday" : "MONDAY"
+    }, {
+      "dateSeance" : "<ANCRE+9>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "TUESDAY"
+    }, {
+      "dateSeance" : "<ANCRE+10>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "WEDNESDAY"
+    }, {
+      "dateSeance" : "<ANCRE+11>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "THURSDAY"
+    }, {
+      "dateSeance" : "<ANCRE+12>",
+      "patientId" : "<P_AMRANI>",
+      "patientNom" : "Amrani",
+      "patientPrenom" : "Lina",
+      "present" : true,
+      "scheduled" : true,
+      "status" : "VALIDEE",
+      "weekday" : "FRIDAY"
+    } ],
+    "kind" : "presence",
+    "month" : 3,
+    "total" : 12,
+    "year" : 2026
+  }
+}

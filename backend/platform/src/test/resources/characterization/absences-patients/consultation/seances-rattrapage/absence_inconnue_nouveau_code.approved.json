@@ -1,0 +1,12 @@
+{
+  "status" : 404,
+  "contentType" : "application/problem+json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "ABSENCE_INTROUVABLE",
+    "detail" : "Absence introuvable",
+    "instance" : "/api/v1/absences-patients/<UUID_GENERE_1>/seances-rattrapage",
+    "status" : 404,
+    "title" : "Absence introuvable"
+  }
+}

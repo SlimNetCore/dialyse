@@ -1,0 +1,28 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "commentaire" : null,
+      "dateRattrapage" : null,
+      "dateSeance" : "<J-1>",
+      "declareeLe" : "<HORODATAGE>",
+      "enRetard" : false,
+      "forfaitLibelle" : "Forfait HD",
+      "id" : "<ABS_13>",
+      "montantHt" : 10000.00,
+      "motif" : null,
+      "patientId" : "<P_CENTRE_B>",
+      "patientNom" : "Rania Zerrouki",
+      "prixTtc" : 11900.00,
+      "qualifieeLe" : null,
+      "source" : "AUTOMATIQUE",
+      "statut" : "A_QUALIFIER",
+      "tauxTva" : 19.00
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

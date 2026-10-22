@@ -1,0 +1,6 @@
+{
+  "status" : 200,
+  "contentType" : "text/plain",
+  "contentDisposition" : "attachment; filename=seances-dashboard-2026-03.csv",
+  "contenu" : "year,month,expectedSeances,presenceCount,absenceCount,totalSeances\n2026,3,0,12,11,12\n\nsexe,count\nM,0\nF,4\nAUTRE,0\n\nageRange,count\n0-17,0\n18-39,0\n40-59,0\n60+,0\nINCONNU,4\n"
+}

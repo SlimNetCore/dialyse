@@ -1,0 +1,51 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "absences" : [ {
+      "absenceId" : "<ABS_02>",
+      "dateSeance" : "<ANCRE>",
+      "motif" : null,
+      "patientId" : "<P_AMRANI>",
+      "statut" : "A_QUALIFIER"
+    }, {
+      "absenceId" : "<ABS_04>",
+      "dateSeance" : "<ANCRE+3>",
+      "motif" : "MALADIE",
+      "patientId" : "<P_BELKACEM>",
+      "statut" : "JUSTIFIEE"
+    }, {
+      "absenceId" : "<ABS_05>",
+      "dateSeance" : "<ANCRE+4>",
+      "motif" : "VOYAGE",
+      "patientId" : "<P_CHIKHI>",
+      "statut" : "RATTRAPEE"
+    }, {
+      "absenceId" : "<ABS_09>",
+      "dateSeance" : "<ANCRE+5>",
+      "motif" : null,
+      "patientId" : "<P_FANTOME>",
+      "statut" : "A_QUALIFIER"
+    }, {
+      "absenceId" : "<ABS_06>",
+      "dateSeance" : "<ANCRE+6>",
+      "motif" : "NON_JUSTIFIEE",
+      "patientId" : "<P_DAHMANI>",
+      "statut" : "NON_JUSTIFIEE"
+    } ],
+    "seancesRealisees" : [ {
+      "dateSeance" : "<ANCRE+1>",
+      "patientId" : "<P_AMRANI>"
+    }, {
+      "dateSeance" : "<ANCRE+2>",
+      "patientId" : "<P_BELKACEM>"
+    }, {
+      "dateSeance" : "<ANCRE+3>",
+      "patientId" : "<P_CHIKHI>"
+    }, {
+      "dateSeance" : "<ANCRE+6>",
+      "patientId" : "<P_AMRANI>"
+    } ]
+  }
+}
