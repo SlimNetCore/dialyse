@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BON_COMMANDE_NON_VALIDABLE",
+    "detail": "Seul un bon BROUILLON peut etre valide",
+    "instance": "/api/v1/stock/bons-commande/<BON_A>/valider",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BON_COMMANDE_NON_MODIFIABLE",
+    "detail": "Les lignes d'un bon ne se modifient qu'en brouillon",
+    "instance": "/api/v1/stock/bons-commande/<BON_A>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

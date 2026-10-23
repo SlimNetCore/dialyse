@@ -24,6 +24,11 @@ public final class ReferentielSimple {
          * Les fournisseurs actifs dont la raison sociale contient le texte (sans casse), triés par raison sociale.
          */
         List<Fournisseur> chercher(CentreId centre, String texte);
+
+        /**
+         * Vrai si le fournisseur, actif ou non, appartient au centre (bons de commande, RG-STK-010).
+         */
+        boolean existe(CentreId centre, java.util.UUID id);
     }
 
     public interface Emplacements {
@@ -35,4 +40,5 @@ public final class ReferentielSimple {
         List<Emplacement> actifs(CentreId centre);
     }
 }
+
 

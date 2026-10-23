@@ -1,0 +1,34 @@
+[
+  {
+    "reference": "BC-00001",
+    "statut": "BROUILLON",
+    "created_by": "<UUID_GENERE_1>",
+    "fournisseur_nul": "true",
+    "created_at_nul": "false",
+    "nb_lignes": "1"
+  },
+  {
+    "reference": "BC-00002",
+    "statut": "BROUILLON",
+    "created_by": "<UUID_GENERE_2>",
+    "fournisseur_nul": "true",
+    "created_at_nul": "false",
+    "nb_lignes": "2"
+  },
+  {
+    "reference": "BC-00003",
+    "statut": "BROUILLON",
+    "created_by": "<UUID_GENERE_3>",
+    "fournisseur_nul": "true",
+    "created_at_nul": "false",
+    "nb_lignes": "0"
+  },
+  {
+    "reference": "BC-00004",
+    "statut": "BROUILLON",
+    "created_by": "<UUID_GENERE_4>",
+    "fournisseur_nul": "true",
+    "created_at_nul": "false",
+    "nb_lignes": "0"
+  }
+]

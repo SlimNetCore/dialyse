@@ -47,6 +47,20 @@ public class SessionLegacy implements SessionCourante {
     }
 
     @Override
+    public String utilisateur() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification == null || authentification.getPrincipal() == null) {
+            return null;
+        }
+        try {
+            Object brut = authentification.getPrincipal().getClass().getMethod("getId").invoke(authentification.getPrincipal());
+            return brut == null ? null : brut.toString();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            return null;
+        }
+    }
+
+    @Override
     public CentreId centre(UUID centreDemande) {
         Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
         if (authentification == null || !authentification.isAuthenticated() || authentification.getPrincipal() == null
@@ -71,4 +85,5 @@ public class SessionLegacy implements SessionCourante {
         return new CentreId(centreDeSession);
     }
 }
+
 

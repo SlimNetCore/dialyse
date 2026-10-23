@@ -15,5 +15,12 @@ public interface SessionCourante {
      * KB-STK-04 corrigé) ; {@code null} signifie « celui de ma session » (KB-STK-05 corrigé).
      */
     CentreId centre(UUID centreDemande);
+
+    /**
+     * Identifiant de l'utilisateur authentifié, texte ; {@code null} si inconnu. L'auteur d'un bon vient de la session et non
+     * du corps de la requête (KB-STK-22 corrigé).
+     */
+    String utilisateur();
 }
+
 

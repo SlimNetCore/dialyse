@@ -1,0 +1,27 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "u",
+    "fournisseurId": null,
+    "id": "<BON_A>",
+    "lignes": [
+      {
+        "articleId": "<ART_2>",
+        "id": "<UUID_GENERE_1>",
+        "prixUnitaire": 4,
+        "quantite": 5
+      },
+      {
+        "articleId": "<ART_1>",
+        "id": "<UUID_GENERE_2>",
+        "prixUnitaire": 0.5,
+        "quantite": 2
+      }
+    ],
+    "reference": "BC-00001",
+    "statut": "BROUILLON"
+  }
+}

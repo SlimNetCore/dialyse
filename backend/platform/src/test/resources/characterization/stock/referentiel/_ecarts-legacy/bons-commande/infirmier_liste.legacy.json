@@ -1,0 +1,40 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "centerId": "<CENTRE_A>",
+      "createdAt": "<HORODATAGE>",
+      "createdBy": "p",
+      "fournisseurId": null,
+      "id": "<UUID_GENERE_1>",
+      "lignes": [
+        {
+          "articleId": "<ART_1>",
+          "id": "<UUID_GENERE_2>",
+          "prixUnitaire": 1.00,
+          "quantite": 1.00
+        }
+      ],
+      "reference": "BC-00002",
+      "statut": "BROUILLON"
+    },
+    {
+      "centerId": "<CENTRE_A>",
+      "createdAt": "<HORODATAGE>",
+      "createdBy": "u",
+      "fournisseurId": null,
+      "id": "<BON_A>",
+      "lignes": [
+        {
+          "articleId": "<ART_1>",
+          "id": "<UUID_GENERE_3>",
+          "prixUnitaire": 2.00,
+          "quantite": 2.00
+        }
+      ],
+      "reference": "BC-00001",
+      "statut": "VALIDE"
+    }
+  ]
+}

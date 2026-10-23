@@ -43,10 +43,18 @@ public class FournisseursJdbc implements Fournisseurs {
     }
 
     @Override
+    public boolean existe(CentreId centre, UUID id) {
+        Integer nombre = jdbc.queryForObject("SELECT COUNT(*) FROM fournisseurs WHERE center_id = ? AND id = ?", Integer.class,
+                centre.valeur(), id);
+        return nombre != null && nombre > 0;
+    }
+
+    @Override
     public List<Fournisseur> chercher(CentreId centre, String texte) {
         return jdbc.query("SELECT " + COLONNES + " FROM fournisseurs WHERE center_id = ? AND actif = TRUE "
                         + "AND UPPER(raison_sociale) LIKE UPPER(?) ESCAPE '\\' ORDER BY raison_sociale ASC",
                 FOURNISSEUR, centre.valeur(), "%" + echappe(texte) + "%");
     }
 }
+
 

@@ -1,0 +1,32 @@
+[
+  {
+    "reference": "BC-00001",
+    "article_id": "<ART_1>",
+    "quantite": "2.00",
+    "prix_unitaire": "-1.00"
+  },
+  {
+    "reference": "BC-00002",
+    "article_id": "<ART_1>",
+    "quantite": "-2.00",
+    "prix_unitaire": "1.00"
+  },
+  {
+    "reference": "BC-00003",
+    "article_id": "<ART_1>",
+    "quantite": "0.00",
+    "prix_unitaire": "1.00"
+  },
+  {
+    "reference": "BC-00004",
+    "article_id": "<UUID_GENERE_1>",
+    "quantite": "1.00",
+    "prix_unitaire": "1.00"
+  },
+  {
+    "reference": "BC-00006",
+    "article_id": "<ART_1>",
+    "quantite": "1.00",
+    "prix_unitaire": "1.00"
+  }
+]

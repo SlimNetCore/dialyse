@@ -1,6 +1,6 @@
 ---
 slice: stock-s3-bons-commande
-status: planned
+status: built
 date: 2026-10-23
 order: 3
 context: stock
@@ -44,3 +44,27 @@ modèle `BonCommande` legacy quand S5 a repris la réception.
 
 Dépend de S1. Risque faible.
 
+## Livraison (2026-10-23)
+
+- **Module** `backend/contexts/stock` : agrégat `BonDeCommande` (immuable ; `BROUILLON → VALIDE`, `RECU` posé par la
+  réception), `LigneDeBon`, port `BonsDeCommande`, cas d'usage `GestionDesBonsDeCommande`, adapter `BonsDeCommandeJdbc`
+  (mêmes tables, référence `BC` dans la transaction du bon, modification sous `FOR UPDATE`), contrôleur
+  `BonsDeCommandeControleur` (mêmes routes, rôles et JSON). Port `Fournisseurs` complété (`existe`), `SessionCourante`
+  complété (`utilisateur`).
+- **Corrections décidées (« corrige », 2026-10-23), KB-STK-17 à 22** : 403 si le centre demandé ≠ session (centre
+  facultatif, session par défaut) ; remplacement des lignes refusé hors brouillon (422 `BON_COMMANDE_NON_MODIFIABLE`) ;
+  lignes : article obligatoire, quantité > 0, prix ≥ 0 (400 `BAD_REQUEST`), articles et fournisseur du centre (422
+  `BON_COMMANDE_ARTICLE_INCONNU` / `_FOURNISSEUR_INCONNU`) ; un refus ne consomme aucune référence `BC` ; bon inconnu ou
+  d'un autre centre : 422 `BON_COMMANDE_INTROUVABLE` (comme articles et groupes) ; codes stables
+  `BON_COMMANDE_NON_VALIDABLE` et `BON_COMMANDE_SANS_LIGNE` à la validation ; auteur = utilisateur de la session (le
+  `userId` du corps est ignoré). Les montants relus sont ceux de la base (quantité et prix à 2 décimales : `1.333`
+  devient `1.33`).
+- **Filet** : 13 scénarios, 100 goldens rejoués sur le nouveau code ; 68 goldens changés par ces corrections, leurs
+  versions legacy conservées dans `characterization/stock/referentiel/_ecarts-legacy/bons-commande/*.legacy.json`.
+- **Tests du module** : +8 (`BonDeCommandeTest`, `GestionDesBonsDeCommandeTest`), ArchUnit vert.
+- **Retrait** : `BonCommandeRestController` et ses DTO de requête (`CreateBonCommandeRequest`,
+  `UpdateBonCommandeLignesRequest`, `BonCommandeLigneDto`). **Conservés jusqu'à S5** : `BonCommandeService`,
+  `BonCommandeUseCase` (jeu de démonstration `StockDemoDataSeeder`), le modèle, le port et l'adaptateur `BonCommande`
+  (réception legacy, passage à `RECU`).
+- **Hors correction** : JSON illisible, identifiant illisible et `centerId` illisible restent en 500 (transverse, comme
+  S2).

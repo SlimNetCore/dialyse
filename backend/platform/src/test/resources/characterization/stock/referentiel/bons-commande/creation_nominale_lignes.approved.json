@@ -1,0 +1,14 @@
+[
+  {
+    "reference": "BC-00001",
+    "article_id": "<ART_2>",
+    "quantite": "3.00",
+    "prix_unitaire": "1.33"
+  },
+  {
+    "reference": "BC-00001",
+    "article_id": "<ART_1>",
+    "quantite": "10.00",
+    "prix_unitaire": "2.50"
+  }
+]

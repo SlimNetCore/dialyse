@@ -1,0 +1,27 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "pharma-1",
+    "fournisseurId": "<FOUR_1>",
+    "id": "<UUID_GENERE_1>",
+    "lignes": [
+      {
+        "articleId": "<ART_1>",
+        "id": "<UUID_GENERE_2>",
+        "prixUnitaire": 2.50,
+        "quantite": 10
+      },
+      {
+        "articleId": "<ART_2>",
+        "id": "<UUID_GENERE_3>",
+        "prixUnitaire": 1.333,
+        "quantite": 3
+      }
+    ],
+    "reference": "BC-00001",
+    "statut": "BROUILLON"
+  }
+}

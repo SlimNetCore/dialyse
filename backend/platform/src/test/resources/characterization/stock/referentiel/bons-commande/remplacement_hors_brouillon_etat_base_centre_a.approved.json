@@ -1,0 +1,10 @@
+[
+  {
+    "reference": "BC-00001",
+    "statut": "RECU",
+    "created_by": "<UUID_GENERE_1>",
+    "fournisseur_nul": "true",
+    "created_at_nul": "false",
+    "nb_lignes": "1"
+  }
+]

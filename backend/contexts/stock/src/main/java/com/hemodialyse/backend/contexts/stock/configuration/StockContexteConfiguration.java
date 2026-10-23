@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.contexts.stock.configuration;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
+import com.hemodialyse.backend.contexts.stock.application.commandes.GestionDesBonsDeCommande;
+import com.hemodialyse.backend.contexts.stock.domain.commandes.BonsDeCommande;
+import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeCommandeJdbc;
 import com.hemodialyse.backend.contexts.stock.application.groupes.GestionDesGroupesDArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesFournisseursEtEmplacements;
@@ -85,6 +88,18 @@ public class StockContexteConfiguration {
     @Bean
     GroupesDArticlesDesCentres stockGroupesDArticlesDesCentres(GestionDesGroupesDArticles groupes) {
         return new GroupesDArticlesDesCentresDuStock(groupes);
+    }
+
+    // ------------------------------------------------------------------ slice S3 : bons de commande
+
+    @Bean
+    BonsDeCommande stockBonsDeCommande(JdbcTemplate jdbc, PlatformTransactionManager transactions) {
+        return new BonsDeCommandeJdbc(jdbc, new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    GestionDesBonsDeCommande stockGestionDesBonsDeCommande(BonsDeCommande bons, Articles articles, Fournisseurs fournisseurs) {
+        return new GestionDesBonsDeCommande(bons, articles, fournisseurs, UUID::randomUUID, Clock.systemUTC());
     }
 }
 
