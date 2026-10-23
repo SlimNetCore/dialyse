@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ARTICLE_CODE_EXISTANT",
+    "detail": "Ce code article existe déjà dans le centre",
+    "instance": "/api/v1/stock/referentiel/articles",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

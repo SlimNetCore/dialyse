@@ -42,12 +42,22 @@
     "absences-patients-a3-detection-de-nuit": "built",
     "absences-patients-a4-lectures-publiees": "built",
     "absences-patients-a6-cloture-mensuelle": "built",
-    "facturation-f7b-corrections-revue": "built"
+    "facturation-f7b-corrections-revue": "built",
+    "stock-s1-referentiel": "built",
+    "stock-s2-groupes-articles": "planned",
+    "stock-s3-bons-commande": "planned",
+    "stock-s4-lectures-publiees": "planned",
+    "stock-s5-receptions-pmp": "planned",
+    "stock-s6-sorties-manuelles": "planned",
+    "stock-s6b-sortie-pour-seances": "planned",
+    "stock-s7-inventaire": "planned",
+    "stock-s8-peremptions-retrait": "planned"
   },
   "contexts": {
     "gmao": "architected",
     "comptabilite": "modeled",
     "facturation": "architected",
-    "absences-patients": "modeled"
+    "absences-patients": "modeled",
+    "stock": "approved"
   }
 }

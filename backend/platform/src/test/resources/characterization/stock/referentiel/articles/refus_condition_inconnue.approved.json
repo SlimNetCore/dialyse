@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ARTICLE_CONDITION_CONSERVATION_INVALIDE",
+    "detail": "Condition de conservation inconnue : TIEDE (AMBIANT, REFRIGERE ou CONGELE)",
+    "instance": "/api/v1/stock/referentiel/articles",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

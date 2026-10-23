@@ -23,12 +23,13 @@
   `ARTICLE_UNITE_REQUISE`) ; le coefficient d'achat doit être > 0 (`ARTICLE_COEFFICIENT_ACHAT_INVALIDE`), prix, seuil
   et stock maximum ≥ 0 (`ARTICLE_VALEUR_NEGATIVE`) et le stock maximum au moins égal au seuil d'alerte
   (`ARTICLE_STOCK_MAX_INFERIEUR_SEUIL`). Un éventuel **type de traitement de l'anémie** (`EPO` ou `FER_INJECTABLE`,
-  vide = article ordinaire) alimente les listes de prescription (voir RG-MED). *Source :* `Article.appliquerFiche`,
-  `ArticlesComponent`.
+  vide = article ordinaire) alimente les listes de prescription (voir RG-MED). Les quatre cases « géré par lot »,
+  « péremption obligatoire », « produit dangereux » et « déchets DASRI » non transmises valent « non ». *Source :*
+  `FicheArticle.saisie` (contexte `stock`), `ArticlesComponent`.
 - **RG-STK-008** — **Comptes comptables de l'article** (facultatifs) : la fiche peut préciser un **compte de stock** et
   un **compte de consommation** propres à l'article (1 à 20 lettres ou chiffres, sinon `ARTICLE_COMPTE_INVALIDE`).
   Laissés vides, ce sont les comptes du centre qui s'appliquent à la comptabilisation du stock (RG-CPT-011 à 014).
-  *Source :* `Article.appliquerFiche`, `ArticlesComponent`.
+  *Source :* `FicheArticle.saisie` (contexte `stock`), `ArticlesComponent`.
 - **RG-STK-006** — **Dosage par unité de stock** : la fiche peut porter « 1 unité de stock = X UI (ou mg…) »,
   c'est-à-dire
   un dosage (> 0, `ARTICLE_DOSAGE_INVALIDE`) **et** son unité, indissociables (`ARTICLE_DOSAGE_INCOMPLET`). Il relie
@@ -46,21 +47,27 @@
   saccharose 100 mg* — unité « ampoule », unité d'achat « boîte », 5 unités par boîte, dosage 100, unité du dosage
   « mg » : une prescription de 200 mg sort 2 ampoules ; *Dialyseur FX60* — unité « pièce », unité d'achat « carton »,
   12 unités par carton, dosage et unité du dosage laissés vides (aucune conversion). Dès que le dosage et son unité sont
-  saisis, la fiche affiche la ligne de contrôle « 1 seringue = 4000 UI ». *Source :* `Article.quantiteStockPourDose`,
-  `ArticlesComponent`.
+  saisis, la fiche affiche la ligne de contrôle « 1 seringue = 4000 UI ». La conversion est publiée aux autres
+  contextes par le catalogue d'articles (`CatalogueDArticles.quantitePourDose`, utilisée par l'administration du
+  traitement de l'anémie). *Source :* `Dosage.quantitePourDose` (contexte `stock`), `ArticlesComponent`.
 - **RG-STK-007** — Le code article est **unique par centre** sans tenir compte de la casse (`ARTICLE_CODE_EXISTANT`) ;
-  un article inconnu du centre est introuvable (`ARTICLE_INTROUVABLE`). Création, modification et (dés)activation :
+  un article inconnu du centre est introuvable (422 `ARTICLE_INTROUVABLE`). Création, modification et (dés)activation
+  (paramètre `active` obligatoire, `ARTICLE_ACTIVITE_REQUISE`) :
   `ADMIN`, `PHARMACIEN`. L'écran « Articles » liste les fiches **par pages** (`GET /stock/referentiel/articles/page`,
   `page`/`size`), avec recherche sur le code, le libellé, la DCI ou le code-barres et filtre actif / désactivé ; un
-  article désactivé n'est plus proposé mais son historique reste. *Source :* `StockReferentialRestController`,
-  `ArticleCatalogPort`.
+  article désactivé n'est plus proposé mais son historique reste. Une condition de conservation ou un type de
+  traitement inconnu est refusé avec un code stable (`ARTICLE_CONDITION_CONSERVATION_INVALIDE`,
+  `ARTICLE_TYPE_TRAITEMENT_INVALIDE`). *Source :* `ReferentielStockControleur`, `ReferentielDesArticles`, `ArticlesJdbc`
+  (contexte `stock`).
 - **RG-STK-002** — Un article inactif ne peut plus être sorti du stock (« Article inactif »). Une consommation doit être
   strictement positive et ne peut dépasser le stock (« Stock insuffisant pour l'article »).
-- **RG-STK-003** — Un fournisseur exige une raison sociale ; un emplacement exige un libellé. Les fournisseurs et
-  emplacements sont propres au centre.
+- **RG-STK-003** — Un fournisseur exige une raison sociale ; un emplacement exige un libellé (valeurs nettoyées des
+  espaces de bord). Les fournisseurs et emplacements sont propres au centre.
 - **RG-STK-004** — Création d'articles, de fournisseurs et d'emplacements : `ADMIN`, `PHARMACIEN`. Lecture des
   articles : `ADMIN`, `PHARMACIEN`, `INFIRMIER`, `MEDECIN` ;
-  des fournisseurs et emplacements : `ADMIN`, `PHARMACIEN`, `INFIRMIER`.
+  des fournisseurs et emplacements : `ADMIN`, `PHARMACIEN`, `INFIRMIER`. Sur tout le référentiel, un centre demandé
+  autre que celui de la session est refusé (403, sauf `SUPERADMIN`) ; sans centre, celui de la session s'applique.
+  *Source :* `SessionLegacy` (contexte `stock`).
 - **RG-STK-005** — Les références de pièces sont générées par séquence de centre : `BC` (bon de commande), `BR`
   (réception), `BS` (sortie), `INV` (inventaire).
 

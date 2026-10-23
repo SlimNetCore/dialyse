@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "actif": true,
+      "centerId": "<CENTRE_A>",
+      "code": "E_RES",
+      "id": "<E_RES>",
+      "libelle": "Reserve"
+    },
+    {
+      "actif": true,
+      "centerId": "<CENTRE_A>",
+      "code": "E_ARM",
+      "id": "<E_ARM>",
+      "libelle": "armoire"
+    }
+  ]
+}

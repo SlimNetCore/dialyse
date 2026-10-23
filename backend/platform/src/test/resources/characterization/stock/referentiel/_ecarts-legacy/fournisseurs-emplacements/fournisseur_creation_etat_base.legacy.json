@@ -1,0 +1,18 @@
+[
+  {
+    "code": "F01",
+    "raison_sociale": " Pharma Sud ",
+    "contact": "M. Benali",
+    "telephone": "021000000",
+    "email": "contact@pharmasud.dz",
+    "actif": "true"
+  },
+  {
+    "code": null,
+    "raison_sociale": "Medi Nord",
+    "contact": null,
+    "telephone": null,
+    "email": null,
+    "actif": "true"
+  }
+]

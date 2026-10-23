@@ -72,6 +72,12 @@
             <artifactId>contexts-absences-patients</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Stock (ADR 0045) : référentiel et catalogue publié (slice S1) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-stock</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
             <artifactId>bc-migration</artifactId>

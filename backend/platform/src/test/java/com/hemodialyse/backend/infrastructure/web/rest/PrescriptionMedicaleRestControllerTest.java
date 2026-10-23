@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
-import com.hemodialyse.backend.domain.article.model.Article;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class PrescriptionMedicaleRestControllerTest {
 
     private final CenterAccessGuard centerAccessGuard = new CenterAccessGuard();
-    private final ArticleRepositoryPort articleRepository = new FakeArticleRepositoryPort();
+    private final CatalogueDArticles catalogueDArticles = new FakeCatalogueDArticles();
     private final NotificationService notifications = mock(NotificationService.class);
 
     @AfterEach
@@ -50,7 +50,7 @@ class PrescriptionMedicaleRestControllerTest {
     void list_should_return_paged_items_from_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, catalogueDArticles, notifications);
 
         UUID patientId = UUID.randomUUID();
         PrescriptionMedicale p = prescription(centerId, patientId);
@@ -70,7 +70,7 @@ class PrescriptionMedicaleRestControllerTest {
     void search_should_honour_pagination_criteria() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, catalogueDArticles, notifications);
 
         UUID patientId = UUID.randomUUID();
         useCase.paged = PagedResult.of(List.of(prescription(centerId, patientId)), 42, 2, 10);
@@ -94,7 +94,7 @@ class PrescriptionMedicaleRestControllerTest {
     void create_should_delegate_to_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, catalogueDArticles, notifications);
 
         UUID patientId = UUID.randomUUID();
         UUID medecinId = UUID.randomUUID();
@@ -120,7 +120,7 @@ class PrescriptionMedicaleRestControllerTest {
     void reads_should_not_notify_the_nurse_station() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, catalogueDArticles, notifications);
 
         controller.list(UUID.randomUUID(), centerId, null, null, 0, 20);
 
@@ -131,7 +131,7 @@ class PrescriptionMedicaleRestControllerTest {
     void delete_should_delegate_to_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, catalogueDArticles, notifications);
 
         UUID patientId = UUID.randomUUID();
         UUID prescriptionId = UUID.randomUUID();
@@ -149,7 +149,7 @@ class PrescriptionMedicaleRestControllerTest {
     void search_should_be_forbidden_when_criteria_target_another_center() {
         authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, catalogueDArticles, notifications);
 
         var criteria = new PrescriptionMedicaleSearchRequest(
                 UUID.randomUUID(), UUID.randomUUID(), 0, 20, null, null);
@@ -233,26 +233,25 @@ class PrescriptionMedicaleRestControllerTest {
         }
     }
 
-    private static final class FakeArticleRepositoryPort implements ArticleRepositoryPort {
+    private static final class FakeCatalogueDArticles implements CatalogueDArticles {
         @Override
-        public Optional<Article> findById(UUID articleId, CenterId centerId) {
+        public Optional<ArticleDuCatalogue> article(UUID centre, UUID article) {
             return Optional.empty();
         }
 
         @Override
-        public Article save(Article article) {
-            return article;
-        }
-
-        @Override
-        public List<Article> findAllByCenter(CenterId centerId) {
+        public List<ArticleDuCatalogue> articles(UUID centre) {
             return List.of();
         }
 
         @Override
-        public List<Article> findAllByCenterAndTypeTraitementAnemie(
-                CenterId centerId, com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie type) {
+        public List<ArticleDuCatalogue> articlesDeTraitement(UUID centre, String typeTraitementAnemie) {
             return List.of();
+        }
+
+        @Override
+        public BigDecimal quantitePourDose(UUID centre, UUID article, BigDecimal dose, String uniteDose) {
+            throw new RefusDuCatalogue("ARTICLE_INTROUVABLE", "Article introuvable");
         }
     }
 }

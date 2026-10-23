@@ -165,6 +165,7 @@ class ArticleFicheRestControllerIntegrationTest {
                         .content(body(CENTER_A, "EPO-4000", "4000", "\"UI\""))
                         .with(user(principal("admin", CENTER_B, "ADMIN"))))
                 .andExpect(status().isForbidden());
+        // KB-STK-07 reproduit (décision du 2026-10-23) : un article d'un autre centre est introuvable en 422
         mockMvc.perform(get(BASE + "/{id}", id).param("centerId", CENTER_B.toString())
                         .with(user(principal("admin", CENTER_B, "ADMIN"))))
                 .andExpect(status().isUnprocessableEntity());

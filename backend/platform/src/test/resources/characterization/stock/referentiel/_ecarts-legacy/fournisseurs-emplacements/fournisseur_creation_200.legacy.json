@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "actif": true,
+    "centerId": "<CENTRE_A>",
+    "code": "F01",
+    "contact": "M. Benali",
+    "email": "contact@pharmasud.dz",
+    "id": "<UUID_GENERE_1>",
+    "raisonSociale": " Pharma Sud ",
+    "telephone": "021000000"
+  }
+}

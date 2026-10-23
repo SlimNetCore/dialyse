@@ -1,10 +1,12 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
-import com.hemodialyse.backend.domain.article.model.Article;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles.RefusDuCatalogue;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.PrescriptionMedicaleSearchRequest;
@@ -42,16 +44,19 @@ public class PrescriptionMedicaleRestController {
 
     private final PrescriptionMedicaleUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
-    private final ArticleRepositoryPort articleRepository;
+    /**
+     * Catalogue publié du Stock (slice S1, ADR 0006) : code, libellé et conversion de dose RG-STK-006.
+     */
+    private final CatalogueDArticles catalogueDArticles;
     private final NotificationService notifications;
 
     public PrescriptionMedicaleRestController(PrescriptionMedicaleUseCase useCase,
                                               CenterAccessGuard centerAccessGuard,
-                                              ArticleRepositoryPort articleRepository,
+                                              CatalogueDArticles catalogueDArticles,
                                               NotificationService notifications) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
-        this.articleRepository = articleRepository;
+        this.catalogueDArticles = catalogueDArticles;
         this.notifications = notifications;
     }
 
@@ -59,19 +64,19 @@ public class PrescriptionMedicaleRestController {
         String epoCode = null;
         String epoLibelle = null;
         if (p.getEpoArticleId() != null) {
-            Article article = articleRepository.findById(p.getEpoArticleId(), center).orElse(null);
+            ArticleDuCatalogue article = catalogueDArticles.article(center.value(), p.getEpoArticleId()).orElse(null);
             if (article != null) {
-                epoCode = article.getCode();
-                epoLibelle = article.getLibelle();
+                epoCode = article.code();
+                epoLibelle = article.libelle();
             }
         }
         String ferCode = null;
         String ferLibelle = null;
         if (p.getFerArticleId() != null) {
-            Article article = articleRepository.findById(p.getFerArticleId(), center).orElse(null);
+            ArticleDuCatalogue article = catalogueDArticles.article(center.value(), p.getFerArticleId()).orElse(null);
             if (article != null) {
-                ferCode = article.getCode();
-                ferLibelle = article.getLibelle();
+                ferCode = article.code();
+                ferLibelle = article.libelle();
             }
         }
         return PrescriptionMedicaleResponse.from(p, epoCode, epoLibelle, ferCode, ferLibelle);
@@ -159,8 +164,16 @@ public class PrescriptionMedicaleRestController {
         if (articleId == null || dose == null || dose <= 0) {
             return;
         }
-        articleRepository.findById(articleId, center)
-                .ifPresent(article -> article.quantiteStockPourDose(BigDecimal.valueOf(dose), uniteDose));
+        // article inconnu du centre : ignoré, comme avant la slice S1
+        if (catalogueDArticles.article(center.value(), articleId).isEmpty()) {
+            return;
+        }
+        try {
+            catalogueDArticles.quantitePourDose(center.value(), articleId, BigDecimal.valueOf(dose), uniteDose);
+        } catch (RefusDuCatalogue refus) {
+            // même contrat HTTP que le legacy : 422 avec le code stable du Stock
+            throw new BusinessException(refus.code(), refus.getMessage());
+        }
     }
 
     private EntityWriteResponse save(UUID patientId, UUID prescriptionId, UpsertPrescriptionMedicaleRequest request) {

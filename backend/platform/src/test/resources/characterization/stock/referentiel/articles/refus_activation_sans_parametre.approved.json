@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ARTICLE_ACTIVITE_REQUISE",
+    "detail": "Le paramètre active (true ou false) est obligatoire",
+    "instance": "/api/v1/stock/referentiel/articles/<ART_A>/active",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ARTICLE_STOCK_MAX_INFERIEUR_SEUIL",
+    "detail": "Le stock maximum ne peut être inférieur au seuil d'alerte",
+    "instance": "/api/v1/stock/referentiel/articles",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "code": "EPO4000",
+    "libelle": "Epoetine alfa 4000 UI",
+    "unite": "seringue",
+    "stock_quantity": "0.00",
+    "seuil_alerte": "10.00",
+    "pmp_courant": "0.00",
+    "gere_par_lot": "true",
+    "active": "true",
+    "type_traitement_anemie": "EPO",
+    "dci": "epoetine alfa",
+    "forme_galenique": "solution injectable",
+    "code_barres": "3400930000001",
+    "reference_fabricant": "REF-1",
+    "unite_achat": "boite",
+    "coefficient_achat": "6.0000",
+    "dosage_par_unite": "4000.0000",
+    "unite_dosage": "UI",
+    "fournisseur_id": null,
+    "tva_type_id": null,
+    "prix_achat": "1250.5000",
+    "stock_max": "120.0000",
+    "peremption_obligatoire": "true",
+    "condition_conservation": "REFRIGERE",
+    "produit_dangereux": "false",
+    "dechet_dasri": "true",
+    "compte_stock": "31100",
+    "compte_charge": "60110",
+    "created_at_nul": "false"
+  }
+]

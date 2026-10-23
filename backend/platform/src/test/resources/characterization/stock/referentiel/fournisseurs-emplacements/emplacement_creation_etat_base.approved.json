@@ -1,0 +1,12 @@
+[
+  {
+    "code": "E1",
+    "libelle": "Armoire froide",
+    "actif": "true"
+  },
+  {
+    "code": null,
+    "libelle": "Reserve",
+    "actif": "true"
+  }
+]

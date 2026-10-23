@@ -1,0 +1,43 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "active": false,
+        "centerId": "<CENTRE_A>",
+        "code": "b-002",
+        "codeBarres": "3400000000002",
+        "coefficientAchat": null,
+        "compteCharge": null,
+        "compteStock": null,
+        "conditionConservation": null,
+        "createdAt": "<HORODATAGE>",
+        "dci": null,
+        "dechetDasri": false,
+        "dosageParUnite": null,
+        "formeGalenique": null,
+        "fournisseurId": null,
+        "gereParLot": false,
+        "id": "<ART_B>",
+        "libelle": "Bicarbonate",
+        "peremptionObligatoire": false,
+        "pmpCourant": 5.00,
+        "prixAchat": null,
+        "produitDangereux": false,
+        "referenceFabricant": null,
+        "seuilAlerte": 0.00,
+        "stockMax": null,
+        "stockQuantity": 3.00,
+        "tvaTypeId": null,
+        "typeTraitementAnemie": null,
+        "unite": "piece",
+        "uniteAchat": null,
+        "uniteDosage": null
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

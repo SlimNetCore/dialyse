@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "actif": true,
+      "centerId": "<CENTRE_B>",
+      "code": "F_AUTRE",
+      "contact": null,
+      "email": null,
+      "id": "<F_AUTRE>",
+      "raisonSociale": "Alpha du centre B",
+      "telephone": null
+    }
+  ]
+}

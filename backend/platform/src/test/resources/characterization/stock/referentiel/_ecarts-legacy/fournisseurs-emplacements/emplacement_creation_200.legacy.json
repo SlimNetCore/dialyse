@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "actif": true,
+    "centerId": "<CENTRE_A>",
+    "code": "E1",
+    "id": "<UUID_GENERE_1>",
+    "libelle": " Armoire froide "
+  }
+}

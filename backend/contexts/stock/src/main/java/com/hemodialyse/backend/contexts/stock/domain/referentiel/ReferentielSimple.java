@@ -1,0 +1,38 @@
+package com.hemodialyse.backend.contexts.stock.domain.referentiel;
+
+import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+
+import java.util.List;
+
+/**
+ * Ports sortants des fournisseurs et des emplacements d'un centre (tables {@code fournisseurs}, {@code emplacements}).
+ */
+public final class ReferentielSimple {
+
+    private ReferentielSimple() {
+    }
+
+    public interface Fournisseurs {
+        void enregistrer(Fournisseur fournisseur);
+
+        /**
+         * Les fournisseurs actifs du centre, triés par raison sociale.
+         */
+        List<Fournisseur> actifs(CentreId centre);
+
+        /**
+         * Les fournisseurs actifs dont la raison sociale contient le texte (sans casse), triés par raison sociale.
+         */
+        List<Fournisseur> chercher(CentreId centre, String texte);
+    }
+
+    public interface Emplacements {
+        void enregistrer(Emplacement emplacement);
+
+        /**
+         * Les emplacements actifs du centre, triés par libellé.
+         */
+        List<Emplacement> actifs(CentreId centre);
+    }
+}
+

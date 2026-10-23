@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "actif": true,
+      "centerId": "<CENTRE_A>",
+      "code": "F_ZETA",
+      "contact": null,
+      "email": null,
+      "id": "<F_ZETA>",
+      "raisonSociale": "Zeta Medical",
+      "telephone": null
+    },
+    {
+      "actif": true,
+      "centerId": "<CENTRE_A>",
+      "code": "F_ALPHA",
+      "contact": null,
+      "email": null,
+      "id": "<F_ALPHA>",
+      "raisonSociale": "alpha pharma",
+      "telephone": null
+    }
+  ]
+}

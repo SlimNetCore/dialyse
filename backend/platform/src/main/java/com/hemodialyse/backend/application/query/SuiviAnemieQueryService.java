@@ -1,14 +1,13 @@
 package com.hemodialyse.backend.application.query;
 
-import com.hemodialyse.backend.domain.article.model.Article;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.medical.anemie.aggregate.AdministrationTraitement;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.medical.kdigo.service.KdigoEvaluationPolicy;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AdministrationTraitementJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.PrescriptionMedicaleJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ResultatAnalyseJpaEntity;
@@ -41,16 +40,19 @@ public class SuiviAnemieQueryService {
     private final ResultatAnalyseJpaRepository resultatAnalyseRepository;
     private final PrescriptionMedicaleJpaRepository prescriptionRepository;
     private final AdministrationTraitementJpaRepository administrationRepository;
-    private final ArticleRepositoryPort articleRepository;
+    /**
+     * Catalogue publié du Stock (slice S1, ADR 0006) : code et libellé des articles prescrits.
+     */
+    private final CatalogueDArticles catalogueDArticles;
 
     public SuiviAnemieQueryService(ResultatAnalyseJpaRepository resultatAnalyseRepository,
                                    PrescriptionMedicaleJpaRepository prescriptionRepository,
                                    AdministrationTraitementJpaRepository administrationRepository,
-                                   ArticleRepositoryPort articleRepository) {
+                                   CatalogueDArticles catalogueDArticles) {
         this.resultatAnalyseRepository = resultatAnalyseRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.administrationRepository = administrationRepository;
-        this.articleRepository = articleRepository;
+        this.catalogueDArticles = catalogueDArticles;
     }
 
     public SuiviAnemieResponse getSuiviAnemie(UUID centerId, UUID patientId) {
@@ -125,23 +127,22 @@ public class SuiviAnemieQueryService {
         p.setCreatedAt(e.getCreatedAt());
         p.setUpdatedAt(e.getUpdatedAt());
 
-        CenterId center = new CenterId(centerId);
         String epoCode = null;
         String epoLibelle = null;
         if (p.getEpoArticleId() != null) {
-            Article article = articleRepository.findById(p.getEpoArticleId(), center).orElse(null);
+            ArticleDuCatalogue article = catalogueDArticles.article(centerId, p.getEpoArticleId()).orElse(null);
             if (article != null) {
-                epoCode = article.getCode();
-                epoLibelle = article.getLibelle();
+                epoCode = article.code();
+                epoLibelle = article.libelle();
             }
         }
         String ferCode = null;
         String ferLibelle = null;
         if (p.getFerArticleId() != null) {
-            Article article = articleRepository.findById(p.getFerArticleId(), center).orElse(null);
+            ArticleDuCatalogue article = catalogueDArticles.article(centerId, p.getFerArticleId()).orElse(null);
             if (article != null) {
-                ferCode = article.getCode();
-                ferLibelle = article.getLibelle();
+                ferCode = article.code();
+                ferLibelle = article.libelle();
             }
         }
         return PrescriptionMedicaleResponse.from(p, epoCode, epoLibelle, ferCode, ferLibelle);

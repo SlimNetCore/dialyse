@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "actif": true,
+    "centerId": "<CENTRE_A>",
+    "code": null,
+    "contact": null,
+    "email": null,
+    "id": "<UUID_GENERE_1>",
+    "raisonSociale": "Medi Nord",
+    "telephone": null
+  }
+}

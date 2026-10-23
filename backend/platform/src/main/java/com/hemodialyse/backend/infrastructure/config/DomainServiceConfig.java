@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.article.port.ArticleCatalogPort;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.service.AttestationDomainService;
@@ -51,8 +50,6 @@ import com.hemodialyse.backend.domain.seance.service.VoletParamedicalDomainServi
 import com.hemodialyse.backend.domain.stock.port.BonCommandeRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.BonReceptionRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.BonSortieRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.EmplacementRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.FournisseurRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.StockDashboardPort;
 import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
@@ -62,7 +59,6 @@ import com.hemodialyse.backend.domain.stock.service.BonCommandeService;
 import com.hemodialyse.backend.domain.stock.service.PmpEngine;
 import com.hemodialyse.backend.domain.stock.service.PmpRecalculationCoordinator;
 import com.hemodialyse.backend.domain.stock.service.StockDashboardService;
-import com.hemodialyse.backend.domain.stock.service.StockReferentialDomainService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -213,13 +209,6 @@ public class DomainServiceConfig {
         return new BonCommandeService(repo, sequence);
     }
 
-    @Bean
-    public StockReferentialDomainService stockReferentialDomainService(FournisseurRepositoryPort fournisseurRepo,
-                                                                       EmplacementRepositoryPort emplacementRepo,
-                                                                       ArticleRepositoryPort articleRepo,
-                                                                       ArticleCatalogPort articleCatalog) {
-        return new StockReferentialDomainService(fournisseurRepo, emplacementRepo, articleRepo, articleCatalog);
-    }
 
     @Bean
     public StockDashboardService stockDashboardService(StockDashboardPort dashboardPort,

@@ -1,12 +1,14 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.SaisieInfirmierNotifier;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles.RefusDuCatalogue;
 import com.hemodialyse.backend.domain.medical.anemie.port.AdministrationTraitementUseCase;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
-import com.hemodialyse.backend.domain.stock.port.StockReferentialUseCase;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateAdministrationTraitementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.AdministrationTraitementResponse;
@@ -43,18 +45,21 @@ public class AdministrationTraitementRestController {
     private final CenterAccessGuard centerAccessGuard;
     private final BonSortieUseCase bonSortieUseCase;
     private final SaisieInfirmierNotifier saisieNotifier;
-    private final StockReferentialUseCase stockReferentialUseCase;
+    /**
+     * Catalogue publié du Stock (slice S1, ADR 0006) : conversion de dose RG-STK-006.
+     */
+    private final CatalogueDArticles catalogueDArticles;
 
     public AdministrationTraitementRestController(AdministrationTraitementUseCase useCase,
                                                   CenterAccessGuard centerAccessGuard,
                                                   BonSortieUseCase bonSortieUseCase,
                                                   SaisieInfirmierNotifier saisieNotifier,
-                                                  StockReferentialUseCase stockReferentialUseCase) {
+                                                  CatalogueDArticles catalogueDArticles) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
         this.bonSortieUseCase = bonSortieUseCase;
         this.saisieNotifier = saisieNotifier;
-        this.stockReferentialUseCase = stockReferentialUseCase;
+        this.catalogueDArticles = catalogueDArticles;
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN','INFIRMIER')")
@@ -79,8 +84,13 @@ public class AdministrationTraitementRestController {
         // fiche article (dose ÷ dosage par unité) et jamais saisie à la main, pour que stock et prescription concordent.
         BigDecimal quantiteArticle = request.quantiteArticle();
         if (request.administree() && request.articleId() != null && request.dose() != null) {
-            quantiteArticle = stockReferentialUseCase.getArticle(center, request.articleId())
-                    .quantiteStockPourDose(request.dose(), request.uniteDose());
+            try {
+                quantiteArticle = catalogueDArticles.quantitePourDose(center.value(), request.articleId(), request.dose(),
+                        request.uniteDose());
+            } catch (RefusDuCatalogue refus) {
+                // même contrat HTTP que le legacy : 422 avec le code stable du Stock
+                throw new BusinessException(refus.code(), refus.getMessage());
+            }
         }
 
         boolean sortieStockRequise = request.administree()

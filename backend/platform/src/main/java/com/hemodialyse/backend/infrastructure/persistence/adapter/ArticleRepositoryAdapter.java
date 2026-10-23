@@ -3,26 +3,22 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 import com.hemodialyse.backend.domain.article.model.Article;
 import com.hemodialyse.backend.domain.article.model.ConditionConservation;
 import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
-import com.hemodialyse.backend.domain.article.port.ArticleCatalogPort;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ArticleJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.ArticleJpaRepository;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Articles vus par le legacy du stock (bons, inventaire, dashboard) jusqu'aux slices S5 à S8. Le référentiel (fiche, recherche,
+ * unicité du code) est servi par le contexte {@code stock} depuis la slice S1.
+ */
 @Component
-public class ArticleRepositoryAdapter implements ArticleRepositoryPort, ArticleCatalogPort {
+public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
 
     private final ArticleJpaRepository jpa;
 
@@ -33,11 +29,6 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort, ArticleC
     @Override
     public Optional<Article> findById(UUID articleId, CenterId centerId) {
         return jpa.findByIdAndCenterId(articleId, centerId.value()).map(this::toDomain);
-    }
-
-    @Override
-    public Optional<Article> findByCode(CenterId centerId, String code) {
-        return jpa.findFirstByCenterIdAndCodeIgnoreCase(centerId.value(), code).map(this::toDomain);
     }
 
     @Override
@@ -54,29 +45,6 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort, ArticleC
     public List<Article> findAllByCenterAndTypeTraitementAnemie(CenterId centerId, TypeTraitementAnemie type) {
         return jpa.findByCenterIdAndTypeTraitementAnemieOrderByCode(centerId.value(), type.name()).stream()
                 .map(this::toDomain).toList();
-    }
-
-    @Override
-    public PagedResult<Article> findPaged(CenterId centerId, String query, Boolean active, int page, int size) {
-        Specification<ArticleJpaEntity> spec = (root, cq, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("centerId"), centerId.value()));
-            if (active != null) {
-                predicates.add(cb.equal(root.get("active"), active));
-            }
-            if (query != null && !query.isBlank()) {
-                String like = "%" + query.trim().toLowerCase(Locale.ROOT) + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("code")), like),
-                        cb.like(cb.lower(root.get("libelle")), like),
-                        cb.like(cb.lower(cb.coalesce(root.get("dci"), "")), like),
-                        cb.like(cb.lower(cb.coalesce(root.get("codeBarres"), "")), like)));
-            }
-            return cb.and(predicates.toArray(Predicate[]::new));
-        };
-        var result = jpa.findAll(spec, PageRequest.of(page, size, Sort.by("code").ascending()));
-        return PagedResult.of(result.getContent().stream().map(this::toDomain).toList(),
-                result.getTotalElements(), page, size);
     }
 
     private Article toDomain(ArticleJpaEntity e) {

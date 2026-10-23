@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "actif": true,
+      "centerId": "<CENTRE_B>",
+      "code": "E_B",
+      "id": "<E_B>",
+      "libelle": "Centre B"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "No enum constant com.hemodialyse.backend.domain.article.model.ConditionConservation.TIEDE",
+    "instance": "/api/v1/stock/referentiel/articles",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

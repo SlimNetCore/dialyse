@@ -1,0 +1,32 @@
+[
+  {
+    "code": "NEW",
+    "libelle": "Libelle NEW",
+    "unite": "piece",
+    "stock_quantity": "12.50",
+    "seuil_alerte": "2.00",
+    "pmp_courant": "3.25",
+    "gere_par_lot": "false",
+    "active": "false",
+    "type_traitement_anemie": null,
+    "dci": "dci",
+    "forme_galenique": null,
+    "code_barres": null,
+    "reference_fabricant": null,
+    "unite_achat": null,
+    "coefficient_achat": null,
+    "dosage_par_unite": null,
+    "unite_dosage": null,
+    "fournisseur_id": null,
+    "tva_type_id": null,
+    "prix_achat": null,
+    "stock_max": null,
+    "peremption_obligatoire": "false",
+    "condition_conservation": null,
+    "produit_dangereux": "false",
+    "dechet_dasri": "false",
+    "compte_stock": null,
+    "compte_charge": null,
+    "created_at_nul": "false"
+  }
+]

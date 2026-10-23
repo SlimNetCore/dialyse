@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ARTICLE_DOSAGE_INVALIDE",
+    "detail": "Le dosage par unité doit être strictement positif",
+    "instance": "/api/v1/stock/referentiel/articles",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}
