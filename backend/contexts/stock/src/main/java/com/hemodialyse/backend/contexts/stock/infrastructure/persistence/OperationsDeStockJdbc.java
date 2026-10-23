@@ -19,8 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Fournit à la Comptabilité les opérations de stock d'un centre déjà valorisées (langage publié {@link OperationsDeStock},
- * aucune écriture, aucune migration).
+ * Fournit à la Comptabilité les opérations de stock d'un centre déjà valorisées (langage publié {@link OperationsDeStock}, aucune écriture, aucune migration).
  * Requêtes simples compatibles H2 et PostgreSQL ; regroupements par jour (UTC) et par comptes de l'article en mémoire,
  * sur la seule période demandée. Une ligne de valeur nulle (sans prix ni PMP) est signalée par le code de son article.
  */
@@ -41,10 +40,11 @@ public final class OperationsDeStockJdbc implements OperationsDeStock {
     private static final String SORTIES = """
             SELECT m.created_at, a.compte_stock, a.compte_charge,
                    COALESCE(a.code, CAST(m.article_id AS VARCHAR(64))) AS article,
-                   ABS(m.quantite) * COALESCE(m.prix_unitaire, m.pmp_apres, a.pmp_courant, 0) AS montant
+                   CASE WHEN m.mouvement_type = 'RETOUR' THEN -1 ELSE 1 END
+                       * ABS(m.quantite) * COALESCE(m.prix_unitaire, m.pmp_apres, a.pmp_courant, 0) AS montant
             FROM stock_movements m
             LEFT JOIN articles a ON a.id = m.article_id AND a.center_id = m.center_id
-            WHERE m.center_id = ? AND m.mouvement_type = 'SORTIE' AND m.created_at >= ? AND m.created_at < ?
+            WHERE m.center_id = ? AND m.mouvement_type IN ('SORTIE', 'RETOUR') AND m.created_at >= ? AND m.created_at < ?
             ORDER BY m.created_at
             """;
 

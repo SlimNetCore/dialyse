@@ -17,7 +17,8 @@ import com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiePourSea
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances;
 
 import java.math.BigDecimal;
-import java.time.Clock;
+
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -49,11 +50,11 @@ public final class GestionDesSortiesPourSeances {
     private final UniteDeTravail uniteDeTravail;
     private final NotificationsDuStock notifications;
     private final Supplier<UUID> identifiants;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     public GestionDesSortiesPourSeances(SortiesPourSeances pieces, Articles articles, SortiesDuStock stock, EcrituresDuStock ecritures,
                                         RejeuDuPmp rejeu, UniteDeTravail uniteDeTravail, NotificationsDuStock notifications,
-                                        Supplier<UUID> identifiants, Clock horloge) {
+                                        Supplier<UUID> identifiants, HorlogeDesCentres horloge) {
         this.pieces = pieces;
         this.articles = articles;
         this.stock = stock;
@@ -94,8 +95,8 @@ public final class GestionDesSortiesPourSeances {
             parArticle.merge(demande.articleId(), demande.quantite(), BigDecimal::add);
         }
         String par = auteur(auteur);
-        LocalDate aujourdHui = LocalDate.now(horloge);
-        OffsetDateTime maintenant = OffsetDateTime.now(horloge);
+        LocalDate aujourdHui = horloge.aujourdHui(centre);
+        OffsetDateTime maintenant = horloge.maintenant();
         PerimetreDeSortie cible = perimetre != null ? perimetre : PerimetreDeSortie.journee();
         return uniteDeTravail.executer(() -> {
             Set<UUID> touches = new TreeSet<>(parArticle.keySet());
@@ -172,8 +173,8 @@ public final class GestionDesSortiesPourSeances {
      */
     public SortiePourSeances valider(CentreId centre, UUID id, String validateur) {
         String par = auteur(validateur);
-        LocalDate aujourdHui = LocalDate.now(horloge);
-        OffsetDateTime maintenant = OffsetDateTime.now(horloge);
+        LocalDate aujourdHui = horloge.aujourdHui(centre);
+        OffsetDateTime maintenant = horloge.maintenant();
         return uniteDeTravail.executer(() -> {
             SortiePourSeances courante = consulter(centre, id);
             courante.exigerNonRapprochee();

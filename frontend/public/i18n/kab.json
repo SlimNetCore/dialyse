@@ -856,6 +856,64 @@
       "RECALC_COMPLETED_REFRESHED": "Asasifeḍ yekfa: wazalen d tnektin i d-yettwaskanen leqqmen.",
       "RECALC_FAILED_INFO": "Asasifeḍ n ugdez ur yeddi ara. Azalen ineggura ttwasnen qqimen d-yettwaskanen."
     },
+    "SORTIES_SEANCES": {
+      "EYEBROW": "Aḥraz · Tuffɣiwin",
+      "TITLE": "Tuffɣiwin n tefrat",
+      "DESCRIPTION": "Serreḥ-d imaẓrayen n uzekka ass uqbel i uxxam neɣ i uzgen n wass, sakin sbadu tawriqt d wayen i d-yerr yiwen n unaẓur s tidet.",
+      "PARAM_LABEL": "Tuffɣa n tefrat tettwarmed i uxxam-a",
+      "PARAM_ON": "Tuffɣa n tefrat tettwarmed",
+      "PARAM_OFF": "Tuffɣa n tefrat tettwasens",
+      "PARAM_OFF_HINT": "Ticki tettwasens, yal aseqdec n tefrat ad d-yeffeɣ aḥraz s lbal.",
+      "NEW_TITLE": "Tuffɣa n tefrat tamaynut",
+      "DAY_LABEL": "Ass",
+      "ROOM_LABEL": "Axxam (afrayan)",
+      "HALF_DAY_LABEL": "Azgen n wass",
+      "ALL_DAY": "Ass ummid",
+      "JOURNEE": "Ass ummid",
+      "DEMI_JOURNEE": {
+        "MATIN": "Ṣṣbeḥ",
+        "APRES_MIDI": "Deffir tameddit"
+      },
+      "CREATE_BTN": "Sekles tuffɣa",
+      "LIST_TITLE": "Tuffɣiwin n tefrat",
+      "PERIMETER_LABEL": "Tamnaṭ",
+      "STATUS_LABEL": "Addad",
+      "STATUT": {
+        "ENREGISTREE": "Ad tettwasbadu",
+        "RAPPROCHEE": "Tettwasbadu"
+      },
+      "EMPTY": "Ulac tuffɣa n tefrat.",
+      "OPEN": "Sken talqayt",
+      "DETAIL_TITLE": "Asbadu {{reference}}",
+      "OUT_LABEL": "Yeffeɣ",
+      "CONSUMED_LABEL": "Yettwaseqdec",
+      "GAP_LABEL": "Anmuqqel",
+      "REASON_LABEL": "Tamentilt n unmuqqel",
+      "REASON_REQUIRED": "Tamentilt tlaq i unmuqqel.",
+      "VALIDATED_BY": "Asbadu yettwasentem sɣur {{user}} deg {{date}}.",
+      "PREPARE_BTN": "Heyyi asbadu",
+      "VALIDATE_BTN": "Sentem asbadu",
+      "VALIDATE_HINT": "Yal anmuqqel yessefk ad yesɛu tamentilt send asentem.",
+      "SAVED_OK": "Tuffɣa n tefrat tettwasekles",
+      "PREPARED_OK": "Asbadu yewjed",
+      "VALIDATED_OK": "Asbadu yettwasentem",
+      "ENABLED_OK": "Tuffɣa n tefrat tettwarmed",
+      "DISABLED_OK": "Tuffɣa n tefrat tettwasens",
+      "SAVE_ERROR": "Tuccḍa deg usekles n tuffɣa",
+      "PREPARE_ERROR": "Tuccḍa deg uheyyi n usbadu",
+      "MOTIF_ERROR": "Tuccḍa deg usekles n tmentilt",
+      "VALIDATE_ERROR": "Tuccḍa deg usentem n usbadu",
+      "PARAM_ERROR": "Tuccḍa deg usnifel n useɣwen",
+      "ERROR_DETAIL": "Tuccḍa: {{detail}}",
+      "FAVORIS_TITLE": "Iferdisen i d-yeffɣen i tefrat-a",
+      "FAVORI_RESTE": "{{reste}} i d-yeqqimen seg {{sortie}}",
+      "ALERTES_TITLE": "Ineɣmisen n useqdec",
+      "ALERTE": {
+        "DEPASSEMENT_DE_LA_SORTIE": "Ugar n tmedyezt i d-yeffɣen",
+        "ARTICLE_HORS_PIECE": "Aferdis ur d-yeffiɣ ara i tmnaṭ-a",
+        "AUCUNE_PIECE": "Ulac tuffɣa n tefrat i yemṣadan"
+      }
+    },
     "BON_SORTIE": {
       "LOCKED_ARTICLE_SINGLE": "Asasifeḍ yettnerna i uḥric-agi. Asekcem ur yettwahbes ara; wazalen ad mṣadan mi yekfa.",
       "LOCKED_ARTICLES": "Kra n yiḥricen ssasifeḍen. Ɛreḍ deffir.",
@@ -2800,6 +2858,7 @@
     }
   },
   "NAV": {
+    "STOCK_SORTIES_SEANCES": "Tuffɣiwin n tefrat",
     "PERFORMANCE_BASE": "Aseggem n taffa n isefka",
     "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
     "ABSENCES_PATIENTS": "Tamettant n yinelmaden",

@@ -16,7 +16,8 @@ import com.hemodialyse.backend.contexts.stock.domain.referentiel.ArticleIntrouva
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Articles;
 
 import java.math.BigDecimal;
-import java.time.Clock;
+
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -49,9 +50,9 @@ public final class ConsulterLeStock {
 
     private final LecturesDuStock lectures;
     private final Articles articles;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
-    public ConsulterLeStock(LecturesDuStock lectures, Articles articles, Clock horloge) {
+    public ConsulterLeStock(LecturesDuStock lectures, Articles articles, HorlogeDesCentres horloge) {
         this.lectures = lectures;
         this.articles = articles;
         this.horloge = horloge;
@@ -83,7 +84,7 @@ public final class ConsulterLeStock {
         int limite = topRetenu(top);
         TriDuClassement triRetenu = tri != null ? tri : TriDuClassement.VALEUR;
         List<ArticleValorise> stock = stockValorise(centre);
-        LocalDate premierJour = LocalDate.now(horloge).minusDays(fenetre - 1L);
+        LocalDate premierJour = horloge.aujourdHui(centre).minusDays(fenetre - 1L);
         return new TableauDeBord(fenetre, limite, triRetenu, somme(stock.stream().map(ArticleValorise::quantite).toList()),
                 somme(stock.stream().map(ArticleValorise::valeur).toList()),
                 comblerLesJours(lectures.tendance(centre, premierJour), premierJour, fenetre),
@@ -116,7 +117,7 @@ public final class ConsulterLeStock {
      */
     public List<AlerteDeStock> alertes(CentreId centre) {
         List<AlerteDeStock> alertes = new ArrayList<>(lectures.peremptions(centre,
-                LocalDate.now(horloge).plusDays(JOURS_AVANT_PEREMPTION)));
+                horloge.aujourdHui(centre).plusDays(JOURS_AVANT_PEREMPTION)));
         alertes.addAll(lectures.ruptures(centre));
         return alertes;
     }

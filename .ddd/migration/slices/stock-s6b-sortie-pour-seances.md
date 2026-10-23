@@ -114,3 +114,28 @@ sinon FEFO ;
    comptabilité C6 (les mouvements `RETOUR` doivent être pris en compte dans `OperationsDeStock`) ; écrans (préparation,
    favoris et alertes,
    rapprochement), i18n fr/en/ar/kab ; RG-STK 8.9 et documentation client.
+
+## Avancement (2026-10-24) — phase C : livrée sauf documentation client
+
+- **Garde d'inventaire T43** : `InventaireApplicationService` refuse l'ouverture tant qu'une pièce n'est pas rapprochée
+  (`INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE`, port publié `SortiesPourSeancesEnAttente`) ; test
+  `l_inventaire_est_refuse_tant_qu_une_sortie_pour_seances_n_est_pas_rapprochee`.
+- **Rôle `DIRECTEUR_ADMINISTRATIF`** : lecture seule sur les routes du stock et de l'inventaire, validation du
+  rapprochement ; aucune écriture (403) ; test `le_directeur_administratif_lit_le_stock_sans_pouvoir_l_ecrire`. Le rôle
+  est une ligne de `app_role` créée par l'administrateur (aucune migration).
+- **Comptabilité C6** : `OperationsDeStockJdbc` lit `SORTIE` et `RETOUR` ; un retour est une sortie négative au prix de
+  sortie ; test `les_retours_en_stock_sont_comptabilises_comme_des_sorties_negatives`.
+- **Écrans** : `/stock/sorties-pour-seances` (préparation de la pièce, liste, rapprochement : constat, motif par écart,
+  validation ; bascule du centre pour `ADMIN`) et panneau `app-consommations-de-piece` au poste infirmier (articles de
+  la pièce avec le reste, alertes de consommation). Nouvelle route
+  `GET /api/v1/stock/consommations-de-seance/{seanceId}/favoris` : le périmètre (salle, demi-journée) est résolu côté
+  serveur par l'ACL, le frontend ne le devine pas.
+- **i18n** fr/en/ar/kab : `STOCK.SORTIES_SEANCES.*` et `NAV.STOCK_SORTIES_SEANCES` (ar et kab : à faire relire par un
+  locuteur).
+- **Tests** : +1 test de module (`les_favoris_d_une_seance_suivent_le_perimetre...`), 2 specs frontend
+  (`sorties-pour-seances`, `consommations-de-piece`) ; module stock + comptabilité 310 tests verts, ArchUnit vert, build
+  Angular vert.
+- **Reste pour « built »** : test de concurrence T44 ; retrait des méthodes de séance de `BonSortieService` (quand tous
+  les centres auront basculé) ; documentation client (`docs/client`, générée avec captures d'écran) ; l'infirmier seul
+  n'atteint pas `/stock` (`role-scope.guard`) : la justification d'un écart par l'infirmier est possible par l'API mais
+  n'a pas d'écran dédié.

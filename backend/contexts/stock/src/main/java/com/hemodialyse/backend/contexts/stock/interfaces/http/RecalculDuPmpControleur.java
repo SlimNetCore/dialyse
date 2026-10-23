@@ -38,7 +38,7 @@ public class RecalculDuPmpControleur {
         return new Demarrage(recalcul.demarrer(session.centre(demande.centerId()), demande.articleIds()));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/jobs/{jobId}")
     public Suivi suivre(@PathVariable UUID jobId) {
         Suivi suivi = recalcul.suivre(jobId);
@@ -46,7 +46,7 @@ public class RecalculDuPmpControleur {
         return suivi;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/locks")
     public List<UUID> verrous(@RequestParam(required = false) UUID centerId) {
         return recalcul.enCours(session.centre(centerId));

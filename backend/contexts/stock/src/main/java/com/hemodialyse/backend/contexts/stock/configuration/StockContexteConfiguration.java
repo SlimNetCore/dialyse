@@ -41,6 +41,11 @@ import java.util.UUID;
 public class StockContexteConfiguration {
 
     @Bean
+    com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres stockHorloge(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy(jdbc, Clock.systemUTC());
+    }
+
+    @Bean
     SessionCourante stockSessionCourante() {
         return new SessionLegacy();
     }
@@ -114,9 +119,10 @@ public class StockContexteConfiguration {
 
     @Bean
     com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock stockConsulterLeStock(
-            com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures, Articles articles) {
+            com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures, Articles articles,
+            com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres horloge) {
         return new com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock(lectures, articles,
-                Clock.systemUTC());
+                horloge);
     }
 
     @Bean
@@ -164,9 +170,10 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures,
             com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
             com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
-            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications,
+            com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres horloge) {
         return new com.hemodialyse.backend.contexts.stock.application.reception.GestionDesReceptions(bons, commandes, articles,
-                fournisseurs, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemUTC());
+                fournisseurs, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, horloge);
     }
 
     // ------------------------------------------------------------------ slice S6 : sorties manuelles
@@ -196,9 +203,10 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
             com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances seances,
             com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
-            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications,
+            com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres horloge) {
         return new com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties(bons, articles, sorties, ecritures,
-                rejeu, seances, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemUTC());
+                rejeu, seances, uniteDeTravail, notifications, UUID::randomUUID, horloge);
     }
 
     // ------------------------------------------------------------------ slice S6b : sorties pour séances
@@ -211,15 +219,22 @@ public class StockContexteConfiguration {
     }
 
     @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.SortiesPourSeancesEnAttente stockSortiesPourSeancesEnAttente(
+            com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances pieces) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.catalogue.SortiesPourSeancesEnAttenteDuStock(pieces);
+    }
+
+    @Bean
     com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances stockGestionDesSortiesPourSeances(
             com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances pieces, Articles articles,
             com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock sorties,
             com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures,
             com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
             com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
-            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications,
+            com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres horloge) {
         return new com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances(pieces, articles,
-                sorties, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemUTC());
+                sorties, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, horloge);
     }
 
     // ------------------------------------------------------------------ slice S6b : consommations de séance et paramétrage

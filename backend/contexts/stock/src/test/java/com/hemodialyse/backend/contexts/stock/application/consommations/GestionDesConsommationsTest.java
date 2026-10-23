@@ -93,6 +93,11 @@ class GestionDesConsommationsTest {
         }
 
         @Override
+        public Optional<String> premiereNonRapprochee(CentreId centre) {
+            return enregistrees.values().stream().filter(p -> !p.estRapprochee()).map(SortiePourSeances::reference).findFirst();
+        }
+
+        @Override
         public List<SortiePourSeances> duJour(CentreId centre, LocalDate jour) {
             return enregistrees.values().stream().filter(p -> p.jour().equals(jour)).toList().reversed();
         }
@@ -248,6 +253,28 @@ class GestionDesConsommationsTest {
         assertEquals(0, new BigDecimal("2").compareTo(consommation(s1).totalDe(a1)));
         gestion.fixer(CENTRE, s1, null, JOUR, a1, BigDecimal.ZERO);
         assertFalse(consommations.containsKey(s1));
+    }
+
+    @Test
+    void les_favoris_d_une_seance_suivent_le_perimetre_de_la_seance_et_montrent_le_reste() {
+        piece(PerimetreDeSortie.journee(), false);
+        SortiePourSeances salleMatin = piece(new PerimetreDeSortie("S1", DemiJournee.MATIN), false);
+        UUID s1 = UUID.randomUUID();
+        perimetreDeLaSeance = new PerimetreDeSortie("S1", DemiJournee.MATIN);
+        gestion.ajouter(CENTRE, s1, null, JOUR, a1, new BigDecimal("2"));
+
+        List<GestionDesConsommations.Favori> favoris = gestion.favorisDeLaSeance(CENTRE, UUID.randomUUID(), JOUR);
+
+        assertEquals(1, favoris.size());
+        assertEquals(a1, favoris.get(0).articleId());
+        assertEquals(0, new BigDecimal("8").compareTo(favoris.get(0).quantiteSortie()));
+        assertEquals(0, new BigDecimal("6").compareTo(favoris.get(0).reste()));
+        assertEquals(salleMatin.id(), consommation(s1).sortieId());
+
+        perimetreDeLaSeance = new PerimetreDeSortie("S9", DemiJournee.APRES_MIDI);
+        assertEquals(1, gestion.favorisDeLaSeance(CENTRE, UUID.randomUUID(), JOUR).size(),
+                "à défaut de pièce du périmètre, la pièce de la journée");
+        assertTrue(gestion.favorisDeLaSeance(CENTRE, UUID.randomUUID(), JOUR.plusDays(3)).isEmpty());
     }
 
     @Test

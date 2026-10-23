@@ -217,3 +217,36 @@
 - **RG-STK-073** — La valorisation d'un groupe sur une période est restituée à la direction sans donnée nominative (voir
   RG-DIR) ; les groupes de même clé de nom sont consolidés d'un centre à l'autre. *Source :* langage publié
   `GroupesDArticlesDesCentres` (contexte `stock`), `DirectionStockGroupesQueryService`.
+
+## 8.9 Sorties pour séances, consommations et rapprochement (ADR 0045)
+
+Nouveau processus, activé **centre par centre** (`GET/PUT /api/v1/stock/parametres`, écriture `ADMIN`) ; désactivé, la
+séance garde la sortie immédiate FEFO.
+
+- **RG-STK-080** — Une **sortie pour séances** est préparée par `ADMIN` ou `PHARMACIEN` pour un jour et un périmètre
+  (salle et/ou demi-journée). À l'enregistrement le stock **sort réellement** : lots en FEFO, une ligne par lot retenu,
+  valorisée au PMP courant, mouvements `SORTIE` datés du jour d'enregistrement (`PIECE_SANS_LIGNE`,
+  `PIECE_LIGNE_INVALIDE`, `PIECE_ARTICLE_INCONNU`, `PIECE_ARTICLE_INACTIF`, `STOCK_INSUFFISANT`). Référence `SPS-nnnnn`.
+- **RG-STK-081** — **La pièce précédente du même périmètre doit être rapprochée** avant d'en enregistrer une nouvelle
+  (`PIECE_PRECEDENTE_NON_RAPPROCHEE`) ; un autre périmètre est libre.
+- **RG-STK-082** — Une **consommation de séance** est imputée sur la pièce du jour de la séance, du périmètre le plus
+  précis (salle et demi-journée, puis salle, puis demi-journée, puis « journée »), sur les lots de la pièce en FEFO,
+  **sans mouvement de stock**. Une quantité au-delà du reste, un article hors pièce ou l'absence de pièce sont
+  **acceptés avec alerte** (`DEPASSEMENT_DE_LA_SORTIE`, `ARTICLE_HORS_PIECE`, `AUCUNE_PIECE`). Une consommation est
+  immuable si la séance est facturée (`SEANCE_FACTUREE_NON_MODIFIABLE`) ou la pièce rapprochée
+  (`PIECE_DEJA_RAPPROCHEE`).
+- **RG-STK-083** — **Rapprochement** : écart d'une ligne = consommé − sorti ; l'excédent d'un article devient une ligne
+  sans lot. Tout écart non nul exige un **motif** (`ECART_SANS_MOTIF`), saisi par `ADMIN`, `PHARMACIEN` ou `INFIRMIER`.
+  La validation (`ADMIN`, `PHARMACIEN`, `DIRECTEUR_ADMINISTRATIF`) fait, par ligne, une **sortie supplémentaire** au PMP
+  courant pour un écart en plus (lots de la pièce d'abord, puis FEFO) ou un **retour en stock** (mouvement `RETOUR`,
+  traité comme une entrée) dans le lot d'origine, valorisé au prix de sortie pour un écart en moins ; la pièce est
+  ensuite figée (`PIECE_DEJA_RAPPROCHEE`). Le consommé des imputations reste la base du coût par séance.
+- **RG-STK-084** — **Aucun inventaire ne peut être ouvert tant qu'une sortie pour séances n'est pas rapprochée**
+  (`INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE`). Le profil `DIRECTEUR_ADMINISTRATIF` rapproche les pièces et lit le
+  stock (toutes les routes de lecture) ; il ne fait aucune autre écriture de stock. Les mouvements `RETOUR` sont repris
+  par la comptabilité du stock comme un montant de sortie négatif (contre-passation de la consommation).
+- **RG-STK-085** — **Fuseau et jour métier** : tous les horodatages du serveur sont en UTC ; le **jour métier** d'un
+  centre (date d'une réception ou d'une sortie sans date, fenêtre de tendance, seuil de péremption, jour
+  d'enregistrement d'une sortie pour séances) est le jour du fuseau de son centre (centers.fuseau_horaire, identifiant
+  IANA, par exemple Africa/Algiers) ; sans fuseau, ou fuseau illisible, c'est UTC. Les mouvements restent datés à minuit
+  UTC du jour métier.

@@ -52,6 +52,20 @@ public class CenterJpaEntity {
     @Column(name = "actif")
     private Boolean actif;
 
+    /**
+     * Fuseau horaire du centre (identifiant IANA), null = UTC : définit le jour métier du Stock.
+     */
+    @Column(name = "fuseau_horaire", length = 50)
+    private String fuseauHoraire;
+
+    public String getFuseauHoraire() {
+        return fuseauHoraire;
+    }
+
+    public void setFuseauHoraire(String fuseauHoraire) {
+        this.fuseauHoraire = fuseauHoraire;
+    }
+
     public UUID getId() {
         return id;
     }

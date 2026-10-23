@@ -18,7 +18,8 @@ import com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock.LotDu
 import com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances;
 
 import java.math.BigDecimal;
-import java.time.Clock;
+
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -48,11 +49,11 @@ public final class GestionDesSorties {
     private final UniteDeTravail uniteDeTravail;
     private final NotificationsDuStock notifications;
     private final Supplier<UUID> identifiants;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     public GestionDesSorties(BonsDeSortie bons, Articles articles, SortiesDuStock sorties, EcrituresDuStock ecritures,
                              RejeuDuPmp rejeu, StatutDesSeances seances, UniteDeTravail uniteDeTravail,
-                             NotificationsDuStock notifications, Supplier<UUID> identifiants, Clock horloge) {
+                             NotificationsDuStock notifications, Supplier<UUID> identifiants, HorlogeDesCentres horloge) {
         this.bons = bons;
         this.articles = articles;
         this.sorties = sorties;
@@ -96,8 +97,8 @@ public final class GestionDesSorties {
         }
         String par = auteur(auteur);
         UUID seance = seanceId != null ? seanceId : BonDeSortie.AUCUNE_SEANCE;
-        LocalDate jour = dateSortie != null ? dateSortie : LocalDate.now(horloge);
-        OffsetDateTime maintenant = OffsetDateTime.now(horloge);
+        LocalDate jour = dateSortie != null ? dateSortie : horloge.aujourdHui(centre);
+        OffsetDateTime maintenant = horloge.maintenant();
         return uniteDeTravail.executer(() -> {
             Set<UUID> touches = articlesDe(saisies);
             ecritures.verrouiller(centre, touches);
@@ -125,7 +126,7 @@ public final class GestionDesSorties {
             throw new SortieInvalide("Aucune ligne de sortie");
         }
         String par = auteur(auteur);
-        OffsetDateTime maintenant = OffsetDateTime.now(horloge);
+        OffsetDateTime maintenant = horloge.maintenant();
         return uniteDeTravail.executer(() -> {
             BonDeSortie existant = bons.parId(centre, id).orElseThrow(() -> bonIntrouvable(id));
             UUID seance = seanceId != null ? seanceId : existant.seanceId();
@@ -147,7 +148,7 @@ public final class GestionDesSorties {
             String posteFinal = poste != null ? poste : existant.poste();
             LocalDate jour = liee ? existant.dateSortie() : (dateSortie != null ? dateSortie : existant.dateSortie());
             String createur = existant.creePar() != null ? existant.creePar() : par;
-            LocalDate jourDesMouvements = jour != null ? jour : LocalDate.now(horloge);
+            LocalDate jourDesMouvements = jour != null ? jour : horloge.aujourdHui(centre);
             List<LigneDeSortie> lignes = new ArrayList<>();
             for (LigneSaisie saisie : saisies) {
                 lignes.add(sortirLaLigne(centre, seance, jourDesMouvements, saisiLe, par, saisie));

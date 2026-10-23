@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.application.sortie;
 
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock;
 import com.hemodialyse.backend.contexts.stock.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp;
@@ -175,7 +176,7 @@ class GestionDesSortiesTest {
             }
         };
         sorties = new GestionDesSorties(bons, articles, stock, ecritures, new RejeuDuPmp(lectures, ecritures),
-                (centre, seance) -> seancesFacturees.contains(seance), uniteDeTravail, notifications, UUID::randomUUID, HORLOGE);
+                (centre, seance) -> seancesFacturees.contains(seance), uniteDeTravail, notifications, UUID::randomUUID, HorlogeDesCentres.uniforme(HORLOGE));
     }
 
     private UUID lot(UUID article, String numero, String quantite) {

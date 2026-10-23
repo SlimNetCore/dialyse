@@ -18,7 +18,8 @@ import com.hemodialyse.backend.contexts.stock.domain.referentiel.ReferentielSimp
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
 
 import java.math.BigDecimal;
-import java.time.Clock;
+
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -51,11 +52,11 @@ public final class GestionDesReceptions {
     private final UniteDeTravail uniteDeTravail;
     private final NotificationsDuStock notifications;
     private final Supplier<UUID> identifiants;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     public GestionDesReceptions(BonsDeReception bons, BonsDeCommande commandes, Articles articles, Fournisseurs fournisseurs,
                                 EcrituresDuStock ecritures, RejeuDuPmp rejeu, UniteDeTravail uniteDeTravail,
-                                NotificationsDuStock notifications, Supplier<UUID> identifiants, Clock horloge) {
+                                NotificationsDuStock notifications, Supplier<UUID> identifiants, HorlogeDesCentres horloge) {
         this.bons = bons;
         this.commandes = commandes;
         this.articles = articles;
@@ -98,8 +99,8 @@ public final class GestionDesReceptions {
     private BonDeReception enregistrerLeBrouillon(CentreId centre, UUID bonCommandeId, UUID fournisseurId, LocalDate date,
                                                   String auteur, List<LigneDeReception> lignes) {
         String createur = auteur == null || auteur.isBlank() ? AUTEUR_PAR_DEFAUT : auteur;
-        LocalDate jour = date != null ? date : LocalDate.now(horloge);
-        OffsetDateTime maintenant = OffsetDateTime.now(horloge);
+        LocalDate jour = date != null ? date : horloge.aujourdHui(centre);
+        OffsetDateTime maintenant = horloge.maintenant();
         return bons.creer(centre, reference -> BonDeReception.brouillon(identifiants.get(), centre, reference, bonCommandeId,
                 fournisseurId, jour, createur, maintenant, lignes));
     }
@@ -222,7 +223,7 @@ public final class GestionDesReceptions {
             ecritures.exigerUneDateOuverte(centre, bon.dateReception());
 
             String createur = auteur == null || auteur.isBlank() ? AUTEUR_PAR_DEFAUT : auteur;
-            OffsetDateTime maintenant = OffsetDateTime.now(horloge);
+            OffsetDateTime maintenant = horloge.maintenant();
             List<LigneDeReception> avecLot = new ArrayList<>();
             for (int i = 0; i < bon.lignes().size(); i++) {
                 LigneDeReception ligne = bon.lignes().get(i);

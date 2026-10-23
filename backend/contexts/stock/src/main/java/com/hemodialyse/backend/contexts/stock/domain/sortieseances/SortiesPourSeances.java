@@ -38,6 +38,11 @@ public interface SortiesPourSeances {
     List<SortiePourSeances> duJour(CentreId centre, java.time.LocalDate jour);
 
     /**
+     * La référence d'une sortie pour séances du centre non encore rapprochée (la plus ancienne), s'il y en a une.
+     */
+    Optional<String> premiereNonRapprochee(CentreId centre);
+
+    /**
      * Relit la pièce en posant un verrou de ligne ({@code FOR UPDATE}) jusqu'à la fin de la transaction : une consommation et une
      * validation de rapprochement se sérialisent (T44).
      */

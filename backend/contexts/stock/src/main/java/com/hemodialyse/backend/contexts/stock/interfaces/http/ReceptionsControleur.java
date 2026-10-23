@@ -64,13 +64,13 @@ public class ReceptionsControleur {
                 session.utilisateur()));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/{id}")
     public BonReponse consulter(@PathVariable UUID id, @RequestParam(required = false) UUID centerId) {
         return BonReponse.depuis(receptions.consulter(session.centre(centerId), id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping
     public List<BonReponse> lister(@RequestParam(required = false) UUID centerId) {
         return receptions.lister(session.centre(centerId)).stream().map(BonReponse::depuis).toList();

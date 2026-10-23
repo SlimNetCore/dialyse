@@ -27,3 +27,4 @@ Thumbs.db
 # Fichiers temporaires locaux (cookie d authentification de test, traces)
 backend/tmp-*.txt
 backend/tmp-*.log
+/c-run.err

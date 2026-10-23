@@ -56,13 +56,13 @@ public class BonsDeCommandeControleur {
         return BonReponse.depuis(bons.valider(session.centre(requete == null ? null : requete.centerId()), id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/{id}")
     public BonReponse consulter(@PathVariable UUID id, @RequestParam(required = false) UUID centerId) {
         return BonReponse.depuis(bons.consulter(session.centre(centerId), id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping
     public List<BonReponse> lister(@RequestParam(required = false) UUID centerId) {
         return bons.lister(session.centre(centerId)).stream().map(BonReponse::depuis).toList();

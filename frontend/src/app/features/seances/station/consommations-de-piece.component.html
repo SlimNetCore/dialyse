@@ -1,0 +1,35 @@
+@if (favoris().length > 0) {
+  <div class="piece-block">
+    <p class="piece-title">
+      <mat-icon aria-hidden="true">outbox</mat-icon>
+      {{ 'STOCK.SORTIES_SEANCES.FAVORIS_TITLE' | translate }}
+    </p>
+    <ul class="piece-list">
+      @for (f of favoris(); track f.articleId) {
+        <li [class.piece-empty]="f.reste <= 0" class="piece-row">
+          <span class="piece-name">{{ libelle(f.articleId) }}</span>
+          <span class="piece-qty">
+            {{ 'STOCK.SORTIES_SEANCES.FAVORI_RESTE' | translate:{reste: f.reste, sortie: f.quantiteSortie} }}
+          </span>
+        </li>
+      }
+    </ul>
+  </div>
+}
+@if (alertes().length > 0) {
+  <div class="piece-block" role="status">
+    <p class="piece-title piece-alert">
+      <mat-icon aria-hidden="true">warning</mat-icon>
+      {{ 'STOCK.SORTIES_SEANCES.ALERTES_TITLE' | translate }}
+    </p>
+    <ul class="piece-list">
+      @for (a of alertes(); track a.id) {
+        <li class="piece-row">
+          <span class="piece-name">{{ libelle(a.articleId) }}</span>
+          <span class="piece-qty">{{ cleAlerte(a.alerte!) | translate }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+}
+

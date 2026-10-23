@@ -49,6 +49,14 @@ public class ConsommationsControleur {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
+    @GetMapping("/consommations-de-seance/{seanceId}/favoris")
+    public List<FavoriReponse> favorisDeLaSeance(@PathVariable UUID seanceId, @RequestParam LocalDate jour,
+                                                 @RequestParam(required = false) UUID centerId) {
+        return consommations.favorisDeLaSeance(session.centre(centerId), seanceId, jour).stream()
+                .map(f -> new FavoriReponse(f.articleId(), f.quantiteSortie(), f.reste())).toList();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/consommations-de-seance/{seanceId}")
     public ConsommationReponse consommation(@PathVariable UUID seanceId, @RequestParam(required = false) UUID centerId) {
         return ConsommationReponse.depuis(consommations.consulter(session.centre(centerId), seanceId));

@@ -12,6 +12,7 @@ import {QrScannerComponent} from '../../../shared/qr-scanner/qr-scanner.componen
 import {RichTextEditorComponent} from '../../../shared/rich-text-editor/rich-text-editor.component';
 import {AdministrationAnemieSeanceComponent} from '../administration-anemie/administration-anemie-seance.component';
 import {PoidsSecSeanceComponent} from '../poids-sec/poids-sec-seance.component';
+import {ConsommationsDePieceComponent} from './consommations-de-piece.component';
 
 const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 const SEANCE_ID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -97,7 +98,12 @@ describe('SeanceStationComponent', () => {
       ],
     });
     TestBed.overrideComponent(SeanceStationComponent, {
-      remove: {imports: [QrScannerComponent, RichTextEditorComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent]},
+      remove: {
+        imports: [
+          QrScannerComponent, RichTextEditorComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent,
+          ConsommationsDePieceComponent,
+        ],
+      },
       add: {schemas: [NO_ERRORS_SCHEMA]},
     });
   });

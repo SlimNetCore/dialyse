@@ -61,7 +61,7 @@ public class ReferentielStockControleur {
         return ResponseEntity.ok(ArticleReponse.depuis(articles.modifierFiche(centre, articleId, requete.fiche())));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','MEDECIN','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/articles/{articleId}")
     public ResponseEntity<ArticleReponse> consulter(@PathVariable UUID articleId, @RequestParam(required = false) UUID centerId) {
         return ResponseEntity.ok(ArticleReponse.depuis(articles.consulter(session.centre(centerId), articleId)));
@@ -81,7 +81,7 @@ public class ReferentielStockControleur {
     /**
      * Fiches paginées (écran « Articles ») : recherche sur code, libellé, DCI ou code-barres.
      */
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/articles/page")
     public ResponseEntity<PageReponse> rechercher(@RequestParam(required = false) UUID centerId,
                                                   @RequestParam(required = false) String q,
@@ -94,7 +94,7 @@ public class ReferentielStockControleur {
     /**
      * Articles du centre ; {@code typeTraitementAnemie} filtre EPO / FER_INJECTABLE (listes de prescription).
      */
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','MEDECIN','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/articles")
     public ResponseEntity<List<ArticleReponse>> lister(@RequestParam(required = false) UUID centerId,
                                                        @RequestParam(required = false) String typeTraitementAnemie) {
@@ -112,7 +112,7 @@ public class ReferentielStockControleur {
                 requete.raisonSociale(), requete.contact(), requete.telephone(), requete.email())));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/fournisseurs")
     public ResponseEntity<List<FournisseurReponse>> listerLesFournisseurs(@RequestParam(required = false) UUID centerId,
                                                                           @RequestParam(required = false) String q) {
@@ -128,7 +128,7 @@ public class ReferentielStockControleur {
                 requete.libelle())));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/emplacements")
     public ResponseEntity<List<EmplacementReponse>> listerLesEmplacements(@RequestParam(required = false) UUID centerId) {
         return ResponseEntity.ok(referentiel.listerLesEmplacements(session.centre(centerId)).stream()

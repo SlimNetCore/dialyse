@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -37,22 +38,8 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
         return "sorties-pour-seances";
     }
 
-    @BeforeEach
-    @AfterEach
-    void vider() {
-        for (UUID c : List.of(CENTRE_A, CENTRE_B)) {
-            jdbc.update("DELETE FROM consommations_de_seance_imputations WHERE seance_id IN (SELECT seance_id FROM consommations_de_seance "
-                    + "WHERE center_id = ?)", c);
-            jdbc.update("DELETE FROM consommations_de_seance WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM sorties_pour_seances_lignes WHERE sortie_id IN (SELECT id FROM sorties_pour_seances WHERE center_id = ?)", c);
-            jdbc.update("DELETE FROM sorties_pour_seances WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM stock_parametres WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM stock_movements WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM lots WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM seances WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM app_settings WHERE center_id = ? AND cle IN ('SEQ_SPS', 'SEQ_BS')", c);
-        }
-    }
+    @Autowired
+    private com.hemodialyse.backend.contexts.stock.publishedlanguage.OperationsDeStock operations;
 
     private UUID lot(UUID article, String numero, String quantite, int jours) {
         UUID lot = UUID.randomUUID();
@@ -172,5 +159,86 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
                 Integer.class, CENTRE_A));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM consommations_de_seance WHERE center_id = ?", Integer.class, CENTRE_A));
     }
-}
 
+    @BeforeEach
+    @AfterEach
+    void vider() {
+        for (UUID c : List.of(CENTRE_A, CENTRE_B)) {
+            jdbc.update("DELETE FROM consommations_de_seance_imputations WHERE seance_id IN (SELECT seance_id FROM consommations_de_seance "
+                    + "WHERE center_id = ?)", c);
+            jdbc.update("DELETE FROM consommations_de_seance WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM sorties_pour_seances_lignes WHERE sortie_id IN (SELECT id FROM sorties_pour_seances WHERE center_id = ?)", c);
+            jdbc.update("DELETE FROM sorties_pour_seances WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM inventaire_lignes WHERE inventaire_id IN (SELECT id FROM inventaires WHERE center_id = ?)", c);
+            jdbc.update("DELETE FROM inventaires WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM stock_parametres WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM stock_movements WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM lots WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM seances WHERE center_id = ?", c);
+            jdbc.update("DELETE FROM app_settings WHERE center_id = ? AND cle IN ('SEQ_SPS', 'SEQ_BS')", c);
+        }
+    }
+
+    @Test
+    void l_inventaire_est_refuse_tant_qu_une_sortie_pour_seances_n_est_pas_rapprochee() throws Exception {
+        UUID a1 = article(CENTRE_A, "ART_1", "A1", "Article 1", null, null, true, null, "10", "5");
+        lot(a1, "L1", "10", 30);
+        Resp creee = ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':2}]}"), adminA());
+        UUID piece = UUID.fromString(json(creee).path("id").asString());
+        String ouverture = json("{'centerId':'" + CENTRE_A + "','dateInventaire':'" + LocalDate.now() + "'}");
+        Resp refuse = ecrire(true, "/api/v1/stock/inventaires", ouverture, as(CENTRE_A, "PHARMACIEN"));
+        assertEquals(422, refuse.status(), refuse.raw());
+        assertEquals("INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE", json(refuse).path("code").asString());
+        // rapprochée (rien consommé : l'écart en moins est justifié puis validé), la garde ne s'applique plus
+        Resp constate = ecrire(true, PIECES + "/" + piece + "/rapprochement", "{}", adminA());
+        UUID ligne = UUID.fromString(json(constate).path("lignes").get(0).path("id").asString());
+        ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'non utilise'}"), adminA());
+        assertEquals(200, ecrire(true, PIECES + "/" + piece + "/valider", "{}", adminA()).status());
+        Resp apres = ecrire(true, "/api/v1/stock/inventaires", ouverture, as(CENTRE_A, "PHARMACIEN"));
+        assertFalse(apres.raw().contains("INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE"), apres.raw());
+    }
+
+    @Test
+    void le_directeur_administratif_lit_le_stock_sans_pouvoir_l_ecrire() throws Exception {
+        var da = as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF");
+        for (String chemin : List.of("/api/v1/stock/dashboard/alertes", "/api/v1/stock/bons-reception", "/api/v1/stock/bons-commande",
+                "/api/v1/stock/bons-sortie", "/api/v1/stock/inventaires", "/api/v1/stock/inventaires/etat",
+                "/api/v1/stock/referentiel/articles")) {
+            assertEquals(200, send(get(java.net.URI.create(chemin)).with(da)).status(), chemin);
+        }
+        assertEquals(403, ecrire(true, "/api/v1/stock/bons-reception", "{}", da).status());
+        assertEquals(403, ecrire(true, "/api/v1/stock/bons-sortie", "{}", da).status());
+        assertEquals(403, ecrire(true, "/api/v1/stock/inventaires", "{}", da).status());
+    }
+
+    @Test
+    void les_retours_en_stock_sont_comptabilises_comme_des_sorties_negatives() throws Exception {
+        UUID a1 = article(CENTRE_A, "ART_1", "A1", "Article 1", null, null, true, null, "10", "5");
+        lot(a1, "L1", "10", 30);
+        UUID piece = UUID.fromString(json(ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1
+                + "','quantite':8}]}"), adminA())).path("id").asString());
+        UUID seance = seance("VALIDEE");
+        UUID patient = UUID.randomUUID();
+        jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
+                        + "type_patient, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", patient, CENTRE_A, "PAT-S6B", "Dupont", "Jean",
+                "M", LocalDate.of(2026, 7, 1), "ASS-S6B", "NON_VACANCIER", OffsetDateTime.now());
+        jdbc.update("UPDATE seances SET patient_id = ? WHERE id = ?", patient, seance);
+        jdbc.update("UPDATE stock_parametres SET sortie_pour_seances_activee = true WHERE center_id = ?", CENTRE_A);
+        ecrire(false, "/api/v1/stock/parametres", json("{'sortiePourSeancesActivee':true}"), adminA());
+        consommations.ajouter(CENTRE_A, seance, null, JOUR, a1, new BigDecimal("5"), "inf");
+        Resp resume = send(get(java.net.URI.create("/api/v1/seances/" + seance + "?centerId=" + CENTRE_A)).with(as(CENTRE_A, "INFIRMIER")));
+        assertEquals(200, resume.status(), resume.raw());
+        assertEquals(1, json(resume).path("consommables").size(), resume.raw());
+        assertEquals(a1.toString(), json(resume).path("consommables").get(0).path("articleId").asString());
+        assertEquals(0, new BigDecimal("5").compareTo(json(resume).path("consommables").get(0).path("quantite").decimalValue()));
+        Resp constate = ecrire(true, PIECES + "/" + piece + "/rapprochement", "{}", adminA());
+        UUID ligne = UUID.fromString(json(constate).path("lignes").get(0).path("id").asString());
+        ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'non utilise'}"), adminA());
+        assertEquals(200, ecrire(true, PIECES + "/" + piece + "/valider", "{}", adminA()).status());
+        LocalDate aujourdHui = LocalDate.now();
+        BigDecimal net = operations.sorties(CENTRE_A, aujourdHui, aujourdHui).stream().flatMap(s -> s.lignes().stream())
+                .map(m -> m.montant()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 8 sortis puis 3 retournés au PMP 5 : 40 − 15
+        assertEquals(0, new BigDecimal("25").compareTo(net), net.toPlainString());
+    }
+}

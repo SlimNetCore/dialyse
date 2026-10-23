@@ -36,7 +36,7 @@ public class LecturesDuStockControleur {
         this.stock = stock;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/analytics")
     public Tableau tableauDeBord(@RequestParam(required = false) UUID centerId, @RequestParam(defaultValue = "30") int days,
                                  @RequestParam(defaultValue = "10") int topN,
@@ -44,25 +44,25 @@ public class LecturesDuStockControleur {
         return Tableau.depuis(stock.tableauDeBord(session.centre(centerId), days, topN, TriDuClassement.depuis(sortBy)));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/stock-valorise")
     public List<Valorise> stockValorise(@RequestParam(required = false) UUID centerId) {
         return stock.stockValorise(session.centre(centerId)).stream().map(Valorise::depuis).toList();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/tracabilite/{lotId}")
     public List<Tracabilite> tracabilite(@PathVariable UUID lotId, @RequestParam(required = false) UUID centerId) {
         return stock.tracabilite(session.centre(centerId), lotId).stream().map(Tracabilite::depuis).toList();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/alertes")
     public List<Alerte> alertes(@RequestParam(required = false) UUID centerId) {
         return stock.alertes(session.centre(centerId)).stream().map(Alerte::depuis).toList();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/pmp-explain/{articleId}")
     public Explication expliquerLePmp(@PathVariable UUID articleId, @RequestParam(required = false) UUID centerId) {
         return Explication.depuis(stock.expliquerLePmp(session.centre(centerId), articleId));

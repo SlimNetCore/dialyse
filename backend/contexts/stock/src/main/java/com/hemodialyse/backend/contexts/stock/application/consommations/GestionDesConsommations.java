@@ -252,6 +252,13 @@ public final class GestionDesConsommations {
     }
 
     /**
+     * Articles favoris d'une séance : le périmètre (salle, demi-journée) est celui de la séance, lu par l'ACL.
+     */
+    public List<Favori> favorisDeLaSeance(CentreId centre, UUID seance, LocalDate jour) {
+        return favoris(centre, jour, perimetres.perimetreDe(centre, seance));
+    }
+
+    /**
      * Article de la pièce du périmètre, avec la quantité sortie et ce qu'il en reste.
      */
     public record Favori(UUID articleId, BigDecimal quantiteSortie, BigDecimal reste) {

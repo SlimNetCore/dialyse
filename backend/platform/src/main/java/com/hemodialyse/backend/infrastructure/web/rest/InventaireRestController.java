@@ -51,6 +51,10 @@ public class InventaireRestController {
 
     private static final String READ = "hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')";
     private static final String MANAGE = "hasAnyRole('ADMIN','PHARMACIEN')";
+    /**
+     * Lecture seule du stock : le directeur administratif consulte les inventaires sans pouvoir les modifier (ADR 0045).
+     */
+    private static final String LECTURE_SEULE = "hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')";
 
     private final InventaireUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
@@ -74,7 +78,7 @@ public class InventaireRestController {
      * de documents), avec l'en-tête et le pied de page de la société et du centre. Filigrane « PROVISOIRE » tant
      * que l'inventaire est en cours.
      */
-    @PreAuthorize(READ)
+    @PreAuthorize(LECTURE_SEULE)
     @GetMapping("/{id}/rapport")
     public ResponseEntity<byte[]> rapport(@PathVariable UUID id, @RequestParam(required = false) UUID centerId,
                                           Principal principal) {
@@ -96,7 +100,7 @@ public class InventaireRestController {
         };
     }
 
-    @PreAuthorize(READ)
+    @PreAuthorize(LECTURE_SEULE)
     @GetMapping
     public PagedResponse<InventaireResumeResponse> list(@RequestParam(required = false) UUID centerId,
                                                         @RequestParam(defaultValue = "0") int page,
@@ -107,7 +111,7 @@ public class InventaireRestController {
     /**
      * Situation du centre (bandeau « mouvements gelés », date de la dernière clôture).
      */
-    @PreAuthorize(READ)
+    @PreAuthorize(LECTURE_SEULE)
     @GetMapping("/etat")
     public EtatResponse etat(@RequestParam(required = false) UUID centerId) {
         return EtatResponse.from(useCase.etat(center(centerId)));
@@ -120,7 +124,7 @@ public class InventaireRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(InventaireResponse.from(inv));
     }
 
-    @PreAuthorize(READ)
+    @PreAuthorize(LECTURE_SEULE)
     @GetMapping("/{id}")
     public InventaireResponse get(@PathVariable UUID id, @RequestParam(required = false) UUID centerId) {
         return InventaireResponse.from(useCase.get(center(centerId), id));
@@ -174,7 +178,7 @@ public class InventaireRestController {
      * Feuille de comptage Excel. Par défaut « à l'aveugle » (sans quantité théorique) : bonne pratique qui évite
      * de recopier le stock informatique au lieu de compter. Une fois remplie, elle se réimporte (POST).
      */
-    @PreAuthorize(READ)
+    @PreAuthorize(LECTURE_SEULE)
     @GetMapping("/{id}/feuille-comptage")
     public ResponseEntity<byte[]> feuilleComptage(@PathVariable UUID id, @RequestParam(required = false) UUID centerId,
                                                   @RequestParam(defaultValue = "true") boolean aveugle) {

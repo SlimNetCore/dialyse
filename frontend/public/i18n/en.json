@@ -856,6 +856,64 @@
       "RECALC_COMPLETED_REFRESHED": "Recalculation finished: displayed prices and quantities were refreshed.",
       "RECALC_FAILED_INFO": "Stock recalculation failed. Last known values remain displayed."
     },
+    "SORTIES_SEANCES": {
+      "EYEBROW": "Stock · Issues",
+      "TITLE": "Issues for sessions",
+      "DESCRIPTION": "Issue the next day’s consumables the day before for a room or half-day, then reconcile the issue with the consumption actually recorded by nurses.",
+      "PARAM_LABEL": "Issue for sessions enabled for this center",
+      "PARAM_ON": "Issue for sessions enabled",
+      "PARAM_OFF": "Issue for sessions disabled",
+      "PARAM_OFF_HINT": "While disabled, each session consumption issues stock immediately (first expired, first out).",
+      "NEW_TITLE": "New issue for sessions",
+      "DAY_LABEL": "Day",
+      "ROOM_LABEL": "Room (optional)",
+      "HALF_DAY_LABEL": "Half-day",
+      "ALL_DAY": "Whole day",
+      "JOURNEE": "Whole day",
+      "DEMI_JOURNEE": {
+        "MATIN": "Morning",
+        "APRES_MIDI": "Afternoon"
+      },
+      "CREATE_BTN": "Save the issue",
+      "LIST_TITLE": "Issues for sessions",
+      "PERIMETER_LABEL": "Scope",
+      "STATUS_LABEL": "Status",
+      "STATUT": {
+        "ENREGISTREE": "To reconcile",
+        "RAPPROCHEE": "Reconciled"
+      },
+      "EMPTY": "No issue for sessions.",
+      "OPEN": "Show details",
+      "DETAIL_TITLE": "Reconciliation {{reference}}",
+      "OUT_LABEL": "Issued",
+      "CONSUMED_LABEL": "Consumed",
+      "GAP_LABEL": "Gap",
+      "REASON_LABEL": "Reason for the gap",
+      "REASON_REQUIRED": "A reason is required for a gap.",
+      "VALIDATED_BY": "Reconciliation validated by {{user}} on {{date}}.",
+      "PREPARE_BTN": "Prepare the reconciliation",
+      "VALIDATE_BTN": "Validate the reconciliation",
+      "VALIDATE_HINT": "Every gap needs a reason before validation.",
+      "SAVED_OK": "Issue for sessions saved",
+      "PREPARED_OK": "Reconciliation prepared",
+      "VALIDATED_OK": "Reconciliation validated",
+      "ENABLED_OK": "Issue for sessions enabled",
+      "DISABLED_OK": "Issue for sessions disabled",
+      "SAVE_ERROR": "Error while saving the issue",
+      "PREPARE_ERROR": "Error while preparing the reconciliation",
+      "MOTIF_ERROR": "Error while saving the reason",
+      "VALIDATE_ERROR": "Error while validating the reconciliation",
+      "PARAM_ERROR": "Error while changing the setting",
+      "ERROR_DETAIL": "Error: {{detail}}",
+      "FAVORIS_TITLE": "Items issued for this session",
+      "FAVORI_RESTE": "{{reste}} left of {{sortie}}",
+      "ALERTES_TITLE": "Consumption alerts",
+      "ALERTE": {
+        "DEPASSEMENT_DE_LA_SORTIE": "Above the issued quantity",
+        "ARTICLE_HORS_PIECE": "Item not issued for this scope",
+        "AUCUNE_PIECE": "No matching issue for sessions"
+      }
+    },
     "BON_SORTIE": {
       "LOCKED_ARTICLE_SINGLE": "Recalculation is in progress for this item. Entry remains available; values will sync once recalculation ends.",
       "LOCKED_ARTICLES": "One or more items are being recalculated. Please retry later.",
@@ -3160,6 +3218,7 @@
     }
   },
   "NAV": {
+    "STOCK_SORTIES_SEANCES": "Session issues",
     "PERFORMANCE_BASE": "Database performance",
     "ADMIN_GROUPES_ARTICLES": "Article groups",
     "ABSENCES_PATIENTS": "Patient absences",

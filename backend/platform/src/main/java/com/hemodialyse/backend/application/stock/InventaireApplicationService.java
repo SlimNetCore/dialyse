@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.application.stock;
 
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.SortiesPourSeancesEnAttente;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.ComptageImporte;
@@ -33,17 +35,24 @@ import java.util.UUID;
 public class InventaireApplicationService implements InventaireUseCase {
 
     private final InventaireService delegate;
+    private final SortiesPourSeancesEnAttente sortiesEnAttente;
 
     public InventaireApplicationService(InventaireRepositoryPort repo, ArticleRepositoryPort articles, LotRepositoryPort lots,
                                         StockMovementRepositoryAdapter rawMovements, PmpEngine pmpEngine,
                                         PmpRecalculationCoordinator recalcCoordinator, StockSequencePort sequence,
-                                        InventaireEventPublisher events) {
+                                        InventaireEventPublisher events, SortiesPourSeancesEnAttente sortiesEnAttente) {
         this.delegate = new InventaireService(repo, articles, lots, rawMovements, pmpEngine, recalcCoordinator, sequence,
                 events, Clock.systemUTC());
+        this.sortiesEnAttente = sortiesEnAttente;
     }
 
     @Override
     public Inventaire ouvrir(CenterId centerId, LocalDate dateInventaire, String commentaire, String user) {
+        // ADR 0045 (T43) : aucun inventaire tant qu'une sortie pour séances n'est pas rapprochée (retours et sorties supplémentaires)
+        sortiesEnAttente.premiereNonRapprochee(centerId.value()).ifPresent(reference -> {
+            throw new BusinessException("INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE",
+                    "La sortie pour séances " + reference + " n'est pas rapprochée : rapprochez-la avant d'ouvrir un inventaire.");
+        });
         return delegate.ouvrir(centerId, dateInventaire, commentaire, user);
     }
 

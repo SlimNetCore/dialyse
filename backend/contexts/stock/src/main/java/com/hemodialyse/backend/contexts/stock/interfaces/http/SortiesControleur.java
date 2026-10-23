@@ -49,19 +49,19 @@ public class SortiesControleur {
                 requete.poste(), requete.dateSortie(), session.utilisateur(), requete.saisies()));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/lots-disponibles")
     public List<LotDisponibleReponse> lotsDisponibles(@RequestParam(required = false) UUID centerId, @RequestParam UUID articleId) {
         return sorties.lotsDisponibles(session.centre(centerId), articleId).stream().map(LotDisponibleReponse::depuis).toList();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping("/{id}")
     public BonReponse consulter(@PathVariable UUID id, @RequestParam(required = false) UUID centerId) {
         return BonReponse.depuis(sorties.consulter(session.centre(centerId), id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
     @GetMapping
     public List<BonReponse> lister(@RequestParam(required = false) UUID centerId) {
         return sorties.lister(session.centre(centerId)).stream().map(BonReponse::depuis).toList();

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.application.sortieseances;
 
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock;
 import com.hemodialyse.backend.contexts.stock.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp;
@@ -76,6 +77,11 @@ class GestionDesSortiesPourSeancesTest {
         @Override
         public Optional<SortiePourSeances> dernieresDuPerimetre(CentreId centre, PerimetreDeSortie perimetre) {
             return enregistrees.values().stream().filter(p -> p.perimetre().equals(perimetre)).reduce((a, b) -> b);
+        }
+
+        @Override
+        public Optional<String> premiereNonRapprochee(CentreId centre) {
+            return enregistrees.values().stream().filter(p -> !p.estRapprochee()).map(SortiePourSeances::reference).findFirst();
         }
 
         @Override
@@ -197,7 +203,7 @@ class GestionDesSortiesPourSeancesTest {
             }
         };
         sorties = new GestionDesSortiesPourSeances(pieces, articles, stock, ecritures, new RejeuDuPmp(lectures, ecritures), unite,
-                notifications, UUID::randomUUID, HORLOGE);
+                notifications, UUID::randomUUID, HorlogeDesCentres.uniforme(HORLOGE));
     }
 
     private UUID lot(String numero, LocalDate peremption, String quantite) {

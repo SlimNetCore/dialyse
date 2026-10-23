@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.stock.application.lectures;
 
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
+
 import com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock.ExplicationDuPmp;
 import com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock.TableauDeBord;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
@@ -99,7 +101,7 @@ class ConsulterLeStockTest {
         }
     };
 
-    private final ConsulterLeStock stock = new ConsulterLeStock(lectures, articles, HORLOGE);
+    private final ConsulterLeStock stock = new ConsulterLeStock(lectures, articles, HorlogeDesCentres.uniforme(HORLOGE));
 
     private static ArticleValorise valorise(String libelle, String code, String quantite, String pmp) {
         BigDecimal q = new BigDecimal(quantite);

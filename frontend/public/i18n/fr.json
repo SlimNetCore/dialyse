@@ -856,6 +856,64 @@
       "RECALC_COMPLETED_REFRESHED": "Recalcul terminé : les prix et quantités affichés ont été actualisés.",
       "RECALC_FAILED_INFO": "Le recalcul stock a échoué. Les dernières valeurs connues restent affichées."
     },
+    "SORTIES_SEANCES": {
+      "EYEBROW": "Stock · Sorties",
+      "TITLE": "Sorties pour séances",
+      "DESCRIPTION": "Sortir la veille les consommables du lendemain pour une salle ou une demi-journée, puis rapprocher la pièce des consommations réellement imputées par les infirmiers.",
+      "PARAM_LABEL": "Sortie pour séances activée pour ce centre",
+      "PARAM_ON": "Sortie pour séances activée",
+      "PARAM_OFF": "Sortie pour séances désactivée",
+      "PARAM_OFF_HINT": "Tant qu'elle est désactivée, chaque consommation de séance sort immédiatement le stock (premier périmé, premier sorti).",
+      "NEW_TITLE": "Nouvelle sortie pour séances",
+      "DAY_LABEL": "Jour",
+      "ROOM_LABEL": "Salle (facultatif)",
+      "HALF_DAY_LABEL": "Demi-journée",
+      "ALL_DAY": "Toute la journée",
+      "JOURNEE": "Journée",
+      "DEMI_JOURNEE": {
+        "MATIN": "Matin",
+        "APRES_MIDI": "Après-midi"
+      },
+      "CREATE_BTN": "Enregistrer la sortie",
+      "LIST_TITLE": "Sorties pour séances",
+      "PERIMETER_LABEL": "Périmètre",
+      "STATUS_LABEL": "Statut",
+      "STATUT": {
+        "ENREGISTREE": "À rapprocher",
+        "RAPPROCHEE": "Rapprochée"
+      },
+      "EMPTY": "Aucune sortie pour séances.",
+      "OPEN": "Afficher le détail",
+      "DETAIL_TITLE": "Rapprochement {{reference}}",
+      "OUT_LABEL": "Sorti",
+      "CONSUMED_LABEL": "Consommé",
+      "GAP_LABEL": "Écart",
+      "REASON_LABEL": "Motif de l'écart",
+      "REASON_REQUIRED": "Un motif est obligatoire pour un écart.",
+      "VALIDATED_BY": "Rapprochement validé par {{user}} le {{date}}.",
+      "PREPARE_BTN": "Préparer le rapprochement",
+      "VALIDATE_BTN": "Valider le rapprochement",
+      "VALIDATE_HINT": "Chaque écart doit avoir un motif avant la validation.",
+      "SAVED_OK": "Sortie pour séances enregistrée",
+      "PREPARED_OK": "Rapprochement préparé",
+      "VALIDATED_OK": "Rapprochement validé",
+      "ENABLED_OK": "Sortie pour séances activée",
+      "DISABLED_OK": "Sortie pour séances désactivée",
+      "SAVE_ERROR": "Erreur lors de l'enregistrement de la sortie",
+      "PREPARE_ERROR": "Erreur lors de la préparation du rapprochement",
+      "MOTIF_ERROR": "Erreur lors de l'enregistrement du motif",
+      "VALIDATE_ERROR": "Erreur lors de la validation du rapprochement",
+      "PARAM_ERROR": "Erreur lors de la modification du paramètre",
+      "ERROR_DETAIL": "Erreur : {{detail}}",
+      "FAVORIS_TITLE": "Articles sortis pour cette séance",
+      "FAVORI_RESTE": "{{reste}} restant(s) sur {{sortie}}",
+      "ALERTES_TITLE": "Alertes de consommation",
+      "ALERTE": {
+        "DEPASSEMENT_DE_LA_SORTIE": "Au-delà de la quantité sortie",
+        "ARTICLE_HORS_PIECE": "Article non sorti pour ce périmètre",
+        "AUCUNE_PIECE": "Aucune sortie pour séances correspondante"
+      }
+    },
     "BON_SORTIE": {
       "LOCKED_ARTICLE_SINGLE": "Recalcul en cours pour cet article. La saisie reste possible ; les valeurs seront synchronisées en fin de recalcul.",
       "LOCKED_ARTICLES": "Un ou plusieurs articles sont en recalcul. Réessayez plus tard.",
@@ -3160,6 +3218,7 @@
     }
   },
   "NAV": {
+    "STOCK_SORTIES_SEANCES": "Sorties pour séances",
     "PERFORMANCE_BASE": "Performance de la base",
     "ADMIN_GROUPES_ARTICLES": "Groupes d'articles",
     "ABSENCES_PATIENTS": "Absences des patients",

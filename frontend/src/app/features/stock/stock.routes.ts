@@ -30,6 +30,10 @@ export const stockRoutes: Routes = [
         loadComponent: () => import('./bons-sortie.component').then(m => m.BonsSortieComponent),
       },
       {
+        path: 'sorties-pour-seances',
+        loadComponent: () => import('./sorties-pour-seances.component').then(m => m.SortiesPourSeancesComponent),
+      },
+      {
         path: 'inventaires',
         loadComponent: () => import('./inventaire/inventaires.component').then(m => m.InventairesComponent),
       },

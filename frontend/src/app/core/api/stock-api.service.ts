@@ -159,6 +159,72 @@ export interface BonSortie {
   createdAt?: string;
 }
 
+export type DemiJournee = 'MATIN' | 'APRES_MIDI';
+
+export type StatutSortiePourSeances = 'ENREGISTREE' | 'RAPPROCHEE';
+
+export interface LigneSortiePourSeances {
+  id: string;
+  articleId: string;
+  lotId: string | null;
+  quantiteSortie: number;
+  valeurUnitaire: number;
+  quantiteConsommee: number | null;
+  /** Consommé − sorti : positif = en plus (sortie supplémentaire), négatif = en moins (retour en stock). */
+  ecart: number | null;
+  motif: string | null;
+}
+
+export interface SortiePourSeances {
+  id: string;
+  centerId: string;
+  reference: string;
+  jour: string;
+  salle: string | null;
+  demiJournee: DemiJournee | null;
+  statut: StatutSortiePourSeances;
+  enregistreeLe: string;
+  enregistreePar: string | null;
+  valideeLe: string | null;
+  valideePar: string | null;
+  lignes: LigneSortiePourSeances[];
+}
+
+export interface SortiePourSeancesPayload {
+  centerId: string;
+  jour: string;
+  salle?: string | null;
+  demiJournee?: DemiJournee | null;
+  lignes: { articleId: string; quantite: number }[];
+}
+
+export interface FavoriDeSeance {
+  articleId: string;
+  quantiteSortie: number;
+  reste: number;
+}
+
+export type AlerteDeConsommation = 'DEPASSEMENT_DE_LA_SORTIE' | 'ARTICLE_HORS_PIECE' | 'AUCUNE_PIECE';
+
+export interface ImputationDeSeance {
+  id: string;
+  articleId: string;
+  lotId: string | null;
+  quantite: number;
+  alerte: AlerteDeConsommation | null;
+}
+
+export interface ConsommationDeSeance {
+  seanceId: string;
+  patientId: string | null;
+  sortieId: string | null;
+  imputations: ImputationDeSeance[];
+}
+
+export interface StockParametres {
+  sortiePourSeancesActivee: boolean;
+}
+
 export interface StockValoriseItem {
   articleId: string;
   code: string;
@@ -423,6 +489,52 @@ export class StockApiService {
   listLotsDisponibles(centerId: string, articleId: string): Observable<LotDisponible[]> {
     const params = new HttpParams().set('centerId', centerId).set('articleId', articleId);
     return this.http.get<LotDisponible[]>(`${this.base}/bons-sortie/lots-disponibles`, {params});
+  }
+
+  // --- Sorties pour séances (S6b) ---
+  listSortiesPourSeances(centerId: string): Observable<SortiePourSeances[]> {
+    return this.http.get<SortiePourSeances[]>(`${this.base}/sorties-pour-seances`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  createSortiePourSeances(payload: SortiePourSeancesPayload): Observable<SortiePourSeances> {
+    return this.http.post<SortiePourSeances>(`${this.base}/sorties-pour-seances`, payload);
+  }
+
+  preparerLeRapprochement(id: string, centerId: string): Observable<SortiePourSeances> {
+    return this.http.post<SortiePourSeances>(`${this.base}/sorties-pour-seances/${id}/rapprochement`, {centerId});
+  }
+
+  justifierUnEcart(id: string, ligneId: string, centerId: string, motif: string): Observable<SortiePourSeances> {
+    return this.http.put<SortiePourSeances>(`${this.base}/sorties-pour-seances/${id}/lignes/${ligneId}/motif`,
+      {centerId, motif});
+  }
+
+  validerLeRapprochement(id: string, centerId: string): Observable<SortiePourSeances> {
+    return this.http.post<SortiePourSeances>(`${this.base}/sorties-pour-seances/${id}/valider`, {centerId});
+  }
+
+  favorisDeLaSeance(seanceId: string, centerId: string, jour: string): Observable<FavoriDeSeance[]> {
+    return this.http.get<FavoriDeSeance[]>(`${this.base}/consommations-de-seance/${seanceId}/favoris`, {
+      params: new HttpParams().set('centerId', centerId).set('jour', jour),
+    });
+  }
+
+  consommationDeSeance(seanceId: string, centerId: string): Observable<ConsommationDeSeance> {
+    return this.http.get<ConsommationDeSeance>(`${this.base}/consommations-de-seance/${seanceId}`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  getStockParametres(centerId: string): Observable<StockParametres> {
+    return this.http.get<StockParametres>(`${this.base}/parametres`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  setStockParametres(centerId: string, sortiePourSeancesActivee: boolean): Observable<StockParametres> {
+    return this.http.put<StockParametres>(`${this.base}/parametres`, {centerId, sortiePourSeancesActivee});
   }
 
   // --- Dashboard ---

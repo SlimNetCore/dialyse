@@ -122,6 +122,11 @@ public class SortiesPourSeancesJdbc implements SortiesPourSeances {
     }
 
     @Override
+    public Optional<String> premiereNonRapprochee(CentreId centre) {
+        return jdbc.queryForList("SELECT reference FROM sorties_pour_seances WHERE center_id = ? AND statut <> 'RAPPROCHEE' ORDER BY enregistree_le, reference LIMIT 1", String.class, centre.valeur()).stream().findFirst();
+    }
+
+    @Override
     public List<SortiePourSeances> duJour(CentreId centre, LocalDate jour) {
         return lire("SELECT " + COLONNES + " FROM sorties_pour_seances WHERE center_id = ? AND jour = ? "
                 + "ORDER BY enregistree_le DESC, reference DESC", centre.valeur(), jour);

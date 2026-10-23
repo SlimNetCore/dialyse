@@ -1,0 +1,238 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'STOCK.SORTIES_SEANCES.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'STOCK.SORTIES_SEANCES.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'STOCK.SORTIES_SEANCES.DESCRIPTION' | translate }}</p>
+  </div>
+
+  @if (activee() !== null) {
+    <mat-card>
+      <mat-card-content class="param-row">
+        @if (peutParametrer()) {
+          <mat-slide-toggle (change)="basculer($event.checked)" [checked]="activee() === true">
+            {{ 'STOCK.SORTIES_SEANCES.PARAM_LABEL' | translate }}
+          </mat-slide-toggle>
+        } @else {
+          <mat-chip>
+            {{ (activee() ? 'STOCK.SORTIES_SEANCES.PARAM_ON' : 'STOCK.SORTIES_SEANCES.PARAM_OFF') | translate }}
+          </mat-chip>
+        }
+        @if (!activee()) {
+          <p class="hint">{{ 'STOCK.SORTIES_SEANCES.PARAM_OFF_HINT' | translate }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (peutEnregistrer()) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'STOCK.SORTIES_SEANCES.NEW_TITLE' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form (submit)="enregistrer(); $event.preventDefault()">
+          <div class="head-row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'STOCK.SORTIES_SEANCES.DAY_LABEL' | translate }}</mat-label>
+              <input (dateChange)="modifierEntete({jour: $event.value})" [matDatepicker]="dp" [value]="form().jour"
+                     matInput/>
+              <mat-datepicker-toggle [for]="dp" matIconSuffix></mat-datepicker-toggle>
+              <mat-datepicker #dp></mat-datepicker>
+              @if (submitAttempted() && !form().jour) {
+                <mat-error>{{ 'COMMON.DATE_REQUIRED_ERROR' | translate }}</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'STOCK.SORTIES_SEANCES.ROOM_LABEL' | translate }}</mat-label>
+              <input (input)="saisirSalle($event)" [value]="form().salle" matInput/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'STOCK.SORTIES_SEANCES.HALF_DAY_LABEL' | translate }}</mat-label>
+              <mat-select (selectionChange)="modifierEntete({demiJournee: $event.value})" [value]="form().demiJournee">
+                <mat-option [value]="null">{{ 'STOCK.SORTIES_SEANCES.ALL_DAY' | translate }}</mat-option>
+                @for (d of demiJournees; track d) {
+                  <mat-option [value]="d">{{ 'STOCK.SORTIES_SEANCES.DEMI_JOURNEE.' + d | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="lines">
+            @for (ligne of form().lignes; track $index) {
+              <div class="line-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'CAHIER.CONSOMMABLES_ARTICLE' | translate }}</mat-label>
+                  <mat-select (selectionChange)="modifierLigne($index, {articleId: $event.value})"
+                              [value]="ligne.articleId">
+                    @for (a of articles(); track a.id) {
+                      <mat-option [value]="a.id">{{ libelleArticle(a.id) }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (afficherErreurArticle($index)) {
+                    <mat-error>{{ 'STOCK.ARTICLE_REQUIRED_ERROR' | translate }}</mat-error>
+                  }
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'CAHIER.CONSOMMABLES_QTE' | translate }}</mat-label>
+                  <input (input)="saisirQuantite($index, $event)" [value]="ligne.quantite ?? ''" matInput
+                         type="number"/>
+                  @if (afficherErreurQuantite($index)) {
+                    <mat-error>{{ 'COMMON.INVALID_QUANTITY_ERROR' | translate }}</mat-error>
+                  }
+                </mat-form-field>
+                <button (click)="retirerLigne($index)" [attr.aria-label]="'COMMON.DELETE' | translate" mat-icon-button
+                        type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="app-button-cluster">
+            <button (click)="ajouterLigne()" mat-stroked-button type="button">
+              <mat-icon>add</mat-icon>
+              {{ 'STOCK.ADD_ARTICLE_BTN' | translate }}
+            </button>
+            <button [disabled]="!peutSauvegarder() || saving()" color="primary" mat-flat-button type="submit">
+              <mat-icon>outbox</mat-icon>
+              {{ 'STOCK.SORTIES_SEANCES.CREATE_BTN' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'STOCK.SORTIES_SEANCES.LIST_TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table [dataSource]="pieces()" class="full-width" mat-table>
+          <ng-container matColumnDef="reference">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.REFERENCE_LABEL' | translate }}</th>
+            <td *matCellDef="let p" mat-cell>{{ p.reference }}</td>
+          </ng-container>
+          <ng-container matColumnDef="jour">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.DAY_LABEL' | translate }}</th>
+            <td *matCellDef="let p" mat-cell>{{ p.jour | date:'dd/MM/yyyy' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="perimetre">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.PERIMETER_LABEL' | translate }}</th>
+            <td *matCellDef="let p" mat-cell>{{ perimetre(p) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="statut">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.STATUS_LABEL' | translate }}</th>
+            <td *matCellDef="let p" mat-cell>
+              <mat-chip [class.chip-done]="p.statut === 'RAPPROCHEE'">
+                {{ 'STOCK.SORTIES_SEANCES.STATUT.' + p.statut | translate }}
+              </mat-chip>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="lignes">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.LINES_LABEL' | translate }}</th>
+            <td *matCellDef="let p" mat-cell>{{ p.lignes.length }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+            <td *matCellDef="let p" mat-cell>
+              <button (click)="selectionner(p)" [attr.aria-label]="'STOCK.SORTIES_SEANCES.OPEN' | translate"
+                      mat-icon-button>
+                <mat-icon>{{ selectionId() === p.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="colsPieces" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: colsPieces" [attr.data-row-id]="row?.id" mat-row></tr>
+        </table>
+      </div>
+      @if (pieces().length === 0) {
+        <p class="hint">{{ 'STOCK.SORTIES_SEANCES.EMPTY' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (selection(); as piece) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          {{ 'STOCK.SORTIES_SEANCES.DETAIL_TITLE' | translate:{reference: piece.reference} }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-wrap">
+          <table [dataSource]="piece.lignes" class="full-width" mat-table>
+            <ng-container matColumnDef="article">
+              <th *matHeaderCellDef mat-header-cell>{{ 'CAHIER.CONSOMMABLES_ARTICLE' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>{{ libelleArticle(l.articleId) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="sortie">
+              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.OUT_LABEL' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>{{ l.quantiteSortie | number:'1.0-3' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="consomme">
+              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.CONSUMED_LABEL' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>
+                {{ l.quantiteConsommee == null ? '—' : (l.quantiteConsommee | number:'1.0-3') }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="ecart">
+              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.GAP_LABEL' | translate }}</th>
+              <td *matCellDef="let l" [class.gap-minus]="(l.ecart ?? 0) < 0"
+                  [class.gap-plus]="(l.ecart ?? 0) > 0" mat-cell>
+                {{ l.ecart == null ? '—' : (l.ecart | number:'1.0-3') }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="motif">
+              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.REASON_LABEL' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>
+                @if ((l.ecart ?? 0) !== 0 && piece.statut === 'ENREGISTREE' && peutJustifier()) {
+                  <mat-form-field appearance="outline" class="reason-field">
+                    <input (change)="justifier(piece, l, $event)"
+                           [attr.aria-label]="'STOCK.SORTIES_SEANCES.REASON_LABEL' | translate"
+                           [value]="l.motif ?? ''" matInput maxlength="500"/>
+                    @if (ecartSansMotif(l)) {
+                      <mat-error>{{ 'STOCK.SORTIES_SEANCES.REASON_REQUIRED' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                } @else {
+                  {{ l.motif ?? '' }}
+                }
+              </td>
+            </ng-container>
+            <tr *matHeaderRowDef="colsLignes" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: colsLignes" mat-row></tr>
+          </table>
+        </div>
+
+        @if (piece.statut === 'RAPPROCHEE') {
+          <p class="hint">
+            {{
+              'STOCK.SORTIES_SEANCES.VALIDATED_BY' | translate:{
+                user: piece.valideePar ?? '—',
+                date: (piece.valideeLe | date:'dd/MM/yyyy HH:mm')
+              }
+            }}
+          </p>
+        } @else if (peutRapprocher()) {
+          <div class="app-button-cluster">
+            <button (click)="preparer(piece)" [disabled]="working()" mat-stroked-button type="button">
+              <mat-icon>compare_arrows</mat-icon>
+              {{ 'STOCK.SORTIES_SEANCES.PREPARE_BTN' | translate }}
+            </button>
+            <button (click)="valider(piece)" [disabled]="working() || !peutValider()" color="primary" mat-flat-button
+                    type="button">
+              <mat-icon>task_alt</mat-icon>
+              {{ 'STOCK.SORTIES_SEANCES.VALIDATE_BTN' | translate }}
+            </button>
+          </div>
+          @if (!peutValider()) {
+            <p class="hint">{{ 'STOCK.SORTIES_SEANCES.VALIDATE_HINT' | translate }}</p>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</section>
+

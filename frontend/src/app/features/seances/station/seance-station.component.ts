@@ -40,6 +40,7 @@ import {PatientPagerComponent} from './patient-pager.component';
 import {HorsPlanningConfirmation, HorsPlanningConfirmComponent} from './hors-planning-confirm.component';
 import {RecentSeancesPanelComponent} from './recent-seances-panel.component';
 import {ShortcutsConfigComponent} from './shortcuts-config.component';
+import {ConsommationsDePieceComponent} from './consommations-de-piece.component';
 
 /** Délai d'enregistrement automatique après la dernière frappe dans une zone de texte libre. */
 const AUTOSAVE_DELAY_MS = 800;
@@ -57,6 +58,7 @@ const AUTOSAVE_DELAY_MS = 800;
     RouterLink, MatButtonModule, MatIconModule, TranslateModule, SearchableSelectComponent, RichTextEditorComponent,
     QrScannerComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent, RecentSeancesPanelComponent,
     ShortcutsConfigComponent, PendingSeancesComponent, PatientPagerComponent, HorsPlanningConfirmComponent, PatientQrCardComponent,
+    ConsommationsDePieceComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seance-station.component.html',
