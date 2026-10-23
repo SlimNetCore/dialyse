@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "A1",
+      "created_by": "<UUID_GENERE_1>",
+      "jour": "<J-10>",
+      "mouvement_type": "ENTREE",
+      "pmp_apres": "8.00",
+      "prix_unitaire": "8.00",
+      "quantite": "100.00",
+      "sans_lot": "false"
+    },
+    {
+      "code": "A1",
+      "created_by": "test",
+      "jour": "<J-5>",
+      "mouvement_type": "SORTIE",
+      "pmp_apres": "8.00",
+      "prix_unitaire": "8.00",
+      "quantite": "30.00",
+      "sans_lot": "true"
+    },
+    {
+      "code": "A1",
+      "created_by": "<UUID_GENERE_2>",
+      "jour": "<J-5>",
+      "mouvement_type": "ENTREE",
+      "pmp_apres": "9.25",
+      "prix_unitaire": "11.00",
+      "quantite": "50.00",
+      "sans_lot": "false"
+    }
+  ]
+}

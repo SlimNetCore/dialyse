@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "bonCommandeId": null,
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "<UUID_GENERE_1>",
+    "dateReception": "<J-1>",
+    "fournisseurId": null,
+    "id": "<UUID_GENERE_2>",
+    "lignes": [],
+    "reference": "BR-00003",
+    "statut": "BROUILLON"
+  }
+}

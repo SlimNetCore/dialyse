@@ -19,6 +19,8 @@ import java.util.*;
 public class StockMovementRepositoryAdapter implements StockMovementRepositoryPort, StockMovementHistoryPort {
 
     private final StockMovementJpaRepository jpa;
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
 
     public StockMovementRepositoryAdapter(StockMovementJpaRepository jpa) {
         this.jpa = jpa;
@@ -43,6 +45,9 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
 
     @Override
     public List<StockMovement> findByArticleOrdered(CenterId centerId, UUID articleId) {
+        // Même verrou de ligne que le contexte Stock (slice S5) : un rejeu legacy attend un rejeu concurrent du même article.
+        entityManager.createNativeQuery("SELECT id FROM articles WHERE id = :article AND center_id = :centre FOR UPDATE")
+                .setParameter("article", articleId).setParameter("centre", centerId.value()).getResultList();
         List<StockMovement> mouvements = new ArrayList<>(
                 jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullOrderByCreatedAtAscIdAsc(centerId.value(), articleId)
                         .stream().map(this::toDomain).toList());

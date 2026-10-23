@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "A1",
+      "created_by": "<UUID_GENERE_1>",
+      "jour": "<J-4>",
+      "mouvement_type": "ENTREE",
+      "pmp_apres": "2.00",
+      "prix_unitaire": "2.00",
+      "quantite": "10.00",
+      "sans_lot": "false"
+    }
+  ]
+}

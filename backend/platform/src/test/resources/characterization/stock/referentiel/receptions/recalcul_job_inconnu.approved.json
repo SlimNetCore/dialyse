@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "RECALCUL_INTROUVABLE",
+    "detail": "Tâche de recalcul introuvable",
+    "instance": "/api/v1/stock/dashboard/pmp-recalc/jobs/<UUID_GENERE_1>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

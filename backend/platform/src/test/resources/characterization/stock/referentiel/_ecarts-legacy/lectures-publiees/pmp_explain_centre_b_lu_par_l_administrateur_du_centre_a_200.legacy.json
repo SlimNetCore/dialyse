@@ -1,0 +1,30 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "articleId": "<ART_B1>",
+    "code": "B1",
+    "etapes": [
+      {
+        "date": "<J-2>T12:00:00Z",
+        "datePiece": "<J-2>",
+        "formule": "ENTREE : PMP = (0 + 10.00 x 3.00) / (0 + 10.00) = 30.0000 / 10.00 = 3.0000",
+        "piece": "BR",
+        "pmpApres": 3.0000,
+        "pmpAvant": 0,
+        "prixUnitaire": 3.00,
+        "quantite": 10.00,
+        "quantiteApres": 10.00,
+        "quantiteAvant": 0,
+        "type": "ENTREE",
+        "valeurApres": 30.0000,
+        "valeurAvant": 0
+      }
+    ],
+    "libelle": "Beta B",
+    "methode": "PMP (Poids Moyen Pondere). A chaque ENTREE : PMP = (valeur du stock + quantite recue x prix unitaire) / (quantite en stock + quantite recue). Une SORTIE valorise au PMP courant et ne modifie pas le PMP. Toute correction d'une reception passee declenche un recalcul en cascade de tout l'historique.",
+    "pmpFinal": 3.0000,
+    "quantiteFinale": 10.00,
+    "valeurFinale": 30.0000
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_B1>",
+      "articleLibelle": "Beta B",
+      "dateSortie": "<J-2>",
+      "lotId": "<LOT_B>",
+      "numeroLot": "L-B",
+      "patientId": "<PATIENT_1>",
+      "quantite": 4.00,
+      "seanceId": "<UUID_GENERE_1>"
+    }
+  ]
+}

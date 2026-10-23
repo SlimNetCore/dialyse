@@ -1,0 +1,18 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "articleIds": [
+      "<ART_1>",
+      "<ART_2>"
+    ],
+    "centerId": "<CENTRE_A>",
+    "finishedAt": "<HORODATAGE>",
+    "jobId": "<JOB>",
+    "message": "Recalcul termine",
+    "processed": 2,
+    "startedAt": "<HORODATAGE>",
+    "status": "COMPLETED",
+    "total": 2
+  }
+}

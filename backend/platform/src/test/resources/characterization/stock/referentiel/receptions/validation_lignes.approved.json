@@ -1,0 +1,30 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "date_peremption": null,
+      "numero_lot": null,
+      "prix_unitaire": "3.20",
+      "quantite": "5.00",
+      "reference": "BR-00001",
+      "sans_lot": "false"
+    },
+    {
+      "date_peremption": null,
+      "numero_lot": null,
+      "prix_unitaire": "2.50",
+      "quantite": "10.00",
+      "reference": "BR-00001",
+      "sans_lot": "false"
+    },
+    {
+      "date_peremption": "<J+60>",
+      "numero_lot": "LOT-X",
+      "prix_unitaire": "1.25",
+      "quantite": "20.00",
+      "reference": "BR-00001",
+      "sans_lot": "false"
+    }
+  ]
+}

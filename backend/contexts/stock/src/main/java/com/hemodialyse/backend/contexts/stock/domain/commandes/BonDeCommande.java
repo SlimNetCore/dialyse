@@ -73,6 +73,16 @@ public final class BonDeCommande {
         return new BonDeCommande(id, centre, reference, fournisseurId, StatutDuBon.VALIDE, creePar, creeLe, lignes);
     }
 
+    /**
+     * @throws RefusDuReferentiel {@code BON_COMMANDE_NON_VALIDE} si le bon est encore un brouillon (KB-STK-41 corrigé)
+     */
+    public BonDeCommande marquerRecu() {
+        if (statut == StatutDuBon.BROUILLON) {
+            throw new RefusDuReferentiel("BON_COMMANDE_NON_VALIDE", "Un bon de commande doit être validé avant d'être réceptionné");
+        }
+        return new BonDeCommande(id, centre, reference, fournisseurId, StatutDuBon.RECU, creePar, creeLe, lignes);
+    }
+
     public BigDecimal total() {
         return lignes.stream().map(LigneDeBon::sousTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
     }

@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Le prix unitaire est requis pour corriger un bon de réception validé",
+    "instance": "/api/v1/stock/bons-reception/<BON_A>",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

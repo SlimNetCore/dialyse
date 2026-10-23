@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "RECEPTION_PEREMPTION_REQUISE",
+    "detail": "Date de péremption obligatoire pour le lot L1",
+    "instance": "/api/v1/stock/bons-reception/<BON_SANS_PEREMPTION>/valider",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

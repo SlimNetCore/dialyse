@@ -1,0 +1,47 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "bonCommandeId": "<BC_A>",
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "<UUID_GENERE_1>",
+    "dateReception": "<J-6>",
+    "fournisseurId": "<FOUR_1>",
+    "id": "<BON_A>",
+    "lignes": [
+      {
+        "articleId": "<ART_1>",
+        "datePeremption": null,
+        "emplacementId": null,
+        "id": "<UUID_GENERE_2>",
+        "lotId": "<UUID_GENERE_3>",
+        "numeroLot": null,
+        "prixUnitaire": 2.50,
+        "quantite": 10.00
+      },
+      {
+        "articleId": "<ART_1>",
+        "datePeremption": null,
+        "emplacementId": null,
+        "id": "<UUID_GENERE_4>",
+        "lotId": "<UUID_GENERE_5>",
+        "numeroLot": null,
+        "prixUnitaire": 3.20,
+        "quantite": 5.00
+      },
+      {
+        "articleId": "<ART_2>",
+        "datePeremption": "<J+60>",
+        "emplacementId": null,
+        "id": "<UUID_GENERE_6>",
+        "lotId": "<UUID_GENERE_7>",
+        "numeroLot": "LOT-X",
+        "prixUnitaire": 1.25,
+        "quantite": 20.00
+      }
+    ],
+    "reference": "BR-00001",
+    "statut": "VALIDE"
+  }
+}

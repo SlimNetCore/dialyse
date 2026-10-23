@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Le paramètre « lotId » est illisible",
+    "instance": "/api/v1/stock/dashboard/tracabilite/pas-un-uuid",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

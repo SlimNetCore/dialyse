@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_A>",
+      "code": "A1",
+      "libelle": "Alpha",
+      "pmpCourant": 2.00,
+      "quantite": 10.00,
+      "unite": "piece",
+      "valeur": 20.0000
+    }
+  ]
+}

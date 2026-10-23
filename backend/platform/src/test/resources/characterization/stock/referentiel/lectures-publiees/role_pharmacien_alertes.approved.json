@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "datePeremption": "<J+10>",
+      "lotId": "<LOT_A>",
+      "numeroLot": "L-A",
+      "quantite": 10.00,
+      "seuil": null,
+      "type": "PEREMPTION"
+    }
+  ]
+}

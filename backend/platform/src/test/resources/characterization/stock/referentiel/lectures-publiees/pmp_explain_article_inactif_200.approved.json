@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "articleId": "<ART_I>",
+    "code": "I1",
+    "etapes": [],
+    "libelle": "Inactif",
+    "methode": "PMP (Poids Moyen Pondere). A chaque ENTREE : PMP = (valeur du stock + quantite recue x prix unitaire) / (quantite en stock + quantite recue). Une SORTIE valorise au PMP courant et ne modifie pas le PMP. Toute correction d'une reception passee declenche un recalcul en cascade de tout l'historique.",
+    "pmpFinal": 0,
+    "quantiteFinale": 0,
+    "valeurFinale": 0
+  }
+}

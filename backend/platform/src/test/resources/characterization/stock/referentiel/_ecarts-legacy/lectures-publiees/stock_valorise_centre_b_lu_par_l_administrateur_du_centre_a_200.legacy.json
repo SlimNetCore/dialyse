@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_B_AUTRE>",
+      "code": "BB1",
+      "libelle": "Autre centre",
+      "pmpCourant": 1.00,
+      "quantite": 1.00,
+      "unite": "piece",
+      "valeur": 1.0000
+    }
+  ]
+}

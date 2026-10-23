@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "RECEPTION_INTROUVABLE",
+    "detail": "Bon de réception introuvable",
+    "instance": "/api/v1/stock/bons-reception/<UUID_GENERE_1>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

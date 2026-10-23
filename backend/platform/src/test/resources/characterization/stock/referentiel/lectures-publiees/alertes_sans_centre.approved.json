@@ -1,0 +1,76 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "datePeremption": "<J-5>",
+      "lotId": "<LOT_PERIME>",
+      "numeroLot": "L-PERIME",
+      "quantite": 10.00,
+      "seuil": null,
+      "type": "PEREMPTION"
+    },
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "datePeremption": "<J+1>",
+      "lotId": "<LOT_J1>",
+      "numeroLot": "L-J1",
+      "quantite": 3.00,
+      "seuil": null,
+      "type": "PEREMPTION"
+    },
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "datePeremption": "<J+30>",
+      "lotId": "<LOT_J30>",
+      "numeroLot": "L-J30",
+      "quantite": 10.00,
+      "seuil": null,
+      "type": "PEREMPTION"
+    },
+    {
+      "articleId": "<ART_E>",
+      "articleLibelle": "Egal seuil",
+      "datePeremption": null,
+      "lotId": null,
+      "numeroLot": null,
+      "quantite": 5.00,
+      "seuil": 5.00,
+      "type": "SEUIL"
+    },
+    {
+      "articleId": "<ART_N>",
+      "articleLibelle": "Negatif",
+      "datePeremption": null,
+      "lotId": null,
+      "numeroLot": null,
+      "quantite": -1.00,
+      "seuil": 0.00,
+      "type": "RUPTURE"
+    },
+    {
+      "articleId": "<ART_R>",
+      "articleLibelle": "Rupture",
+      "datePeremption": null,
+      "lotId": null,
+      "numeroLot": null,
+      "quantite": 0.00,
+      "seuil": 0.00,
+      "type": "RUPTURE"
+    },
+    {
+      "articleId": "<ART_S>",
+      "articleLibelle": "Seuil",
+      "datePeremption": null,
+      "lotId": null,
+      "numeroLot": null,
+      "quantite": 5.00,
+      "seuil": 10.00,
+      "type": "SEUIL"
+    }
+  ]
+}

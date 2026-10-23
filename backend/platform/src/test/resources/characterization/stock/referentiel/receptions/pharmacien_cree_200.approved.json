@@ -1,0 +1,27 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "bonCommandeId": null,
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "<UUID_GENERE_1>",
+    "dateReception": "<J-1>",
+    "fournisseurId": null,
+    "id": "<UUID_GENERE_2>",
+    "lignes": [
+      {
+        "articleId": "<ART_1>",
+        "datePeremption": null,
+        "emplacementId": null,
+        "id": "<UUID_GENERE_3>",
+        "lotId": null,
+        "numeroLot": null,
+        "prixUnitaire": 1.00,
+        "quantite": 1.00
+      }
+    ],
+    "reference": "BR-00002",
+    "statut": "BROUILLON"
+  }
+}

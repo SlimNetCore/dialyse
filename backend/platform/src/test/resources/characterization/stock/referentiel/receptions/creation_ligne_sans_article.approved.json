@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Article requis sur chaque ligne de réception",
+    "instance": "/api/v1/stock/bons-reception",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

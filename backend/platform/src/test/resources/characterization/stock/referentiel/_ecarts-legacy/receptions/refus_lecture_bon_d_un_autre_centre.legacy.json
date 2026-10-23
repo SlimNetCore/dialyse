@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Bon de reception introuvable: <BON_B>",
+    "instance": "/api/v1/stock/bons-reception/<BON_B>",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

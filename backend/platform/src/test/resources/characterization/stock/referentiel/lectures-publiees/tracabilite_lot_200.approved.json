@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "dateSortie": "<J-1>",
+      "lotId": "<LOT_A>",
+      "numeroLot": "L-A",
+      "patientId": null,
+      "quantite": 3.00,
+      "seanceId": "<UUID_GENERE_1>"
+    },
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "dateSortie": "<J-5>",
+      "lotId": "<LOT_A>",
+      "numeroLot": "L-A",
+      "patientId": "<PATIENT_1>",
+      "quantite": 2.00,
+      "seanceId": "<SEANCE_1>"
+    },
+    {
+      "articleId": "<ART_A>",
+      "articleLibelle": "Alpha",
+      "dateSortie": "<J-9>",
+      "lotId": "<LOT_A>",
+      "numeroLot": "L-A",
+      "patientId": "<PATIENT_1>",
+      "quantite": 1.50,
+      "seanceId": "<UUID_GENERE_2>"
+    }
+  ]
+}

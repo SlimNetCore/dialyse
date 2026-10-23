@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "detail": "Quantite saisie inferieure a la quantite deja consommee pour le lot AUTO-BR-00001-01",
+    "instance": "/api/v1/stock/bons-reception/<BON_A>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

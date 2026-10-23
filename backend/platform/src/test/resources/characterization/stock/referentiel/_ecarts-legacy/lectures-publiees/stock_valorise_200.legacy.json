@@ -1,0 +1,51 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_B>",
+      "code": "B1",
+      "libelle": "Beta",
+      "pmpCourant": 2.50,
+      "quantite": 40.00,
+      "unite": "piece",
+      "valeur": 100.0000
+    },
+    {
+      "articleId": "<ART_DECIMAL>",
+      "code": "D1",
+      "libelle": "Decimal",
+      "pmpCourant": 3.33,
+      "quantite": 1.23,
+      "unite": "piece",
+      "valeur": 4.0959
+    },
+    {
+      "articleId": "<ART_NEGATIF>",
+      "code": "N1",
+      "libelle": "Negatif",
+      "pmpCourant": 2.00,
+      "quantite": -3.00,
+      "unite": "piece",
+      "valeur": -6.0000
+    },
+    {
+      "articleId": "<ART_ZERO>",
+      "code": "Z1",
+      "libelle": "Zeta",
+      "pmpCourant": 0.00,
+      "quantite": 0.00,
+      "unite": "piece",
+      "valeur": 0.0000
+    },
+    {
+      "articleId": "<ART_A>",
+      "code": "A1",
+      "libelle": "alpha",
+      "pmpCourant": 10.50,
+      "quantite": 120.00,
+      "unite": "piece",
+      "valeur": 1260.0000
+    }
+  ]
+}

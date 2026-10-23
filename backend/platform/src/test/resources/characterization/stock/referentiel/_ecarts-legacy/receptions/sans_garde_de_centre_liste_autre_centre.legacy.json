@@ -1,0 +1,29 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "bonCommandeId": null,
+      "centerId": "<CENTRE_B>",
+      "createdAt": "<HORODATAGE>",
+      "createdBy": "pharma-1",
+      "dateReception": "<J-2>",
+      "fournisseurId": null,
+      "id": "<BON_B>",
+      "lignes": [
+        {
+          "articleId": "<ART_B1>",
+          "datePeremption": null,
+          "emplacementId": null,
+          "id": "<UUID_GENERE_1>",
+          "lotId": null,
+          "numeroLot": null,
+          "prixUnitaire": 1.00,
+          "quantite": 1.00
+        }
+      ],
+      "reference": "BR-00001",
+      "statut": "BROUILLON"
+    }
+  ]
+}

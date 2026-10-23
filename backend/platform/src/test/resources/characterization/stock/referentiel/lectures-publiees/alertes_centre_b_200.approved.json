@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "articleId": "<ART_X>",
+      "articleLibelle": "Autre centre",
+      "datePeremption": "<J+3>",
+      "lotId": "<LOT_AUTRE_CENTRE>",
+      "numeroLot": "L-AUTRE",
+      "quantite": 10.00,
+      "seuil": null,
+      "type": "PEREMPTION"
+    },
+    {
+      "articleId": "<ART_X>",
+      "articleLibelle": "Autre centre",
+      "datePeremption": null,
+      "lotId": null,
+      "numeroLot": null,
+      "quantite": 0.00,
+      "seuil": 0.00,
+      "type": "RUPTURE"
+    }
+  ]
+}

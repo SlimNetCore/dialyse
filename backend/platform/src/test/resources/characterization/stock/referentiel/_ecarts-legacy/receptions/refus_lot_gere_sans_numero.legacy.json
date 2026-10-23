@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Numero de lot obligatoire pour un article gere par lot",
+    "instance": "/api/v1/stock/bons-reception/<BON_SANS_NUMERO>/valider",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

@@ -74,7 +74,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import com.hemodialyse.backend.contexts.comptabilite.application.vente.ComptabiliserLesVentesEtReglements;
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
-import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.OperationsDeStockJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.stock.OperationsDeStockDuStock;
 import com.hemodialyse.backend.contexts.comptabilite.interfaces.planification.ComptabilisationDuStockPlanifiee;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.facturation.FacturesAComptabiliserDepuisLaFacturation;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.FacturesEmises;
@@ -351,9 +351,10 @@ public class ComptabiliteConfiguration {
     ComptabiliserLeStock comptabiliteComptabiliserLeStock(EcritureComptableRepository ecritures,
                                                           PeriodeComptableRepository periodes,
                                                           SequenceDesNumerosDePieces numerotation,
-                                                          MappingDuCentreVu mappings, JdbcTemplate jdbc,
+                                                          MappingDuCentreVu mappings,
+                                                          com.hemodialyse.backend.contexts.stock.publishedlanguage.OperationsDeStock stock,
                                                           UniteDeTravail uniteDeTravail) {
-        return new ComptabiliserLeStock(ecritures, periodes, numerotation, mappings, new OperationsDeStockJdbc(jdbc),
+        return new ComptabiliserLeStock(ecritures, periodes, numerotation, mappings, new OperationsDeStockDuStock(stock),
                 uniteDeTravail);
     }
 

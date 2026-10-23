@@ -51,14 +51,12 @@ import com.hemodialyse.backend.domain.stock.port.BonCommandeRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.BonReceptionRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.BonSortieRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.StockDashboardPort;
 import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
 import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.StockSequencePort;
 import com.hemodialyse.backend.domain.stock.service.BonCommandeService;
 import com.hemodialyse.backend.domain.stock.service.PmpEngine;
 import com.hemodialyse.backend.domain.stock.service.PmpRecalculationCoordinator;
-import com.hemodialyse.backend.domain.stock.service.StockDashboardService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -209,16 +207,6 @@ public class DomainServiceConfig {
         return new BonCommandeService(repo, sequence);
     }
 
-
-    @Bean
-    public StockDashboardService stockDashboardService(StockDashboardPort dashboardPort,
-                                                       StockMovementRepositoryPort movementRepo,
-                                                       ArticleRepositoryPort articleRepo,
-                                                       LotRepositoryPort lotRepo,
-                                                       BonReceptionRepositoryPort bonReceptionRepo,
-                                                       BonSortieRepositoryPort bonSortieRepo) {
-        return new StockDashboardService(dashboardPort, movementRepo, articleRepo, lotRepo, bonReceptionRepo, bonSortieRepo);
-    }
 }
 
 

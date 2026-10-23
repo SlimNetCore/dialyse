@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.stock.interfaces.http;
 
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonDeCommandeInvalide;
+import com.hemodialyse.backend.contexts.stock.domain.reception.EcritureDeStockConcurrente;
 import com.hemodialyse.backend.contexts.stock.domain.groupes.GroupeDArticlesInvalide;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.ArticleIntrouvable;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
@@ -57,5 +58,13 @@ class ErreursDuReferentielAdvice {
     @ExceptionHandler(BonDeCommandeInvalide.class)
     ProblemDetail bonInvalide(BonDeCommandeInvalide erreur) {
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
+    }
+
+    /**
+     * Écriture de stock concurrente (slice S5) : 409 {@code STOCK_ECRITURE_CONCURRENTE}, rien n'est écrit.
+     */
+    @ExceptionHandler(EcritureDeStockConcurrente.class)
+    ProblemDetail ecritureConcurrente(EcritureDeStockConcurrente erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "STOCK_ECRITURE_CONCURRENTE");
     }
 }

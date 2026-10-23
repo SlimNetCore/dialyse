@@ -1,0 +1,30 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "date_peremption": null,
+      "numero_lot": "AUTO-BR-00001-01",
+      "pmp": "2.50",
+      "quantite_initiale": "10.00",
+      "quantite_restante": "10.00",
+      "sans_bon": "false"
+    },
+    {
+      "date_peremption": null,
+      "numero_lot": "AUTO-BR-00001-02",
+      "pmp": "3.20",
+      "quantite_initiale": "5.00",
+      "quantite_restante": "5.00",
+      "sans_bon": "false"
+    },
+    {
+      "date_peremption": "<J+60>",
+      "numero_lot": "LOT-X",
+      "pmp": "1.25",
+      "quantite_initiale": "20.00",
+      "quantite_restante": "20.00",
+      "sans_bon": "false"
+    }
+  ]
+}

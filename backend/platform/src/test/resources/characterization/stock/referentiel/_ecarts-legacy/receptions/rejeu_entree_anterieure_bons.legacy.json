@@ -1,0 +1,30 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-10>",
+      "reference": "BR-00001",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "VALIDE"
+    },
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-5>",
+      "reference": "BR-00002",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "VALIDE"
+    },
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-20>",
+      "reference": "BR-00003",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "VALIDE"
+    }
+  ]
+}

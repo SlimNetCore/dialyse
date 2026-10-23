@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BON_COMMANDE_INTROUVABLE",
+    "detail": "Bon de commande introuvable",
+    "instance": "/api/v1/stock/bons-reception/from-bon-commande",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

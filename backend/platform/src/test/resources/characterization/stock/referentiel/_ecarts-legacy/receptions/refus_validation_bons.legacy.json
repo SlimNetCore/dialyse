@@ -1,0 +1,46 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-3>",
+      "reference": "BR-00001",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    },
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-3>",
+      "reference": "BR-00002",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    },
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-3>",
+      "reference": "BR-00003",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    },
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-3>",
+      "reference": "BR-00004",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    },
+    {
+      "created_by": "pharma-1",
+      "date_reception": "<J-3>",
+      "reference": "BR-00005",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    }
+  ]
+}

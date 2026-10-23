@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "RECEPTION_ARTICLE_INCONNU",
+    "detail": "Une ligne porte un article qui n'appartient pas à ce centre",
+    "instance": "/api/v1/stock/bons-reception",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

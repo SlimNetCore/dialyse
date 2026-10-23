@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Le paramètre « articleId » est illisible",
+    "instance": "/api/v1/stock/dashboard/pmp-explain/pas-un-uuid",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

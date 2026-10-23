@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "B1",
+      "pmp_courant": "1.00",
+      "stock_quantity": "1.00"
+    }
+  ]
+}

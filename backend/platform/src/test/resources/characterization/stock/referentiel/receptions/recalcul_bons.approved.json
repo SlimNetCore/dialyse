@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "created_by": "<UUID_GENERE_1>",
+      "date_reception": "<J-6>",
+      "reference": "BR-00001",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "VALIDE"
+    }
+  ]
+}

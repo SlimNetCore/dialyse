@@ -2,6 +2,9 @@ package com.hemodialyse.backend.contexts.stock.configuration;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.commandes.GestionDesBonsDeCommande;
+import com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock;
+import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock;
+import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.LecturesDuStockJdbc;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonsDeCommande;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeCommandeJdbc;
 import com.hemodialyse.backend.contexts.stock.application.groupes.GestionDesGroupesDArticles;
@@ -101,7 +104,79 @@ public class StockContexteConfiguration {
     GestionDesBonsDeCommande stockGestionDesBonsDeCommande(BonsDeCommande bons, Articles articles, Fournisseurs fournisseurs) {
         return new GestionDesBonsDeCommande(bons, articles, fournisseurs, UUID::randomUUID, Clock.systemUTC());
     }
+
+    // ------------------------------------------------------------------ slice S4 : lectures du stock
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock stockLecturesDuStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.LecturesDuStockJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock stockConsulterLeStock(
+            com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures, Articles articles) {
+        return new com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock(lectures, articles,
+                Clock.systemDefaultZone());
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.OperationsDeStock stockOperationsDeStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.OperationsDeStockJdbc(jdbc);
+    }
+
+    // ------------------------------------------------------------------ slice S5 : réceptions et PMP
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.UniteDeTravail stockUniteDeTravail(PlatformTransactionManager transactions) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.transaction.UniteDeTravailSpring(
+                new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock stockNotifications(
+            org.springframework.context.ApplicationEventPublisher evenements) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.evenements.NotificationsDuStockSpring(evenements);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.reception.BonsDeReception stockBonsDeReception(JdbcTemplate jdbc,
+                                                                                                 PlatformTransactionManager transactions) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeReceptionJdbc(jdbc,
+                new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock stockEcrituresDuStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.EcrituresDuStockJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp stockRejeuDuPmp(
+            com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures,
+            com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures) {
+        return new com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp(lectures, ecritures);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.reception.GestionDesReceptions stockGestionDesReceptions(
+            com.hemodialyse.backend.contexts.stock.domain.reception.BonsDeReception bons, BonsDeCommande commandes,
+            Articles articles, Fournisseurs fournisseurs,
+            com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures,
+            com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+        return new com.hemodialyse.backend.contexts.stock.application.reception.GestionDesReceptions(bons, commandes, articles,
+                fournisseurs, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp stockRecalculMassifDuPmp(
+            com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
+            com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures, Articles articles,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+        return new com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp(rejeu, ecritures, articles,
+                uniteDeTravail, notifications, java.util.concurrent.ForkJoinPool.commonPool(), UUID::randomUUID,
+                Clock.systemDefaultZone());
+    }
 }
-
-
-

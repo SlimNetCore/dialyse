@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Quantite invalide pour l'article <ART_1>",
+    "instance": "/api/v1/stock/bons-reception/<BON_QTE_NULLE>/valider",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

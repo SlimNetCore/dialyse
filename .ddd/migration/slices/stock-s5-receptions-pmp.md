@@ -1,6 +1,6 @@
 ---
 slice: stock-s5-receptions-pmp
-status: planned
+status: built
 date: 2026-10-23
 order: 5
 context: stock
@@ -71,3 +71,58 @@ Sans façade ; retour arrière = version précédente (aucune donnée nouvelle).
 Dépend de S1 (articles) et S3 (`RECU`). **Risque élevé** : argent (PMP, valorisation comptable C6), concurrence avec le
 legacy restant.
 
+## Livraison (2026-10-23)
+
+- **Module** `backend/contexts/stock` : domaine `BonDeReception` / `LigneDeReception` (lignes validées dès la saisie,
+  lot rattaché
+  à la ligne), ports `BonsDeReception` et `EcrituresDuStock` (lots, mouvements d'entrée, rejeu, verrou des articles,
+  gardes
+  d'inventaire), cas d'usage `GestionDesReceptions` (création, depuis un bon de commande, brouillon, validation,
+  correction),
+  `RejeuDuPmp` et `RecalculMassifDuPmp`, adapters JDBC `BonsDeReceptionJdbc` et `EcrituresDuStockJdbc`, contrôleurs
+  `ReceptionsControleur` et `RecalculDuPmpControleur` (mêmes routes, rôles et JSON), langage publié
+  `MouvementsDeStockModifies` /
+  `VerrousDeRecalculModifies` relayé à la plateforme (`StockEvenementsListener` : temps réel du centre et éviction du
+  cache de
+  valorisation, après la validation de la transaction).
+- **Corrections décidées (« oui », 2026-10-23), KB-STK-34 à 45** : 403 si le centre demandé ≠ session ; auteur =
+  utilisateur de la
+  session ; lignes contrôlées dès la saisie (article, quantité > 0, prix ≥ 0, article, fournisseur et bon de commande du
+  centre) ;
+  refus en 422 avec codes stables (`RECEPTION_*`, `BON_COMMANDE_*`, `STOCK_INVENTORY_IN_PROGRESS`, `STOCK_PERIOD_CLOSED`
+  inchangés) ;
+  `bons_reception_lignes.lot_id` renseigné à la validation ; un bon de commande ne passe à `RECU` que s'il est validé
+  (ou déjà reçu) ; **verrou de ligne sur `articles` par identifiant croissant** (délai 5 s, puis 409
+  `STOCK_ECRITURE_CONCURRENTE`) à la place du verrou
+  mémoire ; validation et correction dans une seule transaction ; recalcul massif : une transaction par article.
+- **Argent reproduit à l'identique** : sur les 11 scénarios (validation, rejeu du jour d'une sortie, entrée antérieure,
+  correction,
+  garde d'inventaire, recalcul massif), `lots`, `stock_movements` (`pmp_apres`, valorisation des sorties) et `articles`
+  (stock, PMP)
+  sont **identiques au legacy** (hors auteur), vérifié fichier par fichier. Écart bénin : le rejeu suit la correction de
+  la date seule (le legacy ne rejouait pas), sans effet sur les chiffres des scénarios.
+- **Legacy restant verrouillé comme le nouveau code** : `StockMovementRepositoryAdapter.findByArticleOrdered` prend le
+  même verrou de
+  ligne sur l'article avant de rejouer (sorties et inventaire legacy), donc un rejeu legacy attend un rejeu du contexte
+  et inversement.
+- **Filet** : 11 scénarios, 162 goldens rejoués sur le nouveau code ; 95 goldens changés (auteur, codes de refus, lot
+  rattaché,
+  isolation), legacy conservé dans `characterization/stock/referentiel/_ecarts-legacy/receptions/*.legacy.json`.
+- **Concurrence** (`ReceptionsConcurrentesIntegrationTest`, trois exécutions vertes) : deux validations simultanées du
+  même article (stock et PMP cohérents), deux réceptions croisées (A,B)/ (B,A) sans interblocage, 409 quand une autre
+  transaction tient le verrou (rien d'écrit, le bon reste brouillon puis se valide). Rejeu sur PostgreSQL 16 jetable
+  (`stock-pg16-rejeu.sh`) : **à faire** (reste
+  du verrou `FOR UPDATE` et du délai de requête sur le moteur de production).
+- **Tests du module** : +9 (`BonDeReceptionTest`, `RejeuDuPmpTest`), ArchUnit vert.
+- **Retrait** : `BonReceptionRestController` et ses DTO (`CreateBonReceptionRequest`, `BonReceptionLigneDto`,
+  `FromBonCommandeRequest`), `StockDashboardRestController` (routes `pmp-recalc/*`). **Conservés** :
+  `BonReceptionService`,
+  `BonReceptionApplicationService`, `PmpRecalculationCoordinator`, `PmpEngine`, `PmpCalculator` et les modèles legacy,
+  encore utilisés
+  par le jeu de démonstration `StockDemoDataSeeder` et par les sorties et l'inventaire legacy (S6, S7) ; à retirer avec
+  elles.
+- **Limites** : le suivi des tâches de recalcul et la liste des articles en cours restent **en mémoire de l'instance**
+  (consultation
+  seulement, aucun verrou n'en dépend) ; la correction d'un bon validé **créé avant S5** (lignes sans `lot_id`) apparie
+  lignes et lots par
+  article puis par numéro de lot (voir `verifications-production.md` § 29).

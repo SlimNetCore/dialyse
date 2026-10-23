@@ -976,6 +976,41 @@ ORDER BY center_id, annee, mois;
   au lieu d'attendre ; à surveiller dans les journaux les premiers jours (fréquence attendue : rare, pendant une
   validation très longue).
 
+## 29. Stock S5 : lignes de bons de réception validés sans lot (2026-10-23)
+
+La correction d'un bon validé retrouve le lot de chaque ligne par `bons_reception_lignes.lot_id`. Les bons validés
+**avant S5**
+n'ont pas ce lien (`lot_id` nul) : la correction apparie alors lignes et lots par article puis par numéro de lot. À
+vérifier avant
+la livraison (lecture seule) :
+
+```sql
+-- Bons validés dont toutes les lignes n'ont pas de lot rattaché (tous les bons validés avant S5)
+SELECT COUNT(*) FROM bons_reception b
+WHERE b.statut = 'VALIDE'
+  AND EXISTS (SELECT 1 FROM bons_reception_lignes l WHERE l.bon_reception_id = b.id AND l.lot_id IS NULL);
+
+-- Cas ambigus : un même article porté par plusieurs lignes d'un même bon validé (appariement par numéro de lot)
+SELECT l.bon_reception_id, l.article_id, COUNT(*) AS lignes
+FROM bons_reception_lignes l JOIN bons_reception b ON b.id = l.bon_reception_id
+WHERE b.statut = 'VALIDE' AND l.lot_id IS NULL
+GROUP BY l.bon_reception_id, l.article_id HAVING COUNT(*) > 1;
+
+-- Cohérence : nombre de lots et nombre de lignes par bon validé (doivent être égaux)
+SELECT b.id, (SELECT COUNT(*) FROM lots x WHERE x.bon_reception_id = b.id) AS lots,
+       (SELECT COUNT(*) FROM bons_reception_lignes l WHERE l.bon_reception_id = b.id) AS lignes
+FROM bons_reception b WHERE b.statut = 'VALIDE'
+  AND (SELECT COUNT(*) FROM lots x WHERE x.bon_reception_id = b.id) <> (SELECT COUNT(*) FROM bons_reception_lignes l WHERE l.bon_reception_id = b.id);
+```
+
+**À rapporter** : les trois comptages. Le deuxième indique les bons dont une correction pourrait apparier deux lignes du
+même article
+par l'ordre des numéros de lot ; une régularisation (renseigner `lot_id`) est alors proposée.
+
+Rejeu PostgreSQL 16 jetable (`FOR UPDATE` et délai de 5 s de la requête de verrou, `stock-pg16-rejeu.sh`) : à exécuter
+avant la
+livraison de S5.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas

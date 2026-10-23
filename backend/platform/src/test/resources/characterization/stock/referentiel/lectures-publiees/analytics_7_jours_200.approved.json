@@ -1,0 +1,74 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "days": 7,
+    "sortBy": "VALUE",
+    "stockQuantiteTotale": 165.00,
+    "stockValeurTotale": 1840.0000,
+    "topArticles": [
+      {
+        "articleId": "<ART_A>",
+        "code": "A1",
+        "libelle": "Alpha",
+        "quantite": 44.00,
+        "unite": "piece",
+        "valeur": 447.0000
+      },
+      {
+        "articleId": "<ART_B>",
+        "code": "B1",
+        "libelle": "Beta",
+        "quantite": 160.00,
+        "unite": "piece",
+        "valeur": 320.0000
+      },
+      {
+        "articleId": "<ART_C>",
+        "code": "C1",
+        "libelle": "Gamma",
+        "quantite": 1.00,
+        "unite": "piece",
+        "valeur": 100.0000
+      }
+    ],
+    "topN": 10,
+    "trend": [
+      {
+        "date": "<J-6>",
+        "quantite": -190.00,
+        "valeur": 635.0000
+      },
+      {
+        "date": "<J-5>",
+        "quantite": 10.00,
+        "valeur": 90.0000
+      },
+      {
+        "date": "<J-4>",
+        "quantite": 4.00,
+        "valeur": 42.0000
+      },
+      {
+        "date": "<J-3>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-2>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-1>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-0>",
+        "quantite": -1.00,
+        "valeur": 100.0000
+      }
+    ]
+  }
+}

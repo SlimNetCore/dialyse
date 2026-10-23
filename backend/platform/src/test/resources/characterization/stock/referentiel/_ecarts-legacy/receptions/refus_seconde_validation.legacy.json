@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "detail": "Seul un bon de reception BROUILLON peut etre valide",
+    "instance": "/api/v1/stock/bons-reception/<BON_A>/valider",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

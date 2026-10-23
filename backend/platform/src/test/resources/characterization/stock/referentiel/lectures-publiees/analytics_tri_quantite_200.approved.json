@@ -1,0 +1,181 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "days": 30,
+    "sortBy": "QUANTITY",
+    "stockQuantiteTotale": 165.00,
+    "stockValeurTotale": 1840.0000,
+    "topArticles": [
+      {
+        "articleId": "<ART_B>",
+        "code": "B1",
+        "libelle": "Beta",
+        "quantite": 160.00,
+        "unite": "piece",
+        "valeur": 320.0000
+      },
+      {
+        "articleId": "<ART_A>",
+        "code": "A1",
+        "libelle": "Alpha",
+        "quantite": 94.00,
+        "unite": "piece",
+        "valeur": 1047.0000
+      }
+    ],
+    "topN": 2,
+    "trend": [
+      {
+        "date": "<J-29>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-28>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-27>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-26>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-25>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-24>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-23>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-22>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-21>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-20>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-19>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-18>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-17>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-16>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-15>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-14>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-13>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-12>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-11>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-10>",
+        "quantite": 50.00,
+        "valeur": 600.0000
+      },
+      {
+        "date": "<J-9>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-8>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-7>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-6>",
+        "quantite": -190.00,
+        "valeur": 635.0000
+      },
+      {
+        "date": "<J-5>",
+        "quantite": 10.00,
+        "valeur": 90.0000
+      },
+      {
+        "date": "<J-4>",
+        "quantite": 4.00,
+        "valeur": 42.0000
+      },
+      {
+        "date": "<J-3>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-2>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-1>",
+        "quantite": 0,
+        "valeur": 0
+      },
+      {
+        "date": "<J-0>",
+        "quantite": -1.00,
+        "valeur": 100.0000
+      }
+    ]
+  }
+}

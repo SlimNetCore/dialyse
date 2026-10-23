@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "date_peremption": null,
+      "numero_lot": null,
+      "prix_unitaire": "9.50",
+      "quantite": "70.00",
+      "reference": "BR-00001",
+      "sans_lot": "true"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "RECEPTION_QUANTITE_INFERIEURE_AU_CONSOMME",
+    "detail": "Quantité saisie inférieure à la quantité déjà consommée pour le lot AUTO-BR-00001-01",
+    "instance": "/api/v1/stock/bons-reception/<BON_A>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

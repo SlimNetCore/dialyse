@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "A1",
+      "created_by": "pharma-1",
+      "jour": "<J-6>",
+      "mouvement_type": "ENTREE",
+      "pmp_apres": "8.00",
+      "prix_unitaire": "8.00",
+      "quantite": "100.00",
+      "sans_lot": "false"
+    },
+    {
+      "code": "A2",
+      "created_by": "pharma-1",
+      "jour": "<J-6>",
+      "mouvement_type": "ENTREE",
+      "pmp_apres": "5.00",
+      "prix_unitaire": "5.00",
+      "quantite": "10.00",
+      "sans_lot": "false"
+    }
+  ]
+}

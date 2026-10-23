@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "A1",
+      "pmp_courant": "9.50",
+      "stock_quantity": "40.00"
+    },
+    {
+      "code": "A2",
+      "pmp_courant": "0.00",
+      "stock_quantity": "0.00"
+    }
+  ]
+}

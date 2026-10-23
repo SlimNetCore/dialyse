@@ -1,0 +1,30 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "created_by": "<UUID_GENERE_1>",
+      "date_reception": "<J-3>",
+      "reference": "BR-00001",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    },
+    {
+      "created_by": "<UUID_GENERE_2>",
+      "date_reception": "<J-3>",
+      "reference": "BR-00002",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    },
+    {
+      "created_by": "<UUID_GENERE_3>",
+      "date_reception": "<J-3>",
+      "reference": "BR-00003",
+      "sans_bon_commande": "true",
+      "sans_fournisseur": "true",
+      "statut": "BROUILLON"
+    }
+  ]
+}
