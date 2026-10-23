@@ -1,0 +1,24 @@
+{
+  "centreA" : [ {
+    "commentaire" : null,
+    "date_rattrapage" : null,
+    "date_seance" : "<J-3>",
+    "declaree_le" : "<HORODATAGE>",
+    "declaree_par" : null,
+    "forfait_id" : "<F_HD>",
+    "forfait_libelle" : "Forfait HD",
+    "id" : "<UUID_GENERE_1>",
+    "modifiee_le" : null,
+    "modifiee_par" : null,
+    "montant_ht" : "10000.00",
+    "motif" : null,
+    "patient_id" : "<P_AMRANI>",
+    "prix_ttc" : "11900.00",
+    "qualifiee_le" : null,
+    "qualifiee_par" : null,
+    "source" : "AUTOMATIQUE",
+    "statut" : "A_QUALIFIER",
+    "taux_tva" : "19.00"
+  } ],
+  "centreB" : [ "<J-3> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ]
+}

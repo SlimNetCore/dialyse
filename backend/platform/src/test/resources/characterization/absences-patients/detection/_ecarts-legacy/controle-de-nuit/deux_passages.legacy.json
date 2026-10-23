@@ -1,0 +1,49 @@
+{
+  "absencesApresDeuxPassages" : [ "<J-7> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-6> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-5> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-4> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-3> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-2> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-1> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "id" : "<UUID_GENERE_1>",
+      "payload" : {
+        "nbAQualifier" : "7",
+        "nbEnRetard" : "4",
+        "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+      },
+      "timestamp" : "<HORODATAGE>",
+      "type" : "ABSENCES_A_QUALIFIER"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "id" : "<UUID_GENERE_2>",
+      "payload" : {
+        "nbAQualifier" : "7",
+        "nbEnRetard" : "4",
+        "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+      },
+      "timestamp" : "<HORODATAGE>",
+      "type" : "ABSENCES_A_QUALIFIER"
+    }
+  } ],
+  "journal" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "7",
+      "nbEnRetard" : "4",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  }, {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "7",
+      "nbEnRetard" : "4",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}

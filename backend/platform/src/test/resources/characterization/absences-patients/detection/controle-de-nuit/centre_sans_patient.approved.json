@@ -1,0 +1,15 @@
+{
+  "absencesA" : 0,
+  "absencesB" : 7,
+  "journalA" : [ ],
+  "journalB" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "7",
+      "nbEnRetard" : "4",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}

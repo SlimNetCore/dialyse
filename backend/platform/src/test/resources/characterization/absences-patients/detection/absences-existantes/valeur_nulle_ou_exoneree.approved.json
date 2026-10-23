@@ -1,0 +1,5 @@
+{
+  "regleExoneree" : [ "<J-1> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1000.00 tva=0.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "sansPriseEnCharge" : [ "<J-1> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=null ttc=0.00 tva=19.00 ht=0.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "sansRegleDeTva" : [ "<J-1> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=null ttc=0.00 tva=0.00 ht=0.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-1> | <P_BELKACEM> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=10000.00 tva=0.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ]
+}

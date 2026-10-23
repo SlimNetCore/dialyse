@@ -1,0 +1,22 @@
+{
+  "absencesCreees" : 0,
+  "anonyme" : {
+    "status" : 403
+  },
+  "direction" : {
+    "code" : "ROLE_SCOPE",
+    "status" : 403
+  },
+  "infirmier" : {
+    "code" : "ACCESS_DENIED",
+    "status" : 403
+  },
+  "medecin" : {
+    "code" : "ACCESS_DENIED",
+    "status" : 403
+  },
+  "secretaire" : {
+    "code" : "ACCESS_DENIED",
+    "status" : 403
+  }
+}

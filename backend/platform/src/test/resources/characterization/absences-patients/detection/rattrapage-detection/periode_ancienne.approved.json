@@ -1,0 +1,11 @@
+{
+  "dates" : [ "<J-120>:A_QUALIFIER", "<J-119>:A_QUALIFIER", "<J-118>:A_QUALIFIER", "<J-117>:A_QUALIFIER", "<J-116>:A_QUALIFIER", "<J-115>:A_QUALIFIER", "<J-114>:A_QUALIFIER", "<J-113>:A_QUALIFIER", "<J-112>:A_QUALIFIER", "<J-111>:A_QUALIFIER", "<J-110>:A_QUALIFIER", "<J-109>:A_QUALIFIER", "<J-108>:A_QUALIFIER", "<J-107>:A_QUALIFIER", "<J-106>:A_QUALIFIER", "<J-105>:A_QUALIFIER", "<J-104>:A_QUALIFIER", "<J-103>:A_QUALIFIER", "<J-102>:A_QUALIFIER", "<J-101>:A_QUALIFIER", "<J-100>:A_QUALIFIER" ],
+  "reponse" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 21
+    },
+    "status" : 200
+  }
+}

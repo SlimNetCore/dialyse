@@ -1,0 +1,17 @@
+{
+  "366JoursInclus" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 366
+    },
+    "status" : 200
+  },
+  "367JoursInclus" : {
+    "code" : "ABSENCE_PERIODE_TROP_LONGUE",
+    "status" : 422
+  },
+  "absencesApres366Jours" : 366,
+  "absencesApresRefus" : 0,
+  "premieresEtDernieres" : [ "<J-366>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ]
+}

@@ -1,0 +1,20 @@
+{
+  "administrateurDuCentreA" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 2
+    },
+    "status" : 200
+  },
+  "administrateurDuCentreB" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 1,
+      "creees" : 1
+    },
+    "status" : 200
+  },
+  "centreA" : [ "<J-10> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-9> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "centreB" : [ "<J-10> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-9> | <P_CENTRE_B> | ANNULEE/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=Séance réalisée à cette date | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=true" ]
+}

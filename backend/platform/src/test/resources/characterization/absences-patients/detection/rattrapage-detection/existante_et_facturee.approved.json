@@ -1,0 +1,11 @@
+{
+  "absences" : [ "<J-7> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-6> | <P_AMRANI> | ANNULEE/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=Erreur | declaree_par=null declaree_le=true | qualifiee_par=<U_SECRETAIRE> qualifiee_le=true | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-5> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-5> | <P_BELKACEM> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "reponse" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 3
+    },
+    "status" : 200
+  }
+}

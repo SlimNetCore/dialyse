@@ -1,0 +1,6 @@
+{
+  "admisAujourdhui" : [ ],
+  "admisDansDeuxJours" : [ ],
+  "admisHier" : [ "<J-1>:A_QUALIFIER" ],
+  "admisIlYATroisJours" : [ "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ]
+}

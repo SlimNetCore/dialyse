@@ -1,0 +1,70 @@
+{
+  "debutApresLaFin" : {
+    "dates" : [ ],
+    "reponse" : {
+      "code" : "ABSENCE_PERIODE_INVALIDE",
+      "status" : 422
+    }
+  },
+  "debutAujourdhuiFinAujourdhui" : {
+    "dates" : [ ],
+    "reponse" : {
+      "code" : "ABSENCE_PERIODE_INVALIDE",
+      "status" : 422
+    }
+  },
+  "debutAujourdhuiFinHier" : {
+    "dates" : [ ],
+    "reponse" : {
+      "code" : "ABSENCE_PERIODE_INVALIDE",
+      "status" : 422
+    }
+  },
+  "debutDansLeFutur" : {
+    "dates" : [ ],
+    "reponse" : {
+      "code" : "ABSENCE_PERIODE_INVALIDE",
+      "status" : 422
+    }
+  },
+  "debutHierFinHier" : {
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 1
+    },
+    "dates" : [ "<J-1>:A_QUALIFIER" ],
+    "reponse" : {
+      "status" : 200
+    }
+  },
+  "finAujourdhui" : {
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 3
+    },
+    "dates" : [ "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+    "reponse" : {
+      "status" : 200
+    }
+  },
+  "finDansLeFutur" : {
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 3
+    },
+    "dates" : [ "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+    "reponse" : {
+      "status" : 200
+    }
+  },
+  "unSeulJourDansLePasse" : {
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 1
+    },
+    "dates" : [ "<J-20>:A_QUALIFIER" ],
+    "reponse" : {
+      "status" : 200
+    }
+  }
+}

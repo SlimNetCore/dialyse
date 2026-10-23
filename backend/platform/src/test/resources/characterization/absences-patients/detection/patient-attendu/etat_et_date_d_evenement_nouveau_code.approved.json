@@ -1,0 +1,21 @@
+{
+  "AUTRE_ETAT_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "DECEDE_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER" ],
+  "DECEDE_sans_date_d_evenement" : [ ],
+  "GREFFE_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER" ],
+  "GREFFE_sans_date_d_evenement" : [ ],
+  "GUERRI_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER" ],
+  "GUERRI_sans_date_d_evenement" : [ ],
+  "NUL_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "NUL_sans_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "OCCASIONNEL_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER" ],
+  "OCCASIONNEL_sans_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "PERMANENT_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "PERMANENT_sans_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "TRANSFERE_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER" ],
+  "TRANSFERE_sans_date_d_evenement" : [ ],
+  "VACANCIER_ETRANGER_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER" ],
+  "VACANCIER_ETRANGER_sans_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "VACANCIER_LOCAL_avec_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER" ],
+  "VACANCIER_LOCAL_sans_date_d_evenement" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ]
+}

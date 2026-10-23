@@ -1,0 +1,15 @@
+{
+  "absencesCentreA" : 2,
+  "absencesCentreB" : 0,
+  "centreEtranger" : {
+    "code" : "ACCESS_DENIED",
+    "status" : 403
+  },
+  "centreIllisible" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  },
+  "centrePropre" : {
+    "status" : 200
+  }
+}

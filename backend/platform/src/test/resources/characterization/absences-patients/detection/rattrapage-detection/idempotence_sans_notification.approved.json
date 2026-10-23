@@ -1,0 +1,20 @@
+{
+  "diffusions" : [ ],
+  "journal" : [ ],
+  "premierAppel" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 3
+    },
+    "status" : 200
+  },
+  "secondAppel" : {
+    "cacheControl" : "no-store",
+    "corps" : {
+      "annulees" : 0,
+      "creees" : 0
+    },
+    "status" : 200
+  }
+}

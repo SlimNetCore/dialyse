@@ -221,7 +221,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/OpeningBalanceJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceBillingStatusJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/absence/AbsenceDonneesJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DocumentRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminTables.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/stock/BonSortieApplicationService.java",
@@ -236,28 +235,12 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/service/VoletParamedicalDomainService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/ApiExceptionHandler.java",
     "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/exception/SeanceFactureeNonModifiableException.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/absence/AbsencePatientService.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/absence/AbsencePatientJdbcAdapter.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/port/AbsencePatientRepositoryPort.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/port/AbsenceDonneesPort.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/AbsenceFiltre.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/AbsenceLigne.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceRestController.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/AbsencePatient.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/ValeurAbsence.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/MotifAbsence.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/StatutAbsence.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/SourceAbsence.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/service/ValorisationAbsenceService.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/port/ForfaitAbsencePort.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/absence/ForfaitAbsenceJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation/AbsencesDesPatientsLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/SignalementDesSaisiesLegacy.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/SignalementDesSaisiesLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/NotificationsDuCentreLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/NotificationService.java"
   ],
   "seamAllowed": [
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/port/AbsencePatientRepositoryPort.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/absence/AbsencePatientJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/absence/AbsencePatientService.java"
   ]
 }

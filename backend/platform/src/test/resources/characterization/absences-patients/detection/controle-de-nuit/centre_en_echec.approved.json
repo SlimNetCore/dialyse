@@ -1,0 +1,15 @@
+{
+  "absencesA" : 0,
+  "absencesB" : [ "<J-7> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-6> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-5> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-4> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-3> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-2> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-1> | <P_CENTRE_B> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait du centre B ttc=1090.00 tva=9.00 ht=1000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "journalA" : [ ],
+  "journalB" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "7",
+      "nbEnRetard" : "4",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}

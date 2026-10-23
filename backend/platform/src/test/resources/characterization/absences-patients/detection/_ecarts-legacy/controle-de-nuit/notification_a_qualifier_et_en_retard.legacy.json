@@ -1,0 +1,26 @@
+{
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "id" : "<UUID_GENERE_1>",
+      "payload" : {
+        "nbAQualifier" : "8",
+        "nbEnRetard" : "5",
+        "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+      },
+      "timestamp" : "<HORODATAGE>",
+      "type" : "ABSENCES_A_QUALIFIER"
+    }
+  } ],
+  "journal" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "8",
+      "nbEnRetard" : "5",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}

@@ -1,0 +1,43 @@
+{
+  "absencesCreees" : 0,
+  "corpsVide" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  },
+  "dateIllisible" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  },
+  "dateImpossible" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  },
+  "finNulle" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "jsonIllisible" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  },
+  "objetVide" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "sansDebut" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "sansFin" : {
+    "code" : "VALIDATION_ERROR",
+    "status" : 400
+  },
+  "tableau" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  },
+  "texteBrut" : {
+    "code" : "INTERNAL_ERROR",
+    "status" : 500
+  }
+}

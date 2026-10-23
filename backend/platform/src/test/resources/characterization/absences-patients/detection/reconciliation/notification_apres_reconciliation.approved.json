@@ -1,0 +1,12 @@
+{
+  "journal" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "1",
+      "nbEnRetard" : "1",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}

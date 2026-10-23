@@ -1,0 +1,5 @@
+{
+  "autrePatientDuCentre" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "patientDuCentreBFactureLe_J-7" : [ "<J-6>:A_QUALIFIER", "<J-5>:A_QUALIFIER", "<J-4>:A_QUALIFIER", "<J-3>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ],
+  "patientFactureDeJ-5AJ-3" : [ "<J-7>:A_QUALIFIER", "<J-6>:A_QUALIFIER", "<J-2>:A_QUALIFIER", "<J-1>:A_QUALIFIER" ]
+}

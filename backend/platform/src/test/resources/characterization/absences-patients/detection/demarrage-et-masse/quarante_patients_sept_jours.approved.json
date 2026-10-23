@@ -1,0 +1,15 @@
+{
+  "absences" : 280,
+  "journal" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "280",
+      "nbEnRetard" : "160",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ],
+  "parJour" : 7,
+  "parPatient" : "7-7"
+}

@@ -1,0 +1,31 @@
+{
+  "apresAjoutDeJ-4" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "1",
+      "nbEnRetard" : "0",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  }, {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "2",
+      "nbEnRetard" : "1",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ],
+  "avecUneAbsenceDeJ-3" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "1",
+      "nbEnRetard" : "0",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}

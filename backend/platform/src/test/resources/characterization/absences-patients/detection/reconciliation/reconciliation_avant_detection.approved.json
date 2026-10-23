@@ -1,0 +1,13 @@
+{
+  "absences" : [ "<J-7> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-6> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-5> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-4> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-3> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false", "<J-2> | <P_AMRANI> | ANNULEE/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=Séance réalisée à cette date | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=true", "<J-1> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE | valeur=Forfait HD ttc=11900.00 tva=19.00 ht=10000.00 | motif=null | commentaire=null | declaree_par=null declaree_le=true | qualifiee_par=null qualifiee_le=false | rattrapage=null | modifiee_par=null modifiee_le=false" ],
+  "journal" : [ {
+    "creeLe" : true,
+    "payload" : {
+      "nbAQualifier" : "6",
+      "nbEnRetard" : "4",
+      "targetRoles" : "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+    },
+    "targetRoles" : ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+    "type" : "ABSENCES_A_QUALIFIER"
+  } ]
+}
