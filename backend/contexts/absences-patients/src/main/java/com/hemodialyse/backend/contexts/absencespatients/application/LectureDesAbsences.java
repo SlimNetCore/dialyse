@@ -36,6 +36,11 @@ public interface LectureDesAbsences {
     long nombreAQualifierAvant(CentreId centre, LocalDate limite);
 
     /**
+     * Absences « à qualifier » dont la séance tombe entre ces deux dates incluses (compte de la notification de nuit).
+     */
+    long nombreAQualifierEntre(CentreId centre, LocalDate du, LocalDate au);
+
+    /**
      * L'absence de ce centre ; vide si elle n'existe pas ou appartient à un autre centre.
      */
     Optional<AbsenceSuivie> absence(CentreId centre, AbsenceId id);

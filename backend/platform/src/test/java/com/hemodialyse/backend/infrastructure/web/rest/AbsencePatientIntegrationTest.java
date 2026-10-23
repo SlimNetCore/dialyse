@@ -1,13 +1,11 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.absence.AbsencePatientService;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.AbsencesOverview;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.CentreAbsences;
-import com.hemodialyse.backend.domain.absence.model.AbsenceFiltre;
-import com.hemodialyse.backend.domain.absence.model.AbsenceLigne;
-import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
-import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
+import com.hemodialyse.backend.contexts.absencespatients.application.DetectionAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodeDeDetection;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.infrastructure.security.RoleScopeFilter;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
@@ -24,13 +22,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,8 +37,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Suivi des absences de patients : détection, valorisation (forfait de la prise en charge en TTC converti en HT avec la
- * TVA du type « HEMODIALYSE »), règles de cycle de vie, isolation entre centres et agrégats de la direction.
+ * Lectures des absences de patients par les autres écrans : tableau de bord mensuel des séances, agrégats de la direction et
+ * isolation par rôle. Les absences sont créées par la détection du contexte absences-patients ; la détection elle-même est
+ * éprouvée par le filet de caractérisation d'A3 et les tests du module.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
@@ -58,9 +56,7 @@ class AbsencePatientIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private AbsencePatientService service;
-    @Autowired
-    private com.hemodialyse.backend.domain.absence.port.AbsencePatientRepositoryPort repository;
+    private DetectionAbsences detection;
     @Autowired
     private SeanceRestController seances;
     @Autowired
@@ -70,9 +66,9 @@ class AbsencePatientIntegrationTest {
     private UUID absent;
     private UUID present;
 
-    /** Lecture de contrôle des écritures (la consultation HTTP est dans le contexte absences-patients). */
-    private com.hemodialyse.backend.domain.shared.PagedResult<AbsenceLigne> lister(UUID centre, AbsenceFiltre filtre) {
-        return repository.findPaged(centre, filtre, 0, 20);
+    /** Détecte les absences du jour pour ce centre (le contrôle de nuit, sans la notification). */
+    private void detecter(UUID centre, LocalDate date) {
+        detection.executer(new CentreId(centre), new PeriodeDeDetection(date, date, false), Instant.now());
     }
 
     private static void connecteEnAdminDuCentre(UUID centre) {
@@ -129,73 +125,11 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
-    void detects_each_scheduled_patient_without_session_once_and_values_the_loss() {
-        assertEquals(1, service.detecter(C1, jour), "seul le patient sans séance réalisée est absent");
-        assertEquals(0, service.detecter(C1, jour), "détection idempotente");
-        assertEquals(0, service.detecter(C2, jour), "autre centre : aucun patient");
-
-        AbsenceLigne ligne = lister(C1, AbsenceFiltre.aucun()).items().get(0);
-        AbsencePatient a = ligne.absence();
-        assertEquals(absent, a.patientId());
-        assertEquals(StatutAbsence.A_QUALIFIER, a.statut());
-        assertEquals(new BigDecimal("11900.00"), a.valeur().prixTtc());
-        assertEquals(new BigDecimal("19.00"), a.valeur().tauxTva());
-        assertEquals(new BigDecimal("10000.00"), a.valeur().montantHt());
-        assertEquals("Forfait test", a.valeur().forfaitLibelle());
-        assertNotNull(ligne.patientNom());
-        assertEquals(0, lister(C2, AbsenceFiltre.aucun()).total(), "isolation par centre");
-    }
-
-    @Test
-    void does_not_expect_an_exited_patient_once_the_place_is_freed() {
-        sortir("DECEDE", jour);
-        assertEquals(0, service.detecter(C1, jour), "décédé le jour même : plus attendu");
-
-        sortir("DECEDE", jour.plusDays(1));
-        assertEquals(1, service.detecter(C1, jour), "décédé le lendemain : encore attendu ce jour-là");
-    }
-
-    @Test
-    void expects_a_transferred_patient_through_the_transfer_date_only() {
-        sortir("TRANSFERE", jour);
-        assertEquals(1, service.detecter(C1, jour), "transféré le jour même : dernière séance attendue");
-
-        jdbc.update("DELETE FROM absence_patient WHERE center_id = ?", C1);
-        sortir("TRANSFERE", jour.minusDays(1));
-        assertEquals(0, service.detecter(C1, jour), "transféré la veille : plus attendu");
-    }
-
-    @Test
-    void does_not_expect_an_exited_patient_without_event_date() {
-        sortir("GREFFE", null);
-        assertEquals(0, service.detecter(C1, jour));
-    }
-
-    @Test
-    void a_past_period_is_caught_up_idempotently_and_bounded() {
-        LocalDate debut = jour.minusDays(2);
-
-        AbsencePatientService.Rattrapage premier = service.rattraperPeriode(C1, debut, LocalDate.now());
-        AbsencePatientService.Rattrapage second = service.rattraperPeriode(C1, debut, LocalDate.now());
-
-        // le patient programmé tous les jours sans séance réalisée est absent chaque jour passé de la période
-        // (le jour courant est ignoré : la période est ramenée à hier), le patient présent seulement le jour de sa séance
-        long attendues = debut.datesUntil(LocalDate.now()).count();
-        assertEquals(attendues * 2 - 1, premier.creees());
-        assertEquals(0, second.creees(), "rattrapage idempotent");
-        assertEquals("ABSENCE_PERIODE_TROP_LONGUE", assertThrows(BusinessException.class,
-                () -> service.rattraperPeriode(C1, LocalDate.now().minusDays(400), LocalDate.now())).getCode());
-        assertEquals("ABSENCE_PERIODE_INVALIDE", assertThrows(BusinessException.class,
-                () -> service.rattraperPeriode(C1, LocalDate.now(), LocalDate.now())).getCode());
-        assertEquals(0, service.rattraperPeriode(C2, debut, LocalDate.now()).creees(), "autre centre : aucun patient");
-    }
-
-    @Test
     @SuppressWarnings("unchecked")
     void the_monthly_dashboard_counts_the_tracked_absences_and_the_performed_sessions() {
         // KB-ABS-05 : le tableau de bord est gardé par le centre de la session ; l'administrateur du centre 1 est connecté
         connecteEnAdminDuCentre(C1);
-        service.detecter(C1, jour);   // le patient sans séance réalisée est absent
+        detecter(C1, jour);   // le patient sans séance réalisée est absent
         seance(C1, absent, jour, "CREE");   // une séance seulement créée n'est pas une présence
         jdbc.update("INSERT INTO absence_patient (id, center_id, patient_id, date_seance, source, statut, prix_ttc, "
                         + "taux_tva, montant_ht) VALUES (?,?,?,?,?,?,?,?,?)", UUID.randomUUID(), C1, present,
@@ -222,83 +156,9 @@ class AbsencePatientIntegrationTest {
         assertEquals(1, presences.get("total"));
     }
 
-    private void sortir(String etat, LocalDate dateEvenement) {
-        jdbc.update("UPDATE patients SET etat_patient = ?, date_evenement_etat = ? WHERE id = ?", etat,
-                dateEvenement == null ? null : Date.valueOf(dateEvenement), absent);
-    }
-
-    @Test
-    void a_validated_billing_period_stops_the_detection_for_that_patient() {
-        service.detecter(C1, jour);
-        Date debut = Date.valueOf(jour.minusDays(10));
-        Date fin = Date.valueOf(jour.plusDays(1));
-        jdbc.update("INSERT INTO factures (id, center_id, patient_id, numero_facture, period_start, period_end, "
-                        + "date_facturation, tva_rate, total_ht, total_tva, total_ttc) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                UUID.randomUUID(), C1, absent, "ZT-AB-CLOT", debut, fin, fin, new BigDecimal("19.00"),
-                BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ONE);
-
-        service.detecter(C1, jour.minusDays(2)); // l'autre patient (non facturé) est détecté, pas celui-ci
-        assertEquals(0, lister(C1, new AbsenceFiltre(null, null, absent, jour.minusDays(2), jour.minusDays(2)))
-                .total(), "pas de nouvelle absence dans une période clôturée");
-    }
-
-    @Test
-    void a_closed_day_produces_no_absence() {
-        jdbc.update("INSERT INTO center_holiday (id, center_id, day_date, label) VALUES (?,?,?,?)", UUID.randomUUID(), C1,
-                Date.valueOf(jour), "Férié test");
-        try {
-            assertEquals(0, service.detecter(C1, jour));
-        } finally {
-            jdbc.update("DELETE FROM center_holiday WHERE center_id = ?", C1);
-        }
-    }
-
-    @Test
-    void a_session_entered_late_cancels_the_detected_absence() {
-        service.detecter(C1, jour);
-        seance(C1, absent, jour, "SIGNEE");
-
-        assertEquals(1, service.reconcilier(C1, jour.minusDays(1), jour.plusDays(1)));
-
-        AbsencePatient a = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
-        assertEquals(StatutAbsence.ANNULEE, a.statut());
-        assertEquals(0, service.synthese(C1).aQualifier());
-    }
-
-    /**
-     * Seam A2 : une absence que le contexte absences-patients a qualifiée ou rattrapée entre la lecture du lot de nuit et son
-     * écriture n'est jamais ré-annulée (ni son motif ni sa date de rattrapage écrasés).
-     */
-    @Test
-    void the_night_reconciliation_never_overwrites_an_absence_handled_in_the_meantime() {
-        service.detecter(C1, jour);
-        AbsencePatient lue = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
-        seance(C1, absent, jour, "SIGNEE");
-        jdbc.update("UPDATE absence_patient SET statut = 'RATTRAPEE', motif = 'MALADIE', date_rattrapage = ? WHERE id = ?",
-                Date.valueOf(jour.plusDays(2)), lue.id());
-
-        lue.annuler("Séance réalisée à cette date", null, java.time.Instant.now());
-        assertFalse(repository.saveIfAQualifier(lue), "la ligne n'est plus à qualifier");
-        assertEquals(0, service.reconcilier(C1, jour.minusDays(1), jour.plusDays(1)), "rien à réconcilier");
-
-        AbsencePatient relue = lister(C1, AbsenceFiltre.aucun()).items().get(0).absence();
-        assertEquals(StatutAbsence.RATTRAPEE, relue.statut());
-        assertEquals(jour.plusDays(2), relue.dateRattrapage());
-        assertNotNull(relue.motif());
-    }
-
-    @Test
-    void the_summary_counts_pending_and_late_absences() {
-        service.detecter(C1, jour); // 5 jours : en retard (> 3 jours)
-        AbsencePatientService.Synthese s = service.synthese(C1);
-        assertEquals(1, s.aQualifier());
-        assertEquals(1, s.enRetard());
-        assertEquals(0, service.synthese(C2).aQualifier());
-    }
-
     @Test
     void the_direction_overview_aggregates_per_centre_with_valuation_share_of_revenue_and_anonymity() {
-        service.detecter(C1, jour);
+        detecter(C1, jour);
         UUID autre = patient(C3);
         jdbc.update("INSERT INTO absence_patient (id, center_id, patient_id, date_seance, source, statut, prix_ttc, "
                         + "taux_tva, montant_ht) VALUES (?,?,?,?,?,?,?,?,?)", UUID.randomUUID(), C3, autre,

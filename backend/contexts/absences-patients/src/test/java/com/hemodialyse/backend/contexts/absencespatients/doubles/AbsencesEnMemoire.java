@@ -35,6 +35,10 @@ public class AbsencesEnMemoire implements AbsencesRepository {
         return lignes.size();
     }
 
+    public List<AbsencePatient> toutes() {
+        return lignes.values().stream().map(AbsencesEnMemoire::copie).toList();
+    }
+
     public Optional<AbsencePatient> lire(AbsenceId id) {
         return Optional.ofNullable(lignes.get(id)).map(AbsencesEnMemoire::copie);
     }
@@ -67,6 +71,17 @@ public class AbsencesEnMemoire implements AbsencesRepository {
     public boolean existe(CentreId centre, PatientId patient, LocalDate jour) {
         return lignes.values().stream().anyMatch(a -> a.centre().equals(centre) && a.patient().equals(patient)
                 && a.dateDeSeance().equals(jour));
+    }
+
+    @Override
+    public List<AbsencePatient> detecteesAQualifierEntre(CentreId centre, LocalDate du, LocalDate au, AbsenceId apres,
+                                                         int limite) {
+        return lignes.values().stream()
+                .filter(a -> a.centre().equals(centre) && a.source() == com.hemodialyse.backend.contexts.absencespatients.domain.SourceAbsence.AUTOMATIQUE
+                        && a.statut() == StatutAbsence.A_QUALIFIER && !a.dateDeSeance().isBefore(du) && !a.dateDeSeance().isAfter(au)
+                        && (apres == null || a.id().valeur().compareTo(apres.valeur()) > 0))
+                .sorted(java.util.Comparator.comparing(a -> a.id().valeur()))
+                .limit(limite).map(AbsencesEnMemoire::copie).toList();
     }
 
     @Override

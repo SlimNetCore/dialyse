@@ -37,7 +37,7 @@
 | `SeanceStationRestController`            | `/api/v1/seances/raccourcis-consommables`, `/patient/{id}/recentes`                                                                                     | `ADMIN` (écriture), `INFIRMIER`, `SECRETAIRE`, `MEDECIN` selon l'action        | RG-SEA-026 à 029                                    |
 | `VoletParamedicalRestController`         | `/api/v1/seances/{id}/volet-paramedical`                                                                                                                | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                                             | RG-SEA-030                                          |
 | `VoletMedicalRestController`             | `/api/v1/seances/{id}/volet-medical`                                                                                                                    | `ADMIN`, `MEDECIN`                                                             | RG-SEA-031                                          |
-| `AbsencePatientRestController`           | `/api/v1/absences-patients` (détection d'une période passée, slice A3 à venir)                                  | `ADMIN` (détection d'une période)       | RG-ABS-001 à 046                                    |
+| `DetectionControleur`                    | `/api/v1/absences-patients/rattrapage-detection` (détection d'une période passée) — contexte `absences-patients`, slice A3                                 | `ADMIN` (détection d'une période)       | RG-ABS-001 à 046                                    |
 | `AbsencesEcrituresControleur`           | `/api/v1/absences-patients` (déclaration, qualification, rattrapage, annulation) — contexte `absences-patients`, slice A2 | `ADMIN`, `SECRETAIRE`, `INFIRMIER` (déclaration) ; `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` (qualification, annulation) ; `ADMIN`, `MEDECIN` (rattrapage, corrections) | RG-ABS-003, 010 à 025, 054 à 057 (annulation refusée pour une exclusion : 057) |
 | `AbsencesControleur`                     | `/api/v1/absences-patients` (liste, `/semaine`, `/synthese`, `/{id}/seances-rattrapage`) — contexte `absences-patients`, slice A1                       | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                                  | RG-ABS-021, 023, 043, 050 à 053                     |
 | `PlanningAffectationRestController`      | `/api/v1/planning/affectations`                                                                                                                         | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                                  | RG-PLN-020 à 036                                    |
@@ -110,7 +110,7 @@
 
 | Tâche                                 | Cadence                              | Règles                 |
 |---------------------------------------|--------------------------------------|------------------------|
-| `AbsencePatientScheduler`             | 02:30 chaque jour et au démarrage    | RG-ABS-040 à 046       |
+| `ControleDeNuitDesAbsences`           | 02:30 chaque jour et au démarrage    | RG-ABS-040 à 046       |
 | `SeanceRegularisationScheduler`       | 07:00 chaque jour                    | RG-SEA-046             |
 | `AuditScheduler`                      | écriture toutes les 3 s, purge 03:30 | RG-SEC-051, RG-SEC-052 |
 | `DirectionRealtimeScheduler`          | 1 s et 10 s                          | RG-DIR-100, RG-DIR-101 |

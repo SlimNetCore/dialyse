@@ -6,7 +6,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Cen
 import com.hemodialyse.backend.contexts.absencespatients.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Pagination;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Map;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
@@ -19,16 +18,16 @@ public class ListerLesAbsences {
 
     private final LectureDesAbsences lecture;
     private final NomsDesPatients noms;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
-    public ListerLesAbsences(LectureDesAbsences lecture, NomsDesPatients noms, Clock horloge) {
+    public ListerLesAbsences(LectureDesAbsences lecture, NomsDesPatients noms, HorlogeDesCentres horloge) {
         this.lecture = lecture;
         this.noms = noms;
         this.horloge = horloge;
     }
 
     public PageDeResultats<LigneDuSuivi> executer(CentreId centre, FiltreDesAbsences filtre, Pagination pagination) {
-        LocalDate aujourdhui = LocalDate.now(horloge);
+        LocalDate aujourdhui = horloge.aujourdhui(centre);
         PageDeResultats<AbsenceSuivie> page = lecture.lister(centre, filtre, pagination);
         Map<PatientId, String> nomsDesPatients = noms.parPatient(centre,
                 page.elements().stream().map(AbsenceSuivie::patient).toList());

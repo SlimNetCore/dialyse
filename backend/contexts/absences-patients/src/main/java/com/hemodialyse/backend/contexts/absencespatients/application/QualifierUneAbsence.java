@@ -9,7 +9,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.MotifAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodesFacturees;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SignalementDesSaisies;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -23,10 +22,10 @@ public class QualifierUneAbsence {
     private final AbsencesRepository absences;
     private final PeriodesFacturees periodes;
     private final SignalementDesSaisies signalement;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     public QualifierUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences, PeriodesFacturees periodes,
-                               SignalementDesSaisies signalement, Clock horloge) {
+                               SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
         this.uniteDeTravail = uniteDeTravail;
         this.absences = absences;
         this.periodes = periodes;
@@ -38,10 +37,10 @@ public class QualifierUneAbsence {
      * @throws AbsenceIntrouvable absence inconnue de ce centre
      */
     public LigneDuSuivi executer(CentreId centre, AbsenceId id, MotifAbsence motif, String commentaire, Intervenant intervenant) {
-        LocalDate aujourdhui = LocalDate.now(horloge);
+        LocalDate aujourdhui = horloge.aujourdhui(centre);
         AbsencePatient absence = uniteDeTravail.executer(() -> {
             AbsencePatient a = absences.verrouiller(centre, id).orElseThrow(() -> new AbsenceIntrouvable(id));
-            a.qualifier(motif, commentaire, intervenant.utilisateur(), intervenant.droit(), periodes, Instant.now(horloge));
+            a.qualifier(motif, commentaire, intervenant.utilisateur(), intervenant.droit(), periodes, horloge.maintenant());
             absences.enregistrer(a);
             signalement.absenceSaisie(centre.valeur(), a.patient().valeur(), a.dateDeSeance());
             return a;

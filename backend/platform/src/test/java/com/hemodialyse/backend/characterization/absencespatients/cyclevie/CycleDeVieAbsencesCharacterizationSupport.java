@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p>
  * Reprend la methode du harnais A1 ({@code ConsultationAbsencesCharacterizationSupport}, package-private donc copie ici) :
  * <ul>
- *   <li>dates RELATIVES au jour d'execution UTC (horloge du legacy : {@code Clock.systemUTC}), alias {@code <J>},
+ *   <li>dates RELATIVES au jour d'execution du fuseau du centre Africa/Algiers (UTC avant A3, decision 7 ; horloge du legacy : {@code Clock.systemUTC}), alias {@code <J>},
  *   {@code <J-4>} ; une execution lancee a moins de deux minutes de minuit UTC attend minuit (aucune bascule de jour pendant un
  *   test) ; aucune dependance au jour de la semaine ;</li>
  *   <li>identifiants de fixture NOMMES ({@code <P_AMRANI>}, {@code <U_ADMIN>}) ; identifiants generes par le code nommes dans
@@ -134,8 +134,11 @@ abstract class CycleDeVieAbsencesCharacterizationSupport {
     // ------------------------------------------------------------------ dates
 
     /** Aujourd'hui selon l'horloge du code legacy (UTC). */
+    /** Fuseau du centre (décision 7, A3) : « aujourd'hui » n'est plus le jour UTC. */
+    protected static final java.time.ZoneId FUSEAU_DU_CENTRE = java.time.ZoneId.of("Africa/Algiers");
+
     protected static LocalDate aujourdhui() {
-        return LocalDate.now(ZoneOffset.UTC);
+        return LocalDate.now(FUSEAU_DU_CENTRE);
     }
 
     /** Jour relatif au jour d'execution (n = jours dans le passe ; negatif = futur), nomme {@code <J-n>}. */
@@ -183,7 +186,7 @@ abstract class CycleDeVieAbsencesCharacterizationSupport {
 
     @BeforeEach
     void setUpCycleDeVie() throws Exception {
-        attendreSiProcheDeMinuitUtc();
+        attendreSiProcheDeMinuitDuCentre();
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).addFilters(roleScopeFilter).build();
         cleanupCycleDeVie();
         datesNommees.clear();
@@ -234,8 +237,8 @@ abstract class CycleDeVieAbsencesCharacterizationSupport {
     }
 
     /** Aucune bascule de jour UTC pendant un test : on attend minuit si on en est a moins de deux minutes. */
-    private static void attendreSiProcheDeMinuitUtc() throws InterruptedException {
-        Instant minuit = aujourdhui().plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    private static void attendreSiProcheDeMinuitDuCentre() throws InterruptedException {
+        Instant minuit = aujourdhui().plusDays(1).atStartOfDay(FUSEAU_DU_CENTRE).toInstant();
         Duration reste = Duration.between(Instant.now(), minuit);
         if (reste.compareTo(Duration.ofMinutes(2)) < 0) {
             Thread.sleep(reste.toMillis() + 2000);

@@ -135,6 +135,15 @@ describe('AbsencesPatientsStore', () => {
     expect(api['list']).toHaveBeenCalledWith(CENTRE, EMPTY_FILTERS, 0, 10);
   });
 
+  it('garde les champs additifs du rattrapage : fin ramenée à hier et absences en incident', () => {
+    api['rattraperDetection'] = vi.fn().mockReturnValue(of({creees: 3, annulees: 0, fin: '2026-10-21', finRamenee: true, echecs: 1}));
+    const store = TestBed.inject(AbsencesPatientsStore);
+
+    store.catchUp({from: '2026-10-01', to: '2026-10-30'});
+
+    expect(store.rattrapage()).toEqual({creees: 3, annulees: 0, fin: '2026-10-21', finRamenee: true, echecs: 1});
+  });
+
   it('traduit les erreurs de période du rattrapage', () => {
     api['rattraperDetection'] = vi.fn().mockReturnValue(throwError(() => erreurServeur('ABSENCE_PERIODE_TROP_LONGUE')));
     const store = TestBed.inject(AbsencesPatientsStore);

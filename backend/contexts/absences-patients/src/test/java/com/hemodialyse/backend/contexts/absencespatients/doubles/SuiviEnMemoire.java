@@ -103,6 +103,12 @@ public class SuiviEnMemoire implements LectureDesAbsences, SeancesRealisees, Nom
     }
 
     @Override
+    public long nombreAQualifierEntre(CentreId centre, LocalDate du, LocalDate au) {
+        return duCentreStream(centre).filter(a -> a.statut() == StatutAbsence.A_QUALIFIER
+                && !a.dateDeSeance().isBefore(du) && !a.dateDeSeance().isAfter(au)).count();
+    }
+
+    @Override
     public Optional<AbsenceSuivie> absence(CentreId centre, AbsenceId id) {
         return duCentreStream(centre).filter(a -> a.id().equals(id)).findFirst();
     }

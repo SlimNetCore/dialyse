@@ -3060,7 +3060,9 @@
       "TITLE": "Rechercher les absences non détectées",
       "HINT": "Rejoue la détection sur une période passée (un an au plus, jusqu'à hier) : mois antérieurs au déploiement, serveur arrêté, reprise de données.",
       "RUN": "Lancer la recherche",
-      "RESULT": "{{creees}} absence(s) créée(s), {{annulees}} annulée(s) (séance saisie après coup)."
+      "RESULT": "{{creees}} absence(s) créée(s), {{annulees}} annulée(s) (séance saisie après coup).",
+      "FIN_RAMENEE": "La fin de la période a été ramenée à hier ({{fin}}) : le jour courant n'est pas terminé.",
+      "ECHECS": "{{echecs}} absence(s) n'ont pas pu être traitées ; le reste a été traité (détail dans le journal du serveur)."
     },
     "STATUTS": {
       "A_QUALIFIER": "À qualifier",

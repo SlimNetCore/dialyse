@@ -4,7 +4,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.DelaiDeQualifica
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.SyntheseDesAbsences;
 
-import java.time.Clock;
 import java.time.LocalDate;
 
 /**
@@ -13,15 +12,15 @@ import java.time.LocalDate;
 public class ObtenirLaSynthese {
 
     private final LectureDesAbsences lecture;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
-    public ObtenirLaSynthese(LectureDesAbsences lecture, Clock horloge) {
+    public ObtenirLaSynthese(LectureDesAbsences lecture, HorlogeDesCentres horloge) {
         this.lecture = lecture;
         this.horloge = horloge;
     }
 
     public SyntheseDesAbsences executer(CentreId centre) {
-        LocalDate limite = DelaiDeQualification.limite(LocalDate.now(horloge));
+        LocalDate limite = DelaiDeQualification.limite(horloge.aujourdhui(centre));
         return new SyntheseDesAbsences(lecture.nombreAQualifier(centre), lecture.nombreAQualifierAvant(centre, limite));
     }
 }

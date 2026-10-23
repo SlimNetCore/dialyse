@@ -11,7 +11,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.RegleDAbsenceVio
 import com.hemodialyse.backend.contexts.absencespatients.domain.Valorisation;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SignalementDesSaisies;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -32,13 +31,13 @@ public class DeclarerUneAbsence {
     private final TauxDeTva taux;
     private final GenerateurIdentifiants identifiants;
     private final SignalementDesSaisies signalement;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     @SuppressWarnings("java:S107")
     public DeclarerUneAbsence(UniteDeTravail uniteDeTravail, PatientsDuCentre patients, AbsencesRepository absences,
                               PeriodesFacturees periodes, SeancesRealisees seances, ForfaitsDesPatients forfaits,
                               TauxDeTva taux, GenerateurIdentifiants identifiants, SignalementDesSaisies signalement,
-                              Clock horloge) {
+                              HorlogeDesCentres horloge) {
         this.uniteDeTravail = uniteDeTravail;
         this.patients = patients;
         this.absences = absences;
@@ -59,7 +58,7 @@ public class DeclarerUneAbsence {
     }
 
     public LigneDuSuivi executer(CentreId centre, Commande commande, Intervenant intervenant) {
-        LocalDate aujourdhui = LocalDate.now(horloge);
+        LocalDate aujourdhui = horloge.aujourdhui(centre);
         AbsencePatient absence = uniteDeTravail.executer(() -> {
             if (!patients.existe(centre, commande.patient())) {
                 throw new RegleDAbsenceViolee("PATIENT_INTROUVABLE", "Patient introuvable");
@@ -76,7 +75,7 @@ public class DeclarerUneAbsence {
                     forfaits.applicable(centre, commande.patient(), commande.dateDeSeance()).orElse(null),
                     taux.pour(centre, commande.dateDeSeance()));
             AbsencePatient creee = AbsencePatient.declarer(identifiants.nouvelleAbsence(), ouverte, commande.motif(),
-                    commande.commentaire(), valeur, intervenant.utilisateur(), aujourdhui, Instant.now(horloge));
+                    commande.commentaire(), valeur, intervenant.utilisateur(), aujourdhui, horloge.maintenant());
             absences.creer(creee);
             signalement.absenceSaisie(centre.valeur(), creee.patient().valeur(), creee.dateDeSeance());
             return creee;

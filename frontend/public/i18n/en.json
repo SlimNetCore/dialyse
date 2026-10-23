@@ -3060,7 +3060,9 @@
       "TITLE": "Find undetected absences",
       "HINT": "Replays the detection over a past period (one year at most, up to yesterday): months before deployment, server downtime, data import.",
       "RUN": "Start the search",
-      "RESULT": "{{creees}} absence(s) created, {{annulees}} cancelled (session entered afterwards)."
+      "RESULT": "{{creees}} absence(s) created, {{annulees}} cancelled (session entered afterwards).",
+      "FIN_RAMENEE": "The end of the period was brought back to yesterday ({{fin}}): today is not over yet.",
+      "ECHECS": "{{echecs}} absence(s) could not be processed; the rest was processed (details in the server log)."
     },
     "STATUTS": {
       "A_QUALIFIER": "To qualify",

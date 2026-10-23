@@ -412,5 +412,5 @@
   patient (couleur selon le statut de l'absence) et une séance validée y marque un soleil, comme sur le planning des
   séances. Pour le **médecin**, le planning est en **lecture seule** : il ne peut pas déclarer l'absence d'un
   patient (RG-ABS-015) ; le détail d'un patient reste consultable, avec les liens vers sa fiche et son dossier.
-  *Source :* `PlanningSemaineComponent`, `evenementRafraichitPlanning`, `AbsencePatientRestController`.
+  *Source :* `PlanningSemaineComponent`, `evenementRafraichitPlanning`, `DetectionControleur`, `AbsencesEcrituresControleur`.
 

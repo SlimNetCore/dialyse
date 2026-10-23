@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.absencespatients.contrat;
 import com.hemodialyse.backend.contexts.absencespatients.application.AnnulerUneAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.application.DeclarerUneAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.application.GenerateurIdentifiants;
+import com.hemodialyse.backend.contexts.absencespatients.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.absencespatients.application.Intervenant;
 import com.hemodialyse.backend.contexts.absencespatients.application.RattraperUneAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.application.SeancesRealisees;
@@ -123,7 +124,7 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
         }));
         assertThat(verrouillee.await(30, TimeUnit.SECONDS)).isTrue();
         AnnulerUneAbsence annuler = new AnnulerUneAbsence(unite(), absences, AUCUNE_FACTURE, (centre, absence) -> false,
-                (c, p, j) -> { }, horloge());
+                (c, p, j) -> { }, HorlogeDesCentres.enUtc(horloge()));
         Future<?> seconde = pool.submit(() -> annuler.executer(CENTRE, id(1), "second", AVEC_DROIT));
 
         attendreEtVerifierQueLEcritureEstBloquee(seconde);
@@ -163,7 +164,7 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
         }));
         assertThat(verrouillee.await(30, TimeUnit.SECONDS)).isTrue();
         RattraperUneAbsence rattraper = new RattraperUneAbsence(unite(), absences, AUCUNE_FACTURE, toutesRealisees(),
-                (c, p, j) -> { }, horloge());
+                (c, p, j) -> { }, HorlogeDesCentres.enUtc(horloge()));
         Future<?> seconde = pool.submit(() -> rattraper.executer(CENTRE, id(2), rattrapage, AVEC_DROIT));
 
         attendreEtVerifierQueLEcritureEstBloquee(seconde);
@@ -191,7 +192,7 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
         GenerateurIdentifiants ids = () -> new AbsenceId(new UUID(0x8004, 2));
         DeclarerUneAbsence declarer = new DeclarerUneAbsence(unite(), (centre, patient) -> true, absences, AUCUNE_FACTURE,
                 toutesRealiseesSauCeJour(), (centre, patient, jour) -> Optional.empty(), (centre, jour) -> java.math.BigDecimal.ZERO,
-                ids, (c, p, j) -> { }, Clock.fixed(Instant.parse("2026-10-12T08:00:00Z"), ZoneOffset.UTC));
+                ids, (c, p, j) -> { }, HorlogeDesCentres.enUtc(Clock.fixed(Instant.parse("2026-10-12T08:00:00Z"), ZoneOffset.UTC)));
         Future<?> perdante = pool.submit(() -> declarer.executer(CENTRE,
                 new DeclarerUneAbsence.Commande(AMRANI, JOUR, null, null), SANS_DROIT));
 

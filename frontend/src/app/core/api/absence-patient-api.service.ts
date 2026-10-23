@@ -71,6 +71,11 @@ export interface AbsenceSynthese {
 export interface RattrapageDetection {
   creees: number;
   annulees: number;
+  /** Dernier jour réellement contrôlé : présent seulement quand la fin demandée a été ramenée à hier. */
+  fin?: string;
+  finRamenee?: boolean;
+  /** Nombre d'absences en incident (isolées, le reste a été traité) : présent seulement s'il y en a. */
+  echecs?: number;
 }
 
 export interface AbsenceFilters {

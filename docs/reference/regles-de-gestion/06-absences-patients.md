@@ -4,8 +4,9 @@
 > chiffre d'affaires,
 > **alerte** sur les absences à qualifier et sur celles qui sont en retard, et **clôture** les corrections avec la
 > facturation.
-> Sources : `AbsencePatient`, `MotifAbsence`, `StatutAbsence`, `ValeurAbsence`, `ValorisationAbsenceService`,
-> `AbsencePatientService`, `AbsencePatientScheduler`, `AbsenceDonneesJdbcAdapter`, `AbsencePatientRestController`.
+> Sources : `AbsencePatient` (contexte `absences-patients`), `MotifAbsence`, `StatutAbsence`, `Valorisation`, `DetectionAbsences`,
+> `ReconciliationAbsences`, `NotificationDesAbsencesAQualifier`, `ControlerLesAbsences`, `ControleDeNuitDesAbsences`, `DetectionControleur`,
+> `PatientsAttendusJdbc`.
 
 ## 6.1 Définition et cycle de vie
 
@@ -89,38 +90,55 @@
 
 ## 6.5 Détection automatique et alertes
 
-- **RG-ABS-040** — Contrôle quotidien (02:30, tâche `AbsencePatientScheduler.controlerAbsences`) de chaque centre actif,
-  sur les **7 derniers jours**
-  (hors aujourd'hui ; une semaine pour absorber un arrêt du serveur) : (1) **réconciliation** — les absences détectées «
-  à qualifier » dont la séance a finalement été
-  réalisée sont annulées avec le
-  commentaire « Séance réalisée à cette date » ; (2) **détection** des absences. Un échec sur un centre n'empêche pas
-  les autres.
+- **RG-ABS-040** — Contrôle quotidien (02:30, tâche `ControleDeNuitDesAbsences.controlerAbsences`, un seul déclencheur
+  serveur) de chaque centre **actif** (un centre inactif n'est pas contrôlé, KB-ABS-26 corrigé), sur les **7 derniers
+  jours terminés** du centre (hors aujourd'hui, au fuseau du centre, RG-ABS-059 ; une semaine pour absorber un arrêt du
+  serveur) : (1) **réconciliation** — les absences **détectées** (source automatique) encore « à qualifier », **hors
+  période facturée**, dont la séance a finalement été réalisée sont annulées avec le commentaire « Séance réalisée à cette
+  date » et sans auteur ; une absence déclarée par un utilisateur, qualifiée ou en période facturée n'est jamais touchée
+  (KB-ABS-22 corrigé) ; tout est traité en un seul passage, sans page sautée (KB-ABS-23 corrigé) ; (2) **détection** des
+  absences. Un mois d'absences clos est sauté et journalisé (aujourd'hui tous les mois sont ouverts, la clôture A6 n'existe
+  pas encore). Une absence en incident est isolée, journalisée (compteur par centre au niveau ERROR), et n'arrête ni son centre ni les
+  autres (KB-ABS-27 corrigé) ; elle est retentée chaque nuit tant que son jour reste dans la fenêtre de 7 jours, puis relancée par
+  le rattrapage manuel (dont la réponse porte `echecs`) une fois la cause corrigée.
 - **RG-ABS-045** — **Rattrapage au démarrage** : à chaque démarrage du serveur, le contrôle (réconciliation +
-  détection) est rejoué sur les **31 derniers jours** de chaque centre, sans notification (la notification suit le
+  détection) est rejoué sur les **31 derniers jours** de chaque centre actif, sans notification (la notification suit le
   contrôle de la nuit). Idempotent ; désactivable par la propriété `app.absences.startup-catchup`.
 - **RG-ABS-046** — **Rattrapage manuel d'une période passée** (`POST /api/v1/absences-patients/rattrapage-detection`,
   `ADMIN`, centre courant) : réconciliation puis détection jour par jour entre deux dates, pour les absences jamais
-  détectées (mois antérieurs au déploiement, scheduler arrêté, reprise de données). La fin est ramenée à hier ; le début
-  doit la précéder (`ABSENCE_PERIODE_INVALIDE`) ; la période ne dépasse pas 366 jours (`ABSENCE_PERIODE_TROP_LONGUE`).
-  Retourne le nombre d'absences créées et annulées. **Limite :** la détection s'appuie sur la fiche patient actuelle ;
-  un patient dont les jours de dialyse ont été retirés à la libération de sa place (RG-PAT-033) n'est plus détecté pour
-  ses jours passés.
+  détectées (mois antérieurs au déploiement, serveur arrêté, reprise de données), sans notification. La fin est ramenée à
+  hier **et la réponse le signale** (`fin` et `finRamenee`, champs présents seulement dans ce cas) ; le début doit la précéder
+  (`ABSENCE_PERIODE_INVALIDE`, y compris un début aujourd'hui ou futur) ; la période ne dépasse pas 366 jours
+  (`ABSENCE_PERIODE_TROP_LONGUE`). Réponse : absences créées et annulées (`creees`, `annulees`) et, seulement si des absences
+  ont été en incident, leur nombre (`echecs`). Une entrée illisible (JSON, date impossible, `centerId` non UUID) est refusée en
+  **400** `BAD_REQUEST`, un corps non JSON en **415** (était 500, KB-ABS-28 aligné). **Limite :** la détection s'appuie sur la
+  fiche patient actuelle ; un patient dont les jours de dialyse ont été retirés à la libération de sa place (RG-PAT-033) n'est
+  plus détecté pour ses jours passés.
 - **RG-ABS-041** — Un patient est **attendu** un jour donné si : le jour de la semaine est coché sur sa fiche, il n'est
-  pas « en sommeil », sa date
-  d'admission n'est pas postérieure, sa place n'est pas libérée (patient transféré ou guéri : attendu jusqu'à la date de
-  l'évènement incluse ; décédé ou greffé : plus attendu à cette date ; séjour occasionnel ou vacancier : attendu jusqu'à
-  la fin de séjour incluse ; état de sortie sans date : plus attendu, cf. RG-PAT-032), le centre n'est pas fermé ce jour
-  (férié ou fermeture exceptionnelle) et il n'a
-  aucune séance réalisée ce jour.
+  pas « en sommeil », sa date d'admission n'est pas postérieure, sa place n'est pas libérée, le centre n'est pas fermé ce
+  jour (férié ou fermeture exceptionnelle) et il n'a aucune séance réalisée ce jour (validée, signée ou facturée). **Sortie
+  (KB-ABS-24, jour uniformisé)** : un patient transféré, guéri, décédé ou greffé n'est plus attendu **le jour de l'événement ni
+  après** (était : inclus pour transféré et guéri) ; un état de sortie **sans date d'événement** n'est **jamais attendu**
+  (comportement conservé, en attendant que Patient et couverture interdise une sortie sans date : prérequis noté dans
+  `.ddd/migration/roadmap.md` ; liste des cas : `verifications-production.md` § 25.2) ; séjour occasionnel ou vacancier : attendu jusqu'à la fin de séjour incluse, ou sans fin.
 - **RG-ABS-042** — La détection est **idempotente** : aucune absence n'est créée si une absence existe déjà (même
-  annulée) ou si la période est facturée.
-  Les absences détectées naissent « à qualifier ».
+  annulée) ou si la période est facturée. Les absences détectées naissent « à qualifier » ; la détection est une
+  transaction par absence (déclaration simultanée du même jour : l'absence existe, rien à créer).
 - **RG-ABS-043** — Une absence à qualifier est **en retard** au-delà de **3 jours** après la séance manquée.
-- **RG-ABS-044** — Quand des absences sont à qualifier, le centre est notifié en temps réel (`ABSENCES_A_QUALIFIER`,
-  nombre à qualifier, nombre en retard)
-  aux rôles `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`. La synthèse (à qualifier / en retard) est consultable à tout
-  moment.
+- **RG-ABS-044** — Après le contrôle de nuit (jamais au démarrage ni au rattrapage manuel), si des absences sont encore à
+  qualifier, le centre est notifié en temps réel (`ABSENCES_A_QUALIFIER`, nombre à qualifier, nombre en retard) aux rôles
+  `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`. **Une seule notification par centre et par jour du centre** (clé
+  déterministe : deux contrôles du même jour, même sur deux instances du serveur, n'en créent qu'une ; KB-ABS-25 corrigé).
+  Les comptes portent sur **toutes** les absences encore « à qualifier » dont le mois d'absences est **ouvert** (sans limite de
+  fenêtre ; les mois clos ne comptent plus). La synthèse (à qualifier / en retard) est consultable à tout moment.
+- **RG-ABS-058** — **Réconciliation refusée par le domaine** : annuler par réconciliation une absence déclarée, qualifiée,
+  annulée ou en période facturée est refusé (`ABSENCE_NON_RECONCILIABLE`, jamais exposé en HTTP : la politique saute ces
+  absences). *Source :* `AbsencePatient.reconcilier`.
+- **RG-ABS-059** — **Fuseau du centre** (décision 7, slice A3) : « aujourd'hui », la fenêtre de la nuit, le « en retard »,
+  la semaine du planning courante et les contrôles de date des écritures (déclaration du jour, rattrapage) se calculent à la
+  date du **fuseau du centre**, `Africa/Algiers` par défaut (`app.absences.fuseau-par-defaut`) : le centre n'a pas encore de
+  fuseau en base. Le déclencheur de 02:30 suit ce fuseau. Les instants restent absolus.
+  *Source :* `HorlogeDesCentres`, `FuseauParDefaut`, `ControleDeNuitDesAbsences`.
 
 ## 6.6 Consultation
 
@@ -129,7 +147,7 @@
   `MEDECIN`, `INFIRMIER` (y compris profils restreints, voir RG-SEC-022/023). Tri : date de séance la plus récente
   d'abord, puis identifiant. **Pagination bornée** : `page` et `size` négatifs sont refusés (400 `BAD_REQUEST`),
   `size` est **plafonnée à 100** (la taille effective figure dans la réponse), `size = 0` ne renvoie aucun élément mais
-  le total (KB-ABS-02, corrigé à la slice A1). Chaque ligne porte `enRetard` (RG-ABS-043, jour courant en UTC).
+  le total (KB-ABS-02, corrigé à la slice A1). Chaque ligne porte `enRetard` (RG-ABS-043, jour courant au fuseau du centre, RG-ABS-059).
 - **RG-ABS-051** — Le suivi de la semaine (dimanche → samedi) renvoie les absences non annulées et les séances
   réalisées, pour colorer le planning :
   les séances réalisées (validées par l'infirmier à la présence du patient) s'affichent avec un soleil sur fond jaune.

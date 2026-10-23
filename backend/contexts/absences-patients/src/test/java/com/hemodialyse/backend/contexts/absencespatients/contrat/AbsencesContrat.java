@@ -185,6 +185,44 @@ public abstract class AbsencesContrat {
     }
 
     @Test
+    void les_absences_detectees_a_qualifier_se_lisent_par_curseur_dans_la_periode_et_le_centre() {
+        absences().creer(dansLEtat(1, CENTRE, AMRANI, JOUR, StatutAbsence.A_QUALIFIER, null));
+        absences().creer(dansLEtat(2, CENTRE, BELKACEM, JOUR, StatutAbsence.A_QUALIFIER, null));
+        absences().creer(dansLEtat(3, CENTRE, AMRANI, JOUR.plusDays(1), StatutAbsence.A_QUALIFIER, null));
+        absences().creer(dansLEtat(4, CENTRE, BELKACEM, JOUR.plusDays(1), StatutAbsence.JUSTIFIEE, null));
+        absences().creer(dansLEtat(5, CENTRE, AMRANI, JOUR.plusDays(2), StatutAbsence.ANNULEE, null));
+        absences().creer(dansLEtat(6, CENTRE, AMRANI, JOUR.plusDays(10), StatutAbsence.A_QUALIFIER, null));
+        absences().creer(dansLEtat(7, AUTRE_CENTRE, AMRANI, JOUR, StatutAbsence.A_QUALIFIER, null));
+        absences().creer(aQualifier(8, CENTRE, BELKACEM, JOUR.plusDays(2)));
+
+        var premiere = absences().detecteesAQualifierEntre(CENTRE, JOUR, JOUR.plusDays(3), null, 2);
+        var suivante = absences().detecteesAQualifierEntre(CENTRE, JOUR, JOUR.plusDays(3), premiere.get(1).id(), 2);
+        var apres = absences().detecteesAQualifierEntre(CENTRE, JOUR, JOUR.plusDays(3), suivante.get(0).id(), 2);
+
+        assertThat(premiere).extracting(AbsencePatient::id).containsExactly(id(1), id(2));
+        assertThat(suivante).extracting(AbsencePatient::id).as("la déclarée (8) est exclue, la qualifiée (4) aussi")
+                .containsExactly(id(3));
+        assertThat(apres).isEmpty();
+    }
+
+    @Test
+    void le_curseur_reste_stable_quand_les_absences_lues_sont_annulees_entre_deux_pages() {
+        for (int rang = 1; rang <= 5; rang++) {
+            absences().creer(dansLEtat(rang, CENTRE, new PatientId(new UUID(0x8005, rang)), JOUR, StatutAbsence.A_QUALIFIER, null));
+        }
+        var page = absences().detecteesAQualifierEntre(CENTRE, JOUR, JOUR, null, 2);
+        for (AbsencePatient lue : page) {
+            AbsencePatient verrouillee = absences().verrouiller(CENTRE, lue.id()).orElseThrow();
+            verrouillee.reconcilier((c, p, j) -> false, INSTANT);
+            absences().enregistrer(verrouillee);
+        }
+
+        var suivante = absences().detecteesAQualifierEntre(CENTRE, JOUR, JOUR, page.get(1).id(), 2);
+
+        assertThat(suivante).extracting(AbsencePatient::id).containsExactly(id(3), id(4));
+    }
+
+    @Test
     void supprimer_retire_l_absence_de_son_centre_seulement_et_est_sans_effet_ensuite() {
         absences().creer(aQualifier(1, CENTRE, AMRANI, JOUR));
 

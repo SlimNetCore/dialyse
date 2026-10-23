@@ -8,7 +8,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Cen
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodesFacturees;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SignalementDesSaisies;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -23,10 +22,10 @@ public class AnnulerUneAbsence {
     private final PeriodesFacturees periodes;
     private final ExclusionsDeSeances exclusions;
     private final SignalementDesSaisies signalement;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     public AnnulerUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences, PeriodesFacturees periodes,
-                             ExclusionsDeSeances exclusions, SignalementDesSaisies signalement, Clock horloge) {
+                             ExclusionsDeSeances exclusions, SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
         this.uniteDeTravail = uniteDeTravail;
         this.absences = absences;
         this.periodes = periodes;
@@ -39,11 +38,11 @@ public class AnnulerUneAbsence {
      * @throws AbsenceIntrouvable absence inconnue de ce centre
      */
     public LigneDuSuivi executer(CentreId centre, AbsenceId id, String commentaire, Intervenant intervenant) {
-        LocalDate aujourdhui = LocalDate.now(horloge);
+        LocalDate aujourdhui = horloge.aujourdhui(centre);
         AbsencePatient absence = uniteDeTravail.executer(() -> {
             AbsencePatient a = absences.verrouiller(centre, id).orElseThrow(() -> new AbsenceIntrouvable(id));
             a.annuler(commentaire, intervenant.utilisateur(), intervenant.droit(),
-                    exclusions.absenceIssueDUneExclusion(centre, id), periodes, Instant.now(horloge));
+                    exclusions.absenceIssueDUneExclusion(centre, id), periodes, horloge.maintenant());
             absences.enregistrer(a);
             signalement.absenceSaisie(centre.valeur(), a.patient().valeur(), a.dateDeSeance());
             return a;

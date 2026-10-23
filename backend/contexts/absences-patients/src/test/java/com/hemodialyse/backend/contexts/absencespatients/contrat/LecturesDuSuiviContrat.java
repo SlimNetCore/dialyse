@@ -208,6 +208,21 @@ public abstract class LecturesDuSuiviContrat {
     }
 
     @Test
+    void le_compte_a_qualifier_entre_deux_dates_inclut_les_bornes_et_reste_borne_au_centre() {
+        lesPatients();
+        poserLAbsence(CENTRE, absence(1, AMRANI, JOUR, StatutAbsence.A_QUALIFIER));
+        poserLAbsence(CENTRE, absence(2, BELKACEM, JOUR.minusDays(2), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(CENTRE, absence(3, AMRANI, JOUR.minusDays(1), StatutAbsence.JUSTIFIEE));
+        poserLAbsence(CENTRE, absence(4, AMRANI, JOUR.minusDays(9), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(AUTRE_CENTRE, absence(5, ETRANGER, JOUR, StatutAbsence.A_QUALIFIER));
+
+        assertThat(lecture().nombreAQualifierEntre(CENTRE, JOUR.minusDays(2), JOUR)).isEqualTo(2);
+        assertThat(lecture().nombreAQualifierEntre(CENTRE, JOUR.minusDays(1), JOUR)).isEqualTo(1);
+        assertThat(lecture().nombreAQualifierEntre(CENTRE, JOUR.minusDays(2), JOUR.minusDays(2))).isEqualTo(1);
+        assertThat(lecture().nombreAQualifierEntre(CENTRE, JOUR.plusDays(1), JOUR.plusDays(5))).isZero();
+    }
+
+    @Test
     void une_absence_se_lit_dans_son_centre_seulement() {
         lesPatients();
         poserLAbsence(CENTRE, rattrapee(1, AMRANI, JOUR, JOUR.plusDays(2)));

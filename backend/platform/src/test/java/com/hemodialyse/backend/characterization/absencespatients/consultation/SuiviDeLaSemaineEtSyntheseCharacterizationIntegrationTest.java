@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * {@code GET /api/v1/absences-patients/semaine} (semaine dimanche -> samedi, absences non annulees et seances realisees) et
  * {@code GET /api/v1/absences-patients/synthese} (a qualifier / en retard). La semaine est verrouillee sur une ancre qui est un
- * dimanche fixe du passe ; le cas « sans date » est verifie par rapport au jour d'execution UTC.
+ * dimanche fixe du passe ; le cas « sans date » est verifie par rapport au jour d'execution du centre.
  */
 class SuiviDeLaSemaineEtSyntheseCharacterizationIntegrationTest extends ConsultationAbsencesCharacterizationSupport {
 

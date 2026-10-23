@@ -377,11 +377,19 @@ public class NotificationService {
      * Des absences de patients attendent leur qualification (motif) ; certaines dépassent le délai.
      */
     public void notifyAbsencesAQualifier(UUID centerId, long nbAQualifier, long nbEnRetard) {
+        notifyAbsencesAQualifier(centerId, nbAQualifier, nbEnRetard, null);
+    }
+
+    /**
+     * Variante à identifiant déterministe (un par centre et par jour du centre, calculé par l'appelant) : déjà enregistrée, l'alerte
+     * n'est ni renvoyée ni dupliquée, même si deux instances du serveur la déclenchent ensemble.
+     */
+    public void notifyAbsencesAQualifier(UUID centerId, long nbAQualifier, long nbEnRetard, UUID idImpose) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("nbAQualifier", String.valueOf(nbAQualifier));
         payload.put("nbEnRetard", String.valueOf(nbEnRetard));
         payload.put("targetRoles", "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN");
-        send(centerId, "ABSENCES_A_QUALIFIER", payload);
+        send(centerId, "ABSENCES_A_QUALIFIER", payload, idImpose);
     }
 
     /**

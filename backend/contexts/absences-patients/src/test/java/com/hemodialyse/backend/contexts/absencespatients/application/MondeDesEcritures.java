@@ -92,13 +92,13 @@ final class MondeDesEcritures {
         TauxDeTva tauxDuMonde = (centre, jour) -> taux;
         GenerateurIdentifiants ids = () -> new AbsenceId(new UUID(20, identifiant.incrementAndGet()));
         declarer = new DeclarerUneAbsence(unite, existants, absences, periodes, suivi, forfaitsDuMonde, tauxDuMonde, ids,
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), horloge);
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
         qualifier = new QualifierUneAbsence(unite, absences, periodes,
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), horloge);
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
         rattraper = new RattraperUneAbsence(unite, absences, periodes, suivi,
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), horloge);
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
         annuler = new AnnulerUneAbsence(unite, absences, periodes, (centre, absence) -> absencesDExclusion.contains(absence),
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), horloge);
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
         retirer = new RetirerLAbsenceDeLExclusion(unite, absences);
     }
 

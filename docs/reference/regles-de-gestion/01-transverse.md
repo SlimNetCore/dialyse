@@ -123,7 +123,7 @@
 | `AuditScheduler.flush`                         | toutes les 3 s       | écrit le journal d'audit par lots                           | RG-SEC-050        |
 | `AuditScheduler.purge`                         | 03:30 chaque jour    | purge au-delà de la rétention (365 j)                       | RG-SEC-052        |
 | `LicenseOnlineCheckJob.checkAll`               | 03:15 chaque jour    | contrôle en ligne des licences                              | RG-SEC-032        |
-| `AbsencePatientScheduler.controlerAbsences`    | 02:30 chaque jour    | détecte les absences de patients                            | RG-ABS-040        |
+| `ControleDeNuitDesAbsences.controlerAbsences`  | 02:30 chaque jour    | détecte les absences de patients                            | RG-ABS-040        |
 | `DirectionSnapshotScheduler`                   | 02:30 le 1er du mois | fige le mois écoulé                                         | RG-DIR-090        |
 | `ObservancePrescriptionScheduler`              | 06:30 chaque jour    | contrôle l'observance des prescriptions                     | RG-MED-073        |
 | `ExpirationAlertScheduler.scanExpirations`     | 07:00 chaque jour    | contrôle de péremption J-30 (consigné au journal technique) | RG-STK-061        |

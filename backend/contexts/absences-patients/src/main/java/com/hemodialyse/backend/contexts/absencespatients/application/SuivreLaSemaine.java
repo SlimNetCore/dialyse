@@ -3,7 +3,6 @@ package com.hemodialyse.backend.contexts.absencespatients.application;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.SemaineDuPlanning;
 
-import java.time.Clock;
 import java.time.LocalDate;
 
 /**
@@ -13,9 +12,9 @@ public class SuivreLaSemaine {
 
     private final LectureDesAbsences absences;
     private final SeancesRealisees seances;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
-    public SuivreLaSemaine(LectureDesAbsences absences, SeancesRealisees seances, Clock horloge) {
+    public SuivreLaSemaine(LectureDesAbsences absences, SeancesRealisees seances, HorlogeDesCentres horloge) {
         this.absences = absences;
         this.seances = seances;
         this.horloge = horloge;
@@ -25,7 +24,7 @@ public class SuivreLaSemaine {
      * @param jour un jour de la semaine voulue ; {@code null} = aujourd'hui
      */
     public SuiviDeLaSemaine executer(CentreId centre, LocalDate jour) {
-        SemaineDuPlanning semaine = SemaineDuPlanning.contenant(jour != null ? jour : LocalDate.now(horloge));
+        SemaineDuPlanning semaine = SemaineDuPlanning.contenant(jour != null ? jour : horloge.aujourdhui(centre));
         return new SuiviDeLaSemaine(absences.absencesNonAnnuleesEntre(centre, semaine.dimanche(), semaine.samedi()),
                 seances.duCentre(centre, semaine.dimanche(), semaine.samedi()));
     }

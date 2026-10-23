@@ -38,7 +38,8 @@
     "facturation-f6-retrait-bc-facturation": "built",
     "facturation-f7-cloture-mensuelle": "built",
     "absences-patients-a1-consultation": "built",
-    "absences-patients-a2-cycle-de-vie": "built"
+    "absences-patients-a2-cycle-de-vie": "built",
+    "absences-patients-a3-detection-de-nuit": "built"
   },
   "contexts": {
     "gmao": "architected",

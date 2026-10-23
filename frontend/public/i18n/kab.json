@@ -2700,7 +2700,9 @@
       "TITLE": "Nadi ɣef tmettanin ur nettwafen ara",
       "HINT": "Ales anadi deg tallit yezrin (aseggas ar ugar, armi d iḍelli): ayyuren send asnas, aqeddac yeḥbes, taktawt n yisefka.",
       "RUN": "Sker anadi",
-      "RESULT": "{{creees}} n tmettant ttwarna, {{annulees}} ttwasefsex (tamsirt yettwaskcem ticki)."
+      "RESULT": "{{creees}} n tmettant ttwarna, {{annulees}} ttwasefsex (tamsirt yettwaskcem ticki).",
+      "FIN_RAMENEE": "Taggara n tallit tettwarr ɣer iḍelli ({{fin}}): ass-a ur yekfi ara.",
+      "ECHECS": "{{echecs}} n tmettant ur tettwaseḍfer ara; wayen-nniḍen yettwasseḍfer (talqayt deg uɣmis n uqeddac)."
     },
     "STATUTS": {
       "A_QUALIFIER": "Ad tettwasbadu",

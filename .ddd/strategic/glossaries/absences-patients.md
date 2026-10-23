@@ -1,5 +1,5 @@
 ---
-status: validated (cinq termes proposed le 2026-10-22)
+status: validated (onze termes proposed le 2026-10-22)
 date: 2026-10-21
 context: Absences patients (core, à confirmer)
 sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, réponse Q5, .ddd/tactical/absences-patients.md (termes ajoutés le 2026-10-21, validés par l'utilisateur le 2026-10-21)]
@@ -9,7 +9,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, rép
 | Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
 |---|---|---|---|---|---|---|
 | Absence de patient | Jour de dialyse prévu sans séance réalisée | `AbsencePatient` | `absences_patient` | absence (seul), `ABSENT` | refus si séance réalisée (RG-ABS-012) ou période facturée (RG-ABS-024) | validated |
-| Détection d'absence | Repérage automatique des jours prévus sans séance réalisée (7 j glissants) | politique `DetectionAbsences` | `AbsencePatientScheduler` | — | RG-ABS-040 ; statut « à qualifier » | validated |
+| Détection d'absence | Repérage automatique des jours prévus sans séance réalisée (7 j glissants) | politique `DetectionAbsences` | `AbsencePatientScheduler` (retiré en A3) | — | RG-ABS-040 ; statut « à qualifier » | validated |
 | Qualification | Attribution d'un motif justifiant ou non | `AbsencePatient.qualifier(motif)` | `qualifier` | — | `A_QUALIFIER → JUSTIFIEE / NON_JUSTIFIEE` | validated |
 | Motif d'absence | Raison de l'absence, justifiante ou non | `MotifAbsence` | `MotifAbsence.justifiante()` | — | — | validated |
 | Rattrapage | Séance supplémentaire compensant une absence | `AbsencePatient.rattraper()` | `RATTRAPEE` | régularisation | — | validated |
@@ -20,7 +20,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, rép
 | Réconciliation | Annulation automatique d'une absence « à qualifier » quand la séance du jour a finalement été réalisée | politique `ReconciliationAbsences` | `reconcilier` | — | RG-ABS-040 (1) ; commentaire « Séance réalisée à cette date » | validated |
 | Absence en retard | Absence encore « à qualifier » plus de 3 jours après la séance manquée | `AbsencePatient.enRetard(aujourdhui)` | `qualificationEnRetard` | — | RG-ABS-043 (délai de qualification) | validated |
 | Absence comptabilisée | Absence qui compte comme perte (à qualifier, justifiée ou non justifiée) | `StatutAbsence.comptabilisee()` | `comptabilisee` | — | RG-ABS-006 ; ni rattrapée ni annulée | validated |
-| Patient attendu | Patient qui devait venir en dialyse ce jour-là (jour coché, admis, pas sorti, centre ouvert) | port `PatientsAttendus` | `patientsAttendusSansSeance` | — | RG-ABS-041 ; lu chez Planification / Patient & couverture / Organisation | validated |
+| Patient attendu | Patient qui devait venir en dialyse ce jour-là (jour coché, admis, centre ouvert, pas en sommeil) ; un sorti (transfert, guérison, décès, greffe) n'est plus attendu dès le jour de l'événement, et sans date d'événement il n'est jamais attendu | port `PatientsAttendus` | `patientsAttendusSansSeance` | — | RG-ABS-041 ; lu chez Planification / Patient & couverture / Organisation | validated |
 | Séance réalisée | Séance du patient ce jour-là au statut validée, signée ou facturée (fait lu chez Séance) | port `SeancesRealisees` | `seanceRealisee` | présence | RG-ABS-012 ; une séance `ABSENT` (exclue de facturation) n'est pas réalisée | validated |
 | Période facturée | Jour couvert par une facture du patient (fait lu chez Facturation) | port publié `FacturationDuPatient.periodeFacturee` | `periodeFacturee` | — | RG-ABS-024 | validated |
 | Date ouverte | Date de séance ni facturée pour le patient ni dans un mois d'absences clos : seule une date ouverte accepte une écriture | VO `DateOuverte` | — (à créer) | — | condition de toutes les commandes d'écriture | validated |
@@ -39,6 +39,16 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, rép
 
 ## Questions ouvertes (termes proposés le 2026-10-22, slice A2)
 1. Valider « droit de correction », « écriture concurrente », « absence d'une exclusion », « intervenant ». `AbsenceSuivie` reste le modèle de lecture, `AbsencePatient` est l'agrégat d'écriture (réponse à la question 3 de A1).
+| Période de détection | Jours terminés que la détection contrôle : jamais le jour courant, au plus 366 jours ; la fin demandée postérieure à hier est ramenée à hier et le signale | VO `PeriodeDeDetection` | `rattraperPeriode` (bornes) | — | RG-ABS-046 | proposed |
+| Fenêtre du contrôle | Les 7 derniers jours terminés (nuit) ou 31 (démarrage), au fuseau du centre | `PeriodeDeDetection.recente` | `JOURS_A_CONTROLER` | — | RG-ABS-040, 045 | proposed |
+| Fuseau du centre | Fuseau horaire qui fixe « aujourd'hui » pour le centre (Africa/Algiers par défaut) | port `FuseauxDesCentres`, `HorlogeDesCentres` | `Clock.systemUTC` | heure UTC | RG-ABS-059 ; décision 7 | proposed |
+| Notification du jour | Alerte « absences à qualifier » d'un centre pour un jour du centre (clé déterministe) : la nuit n'en envoie qu'une par centre et par jour | port publié `NotificationsDuCentre` | `ABSENCES_A_QUALIFIER` (sans dédoublonnage) | rappel | RG-ABS-044 | proposed |
+| Bilan du contrôle | Ce qu'un passage a fait : absences créées, annulées, incidents isolés, jours ignorés (mois clos) | `BilanDuControle` | — | rapport | RG-ABS-040 | proposed |
+| Jour ignoré | Jour de la fenêtre laissé tel quel parce que son mois d'absences est clos | `BilanDuControle.joursIgnores`, port `MoisDAbsencesOuverts` | — | — | décision 1 du 21/10 ; A6 | proposed |
+
+## Questions ouvertes (termes proposés le 2026-10-22, slice A3)
+1. Valider les six termes ci-dessus (période de détection, fenêtre du contrôle, fuseau du centre, notification du jour, bilan du contrôle, jour ignoré).
+2. Fuseau du centre : colonne propre au centre (migration) ou fuseau unique de la plateforme ?
 
 ## Questions ouvertes (termes proposés le 2026-10-22, slice A1)
 1. Valider les cinq termes ci-dessus (absence suivie, suivi de la semaine, délai de qualification, séance de rattrapage proposée, centre masqué).

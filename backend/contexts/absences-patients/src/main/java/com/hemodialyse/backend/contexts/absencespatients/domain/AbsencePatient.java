@@ -2,6 +2,8 @@ package com.hemodialyse.backend.contexts.absencespatients.domain;
 
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceAnnulee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceDeclaree;
+import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceDetectee;
+import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceReconciliee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceQualifiee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceRattrapee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
@@ -28,6 +30,9 @@ public final class AbsencePatient {
 
     /** Une absence se déclare au plus {@value} jours après la séance manquée (RG-ABS-010). */
     public static final int DELAI_DE_DECLARATION_EN_JOURS = 60;
+
+    /** Commentaire de l'annulation par réconciliation (valeur du legacy, conservée). */
+    public static final String COMMENTAIRE_DE_RECONCILIATION = "Séance réalisée à cette date";
 
     private final AbsenceId id;
     private final CentreId centre;
@@ -119,6 +124,46 @@ public final class AbsencePatient {
             absence.appliquerLaQualification(motif, texte, auteur, maintenant);
         }
         return absence;
+    }
+
+    /**
+     * Détecte l'absence d'un patient attendu sans séance réalisée (contrôle de nuit, RG-ABS-040) : toujours « à qualifier », source
+     * automatique, sans auteur.
+     *
+     * @param ouverte preuve que la période du patient n'est pas facturée et que le mois d'absences est ouvert
+     */
+    public static AbsencePatient detecter(AbsenceId id, DateOuverte ouverte, Valorisation valorisation, Instant maintenant) {
+        AbsencePatient absence = new AbsencePatient(id, ouverte.centre(), ouverte.patient(), ouverte.jour(),
+                SourceAbsence.AUTOMATIQUE, valorisation, null, maintenant, StatutAbsence.A_QUALIFIER, null, null, null, null,
+                null, null, null);
+        absence.evenements.add(new AbsenceDetectee(id, ouverte.centre(), ouverte.patient(), ouverte.jour(), null, maintenant));
+        return absence;
+    }
+
+    /**
+     * La séance finalement réalisée annule seulement une absence détectée par le contrôle de nuit et encore « à qualifier » : ni une
+     * absence déclarée par un utilisateur (KB-ABS-22 corrigé), ni une absence qualifiée, ni une absence dont la période est facturée
+     * (RG-ABS-024, KB-ABS-22 corrigé).
+     */
+    public boolean reconciliable(PeriodesFacturees periodes) {
+        return source == SourceAbsence.AUTOMATIQUE && statut == StatutAbsence.A_QUALIFIER
+                && !periodes.estFacturee(centre, patient, dateDeSeance);
+    }
+
+    /**
+     * Annule l'absence parce que la séance a été réalisée à cette date (saisie tardive) : commentaire fixe, sans auteur.
+     *
+     * @throws RegleDAbsenceViolee {@code ABSENCE_NON_RECONCILIABLE} si {@link #reconciliable} est faux
+     */
+    public void reconcilier(PeriodesFacturees periodes, Instant maintenant) {
+        if (!reconciliable(periodes)) {
+            throw new RegleDAbsenceViolee("ABSENCE_NON_RECONCILIABLE",
+                    "Seule une absence détectée, encore à qualifier et hors période facturée se réconcilie");
+        }
+        this.statut = StatutAbsence.ANNULEE;
+        this.commentaire = new Commentaire(COMMENTAIRE_DE_RECONCILIATION);
+        toucher(null, maintenant);
+        evenements.add(new AbsenceReconciliee(id, centre, patient, dateDeSeance, null, maintenant));
     }
 
     /**

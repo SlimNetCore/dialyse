@@ -7,7 +7,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Abs
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.SeancesDeRattrapage;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,9 +19,9 @@ public class ListerLesSeancesDeRattrapage {
 
     private final LectureDesAbsences absences;
     private final SeancesRealisees seances;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
-    public ListerLesSeancesDeRattrapage(LectureDesAbsences absences, SeancesRealisees seances, Clock horloge) {
+    public ListerLesSeancesDeRattrapage(LectureDesAbsences absences, SeancesRealisees seances, HorlogeDesCentres horloge) {
         this.absences = absences;
         this.seances = seances;
         this.horloge = horloge;
@@ -37,7 +36,7 @@ public class ListerLesSeancesDeRattrapage {
         SeancesDeRattrapage.exigerRattrapable(absence);
         List<LocalDate> utilisees = absences.datesDeRattrapageUtilisees(centre, absence.patient());
         List<LocalDate> realisees = seances.joursDuPatient(centre, absence.patient(),
-                SeancesDeRattrapage.premierJourPossible(absence), LocalDate.now(horloge));
+                SeancesDeRattrapage.premierJourPossible(absence), horloge.aujourdhui(centre));
         return SeancesDeRattrapage.proposees(realisees, utilisees);
     }
 }

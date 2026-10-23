@@ -112,6 +112,14 @@ public class LectureDesAbsencesJdbc implements LectureDesAbsences {
     }
 
     @Override
+    public long nombreAQualifierEntre(CentreId centre, LocalDate du, LocalDate au) {
+        Long n = jdbc.queryForObject("SELECT COUNT(*) FROM absence_patient WHERE center_id = ? AND statut = ? "
+                        + "AND date_seance BETWEEN ? AND ?", Long.class, centre.valeur(), StatutAbsence.A_QUALIFIER.name(),
+                Date.valueOf(du), Date.valueOf(au));
+        return n == null ? 0 : n;
+    }
+
+    @Override
     public Optional<AbsenceSuivie> absence(CentreId centre, AbsenceId id) {
         return jdbc.query("SELECT " + COLONNES + " FROM absence_patient a WHERE a.center_id = ? AND a.id = ?", ABSENCE,
                 centre.valeur(), id.valeur()).stream().findFirst();

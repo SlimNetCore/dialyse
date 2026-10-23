@@ -44,6 +44,14 @@ public interface AbsencesRepository {
     boolean existe(CentreId centre, PatientId patient, LocalDate jour);
 
     /**
+     * Une page des absences détectées (source automatique) encore « à qualifier » dont la séance tombe entre ces deux dates
+     * incluses, par identifiant croissant, à partir de l'identifiant qui suit {@code apres} (nul = depuis le début). Lecture sans
+     * verrou : curseur sur l'identifiant, donc stable quand les absences lues sont annulées entre deux pages (réconciliation
+     * en un passage, KB-ABS-23 corrigé).
+     */
+    List<AbsencePatient> detecteesAQualifierEntre(CentreId centre, LocalDate du, LocalDate au, AbsenceId apres, int limite);
+
+    /**
      * @throws EcritureConcurrente une autre déclaration vient de prendre ce jour pour ce patient
      */
     void creer(AbsencePatient absence);

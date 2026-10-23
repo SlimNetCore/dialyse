@@ -27,6 +27,14 @@ public sealed interface EvenementDAbsence {
 
     Instant le();
 
+    record AbsenceDetectee(AbsenceId absence, CentreId centre, PatientId patient, LocalDate dateDeSeance, UtilisateurId auteur,
+                           Instant le) implements EvenementDAbsence {
+    }
+
+    record AbsenceReconciliee(AbsenceId absence, CentreId centre, PatientId patient, LocalDate dateDeSeance,
+                              UtilisateurId auteur, Instant le) implements EvenementDAbsence {
+    }
+
     record AbsenceDeclaree(AbsenceId absence, CentreId centre, PatientId patient, LocalDate dateDeSeance, UtilisateurId auteur,
                            Instant le) implements EvenementDAbsence {
     }

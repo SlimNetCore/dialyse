@@ -51,7 +51,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p>
  * Non-determinisme maitrise sans seam :
  * <ul>
- *   <li>dates RELATIVES au jour d'execution UTC (horloge du code legacy : {@code Clock.systemUTC}) : alias {@code <J>},
+ *   <li>dates RELATIVES au jour d'execution du fuseau du centre Africa/Algiers (UTC avant A3, decision 7 ; horloge du legacy : {@code Clock.systemUTC}) : alias {@code <J>},
  *   {@code <J-4>}, {@code <J+2>}... pour tout ce qui depend d'« aujourd'hui » (retard de qualification, plage des seances de
  *   rattrapage, semaine par defaut) ; aucune valeur de golden ne depend de la date reelle ;</li>
  *   <li>dates ANCREES (alias {@code <ANCRE+n>}) pour les routes qui ont besoin d'un jour de semaine connu (debut de semaine
@@ -118,8 +118,11 @@ abstract class ConsultationAbsencesCharacterizationSupport {
     // ------------------------------------------------------------------ dates
 
     /** Aujourd'hui selon l'horloge du code legacy (UTC). */
+    /** Fuseau du centre (décision 7, A3) : « aujourd'hui » n'est plus le jour UTC. */
+    protected static final java.time.ZoneId FUSEAU_DU_CENTRE = java.time.ZoneId.of("Africa/Algiers");
+
     protected static LocalDate aujourdhui() {
-        return LocalDate.now(ZoneOffset.UTC);
+        return LocalDate.now(FUSEAU_DU_CENTRE);
     }
 
     /** Jour relatif au jour d'execution (n = nombre de jours dans le passe ; negatif = futur), nomme {@code <J-n>}. */

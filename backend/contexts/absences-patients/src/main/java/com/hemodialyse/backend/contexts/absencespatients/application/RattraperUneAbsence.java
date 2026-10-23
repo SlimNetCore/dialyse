@@ -9,7 +9,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Cen
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodesFacturees;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SignalementDesSaisies;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,10 +24,10 @@ public class RattraperUneAbsence {
     private final PeriodesFacturees periodes;
     private final SeancesRealisees seances;
     private final SignalementDesSaisies signalement;
-    private final Clock horloge;
+    private final HorlogeDesCentres horloge;
 
     public RattraperUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences, PeriodesFacturees periodes,
-                               SeancesRealisees seances, SignalementDesSaisies signalement, Clock horloge) {
+                               SeancesRealisees seances, SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
         this.uniteDeTravail = uniteDeTravail;
         this.absences = absences;
         this.periodes = periodes;
@@ -41,7 +40,7 @@ public class RattraperUneAbsence {
      * @throws AbsenceIntrouvable absence inconnue de ce centre
      */
     public LigneDuSuivi executer(CentreId centre, AbsenceId id, LocalDate dateDeRattrapage, Intervenant intervenant) {
-        LocalDate aujourdhui = LocalDate.now(horloge);
+        LocalDate aujourdhui = horloge.aujourdhui(centre);
         AbsencePatient absence = uniteDeTravail.executer(() -> {
             AbsencesRepository.AbsenceEtRattrapages lue = absences.verrouillerPourRattrapage(centre, id)
                     .orElseThrow(() -> new AbsenceIntrouvable(id));
@@ -59,7 +58,7 @@ public class RattraperUneAbsence {
                 }
             };
             a.rattraper(dateDeRattrapage, intervenant.utilisateur(), intervenant.droit(), periodes, faits, aujourdhui,
-                    Instant.now(horloge));
+                    horloge.maintenant());
             absences.enregistrer(a);
             signalement.absenceSaisie(centre.valeur(), a.patient().valeur(), a.dateDeSeance());
             return a;

@@ -826,6 +826,66 @@ SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'absence_patient' A
   une absence rattrapée ne s'annule plus ; seuls l'administrateur et le médecin rattrapent ; entrées illisibles en 400 ; une écriture concurrente sur
   la même absence ou le même jour reçoit 409 (relire puis recommencer) ; l'absence créée par l'exclusion d'une séance ne s'annule plus (seule la réinclusion la retire).
 
+## 25. Absences de patients A3 : détection de nuit (aucune migration, 2026-10-22)
+
+La slice A3 ne change aucun schéma (l'index `seances (center_id, patient_id, date_seance)` existe depuis V31). Tout ce qui suit est
+en **SELECT seul**, à exécuter sur une COPIE ou en lecture seule ; ne rien corriger ici.
+
+```sql
+-- 25.1 INDEX : attendu une ligne (idx_seances_center_patient, V31) ; sinon la détection reste correcte mais plus lente.
+SELECT indexname FROM pg_indexes WHERE tablename = 'seances' AND indexname = 'idx_seances_center_patient';
+
+-- 25.2 À SAISIR (informatif, aucune exigence bloquante) : patients SORTIS (transféré, décédé, greffé, guéri) SANS DATE D'ÉVÉNEMENT. Ils ne sont
+-- jamais attendus par la détection (comportement conservé) : aucune absence n'est créée pour eux, y compris pour leurs vrais jours manqués. Liste
+-- à compléter par la saisie de la date d'événement (par l'application) ; Patient et couverture interdira bientôt une sortie sans date (roadmap).
+SELECT p.center_id, p.etat_patient, COUNT(*) AS patients_sans_date
+FROM patients p
+WHERE p.etat_patient IN ('TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI') AND p.date_evenement_etat IS NULL
+GROUP BY p.center_id, p.etat_patient ORDER BY p.center_id, p.etat_patient;
+
+-- 25.3 INFORMATIF : jours de l'événement concernés par l'uniformisation (TRANSFERE et GUERRI : le jour de l'événement n'est plus attendu, il l'était).
+-- Nombre de patients dont la date d'événement tombe dans les 31 derniers jours (la détection ne recréera pas ce jour-là).
+SELECT p.center_id, p.etat_patient, COUNT(*) AS patients
+FROM patients p
+WHERE p.etat_patient IN ('TRANSFERE', 'GUERRI') AND p.date_evenement_etat BETWEEN current_date - 31 AND current_date - 1
+GROUP BY p.center_id, p.etat_patient ORDER BY p.center_id;
+
+-- 25.4 INFORMATIF : le jour de l'événement est désormais exclu aussi pour TRANSFERE et GUERRI (il était inclus). Absences automatiques « à
+-- qualifier » déjà créées ce jour-là : elles restent (à annuler à la main si l'expert métier le décide), elles ne seront plus créées.
+SELECT a.center_id, COUNT(*) AS absences_le_jour_de_l_evenement
+FROM absence_patient a JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id
+WHERE p.etat_patient IN ('TRANSFERE', 'GUERRI') AND p.date_evenement_etat = a.date_seance
+  AND a.source = 'AUTOMATIQUE' AND a.statut = 'A_QUALIFIER'
+GROUP BY a.center_id;
+
+-- 25.5 INFORMATIF : absences DÉCLARÉES par un utilisateur, restées « à qualifier », dont la séance a été réalisée le même jour. L'ancienne
+-- réconciliation les annulait ; la nouvelle ne touche que les absences détectées : elles resteront à qualifier à la main.
+SELECT a.center_id, COUNT(*) AS declarees_a_qualifier_avec_seance_realisee
+FROM absence_patient a
+WHERE a.source = 'DECLAREE' AND a.statut = 'A_QUALIFIER'
+  AND EXISTS (SELECT 1 FROM seances s WHERE s.center_id = a.center_id AND s.patient_id = a.patient_id AND s.date_seance = a.date_seance
+              AND s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE'))
+GROUP BY a.center_id;
+
+-- 25.6 INFORMATIF : centres INACTIFS, qui ne sont plus contrôlés la nuit (ni détection ni notification).
+SELECT id, code, name FROM centers WHERE actif = FALSE;
+
+-- 25.7 INFORMATIF : notifications « absences à qualifier » déjà créées, par centre, sur les 30 derniers jours. À partir de A3 il n'y en a plus qu'une par centre et par jour
+-- du centre ; avant, une par passage.
+SELECT n.center_id, date_trunc('day', n.cree_le) AS jour, COUNT(*) AS notifications
+FROM notification_evenement n
+WHERE n.type = 'ABSENCES_A_QUALIFIER' AND n.cree_le >= now() - interval '30 days'
+GROUP BY n.center_id, date_trunc('day', n.cree_le) ORDER BY n.center_id, jour;
+
+-- 25.8 INFORMATIF : fuseau du serveur de base (les dates du centre sont calculées par l'application, fuseau Africa/Algiers par défaut).
+SHOW timezone;
+```
+
+- **Comportements nouveaux à annoncer** (écarts décidés le 22/10, voir `.ddd/migration/slices/absences-patients-a3-detection-de-nuit.md`) :
+  jour de l'événement exclu pour tous les états de sortie (sans date : jamais attendu, inchangé) ; centres inactifs non contrôlés ; une seule
+  notification par centre et par jour ; réconciliation limitée aux absences détectées hors
+  période facturée ; entrées illisibles du rattrapage de détection en 400 ; fuseau du centre.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
@@ -833,4 +893,4 @@ G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
 toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18 ; pour F3, les points
 19.1 à 19.6 ; pour F4, les points 20.1 à 20.5 et 20.10 (V41, remboursements et écritures de remboursement historiques) ; pour F5, le point 21.2
-(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23 (V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant V43**, 24.3 et 24.4 à rapporter).
+(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23 (V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant V43**, 24.3 et 24.4 à rapporter) ; pour Absences A3, le point 25 (25.2 : sorties sans date à saisir, 25.3 et 25.6 informatifs).

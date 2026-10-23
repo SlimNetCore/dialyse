@@ -74,7 +74,9 @@
   (dernière séance) ; `DECEDE` et `GREFFE` = la veille de la date d'évènement (le patient ne dialyse plus ce jour-là) ;
   séjour limité = la date de fin de séjour incluse ; un état de sortie sans date libère la place immédiatement ;
   `PERMANENT` n'a pas de limite. Cette règle unique alimente le planning (RG-PLN-010, 040), la charge des infirmiers
-  (RG-INF-040), les séances attendues (RG-ABS-041, RG-SEA-042) et la libération des places (RG-PAT-033).
+  (RG-INF-040), les séances attendues (RG-SEA-042) et la libération des places (RG-PAT-033). **Exception, absences
+  (RG-ABS-041, slice A3)** : la détection des absences exclut le jour de l'évènement pour les quatre états de sortie
+  (`TRANSFERE`, `GUERRI`, `DECEDE`, `GREFFE`) ; un état de sortie sans date n'y est jamais attendu. À venir (Patient et couverture) : une sortie sans date d'évènement sera refusée.
 - **RG-PAT-033** — **Libération effective de la place** : lorsque le dernier jour d'occupation est dépassé, la fiche
   perd sa salle, son créneau, son générateur et ses jours de dialyse ; le patient reste dans le centre (consultation,
   facturation, historique). Le traitement s'exécute chaque nuit à 04:00 (après le contrôle des absences de 02:30, qui a

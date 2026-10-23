@@ -130,6 +130,21 @@ public class AbsencesJdbc implements AbsencesRepository {
     }
 
     @Override
+    public List<AbsencePatient> detecteesAQualifierEntre(CentreId centre, LocalDate du, LocalDate au, AbsenceId apres,
+                                                         int limite) {
+        String curseur = apres == null ? "" : "AND a.id > ? ";
+        List<Object> arguments = new java.util.ArrayList<>(List.of(centre.valeur(), SourceAbsence.AUTOMATIQUE.name(),
+                StatutAbsence.A_QUALIFIER.name(), Date.valueOf(du), Date.valueOf(au)));
+        if (apres != null) {
+            arguments.add(apres.valeur());
+        }
+        arguments.add(limite);
+        return jdbc.query("SELECT " + COLONNES + " FROM absence_patient a WHERE a.center_id = ? AND a.source = ? "
+                + "AND a.statut = ? AND a.date_seance BETWEEN ? AND ? " + curseur + "ORDER BY a.id LIMIT ?", ABSENCE,
+                arguments.toArray());
+    }
+
+    @Override
     public void creer(AbsencePatient a) {
         Valorisation v = a.valorisation();
         try {

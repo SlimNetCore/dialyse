@@ -34,7 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ConsultationDuSuiviTest {
 
     private static final LocalDate AUJOURDHUI = LocalDate.of(2026, 10, 22);
-    private static final Clock HORLOGE = Clock.fixed(Instant.parse("2026-10-22T10:00:00Z"), ZoneOffset.UTC);
+    private static final HorlogeDesCentres HORLOGE = HorlogeDesCentres.enUtc(
+            Clock.fixed(Instant.parse("2026-10-22T10:00:00Z"), ZoneOffset.UTC));
     private static final CentreId CENTRE = new CentreId(new UUID(1, 1));
     private static final CentreId AUTRE_CENTRE = new CentreId(new UUID(1, 2));
     private static final PatientId AMRANI = new PatientId(new UUID(2, 1));

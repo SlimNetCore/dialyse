@@ -49,6 +49,16 @@
           <p class="abs-feedback success" data-testid="abs-rattrapage-result" role="status">
             {{ 'ABSENCES.RATTRAPAGE_DETECTION.RESULT' | translate: {creees: r.creees, annulees: r.annulees} }}
           </p>
+          @if (r.finRamenee) {
+            <p class="abs-feedback" data-testid="abs-rattrapage-fin-ramenee" role="status">
+              {{ 'ABSENCES.RATTRAPAGE_DETECTION.FIN_RAMENEE' | translate: {fin: r.fin} }}
+            </p>
+          }
+          @if (r.echecs) {
+            <p class="abs-feedback error" data-testid="abs-rattrapage-echecs" role="alert">
+              {{ 'ABSENCES.RATTRAPAGE_DETECTION.ECHECS' | translate: {echecs: r.echecs} }}
+            </p>
+          }
         }
         @if (store.error()) {
           <p class="abs-feedback error" data-testid="abs-rattrapage-error" role="alert">

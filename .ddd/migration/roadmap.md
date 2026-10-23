@@ -99,3 +99,6 @@ fonctionnelle**.
 ## Questions ouvertes
 1. Y a-t-il des consommateurs externes de `/api/v1/gmao/**` hors frontend (BI, intégrations) ?
 2. Les experts préfèrent-ils sécuriser l'argent (Comptabilité, Facturation) avant G3-G6 ?
+
+## Prérequis du contexte Patient et couverture (noté le 2026-10-22, revue A3)
+- **Bloquer la sortie sans date d'événement** (décision utilisateur) : un patient ne peut passer à `TRANSFERE`, `DECEDE`, `GREFFE` ou `GUERRI` sans `date_evenement_etat` (règle du contexte Patient et couverture, hors Absences). Tant qu'elle n'existe pas, la détection des absences (A3) garde le comportement legacy : un sorti sans date n'est **jamais attendu**, donc aucune absence n'est créée pour lui, même pour ses vrais jours manqués. Les cas existants se listent avec `verifications-production.md` § 25.2 ; à saisir avant ou avec la règle.
