@@ -2,15 +2,12 @@ package com.hemodialyse.backend.contexts.stock.interfaces.http;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations;
-import com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock;
 import com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationDeSeance;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.DemiJournee;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.PerimetreDeSortie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,12 +28,10 @@ public class ConsommationsControleur {
 
     private final SessionCourante session;
     private final GestionDesConsommations consommations;
-    private final ParametrerLeStock parametrage;
 
-    public ConsommationsControleur(SessionCourante session, GestionDesConsommations consommations, ParametrerLeStock parametrage) {
+    public ConsommationsControleur(SessionCourante session, GestionDesConsommations consommations) {
         this.session = session;
         this.consommations = consommations;
-        this.parametrage = parametrage;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
@@ -62,20 +57,6 @@ public class ConsommationsControleur {
         return ConsommationReponse.depuis(consommations.consulter(session.centre(centerId), seanceId));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','DIRECTEUR_ADMINISTRATIF')")
-    @GetMapping("/parametres")
-    public ParametresReponse parametres(@RequestParam(required = false) UUID centerId) {
-        return new ParametresReponse(parametrage.sortiePourSeancesActivee(session.centre(centerId)));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/parametres")
-    public ParametresReponse definirLesParametres(@RequestBody ParametresRequete requete) {
-        var centre = session.centre(requete.centerId());
-        parametrage.activerLaSortiePourSeances(centre, requete.sortiePourSeancesActivee());
-        return new ParametresReponse(parametrage.sortiePourSeancesActivee(centre));
-    }
-
     record FavoriReponse(UUID articleId, BigDecimal quantiteSortie, BigDecimal reste) {
     }
 
@@ -89,8 +70,6 @@ public class ConsommationsControleur {
         }
     }
 
-    record ParametresReponse(boolean sortiePourSeancesActivee) {
-    }
 
     record ParametresRequete(UUID centerId, boolean sortiePourSeancesActivee) {
     }

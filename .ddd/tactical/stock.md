@@ -29,7 +29,7 @@ sources: [.ddd/strategic/bounded-contexts.md (Stock), .ddd/strategic/glossaries/
 | 5  | Sortir des lots (bon manuel, lots choisis)                                                          | Infirmier, Pharmacien                                 | `BonSortie` → `StockArticle` (n)                        | `SortieEnregistree`                                                                   | —                                                                               |
 | 6  | Enregistrer une **sortie pour séances** (la veille, pour le lendemain, par salle ou demi-journée)   | Gestionnaire de stock (`PHARMACIEN`), Admin           | `SortiePourSeances` → `StockArticle` (n)                | `SortiePourSeancesEnregistree` (sorties réelles FEFO, datées de l'enregistrement)     | articles proposés en favoris aux infirmiers du périmètre                        |
 | 6b | Imputer les consommables d'une séance sur la sortie pour séances (lots de la pièce, FEFO entre eux) | Infirmier, via Séance (port publié)                   | `ConsommationDeSeance`                                  | `ConsommationImputee` ; `DepassementDeLaSortie` (alerte)                              | **aucun mouvement de stock** ; dépassement accepté avec alerte                  |
-| 6c | Justifier un écart (en plus / en moins)                                                             | Infirmier, gestionnaire de stock                      | `SortiePourSeances`                                     | `EcartJustifie`                                                                       | motif obligatoire                                                               |
+| 6c | Justifier un écart (en plus / en moins)                                                             | Gestionnaire de stock                                 | `SortiePourSeances`                                     | `EcartJustifie`                                                                       | motif obligatoire                                                               |
 | 6d | Valider le rapprochement                                                                            | Gestionnaire de stock, Admin, Directeur administratif | `SortiePourSeances` → `StockArticle` (n)                | `RapprochementValide` ; `SortieSupplementaireEnregistree` / `RetourEnStockEnregistre` | en plus ⇒ sortie supplémentaire ; en moins ⇒ retour en stock (valeur de sortie) |
 | 7  | Annuler les consommations d'une séance (suppression de la séance)                                   | Séance (port publié)                                  | `ConsommationDeSeance`                                  | `ConsommationAnnulee`                                                                 | refus si séance facturée ou pièce rapprochée                                    |
 | 8  | Recalculer le PMP d'articles (massif, asynchrone)                                                   | Pharmacien, Admin                                     | `StockArticle` (un par transaction)                     | `PmpRecalcule`                                                                        | → écriture comptable différentielle (Comptabilité C6)                           |
@@ -526,9 +526,9 @@ retrait du legacy, documentation RG-STK).
 1. **Bascule** : la sortie pour séances remplace-t-elle partout la sortie de séance immédiate, ou faut-il un **paramètre
    par centre** le temps de la bascule ? *Recommandation : paramètre par centre, désactivé par défaut, puis activé
    centre par centre.*
-2. **Qui saisit le motif d'un écart** : l'infirmier (au fil de l'eau) et/ou le gestionnaire au rapprochement ?
-   *Hypothèse retenue dans le modèle : les deux ;
-   seule la validation est réservée.*
+2. **Qui saisit le motif d'un écart** : l'infirmier (au fil de l'eau) et/ou le gestionnaire au rapprochement ? *Décision
+   du 2026-10-24 : le gestionnaire de stock (et l'administrateur) seuls ; l'infirmier ne justifie pas ;
+   la validation reste réservée.*
 3. **Sortie supplémentaire** : depuis le lot de la pièce s'il en reste, sinon FEFO ? *Hypothèse retenue : oui.*
 4. **Valorisation et Facturation** : les consommations imputées restent-elles la base du coût par séance (pilotage), les
    sorties réelles étant celles de la

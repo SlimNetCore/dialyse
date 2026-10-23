@@ -10,7 +10,6 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
@@ -41,7 +40,7 @@ type PieceForm = {
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule,
-    MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule, MatSlideToggleModule,
+    MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule,
     TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,7 +55,6 @@ export class SortiesPourSeancesComponent {
   protected readonly pieces = signal<SortiePourSeances[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly selectionId = signal<string | null>(null);
-  protected readonly activee = signal<boolean | null>(null);
   protected readonly saving = signal(false);
   protected readonly working = signal(false);
   protected readonly submitAttempted = signal(false);
@@ -79,10 +77,8 @@ export class SortiesPourSeancesComponent {
   /** Préparation et validation du rapprochement : aussi le directeur administratif. */
   protected readonly peutRapprocher = computed(() =>
     this.auth.hasRole('ADMIN') || this.auth.hasRole('PHARMACIEN') || this.auth.hasRole('DIRECTEUR_ADMINISTRATIF'));
-  /** Un motif d'écart peut être saisi par l'infirmier et le gestionnaire (question ouverte 2 tranchée). */
-  protected readonly peutJustifier = computed(() =>
-    this.auth.hasRole('ADMIN') || this.auth.hasRole('PHARMACIEN') || this.auth.hasRole('INFIRMIER'));
-  protected readonly peutParametrer = computed(() => this.auth.hasRole('ADMIN'));
+  /** Le motif d'un écart est saisi par le gestionnaire de stock ou l'administrateur ; l'infirmier ne justifie pas. */
+  protected readonly peutJustifier = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('PHARMACIEN'));
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
 
@@ -204,21 +200,6 @@ export class SortiesPourSeancesComponent {
     });
   }
 
-  protected basculer(activee: boolean): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) {
-      return;
-    }
-    this.api.setStockParametres(centerId, activee).subscribe({
-      next: p => {
-        this.activee.set(p.sortiePourSeancesActivee);
-        this.notifier(p.sortiePourSeancesActivee
-          ? 'STOCK.SORTIES_SEANCES.ENABLED_OK' : 'STOCK.SORTIES_SEANCES.DISABLED_OK');
-      },
-      error: e => this.notifierErreur(e, 'STOCK.SORTIES_SEANCES.PARAM_ERROR'),
-    });
-  }
-
   protected libelleArticle(articleId: string): string {
     const a = this.articles().find(x => x.id === articleId);
     if (!a) {
@@ -260,10 +241,6 @@ export class SortiesPourSeancesComponent {
     }
     this.api.listSortiesPourSeances(centerId).subscribe({next: liste => this.pieces.set(liste)});
     this.refApi.getArticles(centerId).subscribe({next: liste => this.articles.set(liste)});
-    this.api.getStockParametres(centerId).subscribe({
-      next: p => this.activee.set(p.sortiePourSeancesActivee),
-      error: () => this.activee.set(null),
-    });
   }
 
   private remplacer(piece: SortiePourSeances): void {

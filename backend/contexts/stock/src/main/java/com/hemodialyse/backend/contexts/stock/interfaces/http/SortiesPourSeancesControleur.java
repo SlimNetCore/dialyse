@@ -21,7 +21,7 @@ import java.util.UUID;
 
 /**
  * Adapter entrant HTTP des sorties pour séances : {@code /api/v1/stock/sorties-pour-seances} (slice S6b, ADR 0045). Enregistrement
- * réservé à {@code ADMIN} et {@code PHARMACIEN} ; justification d'un écart ouverte aussi à {@code INFIRMIER} ; préparation et
+ * réservé à {@code ADMIN} et {@code PHARMACIEN} ; justification d'un écart réservée aux mêmes rôles (l'infirmier ne justifie pas) ; préparation et
  * validation du rapprochement pour {@code ADMIN}, {@code PHARMACIEN} et {@code DIRECTEUR_ADMINISTRATIF} (T42), qui lit aussi le
  * stock mais ne fait aucune autre écriture. Centre de la session, un autre centre demandé est refusé (403).
  */
@@ -62,7 +62,7 @@ public class SortiesPourSeancesControleur {
         return PieceReponse.depuis(sorties.preparerLeRapprochement(session.centre(requete == null ? null : requete.centerId()), id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")
     @PutMapping("/{id}/lignes/{ligneId}/motif")
     public PieceReponse justifierUnEcart(@PathVariable UUID id, @PathVariable UUID ligneId, @RequestBody MotifRequete requete) {
         return PieceReponse.depuis(sorties.justifierUnEcart(session.centre(requete.centerId()), id, ligneId, requete.motif()));

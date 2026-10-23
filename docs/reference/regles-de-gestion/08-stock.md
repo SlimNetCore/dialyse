@@ -220,8 +220,10 @@
 
 ## 8.9 Sorties pour séances, consommations et rapprochement (ADR 0045)
 
-Nouveau processus, activé **centre par centre** (`GET/PUT /api/v1/stock/parametres`, écriture `ADMIN`) ; désactivé, la
-séance garde la sortie immédiate FEFO.
+Processus **unique pour tous les centres** : la consommation d'une séance ne fait plus baisser le stock, elle est
+imputée
+sur la pièce du périmètre ; sans pièce correspondante, elle est acceptée avec l'alerte `AUCUNE_PIECE` et **aucun
+mouvement de stock** (l'ancienne sortie immédiate FEFO par séance et sa bascule par centre sont retirées).
 
 - **RG-STK-080** — Une **sortie pour séances** est préparée par `ADMIN` ou `PHARMACIEN` pour un jour et un périmètre
   (salle et/ou demi-journée). À l'enregistrement le stock **sort réellement** : lots en FEFO, une ligne par lot retenu,
@@ -236,10 +238,12 @@ séance garde la sortie immédiate FEFO.
   immuable si la séance est facturée (`SEANCE_FACTUREE_NON_MODIFIABLE`) ou la pièce rapprochée
   (`PIECE_DEJA_RAPPROCHEE`).
 - **RG-STK-083** — **Rapprochement** : écart d'une ligne = consommé − sorti ; l'excédent d'un article devient une ligne
-  sans lot. Tout écart non nul exige un **motif** (`ECART_SANS_MOTIF`), saisi par `ADMIN`, `PHARMACIEN` ou `INFIRMIER`.
+  sans lot. Tout écart non nul exige un **motif** (`ECART_SANS_MOTIF`), saisi par `ADMIN` ou `PHARMACIEN` (l'infirmier
+  ne justifie pas les écarts).
   La validation (`ADMIN`, `PHARMACIEN`, `DIRECTEUR_ADMINISTRATIF`) fait, par ligne, une **sortie supplémentaire** au PMP
-  courant pour un écart en plus (lots de la pièce d'abord, puis FEFO) ou un **retour en stock** (mouvement `RETOUR`,
-  traité comme une entrée) dans le lot d'origine, valorisé au prix de sortie pour un écart en moins ; la pièce est
+  courant pour un écart en plus (lots de la pièce d'abord, puis FEFO) ou un **retour en stock** (mouvement `RETOUR`)
+  dans
+  le lot d'origine pour un écart en moins, revalorisé au PMP qui le précède sans le modifier ; la pièce est
   ensuite figée (`PIECE_DEJA_RAPPROCHEE`). Le consommé des imputations reste la base du coût par séance.
 - **RG-STK-084** — **Aucun inventaire ne peut être ouvert tant qu'une sortie pour séances n'est pas rapprochée**
   (`INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE`). Le profil `DIRECTEUR_ADMINISTRATIF` rapproche les pièces et lit le

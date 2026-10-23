@@ -45,8 +45,6 @@ describe('SortiesPourSeancesComponent', () => {
     preparerLeRapprochement: vi.fn(() => of(piece())),
     justifierUnEcart: vi.fn(() => of(piece())),
     validerLeRapprochement: vi.fn(() => of(piece({statut: 'RAPPROCHEE'}))),
-    getStockParametres: vi.fn(() => of({sortiePourSeancesActivee: false})),
-    setStockParametres: vi.fn(() => of({sortiePourSeancesActivee: true})),
   };
   const refApi = {getArticles: vi.fn(() => of([{id: 'a1', code: 'A1', libelle: 'Article 1'}]))};
   const auth = {
@@ -75,13 +73,11 @@ describe('SortiesPourSeancesComponent', () => {
     }).compileComponents();
   });
 
-  it('charge les pieces, les articles et le parametre du centre', () => {
+  it('charge les pieces et les articles du centre', () => {
     const {c} = creer();
     expect(api.listSortiesPourSeances).toHaveBeenCalledWith('center-1');
     expect(refApi.getArticles).toHaveBeenCalledWith('center-1');
-    expect(api.getStockParametres).toHaveBeenCalledWith('center-1');
     expect(c.pieces().length).toBe(1);
-    expect(c.activee()).toBe(false);
   });
 
   it('reserve les actions selon le role (T42)', () => {
@@ -90,7 +86,6 @@ describe('SortiesPourSeancesComponent', () => {
     expect(c.peutRapprocher()).toBe(true);
     expect(c.peutEnregistrer()).toBe(false);
     expect(c.peutJustifier()).toBe(false);
-    expect(c.peutParametrer()).toBe(false);
 
     TestBed.resetTestingModule();
     roles = ['INFIRMIER'];
@@ -102,7 +97,7 @@ describe('SortiesPourSeancesComponent', () => {
       ],
     });
     ({c} = creer());
-    expect(c.peutJustifier()).toBe(true);
+    expect(c.peutJustifier()).toBe(false);
     expect(c.peutRapprocher()).toBe(false);
     expect(c.peutEnregistrer()).toBe(false);
   });
@@ -175,13 +170,4 @@ describe('SortiesPourSeancesComponent', () => {
     c.justifier(p, p.lignes[0], {target: {value: '   '}} as unknown as Event);
     expect(api.justifierUnEcart).not.toHaveBeenCalled();
   });
-
-  it('bascule le parametre du centre', () => {
-    roles = ['ADMIN'];
-    const {c} = creer();
-    c.basculer(true);
-    expect(api.setStockParametres).toHaveBeenCalledWith('center-1', true);
-    expect(c.activee()).toBe(true);
-  });
 });
-

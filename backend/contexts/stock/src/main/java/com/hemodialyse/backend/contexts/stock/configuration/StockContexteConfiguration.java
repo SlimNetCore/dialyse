@@ -237,7 +237,7 @@ public class StockContexteConfiguration {
                 sorties, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, horloge);
     }
 
-    // ------------------------------------------------------------------ slice S6b : consommations de séance et paramétrage
+    // ------------------------------------------------------------------ slice S6b : consommations de séance
 
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationsImputees stockConsommationsImputees(JdbcTemplate jdbc) {
@@ -247,23 +247,6 @@ public class StockContexteConfiguration {
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.consommations.PerimetreDesSeances stockPerimetreDesSeances(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.PerimetreDesSeancesLegacy(jdbc);
-    }
-
-    @Bean
-    com.hemodialyse.backend.contexts.stock.domain.parametres.ParametresDuStock stockParametresDuStock(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.ParametresDuStockJdbc(jdbc);
-    }
-
-    @Bean
-    com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock stockParametrerLeStock(
-            com.hemodialyse.backend.contexts.stock.domain.parametres.ParametresDuStock parametres) {
-        return new com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock(parametres);
-    }
-
-    @Bean
-    com.hemodialyse.backend.contexts.stock.publishedlanguage.ParametresDuStockDuCentre stockParametresDuStockDuCentre(
-            com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock parametrage) {
-        return new com.hemodialyse.backend.contexts.stock.interfaces.catalogue.ParametresDuStockPublies(parametrage);
     }
 
     @Bean
@@ -279,7 +262,7 @@ public class StockContexteConfiguration {
     }
 
     /**
-     * Consommation de séance imputée sur la sortie pour séances (sans nom de type : la plateforme l'aiguille selon le centre).
+     * Consommation de séance imputée sur la sortie pour séances : seule implémentation du port publié appelé par la Séance.
      */
     @Bean
     com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock stockConsommationsDeSeance(

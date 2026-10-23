@@ -79,7 +79,9 @@ class SeanceSuppressionIntegrationTest {
     void cleanup() {
         jdbc.update("DELETE FROM bons_sortie_lignes WHERE bon_sortie_id IN (SELECT id FROM bons_sortie WHERE center_id IN (?, ?))",
                 C1, C2);
-        for (String table : List.of("bons_sortie", "stock_movements", "volet_paramedical", "volet_medical",
+        jdbc.update("DELETE FROM consommations_de_seance_imputations WHERE seance_id IN (SELECT seance_id FROM consommations_de_seance "
+                + "WHERE center_id IN (?, ?))", C1, C2);
+        for (String table : List.of("consommations_de_seance", "bons_sortie", "stock_movements", "volet_paramedical", "volet_medical",
                 "seance_suppression", "seances", "lots", "articles")) {
             jdbc.update("DELETE FROM " + table + " WHERE center_id IN (?, ?)", C1, C2);
         }
@@ -102,12 +104,13 @@ class SeanceSuppressionIntegrationTest {
     }
 
     @Test
-    void the_admin_deletes_a_validated_session_and_its_consumables_return_to_stock() throws Exception {
+    void the_admin_deletes_a_validated_session_and_its_imputed_consumables_are_erased() throws Exception {
         UUID id = seance(C1, "VALIDEE");
         seances.addConsommableSeance(CenterId.of(C1), id, article, new BigDecimal("3"), "inf-01");
         jdbc.update("INSERT INTO volet_paramedical (id, seance_id, center_id, poids_avant_kg) VALUES (?, ?, ?, ?)",
                 UUID.randomUUID(), id, C1, new BigDecimal("72.5"));
-        assertThat(restant()).isEqualByComparingTo("7");
+        assertThat(restant()).as("consumption no longer lowers the stock").isEqualByComparingTo("10");
+        assertThat(compter("SELECT COUNT(*) FROM consommations_de_seance_imputations WHERE seance_id = ?", id)).isEqualTo(1);
 
         mockMvc.perform(delete("/api/v1/seances/{id}", id).with(as(C1, "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"motif\":\"Séance saisie en double\"}"))
@@ -117,7 +120,9 @@ class SeanceSuppressionIntegrationTest {
         assertThat(compter("SELECT COUNT(*) FROM volet_paramedical WHERE seance_id = ?", id)).isZero();
         assertThat(compter("SELECT COUNT(*) FROM bons_sortie WHERE seance_id = ?", id)).isZero();
         assertThat(compter("SELECT COUNT(*) FROM stock_movements WHERE seance_id = ?", id)).isZero();
-        assertThat(restant()).as("le stock consommé est restitué").isEqualByComparingTo("10");
+        assertThat(compter("SELECT COUNT(*) FROM consommations_de_seance WHERE seance_id = ?", id)).isZero();
+        assertThat(compter("SELECT COUNT(*) FROM consommations_de_seance_imputations WHERE seance_id = ?", id)).isZero();
+        assertThat(restant()).as("the stock is unchanged").isEqualByComparingTo("10");
         assertThat(jdbc.queryForObject("SELECT motif FROM seance_suppression WHERE seance_id = ? AND center_id = ?",
                 String.class, id, C1)).isEqualTo("Séance saisie en double");
         assertThat(jdbc.queryForObject("SELECT statut FROM seance_suppression WHERE seance_id = ?", String.class, id))

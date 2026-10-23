@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-23<br>568 règles de gestion · 16 domaines · 430 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-24<br>574 règles de gestion · 16 domaines · 448 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>568</b>règles de gestion</div>
+        <div><b>574</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>9</b>points d'attention</div>
@@ -1553,9 +1553,11 @@ contrôle de la nuit). Idempotent ; désactivable par la propriété <code>app.a
     (<code>ABSENCE_PERIODE_TROP_LONGUE</code>). Réponse : absences créées et annulées (<code>creees</code>, <code>annulees</code>)
     et, seulement si des absences
     ont été en incident, leur nombre (<code>echecs</code>), et seulement si des jours ont été laissés parce que leur
-    mois d&#39;absences est clos, la liste de
+    mois d&#39;absences
+    est clos, la liste de
     ces jours (<code>joursIgnores</code>, RG-ABS-074). Une entrée illisible (JSON, date impossible,
-    <code>centerId</code> non UUID) est refusée en
+    <code>centerId</code> non UUID) est refusée
+    en
     <strong>400</strong> <code>BAD_REQUEST</code>, un corps non JSON en <strong>415</strong> (était 500, KB-ABS-28
     aligné). <strong>Limite :</strong> la détection s&#39;appuie sur la
     fiche patient actuelle ; un patient dont les jours de dialyse ont été retirés à la libération de sa place
@@ -1770,42 +1772,50 @@ les séances réalisées (validées par l&#39;infirmier à la présence du patie
     </div>
     <h2>6.7 Clôture mensuelle des absences (slice A6, ADR 0042)</h2>
     <p>Un <strong>mois d&#39;absences</strong> (un mois d&#39;un centre) est ouvert ou clos. Un mois sans ligne est
-        ouvert ; aucun mois n&#39;est clos au déploiement.</p>
+        ouvert ; aucun mois n&#39;est clos
+        au déploiement.</p>
     <div class="rule" id="RG-ABS-070">
         <div class="rid">RG-ABS-070</div>
         <div class="rtxt"><p><strong>Clôturer un mois d&#39;absences</strong> (<code>POST
-            /api/v1/absences-patients/mois/{AAAA-MM}/cloturer</code>, <code>ADMIN</code> seul, centre de la session) :
+            /api/v1/absences-patients/mois/{AAAA-MM}/cloturer</code>, <code>ADMIN</code>
+            seul, centre de la session) :
             <strong>sans condition d&#39;état</strong> (l&#39;administrateur décide), mais <strong>seul un mois terminé
-                se clôture</strong> : le mois en cours et les mois futurs, au fuseau du centre,
+                se clôture</strong> : le mois en cours et
+            les mois futurs, au fuseau du centre,
             sont refusés (<strong>422</strong> <code>MOIS_D_ABSENCES_NON_TERMINE</code>) ; <strong>aucun jour de
-                grâce</strong> (le mois précédent se clôt dès le premier jour du mois). La réponse porte
-            l&#39;<strong>avertissement chiffré</strong> <code>absencesAQualifierRestantes</code> (absences encore « à
-            qualifier » du mois) et <code>absencesEnRetard</code> (parmi elles, celles de plus de
+                grâce</strong> (le mois précédent se clôt dès le
+            premier jour du mois). La réponse porte
+            l&#39; <strong>avertissement chiffré</strong> <code>absencesAQualifierRestantes</code> (absences encore « à
+            qualifier » du mois) et
+            <code>absencesEnRetard</code> (parmi elles, celles de plus de
             3 jours, RG-ABS-043 au jour de la clôture) ; la clôture n&#39;est jamais refusée pour cela. Clôturer deux
-            fois : <strong>409</strong> <code>MOIS_D_ABSENCES_DEJA_CLOS</code>.
+            fois : <strong>409</strong>
+            <code>MOIS_D_ABSENCES_DEJA_CLOS</code>.
             Mois illisible : <strong>400</strong> <code>MOIS_INVALIDE</code> ; année illisible : <strong>400</strong>
-            <code>ANNEE_INVALIDE</code>. Lecture des douze mois (<code>GET
-                /api/v1/absences-patients/mois?annee=AAAA</code>) :
-            les quatre profils d&#39;accès.
-            <em>Source :</em> <code>CloturerLeMoisDAbsences</code>, <code>MoisAbsences</code>, <code>MoisDAbsencesControleur</code>.
-        </p>
+            <code>ANNEE_INVALIDE</code>. Lecture des douze mois
+            (<code>GET /api/v1/absences-patients/mois?annee=AAAA</code>) :
+            les quatre profils d&#39;accès. <em>Source :</em> <code>CloturerLeMoisDAbsences</code>,
+            <code>MoisAbsences</code>, <code>MoisDAbsencesControleur</code>.</p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-071">
         <div class="rid">RG-ABS-071</div>
         <div class="rtxt"><p><strong>Un mois clos refuse toute écriture d&#39;absence datée de ce mois</strong> :
-            déclaration, qualification, rattrapage, annulation (<strong>422</strong>
+            déclaration, qualification,
+            rattrapage, annulation (<strong>422</strong>
             <code>MOIS_D_ABSENCES_CLOS</code>, avec le mois en propriété <code>mois</code>, rien n&#39;est écrit ni
-            signalé). Le mois voisin et les autres centres ne sont pas touchés. Les lectures
-            (liste, suivi, synthèse, pilotage) comptent tous les mois. Les chiffres déjà enregistrés ne sont jamais
-            recalculés.
-            <em>Source :</em> <code>GardeDesMoisDAbsences</code>, <code>MoisDAbsencesClos</code>.</p>
+            signalé). Le mois voisin et les autres
+            centres ne sont pas touchés. Les lectures (liste, suivi, synthèse, pilotage) comptent tous les mois. Les
+            chiffres déjà
+            enregistrés ne sont jamais recalculés. <em>Source :</em> <code>GardeDesMoisDAbsences</code>, <code>MoisDAbsencesClos</code>.
+        </p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-072">
         <div class="rid">RG-ABS-072</div>
         <div class="rtxt"><p><strong>Rattrapage</strong> : exige que le mois de l&#39;absence <strong>et</strong> celui
-            de la date de rattrapage soient ouverts (le second n&#39;était pas regardé avant A6) ;
+            de la date de rattrapage soient ouverts
+            (le second n&#39;était pas regardé avant A6) ;
             les deux mois se verrouillent du plus ancien au plus récent. Refus : <strong>422</strong> <code>MOIS_D_ABSENCES_CLOS</code>.
         </p>
         </div>
@@ -1813,26 +1823,30 @@ les séances réalisées (validées par l&#39;infirmier à la présence du patie
     <div class="rule" id="RG-ABS-073">
         <div class="rid">RG-ABS-073</div>
         <div class="rtxt"><p><strong>Exclusion et réinclusion d&#39;une séance (Facturation)</strong> : l&#39;exclusion
-            qui crée une absence dans un mois clos échoue avec le même refus <strong>422</strong>
+            qui crée une absence dans un
+            mois clos échoue avec le même refus <strong>422</strong>
             <code>MOIS_D_ABSENCES_CLOS</code> et <strong>toute l&#39;exclusion est annulée</strong> (comme <code>ABSENCE_PERIODE_FACTUREE</code>)
-            ; la <strong>réinclusion</strong> d&#39;une séance dont l&#39;absence est dans un mois clos
+            ; la <strong>réinclusion</strong>
+            d&#39;une séance dont l&#39;absence est dans un mois clos
             est <strong>refusée</strong> (<strong>422</strong> <code>MOIS_D_ABSENCES_CLOS</code>, rouvrir d&#39;abord le
-            mois d&#39;absences) et l&#39;absence et la séance restent inchangées.
-            <em>Source :</em> <code>ExclusionDeLaFacturation</code>, <code>DeclarerUneAbsence</code>, <code>RetirerLAbsenceDeLExclusion</code>.
+            mois d&#39;absences) et l&#39;absence et la séance restent
+            inchangées. <em>Source :</em> <code>ExclusionDeLaFacturation</code>, <code>DeclarerUneAbsence</code>, <code>RetirerLAbsenceDeLExclusion</code>.
         </p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-074">
         <div class="rid">RG-ABS-074</div>
         <div class="rtxt"><p><strong>Détection, réconciliation, rattrapage de détection et notification</strong> : les
-            jours d&#39;un mois clos sont <strong>ignorés</strong> (aucune absence créée, aucune
+            jours d&#39;un mois clos
+            sont <strong>ignorés</strong> (aucune absence créée, aucune
             absence réconciliée) ; le rattrapage de détection (RG-ABS-046) les liste dans le champ additif
-            <strong><code>joursIgnores</code></strong> de sa réponse (absent quand rien n&#39;est ignoré,
+            <strong><code>joursIgnores</code></strong> de
+            sa réponse (absent quand rien n&#39;est ignoré,
             KB-ABS-37) ; la notification de nuit (RG-ABS-044) <strong>ne compte que les mois ouverts</strong> et se tait
-            s&#39;il n&#39;en reste aucune absence à qualifier. Une absence manquante d&#39;un
-            mois clos se rattrape en rouvrant le mois.
-            <em>Source :</em> <code>DetectionAbsences</code>, <code>ReconciliationAbsences</code>, <code>NotificationDesAbsencesAQualifier</code>,
-            <code>DetectionControleur</code>.</p>
+            s&#39;il n&#39;en reste aucune
+            absence à qualifier. Une absence manquante d&#39;un
+            mois clos se rattrape en rouvrant le mois. <em>Source :</em> <code>DetectionAbsences</code>, <code>ReconciliationAbsences</code>,
+            <code>NotificationDesAbsencesAQualifier</code>, <code>DetectionControleur</code>.</p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-075">
@@ -1841,48 +1855,57 @@ les séances réalisées (validées par l&#39;infirmier à la présence du patie
             /api/v1/absences-patients/mois/{AAAA-MM}/rouvrir</code>, <code>ADMIN</code> seul) : <strong>motif
             obligatoire</strong>, rogné, <strong>500 caractères au plus</strong>
             (<strong>400</strong> <code>MOTIF_DE_REOUVERTURE_OBLIGATOIRE</code>) ; un mois non clos ne se rouvre pas
-            (<strong>409</strong> <code>MOIS_D_ABSENCES_NON_CLOS</code>, contrôlé avant le motif). Un mois rouvert peut
-            être
+            (<strong>409</strong> <code>MOIS_D_ABSENCES_NON_CLOS</code>,
+            contrôlé avant le motif). Un mois rouvert peut être
             clos à nouveau. La réouverture n&#39;est <strong>pas</strong> refusée quand le mois de facturation
-            correspondant est clos.
-            <em>Source :</em> <code>RouvrirLeMoisDAbsences</code>, <code>MoisAbsences</code>.</p>
+            correspondant est clos. <em>Source :</em>
+            <code>RouvrirLeMoisDAbsences</code>, <code>MoisAbsences</code>.</p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-076">
         <div class="rid">RG-ABS-076</div>
         <div class="rtxt"><p><strong>Lien avec la Facturation (avertissement seulement)</strong> : aucune obligation d&#39;ordre.
-            La clôture d&#39;un mois de facturation (RG-FAC-040) répond
+            La clôture d&#39;un
+            mois de facturation (RG-FAC-040) répond
             <code>absencesDuMoisNonCloses</code> (vrai si le mois d&#39;absences du centre n&#39;est pas clos) et le dit
-            à l&#39;administrateur ; elle n&#39;est jamais refusée pour cela. L&#39;ordre de l&#39;ADR 0009
-            (clore les absences, puis la facturation) reste une recommandation.
-            <em>Source :</em> <code>ClotureDesAbsences</code> (langage publié de la Facturation),
-            <code>CloturerLeMois</code>.</p>
+            à l&#39;administrateur ; elle
+            n&#39;est jamais refusée pour cela. L&#39;ordre de l&#39;ADR 0009 (clore les absences, puis la facturation)
+            reste une
+            recommandation. <em>Source :</em> <code>ClotureDesAbsences</code> (langage publié de la Facturation), <code>CloturerLeMois</code>.
+        </p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-077">
         <div class="rid">RG-ABS-077</div>
         <div class="rtxt"><p><strong>Concurrence</strong> : la ligne du mois est verrouillée (<code>SELECT ... FOR
-            UPDATE</code>) par la clôture, la réouverture et chaque écriture d&#39;absence du mois : une
+            UPDATE</code>) par la clôture, la
+            réouverture et chaque écriture d&#39;absence du mois : une
             écriture en cours fait attendre la clôture (l&#39;avertissement est exact), une clôture en cours fait
-            attendre l&#39;écriture, ensuite refusée. Un verrou qu&#39;on n&#39;obtient pas dans
+            attendre l&#39;écriture,
+            ensuite refusée. Un verrou qu&#39;on n&#39;obtient pas dans
             le délai de la transaction (5 s) : <strong>409</strong> <code>ABSENCE_ECRITURE_CONCURRENTE</code> (code
-            commun aux absences, aussi rendu par la clôture et la réouverture d&#39;un mois). Dans la détection de nuit,
-            un verrou de mois indisponible est un incident compté (<code>echecs</code>) et journalisé, jamais confondu
-            avec une déclaration concurrente. <code>GET /mois</code> ne rend le motif de réouverture et les identifiants
-            d&#39;auteurs qu&#39;aux <code>ADMIN</code> (null pour les autres profils).</p>
+            commun aux absences, aussi rendu par
+            la clôture et la réouverture d&#39;un mois). Dans la détection de nuit, un verrou de mois indisponible est
+            un incident
+            compté (<code>echecs</code>) et journalisé, jamais confondu avec une déclaration concurrente. <code>GET
+                /mois</code> ne rend le motif de
+            réouverture et les identifiants d&#39;auteurs qu&#39;aux <code>ADMIN</code> (null pour les autres profils).
+        </p>
         </div>
     </div>
     <div class="rule" id="RG-ABS-078">
         <div class="rid">RG-ABS-078</div>
         <div class="rtxt"><p><strong>Traçabilité</strong> : chaque clôture (auteur, instant, avertissement) et chaque
-            réouverture (auteur, instant, motif) est ajoutée au journal
+            réouverture (auteur,
+            instant, motif) est ajoutée au journal
             <code>mois_absences_journal</code> (jamais modifié ni supprimé) ; la ligne du mois retient la dernière
-            clôture et la dernière réouverture. Les événements d&#39;intégration
+            clôture et la dernière
+            réouverture. Les événements d&#39;intégration
             <code>MoisDAbsencesCloture</code> et <code>MoisDAbsencesRouvert</code> sont publiés dans la transaction de l&#39;acte
-            (Spring Modulith, ADR 0013 ; aucun consommateur pour l&#39;instant) ; les écritures
-            <code>POST</code> sont aussi tracées par le journal d&#39;audit de la plateforme.
-            <em>Source :</em> <code>MoisAbsencesJdbc</code>, <code>PublicationDesMoisDAbsencesSpring</code>, <code>AuditRequestFilter</code>.
-        </p>
+            (Spring Modulith, ADR
+            0013 ; aucun consommateur pour l&#39;instant) ; les écritures
+            <code>POST</code> sont aussi tracées par le journal d&#39;audit de la plateforme. <em>Source :</em> <code>MoisAbsencesJdbc</code>,
+            <code>PublicationDesMoisDAbsencesSpring</code>, <code>AuditRequestFilter</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p07"><h1><span class="n">Partie 7</span>Séances de dialyse (cahier de dialyse)</h1>
@@ -2185,13 +2208,16 @@ libellé et unité de stock sont obligatoires (<code>ARTICLE_CODE_REQUIS</code>,
 <code>ARTICLE_UNITE_REQUISE</code>) ; le coefficient d&#39;achat doit être &gt; 0 (<code>ARTICLE_COEFFICIENT_ACHAT_INVALIDE</code>), prix, seuil
 et stock maximum ≥ 0 (<code>ARTICLE_VALEUR_NEGATIVE</code>) et le stock maximum au moins égal au seuil d&#39;alerte
 (<code>ARTICLE_STOCK_MAX_INFERIEUR_SEUIL</code>). Un éventuel <strong>type de traitement de l&#39;anémie</strong> (<code>EPO</code> ou <code>FER_INJECTABLE</code>,
-vide = article ordinaire) alimente les listes de prescription (voir RG-MED). <em>Source :</em> <code>Article.appliquerFiche</code>,
-<code>ArticlesComponent</code>.</p>
+    vide = article ordinaire) alimente les listes de prescription (voir RG-MED). Les quatre cases « géré par lot »,
+    « péremption obligatoire », « produit dangereux » et « déchets DASRI » non transmises valent « non ». <em>Source
+        :</em>
+    <code>FicheArticle.saisie</code> (contexte <code>stock</code>), <code>ArticlesComponent</code>.</p>
 </div></div>
 <div class="rule" id="RG-STK-008"><div class="rid">RG-STK-008</div><div class="rtxt"><p><strong>Comptes comptables de l&#39;article</strong> (facultatifs) : la fiche peut préciser un <strong>compte de stock</strong> et
 un <strong>compte de consommation</strong> propres à l&#39;article (1 à 20 lettres ou chiffres, sinon <code>ARTICLE_COMPTE_INVALIDE</code>).
 Laissés vides, ce sont les comptes du centre qui s&#39;appliquent à la comptabilisation du stock (RG-CPT-011 à 014).
-<em>Source :</em> <code>Article.appliquerFiche</code>, <code>ArticlesComponent</code>.</p>
+    <em>Source :</em> <code>FicheArticle.saisie</code> (contexte <code>stock</code>), <code>ArticlesComponent</code>.
+</p>
 </div></div>
 <div class="rule" id="RG-STK-006"><div class="rid">RG-STK-006</div><div class="rtxt"><p><strong>Dosage par unité de stock</strong> : la fiche peut porter « 1 unité de stock = X UI (ou mg…) »,
 c&#39;est-à-dire
@@ -2210,25 +2236,39 @@ par boîte, dosage 4000, unité du dosage « UI » : une prescription de 8000 UI
 saccharose 100 mg</em> — unité « ampoule », unité d&#39;achat « boîte », 5 unités par boîte, dosage 100, unité du dosage
 « mg » : une prescription de 200 mg sort 2 ampoules ; <em>Dialyseur FX60</em> — unité « pièce », unité d&#39;achat « carton »,
 12 unités par carton, dosage et unité du dosage laissés vides (aucune conversion). Dès que le dosage et son unité sont
-saisis, la fiche affiche la ligne de contrôle « 1 seringue = 4000 UI ». <em>Source :</em> <code>Article.quantiteStockPourDose</code>,
-<code>ArticlesComponent</code>.</p>
+    saisis, la fiche affiche la ligne de contrôle « 1 seringue = 4000 UI ». La conversion est publiée aux autres
+    contextes par le catalogue d&#39;articles (<code>CatalogueDArticles.quantitePourDose</code>, utilisée par l&#39;administration
+    du
+    traitement de l&#39;anémie). <em>Source :</em> <code>Dosage.quantitePourDose</code> (contexte <code>stock</code>),
+    <code>ArticlesComponent</code>.</p>
 </div></div>
 <div class="rule" id="RG-STK-007"><div class="rid">RG-STK-007</div><div class="rtxt"><p>Le code article est <strong>unique par centre</strong> sans tenir compte de la casse (<code>ARTICLE_CODE_EXISTANT</code>) ;
-un article inconnu du centre est introuvable (<code>ARTICLE_INTROUVABLE</code>). Création, modification et (dés)activation :
+    un article inconnu du centre est introuvable (422 <code>ARTICLE_INTROUVABLE</code>). Création, modification et
+    (dés)activation
+    (paramètre <code>active</code> obligatoire, <code>ARTICLE_ACTIVITE_REQUISE</code>) :
 <code>ADMIN</code>, <code>PHARMACIEN</code>. L&#39;écran « Articles » liste les fiches <strong>par pages</strong> (<code>GET /stock/referentiel/articles/page</code>,
 <code>page</code>/<code>size</code>), avec recherche sur le code, le libellé, la DCI ou le code-barres et filtre actif / désactivé ; un
-article désactivé n&#39;est plus proposé mais son historique reste. <em>Source :</em> <code>StockReferentialRestController</code>,
-<code>ArticleCatalogPort</code>.</p>
+    article désactivé n&#39;est plus proposé mais son historique reste. Une condition de conservation ou un type de
+    traitement inconnu est refusé avec un code stable (<code>ARTICLE_CONDITION_CONSERVATION_INVALIDE</code>,
+    <code>ARTICLE_TYPE_TRAITEMENT_INVALIDE</code>). <em>Source :</em> <code>ReferentielStockControleur</code>, <code>ReferentielDesArticles</code>,
+    <code>ArticlesJdbc</code>
+    (contexte <code>stock</code>).</p>
 </div></div>
 <div class="rule" id="RG-STK-002"><div class="rid">RG-STK-002</div><div class="rtxt"><p>Un article inactif ne peut plus être sorti du stock (« Article inactif »). Une consommation doit être
 strictement positive et ne peut dépasser le stock (« Stock insuffisant pour l&#39;article »).</p>
 </div></div>
-<div class="rule" id="RG-STK-003"><div class="rid">RG-STK-003</div><div class="rtxt"><p>Un fournisseur exige une raison sociale ; un emplacement exige un libellé. Les fournisseurs et
-emplacements sont propres au centre.</p>
+    <div class="rule" id="RG-STK-003">
+        <div class="rid">RG-STK-003</div>
+        <div class="rtxt"><p>Un fournisseur exige une raison sociale ; un emplacement exige un libellé (valeurs
+            nettoyées des
+            espaces de bord). Les fournisseurs et emplacements sont propres au centre.</p>
 </div></div>
 <div class="rule" id="RG-STK-004"><div class="rid">RG-STK-004</div><div class="rtxt"><p>Création d&#39;articles, de fournisseurs et d&#39;emplacements : <code>ADMIN</code>, <code>PHARMACIEN</code>. Lecture des
 articles : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code> ;
-des fournisseurs et emplacements : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>.</p>
+    des fournisseurs et emplacements : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>. Sur tout le
+    référentiel, un centre demandé
+    autre que celui de la session est refusé (403, sauf <code>SUPERADMIN</code>) ; sans centre, celui de la session s&#39;applique.
+    <em>Source :</em> <code>SessionLegacy</code> (contexte <code>stock</code>).</p>
 </div></div>
 <div class="rule" id="RG-STK-005"><div class="rid">RG-STK-005</div><div class="rtxt"><p>Les références de pièces sont générées par séquence de centre : <code>BC</code> (bon de commande), <code>BR</code>
 (réception), <code>BS</code> (sortie), <code>INV</code> (inventaire).</p>
@@ -2388,17 +2428,107 @@ parcourt aussi les centres inactifs.</p>
 pour un numéro de lot donné (<code>ADMIN</code>, <code>PHARMACIEN</code>).</p>
 </div></div>
 <h2>8.8 Groupes d&#39;articles (kits de consommables)</h2>
-<div class="rule" id="RG-STK-070"><div class="rid">RG-STK-070</div><div class="rtxt"><p>Un groupe regroupe de 1 à <strong>500</strong> articles du centre ; nom obligatoire (100 caractères maximum,
-espaces superflus réduits), description facultative (500 caractères maximum).</p>
+    <div class="rule" id="RG-STK-070">
+        <div class="rid">RG-STK-070</div>
+        <div class="rtxt"><p>Un groupe regroupe de 1 à <strong>500</strong> articles du centre (doublons ignorés,
+            articles actifs ou
+            désactivés) ; nom obligatoire (100 caractères maximum, espaces superflus réduits), description facultative
+            (500
+            caractères maximum, blanche = absente).</p>
 </div></div>
 <div class="rule" id="RG-STK-071"><div class="rid">RG-STK-071</div><div class="rtxt"><p>Le nom est unique par centre <strong>sans tenir compte de la casse, des accents ni des espaces multiples</strong>
 (« Kit CNAS » = « KIT CNAS ») : <code>GROUPE_ARTICLE_NOM_EXISTANT</code>.</p>
 </div></div>
 <div class="rule" id="RG-STK-072"><div class="rid">RG-STK-072</div><div class="rtxt"><p>Un groupe inconnu du centre est introuvable (<code>GROUPE_ARTICLE_INTROUVABLE</code>). Un article d&#39;un autre
-centre est refusé (<code>GROUPE_ARTICLE_ARTICLE_INCONNU</code>). La gestion des groupes est réservée à <code>ADMIN</code>.</p>
+    centre est refusé (<code>GROUPE_ARTICLE_ARTICLE_INCONNU</code>). La gestion des groupes est réservée à
+    <code>ADMIN</code> ; la liste est
+    paginée et triée par nom (sans casse ni accents). <em>Source :</em> <code>GestionDesGroupesDArticles</code>, <code>GroupeDArticles</code>,
+    <code>GroupesDArticlesControleur</code> (contexte <code>stock</code>).</p>
 </div></div>
 <div class="rule" id="RG-STK-073"><div class="rid">RG-STK-073</div><div class="rtxt"><p>La valorisation d&#39;un groupe sur une période est restituée à la direction sans donnée nominative (voir
-RG-DIR).</p>
+    RG-DIR) ; les groupes de même clé de nom sont consolidés d&#39;un centre à l&#39;autre. <em>Source :</em> langage
+    publié
+    <code>GroupesDArticlesDesCentres</code> (contexte <code>stock</code>),
+    <code>DirectionStockGroupesQueryService</code>.</p>
+</div>
+</div>
+    <h2>8.9 Sorties pour séances, consommations et rapprochement (ADR 0045)</h2>
+    <p>Processus <strong>unique pour tous les centres</strong> : la consommation d&#39;une séance ne fait plus baisser
+        le stock, elle est imputée
+        sur la pièce du périmètre ; sans pièce correspondante, elle est acceptée avec l&#39;alerte
+        <code>AUCUNE_PIECE</code> et <strong>aucun
+            mouvement de stock</strong> (l&#39;ancienne sortie immédiate FEFO par séance et sa bascule par centre sont
+        retirées).</p>
+    <div class="rule" id="RG-STK-080">
+        <div class="rid">RG-STK-080</div>
+        <div class="rtxt"><p>Une <strong>sortie pour séances</strong> est préparée par <code>ADMIN</code> ou <code>PHARMACIEN</code>
+            pour un jour et un périmètre
+            (salle et/ou demi-journée). À l&#39;enregistrement le stock <strong>sort réellement</strong> : lots en FEFO,
+            une ligne par lot retenu,
+            valorisée au PMP courant, mouvements <code>SORTIE</code> datés du jour d&#39;enregistrement (<code>PIECE_SANS_LIGNE</code>,
+            <code>PIECE_LIGNE_INVALIDE</code>, <code>PIECE_ARTICLE_INCONNU</code>, <code>PIECE_ARTICLE_INACTIF</code>,
+            <code>STOCK_INSUFFISANT</code>). Référence <code>SPS-nnnnn</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-STK-081">
+        <div class="rid">RG-STK-081</div>
+        <div class="rtxt"><p><strong>La pièce précédente du même périmètre doit être rapprochée</strong> avant d&#39;en
+            enregistrer une nouvelle
+            (<code>PIECE_PRECEDENTE_NON_RAPPROCHEE</code>) ; un autre périmètre est libre.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-STK-082">
+        <div class="rid">RG-STK-082</div>
+        <div class="rtxt"><p>Une <strong>consommation de séance</strong> est imputée sur la pièce du jour de la séance,
+            du périmètre le plus
+            précis (salle et demi-journée, puis salle, puis demi-journée, puis « journée »), sur les lots de la pièce en
+            FEFO,
+            <strong>sans mouvement de stock</strong>. Une quantité au-delà du reste, un article hors pièce ou l&#39;absence
+            de pièce sont
+            <strong>acceptés avec alerte</strong> (<code>DEPASSEMENT_DE_LA_SORTIE</code>,
+            <code>ARTICLE_HORS_PIECE</code>, <code>AUCUNE_PIECE</code>). Une consommation est
+            immuable si la séance est facturée (<code>SEANCE_FACTUREE_NON_MODIFIABLE</code>) ou la pièce rapprochée
+            (<code>PIECE_DEJA_RAPPROCHEE</code>).</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-STK-083">
+        <div class="rid">RG-STK-083</div>
+        <div class="rtxt"><p><strong>Rapprochement</strong> : écart d&#39;une ligne = consommé − sorti ; l&#39;excédent
+            d&#39;un article devient une ligne
+            sans lot. Tout écart non nul exige un <strong>motif</strong> (<code>ECART_SANS_MOTIF</code>), saisi par
+            <code>ADMIN</code> ou <code>PHARMACIEN</code> (l&#39;infirmier ne justifie pas les écarts).
+            La validation (<code>ADMIN</code>, <code>PHARMACIEN</code>, <code>DIRECTEUR_ADMINISTRATIF</code>) fait, par
+            ligne, une <strong>sortie supplémentaire</strong> au PMP
+            courant pour un écart en plus (lots de la pièce d&#39;abord, puis FEFO) ou un <strong>retour en
+                stock</strong> (mouvement <code>RETOUR</code>) dans
+            le lot d&#39;origine pour un écart en moins, revalorisé au PMP qui le précède sans le modifier ; la pièce
+            est
+            ensuite figée (<code>PIECE_DEJA_RAPPROCHEE</code>). Le consommé des imputations reste la base du coût par
+            séance.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-STK-084">
+        <div class="rid">RG-STK-084</div>
+        <div class="rtxt"><p><strong>Aucun inventaire ne peut être ouvert tant qu&#39;une sortie pour séances n&#39;est
+            pas rapprochée</strong>
+            (<code>INVENTORY_SORTIE_POUR_SEANCES_NON_RAPPROCHEE</code>). Le profil <code>DIRECTEUR_ADMINISTRATIF</code>
+            rapproche les pièces et lit le
+            stock (toutes les routes de lecture) ; il ne fait aucune autre écriture de stock. Les mouvements <code>RETOUR</code>
+            sont repris
+            par la comptabilité du stock comme un montant de sortie négatif (contre-passation de la consommation).</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-STK-085">
+        <div class="rid">RG-STK-085</div>
+        <div class="rtxt"><p><strong>Fuseau et jour métier</strong> : tous les horodatages du serveur sont en UTC ; le
+            <strong>jour métier</strong> d&#39;un
+            centre (date d&#39;une réception ou d&#39;une sortie sans date, fenêtre de tendance, seuil de péremption,
+            jour
+            d&#39;enregistrement d&#39;une sortie pour séances) est le jour du fuseau de son centre
+            (centers.fuseau_horaire, identifiant
+            IANA, par exemple Africa/Algiers) ; sans fuseau, ou fuseau illisible, c&#39;est UTC. Les mouvements restent
+            datés à minuit
+            UTC du jour métier.</p>
 </div></div>
 </section>
 <section class="part" id="p09"><h1><span class="n">Partie 9</span>GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</h1>
@@ -3294,14 +3424,21 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
         <div class="rid">RG-FAC-040</div>
         <div class="rtxt"><p><strong>Clôture d&#39;un mois</strong> (<code>POST
             /api/v1/facturation/periodes/{mois}/cloturer</code>, mois <code>AAAA-MM</code>, <code>ADMIN</code>) : un
-            mois par centre, <strong>sans aucune précondition</strong> (l&#39;administrateur décide, y compris un mois
-            futur ou sans séance). La réponse
+            mois par centre, <strong>sans précondition d&#39;état</strong> (l&#39;administrateur décide, y compris un
+            mois sans séance), mais <strong>seul un
+                mois terminé
+                se clôture</strong> : le mois en cours et les mois futurs, au fuseau du centre et sans jours de grâce,
+            sont refusés (422
+            <code>PERIODE_NON_TERMINEE</code>,
+            propriété <code>mois</code>), comme les mois d&#39;absences (RG-ABS-070 ; ADR 0044, 2026-10-23). La réponse
             porte l&#39;<strong>avertissement chiffré</strong> <code>seancesEligiblesRestantes</code> : nombre de
             séances du centre dans ce mois encore éligibles à la
             facturation (statut <code>VALIDEE</code> ou <code>SIGNEE</code>, non facturées, non exclues), et un second
-            avertissement, <strong>jamais bloquant</strong> (slice A6, RG-ABS-076) :
+            avertissement, <strong>jamais
+                bloquant</strong> (slice A6, RG-ABS-076) :
             <code>absencesDuMoisNonCloses</code> (vrai si le mois d&#39;absences du centre n&#39;est pas clos ; l&#39;ordre
-            recommandé est de clore les absences d&#39;abord). Le centre du corps (facultatif) ou de la requête doit
+            recommandé est de clore les
+            absences d&#39;abord). Le centre du corps (facultatif) ou de la requête doit
             être celui de la session (403 sinon) ; l&#39;auteur est l&#39;utilisateur de la session. Clôturer deux fois
             le même mois est refusé
             (409 <code>PERIODE_DEJA_CLOTUREE</code>, la première clôture reste). Mois illisible : 400 <code>MOIS_INVALIDE</code>.
@@ -3335,8 +3472,12 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
             séances restantes
             exactes) ; une clôture en cours fait attendre la validation, qui est ensuite refusée (RG-FAC-041). Les mois
             d&#39;un intervalle
-            se verrouillent du plus ancien au plus récent. <em>Source :</em>
-            <code>MoisDeFacturationJdbc.verrouiller</code>.</p>
+            se verrouillent du plus ancien au plus récent, ensemble. L&#39;attente d&#39;un verrou est bornée à 5
+            secondes (comme les
+            absences) :
+            au-delà, ou en cas d&#39;interblocage, l&#39;acte est annulé sans rien écrire et répond 409 <code>FACTURATION_ECRITURE_CONCURRENTE</code>
+            (réessayer ; ADR 0043, 2026-10-23). <em>Source :</em> <code>MoisDeFacturationJdbc.verrouiller</code>, <code>verrouillerDe</code>,
+            <code>UniteDeTravailSpring</code>.</p>
 </div></div>
     <div class="rule" id="RG-FAC-043">
         <div class="rid">RG-FAC-043</div>
@@ -3346,6 +3487,10 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
             est l&#39;utilisateur de la session ;
             rouvrir un mois qui n&#39;est pas clos est refusé (409 <code>PERIODE_NON_CLOTUREE</code>). Un mois rouvert
             peut être clos à nouveau.
+            Ordre des refus : mois non clos (409), puis motif (400), puis période comptable close (422, RG-FAC-044) — un
+            motif
+            absent
+            répond donc toujours 400 (correction de revue du 2026-10-23).
             <em>Source :</em> <code>RouvrirLeMois</code>.</p>
 </div></div>
     <div class="rule" id="RG-FAC-044">
@@ -4851,28 +4996,45 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-102</td>
 </tr>
 <tr>
-<td><code>StockReferentialRestController</code></td>
+    <td><code>ReferentielStockControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/referentiel</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code> (écriture)</td>
-<td>RG-STK-001 à 005</td>
+    <td>RG-STK-001 à 008</td>
 </tr>
 <tr>
-<td><code>BonCommandeRestController</code></td>
+    <td><code>BonsDeCommandeControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/bons-commande</code></td>
-<td><code>ADMIN</code>, <code>PHARMACIEN</code></td>
-<td>RG-STK-010 à 012</td>
+    <td><code>ADMIN</code>, <code>PHARMACIEN</code> (ecriture), <code>INFIRMIER</code> (lecture)</td>
+    <td>RG-STK-010 - 012</td>
 </tr>
 <tr>
-<td><code>BonReceptionRestController</code></td>
+    <td><code>ReceptionsControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/bons-reception</code></td>
-<td><code>ADMIN</code>, <code>PHARMACIEN</code></td>
-<td>RG-STK-020 à 025</td>
+    <td><code>ADMIN</code>, <code>PHARMACIEN</code> (ecriture), <code>INFIRMIER</code> (lecture)</td>
+    <td>RG-STK-020 - 025</td>
 </tr>
 <tr>
-<td><code>BonSortieRestController</code></td>
+    <td><code>SortiesControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/bons-sortie</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code></td>
-<td>RG-STK-030 à 033</td>
+    <td>RG-STK-030 - 033</td>
+</tr>
+<tr>
+    <td><code>SortiesPourSeancesControleur</code> (contexte <code>stock</code>)</td>
+    <td><code>/api/v1/stock/sorties-pour-seances</code></td>
+    <td><code>ADMIN</code>, <code>PHARMACIEN</code> (enregistrement), <code>DIRECTEUR_ADMINISTRATIF</code>
+        (rapprochement, lecture)
+    </td>
+    <td>RG-STK (sortie pour seances, ADR 0045)</td>
+</tr>
+<tr>
+    <td><code>ConsommationsControleur</code> (contexte <code>stock</code>)</td>
+    <td><code>/api/v1/stock/sorties-pour-seances/favoris</code>, <code>/api/v1/stock/consommations-de-seance</code> (et
+        <code>/{seanceId}/favoris</code>)
+    </td>
+    <td>lecture : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>,
+        <code>DIRECTEUR_ADMINISTRATIF</code></td>
+    <td>RG-STK (sortie pour seances, ADR 0045)</td>
 </tr>
 <tr>
 <td><code>InventaireRestController</code></td>
@@ -4881,13 +5043,19 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-STK-050 à 057</td>
 </tr>
 <tr>
-<td><code>StockDashboardRestController</code></td>
+    <td><code>LecturesDuStockControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/dashboard</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code></td>
-<td>RG-STK-040 à 044, 060, 062</td>
+    <td>RG-STK-040 - 044, 060, 062</td>
 </tr>
 <tr>
-<td><code>GroupeArticleRestController</code></td>
+    <td><code>RecalculDuPmpControleur</code> (contexte <code>stock</code>)</td>
+    <td><code>/api/v1/stock/dashboard/pmp-recalc</code></td>
+    <td><code>ADMIN</code>, <code>PHARMACIEN</code> (lancement), <code>INFIRMIER</code> (suivi)</td>
+    <td>RG-STK-060, 062</td>
+</tr>
+<tr>
+    <td><code>GroupesDArticlesControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/groupes-articles</code></td>
 <td><code>ADMIN</code></td>
 <td>RG-STK-070 à 073</td>

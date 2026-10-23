@@ -22,36 +22,4 @@ public interface BonSortieUseCase {
 
     BonSortie update(CenterId centerId, UUID bonId, UUID seanceId, UUID patientId,
                      String poste, LocalDate dateSortie, List<SortieRequestItem> items, String userId);
-
-    /**
-     * Ajoute {@code quantite} d'un article au bon de sortie « SEANCE » de la séance : le bon est créé à la première
-     * ligne, puis mis à jour (une séance = un seul bon, jamais un bon par article).
-     */
-    BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
-                                    UUID articleId, BigDecimal quantite, String userId);
-
-    /**
-     * Fixe la quantité totale d'un article sur le bon de sortie « SEANCE » de la séance ({@code 0} retire la ligne) ;
-     * lots, lignes et mouvements sont recalculés par FEFO sur le même bon.
-     */
-    BonSortie setSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
-                                    UUID articleId, BigDecimal quantite, String userId);
-
-    /**
-     * Sortie de stock FEFO à part entière (numéro de pièce dédié, distincte du bon « SEANCE » unique tenu par
-     * {@link #addSeanceConsommation}) : sélectionne automatiquement les lots par FEFO puis crée
-     * un {@link BonSortie} complet via {@link #create}. Utilisé par l'administration EPO/fer
-     * pendant la séance, où chaque administration doit être traçable comme une sortie numérotée
-     * distincte (pas une simple correction de mouvement).
-     */
-    /**
-     * Annule toutes les sorties de stock d'une séance supprimée (bon « SEANCE » et administrations EPO/fer) : les lots
-     * sont restitués, les mouvements et les bons supprimés, le PMP des articles recalculé. Refusé si la séance est
-     * facturée.
-     */
-    void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId);
-
-    BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
-                            LocalDate dateSortie, UUID articleId, BigDecimal quantite, String userId);
 }
-

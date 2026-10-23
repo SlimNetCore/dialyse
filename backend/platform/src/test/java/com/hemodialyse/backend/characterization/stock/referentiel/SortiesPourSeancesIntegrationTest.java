@@ -70,69 +70,8 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
         return jdbc.queryForObject(sql, BigDecimal.class, args);
     }
 
-    @Test
-    void le_parcours_complet_de_la_piece_a_son_rapprochement() throws Exception {
-        UUID a1 = article(CENTRE_A, "ART_1", "A1", "Article 1", null, null, true, null, "10", "5");
-        UUID l1 = lot(a1, "L1", "10", 30);
-        // bascule du centre (réservée à l'administrateur)
-        assertEquals(403, ecrire(false, "/api/v1/stock/parametres", json("{'sortiePourSeancesActivee':true}"),
-                as(CENTRE_A, "PHARMACIEN")).status());
-        assertEquals(200, ecrire(false, "/api/v1/stock/parametres", json("{'sortiePourSeancesActivee':true}"), adminA()).status());
-
-        // enregistrement : le stock sort réellement, mouvement SORTIE daté d'aujourd'hui
-        Resp creee = ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':8}]}"),
-                as(CENTRE_A, "PHARMACIEN"));
-        assertEquals(200, creee.status(), creee.raw());
-        UUID piece = UUID.fromString(json(creee).path("id").asString());
-        assertEquals("SPS-00001", json(creee).path("reference").asString());
-        assertEquals(0, new BigDecimal("2").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
-        assertEquals(0, new BigDecimal("2").compareTo(decimal("SELECT stock_quantity FROM articles WHERE id = ?", a1)));
-
-        // une deuxième pièce du même périmètre est refusée tant que la première n'est pas rapprochée (T36)
-        Resp refusee = ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':1}]}"), adminA());
-        assertEquals(422, refusee.status());
-        assertEquals("PIECE_PRECEDENTE_NON_RAPPROCHEE", json(refusee).path("code").asString());
-
-        // consommation d'une séance : imputée sur la pièce, aucun mouvement de stock (T37)
-        UUID seance = seance("VALIDEE");
-        int mouvements = jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ?", Integer.class, CENTRE_A);
-        consommations.ajouter(CENTRE_A, seance, UUID.randomUUID(), JOUR, a1, new BigDecimal("5"), "inf");
-        assertEquals(mouvements, jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ?", Integer.class, CENTRE_A));
-        assertEquals(0, new BigDecimal("2").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
-        assertEquals(0, new BigDecimal("5").compareTo(decimal("SELECT SUM(quantite) FROM consommations_de_seance_imputations "
-                + "WHERE seance_id = ? AND lot_id = ?", seance, l1)));
-        Resp favoris = send(get(java.net.URI.create("/api/v1/stock/sorties-pour-seances/favoris?jour=" + JOUR)).with(as(CENTRE_A, "INFIRMIER")));
-        assertEquals(200, favoris.status(), favoris.raw());
-        assertEquals(0, new BigDecimal("3").compareTo(json(favoris).get(0).path("reste").decimalValue()));
-
-        // rapprochement : écart en moins (consommé 5, sorti 8) ⇒ motif exigé, puis retour en stock (T40, T41, T42)
-        Resp constate = ecrire(true, PIECES + "/" + piece + "/rapprochement", "{}", as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"));
-        assertEquals(200, constate.status(), constate.raw());
-        UUID ligne = UUID.fromString(json(constate).path("lignes").get(0).path("id").asString());
-        assertEquals(0, new BigDecimal("-3").compareTo(json(constate).path("lignes").get(0).path("ecart").decimalValue()));
-        Resp sansMotif = ecrire(true, PIECES + "/" + piece + "/valider", "{}", as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"));
-        assertEquals("ECART_SANS_MOTIF", json(sansMotif).path("code").asString());
-        assertEquals(403, ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'dose non utilisee'}"),
-                as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF")).status());
-        assertEquals(200, ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'dose non utilisee'}"),
-                as(CENTRE_A, "INFIRMIER")).status());
-        Resp validee = ecrire(true, PIECES + "/" + piece + "/valider", "{}", as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"));
-        assertEquals(200, validee.status(), validee.raw());
-        assertEquals("RAPPROCHEE", json(validee).path("statut").asString());
-        assertEquals(0, new BigDecimal("5").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
-        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ? AND mouvement_type = 'RETOUR'",
-                Integer.class, CENTRE_A));
-        assertEquals(0, new BigDecimal("5").compareTo(decimal("SELECT stock_quantity FROM articles WHERE id = ?", a1)));
-
-        // la pièce est figée : plus de consommation sur elle (T39), mais une nouvelle pièce est de nouveau possible
-        UUID autre = seance("VALIDEE");
-        Throwable refus = org.junit.jupiter.api.Assertions.assertThrows(
-                com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee.class,
-                () -> consommations.ajouter(CENTRE_A, autre, null, JOUR, a1, BigDecimal.ONE, "inf"));
-        assertEquals("PIECE_DEJA_RAPPROCHEE", ((com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee) refus).code());
-        assertEquals(200, ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':1}]}"),
-                adminA()).status());
-    }
+    @Autowired
+    private org.springframework.transaction.PlatformTransactionManager transactions;
 
     @Test
     void les_roles_d_ecriture_et_de_lecture() throws Exception {
@@ -148,18 +87,6 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
         assertEquals(403, send(get(java.net.URI.create(PIECES + "?centerId=" + CENTRE_B)).with(adminA())).status());
     }
 
-    @Test
-    void sans_activation_la_seance_garde_la_sortie_immediate_en_fefo() {
-        UUID a1 = article(CENTRE_A, "ART_1", "A1", "Article 1", null, null, true, null, "10", "5");
-        UUID l1 = lot(a1, "L1", "10", 30);
-        UUID seance = seance("VALIDEE");
-        consommations.ajouter(CENTRE_A, seance, UUID.randomUUID(), JOUR, a1, new BigDecimal("4"), "inf");
-        assertEquals(0, new BigDecimal("6").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
-        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ? AND mouvement_type = 'SORTIE'",
-                Integer.class, CENTRE_A));
-        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM consommations_de_seance WHERE center_id = ?", Integer.class, CENTRE_A));
-    }
-
     @BeforeEach
     @AfterEach
     void vider() {
@@ -171,7 +98,6 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
             jdbc.update("DELETE FROM sorties_pour_seances WHERE center_id = ?", c);
             jdbc.update("DELETE FROM inventaire_lignes WHERE inventaire_id IN (SELECT id FROM inventaires WHERE center_id = ?)", c);
             jdbc.update("DELETE FROM inventaires WHERE center_id = ?", c);
-            jdbc.update("DELETE FROM stock_parametres WHERE center_id = ?", c);
             jdbc.update("DELETE FROM stock_movements WHERE center_id = ?", c);
             jdbc.update("DELETE FROM lots WHERE center_id = ?", c);
             jdbc.update("DELETE FROM seances WHERE center_id = ?", c);
@@ -223,8 +149,6 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
                         + "type_patient, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", patient, CENTRE_A, "PAT-S6B", "Dupont", "Jean",
                 "M", LocalDate.of(2026, 7, 1), "ASS-S6B", "NON_VACANCIER", OffsetDateTime.now());
         jdbc.update("UPDATE seances SET patient_id = ? WHERE id = ?", patient, seance);
-        jdbc.update("UPDATE stock_parametres SET sortie_pour_seances_activee = true WHERE center_id = ?", CENTRE_A);
-        ecrire(false, "/api/v1/stock/parametres", json("{'sortiePourSeancesActivee':true}"), adminA());
         consommations.ajouter(CENTRE_A, seance, null, JOUR, a1, new BigDecimal("5"), "inf");
         Resp resume = send(get(java.net.URI.create("/api/v1/seances/" + seance + "?centerId=" + CENTRE_A)).with(as(CENTRE_A, "INFIRMIER")));
         assertEquals(200, resume.status(), resume.raw());
@@ -240,5 +164,115 @@ class SortiesPourSeancesIntegrationTest extends ReferentielStockCharacterization
                 .map(m -> m.montant()).reduce(BigDecimal.ZERO, BigDecimal::add);
         // 8 sortis puis 3 retournés au PMP 5 : 40 − 15
         assertEquals(0, new BigDecimal("25").compareTo(net), net.toPlainString());
+    }
+
+    @Test
+    void le_parcours_complet_de_la_piece_a_son_rapprochement() throws Exception {
+        UUID a1 = article(CENTRE_A, "ART_1", "A1", "Article 1", null, null, true, null, "10", "5");
+        UUID l1 = lot(a1, "L1", "10", 30);
+
+        // enregistrement : le stock sort réellement, mouvement SORTIE daté d'aujourd'hui
+        Resp creee = ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':8}]}"),
+                as(CENTRE_A, "PHARMACIEN"));
+        assertEquals(200, creee.status(), creee.raw());
+        UUID piece = UUID.fromString(json(creee).path("id").asString());
+        assertEquals("SPS-00001", json(creee).path("reference").asString());
+        assertEquals(0, new BigDecimal("2").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
+        assertEquals(0, new BigDecimal("2").compareTo(decimal("SELECT stock_quantity FROM articles WHERE id = ?", a1)));
+
+        // une deuxième pièce du même périmètre est refusée tant que la première n'est pas rapprochée (T36)
+        Resp refusee = ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':1}]}"), adminA());
+        assertEquals(422, refusee.status());
+        assertEquals("PIECE_PRECEDENTE_NON_RAPPROCHEE", json(refusee).path("code").asString());
+
+        // consommation d'une séance : imputée sur la pièce, aucun mouvement de stock (T37)
+        UUID seance = seance("VALIDEE");
+        int mouvements = jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ?", Integer.class, CENTRE_A);
+        consommations.ajouter(CENTRE_A, seance, UUID.randomUUID(), JOUR, a1, new BigDecimal("5"), "inf");
+        assertEquals(mouvements, jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ?", Integer.class, CENTRE_A));
+        assertEquals(0, new BigDecimal("2").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
+        assertEquals(0, new BigDecimal("5").compareTo(decimal("SELECT SUM(quantite) FROM consommations_de_seance_imputations "
+                + "WHERE seance_id = ? AND lot_id = ?", seance, l1)));
+        Resp favoris = send(get(java.net.URI.create("/api/v1/stock/sorties-pour-seances/favoris?jour=" + JOUR)).with(as(CENTRE_A, "INFIRMIER")));
+        assertEquals(200, favoris.status(), favoris.raw());
+        assertEquals(0, new BigDecimal("3").compareTo(json(favoris).get(0).path("reste").decimalValue()));
+
+        // rapprochement : écart en moins (consommé 5, sorti 8) ⇒ motif exigé, puis retour en stock (T40, T41, T42)
+        Resp constate = ecrire(true, PIECES + "/" + piece + "/rapprochement", "{}", as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"));
+        assertEquals(200, constate.status(), constate.raw());
+        UUID ligne = UUID.fromString(json(constate).path("lignes").get(0).path("id").asString());
+        assertEquals(0, new BigDecimal("-3").compareTo(json(constate).path("lignes").get(0).path("ecart").decimalValue()));
+        Resp sansMotif = ecrire(true, PIECES + "/" + piece + "/valider", "{}", as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"));
+        assertEquals("ECART_SANS_MOTIF", json(sansMotif).path("code").asString());
+        assertEquals(403, ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'dose non utilisee'}"),
+                as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF")).status());
+        assertEquals(403, ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'dose non utilisee'}"),
+                as(CENTRE_A, "INFIRMIER")).status());
+        assertEquals(200, ecrire(false, PIECES + "/" + piece + "/lignes/" + ligne + "/motif", json("{'motif':'dose non utilisee'}"),
+                as(CENTRE_A, "PHARMACIEN")).status());
+        Resp validee = ecrire(true, PIECES + "/" + piece + "/valider", "{}", as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"));
+        assertEquals(200, validee.status(), validee.raw());
+        assertEquals("RAPPROCHEE", json(validee).path("statut").asString());
+        assertEquals(0, new BigDecimal("5").compareTo(decimal("SELECT quantite_restante FROM lots WHERE id = ?", l1)));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM stock_movements WHERE center_id = ? AND mouvement_type = 'RETOUR'",
+                Integer.class, CENTRE_A));
+        assertEquals(0, new BigDecimal("5").compareTo(decimal("SELECT stock_quantity FROM articles WHERE id = ?", a1)));
+
+        // la pièce est figée : plus de consommation sur elle (T39), mais une nouvelle pièce est de nouveau possible
+        UUID autre = seance("VALIDEE");
+        Throwable refus = org.junit.jupiter.api.Assertions.assertThrows(
+                com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee.class,
+                () -> consommations.ajouter(CENTRE_A, autre, null, JOUR, a1, BigDecimal.ONE, "inf"));
+        assertEquals("PIECE_DEJA_RAPPROCHEE", ((com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee) refus).code());
+        assertEquals(200, ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1 + "','quantite':1}]}"),
+                adminA()).status());
+    }
+
+    @Test
+    void t44_une_consommation_imputee_pendant_la_validation_attend_puis_est_refusee() throws Exception {
+        UUID a1 = article(CENTRE_A, "ART_1", "A1", "Article 1", null, null, true, null, "10", "5");
+        lot(a1, "L1", "10", 30);
+        UUID piece = UUID.fromString(json(ecrire(true, PIECES, json("{'jour':'" + JOUR + "','lignes':[{'articleId':'" + a1
+                + "','quantite':8}]}"), adminA())).path("id").asString());
+        UUID seance = seance("VALIDEE");
+        java.util.concurrent.CountDownLatch verrouPris = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch liberer = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            // la validation du rapprochement tient le verrou de la pièce, puis la fige à la fin de sa transaction
+            java.util.concurrent.Future<?> validation = pool.submit(() -> new org.springframework.transaction.support.TransactionTemplate(
+                    transactions).executeWithoutResult(statut -> {
+                jdbc.queryForList("SELECT id FROM sorties_pour_seances WHERE id = ? FOR UPDATE", UUID.class, piece);
+                verrouPris.countDown();
+                try {
+                    liberer.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                jdbc.update("UPDATE sorties_pour_seances SET statut = 'RAPPROCHEE' WHERE id = ?", piece);
+            }));
+            verrouPris.await();
+            java.util.concurrent.Future<Throwable> consommation = pool.submit(() -> {
+                try {
+                    consommations.ajouter(CENTRE_A, seance, null, JOUR, a1, BigDecimal.ONE, "inf");
+                    return null;
+                } catch (Throwable e) {
+                    return e;
+                }
+            });
+            Thread.sleep(300);
+            assertFalse(consommation.isDone(), "la consommation doit attendre la fin de la validation");
+            liberer.countDown();
+            validation.get(10, java.util.concurrent.TimeUnit.SECONDS);
+            Throwable refus = consommation.get(10, java.util.concurrent.TimeUnit.SECONDS);
+            org.junit.jupiter.api.Assertions.assertNotNull(refus, "la consommation doit être refusée une fois la pièce rapprochée");
+            assertEquals("PIECE_DEJA_RAPPROCHEE",
+                    ((com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee) refus).code());
+        } finally {
+            liberer.countDown();
+            pool.shutdownNow();
+        }
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM consommations_de_seance_imputations WHERE seance_id = ?",
+                Integer.class, seance));
     }
 }

@@ -221,10 +221,6 @@ export interface ConsommationDeSeance {
   imputations: ImputationDeSeance[];
 }
 
-export interface StockParametres {
-  sortiePourSeancesActivee: boolean;
-}
-
 export interface StockValoriseItem {
   articleId: string;
   code: string;
@@ -525,16 +521,6 @@ export class StockApiService {
     return this.http.get<ConsommationDeSeance>(`${this.base}/consommations-de-seance/${seanceId}`, {
       params: new HttpParams().set('centerId', centerId),
     });
-  }
-
-  getStockParametres(centerId: string): Observable<StockParametres> {
-    return this.http.get<StockParametres>(`${this.base}/parametres`, {
-      params: new HttpParams().set('centerId', centerId),
-    });
-  }
-
-  setStockParametres(centerId: string, sortiePourSeancesActivee: boolean): Observable<StockParametres> {
-    return this.http.put<StockParametres>(`${this.base}/parametres`, {centerId, sortiePourSeancesActivee});
   }
 
   // --- Dashboard ---

@@ -139,3 +139,26 @@ sinon FEFO ;
   les centres auront basculé) ; documentation client (`docs/client`, générée avec captures d'écran) ; l'infirmier seul
   n'atteint pas `/stock` (`role-scope.guard`) : la justification d'un écart par l'infirmier est possible par l'API mais
   n'a pas d'écran dédié.
+
+### Mise à jour (2026-10-24, suite)
+
+- **T44 livré** : `t44_une_consommation_imputee_pendant_la_validation_attend_puis_est_refusee`
+  (`SortiesPourSeancesIntegrationTest`) : la consommation attend le verrou de la pièce puis est refusée
+  (`PIECE_DEJA_RAPPROCHEE`), aucune imputation écrite.
+- **Retour valorisé au PMP qui le précède** (`RETOUR` ne modifie plus le PMP ; rejeu du contexte stock et de
+  `bc-stock`).
+- **Résumé de séance** : lit aussi les consommations imputées.
+- **Documentation client régénérée** (`docs/client`, 574 règles) ; **sans nouvelle capture** de l'écran sorties pour
+  séances (instance de démonstration à amorcer).
+- **Reste** : retrait des méthodes de séance de `BonSortieService` / `BonSortieUseCase` (encore utilisées par
+  `ConsommationsDeSeanceLegacy`, mode par défaut des centres) ; écran de justification pour l'infirmier seul.
+
+- **Décision 2026-10-24 : l'infirmier ne justifie pas les écarts** (route du motif réservée à `ADMIN` et `PHARMACIEN`,
+  403 pour `INFIRMIER`) ; plus d'écran de justification à prévoir pour l'infirmier.
+
+- **Retrait du mode historique (2026-10-24)** : `ConsommationsDeSeanceLegacy`, l'aiguillage par centre, le paramètre
+  `stock_parametres.sortie_pour_seances_activee` (routes `/api/v1/stock/parametres`, port `ParametresDuStockDuCentre`,
+  interrupteur de l'écran) et les méthodes de séance de `BonSortieService` / `BonSortieUseCase`
+  (`addSeanceConsommation`, `setSeanceConsommation`, `annulerSortiesSeance`, `createViaFefo`) sont supprimés ; la table
+  `stock_parametres` est conservée (migration additive V45, rien à défaire). Restent `create`, `update`, `get`, `list`
+  (démonstration et tests d'inventaire).

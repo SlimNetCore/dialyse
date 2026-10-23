@@ -5,25 +5,6 @@
     <p class="app-section-copy">{{ 'STOCK.SORTIES_SEANCES.DESCRIPTION' | translate }}</p>
   </div>
 
-  @if (activee() !== null) {
-    <mat-card>
-      <mat-card-content class="param-row">
-        @if (peutParametrer()) {
-          <mat-slide-toggle (change)="basculer($event.checked)" [checked]="activee() === true">
-            {{ 'STOCK.SORTIES_SEANCES.PARAM_LABEL' | translate }}
-          </mat-slide-toggle>
-        } @else {
-          <mat-chip>
-            {{ (activee() ? 'STOCK.SORTIES_SEANCES.PARAM_ON' : 'STOCK.SORTIES_SEANCES.PARAM_OFF') | translate }}
-          </mat-chip>
-        }
-        @if (!activee()) {
-          <p class="hint">{{ 'STOCK.SORTIES_SEANCES.PARAM_OFF_HINT' | translate }}</p>
-        }
-      </mat-card-content>
-    </mat-card>
-  }
-
   @if (peutEnregistrer()) {
     <mat-card>
       <mat-card-header>
