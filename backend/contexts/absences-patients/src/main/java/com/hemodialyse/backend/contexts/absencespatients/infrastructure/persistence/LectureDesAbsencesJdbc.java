@@ -120,6 +120,25 @@ public class LectureDesAbsencesJdbc implements LectureDesAbsences {
     }
 
     @Override
+    public long nombreAQualifierDansLesMois(CentreId centre, java.util.Collection<java.time.YearMonth> mois, LocalDate avant) {
+        if (mois.isEmpty()) {
+            return 0;
+        }
+        String jokers = String.join(", ", java.util.Collections.nCopies(mois.size(), "?"));
+        java.util.List<Object> arguments = new java.util.ArrayList<>(List.of(centre.valeur(), StatutAbsence.A_QUALIFIER.name()));
+        mois.forEach(m -> arguments.add(m.getYear() * 12 + m.getMonthValue()));
+        String borne = "";
+        if (avant != null) {
+            borne = " AND date_seance < ?";
+            arguments.add(Date.valueOf(avant));
+        }
+        Long n = jdbc.queryForObject("SELECT COUNT(*) FROM absence_patient WHERE center_id = ? AND statut = ? "
+                        + "AND (EXTRACT(YEAR FROM date_seance) * 12 + EXTRACT(MONTH FROM date_seance)) IN (" + jokers + ")" + borne,
+                Long.class, arguments.toArray());
+        return n == null ? 0 : n;
+    }
+
+    @Override
     public Optional<AbsenceSuivie> absence(CentreId centre, AbsenceId id) {
         return jdbc.query("SELECT " + COLONNES + " FROM absence_patient a WHERE a.center_id = ? AND a.id = ?", ABSENCE,
                 centre.valeur(), id.valeur()).stream().findFirst();

@@ -76,7 +76,9 @@ public class ReconciliationAbsences {
         return uniteDeTravail.executer(() -> {
             AbsencePatient absence = absences.verrouiller(centre, id).orElse(null);
             // relue sous verrou : qualifiée, annulée ou facturée depuis la lecture, elle n'est plus touchée
-            if (absence == null || !absence.reconciliable(periodes)) {
+            // le mois est relu sous verrou : clos depuis la lecture (clôture concurrente), l'absence est laissée
+            if (absence == null || !mois.estOuvertSousVerrou(centre, YearMonth.from(absence.dateDeSeance()))
+                    || !absence.reconciliable(periodes)) {
                 return false;
             }
             absence.reconcilier(periodes, maintenant);

@@ -1,0 +1,99 @@
+{
+  "adminDeLAutreCentre": {
+    "status": 200
+  },
+  "anonyme": {
+    "status": 403
+  },
+  "autreCentre": {
+    "refus": {
+      "code": "ACCESS_DENIED",
+      "status": 403
+    },
+    "status": 403
+  },
+  "direction": {
+    "refus": {
+      "code": "ROLE_SCOPE",
+      "status": 403
+    },
+    "status": 403
+  },
+  "infirmier": {
+    "cloturer": {
+      "refus": {
+        "code": "ACCESS_DENIED",
+        "status": 403
+      },
+      "status": 403
+    },
+    "lire": {
+      "status": 200
+    },
+    "rouvrir": {
+      "refus": {
+        "code": "ACCESS_DENIED",
+        "status": 403
+      },
+      "status": 403
+    }
+  },
+  "lireAutreCentre": {
+    "refus": {
+      "code": "ACCESS_DENIED",
+      "status": 403
+    },
+    "status": 403
+  },
+  "medecin": {
+    "cloturer": {
+      "refus": {
+        "code": "ACCESS_DENIED",
+        "status": 403
+      },
+      "status": 403
+    },
+    "lire": {
+      "status": 200
+    },
+    "rouvrir": {
+      "refus": {
+        "code": "ACCESS_DENIED",
+        "status": 403
+      },
+      "status": 403
+    }
+  },
+  "moisClosDuCentreA": {
+    "mois": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "nombreDeMois": 12,
+    "status": 200
+  },
+  "secretaire": {
+    "cloturer": {
+      "refus": {
+        "code": "ACCESS_DENIED",
+        "status": 403
+      },
+      "status": 403
+    },
+    "lire": {
+      "status": 200
+    },
+    "rouvrir": {
+      "refus": {
+        "code": "ACCESS_DENIED",
+        "status": 403
+      },
+      "status": 403
+    }
+  }
+}

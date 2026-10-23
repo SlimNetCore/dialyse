@@ -110,7 +110,10 @@
   hier **et la réponse le signale** (`fin` et `finRamenee`, champs présents seulement dans ce cas) ; le début doit la précéder
   (`ABSENCE_PERIODE_INVALIDE`, y compris un début aujourd'hui ou futur) ; la période ne dépasse pas 366 jours
   (`ABSENCE_PERIODE_TROP_LONGUE`). Réponse : absences créées et annulées (`creees`, `annulees`) et, seulement si des absences
-  ont été en incident, leur nombre (`echecs`). Une entrée illisible (JSON, date impossible, `centerId` non UUID) est refusée en
+  ont été en incident, leur nombre (`echecs`), et seulement si des jours ont été laissés parce que leur mois d'absences
+  est clos, la liste de
+  ces jours (`joursIgnores`, RG-ABS-074). Une entrée illisible (JSON, date impossible, `centerId` non UUID) est refusée
+  en
   **400** `BAD_REQUEST`, un corps non JSON en **415** (était 500, KB-ABS-28 aligné). **Limite :** la détection s'appuie sur la
   fiche patient actuelle ; un patient dont les jours de dialyse ont été retirés à la libération de sa place (RG-PAT-033) n'est
   plus détecté pour ses jours passés.
@@ -205,3 +208,71 @@
   `csv`, `pdf` ou `xlsx` (sans égard à la casse) est refusé en **400** `BAD_REQUEST` (était : CSV servi silencieusement). Sans `format` : CSV.
   La période de la Direction reste refusée en 422 si inversée (`PERIODE_INVALIDE`) ou de plus de 5 ans (`PERIODE_TROP_LONGUE`).
   *Source :* `DatesIllisiblesDeLaDirectionAdvice`, `SeanceRestController.exportDashboard`.
+
+## 6.7 Clôture mensuelle des absences (slice A6, ADR 0042)
+
+Un **mois d'absences** (un mois d'un centre) est ouvert ou clos. Un mois sans ligne est ouvert ; aucun mois n'est clos
+au déploiement.
+
+- **RG-ABS-070** — **Clôturer un mois d'absences** (`POST /api/v1/absences-patients/mois/{AAAA-MM}/cloturer`, `ADMIN`
+  seul, centre de la session) :
+  **sans condition d'état** (l'administrateur décide), mais **seul un mois terminé se clôture** : le mois en cours et
+  les mois futurs, au fuseau du centre,
+  sont refusés (**422** `MOIS_D_ABSENCES_NON_TERMINE`) ; **aucun jour de grâce** (le mois précédent se clôt dès le
+  premier jour du mois). La réponse porte
+  l' **avertissement chiffré** `absencesAQualifierRestantes` (absences encore « à qualifier » du mois) et
+  `absencesEnRetard` (parmi elles, celles de plus de
+  3 jours, RG-ABS-043 au jour de la clôture) ; la clôture n'est jamais refusée pour cela. Clôturer deux fois : **409**
+  `MOIS_D_ABSENCES_DEJA_CLOS`.
+  Mois illisible : **400** `MOIS_INVALIDE` ; année illisible : **400** `ANNEE_INVALIDE`. Lecture des douze mois
+  (`GET /api/v1/absences-patients/mois?annee=AAAA`) :
+  les quatre profils d'accès. *Source :* `CloturerLeMoisDAbsences`, `MoisAbsences`, `MoisDAbsencesControleur`.
+- **RG-ABS-071** — **Un mois clos refuse toute écriture d'absence datée de ce mois** : déclaration, qualification,
+  rattrapage, annulation (**422**
+  `MOIS_D_ABSENCES_CLOS`, avec le mois en propriété `mois`, rien n'est écrit ni signalé). Le mois voisin et les autres
+  centres ne sont pas touchés. Les lectures (liste, suivi, synthèse, pilotage) comptent tous les mois. Les chiffres déjà
+  enregistrés ne sont jamais recalculés. *Source :* `GardeDesMoisDAbsences`, `MoisDAbsencesClos`.
+- **RG-ABS-072** — **Rattrapage** : exige que le mois de l'absence **et** celui de la date de rattrapage soient ouverts
+  (le second n'était pas regardé avant A6) ;
+  les deux mois se verrouillent du plus ancien au plus récent. Refus : **422** `MOIS_D_ABSENCES_CLOS`.
+- **RG-ABS-073** — **Exclusion et réinclusion d'une séance (Facturation)** : l'exclusion qui crée une absence dans un
+  mois clos échoue avec le même refus **422**
+  `MOIS_D_ABSENCES_CLOS` et **toute l'exclusion est annulée** (comme `ABSENCE_PERIODE_FACTUREE`) ; la **réinclusion**
+  d'une séance dont l'absence est dans un mois clos
+  est **refusée** (**422** `MOIS_D_ABSENCES_CLOS`, rouvrir d'abord le mois d'absences) et l'absence et la séance restent
+  inchangées. *Source :* `ExclusionDeLaFacturation`, `DeclarerUneAbsence`, `RetirerLAbsenceDeLExclusion`.
+- **RG-ABS-074** — **Détection, réconciliation, rattrapage de détection et notification** : les jours d'un mois clos
+  sont **ignorés** (aucune absence créée, aucune
+  absence réconciliée) ; le rattrapage de détection (RG-ABS-046) les liste dans le champ additif **`joursIgnores`** de
+  sa réponse (absent quand rien n'est ignoré,
+  KB-ABS-37) ; la notification de nuit (RG-ABS-044) **ne compte que les mois ouverts** et se tait s'il n'en reste aucune
+  absence à qualifier. Une absence manquante d'un
+  mois clos se rattrape en rouvrant le mois. *Source :* `DetectionAbsences`, `ReconciliationAbsences`,
+  `NotificationDesAbsencesAQualifier`, `DetectionControleur`.
+- **RG-ABS-075** — **Rouvrir un mois** (`POST /api/v1/absences-patients/mois/{AAAA-MM}/rouvrir`, `ADMIN` seul) : **motif
+  obligatoire**, rogné, **500 caractères au plus**
+  (**400** `MOTIF_DE_REOUVERTURE_OBLIGATOIRE`) ; un mois non clos ne se rouvre pas (**409** `MOIS_D_ABSENCES_NON_CLOS`,
+  contrôlé avant le motif). Un mois rouvert peut être
+  clos à nouveau. La réouverture n'est **pas** refusée quand le mois de facturation correspondant est clos. *Source :*
+  `RouvrirLeMoisDAbsences`, `MoisAbsences`.
+- **RG-ABS-076** — **Lien avec la Facturation (avertissement seulement)** : aucune obligation d'ordre. La clôture d'un
+  mois de facturation (RG-FAC-040) répond
+  `absencesDuMoisNonCloses` (vrai si le mois d'absences du centre n'est pas clos) et le dit à l'administrateur ; elle
+  n'est jamais refusée pour cela. L'ordre de l'ADR 0009 (clore les absences, puis la facturation) reste une
+  recommandation. *Source :* `ClotureDesAbsences` (langage publié de la Facturation), `CloturerLeMois`.
+- **RG-ABS-077** — **Concurrence** : la ligne du mois est verrouillée (`SELECT ... FOR UPDATE`) par la clôture, la
+  réouverture et chaque écriture d'absence du mois : une
+  écriture en cours fait attendre la clôture (l'avertissement est exact), une clôture en cours fait attendre l'écriture,
+  ensuite refusée. Un verrou qu'on n'obtient pas dans
+  le délai de la transaction (5 s) : **409** `ABSENCE_ECRITURE_CONCURRENTE` (code commun aux absences, aussi rendu par
+  la clôture et la réouverture d'un mois). Dans la détection de nuit, un verrou de mois indisponible est un incident
+  compté (`echecs`) et journalisé, jamais confondu avec une déclaration concurrente. `GET /mois` ne rend le motif de
+  réouverture et les identifiants d'auteurs qu'aux `ADMIN` (null pour les autres profils).
+- **RG-ABS-078** — **Traçabilité** : chaque clôture (auteur, instant, avertissement) et chaque réouverture (auteur,
+  instant, motif) est ajoutée au journal
+  `mois_absences_journal` (jamais modifié ni supprimé) ; la ligne du mois retient la dernière clôture et la dernière
+  réouverture. Les événements d'intégration
+  `MoisDAbsencesCloture` et `MoisDAbsencesRouvert` sont publiés dans la transaction de l'acte (Spring Modulith, ADR
+  0013 ; aucun consommateur pour l'instant) ; les écritures
+  `POST` sont aussi tracées par le journal d'audit de la plateforme. *Source :* `MoisAbsencesJdbc`,
+  `PublicationDesMoisDAbsencesSpring`, `AuditRequestFilter`.

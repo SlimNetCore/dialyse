@@ -36,6 +36,19 @@ export function motifDeReouvertureValide(motif: string): string {
   return net.length > 0 && net.length <= MOTIF_REOUVERTURE_MAX ? net : '';
 }
 
+/**
+ * Mois AAAA-MM du jour dans le calendrier du navigateur (le fuseau du centre n'est pas exposé au front). Sert seulement à désactiver
+ * le bouton de clôture ; le serveur reste juge (422 PERIODE_NON_TERMINEE au fuseau du centre, ADR 0044).
+ */
+export function moisCourant(now: Date = new Date()): string {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Seul un mois passé se clôture, comme les mois d'absences : jamais le mois en cours ni un mois futur (ADR 0044). */
+export function moisClosable(mois: string, courant: string = moisCourant()): boolean {
+  return mois < courant;
+}
+
 /** Index des mois reçus, par `AAAA-MM`. */
 export function indexerLesMois(periodes: MoisDeFacturationReponse[]): Record<string, MoisDeFacturationReponse> {
   return Object.fromEntries(periodes.map((p) => [p.mois, p]));

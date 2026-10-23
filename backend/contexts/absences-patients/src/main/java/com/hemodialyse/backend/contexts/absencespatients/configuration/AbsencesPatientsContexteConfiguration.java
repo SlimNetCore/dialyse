@@ -48,10 +48,20 @@ import com.hemodialyse.backend.contexts.absencespatients.application.Notificatio
 import com.hemodialyse.backend.contexts.absencespatients.application.PatientsAttendus;
 import com.hemodialyse.backend.contexts.absencespatients.application.ReconciliationAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesOuverts;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsencesRepository;
+import com.hemodialyse.backend.contexts.absencespatients.application.CloturerLeMoisDAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.application.ConsulterLesMoisDAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.application.GardeDesMoisDAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.application.PublicationDesMoisDAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.application.RouvrirLeMoisDAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.messaging.PublicationDesMoisDAbsencesSpring;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.MoisAbsencesJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.facturation.ClotureDesAbsencesPourLaFacturation;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ClotureDesAbsences;
+import org.springframework.context.ApplicationEventPublisher;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyorganisation.CentresActifsJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyplanning.PatientsAttendusJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.horloge.FuseauParDefaut;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.mois.TousLesMoisSontOuverts;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesDuPilotageJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.NotificationsDuCentre;
@@ -166,35 +176,39 @@ public class AbsencesPatientsContexteConfiguration {
                                                          AbsencesRepository absences, PeriodesFacturees periodes,
                                                          SeancesRealisees seances, ForfaitsDesPatients forfaits,
                                                          TauxDeTva taux, GenerateurIdentifiants identifiants,
-                                                         SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
+                                                          SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                                                          GardeDesMoisDAbsences garde) {
         return new DeclarerUneAbsence(uniteDeTravail, patients, absences, periodes, seances, forfaits, taux, identifiants,
-                signalement, horloge);
+                signalement, horloge, garde);
     }
 
     @Bean
     QualifierUneAbsence absencesPatientsQualifierUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences,
-                                                           PeriodesFacturees periodes, SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
-        return new QualifierUneAbsence(uniteDeTravail, absences, periodes, signalement, horloge);
+                                                            PeriodesFacturees periodes, SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                                                            GardeDesMoisDAbsences garde) {
+        return new QualifierUneAbsence(uniteDeTravail, absences, periodes, signalement, horloge, garde);
     }
 
     @Bean
     RattraperUneAbsence absencesPatientsRattraperUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences,
                                                            PeriodesFacturees periodes, SeancesRealisees seances,
-                                                           SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
-        return new RattraperUneAbsence(uniteDeTravail, absences, periodes, seances, signalement, horloge);
+                                                            SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                                                            GardeDesMoisDAbsences garde) {
+        return new RattraperUneAbsence(uniteDeTravail, absences, periodes, seances, signalement, horloge, garde);
     }
 
     @Bean
     AnnulerUneAbsence absencesPatientsAnnulerUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences,
                                                        PeriodesFacturees periodes, ExclusionsDeSeances exclusions,
-                                                       SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
-        return new AnnulerUneAbsence(uniteDeTravail, absences, periodes, exclusions, signalement, horloge);
+                                                        SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                                                        GardeDesMoisDAbsences garde) {
+        return new AnnulerUneAbsence(uniteDeTravail, absences, periodes, exclusions, signalement, horloge, garde);
     }
 
     @Bean
     RetirerLAbsenceDeLExclusion absencesPatientsRetirerLAbsenceDeLExclusion(UniteDeTravail uniteDeTravail,
-                                                                           AbsencesRepository absences) {
-        return new RetirerLAbsenceDeLExclusion(uniteDeTravail, absences);
+                                                                            AbsencesRepository absences, GardeDesMoisDAbsences garde) {
+        return new RetirerLAbsenceDeLExclusion(uniteDeTravail, absences, garde);
     }
 
     // Slice A3 : détection de nuit (réconciliation, détection, notification), fuseau du centre.
@@ -210,9 +224,48 @@ public class AbsencesPatientsContexteConfiguration {
         return new HorlogeDesCentres(Clock.systemUTC(), fuseaux);
     }
 
+    // Slice A6 : clôture mensuelle des absences. Un seul adaptateur pour l'état des mois (lecture de mois_absences, verrou de ligne).
+
     @Bean
-    MoisDAbsencesOuverts absencesPatientsMoisDAbsencesOuverts() {
-        return new TousLesMoisSontOuverts();
+    MoisAbsencesRepository absencesPatientsMoisAbsences(JdbcTemplate jdbc) {
+        return new MoisAbsencesJdbc(jdbc);
+    }
+
+    @Bean
+    GardeDesMoisDAbsences absencesPatientsGardeDesMoisDAbsences(MoisAbsencesRepository mois) {
+        return new GardeDesMoisDAbsences(mois);
+    }
+
+    @Bean
+    PublicationDesMoisDAbsences absencesPatientsPublicationDesMoisDAbsences(ApplicationEventPublisher publisher) {
+        return new PublicationDesMoisDAbsencesSpring(publisher);
+    }
+
+    @Bean
+    ConsulterLesMoisDAbsences absencesPatientsConsulterLesMoisDAbsences(MoisAbsencesRepository mois) {
+        return new ConsulterLesMoisDAbsences(mois);
+    }
+
+    @Bean
+    CloturerLeMoisDAbsences absencesPatientsCloturerLeMoisDAbsences(MoisAbsencesRepository mois, LectureDesAbsences lecture,
+                                                                    PublicationDesMoisDAbsences publication,
+                                                                    UniteDeTravail uniteDeTravail, HorlogeDesCentres horloge) {
+        return new CloturerLeMoisDAbsences(mois, lecture, publication, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    RouvrirLeMoisDAbsences absencesPatientsRouvrirLeMoisDAbsences(MoisAbsencesRepository mois,
+                                                                  PublicationDesMoisDAbsences publication,
+                                                                  UniteDeTravail uniteDeTravail, HorlogeDesCentres horloge) {
+        return new RouvrirLeMoisDAbsences(mois, publication, uniteDeTravail, horloge);
+    }
+
+    /**
+     * Le langage publié que la Facturation attend des Absences pour avertir à la clôture d'un mois (ADR 0042).
+     */
+    @Bean
+    ClotureDesAbsences absencesPatientsClotureDesAbsences(MoisDAbsencesOuverts mois) {
+        return new ClotureDesAbsencesPourLaFacturation(mois);
     }
 
     @Bean

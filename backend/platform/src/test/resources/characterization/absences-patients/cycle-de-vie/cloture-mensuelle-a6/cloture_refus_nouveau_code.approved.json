@@ -1,0 +1,71 @@
+{
+  "anneeAbsente": {
+    "refus": {
+      "code": "ANNEE_INVALIDE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "anneeHorsBornes": {
+    "refus": {
+      "code": "ANNEE_INVALIDE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "journal": [
+    {
+      "aQualifier": "0",
+      "enRetard": "0",
+      "mois": "<MOIS-1>",
+      "motif": null,
+      "par": "<U_ADMIN>",
+      "type": "CLOTURE"
+    }
+  ],
+  "moisEnCours": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_NON_TERMINE",
+      "status": 422
+    },
+    "status": 422
+  },
+  "moisIllisible": {
+    "refus": {
+      "code": "MOIS_INVALIDE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "moisLointain": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_NON_TERMINE",
+      "status": 422
+    },
+    "status": 422
+  },
+  "moisSansTirets": {
+    "refus": {
+      "code": "MOIS_INVALIDE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "moisSuivant": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_NON_TERMINE",
+      "status": 422
+    },
+    "status": 422
+  },
+  "premiere": {
+    "status": 200
+  },
+  "seconde": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_DEJA_CLOS",
+      "status": 409
+    },
+    "status": 409
+  }
+}

@@ -20,6 +20,26 @@ class MoisDeFacturationTest {
     private static final Instant LE_2 = Instant.parse("2026-09-02T09:30:00Z");
 
     @Test
+    void should_only_accept_a_finished_month_without_any_grace_day() {
+        MoisDeFacturation.exigerTermine(YearMonth.of(2026, 9), java.time.LocalDate.of(2026, 10, 1));
+        MoisDeFacturation.exigerTermine(YearMonth.of(2025, 12), java.time.LocalDate.of(2026, 1, 1));
+
+        assertThatThrownBy(() -> MoisDeFacturation.exigerTermine(YearMonth.of(2026, 10), java.time.LocalDate.of(2026, 10, 31)))
+                .isInstanceOf(MoisDeFacturationNonTermine.class);
+        assertThatThrownBy(() -> MoisDeFacturation.exigerTermine(YearMonth.of(2026, 11), java.time.LocalDate.of(2026, 10, 1)))
+                .isInstanceOf(MoisDeFacturationNonTermine.class);
+    }
+
+    @Test
+    void should_validate_a_reopening_reason_on_its_own_strip_it_and_bound_it_to_500_characters() {
+        assertThat(MoisDeFacturation.motifDeReouvertureValide("  facture oubliee  ")).isEqualTo("facture oubliee");
+        assertThat(MoisDeFacturation.motifDeReouvertureValide("x".repeat(500))).hasSize(500);
+        assertThatThrownBy(() -> MoisDeFacturation.motifDeReouvertureValide(null)).isInstanceOf(MotifDeReouvertureObligatoire.class);
+        assertThatThrownBy(() -> MoisDeFacturation.motifDeReouvertureValide("   ")).isInstanceOf(MotifDeReouvertureObligatoire.class);
+        assertThatThrownBy(() -> MoisDeFacturation.motifDeReouvertureValide("x".repeat(501))).isInstanceOf(MotifDeReouvertureObligatoire.class);
+    }
+
+    @Test
     void should_be_open_when_it_has_never_been_closed() {
         MoisDeFacturation mois = MoisDeFacturation.ouvert(CENTRE, AOUT);
 

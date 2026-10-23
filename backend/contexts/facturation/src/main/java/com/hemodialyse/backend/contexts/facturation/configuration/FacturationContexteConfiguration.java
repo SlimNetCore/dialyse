@@ -3,7 +3,10 @@ package com.hemodialyse.backend.contexts.facturation.configuration;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.FacturesEmises;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PeriodesComptables;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.AbsencesDuMois;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.ClotureComptable;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.absences.AbsencesDuMoisPubliees;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ClotureDesAbsences;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.CloturerLeMois;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.ConsulterLesPeriodes;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
@@ -71,6 +74,9 @@ import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.F
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ParametresDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.SequenceDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.transaction.UniteDeTravailSpring;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.horloge.FuseauParDefaut;
+import com.hemodialyse.backend.contexts.facturation.application.cloture.FuseauxDesCentres;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -79,6 +85,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.ZoneId;
 import java.util.UUID;
 
 /**
@@ -95,9 +103,14 @@ public class FacturationContexteConfiguration {
         return new SessionLegacy();
     }
 
+    /**
+     * Délai d'attente d'un verrou de ligne posé par la transaction qui l'ouvre (ADR 0043 : même délai que les Absences).
+     */
+    static final Duration DELAI_DE_VERROU = Duration.ofSeconds(5);
+
     @Bean
-    UniteDeTravail facturationUniteDeTravail(PlatformTransactionManager transactionManager) {
-        return new UniteDeTravailSpring(new TransactionTemplate(transactionManager));
+    UniteDeTravail facturationUniteDeTravail(PlatformTransactionManager transactionManager, JdbcTemplate jdbc) {
+        return new UniteDeTravailSpring(new TransactionTemplate(transactionManager), jdbc, DELAI_DE_VERROU);
     }
 
     @Bean
@@ -284,14 +297,27 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
+    AbsencesDuMois facturationAbsencesDuMois(
+            ClotureDesAbsences absences) {
+        return new AbsencesDuMoisPubliees(absences);
+    }
+
+    @Bean
     PublicationDesPeriodes facturationPublicationDesPeriodes(ApplicationEventPublisher publisher) {
         return new PublicationDesPeriodesSpring(publisher);
     }
 
     @Bean
+    FuseauxDesCentres facturationFuseauxDesCentres(
+            @Value("${app.facturation.fuseau-par-defaut:${app.absences.fuseau-par-defaut:Africa/Algiers}}") String fuseauParDefaut) {
+        return new FuseauParDefaut(ZoneId.of(fuseauParDefaut));
+    }
+
+    @Bean
     CloturerLeMois facturationCloturerLeMois(MoisDeFacturationRepository mois, SeancesFacturables seances,
-                                             PublicationDesPeriodes publication, UniteDeTravail uniteDeTravail) {
-        return new CloturerLeMois(mois, seances, publication, uniteDeTravail, Clock.systemUTC());
+                                             PublicationDesPeriodes publication, UniteDeTravail uniteDeTravail,
+                                             AbsencesDuMois absences, FuseauxDesCentres fuseaux) {
+        return new CloturerLeMois(mois, seances, publication, uniteDeTravail, Clock.systemUTC(), absences, fuseaux);
     }
 
     @Bean

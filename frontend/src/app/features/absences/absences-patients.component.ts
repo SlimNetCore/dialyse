@@ -27,6 +27,9 @@ import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {AbsencesPatientsStore, EMPTY_FILTERS} from './absences-patients.store';
+import {MoisDAbsencesComponent} from './mois-d-absences.component';
+import {MoisDAbsencesStore} from './mois-d-absences.store';
+import {anneesDesDates} from './mois-d-absences.util';
 import {
   actionPossible, actionValide, ActionAbsence, estModifiable, peutDeclarerParRole, todayIso,
 } from './absences-patients.util';
@@ -64,7 +67,7 @@ export function periodeParDefaut(maintenant: Date = new Date()): { from: string;
   imports: [
     CurrencyPipe, DatePipe, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatTableModule, MatTooltipModule, FormRoot, FormField,
-    TranslateModule, RouterLink,
+    TranslateModule, RouterLink, MoisDAbsencesComponent,
   ],
   templateUrl: './absences-patients.component.html',
   styleUrl: './absences-patients.component.css',
@@ -100,6 +103,7 @@ export class AbsencesPatientsComponent {
     const a = this.action();
     return !!a && actionValide(a.mode, a.row.statut, this.actionModel()) && !this.store.saving();
   });
+  private readonly mois = inject(MoisDAbsencesStore);
   private readonly api = inject(BackendApiService);
   private readonly shell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
@@ -124,6 +128,11 @@ export class AbsencesPatientsComponent {
       // Rechargement au changement de centre actif.
       this.shell.currentCenterId();
       untracked(() => this.store.loadPage({page: 0, size: this.store.pageSize()}));
+    });
+    effect(() => {
+      // les mois clos des dates affichées désactivent les écritures de leurs lignes (le serveur reste juge)
+      const annees = anneesDesDates(this.store.rows().map((r) => r.dateSeance));
+      untracked(() => annees.forEach((annee) => this.mois.charger({annee})));
     });
     effect(() => {
       if (!this.store.successMessage()) return;
@@ -231,8 +240,13 @@ export class AbsencesPatientsComponent {
     return estModifiable(row.statut);
   }
 
+  /** Le mois d'absences de la séance est clos : aucune écriture sur cette ligne avant la réouverture du mois. */
+  protected moisClos(row: AbsencePatient): boolean {
+    return this.mois.moisDeLaDateEstClos(row.dateSeance);
+  }
+
   protected possible(mode: ActionAbsence, row: AbsencePatient): boolean {
-    return actionPossible(mode, row.statut, this.peutCorriger());
+    return !this.moisClos(row) && actionPossible(mode, row.statut, this.peutCorriger());
   }
 
   protected openAction(mode: ActionAbsence, row: AbsencePatient): void {

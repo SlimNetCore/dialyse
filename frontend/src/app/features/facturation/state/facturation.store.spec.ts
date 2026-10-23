@@ -92,6 +92,7 @@ describe('FacturationStore', () => {
       cloturerMoisFacturation: vi.fn().mockReturnValue(of({
         centerId: CENTER_ID, mois: '2026-07', statut: 'CLOTURE', cloturePar: USER_ID, clotureLe: '2026-09-01T08:00:00Z',
         seancesEligiblesRestantes: 3,
+        absencesDuMoisNonCloses: true,
       })),
       rouvrirMoisFacturation: vi.fn().mockReturnValue(of({centerId: CENTER_ID, mois: '2026-08', statut: 'OUVERT'})),
       previewFacturation: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
@@ -301,7 +302,7 @@ describe('FacturationStore', () => {
       store.cloturerMois({centerId: CENTER_ID, mois: '2026-07'});
 
       expect(mockApi.cloturerMoisFacturation).toHaveBeenCalledWith('2026-07', CENTER_ID);
-      expect(store.clotureAvertissement()).toEqual({mois: '2026-07', seancesRestantes: 3});
+      expect(store.clotureAvertissement()).toEqual({mois: '2026-07', seancesRestantes: 3, absencesNonCloses: true});
       expect(store.successMessage()).toBe('FACTURATION.SUCCESS.MOIS_CLOTURE');
       expect(store.moisEstClos('2026-07')).toBe(true);
       expect(store.periodeActionMois()).toBeNull();

@@ -1,0 +1,18 @@
+{
+  "absences": [
+    "<DERNIER_JOUR_DU_MOIS-2> | <P_BELKACEM> | A_QUALIFIER/AUTOMATIQUE",
+    "<PREMIER_JOUR_DU_MOIS-1> | <P_BELKACEM> | A_QUALIFIER/AUTOMATIQUE"
+  ],
+  "journal": [
+    {
+      "creeLe": true,
+      "payload": {
+        "nbAQualifier": "1",
+        "nbEnRetard": "1",
+        "targetRoles": "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN"
+      },
+      "targetRoles": ",ADMIN,SECRETAIRE,INFIRMIER,MEDECIN,",
+      "type": "ABSENCES_A_QUALIFIER"
+    }
+  ]
+}

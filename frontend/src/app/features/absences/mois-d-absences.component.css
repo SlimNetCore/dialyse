@@ -1,0 +1,43 @@
+.mois-card {
+  margin-top: 16px;
+}
+
+.mois-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.mois-table {
+  width: 100%;
+}
+
+.mois-table td,
+.mois-table th {
+  text-align: start;
+  vertical-align: top;
+  padding: 6px 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.feedback.error {
+  color: var(--mat-sys-error, #c62828);
+}
+
+.feedback.success {
+  color: #1b5e20;
+}
+
+.feedback.cloture-warning {
+  color: #8a5300;
+}
+
+.confirmation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

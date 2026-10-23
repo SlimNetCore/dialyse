@@ -23,9 +23,12 @@ public class QualifierUneAbsence {
     private final PeriodesFacturees periodes;
     private final SignalementDesSaisies signalement;
     private final HorlogeDesCentres horloge;
+    private final GardeDesMoisDAbsences garde;
 
     public QualifierUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences, PeriodesFacturees periodes,
-                               SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
+                               SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                               GardeDesMoisDAbsences garde) {
+        this.garde = garde;
         this.uniteDeTravail = uniteDeTravail;
         this.absences = absences;
         this.periodes = periodes;
@@ -40,6 +43,7 @@ public class QualifierUneAbsence {
         LocalDate aujourdhui = horloge.aujourdhui(centre);
         AbsencePatient absence = uniteDeTravail.executer(() -> {
             AbsencePatient a = absences.verrouiller(centre, id).orElseThrow(() -> new AbsenceIntrouvable(id));
+            garde.exigerOuvert(centre, a.dateDeSeance());
             a.qualifier(motif, commentaire, intervenant.utilisateur(), intervenant.droit(), periodes, horloge.maintenant());
             absences.enregistrer(a);
             signalement.absenceSaisie(centre.valeur(), a.patient().valeur(), a.dateDeSeance());

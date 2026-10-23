@@ -1,0 +1,52 @@
+{
+  "base": [
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<28_DU_MOIS-2>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": "<U_ADMIN>",
+      "forfait_id": "<F_HD>",
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_2>",
+      "modifiee_le": "<HORODATAGE>",
+      "modifiee_par": "<U_ADMIN>",
+      "montant_ht": "10000.00",
+      "motif": "MALADIE",
+      "patient_id": "<P_BELKACEM>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": "<HORODATAGE>",
+      "qualifiee_par": "<U_ADMIN>",
+      "source": "DECLAREE",
+      "statut": "JUSTIFIEE",
+      "taux_tva": "19.00"
+    },
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<01_DU_MOIS>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": "<U_ADMIN>",
+      "forfait_id": "<F_HD>",
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_1>",
+      "modifiee_le": "<HORODATAGE>",
+      "modifiee_par": "<U_ADMIN>",
+      "montant_ht": "10000.00",
+      "motif": "MALADIE",
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": "<HORODATAGE>",
+      "qualifiee_par": "<U_ADMIN>",
+      "source": "DECLAREE",
+      "statut": "JUSTIFIEE",
+      "taux_tva": "19.00"
+    }
+  ],
+  "moisAvant": {
+    "status": 201
+  },
+  "moisVoisin": {
+    "status": 201
+  }
+}

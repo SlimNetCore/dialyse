@@ -662,6 +662,8 @@ export type ClotureDuMoisReponse = {
   cloturePar: string | null;
   clotureLe: string | null;
   seancesEligiblesRestantes: number;
+  /** Avertissement (A6) : le mois d'absences du centre n'est pas clos ; la clôture de facturation n'est jamais refusée pour cela. */
+  absencesDuMoisNonCloses: boolean;
 };
 
 export type ReouvertureDuMoisReponse = {

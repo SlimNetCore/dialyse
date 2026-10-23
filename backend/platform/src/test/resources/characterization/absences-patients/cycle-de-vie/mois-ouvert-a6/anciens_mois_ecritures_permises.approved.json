@@ -1,0 +1,88 @@
+{
+  "annulation": {
+    "corps": {
+      "commentaire": "doublon",
+      "dateRattrapage": null,
+      "dateSeance": "<QUINZE_DU_MOIS-4>",
+      "declareeLe": "<HORODATAGE>",
+      "enRetard": false,
+      "forfaitLibelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_02>",
+      "montantHt": 10000.00,
+      "motif": null,
+      "patientId": "<P_BELKACEM>",
+      "patientNom": null,
+      "prixTtc": 11900.00,
+      "qualifieeLe": null,
+      "source": "AUTOMATIQUE",
+      "statut": "ANNULEE",
+      "tauxTva": 19.00
+    },
+    "status": 200
+  },
+  "base": [
+    {
+      "commentaire": "doublon",
+      "date_rattrapage": null,
+      "date_seance": "<QUINZE_DU_MOIS-4>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_02>",
+      "modifiee_le": "<HORODATAGE>",
+      "modifiee_par": "<U_ADMIN>",
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_BELKACEM>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "ANNULEE",
+      "taux_tva": "19.00"
+    },
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<QUINZE_DU_MOIS-3>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_01>",
+      "modifiee_le": "<HORODATAGE>",
+      "modifiee_par": "<U_ADMIN>",
+      "montant_ht": "10000.00",
+      "motif": "MALADIE",
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": "<HORODATAGE>",
+      "qualifiee_par": "<U_ADMIN>",
+      "source": "AUTOMATIQUE",
+      "statut": "JUSTIFIEE",
+      "taux_tva": "19.00"
+    }
+  ],
+  "qualification": {
+    "corps": {
+      "commentaire": null,
+      "dateRattrapage": null,
+      "dateSeance": "<QUINZE_DU_MOIS-3>",
+      "declareeLe": "<HORODATAGE>",
+      "enRetard": false,
+      "forfaitLibelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_01>",
+      "montantHt": 10000.00,
+      "motif": "MALADIE",
+      "patientId": "<P_AMRANI>",
+      "patientNom": null,
+      "prixTtc": 11900.00,
+      "qualifieeLe": "<HORODATAGE>",
+      "source": "AUTOMATIQUE",
+      "statut": "JUSTIFIEE",
+      "tauxTva": 19.00
+    },
+    "status": 200
+  }
+}

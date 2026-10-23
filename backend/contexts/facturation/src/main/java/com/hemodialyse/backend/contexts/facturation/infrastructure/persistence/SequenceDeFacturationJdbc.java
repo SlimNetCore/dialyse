@@ -22,6 +22,10 @@ public class SequenceDeFacturationJdbc implements SequenceDeFacturation {
             + "SELECT ?, ?, 0 WHERE NOT EXISTS (SELECT 1 FROM facture_sequence WHERE center_id = ? AND seq_year = ?)";
 
     private final JdbcTemplate jdbc;
+    /**
+     * Produit de la base, lu une seule fois (revue F7, constat 1) : {@code null} tant qu'il n'a pas été lu.
+     */
+    private volatile Boolean postgreSql;
 
     public SequenceDeFacturationJdbc(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -52,7 +56,12 @@ public class SequenceDeFacturationJdbc implements SequenceDeFacturation {
     }
 
     private boolean estPostgreSql() {
-        return Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
-                "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+        Boolean lu = postgreSql;
+        if (lu == null) {
+            lu = Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
+                    "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+            postgreSql = lu;
+        }
+        return lu;
     }
 }

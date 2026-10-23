@@ -44,6 +44,11 @@ class DetectionEtReconciliationDUneAbsenceTest {
             }
 
             @Override
+            public boolean estOuvertSousVerrou(CentreId centre, java.time.YearMonth mois) {
+                return ouvert;
+            }
+
+            @Override
             public java.util.List<java.time.YearMonth> moisClos(CentreId centre) {
                 return ouvert ? java.util.List.of() : java.util.List.of(java.time.YearMonth.from(SEANCE));
             }

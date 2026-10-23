@@ -3,6 +3,11 @@ package com.hemodialyse.backend.contexts.absencespatients.interfaces.http;
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsenceIntrouvable;
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsenceNonModifiable;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesClos;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesDejaClos;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesNonClos;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesNonTermine;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MotifDeReouvertureObligatoire;
 import com.hemodialyse.backend.contexts.absencespatients.domain.RegleDAbsenceViolee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.SaisieInvalide;
 import org.springframework.core.Ordered;
@@ -39,6 +44,40 @@ class ErreursMetierDesAbsencesAdvice {
     @ExceptionHandler(AbsenceNonModifiable.class)
     ProblemDetail absenceNonModifiable(AbsenceNonModifiable erreur) {
         return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), "ABSENCE_NON_MODIFIABLE");
+    }
+
+    @ExceptionHandler(MoisDAbsencesClos.class)
+    ProblemDetail moisDAbsencesClos(MoisDAbsencesClos erreur) {
+        ProblemDetail probleme = probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), erreur.code());
+        probleme.setProperty("mois", erreur.mois().toString());
+        return probleme;
+    }
+
+    @ExceptionHandler(MoisDAbsencesNonTermine.class)
+    ProblemDetail moisDAbsencesNonTermine(MoisDAbsencesNonTermine erreur) {
+        ProblemDetail probleme = probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), erreur.code());
+        probleme.setProperty("mois", erreur.mois().toString());
+        return probleme;
+    }
+
+    @ExceptionHandler(MoisDAbsencesDejaClos.class)
+    ProblemDetail moisDAbsencesDejaClos(MoisDAbsencesDejaClos erreur) {
+        return probleme(HttpStatus.CONFLICT, "Mois deja clos", erreur.getMessage(), "MOIS_D_ABSENCES_DEJA_CLOS");
+    }
+
+    @ExceptionHandler(MoisDAbsencesNonClos.class)
+    ProblemDetail moisDAbsencesNonClos(MoisDAbsencesNonClos erreur) {
+        return probleme(HttpStatus.CONFLICT, "Mois non clos", erreur.getMessage(), "MOIS_D_ABSENCES_NON_CLOS");
+    }
+
+    @ExceptionHandler(MotifDeReouvertureObligatoire.class)
+    ProblemDetail motifDeReouvertureObligatoire(MotifDeReouvertureObligatoire erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "MOTIF_DE_REOUVERTURE_OBLIGATOIRE");
+    }
+
+    @ExceptionHandler(RequeteInvalide.class)
+    ProblemDetail requeteInvalide(RequeteInvalide erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), erreur.code());
     }
 
     @ExceptionHandler(RegleDAbsenceViolee.class)

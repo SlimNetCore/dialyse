@@ -902,6 +902,80 @@ GROUP BY center_id;
   de patient) : ces absences héritées ne seront plus comptées dans les chiffres du pilotage tant que leur date n'est pas passée.
 - **26.2** Informatif : `GET /api/v1/seances/dashboard/export?format=txt` répond désormais 400 (était : CSV) ; `GET /api/v1/direction/absences?from=hier` répond 400 (était : 500).
 
+## 27. Absences de patients A6 : clôture mensuelle des absences (migration V44, 2026-10-23)
+
+La migration V44 est **additive** (tables `mois_absences` et `mois_absences_journal`, aucune ligne, aucun DROP ni
+DELETE) : aucun mois n'est clos au déploiement. Avant la **première
+clôture** d'un mois d'absences, regarder ce qui resterait figé. Toutes les requêtes ci-dessous sont en **lecture seule**
+(SELECT uniquement), à lancer sur une copie ou en lecture :
+
+```sql
+-- 27.1 Absences encore à qualifier et en retard (plus de 3 jours) par centre et par mois
+SELECT center_id,
+       to_char(date_seance, 'YYYY-MM') AS mois,
+       COUNT(*)                        AS a_qualifier,
+       COUNT(*)                           FILTER (WHERE date_seance < current_date - 3)   AS en_retard, to_char(date_seance, 'YYYY-MM') < to_char(current_date, 'YYYY-MM') AS cloturable
+FROM absence_patient
+WHERE statut = 'A_QUALIFIER'
+GROUP BY center_id, to_char(date_seance, 'YYYY-MM')
+ORDER BY center_id, mois;
+
+-- 27.2 V44 : tables créées et vides (aucun mois clos au départ)
+SELECT (SELECT COUNT(*) FROM mois_absences)         AS mois,
+       (SELECT COUNT(*) FROM mois_absences_journal) AS journal;
+
+-- 27.3 Séances exclues de la facturation, par centre et par mois (la réinclusion sera refusée tant que le mois d'absences est clos)
+SELECT s.center_id, to_char(s.date_seance, 'YYYY-MM') AS mois, COUNT(*) AS seances_exclues
+FROM seances s
+WHERE s.exclusion_absence_id IS NOT NULL
+GROUP BY s.center_id, to_char(s.date_seance, 'YYYY-MM')
+ORDER BY s.center_id, mois;
+```
+
+- **27.1** Rapporter, pour chaque centre, le nombre d'absences à qualifier et en retard par mois **passé** (sans
+  identifiant de patient). Un mois dont le chiffre est élevé doit être qualifié
+  avant d'être clos (la clôture n'est pas refusée, elle fige le mois : rouvrir exige un motif). Le mois en cours ne se
+  clôt pas (`cloturable = false` ;
+  `current_date` est la date du serveur PostgreSQL : en bord de mois, se fier au fuseau du centre).
+- **27.2** Résultat attendu : `0` et `0` juste après la migration (une ligne `OUVERT` apparaît au premier verrouillage
+  d'un mois : écriture d'une absence ou clôture ; sans effet métier).
+- **27.3** Informatif : nombre de séances exclues par mois ; leur réinclusion devra attendre la réouverture du mois
+  d'absences si celui-ci est clos.
+- **Rejeu local du 2026-10-23** (base de développement PostgreSQL 16.15, schéma en V33, données de démonstration) : 27.1
+  s'exécute (5 centres ; 2026-09 : 35 à 36
+  à qualifier, toutes en retard ; 2026-10 : 266 dont 224 en retard). 27.2 et 27.3 non exécutables sur cette base (tables
+  V44 et colonne `seances.exclusion_absence_id` de V39
+  absentes) ; 27.2 est l'équivalent du contrôle « tables vides » de `backend/scripts/absences-a6-pg16-rejeu.sh` (vert le
+  2026-10-23 sur PostgreSQL 16 jetable) ; 27.3 est relue
+  contre `V39__facturation_exclusion_de_seance.sql` (colonnes `seances.center_id`, `date_seance`,
+  `exclusion_absence_id`). **Le résultat de production reste à rapporter.**
+- **27.4** Informatif : l'ordre recommandé est « clore les absences, puis la facturation du mois » ; rien n'est bloqué
+  dans l'autre sens, la clôture de facturation avertit seulement (champ `absencesDuMoisNonCloses`).
+
+## 28. Facturation : seul un mois terminé se clôture (ADR 0044) et délai de verrou (ADR 0043), 2026-10-23
+
+Aucune migration. Depuis ce changement, la clôture du mois en cours ou d'un mois futur est refusée (422
+`PERIODE_NON_TERMINEE`). Un mois futur
+aurait pu être clos **avant** (F7 l'acceptait) : à repérer, puis à rouvrir avec un motif s'il l'a été par erreur.
+Lecture seule :
+
+```sql
+-- 28.1 Mois de facturation clos qui ne sont pas encore terminés (mois en cours ou futur, date du serveur)
+SELECT center_id, annee, mois, cloturee_le
+FROM periodes_facturation
+WHERE statut = 'CLOTURE'
+  AND annee * 12 + mois >= EXTRACT(YEAR FROM current_date) * 12 + EXTRACT(MONTH FROM current_date)
+ORDER BY center_id, annee, mois;
+```
+
+- **28.1** Résultat attendu : **0 ligne**. Sinon, rapporter le nombre par centre (sans identifiant d'utilisateur) : ces
+  mois restent clos (la règle
+  ne s'applique qu'aux nouvelles clôtures) ; les rouvrir avec un motif si la clôture était une erreur.
+- **28.2** Informatif (ADR 0043) : un acte de facturation qui attend un verrou plus de 5 s répond désormais 409
+  `FACTURATION_ECRITURE_CONCURRENTE`
+  au lieu d'attendre ; à surveiller dans les journaux les premiers jours (fréquence attendue : rare, pendant une
+  validation très longue).
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
@@ -909,4 +983,9 @@ G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
 toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18 ; pour F3, les points
 19.1 à 19.6 ; pour F4, les points 20.1 à 20.5 et 20.10 (V41, remboursements et écritures de remboursement historiques) ; pour F5, le point 21.2
-(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23 (V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant V43**, 24.3 et 24.4 à rapporter) ; pour Absences A3, le point 25 (25.2 : sorties sans date à saisir, 25.3 et 25.6 informatifs).
+(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22
+(écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23
+(V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant
+V43**, 24.3 et 24.4 à rapporter) ; pour Absences A3, le point 25 (25.2 : sorties sans date à saisir, 25.3 et 25.6
+informatifs) ; pour Absences A6, le point 27 (27.2 : V44, tables vides ; **27.1 à rapporter avant la première clôture
+d'un mois**) ; pour la Facturation (ADR 0044), le point 28.1 (0 ligne attendue).

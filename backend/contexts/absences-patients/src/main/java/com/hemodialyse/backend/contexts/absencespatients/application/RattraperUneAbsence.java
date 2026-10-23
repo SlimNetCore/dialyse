@@ -25,9 +25,12 @@ public class RattraperUneAbsence {
     private final SeancesRealisees seances;
     private final SignalementDesSaisies signalement;
     private final HorlogeDesCentres horloge;
+    private final GardeDesMoisDAbsences garde;
 
     public RattraperUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences, PeriodesFacturees periodes,
-                               SeancesRealisees seances, SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
+                               SeancesRealisees seances, SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                               GardeDesMoisDAbsences garde) {
+        this.garde = garde;
         this.uniteDeTravail = uniteDeTravail;
         this.absences = absences;
         this.periodes = periodes;
@@ -57,6 +60,11 @@ public class RattraperUneAbsence {
                     return utilisees.contains(jour);
                 }
             };
+            // le mois de l'absence puis celui de la date de rattrapage, du plus ancien au plus récent (pas d'interblocage)
+            garde.exigerOuvert(centre, a.dateDeSeance());
+            if (dateDeRattrapage != null && dateDeRattrapage.isAfter(a.dateDeSeance())) {
+                garde.exigerOuvert(centre, dateDeRattrapage);
+            }
             a.rattraper(dateDeRattrapage, intervenant.utilisateur(), intervenant.droit(), periodes, faits, aujourdhui,
                     horloge.maintenant());
             absences.enregistrer(a);

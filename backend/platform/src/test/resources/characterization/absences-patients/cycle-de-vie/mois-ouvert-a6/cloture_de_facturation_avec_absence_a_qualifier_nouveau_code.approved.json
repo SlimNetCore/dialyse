@@ -1,0 +1,38 @@
+{
+  "absencesDuMoisNonCloses": true,
+  "base": [
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<FIN_DU_MOIS_PRECEDENT>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_01>",
+      "modifiee_le": null,
+      "modifiee_par": null,
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "A_QUALIFIER",
+      "taux_tva": "19.00"
+    }
+  ],
+  "champs": [
+    "absencesDuMoisNonCloses",
+    "centerId",
+    "clotureLe",
+    "cloturePar",
+    "mois",
+    "seancesEligiblesRestantes",
+    "statut"
+  ],
+  "seancesEligiblesRestantes": 0,
+  "status": 200,
+  "statut": "CLOTURE"
+}

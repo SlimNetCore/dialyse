@@ -1,0 +1,14 @@
+{
+  "absences": [
+    "<DERNIER_JOUR_DU_MOIS-2> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE",
+    "<PREMIER_JOUR_DU_MOIS-1> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE"
+  ],
+  "reponse": {
+    "cacheControl": "no-store",
+    "corps": {
+      "annulees": 0,
+      "creees": 2
+    },
+    "status": 200
+  }
+}

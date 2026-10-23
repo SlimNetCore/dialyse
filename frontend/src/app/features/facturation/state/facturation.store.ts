@@ -55,7 +55,7 @@ type FacturationState = {
   /** Mois dont la clôture ou la réouverture est en cours. */
   periodeActionMois: string | null;
   /** Avertissement chiffré après une clôture : séances éligibles encore non facturées. */
-  clotureAvertissement: { mois: string; seancesRestantes: number } | null;
+  clotureAvertissement: { mois: string; seancesRestantes: number; absencesNonCloses: boolean } | null;
   error: string | null;
   errorParams: Record<string, unknown> | null;
   successMessage: string | null;
@@ -199,7 +199,11 @@ export const FacturationStore = signalStore(
             tap(({reponse, periodes}) => patchState(store, {
               periodeActionMois: null,
               successMessage: 'FACTURATION.SUCCESS.MOIS_CLOTURE',
-              clotureAvertissement: {mois, seancesRestantes: reponse.seancesEligiblesRestantes},
+              clotureAvertissement: {
+                mois,
+                seancesRestantes: reponse.seancesEligiblesRestantes,
+                absencesNonCloses: reponse.absencesDuMoisNonCloses === true,
+              },
               periodes: {
                 ...store.periodes(),
                 ...(periodes ? indexerLesMois(periodes.periodes) : {

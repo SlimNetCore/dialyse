@@ -15,8 +15,9 @@ import java.util.UUID;
 
 /**
  * Cas d'usage « rouvrir un mois de facturation clos » (RG-FAC-043, RG-FAC-044) : motif obligatoire, auteur tracé, journalisé.
- * Un mois non clos ne se rouvre pas ({@code PERIODE_NON_CLOTUREE}, avant toute autre vérification) ; la réouverture est refusée
- * ({@code PERIODE_COMPTABLE_CLOTUREE}) si la période comptable du même mois et du même centre est déjà clôturée.
+ * Ordre des refus : un mois non clos ne se rouvre pas ({@code PERIODE_NON_CLOTUREE}) ; puis le motif est vérifié
+ * ({@code MOTIF_DE_REOUVERTURE_OBLIGATOIRE}) ; enfin la réouverture est refusée ({@code PERIODE_COMPTABLE_CLOTUREE}) si la période
+ * comptable du même mois et du même centre est déjà clôturée (revue F7 du 2026-10-23, constat 5).
  */
 public final class RouvrirLeMois {
 
@@ -41,6 +42,7 @@ public final class RouvrirLeMois {
             if (!courant.estClos()) {
                 throw new MoisNonClos(moisARouvrir);
             }
+            MoisDeFacturation.motifDeReouvertureValide(motif);
             if (comptabilite.estCloturee(centre, moisARouvrir)) {
                 throw new ReouvertureRefuseeParLaComptabilite(moisARouvrir);
             }

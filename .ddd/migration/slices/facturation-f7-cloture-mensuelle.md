@@ -101,7 +101,15 @@ Aucun legacy : pas d'écart de parité. Écarts de conception : voir « Précisi
 5. Les mois futurs et très anciens peuvent être clos (aucune précondition de chronologie).
 6. La réponse de liste garde la dernière clôture et la dernière réouverture d'un mois ; l'historique complet n'est qu'au journal (pas d'écran ni d'API de lecture du journal en F7).
 
-## À faire côté frontend (non modifié ici)
+## Frontend (livré)
+
+> Mise à jour du 2026-10-23 (revue F7, constat 6) : les cinq points ci-dessous, listés « à faire » le 2026-10-21, sont
+> **livrés** :
+> `frontend/src/app/features/facturation/state/facturation-periodes.ts` (+ spec), `facturation.store.ts` (+ spec),
+> `facturation-errors.ts` (+ spec),
+> `facturation-workspace.component.{ts,html}` (+ spec), clés i18n `FACTURATION.PERIODES.*` et `FACTURATION.ERROR.*` en
+> fr/en/ar/kab ; avertissement
+> `absencesDuMoisNonCloses` ajouté par A6. Corrections de revue : slice `facturation-f7b-corrections-revue.md`.
 
 1. Écran de facturation : appeler `GET /api/v1/facturation/periodes?annee=` et afficher l'état de chaque mois (ouvert, clôturé par/le, rouvert par/le/motif) ; le mois de la période choisie
    doit prévenir qu'il est clos avant toute validation ou modification.
@@ -125,4 +133,7 @@ Aucun legacy : pas d'écart de parité. Écarts de conception : voir « Précisi
 - **Mutation PIT** (`backend/scripts/pit-f7-cloture.sh`) sur `domain.cloture` et `application.cloture` : 41 mutants tués sur 43 (**95 %**), couverture de lignes 99 %.
   Survivant : une borne de longueur du motif dans `rouvrir` ; sans couverture : `MoisDeFacturationClos.mois()` (lu par l'advice HTTP, couvert par les goldens).
 - Preuve du verrou : retirer `FOR UPDATE` de `MoisDeFacturationJdbc.verrouiller` fait échouer deux des quatre tests de `MoisDeFacturationConcurrentJdbcTest`.
-- Frontend, `docs/client` (`.docx`, `.pdf`, maquette) : **non régénérés** ; seul `documentation-fonctionnelle.html` reçoit les RG-FAC-040 à 045 (édition ciblée).
+- Frontend, `docs/client` (`.docx`, `.pdf`, maquette) : **non régénérés** le 2026-10-21 ; seul
+  `documentation-fonctionnelle.html` reçoit les RG-FAC-040 à 045 (édition ciblée). **Mise à jour du 2026-10-23** :
+  frontend livré (voir « Frontend ») ; `documentation-fonctionnelle.{html,pdf,docx}` régénérés (568 règles), la maquette
+  commerciale ne l'est pas.

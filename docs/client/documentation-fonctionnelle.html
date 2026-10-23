@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-19<br>534 règles de gestion · 16 domaines · 412 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-23<br>568 règles de gestion · 16 domaines · 430 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>534</b>règles de gestion</div>
+        <div><b>568</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>9</b>points d'attention</div>
@@ -86,9 +86,12 @@ journalisé côté serveur (aucun échec silencieux). <em>Source :</em> <code>Ap
 erreur. <em>Source :</em> <code>ApiExceptionHandler</code>.</p>
 </div></div>
 <div class="rule" id="RG-TRV-015"><div class="rid">RG-TRV-015</div><div class="rtxt"><p>Deux erreurs de séance ont un code dédié (HTTP 422) : <code>SEANCE_STOCK_EXIT_DATE_IMMUTABLE</code> (la date
-d&#39;une
-sortie de stock rattachée à une séance est immuable) et <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> (toute modification d&#39;une séance facturée, y compris son stock, depuis la slice F6 )
-. <em>Source :</em> <code>ApiExceptionHandler</code> (voir RG-SEA-002 et RG-SEA-023).</p>
+    d&#39;une sortie de stock rattachée à une séance est immuable) et <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> (toute
+    modification
+    d&#39;une séance facturée est refusée, y compris son stock ; remplace depuis la slice F6 les anciens codes
+    <code>BUSINESS_RULE_VIOLATION</code> et <code>SEANCE_BILLED_STOCK_EXIT_IMMUTABLE</code> pour ce cas). <em>Source
+        :</em> <code>ApiExceptionHandler</code> (voir
+    RG-SEA-002 et RG-SEA-023).</p>
 </div></div>
 <div class="rule" id="RG-TRV-016"><div class="rid">RG-TRV-016</div><div class="rtxt"><p>Toute erreur affichée à l&#39;utilisateur est traduite à partir de son <code>code</code> (jamais le texte brut du
 serveur quand une clé de traduction existe) ; l&#39;erreur s&#39;affiche <strong>à l&#39;endroit de l&#39;action</strong> (formulaire, panneau),
@@ -107,7 +110,7 @@ actif fait toujours partie du filtre de pagination. <em>Source :</em> <code>Page
 <div class="rule" id="RG-TRV-022"><div class="rid">RG-TRV-022</div><div class="rtxt"><p>Exceptions bornées : les vues dont le volume est borné par construction (grille d&#39;une semaine de
 planning,
 liste des salles d&#39;une page) renvoient l&#39;ensemble de la période sans pagination. <em>Sources :</em>
-<code>AbsencePatientService.semaine</code>.</p>
+    <code>SuivreLaSemaine</code> (suivi de la semaine des absences).</p>
 </div></div>
 <h2>1.4 Valeurs métier (shared kernel)</h2>
 <div class="rule" id="RG-TRV-030"><div class="rid">RG-TRV-030</div><div class="rtxt"><p>Un <strong>montant</strong> (<code>Money</code>) est obligatoire et ne peut être négatif. <em>Source :</em> <code>Money</code>.</p>
@@ -199,7 +202,7 @@ canaux de société exigent une session de direction valide. <em>Source :</em> <
 <td>RG-SEC-032</td>
 </tr>
 <tr>
-<td><code>AbsencePatientScheduler.controlerAbsences</code></td>
+    <td><code>ControleDeNuitDesAbsences.controlerAbsences</code></td>
 <td>02:30 chaque jour</td>
 <td>détecte les absences de patients</td>
 <td>RG-ABS-040</td>
@@ -758,7 +761,13 @@ commençant à la date d&#39;admission ; pour <code>PERMANENT</code>, elle n&#39
 (dernière séance) ; <code>DECEDE</code> et <code>GREFFE</code> = la veille de la date d&#39;évènement (le patient ne dialyse plus ce jour-là) ;
 séjour limité = la date de fin de séjour incluse ; un état de sortie sans date libère la place immédiatement ;
 <code>PERMANENT</code> n&#39;a pas de limite. Cette règle unique alimente le planning (RG-PLN-010, 040), la charge des infirmiers
-(RG-INF-040), les séances attendues (RG-ABS-041, RG-SEA-042) et la libération des places (RG-PAT-033).</p>
+    (RG-INF-040), les séances attendues (RG-SEA-042) et la libération des places (RG-PAT-033). <strong>Exception,
+        absences
+        (RG-ABS-041, slice A3)</strong> : la détection des absences exclut le jour de l&#39;évènement pour les quatre
+    états de sortie
+    (<code>TRANSFERE</code>, <code>GUERRI</code>, <code>DECEDE</code>, <code>GREFFE</code>) ; un état de sortie sans
+    date n&#39;y est jamais attendu. À venir (Patient et couverture) : une sortie sans date d&#39;évènement sera
+    refusée.</p>
 </div></div>
 <div class="rule" id="RG-PAT-033"><div class="rid">RG-PAT-033</div><div class="rtxt"><p><strong>Libération effective de la place</strong> : lorsque le dernier jour d&#39;occupation est dépassé, la fiche
 perd sa salle, son créneau, son générateur et ses jours de dialyse ; le patient reste dans le centre (consultation,
@@ -1382,7 +1391,8 @@ Mon planning »)</strong> suit la même règle : une absence de patient déclar�
 patient (couleur selon le statut de l&#39;absence) et une séance validée y marque un soleil, comme sur le planning des
 séances. Pour le <strong>médecin</strong>, le planning est en <strong>lecture seule</strong> : il ne peut pas déclarer l&#39;absence d&#39;un
 patient (RG-ABS-015) ; le détail d&#39;un patient reste consultable, avec les liens vers sa fiche et son dossier.
-<em>Source :</em> <code>PlanningSemaineComponent</code>, <code>evenementRafraichitPlanning</code>, <code>AbsencePatientRestController</code>.</p>
+    <em>Source :</em> <code>PlanningSemaineComponent</code>, <code>evenementRafraichitPlanning</code>, <code>DetectionControleur</code>,
+    <code>AbsencesEcrituresControleur</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p06"><h1><span class="n">Partie 6</span>Absences des patients</h1>
@@ -1391,8 +1401,11 @@ patient (RG-ABS-015) ; le détail d&#39;un patient reste consultable, avec les l
 chiffre d&#39;affaires,
 <strong>alerte</strong> sur les absences à qualifier et sur celles qui sont en retard, et <strong>clôture</strong> les corrections avec la
 facturation.
-Sources : <code>AbsencePatient</code>, <code>MotifAbsence</code>, <code>StatutAbsence</code>, <code>ValeurAbsence</code>, <code>ValorisationAbsenceService</code>,
-<code>AbsencePatientService</code>, <code>AbsencePatientScheduler</code>, <code>AbsenceDonneesJdbcAdapter</code>, <code>AbsencePatientRestController</code>.</p>
+    Sources : <code>AbsencePatient</code> (contexte <code>absences-patients</code>), <code>MotifAbsence</code>, <code>StatutAbsence</code>,
+    <code>Valorisation</code>, <code>DetectionAbsences</code>,
+    <code>ReconciliationAbsences</code>, <code>NotificationDesAbsencesAQualifier</code>,
+    <code>ControlerLesAbsences</code>, <code>ControleDeNuitDesAbsences</code>, <code>DetectionControleur</code>,
+    <code>PatientsAttendusJdbc</code>.</p>
 </blockquote>
 <h2>6.1 Définition et cycle de vie</h2>
 <div class="rule" id="RG-ABS-001"><div class="rid">RG-ABS-001</div><div class="rtxt"><p>Une absence est celle d&#39;un patient à une séance prévue ; il y a <strong>au plus une absence par patient et
@@ -1404,7 +1417,10 @@ par jour</strong>
 <div class="rule" id="RG-ABS-003"><div class="rid">RG-ABS-003</div><div class="rtxt"><p>Statuts : <code>A_QUALIFIER</code> → <code>JUSTIFIEE</code> ou <code>NON_JUSTIFIEE</code> (qualification par un motif) → <code>RATTRAPEE</code>
 (séance de
 remplacement) ; <code>ANNULEE</code> possible à tout moment. Une absence <strong>rattrapée ou annulée n&#39;est plus modifiable</strong>
-(<code>ABSENCE_NON_MODIFIABLE</code>) ; l&#39;annulation est définitive.</p>
+    (<code>ABSENCE_NON_MODIFIABLE</code>) ; l&#39;annulation est définitive. <strong>Une absence rattrapée ne s&#39;annule
+        pas</strong> (<code>ABSENCE_NON_MODIFIABLE</code>, sa date de
+    rattrapage est conservée ; était : annulable par <code>ADMIN</code> et <code>MEDECIN</code>, KB-ABS-10, corrigé à la
+    slice A2).</p>
 </div></div>
 <div class="rule" id="RG-ABS-004"><div class="rid">RG-ABS-004</div><div class="rtxt"><p>Motifs : hospitalisation, maladie, voyage, transport, familial, refus du patient, décès, autre (tous
 <strong>justifiants</strong>) et
@@ -1446,21 +1462,37 @@ il consulte le suivi et garde la correction d&#39;une absence déjà qualifiée 
 profil autorisé :
 seuls <code>ADMIN</code> et <code>MEDECIN</code> corrigent une absence déjà qualifiée (<code>ABSENCE_CORRECTION_INTERDITE</code>) ; la première
 qualification est ouverte à
-<code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code>.</p>
+    <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code>. Ordre des contrôles (A2,
+    KB-ABS-18 aligné) : absence existante, droit de
+    correction, état (non modifiable, déjà annulée), période facturée, puis les valeurs.</p>
 </div></div>
 <div class="rule" id="RG-ABS-021"><div class="rid">RG-ABS-021</div><div class="rtxt"><p>Rattrapage : la date est obligatoire (<code>ABSENCE_RATTRAPAGE_DATE_REQUISE</code>), <strong>postérieure</strong> à la séance
 manquée (<code>ABSENCE_RATTRAPAGE_ANTERIEUR</code>), non future (<code>ABSENCE_DATE_FUTURE</code>) et le patient doit avoir une séance
 réalisée à cette date (<code>ABSENCE_RATTRAPAGE_SANS_SEANCE</code>). <strong>Une séance ne rattrape qu&#39;une seule absence</strong> du
-patient (<code>ABSENCE_RATTRAPAGE_DEJA_UTILISEE</code>). La perte n&#39;est alors plus comptabilisée. À l&#39;écran, l&#39;utilisateur
+    patient (<code>ABSENCE_RATTRAPAGE_DEJA_UTILISEE</code>). <strong>Le rattrapage est réservé à <code>ADMIN</code> et
+        <code>MEDECIN</code></strong>, pour toute absence, même « à
+    qualifier » (<code>ABSENCE_CORRECTION_INTERDITE</code> sinon ; était ouvert aux quatre profils, KB-ABS-13, corrigé à
+    la slice A2). La
+    perte n&#39;est alors plus comptabilisée. À l&#39;écran, l&#39;utilisateur
 <strong>choisit la séance dans une liste</strong> (<code>GET /absences-patients/{id}/seances-rattrapage</code> : séances réalisées du patient
 après la séance manquée, jusqu&#39;à aujourd&#39;hui, pas déjà utilisées) au lieu de saisir une date ; sans séance éligible,
-l&#39;écran renvoie au poste infirmier (le patient doit d&#39;abord venir et être scanné).</p>
+    l&#39;écran renvoie au poste infirmier (le patient doit d&#39;abord venir et être scanné). <strong>Cette liste n&#39;est
+        proposée que
+        pour une absence encore rattrapable</strong> : pour une absence déjà rattrapée ou annulée (plus modifiable,
+    RG-ABS-003), elle
+    est refusée en <strong>422</strong> <code>ABSENCE_NON_MODIFIABLE</code> (était : proposée quand même, KB-ABS-04,
+    corrigé à la slice A1).</p>
 </div></div>
 <div class="rule" id="RG-ABS-022"><div class="rid">RG-ABS-022</div><div class="rtxt"><p>Annulation : commentaire obligatoire (<code>ABSENCE_COMMENTAIRE_REQUIS</code>) ; déjà annulée :
 <code>ABSENCE_DEJA_ANNULEE</code> ; mêmes droits de
 correction que RG-ABS-020 pour une absence déjà qualifiée.</p>
 </div></div>
-<div class="rule" id="RG-ABS-023"><div class="rid">RG-ABS-023</div><div class="rtxt"><p>Absence inconnue du centre : <code>ABSENCE_INTROUVABLE</code>.</p>
+    <div class="rule" id="RG-ABS-023">
+        <div class="rid">RG-ABS-023</div>
+        <div class="rtxt"><p>Absence inconnue <strong>ou d&#39;un autre centre</strong> (indistinguables) : <code>ABSENCE_INTROUVABLE</code>
+            ; <strong>404</strong> sur la
+            consultation (liste des séances de rattrapage, slice A1 ; était 422, KB-ABS-03 corrigé) <strong>et sur les
+                écritures</strong> (slice A2).</p>
 </div></div>
 <div class="rule" id="RG-ABS-024"><div class="rid">RG-ABS-024</div><div class="rtxt"><p><strong>Clôture avec la facturation</strong> : toute création, qualification, rattrapage ou annulation est refusée
 si une facture du patient couvre
@@ -1481,56 +1513,376 @@ exonérée ou absente vaut 0 %.</p>
 <div class="rule" id="RG-ABS-032"><div class="rid">RG-ABS-032</div><div class="rtxt"><p>Prix, taux et montant HT ne peuvent être négatifs (valeurs refusées sinon).</p>
 </div></div>
 <h2>6.5 Détection automatique et alertes</h2>
-<div class="rule" id="RG-ABS-040"><div class="rid">RG-ABS-040</div><div class="rtxt"><p>Contrôle quotidien (02:30, tâche <code>AbsencePatientScheduler.controlerAbsences</code>) de chaque centre actif,
-sur les <strong>7 derniers jours</strong>
-(hors aujourd&#39;hui ; une semaine pour absorber un arrêt du serveur) : (1) <strong>réconciliation</strong> — les absences détectées «
-à qualifier » dont la séance a finalement été
-réalisée sont annulées avec le
-commentaire « Séance réalisée à cette date » ; (2) <strong>détection</strong> des absences. Un échec sur un centre n&#39;empêche pas
-les autres.</p>
+    <div class="rule" id="RG-ABS-040">
+        <div class="rid">RG-ABS-040</div>
+        <div class="rtxt"><p>Contrôle quotidien (02:30, tâche <code>ControleDeNuitDesAbsences.controlerAbsences</code>,
+            un seul déclencheur
+            serveur) de chaque centre <strong>actif</strong> (un centre inactif n&#39;est pas contrôlé, KB-ABS-26
+            corrigé), sur les <strong>7 derniers
+                jours terminés</strong> du centre (hors aujourd&#39;hui, au fuseau du centre, RG-ABS-059 ; une semaine
+            pour absorber un arrêt du
+            serveur) : (1) <strong>réconciliation</strong> — les absences <strong>détectées</strong> (source
+            automatique) encore « à qualifier », <strong>hors
+                période facturée</strong>, dont la séance a finalement été réalisée sont annulées avec le commentaire «
+            Séance réalisée à cette
+            date » et sans auteur ; une absence déclarée par un utilisateur, qualifiée ou en période facturée n&#39;est
+            jamais touchée
+            (KB-ABS-22 corrigé) ; tout est traité en un seul passage, sans page sautée (KB-ABS-23 corrigé) ; (2)
+            <strong>détection</strong> des
+            absences. Un mois d&#39;absences clos est sauté et journalisé (aujourd&#39;hui tous les mois sont ouverts,
+            la clôture A6 n&#39;existe
+            pas encore). Une absence en incident est isolée, journalisée (compteur par centre au niveau ERROR), et n&#39;arrête
+            ni son centre ni les
+            autres (KB-ABS-27 corrigé) ; elle est retentée chaque nuit tant que son jour reste dans la fenêtre de 7
+            jours, puis relancée par
+            le rattrapage manuel (dont la réponse porte <code>echecs</code>) une fois la cause corrigée.</p>
 </div></div>
 <div class="rule" id="RG-ABS-045"><div class="rid">RG-ABS-045</div><div class="rtxt"><p><strong>Rattrapage au démarrage</strong> : à chaque démarrage du serveur, le contrôle (réconciliation +
-détection) est rejoué sur les <strong>31 derniers jours</strong> de chaque centre, sans notification (la notification suit le
+    détection) est rejoué sur les <strong>31 derniers jours</strong> de chaque centre actif, sans notification (la
+    notification suit le
 contrôle de la nuit). Idempotent ; désactivable par la propriété <code>app.absences.startup-catchup</code>.</p>
 </div></div>
 <div class="rule" id="RG-ABS-046"><div class="rid">RG-ABS-046</div><div class="rtxt"><p><strong>Rattrapage manuel d&#39;une période passée</strong> (<code>POST /api/v1/absences-patients/rattrapage-detection</code>,
 <code>ADMIN</code>, centre courant) : réconciliation puis détection jour par jour entre deux dates, pour les absences jamais
-détectées (mois antérieurs au déploiement, scheduler arrêté, reprise de données). La fin est ramenée à hier ; le début
-doit la précéder (<code>ABSENCE_PERIODE_INVALIDE</code>) ; la période ne dépasse pas 366 jours (<code>ABSENCE_PERIODE_TROP_LONGUE</code>).
-Retourne le nombre d&#39;absences créées et annulées. <strong>Limite :</strong> la détection s&#39;appuie sur la fiche patient actuelle ;
-un patient dont les jours de dialyse ont été retirés à la libération de sa place (RG-PAT-033) n&#39;est plus détecté pour
-ses jours passés.</p>
+    détectées (mois antérieurs au déploiement, serveur arrêté, reprise de données), sans notification. La fin est
+    ramenée à
+    hier <strong>et la réponse le signale</strong> (<code>fin</code> et <code>finRamenee</code>, champs présents
+    seulement dans ce cas) ; le début doit la précéder
+    (<code>ABSENCE_PERIODE_INVALIDE</code>, y compris un début aujourd&#39;hui ou futur) ; la période ne dépasse pas 366
+    jours
+    (<code>ABSENCE_PERIODE_TROP_LONGUE</code>). Réponse : absences créées et annulées (<code>creees</code>, <code>annulees</code>)
+    et, seulement si des absences
+    ont été en incident, leur nombre (<code>echecs</code>), et seulement si des jours ont été laissés parce que leur
+    mois d&#39;absences est clos, la liste de
+    ces jours (<code>joursIgnores</code>, RG-ABS-074). Une entrée illisible (JSON, date impossible,
+    <code>centerId</code> non UUID) est refusée en
+    <strong>400</strong> <code>BAD_REQUEST</code>, un corps non JSON en <strong>415</strong> (était 500, KB-ABS-28
+    aligné). <strong>Limite :</strong> la détection s&#39;appuie sur la
+    fiche patient actuelle ; un patient dont les jours de dialyse ont été retirés à la libération de sa place
+    (RG-PAT-033) n&#39;est
+    plus détecté pour ses jours passés.</p>
 </div></div>
 <div class="rule" id="RG-ABS-041"><div class="rid">RG-ABS-041</div><div class="rtxt"><p>Un patient est <strong>attendu</strong> un jour donné si : le jour de la semaine est coché sur sa fiche, il n&#39;est
-pas « en sommeil », sa date
-d&#39;admission n&#39;est pas postérieure, sa place n&#39;est pas libérée (patient transféré ou guéri : attendu jusqu&#39;à la date de
-l&#39;évènement incluse ; décédé ou greffé : plus attendu à cette date ; séjour occasionnel ou vacancier : attendu jusqu&#39;à
-la fin de séjour incluse ; état de sortie sans date : plus attendu, cf. RG-PAT-032), le centre n&#39;est pas fermé ce jour
-(férié ou fermeture exceptionnelle) et il n&#39;a
-aucune séance réalisée ce jour.</p>
+    pas « en sommeil », sa date d&#39;admission n&#39;est pas postérieure, sa place n&#39;est pas libérée, le centre n&#39;est
+    pas fermé ce
+    jour (férié ou fermeture exceptionnelle) et il n&#39;a aucune séance réalisée ce jour (validée, signée ou facturée).
+    <strong>Sortie
+        (KB-ABS-24, jour uniformisé)</strong> : un patient transféré, guéri, décédé ou greffé n&#39;est plus attendu
+    <strong>le jour de l&#39;événement ni
+        après</strong> (était : inclus pour transféré et guéri) ; un état de sortie <strong>sans date
+        d&#39;événement</strong> n&#39;est <strong>jamais attendu</strong>
+    (comportement conservé, en attendant que Patient et couverture interdise une sortie sans date : prérequis noté dans
+    <code>.ddd/migration/roadmap.md</code> ; liste des cas : <code>verifications-production.md</code> § 25.2) ; séjour
+    occasionnel ou vacancier : attendu jusqu&#39;à la fin de séjour incluse, ou sans fin.</p>
 </div></div>
 <div class="rule" id="RG-ABS-042"><div class="rid">RG-ABS-042</div><div class="rtxt"><p>La détection est <strong>idempotente</strong> : aucune absence n&#39;est créée si une absence existe déjà (même
-annulée) ou si la période est facturée.
-Les absences détectées naissent « à qualifier ».</p>
+    annulée) ou si la période est facturée. Les absences détectées naissent « à qualifier » ; la détection est une
+    transaction par absence (déclaration simultanée du même jour : l&#39;absence existe, rien à créer).</p>
 </div></div>
 <div class="rule" id="RG-ABS-043"><div class="rid">RG-ABS-043</div><div class="rtxt"><p>Une absence à qualifier est <strong>en retard</strong> au-delà de <strong>3 jours</strong> après la séance manquée.</p>
 </div></div>
-<div class="rule" id="RG-ABS-044"><div class="rid">RG-ABS-044</div><div class="rtxt"><p>Quand des absences sont à qualifier, le centre est notifié en temps réel (<code>ABSENCES_A_QUALIFIER</code>,
-nombre à qualifier, nombre en retard)
-aux rôles <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>. La synthèse (à qualifier / en retard) est consultable à tout
-moment.</p>
+    <div class="rule" id="RG-ABS-044">
+        <div class="rid">RG-ABS-044</div>
+        <div class="rtxt"><p>Après le contrôle de nuit (jamais au démarrage ni au rattrapage manuel), si des absences
+            sont encore à
+            qualifier, le centre est notifié en temps réel (<code>ABSENCES_A_QUALIFIER</code>, nombre à qualifier,
+            nombre en retard) aux rôles
+            <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>. <strong>Une seule
+                notification par centre et par jour du centre</strong> (clé
+            déterministe : deux contrôles du même jour, même sur deux instances du serveur, n&#39;en créent qu&#39;une ;
+            KB-ABS-25 corrigé).
+            Les comptes portent sur <strong>toutes</strong> les absences encore « à qualifier » dont le mois d&#39;absences
+            est <strong>ouvert</strong> (sans limite de
+            fenêtre ; les mois clos ne comptent plus). La synthèse (à qualifier / en retard) est consultable à tout
+            moment.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-058">
+        <div class="rid">RG-ABS-058</div>
+        <div class="rtxt"><p><strong>Réconciliation refusée par le domaine</strong> : annuler par réconciliation une
+            absence déclarée, qualifiée,
+            annulée ou en période facturée est refusé (<code>ABSENCE_NON_RECONCILIABLE</code>, jamais exposé en HTTP :
+            la politique saute ces
+            absences). <em>Source :</em> <code>AbsencePatient.reconcilier</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-059">
+        <div class="rid">RG-ABS-059</div>
+        <div class="rtxt"><p><strong>Fuseau du centre</strong> (décision 7, slice A3) : « aujourd&#39;hui », la fenêtre
+            de la nuit, le « en retard »,
+            la semaine du planning courante et les contrôles de date des écritures (déclaration du jour, rattrapage) se
+            calculent à la
+            date du <strong>fuseau du centre</strong>, <code>Africa/Algiers</code> par défaut (<code>app.absences.fuseau-par-defaut</code>)
+            : le centre n&#39;a pas encore de
+            fuseau en base. Le déclencheur de 02:30 suit ce fuseau. Les instants restent absolus.
+            <em>Source :</em> <code>HorlogeDesCentres</code>, <code>FuseauParDefaut</code>, <code>ControleDeNuitDesAbsences</code>.
+        </p>
 </div></div>
 <h2>6.6 Consultation</h2>
 <div class="rule" id="RG-ABS-050"><div class="rid">RG-ABS-050</div><div class="rtxt"><p>La liste des absences est paginée et filtrable (statut, motif, patient, période), limitée au centre ;
 accès <code>ADMIN</code>, <code>SECRETAIRE</code>,
-<code>MEDECIN</code>, <code>INFIRMIER</code> (y compris profils restreints, voir RG-SEC-022/023).</p>
+    <code>MEDECIN</code>, <code>INFIRMIER</code> (y compris profils restreints, voir RG-SEC-022/023). Tri : date de
+    séance la plus récente
+    d&#39;abord, puis identifiant. <strong>Pagination bornée</strong> : <code>page</code> et <code>size</code> négatifs
+    sont refusés (400 <code>BAD_REQUEST</code>),
+    <code>size</code> est <strong>plafonnée à 100</strong> (la taille effective figure dans la réponse), <code>size =
+        0</code> ne renvoie aucun élément mais
+    le total (KB-ABS-02, corrigé à la slice A1). Chaque ligne porte <code>enRetard</code> (RG-ABS-043, jour courant au
+    fuseau du centre, RG-ABS-059).</p>
 </div></div>
 <div class="rule" id="RG-ABS-051"><div class="rid">RG-ABS-051</div><div class="rtxt"><p>Le suivi de la semaine (dimanche → samedi) renvoie les absences non annulées et les séances
 réalisées, pour colorer le planning :
 les séances réalisées (validées par l&#39;infirmier à la présence du patient) s&#39;affichent avec un soleil sur fond jaune.</p>
 </div></div>
 <div class="rule" id="RG-ABS-052"><div class="rid">RG-ABS-052</div><div class="rtxt"><p>Les absences alimentent le tableau de bord de la direction (volumes, perte valorisée, taux — voir
-RG-DIR) sans donnée nominative.</p>
+    RG-DIR) sans donnée nominative. Le contexte les publie par le langage <code>AbsencesDuPilotage</code> (A4,
+    RG-ABS-060), jamais par sa table.</p>
+</div>
+</div>
+    <div class="rule" id="RG-ABS-053">
+        <div class="rid">RG-ABS-053</div>
+        <div class="rtxt"><p><strong>Paramètres illisibles de la consultation</strong> : un statut ou un motif inconnu
+            (ou en minuscules), un
+            identifiant (centre, patient, absence) qui n&#39;est pas un UUID, une date qui n&#39;est pas au format
+            <code>AAAA-MM-JJ</code>, une
+            <code>page</code> ou une <code>size</code> non numérique est refusé en <strong>400</strong> <code>BAD_REQUEST</code>
+            (était : 500 <code>INTERNAL_ERROR</code>, KB-ABS-01,
+            corrigé à la slice A1). Un filtre vide (<code>statut=</code>) est ignoré ; <code>du</code> après
+            <code>au</code> ne retient aucune absence.
+            <em>Source :</em> <code>AbsencesControleur</code>, <code>EntreesDesAbsencesAdvice</code> (contexte <code>absences-patients</code>).
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-054">
+        <div class="rid">RG-ABS-054</div>
+        <div class="rtxt"><p><strong>Écritures concurrentes</strong> (slice A2, KB-ABS-11 corrigé) : chaque écriture est
+            une transaction qui verrouille
+            l&#39;absence (un rattrapage verrouille toutes les absences du patient). Une écriture qui arrive pendant une
+            autre attend, puis
+            voit l&#39;état validé (donc <code>ABSENCE_DEJA_ANNULEE</code> plutôt qu&#39;une double annulation). Deux
+            déclarations du même patient et du même
+            jour : la perdante reçoit <strong>409</strong> <code>ABSENCE_ECRITURE_CONCURRENTE</code> (était : erreur
+            technique 500 le plus souvent) ; une
+            déclaration qui lit l&#39;absence déjà créée reçoit toujours 422 <code>ABSENCE_EXISTANTE</code>, y compris
+            quand cette absence est annulée.
+            Une séance de rattrapage ne sert qu&#39;à une absence <strong>rattrapée</strong> (index unique partiel,
+            migration V43 ; une absence annulée
+            ne réserve rien).
+            <em>Source :</em> <code>AbsencesJdbc</code>, <code>ErreursMetierDesAbsencesAdvice</code>, <code>V43__absences_patients_unicite_du_rattrapage.sql</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-055">
+        <div class="rid">RG-ABS-055</div>
+        <div class="rtxt"><p><strong>Entrées illisibles des écritures</strong> (KB-ABS-17 aligné, slice A2) : JSON
+            illisible, date ou identifiant du
+            corps illisible, <code>centerId</code> ou identifiant du chemin qui n&#39;est pas un UUID, motif inconnu,
+            commentaire de plus de <strong>1000</strong>
+            caractères : <strong>400</strong> <code>BAD_REQUEST</code> (étaient 500) ; corps qui n&#39;est pas du JSON :
+            <strong>415</strong> <code>UNSUPPORTED_MEDIA_TYPE</code> (était 500) ;
+            champ obligatoire absent : 400 <code>VALIDATION_ERROR</code> (inchangé).
+            <em>Source :</em> <code>AbsencesEcrituresControleur</code>, <code>EntreesDesAbsencesAdvice</code>, <code>Commentaire</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-056">
+        <div class="rid">RG-ABS-056</div>
+        <div class="rtxt"><p><strong>Valeur figée</strong> (slice A2) : forfait, montants et taux ne s&#39;écrivent qu&#39;à
+            la création, aucune commande ne les
+            écrit ensuite. La règle de choix du forfait (effectif avant demandé, même hors période ; repli sur la prise
+            en charge la plus
+            récente portant un forfait) et le taux (règle <code>HEMODIALYSE</code> exacte, exonérée = 0 %) sont
+            reproduits du legacy (KB-ABS-16,
+            KB-CPT-19). Le taux est renvoyé avec l&#39;échelle de la base (<code>0.00</code>, était <code>0</code>,
+            KB-ABS-15). Un commentaire donné sans motif à la
+            déclaration est <strong>conservé</strong> (était perdu, KB-ABS-12), et une qualification sans commentaire
+            <strong>garde</strong> le commentaire déjà présent
+            (était : effacé, KB-ABS-14 aligné) ; une annulation ou une requalification <strong>remplace</strong> le
+            commentaire par le nouveau.
+            <em>Source :</em> <code>Valorisation</code>, <code>ForfaitsDesPatientsJdbc</code>, <code>TauxDeTvaComptabilite</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-057">
+        <div class="rid">RG-ABS-057</div>
+        <div class="rtxt"><p><strong>Exclusion et réinclusion d&#39;une séance</strong> (Facturation, ADR 0031, slice
+            A2) : l&#39;exclusion déclare l&#39;absence par
+            le même cas d&#39;usage, dans la transaction de l&#39;exclusion, et <strong>diffuse la saisie temps
+                réel</strong> <code>ABSENCE</code> après validation (KB-ABS-19,
+            était : aucune diffusion). <strong>L&#39;absence d&#39;une exclusion ne s&#39;annule pas</strong> (l&#39;origine
+            est lue sur la séance exclue qui y est liée) :
+            <strong>422</strong> <code>ABSENCE_D_EXCLUSION</code>, « réincluez la séance dans la facturation » ; elle
+            peut en revanche être requalifiée ou rattrapée.
+            <strong>Seule la réinclusion la retire</strong>, quel que soit son état (KB-ABS-20 : une séance exclue ne
+            reste plus bloquée) ; une absence annulée
+            héritée d&#39;avant A2 n&#39;est jamais supprimée par l&#39;application : la réinclusion est alors refusée (<strong>422</strong>
+            <code>ABSENCE_D_EXCLUSION_MODIFIEE</code>), à traiter avec l&#39;administrateur (liste : <code>verifications-production.md</code>
+            § 24.4). Une absence déjà
+            supprimée : la réinclusion réussit.
+            <em>Source :</em> <code>ExclusionDeLaFacturation</code>, <code>AnnulerUneAbsence</code>, <code>RetirerLAbsenceDeLExclusion</code>,
+            <code>ExclusionsDeSeancesJdbc</code>, <code>SignalementDesSaisiesLegacy</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-060">
+        <div class="rid">RG-ABS-060</div>
+        <div class="rtxt"><p><strong>Lectures publiées pour le pilotage</strong> (slice A4, ADR 0041) : le tableau de
+            bord des séances d&#39;un centre (nombre, détail,
+            exports) et la vue de la Direction (cumul par centre, statut et motif, mensuel) lisent les absences par le
+            langage publié
+            <code>AbsencesDuPilotage</code>, avec les mêmes requêtes qu&#39;avant : bornes de dates incluses, <strong>absences
+                annulées jamais comptées</strong>, centres autorisés
+            fournis par l&#39;appelant. Le mensuel ne garde que les statuts à qualifier, justifiée et non justifiée.
+            Aucune table d&#39;absence n&#39;est lue hors du contexte.
+            <em>Source :</em> <code>AbsencesDuPilotage</code>, <code>AbsencesDuPilotageJdbc</code>, <code>SeanceRestController</code>,
+            <code>DirectionAbsencesQueryService</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-061">
+        <div class="rid">RG-ABS-061</div>
+        <div class="rtxt"><p><strong>« Aujourd&#39;hui » du pilotage et absences futures</strong> (KB-ABS-34, 35,
+            corrigés à la slice A4) : « aujourd&#39;hui » est le jour du fuseau des
+            centres (RG-ABS-059), pas celui de l&#39;UTC, pour la période par défaut de la Direction (année en cours
+            jusqu&#39;à aujourd&#39;hui) et la fin de période
+            du tableau de bord. <strong>Aucune absence postérieure à aujourd&#39;hui n&#39;est comptée</strong>, dans le
+            tableau de bord (nombre, détail, exports CSV, PDF, XLSX) comme dans la vue Direction
+            (cumul par centre, motifs, mensuel), <strong>quelle que soit la fin de période demandée</strong> (mois en
+            cours inclus) ; pour un mois futur, le nombre est 0, le détail
+            vide et la fin de période du tableau de bord est égale au début (jamais antérieure). La période affichée et
+            les séances, le chiffre d&#39;affaires et le taux
+            gardent la fin demandée. <em>(Était : jour UTC ; absences futures comptées ; fin de période avant le
+                début.)</em></p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-062">
+        <div class="rid">RG-ABS-062</div>
+        <div class="rtxt"><p><strong>Entrées illisibles du pilotage</strong> (KB-ABS-33, 36, corrigés à la slice A4) :
+            une date <code>from</code> ou <code>to</code> illisible de
+            <code>GET /api/v1/direction/absences</code> est refusée en <strong>400</strong> <code>BAD_REQUEST</code>
+            (était : 500) ; un <code>format</code> d&#39;export du tableau de bord autre que
+            <code>csv</code>, <code>pdf</code> ou <code>xlsx</code> (sans égard à la casse) est refusé en
+            <strong>400</strong> <code>BAD_REQUEST</code> (était : CSV servi silencieusement). Sans <code>format</code>
+            : CSV.
+            La période de la Direction reste refusée en 422 si inversée (<code>PERIODE_INVALIDE</code>) ou de plus de 5
+            ans (<code>PERIODE_TROP_LONGUE</code>).
+            <em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>, <code>SeanceRestController.exportDashboard</code>.
+        </p>
+        </div>
+    </div>
+    <h2>6.7 Clôture mensuelle des absences (slice A6, ADR 0042)</h2>
+    <p>Un <strong>mois d&#39;absences</strong> (un mois d&#39;un centre) est ouvert ou clos. Un mois sans ligne est
+        ouvert ; aucun mois n&#39;est clos au déploiement.</p>
+    <div class="rule" id="RG-ABS-070">
+        <div class="rid">RG-ABS-070</div>
+        <div class="rtxt"><p><strong>Clôturer un mois d&#39;absences</strong> (<code>POST
+            /api/v1/absences-patients/mois/{AAAA-MM}/cloturer</code>, <code>ADMIN</code> seul, centre de la session) :
+            <strong>sans condition d&#39;état</strong> (l&#39;administrateur décide), mais <strong>seul un mois terminé
+                se clôture</strong> : le mois en cours et les mois futurs, au fuseau du centre,
+            sont refusés (<strong>422</strong> <code>MOIS_D_ABSENCES_NON_TERMINE</code>) ; <strong>aucun jour de
+                grâce</strong> (le mois précédent se clôt dès le premier jour du mois). La réponse porte
+            l&#39;<strong>avertissement chiffré</strong> <code>absencesAQualifierRestantes</code> (absences encore « à
+            qualifier » du mois) et <code>absencesEnRetard</code> (parmi elles, celles de plus de
+            3 jours, RG-ABS-043 au jour de la clôture) ; la clôture n&#39;est jamais refusée pour cela. Clôturer deux
+            fois : <strong>409</strong> <code>MOIS_D_ABSENCES_DEJA_CLOS</code>.
+            Mois illisible : <strong>400</strong> <code>MOIS_INVALIDE</code> ; année illisible : <strong>400</strong>
+            <code>ANNEE_INVALIDE</code>. Lecture des douze mois (<code>GET
+                /api/v1/absences-patients/mois?annee=AAAA</code>) :
+            les quatre profils d&#39;accès.
+            <em>Source :</em> <code>CloturerLeMoisDAbsences</code>, <code>MoisAbsences</code>, <code>MoisDAbsencesControleur</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-071">
+        <div class="rid">RG-ABS-071</div>
+        <div class="rtxt"><p><strong>Un mois clos refuse toute écriture d&#39;absence datée de ce mois</strong> :
+            déclaration, qualification, rattrapage, annulation (<strong>422</strong>
+            <code>MOIS_D_ABSENCES_CLOS</code>, avec le mois en propriété <code>mois</code>, rien n&#39;est écrit ni
+            signalé). Le mois voisin et les autres centres ne sont pas touchés. Les lectures
+            (liste, suivi, synthèse, pilotage) comptent tous les mois. Les chiffres déjà enregistrés ne sont jamais
+            recalculés.
+            <em>Source :</em> <code>GardeDesMoisDAbsences</code>, <code>MoisDAbsencesClos</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-072">
+        <div class="rid">RG-ABS-072</div>
+        <div class="rtxt"><p><strong>Rattrapage</strong> : exige que le mois de l&#39;absence <strong>et</strong> celui
+            de la date de rattrapage soient ouverts (le second n&#39;était pas regardé avant A6) ;
+            les deux mois se verrouillent du plus ancien au plus récent. Refus : <strong>422</strong> <code>MOIS_D_ABSENCES_CLOS</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-073">
+        <div class="rid">RG-ABS-073</div>
+        <div class="rtxt"><p><strong>Exclusion et réinclusion d&#39;une séance (Facturation)</strong> : l&#39;exclusion
+            qui crée une absence dans un mois clos échoue avec le même refus <strong>422</strong>
+            <code>MOIS_D_ABSENCES_CLOS</code> et <strong>toute l&#39;exclusion est annulée</strong> (comme <code>ABSENCE_PERIODE_FACTUREE</code>)
+            ; la <strong>réinclusion</strong> d&#39;une séance dont l&#39;absence est dans un mois clos
+            est <strong>refusée</strong> (<strong>422</strong> <code>MOIS_D_ABSENCES_CLOS</code>, rouvrir d&#39;abord le
+            mois d&#39;absences) et l&#39;absence et la séance restent inchangées.
+            <em>Source :</em> <code>ExclusionDeLaFacturation</code>, <code>DeclarerUneAbsence</code>, <code>RetirerLAbsenceDeLExclusion</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-074">
+        <div class="rid">RG-ABS-074</div>
+        <div class="rtxt"><p><strong>Détection, réconciliation, rattrapage de détection et notification</strong> : les
+            jours d&#39;un mois clos sont <strong>ignorés</strong> (aucune absence créée, aucune
+            absence réconciliée) ; le rattrapage de détection (RG-ABS-046) les liste dans le champ additif
+            <strong><code>joursIgnores</code></strong> de sa réponse (absent quand rien n&#39;est ignoré,
+            KB-ABS-37) ; la notification de nuit (RG-ABS-044) <strong>ne compte que les mois ouverts</strong> et se tait
+            s&#39;il n&#39;en reste aucune absence à qualifier. Une absence manquante d&#39;un
+            mois clos se rattrape en rouvrant le mois.
+            <em>Source :</em> <code>DetectionAbsences</code>, <code>ReconciliationAbsences</code>, <code>NotificationDesAbsencesAQualifier</code>,
+            <code>DetectionControleur</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-075">
+        <div class="rid">RG-ABS-075</div>
+        <div class="rtxt"><p><strong>Rouvrir un mois</strong> (<code>POST
+            /api/v1/absences-patients/mois/{AAAA-MM}/rouvrir</code>, <code>ADMIN</code> seul) : <strong>motif
+            obligatoire</strong>, rogné, <strong>500 caractères au plus</strong>
+            (<strong>400</strong> <code>MOTIF_DE_REOUVERTURE_OBLIGATOIRE</code>) ; un mois non clos ne se rouvre pas
+            (<strong>409</strong> <code>MOIS_D_ABSENCES_NON_CLOS</code>, contrôlé avant le motif). Un mois rouvert peut
+            être
+            clos à nouveau. La réouverture n&#39;est <strong>pas</strong> refusée quand le mois de facturation
+            correspondant est clos.
+            <em>Source :</em> <code>RouvrirLeMoisDAbsences</code>, <code>MoisAbsences</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-076">
+        <div class="rid">RG-ABS-076</div>
+        <div class="rtxt"><p><strong>Lien avec la Facturation (avertissement seulement)</strong> : aucune obligation d&#39;ordre.
+            La clôture d&#39;un mois de facturation (RG-FAC-040) répond
+            <code>absencesDuMoisNonCloses</code> (vrai si le mois d&#39;absences du centre n&#39;est pas clos) et le dit
+            à l&#39;administrateur ; elle n&#39;est jamais refusée pour cela. L&#39;ordre de l&#39;ADR 0009
+            (clore les absences, puis la facturation) reste une recommandation.
+            <em>Source :</em> <code>ClotureDesAbsences</code> (langage publié de la Facturation),
+            <code>CloturerLeMois</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-077">
+        <div class="rid">RG-ABS-077</div>
+        <div class="rtxt"><p><strong>Concurrence</strong> : la ligne du mois est verrouillée (<code>SELECT ... FOR
+            UPDATE</code>) par la clôture, la réouverture et chaque écriture d&#39;absence du mois : une
+            écriture en cours fait attendre la clôture (l&#39;avertissement est exact), une clôture en cours fait
+            attendre l&#39;écriture, ensuite refusée. Un verrou qu&#39;on n&#39;obtient pas dans
+            le délai de la transaction (5 s) : <strong>409</strong> <code>ABSENCE_ECRITURE_CONCURRENTE</code> (code
+            commun aux absences, aussi rendu par la clôture et la réouverture d&#39;un mois). Dans la détection de nuit,
+            un verrou de mois indisponible est un incident compté (<code>echecs</code>) et journalisé, jamais confondu
+            avec une déclaration concurrente. <code>GET /mois</code> ne rend le motif de réouverture et les identifiants
+            d&#39;auteurs qu&#39;aux <code>ADMIN</code> (null pour les autres profils).</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-ABS-078">
+        <div class="rid">RG-ABS-078</div>
+        <div class="rtxt"><p><strong>Traçabilité</strong> : chaque clôture (auteur, instant, avertissement) et chaque
+            réouverture (auteur, instant, motif) est ajoutée au journal
+            <code>mois_absences_journal</code> (jamais modifié ni supprimé) ; la ligne du mois retient la dernière
+            clôture et la dernière réouverture. Les événements d&#39;intégration
+            <code>MoisDAbsencesCloture</code> et <code>MoisDAbsencesRouvert</code> sont publiés dans la transaction de l&#39;acte
+            (Spring Modulith, ADR 0013 ; aucun consommateur pour l&#39;instant) ; les écritures
+            <code>POST</code> sont aussi tracées par le journal d&#39;audit de la plateforme.
+            <em>Source :</em> <code>MoisAbsencesJdbc</code>, <code>PublicationDesMoisDAbsencesSpring</code>, <code>AuditRequestFilter</code>.
+        </p>
 </div></div>
 </section>
 <section class="part" id="p07"><h1><span class="n">Partie 7</span>Séances de dialyse (cahier de dialyse)</h1>
@@ -1549,7 +1901,11 @@ volet médical.</p>
 </div></div>
 <div class="rule" id="RG-SEA-002"><div class="rid">RG-SEA-002</div><div class="rtxt"><p>Une séance <strong>facturée</strong> ne peut plus être modifiée : date, forfait, volets paramédical et médical,
 consommables (« La seance facturee ne peut plus etre modifiee »). L&#39;entrée de stock liée à une séance facturée est
-également immuable. Tous ces refus répondent 422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> (la suppression garde <code>SEANCE_FACTUREE_NON_SUPPRIMABLE</code>).</p>
+    également immuable. Tous ces refus répondent 422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> (date, forfait,
+    validation, signature
+    du médecin, consommables, volets, déverrouillage, administration de traitement, bon de sortie) ; la suppression
+    garde
+    <code>SEANCE_FACTUREE_NON_SUPPRIMABLE</code> (RG-SEA-050).</p>
 </div></div>
 <div class="rule" id="RG-SEA-003"><div class="rid">RG-SEA-003</div><div class="rtxt"><p>Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
 introuvable ».</p>
@@ -1769,6 +2125,19 @@ dans le mois, qu&#39;ils aient déjà dialysé ou non ; répartition par sexe (M
 (absences du suivi du mois, hors annulées, avec leur statut) ; toute autre valeur est refusée
 (« kind must be &#39;presence&#39; or &#39;absence&#39; »).</p>
 </div></div>
+    <div class="rule" id="RG-SEA-051">
+        <div class="rid">RG-SEA-051</div>
+        <div class="rtxt"><p><strong>Garde de centre du tableau de bord</strong> : le tableau de bord mensuel, son
+            détail et son export
+            (<code>/seances/dashboard</code>, <code>/dashboard/details</code>, <code>/dashboard/export</code>) n&#39;acceptent
+            que le centre de la session ; un autre
+            centre est refusé en <strong>403</strong> <code>ACCESS_DENIED</code> (RG-TRV-002). Avant, un administrateur
+            lisait le tableau de bord d&#39;un
+            autre centre en changeant l&#39;identifiant (KB-ABS-05, corrigé). Le calendrier du centre (<code>/seances/calendar</code>)
+            n&#39;a pas
+            encore cette garde.</p>
+        </div>
+    </div>
 <div class="rule" id="RG-SEA-044"><div class="rid">RG-SEA-044</div><div class="rtxt"><p><strong>Calendrier du centre</strong> : jours fériés (libellé) et jours de fermeture exceptionnelle (motif) par
 mois ; ajout et suppression réservés à <code>ADMIN</code>, bornés au centre.
 Ces jours bloquent les séances prévues, les absences automatiques et le planning de la semaine. <strong>Point
@@ -1915,7 +2284,7 @@ courant</strong> de l&#39;article.</p>
 (422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code>) et leur date ne peut être changée (<code>SEANCE_STOCK_EXIT_DATE_IMMUTABLE</code>).
     Corriger un bon de sortie restitue d&#39;abord les quantités aux lots d&#39;origine puis recrée les sorties ; les
     sorties
-    recréées gardent la <strong>date du bon</strong> et l&#39;<strong>heure de création du bon</strong> comme heure de
+    recréées gardent la <strong>date du bon</strong> et l&#39; <strong>heure de création du bon</strong> comme heure de
     saisie (RG-STK-041).</p>
 </div></div>
 <div class="rule" id="RG-STK-033"><div class="rid">RG-STK-033</div><div class="rtxt"><p>Accès : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>. La liste des lots disponibles d&#39;un article est triée
@@ -2644,10 +3013,11 @@ exportées</strong> (limite connue).</p>
 <p>Préfixes <code>RG-FAC</code> (facturation et TVA), <code>RG-REG</code> (règlements), <code>RG-CPT</code> (comptabilité). Le système <strong>n&#39;accepte à la
 facturation que des séances validées et couvertes</strong>, <strong>fige</strong> prix, TVA et
 payeur sur chaque facture, <strong>calcule le solde</strong> de chaque facture et <strong>génère les écritures comptables équilibrées</strong>.
-Sources : <code>FacturationDomainService</code>,
-<code>SeanceEligibleForFacturationSpecification</code>, <code>FactureAggregate</code>, <code>FactureNumberTemplate</code>, <code>TypeTVA</code>,
-    <code>RegleTva</code>, <code>GererLesTypesDeTva</code>, <code>ParametresDeFacturation</code>, <code>ModeleDeNumerotation</code>,
-    <code>Facture</code>, <code>Reglement</code> (contexte <code>facturation</code>), <code>ComptabiliteService</code>, <code>GenerateurEcritureComptable</code>,
+    Sources : <code>ConsulterLeTableauDeBord</code>, <code>ImprimerLaSynthese</code>,
+    <code>SyntheseFinanciereDesCentres</code>, <code>Simulation</code>, <code>Facture</code>,
+    <code>ValiderLaFacturation</code>, <code>RegleTva</code>,
+    <code>GererLesTypesDeTva</code>, <code>ParametresDeFacturation</code>, <code>ModeleDeNumerotation</code>,
+    <code>Reglement</code>, <code>SituationDeFacture</code>, <code>EnregistrerUnReglement</code>, <code>RedactionDesEcritures</code>,
 <code>EcritureComptable</code>, <code>MappingComptable</code>, <code>RegleTVA</code>, listeners comptables,
     contrôleurs <code>Facturation*</code>, <code>TypesTvaControleur</code>, <code>ParametresFacturationControleur</code>,
     <code>Reglement*</code>, <code>Comptabilite*</code>.</p>
@@ -2679,11 +3049,9 @@ Sources : <code>FacturationDomainService</code>,
     <code>HEMODIALYSE</code> (le dernier commencé) ; <strong>sans type actif, le taux est 0 %</strong>. Le taux est figé
     sur chaque facture au
     moment de la validation. La simulation et la validation appliquent le taux en vigueur <strong>à la fin de la période
-        facturée</strong>
-    (RG-FAC-022, RG-FAC-030).
-    <em>Source :</em> langage publié <code>ParametrageFiscal</code> (contexte <code>comptabilite</code>), lu par la
-    simulation et la validation
-    (<code>TauxDeTvaComptabilite</code>, contexte <code>facturation</code>).</p>
+        facturée</strong> (RG-FAC-022, RG-FAC-030). <em>Source :</em> langage publié <code>ParametrageFiscal</code>
+    (contexte <code>comptabilite</code>), lu par
+    la simulation et la validation (<code>TauxDeTvaComptabilite</code>, contexte <code>facturation</code>).</p>
 </div></div>
     <div class="rule" id="RG-FAC-003">
         <div class="rid">RG-FAC-003</div>
@@ -2714,7 +3082,9 @@ Sources : <code>FacturationDomainService</code>,
     revalidés. La séquence est strictement positive et propre au centre (et à l&#39;année). <em>Source :</em> <code>ModeleDeNumerotation</code>,
     <code>ParametresDeFacturation</code>, <code>ConfigurerLaFacturation</code> (contexte <code>facturation</code>) →
     <code>ParametresFacturationControleur</code>
-    (<code>/facturation/settings</code>) ; numéro calculé par <code>FactureNumberTemplate</code>.</p>
+    (<code>/facturation/settings</code>) ; numéro calculé par <code>ModeleDeNumerotation.numero</code>, séquence
+    réservée par
+    <code>SequenceDeFacturation</code> (RG-FAC-030).</p>
 </div></div>
 <div class="rule" id="RG-FAC-011"><div class="rid">RG-FAC-011</div><div class="rtxt"><p>Option « <strong>regroupement multi-forfait</strong> » (défaut oui) : une facture par patient et par période
     (plusieurs lignes de forfaits) ; sinon une facture par patient <strong>et par forfait</strong>. Un centre qui n&#39;a
@@ -2730,18 +3100,19 @@ Sources : <code>FacturationDomainService</code>,
 <h2>12.3 Séances facturables et simulation</h2>
 <div class="rule" id="RG-FAC-020"><div class="rid">RG-FAC-020</div><div class="rtxt"><p>Est <strong>éligible</strong> une séance du centre, dans la période, au statut <code>VALIDEE</code> ou <code>SIGNEE</code> (la signature
     médecin n&#39;est pas exigée) et <strong>pas déjà facturée</strong>. Le statut se compare en majuscules exactes (une
-    séance
-    « validee » est ignorée). La période est un mois entier (le mois l&#39;emporte sur les dates) ou deux dates (fin non
-    antérieure
-    au début, 400 sinon ; période absente : 400 « La periode de facturation est obligatoire »). <em>Source :</em>
-    <code>SeanceFacturable</code>, <code>PeriodeDeFacturation</code>, <code>SeancesFacturablesJdbc</code> (ACL sur les
-    séances, contexte
-    <code>facturation</code>).</p>
+    séance « validee »
+    est ignorée). La période est un mois entier (le mois l&#39;emporte sur les dates) ou deux dates (fin non antérieure
+    au
+    début, 400 sinon ; période absente : 400 « La periode de facturation est obligatoire »). <em>Source :</em>
+    <code>SeanceFacturable</code>,
+    <code>PeriodeDeFacturation</code>, <code>SeancesFacturablesJdbc</code> (ACL sur les séances, contexte <code>facturation</code>).
+</p>
 </div></div>
 <div class="rule" id="RG-FAC-021"><div class="rid">RG-FAC-021</div><div class="rtxt"><p><strong>Forfait appliqué</strong> à une séance : le forfait de surcharge posé sur la séance (RG-SEA-033) ; à
 défaut, le forfait de la prise en charge couvrant la date (effectif sinon demandé,
     de préférence la PEC dotée d&#39;un forfait effectif, puis la plus récente) ; à défaut de PEC qui couvre la date, la
-    PEC la
+    PEC
+    la
     plus récente même échue ; sans forfait, « Forfait non defini » à prix 0. <em>Source :</em> <code>PolitiqueDeForfaitApplique</code>.
 </p>
 </div></div>
@@ -2757,64 +3128,114 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
             dans l&#39;ordre des factures (patients triés par nom), selon le modèle du centre (RG-FAC-010), sans rien
             réserver. Elle
             n&#39;enregistre rien. Accès : <code>ADMIN</code> (le profil <code>MEDECIN</code> est refusé par le filtre
-            des profils, 403
-            <code>ROLE_SCOPE</code>) ; le centre demandé est confronté à celui de la session (403 sinon). <em>Source
-                :</em>
-            <code>Simulation</code>, <code>FactureSimulee</code>, <code>NumerotationPrevisionnelle</code>, <code>TauxDeTva</code>,
-            <code>SimulerLaFacturation</code> → <code>SimulationControleur</code> (<code>POST
-                /facturation/preview</code>).</p>
+            des profils, 403 <code>ROLE_SCOPE</code>) ; le
+            centre demandé est confronté à celui de la session (403 sinon). <em>Source :</em> <code>Simulation</code>,
+            <code>FactureSimulee</code>,
+            <code>NumerotationPrevisionnelle</code>, <code>TauxDeTva</code>, <code>SimulerLaFacturation</code> → <code>SimulationControleur</code>
+            (<code>POST /facturation/preview</code>).</p>
 </div></div>
     <div class="rule" id="RG-FAC-023">
         <div class="rid">RG-FAC-023</div>
         <div class="rtxt"><p>Depuis la simulation, on peut <strong>exclure une séance</strong>, la
-            <strong>réinclure</strong> ou
-            <strong>changer son forfait</strong> ; la simulation est recalculée à chaque fois, dans la même transaction.
-            <strong>Exclure</strong>
-            (séance validée/signée non facturée uniquement) exige un <strong>motif d&#39;absence</strong> (<code>HOSPITALISATION</code>,
-            <code>MALADIE</code>, <code>VOYAGE</code>, <code>TRANSPORT</code>, <code>FAMILIAL</code>, <code>REFUS_PATIENT</code>,
-            <code>DECES</code>,
-            <code>AUTRE</code>, <code>NON_JUSTIFIEE</code> ; <code>AUTRE</code> exige un commentaire) : la séance passe
-            au statut <code>ABSENT</code>
-            et une <strong>absence de patient</strong> est déclarée avec ce motif, au nom de l&#39;utilisateur de la
-            session, selon les règles des
-            absences (RG-ABS-001, 005, 011, 012 : déclaration au plus 60 jours après la séance, pas de date future,
-            période du patient non
-            encore facturée, une absence par patient et par jour) ; un refus annule l&#39;exclusion (422). Le statut d&#39;avant
-            (validée ou
-            signée) est mémorisé. <strong>Réinclure</strong> (<code>POST
-                /facturation/preview/seances/{id}/include</code>) rend à la séance exclue
-            non facturée son statut d&#39;avant et retire l&#39;absence déclarée par l&#39;exclusion ; une séance <code>ABSENT</code>
-            sans cette mémoire
-            (absence réelle, exclusion antérieure) ne se réinclut pas (422). <strong>Changer le forfait</strong> impose
-            à la séance
-            validée/signée non facturée un forfait du centre (surcharge, RG-FAC-021). Accès et centre : comme
-            RG-FAC-022.
-            <code>ABSENT</code> est un statut à part entière des séances (RG-SEA-001) : la séance exclue reste
-            consultable, n&#39;est plus
-            facturable, n&#39;est plus « réalisée » (RG-ABS-012) et n&#39;accepte pas de volet médical. <em>Source
-                :</em>
-            <code>SeanceDeFacturation</code>, <code>ExclureUneSeance</code>, <code>ReinclureUneSeance</code>, <code>ChangerLeForfaitDUneSeance</code>
-            → <code>SimulationControleur</code> ; ACL <code>AbsencesDesPatientsLegacy</code> (ADR 0031).</p>
+            <strong>réinclure</strong> ou <strong>changer son forfait</strong> ;
+            la
+            simulation est recalculée à chaque fois, dans la même transaction. <strong>Exclure</strong> (séance
+            validée/signée non facturée
+            uniquement) exige un <strong>motif d&#39;absence</strong> (<code>HOSPITALISATION</code>,
+            <code>MALADIE</code>, <code>VOYAGE</code>, <code>TRANSPORT</code>, <code>FAMILIAL</code>,
+            <code>REFUS_PATIENT</code>, <code>DECES</code>, <code>AUTRE</code>, <code>NON_JUSTIFIEE</code> ;
+            <code>AUTRE</code> exige un commentaire) : la séance passe au statut
+            <code>ABSENT</code> et une <strong>absence de patient</strong> est déclarée avec ce motif, au nom de l&#39;utilisateur
+            de la session, selon les
+            règles
+            des absences (RG-ABS-001, 005, 011, 012 : déclaration au plus 60 jours après la séance, pas de date future,
+            période du
+            patient non encore facturée, une absence par patient et par jour) ; un refus annule l&#39;exclusion (422).
+            Le statut
+            d&#39;avant (validée ou signée)
+            est mémorisé. <strong>Réinclure</strong> (<code>POST /facturation/preview/seances/{id}/include</code>) rend
+            à la séance exclue non facturée
+            son
+            statut d&#39;avant et retire l&#39;absence déclarée par l&#39;exclusion ; une séance <code>ABSENT</code>
+            sans cette mémoire (absence réelle,
+            exclusion antérieure) ne se réinclut pas (422). <strong>Changer le forfait</strong> impose à la séance
+            validée/signée non facturée
+            un
+            forfait du centre (surcharge, RG-FAC-021). Accès et centre : comme RG-FAC-022. <code>ABSENT</code> est un
+            statut à part entière
+            des
+            séances (RG-SEA-001) : la séance exclue reste consultable, n&#39;est plus facturable, n&#39;est plus «
+            réalisée » (RG-ABS-012)
+            et n&#39;accepte pas de volet médical. <em>Source :</em> <code>SeanceDeFacturation</code>, <code>ExclureUneSeance</code>,
+            <code>ReinclureUneSeance</code>,
+            <code>ChangerLeForfaitDUneSeance</code> → <code>SimulationControleur</code> ; ACL <code>AbsencesDesPatientsLegacy</code>
+            (ADR 0031).</p>
 </div></div>
-<div class="rule" id="RG-FAC-024"><div class="rid">RG-FAC-024</div><div class="rtxt"><p>Le tableau de bord de facturation d&#39;un mois présente : chiffre d&#39;affaires HT et TTC, séances facturées, patients facturés, factures créées, ventilation par caisse d&#39;assurance et par état du patient. Les montants sont les <strong>totaux enregistrés sur les factures</strong> émises dans le mois (date de facturation, bornes incluses), jamais recalculés. Les « séances facturées » comptent les séances au statut FACTUREE dont la date tombe dans le mois, alors que les ventilations comptent les séances rattachées aux factures du mois : les deux nombres peuvent différer. Le mois est obligatoire. Accès : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> (le médecin seul est refusé) ; le <strong>centre demandé doit être celui de la session</strong> (403 sinon).</p>
+    <div class="rule" id="RG-FAC-024">
+        <div class="rid">RG-FAC-024</div>
+        <div class="rtxt"><p>Le tableau de bord de facturation d&#39;un mois (<code>GET
+            /api/v1/facturation/dashboard</code>) présente : chiffre
+            d&#39;affaires HT et TTC, séances facturées, patients facturés, factures créées, ventilation par caisse d&#39;assurance
+            et par
+            état du patient. Les montants sont les <strong>totaux enregistrés sur les factures</strong> émises dans le
+            mois (date de
+            facturation, bornes incluses), jamais recalculés. Les « séances facturées » comptent les séances au statut
+            <code>FACTUREE</code>
+            dont la date tombe dans le mois, alors que les ventilations comptent les séances rattachées aux factures du
+            mois : les
+            deux nombres peuvent différer. Le mois est obligatoire. Accès : <code>ADMIN</code>, <code>MEDECIN</code>,
+            <code>SECRETAIRE</code> (le médecin seul est
+            refusé) ; le <strong>centre demandé doit être celui de la session</strong> (403 sinon). <em>Source :</em>
+            <code>ConsulterLeTableauDeBord</code> →
+            <code>TableauDeBordControleur</code> (ADR 0034).</p>
 </div></div>
-<div class="rule" id="RG-FAC-025"><div class="rid">RG-FAC-025</div><div class="rtxt"><p>La <strong>synthèse mensuelle de facturation</strong> s&#39;imprime sur une période (début et fin incluses, sans plafond de durée) en PDF, Excel ou HTML. Deux voies : l&#39;impression de la Facturation (une colonne HT et TTC par caisse, indicateurs, barres de répartition) et le modèle de document « Synthèse mensuelle facturation » (quatre colonnes CNAS, CASNOS, CAMSSP, Autres). Les <strong>montants globaux</strong> (HT, TVA, TTC) sont la somme des totaux enregistrés des factures de la période, y compris les factures sans ligne ; dans le tableau, le TTC d&#39;une ligne est sa part du TTC enregistré de la facture. Sans facture dans la période, le document est vide. Les deux voies exigent le même profil (<code>ADMIN</code> ou <code>SECRETAIRE</code>) et le centre de la session (403 sinon).</p>
+    <div class="rule" id="RG-FAC-025">
+        <div class="rid">RG-FAC-025</div>
+        <div class="rtxt"><p>La <strong>synthèse mensuelle de facturation</strong> s&#39;imprime sur une période (début
+            et fin incluses, aucun
+            plafond de durée) en PDF, Excel ou HTML (PDF embarqué). Deux voies coexistent : <code>POST
+                /api/v1/facturation/synthese/print</code>
+            (tableau forfait x caisse, une colonne HT et TTC par caisse, indicateurs, barres de répartition par caisse
+            et par
+            situation du patient) et <code>POST /api/v1/documents/print</code> avec le type <code>SYNTHESE_FACTURATION_MENSUELLE</code>
+            (gabarit à
+            quatre colonnes CNAS, CASNOS, CAMSSP, Autres). Les <strong>montants globaux</strong> (HT, TVA, TTC) sont la
+            somme des totaux
+            enregistrés des factures de la période (RG-FAC-024), y compris les factures sans ligne ; dans le tableau, le
+            TTC d&#39;une
+            ligne est sa part du TTC enregistré de la facture. Sans facture dans la période, le document est vide. Les
+            deux voies exigent
+            le même profil (<code>ADMIN</code> ou <code>SECRETAIRE</code> ; <code>MEDECIN</code> seul refusé) et le
+            <strong>centre de la session</strong> (403 sinon). <em>Source :</em>
+            <code>ImprimerLaSynthese</code>, <code>SyntheseControleur</code>, <code>FacturationSyntheseMensuelleReportService</code>
+            (rendu, plateforme), <code>DocumentRestController</code>.</p>
 </div></div>
-<div class="rule" id="RG-FAC-026"><div class="rid">RG-FAC-026</div><div class="rtxt"><p>La part financière du pilotage de la Direction (vue d&#39;ensemble, répartition par caisse, absences) lit la Facturation : chiffre d&#39;affaires HT et TTC (totaux enregistrés), nombre de factures, <strong>encaissé</strong> (somme signée des règlements de toutes dates des factures émises dans la période), chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture).</p>
+    <div class="rule" id="RG-FAC-026">
+        <div class="rid">RG-FAC-026</div>
+        <div class="rtxt"><p>La <strong>part financière du pilotage de la Direction</strong> (vue d&#39;ensemble,
+            répartition par caisse, absences)
+            lit la Facturation par son langage publié <code>SyntheseFinanciereDesCentres</code> : chiffre d&#39;affaires
+            HT et TTC (totaux enregistrés),
+            nombre de factures, <strong>encaissé</strong> (somme signée des règlements de toutes dates des factures
+            émises dans la période),
+            chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture). <em>Source :</em> <code>DirectionDashboardQueryService</code>,
+            <code>DirectionBreakdownQueryService</code>, <code>DirectionAbsencesQueryService</code> (plateforme).</p>
 </div></div>
 <h2>12.4 Validation de la facturation</h2>
     <div class="rule" id="RG-FAC-030">
         <div class="rid">RG-FAC-030</div>
         <div class="rtxt"><p>La <strong>validation</strong> (<code>POST /api/v1/facturation/validate</code>,
-            <code>ADMIN</code> ; le centre du corps doit être celui de
+            <code>ADMIN</code> ; le centre du corps doit être celui
+            de
             la session, sinon 403) émet de façon <strong>atomique</strong> les factures de la simulation de la période
             (RG-FAC-022) : une
             facture par groupe, <strong>regroupement choisi par le corps de la requête</strong> (jamais par les réglages
             du centre). Chaque
-            facture reçoit le <strong>numéro suivant</strong> de la séquence du centre pour l&#39;<strong>année du
-                jour</strong> (RG-FAC-010) ; la réservation est
-            <strong>atomique</strong> (deux validations simultanées d&#39;un centre se mettent en file : jamais le même
-            numéro). Elle <strong>fige</strong> le
+            facture reçoit le <strong>numéro suivant</strong> de la séquence du centre pour l&#39; <strong>année du
+                jour</strong> (RG-FAC-010) ; la réservation
+            est <strong>atomique</strong> (deux validations simultanées d&#39;un centre se mettent en file : jamais le
+            même numéro). Elle <strong>fige</strong>
+            le
             patient (code, nom, état, numéro d&#39;immatriculation), le centre payeur et l&#39;agence, la période, la
             date de facturation
             (jour de validation), le taux de TVA <strong>en vigueur à la fin de la période facturée</strong>, les
@@ -2842,7 +3263,8 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
         <div class="rtxt"><p>Une facture a au moins une ligne et couvre au moins une séance ; ligne : prix unitaire HT
             valide
             (jamais négatif) et nombre de séances &gt; 0 ; totaux : HT = somme des lignes, <strong>TVA arrondie
-                (HALF_UP) sur le total HT de
+                (HALF_UP) sur le total HT
+                de
                 la facture</strong> (pas ligne par ligne), TTC = HT + TVA, à deux décimales ; période valide. Une
             facture émise ne se modifie
             plus (le prix, le libellé du forfait, le patient et le taux restent ceux de l&#39;émission). <em>Source
@@ -2852,13 +3274,15 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
     <div class="rule" id="RG-FAC-032">
         <div class="rid">RG-FAC-032</div>
         <div class="rtxt"><p>Après validation, un évènement « facturation validée »
-            (<code>FacturationValideeEvent</code>, version 2) décrit
-            exactement ce qui a été émis — centre, <strong>période réellement facturée</strong>, factures émises
-            (identifiant, numéro, HT, TVA,
-            TTC), séances facturées, <strong>total TTC exact</strong> — et déclenche, après le commit, la génération des
-            écritures de ventes
-            (RG-CPT-001). <strong>Aucun évènement</strong> quand aucune facture n&#39;est émise ; la reconstitution des
-            ventes manquantes passe par
+            (<code>FacturationValideeEvent</code>, version 3, ADR 0036) annonce
+            ce qui a été émis — centre, <strong>période réellement facturée</strong>, <strong>nombre de factures
+                émises</strong>, nombre de séances
+            facturées, <strong>total TTC exact</strong>, instant de la validation ; il ne liste plus les factures
+            (taille bornée) — et
+            déclenche, après le commit, la génération des écritures de ventes (RG-CPT-001), qui relit en base les
+            factures de la
+            période encore sans écriture (idempotent). <strong>Aucun évènement</strong> quand aucune facture n&#39;est
+            émise ; la reconstitution des ventes manquantes passe par
             <code>POST /api/v1/comptabilite/rebuild</code>. L&#39;existence d&#39;une facture couvrant une date <strong>clôt
                 les absences</strong> du patient à
             cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002). <em>Source :</em>
@@ -2866,23 +3290,97 @@ défaut, le forfait de la prise en charge couvrant la date (effectif sinon deman
         </p>
 </div></div>
 <h2>12.4 bis Clôture mensuelle de facturation</h2>
-<div class="rule" id="RG-FAC-040"><div class="rid">RG-FAC-040</div><div class="rtxt"><p><strong>Clôture d&#39;un mois</strong> (<code>POST /api/v1/facturation/periodes/{mois}/cloturer</code>, mois <code>AAAA-MM</code>, <code>ADMIN</code>) : un mois par centre, <strong>sans aucune précondition</strong> (l&#39;administrateur décide). La réponse porte l&#39;<strong>avertissement chiffré</strong> <code>seancesEligiblesRestantes</code> : nombre de séances du centre dans ce mois encore éligibles à la facturation (statut <code>VALIDEE</code> ou <code>SIGNEE</code>, non facturées, non exclues). Clôturer deux fois le même mois est refusé (409 <code>PERIODE_DEJA_CLOTUREE</code>).</p>
+    <div class="rule" id="RG-FAC-040">
+        <div class="rid">RG-FAC-040</div>
+        <div class="rtxt"><p><strong>Clôture d&#39;un mois</strong> (<code>POST
+            /api/v1/facturation/periodes/{mois}/cloturer</code>, mois <code>AAAA-MM</code>, <code>ADMIN</code>) : un
+            mois par centre, <strong>sans aucune précondition</strong> (l&#39;administrateur décide, y compris un mois
+            futur ou sans séance). La réponse
+            porte l&#39;<strong>avertissement chiffré</strong> <code>seancesEligiblesRestantes</code> : nombre de
+            séances du centre dans ce mois encore éligibles à la
+            facturation (statut <code>VALIDEE</code> ou <code>SIGNEE</code>, non facturées, non exclues), et un second
+            avertissement, <strong>jamais bloquant</strong> (slice A6, RG-ABS-076) :
+            <code>absencesDuMoisNonCloses</code> (vrai si le mois d&#39;absences du centre n&#39;est pas clos ; l&#39;ordre
+            recommandé est de clore les absences d&#39;abord). Le centre du corps (facultatif) ou de la requête doit
+            être celui de la session (403 sinon) ; l&#39;auteur est l&#39;utilisateur de la session. Clôturer deux fois
+            le même mois est refusé
+            (409 <code>PERIODE_DEJA_CLOTUREE</code>, la première clôture reste). Mois illisible : 400 <code>MOIS_INVALIDE</code>.
+            <em>Source :</em> <code>MoisDeFacturation</code>,
+            <code>CloturerLeMois</code> (contexte <code>facturation</code>, ADR 0037).</p>
 </div></div>
-<div class="rule" id="RG-FAC-041"><div class="rid">RG-FAC-041</div><div class="rtxt"><p><strong>Effets d&#39;un mois clos</strong> : sont refusés (422 <code>PERIODE_DE_FACTURATION_CLOTUREE</code>, avec le mois) la <strong>validation</strong> dont la période touche au moins un mois clos du centre, et l&#39;<strong>exclusion</strong>, la <strong>réinclusion</strong> et le <strong>changement de forfait</strong> d&#39;une séance dont la date est dans un mois clos. Restent permis : la simulation, les lectures et les règlements. Les autres mois et les autres centres ne sont pas touchés ; aucun mois n&#39;est clos par défaut.</p>
+    <div class="rule" id="RG-FAC-041">
+        <div class="rid">RG-FAC-041</div>
+        <div class="rtxt"><p><strong>Effets d&#39;un mois clos</strong> : sont refusés (422 <code>PERIODE_DE_FACTURATION_CLOTUREE</code>,
+            message avec le mois) la
+            <strong>validation</strong> de la facturation dont la période touche au moins un mois clos du centre (tout
+            mois couvert par l&#39;intervalle,
+            même d&#39;un seul jour), et l&#39;<strong>exclusion</strong>, la <strong>réinclusion</strong> et le
+            <strong>changement de forfait</strong> d&#39;une séance dont la date est
+            dans un mois clos (la période demandée n&#39;y change rien). Restent permis : la simulation (<code>POST
+                /preview</code>), toutes les
+            lectures, les règlements (RG-REG-001) et la comptabilisation des factures déjà émises. Les autres mois et
+            les autres centres ne
+            sont pas touchés. Aucun mois n&#39;est clos par défaut. <em>Source :</em> <code>GardeDesMoisClos</code>
+            (appelée par <code>ValiderLaFacturation</code>,
+            <code>ExclureUneSeance</code>, <code>ReinclureUneSeance</code>, <code>ChangerLeForfaitDUneSeance</code>).
+        </p>
 </div></div>
-<div class="rule" id="RG-FAC-042"><div class="rid">RG-FAC-042</div><div class="rtxt"><p><strong>Clôture et émission se sérialisent</strong> pour un même centre et un même mois (verrou du mois jusqu&#39;à la fin de la transaction) : une validation en cours fait attendre la clôture ; une clôture en cours fait attendre la validation, qui est ensuite refusée.</p>
+    <div class="rule" id="RG-FAC-042">
+        <div class="rid">RG-FAC-042</div>
+        <div class="rtxt"><p><strong>Clôture et émission se sérialisent</strong> pour un même (centre, mois) : la ligne
+            du mois est verrouillée
+            (<code>SELECT ... FOR UPDATE</code>) jusqu&#39;à la fin de la transaction de la clôture, de la réouverture,
+            de la validation et de chaque
+            modification de la simulation. Une validation en cours fait attendre la clôture (qui compte alors des
+            séances restantes
+            exactes) ; une clôture en cours fait attendre la validation, qui est ensuite refusée (RG-FAC-041). Les mois
+            d&#39;un intervalle
+            se verrouillent du plus ancien au plus récent. <em>Source :</em>
+            <code>MoisDeFacturationJdbc.verrouiller</code>.</p>
 </div></div>
-<div class="rule" id="RG-FAC-043"><div class="rid">RG-FAC-043</div><div class="rtxt"><p><strong>Réouverture</strong> (<code>POST /api/v1/facturation/periodes/{mois}/rouvrir</code>, <code>ADMIN</code>) : le <strong>motif est obligatoire</strong> (400 <code>MOTIF_DE_REOUVERTURE_OBLIGATOIRE</code>), l&#39;auteur est l&#39;utilisateur de la session ; rouvrir un mois qui n&#39;est pas clos est refusé (409 <code>PERIODE_NON_CLOTUREE</code>). Un mois rouvert peut être clos à nouveau.</p>
+    <div class="rule" id="RG-FAC-043">
+        <div class="rid">RG-FAC-043</div>
+        <div class="rtxt"><p><strong>Réouverture</strong> (<code>POST /api/v1/facturation/periodes/{mois}/rouvrir</code>,
+            <code>ADMIN</code>) : le <strong>motif est
+                obligatoire</strong> (400 <code>MOTIF_DE_REOUVERTURE_OBLIGATOIRE</code> ; 500 caractères au plus), l&#39;auteur
+            est l&#39;utilisateur de la session ;
+            rouvrir un mois qui n&#39;est pas clos est refusé (409 <code>PERIODE_NON_CLOTUREE</code>). Un mois rouvert
+            peut être clos à nouveau.
+            <em>Source :</em> <code>RouvrirLeMois</code>.</p>
 </div></div>
-<div class="rule" id="RG-FAC-044"><div class="rid">RG-FAC-044</div><div class="rtxt"><p>La réouverture est refusée (422 <code>PERIODE_COMPTABLE_CLOTUREE</code>) si la <strong>période comptable du même mois et du même centre est clôturée</strong> (RG-CPT-005).</p>
+    <div class="rule" id="RG-FAC-044">
+        <div class="rid">RG-FAC-044</div>
+        <div class="rtxt"><p>La réouverture est refusée (422 <code>PERIODE_COMPTABLE_CLOTUREE</code>) si la <strong>période
+            comptable du même mois et du
+            même centre est clôturée</strong> (RG-CPT-005) : la Facturation lit cet état par le langage publié <code>PeriodesComptables</code>
+            de la
+            Comptabilité ; on ne rouvre pas la facturation d&#39;un mois dont la comptabilité est close. <em>Source
+                :</em> <code>ClotureComptable</code>
+            (ACL <code>ClotureComptableComptabilite</code>).</p>
 </div></div>
-<div class="rule" id="RG-FAC-045"><div class="rid">RG-FAC-045</div><div class="rtxt"><p><strong>Traçabilité et lecture</strong> : chaque clôture (auteur, instant, séances restantes) et chaque réouverture (auteur, instant, motif) est ajoutée à un <strong>journal</strong> qui ne se modifie jamais et publiée par un évènement (aucun consommateur pour l&#39;instant). <code>GET /api/v1/facturation/periodes?annee=AAAA</code> donne l&#39;état des 12 mois du centre : ouvert ou clôturé, dernière clôture, dernière réouverture avec son motif.</p>
+    <div class="rule" id="RG-FAC-045">
+        <div class="rid">RG-FAC-045</div>
+        <div class="rtxt"><p><strong>Traçabilité et lecture</strong> : chaque clôture (auteur, instant, séances
+            éligibles restantes) et chaque
+            réouverture (auteur, instant, motif) est ajoutée à un <strong>journal append-only</strong> (<code>periodes_facturation_journal</code>)
+            et publiée
+            par un évènement d&#39;intégration (<code>PeriodeDeFacturationCloturee</code>, <code>PeriodeDeFacturationRouverte</code>,
+            jamais publié si l&#39;acte est
+            refusé ; aucun consommateur pour l&#39;instant). <code>GET /api/v1/facturation/periodes?annee=AAAA</code>
+            (<code>ADMIN</code>, 2000 à 2100, 400
+            <code>ANNEE_INVALIDE</code> sinon) donne l&#39;état des 12 mois du centre : ouvert ou clôturé, dernière
+            clôture (par, le), dernière
+            réouverture (par, le, motif). <em>Source :</em> <code>PeriodesDeFacturationControleur</code>, <code>ConsulterLesPeriodes</code>.
+        </p>
 </div></div>
 <h2>12.5 Règlements des factures</h2>
 <div class="rule" id="RG-REG-001"><div class="rid">RG-REG-001</div><div class="rtxt"><p>Un règlement est rattaché à une facture et à un centre : montant <strong>non nul</strong> (un montant négatif est
-est un <strong>remboursement</strong>, voir RG-REG-005), date (le jour d&#39;exécution si elle est absente, jamais contrôlée), <strong>auteur =
-l&#39;utilisateur de la session</strong> (« system » s&#39;il est inconnu ; le <code>userId</code> du corps est ignoré), code
-<code>REG-</code> + 8 caractères généré, montant arrondi au centime. Le centre du corps ou de la requête doit être celui de la session (403
+    un <strong>remboursement</strong>, voir RG-REG-005), date (le jour d&#39;exécution si elle est absente, jamais
+    contrôlée), <strong>auteur =
+        l&#39;utilisateur de la session</strong> (« system » s&#39;il est inconnu ; le <code>userId</code> du corps est
+    ignoré), code <code>REG-</code> + 8
+    caractères généré, montant arrondi au centime. Le centre du corps ou de la requête doit être celui de la session
+    (403
 sinon, en écriture comme en lecture). Accès : <code>ADMIN</code>, <code>SECRETAIRE</code>. Un règlement enregistré ne se modifie ni ne
 s&#39;annule : le seul moyen de corriger est un remboursement.</p>
 </div></div>
@@ -2891,22 +3389,26 @@ TTC figé : <code>NON_REGLEE</code> (somme nulle, reste = total), <code>PARTIELL
 si le réglé dépasse le facturé, la situation est « trop-perçu » et le montant excédentaire est affiché : le
 <strong>trop-perçu est accepté</strong>). Les montants sont arrondis au centime.</p>
 </div></div>
-<div class="rule" id="RG-REG-003"><div class="rid">RG-REG-003</div><div class="rtxt"><p>La recherche et le tableau de bord des règlements portent sur une <strong>année</strong> (2000 à 3000) et
-facultativement un <strong>mois</strong> (1 à 12), une caisse, une agence ou un centre payeur ; les listes sont
-paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
-</div></div>
-<div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche, après son enregistrement, la génération d&#39;une écriture de
-trésorerie (RG-CPT-002) par l&#39;événement <code>FactureReglementRecordedEvent</code> (langage publié du contexte <code>facturation</code>,
-porteur de l&#39;identifiant du règlement, du montant signé et du mode) → <code>ReglementEncaisseComptabiliteListener</code>. Un mois
-comptable clos n&#39;empêche pas le règlement : l&#39;écriture est alors à régénérer (<code>POST /comptabilite/rebuild</code>).</p>
-</div></div>
 <div class="rule" id="RG-REG-005"><div class="rid">RG-REG-005</div><div class="rtxt"><p><strong>Remboursement</strong> (à valider par le métier) : un règlement négatif ne peut pas dépasser le <strong>total déjà
 réglé</strong> de la facture (somme signée, trop-perçu compris) : refus <strong>422</strong> <code>REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE</code>. Il est
 comptabilisé par l&#39;écriture de <strong>sens inverse</strong> de l&#39;encaissement (débit du compte client, crédit de la banque ou de la
-caisse), libellée « Remboursement … ».</p>
+    caisse), libellée « Remboursement … » (décision du 2026-10-21).</p>
 </div></div>
-<div class="rule" id="RG-REG-008"><div class="rid">RG-REG-008</div><div class="rtxt"><p><strong>Export CSV des règlements</strong> : une cellule de texte (numéro de facture, assurance, nom, prénom, caisse, agence, centre payeur) qui commence par <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>, une tabulation ou un retour chariot est précédée d&#39;une apostrophe, pour qu&#39;un tableur ne l&#39;exécute pas comme une formule ; les montants ne sont pas modifiés. L&#39;auteur des réglages de facturation, des types de TVA et des règlements est l&#39;utilisateur connecté (l&#39;identité envoyée dans la requête est ignorée).</p>
+    <div class="rule" id="RG-REG-008">
+        <div class="rid">RG-REG-008</div>
+        <div class="rtxt"><p><strong>Export CSV des règlements</strong> : une cellule de texte (numéro de facture,
+            assurance, nom, prénom, caisse,
+            agence, centre payeur) qui commence par <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>, une
+            tabulation ou un retour chariot est précédée d&#39;une
+            apostrophe <code>&#39;</code>, pour qu&#39;un tableur ne l&#39;exécute pas comme une formule ; les montants
+            ne sont pas modifiés.</p>
 </div></div>
+    <ul>
+        <li><strong>Auteur</strong> (réglages de facturation, types de TVA, règlements) : l&#39;utilisateur connecté ; l&#39;identité
+            envoyée dans la requête
+            est ignorée.
+        </li>
+    </ul>
 <div class="rule" id="RG-REG-006"><div class="rid">RG-REG-006</div><div class="rtxt"><p><strong>Mode de règlement et référence de paiement</strong> (à valider par le métier) : un règlement peut porter un
 mode (<code>BANQUE</code>, <code>CHEQUE</code>, <code>CAISSE</code>, <code>ESPECES</code>) et une référence libre (≤ 120 caractères). <code>CAISSE</code> et <code>ESPECES</code> sont
 comptabilisés au journal de caisse ; <code>BANQUE</code>, <code>CHEQUE</code> et l&#39;absence de mode (anciens règlements, reprise de données) au
@@ -2916,6 +3418,27 @@ journal de banque <code>BQ</code>. Un mode inconnu est refusé (400).</p>
 ≤ 120 caractères) ; un renvoi pour la même facture et le même centre avec la même clé ne crée ni règlement, ni
 événement, ni écriture et répond la situation courante de la facture. Sans clé, un renvoi crée un second règlement.</p>
 </div></div>
+    <div class="rule" id="RG-REG-003">
+        <div class="rid">RG-REG-003</div>
+        <div class="rtxt"><p>La recherche et le tableau de bord des règlements portent sur une <strong>année</strong>
+            (2000 à 3000) et
+            facultativement un <strong>mois</strong> (1 à 12), une caisse, une agence ou un centre payeur ; les listes
+            sont
+            paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-REG-004">
+        <div class="rid">RG-REG-004</div>
+        <div class="rtxt"><p>Chaque règlement enregistré déclenche, après son enregistrement, la génération d&#39;une
+            écriture de
+            trésorerie (RG-CPT-002) par l&#39;événement <code>FactureReglementRecordedEvent</code> (langage publié du
+            contexte <code>facturation</code>,
+            porteur de l&#39;identifiant du règlement, du montant signé et du mode) → <code>ReglementEncaisseComptabiliteListener</code>.
+            Un mois
+            comptable clos n&#39;empêche pas le règlement : l&#39;écriture est alors à régénérer (<code>POST
+                /comptabilite/rebuild</code>).</p>
+        </div>
+    </div>
 <h2>12.6 Comptabilité (plan SCF)</h2>
 <div class="rule" id="RG-CPT-001"><div class="rid">RG-CPT-001</div><div class="rtxt"><p><strong>Écriture de ventes</strong> par facture, dans le journal que le centre a choisi pour les ventes (<code>VE</code> par
 défaut, RG-CPT-010) : débit du compte client (411xxx), crédit du compte
@@ -2939,12 +3462,15 @@ centre et type de tiers ; statut <code>VALIDEE</code>. <strong>Idempotence</stro
 <div class="rule" id="RG-CPT-002"><div class="rid">RG-CPT-002</div><div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque (<code>BQ</code> par défaut, débit
   512) ou en caisse (<code>CA</code> par défaut, débit 530, si le mode
 est « caisse » ou « espèces ») ; crédit du compte client ; <strong>un remboursement</strong> (règlement négatif) est l&#39;écriture de
-  sens inverse (débit du compte client, crédit de la trésorerie) pour la valeur absolue du montant ; <strong>une écriture par
-        règlement</strong> (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Sans mode
-    (anciens règlements), le règlement est comptabilisé en « banque » (RG-REG-006). Comme la vente, l&#39;écriture est générée <strong>après l&#39;enregistrement
-        du
+    sens inverse (débit du compte client, crédit de la trésorerie) pour la valeur absolue du montant ; <strong>une
+        écriture par
+        règlement</strong> (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Sans
+    mode
+    (anciens règlements), le règlement est comptabilisé en « banque » (RG-REG-006). Comme la vente, l&#39;écriture est
+    générée <strong>après l&#39;enregistrement du
         règlement</strong>, dans sa propre transaction : un refus n&#39;annule jamais le règlement, qui reste à
-    régénérer (RG-CPT-024).</p>
+    régénérer
+    (RG-CPT-024).</p>
 </div></div>
 <div class="rule" id="RG-CPT-003"><div class="rid">RG-CPT-003</div><div class="rtxt"><p>Toute écriture comporte <strong>au moins deux lignes</strong> et doit être <strong>équilibrée</strong> (total débit = total
 crédit à deux décimales : <code>ECRITURE_DESEQUILIBREE</code>) ; compte SCF obligatoire, débit et
@@ -3022,9 +3548,9 @@ pour les écritures générées
         de l&#39;écran Comptabilité</strong>
     (les écritures générées entre-temps — stock, ventes, règlements — apparaissent sans recharger la page) ; validation,
     export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock :
-    <code>ADMIN</code>.
-    <em>Source :</em> <code>ComptabiliserLesVentesEtReglements.reconstruire</code> →
-    <code>VentesEtReglementsControleur</code> (<code>/rebuild</code>) ;
+    <code>ADMIN</code>. <em>Source :</em>
+    <code>ComptabiliserLesVentesEtReglements.reconstruire</code> → <code>VentesEtReglementsControleur</code> (<code>/rebuild</code>)
+    ;
     <code>ComptabiliteDashboardComponent</code> → <code>ComptabiliteStore.refresh</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-008"><div class="rid">RG-CPT-008</div><div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte client « autre » :
@@ -3196,6 +3722,23 @@ sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du c
             (<code>chercherVentesNonComptabilisees</code>, <code>reconstruireVentes</code>).</p>
         </div>
     </div>
+    <div class="rule" id="RG-CPT-025">
+        <div class="rid">RG-CPT-025</div>
+        <div class="rtxt"><p><strong>Les soldes d&#39;ouverture ne sont pas comptabilisés par la plateforme.</strong>
+            Les factures de reprise
+            (numéro commençant par <code>REPRISE-</code>, créées par l&#39;import « soldes d&#39;ouverture ») et leurs
+            règlements de reprise (auteur
+            <code>REPRISE</code>) sont exclus de la liste des factures sans écriture, de la régénération des écritures (<code>/rebuild</code>)
+            et de la
+            comptabilisation automatique d&#39;une période : ces soldes figurent déjà dans la comptabilité de l&#39;ancien
+            logiciel. Un
+            encaissement saisi ensuite dans la plateforme sur une facture de reprise reste un règlement ordinaire. <em>Source
+                :</em>
+            <code>FacturesEmisesJdbc</code>, <code>ReglementsEncaissesJdbc</code> (contexte <code>facturation</code>,
+            ports publiés par la Comptabilité) ; décision
+            du 2026-10-21 (KB-FAC-67).</p>
+        </div>
+    </div>
 </section>
 <section class="part" id="p13"><h1><span class="n">Partie 13</span>Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</h1>
 <figure><img src="img/direction-dashboard.png" alt="Tableau de bord de la direction"><figcaption>Tableau de bord de la direction</figcaption></figure>
@@ -3234,6 +3777,30 @@ entre 1 et 4</strong> est <strong>masqué</strong> (affiché « &lt; 5 ») ; zé
 permettrait de déduire l&#39;effectif. Une alerte sur un taux n&#39;est jamais levée sur une
 valeur masquée ; les variations en temps réel ignorent un indicateur qui devient masqué ou publiable.</p>
 </div></div>
+    <div class="rule" id="RG-DIR-012">
+        <div class="rid">RG-DIR-012</div>
+        <div class="rtxt"><p><strong>Absences : masquage par centre.</strong> Un centre dont les absences comptabilisées
+            sont au nombre de 1 à 4
+            est <strong>masqué</strong> (<code>null</code>) dans tous les chiffres qui en découlent : nombre d&#39;absences,
+            répartition justifiées / non
+            justifiées / à qualifier, valorisation HT et TTC, taux d&#39;absentéisme et part du chiffre d&#39;affaires ;
+            chaque effectif par
+            statut de 1 à 4 est aussi masqué, y compris pour un centre publié, ainsi que le nombre d&#39;absences
+            rattrapées (1 à 4). Les
+            séances réalisées et le chiffre d&#39;affaires du centre restent publiés. <strong>Un centre masqué est exclu
+                du total</strong>, des motifs
+            consolidés et du mensuel, qui ne portent que sur les centres publiés ; la réponse indique <code>centresMasques</code>
+            (nombre de
+            centres exclus) et l&#39;écran l&#39;affiche. Ainsi la différence total moins centres publiés ne redonne pas
+            le centre masqué
+            (KB-ABS-07). Limite connue : si un seul effectif par statut d&#39;un centre publié est masqué, il se déduit
+            par différence avec le
+            nombre d&#39;absences du centre (dix absences dont neuf justifiées...) : le seuil protège les petits
+            effectifs, pas toutes les
+            inférences. Décision de l&#39;utilisateur du 2026-10-22 (« masquer par centre seulement ») ; à valider avec
+            la direction.</p>
+        </div>
+    </div>
 <h2>13.3 Vue d&#39;ensemble et finances</h2>
 <div class="rule" id="RG-DIR-020"><div class="rid">RG-DIR-020</div><div class="rtxt"><p>Par centre et total : patients (effectif de la période, RG-PAT-037 : un patient sorti avant la
 période n&#39;est pas compté, un patient sorti pendant ou après l&#39;est), patients « sous KT », séances réalisées de la
@@ -3293,7 +3860,8 @@ présent dans plusieurs centres est <strong>consolidé en un seul groupe</strong
 <div class="rule" id="RG-DIR-070"><div class="rid">RG-DIR-070</div><div class="rtxt"><p>Par centre et total : nombre d&#39;absences <strong>comptabilisées</strong> (ni rattrapées ni annulées), répartition
 par motif (« non qualifié » pour celles en attente), valorisation (HT et TTC), <strong>taux
 d&#39;absentéisme</strong> = absences / (absences + séances réalisées) en %, et <strong>part du chiffre d&#39;affaires HT</strong> = valorisation
-HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués. Sources : RG-ABS. La répartition par
+    HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués, y compris dans les totaux
+    (RG-DIR-012). Sources : RG-ABS. La répartition par
 motif est présentée en tableau (nombre, part, valorisation) <strong>et en deux graphiques en anneau</strong> : l&#39;un par <strong>nombre
 d&#39;absences</strong>, l&#39;autre par <strong>valeur HT</strong> ; les motifs masqués (effectif faible) et à zéro n&#39;y figurent pas, et aucun
 graphique n&#39;est affiché s&#39;il ne reste aucun motif publiable. <em>Source :</em> <code>DirectionDashboardComponent</code>.</p>
@@ -4027,7 +4595,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>SeanceRestController</code></td>
 <td><code>/api/v1/seances</code></td>
 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> selon l&#39;action</td>
-<td>RG-SEA-001 à 044</td>
+    <td>RG-SEA-001 à 044, 051, RG-ABS-060 à 062</td>
 </tr>
 <tr>
 <td><code>SeanceSuppressionRestController</code></td>
@@ -4054,10 +4622,41 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-SEA-031</td>
 </tr>
 <tr>
-<td><code>AbsencePatientRestController</code></td>
-<td><code>/api/v1/absences-patients</code></td>
-<td>lecture et suivi tous profils ; déclaration <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code></td>
-<td>RG-ABS-001 à 052</td>
+    <td><code>MoisDAbsencesControleur</code></td>
+    <td><code>/api/v1/absences-patients/mois</code> (états des mois, clôture, réouverture) — contexte <code>absences-patients</code>,
+        slice A6
+    </td>
+    <td><code>ADMIN</code> (clôturer, rouvrir) ; <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>,
+        <code>INFIRMIER</code> (lire)
+    </td>
+    <td>RG-ABS-070 à 078</td>
+</tr>
+<tr>
+    <td><code>DetectionControleur</code></td>
+    <td><code>/api/v1/absences-patients/rattrapage-detection</code> (détection d&#39;une période passée) — contexte
+        <code>absences-patients</code>, slice A3
+    </td>
+    <td><code>ADMIN</code> (détection d&#39;une période)</td>
+    <td>RG-ABS-001 à 046</td>
+</tr>
+<tr>
+    <td><code>AbsencesEcrituresControleur</code></td>
+    <td><code>/api/v1/absences-patients</code> (déclaration, qualification, rattrapage, annulation) — contexte <code>absences-patients</code>,
+        slice A2
+    </td>
+    <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code> (déclaration) ; <code>ADMIN</code>, <code>SECRETAIRE</code>,
+        <code>MEDECIN</code>, <code>INFIRMIER</code> (qualification, annulation) ; <code>ADMIN</code>,
+        <code>MEDECIN</code> (rattrapage, corrections)
+    </td>
+    <td>RG-ABS-003, 010 à 025, 054 à 057 (annulation refusée pour une exclusion : 057)</td>
+</tr>
+<tr>
+    <td><code>AbsencesControleur</code></td>
+    <td><code>/api/v1/absences-patients</code> (liste, <code>/semaine</code>, <code>/synthese</code>, <code>/{id}/seances-rattrapage</code>)
+        — contexte <code>absences-patients</code>, slice A1
+    </td>
+    <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code></td>
+    <td>RG-ABS-021, 023, 043, 050 à 053</td>
 </tr>
 <tr>
 <td><code>PlanningAffectationRestController</code></td>
@@ -4336,11 +4935,16 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
     <td>RG-FAC-001 à 003, RG-CPT-006</td>
 </tr>
 <tr>
-<td><code>ValidationControleur</code>, <code>TableauDeBordControleur</code>, <code>SyntheseControleur</code></td>
-    <td><code>/api/v1/facturation</code> (<code>/validate</code>, <code>/dashboard</code>, <code>/synthese/print</code>)
-    </td>
-<td><code>/validate</code> : <code>ADMIN</code> ; <code>/synthese/print</code> : <code>ADMIN</code> ou <code>SECRETAIRE</code> (même règle que l&#39;impression par modèle de document, y compris pour un compte à plusieurs rôles) ; <code>/dashboard</code> : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code></td>
-    <td>RG-FAC-024, 030 à 032</td>
+    <td><code>TableauDeBordControleur</code>, <code>SyntheseControleur</code></td>
+    <td><code>/api/v1/facturation</code> (<code>/dashboard</code>, <code>/synthese/print</code>)</td>
+    <td><code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code></td>
+    <td>RG-FAC-024, RG-FAC-025</td>
+</tr>
+<tr>
+    <td><code>ValidationControleur</code></td>
+    <td><code>/api/v1/facturation/validate</code></td>
+    <td><code>ADMIN</code></td>
+    <td>RG-FAC-030 à 032, 041, 042</td>
 </tr>
 <tr>
     <td><code>SimulationControleur</code></td>
@@ -4348,7 +4952,14 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
         <code>/forfait</code>)
     </td>
     <td><code>ADMIN</code></td>
-    <td>RG-FAC-020 à 023</td>
+    <td>RG-FAC-020 à 023, 041, 042</td>
+</tr>
+<tr>
+    <td><code>PeriodesDeFacturationControleur</code></td>
+    <td><code>/api/v1/facturation/periodes</code> (<code>GET ?annee=</code>, <code>/{mois}/cloturer</code>, <code>/{mois}/rouvrir</code>)
+    </td>
+    <td><code>ADMIN</code></td>
+    <td>RG-FAC-040 à 045</td>
 </tr>
 <tr>
     <td><code>ParametresFacturationControleur</code></td>
@@ -4357,7 +4968,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
     <td>RG-FAC-010, 011</td>
 </tr>
 <tr>
-<td><code>ReglementRestController</code></td>
+    <td><code>ReglementControleur</code></td>
 <td><code>/api/v1/reglements</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code></td>
 <td>RG-REG-001 à 004</td>
@@ -4424,7 +5035,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>DirectionDashboardRestController</code></td>
 <td><code>/api/v1/direction</code></td>
 <td><code>DIRECTION</code></td>
-<td>RG-DIR-001 à 080, 100 à 102</td>
+    <td>RG-DIR-001 à 080, 100 à 102, RG-ABS-060 à 062</td>
 </tr>
 <tr>
 <td><code>DirectionSnapshotRestController</code></td>
@@ -4455,7 +5066,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>AbsencePatientScheduler</code></td>
+    <td><code>ControleDeNuitDesAbsences</code></td>
 <td>02:30 chaque jour et au démarrage</td>
 <td>RG-ABS-040 à 046</td>
 </tr>

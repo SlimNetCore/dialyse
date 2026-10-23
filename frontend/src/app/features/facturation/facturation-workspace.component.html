@@ -148,6 +148,11 @@
             {{ 'FACTURATION.PERIODES.AVERTISSEMENT' | translate: {count: avertissement.seancesRestantes, mois: avertissement.mois} }}
           </p>
         }
+        @if (avertissement.absencesNonCloses) {
+          <p class="feedback cloture-warning" data-testid="avertissement-absences-non-closes">
+            {{ 'FACTURATION.PERIODES.AVERTISSEMENT_ABSENCES' | translate: {mois: avertissement.mois} }}
+          </p>
+        }
       }
 
       <div class="table-wrap">
@@ -193,7 +198,8 @@
                     </button>
                   } @else {
                     <button (click)="onDemanderCloture(periode.mois)"
-                            [disabled]="store.periodeActionMois() !== null"
+                            [disabled]="store.periodeActionMois() !== null || !moisClosable(periode.mois)"
+                            [matTooltip]="moisClosable(periode.mois) ? '' : ('FACTURATION.PERIODES.NON_TERMINE' | translate)"
                             color="warn"
                             mat-stroked-button>
                       <mat-icon>lock</mat-icon>

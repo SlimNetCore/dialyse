@@ -22,7 +22,8 @@ import java.util.UUID;
  * Adapter entrant HTTP du rattrapage de détection (slice A3) : même URL et même JSON {@code {creees, annulees}} que le legacy,
  * réservé à l'administrateur du centre. Champs additifs, présents seulement quand ils comptent : {@code fin} et
  * {@code finRamenee} quand la fin demandée est postérieure à hier (le legacy la ramenait en silence), {@code echecs} quand des
- * absences ont été en incident (isolées, journalisées). Entrées illisibles : 400 (c'étaient des 500, KB-ABS-28).
+ * absences ont été en incident (isolées, journalisées), et {@code joursIgnores} (A6, KB-ABS-37) : les jours de la période laissés
+ * tels quels parce que leur mois d'absences est clos (rouvrir le mois pour les rattraper). Entrées illisibles : 400 (c'étaient des 500, KB-ABS-28).
  */
 @RestController
 @RequestMapping("/api/v1/absences-patients")
@@ -46,13 +47,15 @@ public class DetectionControleur {
         var periode = rattrapage.periode();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(new RattrapageReponse(bilan.creees(),
                 bilan.annulees(), periode.finRamenee() ? periode.au() : null, periode.finRamenee() ? Boolean.TRUE : null,
-                bilan.echecs().isEmpty() ? null : bilan.echecs().size()));
+                bilan.echecs().isEmpty() ? null : bilan.echecs().size(),
+                bilan.joursIgnores().isEmpty() ? null : bilan.joursIgnores().stream().sorted().toList()));
     }
 
     public record PeriodeDemande(@NotNull LocalDate from, @NotNull LocalDate to) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record RattrapageReponse(int creees, int annulees, LocalDate fin, Boolean finRamenee, Integer echecs) {
+    public record RattrapageReponse(int creees, int annulees, LocalDate fin, Boolean finRamenee, Integer echecs,
+                                    java.util.List<LocalDate> joursIgnores) {
     }
 }

@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.facturation.domain.cloture;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.UUID;
 
@@ -69,13 +70,21 @@ public final class MoisDeFacturation {
     }
 
     /**
-     * Rouvre le mois clos ; le motif est obligatoire. La vérification de la période comptable est faite par le cas d'usage.
+     * Seul un mois terminé se clôture (ADR 0044, comme les absences) : refus {@code PERIODE_NON_TERMINEE} pour le mois en cours et les
+     * mois futurs, {@code aujourdhui} étant la date du jour au fuseau du centre. Aucun jour de grâce.
      */
-    public EntreeDuJournal rouvrir(Instant le, UUID par, String motif) {
-        exigerUnActe(le, par);
-        if (!clos) {
-            throw new MoisNonClos(mois);
+    public static void exigerTermine(YearMonth mois, LocalDate aujourdhui) {
+        if (!mois.isBefore(YearMonth.from(aujourdhui))) {
+            throw new MoisDeFacturationNonTermine(mois);
         }
+    }
+
+    /**
+     * Le motif de réouverture retenu (sans espaces de bord), ou le refus {@code MOTIF_DE_REOUVERTURE_OBLIGATOIRE} s'il est absent,
+     * blanc ou plus long que {@link EntreeDuJournal#MOTIF_MAX} caractères. Exposé pour que le cas d'usage le vérifie avant toute
+     * consultation d'un autre contexte (RG-FAC-043 : mois non clos, puis motif, puis période comptable).
+     */
+    public static String motifDeReouvertureValide(String motif) {
         if (motif == null || motif.isBlank()) {
             throw new MotifDeReouvertureObligatoire();
         }
@@ -84,6 +93,18 @@ public final class MoisDeFacturation {
             throw new MotifDeReouvertureObligatoire(
                     "Le motif de reouverture ne peut pas depasser " + EntreeDuJournal.MOTIF_MAX + " caracteres");
         }
+        return motifRetenu;
+    }
+
+    /**
+     * Rouvre le mois clos ; le motif est obligatoire. La vérification de la période comptable est faite par le cas d'usage.
+     */
+    public EntreeDuJournal rouvrir(Instant le, UUID par, String motif) {
+        exigerUnActe(le, par);
+        if (!clos) {
+            throw new MoisNonClos(mois);
+        }
+        String motifRetenu = motifDeReouvertureValide(motif);
         clos = false;
         rouvertLe = le;
         rouvertPar = par;

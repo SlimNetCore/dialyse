@@ -1,14 +1,14 @@
 {
   "meta": {
     "root": "C:\\Users\\TS-CONSULT\\WebstormProjects\\Hemodialyse",
-    "scannedAt": "2026-10-21T17:46:48.645Z",
-    "files": 2744,
-    "code": 2041,
-    "tests": 703,
+    "scannedAt": "2026-10-22T09:44:07.562Z",
+    "files": 2843,
+    "code": 2106,
+    "tests": 737,
     "depth": 1,
-    "commits": 321,
+    "commits": 325,
     "gitOk": true,
-    "reused": 2614
+    "reused": 2696
   },
   "fileModule": {
     ".github/skills/mcp-builder/scripts/connections.py": ".github",
@@ -459,6 +459,53 @@
     "backend/bc-stock/src/test/java/com/hemodialyse/backend/domain/stock/service/InventaireServiceTest.java": "backend",
     "backend/bc-stock/src/test/java/com/hemodialyse/backend/domain/stock/service/PmpCalculatorTest.java": "backend",
     "backend/bc-stock/src/test/java/com/hemodialyse/backend/domain/stock/service/ValorisationStockCalculatorTest.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LigneDuSuivi.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesAbsences.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesSeancesDeRattrapage.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ObtenirLaSynthese.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SessionCourante.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuiviDeLaSemaine.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuivreLaSemaine.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/configuration/AbsencesPatientsContexteConfiguration.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceIntrouvable.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceListee.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceNonModifiable.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/DelaiDeQualification.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/MotifAbsence.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/NomDuPatient.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PaginationInvalide.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeancesDeRattrapage.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SemaineDuPlanning.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SourceAbsence.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SyntheseDesAbsences.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyidentite/SessionLegacy.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/persistence/LectureDesAbsencesJdbc.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsenceReponse.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/ConsultationDesAbsencesAdvice.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/PageDAbsencesReponse.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/SuiviDeLaSemaineReponse.java": "backend",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/SyntheseReponse.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/AbsencesPatientsTestApplication.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/application/ConsultationDuSuiviTest.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/architecture/ArchitectureHexagonaleTest.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviContrat.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviEnMemoireContratTest.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviJdbcContrat.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviJdbcContratTest.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviPostgresContractIT.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/domain/RegleDeSuiviDesAbsencesTest.java": "backend",
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/doubles/SuiviEnMemoire.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/PageDe.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/SessionCourante.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/UniteDeTravail.java": "backend",
@@ -626,6 +673,7 @@
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/JournauxDuCentre.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/MappingComptableDuCentre.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/ParametrageFiscal.java": "backend",
+    "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PeriodesComptables.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PlanComptableEnLecture.java": "backend",
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/ReglementsEncaisses.java": "backend",
     "backend/contexts/comptabilite/src/test/java/com/hemodialyse/backend/contexts/comptabilite/ComptabiliteTestApplication.java": "backend",
@@ -686,6 +734,12 @@
     "backend/contexts/comptabilite/src/test/java/com/hemodialyse/backend/contexts/comptabilite/interfaces/planification/ComptabilisationDuStockPlanifieeTest.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ClotureComptable.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ConsulterLesPeriodes.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/PublicationDesPeriodes.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/RouvrirLeMois.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturation.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsulterLaSynthese.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsulterLeTableauDeBord.java": "backend",
@@ -714,6 +768,14 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/validation/ValiderLaFacturation.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/configuration/FacturationContexteConfiguration.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationClos.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDejaClos.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisNonClos.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MotifDeReouvertureObligatoire.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/ReouvertureRefuseeParLaComptabilite.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/Facture.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/Factures.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/LiaisonDesSeances.java": "backend",
@@ -754,6 +816,7 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/StatutDeSeance.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/TauxDeTva.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/absences/AbsencesDesPatientsPubliees.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ClotureComptableComptabilite.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/FacturesEmisesJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ReglementsEncaissesJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/TauxDeTvaComptabilite.java": "backend",
@@ -763,11 +826,13 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesDeFacturationJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesFacturablesJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDeLaValidationSpring.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesPeriodesSpring.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesReglementsSpring.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/FacturationDuPatientJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/FacturesJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDeLaSyntheseJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDuTableauDeBordJdbc.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ParametresDeFacturationJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ReglementsJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/RepriseDesSoldesJdbc.java": "backend",
@@ -776,6 +841,8 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SyntheseFinanciereDesCentresJdbc.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/transaction/UniteDeTravailSpring.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ChangementDeForfaitRequete.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ClotureDeFacturationAdvice.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ClotureReponse.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/EmissionDesFacturesAdvice.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ExclusionRequete.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ExportDesSituations.java": "backend",
@@ -783,10 +850,13 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationControleur.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationReponse.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationRequete.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesReponse.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementControleur.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementRequete.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementsAdvice.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReinclusionRequete.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/RequeteInvalide.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SimulationControleur.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SimulationReponse.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SimulationRequete.java": "backend",
@@ -803,17 +873,22 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FactureReglementRecordedEvent.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FormatDImpression.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ImpressionDeLaSynthese.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java": "backend",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ProfilDeLaSynthese.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/RepriseDesSoldes.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseDeFacturation.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseFinanciereDesCentres.java": "backend",
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseMensuelle.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/FacturationTestApplication.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerEtRouvrirLeMoisTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturationTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsultationsDePilotageTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/reglement/ConsulterLesReglementsTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/reglement/EnregistrerUnReglementTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ChangerLeForfaitDUneSeanceTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ExclureEtReinclureUneSeanceTest.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ModificationsDUnMoisClotureTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulationFixture.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulerLaFacturationTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/validation/ValiderLaFacturationTest.java": "backend",
@@ -828,6 +903,13 @@
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/LecturesPubliquesJdbcContrat.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/LecturesPubliquesJdbcContratTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/LecturesPubliquesPostgresContractIT.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationConcurrentContrat.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationConcurrentJdbcTest.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationConcurrentPostgresContractIT.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationContrat.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationEnMemoireContratTest.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationJdbcContratTest.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationPostgresContractIT.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/ParametresDeFacturationContrat.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/ParametresEnMemoireContratTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/ParametresJdbcContratTest.java": "backend",
@@ -851,6 +933,7 @@
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/RepriseDesSoldesJdbcContratTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/RepriseDesSoldesPostgresContractIT.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SchemaDesFacturesH2.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SchemaDesMoisDeFacturationH2.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SeancesContrat.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SeancesEnMemoireContratTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SeancesJdbcContrat.java": "backend",
@@ -863,6 +946,7 @@
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SequenceEnMemoireContratTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SequenceJdbcContratTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SequencePostgresContractIT.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/domain/facture/FactureTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/domain/facture/LigneFactureTest.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/domain/parametres/ModeleDeNumerotationTest.java": "backend",
@@ -877,6 +961,7 @@
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/AbsencesEnMemoire.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/FacturesEnMemoire.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/LecturesPubliquesEnMemoire.java": "backend",
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/MoisDeFacturationEnMemoire.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/ParametresEnMemoire.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/PilotageEnMemoire.java": "backend",
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/PublicationDesReglementsEnMemoire.java": "backend",
@@ -1897,6 +1982,7 @@
     "backend/platform/src/main/resources/db/migration/V3__reprise_donnees.sql": "backend",
     "backend/platform/src/main/resources/db/migration/V40__facturation_auteur_de_l_emission.sql": "backend",
     "backend/platform/src/main/resources/db/migration/V41__facturation_mode_reference_et_cle_des_reglements.sql": "backend",
+    "backend/platform/src/main/resources/db/migration/V42__facturation_cloture_mensuelle.sql": "backend",
     "backend/platform/src/main/resources/db/migration/V4__inventaire_stock.sql": "backend",
     "backend/platform/src/main/resources/db/migration/V5__gmao_tables.sql": "backend",
     "backend/platform/src/main/resources/db/migration/V6__gmao_timestamps_utc.sql": "backend",
@@ -1956,6 +2042,12 @@
     "backend/platform/src/test/java/com/hemodialyse/backend/application/supervision/DiagnosticSanteTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/application/supervision/SupervisionBaseServiceTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/architecture/FrontieresDesContextesTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/AutorisationsDesLecturesDAbsencesCharacterizationIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/ConsultationAbsencesCharacterizationSupport.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/LecturesDeAbsencesParLaDirectionEtLaSeanceCharacterizationIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/ListeDesAbsencesCharacterizationIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/SeancesDeRattrapageCharacterizationIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/SuiviDeLaSemaineEtSyntheseCharacterizationIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/GenerationDEcritures.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/ecritures/ClotureDePeriodeCharacterizationIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/ecritures/ComptabilisationDuStockCharacterizationIntegrationTest.java": "backend",
@@ -1978,6 +2070,10 @@
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/referentiel/PlanComptableCharacterizationIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/referentiel/ReferentielCharacterizationSupport.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/referentiel/ReferentielConsommateursCharacterizationIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/cloture/ClotureCharacterizationSupport.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/cloture/ClotureEtReouvertureNouveauCodeIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/cloture/EvenementsDeClotureEnregistres.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/cloture/GardesDuMoisClosNouveauCodeIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/pilotage/CoherenceAvecLesEcrituresDuNouveauModuleCharacterizationIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/pilotage/LecturesFinancieresDirectionCharacterizationIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/pilotage/PilotageFacturationSupport.java": "backend",
@@ -2070,6 +2166,7 @@
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentCatalogTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/reporting/PlanningOptimiseReportIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/reporting/PresenceInfirmierReportIntegrationTest.java": "backend",
+    "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/reporting/SyntheseMensuelleSqlPostgresContractIT.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/scheduling/AbsencePatientSchedulerTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/scheduling/ObservanceAnemieIntegrationTest.java": "backend",
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/scheduling/ObservanceMesureTest.java": "backend",
@@ -2533,6 +2630,8 @@
     "frontend/src/app/features/facturation/state/facturation-errors.spec.ts": "frontend",
     "frontend/src/app/features/facturation/state/facturation-errors.ts": "frontend",
     "frontend/src/app/features/facturation/state/facturation-exclusion.ts": "frontend",
+    "frontend/src/app/features/facturation/state/facturation-periodes.spec.ts": "frontend",
+    "frontend/src/app/features/facturation/state/facturation-periodes.ts": "frontend",
     "frontend/src/app/features/facturation/state/facturation.store.spec.ts": "frontend",
     "frontend/src/app/features/facturation/state/facturation.store.ts": "frontend",
     "frontend/src/app/features/gmao/components/dashboard/dashboard.component.ts": "frontend",
@@ -2759,9 +2858,9 @@
   "modules": [
     {
       "id": "frontend",
-      "files": 425,
-      "loc": 250667,
-      "tests": 153,
+      "files": 426,
+      "loc": 250976,
+      "tests": 154,
       "langs": [
         "ts"
       ],
@@ -2810,9 +2909,9 @@
     },
     {
       "id": "backend",
-      "files": 1593,
-      "loc": 93439,
-      "tests": 550,
+      "files": 1657,
+      "loc": 95304,
+      "tests": 583,
       "langs": [
         "java",
         "sql",
@@ -2821,31 +2920,31 @@
       "ca": 0,
       "ce": 0,
       "instability": 0,
-      "entrypoints": 560,
+      "entrypoints": 565,
       "externals": [
         [
           "java.util.UUID",
-          899
+          918
         ],
         [
           "org.springframework.web",
-          562
+          578
         ],
         [
           "java.util.List",
-          540
+          556
         ],
         [
           "java.time.LocalDate",
-          415
+          433
         ],
         [
           "java.math.BigDecimal",
-          243
+          245
         ],
         [
           "java.util.Optional",
-          239
+          241
         ]
       ],
       "terms": [
@@ -3489,7 +3588,7 @@
     {
       "id": "C3",
       "size": 162,
-      "loc": 6848,
+      "loc": 6855,
       "cohesion": 1,
       "terms": [
         "compte",
@@ -4179,9 +4278,9 @@
     },
     {
       "id": "C8",
-      "size": 86,
-      "loc": 16419,
-      "cohesion": 0.58,
+      "size": 87,
+      "loc": 16764,
+      "cohesion": 0.59,
       "terms": [
         "component",
         "seance",
@@ -4193,7 +4292,7 @@
         "override"
       ],
       "folders": [
-        "frontend(53)",
+        "frontend(54)",
         "backend(33)"
       ],
       "files": [
@@ -4253,6 +4352,7 @@
         "frontend/src/app/features/facturation/facturation.routes.ts",
         "frontend/src/app/features/facturation/state/facturation-errors.ts",
         "frontend/src/app/features/facturation/state/facturation-exclusion.ts",
+        "frontend/src/app/features/facturation/state/facturation-periodes.ts",
         "frontend/src/app/features/facturation/state/facturation.store.ts",
         "frontend/src/app/features/patient/cahier-dialyse/cahier-dialyse.component.ts",
         "frontend/src/app/features/patient/cahier-dialyse/cahier-step-fiche.component.ts",
@@ -4287,6 +4387,106 @@
     },
     {
       "id": "C9",
+      "size": 79,
+      "loc": 4399,
+      "cohesion": 0.76,
+      "terms": [
+        "facturation",
+        "synthese",
+        "centre",
+        "des",
+        "direction",
+        "caisse",
+        "absences",
+        "jdbc"
+      ],
+      "folders": [
+        "backend(79)"
+      ],
+      "files": [
+        "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PeriodesComptables.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ClotureComptable.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ConsulterLesPeriodes.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/PublicationDesPeriodes.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsulterLaSynthese.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsulterLeTableauDeBord.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ImprimerLaSynthese.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/LectureDeLaSynthese.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/LectureDuTableauDeBord.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/TableauDeBordDuMois.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/ConsulterLesReglements.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/CriteresDeSituation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/EnregistrerUnReglement.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/PageDeSituations.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/PublicationDesReglements.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/SituationsDesFactures.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/AbsencesDesPatients.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/validation/PublicationDeLaValidation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/configuration/FacturationContexteConfiguration.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/LiaisonDesSeances.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/FactureARegler.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/Reglement.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/Reglements.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/SituationDeFacture.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/ForfaitsDuCentre.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SequenceDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/absences/AbsencesDesPatientsPubliees.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ClotureComptableComptabilite.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyidentite/SessionLegacy.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/ForfaitsDuCentreJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/LiaisonDesSeancesJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDeLaValidationSpring.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesPeriodesSpring.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesReglementsSpring.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/FacturationDuPatientJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDeLaSyntheseJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDuTableauDeBordJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ReglementsJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SequenceDeFacturationJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SyntheseFinanciereDesCentresJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PaiementReponse.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementControleur.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SyntheseControleur.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/TableauDeBordControleur.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/TableauDeBordReponse.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/BarresDeRepartition.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/DeclarationDesAbsences.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationDuPatient.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationValideeEvent.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FactureReglementRecordedEvent.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FormatDImpression.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ImpressionDeLaSynthese.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ProfilDeLaSynthese.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseFinanciereDesCentres.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseMensuelle.java",
+        "backend/contexts/gmao/src/main/java/com/hemodialyse/backend/contexts/gmao/publishedlanguage/SyntheseGmaoDuCentre.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DashboardDiff.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAbsencesQueryService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertHistoryService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertPolicy.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionGmaoQueryService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimePort.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/FacturationSyntheseMensuelleReportService.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/DirectionRealtimeScheduler.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionDashboardRestController.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/DirectionSubscriptionTracker.java",
+        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java"
+      ]
+    },
+    {
+      "id": "C10",
       "size": 70,
       "loc": 11257,
       "cohesion": 0.61,
@@ -4377,94 +4577,6 @@
       ]
     },
     {
-      "id": "C10",
-      "size": 67,
-      "loc": 3964,
-      "cohesion": 0.76,
-      "terms": [
-        "synthese",
-        "centre",
-        "direction",
-        "des",
-        "caisse",
-        "absences",
-        "jdbc",
-        "facturation"
-      ],
-      "folders": [
-        "backend(67)"
-      ],
-      "files": [
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsulterLaSynthese.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ConsulterLeTableauDeBord.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ImprimerLaSynthese.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/LectureDeLaSynthese.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/LectureDuTableauDeBord.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/TableauDeBordDuMois.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/ConsulterLesReglements.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/CriteresDeSituation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/EnregistrerUnReglement.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/PageDeSituations.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/PublicationDesReglements.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/SituationsDesFactures.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/AbsencesDesPatients.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/validation/PublicationDeLaValidation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/configuration/FacturationContexteConfiguration.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/LiaisonDesSeances.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/FactureARegler.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/Reglement.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/Reglements.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/reglement/SituationDeFacture.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/ForfaitsDuCentre.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SequenceDeFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/absences/AbsencesDesPatientsPubliees.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyidentite/SessionLegacy.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/ForfaitsDuCentreJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/LiaisonDesSeancesJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDeLaValidationSpring.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesReglementsSpring.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/FacturationDuPatientJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDeLaSyntheseJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDuTableauDeBordJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ReglementsJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SequenceDeFacturationJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SyntheseFinanciereDesCentresJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PaiementReponse.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementControleur.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SyntheseControleur.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/TableauDeBordControleur.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/TableauDeBordReponse.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/BarresDeRepartition.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/DeclarationDesAbsences.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationDuPatient.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationValideeEvent.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FactureReglementRecordedEvent.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FormatDImpression.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ImpressionDeLaSynthese.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseDeFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseFinanciereDesCentres.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseMensuelle.java",
-        "backend/contexts/gmao/src/main/java/com/hemodialyse/backend/contexts/gmao/publishedlanguage/SyntheseGmaoDuCentre.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DashboardDiff.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAbsencesQueryService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertHistoryService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertPolicy.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionGmaoQueryService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimePort.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/FacturationSyntheseMensuelleReportService.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/DirectionRealtimeScheduler.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionDashboardRestController.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/DirectionSubscriptionTracker.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java"
-      ]
-    },
-    {
       "id": "C11",
       "size": 47,
       "loc": 3883,
@@ -4534,21 +4646,140 @@
     },
     {
       "id": "C12",
-      "size": 30,
-      "loc": 1074,
-      "cohesion": 0.66,
+      "size": 40,
+      "loc": 1435,
+      "cohesion": 0.68,
       "terms": [
-        "facture",
-        "ligne",
-        "requete",
+        "facturation",
+        "mois",
+        "parametres",
         "seance",
-        "simulation",
-        "tva",
         "forfait",
-        "taux"
+        "reponse",
+        "seances",
+        "exclusion"
       ],
       "folders": [
-        "backend(30)"
+        "backend(40)"
+      ],
+      "files": [
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/RouvrirLeMois.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ChangerLeForfaitDUneSeance.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ExclureUneSeance.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ReinclureUneSeance.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulerLaFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisNonClos.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/ReouvertureRefuseeParLaComptabilite.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/parametres/ParametresDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/parametres/ParametresDeFacturationRepository.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/Exclusion.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/MotifDAbsence.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/Reinclusion.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeanceDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeancesDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/ForfaitApplique.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PatientFacture.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PeriodeDeFacturation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PolitiqueDeForfaitApplique.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PriseEnChargeTarifee.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/Regroupement.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SeancesFacturables.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/Simulation.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/StatutDeSeance.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesDeFacturationJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesFacturablesJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ParametresDeFacturationJdbc.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/transaction/UniteDeTravailSpring.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ClotureReponse.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ExclusionRequete.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationControleur.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationReponse.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationRequete.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesReponse.java",
+        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SimulationControleur.java"
+      ]
+    },
+    {
+      "id": "C13",
+      "size": 37,
+      "loc": 996,
+      "cohesion": 1,
+      "terms": [
+        "absence",
+        "absences",
+        "semaine",
+        "des",
+        "reponse",
+        "seances",
+        "suivi",
+        "synthese"
+      ],
+      "folders": [
+        "backend(37)"
+      ],
+      "files": [
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LigneDuSuivi.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesAbsences.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesSeancesDeRattrapage.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ObtenirLaSynthese.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SessionCourante.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuiviDeLaSemaine.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuivreLaSemaine.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/configuration/AbsencesPatientsContexteConfiguration.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceIntrouvable.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceListee.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceNonModifiable.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/DelaiDeQualification.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/MotifAbsence.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/NomDuPatient.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PaginationInvalide.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeancesDeRattrapage.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SemaineDuPlanning.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SourceAbsence.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SyntheseDesAbsences.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyidentite/SessionLegacy.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/persistence/LectureDesAbsencesJdbc.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsenceReponse.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/ConsultationDesAbsencesAdvice.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/PageDAbsencesReponse.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/SuiviDeLaSemaineReponse.java",
+        "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/SyntheseReponse.java"
+      ]
+    },
+    {
+      "id": "C14",
+      "size": 24,
+      "loc": 863,
+      "cohesion": 0.57,
+      "terms": [
+        "facture",
+        "requete",
+        "ligne",
+        "simulation",
+        "tva",
+        "taux",
+        "validation",
+        "factures"
+      ],
+      "folders": [
+        "backend(24)"
       ],
       "files": [
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/DemandeDeSimulation.java",
@@ -4564,15 +4795,9 @@
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/FactureSimulee.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/LigneSimulee.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/NumerotationPrevisionnelle.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PatientFacture.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PeriodeDeFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PolitiqueDeForfaitApplique.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PriseEnChargeTarifee.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SeanceFacturable.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SeancesFacturables.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/TauxDeTva.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/TauxDeTvaComptabilite.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesFacturablesJdbc.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/FacturesJdbc.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ChangementDeForfaitRequete.java",
         "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/EmissionDesFacturesAdvice.java",
@@ -4584,53 +4809,7 @@
       ]
     },
     {
-      "id": "C13",
-      "size": 25,
-      "loc": 865,
-      "cohesion": 0.69,
-      "terms": [
-        "facturation",
-        "parametres",
-        "seance",
-        "forfait",
-        "exclusion",
-        "une",
-        "commande",
-        "requete"
-      ],
-      "folders": [
-        "backend(25)"
-      ],
-      "files": [
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ChangerLeForfaitDUneSeance.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ExclureUneSeance.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ReinclureUneSeance.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulerLaFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/parametres/ParametresDeFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/parametres/ParametresDeFacturationRepository.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/Exclusion.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/MotifDAbsence.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/Reinclusion.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeanceDeFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeancesDeFacturation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/ForfaitApplique.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/Regroupement.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/Simulation.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/StatutDeSeance.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesDeFacturationJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ParametresDeFacturationJdbc.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/transaction/UniteDeTravailSpring.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ExclusionRequete.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationControleur.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationReponse.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationRequete.java",
-        "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SimulationControleur.java"
-      ]
-    },
-    {
-      "id": "C14",
+      "id": "C15",
       "size": 20,
       "loc": 835,
       "cohesion": 0.67,
@@ -4671,7 +4850,7 @@
       ]
     },
     {
-      "id": "C15",
+      "id": "C16",
       "size": 20,
       "loc": 846,
       "cohesion": 0.82,
@@ -4712,7 +4891,7 @@
       ]
     },
     {
-      "id": "C16",
+      "id": "C17",
       "size": 19,
       "loc": 863,
       "cohesion": 0.62,
@@ -4752,7 +4931,7 @@
       ]
     },
     {
-      "id": "C17",
+      "id": "C18",
       "size": 18,
       "loc": 2730,
       "cohesion": 0.72,
@@ -4791,7 +4970,7 @@
       ]
     },
     {
-      "id": "C18",
+      "id": "C19",
       "size": 17,
       "loc": 2322,
       "cohesion": 0.73,
@@ -4829,7 +5008,7 @@
       ]
     },
     {
-      "id": "C19",
+      "id": "C20",
       "size": 16,
       "loc": 645,
       "cohesion": 0.66,
@@ -4866,7 +5045,7 @@
       ]
     },
     {
-      "id": "C20",
+      "id": "C21",
       "size": 16,
       "loc": 780,
       "cohesion": 0.69,
@@ -4903,7 +5082,7 @@
       ]
     },
     {
-      "id": "C21",
+      "id": "C22",
       "size": 16,
       "loc": 710,
       "cohesion": 0.63,
@@ -4940,7 +5119,7 @@
       ]
     },
     {
-      "id": "C22",
+      "id": "C23",
       "size": 15,
       "loc": 1179,
       "cohesion": 0.69,
@@ -4976,7 +5155,7 @@
       ]
     },
     {
-      "id": "C23",
+      "id": "C24",
       "size": 15,
       "loc": 571,
       "cohesion": 0.72,
@@ -5012,7 +5191,7 @@
       ]
     },
     {
-      "id": "C24",
+      "id": "C25",
       "size": 15,
       "loc": 1120,
       "cohesion": 0.9,
@@ -5046,51 +5225,23 @@
         "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/RevokeLicenseRequest.java",
         "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/LicenseRestController.java"
       ]
-    },
-    {
-      "id": "C25",
-      "size": 14,
-      "loc": 666,
-      "cohesion": 0.81,
-      "terms": [
-        "donneur",
-        "vivant",
-        "bilan",
-        "crossmatch",
-        "date",
-        "request",
-        "jpa",
-        "decision"
-      ],
-      "folders": [
-        "backend(14)"
-      ],
-      "files": [
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/aggregate/DonneurVivant.java",
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/port/DonneurVivantRepositoryPort.java",
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/port/DonneurVivantUseCase.java",
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/service/DonneurVivantDomainService.java",
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/valueobject/LienParenteDonneur.java",
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/valueobject/ResultatCrossmatch.java",
-        "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/greffe/valueobject/StatutBilanDonneur.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/DonneurVivantRepositoryAdapter.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/DonneurVivantJpaEntity.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/DonneurVivantJpaRepository.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/CreateDonneurVivantRequest.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/UpdateDonneurVivantRequest.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/DonneurVivantResponse.java",
-        "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DonneurVivantRestController.java"
-      ]
     }
   ],
   "hubs": [],
   "hotspots": [
     {
       "path": "frontend/src/app/core/api/backend-api.service.ts",
-      "churn": 64,
-      "loc": 1288,
+      "churn": 65,
+      "loc": 1326,
       "module": "frontend",
-      "score": 82432
+      "score": 86190
+    },
+    {
+      "path": "backend/platform/src/main/resources/db/schema.sql",
+      "churn": 35,
+      "loc": 1334,
+      "module": "backend",
+      "score": 46690
     },
     {
       "path": "frontend/src/app/features/patient/patient-list.component.ts",
@@ -5098,13 +5249,6 @@
       "loc": 787,
       "module": "frontend",
       "score": 45646
-    },
-    {
-      "path": "backend/platform/src/main/resources/db/schema.sql",
-      "churn": 33,
-      "loc": 1303,
-      "module": "backend",
-      "score": 42999
     },
     {
       "path": "backend/platform/src/main/resources/db/seed.sql",
@@ -5137,9 +5281,9 @@
     {
       "path": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceRestController.java",
       "churn": 17,
-      "loc": 1209,
+      "loc": 1217,
       "module": "backend",
-      "score": 20553
+      "score": 20689
     },
     {
       "path": "frontend/src/app/features/patient/wizard/step-assurance.component.ts",
@@ -5221,9 +5365,9 @@
     {
       "path": "frontend/src/app/core/api/direction-api.service.ts",
       "churn": 12,
-      "loc": 461,
+      "loc": 464,
       "module": "frontend",
-      "score": 5532
+      "score": 5568
     }
   ],
   "coChange": [
@@ -5311,7 +5455,7 @@
       "modules": [
         [
           "backend",
-          440
+          448
         ],
         [
           "frontend",
@@ -5322,7 +5466,7 @@
           8
         ]
       ],
-      "score": 532
+      "score": 540
     },
     {
       "term": "request",
@@ -5339,6 +5483,20 @@
       "score": 475
     },
     {
+      "term": "seance",
+      "modules": [
+        [
+          "backend",
+          325
+        ],
+        [
+          "frontend",
+          40
+        ]
+      ],
+      "score": 365
+    },
+    {
       "term": "date",
       "modules": [
         [
@@ -5353,32 +5511,18 @@
       "score": 364
     },
     {
-      "term": "seance",
-      "modules": [
-        [
-          "backend",
-          320
-        ],
-        [
-          "frontend",
-          39
-        ]
-      ],
-      "score": 359
-    },
-    {
       "term": "response",
       "modules": [
         [
           "backend",
-          298
+          294
         ],
         [
           "frontend",
           11
         ]
       ],
-      "score": 309
+      "score": 305
     },
     {
       "term": "listener",
@@ -5395,6 +5539,20 @@
       "score": 303
     },
     {
+      "term": "ligne",
+      "modules": [
+        [
+          "backend",
+          217
+        ],
+        [
+          "frontend",
+          56
+        ]
+      ],
+      "score": 273
+    },
+    {
       "term": "case",
       "modules": [
         [
@@ -5407,20 +5565,6 @@
         ]
       ],
       "score": 270
-    },
-    {
-      "term": "ligne",
-      "modules": [
-        [
-          "backend",
-          212
-        ],
-        [
-          "frontend",
-          56
-        ]
-      ],
-      "score": 268
     },
     {
       "term": "adapter",
@@ -5441,14 +5585,28 @@
       "modules": [
         [
           "backend",
-          217
+          230
         ],
         [
           "frontend",
           22
         ]
       ],
-      "score": 239
+      "score": 252
+    },
+    {
+      "term": "planning",
+      "modules": [
+        [
+          "backend",
+          163
+        ],
+        [
+          "frontend",
+          78
+        ]
+      ],
+      "score": 241
     },
     {
       "term": "value",
@@ -5463,20 +5621,6 @@
         ]
       ],
       "score": 238
-    },
-    {
-      "term": "planning",
-      "modules": [
-        [
-          "backend",
-          159
-        ],
-        [
-          "frontend",
-          78
-        ]
-      ],
-      "score": 237
     },
     {
       "term": "center",
@@ -5567,6 +5711,34 @@
       "score": 200
     },
     {
+      "term": "absence",
+      "modules": [
+        [
+          "backend",
+          146
+        ],
+        [
+          "frontend",
+          38
+        ]
+      ],
+      "score": 184
+    },
+    {
+      "term": "statut",
+      "modules": [
+        [
+          "backend",
+          174
+        ],
+        [
+          "frontend",
+          6
+        ]
+      ],
+      "score": 180
+    },
+    {
       "term": "equipement",
       "modules": [
         [
@@ -5579,20 +5751,6 @@
         ]
       ],
       "score": 179
-    },
-    {
-      "term": "statut",
-      "modules": [
-        [
-          "backend",
-          171
-        ],
-        [
-          "frontend",
-          6
-        ]
-      ],
-      "score": 177
     },
     {
       "term": "compte",
@@ -5618,20 +5776,6 @@
         [
           "frontend",
           15
-        ]
-      ],
-      "score": 173
-    },
-    {
-      "term": "intervention",
-      "modules": [
-        [
-          "backend",
-          139
-        ],
-        [
-          "frontend",
-          34
         ]
       ],
       "score": 173
@@ -5692,6 +5836,36 @@
       "module": ".github",
       "kind": "cli",
       "route": "if __name__ == \"__main__\""
+    },
+    {
+      "file": "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/api/v1/absences-patients"
+    },
+    {
+      "file": "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "Get"
+    },
+    {
+      "file": "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/semaine"
+    },
+    {
+      "file": "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/synthese"
+    },
+    {
+      "file": "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/{id}/seances-rattrapage"
     },
     {
       "file": "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/interfaces/http/ComptabilisationDuStockControleur.java",
@@ -5950,6 +6124,30 @@
       "module": "backend",
       "kind": "http",
       "route": "/settings"
+    },
+    {
+      "file": "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/api/v1/facturation/periodes"
+    },
+    {
+      "file": "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "Get"
+    },
+    {
+      "file": "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/{mois}/cloturer"
+    },
+    {
+      "file": "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java",
+      "module": "backend",
+      "kind": "http",
+      "route": "/{mois}/rouvrir"
     },
     {
       "file": "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementControleur.java",
@@ -6501,24 +6699,6 @@
       "file": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
       "module": "backend",
       "kind": "http",
-      "route": "Get"
-    },
-    {
-      "file": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
-      "module": "backend",
-      "kind": "http",
-      "route": "/semaine"
-    },
-    {
-      "file": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
-      "module": "backend",
-      "kind": "http",
-      "route": "/synthese"
-    },
-    {
-      "file": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
-      "module": "backend",
-      "kind": "http",
       "route": "/rattrapage-detection"
     },
     {
@@ -6532,12 +6712,6 @@
       "module": "backend",
       "kind": "http",
       "route": "/{id}/qualification"
-    },
-    {
-      "file": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
-      "module": "backend",
-      "kind": "http",
-      "route": "/{id}/seances-rattrapage"
     },
     {
       "file": "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java",
@@ -9074,6 +9248,18 @@
   ],
   "tables": [
     {
+      "table": "absence_patient",
+      "file": "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviJdbcContratTest.java"
+    },
+    {
+      "table": "patients",
+      "file": "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviJdbcContratTest.java"
+    },
+    {
+      "table": "seances",
+      "file": "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviJdbcContratTest.java"
+    },
+    {
       "table": "comptes_comptables",
       "file": "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/infrastructure/persistence/CompteComptableJpa.java"
     },
@@ -9142,10 +9328,6 @@
       "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/PilotageJdbcContratTest.java"
     },
     {
-      "table": "seances",
-      "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/PilotageJdbcContratTest.java"
-    },
-    {
       "table": "agence",
       "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/PilotageJdbcContratTest.java"
     },
@@ -9154,8 +9336,12 @@
       "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/PilotageJdbcContratTest.java"
     },
     {
-      "table": "patients",
-      "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/ReglementsJdbcContratTest.java"
+      "table": "periodes_facturation",
+      "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SchemaDesMoisDeFacturationH2.java"
+    },
+    {
+      "table": "periodes_facturation_journal",
+      "file": "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/SchemaDesMoisDeFacturationH2.java"
     },
     {
       "table": "forfait",
@@ -9464,10 +9650,6 @@
     {
       "table": "infirmier_remplacement",
       "file": "backend/platform/src/main/resources/db/migration/V11__personnel_infirmier.sql"
-    },
-    {
-      "table": "absence_patient",
-      "file": "backend/platform/src/main/resources/db/migration/V13__absences_patients.sql"
     },
     {
       "table": "mouvement_patient",
@@ -11509,6 +11691,185 @@
       "backend/bc-stock/src/main/java/com/hemodialyse/backend/domain/stock/model/StockMovement.java",
       "backend/bc-stock/src/main/java/com/hemodialyse/backend/domain/stock/service/ValorisationStockCalculator.java"
     ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceListee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LigneDuSuivi.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesAbsences.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesSeancesDeRattrapage.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceIntrouvable.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceNonModifiable.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeancesDeRattrapage.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ObtenirLaSynthese.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/DelaiDeQualification.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SyntheseDesAbsences.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SessionCourante.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuiviDeLaSemaine.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuivreLaSemaine.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SemaineDuPlanning.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/configuration/AbsencesPatientsContexteConfiguration.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesSeancesDeRattrapage.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ObtenirLaSynthese.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SessionCourante.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuivreLaSemaine.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyidentite/SessionLegacy.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/persistence/LectureDesAbsencesJdbc.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceIntrouvable.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyidentite/SessionLegacy.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SessionCourante.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/persistence/LectureDesAbsencesJdbc.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceListee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/MotifAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/NomDuPatient.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SourceAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsenceReponse.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LigneDuSuivi.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/AbsencesControleur.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ListerLesSeancesDeRattrapage.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/ObtenirLaSynthese.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SessionCourante.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuivreLaSemaine.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/MotifAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/ConsultationDesAbsencesAdvice.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceIntrouvable.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceNonModifiable.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PaginationInvalide.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/PageDAbsencesReponse.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LigneDuSuivi.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/SuiviDeLaSemaineReponse.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SuiviDeLaSemaine.java"
+    ],
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/interfaces/http/SyntheseReponse.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SyntheseDesAbsences.java"
+    ],
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/application/ConsultationDuSuiviTest.java": [
+      "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/doubles/SuiviEnMemoire.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceIntrouvable.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceNonModifiable.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/MotifAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SourceAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SyntheseDesAbsences.java"
+    ],
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviContrat.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceListee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/MotifAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SourceAbsence.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java"
+    ],
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviEnMemoireContratTest.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+      "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/doubles/SuiviEnMemoire.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/contrat/LecturesDuSuiviJdbcContrat.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/persistence/LectureDesAbsencesJdbc.java"
+    ],
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/domain/RegleDeSuiviDesAbsencesTest.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java"
+    ],
+    "backend/contexts/absences-patients/src/test/java/com/hemodialyse/backend/contexts/absencespatients/doubles/SuiviEnMemoire.java": [
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/LectureDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/application/SeancesRealisees.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceListee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/AbsenceSuivie.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/FiltreDesAbsences.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Identifiants.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/NomDuPatient.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/PageDeResultats.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/Pagination.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/SeanceRealisee.java",
+      "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/domain/StatutAbsence.java"
+    ],
     "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/SessionCourante.java": [
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/domain/CentreId.java"
     ],
@@ -11831,6 +12192,8 @@
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/JournauxDuCentre.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/MappingComptableDuCentre.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/ParametrageFiscal.java",
+      "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/domain/CentreId.java",
+      "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PeriodesComptables.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PlanComptableEnLecture.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/vente/ComptabiliserLesVentesEtReglements.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/stock/ComptabiliserLeStock.java",
@@ -12587,6 +12950,43 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
     ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ClotureComptable.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PeriodeDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SeancesFacturables.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ConsulterLesPeriodes.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PeriodeDeFacturation.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/PublicationDesPeriodes.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/RouvrirLeMois.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisNonClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/ReouvertureRefuseeParLaComptabilite.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java"
+    ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturation.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
@@ -12652,6 +13052,7 @@
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ChangerLeForfaitDUneSeance.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeanceDeFacturation.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeancesDeFacturation.java",
@@ -12664,6 +13065,7 @@
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ExclureUneSeance.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/Exclusion.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/MotifDAbsence.java",
@@ -12673,6 +13075,7 @@
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ReinclureUneSeance.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/Reinclusion.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/SeanceDeFacturation.java",
@@ -12700,6 +13103,7 @@
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/validation/ValiderLaFacturation.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/DemandeDeSimulation.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/TauxDeTvaApplicable.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
@@ -12724,6 +13128,17 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/configuration/FacturationContexteConfiguration.java": [
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/FacturesEmises.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/ParametrageFiscal.java",
+      "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PeriodesComptables.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ClotureComptable.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ConsulterLesPeriodes.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/PublicationDesPeriodes.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/RouvrirLeMois.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ClotureComptableComptabilite.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesPeriodesSpring.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/ReglementsEncaisses.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/FacturesEmisesJdbc.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ReglementsEncaissesJdbc.java",
@@ -12782,6 +13197,15 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ParametresDeFacturationJdbc.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SequenceDeFacturationJdbc.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/transaction/UniteDeTravailSpring.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/Facture.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
@@ -12849,6 +13273,11 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/MotifDAbsence.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/DeclarationDesAbsences.java"
     ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ClotureComptableComptabilite.java": [
+      "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/PeriodesComptables.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ClotureComptable.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/FacturesEmisesJdbc.java": [
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/FacturesEmises.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/RepriseDesSoldes.java"
@@ -12898,6 +13327,11 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/validation/PublicationDeLaValidation.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationValideeEvent.java"
     ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesPeriodesSpring.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/PublicationDesPeriodes.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java"
+    ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/messaging/PublicationDesReglementsSpring.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/reglement/PublicationDesReglements.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FactureReglementRecordedEvent.java"
@@ -12921,6 +13355,12 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/LectureDuTableauDeBord.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/TableauDeBordDuMois.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java"
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ParametresDeFacturationJdbc.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
@@ -12959,6 +13399,17 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ChangementDeForfaitRequete.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/DemandeDeSimulation.java"
     ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ClotureDeFacturationAdvice.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDejaClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisNonClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MotifDeReouvertureObligatoire.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/ReouvertureRefuseeParLaComptabilite.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ClotureReponse.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/EmissionDesFacturesAdvice.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/NumeroDeFactureDejaPris.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/SeancesSansForfait.java"
@@ -12984,6 +13435,17 @@
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ParametresFacturationRequete.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturation.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesDeFacturationControleur.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/ConsulterLesPeriodes.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/RouvrirLeMois.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/PeriodesReponse.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java"
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ReglementControleur.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java",
@@ -13021,6 +13483,7 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/SyntheseControleur.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/SessionCourante.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FormatDImpression.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ProfilDeLaSynthese.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/pilotage/ImprimerLaSynthese.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
     ],
@@ -13039,6 +13502,23 @@
     ],
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/ValidationRequete.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/DemandeDeSimulation.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerEtRouvrirLeMoisTest.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java",
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/MoisDeFacturationEnMemoire.java",
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/SeancesEnMemoire.java",
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/UniteDeTravailDirecte.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDejaClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisNonClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MotifDeReouvertureObligatoire.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/ReouvertureRefuseeParLaComptabilite.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/ForfaitApplique.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PriseEnChargeTarifee.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java"
     ],
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/parametres/ConfigurerLaFacturationTest.java": [
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/ParametresEnMemoire.java",
@@ -13083,8 +13563,16 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/StatutDeSeance.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulationFixture.java"
     ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/ModificationsDUnMoisClotureTest.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/seance/MotifDAbsence.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/StatutDeSeance.java",
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulationFixture.java"
+    ],
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/simulation/SimulationFixture.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/AbsencesEnMemoire.java",
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/MoisDeFacturationEnMemoire.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/ParametresEnMemoire.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/SequenceEnMemoire.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/SeancesEnMemoire.java",
@@ -13104,7 +13592,9 @@
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/application/validation/ValiderLaFacturationTest.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/DemandeDeSimulation.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/simulation/TauxDeTvaApplicable.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/FacturesEnMemoire.java",
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/MoisDeFacturationEnMemoire.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/ParametresEnMemoire.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/PublicationEnMemoire.java",
       "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/SeancesEnMemoire.java",
@@ -13175,6 +13665,41 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/comptabilite/ReglementsEncaissesJdbc.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/FacturationDuPatientJdbc.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationDuPatient.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationConcurrentContrat.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/UniteDeTravail.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/CloturerLeMois.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/cloture/GardeDesMoisClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationClos.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/PeriodeDeFacturation.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationConcurrentJdbcTest.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationConcurrentPostgresContractIT.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationContrat.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationEnMemoireContratTest.java": [
+      "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/MoisDeFacturationEnMemoire.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationJdbcContratTest.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/MoisDeFacturationPostgresContractIT.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/MoisDeFacturationJdbc.java"
     ],
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/contrat/ParametresDeFacturationContrat.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
@@ -13341,6 +13866,9 @@
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/simulation/SequenceDeFacturation.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SequenceDeFacturationJdbc.java"
     ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationTest.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java"
+    ],
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/domain/facture/FactureTest.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/parametres/ModeleDeNumerotation.java",
@@ -13386,6 +13914,12 @@
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/publishedlanguage/ReglementsEncaisses.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FacturationDuPatient.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/RepriseDesSoldes.java"
+    ],
+    "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/MoisDeFacturationEnMemoire.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/EntreeDuJournal.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturation.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/cloture/MoisDeFacturationRepository.java"
     ],
     "backend/contexts/facturation/src/test/java/com/hemodialyse/backend/contexts/facturation/doubles/ParametresEnMemoire.java": [
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/CentreId.java",
@@ -15497,7 +16031,6 @@
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/port/AbsenceDonneesPort.java",
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/port/AbsencePatientRepositoryPort.java",
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/service/ValorisationAbsenceService.java",
-      "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/service/PlanningSemaineService.java",
       "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/PagedResult.java",
       "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/exception/BusinessException.java"
     ],
@@ -17454,12 +17987,8 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AbsencePatientRestController.java": [
       "backend/platform/src/main/java/com/hemodialyse/backend/application/absence/AbsencePatientService.java",
       "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/SaisieInfirmierNotifier.java",
-      "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/AbsenceFiltre.java",
-      "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/AbsenceLigne.java",
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/AbsencePatient.java",
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/MotifAbsence.java",
-      "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/absence/model/StatutAbsence.java",
-      "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/PagedResult.java",
       "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/CenterAccessGuard.java",
       "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java"
     ],
@@ -17608,6 +18137,7 @@
       "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java"
     ],
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DocumentRestController.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/ProfilDeLaSynthese.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseDeFacturation.java",
       "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseMensuelle.java",
       "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/CustomTemplateCompiler.java",
@@ -17945,6 +18475,7 @@
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/SeanceUseCase.java",
       "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/exception/BusinessException.java",
       "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/CenterId.java",
+      "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/CenterAccessGuard.java",
       "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/CurrentUser.java"
     ],
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceStationRestController.java": [
@@ -18301,6 +18832,11 @@
       "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/PagedResult.java",
       "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/exception/BusinessException.java"
     ],
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/absencespatients/consultation/ConsultationAbsencesCharacterizationSupport.java": [
+      "backend/platform/src/test/java/com/hemodialyse/backend/characterization/gmao/plans/GoldenMaster.java",
+      "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/RoleScopeFilter.java",
+      "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java"
+    ],
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/GenerationDEcritures.java": [
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/ecriture/CloturerUnePeriode.java",
       "backend/contexts/comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/application/vente/ComptabiliserLesVentesEtReglements.java",
@@ -18357,6 +18893,16 @@
     ],
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/referentiel/ReferentielConsommateursCharacterizationIntegrationTest.java": [
       "backend/platform/src/test/java/com/hemodialyse/backend/characterization/comptabilite/GenerationDEcritures.java"
+    ],
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/cloture/ClotureCharacterizationSupport.java": [
+      "backend/platform/src/test/java/com/hemodialyse/backend/characterization/gmao/plans/GoldenMaster.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java",
+      "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java"
+    ],
+    "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/cloture/EvenementsDeClotureEnregistres.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationCloturee.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/PeriodeDeFacturationRouverte.java"
     ],
     "backend/platform/src/test/java/com/hemodialyse/backend/characterization/facturation/pilotage/PilotageFacturationSupport.java": [
       "backend/platform/src/test/java/com/hemodialyse/backend/characterization/gmao/plans/GoldenMaster.java",
@@ -18632,6 +19178,10 @@
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/model/ResultatOptimisation.java",
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/model/RunOptimisation.java",
       "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/port/CalendrierPropositionPort.java"
+    ],
+    "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/reporting/SyntheseMensuelleSqlPostgresContractIT.java": [
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/FormatDImpression.java",
+      "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SyntheseMensuelle.java"
     ],
     "backend/platform/src/test/java/com/hemodialyse/backend/infrastructure/scheduling/AbsencePatientSchedulerTest.java": [
       "backend/platform/src/main/java/com/hemodialyse/backend/application/absence/AbsencePatientService.java",
@@ -21047,6 +21597,7 @@
       "frontend/src/app/core/api/absence-patient-api.service.ts",
       "frontend/src/app/features/facturation/state/facturation-exclusion.ts",
       "frontend/src/app/features/facturation/state/facturation-errors.ts",
+      "frontend/src/app/features/facturation/state/facturation-periodes.ts",
       "frontend/src/app/core/api/http-error-detail.ts"
     ],
     "frontend/src/app/features/facturation/facturation.routes.ts": [
@@ -21063,6 +21614,12 @@
     "frontend/src/app/features/facturation/state/facturation-exclusion.ts": [
       "frontend/src/app/core/api/absence-patient-api.service.ts"
     ],
+    "frontend/src/app/features/facturation/state/facturation-periodes.spec.ts": [
+      "frontend/src/app/features/facturation/state/facturation-periodes.ts"
+    ],
+    "frontend/src/app/features/facturation/state/facturation-periodes.ts": [
+      "frontend/src/app/core/api/backend-api.service.ts"
+    ],
     "frontend/src/app/features/facturation/state/facturation.store.spec.ts": [
       "frontend/src/app/core/api/backend-api.service.ts",
       "frontend/src/app/core/state/app-shell.store.ts",
@@ -21070,6 +21627,7 @@
     ],
     "frontend/src/app/features/facturation/state/facturation.store.ts": [
       "frontend/src/app/core/api/backend-api.service.ts",
+      "frontend/src/app/features/facturation/state/facturation-periodes.ts",
       "frontend/src/app/core/state/app-shell.store.ts",
       "frontend/src/app/core/api/absence-patient-api.service.ts",
       "frontend/src/app/features/facturation/state/facturation-errors.ts",

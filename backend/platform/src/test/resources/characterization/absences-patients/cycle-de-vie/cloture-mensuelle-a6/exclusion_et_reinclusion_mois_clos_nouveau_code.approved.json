@@ -1,0 +1,77 @@
+{
+  "absencesApresRefus": [],
+  "absencesApresReinclusionRefusee": [
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<15_DU_MOIS-1>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": "<U_ADMIN>",
+      "forfait_id": "<F_HD>",
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_1>",
+      "modifiee_le": "<HORODATAGE>",
+      "modifiee_par": "<U_ADMIN>",
+      "montant_ht": "10000.00",
+      "motif": "MALADIE",
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": "<HORODATAGE>",
+      "qualifiee_par": "<U_ADMIN>",
+      "source": "DECLAREE",
+      "statut": "JUSTIFIEE",
+      "taux_tva": "19.00"
+    }
+  ],
+  "absencesFinales": [],
+  "exclusionApresReouverture": {
+    "status": 200
+  },
+  "exclusionDansUnMoisClos": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_CLOS",
+      "status": 422
+    },
+    "status": 422
+  },
+  "refus": {
+    "code": "MOIS_D_ABSENCES_CLOS",
+    "status": 422
+  },
+  "refusReinclusion": {
+    "code": "MOIS_D_ABSENCES_CLOS",
+    "status": 422
+  },
+  "reinclusionApresReouverture": {
+    "status": 200
+  },
+  "reinclusionDansUnMoisClos": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_CLOS",
+      "status": 422
+    },
+    "status": 422
+  },
+  "seancesApresRefus": [
+    {
+      "date_seance": "<15_DU_MOIS-1>",
+      "exclusion_absence_id": null,
+      "forfait_override_nom": null,
+      "forfait_override_prix": null,
+      "id": "<SEANCE_01>",
+      "statut": "VALIDEE",
+      "statut_avant_exclusion": null
+    }
+  ],
+  "seancesApresReinclusionRefusee": [
+    {
+      "date_seance": "<15_DU_MOIS-1>",
+      "exclusion_absence_id": "<ABS_1>",
+      "forfait_override_nom": null,
+      "forfait_override_prix": null,
+      "id": "<SEANCE_01>",
+      "statut": "ABSENT",
+      "statut_avant_exclusion": "VALIDEE"
+    }
+  ]
+}

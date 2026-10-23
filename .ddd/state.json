@@ -8,8 +8,8 @@
     "tactical": "in-progress",
     "architecture": "done",
     "plan": "done",
-    "slices": "pending",
-    "verify": "pending"
+    "slices": "in-progress",
+    "verify": "in-progress"
   },
   "gates": {
     "strategic": "approved",
@@ -40,7 +40,9 @@
     "absences-patients-a1-consultation": "built",
     "absences-patients-a2-cycle-de-vie": "built",
     "absences-patients-a3-detection-de-nuit": "built",
-    "absences-patients-a4-lectures-publiees": "built"
+    "absences-patients-a4-lectures-publiees": "built",
+    "absences-patients-a6-cloture-mensuelle": "built",
+    "facturation-f7b-corrections-revue": "built"
   },
   "contexts": {
     "gmao": "architected",

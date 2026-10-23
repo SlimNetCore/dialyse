@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted (point 3 révisé par l'ADR 0044 le 2026-10-23)
 date: 2026-10-21
 deciders: utilisateur (règles décidées le 2026-10-21) ; réalise l'ADR 0009 (clôture mensuelle de facturation, tactique F16)
 ---
@@ -22,7 +22,10 @@ doit rester cohérente avec elle.
    période touche au moins un mois clos du centre (tout mois couvert par l'intervalle, même d'un seul jour) ; l'exclusion, la
    réinclusion et le changement de forfait d'une séance dont la **date de séance** est dans un mois clos (la période demandée est
    sans effet). Restent permis : simulation (`POST /preview`), toutes les lectures, les règlements (F4).
-3. **Préconditions de clôture** : aucune, l'administrateur décide. La réponse porte l'avertissement chiffré `seancesEligiblesRestantes`
+3. **Préconditions de clôture** : aucune, l'administrateur décide. *(Révisé le 2026-10-23 par l'ADR 0044 : aucune
+   précondition d' **état**,
+   mais seul un mois terminé se clôture, au fuseau du centre — 422 `PERIODE_NON_TERMINEE`, comme les absences.)* La
+   réponse porte l'avertissement chiffré `seancesEligiblesRestantes`
    (séances `VALIDEE`/`SIGNEE`, non facturées, non exclues du mois). Clôturer deux fois : **409 `PERIODE_DEJA_CLOTUREE`** (comme la
    clôture comptable ; l'alternative 200 inchangé a été écartée : elle cache à l'appelant qu'un autre administrateur a déjà clos).
 4. **Réouverture** : `ADMIN`, motif obligatoire (400 `MOTIF_DE_REOUVERTURE_OBLIGATOIRE`, borné à 500 caractères), auteur = utilisateur de

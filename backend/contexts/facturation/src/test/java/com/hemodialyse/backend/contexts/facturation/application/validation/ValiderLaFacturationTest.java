@@ -336,7 +336,9 @@ class ValiderLaFacturationTest {
                 .hasMessageContaining("2026-09");
 
         assertThat(factures.emises()).isEmpty();
-        assertThat(moisDeFacturation.moisVerrouilles()).containsExactly(YearMonth.of(2026, 8), YearMonth.of(2026, 9));
+        // F7 bis (revue, constat 3) : tous les mois de l'intervalle sont verrouillés ensemble, dans l'ordre croissant, puis le premier
+        // mois clos est refusé (la transaction est annulée)
+        assertThat(moisDeFacturation.moisVerrouilles()).containsExactly(YearMonth.of(2026, 8), YearMonth.of(2026, 9), YearMonth.of(2026, 10));
     }
 
     @Test

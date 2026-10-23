@@ -8,6 +8,7 @@ import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.Notif
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Politique de notification (RG-ABS-044, 045) : après le contrôle de nuit, s'il reste des absences à qualifier, prévenir le centre
@@ -42,17 +43,13 @@ public class NotificationDesAbsencesAQualifier {
 
     SyntheseDesAbsences synthese(CentreId centre, LocalDate aujourdhui) {
         LocalDate limite = DelaiDeQualification.limite(aujourdhui);
-        LocalDate dernierJourEnRetard = limite.minusDays(1);
         long aQualifier = lecture.nombreAQualifier(centre);
         long enRetard = lecture.nombreAQualifierAvant(centre, limite);
-        for (YearMonth clos : mois.moisClos(centre)) {
-            LocalDate du = clos.atDay(1);
-            LocalDate au = clos.atEndOfMonth();
-            aQualifier -= lecture.nombreAQualifierEntre(centre, du, au);
-            LocalDate finDuRetard = au.isBefore(dernierJourEnRetard) ? au : dernierJourEnRetard;
-            if (!du.isAfter(finDuRetard)) {
-                enRetard -= lecture.nombreAQualifierEntre(centre, du, finDuRetard);
-            }
+        // un seul compte pour tous les mois clos (leur nombre croît avec les années) : deux requêtes quel que soit ce nombre
+        List<YearMonth> clos = mois.moisClos(centre);
+        if (!clos.isEmpty()) {
+            aQualifier -= lecture.nombreAQualifierDansLesMois(centre, clos, null);
+            enRetard -= lecture.nombreAQualifierDansLesMois(centre, clos, limite);
         }
         return new SyntheseDesAbsences(aQualifier, enRetard);
     }

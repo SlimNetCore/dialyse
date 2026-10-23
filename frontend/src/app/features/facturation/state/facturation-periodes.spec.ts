@@ -1,5 +1,27 @@
 import {describe, expect, it} from 'vitest';
-import {anneesDesMois, douzeMois, indexerLesMois, motifDeReouvertureValide, moisCouverts} from './facturation-periodes';
+import {
+  anneesDesMois,
+  douzeMois,
+  indexerLesMois,
+  moisClosable,
+  moisCourant,
+  motifDeReouvertureValide,
+  moisCouverts
+} from './facturation-periodes';
+
+describe('moisClosable (ADR 0044, comme les absences)', () => {
+  it('seul un mois passé se clôture : ni le mois en cours, ni un mois futur', () => {
+    expect(moisClosable('2026-09', '2026-10')).toBe(true);
+    expect(moisClosable('2025-12', '2026-01')).toBe(true);
+    expect(moisClosable('2026-10', '2026-10')).toBe(false);
+    expect(moisClosable('2027-03', '2026-10')).toBe(false);
+  });
+
+  it('mois courant du navigateur au format AAAA-MM', () => {
+    expect(moisCourant(new Date(2026, 0, 31))).toBe('2026-01');
+    expect(moisCourant(new Date(2026, 9, 1))).toBe('2026-10');
+  });
+});
 
 describe('moisCouverts', () => {
   it('un seul mois pour un intervalle dans le même mois', () => {

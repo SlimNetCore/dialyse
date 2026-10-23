@@ -122,6 +122,42 @@ class ControleDesAbsencesTest {
         assertThat(resultat.bilan().joursIgnores()).contains(dernierJourDOctobre).doesNotContain(premierJourDeNovembre);
     }
 
+    @Test
+    void une_cloture_concurrente_entre_la_lecture_et_l_ecriture_empeche_la_creation_d_une_absence_dans_le_mois_clos() {
+        monde.attendre(CENTRE, HIER, AMRANI);
+        monde.moisClosEntreTemps.add(YearMonth.from(HIER));
+
+        ResultatDuCentre resultat = nuit();
+
+        assertThat(monde.absencesDe(CENTRE)).isEmpty();
+        assertThat(resultat.bilan().creees()).isZero();
+        assertThat(resultat.bilan().echecs()).isEmpty();
+    }
+
+    @Test
+    void une_cloture_concurrente_entre_la_lecture_et_l_ecriture_laisse_l_absence_a_reconcilier_dans_le_mois_clos() {
+        AbsencePatient absence = monde.poser(1, CENTRE, AMRANI, HIER, SourceAbsence.AUTOMATIQUE, StatutAbsence.A_QUALIFIER);
+        monde.seances.poserLaSeance(CENTRE, AMRANI, HIER, "VALIDEE");
+        monde.moisClosEntreTemps.add(YearMonth.from(HIER));
+
+        ResultatDuCentre resultat = nuit();
+
+        assertThat(resultat.bilan().annulees()).isZero();
+        assertThat(monde.absences.lire(absence.id()).orElseThrow().statut()).isEqualTo(StatutAbsence.A_QUALIFIER);
+    }
+
+    @Test
+    void un_verrou_de_mois_indisponible_est_un_echec_compte_et_pas_une_declaration_concurrente() {
+        monde.attendre(CENTRE, HIER, AMRANI);
+        monde.moisVerrouIndisponible.add(YearMonth.from(HIER));
+
+        ResultatDuCentre resultat = nuit();
+
+        assertThat(monde.absencesDe(CENTRE)).isEmpty();
+        assertThat(resultat.bilan().echecs()).hasSize(1);
+        assertThat(resultat.bilan().echecs().getFirst().cause()).isEqualTo("écriture concurrente");
+    }
+
     // --- isolement des incidents ---
 
     @Test

@@ -148,6 +148,13 @@ abstract class CycleDeVieAbsencesCharacterizationSupport {
         return d;
     }
 
+    /**
+     * Jour de calendrier nomme (stable d'un jour d'execution a l'autre) : alias libre {@code <nom>} dans les goldens.
+     */
+    protected void jourNomme(LocalDate d, String alias) {
+        datesNommees.put(d.toString(), alias);
+    }
+
     // ------------------------------------------------------------------ identites
 
     protected static RequestPostProcessor as(UUID utilisateur, UUID centre, String... roles) {

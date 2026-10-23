@@ -89,8 +89,12 @@ public class DetectionAbsences {
                 return true;
             });
         } catch (EcritureConcurrente dejaPrise) {
-            // une déclaration vient de prendre ce jour : l'absence existe, la détection a atteint son but
-            return false;
+            // une déclaration vient de prendre ce jour : l'absence existe, la détection a atteint son but ; sinon c'est un verrou
+            // (mois en cours de clôture, délai dépassé) : l'absence n'existe pas, l'incident est compté dans le bilan et journalisé
+            if (absences.existe(centre, patient, jour)) {
+                return false;
+            }
+            throw dejaPrise;
         }
     }
 }

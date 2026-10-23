@@ -1,0 +1,149 @@
+{
+  "apres": {
+    "mois": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "nombreDeMois": 12,
+    "status": 200
+  },
+  "avant": {
+    "mois": {
+      "clotureLe": null,
+      "cloturePar": null,
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "OUVERT"
+    },
+    "nombreDeMois": 12,
+    "status": 200
+  },
+  "base": [
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<03_DU_MOIS-1>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_01>",
+      "modifiee_le": null,
+      "modifiee_par": null,
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "A_QUALIFIER",
+      "taux_tva": "19.00"
+    },
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<04_DU_MOIS-1>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_02>",
+      "modifiee_le": null,
+      "modifiee_par": null,
+      "montant_ht": "10000.00",
+      "motif": "MALADIE",
+      "patient_id": "<P_BELKACEM>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": "<HORODATAGE>",
+      "qualifiee_par": "<U_SECRETAIRE>",
+      "source": "AUTOMATIQUE",
+      "statut": "JUSTIFIEE",
+      "taux_tva": "19.00"
+    },
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<05_DU_MOIS-1>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_03>",
+      "modifiee_le": null,
+      "modifiee_par": null,
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_CHIKHI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "A_QUALIFIER",
+      "taux_tva": "19.00"
+    },
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<01_DU_MOIS>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_04>",
+      "modifiee_le": null,
+      "modifiee_par": null,
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_DAHMANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "A_QUALIFIER",
+      "taux_tva": "19.00"
+    }
+  ],
+  "cloture": {
+    "corps": {
+      "absencesAQualifierRestantes": 2,
+      "absencesEnRetard": 2,
+      "centerId": "<CENTRE_A>",
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-1>",
+      "statut": "CLOTURE"
+    },
+    "status": 200
+  },
+  "journal": [
+    {
+      "aQualifier": "2",
+      "enRetard": "2",
+      "mois": "<MOIS-1>",
+      "motif": null,
+      "par": "<U_ADMIN>",
+      "type": "CLOTURE"
+    }
+  ],
+  "moisCourant": {
+    "mois": {
+      "clotureLe": null,
+      "cloturePar": null,
+      "mois": "<MOIS>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "OUVERT"
+    },
+    "nombreDeMois": 12,
+    "status": 200
+  }
+}

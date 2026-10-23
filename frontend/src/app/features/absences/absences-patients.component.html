@@ -54,6 +54,11 @@
               {{ 'ABSENCES.RATTRAPAGE_DETECTION.FIN_RAMENEE' | translate: {fin: r.fin} }}
             </p>
           }
+          @if (r.joursIgnores?.length) {
+            <p class="abs-feedback error" data-testid="abs-rattrapage-jours-ignores" role="alert">
+              {{ 'ABSENCES.RATTRAPAGE_DETECTION.JOURS_IGNORES' | translate: {jours: r.joursIgnores!.join(', ')} }}
+            </p>
+          }
           @if (r.echecs) {
             <p class="abs-feedback error" data-testid="abs-rattrapage-echecs" role="alert">
               {{ 'ABSENCES.RATTRAPAGE_DETECTION.ECHECS' | translate: {echecs: r.echecs} }}
@@ -244,7 +249,12 @@
           <ng-container matColumnDef="actions">
             <th *matHeaderCellDef mat-header-cell></th>
             <td *matCellDef="let row" class="abs-row-actions" mat-cell>
-              @if (row.statut === 'A_QUALIFIER') {
+              @if (moisClos(row)) {
+                <span [matTooltip]="'ABSENCES.MOIS.LIGNE_CLOSE' | translate" class="abs-mois-clos"
+                      data-testid="abs-mois-clos">
+                  <mat-icon>lock</mat-icon>
+                </span>
+              } @else if (row.statut === 'A_QUALIFIER') {
                 <mat-form-field appearance="outline" class="abs-inline-motif subscript-hidden">
                   <mat-label>{{ 'ABSENCES.CHOISIR_MOTIF' | translate }}</mat-label>
                   <mat-select (selectionChange)="quickQualify(row, $event.value)" data-testid="abs-qualifier">
@@ -347,4 +357,6 @@
       </mat-card-content>
     </mat-card>
   }
+
+  <app-mois-d-absences/>
 </section>

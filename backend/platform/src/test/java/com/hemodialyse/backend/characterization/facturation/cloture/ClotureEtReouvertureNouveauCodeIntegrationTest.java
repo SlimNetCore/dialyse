@@ -49,11 +49,25 @@ class ClotureEtReouvertureNouveauCodeIntegrationTest extends ClotureCharacteriza
     }
 
     @Test
-    void la_cloture_accepte_un_corps_avec_le_centre_de_la_session_et_n_exige_aucune_precondition() throws Exception {
-        Resp reponse = doPost("/periodes/2027-03/cloturer", json("{'centerId':'" + CENTRE_A + "'}"), adminA());
+    void la_cloture_accepte_un_corps_avec_le_centre_de_la_session_et_n_exige_aucune_precondition_d_etat() throws Exception {
+        // ADR 0044 : un mois passé sans séance (avant : 2027-03, un mois futur, que la clôture refuse désormais)
+        Resp reponse = doPost("/periodes/2026-03/cloturer", json("{'centerId':'" + CENTRE_A + "'}"), adminA());
 
         golden("cloture_sans_seance_avec_corps", reponse);
         assertEquals(0, json(reponse).path("seancesEligiblesRestantes").asInt());
+    }
+
+    @Test
+    void la_cloture_du_mois_en_cours_ou_d_un_mois_futur_est_refusee_422_comme_celle_des_absences() throws Exception {
+        golden("cloture_mois_futur_422", cloturer("2099-03", adminA()));
+
+        String moisEnCours = java.time.YearMonth.now(java.time.ZoneId.of("Africa/Algiers")).toString();
+        Resp enCours = cloturer(moisEnCours, adminA());
+        assertEquals(422, enCours.status());
+        assertEquals("PERIODE_NON_TERMINEE", json(enCours).path("code").asString());
+        assertEquals(moisEnCours, json(enCours).path("mois").asString());
+        assertEquals(0, compter("periodes_facturation", CENTRE_A));
+        assertEquals(0, compter("periodes_facturation_journal", CENTRE_A));
     }
 
     @Test
@@ -124,6 +138,8 @@ class ClotureEtReouvertureNouveauCodeIntegrationTest extends ClotureCharacteriza
         periodeComptableCloturee(CENTRE_B, 2026, 9);
         evenements.oublier();
 
+        // revue F7 (constat 5) : le motif est vérifié avant la période comptable, un motif absent répond donc 400 et non 422
+        assertEquals(400, rouvrir(AOUT, " ", adminA()).status());
         golden("reouverture_comptabilite_close_422", rouvrir(AOUT, "motif", adminA()));
         assertEquals(200, rouvrir(SEPTEMBRE, "motif", adminA()).status());
 

@@ -56,6 +56,9 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
     private static final Intervenant SANS_DROIT = new Intervenant(SECRETAIRE, DroitDeCorrection.REFUSE);
     private static final Intervenant AVEC_DROIT = new Intervenant(MEDECIN, DroitDeCorrection.ACCORDE);
     private static final PeriodesFacturees AUCUNE_FACTURE = (centre, patient, jour) -> false;
+    private static final com.hemodialyse.backend.contexts.absencespatients.application.GardeDesMoisDAbsences GARDE_OUVERTE =
+            new com.hemodialyse.backend.contexts.absencespatients.application.GardeDesMoisDAbsences(
+                    new com.hemodialyse.backend.contexts.absencespatients.doubles.MoisAbsencesEnMemoire());
     private final ExecutorService pool = Executors.newFixedThreadPool(3);
 
     protected abstract JdbcTemplate jdbc();
@@ -124,7 +127,8 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
         }));
         assertThat(verrouillee.await(30, TimeUnit.SECONDS)).isTrue();
         AnnulerUneAbsence annuler = new AnnulerUneAbsence(unite(), absences, AUCUNE_FACTURE, (centre, absence) -> false,
-                (c, p, j) -> { }, HorlogeDesCentres.enUtc(horloge()));
+                (c, p, j) -> {
+                }, HorlogeDesCentres.enUtc(horloge()), GARDE_OUVERTE);
         Future<?> seconde = pool.submit(() -> annuler.executer(CENTRE, id(1), "second", AVEC_DROIT));
 
         attendreEtVerifierQueLEcritureEstBloquee(seconde);
@@ -164,7 +168,8 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
         }));
         assertThat(verrouillee.await(30, TimeUnit.SECONDS)).isTrue();
         RattraperUneAbsence rattraper = new RattraperUneAbsence(unite(), absences, AUCUNE_FACTURE, toutesRealisees(),
-                (c, p, j) -> { }, HorlogeDesCentres.enUtc(horloge()));
+                (c, p, j) -> {
+                }, HorlogeDesCentres.enUtc(horloge()), GARDE_OUVERTE);
         Future<?> seconde = pool.submit(() -> rattraper.executer(CENTRE, id(2), rattrapage, AVEC_DROIT));
 
         attendreEtVerifierQueLEcritureEstBloquee(seconde);
@@ -192,7 +197,9 @@ abstract class EcrituresConcurrentesContrat extends AbsencesContrat {
         GenerateurIdentifiants ids = () -> new AbsenceId(new UUID(0x8004, 2));
         DeclarerUneAbsence declarer = new DeclarerUneAbsence(unite(), (centre, patient) -> true, absences, AUCUNE_FACTURE,
                 toutesRealiseesSauCeJour(), (centre, patient, jour) -> Optional.empty(), (centre, jour) -> java.math.BigDecimal.ZERO,
-                ids, (c, p, j) -> { }, HorlogeDesCentres.enUtc(Clock.fixed(Instant.parse("2026-10-12T08:00:00Z"), ZoneOffset.UTC)));
+                ids, (c, p, j) -> {
+        }, HorlogeDesCentres.enUtc(Clock.fixed(Instant.parse("2026-10-12T08:00:00Z"), ZoneOffset.UTC)),
+                GARDE_OUVERTE);
         Future<?> perdante = pool.submit(() -> declarer.executer(CENTRE,
                 new DeclarerUneAbsence.Commande(AMRANI, JOUR, null, null), SANS_DROIT));
 

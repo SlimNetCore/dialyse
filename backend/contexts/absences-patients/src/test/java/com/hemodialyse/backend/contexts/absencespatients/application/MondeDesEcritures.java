@@ -51,6 +51,21 @@ final class MondeDesEcritures {
     final AbsencesEnMemoire absences = new AbsencesEnMemoire();
     final SuiviEnMemoire suivi = new SuiviEnMemoire();
     final UniteDeTravailEnMemoire unite = new UniteDeTravailEnMemoire(absences);
+    final com.hemodialyse.backend.contexts.absencespatients.doubles.MoisAbsencesEnMemoire mois =
+            new com.hemodialyse.backend.contexts.absencespatients.doubles.MoisAbsencesEnMemoire();
+    final GardeDesMoisDAbsences garde = new GardeDesMoisDAbsences(mois);
+    /**
+     * Lecture dont les comptes « à qualifier » portent sur les absences réellement écrites.
+     */
+    final SuiviEnMemoire lectureDesAbsences = new SuiviEnMemoire() {
+        @Override
+        public long nombreAQualifierEntre(CentreId centre, LocalDate du, LocalDate au) {
+            return absences.toutes().stream().filter(a -> a.centre().equals(centre)
+                    && a.statut() == com.hemodialyse.backend.contexts.absencespatients.domain.StatutAbsence.A_QUALIFIER
+                    && !a.dateDeSeance().isBefore(du) && !a.dateDeSeance().isAfter(au)).count();
+        }
+    };
+    final List<Object> evenementsDeMois = new ArrayList<>();
     final Set<String> patients = new HashSet<>();
     final Set<String> joursFactures = new HashSet<>();
     final Map<PatientId, ForfaitApplicable> forfaits = new HashMap<>();
@@ -82,6 +97,8 @@ final class MondeDesEcritures {
     final RattraperUneAbsence rattraper;
     final AnnulerUneAbsence annuler;
     final RetirerLAbsenceDeLExclusion retirer;
+    final CloturerLeMoisDAbsences cloturer;
+    final RouvrirLeMoisDAbsences rouvrir;
 
     MondeDesEcritures() {
         patients.add(AMRANI.valeur() + "@" + CENTRE.valeur());
@@ -92,14 +109,27 @@ final class MondeDesEcritures {
         TauxDeTva tauxDuMonde = (centre, jour) -> taux;
         GenerateurIdentifiants ids = () -> new AbsenceId(new UUID(20, identifiant.incrementAndGet()));
         declarer = new DeclarerUneAbsence(unite, existants, absences, periodes, suivi, forfaitsDuMonde, tauxDuMonde, ids,
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge), garde);
         qualifier = new QualifierUneAbsence(unite, absences, periodes,
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge), garde);
         rattraper = new RattraperUneAbsence(unite, absences, periodes, suivi,
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge), garde);
         annuler = new AnnulerUneAbsence(unite, absences, periodes, (centre, absence) -> absencesDExclusion.contains(absence),
-                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge));
-        retirer = new RetirerLAbsenceDeLExclusion(unite, absences);
+                (centre, patient, jour) -> signalements.add(centre + "/" + patient + "/" + jour), HorlogeDesCentres.enUtc(horloge), garde);
+        retirer = new RetirerLAbsenceDeLExclusion(unite, absences, garde);
+        PublicationDesMoisDAbsences publication = new PublicationDesMoisDAbsences() {
+            @Override
+            public void cloture(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.MoisDAbsencesCloture e) {
+                evenementsDeMois.add(e);
+            }
+
+            @Override
+            public void rouvert(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.MoisDAbsencesRouvert e) {
+                evenementsDeMois.add(e);
+            }
+        };
+        cloturer = new CloturerLeMoisDAbsences(mois, lectureDesAbsences, publication, unite, HorlogeDesCentres.enUtc(horloge));
+        rouvrir = new RouvrirLeMoisDAbsences(mois, publication, unite, HorlogeDesCentres.enUtc(horloge));
     }
 
     private static String cle(CentreId centre, PatientId patient, LocalDate jour) {

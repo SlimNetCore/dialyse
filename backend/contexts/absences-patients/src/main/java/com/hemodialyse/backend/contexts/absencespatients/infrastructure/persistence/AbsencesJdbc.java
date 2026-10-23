@@ -87,12 +87,7 @@ public class AbsencesJdbc implements AbsencesRepository {
      * Un verrou qu'on ne peut pas prendre (délai dépassé, interblocage détecté) est une écriture concurrente : 409.
      */
     private static <T> T verrouillant(Supplier<T> lecture) {
-        try {
-            return lecture.get();
-        } catch (PessimisticLockingFailureException | QueryTimeoutException | UncategorizedSQLException e) {
-            siVerrouImpossibleSinonRelancer(e);
-            throw new EcritureConcurrente();
-        }
+        return RefusDeVerrou.verrouillant(lecture);
     }
 
     /**
@@ -100,9 +95,7 @@ public class AbsencesJdbc implements AbsencesRepository {
      * échec est relancé tel quel. Rend la main (donc lève {@link EcritureConcurrente}) dans les cas de verrou, de doublon et de délai.
      */
     private static void siVerrouImpossibleSinonRelancer(RuntimeException e) {
-        if (e instanceof UncategorizedSQLException technique && !"55P03".equals(technique.getSQLException().getSQLState())) {
-            throw e;
-        }
+        RefusDeVerrou.siVerrouImpossibleSinonRelancer(e);
     }
 
     @Override

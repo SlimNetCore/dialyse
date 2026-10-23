@@ -13,12 +13,19 @@ import java.util.function.Supplier;
  * transaction est déjà ouverte. Sur PostgreSQL, {@code SET LOCAL lock_timeout} borne l'attente d'un verrou de ligne : au-delà, la
  * base refuse (SQLSTATE 55P03) et l'écriture reçoit 409 {@code ABSENCE_ECRITURE_CONCURRENTE} au lieu d'attendre sans limite ; H2 a
  * son propre délai de verrou. Sans {@code JdbcTemplate}, aucun délai n'est posé (tests unitaires).
+ * <p>
+ * ADR 0043 : le délai n'est posé que si cette unité <b>ouvre</b> la transaction ; une transaction rejointe (exclusion d'une séance
+ * par la Facturation, par exemple) garde le délai de son propriétaire, au lieu de le modifier pour le reste de sa transaction.
  */
 public class UniteDeTravailSpring implements UniteDeTravail {
 
     private final TransactionTemplate transaction;
     private final JdbcTemplate jdbc;
     private final Duration delaiDeVerrou;
+    /**
+     * Produit de la base, lu une seule fois (revue F7, constat 1) : {@code null} tant qu'il n'a pas été lu.
+     */
+    private volatile Boolean postgreSql;
 
     public UniteDeTravailSpring(TransactionTemplate transaction) {
         this(transaction, null, null);
@@ -33,7 +40,9 @@ public class UniteDeTravailSpring implements UniteDeTravail {
     @Override
     public <T> T executer(Supplier<T> action) {
         return transaction.execute(statut -> {
-            poserLeDelaiDeVerrou();
+            if (statut.isNewTransaction()) {
+                poserLeDelaiDeVerrou();
+            }
             return action.get();
         });
     }
@@ -46,7 +55,12 @@ public class UniteDeTravailSpring implements UniteDeTravail {
     }
 
     private boolean estPostgreSql() {
-        return Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
-                "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+        Boolean lu = postgreSql;
+        if (lu == null) {
+            lu = Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
+                    "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+            postgreSql = lu;
+        }
+        return lu;
     }
 }

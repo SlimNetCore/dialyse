@@ -62,6 +62,14 @@ final class MondeDeLaDetection {
     final Set<AbsenceId> enregistrementsEnEchec = new HashSet<>();
     final Set<String> joursFactures = new HashSet<>();
     final Set<YearMonth> moisClos = new HashSet<>();
+    /**
+     * Mois que la lecture sans verrou voit ouverts mais qu'une clôture concurrente a clos avant la lecture sous verrou.
+     */
+    final Set<YearMonth> moisClosEntreTemps = new HashSet<>();
+    /**
+     * Mois dont le verrou ne peut pas être pris dans le délai (clôture en cours trop longue).
+     */
+    final Set<YearMonth> moisVerrouIndisponible = new HashSet<>();
     final Map<PatientId, ForfaitApplicable> forfaits = new HashMap<>();
     final List<CentreId> centres = new ArrayList<>(List.of(CENTRE));
     final Map<CentreId, ZoneId> fuseaux = new HashMap<>();
@@ -107,6 +115,13 @@ final class MondeDeLaDetection {
             @Override
             public boolean estOuvert(CentreId centre, YearMonth m) {
                 return !moisClos.contains(m);
+            }
+
+            @Override
+            public boolean estOuvertSousVerrou(CentreId centre, YearMonth m) {
+                if (moisVerrouIndisponible.contains(m))
+                    throw new com.hemodialyse.backend.contexts.absencespatients.domain.EcritureConcurrente();
+                return !moisClos.contains(m) && !moisClosEntreTemps.contains(m);
             }
 
             @Override

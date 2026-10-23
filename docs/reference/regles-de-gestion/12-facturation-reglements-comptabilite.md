@@ -155,9 +155,16 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 ## 12.4 bis Clôture mensuelle de facturation
 
 - **RG-FAC-040** — **Clôture d'un mois** (`POST /api/v1/facturation/periodes/{mois}/cloturer`, mois `AAAA-MM`, `ADMIN`) : un
-  mois par centre, **sans aucune précondition** (l'administrateur décide, y compris un mois futur ou sans séance). La réponse
+  mois par centre, **sans précondition d'état** (l'administrateur décide, y compris un mois sans séance), mais **seul un
+  mois terminé
+  se clôture** : le mois en cours et les mois futurs, au fuseau du centre et sans jours de grâce, sont refusés (422
+  `PERIODE_NON_TERMINEE`,
+  propriété `mois`), comme les mois d'absences (RG-ABS-070 ; ADR 0044, 2026-10-23). La réponse
   porte l'**avertissement chiffré** `seancesEligiblesRestantes` : nombre de séances du centre dans ce mois encore éligibles à la
-  facturation (statut `VALIDEE` ou `SIGNEE`, non facturées, non exclues). Le centre du corps (facultatif) ou de la requête doit
+  facturation (statut `VALIDEE` ou `SIGNEE`, non facturées, non exclues), et un second avertissement, **jamais
+  bloquant** (slice A6, RG-ABS-076) :
+  `absencesDuMoisNonCloses` (vrai si le mois d'absences du centre n'est pas clos ; l'ordre recommandé est de clore les
+  absences d'abord). Le centre du corps (facultatif) ou de la requête doit
   être celui de la session (403 sinon) ; l'auteur est l'utilisateur de la session. Clôturer deux fois le même mois est refusé
   (409 `PERIODE_DEJA_CLOTUREE`, la première clôture reste). Mois illisible : 400 `MOIS_INVALIDE`. *Source :* `MoisDeFacturation`,
   `CloturerLeMois` (contexte `facturation`, ADR 0037).
@@ -172,10 +179,17 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   (`SELECT ... FOR UPDATE`) jusqu'à la fin de la transaction de la clôture, de la réouverture, de la validation et de chaque
   modification de la simulation. Une validation en cours fait attendre la clôture (qui compte alors des séances restantes
   exactes) ; une clôture en cours fait attendre la validation, qui est ensuite refusée (RG-FAC-041). Les mois d'un intervalle
-  se verrouillent du plus ancien au plus récent. *Source :* `MoisDeFacturationJdbc.verrouiller`.
+  se verrouillent du plus ancien au plus récent, ensemble. L'attente d'un verrou est bornée à 5 secondes (comme les
+  absences) :
+  au-delà, ou en cas d'interblocage, l'acte est annulé sans rien écrire et répond 409 `FACTURATION_ECRITURE_CONCURRENTE`
+  (réessayer ; ADR 0043, 2026-10-23). *Source :* `MoisDeFacturationJdbc.verrouiller`, `verrouillerDe`,
+  `UniteDeTravailSpring`.
 - **RG-FAC-043** — **Réouverture** (`POST /api/v1/facturation/periodes/{mois}/rouvrir`, `ADMIN`) : le **motif est
   obligatoire** (400 `MOTIF_DE_REOUVERTURE_OBLIGATOIRE` ; 500 caractères au plus), l'auteur est l'utilisateur de la session ;
   rouvrir un mois qui n'est pas clos est refusé (409 `PERIODE_NON_CLOTUREE`). Un mois rouvert peut être clos à nouveau.
+  Ordre des refus : mois non clos (409), puis motif (400), puis période comptable close (422, RG-FAC-044) — un motif
+  absent
+  répond donc toujours 400 (correction de revue du 2026-10-23).
   *Source :* `RouvrirLeMois`.
 - **RG-FAC-044** — La réouverture est refusée (422 `PERIODE_COMPTABLE_CLOTUREE`) si la **période comptable du même mois et du
   même centre est clôturée** (RG-CPT-005) : la Facturation lit cet état par le langage publié `PeriodesComptables` de la

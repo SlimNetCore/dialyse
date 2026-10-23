@@ -18,7 +18,8 @@ import java.time.LocalDate;
  * Déclare l'absence d'un patient à une séance prévue (RG-ABS-010 à 013, 024, 030). Une transaction : patient du centre, jour
  * libre (une absence par patient et par jour, même annulée), période non facturée, pas de séance réalisée ce jour-là, puis la
  * valeur est figée (forfait applicable, taux du jour) et l'absence créée. Utilisé aussi par l'exclusion d'une séance de la
- * Facturation. Déclarations simultanées du même jour : la perdante reçoit {@code EcritureConcurrente} (409).
+ * Facturation. Le mois d'absences de la date doit être ouvert (A6, {@code MOIS_D_ABSENCES_CLOS}, ligne du mois verrouillée dans
+ * la transaction). Déclarations simultanées du même jour : la perdante reçoit {@code EcritureConcurrente} (409).
  */
 public class DeclarerUneAbsence {
 
@@ -32,12 +33,14 @@ public class DeclarerUneAbsence {
     private final GenerateurIdentifiants identifiants;
     private final SignalementDesSaisies signalement;
     private final HorlogeDesCentres horloge;
+    private final GardeDesMoisDAbsences garde;
 
     @SuppressWarnings("java:S107")
     public DeclarerUneAbsence(UniteDeTravail uniteDeTravail, PatientsDuCentre patients, AbsencesRepository absences,
                               PeriodesFacturees periodes, SeancesRealisees seances, ForfaitsDesPatients forfaits,
                               TauxDeTva taux, GenerateurIdentifiants identifiants, SignalementDesSaisies signalement,
-                              HorlogeDesCentres horloge) {
+                              HorlogeDesCentres horloge, GardeDesMoisDAbsences garde) {
+        this.garde = garde;
         this.uniteDeTravail = uniteDeTravail;
         this.patients = patients;
         this.absences = absences;
@@ -67,6 +70,7 @@ public class DeclarerUneAbsence {
                 throw new RegleDAbsenceViolee("ABSENCE_EXISTANTE", "Une absence existe déjà pour ce patient à cette date");
             }
             DateOuverte ouverte = DateOuverte.exiger(periodes, centre, commande.patient(), commande.dateDeSeance());
+            garde.exigerOuvert(centre, commande.dateDeSeance());
             if (seances.realisee(centre, commande.patient(), commande.dateDeSeance())) {
                 throw new RegleDAbsenceViolee("ABSENCE_SEANCE_REALISEE",
                         "Le patient a une séance réalisée à cette date : il n'est pas absent");

@@ -2,6 +2,7 @@
   "status" : 200,
   "contentType" : "application/json",
   "body" : {
+    "absencesDuMoisNonCloses": true,
     "centerId" : "<CENTRE_A>",
     "clotureLe" : "<HORODATAGE>",
     "cloturePar" : "<ADMIN_A>",

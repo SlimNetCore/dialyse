@@ -14,7 +14,10 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -33,6 +36,10 @@ public class MoisDeFacturationJdbc implements MoisDeFacturationRepository {
             + "SELECT ?, ?, ?, 'OUVERT' WHERE NOT EXISTS (SELECT 1 FROM periodes_facturation WHERE center_id = ? AND annee = ? AND mois = ?)";
 
     private final JdbcTemplate jdbc;
+    /**
+     * Produit de la base, lu une seule fois (revue F7, constat 1) : {@code null} tant qu'il n'a pas été lu.
+     */
+    private volatile Boolean postgreSql;
 
     public MoisDeFacturationJdbc(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -76,6 +83,42 @@ public class MoisDeFacturationJdbc implements MoisDeFacturationRepository {
         return jdbc.query(selection, ligne(centre), centre.valeur(), mois.getYear(), mois.getMonthValue()).getFirst();
     }
 
+    private static int rang(YearMonth mois) {
+        return mois.getYear() * 12 + mois.getMonthValue();
+    }
+
+    /**
+     * Verrouillage groupé d'un intervalle (revue F7, constat 3) : une lecture des mois déjà enregistrés, une création par lot des
+     * lignes manquantes, puis un seul {@code SELECT ... ORDER BY annee, mois FOR UPDATE} qui pose les verrous dans l'ordre croissant.
+     * Trois requêtes quelle que soit la longueur de l'intervalle, au lieu de trois à quatre par mois.
+     */
+    @Override
+    public List<MoisDeFacturation> verrouillerDe(CentreId centre, YearMonth premier, YearMonth dernier) {
+        if (premier == null || dernier == null || dernier.isBefore(premier)) {
+            throw new IllegalArgumentException("L'intervalle de mois est invalide");
+        }
+        int de = rang(premier);
+        int a = rang(dernier);
+        Set<Integer> presents = new HashSet<>(jdbc.queryForList(
+                "SELECT annee * 12 + mois FROM periodes_facturation WHERE center_id = ? AND annee * 12 + mois BETWEEN ? AND ?",
+                Integer.class, centre.valeur(), de, a));
+        boolean postgres = estPostgreSql();
+        List<Object[]> manquants = new ArrayList<>();
+        for (YearMonth courant = premier; !courant.isAfter(dernier); courant = courant.plusMonths(1)) {
+            if (!presents.contains(rang(courant))) {
+                manquants.add(postgres
+                        ? new Object[]{centre.valeur(), courant.getYear(), courant.getMonthValue()}
+                        : new Object[]{centre.valeur(), courant.getYear(), courant.getMonthValue(), centre.valeur(), courant.getYear(),
+                        courant.getMonthValue()});
+            }
+        }
+        if (!manquants.isEmpty()) {
+            jdbc.batchUpdate(postgres ? CREER_SANS_CONFLIT : CREER_SI_ABSENTE, manquants);
+        }
+        return jdbc.query("SELECT " + COLONNES + " FROM periodes_facturation WHERE center_id = ? AND annee * 12 + mois BETWEEN ? AND ? "
+                + "ORDER BY annee, mois FOR UPDATE", ligne(centre), centre.valeur(), de, a);
+    }
+
     @Override
     public List<MoisDeFacturation> deLAnnee(CentreId centre, int annee) {
         return jdbc.query("SELECT " + COLONNES + " FROM periodes_facturation WHERE center_id = ? AND annee = ? ORDER BY mois",
@@ -113,7 +156,12 @@ public class MoisDeFacturationJdbc implements MoisDeFacturationRepository {
     }
 
     private boolean estPostgreSql() {
-        return Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
-                "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+        Boolean lu = postgreSql;
+        if (lu == null) {
+            lu = Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
+                    "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+            postgreSql = lu;
+        }
+        return lu;
     }
 }

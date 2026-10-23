@@ -1223,7 +1223,7 @@
     },
     "PERIODES": {
       "TITLE": "Agdal ageggur n usiggez",
-      "HINT": "Aggur yettwagdlen ur yeqbil ara asentem, asefsex, tuγalin d usenfel n ufurki; asemsel yezdi. Asnulfu-d daɣen yesra acuɣer.",
+      "HINT": "Aggur yettwagdlen ur yeqbil ara asentem, asefsex, tuɣalin d usenfel n ufurki; asemsel yezdi. Asnulfu-d daɣen yesra acuɣer.",
       "YEAR": "Aseggas",
       "MONTH": "Aggur",
       "CLOSED": "Agdal",
@@ -1241,7 +1241,9 @@
       "CONFIRM_REOPEN_BUTTON": "Ales taldi n uggur",
       "AVERTISSEMENT": "{{count}} n tsimlin yettwafernen ur nettwafaturen ara qqimen i uggur {{mois}}.",
       "BLOQUE_VALIDATION": "Asentem ur yezmir ara: aggur {{mois}} yettwagdel. Ales taldi-ines neɣ fren tamzizdig-nniḍen (asemsel yezdi).",
-      "BLOQUE_SEANCE": "Tigawt ur tezmir ara: aggur {{mois}} n tsimlit-a yettwagdel."
+      "AVERTISSEMENT_ABSENCES": "Timettanin n uggur {{mois}} ur ttwagdlent ara. Agdal n usiggez yezdi; yelha ad tgdleḍ timettanin send.",
+      "BLOQUE_SEANCE": "Tigawt ur tezmir ara: aggur {{mois}} n tsimlit-a yettwagdel.",
+      "NON_TERMINE": "Aggur kan yekfan i izemren ad yettwagdel (maci aggur amiran, maci aggur i d-iteddun), am tmettanin."
     },
     "ERROR": {
       "NUMERO_DEJA_PRIS": "Uṭṭun n ufeter yettwaseqdac yakan, ulac afeter i yettwasefken. Ɛreḍ tikkelt-nniḍen asentem; ma yella izen yeqqim, nermes anedbal: ahat amḍan n uṭṭunen yeqqen.",
@@ -1257,7 +1259,10 @@
       "PERIODE_DEJA_CLOTUREE": "Aggur-a yettwagdel yakan.",
       "PERIODE_NON_CLOTUREE": "Aggur-a ur yettwagdel ara: ulac ayen ara talseḍ ad teldiḍ.",
       "PERIODE_COMPTABLE_CLOTUREE": "Tamzizdig n uṭṭubbu n uggur-a tettwagdel: asiggez ur yezmir ara ad yettwaldi daɣen.",
-      "MOTIF_OBLIGATOIRE": "Acuɣer n tulya yelaq (500 n yisekkilen ugar).",
+      "PERIODE_NON_TERMINEE": "Agdal ur yettwaqbal ara: aggur kan yekfan i izemren ad yettwagdel (maci aggur amiran, maci aggur i d-iteddun).",
+      "ECRITURE_CONCURRENTE": "Tigawt-nniḍen n usiggez tetteddu ɣef yisefka-agi: ulac ayen yettwaskelsen, ɛreḍ tikkelt-nniḍen deg kra n wakud.",
+      "MOIS_D_ABSENCES_CLOS": "Aggur n tmettanin n tsimlit-a yettwagdel: asenfes neɣ tuɣalin n tsimlit ur ttwaqbalent ara. Ales taldi n uggur n tmettanin send.",
+      "MOTIF_OBLIGATOIRE": "Acuɣer n tulya ilaq (500 n yisekkilen ar ugar).",
       "MOIS_INVALIDE": "Aggur arameɣtu (amsal: AAAA-MM).",
       "ANNEE_INVALIDE": "Aseggas arameɣtu."
     },
@@ -2696,12 +2701,39 @@
     "RATTRAPAGE_HINT": "Fren tasedrit yemmden i d-yessefraken ulac-it-a.",
     "RATTRAPAGE_AUCUNE_SEANCE": "Ulac tasedrit yemmden deffir ulac-it-a: amdan ilaq ad d-yas ɣer tallunt n useḥbas.",
     "RATTRAPAGE_VERS_POSTE": "Ldi tallunt n useḥbas",
+    "MOIS": {
+      "TITLE": "Iggren n tmettanin",
+      "HINT": "Aggur n tmettanin yettwagdlen ur yeqbil ara asenfes, asentem, tuɣalin d usefsex n tmettant n uggur-a, ula d asnirem n yiḍ; asenṭeḍ d tuɣalin n tsimlit n uggur-a deg usiggez ur ttwaqbalen ara. Aggur kan yekfan i yettwagdel; asnulfu-d yesra acuɣer. Tazrawt: gdel timettanin send asiggez n uggur (ulac ayen yettwaḥebsen).",
+      "YEAR": "Aseggas",
+      "MONTH": "Aggur",
+      "CLOSED": "Agdal",
+      "REOPENED": "Asnulfu aneggaru",
+      "STATUS_OPEN": "Yeldi",
+      "STATUS_CLOSED": "Yettwagdel",
+      "CLOSED_BY": "sɣur {{par}} deg {{le}}",
+      "REOPENED_BY": "sɣur {{par}} deg {{le}}",
+      "REASON": "Acuɣer",
+      "CLOSE": "Agdal",
+      "REOPEN": "Ales taldi",
+      "CONFIRM_CLOSE": "Ad tgdleḍ aggur n tmettanin {{mois}}? Ulac tamettant n uggur-a ara yettwasumer, yettwasentem, yettwasmuttel neɣ yettwasefsex armi yettwaldi daɣen.",
+      "CONFIRM_CLOSE_BUTTON": "Sentem agdal",
+      "MOTIF": "Acuɣer n tulya (ilaq)",
+      "CONFIRM_REOPEN_BUTTON": "Ales taldi n uggur",
+      "AVERTISSEMENT": "Aggur {{mois}} yettwagdel: {{count}} n tmettanin qqimen ad ttwasentment, seg-sent {{retard}} ttwaɛṭṭlent.",
+      "NON_TERMINE": "Aggur kan yekfan i izemren ad yettwagdel (maci aggur amiran).",
+      "REQUIERT_ADMIN": "I unedbal kan.",
+      "LIGNE_CLOSE": "Aggur n tmettanin yettwagdel: ales taldi n uggur akken ad tbeddleḍ tamettant-a.",
+      "SUCCES_CLOTURE": "Aggur n tmettanin yettwagdel.",
+      "SUCCES_REOUVERTURE": "Aggur n tmettanin yeldi daɣen.",
+      "ERR_GENERIQUE": "Tigawt-a ur tezmir ara ɣef uggur-a n tmettanin."
+    },
     "RATTRAPAGE_DETECTION": {
       "TITLE": "Nadi ɣef tmettanin ur nettwafen ara",
       "HINT": "Ales anadi deg tallit yezrin (aseggas ar ugar, armi d iḍelli): ayyuren send asnas, aqeddac yeḥbes, taktawt n yisefka.",
       "RUN": "Sker anadi",
       "RESULT": "{{creees}} n tmettant ttwarna, {{annulees}} ttwasefsex (tamsirt yettwaskcem ticki).",
       "FIN_RAMENEE": "Taggara n tallit tettwarr ɣer iḍelli ({{fin}}): ass-a ur yekfi ara.",
+      "JOURS_IGNORES": "Ussan yettwanefken am wakken llan acku aggur n tmettanin-nsen yettwagdel: {{jours}}. Ales taldi n uggur akken ad ten-tseḍfreḍ.",
       "ECHECS": "{{echecs}} n tmettant ur tettwaseḍfer ara; wayen-nniḍen yettwasseḍfer (talqayt deg uɣmis n uqeddac)."
     },
     "STATUTS": {
@@ -2756,6 +2788,13 @@
       "ABSENCE_PERIODE_FACTUREE": "Tafaturt n tallit-a tettwasentem: tamettant tettwasdel.",
       "ABSENCE_PERIODE_INVALIDE": "Tallit mačči d tameɣtut: tazwara ilaq ad tezwir taggara (iḍelli ugar).",
       "ABSENCE_PERIODE_TROP_LONGUE": "Tallit ɣezzifet barka: 366 n wussan afellay.",
+      "MOIS_D_ABSENCES_CLOS": "Aggur n tmettanin yettwagdel: ales taldi n uggur send akken ad tbeddleḍ tamettant-a.",
+      "MOIS_D_ABSENCES_NON_TERMINE": "Aggur kan yekfan i izemren ad yettwagdel: aggur amiran d yiggren i d-iteddun ur ttwagdlen ara.",
+      "MOIS_D_ABSENCES_DEJA_CLOS": "Aggur-a n tmettanin yettwagdel yakan.",
+      "MOIS_D_ABSENCES_NON_CLOS": "Aggur-a n tmettanin ur yettwagdel ara: ulac ayen ara talseḍ ad teldiḍ.",
+      "MOTIF_DE_REOUVERTURE_OBLIGATOIRE": "Acuɣer n tulya ilaq (500 n yisekkilen ar ugar).",
+      "MOIS_INVALIDE": "Aggur arameɣtu.",
+      "ANNEE_INVALIDE": "Aseggas arameɣtu.",
       "ABSENCE_ECRITURE_CONCURRENTE": "Ugur-a yettwabeddel zik-nni sɣur wayeḍ: ales asali syin ɛreḍ tikkelt-nniḍen.",
       "ABSENCE_D_EXCLUSION": "Ugur-a yekka-d seg usefsex n tsaɣ si usiggez: err-d tasaɣ ɣer usiggez akken ad tekkseḍ."
     }

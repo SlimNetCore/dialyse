@@ -1,0 +1,158 @@
+<mat-card class="mois-card">
+  <mat-card-header>
+    <mat-card-title>{{ 'ABSENCES.MOIS.TITLE' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="app-muted-note">{{ 'ABSENCES.MOIS.HINT' | translate }}</p>
+    <div class="mois-filters">
+      <mat-form-field appearance="outline" class="field-block">
+        <mat-label>{{ 'ABSENCES.MOIS.YEAR' | translate }}</mat-label>
+        <mat-select (selectionChange)="onAnnee($event.value)" [value]="store.annee()">
+          @for (annee of anneeOptions(); track annee) {
+            <mat-option [value]="annee">{{ annee }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button (click)="onRafraichir()" mat-stroked-button type="button">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMON.REFRESH_BUTTON' | translate }}
+      </button>
+    </div>
+
+    @if (store.loading() || store.actionMois()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+
+    @if (store.error()) {
+      <p class="feedback error">{{ store.error() | translate }}</p>
+    }
+    @if (store.successMessage()) {
+      <p class="feedback success">{{ store.successMessage() | translate }}</p>
+    }
+    @if (store.avertissement(); as avertissement) {
+      @if (avertissement.aQualifier > 0) {
+        <p class="feedback cloture-warning">
+          {{
+            'ABSENCES.MOIS.AVERTISSEMENT' | translate: {
+              count: avertissement.aQualifier,
+              retard: avertissement.enRetard,
+              mois: avertissement.mois
+            }
+          }}
+        </p>
+      }
+    }
+
+    <div class="table-wrap">
+      <table class="mois-table">
+        <thead>
+        <tr>
+          <th>{{ 'ABSENCES.MOIS.MONTH' | translate }}</th>
+          <th>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
+          <th>{{ 'ABSENCES.MOIS.CLOSED' | translate }}</th>
+          <th>{{ 'ABSENCES.MOIS.REOPENED' | translate }}</th>
+          <th>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (m of store.moisDeLAnnee(); track m.mois) {
+            <tr>
+              <td><span class="code-chip">{{ m.mois }}</span></td>
+              <td>
+                <span [class]="'seance-status-chip ' + (m.statut === 'CLOTURE' ? 'status-done' : 'status-pending')">
+                  {{ (m.statut === 'CLOTURE' ? 'ABSENCES.MOIS.STATUS_CLOSED' : 'ABSENCES.MOIS.STATUS_OPEN') | translate }}
+                </span>
+              </td>
+              <td>
+                @if (m.statut === 'CLOTURE' && m.clotureLe) {
+                  {{
+                    'ABSENCES.MOIS.CLOSED_BY' | translate: {
+                      par: m.cloturePar ?? '-',
+                      le: (m.clotureLe | date: 'short')
+                    }
+                  }}
+                }
+              </td>
+              <td>
+                @if (m.rouvertLe) {
+                  {{
+                    'ABSENCES.MOIS.REOPENED_BY' | translate: {
+                      par: m.rouvertPar ?? '-',
+                      le: (m.rouvertLe | date: 'short')
+                    }
+                  }}
+                  @if (m.motifDeReouverture) {
+                    <br><em>{{ 'ABSENCES.MOIS.REASON' | translate }} : {{ m.motifDeReouverture }}</em>
+                  }
+                }
+              </td>
+              <td class="actions-cell">
+                @if (m.statut === 'CLOTURE') {
+                  <span [matTooltip]="estAdmin() ? '' : ('ABSENCES.MOIS.REQUIERT_ADMIN' | translate)">
+                    <button (click)="onOuvrirReouverture(m.mois)" [disabled]="!peutRouvrir()" mat-stroked-button
+                            type="button">
+                      <mat-icon>lock_open</mat-icon>
+                      {{ 'ABSENCES.MOIS.REOPEN' | translate }}
+                    </button>
+                  </span>
+                } @else {
+                  <span [matTooltip]="raisonDeLaCloture(m.mois) ? (raisonDeLaCloture(m.mois) | translate) : ''">
+                    <button (click)="onDemanderCloture(m.mois)" [disabled]="!peutClore(m.mois)" color="warn"
+                            mat-stroked-button
+                            type="button">
+                      <mat-icon>lock</mat-icon>
+                      {{ 'ABSENCES.MOIS.CLOSE' | translate }}
+                    </button>
+                  </span>
+                }
+              </td>
+            </tr>
+            @if (clotureAConfirmer() === m.mois) {
+              <tr class="confirmation-row">
+                <td colspan="5">
+                  <div class="confirmation-form">
+                    <p>{{ 'ABSENCES.MOIS.CONFIRM_CLOSE' | translate: {mois: m.mois} }}</p>
+                    <div class="app-button-cluster">
+                      <button (click)="onConfirmerCloture()" color="warn" mat-flat-button type="button">
+                        {{ 'ABSENCES.MOIS.CONFIRM_CLOSE_BUTTON' | translate }}
+                      </button>
+                      <button (click)="onAnnulerCloture()" mat-stroked-button type="button">
+                        {{ 'COMMON.CANCEL' | translate }}
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (reouvertureDraft(); as draft) {
+              @if (draft.mois === m.mois) {
+                <tr class="confirmation-row">
+                  <td colspan="5">
+                    <div class="confirmation-form">
+                      <mat-form-field appearance="outline" class="field-block">
+                        <mat-label>{{ 'ABSENCES.MOIS.MOTIF' | translate }}</mat-label>
+                        <textarea (input)="onMotif($any($event.target).value)" [attr.maxlength]="motifMax"
+                                  [value]="draft.motif"
+                                  matInput required rows="2"></textarea>
+                        <mat-hint align="end">{{ draft.motif.length }} / {{ motifMax }}</mat-hint>
+                      </mat-form-field>
+                      <div class="app-button-cluster">
+                        <button (click)="onConfirmerReouverture()" [disabled]="!reouvertureValide()" color="primary"
+                                mat-flat-button type="button">
+                          {{ 'ABSENCES.MOIS.CONFIRM_REOPEN_BUTTON' | translate }}
+                        </button>
+                        <button (click)="onAnnulerReouverture()" mat-stroked-button type="button">
+                          {{ 'COMMON.CANCEL' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>

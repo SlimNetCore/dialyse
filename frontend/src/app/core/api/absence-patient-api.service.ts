@@ -76,6 +76,37 @@ export interface RattrapageDetection {
   finRamenee?: boolean;
   /** Nombre d'absences en incident (isolées, le reste a été traité) : présent seulement s'il y en a. */
   echecs?: number;
+  /** Jours de la période laissés tels quels parce que leur mois d'absences est clos (A6) : présent seulement s'il y en a. */
+  joursIgnores?: string[];
+}
+
+/** État d'un mois d'absences d'un centre (A6) ; un mois sans ligne est ouvert. */
+export interface MoisDAbsences {
+  /** AAAA-MM */
+  mois: string;
+  statut: 'OUVERT' | 'CLOTURE';
+  cloturePar: string | null;
+  clotureLe: string | null;
+  rouvertPar: string | null;
+  rouvertLe: string | null;
+  motifDeReouverture: string | null;
+}
+
+export interface MoisDAbsencesDeLAnnee {
+  centerId: string;
+  annee: number;
+  mois: MoisDAbsences[];
+}
+
+/** Réponse de la clôture : l'avertissement chiffré (absences encore à qualifier, dont en retard). */
+export interface ClotureDuMoisDAbsences {
+  centerId: string;
+  mois: string;
+  statut: 'CLOTURE';
+  cloturePar: string | null;
+  clotureLe: string | null;
+  absencesAQualifierRestantes: number;
+  absencesEnRetard: number;
 }
 
 export interface AbsenceFilters {
@@ -145,6 +176,30 @@ export class AbsencePatientApiService {
   /** Rattrapage des absences jamais détectées sur une période passée (administrateur du centre). */
   rattraperDetection(centerId: string, from: string, to: string): Observable<RattrapageDetection> {
     return this.http.post<RattrapageDetection>(`${this.base}/rattrapage-detection`, {from, to},
+      {params: AbsencePatientApiService.centre(centerId)});
+  }
+
+  /** Les douze mois d'une année (ouvert ou clos). Lecture pour tous les profils, clôture et réouverture pour l'ADMIN. */
+  moisDeLAnnee(centerId: string, annee: number): Observable<MoisDAbsencesDeLAnnee> {
+    return this.http.get<MoisDAbsencesDeLAnnee>(`${this.base}/mois`,
+      {params: AbsencePatientApiService.centre(centerId).set('annee', annee)});
+  }
+
+  cloturerMois(centerId: string, mois: string): Observable<ClotureDuMoisDAbsences> {
+    return this.http.post<ClotureDuMoisDAbsences>(`${this.base}/mois/${mois}/cloturer`, {},
+      {params: AbsencePatientApiService.centre(centerId)});
+  }
+
+  rouvrirMois(centerId: string, mois: string, motif: string): Observable<{
+    centerId: string;
+    mois: string;
+    statut: 'OUVERT'
+  }> {
+    return this.http.post<{
+      centerId: string;
+      mois: string;
+      statut: 'OUVERT'
+    }>(`${this.base}/mois/${mois}/rouvrir`, {motif},
       {params: AbsencePatientApiService.centre(centerId)});
   }
 

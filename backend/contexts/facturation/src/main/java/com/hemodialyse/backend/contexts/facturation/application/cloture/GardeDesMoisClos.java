@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.application.cloture;
 
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationRepository;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.PeriodeDeFacturation;
 
@@ -22,11 +23,13 @@ public final class GardeDesMoisClos {
         this.mois = mois;
     }
 
-    /** Tout mois couvert par l'intervalle doit être ouvert. */
+    /**
+     * Tout mois couvert par l'intervalle doit être ouvert. Les mois sont verrouillés ensemble, du plus ancien au plus récent ; le
+     * premier mois clos est refusé.
+     */
     public void exigerOuverts(CentreId centre, PeriodeDeFacturation periode) {
-        for (YearMonth couvert : periode.moisCouverts()) {
-            mois.verrouiller(centre, couvert).exigerOuvert();
-        }
+        mois.verrouillerDe(centre, YearMonth.from(periode.debut()), YearMonth.from(periode.fin()))
+                .forEach(MoisDeFacturation::exigerOuvert);
     }
 
     /** Le mois de la date (celle d'une séance) doit être ouvert. */

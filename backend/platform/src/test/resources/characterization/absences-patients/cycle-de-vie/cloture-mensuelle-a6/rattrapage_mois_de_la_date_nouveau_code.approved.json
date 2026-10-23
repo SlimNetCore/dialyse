@@ -1,0 +1,39 @@
+{
+  "apresReouverture": {
+    "status": 200
+  },
+  "base": [
+    {
+      "commentaire": null,
+      "date_rattrapage": "<05_DU_MOIS-1>",
+      "date_seance": "<20_DU_MOIS-2>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_01>",
+      "modifiee_le": "<HORODATAGE>",
+      "modifiee_par": "<U_ADMIN>",
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "RATTRAPEE",
+      "taux_tva": "19.00"
+    }
+  ],
+  "rattrapageParUneSeanceDUnMoisClos": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_CLOS",
+      "status": 422
+    },
+    "status": 422
+  },
+  "refus": {
+    "code": "MOIS_D_ABSENCES_CLOS",
+    "status": 422
+  }
+}

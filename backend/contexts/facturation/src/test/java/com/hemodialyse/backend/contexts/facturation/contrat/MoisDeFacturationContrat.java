@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Contrat partagé du dépôt des mois de facturation (clôture mensuelle, slice F7) : double en mémoire, JDBC sur H2 et PostgreSQL 16.
@@ -114,5 +115,37 @@ public abstract class MoisDeFacturationContrat {
         assertThat(mois().deLAnnee(CENTRE_B, 2026)).isEmpty();
         assertThat(mois().journal(CENTRE_B, AOUT)).isEmpty();
         assertThat(mois().journal(CENTRE_A, SEPTEMBRE)).isEmpty();
+    }
+
+    @Test
+    void should_lock_a_range_of_months_in_ascending_order_creating_only_the_missing_open_lines() {
+        MoisDeFacturation aout = mois().verrouiller(CENTRE_A, AOUT);
+        mois().enregistrer(aout, aout.cloturer(LE_1, ADMIN, 0));
+        mois().verrouiller(CENTRE_B, SEPTEMBRE);
+
+        List<MoisDeFacturation> verrouilles = mois().verrouillerDe(CENTRE_A, YearMonth.of(2026, 7), YearMonth.of(2027, 2));
+
+        assertThat(verrouilles).extracting(MoisDeFacturation::mois).containsExactly(YearMonth.of(2026, 7), AOUT, SEPTEMBRE,
+                YearMonth.of(2026, 10), YearMonth.of(2026, 11), YearMonth.of(2026, 12), YearMonth.of(2027, 1), YearMonth.of(2027, 2));
+        assertThat(verrouilles).extracting(MoisDeFacturation::estClos).containsExactly(false, true, false, false, false, false, false, false);
+        assertThat(verrouilles.get(1).closPar()).isEqualTo(ADMIN);
+        assertThat(mois().deLAnnee(CENTRE_A, 2026)).hasSize(6);
+        assertThat(mois().deLAnnee(CENTRE_A, 2027)).hasSize(2);
+        assertThat(mois().deLAnnee(CENTRE_B, 2026)).extracting(MoisDeFacturation::mois).containsExactly(SEPTEMBRE);
+        assertThat(mois().journal(CENTRE_A, AOUT)).hasSize(1);
+    }
+
+    @Test
+    void should_lock_a_single_month_range_and_be_idempotent() {
+        assertThat(mois().verrouillerDe(CENTRE_A, AOUT, AOUT)).extracting(MoisDeFacturation::mois).containsExactly(AOUT);
+        assertThat(mois().verrouillerDe(CENTRE_A, AOUT, SEPTEMBRE)).extracting(MoisDeFacturation::mois).containsExactly(AOUT, SEPTEMBRE);
+
+        assertThat(mois().deLAnnee(CENTRE_A, 2026)).extracting(MoisDeFacturation::mois).containsExactly(AOUT, SEPTEMBRE);
+    }
+
+    @Test
+    void should_refuse_a_reversed_range() {
+        assertThatThrownBy(() -> mois().verrouillerDe(CENTRE_A, SEPTEMBRE, AOUT))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

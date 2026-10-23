@@ -66,7 +66,8 @@ public abstract class MoisDeFacturationConcurrentContrat {
                 return transaction().execute(statut -> action.get());
             }
         };
-        return new CloturerLeMois(mois(), (centre, periode) -> List.of(), new PublicationNulle(), unite, HORLOGE);
+        return new CloturerLeMois(mois(), (centre, periode) -> List.of(), new PublicationNulle(), unite, HORLOGE, (centre, m) -> true,
+                centre -> ZoneOffset.UTC);
     }
 
     private GardeDesMoisClos garde() {
@@ -167,6 +168,36 @@ public abstract class MoisDeFacturationConcurrentContrat {
                     garde().exigerOuvert(CENTRE, LocalDate.of(2026, 9, 15)));
             liberer.countDown();
             assertThat(cloture.get(20, TimeUnit.SECONDS)).isEqualTo("cloturee");
+        } finally {
+            liberer.countDown();
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void should_lock_every_month_of_a_multi_month_validation_so_a_closure_of_its_last_month_waits() throws Exception {
+        YearMonth septembre = YearMonth.of(2026, 9);
+        if (!creationConcurrenteDeLaLigneSupportee()) {
+            transaction().executeWithoutResult(statut -> mois().verrouillerDe(CENTRE, YearMonth.of(2026, 7), septembre));
+        }
+        CountDownLatch verrouille = new CountDownLatch(1);
+        CountDownLatch liberer = new CountDownLatch(1);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            Future<String> validation = pool.submit(() -> transaction().execute(statut -> {
+                garde().exigerOuverts(CENTRE, new PeriodeDeFacturation(LocalDate.of(2026, 7, 10), LocalDate.of(2026, 9, 20)));
+                verrouille.countDown();
+                attendre(liberer);
+                return "emise";
+            }));
+            assertThat(verrouille.await(20, TimeUnit.SECONDS)).isTrue();
+            Future<CloturerLeMois.ResultatDeCloture> cloture = pool.submit(() -> cloture().executer(CENTRE, septembre, ADMIN));
+
+            assertThatThrownBy(() -> cloture.get(700, TimeUnit.MILLISECONDS)).isInstanceOf(TimeoutException.class);
+            liberer.countDown();
+
+            assertThat(validation.get(20, TimeUnit.SECONDS)).isEqualTo("emise");
+            assertThat(cloture.get(20, TimeUnit.SECONDS).mois()).isEqualTo(septembre);
         } finally {
             liberer.countDown();
             pool.shutdownNow();

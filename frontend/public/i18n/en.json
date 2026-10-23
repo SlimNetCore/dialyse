@@ -1241,7 +1241,9 @@
       "CONFIRM_REOPEN_BUTTON": "Reopen the month",
       "AVERTISSEMENT": "{{count}} eligible session(s) not yet invoiced remain for month {{mois}}.",
       "BLOQUE_VALIDATION": "Validation impossible: month {{mois}} is closed. Reopen it or choose another period (simulation remains possible).",
-      "BLOQUE_SEANCE": "Action impossible: this session's month {{mois}} is closed."
+      "AVERTISSEMENT_ABSENCES": "The absences of month {{mois}} are not closed. The invoicing closure stays valid; closing the absences first is recommended.",
+      "BLOQUE_SEANCE": "Action impossible: this session's month {{mois}} is closed.",
+      "NON_TERMINE": "Only a finished month can be closed (neither the current month nor a future month), as for absences."
     },
     "ERROR": {
       "NUMERO_DEJA_PRIS": "The invoice number is already taken; no invoice was issued. Run the validation again; if the message persists, contact the administrator: the numbering sequence may be behind.",
@@ -1257,6 +1259,9 @@
       "PERIODE_DEJA_CLOTUREE": "This month is already closed.",
       "PERIODE_NON_CLOTUREE": "This month is not closed: there is nothing to reopen.",
       "PERIODE_COMPTABLE_CLOTUREE": "The accounting period of this month is closed: billing cannot be reopened.",
+      "PERIODE_NON_TERMINEE": "Closure refused: only a finished month can be closed (neither the current month nor a future month).",
+      "ECRITURE_CONCURRENTE": "Another invoicing operation is in progress on the same data: nothing was saved, try again in a few moments.",
+      "MOIS_D_ABSENCES_CLOS": "The absences month of this session is closed: exclusion or re-inclusion is refused. Reopen the absences month first.",
       "MOTIF_OBLIGATOIRE": "The reopening reason is required (500 characters at most).",
       "MOIS_INVALIDE": "Invalid month (expected format: YYYY-MM).",
       "ANNEE_INVALIDE": "Invalid year."
@@ -3056,12 +3061,39 @@
     "RATTRAPAGE_HINT": "Choose the completed session that makes up for this absence.",
     "RATTRAPAGE_AUCUNE_SEANCE": "No completed session after this absence: the patient must first come and be scanned at the nurse station.",
     "RATTRAPAGE_VERS_POSTE": "Open the nurse station",
+    "MOIS": {
+      "TITLE": "Absences months",
+      "HINT": "A closed absences month no longer accepts declaring, qualifying, making up or cancelling an absence of that month, nor the night detection; excluding and re-including a session of that month in invoicing is refused. Only a finished month can be closed; reopening requires a reason. Recommendation: close the absences before invoicing the month (nothing is blocked).",
+      "YEAR": "Year",
+      "MONTH": "Month",
+      "CLOSED": "Closure",
+      "REOPENED": "Last reopening",
+      "STATUS_OPEN": "Open",
+      "STATUS_CLOSED": "Closed",
+      "CLOSED_BY": "by {{par}} on {{le}}",
+      "REOPENED_BY": "by {{par}} on {{le}}",
+      "REASON": "Reason",
+      "CLOSE": "Close",
+      "REOPEN": "Reopen",
+      "CONFIRM_CLOSE": "Close absences month {{mois}}? No absence of this month can be declared, qualified, made up or cancelled until it is reopened.",
+      "CONFIRM_CLOSE_BUTTON": "Confirm closure",
+      "MOTIF": "Reopening reason (required)",
+      "CONFIRM_REOPEN_BUTTON": "Reopen the month",
+      "AVERTISSEMENT": "Month {{mois}} closed: {{count}} absence(s) remain to be qualified, {{retard}} of them late.",
+      "NON_TERMINE": "Only a finished month can be closed (not the current month).",
+      "REQUIERT_ADMIN": "Reserved to the administrator.",
+      "LIGNE_CLOSE": "Absences month closed: reopen the month to change this absence.",
+      "SUCCES_CLOTURE": "Absences month closed.",
+      "SUCCES_REOUVERTURE": "Absences month reopened.",
+      "ERR_GENERIQUE": "Operation impossible on this absences month."
+    },
     "RATTRAPAGE_DETECTION": {
       "TITLE": "Find undetected absences",
       "HINT": "Replays the detection over a past period (one year at most, up to yesterday): months before deployment, server downtime, data import.",
       "RUN": "Start the search",
       "RESULT": "{{creees}} absence(s) created, {{annulees}} cancelled (session entered afterwards).",
       "FIN_RAMENEE": "The end of the period was brought back to yesterday ({{fin}}): today is not over yet.",
+      "JOURS_IGNORES": "Days left untouched because their absences month is closed: {{jours}}. Reopen the month to process them.",
       "ECHECS": "{{echecs}} absence(s) could not be processed; the rest was processed (details in the server log)."
     },
     "STATUTS": {
@@ -3116,6 +3148,13 @@
       "ABSENCE_PERIODE_FACTUREE": "Billing for this period is validated: the absence is closed.",
       "ABSENCE_PERIODE_INVALIDE": "Invalid period: the start must precede the end (yesterday at the latest).",
       "ABSENCE_PERIODE_TROP_LONGUE": "Period too long: 366 days maximum.",
+      "MOIS_D_ABSENCES_CLOS": "The absences month is closed: reopen the month first to change this absence.",
+      "MOIS_D_ABSENCES_NON_TERMINE": "Only a finished month can be closed: the current month and future months cannot be closed.",
+      "MOIS_D_ABSENCES_DEJA_CLOS": "This absences month is already closed.",
+      "MOIS_D_ABSENCES_NON_CLOS": "This absences month is not closed: there is nothing to reopen.",
+      "MOTIF_DE_REOUVERTURE_OBLIGATOIRE": "The reopening reason is required (500 characters at most).",
+      "MOIS_INVALIDE": "Invalid month.",
+      "ANNEE_INVALIDE": "Invalid year.",
       "ABSENCE_ECRITURE_CONCURRENTE": "This absence was just changed by someone else: refresh and try again.",
       "ABSENCE_D_EXCLUSION": "This absence comes from a session excluded from billing: include the session again in billing to remove it."
     }

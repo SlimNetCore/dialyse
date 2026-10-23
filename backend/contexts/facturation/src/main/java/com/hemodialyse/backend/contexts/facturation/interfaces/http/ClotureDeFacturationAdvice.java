@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.interfaces.http;
 
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationClos;
+import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationNonTermine;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDejaClos;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisNonClos;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MotifDeReouvertureObligatoire;
@@ -41,6 +42,17 @@ class ClotureDeFacturationAdvice {
     @ExceptionHandler(MoisDejaClos.class)
     ProblemDetail dejaClos(MoisDejaClos erreur) {
         return probleme(HttpStatus.CONFLICT, "Periode deja cloturee", erreur.getMessage(), "PERIODE_DEJA_CLOTUREE");
+    }
+
+    /**
+     * ADR 0044 : seul un mois terminé se clôture (au fuseau du centre), comme les absences.
+     */
+    @ExceptionHandler(MoisDeFacturationNonTermine.class)
+    ProblemDetail nonTermine(MoisDeFacturationNonTermine erreur) {
+        ProblemDetail probleme = probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(),
+                "PERIODE_NON_TERMINEE");
+        probleme.setProperty("mois", erreur.mois().toString());
+        return probleme;
     }
 
     @ExceptionHandler(MoisNonClos.class)

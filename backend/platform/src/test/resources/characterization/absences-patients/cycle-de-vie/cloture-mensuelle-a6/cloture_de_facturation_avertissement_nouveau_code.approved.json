@@ -1,0 +1,30 @@
+{
+  "absences": [
+    {
+      "commentaire": null,
+      "date_rattrapage": null,
+      "date_seance": "<03_DU_MOIS-1>",
+      "declaree_le": "<HORODATAGE>",
+      "declaree_par": null,
+      "forfait_id": null,
+      "forfait_libelle": "Forfait HD",
+      "id": "<ABS_FIXTURE_01>",
+      "modifiee_le": null,
+      "modifiee_par": null,
+      "montant_ht": "10000.00",
+      "motif": null,
+      "patient_id": "<P_AMRANI>",
+      "prix_ttc": "11900.00",
+      "qualifiee_le": null,
+      "qualifiee_par": null,
+      "source": "AUTOMATIQUE",
+      "statut": "A_QUALIFIER",
+      "taux_tva": "19.00"
+    }
+  ],
+  "avertissementAbsencesCloses": false,
+  "avertissementAbsencesOuvertes": true,
+  "reouvertureDesAbsencesAlorsQueLaFacturationEstClose": 200,
+  "statutAbsencesCloses": 200,
+  "statutAbsencesOuvertes": 200
+}

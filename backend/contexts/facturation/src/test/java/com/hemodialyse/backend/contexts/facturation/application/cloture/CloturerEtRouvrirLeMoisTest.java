@@ -7,6 +7,7 @@ import com.hemodialyse.backend.contexts.facturation.doubles.UniteDeTravailDirect
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.EntreeDuJournal;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturation;
+import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationNonTermine;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDejaClos;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisNonClos;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MotifDeReouvertureObligatoire;
@@ -48,7 +49,9 @@ class CloturerEtRouvrirLeMoisTest {
     private final Publications publication = new Publications();
     private final Set<String> comptablesCloses = new HashSet<>();
     private final Clock horloge = Clock.fixed(MAINTENANT, ZoneOffset.UTC);
-    private final CloturerLeMois cloturer = new CloturerLeMois(mois, seances, publication, new UniteDeTravailDirecte(), horloge);
+    private final Set<String> absencesCloses = new HashSet<>();
+    private final CloturerLeMois cloturer = new CloturerLeMois(mois, seances, publication, new UniteDeTravailDirecte(), horloge,
+            (centre, m) -> absencesCloses.contains(centre.valeur() + "/" + m), centre -> ZoneOffset.UTC);
     private final RouvrirLeMois rouvrir = new RouvrirLeMois(mois,
             (centre, m) -> comptablesCloses.contains(centre.valeur() + "/" + m), publication, new UniteDeTravailDirecte(), horloge);
     private final ConsulterLesPeriodes consulter = new ConsulterLesPeriodes(mois);
@@ -76,15 +79,49 @@ class CloturerEtRouvrirLeMoisTest {
 
         ResultatDeCloture resultat = cloturer.executer(CENTRE, AOUT, ADMIN);
 
-        assertThat(resultat).isEqualTo(new ResultatDeCloture(AOUT, MAINTENANT, 2));
+        assertThat(resultat).isEqualTo(new ResultatDeCloture(AOUT, MAINTENANT, 2, true));
         assertThat(mois.duMois(CENTRE, AOUT).estClos()).isTrue();
         assertThat(mois.duMois(CENTRE, SEPTEMBRE).estClos()).isFalse();
     }
 
     @Test
-    void should_close_without_any_precondition_even_a_future_or_empty_month() {
-        assertThat(cloturer.executer(CENTRE, YearMonth.of(2027, 3), ADMIN).seancesEligiblesRestantes()).isZero();
-        assertThat(mois.duMois(CENTRE, YearMonth.of(2027, 3)).estClos()).isTrue();
+    void should_warn_that_the_absences_of_the_month_are_not_closed_but_never_refuse_the_closure() {
+        absencesCloses.add(CENTRE.valeur() + "/" + SEPTEMBRE);
+
+        assertThat(cloturer.executer(CENTRE, AOUT, ADMIN).absencesDuMoisNonCloses()).isTrue();
+        assertThat(cloturer.executer(CENTRE, SEPTEMBRE, ADMIN).absencesDuMoisNonCloses()).isFalse();
+        assertThat(mois.duMois(CENTRE, AOUT).estClos()).isTrue();
+    }
+
+    @Test
+    void should_close_an_empty_past_month_without_any_state_precondition() {
+        assertThat(cloturer.executer(CENTRE, YearMonth.of(2026, 3), ADMIN).seancesEligiblesRestantes()).isZero();
+        assertThat(mois.duMois(CENTRE, YearMonth.of(2026, 3)).estClos()).isTrue();
+    }
+
+    @Test
+    void should_refuse_the_current_month_and_future_months_before_any_lock_like_the_absences() {
+        assertThatThrownBy(() -> cloturer.executer(CENTRE, YearMonth.of(2026, 10), ADMIN))
+                .isInstanceOf(MoisDeFacturationNonTermine.class).hasMessageContaining("2026-10");
+        assertThatThrownBy(() -> cloturer.executer(CENTRE, YearMonth.of(2027, 3), ADMIN))
+                .isInstanceOf(MoisDeFacturationNonTermine.class);
+
+        assertThat(mois.moisVerrouilles()).isEmpty();
+        assertThat(publication.cloturees).isEmpty();
+        assertThat(mois.journal(CENTRE, YearMonth.of(2026, 10))).isEmpty();
+    }
+
+    @Test
+    void should_decide_the_current_month_in_the_time_zone_of_the_centre() {
+        // 2026-10-31 23:30 UTC = 2026-11-01 00:30 à Alger : octobre est terminé au centre, pas en UTC
+        Clock finOctobreUtc = Clock.fixed(Instant.parse("2026-10-31T23:30:00Z"), ZoneOffset.UTC);
+        CloturerLeMois aAlger = new CloturerLeMois(mois, seances, publication, new UniteDeTravailDirecte(), finOctobreUtc,
+                (centre, m) -> false, centre -> java.time.ZoneId.of("Africa/Algiers"));
+        CloturerLeMois enUtc = new CloturerLeMois(mois, seances, publication, new UniteDeTravailDirecte(), finOctobreUtc,
+                (centre, m) -> false, centre -> ZoneOffset.UTC);
+
+        assertThatThrownBy(() -> enUtc.executer(CENTRE, YearMonth.of(2026, 10), ADMIN)).isInstanceOf(MoisDeFacturationNonTermine.class);
+        assertThat(aAlger.executer(CENTRE, YearMonth.of(2026, 10), ADMIN).mois()).isEqualTo(YearMonth.of(2026, 10));
     }
 
     @Test
@@ -176,7 +213,8 @@ class CloturerEtRouvrirLeMoisTest {
         cloturer.executer(CENTRE, AOUT, ADMIN);
         cloturer.executer(CENTRE, SEPTEMBRE, ADMIN);
         rouvrir.executer(CENTRE, SEPTEMBRE, ADMIN, "correction");
-        cloturer.executer(CENTRE, YearMonth.of(2027, 1), ADMIN);
+        // un mois d'une autre année (passé : ADR 0044) n'apparaît pas dans 2026
+        cloturer.executer(CENTRE, YearMonth.of(2025, 12), ADMIN);
 
         List<MoisDeFacturation> annee = consulter.executer(CENTRE, 2026);
 

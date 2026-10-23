@@ -47,7 +47,9 @@ class FuseauDuCentreTest {
         AbsencesEnMemoire absences = new AbsencesEnMemoire();
         var declarer = new DeclarerUneAbsence(new UniteDeTravailEnMemoire(absences), (centre, patient) -> true, absences,
                 (centre, patient, jour) -> false, new SuiviEnMemoire(), (centre, patient, jour) -> Optional.empty(),
-                (centre, jour) -> BigDecimal.ZERO, () -> new AbsenceId(UUID.randomUUID()), (c, p, j) -> { }, HORLOGE);
+                (centre, jour) -> BigDecimal.ZERO, () -> new AbsenceId(UUID.randomUUID()), (c, p, j) -> {
+        }, HORLOGE,
+                new GardeDesMoisDAbsences(new com.hemodialyse.backend.contexts.absencespatients.doubles.MoisAbsencesEnMemoire()));
         var commande = new DeclarerUneAbsence.Commande(PATIENT, LocalDate.of(2026, 10, 22), null, null);
         var intervenant = new Intervenant(null, DroitDeCorrection.REFUSE);
 

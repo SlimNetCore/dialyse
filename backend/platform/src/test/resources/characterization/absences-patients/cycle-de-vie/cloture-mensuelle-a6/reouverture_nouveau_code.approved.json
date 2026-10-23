@@ -1,0 +1,96 @@
+{
+  "declarationApres": {
+    "status": 201
+  },
+  "encoreClos": {
+    "mois": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "nombreDeMois": 12,
+    "status": 200
+  },
+  "journal": [
+    {
+      "aQualifier": "0",
+      "enRetard": "0",
+      "mois": "<MOIS-1>",
+      "motif": null,
+      "par": "<U_ADMIN>",
+      "type": "CLOTURE"
+    },
+    {
+      "aQualifier": null,
+      "enRetard": null,
+      "mois": "<MOIS-1>",
+      "motif": "<motif de 500 caractères>",
+      "par": "<U_ADMIN>",
+      "type": "REOUVERTURE"
+    },
+    {
+      "aQualifier": "0",
+      "enRetard": "0",
+      "mois": "<MOIS-1>",
+      "motif": null,
+      "par": "<U_ADMIN>",
+      "type": "CLOTURE"
+    }
+  ],
+  "moisOuvert": {
+    "refus": {
+      "code": "MOIS_D_ABSENCES_NON_CLOS",
+      "status": 409
+    },
+    "status": 409
+  },
+  "motifBlanc": {
+    "refus": {
+      "code": "MOTIF_DE_REOUVERTURE_OBLIGATOIRE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "motifDe500": {
+    "corps": {
+      "centerId": "<CENTRE_A>",
+      "mois": "<MOIS-1>",
+      "statut": "OUVERT"
+    },
+    "status": 200
+  },
+  "motifTropLong": {
+    "refus": {
+      "code": "MOTIF_DE_REOUVERTURE_OBLIGATOIRE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "rouvert": {
+    "mois": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": "<motif de 500 caractères>",
+      "rouvertLe": "<HORODATAGE>",
+      "rouvertPar": "<U_ADMIN>",
+      "statut": "OUVERT"
+    },
+    "nombreDeMois": 12,
+    "status": 200
+  },
+  "sansMotif": {
+    "refus": {
+      "code": "MOTIF_DE_REOUVERTURE_OBLIGATOIRE",
+      "status": 400
+    },
+    "status": 400
+  },
+  "secondeCloture": {
+    "status": 200
+  }
+}

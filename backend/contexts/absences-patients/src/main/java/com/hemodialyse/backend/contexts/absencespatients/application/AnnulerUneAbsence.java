@@ -23,9 +23,12 @@ public class AnnulerUneAbsence {
     private final ExclusionsDeSeances exclusions;
     private final SignalementDesSaisies signalement;
     private final HorlogeDesCentres horloge;
+    private final GardeDesMoisDAbsences garde;
 
     public AnnulerUneAbsence(UniteDeTravail uniteDeTravail, AbsencesRepository absences, PeriodesFacturees periodes,
-                             ExclusionsDeSeances exclusions, SignalementDesSaisies signalement, HorlogeDesCentres horloge) {
+                             ExclusionsDeSeances exclusions, SignalementDesSaisies signalement, HorlogeDesCentres horloge,
+                             GardeDesMoisDAbsences garde) {
+        this.garde = garde;
         this.uniteDeTravail = uniteDeTravail;
         this.absences = absences;
         this.periodes = periodes;
@@ -41,6 +44,7 @@ public class AnnulerUneAbsence {
         LocalDate aujourdhui = horloge.aujourdhui(centre);
         AbsencePatient absence = uniteDeTravail.executer(() -> {
             AbsencePatient a = absences.verrouiller(centre, id).orElseThrow(() -> new AbsenceIntrouvable(id));
+            garde.exigerOuvert(centre, a.dateDeSeance());
             a.annuler(commentaire, intervenant.utilisateur(), intervenant.droit(),
                     exclusions.absenceIssueDUneExclusion(centre, id), periodes, horloge.maintenant());
             absences.enregistrer(a);

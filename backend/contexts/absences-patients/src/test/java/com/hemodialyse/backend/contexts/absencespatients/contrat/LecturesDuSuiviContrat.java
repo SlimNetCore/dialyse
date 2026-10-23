@@ -223,6 +223,27 @@ public abstract class LecturesDuSuiviContrat {
     }
 
     @Test
+    void le_compte_a_qualifier_de_plusieurs_mois_se_fait_en_un_calcul_borne_au_centre_au_statut_et_a_la_date_limite() {
+        lesPatients();
+        poserLAbsence(CENTRE, absence(1, AMRANI, LocalDate.of(2026, 3, 10), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(CENTRE, absence(2, BELKACEM, LocalDate.of(2026, 3, 28), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(CENTRE, absence(3, AMRANI, LocalDate.of(2026, 3, 11), StatutAbsence.JUSTIFIEE));
+        poserLAbsence(CENTRE, absence(4, AMRANI, LocalDate.of(2025, 12, 31), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(CENTRE, absence(5, BELKACEM, LocalDate.of(2026, 2, 1), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(CENTRE, absence(6, AMRANI, LocalDate.of(2026, 4, 1), StatutAbsence.A_QUALIFIER));
+        poserLAbsence(AUTRE_CENTRE, absence(7, ETRANGER, LocalDate.of(2026, 3, 12), StatutAbsence.A_QUALIFIER));
+        var mars = java.time.YearMonth.of(2026, 3);
+        var decembre = java.time.YearMonth.of(2025, 12);
+
+        assertThat(lecture().nombreAQualifierDansLesMois(CENTRE, java.util.List.of(mars), null)).isEqualTo(2);
+        assertThat(lecture().nombreAQualifierDansLesMois(CENTRE, java.util.List.of(mars, decembre), null)).isEqualTo(3);
+        assertThat(lecture().nombreAQualifierDansLesMois(CENTRE, java.util.List.of(mars, decembre), LocalDate.of(2026, 3, 28)))
+                .as("strictement avant la limite").isEqualTo(2);
+        assertThat(lecture().nombreAQualifierDansLesMois(CENTRE, java.util.List.of(), null)).isZero();
+        assertThat(lecture().nombreAQualifierDansLesMois(CENTRE, java.util.List.of(java.time.YearMonth.of(2026, 5)), null)).isZero();
+    }
+
+    @Test
     void une_absence_se_lit_dans_son_centre_seulement() {
         lesPatients();
         poserLAbsence(CENTRE, rattrapee(1, AMRANI, JOUR, JOUR.plusDays(2)));

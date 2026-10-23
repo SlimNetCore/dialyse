@@ -1,0 +1,15 @@
+{
+  "absences": [
+    "<DERNIER_JOUR_DU_MOIS-2> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE",
+    "<PREMIER_JOUR_DU_MOIS-1> | <P_AMRANI> | A_QUALIFIER/AUTOMATIQUE"
+  ],
+  "reponse": {
+    "annulees": 0,
+    "champs": [
+      "annulees",
+      "creees"
+    ],
+    "creees": 1,
+    "status": 200
+  }
+}

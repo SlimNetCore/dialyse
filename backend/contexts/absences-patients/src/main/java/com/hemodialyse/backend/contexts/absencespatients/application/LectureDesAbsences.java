@@ -41,6 +41,23 @@ public interface LectureDesAbsences {
     long nombreAQualifierEntre(CentreId centre, LocalDate du, LocalDate au);
 
     /**
+     * Absences « à qualifier » dont la séance tombe dans l'un de ces mois, et strictement avant {@code avant} si elle est donnée. Une seule
+     * requête pour tous les mois (la notification de nuit retire les mois clos : leur nombre croît sans borne). L'implémentation par défaut
+     * somme les comptes par mois ; l'adaptateur SQL la remplace par une requête unique.
+     */
+    default long nombreAQualifierDansLesMois(CentreId centre, java.util.Collection<java.time.YearMonth> mois, LocalDate avant) {
+        long total = 0;
+        for (java.time.YearMonth m : mois) {
+            LocalDate du = m.atDay(1);
+            LocalDate au = avant != null && avant.minusDays(1).isBefore(m.atEndOfMonth()) ? avant.minusDays(1) : m.atEndOfMonth();
+            if (!du.isAfter(au)) {
+                total += nombreAQualifierEntre(centre, du, au);
+            }
+        }
+        return total;
+    }
+
+    /**
      * L'absence de ce centre ; vide si elle n'existe pas ou appartient à un autre centre.
      */
     Optional<AbsenceSuivie> absence(CentreId centre, AbsenceId id);

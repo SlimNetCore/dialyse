@@ -1,0 +1,82 @@
+{
+  "admin": {
+    "clos": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "rouvert": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": "<U_ADMIN>",
+      "mois": "<MOIS-2>",
+      "motifDeReouverture": "motif confidentiel",
+      "rouvertLe": "<HORODATAGE>",
+      "rouvertPar": "<U_ADMIN>",
+      "statut": "OUVERT"
+    }
+  },
+  "infirmier": {
+    "clos": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": null,
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "rouvert": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": null,
+      "mois": "<MOIS-2>",
+      "motifDeReouverture": null,
+      "rouvertLe": "<HORODATAGE>",
+      "rouvertPar": null,
+      "statut": "OUVERT"
+    }
+  },
+  "medecin": {
+    "clos": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": null,
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "rouvert": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": null,
+      "mois": "<MOIS-2>",
+      "motifDeReouverture": null,
+      "rouvertLe": "<HORODATAGE>",
+      "rouvertPar": null,
+      "statut": "OUVERT"
+    }
+  },
+  "secretaire": {
+    "clos": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": null,
+      "mois": "<MOIS-1>",
+      "motifDeReouverture": null,
+      "rouvertLe": null,
+      "rouvertPar": null,
+      "statut": "CLOTURE"
+    },
+    "rouvert": {
+      "clotureLe": "<HORODATAGE>",
+      "cloturePar": null,
+      "mois": "<MOIS-2>",
+      "motifDeReouverture": null,
+      "rouvertLe": "<HORODATAGE>",
+      "rouvertPar": null,
+      "statut": "OUVERT"
+    }
+  }
+}
