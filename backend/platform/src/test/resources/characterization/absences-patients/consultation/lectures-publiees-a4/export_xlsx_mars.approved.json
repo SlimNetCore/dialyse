@@ -1,0 +1,10 @@
+{
+  "contentDisposition" : "attachment; filename=seances-dashboard-2026-03.xlsx",
+  "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "feuilles" : {
+    "Repartition age" : [ "Tranche age | Count", "0-17 | 0", "18-39 | 0", "40-59 | 0", "60+ | 0", "INCONNU | 4" ],
+    "Repartition sexe" : [ "Sexe | Count", "M | 0", "F | 4", "AUTRE | 0" ],
+    "Synthese" : [ "Annee | 2026", "Mois | 3", "Seances prevues | 0", "Presences | 2", "Absences | 5", "Seances totales | 2" ]
+  },
+  "status" : 200
+}

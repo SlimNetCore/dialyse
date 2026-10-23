@@ -1,0 +1,90 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "centres" : [ {
+      "actif" : true,
+      "centerId" : "<CENTRE_A>",
+      "motifs" : [ {
+        "motif" : "MALADIE",
+        "nb" : null,
+        "valorisationHt" : null
+      }, {
+        "motif" : "NON_QUALIFIE",
+        "nb" : null,
+        "valorisationHt" : null
+      } ],
+      "nom" : "Centre Alpha",
+      "stats" : {
+        "caHt" : 0,
+        "nbAQualifier" : null,
+        "nbAbsences" : null,
+        "nbJustifiees" : null,
+        "nbNonJustifiees" : null,
+        "nbRattrapees" : null,
+        "nbSeances" : 2,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : null,
+        "valorisationHt" : null,
+        "valorisationTtc" : null
+      }
+    }, {
+      "actif" : true,
+      "centerId" : "<CENTRE_B>",
+      "motifs" : [ ],
+      "nom" : "Centre Beta",
+      "stats" : {
+        "caHt" : 0,
+        "nbAQualifier" : 0,
+        "nbAbsences" : 0,
+        "nbJustifiees" : 0,
+        "nbNonJustifiees" : 0,
+        "nbRattrapees" : 0,
+        "nbSeances" : 0,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : null,
+        "valorisationHt" : 0,
+        "valorisationTtc" : 0
+      }
+    }, {
+      "actif" : true,
+      "centerId" : "<CENTRE_VIDE>",
+      "motifs" : [ ],
+      "nom" : "Centre Vide",
+      "stats" : {
+        "caHt" : 0,
+        "nbAQualifier" : 0,
+        "nbAbsences" : 0,
+        "nbJustifiees" : 0,
+        "nbNonJustifiees" : 0,
+        "nbRattrapees" : 0,
+        "nbSeances" : 0,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : null,
+        "valorisationHt" : 0,
+        "valorisationTtc" : 0
+      }
+    } ],
+    "centresMasques" : 1,
+    "from" : "<ANCRE>",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ ],
+    "motifs" : [ ],
+    "societeId" : "<SOCIETE_1>",
+    "to" : "<ANCRE+30>",
+    "total" : {
+      "caHt" : 0,
+      "nbAQualifier" : 0,
+      "nbAbsences" : 0,
+      "nbJustifiees" : 0,
+      "nbNonJustifiees" : 0,
+      "nbRattrapees" : 0,
+      "nbSeances" : 0,
+      "partCaHt" : null,
+      "tauxAbsenteisme" : null,
+      "valorisationHt" : 0,
+      "valorisationTtc" : 0
+    }
+  }
+}

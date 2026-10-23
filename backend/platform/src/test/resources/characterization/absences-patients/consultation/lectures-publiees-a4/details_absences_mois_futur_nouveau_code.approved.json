@@ -1,0 +1,12 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ ],
+    "kind" : "absence",
+    "month" : 1,
+    "total" : 0,
+    "year" : 2099
+  }
+}
