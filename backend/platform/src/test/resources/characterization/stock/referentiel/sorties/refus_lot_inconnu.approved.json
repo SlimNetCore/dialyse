@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Lot introuvable: <UUID_GENERE_1>",
+    "instance": "/api/v1/stock/bons-sortie",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

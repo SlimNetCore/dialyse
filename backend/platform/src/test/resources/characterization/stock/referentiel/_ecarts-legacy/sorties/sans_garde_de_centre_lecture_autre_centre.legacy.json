@@ -1,0 +1,24 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_B>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "infirmier-1",
+    "dateSortie": "<J-1>",
+    "id": "<BON_B>",
+    "lignes": [
+      {
+        "articleId": "<ART_B1>",
+        "id": "<UUID_GENERE_1>",
+        "lotId": "<LOT_B>",
+        "pmpApplique": 5.00,
+        "quantite": 1.00
+      }
+    ],
+    "patientId": null,
+    "poste": null,
+    "reference": "BS-00001",
+    "seanceId": "<UUID_GENERE_2>"
+  }
+}

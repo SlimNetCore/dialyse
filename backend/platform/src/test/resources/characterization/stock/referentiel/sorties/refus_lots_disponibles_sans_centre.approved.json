@@ -1,0 +1,34 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "datePeremption": "<J-3>",
+      "id": "<LOT_PERIME>",
+      "numeroLot": "L-PERIME",
+      "pmp": 9.50,
+      "quantiteRestante": 4.00
+    },
+    {
+      "datePeremption": "<J+10>",
+      "id": "<LOT_TOT>",
+      "numeroLot": "L-TOT",
+      "pmp": 9.50,
+      "quantiteRestante": 5.00
+    },
+    {
+      "datePeremption": "2027-02-20",
+      "id": "<LOT_TARD>",
+      "numeroLot": "L-TARD",
+      "pmp": 9.50,
+      "quantiteRestante": 10.00
+    },
+    {
+      "datePeremption": null,
+      "id": "<LOT_SANS_DATE>",
+      "numeroLot": "L-SANS",
+      "pmp": 9.50,
+      "quantiteRestante": 6.00
+    }
+  ]
+}

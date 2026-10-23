@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "B1",
+      "numero_lot": "LB",
+      "pmp_applique": "5.00",
+      "quantite": "1.00",
+      "reference": "BS-00001"
+    },
+    {
+      "code": "B1",
+      "numero_lot": "LB",
+      "pmp_applique": "5.00",
+      "quantite": "1.00",
+      "reference": "BS-00002"
+    }
+  ]
+}

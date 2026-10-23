@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "code": "B1",
+      "created_by": "test",
+      "jour": "<J-10>",
+      "mouvement_type": "ENTREE",
+      "pmp_apres": "5.00",
+      "prix_unitaire": "5.00",
+      "quantite": "50.00",
+      "seance_par_defaut": null
+    },
+    {
+      "code": "B1",
+      "created_by": "<UUID_GENERE_1>",
+      "jour": "<J-1>",
+      "mouvement_type": "SORTIE",
+      "pmp_apres": "5.00",
+      "prix_unitaire": "5.00",
+      "quantite": "1.00",
+      "seance_par_defaut": "true"
+    }
+  ]
+}

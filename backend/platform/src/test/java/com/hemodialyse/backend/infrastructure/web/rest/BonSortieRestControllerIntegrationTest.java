@@ -56,6 +56,11 @@ class BonSortieRestControllerIntegrationTest {
         jdbc.update("DELETE FROM seances WHERE id IN (?, ?)", SEANCE_BILLED_ID, SEANCE_VALIDATED_ID);
     }
 
+    private static org.springframework.test.web.servlet.request.RequestPostProcessor infirmierDuCentre() {
+        return user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(), CENTER_ID.toString(),
+                "inf-01", "", java.util.List.of("INFIRMIER"), true));
+    }
+
     @Test
     void update_should_return_explicit_code_when_seance_is_billed() throws Exception {
         cleanup();
@@ -63,7 +68,7 @@ class BonSortieRestControllerIntegrationTest {
         seedBon(BON_BILLED_ID, SEANCE_BILLED_ID, LocalDate.of(2026, 8, 1));
 
         mockMvc.perform(put("/api/v1/stock/bons-sortie/{id}", BON_BILLED_ID)
-                        .with(user("inf-01").roles("INFIRMIER"))
+                        .with(infirmierDuCentre())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatePayload(SEANCE_BILLED_ID, LocalDate.of(2026, 8, 2))))
                 .andExpect(status().isUnprocessableContent())
@@ -77,7 +82,7 @@ class BonSortieRestControllerIntegrationTest {
         seedBon(BON_DATE_LOCK_ID, SEANCE_VALIDATED_ID, LocalDate.of(2026, 8, 1));
 
         mockMvc.perform(put("/api/v1/stock/bons-sortie/{id}", BON_DATE_LOCK_ID)
-                        .with(user("inf-01").roles("INFIRMIER"))
+                        .with(infirmierDuCentre())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatePayload(SEANCE_VALIDATED_ID, LocalDate.of(2026, 8, 2))))
                 .andExpect(status().isUnprocessableContent())

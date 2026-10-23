@@ -58,7 +58,7 @@ inventaire en cours / période close refusés (`STOCK_INVENTORY_IN_PROGRESS`,
 `PmpCalculatorTest`, `BonReceptionServiceTest`,
 `BonReceptionApplicationServiceIntegrationTest`, `LotTest`. Concurrence : deux réceptions croisées (A,B)/ (B,A) sans
 interblocage ; réception pendant une sortie legacy.
-PostgreSQL 16 jetable (script `stock-pg16-rejeu.sh` à créer sur le modèle de Facturation).
+PostgreSQL 16 jetable (script `stock-pg16-rejeu.sh`, créé).
 
 ## Bascule / retour arrière / retrait
 
@@ -111,8 +111,8 @@ legacy restant.
 - **Concurrence** (`ReceptionsConcurrentesIntegrationTest`, trois exécutions vertes) : deux validations simultanées du
   même article (stock et PMP cohérents), deux réceptions croisées (A,B)/ (B,A) sans interblocage, 409 quand une autre
   transaction tient le verrou (rien d'écrit, le bon reste brouillon puis se valide). Rejeu sur PostgreSQL 16 jetable
-  (`stock-pg16-rejeu.sh`) : **à faire** (reste
-  du verrou `FOR UPDATE` et du délai de requête sur le moteur de production).
+  (`backend/scripts/stock-pg16-rejeu.sh`, `StockPostgresContractIT`) : **vert** le 2026-10-23, verrou `FOR UPDATE` avec
+  délai de requête (409 après 5 s), verrouillages croisés sans interblocage, FEFO et séquence lus par SQL.
 - **Tests du module** : +9 (`BonDeReceptionTest`, `RejeuDuPmpTest`), ArchUnit vert.
 - **Retrait** : `BonReceptionRestController` et ses DTO (`CreateBonReceptionRequest`, `BonReceptionLigneDto`,
   `FromBonCommandeRequest`), `StockDashboardRestController` (routes `pmp-recalc/*`). **Conservés** :

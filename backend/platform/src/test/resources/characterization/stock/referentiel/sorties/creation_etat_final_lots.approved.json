@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "numero_lot": "L1",
+      "quantite_initiale": "100.00",
+      "quantite_restante": "69.00"
+    },
+    {
+      "numero_lot": "L2",
+      "quantite_initiale": "50.00",
+      "quantite_restante": "45.00"
+    }
+  ]
+}

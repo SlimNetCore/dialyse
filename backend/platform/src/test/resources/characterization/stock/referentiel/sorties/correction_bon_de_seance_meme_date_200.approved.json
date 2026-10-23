@@ -1,0 +1,24 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "<UUID_GENERE_1>",
+    "dateSortie": "<J-3>",
+    "id": "<BON_SEANCE>",
+    "lignes": [
+      {
+        "articleId": "<ART_1>",
+        "id": "<UUID_GENERE_2>",
+        "lotId": "<LOT_1>",
+        "pmpApplique": 9.00,
+        "quantite": 5.00
+      }
+    ],
+    "patientId": null,
+    "poste": "SEANCE",
+    "reference": "BS-00001",
+    "seanceId": "<SEANCE_OUVERTE>"
+  }
+}

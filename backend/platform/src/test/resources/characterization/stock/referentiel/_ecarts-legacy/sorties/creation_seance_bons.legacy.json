@@ -1,0 +1,22 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "created_by": "infirmier-1",
+      "date_sortie": "<J-2>",
+      "poste": "SEANCE",
+      "reference": "BS-00001",
+      "sans_patient": "true",
+      "seance_par_defaut": "false"
+    },
+    {
+      "created_by": "infirmier-1",
+      "date_sortie": "<J-2>",
+      "poste": "SEANCE",
+      "reference": "BS-00002",
+      "sans_patient": "true",
+      "seance_par_defaut": "false"
+    }
+  ]
+}

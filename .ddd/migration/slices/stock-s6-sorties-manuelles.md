@@ -1,6 +1,6 @@
 ---
 slice: stock-s6-sorties-manuelles
-status: planned
+status: built
 date: 2026-10-23
 order: 6
 context: stock
@@ -48,5 +48,50 @@ Sans façade ; retour arrière = version précédente. Retrait : contrôleur, m�
 
 ## Dépendances et risques
 
-Dépend de S5 (`StockArticle`, `RejeuDuPmp`) ; port publié de la Facturation. Risque moyen.
+Dépend de S5 (`StockArticle`, `RejeuDuPmp`) ; port publié de la Facturation. Risque moyen.## Livraison (2026-10-23)
 
+- **Module** `backend/contexts/stock` : domaine `BonDeSortie` / `LigneDeSortie` (immuables, correction = nouveau bon de
+  même identité,
+  référence et heure de saisie), ports `BonsDeSortie`, `SortiesDuStock` (lots FEFO, consommer / restituer, mouvement de
+  sortie,
+  retrait d'un mouvement) et `StatutDesSeances`, cas d'usage `GestionDesSorties` (sortir, corriger, consulter, lister,
+  lots
+  disponibles), adapters JDBC `BonsDeSortieJdbc` et `SortiesDuStockJdbc`, ACL `StatutDesSeancesLegacy` (lecture de
+  `seances.statut`), contrôleur `SortiesControleur` (mêmes routes, rôles `ADMIN`/`PHARMACIEN`/`INFIRMIER` et JSON).
+  Verrou de ligne sur `articles` par identifiant croissant, garde d'inventaire et rejeu du PMP réutilisés de S5 ;
+  validation et correction
+  dans une seule transaction ; notification temps réel `SORTIE` / `CORRECTION`.
+- **Reproduit à l'identique** : refus (400 `BAD_REQUEST`, 422 `BUSINESS_RULE_VIOLATION` « Stock insuffisant sur le
+  lot », codes
+  d'inventaire, `SEANCE_FACTUREE_NON_MODIFIABLE`, `SEANCE_STOCK_EXIT_DATE_IMMUTABLE` avec son titre), valorisation au
+  PMP courant,
+  ordre des contrôles, lots FEFO (périmés inclus), article inactif accepté, **création sans contrôle de facturation de
+  la séance**
+  (reproduit, à trancher), lots, mouvements et stock des articles. 74 goldens inchangés sur 126.
+- **Corrections (même ligne que S5, à valider), KB-STK-46 à 49** : 403 si le centre demandé ≠ session et centre
+  facultatif (= session) ;
+  auteur = utilisateur de la session (le champ `userId` du corps est ignoré) ; **la correction d'un bon manuel ne
+  supprime plus les
+  mouvements des autres bons** du même article (le legacy supprimait tous les mouvements « séance 0 / article »,
+  laissant le stock
+  de l'article décalé des lots : 48 au lieu de 46 dans le scénario des rôles) — le mouvement retiré est celui de la
+  ligne (séance,
+  article, lot, quantité, heure de saisie du bon) ; quantités relues en base (`1.00` au lieu de `1`). Legacy conservé
+  dans
+  `characterization/stock/referentiel/_ecarts-legacy/sorties/*.legacy.json`.
+- **Port publié de la Facturation** : aucun langage publié n'expose encore « séance facturée » ; l'ACL
+  `StatutDesSeancesLegacy` lit le
+  même statut que `SeanceBillingStatusJdbcAdapter` (conservé pour les sorties de séance legacy, S6b). À remplacer par le
+  langage publié
+  de la Facturation quand il existera.
+- **Tests** : filet `SortiesManuellesCharacterizationIntegrationTest` 9/9 sur le nouveau code (assertion du nombre de
+  bons corrigée
+  à 3, conforme au golden legacy) ; +13 tests de module (`BonDeSortieTest`, `GestionDesSortiesTest`), ArchUnit vert ;
+  `BonSortieRestControllerIntegrationTest` adapté à un utilisateur rattaché à un centre. Concurrence
+  (`SortiesConcurrentesIntegrationTest`) : deux sorties simultanées d'un même lot ne dépassent pas son stock, et une
+  écriture legacy qui tient le verrou de l'article donne un 409 sans rien écrire. Rejeu PostgreSQL 16 jetable
+  (`stock-pg16-rejeu.sh`) **vert** le 2026-10-23.
+- **Retrait** : `BonSortieRestController` et ses DTO (`CreateBonSortieRequest`, `UpdateBonSortieRequest`,
+  `SortieItemDto`). **Conservés** (utilisés par les sorties de séance, S6b) : `BonSortieService` (dont `create`,
+  `update`, `get`, `list`, à
+  retirer avec S6b), `BonSortieApplicationService`, `SeanceBillingStatusPort` et son adapter JDBC.

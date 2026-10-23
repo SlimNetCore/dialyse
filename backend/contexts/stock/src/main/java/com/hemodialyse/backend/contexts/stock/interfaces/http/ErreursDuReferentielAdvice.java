@@ -60,6 +60,24 @@ class ErreursDuReferentielAdvice {
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
     }
 
+
+    /**
+     * Demande de sortie inutilisable (slice S6) : 400 {@code BAD_REQUEST}, comme le legacy.
+     */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.stock.domain.sortie.SortieInvalide.class)
+    ProblemDetail sortieInvalide(com.hemodialyse.backend.contexts.stock.domain.sortie.SortieInvalide erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
+    }
+
+    /**
+     * Date d'un bon de séance modifiée (slice S6) : 422 {@code SEANCE_STOCK_EXIT_DATE_IMMUTABLE}, comme le legacy.
+     */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.stock.domain.sortie.DateDeSortieDeSeanceImmuable.class)
+    ProblemDetail dateDeSeanceImmuable(com.hemodialyse.backend.contexts.stock.domain.sortie.DateDeSortieDeSeanceImmuable erreur) {
+        return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Modification interdite", erreur.getMessage(),
+                "SEANCE_STOCK_EXIT_DATE_IMMUTABLE");
+    }
+
     /**
      * Écriture de stock concurrente (slice S5) : 409 {@code STOCK_ECRITURE_CONCURRENTE}, rien n'est écrit.
      */

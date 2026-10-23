@@ -1,0 +1,31 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "<UUID_GENERE_1>",
+    "dateSortie": "<J-1>",
+    "id": "<UUID_GENERE_2>",
+    "lignes": [
+      {
+        "articleId": "<ART_1>",
+        "id": "<UUID_GENERE_3>",
+        "lotId": "<LOT_1>",
+        "pmpApplique": 9.00,
+        "quantite": 30.00
+      },
+      {
+        "articleId": "<ART_1>",
+        "id": "<UUID_GENERE_4>",
+        "lotId": "<LOT_2>",
+        "pmpApplique": 9.00,
+        "quantite": 5.00
+      }
+    ],
+    "patientId": "<PATIENT_1>",
+    "poste": "SALLE_A",
+    "reference": "BS-00001",
+    "seanceId": "<UUID_GENERE_5>"
+  }
+}

@@ -169,6 +169,38 @@ public class StockContexteConfiguration {
                 fournisseurs, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
     }
 
+    // ------------------------------------------------------------------ slice S6 : sorties manuelles
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.sortie.BonsDeSortie stockBonsDeSortie(JdbcTemplate jdbc,
+                                                                                        PlatformTransactionManager transactions) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeSortieJdbc(jdbc,
+                new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock stockSortiesDuStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.SortiesDuStockJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances stockStatutDesSeances(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.StatutDesSeancesLegacy(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties stockGestionDesSorties(
+            com.hemodialyse.backend.contexts.stock.domain.sortie.BonsDeSortie bons, Articles articles,
+            com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock sorties,
+            com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures,
+            com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
+            com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances seances,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+        return new com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties(bons, articles, sorties, ecritures,
+                rejeu, seances, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp stockRecalculMassifDuPmp(
             com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,

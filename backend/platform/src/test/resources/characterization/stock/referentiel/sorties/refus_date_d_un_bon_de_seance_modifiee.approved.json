@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "SEANCE_STOCK_EXIT_DATE_IMMUTABLE",
+    "detail": "La date de sortie d'une seance ne peut pas etre modifiee",
+    "instance": "/api/v1/stock/bons-sortie/<BON_SEANCE>",
+    "status": 422,
+    "title": "Modification interdite"
+  }
+}

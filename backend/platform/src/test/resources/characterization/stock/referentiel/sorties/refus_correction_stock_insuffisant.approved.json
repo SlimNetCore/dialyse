@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "detail": "Stock insuffisant sur le lot L1",
+    "instance": "/api/v1/stock/bons-sortie/<BON_A>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

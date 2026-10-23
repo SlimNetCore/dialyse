@@ -1,0 +1,22 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "created_by": "<UUID_GENERE_1>",
+      "date_sortie": "<J-1>",
+      "poste": "SALLE_A",
+      "reference": "BS-00001",
+      "sans_patient": "false",
+      "seance_par_defaut": "true"
+    },
+    {
+      "created_by": "<UUID_GENERE_2>",
+      "date_sortie": "<J-0>",
+      "poste": null,
+      "reference": "BS-00002",
+      "sans_patient": "true",
+      "seance_par_defaut": "true"
+    }
+  ]
+}

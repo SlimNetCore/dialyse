@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "STOCK_INVENTORY_IN_PROGRESS",
+    "detail": "Inventaire INV-EN-COURS en cours : aucun mouvement de stock n'est permis jusqu'à sa clôture ou son annulation.",
+    "instance": "/api/v1/stock/bons-sortie",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

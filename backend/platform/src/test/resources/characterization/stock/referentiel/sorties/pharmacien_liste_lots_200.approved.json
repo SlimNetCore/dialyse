@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "datePeremption": "<J+30>",
+      "id": "<LOT_1>",
+      "numeroLot": "L1",
+      "pmp": 5.00,
+      "quantiteRestante": 47.00
+    }
+  ]
+}

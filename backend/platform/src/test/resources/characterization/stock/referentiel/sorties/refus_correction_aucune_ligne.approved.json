@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Aucune ligne de sortie",
+    "instance": "/api/v1/stock/bons-sortie/<BON_A>",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}
