@@ -38,6 +38,13 @@ public interface SortiesDuStock {
                            String auteur, LocalDate jour, OffsetDateTime saisiLe);
 
     /**
+     * Enregistre le retour en stock d'un surplus (mouvement {@code RETOUR}, traité comme une entrée au prix de sortie), daté du jour à
+     * minuit UTC.
+     */
+    void enregistrerRetour(CentreId centre, UUID articleId, UUID lotId, BigDecimal quantite, BigDecimal prix, String auteur,
+                           LocalDate jour, OffsetDateTime saisiLe);
+
+    /**
      * Supprime le mouvement de sortie correspondant à une ligne de bon (même séance, article, lot et quantité), celui saisi à
      * l'heure du bon en priorité ; sans effet s'il n'existe plus.
      *
@@ -49,4 +56,5 @@ public interface SortiesDuStock {
     record LotDuStock(UUID id, UUID articleId, String numero, LocalDate datePeremption, BigDecimal quantiteRestante) {
     }
 }
+
 

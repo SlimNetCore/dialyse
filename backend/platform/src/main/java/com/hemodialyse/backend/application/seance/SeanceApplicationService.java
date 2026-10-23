@@ -20,7 +20,7 @@ import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort
 import com.hemodialyse.backend.domain.seance.service.SeanceDomainService;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,7 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     PatientRepositoryPort patientRepo,
                                     ArticleRepositoryPort articleRepo,
                                     LotRepositoryPort lotRepo,
-                                    BonSortieUseCase bonSortieUseCase,
+                                    ConsommationsDeSeance consommations,
                                     VoletParamedicalRepositoryPort voletParamedicalRepo,
                                     VoletMedicalRepositoryPort voletMedicalRepo,
                                     SeanceForfaitCatalogPort forfaitCatalogPort,
@@ -57,7 +57,7 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     SeancePlanningPort planningPort,
                                     SeancePlacePort placePort) {
         this.delegate = new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo,
-                bonSortieUseCase, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
+                consommations, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
                 planningPort, placePort);
     }
 

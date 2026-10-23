@@ -10,7 +10,7 @@ import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -40,7 +40,7 @@ class SuppressionSeanceServiceTest {
     private final VoletParamedicalRepositoryPort voletsP = mock(VoletParamedicalRepositoryPort.class);
     private final VoletMedicalRepositoryPort voletsM = mock(VoletMedicalRepositoryPort.class);
     private final AdministrationTraitementRepositoryPort administrations = mock(AdministrationTraitementRepositoryPort.class);
-    private final BonSortieUseCase sorties = mock(BonSortieUseCase.class);
+    private final ConsommationsDeSeance sorties = mock(ConsommationsDeSeance.class);
     private final SuppressionSeanceJournalPort journal = mock(SuppressionSeanceJournalPort.class);
     private final SuppressionSeanceService service = new SuppressionSeanceService(seances, voletsP, voletsM,
             administrations, sorties, journal, Clock.fixed(T0, ZoneOffset.UTC));
@@ -59,7 +59,7 @@ class SuppressionSeanceServiceTest {
         SuppressionSeance trace = service.supprimer(CENTRE, s.getId(), "Séance saisie sur le mauvais patient", "admin");
 
         InOrder ordre = inOrder(sorties, administrations, voletsP, voletsM, seances, journal);
-        ordre.verify(sorties).annulerSortiesSeance(CENTRE, s.getId(), "admin");
+        ordre.verify(sorties).annuler(CENTRE.value(), s.getId(), "admin");
         ordre.verify(administrations).deleteBySeanceId(s.getId(), CENTRE);
         ordre.verify(voletsP).deleteBySeanceId(s.getId(), CENTRE);
         ordre.verify(voletsM).deleteBySeanceId(s.getId(), CENTRE);

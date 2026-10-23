@@ -62,7 +62,7 @@ public final class PmpCalculator {
         BigDecimal pu = m.getPrixUnitaire();
 
         StockMovementType type = m.getMovementType();
-        boolean isEntry = type == StockMovementType.ENTREE || type == StockMovementType.INVENTAIRE
+        boolean isEntry = type == StockMovementType.ENTREE || type == StockMovementType.INVENTAIRE || type == StockMovementType.RETOUR
                 || (type == StockMovementType.AJUSTEMENT && pu != null);
 
         if (isEntry) {

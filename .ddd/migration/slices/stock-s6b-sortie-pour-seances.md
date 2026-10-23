@@ -1,6 +1,6 @@
 ---
 slice: stock-s6b-sortie-pour-seances
-status: planned
+status: in-progress
 date: 2026-10-23
 order: 7 (S6b)
 context: stock (+ Séance pour l'appelant, Identité & accès pour le profil)
@@ -74,5 +74,43 @@ périmètre le remplacent.
 
 Dépend de S5 et S6 (`StockArticle`, `BonSortie`). **Risque élevé** : nouveau processus métier, argent (sorties,
 retours), changement des habitudes infirmières ;
-questions ouvertes 2 à 4 du modèle tactique à trancher avant le code.
+questions ouvertes 2 à 4 du modèle tactique à trancher avant le code.## Avancement (2026-10-23) — phase A livrée (pièce
+et rapprochement), phases B et C restantes **Questions ouvertes tranchées (hypothèses et recommandation du modèle, à
+confirmer)** : 1) paramètre par centre
+`stock_parametres.sortie_pour_seances_activee` (FALSE par défaut) ; 2) le motif d'un écart est saisi par l'infirmier
+et/ou le
+gestionnaire, seule la validation est réservée ; 3) la sortie supplémentaire part des lots de la pièce s'il en reste,
+sinon FEFO ;
 
+4) les consommations imputées restent la base du coût par séance. **Phase A (faite)** : migration additive `V45` (5
+   tables, jouée sur PostgreSQL 16 jetable) et `schema.sql` ; type de mouvement
+   `RETOUR` traité comme une entrée au prix de sortie (PMP, valorisation, rejeu, lectures) ; module `contexts/stock` :
+   domaine
+   `SortiePourSeances` (`constater`, `justifier`, `rapprocher`), cas d'usage `GestionDesSortiesPourSeances` (enregistrer
+   en
+   FEFO, préparer le rapprochement, justifier, valider : sortie supplémentaire ou retour), adapter
+   `SortiesPourSeancesJdbc`, routes
+   `/api/v1/stock/sorties-pour-seances` (rôles : enregistrement `ADMIN`/`PHARMACIEN` ; rapprochement avec
+   `DIRECTEUR_ADMINISTRATIF`). 12 tests (T35, T36, T40, T41) ; filet legacy et ArchUnit verts. **Phase B (faite,
+   2026-10-23)** : langage publié synchrone ``ConsommationsDeSeance`` (ajouter, fixer, annuler, administrer,
+   enregistrerALaValidation), ``ConsommationRefusee`` (422, code stable, traité par ``ApiExceptionHandler``) et
+   ``ParametresDuStockDuCentre`` ; contexte : ``ConsommationDeSeance`` (imputation sur les lots de la pièce en FEFO,
+   aucun mouvement de stock, alertes ``DEPASSEMENT_DE_LA_SORTIE`` / ``ARTICLE_HORS_PIECE`` / ``AUCUNE_PIECE``),
+   ``GestionDesConsommations`` (pièce du jour au périmètre le plus précis puis « journée », séance facturée et pièce
+   rapprochée refusées, pièce verrouillée pendant l imputation), ACL ``PerimetreDesSeancesLegacy`` (salle = code de la
+   salle, demi-journée lue dans le créneau), routes de lecture (favoris, consommation d une séance) et paramétrage du
+   centre (``GET/PUT /api/v1/stock/parametres``, écriture ``ADMIN``). Plateforme : ``ConsommationsDeSeanceAiguillage``
+   (``@Primary``, par centre) entre ``ConsommationsDeSeanceDuStock`` et ``ConsommationsDeSeanceLegacy`` (comportement
+   historique inchangé, FEFO et bon unique) ; les 4 appelants de la Séance (``SeanceDomainService``,
+   ``SeanceApplicationService``, ``SuppressionSeanceService``, ``AdministrationTraitementRestController``) n utilisent
+   plus ``BonSortieUseCase`` (règle ArchUnit ajoutée dans ``FrontieresDesContextesTest``). Tests : +8
+   (``GestionDesConsommationsTest``), ``SortiesPourSeancesIntegrationTest`` (parcours complet, rôles, mode historique),
+   ``ConsommationsDeSeanceLegacyTest`` (FEFO déplacé depuis ``SeanceDomainServiceTest``), annexe de traçabilité des
+   règles de gestion mise à jour ; suite backend complète verte. **Reste de B** : test de concurrence T44 (consommation
+   pendant la validation) et retrait des méthodes de séance de ``BonSortieService`` (encore utilisées par l adapter
+   historique, à retirer quand tous les centres auront basculé).`r`n`r`n **Phase C (à faire)** : garde T43 (inventaire
+   refusé tant qu'une pièce n'est pas rapprochée, avec S7) ; rôle
+   `DIRECTEUR_ADMINISTRATIF` en lecture seule sur les routes de lecture du stock et dans la gestion des comptes ;
+   comptabilité C6 (les mouvements `RETOUR` doivent être pris en compte dans `OperationsDeStock`) ; écrans (préparation,
+   favoris et alertes,
+   rapprochement), i18n fr/en/ar/kab ; RG-STK 8.9 et documentation client.

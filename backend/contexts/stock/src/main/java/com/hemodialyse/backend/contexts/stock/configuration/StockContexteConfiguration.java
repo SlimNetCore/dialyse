@@ -201,6 +201,77 @@ public class StockContexteConfiguration {
                 rejeu, seances, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
     }
 
+    // ------------------------------------------------------------------ slice S6b : sorties pour séances
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances stockSortiesPourSeances(JdbcTemplate jdbc,
+                                                                                                           PlatformTransactionManager transactions) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.SortiesPourSeancesJdbc(jdbc,
+                new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances stockGestionDesSortiesPourSeances(
+            com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances pieces, Articles articles,
+            com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock sorties,
+            com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures,
+            com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
+            com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
+        return new com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances(pieces, articles,
+                sorties, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
+    }
+
+    // ------------------------------------------------------------------ slice S6b : consommations de séance et paramétrage
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationsImputees stockConsommationsImputees(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.ConsommationsImputeesJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.consommations.PerimetreDesSeances stockPerimetreDesSeances(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.PerimetreDesSeancesLegacy(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.parametres.ParametresDuStock stockParametresDuStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.ParametresDuStockJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock stockParametrerLeStock(
+            com.hemodialyse.backend.contexts.stock.domain.parametres.ParametresDuStock parametres) {
+        return new com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock(parametres);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.ParametresDuStockDuCentre stockParametresDuStockDuCentre(
+            com.hemodialyse.backend.contexts.stock.application.parametres.ParametrerLeStock parametrage) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.catalogue.ParametresDuStockPublies(parametrage);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations stockGestionDesConsommations(
+            com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationsImputees imputees,
+            com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances pieces,
+            com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock sorties, Articles articles,
+            com.hemodialyse.backend.contexts.stock.domain.consommations.PerimetreDesSeances perimetres,
+            com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances statuts,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail) {
+        return new com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations(imputees, pieces, sorties,
+                articles, perimetres, statuts, uniteDeTravail, UUID::randomUUID);
+    }
+
+    /**
+     * Consommation de séance imputée sur la sortie pour séances (sans nom de type : la plateforme l'aiguille selon le centre).
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock stockConsommationsDeSeance(
+            com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations consommations) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock(consommations);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp stockRecalculMassifDuPmp(
             com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,

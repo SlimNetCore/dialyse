@@ -27,7 +27,7 @@ public class StockMovement {
     private static int rangDansLaJournee(StockMovement m) {
         if (m.getMovementType() == null) return 1;
         return switch (m.getMovementType()) {
-            case INVENTAIRE, ENTREE -> 0;
+            case INVENTAIRE, ENTREE, RETOUR -> 0;
             case AJUSTEMENT -> m.getPrixUnitaire() != null ? 0 : 1;
             default -> 1;
         };

@@ -66,6 +66,14 @@ public class SortiesDuStockJdbc implements SortiesDuStock {
     }
 
     @Override
+    public void enregistrerRetour(CentreId centre, UUID articleId, UUID lotId, BigDecimal quantite, BigDecimal prix, String auteur,
+                                  LocalDate jour, OffsetDateTime saisiLe) {
+        jdbc.update("INSERT INTO stock_movements (id, center_id, article_id, lot_id, mouvement_type, quantite, prix_unitaire, created_by, "
+                        + "created_at, saisi_le) VALUES (?, ?, ?, ?, 'RETOUR', ?, ?, ?, ?, ?)", UUID.randomUUID(), centre.valeur(), articleId,
+                lotId, quantite, prix, auteur, jour.atStartOfDay().atOffset(ZoneOffset.UTC), saisiLe);
+    }
+
+    @Override
     public void retirerLaSortie(CentreId centre, UUID seanceId, UUID articleId, UUID lotId, BigDecimal quantite,
                                 OffsetDateTime saisiLe) {
         List<Mouvement> trouves = jdbc.query("SELECT id, inventaire_id FROM stock_movements WHERE center_id = ? AND seance_id = ? "
@@ -85,4 +93,5 @@ public class SortiesDuStockJdbc implements SortiesDuStock {
     private record Mouvement(UUID id, boolean cloture) {
     }
 }
+
 

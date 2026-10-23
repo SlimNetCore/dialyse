@@ -53,6 +53,18 @@ class FrontieresDesContextesTest {
     private static final String ABSENCES = "com.hemodialyse.backend.contexts.absencespatients";
 
     /**
+     * Slice S6b (ADR 0045) : la Séance ne sort plus de stock elle-même ; elle ne connaît du Stock que le port publié
+     * {@code ConsommationsDeSeance}, aiguillé par centre entre la sortie immédiate FEFO (historique) et la sortie pour séances.
+     */
+    @ArchTest
+    static final ArchRule la_seance_n_appelle_plus_le_bon_de_sortie_legacy = noClasses()
+            .that().resideInAnyPackage("com.hemodialyse.backend.domain.seance..", "com.hemodialyse.backend.application.seance..")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.AdministrationTraitementRestController")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.domain.stock.port.BonSortieUseCase")
+            .because("la Séance passe par le port publié ConsommationsDeSeance du Stock (ADR 0045)");
+
+
+    /**
      * Slices A1 à A4 : le legacy n'utilise le contexte Absences de patients que par son langage publié
      * ({@code AbsencesDuPilotage} pour le pilotage, A4 ; {@code SignalementDesSaisies} et {@code NotificationsDuCentre}, fournis par
      * la plateforme), jamais par ses couches internes ; le module est câblé par sa configuration, scannée par Spring. Aucun
@@ -66,4 +78,5 @@ class FrontieresDesContextesTest {
                     ABSENCES + ".interfaces..", ABSENCES + ".configuration..")
             .because("les Absences de patients ne s'utiliseront que par leur langage publié (A2, A4)");
 }
+
 

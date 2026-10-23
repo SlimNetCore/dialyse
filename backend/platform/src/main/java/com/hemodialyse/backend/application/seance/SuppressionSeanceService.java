@@ -10,7 +10,7 @@ import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,21 +30,21 @@ public class SuppressionSeanceService {
     private final VoletParamedicalRepositoryPort voletsParamedicaux;
     private final VoletMedicalRepositoryPort voletsMedicaux;
     private final AdministrationTraitementRepositoryPort administrations;
-    private final BonSortieUseCase sorties;
+    private final ConsommationsDeSeance sorties;
     private final SuppressionSeanceJournalPort journal;
     private final Clock horloge;
 
     @Autowired
     public SuppressionSeanceService(SeanceRepositoryPort seances, VoletParamedicalRepositoryPort voletsParamedicaux,
                                     VoletMedicalRepositoryPort voletsMedicaux,
-                                    AdministrationTraitementRepositoryPort administrations, BonSortieUseCase sorties,
+                                    AdministrationTraitementRepositoryPort administrations, ConsommationsDeSeance sorties,
                                     SuppressionSeanceJournalPort journal) {
         this(seances, voletsParamedicaux, voletsMedicaux, administrations, sorties, journal, Clock.systemUTC());
     }
 
     SuppressionSeanceService(SeanceRepositoryPort seances, VoletParamedicalRepositoryPort voletsParamedicaux,
                              VoletMedicalRepositoryPort voletsMedicaux,
-                             AdministrationTraitementRepositoryPort administrations, BonSortieUseCase sorties,
+                             AdministrationTraitementRepositoryPort administrations, ConsommationsDeSeance sorties,
                              SuppressionSeanceJournalPort journal, Clock horloge) {
         this.seances = seances;
         this.voletsParamedicaux = voletsParamedicaux;
@@ -65,7 +65,7 @@ public class SuppressionSeanceService {
                 .orElseThrow(() -> new BusinessException("SEANCE_INTROUVABLE", "Séance introuvable"));
         SuppressionSeance suppression = SuppressionSeance.de(seance, new MotifSuppressionSeance(motif), utilisateur,
                 horloge.instant());
-        sorties.annulerSortiesSeance(centerId, seanceId, suppression.supprimePar());
+        sorties.annuler(centerId.value(), seanceId, suppression.supprimePar());
         administrations.deleteBySeanceId(seanceId, centerId);
         voletsParamedicaux.deleteBySeanceId(seanceId, centerId);
         voletsMedicaux.deleteBySeanceId(seanceId, centerId);

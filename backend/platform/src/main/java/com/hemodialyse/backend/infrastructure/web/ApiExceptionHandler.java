@@ -76,6 +76,18 @@ public class ApiExceptionHandler {
         return problem;
     }
 
+    /**
+     * Refus d'une consommation de séance par le Stock (S6b) : 422 et code stable (séance facturée, pièce rapprochée…).
+     */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee.class)
+    ProblemDetail handleConsommationRefusee(com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationRefusee ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        problem.setTitle("Regle metier violee");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("code", ex.code());
+        return problem;
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail handleBadRequest(IllegalArgumentException ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

@@ -23,9 +23,7 @@ import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.Lot;
-import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 
 import java.math.BigDecimal;
@@ -50,7 +48,7 @@ public class SeanceDomainService implements SeanceUseCase {
     private final PatientRepositoryPort patientRepo;
     private final ArticleRepositoryPort articleRepo;
     private final LotRepositoryPort lotRepo;
-    private final BonSortieUseCase bonSortieUseCase;
+    private final ConsommationsDeSeance stockConsommations;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
     private final SeanceForfaitCatalogPort forfaitCatalogPort;
@@ -62,7 +60,7 @@ public class SeanceDomainService implements SeanceUseCase {
                                PatientRepositoryPort patientRepo,
                                ArticleRepositoryPort articleRepo,
                                LotRepositoryPort lotRepo,
-                               BonSortieUseCase bonSortieUseCase,
+                               ConsommationsDeSeance stockConsommations,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
                                SeanceForfaitCatalogPort forfaitCatalogPort,
@@ -73,7 +71,7 @@ public class SeanceDomainService implements SeanceUseCase {
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
         this.lotRepo = lotRepo;
-        this.bonSortieUseCase = bonSortieUseCase;
+        this.stockConsommations = stockConsommations;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
         this.forfaitCatalogPort = forfaitCatalogPort;
@@ -192,8 +190,8 @@ public class SeanceDomainService implements SeanceUseCase {
         if (!article.isActive()) {
             throw new IllegalStateException("Article inactif: " + article.getCode());
         }
-        bonSortieUseCase.addSeanceConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
-                articleId, quantite, userId != null ? userId : "system");
+        stockConsommations.ajouter(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, quantite,
+                userId != null ? userId : "system");
     }
 
     @Override
@@ -269,52 +267,22 @@ public class SeanceDomainService implements SeanceUseCase {
         List<SeanceArticleConsumption> items = consommations != null ? consommations : List.of();
 
         if (!items.isEmpty()) {
-            // Validate articles and build FEFO-based SortieRequestItem list
-            List<SortieRequestItem> sortieItems = new ArrayList<>();
+            List<ConsommationsDeSeance.Ligne> lignes = new ArrayList<>();
             for (SeanceArticleConsumption item : items) {
                 if (item == null || item.articleId() == null) {
                     throw new IllegalArgumentException("Article de consommation invalide");
                 }
-
                 var article = articleRepo.findById(item.articleId(), centerId)
                         .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
-
                 if (!article.isActive()) {
                     throw new IllegalStateException("Article inactif: " + article.getCode());
                 }
-
-                // Auto-select lots using FEFO ordering
-                List<Lot> fefoLots = lotRepo.findAvailableByArticleFefo(item.articleId(), centerId);
-                BigDecimal remaining = item.quantite();
-
-                for (Lot lot : fefoLots) {
-                    if (remaining.signum() <= 0) break;
-                    BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
-                    if (dispo.signum() <= 0) continue;
-                    BigDecimal take = remaining.min(dispo);
-                    sortieItems.add(new SortieRequestItem(item.articleId(), lot.getId(), take));
-                    remaining = remaining.subtract(take);
-                }
-
-                if (remaining.signum() > 0) {
-                    throw new IllegalStateException(
-                            "Stock insuffisant pour l'article " + article.getCode()
-                                    + " (manque: " + remaining + " " + article.getUnite() + ")");
-                }
+                lignes.add(new ConsommationsDeSeance.Ligne(item.articleId(), item.quantite()));
             }
-
-            // Create a BonSortie with PMP valuation via FEFO lot selection
-            bonSortieUseCase.create(
-                    centerId,
-                    seance.getId(),
-                    seance.getPatientId(),
-                    "SEANCE",
-                    seance.getDateSeance(),
-                    sortieItems,
-                    userId != null ? userId : "system"
-            );
+            // Le Stock décide : sortie FEFO immédiate (comportement historique) ou imputation sur la sortie pour séances du centre
+            stockConsommations.enregistrerALaValidation(centerId.value(), seance.getId(), seance.getPatientId(), seance.getDateSeance(),
+                    lignes, userId != null ? userId : "system");
         }
-
         return seanceRepo.save(seance);
     }
 
@@ -334,8 +302,8 @@ public class SeanceDomainService implements SeanceUseCase {
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
             throw new SeanceFactureeNonModifiableException();
         }
-        bonSortieUseCase.setSeanceConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
-                articleId, BigDecimal.ZERO, userId);
+        stockConsommations.fixer(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, BigDecimal.ZERO,
+                userId);
     }
 
     @Override
@@ -350,8 +318,8 @@ public class SeanceDomainService implements SeanceUseCase {
             throw new SeanceFactureeNonModifiableException();
         }
         // Le bon de sortie unique de la séance est mis à jour avec la nouvelle quantité de l'article
-        bonSortieUseCase.setSeanceConsommation(centerId, seanceId, seance.getPatientId(),
-                seance.getDateSeance(), articleId, newQuantite, userId);
+        stockConsommations.fixer(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, newQuantite,
+                userId);
     }
 
     private UUID resolvePatientIdFromQr(CenterId centerId, String qrCode) {

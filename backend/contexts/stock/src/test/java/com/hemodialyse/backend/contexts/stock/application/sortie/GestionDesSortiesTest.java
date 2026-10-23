@@ -112,6 +112,12 @@ class GestionDesSortiesTest {
         }
 
         @Override
+        public void enregistrerRetour(CentreId centre, UUID articleId, UUID lotId, BigDecimal quantite, BigDecimal prix,
+                                      String auteur, LocalDate jour, OffsetDateTime saisiLe) {
+            journal.add("retour:" + quantite.toPlainString());
+        }
+
+        @Override
         public void retirerLaSortie(CentreId centre, UUID seanceId, UUID articleId, UUID lotId, BigDecimal quantite,
                                     OffsetDateTime saisiLe) {
             journal.add("retrait:" + quantite.toPlainString());
@@ -304,4 +310,5 @@ class GestionDesSortiesTest {
         assertEquals(0, sorties.lister(new CentreId(UUID.randomUUID())).size());
     }
 }
+
 

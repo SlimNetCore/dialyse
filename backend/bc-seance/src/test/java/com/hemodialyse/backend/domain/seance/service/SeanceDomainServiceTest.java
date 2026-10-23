@@ -24,10 +24,8 @@ import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.BonSortie;
 import com.hemodialyse.backend.domain.stock.model.Lot;
-import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +43,7 @@ class SeanceDomainServiceTest {
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
             LotRepositoryPort lotRepo,
-            BonSortieUseCase bonSortieUseCase) {
+            ConsommationsDeSeance bonSortieUseCase) {
         return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
                 new InMemoryForfaitCatalog(), new AlwaysBillableEligibility());
     }
@@ -55,7 +53,7 @@ class SeanceDomainServiceTest {
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
             LotRepositoryPort lotRepo,
-            BonSortieUseCase bonSortieUseCase,
+            ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort) {
         return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
                 forfaitCatalogPort, new AlwaysBillableEligibility());
@@ -191,7 +189,6 @@ class SeanceDomainServiceTest {
         assertEquals(1, spyBonSortie.lastItems.size());
         assertEquals(articleId, spyBonSortie.lastItems.getFirst().articleId());
         assertEquals(new BigDecimal("2"), spyBonSortie.lastItems.getFirst().quantite());
-        assertEquals(lotId, spyBonSortie.lastItems.getFirst().lotId());
     }
 
     @Test
@@ -222,63 +219,6 @@ class SeanceDomainServiceTest {
         assertEquals(SeanceStatus.VALIDEE, result.getStatus());
         assertTrue(spyBonSortie.called);
         assertEquals(new BigDecimal("1"), spyBonSortie.lastItems.getFirst().quantite());
-    }
-
-    @Test
-    void validate_should_fail_when_no_fefo_lot_available() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
-        articleRepo.addArticle(articleId, centerId.value(), "ART-02", new BigDecimal("0"));
-        InMemoryLotRepository lotRepo = new InMemoryLotRepository(); // no lots
-
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now()));
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo, articleRepo, lotRepo, spyBonSortie);
-        assertThrows(IllegalStateException.class, () -> service.validate(centerId, seanceId, "inf-01",
-                List.of(new SeanceArticleConsumption(articleId, new BigDecimal("3")))));
-        assertFalse(spyBonSortie.called);
-    }
-
-    @Test
-    void validate_should_span_multiple_lots_via_fefo_when_needed() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-        UUID lot1 = UUID.randomUUID();
-        UUID lot2 = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
-        articleRepo.addArticle(articleId, centerId.value(), "ART-03", new BigDecimal("8"));
-
-        InMemoryLotRepository lotRepo = new InMemoryLotRepository();
-        lotRepo.addLot(articleId, centerId.value(), lot1, new BigDecimal("3"), LocalDate.now().plusDays(10)); // expires sooner → FEFO first
-        lotRepo.addLot(articleId, centerId.value(), lot2, new BigDecimal("5"), LocalDate.now().plusDays(20));
-
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now()));
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo, articleRepo, lotRepo, spyBonSortie);
-        Seance validated = service.validate(centerId, seanceId, "inf-01",
-                List.of(new SeanceArticleConsumption(articleId, new BigDecimal("5"))));
-
-        assertEquals(SeanceStatus.VALIDEE, validated.getStatus());
-        assertTrue(spyBonSortie.called);
-        // 3 from lot1, 2 from lot2
-        assertEquals(2, spyBonSortie.lastItems.size());
-        BigDecimal totalQty = spyBonSortie.lastItems.stream()
-                .map(SortieRequestItem::quantite)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        assertEquals(new BigDecimal("5"), totalQty);
     }
 
     @Test
@@ -393,7 +333,7 @@ class SeanceDomainServiceTest {
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
             LotRepositoryPort lotRepo,
-            BonSortieUseCase bonSortieUseCase,
+            ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort,
             SeanceBillingEligibilityPort billingEligibilityPort) {
         return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase, forfaitCatalogPort,
@@ -405,7 +345,7 @@ class SeanceDomainServiceTest {
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
             LotRepositoryPort lotRepo,
-            BonSortieUseCase bonSortieUseCase,
+            ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort,
             SeanceBillingEligibilityPort billingEligibilityPort,
             SituationPlanning situation) {
@@ -1193,14 +1133,16 @@ class SeanceDomainServiceTest {
         }
     }
 
-    private static final class SpyBonSortieUseCase implements BonSortieUseCase {
-        @Override
-        public void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId) {
-            throw new UnsupportedOperationException();
-        }
-
+    private static final class SpyBonSortieUseCase implements ConsommationsDeSeance {
+        List<Item> lastItems = List.of();
         boolean called = false;
-        List<SortieRequestItem> lastItems = List.of();
+
+        @Override
+        public void enregistrerALaValidation(UUID centre, UUID seance, UUID patient, LocalDate dateSeance, List<Ligne> lignes,
+                                             String auteur) {
+            called = true;
+            lastItems = lignes.stream().map(l -> new Item(l.article(), l.quantite())).toList();
+        }
         boolean setCalled = false;
         UUID lastSetArticleId = null;
         BigDecimal lastSetQuantite = null;
@@ -1209,51 +1151,36 @@ class SeanceDomainServiceTest {
         BigDecimal lastAddedQuantite = null;
 
         @Override
-        public BonSortie create(CenterId centerId, UUID seanceId, UUID patientId, String poste,
-                                LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
-            called = true;
-            lastItems = items;
-            return null;
-        }
-
-        @Override
-        public BonSortie get(CenterId centerId, UUID bonId) {
-            return null;
-        }
-
-        @Override
-        public List<BonSortie> list(CenterId centerId) {
-            return List.of();
-        }
-
-        @Override
-        public BonSortie setSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
-                                               UUID articleId, java.math.BigDecimal quantite, String userId) {
+        public void fixer(UUID centre, UUID seance, UUID patient, LocalDate dateSeance, UUID article, BigDecimal quantite,
+                          String auteur) {
             setCalled = true;
-            lastSetArticleId = articleId;
+            lastSetArticleId = article;
             lastSetQuantite = quantite;
-            return null;
         }
 
         @Override
-        public BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
-                                               UUID articleId, java.math.BigDecimal quantite, String userId) {
+        public void ajouter(UUID centre, UUID seance, UUID patient, LocalDate dateSeance, UUID article, BigDecimal quantite,
+                            String auteur) {
             addCalled = true;
-            lastAddedArticleId = articleId;
+            lastAddedArticleId = article;
             lastAddedQuantite = quantite;
-            return null;
         }
 
         @Override
-        public BonSortie update(CenterId centerId, UUID bonSortieId, UUID seanceId, UUID patientId, String poste,
-                                LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
-            return null;
+        public void annuler(UUID centre, UUID seance, String auteur) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
-                                       LocalDate dateSortie, UUID articleId, java.math.BigDecimal quantite, String userId) {
-            return null;
+        public void administrer(UUID centre, UUID seance, UUID patient, LocalDate jour, UUID article, BigDecimal quantite,
+                                String auteur) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Consommable relevé : article et quantité (le choix des lots est l'affaire du Stock).
+         */
+        record Item(UUID articleId, BigDecimal quantite) {
         }
     }
 }

@@ -27,6 +27,12 @@
             <groupId>com.hemodialyse</groupId>
             <artifactId>bc-stock</artifactId>
         </dependency>
+        <!-- Langage publié du Stock (port ConsommationsDeSeance, ADR 0045) : seul point d'entrée de la Séance vers le contexte Stock -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-stock</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

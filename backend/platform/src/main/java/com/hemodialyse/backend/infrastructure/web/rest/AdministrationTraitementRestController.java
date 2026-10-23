@@ -8,7 +8,7 @@ import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateAdministrationTraitementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.AdministrationTraitementResponse;
@@ -43,7 +43,7 @@ public class AdministrationTraitementRestController {
 
     private final AdministrationTraitementUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
-    private final BonSortieUseCase bonSortieUseCase;
+    private final ConsommationsDeSeance consommations;
     private final SaisieInfirmierNotifier saisieNotifier;
     /**
      * Catalogue publié du Stock (slice S1, ADR 0006) : conversion de dose RG-STK-006.
@@ -52,12 +52,12 @@ public class AdministrationTraitementRestController {
 
     public AdministrationTraitementRestController(AdministrationTraitementUseCase useCase,
                                                   CenterAccessGuard centerAccessGuard,
-                                                  BonSortieUseCase bonSortieUseCase,
+                                                  ConsommationsDeSeance consommations,
                                                   SaisieInfirmierNotifier saisieNotifier,
                                                   CatalogueDArticles catalogueDArticles) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
-        this.bonSortieUseCase = bonSortieUseCase;
+        this.consommations = consommations;
         this.saisieNotifier = saisieNotifier;
         this.catalogueDArticles = catalogueDArticles;
     }
@@ -104,8 +104,8 @@ public class AdministrationTraitementRestController {
             // planifiée dans le futur) : le stock quitte physiquement le magasin au moment du clic, et
             // createViaFefo() génère un bon de sortie numéroté propre à l'administration, distinct du bon
             // « SEANCE » unique qui regroupe les consommables de la séance.
-            bonSortieUseCase.createViaFefo(center, request.seanceId(), patientId, "ADMINISTRATION",
-                    LocalDate.now(), request.articleId(), quantiteArticle, request.administrePar());
+            consommations.administrer(center.value(), request.seanceId(), patientId, LocalDate.now(), request.articleId(),
+                    quantiteArticle, request.administrePar());
         }
 
         DoseAdministree dose = request.dose() == null ? null : new DoseAdministree(request.dose(), request.uniteDose());
