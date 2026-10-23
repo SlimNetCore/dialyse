@@ -34,7 +34,8 @@ public final class RejeuDuPmp {
         CalculDuPmp.Etat fin = CalculDuPmp.Etat.vide();
         for (CalculDuPmp.Etape etape : etapes) {
             fin = etape.apres();
-            boolean sortie = etape.mouvement().type() == MouvementDeStock.Type.SORTIE;
+            boolean sortie = etape.mouvement().type() == MouvementDeStock.Type.SORTIE
+                    || etape.mouvement().type() == MouvementDeStock.Type.RETOUR;
             mises.add(new MiseAJourDeMouvement(etape.mouvement().id(), etape.apres().pmp(),
                     sortie && etape.avant().pmp().signum() > 0 ? etape.avant().pmp() : null));
         }

@@ -28,7 +28,7 @@ public record MouvementDeStock(UUID id, UUID articleId, UUID lotId, UUID seanceI
      * Une entrée ajoute de la valeur : entrée, inventaire, ajustement avec prix.
      */
     public boolean estUneEntree() {
-        return type == Type.ENTREE || type == Type.RETOUR || type == Type.INVENTAIRE || (type == Type.AJUSTEMENT && prixUnitaire != null);
+        return type == Type.ENTREE || type == Type.INVENTAIRE || (type == Type.AJUSTEMENT && prixUnitaire != null);
     }
 
     public enum Type {

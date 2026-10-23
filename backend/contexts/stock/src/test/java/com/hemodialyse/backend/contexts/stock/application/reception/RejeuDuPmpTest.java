@@ -93,6 +93,29 @@ class RejeuDuPmpTest {
     }
 
     @Test
+    void un_retour_est_revalorise_au_pmp_qui_le_precede_sans_le_modifier() {
+        mouvement(Type.ENTREE, "100", "8", T0);
+        mouvement(Type.SORTIE, "30", "99", T0.plusDays(1));
+        mouvement(Type.ENTREE, "50", "11", T0.plusDays(2));
+        MouvementDeStock retour = mouvement(Type.RETOUR, "6", "5", T0.plusDays(3));
+        rejeu.rejouer(CENTRE, UUID.randomUUID());
+        // PMP avant le retour : (70 x 8 + 50 x 11) / 120 = 9,25 ; le retour de 6 au prix de sortie 5 ne doit pas l'abaisser
+        assertEquals(new BigDecimal("9.2500"), pmpEcrit.setScale(4));
+        assertEquals(new BigDecimal("126"), quantiteEcrite.stripTrailingZeros().setScale(0));
+        var miseRetour = ecrites.stream().filter(m -> m.mouvementId().equals(retour.id())).findFirst().orElseThrow();
+        assertEquals(new BigDecimal("9.2500"), miseRetour.valorisation());
+        assertEquals(new BigDecimal("9.2500"), miseRetour.pmpApres().setScale(4));
+    }
+
+    @Test
+    void un_retour_sans_pmp_anterieur_garde_son_prix_de_sortie() {
+        mouvement(Type.RETOUR, "4", "5", T0);
+        rejeu.rejouer(CENTRE, UUID.randomUUID());
+        assertEquals(new BigDecimal("5.0000"), pmpEcrit.setScale(4));
+        assertEquals(new BigDecimal("4"), quantiteEcrite.stripTrailingZeros().setScale(0));
+    }
+
+    @Test
     void une_sortie_sans_pmp_dans_l_historique_garde_son_prix_enregistre() {
         MouvementDeStock sortie = mouvement(Type.SORTIE, "3", "5", T0);
         rejeu.rejouer(CENTRE, UUID.randomUUID());

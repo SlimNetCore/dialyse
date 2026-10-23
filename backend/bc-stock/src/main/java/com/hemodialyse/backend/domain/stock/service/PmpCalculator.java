@@ -62,9 +62,18 @@ public final class PmpCalculator {
         BigDecimal pu = m.getPrixUnitaire();
 
         StockMovementType type = m.getMovementType();
-        boolean isEntry = type == StockMovementType.ENTREE || type == StockMovementType.INVENTAIRE || type == StockMovementType.RETOUR
+        boolean isEntry = type == StockMovementType.ENTREE || type == StockMovementType.INVENTAIRE
                 || (type == StockMovementType.AJUSTEMENT && pu != null);
 
+        if (type == StockMovementType.RETOUR) {
+            // Retour : revalorisé au PMP qui le précède, sans le modifier ; sans PMP antérieur, au prix de sortie enregistré.
+            BigDecimal prix = pmp.signum() > 0 ? pmp : (pu != null ? pu : BigDecimal.ZERO);
+            BigDecimal newQty = qty.add(q);
+            BigDecimal newValue = value.add(q.multiply(prix));
+            BigDecimal newPmp = pmp.signum() > 0 ? pmp
+                    : (newQty.signum() > 0 ? newValue.divide(newQty, SCALE, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+            return new PmpState(newQty, newValue, newPmp);
+        }
         if (isEntry) {
             BigDecimal newQty = qty.add(q);
             BigDecimal newValue = value.add(q.multiply(pu != null ? pu : BigDecimal.ZERO));

@@ -62,7 +62,8 @@ public final class ValorisationStockCalculator {
             if (dansPeriode) {
                 BigDecimal q = m.getQuantite() != null ? m.getQuantite() : BigDecimal.ZERO;
                 switch (m.getMovementType()) {
-                    case ENTREE, RETOUR -> entrees = entrees.add(q.multiply(prix(m)));
+                    case ENTREE -> entrees = entrees.add(q.multiply(prix(m)));
+                    case RETOUR -> sorties = sorties.subtract(q.multiply(avant.pmp()));
                     case AJUSTEMENT -> {
                         if (m.getPrixUnitaire() != null) entrees = entrees.add(q.multiply(m.getPrixUnitaire()));
                         else sorties = sorties.add(q.multiply(avant.pmp()));

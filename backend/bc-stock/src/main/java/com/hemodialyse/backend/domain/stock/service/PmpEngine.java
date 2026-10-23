@@ -60,7 +60,8 @@ public class PmpEngine {
             finalState = step.stateAfter();
             BigDecimal pmpApres = step.stateAfter().pmp();
             BigDecimal valorisation = null;
-            if (step.movement().getMovementType() == StockMovementType.SORTIE
+            if ((step.movement().getMovementType() == StockMovementType.SORTIE
+                    || step.movement().getMovementType() == StockMovementType.RETOUR)
                     && step.stateBefore().pmp().signum() > 0) {
                 valorisation = step.stateBefore().pmp();
             }

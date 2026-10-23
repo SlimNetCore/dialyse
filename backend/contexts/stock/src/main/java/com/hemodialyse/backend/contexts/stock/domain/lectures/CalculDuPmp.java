@@ -18,6 +18,16 @@ public final class CalculDuPmp {
 
     public static Etat appliquer(Etat etat, MouvementDeStock m) {
         BigDecimal q = m.quantite() != null ? m.quantite() : BigDecimal.ZERO;
+        if (m.type() == MouvementDeStock.Type.RETOUR) {
+            // Un retour (rapprochement d'une sortie pour séances) est revalorisé au PMP qui le précède et ne le modifie pas ;
+            // sans PMP antérieur (stock à zéro), il vaut son prix de sortie enregistré, comme une entrée.
+            BigDecimal prix = etat.pmp().signum() > 0 ? etat.pmp() : (m.prixUnitaire() != null ? m.prixUnitaire() : BigDecimal.ZERO);
+            BigDecimal quantite = etat.quantite().add(q);
+            BigDecimal valeur = etat.valeur().add(q.multiply(prix));
+            BigDecimal pmp = etat.pmp().signum() > 0 ? etat.pmp()
+                    : (quantite.signum() > 0 ? valeur.divide(quantite, ECHELLE, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+            return new Etat(quantite, valeur, pmp);
+        }
         if (m.estUneEntree()) {
             BigDecimal quantite = etat.quantite().add(q);
             BigDecimal valeur = etat.valeur().add(q.multiply(m.prixUnitaire() != null ? m.prixUnitaire() : BigDecimal.ZERO));
@@ -50,6 +60,10 @@ public final class CalculDuPmp {
 
     private static String formule(MouvementDeStock m, Etat avant, Etat apres) {
         BigDecimal q = m.quantite() != null ? m.quantite() : BigDecimal.ZERO;
+        if (m.type() == MouvementDeStock.Type.RETOUR) {
+            return String.format("RETOUR : %s unite(s) reintegree(s) au PMP courant %s ; PMP = %s", q.toPlainString(),
+                    avant.pmp().toPlainString(), apres.pmp().toPlainString());
+        }
         if (m.estUneEntree()) {
             BigDecimal pu = m.prixUnitaire() != null ? m.prixUnitaire() : BigDecimal.ZERO;
             return String.format("ENTREE : PMP = (%s + %s x %s) / (%s + %s) = %s / %s = %s", avant.valeur().toPlainString(),
