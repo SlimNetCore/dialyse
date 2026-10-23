@@ -1,0 +1,14 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "articleIds": [
+      "<ART_1>"
+    ],
+    "description": null,
+    "id": "<UUID_GENERE_1>",
+    "nbArticles": 1,
+    "nom": "Kit CNAS 2",
+    "updatedAt": "<HORODATAGE>"
+  }
+}

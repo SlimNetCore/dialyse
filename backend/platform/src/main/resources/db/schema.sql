@@ -1508,3 +1508,53 @@ CREATE TABLE IF NOT EXISTS mois_absences_journal
 
 CREATE INDEX IF NOT EXISTS idx_mois_absences_journal_mois
     ON mois_absences_journal (center_id, annee, mois, id);
+
+-- Groupes d'articles (migration V9 ; tables lues et écrites en JDBC par le contexte stock depuis la slice S2 : l'entité
+-- JPA qui les créait en H2 est retirée)
+CREATE TABLE IF NOT EXISTS groupes_articles
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    nom
+    VARCHAR
+(
+    100
+) NOT NULL,
+    nom_cle VARCHAR
+(
+    100
+) NOT NULL,
+    description VARCHAR
+(
+    500
+),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                             CONSTRAINT uk_groupes_articles_centre_nom UNIQUE (center_id, nom_cle)
+    );
+
+CREATE TABLE IF NOT EXISTS groupes_articles_items
+(
+    groupe_id
+    UUID
+    NOT
+    NULL
+    REFERENCES
+    groupes_articles
+(
+    id
+) ON DELETE CASCADE,
+    article_id UUID NOT NULL,
+    PRIMARY KEY
+(
+    groupe_id,
+    article_id
+)
+    );
+
+CREATE INDEX IF NOT EXISTS idx_groupes_articles_centre ON groupes_articles (center_id);

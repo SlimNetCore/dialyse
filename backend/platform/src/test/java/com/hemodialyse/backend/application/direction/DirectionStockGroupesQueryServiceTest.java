@@ -4,9 +4,9 @@ import com.hemodialyse.backend.application.direction.DirectionDashboardQueryServ
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService.GroupeStock;
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService.StockGroupesOverview;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.stock.model.GroupeArticle;
-import com.hemodialyse.backend.domain.stock.port.GroupeArticleRepositoryPort;
 import com.hemodialyse.backend.domain.stock.service.ValorisationStockCalculator.Valorisation;
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class DirectionStockGroupesQueryServiceTest {
     private static final OffsetDateTime JAN = OffsetDateTime.of(2026, 1, 10, 8, 0, 0, 0, ZoneOffset.UTC);
 
     private final DirectionDashboardQueryService dashboard = mock(DirectionDashboardQueryService.class);
-    private final GroupeArticleRepositoryPort groupes = mock(GroupeArticleRepositoryPort.class);
+    private final GroupesDArticlesDesCentres groupes = mock(GroupesDArticlesDesCentres.class);
     private final ValorisationArticlesService valorisation = mock(ValorisationArticlesService.class);
     private final DirectionStockGroupesQueryService service =
             new DirectionStockGroupesQueryService(dashboard, groupes, valorisation);
@@ -61,9 +61,9 @@ class DirectionStockGroupesQueryServiceTest {
         societeAvecDeuxCentres();
         UUID a1 = UUID.randomUUID();
         UUID a2 = UUID.randomUUID();
-        when(groupes.findByCenters(any())).thenReturn(List.of(
-                GroupeArticle.creer(C1, "Kit CNAS", null, List.of(a1)),
-                GroupeArticle.creer(C2, "KIT  cnas", null, List.of(a2))));
+        when(groupes.groupes(any())).thenReturn(List.of(
+                new GroupeDArticlesPublie(UUID.randomUUID(), C1, "Kit CNAS", "kit cnas", Set.of(a1)),
+                new GroupeDArticlesPublie(UUID.randomUUID(), C2, "KIT cnas", "kit cnas", Set.of(a2))));
         when(valorisation.valoriser(eq(C1), any(), any(), any())).thenReturn(Map.of(a1, valeur("1000")));
         when(valorisation.valoriser(eq(C2), any(), any(), any())).thenReturn(Map.of(a2, valeur("1000")));
 
@@ -81,13 +81,13 @@ class DirectionStockGroupesQueryServiceTest {
     @Test
     void should_only_read_the_groups_of_the_centers_of_the_company() {
         societeAvecDeuxCentres();
-        when(groupes.findByCenters(any())).thenReturn(List.of());
+        when(groupes.groupes(any())).thenReturn(List.of());
 
         StockGroupesOverview overview = service.groupes(SOCIETE, null, null);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Collection<UUID>> captor = ArgumentCaptor.forClass(Collection.class);
-        verify(groupes).findByCenters(captor.capture());
+        verify(groupes).groupes(captor.capture());
         assertEquals(Set.of(C1, C2), new HashSet<>(captor.getValue()));
         assertTrue(overview.groupes().isEmpty());
         verifyNoInteractions(valorisation);

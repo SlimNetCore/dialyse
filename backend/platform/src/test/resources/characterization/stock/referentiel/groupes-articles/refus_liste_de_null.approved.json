@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Un groupe doit contenir au moins un article",
+    "instance": "/api/v1/stock/groupes-articles",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

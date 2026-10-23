@@ -68,5 +68,11 @@ public final class ArticlesEnMemoire implements Articles {
     public List<Article> parTypeDeTraitement(CentreId centre, TypeTraitementAnemie type) {
         return du(centre).filter(a -> a.fiche().typeTraitementAnemie() == type).toList();
     }
+
+    @Override
+    public java.util.Set<UUID> identifiants(CentreId centre) {
+        return du(centre).map(Article::id).collect(java.util.stream.Collectors.toSet());
+    }
 }
+
 

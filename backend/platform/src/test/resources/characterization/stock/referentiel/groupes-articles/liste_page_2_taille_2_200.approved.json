@@ -1,0 +1,31 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "articleIds": [
+          "<ART_1>"
+        ],
+        "description": null,
+        "id": "<G_ELAN>",
+        "nbArticles": 1,
+        "nom": "élan",
+        "updatedAt": "<HORODATAGE>"
+      },
+      {
+        "articleIds": [
+          "<ART_1>"
+        ],
+        "description": null,
+        "id": "<G_ZETA>",
+        "nbArticles": 1,
+        "nom": "zeta",
+        "updatedAt": "<HORODATAGE>"
+      }
+    ],
+    "page": 1,
+    "size": 2,
+    "total": 4
+  }
+}

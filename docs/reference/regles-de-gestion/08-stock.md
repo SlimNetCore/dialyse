@@ -205,11 +205,15 @@
 
 ## 8.8 Groupes d'articles (kits de consommables)
 
-- **RG-STK-070** — Un groupe regroupe de 1 à **500** articles du centre ; nom obligatoire (100 caractères maximum,
-  espaces superflus réduits), description facultative (500 caractères maximum).
+- **RG-STK-070** — Un groupe regroupe de 1 à **500** articles du centre (doublons ignorés, articles actifs ou
+  désactivés) ; nom obligatoire (100 caractères maximum, espaces superflus réduits), description facultative (500
+  caractères maximum, blanche = absente).
 - **RG-STK-071** — Le nom est unique par centre **sans tenir compte de la casse, des accents ni des espaces multiples**
   (« Kit CNAS » = « KIT CNAS ») : `GROUPE_ARTICLE_NOM_EXISTANT`.
 - **RG-STK-072** — Un groupe inconnu du centre est introuvable (`GROUPE_ARTICLE_INTROUVABLE`). Un article d'un autre
-  centre est refusé (`GROUPE_ARTICLE_ARTICLE_INCONNU`). La gestion des groupes est réservée à `ADMIN`.
+  centre est refusé (`GROUPE_ARTICLE_ARTICLE_INCONNU`). La gestion des groupes est réservée à `ADMIN` ; la liste est
+  paginée et triée par nom (sans casse ni accents). *Source :* `GestionDesGroupesDArticles`, `GroupeDArticles`,
+  `GroupesDArticlesControleur` (contexte `stock`).
 - **RG-STK-073** — La valorisation d'un groupe sur une période est restituée à la direction sans donnée nominative (voir
-  RG-DIR).
+  RG-DIR) ; les groupes de même clé de nom sont consolidés d'un centre à l'autre. *Source :* langage publié
+  `GroupesDArticlesDesCentres` (contexte `stock`), `DirectionStockGroupesQueryService`.

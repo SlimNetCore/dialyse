@@ -1,0 +1,16 @@
+[
+  {
+    "nom": "Kit",
+    "nom_cle": "kit",
+    "description": null,
+    "updated_at_nul": "false",
+    "nb_items": "1"
+  },
+  {
+    "nom": "Kit 2",
+    "nom_cle": "kit 2",
+    "description": null,
+    "updated_at_nul": "false",
+    "nb_items": "1"
+  }
+]

@@ -1,8 +1,10 @@
 package com.hemodialyse.backend.contexts.stock.configuration;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
+import com.hemodialyse.backend.contexts.stock.application.groupes.GestionDesGroupesDArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesFournisseursEtEmplacements;
+import com.hemodialyse.backend.contexts.stock.domain.groupes.GroupesDArticles;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Articles;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.ReferentielSimple.Emplacements;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.ReferentielSimple.Fournisseurs;
@@ -10,11 +12,16 @@ import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyidentite.
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.ArticlesJdbc;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.EmplacementsJdbc;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.FournisseursJdbc;
+import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.GroupesDArticlesJdbc;
 import com.hemodialyse.backend.contexts.stock.interfaces.catalogue.CatalogueDArticlesDuReferentiel;
+import com.hemodialyse.backend.contexts.stock.interfaces.catalogue.GroupesDArticlesDesCentresDuStock;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.util.UUID;
@@ -62,5 +69,24 @@ public class StockContexteConfiguration {
     CatalogueDArticles stockCatalogueDArticles(ReferentielDesArticles referentiel) {
         return new CatalogueDArticlesDuReferentiel(referentiel);
     }
+
+    // ------------------------------------------------------------------ slice S2 : groupes d'articles
+
+    @Bean
+    GroupesDArticles stockGroupesDArticles(JdbcTemplate jdbc, PlatformTransactionManager transactions) {
+        return new GroupesDArticlesJdbc(jdbc, new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    GestionDesGroupesDArticles stockGestionDesGroupesDArticles(GroupesDArticles groupes, Articles articles) {
+        return new GestionDesGroupesDArticles(groupes, articles, UUID::randomUUID, Clock.systemUTC());
+    }
+
+    @Bean
+    GroupesDArticlesDesCentres stockGroupesDArticlesDesCentres(GestionDesGroupesDArticles groupes) {
+        return new GroupesDArticlesDesCentresDuStock(groupes);
+    }
 }
+
+
 

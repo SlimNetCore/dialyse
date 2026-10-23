@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "GROUPE_ARTICLE_ARTICLE_INCONNU",
+    "detail": "Le groupe contient un article qui n'appartient pas à ce centre",
+    "instance": "/api/v1/stock/groupes-articles/<GROUPE_A>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

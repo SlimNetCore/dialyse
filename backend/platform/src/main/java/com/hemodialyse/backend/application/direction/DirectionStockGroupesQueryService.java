@@ -2,9 +2,9 @@ package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.stock.model.GroupeArticle;
-import com.hemodialyse.backend.domain.stock.port.GroupeArticleRepositoryPort;
 import com.hemodialyse.backend.domain.stock.service.ValorisationStockCalculator.Valorisation;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +24,10 @@ import java.util.UUID;
 
 /**
  * Valorisation du stock des groupes d'articles (ex. « KIT CNAS ») sur une période, pour la direction d'une
- * société : par centre et consolidée. Les groupes sont définis par centre ; un même nom (insensible à la casse
- * et aux accents) dans plusieurs centres est consolidé en un seul groupe. Agrégats uniquement (aucune donnée
- * patient), bornés aux centres de la société.
+ * société : par centre et consolidée. Les groupes sont définis par centre et lus par le langage publié du Stock
+ * ({@link GroupesDArticlesDesCentres}, slice S2) ; un même nom (même clé : sans casse, accents ni espaces multiples) dans
+ * plusieurs centres est consolidé en un seul groupe. Agrégats uniquement (aucune donnée patient), bornés aux centres de la
+ * société.
  */
 @Service
 public class DirectionStockGroupesQueryService {
@@ -34,11 +35,11 @@ public class DirectionStockGroupesQueryService {
     private static final int MAX_YEARS = 5;
 
     private final DirectionDashboardQueryService dashboard;
-    private final GroupeArticleRepositoryPort groupes;
+    private final GroupesDArticlesDesCentres groupes;
     private final ValorisationArticlesService valorisation;
 
     public DirectionStockGroupesQueryService(
-            DirectionDashboardQueryService dashboard, GroupeArticleRepositoryPort groupes,
+            DirectionDashboardQueryService dashboard, GroupesDArticlesDesCentres groupes,
             ValorisationArticlesService valorisation) {
         this.dashboard = dashboard;
         this.groupes = groupes;
@@ -60,13 +61,13 @@ public class DirectionStockGroupesQueryService {
         List<CentreInfo> centres = dashboard.societe(societeId).centres();
         Map<UUID, String> nomsCentres = new HashMap<>();
         centres.forEach(c -> nomsCentres.put(c.id(), c.nom()));
-        List<GroupeArticle> tous = groupes.findByCenters(nomsCentres.keySet());
+        List<GroupeDArticlesPublie> tous = groupes.groupes(nomsCentres.keySet());
 
         // Valorisation de chaque article (une seule fois par article, même s'il figure dans plusieurs groupes)
         Map<UUID, Map<UUID, Valorisation>> parCentre = new HashMap<>();
         for (UUID centreId : nomsCentres.keySet()) {
             Set<UUID> articleIds = new HashSet<>();
-            tous.stream().filter(g -> g.centerId().equals(centreId)).forEach(g -> articleIds.addAll(g.articleIds()));
+            tous.stream().filter(g -> g.centre().equals(centreId)).forEach(g -> articleIds.addAll(g.articles()));
             if (articleIds.isEmpty()) continue;
             // Rejeu de l'historique mis en cache par centre, période et articles (voir ValorisationArticlesService)
             parCentre.put(centreId, valorisation.valoriser(centreId, articleIds, debut, finExclue));
@@ -75,33 +76,39 @@ public class DirectionStockGroupesQueryService {
         // Consolidation par nom de groupe
         Map<String, GroupeAccumulateur> consolides = new LinkedHashMap<>();
         tous.stream()
-                .sorted(Comparator.comparing(GroupeArticle::cle).thenComparing(g -> nomsCentres.getOrDefault(g.centerId(), "")))
+                .sorted(Comparator.comparing(GroupeDArticlesPublie::cle).thenComparing(g -> nomsCentres.getOrDefault(g.centre(), "")))
                 .forEach(g -> {
-                    Map<UUID, Valorisation> valeurs = parCentre.getOrDefault(g.centerId(), Map.of());
+                    Map<UUID, Valorisation> valeurs = parCentre.getOrDefault(g.centre(), Map.of());
                     Valorisation somme = Valorisation.zero();
-                    for (UUID articleId : g.articleIds()) {
+                    for (UUID articleId : g.articles()) {
                         Valorisation v = valeurs.get(articleId);
                         if (v != null) somme = somme.plus(v);
                     }
-                    consolides.computeIfAbsent(g.cle(), k -> new GroupeAccumulateur(g.nom()))
-                            .ajouter(new CentreGroupeStock(g.centerId(), nomsCentres.get(g.centerId()),
-                                    g.articleIds().size(), Valeurs.of(somme)), somme);
+                    consolides.computeIfAbsent(g.cle(), k -> new GroupeAccumulateur(g.nom(), g.cle()))
+                            .ajouter(new CentreGroupeStock(g.centre(), nomsCentres.get(g.centre()),
+                                    g.articles().size(), Valeurs.of(somme)), somme);
                 });
 
         List<GroupeStock> resultat = consolides.values().stream()
+                .sorted(Comparator.comparing(GroupeAccumulateur::cle))
                 .map(GroupeAccumulateur::build)
-                .sorted(Comparator.comparing(g -> GroupeArticle.cleNom(g.nom())))
                 .toList();
         return new StockGroupesOverview(societeId, start, end, OffsetDateTime.now(ZoneOffset.UTC), resultat);
     }
 
     private static final class GroupeAccumulateur {
         private final String nom;
+        private final String cle;
         private final List<CentreGroupeStock> centres = new ArrayList<>();
         private Valorisation total = Valorisation.zero();
 
-        private GroupeAccumulateur(String nom) {
+        private GroupeAccumulateur(String nom, String cle) {
             this.nom = nom;
+            this.cle = cle;
+        }
+
+        private String cle() {
+            return cle;
         }
 
         private void ajouter(CentreGroupeStock centre, Valorisation valorisation) {

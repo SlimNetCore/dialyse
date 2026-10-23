@@ -41,5 +41,9 @@ public interface Articles {
      * Les articles du centre d'un type de traitement de l'anémie, triés par code.
      */
     List<Article> parTypeDeTraitement(CentreId centre, TypeTraitementAnemie type);
-}
 
+    /**
+     * Les identifiants de tous les articles du centre, actifs et inactifs (composition des groupes, RG-STK-072).
+     */
+    java.util.Set<UUID> identifiants(CentreId centre);
+}

@@ -1,0 +1,16 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "articleIds": [
+      "<ART_1>",
+      "<ART_2>",
+      "<ART_INACTIF>"
+    ],
+    "description": "kit mensuel",
+    "id": "<UUID_GENERE_1>",
+    "nbArticles": 3,
+    "nom": "Kit CNAS",
+    "updatedAt": "<HORODATAGE>"
+  }
+}

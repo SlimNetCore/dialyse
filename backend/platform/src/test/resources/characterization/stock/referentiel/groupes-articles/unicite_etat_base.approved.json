@@ -1,0 +1,16 @@
+[
+  {
+    "nom": "Kit CNAS",
+    "nom_cle": "kit cnas",
+    "description": null,
+    "updated_at_nul": "false",
+    "nb_items": "1"
+  },
+  {
+    "nom": "Kit CNAS 2",
+    "nom_cle": "kit cnas 2",
+    "description": null,
+    "updated_at_nul": "false",
+    "nb_items": "1"
+  }
+]

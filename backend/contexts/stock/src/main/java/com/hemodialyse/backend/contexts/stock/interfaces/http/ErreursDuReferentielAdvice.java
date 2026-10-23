@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.interfaces.http;
 
+import com.hemodialyse.backend.contexts.stock.domain.groupes.GroupeDArticlesInvalide;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.ArticleIntrouvable;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
 import org.springframework.core.Ordered;
@@ -39,5 +40,13 @@ class ErreursDuReferentielAdvice {
     @ExceptionHandler(ValeurInvalide.class)
     ProblemDetail valeurInvalide(ValeurInvalide erreur) {
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), erreur.code());
+    }
+
+    /**
+     * Composition de groupe inutilisable (slice S2) : 400 {@code BAD_REQUEST}, comme le legacy.
+     */
+    @ExceptionHandler(GroupeDArticlesInvalide.class)
+    ProblemDetail groupeInvalide(GroupeDArticlesInvalide erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
     }
 }

@@ -1,0 +1,51 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "articleIds": [
+          "<ART_1>"
+        ],
+        "description": null,
+        "id": "<G_ALPHA>",
+        "nbArticles": 1,
+        "nom": "Alpha",
+        "updatedAt": "<HORODATAGE>"
+      },
+      {
+        "articleIds": [
+          "<ART_1>"
+        ],
+        "description": null,
+        "id": "<G_BETA>",
+        "nbArticles": 1,
+        "nom": "Beta",
+        "updatedAt": "<HORODATAGE>"
+      },
+      {
+        "articleIds": [
+          "<ART_1>"
+        ],
+        "description": null,
+        "id": "<G_ELAN>",
+        "nbArticles": 1,
+        "nom": "élan",
+        "updatedAt": "<HORODATAGE>"
+      },
+      {
+        "articleIds": [
+          "<ART_1>"
+        ],
+        "description": null,
+        "id": "<G_ZETA>",
+        "nbArticles": 1,
+        "nom": "zeta",
+        "updatedAt": "<HORODATAGE>"
+      }
+    ],
+    "page": 0,
+    "size": 100000,
+    "total": 4
+  }
+}

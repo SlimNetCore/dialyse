@@ -129,5 +129,11 @@ public class ArticlesJdbc implements Articles {
         return jdbc.query("SELECT " + COLONNES + " FROM articles WHERE center_id = ? AND type_traitement_anemie = ? ORDER BY code ASC",
                 ARTICLE, centre.valeur(), type.name());
     }
+
+    @Override
+    public java.util.Set<UUID> identifiants(CentreId centre) {
+        return new java.util.HashSet<>(jdbc.queryForList("SELECT id FROM articles WHERE center_id = ?", UUID.class, centre.valeur()));
+    }
 }
+
 

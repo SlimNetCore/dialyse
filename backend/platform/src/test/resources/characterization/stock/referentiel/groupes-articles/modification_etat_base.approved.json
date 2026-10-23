@@ -1,0 +1,16 @@
+[
+  {
+    "nom": "Autre",
+    "nom_cle": "autre",
+    "description": null,
+    "updated_at_nul": "false",
+    "nb_items": "1"
+  },
+  {
+    "nom": "KIT MENSUEL",
+    "nom_cle": "kit mensuel",
+    "description": "d",
+    "updated_at_nul": "false",
+    "nb_items": "1"
+  }
+]

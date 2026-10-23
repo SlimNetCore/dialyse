@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "articleIds": [
+      "<ART_3>"
+    ],
+    "description": "d",
+    "id": "<GROUPE_A>",
+    "nbArticles": 1,
+    "nom": "KIT MENSUEL",
+    "updatedAt": "<HORODATAGE>"
+  }
+}
