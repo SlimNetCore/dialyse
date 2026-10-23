@@ -41,7 +41,8 @@ class SeanceRestControllerTest {
                 useCase,
                 mock(NotificationService.class),
                 mock(JdbcTemplate.class),
-                GARDE
+                GARDE,
+                mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class)
         );
     }
 
@@ -115,7 +116,7 @@ class SeanceRestControllerTest {
                         "nombreSeances", 0
                 )));
 
-        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE);
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class));
         ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc", null);
 
         assertEquals(200, response.getStatusCode().value());
@@ -210,7 +211,7 @@ class SeanceRestControllerTest {
         when(useCase.getDetails(eq(CenterId.of(CENTER_ID)), eq(SEANCE_ID)))
                 .thenReturn(new SeanceDetails(seance, patient, null, null));
 
-        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE);
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class));
 
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.CreateSeanceRequest(
                 CENTER_ID, PATIENT_ID, LocalDate.now()
@@ -248,7 +249,7 @@ class SeanceRestControllerTest {
         when(useCase.getDetails(eq(CenterId.of(CENTER_ID)), eq(SEANCE_ID)))
                 .thenReturn(new SeanceDetails(seance, patient, null, null));
 
-        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE);
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class));
 
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.ScanSeanceQrRequest(
                 CENTER_ID,
@@ -288,7 +289,7 @@ class SeanceRestControllerTest {
         when(useCase.getDetails(CenterId.of(CENTER_ID), SEANCE_ID))
                 .thenReturn(new SeanceDetails(seance, patient, null, null));
 
-        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE);
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class));
 
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.ValidateSeanceRequest(
                 CENTER_ID, "inf-01", null
@@ -316,7 +317,7 @@ class SeanceRestControllerTest {
                 new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                         "u", null, List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))));
         try {
-            return new SeanceRestController(useCase, mock(NotificationService.class), mock(JdbcTemplate.class), GARDE)
+            return new SeanceRestController(useCase, mock(NotificationService.class), mock(JdbcTemplate.class), GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class))
                     .validate(SEANCE_ID, new com.hemodialyse.backend.infrastructure.web.dto.request.ValidateSeanceRequest(
                             CENTER_ID, "u", null));
         } finally {
@@ -354,7 +355,7 @@ class SeanceRestControllerTest {
         when(useCase.unlockForRegularisation(eq(CenterId.of(CENTER_ID)), eq(SEANCE_ID), any())).thenReturn(seance);
         when(useCase.getDetails(CenterId.of(CENTER_ID), SEANCE_ID)).thenReturn(new SeanceDetails(seance, patient, null, null));
 
-        ResponseEntity<?> response = new SeanceRestController(useCase, notif, mock(JdbcTemplate.class), GARDE)
+        ResponseEntity<?> response = new SeanceRestController(useCase, notif, mock(JdbcTemplate.class), GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class))
                 .unlockForRegularisation(SEANCE_ID, CENTER_ID);
 
         assertEquals(200, response.getStatusCode().value());
@@ -386,7 +387,7 @@ class SeanceRestControllerTest {
         when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.ResultSetExtractor.class), eq(SEANCE_ID), eq(CENTER_ID)))
                 .thenReturn(forfaitPayload);
 
-        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE);
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc, GARDE, mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class));
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.UpdateSeanceForfaitRequest(
                 CENTER_ID, forfaitId, "inf-01"
         );

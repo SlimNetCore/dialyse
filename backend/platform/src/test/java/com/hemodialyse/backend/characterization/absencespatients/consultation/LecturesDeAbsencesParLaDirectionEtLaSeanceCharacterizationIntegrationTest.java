@@ -90,12 +90,17 @@ class LecturesDeAbsencesParLaDirectionEtLaSeanceCharacterizationIntegrationTest 
     }
 
     @Test
-    void sans_dates_la_direction_prend_l_annee_en_cours_jusqu_a_aujourd_hui_utc() throws Exception {
+    void sans_dates_la_direction_prend_l_annee_en_cours_jusqu_a_aujourd_hui_du_fuseau_du_centre() throws Exception {
+        // KB-ABS-34 corrige : « aujourd'hui » est le jour du fuseau du centre ; encadre par deux lectures pour ne pas dependre
+        // du passage de minuit pendant le test
         jeuDeDonnees();
+        LocalDate avant = aujourdhui();
         JsonNode corps = json(doGet(DIRECTION + "/absences", direction()));
+        LocalDate apres = aujourdhui();
 
-        assertEquals(LocalDate.of(aujourdhui().getYear(), 1, 1).toString(), corps.path("from").asString());
-        assertEquals(aujourdhui().toString(), corps.path("to").asString());
+        LocalDate fin = LocalDate.parse(corps.path("to").asString());
+        assertEquals(true, !fin.isBefore(avant) && !fin.isAfter(apres), "to = aujourd'hui du centre");
+        assertEquals(LocalDate.of(fin.getYear(), 1, 1).toString(), corps.path("from").asString());
     }
 
     // ------------------------------------------------------------------ Seance : tableau de bord

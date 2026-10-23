@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.domain.patient.service.FinOccupation;
 import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning;
@@ -46,11 +47,14 @@ public class SeanceRestController {
     private final NotificationService notificationService;
     private final JdbcTemplate jdbc;
     private final CenterAccessGuard centerAccessGuard;
+    private final AbsencesDuPilotage absencesDuPilotage;
 
     public SeanceRestController(SeanceUseCase seanceUseCase,
                                 NotificationService notificationService,
                                 JdbcTemplate jdbc,
-                                CenterAccessGuard centerAccessGuard) {
+                                CenterAccessGuard centerAccessGuard,
+                                AbsencesDuPilotage absencesDuPilotage) {
+        this.absencesDuPilotage = absencesDuPilotage;
         this.seanceUseCase = seanceUseCase;
         this.notificationService = notificationService;
         this.jdbc = jdbc;
@@ -666,6 +670,9 @@ public class SeanceRestController {
                                              @RequestParam int month,
                                              @RequestParam(defaultValue = "csv") String format) {
         centerAccessGuard.requireCenter(centerId); // KB-ABS-05 (même donnée que le tableau de bord)
+        if (!List.of("csv", "pdf", "xlsx").contains(format.toLowerCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("format must be 'csv', 'pdf' or 'xlsx'"); // KB-ABS-36 : 400
+        }
         Map<String, Object> dashboard = buildSeanceDashboard(centerId, year, month);
         if ("pdf".equalsIgnoreCase(format)) {
             byte[] pdf = exportDashboardPdf(dashboard);
@@ -797,19 +804,13 @@ public class SeanceRestController {
         );
         long presenceCount = presenceCountRaw == null ? 0L : presenceCountRaw;
 
-        // Absences : celles du suivi des absences (déclarées ou détectées par le contrôle quotidien), hors annulées
-        Long absenceCountRaw = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM absence_patient WHERE center_id = ? AND date_seance BETWEEN ? AND ? "
-                        + "AND statut <> 'ANNULEE'",
-                Long.class,
-                centerId,
-                Date.valueOf(from),
-                Date.valueOf(to)
-        );
-        long absences = absenceCountRaw == null ? 0L : absenceCountRaw;
-        // Séances prévues : jours échus seulement (le futur n'est ni présence ni absence)
-        LocalDate aujourdhui = LocalDate.now(ZoneOffset.UTC);
+        // Séances prévues et absences : jours échus seulement (le futur n'est ni présence ni absence) ; « aujourd'hui » est le jour
+        // du fuseau des centres (KB-ABS-34)
+        LocalDate aujourdhui = absencesDuPilotage.aujourdhui();
         LocalDate limite = to.isAfter(aujourdhui) ? aujourdhui : to;
+        // Absences : celles du suivi des absences (déclarées ou détectées par le contrôle quotidien), hors annulées, jusqu'à
+        // aujourd'hui (KB-ABS-35 : un mois futur n'en compte aucune)
+        long absences = limite.isBefore(from) ? 0L : absencesDuPilotage.nombreHorsAnnulees(centerId, from, limite);
 
         // Jours non ouvrés centre (fériés + fermetures exceptionnelles)
         Set<LocalDate> blockedDates = new HashSet<>();
@@ -928,7 +929,7 @@ public class SeanceRestController {
         payload.put("absenceDetails", Map.of(
                 "formula", "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
                 "periodStart", from,
-                "periodEnd", limite,
+                "periodEnd", limite.isBefore(from) ? from : limite,
                 "patientsConsidered", consideredPatients,
                 "blockedDays", blockedDates.size(),
                 "expectedFromSchedule", expectedSeances,
@@ -976,17 +977,33 @@ public class SeanceRestController {
 
         // Présences : séances réalisées ; absences : suivi des absences (déclarées ou détectées), hors annulées
         boolean presence = normalizedKind.equals("presence");
-        String source = presence
-                ? "SELECT s.patient_id, s.date_seance, s.statut FROM seances s WHERE s.center_id = ? "
-                + "AND s.date_seance BETWEEN ? AND ? AND s.statut IN" + SEANCES_REALISEES
-                : "SELECT s.patient_id, s.date_seance, s.statut FROM absence_patient s WHERE s.center_id = ? "
-                + "AND s.date_seance BETWEEN ? AND ? AND s.statut <> 'ANNULEE'";
         Map<UUID, Map<String, Object>> patients = new HashMap<>();
         jdbc.queryForList("SELECT id, nom, prenom FROM patients WHERE center_id = ?", centerId)
                 .forEach(p -> patients.put((UUID) readColumn(p, "id"), p));
 
+        List<Map<String, Object>> lignes;
+        if (presence) {
+            lignes = jdbc.queryForList("SELECT s.patient_id, s.date_seance, s.statut FROM seances s WHERE s.center_id = ? "
+                    + "AND s.date_seance BETWEEN ? AND ? AND s.statut IN" + SEANCES_REALISEES,
+                    centerId, Date.valueOf(from), Date.valueOf(to));
+        } else {
+            // jusqu'à aujourd'hui, jour du fuseau des centres (KB-ABS-34, 35 : un mois futur n'a aucune absence)
+            LocalDate aujourdhui = absencesDuPilotage.aujourdhui();
+            LocalDate limite = to.isAfter(aujourdhui) ? aujourdhui : to;
+            lignes = new ArrayList<>();
+            if (!limite.isBefore(from)) {
+                for (AbsencesDuPilotage.AbsenceDuCentre a : absencesDuPilotage.horsAnnulees(centerId, from, limite)) {
+                    Map<String, Object> ligne = new HashMap<>();
+                    ligne.put("patient_id", a.patient());
+                    ligne.put("date_seance", a.dateDeSeance());
+                    ligne.put("statut", a.statut());
+                    lignes.add(ligne);
+                }
+            }
+        }
+
         List<Map<String, Object>> items = new ArrayList<>();
-        for (Map<String, Object> ligne : jdbc.queryForList(source, centerId, Date.valueOf(from), Date.valueOf(to))) {
+        for (Map<String, Object> ligne : lignes) {
             UUID patientId = (UUID) readColumn(ligne, "patient_id");
             LocalDate d = asLocalDate(readColumn(ligne, "date_seance"));
             Map<String, Object> patient = patients.get(patientId);

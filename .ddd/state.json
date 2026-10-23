@@ -39,7 +39,8 @@
     "facturation-f7-cloture-mensuelle": "built",
     "absences-patients-a1-consultation": "built",
     "absences-patients-a2-cycle-de-vie": "built",
-    "absences-patients-a3-detection-de-nuit": "built"
+    "absences-patients-a3-detection-de-nuit": "built",
+    "absences-patients-a4-lectures-publiees": "built"
   },
   "contexts": {
     "gmao": "architected",

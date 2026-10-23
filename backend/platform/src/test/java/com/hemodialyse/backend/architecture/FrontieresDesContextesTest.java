@@ -53,9 +53,10 @@ class FrontieresDesContextesTest {
     private static final String ABSENCES = "com.hemodialyse.backend.contexts.absencespatients";
 
     /**
-     * Slices A1 et A2 : le legacy n'utilise le contexte Absences de patients que par son langage publié
-     * ({@code SignalementDesSaisies}, fourni par la plateforme), jamais par ses couches internes ; le module est câblé par sa
-     * configuration, scannée par Spring. Le langage publié de lecture du pilotage arrive avec la slice A4.
+     * Slices A1 à A4 : le legacy n'utilise le contexte Absences de patients que par son langage publié
+     * ({@code AbsencesDuPilotage} pour le pilotage, A4 ; {@code SignalementDesSaisies} et {@code NotificationsDuCentre}, fournis par
+     * la plateforme), jamais par ses couches internes ; le module est câblé par sa configuration, scannée par Spring. Aucun
+     * exemption : le legacy n'a plus de code d'absence de patient (A5 soldé, voir {@code TableDesAbsencesDePatientsTest}).
      */
     @ArchTest
     static final ArchRule le_legacy_n_utilise_pas_le_contexte_des_absences_de_patients = noClasses()

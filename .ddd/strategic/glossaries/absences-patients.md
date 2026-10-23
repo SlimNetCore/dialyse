@@ -46,6 +46,16 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, rép
 | Bilan du contrôle | Ce qu'un passage a fait : absences créées, annulées, incidents isolés, jours ignorés (mois clos) | `BilanDuControle` | — | rapport | RG-ABS-040 | proposed |
 | Jour ignoré | Jour de la fenêtre laissé tel quel parce que son mois d'absences est clos | `BilanDuControle.joursIgnores`, port `MoisDAbsencesOuverts` | — | — | décision 1 du 21/10 ; A6 | proposed |
 
+## Termes proposés le 2026-10-23 (slice A4)
+
+| Terme métier | Définition | Identifiant de code | Legacy | Statut |
+|---|---|---|---|---|
+| Absences du pilotage | Lectures des absences (hors annulées) que le tableau de bord des séances et la Direction consomment : nombre, détail d'un centre, cumul par centre-statut-motif, mensuel ; langage publié du contexte | port publié `AbsencesDuPilotage` | 4 requêtes SQL de `SeanceRestController` et `DirectionAbsencesQueryService` | proposed |
+| Aujourd'hui du pilotage | Jour courant du fuseau des centres (décision 7), pas de l'UTC ; borne haute des absences comptées et période par défaut de la Direction | `AbsencesDuPilotage.aujourdhui` | `LocalDate.now(ZoneOffset.UTC)` | proposed |
+
+## Questions ouvertes (slice A4)
+1. Valider « absences du pilotage » (ou « lectures publiées des absences »).
+
 ## Questions ouvertes (termes proposés le 2026-10-22, slice A3)
 1. Valider les six termes ci-dessus (période de détection, fenêtre du contrôle, fuseau du centre, notification du jour, bilan du contrôle, jour ignoré).
 2. Fuseau du centre : colonne propre au centre (migration) ou fuseau unique de la plateforme ?

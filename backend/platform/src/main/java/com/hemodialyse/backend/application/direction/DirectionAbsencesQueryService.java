@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -40,10 +41,12 @@ public class DirectionAbsencesQueryService {
     private final DirectionDashboardQueryService dashboard;
 
     private final SyntheseFinanciereDesCentres finance;
+    private final AbsencesDuPilotage pilotage;
 
     public DirectionAbsencesQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                         SyntheseFinanciereDesCentres finance) {
+                                         SyntheseFinanciereDesCentres finance, AbsencesDuPilotage pilotage) {
         this.finance = finance;
+        this.pilotage = pilotage;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
     }
@@ -90,7 +93,8 @@ public class DirectionAbsencesQueryService {
     }
 
     public AbsencesOverview absences(UUID societeId, LocalDate from, LocalDate to) {
-        LocalDate end = to != null ? to : LocalDate.now(ZoneOffset.UTC);
+        LocalDate aujourdhui = pilotage.aujourdhui();
+        LocalDate end = to != null ? to : aujourdhui;
         LocalDate start = from != null ? from : LocalDate.of(end.getYear(), 1, 1);
         if (start.isAfter(end)) {
             throw new BusinessException("PERIODE_INVALIDE", "La date de début doit précéder la date de fin");
@@ -116,25 +120,20 @@ public class DirectionAbsencesQueryService {
         Map<UUID, BigDecimal> ca = new HashMap<>();
         finance.chiffresParCentre(ids, start, end).forEach((centre, chiffres) -> ca.put(centre, chiffres.chiffreDAffairesHt()));
 
+        // KB-ABS-35 étendu à la Direction : aucune absence postérieure à aujourd'hui (fuseau du centre) n'est comptée, quel que soit `to`
+        LocalDate finDesAbsences = end.isAfter(aujourdhui) ? aujourdhui : end;
         Map<UUID, Cumul> parCentre = new HashMap<>();
         Map<UUID, Map<String, Cumul>> motifsParCentre = new HashMap<>();
-        jdbc.query("SELECT center_id, statut, motif, COUNT(*) AS n, COALESCE(SUM(montant_ht),0) AS ht, "
-                        + "COALESCE(SUM(prix_ttc),0) AS ttc FROM absence_patient WHERE center_id IN (" + in
-                        + ") AND date_seance BETWEEN ? AND ? AND statut <> 'ANNULEE' GROUP BY center_id, statut, motif",
-                rs -> {
-                    UUID centre = rs.getObject("center_id", UUID.class);
-                    String statut = rs.getString("statut");
-                    long n = rs.getLong("n");
-                    BigDecimal ht = rs.getBigDecimal("ht");
-                    BigDecimal ttc = rs.getBigDecimal("ttc");
-                    Cumul c = parCentre.computeIfAbsent(centre, k -> new Cumul());
-                    c.ajouterStatut(statut, n, ht, ttc);
-                    if (!"RATTRAPEE".equals(statut)) {
-                        String motif = rs.getString("motif") == null ? NON_QUALIFIE : rs.getString("motif");
-                        motifsParCentre.computeIfAbsent(centre, k -> new LinkedHashMap<>())
-                                .computeIfAbsent(motif, k -> new Cumul()).ajouterStatut(statut, n, ht, ttc);
-                    }
-                }, params);
+        for (AbsencesDuPilotage.CumulDuCentre g : finDesAbsences.isBefore(start) ? List.<AbsencesDuPilotage.CumulDuCentre>of()
+                : pilotage.cumulParCentre(ids, start, finDesAbsences)) {
+            Cumul c = parCentre.computeIfAbsent(g.centre(), k -> new Cumul());
+            c.ajouterStatut(g.statut(), g.nombre(), g.montantHt(), g.montantTtc());
+            if (!"RATTRAPEE".equals(g.statut())) {
+                String motif = g.motif() == null ? NON_QUALIFIE : g.motif();
+                motifsParCentre.computeIfAbsent(g.centre(), k -> new LinkedHashMap<>())
+                        .computeIfAbsent(motif, k -> new Cumul()).ajouterStatut(g.statut(), g.nombre(), g.montantHt(), g.montantTtc());
+            }
+        }
 
         // KB-ABS-07 (décision du 2026-10-22 : « masquer par centre seulement ») : un centre de 1 à 4 absences comptabilisées
         // est masqué ET exclu du total, des motifs consolidés et du mensuel, qui ne portent que sur les centres publiés ;
@@ -163,25 +162,18 @@ public class DirectionAbsencesQueryService {
             seancesTotal += nbSeances;
             caTotal = caTotal.add(caHt);
         }
-        List<MoisAbsences> mensuel = idsPublies.isEmpty() ? List.of()
-                : mensuel(String.join(",", idsPublies.stream().map(i -> "?").toList()),
-                parametres(idsPublies, start, end));
+        List<MoisAbsences> mensuel = idsPublies.isEmpty() || finDesAbsences.isBefore(start) ? List.of()
+                : mensuel(idsPublies, start, finDesAbsences);
         return new AbsencesOverview(societeId, start, end, OffsetDateTime.now(ZoneOffset.UTC),
                 stats(total, seancesTotal, caTotal), lignes, motifs(motifsTotal), mensuel, centresMasques);
     }
 
-    private List<MoisAbsences> mensuel(String in, Object[] params) {
+    private List<MoisAbsences> mensuel(Collection<UUID> centres, LocalDate start, LocalDate end) {
         List<MoisAbsences> mois = new ArrayList<>();
-        jdbc.query("SELECT EXTRACT(YEAR FROM date_seance) AS y, EXTRACT(MONTH FROM date_seance) AS m, COUNT(*) AS n, "
-                        + "COALESCE(SUM(montant_ht),0) AS ht FROM absence_patient WHERE center_id IN (" + in
-                        + ") AND date_seance BETWEEN ? AND ? AND statut IN ('A_QUALIFIER','JUSTIFIEE','NON_JUSTIFIEE') "
-                        + "GROUP BY y, m ORDER BY y, m",
-                rs -> {
-                    long n = rs.getLong("n");
-                    Long masque = AnonymityPolicy.mask(n);
-                    mois.add(new MoisAbsences(rs.getInt("y"), rs.getInt("m"), masque,
-                            masque == null ? null : rs.getBigDecimal("ht")));
-                }, params);
+        for (AbsencesDuPilotage.AbsencesDuMois m : pilotage.mensuel(centres, start, end)) {
+            Long masque = AnonymityPolicy.mask(m.nombre());
+            mois.add(new MoisAbsences(m.annee(), m.mois(), masque, masque == null ? null : m.montantHt()));
+        }
         return mois;
     }
 

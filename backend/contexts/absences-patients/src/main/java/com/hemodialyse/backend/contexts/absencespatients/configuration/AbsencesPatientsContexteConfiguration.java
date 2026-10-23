@@ -52,6 +52,8 @@ import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.lega
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyplanning.PatientsAttendusJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.horloge.FuseauParDefaut;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.mois.TousLesMoisSontOuverts;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesDuPilotageJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.NotificationsDuCentre;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -257,6 +259,14 @@ public class AbsencesPatientsContexteConfiguration {
                                                                      ReconciliationAbsences reconciliation,
                                                                      DetectionAbsences detection) {
         return new DetecterUnePeriodePassee(horloge, reconciliation, detection);
+    }
+
+    // Slice A4 : lectures publiées pour le pilotage (tableau de bord des séances, vue Direction).
+
+    @Bean
+    AbsencesDuPilotage absencesPatientsAbsencesDuPilotage(JdbcTemplate jdbc,
+            @Value("${app.absences.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+        return new AbsencesDuPilotageJdbc(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
     }
 
     /**

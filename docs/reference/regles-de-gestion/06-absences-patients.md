@@ -152,7 +152,7 @@
   réalisées, pour colorer le planning :
   les séances réalisées (validées par l'infirmier à la présence du patient) s'affichent avec un soleil sur fond jaune.
 - **RG-ABS-052** — Les absences alimentent le tableau de bord de la direction (volumes, perte valorisée, taux — voir
-  RG-DIR) sans donnée nominative.
+  RG-DIR) sans donnée nominative. Le contexte les publie par le langage `AbsencesDuPilotage` (A4, RG-ABS-060), jamais par sa table.
 - **RG-ABS-053** — **Paramètres illisibles de la consultation** : un statut ou un motif inconnu (ou en minuscules), un
   identifiant (centre, patient, absence) qui n'est pas un UUID, une date qui n'est pas au format `AAAA-MM-JJ`, une
   `page` ou une `size` non numérique est refusé en **400** `BAD_REQUEST` (était : 500 `INTERNAL_ERROR`, KB-ABS-01,
@@ -188,3 +188,20 @@
   `ABSENCE_D_EXCLUSION_MODIFIEE`), à traiter avec l'administrateur (liste : `verifications-production.md` § 24.4). Une absence déjà
   supprimée : la réinclusion réussit.
   *Source :* `ExclusionDeLaFacturation`, `AnnulerUneAbsence`, `RetirerLAbsenceDeLExclusion`, `ExclusionsDeSeancesJdbc`, `SignalementDesSaisiesLegacy`.
+
+- **RG-ABS-060** — **Lectures publiées pour le pilotage** (slice A4, ADR 0041) : le tableau de bord des séances d'un centre (nombre, détail,
+  exports) et la vue de la Direction (cumul par centre, statut et motif, mensuel) lisent les absences par le langage publié
+  `AbsencesDuPilotage`, avec les mêmes requêtes qu'avant : bornes de dates incluses, **absences annulées jamais comptées**, centres autorisés
+  fournis par l'appelant. Le mensuel ne garde que les statuts à qualifier, justifiée et non justifiée. Aucune table d'absence n'est lue hors du contexte.
+  *Source :* `AbsencesDuPilotage`, `AbsencesDuPilotageJdbc`, `SeanceRestController`, `DirectionAbsencesQueryService`.
+- **RG-ABS-061** — **« Aujourd'hui » du pilotage et absences futures** (KB-ABS-34, 35, corrigés à la slice A4) : « aujourd'hui » est le jour du fuseau des
+  centres (RG-ABS-059), pas celui de l'UTC, pour la période par défaut de la Direction (année en cours jusqu'à aujourd'hui) et la fin de période
+  du tableau de bord. **Aucune absence postérieure à aujourd'hui n'est comptée**, dans le tableau de bord (nombre, détail, exports CSV, PDF, XLSX) comme dans la vue Direction
+  (cumul par centre, motifs, mensuel), **quelle que soit la fin de période demandée** (mois en cours inclus) ; pour un mois futur, le nombre est 0, le détail
+  vide et la fin de période du tableau de bord est égale au début (jamais antérieure). La période affichée et les séances, le chiffre d'affaires et le taux
+  gardent la fin demandée. *(Était : jour UTC ; absences futures comptées ; fin de période avant le début.)*
+- **RG-ABS-062** — **Entrées illisibles du pilotage** (KB-ABS-33, 36, corrigés à la slice A4) : une date `from` ou `to` illisible de
+  `GET /api/v1/direction/absences` est refusée en **400** `BAD_REQUEST` (était : 500) ; un `format` d'export du tableau de bord autre que
+  `csv`, `pdf` ou `xlsx` (sans égard à la casse) est refusé en **400** `BAD_REQUEST` (était : CSV servi silencieusement). Sans `format` : CSV.
+  La période de la Direction reste refusée en 422 si inversée (`PERIODE_INVALIDE`) ou de plus de 5 ans (`PERIODE_TROP_LONGUE`).
+  *Source :* `DatesIllisiblesDeLaDirectionAdvice`, `SeanceRestController.exportDashboard`.

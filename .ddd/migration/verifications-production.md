@@ -886,6 +886,22 @@ SHOW timezone;
   notification par centre et par jour ; réconciliation limitée aux absences détectées hors
   période facturée ; entrées illisibles du rattrapage de détection en 400 ; fuseau du centre.
 
+## 26. Absences de patients A4 : lectures publiées du pilotage (aucune migration, 2026-10-23)
+
+Le tableau de bord des séances (nombre, détail, exports) et la vue Direction ne comptent plus aucune absence datée **après aujourd'hui**
+(jour du fuseau du centre, KB-ABS-34, 35). Requête de recette en **lecture seule** (SELECT uniquement), à lancer sur une copie ou en lecture :
+
+```sql
+SELECT center_id, COUNT(*) AS absences_futures
+FROM absence_patient
+WHERE date_seance > current_date AND statut <> 'ANNULEE'
+GROUP BY center_id;
+```
+
+- **26.1** Résultat attendu : aucune ligne (le domaine interdit de déclarer une date future depuis A2). Sinon, rapporter le **nombre de lignes par centre** (sans identifiant
+  de patient) : ces absences héritées ne seront plus comptées dans les chiffres du pilotage tant que leur date n'est pas passée.
+- **26.2** Informatif : `GET /api/v1/seances/dashboard/export?format=txt` répond désormais 400 (était : CSV) ; `GET /api/v1/direction/absences?from=hier` répond 400 (était : 500).
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
