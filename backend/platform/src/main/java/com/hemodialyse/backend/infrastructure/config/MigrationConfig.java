@@ -49,7 +49,7 @@ public class MigrationConfig {
                 new AffectationMigrator(patients, assures, assignments),
                 new OpeningBalanceMigrator(balances, patients)));
         HistoryRules.all(referentials).forEach(rules -> migrators.add(new PatientRecordMigrator(rules, records)));
-        return new MigrationDomainService(batches, ids, values, rollback, migrators, Clock.systemDefaultZone());
+        return new MigrationDomainService(batches, ids, values, rollback, migrators, Clock.systemUTC());
     }
 }
 

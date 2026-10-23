@@ -80,7 +80,7 @@ public class PatientSummaryQueryService {
             case null -> null;
             case LocalDate date -> date;
             case java.sql.Date sqlDate -> sqlDate.toLocalDate();
-            case java.util.Date utilDate -> utilDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+            case java.util.Date utilDate -> utilDate.toInstant().atZone(java.time.ZoneOffset.UTC).toLocalDate();
             default -> {
                 String value = raw.toString().trim();
                 if (value.isBlank()) {

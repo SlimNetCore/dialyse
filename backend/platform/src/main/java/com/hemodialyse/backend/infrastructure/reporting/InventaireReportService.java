@@ -147,7 +147,7 @@ public class InventaireReportService {
     }
 
     private static String stamp(OffsetDateTime t) {
-        return t == null ? "—" : t.atZoneSameInstant(ZoneId.systemDefault()).format(STAMP);
+        return t == null ? "—" : t.atZoneSameInstant(java.time.ZoneOffset.UTC).format(STAMP);
     }
 
     private static String by(String user) {

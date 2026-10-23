@@ -39,7 +39,7 @@ public class InventaireApplicationService implements InventaireUseCase {
                                         PmpRecalculationCoordinator recalcCoordinator, StockSequencePort sequence,
                                         InventaireEventPublisher events) {
         this.delegate = new InventaireService(repo, articles, lots, rawMovements, pmpEngine, recalcCoordinator, sequence,
-                events, Clock.systemDefaultZone());
+                events, Clock.systemUTC());
     }
 
     @Override

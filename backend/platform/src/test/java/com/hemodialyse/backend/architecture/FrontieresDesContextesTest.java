@@ -53,6 +53,16 @@ class FrontieresDesContextesTest {
     private static final String ABSENCES = "com.hemodialyse.backend.contexts.absencespatients";
 
     /**
+     * Fuseau unique du serveur : UTC ({@code BackendApplication}, Hibernate, Jackson). Aucune horloge ni fuseau « par défaut du
+     * système » dans le code de production : {@code Clock.systemUTC()} et {@code ZoneOffset.UTC} sont explicites.
+     */
+    @ArchTest
+    static final ArchRule aucune_horloge_ni_fuseau_du_systeme = noClasses()
+            .should().callMethod(java.time.Clock.class, "systemDefaultZone")
+            .orShould().callMethod(java.time.ZoneId.class, "systemDefault")
+            .because("tous les horodatages et les jours métier du serveur sont en UTC");
+
+    /**
      * Slice S6b (ADR 0045) : la Séance ne sort plus de stock elle-même ; elle ne connaît du Stock que le port publié
      * {@code ConsommationsDeSeance}, aiguillé par centre entre la sortie immédiate FEFO (historique) et la sortie pour séances.
      */

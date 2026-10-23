@@ -207,7 +207,7 @@ public class FacturationContexteConfiguration {
     @Bean
     EnregistrerUnReglement facturationEnregistrerUnReglement(Reglements reglements, SituationsDesFactures situations,
                                                              PublicationDesReglements publication, UniteDeTravail uniteDeTravail) {
-        return new EnregistrerUnReglement(reglements, situations, publication, uniteDeTravail, Clock.systemDefaultZone(),
+        return new EnregistrerUnReglement(reglements, situations, publication, uniteDeTravail, Clock.systemUTC(),
                 UUID::randomUUID);
     }
 

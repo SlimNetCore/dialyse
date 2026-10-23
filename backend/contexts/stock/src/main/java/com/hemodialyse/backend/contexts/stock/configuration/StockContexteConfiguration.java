@@ -62,7 +62,7 @@ public class StockContexteConfiguration {
 
     @Bean
     ReferentielDesArticles stockReferentielDesArticles(Articles articles) {
-        return new ReferentielDesArticles(articles, UUID::randomUUID, Clock.systemDefaultZone());
+        return new ReferentielDesArticles(articles, UUID::randomUUID, Clock.systemUTC());
     }
 
     @Bean
@@ -116,7 +116,7 @@ public class StockContexteConfiguration {
     com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock stockConsulterLeStock(
             com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures, Articles articles) {
         return new com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock(lectures, articles,
-                Clock.systemDefaultZone());
+                Clock.systemUTC());
     }
 
     @Bean
@@ -166,7 +166,7 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
             com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
         return new com.hemodialyse.backend.contexts.stock.application.reception.GestionDesReceptions(bons, commandes, articles,
-                fournisseurs, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
+                fournisseurs, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemUTC());
     }
 
     // ------------------------------------------------------------------ slice S6 : sorties manuelles
@@ -198,7 +198,7 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
             com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
         return new com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties(bons, articles, sorties, ecritures,
-                rejeu, seances, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
+                rejeu, seances, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemUTC());
     }
 
     // ------------------------------------------------------------------ slice S6b : sorties pour séances
@@ -219,7 +219,7 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
             com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
         return new com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances(pieces, articles,
-                sorties, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemDefaultZone());
+                sorties, ecritures, rejeu, uniteDeTravail, notifications, UUID::randomUUID, Clock.systemUTC());
     }
 
     // ------------------------------------------------------------------ slice S6b : consommations de séance et paramétrage
@@ -280,6 +280,6 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock notifications) {
         return new com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp(rejeu, ecritures, articles,
                 uniteDeTravail, notifications, java.util.concurrent.ForkJoinPool.commonPool(), UUID::randomUUID,
-                Clock.systemDefaultZone());
+                Clock.systemUTC());
     }
 }
