@@ -24,7 +24,6 @@ import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
-import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,7 +46,6 @@ public class SeanceDomainService implements SeanceUseCase {
     private final SeanceRepositoryPort seanceRepo;
     private final PatientRepositoryPort patientRepo;
     private final ArticleRepositoryPort articleRepo;
-    private final LotRepositoryPort lotRepo;
     private final ConsommationsDeSeance stockConsommations;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
@@ -59,7 +57,6 @@ public class SeanceDomainService implements SeanceUseCase {
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
                                ArticleRepositoryPort articleRepo,
-                               LotRepositoryPort lotRepo,
                                ConsommationsDeSeance stockConsommations,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
@@ -70,7 +67,6 @@ public class SeanceDomainService implements SeanceUseCase {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
-        this.lotRepo = lotRepo;
         this.stockConsommations = stockConsommations;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;

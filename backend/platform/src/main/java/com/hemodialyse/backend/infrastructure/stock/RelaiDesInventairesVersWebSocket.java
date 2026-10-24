@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.stock;
 
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.InventaireModifie;
-import com.hemodialyse.backend.domain.stock.port.InventaireEventPublisher;
+import com.hemodialyse.backend.infrastructure.websocket.WebSocketInventaireEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RelaiDesInventairesVersWebSocket {
-    private final InventaireEventPublisher publication;
+    private final WebSocketInventaireEventPublisher publication;
 
-    public RelaiDesInventairesVersWebSocket(InventaireEventPublisher publication) {
+    public RelaiDesInventairesVersWebSocket(WebSocketInventaireEventPublisher publication) {
         this.publication = publication;
     }
 
@@ -22,4 +22,5 @@ public class RelaiDesInventairesVersWebSocket {
         publication.inventaireChanged(evenement.centre(), evenement.statut(), evenement.reference(), evenement.date(), evenement.par());
     }
 }
+
 

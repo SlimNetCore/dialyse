@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
 import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
-import com.hemodialyse.backend.domain.stock.port.InventaireEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -19,7 +18,7 @@ import java.util.UUID;
  * L'envoi a lieu après le commit : une clôture qui échoue n'est jamais annoncée.
  */
 @Component
-public class WebSocketInventaireEventPublisher implements InventaireEventPublisher {
+public class WebSocketInventaireEventPublisher {
 
     /**
      * Rôles ayant accès au module stock.
@@ -34,7 +33,6 @@ public class WebSocketInventaireEventPublisher implements InventaireEventPublish
         this.directionRealtime = directionRealtime;
     }
 
-    @Override
     public void inventaireChanged(UUID centerId, String statut, String reference, LocalDate dateInventaire, String by) {
         Map<String, String> payload = new HashMap<>();
         payload.put("statut", statut);
@@ -65,4 +63,7 @@ public class WebSocketInventaireEventPublisher implements InventaireEventPublish
         }
     }
 }
+
+
+
 

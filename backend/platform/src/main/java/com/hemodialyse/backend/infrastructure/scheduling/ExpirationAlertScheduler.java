@@ -1,8 +1,7 @@
 package com.hemodialyse.backend.infrastructure.scheduling;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.Lot;
-import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.PeremptionsDuStock;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.PeremptionsDuStock.LotProcheDePeremption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,13 +9,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Daily J-30 expiry alert job. Scans, per center, lots expiring within 30 days
- * that still hold quantity, and logs a consolidated warning. This is the hook
- * where notifications (email / in-app) can later be dispatched.
+ * Contrôle quotidien des péremptions à J-30 : pour chaque centre, les lots encore en stock qui périment dans les 30 jours (lus
+ * dans le langage publié du Stock, {@link PeremptionsDuStock}) sont signalés au journal technique. Point d'accroche de la
+ * notification prévue par la slice S8 (pharmacien, admin ; centres actifs seulement).
  */
 @Component
 public class ExpirationAlertScheduler {
@@ -25,11 +25,11 @@ public class ExpirationAlertScheduler {
     private static final int WINDOW_DAYS = 30;
 
     private final JdbcTemplate jdbc;
-    private final LotRepositoryPort lotRepo;
+    private final PeremptionsDuStock peremptions;
 
-    public ExpirationAlertScheduler(JdbcTemplate jdbc, LotRepositoryPort lotRepo) {
+    public ExpirationAlertScheduler(JdbcTemplate jdbc, PeremptionsDuStock peremptions) {
         this.jdbc = jdbc;
-        this.lotRepo = lotRepo;
+        this.peremptions = peremptions;
     }
 
     /**
@@ -37,20 +37,18 @@ public class ExpirationAlertScheduler {
      */
     @Scheduled(cron = "0 0 7 * * *")
     public void scanExpirations() {
-        LocalDate threshold = LocalDate.now().plusDays(WINDOW_DAYS);
-        List<UUID> centers = jdbc.query("SELECT id FROM centers",
-                (rs, i) -> UUID.fromString(rs.getString(1)));
+        LocalDate threshold = LocalDate.now(ZoneOffset.UTC).plusDays(WINDOW_DAYS);
+        List<UUID> centers = jdbc.query("SELECT id FROM centers", (rs, i) -> UUID.fromString(rs.getString(1)));
 
         for (UUID centerId : centers) {
-            List<Lot> expiring = lotRepo.findExpiringBefore(CenterId.of(centerId), threshold);
+            List<LotProcheDePeremption> expiring = peremptions.lotsPerimantAuPlusTard(centerId, threshold);
             if (!expiring.isEmpty()) {
                 log.warn("[STOCK][J-{}] Centre {} : {} lot(s) en peremption proche", WINDOW_DAYS, centerId, expiring.size());
-                for (Lot lot : expiring) {
+                for (LotProcheDePeremption lot : expiring) {
                     log.warn("  -> Lot {} (article {}) peremption {} - reste {}",
-                            lot.getNumeroLot(), lot.getArticleId(), lot.getDatePeremption(), lot.getQuantiteRestante());
+                            lot.numeroLot(), lot.articleId(), lot.datePeremption(), lot.quantiteRestante());
                 }
             }
         }
     }
 }
-

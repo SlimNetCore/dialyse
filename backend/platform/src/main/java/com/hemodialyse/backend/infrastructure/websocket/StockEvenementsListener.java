@@ -3,7 +3,6 @@ package com.hemodialyse.backend.infrastructure.websocket;
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.MouvementsDeStockModifies;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrousDeRecalculModifies;
-import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -18,10 +17,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 public class StockEvenementsListener {
 
-    private final StockEventPublisher publisher;
+    private final WebSocketStockEventPublisher publisher;
     private final CacheManager caches;
 
-    public StockEvenementsListener(StockEventPublisher publisher, CacheManager caches) {
+    public StockEvenementsListener(WebSocketStockEventPublisher publisher, CacheManager caches) {
         this.publisher = publisher;
         this.caches = caches;
     }
@@ -44,4 +43,6 @@ public class StockEvenementsListener {
         publisher.recalcLocksChanged(evenement.centre(), evenement.articles(), evenement.etat());
     }
 }
+
+
 

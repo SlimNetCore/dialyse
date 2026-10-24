@@ -16,7 +16,6 @@ COPY bc-insurance/pom.xml ./bc-insurance/pom.xml
 COPY bc-referential/pom.xml ./bc-referential/pom.xml
 COPY bc-patient/pom.xml ./bc-patient/pom.xml
 COPY bc-assure/pom.xml ./bc-assure/pom.xml
-COPY bc-stock/pom.xml ./bc-stock/pom.xml
 COPY bc-pec/pom.xml ./bc-pec/pom.xml
 COPY bc-seance/pom.xml ./bc-seance/pom.xml
 COPY bc-medical/pom.xml ./bc-medical/pom.xml
@@ -26,6 +25,7 @@ COPY contexts/gmao/pom.xml ./contexts/gmao/pom.xml
 COPY contexts/comptabilite/pom.xml ./contexts/comptabilite/pom.xml
 COPY contexts/facturation/pom.xml ./contexts/facturation/pom.xml
 COPY contexts/absences-patients/pom.xml ./contexts/absences-patients/pom.xml
+COPY contexts/stock/pom.xml ./contexts/stock/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline

@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.service.AttestationDomainService;
 import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPort;
@@ -47,16 +46,6 @@ import com.hemodialyse.backend.domain.seance.service.PrescriptionMedicaleDomainS
 import com.hemodialyse.backend.domain.seance.service.ResultatAnalyseDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletMedicalDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletParamedicalDomainService;
-import com.hemodialyse.backend.domain.stock.port.BonCommandeRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.BonReceptionRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.BonSortieRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
-import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
-import com.hemodialyse.backend.domain.stock.port.StockSequencePort;
-import com.hemodialyse.backend.domain.stock.service.BonCommandeService;
-import com.hemodialyse.backend.domain.stock.service.PmpEngine;
-import com.hemodialyse.backend.domain.stock.service.PmpRecalculationCoordinator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -189,23 +178,6 @@ public class DomainServiceConfig {
         return new OrdonnanceDomainService(repo, numeroGenerator);
     }
 
-    @Bean
-    public PmpEngine pmpEngine(StockMovementRepositoryPort movementRepo, ArticleRepositoryPort articleRepo) {
-        return new PmpEngine(movementRepo, articleRepo);
-    }
-
-    @Bean
-    public PmpRecalculationCoordinator pmpRecalculationCoordinator(PmpEngine pmpEngine,
-                                                                   StockEventPublisher events,
-                                                                   TransactionRunner transactionRunner) {
-        return new PmpRecalculationCoordinator(pmpEngine, events, transactionRunner);
-    }
-
-    @Bean
-    public BonCommandeService bonCommandeService(BonCommandeRepositoryPort repo,
-                                                 StockSequencePort sequence) {
-        return new BonCommandeService(repo, sequence);
-    }
 
 }
 

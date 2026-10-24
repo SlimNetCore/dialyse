@@ -5,7 +5,7 @@ import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.stock.service.ValorisationStockCalculator.Valorisation;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationDuStock;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -64,7 +64,7 @@ public class DirectionStockGroupesQueryService {
         List<GroupeDArticlesPublie> tous = groupes.groupes(nomsCentres.keySet());
 
         // Valorisation de chaque article (une seule fois par article, même s'il figure dans plusieurs groupes)
-        Map<UUID, Map<UUID, Valorisation>> parCentre = new HashMap<>();
+        Map<UUID, Map<UUID, ValorisationDuStock>> parCentre = new HashMap<>();
         for (UUID centreId : nomsCentres.keySet()) {
             Set<UUID> articleIds = new HashSet<>();
             tous.stream().filter(g -> g.centre().equals(centreId)).forEach(g -> articleIds.addAll(g.articles()));
@@ -78,10 +78,10 @@ public class DirectionStockGroupesQueryService {
         tous.stream()
                 .sorted(Comparator.comparing(GroupeDArticlesPublie::cle).thenComparing(g -> nomsCentres.getOrDefault(g.centre(), "")))
                 .forEach(g -> {
-                    Map<UUID, Valorisation> valeurs = parCentre.getOrDefault(g.centre(), Map.of());
-                    Valorisation somme = Valorisation.zero();
+                    Map<UUID, ValorisationDuStock> valeurs = parCentre.getOrDefault(g.centre(), Map.of());
+                    ValorisationDuStock somme = ValorisationDuStock.zero();
                     for (UUID articleId : g.articles()) {
-                        Valorisation v = valeurs.get(articleId);
+                        ValorisationDuStock v = valeurs.get(articleId);
                         if (v != null) somme = somme.plus(v);
                     }
                     consolides.computeIfAbsent(g.cle(), k -> new GroupeAccumulateur(g.nom(), g.cle()))
@@ -100,7 +100,7 @@ public class DirectionStockGroupesQueryService {
         private final String nom;
         private final String cle;
         private final List<CentreGroupeStock> centres = new ArrayList<>();
-        private Valorisation total = Valorisation.zero();
+        private ValorisationDuStock total = ValorisationDuStock.zero();
 
         private GroupeAccumulateur(String nom, String cle) {
             this.nom = nom;
@@ -111,7 +111,7 @@ public class DirectionStockGroupesQueryService {
             return cle;
         }
 
-        private void ajouter(CentreGroupeStock centre, Valorisation valorisation) {
+        private void ajouter(CentreGroupeStock centre, ValorisationDuStock valorisation) {
             centres.add(centre);
             total = total.plus(valorisation);
         }
@@ -133,7 +133,7 @@ public class DirectionStockGroupesQueryService {
             BigDecimal autresVariations,
             BigDecimal valeurFin
     ) {
-        static Valeurs of(Valorisation v) {
+        static Valeurs of(ValorisationDuStock v) {
             return new Valeurs(v.valeurDebut(), v.entrees(), v.sorties(), v.autresVariations(), v.valeurFin());
         }
     }

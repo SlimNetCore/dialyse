@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.facturation.retrait;
 
-import com.hemodialyse.backend.infrastructure.persistence.adapter.SeanceBillingStatusJdbcAdapter;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.StatutDesSeancesLegacy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Slice facturation-f6-retrait-bc-facturation, consommateurs Séance et Stock : une séance au statut {@code FACTUREE}
  * (posé par la Facturation à l'émission, F3) est immuable. Chaque route de modification d'une séance est rejouée sur une
  * séance facturée ; la réponse HTTP et l'état SQL (séance, stock) sont verrouillés, ainsi que la lecture du statut par le
- * port Stock {@code SeanceBillingStatusPort} (adaptateur de production appelé directement, sans double).
+ * contexte Stock ({@code StatutDesSeancesLegacy}, ACL de production appelée directement, sans double).
  * Les routes {@code DELETE /seances/{id}} (SeanceSuppressionIntegrationTest) et {@code PUT /stock/bons-sortie/{id}}
  * (BonSortieRestControllerIntegrationTest) sont déjà verrouillées ailleurs et ne sont pas dupliquées.
  */
@@ -29,8 +29,7 @@ class SeanceFactureeImmuableCharacterizationIntegrationTest extends RetraitChara
     private static final UUID SEANCE_VALIDEE = UUID.fromString("99997600-0000-0000-0000-000000005002");
     private static final UUID SEANCE_AUTRE_CENTRE = UUID.fromString("99997600-0000-0000-0000-000000005003");
 
-    @Autowired
-    private SeanceBillingStatusJdbcAdapter etatDeFacturation;
+    private StatutDesSeancesLegacy etatDeFacturation;
 
     @Override
     protected String theme() {
@@ -39,6 +38,7 @@ class SeanceFactureeImmuableCharacterizationIntegrationTest extends RetraitChara
 
     @BeforeEach
     void donnees() {
+        etatDeFacturation = new StatutDesSeancesLegacy(jdbc);
         article();
         forfait();
         patient(PATIENT_1, CENTRE_A, "AMRANI");
@@ -184,24 +184,24 @@ class SeanceFactureeImmuableCharacterizationIntegrationTest extends RetraitChara
 
     @Test
     void le_port_stock_lit_le_statut_facturee_de_la_seance_du_centre_seulement() {
-        CenterId a = CenterId.of(CENTRE_A);
+        CentreId a = new CentreId(CENTRE_A);
         jdbc.update("UPDATE seances SET statut = 'facturee' WHERE id = ?", SEANCE_VALIDEE);
-        assertThat(etatDeFacturation.isBilled(a, SEANCE_FACTUREE)).as("FACTUREE").isTrue();
-        assertThat(etatDeFacturation.isBilled(a, SEANCE_VALIDEE)).as("statut en minuscules (insensible a la casse)").isTrue();
+        assertThat(etatDeFacturation.estFacturee(a, SEANCE_FACTUREE)).as("FACTUREE").isTrue();
+        assertThat(etatDeFacturation.estFacturee(a, SEANCE_VALIDEE)).as("statut en minuscules (insensible a la casse)").isTrue();
         jdbc.update("UPDATE seances SET statut = 'SIGNEE' WHERE id = ?", SEANCE_VALIDEE);
-        assertThat(etatDeFacturation.isBilled(a, SEANCE_VALIDEE)).as("SIGNEE").isFalse();
-        assertThat(etatDeFacturation.isBilled(a, UUID.fromString("99997600-0000-0000-0000-0000000050ff"))).as("inconnue").isFalse();
-        assertThat(etatDeFacturation.isBilled(a, SEANCE_AUTRE_CENTRE)).as("facturee mais d'un autre centre").isFalse();
-        assertThat(etatDeFacturation.isBilled(CenterId.of(CENTRE_B), SEANCE_AUTRE_CENTRE)).as("son propre centre").isTrue();
+        assertThat(etatDeFacturation.estFacturee(a, SEANCE_VALIDEE)).as("SIGNEE").isFalse();
+        assertThat(etatDeFacturation.estFacturee(a, UUID.fromString("99997600-0000-0000-0000-0000000050ff"))).as("inconnue").isFalse();
+        assertThat(etatDeFacturation.estFacturee(a, SEANCE_AUTRE_CENTRE)).as("facturee mais d'un autre centre").isFalse();
+        assertThat(etatDeFacturation.estFacturee(new CentreId(CENTRE_B), SEANCE_AUTRE_CENTRE)).as("son propre centre").isTrue();
     }
 
     @Test
     void le_statut_facturee_se_lit_dans_la_table_seances_sans_consulter_la_facture() {
         jdbc.update("UPDATE seances SET facture_id = NULL WHERE id = ?", SEANCE_FACTUREE);
-        assertThat(etatDeFacturation.isBilled(CenterId.of(CENTRE_A), SEANCE_FACTUREE))
+        assertThat(etatDeFacturation.estFacturee(new CentreId(CENTRE_A), SEANCE_FACTUREE))
                 .as("seul le statut compte, pas le lien vers la facture").isTrue();
         jdbc.update("UPDATE seances SET statut = 'VALIDEE', facture_id = ? WHERE id = ?", FACTURE, SEANCE_FACTUREE);
-        assertThat(etatDeFacturation.isBilled(CenterId.of(CENTRE_A), SEANCE_FACTUREE))
+        assertThat(etatDeFacturation.estFacturee(new CentreId(CENTRE_A), SEANCE_FACTUREE))
                 .as("un lien vers une facture sans statut FACTUREE ne suffit pas").isFalse();
     }
 }

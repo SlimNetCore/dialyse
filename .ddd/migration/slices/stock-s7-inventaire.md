@@ -1,6 +1,6 @@
 ---
 slice: stock-s7-inventaire
-status: characterized
+status: built
 date: 2026-10-23
 order: 8
 context: stock
@@ -201,3 +201,37 @@ argent (écarts valorisés), Comptabilité.
 - **Reste pour « built »** : portage de la feuille Excel et du PV sur le modèle du contexte (puis retrait de la
   passerelle et du modèle historique) ;
   retrait du garde legacy avec les reliquats de S5 / S6 ; documentation RG-STK et annexe de traçabilité.
+
+### Feuille Excel et PV portés sur le modèle du contexte (2026-10-24)
+
+- `FeuilleComptageExcel` (plateforme, Apache POI) implémente directement le port `FeuilleDeComptage` sur `Inventaire` /
+  `LigneDInventaire` du contexte (même disposition, mêmes refus de fichier, mêmes motifs) ; `InventaireReportService`
+  (moteur de documents, modèle `INVENTAIRE_STOCK`) implémente directement le port `ProcesVerbalDInventaire` (mêmes paramètres,
+  indicateurs et analyse des écarts par motif).
+- **Retirés** : la passerelle `InventaireVersLegacy`, les adaptateurs `FeuilleDeComptageExcel` et
+  `ProcesVerbalDInventairePlateforme`, les records historiques `ComptageImporte` et `ResultatImportComptage` (bc-stock).
+  Tests `FeuilleComptageExcelTest` et `InventaireStockReportTemplateTest` passés sur le modèle du contexte.
+- **Modèle historique encore présent** (`Inventaire`, `LigneInventaire`, `InventaireStatut`, `InventaireRepositoryPort`,
+  `InventaireJdbcAdapter`) : uniquement pour la garde des écritures legacy (`InventoryGuardedMovementRepository`), retiré avec
+  les reliquats de S5 / S6.
+- **Reste pour « built »** : retrait du garde legacy avec les reliquats de S5 / S6 ; documentation RG-STK et annexe de
+  traçabilité.
+
+### Retrait de la garde legacy et des écritures historiques (reliquats S5 / S6, 2026-10-24)
+
+- **Constat** : plus aucun appelant de production des écritures historiques (`BonReceptionUseCase`, `BonSortieUseCase`,
+  `BonCommandeUseCase`) hormis `StockDemoDataSeeder` (actif par défaut hors production). Le seeder est réécrit sur les cas
+  d'usage du contexte (`ReferentielDesFournisseursEtEmplacements`, `ReferentielDesArticles`, `GestionDesBonsDeCommande`,
+  `GestionDesReceptions`, `GestionDesSorties`) : mêmes données, mêmes règles et gardes que l'application (il ne dépend plus
+  ni de bc-stock ni de bc-article) ; test `StockDemoDataSeederIntegrationTest` (PMP pondéré 360, FEFO, idempotence).
+- **Retirés** — bc-stock : `BonReceptionService`, `BonSortieService`, `BonCommandeService`, `PmpEngine`,
+  `PmpRecalculationCoordinator`, `InventoryGuardedMovementRepository`, les cas d'usage et ports de dépôt des bons, le modèle
+  historique de l'inventaire (`Inventaire`, `LigneInventaire`, `InventaireStatut`, `InventaireRepositoryPort`), les modèles
+  morts (bons et lignes, `SortieRequestItem`, `AlerteStock`, `PmpExplanation*`, points de tendance, `StockValoriseItem`,
+  `TracabiliteItem`, `Fournisseur`, `Emplacement`), `SeanceStockExitDateImmutableException` et leurs tests ; plateforme :
+  `BonReceptionApplicationService`, `BonSortieApplicationService`, `StockInventoryConfig`, `InventaireJdbcAdapter`, les
+  adaptateurs `BonReception|BonSortie|BonCommande|Fournisseur|EmplacementRepositoryAdapter`, `StockSequenceAdapter`, les beans
+  historiques de `DomainServiceConfig` et leurs tests d'intégration. `InventaireIntegrationTest` vérifie la garde par
+  `GestionDesSorties` (contexte).
+- La garde d'inventaire n'existe plus qu'à un seul endroit : sous verrou, dans le contexte (`EcrituresDuStock`).
+- **Statut : built (2026-10-24)** : domaine, cas d'usage, adaptateurs JDBC, contrôleur, feuille Excel et PV sur le modèle du contexte, garde sous verrou (H2 + PostgreSQL 16), legacy de l'inventaire retiré, RG-STK 8.6 et annexe de traçabilité à jour.

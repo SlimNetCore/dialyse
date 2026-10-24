@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
-import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
 import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -14,12 +13,12 @@ import java.util.UUID;
 /**
  * Infrastructure adapter — publishes stock domain events over STOMP/WebSocket.
  * <p>
- * Implements the {@link StockEventPublisher} port so the domain services stay
+ * Called by {@link StockEvenementsListener}, which relays the published events of the Stock context, so the domain stays
  * free of any messaging dependency (hexagonal architecture — AGENTS.md §3).
  * Events are scoped per center (AGENTS.md §2): {@code /topic/center/{centerId}/events}.
  */
 @Component
-public class WebSocketStockEventPublisher implements StockEventPublisher {
+public class WebSocketStockEventPublisher {
 
     private final SimpMessagingTemplate messaging;
     private final DirectionRealtimeService directionRealtime;
@@ -29,7 +28,6 @@ public class WebSocketStockEventPublisher implements StockEventPublisher {
         this.directionRealtime = directionRealtime;
     }
 
-    @Override
     public void stockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
         Map<String, String> payload = new HashMap<>();
         payload.put("mouvement", mouvement);
@@ -38,7 +36,6 @@ public class WebSocketStockEventPublisher implements StockEventPublisher {
         send(centerId, "STOCK_MOVEMENT_CHANGED", payload);
     }
 
-    @Override
     public void recalcLocksChanged(UUID centerId, List<UUID> articleIds, String status) {
         Map<String, String> payload = new HashMap<>();
         payload.put("status", status);

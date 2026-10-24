@@ -2,14 +2,14 @@
 
 > Préfixe `RG-STK`. Le système **valorise** le stock (PMP recalculé en cascade), **choisit les lots à sortir** (FEFO),
 > **gèle** les mouvements pendant un
-> inventaire, **surveille** péremptions, seuils et ruptures, et **trace** chaque lot jusqu'au patient. Sources :
-> `Article`, `Lot`, `BonCommande`,
-> `BonReception`, `BonSortie`, `BonReceptionService`, `BonSortieService`, `BonCommandeService`, `PmpCalculator`,
-> `PmpEngine`,
-> `PmpRecalculationCoordinator`, `ValorisationStockCalculator`, `Inventaire*`, `InventoryGuardedMovementRepository`,
-> `StockDashboardService`,
-> `StockDashboardAdapter`, `GroupeArticle*`, `ExpirationAlertScheduler`, contrôleurs `Stock*`, `Bon*`, `Inventaire*`,
-> `GroupeArticle*`.
+> inventaire, **surveille** péremptions, seuils et ruptures, et **trace** chaque lot jusqu'au patient. Sources (contexte
+> `stock`, `backend/contexts/stock`) : `FicheArticle`, `Article`, `BonDeCommande`, `BonDeReception`, `BonDeSortie`,
+> `GestionDesBonsDeCommande`, `GestionDesReceptions`, `GestionDesSorties`, `RejeuDuPmp`, `CalculDuPmp`,
+> `RecalculMassifDuPmp`, `Inventaire`, `PeriodeDeStock`, `GestionDesInventaires`, `EcrituresDuStock` (garde d'inventaire
+> sous verrou), `SortiePourSeances`, `GestionDesGroupesDArticles`, contrôleurs `*Controleur` ; plateforme :
+> `ValorisationStockCalculator`,
+> `StockDashboardService`, `StockDashboardAdapter`, `ExpirationAlertScheduler`, `FeuilleComptageExcel`,
+> `InventaireReportService`.
 
 ## 8.1 Référentiel (articles, fournisseurs, emplacements)
 
@@ -136,8 +136,8 @@
   enregistrées) : elle garde la valeur enregistrée à la sortie. Le recalcul massif est un traitement asynchrone suivi
   par
   un identifiant de tâche et un verrou par article (réservé `ADMIN`, `PHARMACIEN` pour le lancer ; consultation +
-  `INFIRMIER`). *Source :* `PmpEngine`, `PmpCalculator`, `StockMovement.CHRONOLOGIE` (colonne `saisi_le`, migration
-  V38).
+  `INFIRMIER`). *Source :* `RejeuDuPmp`, `CalculDuPmp`, `RecalculMassifDuPmp` (contexte `stock`), `MouvementDeStock.CHRONOLOGIE`
+  (colonne `saisi_le`, migration V38).
 - **RG-STK-042** — L'écran « explication du PMP » détaille, mouvement par mouvement, l'état avant/après et la formule
   appliquée.
 - **RG-STK-043** — **Valorisation historique** d'une période : valeur de début, entrées (valorisées au prix), sorties
@@ -158,7 +158,11 @@
   (triée par article puis FEFO) ; un article en stock sans
   lot (données anciennes) obtient une ligne sans lot.
 - **RG-STK-052** — **Tant qu'un inventaire est en cours, aucun mouvement de stock n'est permis** dans le centre
-  (`STOCK_INVENTORY_IN_PROGRESS`), ni création, modification ou suppression.
+  (`STOCK_INVENTORY_IN_PROGRESS`), ni création, modification ou suppression. La garde est **sous verrou** : l'ouverture
+  prend le verrou du centre puis celui de chacun de ses articles ; une écriture de stock commencée avant se termine avant
+  le gel (l'ouverture l'attend et le théorique l'inclut), toute écriture suivante est refusée ; deux ouvertures simultanées
+  n'en donnent qu'une (le refus ne consomme aucune référence `INV-nnnnn`). *Source :* `GestionDesInventaires.ouvrir`,
+  `EcrituresDuStock` (contexte `stock`).
 - **RG-STK-053** — Comptage : quantité ≥ 0 avec **3 décimales au plus** (`INVENTORY_QUANTITY_SCALE`) ; ligne
   introuvable : `INVENTORY_LINE_NOT_FOUND` ; inventaire introuvable :
   `INVENTORY_NOT_FOUND` ; inventaire clôturé/annulé : `INVENTORY_NOT_IN_PROGRESS`. Un **lot trouvé en rayon** mais
@@ -178,9 +182,11 @@
   lot absent) et **chaque écart justifié par un motif**
   (`INVENTORY_GAP_WITHOUT_REASON`). Alors, de façon atomique : les quantités comptées deviennent le stock des lots (lots
   trouvés créés ; `INVENTORY_LOT_NOT_FOUND` si un lot a disparu) ;
-  tous les mouvements jusqu'à la date d'inventaire (fin de journée UTC) sont **clôturés** ; un mouvement `INVENTAIRE`
-  par lot compté pose le stock de départ au PMP de l'inventaire ;
-  quantités et PMP de tous les articles sont recalculés à partir de ce seul stock de départ.
+  les mouvements des **articles inventoriés** (ceux qui ont au moins une ligne) jusqu'à la date d'inventaire (fin de
+  journée UTC) sont **clôturés** ; un mouvement `INVENTAIRE` par lot compté pose le stock de départ au PMP de l'inventaire ;
+  quantités et PMP de ces articles sont recalculés à partir de ce seul stock de départ. Un article hors théorique
+  (inactif) garde son stock, son PMP et ses mouvements (décision KB-STK-50, écart assumé avec l'ancien comportement).
+  *Source :* `Inventaire.cloturer`, `GestionDesInventaires.cloturer` (contexte `stock`).
 - **RG-STK-056** — **Période clôturée** : aucun mouvement ne peut être daté au plus tard le jour du dernier inventaire
   (`STOCK_PERIOD_CLOSED`) ; un mouvement clôturé ne peut plus être
   modifié ni supprimé (`STOCK_MOVEMENT_CLOSED`).
@@ -188,7 +194,8 @@
   Procès-verbal imprimé via le modèle de document `INVENTAIRE_STOCK`
   (filigrane « PROVISOIRE » tant que l'inventaire est en cours). Lecture/comptage : `ADMIN`, `PHARMACIEN`, `INFIRMIER` ;
   ouverture, report, clôture, annulation : `ADMIN`, `PHARMACIEN`.
-  Chaque changement d'état notifie le centre.
+  Chaque changement d'état notifie le centre. *Source :* `InventairesControleur`, `GestionDesInventaires`,
+  `InventaireReportService` (PV), `FeuilleComptageExcel` (feuille de comptage).
 
 ## 8.7 Alertes et traçabilité
 

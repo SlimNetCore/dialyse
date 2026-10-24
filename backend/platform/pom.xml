@@ -38,10 +38,6 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>bc-stock</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-pec</artifactId>
         </dependency>
         <dependency>

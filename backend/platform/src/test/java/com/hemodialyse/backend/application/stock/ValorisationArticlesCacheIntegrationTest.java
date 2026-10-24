@@ -1,15 +1,14 @@
 package com.hemodialyse.backend.application.stock;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.StockMovement;
-import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
-import com.hemodialyse.backend.domain.stock.service.ValorisationStockCalculator.Valorisation;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.MouvementsDeStockModifies;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationDuStock;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Cache de la valorisation du stock (AGENTS.md §6) : un deuxième appel identique ne relit pas la base (hit), la clé
- * est propre au centre (aucune fuite inter-centres) et toute écriture de mouvement vide le cache (éviction).
+ * est propre au centre (aucune fuite inter-centres) et toute écriture de mouvement vide le cache (éviction, sur l'évènement publié {@link MouvementsDeStockModifies}).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
@@ -42,7 +41,7 @@ class ValorisationArticlesCacheIntegrationTest {
     @Autowired
     private ValorisationArticlesService service;
     @Autowired
-    private StockMovementRepositoryPort mouvements;
+    private ApplicationEventPublisher evenements;
     @Autowired
     private CacheManager cacheManager;
     @Autowired
@@ -64,11 +63,11 @@ class ValorisationArticlesCacheIntegrationTest {
 
     @Test
     void a_second_identical_call_is_a_cache_hit_even_if_the_database_changed_behind_its_back() {
-        Valorisation premier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        ValorisationDuStock premier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
         assertEquals(0, new BigDecimal("1000").compareTo(premier.valeurFin()));
 
         insertMouvement(CENTRE_A, 5);   // écriture JDBC directe : aucune éviction
-        Valorisation second = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        ValorisationDuStock second = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
 
         assertSame(premier, second);
         assertNotNull(cacheManager.getCache(ValorisationArticlesService.CACHE));
@@ -78,27 +77,27 @@ class ValorisationArticlesCacheIntegrationTest {
     void the_key_is_scoped_to_the_center_so_nothing_leaks_between_centers() {
         service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN);
 
-        Map<UUID, Valorisation> autreCentre = service.valoriser(CENTRE_B, Set.of(ARTICLE), DEBUT, FIN);
+        Map<UUID, ValorisationDuStock> autreCentre = service.valoriser(CENTRE_B, Set.of(ARTICLE), DEBUT, FIN);
 
         assertEquals(0, BigDecimal.ZERO.compareTo(autreCentre.get(ARTICLE).valeurFin()));
     }
 
     @Test
     void a_stock_movement_write_evicts_the_cache() {
-        Valorisation avant = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        ValorisationDuStock avant = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
         assertEquals(0, new BigDecimal("1000").compareTo(avant.valeurFin()));
 
-        mouvements.save(StockMovement.entree(CENTRE_A, ARTICLE, UUID.randomUUID(), new BigDecimal("5"),
-                new BigDecimal("100"), "test", T0.plusDays(2)));
-        Valorisation apres = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        insertMouvement(CENTRE_A, 5);
+        evenements.publishEvent(new MouvementsDeStockModifies(CENTRE_A, "ENTREE", "BR-TEST", 1));
+        ValorisationDuStock apres = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
 
         assertEquals(0, new BigDecimal("1500").compareTo(apres.valeurFin()));
     }
 
     @Test
     void a_different_period_is_a_different_cache_entry() {
-        Valorisation fevrier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
-        Valorisation janvier = service.valoriser(CENTRE_A, Set.of(ARTICLE),
+        ValorisationDuStock fevrier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        ValorisationDuStock janvier = service.valoriser(CENTRE_A, Set.of(ARTICLE),
                 OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), DEBUT).get(ARTICLE);
 
         assertEquals(0, new BigDecimal("1000").compareTo(fevrier.valeurFin()));

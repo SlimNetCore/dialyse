@@ -30,7 +30,6 @@
         <module>bc-referential</module>
         <module>bc-patient</module>
         <module>bc-assure</module>
-        <module>bc-stock</module>
         <module>bc-pec</module>
         <module>bc-seance</module>
         <module>bc-medical</module>
@@ -82,11 +81,6 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-assure</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hemodialyse</groupId>
-                <artifactId>bc-stock</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

@@ -1,9 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
-import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties;
+import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,10 +53,15 @@ class InventaireIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private BonSortieUseCase bonsSortie;
+    private GestionDesSorties sorties;
     private MockMvc mockMvc;
     private UUID articleId;
     private UUID lotId;
+
+    private void sortir(LocalDate jour, String quantite) {
+        sorties.sortir(new CentreId(CENTRE), null, null, "P1", jour, "zt",
+                List.of(new GestionDesSorties.LigneSaisie(articleId, lotId, new BigDecimal(quantite))));
+    }
 
     private static RequestPostProcessor as(String role) {
         return user(principal(role, CENTRE));
@@ -116,9 +120,8 @@ class InventaireIntegrationTest {
                 .andExpect(jsonPath("$.mouvementsBloques").value(true));
 
         // Gel : un bon de sortie est refusé tant que l'inventaire est ouvert.
-        assertThatThrownBy(() -> bonsSortie.create(CenterId.of(CENTRE), null, null, "P1", LocalDate.now(),
-                List.of(new SortieRequestItem(articleId, lotId, BigDecimal.ONE)), "zt"))
-                .isInstanceOfSatisfying(BusinessException.class, e -> assertThat(e.getCode()).isEqualTo("STOCK_INVENTORY_IN_PROGRESS"));
+        assertThatThrownBy(() -> sortir(LocalDate.now(), "1"))
+                .isInstanceOfSatisfying(RefusDuReferentiel.class, e -> assertThat(e.code()).isEqualTo("STOCK_INVENTORY_IN_PROGRESS"));
         assertThat(jdbc.queryForObject("SELECT quantite_restante FROM lots WHERE id = ?", BigDecimal.class, lotId))
                 .isEqualByComparingTo("8");
 
@@ -148,12 +151,10 @@ class InventaireIntegrationTest {
                 + "AND inventaire_id IS NULL", Long.class, CENTRE)).isEqualTo(1);
 
         // Période clôturée : une sortie datée du jour de l'inventaire est refusée…
-        assertThatThrownBy(() -> bonsSortie.create(CenterId.of(CENTRE), null, null, "P1", LocalDate.now(),
-                List.of(new SortieRequestItem(articleId, lotId, BigDecimal.ONE)), "zt"))
-                .isInstanceOfSatisfying(BusinessException.class, e -> assertThat(e.getCode()).isEqualTo("STOCK_PERIOD_CLOSED"));
+        assertThatThrownBy(() -> sortir(LocalDate.now(), "1"))
+                .isInstanceOfSatisfying(RefusDuReferentiel.class, e -> assertThat(e.code()).isEqualTo("STOCK_PERIOD_CLOSED"));
         // … une sortie postérieure est acceptée et recalculée à partir du stock de départ.
-        bonsSortie.create(CenterId.of(CENTRE), null, null, "P1", LocalDate.now().plusDays(1),
-                List.of(new SortieRequestItem(articleId, lotId, new BigDecimal("2"))), "zt");
+        sortir(LocalDate.now().plusDays(1), "2");
         assertThat(jdbc.queryForObject("SELECT stock_quantity FROM articles WHERE id = ?", BigDecimal.class, articleId)).isEqualByComparingTo("5");
 
         mockMvc.perform(get(BASE).with(as("INFIRMIER")))
@@ -178,8 +179,7 @@ class InventaireIntegrationTest {
 
         mockMvc.perform(post(BASE + "/{id}/annuler", id).with(as("ADMIN")))
                 .andExpect(jsonPath("$.statut").value("ANNULE"));
-        bonsSortie.create(CenterId.of(CENTRE), null, null, "P1", LocalDate.now(),
-                List.of(new SortieRequestItem(articleId, lotId, BigDecimal.ONE)), "zt");
+        sortir(LocalDate.now(), "1");
         assertThat(jdbc.queryForObject("SELECT quantite_restante FROM lots WHERE id = ?", BigDecimal.class, lotId)).isEqualByComparingTo("7");
     }
 

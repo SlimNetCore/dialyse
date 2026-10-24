@@ -44,3 +44,23 @@ Modules `bc-stock`, `bc-article` ; tables inchangées ; `FrontieresDesContextesT
 
 Dépend de S1 à S7. Risque moyen (notification : volumétrie et doublons).
 
+## État de `bc-stock` au 2026-10-24 (après le retrait des reliquats S5 / S6 / S7)
+
+61 fichiers au départ ; il en reste **11** (+ 3 tests), tous encore utilisés hors du module :
+
+| Reste dans `bc-stock`                                                        | Utilisateurs                                                                                               | Remplacement prévu                                                                                                   |
+|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `Lot`, `LotRepositoryPort`                                                     | `SeanceDomainService` / `SeanceApplicationService` (bc-seance, plateforme), `ExpirationAlertScheduler`, `LotRepositoryAdapter` | Séance : lecture publiée des lots (`CatalogueDArticles` / `ConsommationsDeSeance`) ; péremptions : `ControlerLesPeremptions` (S8) |
+| `StockMovement`, `StockMovementType`, `StockMovementHistoryPort`, `StockMovementRepositoryPort`, `ValorisationStockCalculator`, `PmpCalculator` | `ValorisationArticlesService`, `DirectionStockGroupesQueryService`, `StockMovementRepositoryAdapter` (valorisation historique RG-STK-043, Direction) | Lecture publiée de la valorisation par le contexte (`LecturesDuStock` / `CalculDuPmp`)                                     |
+| `StockEventPublisher`, `InventaireEventPublisher`                              | `WebSocketStockEventPublisher`, `StockEvenementsListener`, `WebSocketInventaireEventPublisher`, `RelaiDesInventairesVersWebSocket` | Relais des évènements publiés du contexte (`MouvementsDeStockModifies`, `InventaireModifie`) directement vers le WebSocket   |
+| `SeanceBillingStatusPort`                                                      | `SeanceBillingStatusJdbcAdapter` + test de caractérisation Facturation                                    | `StatutDesSeancesLegacy` (contexte) existe déjà : retirer l'adaptateur et adapter le test                            |
+
+`bc-article` (5 fichiers) : `ArticleRepositoryPort` reste utilisé par la Séance (`SeanceDomainService`,
+`SeanceRaccourciDomainService`) et `ArticleRepositoryAdapter` ; à remplacer par le catalogue publié du Stock.
+
+**Estimation** : 3 à 4 incréments (événements temps réel ; valorisation ; lots et articles côté Séance ; péremptions
+notifiées + suppression des modules et du verrou ArchUnit). Le retrait effectif de `bc-stock` / `bc-article` est la
+dernière étape de S8, juste après la bascule de la Séance sur le langage publié du Stock.
+
+
+

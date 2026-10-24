@@ -225,6 +225,19 @@ public class StockContexteConfiguration {
     }
 
     @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.PeremptionsDuStock stockPeremptionsDuStock(
+            com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.catalogue.PeremptionsDuStockPubliees(lectures);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationsDuStock stockValorisationsDuStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.catalogue.ValorisationsDuStockPubliees(
+                new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.HistoriqueDesMouvementsJdbc(
+                        new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbc)));
+    }
+
+    @Bean
     com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances stockGestionDesSortiesPourSeances(
             com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances pieces, Articles articles,
             com.hemodialyse.backend.contexts.stock.domain.sortie.SortiesDuStock sorties,

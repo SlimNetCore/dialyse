@@ -2,7 +2,6 @@ package com.hemodialyse.backend.infrastructure.web;
 
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
-import com.hemodialyse.backend.domain.stock.exception.SeanceStockExitDateImmutableException;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,14 +54,6 @@ public class ApiExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler(SeanceStockExitDateImmutableException.class)
-    ProblemDetail handleSeanceStockExitDateImmutable(SeanceStockExitDateImmutableException ex) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
-        problem.setTitle("Modification interdite");
-        problem.setDetail(ex.getMessage());
-        problem.setProperty("code", "SEANCE_STOCK_EXIT_DATE_IMMUTABLE");
-        return problem;
-    }
 
     /**
      * Refus unique de toute modification touchant une séance facturée (slice F6, KB-FAC-70) : 422 et code stable.

@@ -7,7 +7,7 @@ import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryS
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.stock.service.ValorisationStockCalculator.Valorisation;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationDuStock;
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,9 +46,9 @@ class DirectionStockGroupesQueryServiceTest {
     private final DirectionStockGroupesQueryService service =
             new DirectionStockGroupesQueryService(dashboard, groupes, valorisation);
 
-    private static Valorisation valeur(String montant) {
+    private static ValorisationDuStock valeur(String montant) {
         BigDecimal v = new BigDecimal(montant);
-        return new Valorisation(v, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, v, BigDecimal.ONE);
+        return new ValorisationDuStock(v, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, v, BigDecimal.ONE);
     }
 
     private void societeAvecDeuxCentres() {

@@ -24,9 +24,7 @@ import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.Lot;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
-import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -42,7 +40,7 @@ class SeanceDomainServiceTest {
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
-            LotRepositoryPort lotRepo,
+            InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase) {
         return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
                 new InMemoryForfaitCatalog(), new AlwaysBillableEligibility());
@@ -52,7 +50,7 @@ class SeanceDomainServiceTest {
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
-            LotRepositoryPort lotRepo,
+            InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort) {
         return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
@@ -332,7 +330,7 @@ class SeanceDomainServiceTest {
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
-            LotRepositoryPort lotRepo,
+            InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort,
             SeanceBillingEligibilityPort billingEligibilityPort) {
@@ -344,12 +342,12 @@ class SeanceDomainServiceTest {
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
             ArticleRepositoryPort articleRepo,
-            LotRepositoryPort lotRepo,
+            InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort,
             SeanceBillingEligibilityPort billingEligibilityPort,
             SituationPlanning situation) {
-        return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
+        return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, bonSortieUseCase,
                 mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
                 forfaitCatalogPort, billingEligibilityPort, (centerId, patientId, date) -> situation,
                 (centerId, patientId, date) -> Optional.of(PLACE_DU_JOUR));
@@ -381,7 +379,7 @@ class SeanceDomainServiceTest {
         UUID id = UUID.randomUUID();
         seanceRepo.save(new Seance(id, patientId, centerId.value(), LocalDate.now()));
         SeanceDomainService service = new SeanceDomainService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase(),
+                new InMemoryArticleRepository(), new SpyBonSortieUseCase(),
                 mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
                 new InMemoryForfaitCatalog(), new AlwaysBillableEligibility(), (c, p, d) -> ATTENDU,
                 (c, p, d) -> Optional.empty());
@@ -1050,55 +1048,9 @@ class SeanceDomainServiceTest {
         }
     }
 
-    private static final class InMemoryLotRepository implements LotRepositoryPort {
-        // Each article → ordered list of lots (FEFO = by expiry asc)
-        private final Map<UUID, List<Lot>> lotsByArticle = new HashMap<>();
-
+    private static final class InMemoryLotRepository {
+        // Bouchon : la Seance ne lit plus les lots (le choix des lots est l'affaire du Stock, ADR 0045).
         void addLot(UUID articleId, UUID centerId, UUID lotId, BigDecimal qty, LocalDate expiry) {
-            Lot lot = new Lot();
-            lot.setId(lotId);
-            lot.setArticleId(articleId);
-            lot.setCenterId(centerId);
-            lot.setQuantiteRestante(qty);
-            lot.setDatePeremption(expiry);
-            lot.setNumeroLot("LOT-" + lotId.toString().substring(0, 4));
-            lotsByArticle.computeIfAbsent(articleId, k -> new ArrayList<>()).add(lot);
-            // keep FEFO order
-            lotsByArticle.get(articleId).sort(Comparator.comparing(
-                    l -> l.getDatePeremption() == null ? LocalDate.MAX : l.getDatePeremption()));
-        }
-
-        @Override
-        public Lot save(Lot lot) {
-            return lot;
-        }
-
-        @Override
-        public Optional<Lot> findById(UUID id, CenterId c) {
-            return lotsByArticle.values().stream().flatMap(Collection::stream)
-                    .filter(l -> l.getId().equals(id)).findFirst();
-        }
-
-        @Override
-        public List<Lot> findAvailableByArticleFefo(UUID articleId, CenterId centerId) {
-            return lotsByArticle.getOrDefault(articleId, List.of()).stream()
-                    .filter(l -> l.getQuantiteRestante() != null && l.getQuantiteRestante().signum() > 0)
-                    .toList();
-        }
-
-        @Override
-        public List<Lot> findExpiringBefore(CenterId c, LocalDate threshold) {
-            return List.of();
-        }
-
-        @Override
-        public List<Lot> findByArticle(UUID articleId, CenterId c) {
-            return lotsByArticle.getOrDefault(articleId, List.of());
-        }
-
-        @Override
-        public List<Lot> findByBonReception(UUID bonReceptionId, CenterId c) {
-            return List.of();
         }
     }
 
