@@ -1,9 +1,11 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
+import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
+import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.ComptageImporte;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.stock.model.ComptageImporte;
-import com.hemodialyse.backend.domain.stock.model.Inventaire;
-import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -33,11 +35,11 @@ class FeuilleComptageExcelTest {
     private final FeuilleComptageExcel excel = new FeuilleComptageExcel();
 
     private static Inventaire inventaire() {
-        LigneInventaire a = LigneInventaire.theorique(UUID.randomUUID(), "DIAL-01", "Dialyseur", "U", UUID.randomUUID(),
-                "A-01", LocalDate.of(2027, 1, 31), new BigDecimal("6"), new BigDecimal("1500"));
-        LigneInventaire b = LigneInventaire.theorique(UUID.randomUUID(), "AIG-02", "Aiguille", "U", UUID.randomUUID(),
-                "B-02", null, new BigDecimal("40"), new BigDecimal("12"));
-        return Inventaire.ouvrir(UUID.randomUUID(), "INV-00001", LocalDate.of(2026, 9, 30), null, "p",
+        LigneDInventaire a = LigneDInventaire.theorique(UUID.randomUUID(), UUID.randomUUID(), "DIAL-01", "Dialyseur", "U",
+                UUID.randomUUID(), "A-01", LocalDate.of(2027, 1, 31), new BigDecimal("6"), new BigDecimal("1500"));
+        LigneDInventaire b = LigneDInventaire.theorique(UUID.randomUUID(), UUID.randomUUID(), "AIG-02", "Aiguille", "U",
+                UUID.randomUUID(), "B-02", null, new BigDecimal("40"), new BigDecimal("12"));
+        return Inventaire.ouvrir(UUID.randomUUID(), new CentreId(UUID.randomUUID()), "INV-00001", LocalDate.of(2026, 9, 30), null, "p",
                 OffsetDateTime.of(2026, 9, 30, 10, 0, 0, 0, ZoneOffset.UTC), List.of(a, b));
     }
 
@@ -69,12 +71,12 @@ class FeuilleComptageExcelTest {
             sheet.getRow(5).getCell(qty).setCellValue("38,25");
         });
 
-        FeuilleComptageExcel.Lecture lecture = excel.lire(rempli, "INV-00001");
+        FeuilleDeComptage.Lecture lecture = excel.lire(rempli, "INV-00001");
 
         assertTrue(lecture.anomalies().isEmpty());
         List<ComptageImporte> lignes = lecture.lignes();
         assertEquals(2, lignes.size());
-        assertEquals(inv.getLignes().get(0).getId(), lignes.get(0).ligneId());
+        assertEquals(inv.lignes().get(0).id(), lignes.get(0).ligneId());
         assertEquals(0, new BigDecimal("5.5").compareTo(lignes.get(0).quantite()));
         assertEquals("CASSE", lignes.get(0).motif());
         assertEquals(0, new BigDecimal("38.25").compareTo(lignes.get(1).quantite()));
@@ -90,7 +92,7 @@ class FeuilleComptageExcelTest {
             sheet.getRow(5).getCell(col(sheet, "Quantité comptée")).setCellValue(3);
         });
 
-        FeuilleComptageExcel.Lecture lecture = excel.lire(rempli, "INV-00001");
+        FeuilleDeComptage.Lecture lecture = excel.lire(rempli, "INV-00001");
 
         assertEquals(List.of(5, 6), lecture.anomalies().stream().map(a -> a.ligneFichier()).toList());
         assertTrue(lecture.lignes().isEmpty());

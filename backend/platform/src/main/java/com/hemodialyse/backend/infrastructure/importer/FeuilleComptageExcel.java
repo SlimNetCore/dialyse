@@ -1,10 +1,11 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
+import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.ComptageImporte;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.ResultatDImport.Anomalie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.stock.model.ComptageImporte;
-import com.hemodialyse.backend.domain.stock.model.Inventaire;
-import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
-import com.hemodialyse.backend.domain.stock.model.ResultatImportComptage.Anomalie;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -41,13 +42,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Feuille de comptage Excel d'un inventaire : génération (à imprimer ou à remplir) et relecture une fois remplie.
+ * Feuille de comptage Excel d'un inventaire du contexte Stock (port {@link FeuilleDeComptage}) : génération (à imprimer ou à
+ * remplir) et relecture une fois remplie. Les refus de fichier restent des règles métier de la plateforme (422).
  * <p>
  * La colonne A (masquée) porte l'identifiant de la ligne d'inventaire : c'est elle qui sert au rapprochement.
  * À défaut (ligne recopiée à la main), le rapprochement se fait par code article + n° de lot.
  */
 @Component
-public class FeuilleComptageExcel {
+public class FeuilleComptageExcel implements FeuilleDeComptage {
 
     public static final long MAX_FILE_BYTES = 5L * 1024 * 1024;
     static final String COL_ID = "ID";
@@ -159,6 +161,7 @@ public class FeuilleComptageExcel {
     /**
      * @param aveugle sans quantité théorique (bonne pratique : on compte sans connaître le stock informatique)
      */
+    @Override
     public byte[] ecrire(Inventaire inv, boolean aveugle) {
         try (XSSFWorkbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             CellStyle bold = wb.createCellStyle();
@@ -171,7 +174,7 @@ public class FeuilleComptageExcel {
 
             Sheet sheet = wb.createSheet("Comptage");
             Row title = sheet.createRow(0);
-            title.createCell(1).setCellValue("Inventaire " + inv.getReference() + " du " + inv.getDateInventaire().format(FR));
+            title.createCell(1).setCellValue("Inventaire " + inv.reference() + " du " + inv.dateInventaire().format(FR));
             title.getCell(1).setCellStyle(bold);
             sheet.createRow(1).createCell(1).setCellValue(
                     "Renseignez la colonne « " + COL_QTY + " » (0 si le lot est absent) et le motif en cas d'écart, "
@@ -193,24 +196,24 @@ public class FeuilleComptageExcel {
             sheet.createFreezePane(0, 4);
 
             int r = 4;
-            for (LigneInventaire l : inv.getLignes()) {
+            for (LigneDInventaire l : inv.lignes()) {
                 Row row = sheet.createRow(r++);
                 int c = 0;
-                row.createCell(c++).setCellValue(l.getId().toString());
-                row.createCell(c++).setCellValue(nz(l.getArticleCode()));
-                row.createCell(c++).setCellValue(nz(l.getArticleLibelle()));
-                row.createCell(c++).setCellValue(nz(l.getUnite()));
-                row.createCell(c++).setCellValue(nz(l.getNumeroLot()));
-                row.createCell(c++).setCellValue(l.getDatePeremption() != null ? l.getDatePeremption().format(FR) : "");
-                if (!aveugle) row.createCell(c++).setCellValue(l.getQuantiteTheorique().doubleValue());
+                row.createCell(c++).setCellValue(l.id().toString());
+                row.createCell(c++).setCellValue(nz(l.articleCode()));
+                row.createCell(c++).setCellValue(nz(l.articleLibelle()));
+                row.createCell(c++).setCellValue(nz(l.unite()));
+                row.createCell(c++).setCellValue(nz(l.numeroLot()));
+                row.createCell(c++).setCellValue(l.datePeremption() != null ? l.datePeremption().format(FR) : "");
+                if (!aveugle) row.createCell(c++).setCellValue(l.quantiteTheorique().doubleValue());
                 Cell qty = row.createCell(c++);
-                if (l.getQuantiteComptee() != null) qty.setCellValue(l.getQuantiteComptee().doubleValue());
+                if (l.quantiteComptee() != null) qty.setCellValue(l.quantiteComptee().doubleValue());
                 qty.setCellStyle(saisie);
                 Cell motif = row.createCell(c++);
-                if (l.getMotifEcart() != null)
-                    motif.setCellValue(MOTIFS.getOrDefault(l.getMotifEcart(), l.getMotifEcart()));
+                if (l.motifEcart() != null)
+                    motif.setCellValue(MOTIFS.getOrDefault(l.motifEcart(), l.motifEcart()));
                 motif.setCellStyle(saisie);
-                row.createCell(c).setCellValue(nz(l.getComptePar()));
+                row.createCell(c).setCellValue(nz(l.comptePar()));
             }
 
             if (r > 4) {
@@ -234,6 +237,7 @@ public class FeuilleComptageExcel {
         }
     }
 
+    @Override
     public Lecture lire(byte[] content, String referenceAttendue) {
         if (content == null || content.length == 0) {
             throw new BusinessException("IMPORT_EMPTY_FILE", "Le fichier est vide.");
@@ -314,11 +318,6 @@ public class FeuilleComptageExcel {
         }
     }
 
-    /**
-     * Résultat de la lecture : lignes exploitables et lignes illisibles.
-     */
-    public record Lecture(List<ComptageImporte> lignes, List<Anomalie> anomalies) {
-    }
 
     /**
      * Opérateurs des contraintes de validation Excel (POI les expose en constantes int).

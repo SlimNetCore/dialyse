@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import com.hemodialyse.backend.domain.stock.model.Inventaire;
-import com.hemodialyse.backend.domain.stock.model.InventaireStatut;
-import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
+import com.hemodialyse.backend.contexts.stock.application.inventaire.ProcesVerbalDInventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.StatutDInventaire;
 import net.sf.jasperreports.engine.JRParameter;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,6 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,13 +23,13 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Procès-verbal d'inventaire : modèle de document {@value ModeleDocumentCatalog#INVENTAIRE_STOCK}, imprimé via
- * {@link ModeleDocumentPrinter} (version personnalisée du centre si elle existe, identité société + centre posée par
- * le serveur). Les lignes sont lues par la requête du modèle ; l'en-tête de l'inventaire, les indicateurs et
- * l'analyse des écarts par motif sont calculés ici et passés en paramètres.
+ * Procès-verbal d'inventaire du contexte Stock (port {@link ProcesVerbalDInventaire}) : modèle de document
+ * {@value ModeleDocumentCatalog#INVENTAIRE_STOCK}, imprimé via {@link ModeleDocumentPrinter} (version personnalisée du centre si
+ * elle existe, identité société + centre posée par le serveur). Les lignes sont lues par la requête du modèle ; l'en-tête de
+ * l'inventaire, les indicateurs et l'analyse des écarts par motif sont calculés ici et passés en paramètres.
  */
 @Service
-public class InventaireReportService {
+public class InventaireReportService implements ProcesVerbalDInventaire {
 
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
@@ -43,14 +43,14 @@ public class InventaireReportService {
         this.printer = printer;
     }
 
-    private static void indicateurs(Map<String, Object> p, List<LigneInventaire> lignes) {
-        long articles = lignes.stream().map(LigneInventaire::getArticleId).distinct().count();
-        long comptees = lignes.stream().filter(LigneInventaire::isComptee).count();
-        long ecarts = lignes.stream().filter(LigneInventaire::hasEcart).count();
-        BigDecimal theo = sum(lignes.stream().map(l -> l.getQuantiteTheorique().multiply(l.getPmp())).toList());
-        BigDecimal compte = sum(lignes.stream().filter(LigneInventaire::isComptee)
-                .map(l -> l.getQuantiteComptee().multiply(l.getPmp())).toList());
-        BigDecimal ecart = sum(lignes.stream().map(LigneInventaire::valeurEcart).toList());
+    private static void indicateurs(Map<String, Object> p, List<LigneDInventaire> lignes) {
+        long articles = lignes.stream().map(LigneDInventaire::articleId).distinct().count();
+        long comptees = lignes.stream().filter(LigneDInventaire::estComptee).count();
+        long ecarts = lignes.stream().filter(LigneDInventaire::aUnEcart).count();
+        BigDecimal theo = sum(lignes.stream().map(l -> l.quantiteTheorique().multiply(l.pmp())).toList());
+        BigDecimal compte = sum(lignes.stream().filter(LigneDInventaire::estComptee)
+                .map(l -> l.quantiteComptee().multiply(l.pmp())).toList());
+        BigDecimal ecart = sum(lignes.stream().map(LigneDInventaire::valeurEcart).toList());
         int total = lignes.size();
 
         p.put("KPI_ARTICLES_LOTS", articles + " / " + total);
@@ -69,11 +69,11 @@ public class InventaireReportService {
     /**
      * Écarts par motif (du plus important au plus faible), en colonnes alignées ligne à ligne.
      */
-    private static void motifs(Map<String, Object> p, List<LigneInventaire> lignes) {
+    private static void motifs(Map<String, Object> p, List<LigneDInventaire> lignes) {
         Map<String, BigDecimal[]> parMotif = new LinkedHashMap<>();
-        for (LigneInventaire l : lignes) {
-            if (!l.hasEcart()) continue;
-            String motif = l.getMotifEcart() == null ? "Non justifié" : MOTIFS.getOrDefault(l.getMotifEcart(), l.getMotifEcart());
+        for (LigneDInventaire l : lignes) {
+            if (!l.aUnEcart()) continue;
+            String motif = l.motifEcart() == null ? "Non justifié" : MOTIFS.getOrDefault(l.motifEcart(), l.motifEcart());
             BigDecimal[] acc = parMotif.computeIfAbsent(motif, k -> new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO});
             BigDecimal v = l.valeurEcart();
             acc[0] = acc[0].add(BigDecimal.ONE);
@@ -158,32 +158,34 @@ public class InventaireReportService {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    public ModeleDocumentPrinter.Document imprimer(Inventaire inv, String editePar) {
-        return printer.print(inv.getCenterId(), ModeleDocumentCatalog.INVENTAIRE_STOCK,
+    @Override
+    public Document imprimer(Inventaire inv, String editePar) {
+        ModeleDocumentPrinter.Document document = printer.print(inv.centre().valeur(), ModeleDocumentCatalog.INVENTAIRE_STOCK,
                 params(inv, editePar, OffsetDateTime.now()));
+        return new Document(document.format(), document.content());
     }
 
     Map<String, Object> params(Inventaire inv, String editePar, OffsetDateTime editeLe) {
         Map<String, Object> p = new HashMap<>();
         p.put(JRParameter.REPORT_LOCALE, Locale.FRANCE);
-        InventaireStatut statut = inv.getStatut();
-        p.put("INVENTAIRE_ID", inv.getId().toString());
-        p.put("INV_REFERENCE", inv.getReference());
-        p.put("INV_DATE", inv.getDateInventaire().format(DAY));
+        StatutDInventaire statut = inv.statut();
+        p.put("INVENTAIRE_ID", inv.id().toString());
+        p.put("INV_REFERENCE", inv.reference());
+        p.put("INV_DATE", inv.dateInventaire().format(DAY));
         p.put("INV_STATUT", statut.name());
         p.put("INV_STATUT_LIBELLE", switch (statut) {
             case EN_COURS -> "EN COURS";
             case CLOTURE -> "CLÔTURÉ";
             case ANNULE -> "ANNULÉ";
         });
-        p.put("INV_COMMENTAIRE", blankToNull(inv.getCommentaire()));
-        p.put("INV_OUVERT", stamp(inv.getCreatedAt()) + by(inv.getCreatedBy()));
+        p.put("INV_COMMENTAIRE", blankToNull(inv.commentaire()));
+        p.put("INV_OUVERT", stamp(inv.creeLe()) + by(inv.creePar()));
         p.put("INV_CLOTURE_LIBELLE", switch (statut) {
             case EN_COURS -> null;
             case CLOTURE -> "Clôture";
             case ANNULE -> "Annulation";
         });
-        p.put("INV_CLOTURE", statut == InventaireStatut.EN_COURS ? null : stamp(inv.getClosedAt()) + by(inv.getClosedBy()));
+        p.put("INV_CLOTURE", statut == StatutDInventaire.EN_COURS ? null : stamp(inv.clotureeLe()) + by(inv.clotureePar()));
         p.put("INV_NOTICE", switch (statut) {
             case EN_COURS ->
                     "Document provisoire : l'inventaire est en cours, les quantités et les écarts peuvent encore "
@@ -196,12 +198,12 @@ public class InventaireReportService {
             case ANNULE -> "ANNULÉ";
             case CLOTURE -> null;
         });
-        p.put("SIGNATAIRE_ETABLI", blankToNull(inv.getCreatedBy()));
-        p.put("SIGNATAIRE_VERIFIE", statut == InventaireStatut.CLOTURE ? blankToNull(inv.getClosedBy()) : null);
+        p.put("SIGNATAIRE_ETABLI", blankToNull(inv.creePar()));
+        p.put("SIGNATAIRE_VERIFIE", statut == StatutDInventaire.CLOTURE ? blankToNull(inv.clotureePar()) : null);
         p.put("EDITE_LE", stamp(editeLe));
         p.put("EDITE_PAR", blankToNull(editePar));
-        indicateurs(p, inv.getLignes());
-        motifs(p, inv.getLignes());
+        indicateurs(p, inv.lignes());
+        motifs(p, inv.lignes());
         return p;
     }
 }

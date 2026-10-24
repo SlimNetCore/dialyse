@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import com.hemodialyse.backend.domain.stock.model.Inventaire;
-import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
+import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
+import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JRPrintElement;
 import net.sf.jasperreports.engine.JRPrintFrame;
@@ -89,23 +90,21 @@ class InventaireStockReportTemplateTest {
     }
 
     private static Map<String, Object> params(int articles) throws Exception {
-        List<LigneInventaire> lignes = new ArrayList<>();
+        List<LigneDInventaire> lignes = new ArrayList<>();
         for (int a = 0; a < articles; a++) {
             UUID articleId = UUID.randomUUID();
             for (int lot = 0; lot < 3; lot++) {
-                LigneInventaire l = LigneInventaire.theorique(articleId, "ART-" + a, "Dialyseur n° " + a, "U",
+                LigneDInventaire l = LigneDInventaire.theorique(UUID.randomUUID(), articleId, "ART-" + a, "Dialyseur n° " + a, "U",
                         UUID.randomUUID(), "L" + a + "-" + lot, null, new BigDecimal("10"), new BigDecimal("1500"));
                 boolean gap = lot == 0 && a % 4 == 0;
-                l.compter(new BigDecimal(gap ? "8" : "10"), gap ? "CASSE" : null, "infirmier", NOW);
-                lignes.add(l);
+                lignes.add(l.compter(new BigDecimal(gap ? "8" : "10"), gap ? "CASSE" : null, "infirmier", NOW));
             }
         }
-        Inventaire inv = Inventaire.ouvrir(UUID.randomUUID(), "INV-00042", LocalDate.of(2026, 9, 30), "Inventaire annuel",
-                "pharma", NOW, lignes);
-        inv.cloturer("pharma", NOW);
+        Inventaire inv = Inventaire.ouvrir(UUID.randomUUID(), new CentreId(UUID.randomUUID()), "INV-00042", LocalDate.of(2026, 9, 30),
+                "Inventaire annuel", "pharma", NOW, lignes).cloturer("pharma", NOW);
 
         Map<String, Object> p = new InventaireReportService(null).params(inv, "admin", NOW);
-        p.put("CENTER_ID", inv.getCenterId().toString());
+        p.put("CENTER_ID", inv.centre().valeur().toString());
         p.put("SOCIETE_NOM", "Clinique Néphro Santé");
         p.put("SOCIETE_PIED_PAGE", "SARL au capital de 1 000 000 DA");
         p.put("SOCIETE_LOGO", new ByteArrayInputStream(png()));
