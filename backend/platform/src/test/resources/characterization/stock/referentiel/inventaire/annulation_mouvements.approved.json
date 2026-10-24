@@ -1,0 +1,26 @@
+[
+  {
+    "mouvement_type": "ENTREE",
+    "quantite": "0.00",
+    "prix_unitaire": "5.00",
+    "fige": "false"
+  },
+  {
+    "mouvement_type": "ENTREE",
+    "quantite": "3.00",
+    "prix_unitaire": "5.00",
+    "fige": "false"
+  },
+  {
+    "mouvement_type": "ENTREE",
+    "quantite": "4.00",
+    "prix_unitaire": "3.00",
+    "fige": "false"
+  },
+  {
+    "mouvement_type": "ENTREE",
+    "quantite": "5.00",
+    "prix_unitaire": "5.00",
+    "fige": "false"
+  }
+]

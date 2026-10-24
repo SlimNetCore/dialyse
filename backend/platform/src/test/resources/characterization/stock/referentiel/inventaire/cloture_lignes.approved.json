@@ -1,0 +1,50 @@
+[
+  {
+    "position_ligne": "0",
+    "article_code": "A1",
+    "numero_lot": "L-TOT",
+    "quantite_theorique": "3.000",
+    "quantite_comptee": "2.000",
+    "pmp": "5.0000",
+    "motif_ecart": "CASSE",
+    "compte_par": "u",
+    "sans_lot": "false",
+    "ajoutee": "false"
+  },
+  {
+    "position_ligne": "1",
+    "article_code": "A1",
+    "numero_lot": "L-TARD",
+    "quantite_theorique": "5.000",
+    "quantite_comptee": "5.000",
+    "pmp": "5.0000",
+    "motif_ecart": null,
+    "compte_par": "u",
+    "sans_lot": "false",
+    "ajoutee": "false"
+  },
+  {
+    "position_ligne": "2",
+    "article_code": "A2",
+    "numero_lot": "INV-00001-1",
+    "quantite_theorique": "2.000",
+    "quantite_comptee": "3.000",
+    "pmp": "7.0000",
+    "motif_ecart": "RETOUR",
+    "compte_par": "u",
+    "sans_lot": "false",
+    "ajoutee": "false"
+  },
+  {
+    "position_ligne": "3",
+    "article_code": "A1",
+    "numero_lot": "L-VIDE",
+    "quantite_theorique": "0.000",
+    "quantite_comptee": "1.000",
+    "pmp": "5.0000",
+    "motif_ecart": "RETOUR",
+    "compte_par": "u",
+    "sans_lot": "false",
+    "ajoutee": "true"
+  }
+]

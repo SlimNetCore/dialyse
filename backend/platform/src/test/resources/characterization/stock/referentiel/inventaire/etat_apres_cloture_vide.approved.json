@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "derniereCloture": "<J-5>",
+    "inventaireEnCoursDate": null,
+    "inventaireEnCoursId": null,
+    "inventaireEnCoursReference": null,
+    "mouvementsBloques": false,
+    "ouvertPar": null
+  }
+}

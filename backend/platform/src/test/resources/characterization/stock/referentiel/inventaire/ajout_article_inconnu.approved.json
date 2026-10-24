@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_ARTICLE_NOT_FOUND",
+    "detail": "Article introuvable pour ce centre.",
+    "instance": "/api/v1/stock/inventaires/<UUID_GENERE_1>/lignes",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

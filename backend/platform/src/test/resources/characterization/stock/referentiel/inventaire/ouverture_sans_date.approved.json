@@ -1,0 +1,23 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "closedAt": null,
+    "closedBy": null,
+    "commentaire": null,
+    "comptees": 0,
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "u",
+    "dateInventaire": "<J-0>",
+    "details": [],
+    "ecarts": 0,
+    "ecartsSansMotif": 0,
+    "id": "<UUID_GENERE_1>",
+    "lignes": 0,
+    "reference": "INV-00001",
+    "statut": "EN_COURS",
+    "valeurComptee": 0.00,
+    "valeurEcarts": 0.00,
+    "valeurTheorique": 0.00
+  }
+}

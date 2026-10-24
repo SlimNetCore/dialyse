@@ -1,0 +1,26 @@
+[
+  {
+    "numero_lot": "L-A3",
+    "quantite_initiale": "4.00",
+    "quantite_restante": "4.00",
+    "pmp": "3.00"
+  },
+  {
+    "numero_lot": "L-TARD",
+    "quantite_initiale": "5.00",
+    "quantite_restante": "5.00",
+    "pmp": "5.00"
+  },
+  {
+    "numero_lot": "L-TOT",
+    "quantite_initiale": "3.00",
+    "quantite_restante": "3.00",
+    "pmp": "5.00"
+  },
+  {
+    "numero_lot": "L-VIDE",
+    "quantite_initiale": "0.00",
+    "quantite_restante": "0.00",
+    "pmp": "5.00"
+  }
+]

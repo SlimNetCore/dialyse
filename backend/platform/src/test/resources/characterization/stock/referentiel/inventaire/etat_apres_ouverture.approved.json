@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "derniereCloture": null,
+    "inventaireEnCoursDate": "<J-1>",
+    "inventaireEnCoursId": "<UUID_GENERE_1>",
+    "inventaireEnCoursReference": "INV-00001",
+    "mouvementsBloques": true,
+    "ouvertPar": "u"
+  }
+}

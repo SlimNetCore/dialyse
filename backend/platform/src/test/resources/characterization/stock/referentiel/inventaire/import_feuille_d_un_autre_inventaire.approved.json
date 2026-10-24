@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_SHEET_OTHER_INVENTORY",
+    "detail": "Cette feuille concerne l'inventaire INV-AUTRE et non INV-00001.",
+    "instance": "/api/v1/stock/inventaires/<UUID_GENERE_1>/feuille-comptage",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

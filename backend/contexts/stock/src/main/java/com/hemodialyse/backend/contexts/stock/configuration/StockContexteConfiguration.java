@@ -280,4 +280,40 @@ public class StockContexteConfiguration {
                 uniteDeTravail, notifications, java.util.concurrent.ForkJoinPool.commonPool(), UUID::randomUUID,
                 Clock.systemUTC());
     }
+
+    // ------------------------------------------------------------------ slice S7 : inventaire
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires stockInventaires(JdbcTemplate jdbc,
+                                                                                          PlatformTransactionManager transactions) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.InventairesJdbc(jdbc,
+                new TransactionTemplate(transactions));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.inventaire.StockInventorie stockStockInventorie(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.StockInventorieJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.inventaire.NotificationsDInventaire stockNotificationsDInventaire(
+            org.springframework.context.ApplicationEventPublisher evenements) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.evenements.NotificationsDInventaireSpring(evenements);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.inventaire.GestionDesInventaires stockGestionDesInventaires(
+            com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires inventaires,
+            com.hemodialyse.backend.contexts.stock.domain.inventaire.StockInventorie stock, Articles articles,
+            com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock ecritures,
+            com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,
+            com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances pieces,
+            com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp recalcul,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
+            com.hemodialyse.backend.contexts.stock.application.inventaire.NotificationsDInventaire notifications,
+            com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.stock.application.inventaire.GestionDesInventaires(inventaires, stock, articles,
+                ecritures, rejeu, pieces, centre -> !recalcul.enCours(centre).isEmpty(), uniteDeTravail, notifications, horloge,
+                UUID::randomUUID);
+    }
 }

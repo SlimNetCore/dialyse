@@ -21,6 +21,12 @@ public interface SessionCourante {
      * du corps de la requête (KB-STK-22 corrigé).
      */
     String utilisateur();
+
+    /**
+     * Nom de l'utilisateur authentifié (celui que l'inventaire affiche comme « ouvert par », « compté par » ; le legacy le stocke
+     * ainsi) ; par défaut, son identifiant.
+     */
+    default String nomUtilisateur() {
+        return utilisateur();
+    }
 }
-
-

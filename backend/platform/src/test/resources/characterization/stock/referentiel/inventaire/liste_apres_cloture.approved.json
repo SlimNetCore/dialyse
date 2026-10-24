@@ -1,0 +1,25 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "closedAt": "<HORODATAGE>",
+        "closedBy": "u",
+        "comptees": 4,
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "u",
+        "dateInventaire": "<J-1>",
+        "ecarts": 3,
+        "id": "<UUID_GENERE_1>",
+        "lignes": 4,
+        "reference": "INV-00001",
+        "statut": "CLOTURE",
+        "valeurEcarts": 7.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

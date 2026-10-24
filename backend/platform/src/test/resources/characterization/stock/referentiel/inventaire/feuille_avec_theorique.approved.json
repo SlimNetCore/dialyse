@@ -1,0 +1,56 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "colonneAMasquee": true,
+    "entetes": [
+      "ID",
+      "Code",
+      "Article",
+      "Unité",
+      "N° de lot",
+      "Péremption",
+      "Théorique",
+      "Quantité comptée",
+      "Motif écart",
+      "Compté par"
+    ],
+    "feuille": "Comptage",
+    "lignes": [
+      [
+        "A1",
+        "Article A1",
+        "piece",
+        "L-TOT",
+        "<DATE>",
+        "3.0",
+        "",
+        "",
+        ""
+      ],
+      [
+        "A1",
+        "Article A1",
+        "piece",
+        "L-TARD",
+        "<DATE>",
+        "5.0",
+        "",
+        "",
+        ""
+      ],
+      [
+        "A2",
+        "Article A2",
+        "piece",
+        "",
+        "",
+        "2.0",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "titre": "Inventaire <REFERENCE> du <DATE>"
+  }
+}

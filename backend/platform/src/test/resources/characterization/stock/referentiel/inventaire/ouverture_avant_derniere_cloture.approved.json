@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_DATE_BEFORE_LAST",
+    "detail": "La date doit être postérieure au dernier inventaire clôturé (<J-5>).",
+    "instance": "/api/v1/stock/inventaires",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

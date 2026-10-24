@@ -1,0 +1,43 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "closedAt": null,
+    "closedBy": null,
+    "commentaire": null,
+    "comptees": 0,
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "u",
+    "dateInventaire": "<J-1>",
+    "details": [
+      {
+        "ajoutee": false,
+        "articleCode": "A1",
+        "articleId": "<ART_1>",
+        "articleLibelle": "Article A1",
+        "compteLe": null,
+        "comptePar": null,
+        "datePeremption": "<J+10>",
+        "ecart": null,
+        "id": "<UUID_GENERE_1>",
+        "lotId": "<LOT_X>",
+        "motifEcart": null,
+        "numeroLot": "L-X",
+        "pmp": 5.00,
+        "quantiteComptee": null,
+        "quantiteTheorique": 3.00,
+        "unite": "piece",
+        "valeurEcart": null
+      }
+    ],
+    "ecarts": 0,
+    "ecartsSansMotif": 0,
+    "id": "<UUID_GENERE_2>",
+    "lignes": 1,
+    "reference": "INV-00002",
+    "statut": "EN_COURS",
+    "valeurComptee": 0.00,
+    "valeurEcarts": 0.00,
+    "valeurTheorique": 15.00
+  }
+}

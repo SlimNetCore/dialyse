@@ -264,7 +264,17 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/EmplacementJpaEntity.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/ArticleJpaRepository.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/FournisseurJpaRepository.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/EmplacementJpaRepository.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/EmplacementJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/InventaireRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/stock/InventaireDtos.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/stock/InventaireApplicationService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/InventaireJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/importer/FeuilleComptageExcel.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/InventaireReportService.java",
+    "backend/bc-stock/src/main/java/com/hemodialyse/backend/domain/stock/service/InventaireService.java",
+    "backend/bc-stock/src/main/java/com/hemodialyse/backend/domain/stock/service/InventoryGuardedMovementRepository.java",
+    "backend/bc-stock/src/main/java/com/hemodialyse/backend/domain/stock/model/Inventaire.java",
+    "backend/bc-stock/src/main/java/com/hemodialyse/backend/domain/stock/model/LigneInventaire.java"
   ],
   "seamAllowed": [
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceRestController.java",

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_LINE_DUPLICATE",
+    "detail": "Ce lot figure déjà dans l'inventaire : saisissez son comptage sur la ligne existante.",
+    "instance": "/api/v1/stock/inventaires/<UUID_GENERE_1>/lignes",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "cloture.pdf": true,
+    "cloture.status": 200,
+    "encours.contentType": "application/pdf",
+    "encours.disposition": "inline; filename=\"inventaire-<REFERENCE>.pdf\"; filename*=UTF-8''inventaire-<REFERENCE>.pdf",
+    "encours.pdf": true,
+    "encours.status": 200,
+    "inconnu.status": 422
+  }
+}

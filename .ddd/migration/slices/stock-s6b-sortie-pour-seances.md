@@ -1,6 +1,6 @@
 ---
 slice: stock-s6b-sortie-pour-seances
-status: in-progress
+status: built
 date: 2026-10-23
 order: 7 (S6b)
 context: stock (+ Séance pour l'appelant, Identité & accès pour le profil)
@@ -162,3 +162,7 @@ sinon FEFO ;
   (`addSeanceConsommation`, `setSeanceConsommation`, `annulerSortiesSeance`, `createViaFefo`) sont supprimés ; la table
   `stock_parametres` est conservée (migration additive V45, rien à défaire). Restent `create`, `update`, `get`, `list`
   (démonstration et tests d'inventaire).
+
+- **Statut : built (2026-10-24)** : T44, retrait du mode historique et des appels directs de la Séance, écrans, i18n,
+  RG-STK 8.9 et documentation client faits ; reste hors périmètre : capture d'écran de l'écran « Sorties pour séances »
+  dans la documentation client.

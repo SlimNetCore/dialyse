@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_DATE_IN_FUTURE",
+    "detail": "La date d'inventaire ne peut pas être dans le futur.",
+    "instance": "/api/v1/stock/inventaires",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_LOT_REQUIRED",
+    "detail": "L'article A1 est géré par lot : le numéro de lot est obligatoire.",
+    "instance": "/api/v1/stock/inventaires/<UUID_GENERE_1>/lignes",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

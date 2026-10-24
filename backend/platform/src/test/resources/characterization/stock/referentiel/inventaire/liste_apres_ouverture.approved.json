@@ -1,0 +1,25 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "closedAt": null,
+        "closedBy": null,
+        "comptees": 0,
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "u",
+        "dateInventaire": "<J-1>",
+        "ecarts": 0,
+        "id": "<UUID_GENERE_1>",
+        "lignes": 3,
+        "reference": "INV-00001",
+        "statut": "EN_COURS",
+        "valeurEcarts": 0.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

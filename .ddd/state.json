@@ -49,8 +49,8 @@
     "stock-s4-lectures-publiees": "built",
     "stock-s5-receptions-pmp": "built",
     "stock-s6-sorties-manuelles": "built",
-    "stock-s6b-sortie-pour-seances": "planned",
-    "stock-s7-inventaire": "planned",
+    "stock-s6b-sortie-pour-seances": "built",
+    "stock-s7-inventaire": "characterized",
     "stock-s8-peremptions-retrait": "planned"
   },
   "contexts": {

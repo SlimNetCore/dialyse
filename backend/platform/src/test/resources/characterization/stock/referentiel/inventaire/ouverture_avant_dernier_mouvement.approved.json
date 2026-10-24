@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_MOVEMENTS_AFTER_DATE",
+    "detail": "Des mouvements de stock sont datés après le <J-3> : choisissez une date d'inventaire postérieure ou égale au dernier mouvement.",
+    "instance": "/api/v1/stock/inventaires",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

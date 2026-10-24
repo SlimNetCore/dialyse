@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INVENTORY_QUANTITY_SCALE",
+    "detail": "La quantité comptée accepte 3 décimales au plus.",
+    "instance": "/api/v1/stock/inventaires/<UUID_GENERE_1>/lignes/<UUID_GENERE_2>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

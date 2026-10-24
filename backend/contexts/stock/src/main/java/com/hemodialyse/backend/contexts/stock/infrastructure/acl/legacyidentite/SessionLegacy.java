@@ -47,6 +47,12 @@ public class SessionLegacy implements SessionCourante {
     }
 
     @Override
+    public String nomUtilisateur() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        return authentification == null ? null : authentification.getName();
+    }
+
+    @Override
     public String utilisateur() {
         Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
         if (authentification == null || authentification.getPrincipal() == null) {

@@ -150,8 +150,10 @@ class ReceptionsEtPmpCharacterizationIntegrationTest extends ReferentielStockCha
             return r;
         }
         brut = brut.replaceAll("\\d{4}-\\d{2}-\\d{2}T[\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?", "<HORODATAGE>");
-        for (int n = -60; n <= 120; n++) {
-            brut = brut.replace(LocalDate.now().minusDays(n).toString(), n >= 0 ? "<J-" + n + ">" : "<J+" + (-n) + ">");
+        for (int n = -120; n <= 120; n++) {
+            String jour = n >= 0 ? "<J-" + n + ">" : "<J+" + (-n) + ">";
+            brut = brut.replace(LocalDate.now().minusDays(n).toString(), jour);
+            brut = brut.replace(LocalDate.now().minusDays(n).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")), jour);
         }
         return new Resp(r.status(), r.contentType(), brut);
     }
