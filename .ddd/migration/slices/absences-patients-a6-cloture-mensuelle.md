@@ -101,9 +101,9 @@ ont été clos, les rouvrir (motif) avant, ou ignorer les tables.
 
 ## À valider
 
-1. ✅ 2026-10-23 (ADR 0042 accepté) — Lecture de l'état des mois ouverte aux quatre profils d'accès (F7 : ADMIN seul) ;
+1. ⏳ (ADR 0042 proposed, à accepter par l'utilisateur) — Lecture de l'état des mois ouverte aux quatre profils d'accès (F7 : ADMIN seul) ;
    motif et identifiants réservés aux ADMIN.
-2. ✅ 2026-10-23 (ADR 0042 accepté) — Un seul code `MOIS_D_ABSENCES_CLOS` pour toutes les écritures, la réinclusion et
+2. ⏳ (ADR 0042 proposed, à accepter par l'utilisateur) — Un seul code `MOIS_D_ABSENCES_CLOS` pour toutes les écritures, la réinclusion et
    l'exclusion de la Facturation ; message générique « rouvrez d'abord le mois ».
 3. La première clôture d'un mois fige les absences encore à qualifier (rouvrir exige un motif) ; la recette § 27.1 sert
    à les repérer avant (requête complétée d'une colonne

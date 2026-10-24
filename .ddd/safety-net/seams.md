@@ -21,3 +21,9 @@ date: 2026-10-22
 | Date | Slice | Fichier | Raison |
 |---|---|---|---|
 | 2026-10-22 | absences-patients-a3-detection-de-nuit | `platform/.../application/notification/NotificationService.java` | Surcharge `notifyAbsencesAQualifier(..., UUID idImpose)` (délègue au `send` à identifiant imposé déjà existant) : alerte unique par centre et par jour, sûre en multi-instance. Le reste du fichier n'est pas caractérisé. `DomainServiceConfig` (bean retiré) a été retiré de `covered.json` après l'édition. |
+
+## Seam A4 : fermé
+
+| Date | Slice | Seam | Raison |
+|---|---|---|---|
+| 2026-10-24 | absences-patients-a4-lectures-publiees | `SeanceRestController`, `DirectionAbsencesQueryService`, `DatesIllisiblesDeLaDirectionAdvice` (retirés de `seamAllowed`, désormais vide) | A4 est `built` ; les lectures sont verrouillées par les filets A1 à A4 (goldens `_nouveau_code`). Les deux premiers fichiers étaient déjà dans `covered`; `DatesIllisiblesDeLaDirectionAdvice` y est ajouté. Décision de l'utilisateur (vérification globale du 2026-10-24). Les seams A2 (retiré avec A3) et A3 (exception ponctuelle `NotificationService`, déjà en `covered`) ne laissent rien d'ouvert. |

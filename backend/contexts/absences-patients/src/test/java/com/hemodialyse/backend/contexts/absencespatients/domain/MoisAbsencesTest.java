@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Uti
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.UUID;
 
@@ -30,6 +31,27 @@ class MoisAbsencesTest {
 
         assertThat(mois.estClos()).isFalse();
         mois.exigerOuvert();
+    }
+
+    @Test
+    void should_accept_to_close_only_a_finished_month_without_grace_days() {
+        LocalDate aujourdhui = LocalDate.of(2026, 10, 1);
+
+        MoisAbsences.exigerTermine(SEPTEMBRE, aujourdhui);
+        MoisAbsences.exigerTermine(YearMonth.of(2025, 12), aujourdhui);
+        assertThatThrownBy(() -> MoisAbsences.exigerTermine(YearMonth.of(2026, 10), aujourdhui))
+                .isInstanceOfSatisfying(MoisDAbsencesNonTermine.class,
+                        e -> assertThat(e.code()).isEqualTo("MOIS_D_ABSENCES_NON_TERMINE"));
+        assertThatThrownBy(() -> MoisAbsences.exigerTermine(YearMonth.of(2026, 11), aujourdhui))
+                .isInstanceOf(MoisDAbsencesNonTermine.class);
+    }
+
+    @Test
+    void should_refuse_writes_into_a_closed_month() {
+        MoisAbsences mois = MoisAbsences.ouvert(CENTRE, SEPTEMBRE);
+        mois.cloturer(LE_1, ADMIN, 0, 0);
+
+        assertThatThrownBy(mois::exigerOuvert).isInstanceOf(MoisDAbsencesClos.class);
     }
 
     @Test

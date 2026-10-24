@@ -1,8 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.application;
 
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesClos;
-import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesOuverts;
+import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsencesRepository;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -16,16 +15,14 @@ import java.time.YearMonth;
  */
 public class GardeDesMoisDAbsences {
 
-    private final MoisDAbsencesOuverts mois;
+    private final MoisAbsencesRepository mois;
 
-    public GardeDesMoisDAbsences(MoisDAbsencesOuverts mois) {
+    public GardeDesMoisDAbsences(MoisAbsencesRepository mois) {
         this.mois = mois;
     }
 
     public void exigerOuvert(CentreId centre, YearMonth moisVise) {
-        if (!mois.estOuvertSousVerrou(centre, moisVise)) {
-            throw new MoisDAbsencesClos(moisVise);
-        }
+        mois.verrouiller(centre, moisVise).exigerOuvert();
     }
 
     public void exigerOuvert(CentreId centre, LocalDate jour) {

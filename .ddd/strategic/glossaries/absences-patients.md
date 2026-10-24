@@ -1,5 +1,5 @@
 ---
-status: validated (onze termes proposed le 2026-10-22)
+status: validated (19 termes validated ; 21 termes proposed en attente de validation de l'utilisateur)
 date: 2026-10-21
 context: Absences patients (core, à confirmer)
 sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, réponse Q5, .ddd/tactical/absences-patients.md (termes ajoutés le 2026-10-21, validés par l'utilisateur le 2026-10-21)]

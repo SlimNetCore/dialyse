@@ -7,7 +7,7 @@ sources: [.ddd/strategic/bounded-contexts.md §Absences patients, .ddd/strategic
 
 # Modèle tactique — Absences patients
 
-> **Proposition à valider au gate tactique.** Refactoring sur place (ADR 0024) : nouveau module
+> Refactoring sur place (ADR 0024) : nouveau module
 > `backend/contexts/absences-patients`, **même table** `absence_patient`, **mêmes URLs** `/api/v1/absences-patients/**`,
 > filet de caractérisation (golden) avant tout code, livraison en une fois par slice, aucune façade ni routage.
 > Le legacy est déjà assez riche (`AbsencePatient` porte le cycle de vie) : on le **déplace et on le resserre**, on ne le

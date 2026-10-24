@@ -6,7 +6,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Cen
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsencesRepository;
-import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesNonTermine;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.MoisDAbsencesCloture;
 
 import java.time.Instant;
@@ -42,9 +41,7 @@ public class CloturerLeMoisDAbsences {
      */
     public ResultatDeCloture executer(CentreId centre, YearMonth moisACloturer, UtilisateurId auteur) {
         LocalDate aujourdhui = horloge.aujourdhui(centre);
-        if (!moisACloturer.isBefore(YearMonth.from(aujourdhui))) {
-            throw new MoisDAbsencesNonTermine(moisACloturer);
-        }
+        MoisAbsences.exigerTermine(moisACloturer, aujourdhui);
         return uniteDeTravail.executer(() -> {
             MoisAbsences courant = mois.verrouiller(centre, moisACloturer);
             LocalDate du = moisACloturer.atDay(1);

@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Cen
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 /**
@@ -62,6 +63,19 @@ public final class MoisAbsences {
     private static void exigerUnActe(Instant le, UtilisateurId par) {
         if (le == null || par == null) {
             throw new IllegalArgumentException("L'auteur et l'instant de l'acte sont obligatoires");
+        }
+    }
+
+    /**
+     * Seul un mois terminé se clôture (RG-ABS-070) : refus {@code MOIS_D_ABSENCES_NON_TERMINE} pour le mois en cours et les mois
+     * futurs, {@code aujourdhui} étant la date du jour au fuseau du centre. Aucun jour de grâce. À contrôler avant de verrouiller le
+     * mois.
+     *
+     * @throws MoisDAbsencesNonTermine {@code MOIS_D_ABSENCES_NON_TERMINE}
+     */
+    public static void exigerTermine(YearMonth mois, LocalDate aujourdhui) {
+        if (!mois.isBefore(YearMonth.from(aujourdhui))) {
+            throw new MoisDAbsencesNonTermine(mois);
         }
     }
 
