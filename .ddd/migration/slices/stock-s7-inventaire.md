@@ -132,3 +132,72 @@ argent (écarts valorisés), Comptabilité.
   rejeu des 70 goldens (écart décidé : KB-STK-50, à placer en `_ecarts-legacy`), garde de mouvements des autres slices
   sur
   `PeriodeDeStock` sous verrou partagé, tests de concurrence (T20, T21, T44-inventaire), puis retrait du legacy.
+
+### Bascule du contrôleur (2026-10-24) — parité prouvée
+
+- **Contrôleur** `InventairesControleur` (`contexts/stock/interfaces/http`) : mêmes routes, rôles et JSON que le
+  legacy ;
+  `InventaireRestController` supprimé. Import de feuille : `GestionDesInventaires.importerUnComptage` + port
+  `FeuilleDeComptage`.
+- **Passerelles temporaires** (plateforme, ACL vers le modèle historique que la feuille Excel et le PV utilisent
+  encore) :
+  `FeuilleDeComptageExcel`, `ProcesVerbalDInventairePlateforme`, `InventaireVersLegacy` ; relais `InventaireModifie` →
+  WebSocket (`RelaiDesInventairesVersWebSocket`). `SessionCourante.nomUtilisateur()` (le legacy stocke le nom, pas
+  l'identifiant).
+- **Rejeu des 70 goldens du legacy sur le nouveau code : 13 scénarios sur 13 verts.** Deux écarts seulement, ceux de la
+  décision
+  KB-STK-50 : `cloture_mouvements` (le mouvement d'entrée de l'article inactif n'est plus figé) et `cloture_articles`
+  (il garde son
+  stock, 4, et son PMP, 3, au lieu de 0) ; anciens goldens conservés dans `_ecarts-legacy/inventaire/*.legacy.json`.
+- **Filets rendus indépendants du jour** : les dates `dd/MM/yyyy` et les dates à +90 / +120 jours sont normalisées
+  (inventaire,
+  réceptions, sorties) ; sept goldens approuvés avec des dates absolues sont devenus relatifs. Lot de régression vert
+  (53 tests :
+  inventaire legacy, T43, gardes de mouvements S5 / S6, architecture).
+- **Reste pour « built »** : garde de mouvements des autres slices sur `PeriodeDeStock` sous verrou partagé (T21) et
+  tests de
+  concurrence (T20 : deux ouvertures ; T21 : ouverture pendant une réception) ; retrait du legacy (`InventaireService`,
+  `InventaireApplicationService`, `InventoryGuardedMovementRepository`, ports et adapters associés) puis de la
+  passerelle Excel / PV (portage du classeur et du PV sur le modèle du contexte) ; écran « mouvements gelés » inchangé ;
+  documentation (RG-STK 8.x,
+  annexe de traçabilité).
+
+### Garde sous verrou, concurrence, retrait de la couche service (2026-10-24)
+
+- **T21 sous verrou** : l'ouverture prend le verrou du centre puis le verrou de ligne de tous ses articles (ordre
+  croissant) avant de contrôler
+  et de figer le théorique : une écriture de stock commencée avant se termine avant le gel (l'ouverture attend, le
+  théorique l'inclut) ; les
+  écritures suivantes vérifient l'absence d'inventaire après avoir pris leurs propres verrous et sont refusées.
+- **Tests de concurrence** (`InventaireConcurrentIntegrationTest`, H2, threads réels) : deux ouvertures simultanées =
+  une seule (le refus ne consomme
+  aucune référence) ; ouverture pendant une écriture en cours = attend puis inclut le lot reçu ; écriture après
+  l'ouverture = 422
+  `STOCK_INVENTORY_IN_PROGRESS`. Le contrat PostgreSQL 16 (verrous réels) reste à rejouer avec `stock-pg16-rejeu.sh`.
+- **Retiré** : `InventaireService` et son test, `InventaireApplicationService`, `InventaireUseCase`, `InventaireDtos`
+  (l'ancienne couche service de
+  l'inventaire ; T43 vit maintenant dans `PeriodeDeStock`).
+- **Conservé volontairement** jusqu'au retrait des écritures de mouvements legacy (réceptions, sorties — reliquats de S5
+  et S6) :
+  `InventoryGuardedMovementRepository` + `StockInventoryConfig` (garde des écritures legacy),
+  `InventaireRepositoryPort` +
+  `InventaireJdbcAdapter` (qu'il lit), le modèle historique `Inventaire` / `LigneInventaire` / `ComptageImporte` /
+  `ResultatImportComptage`
+  (feuille Excel et PV), `InventaireEventPublisher` (WebSocket).
+- **Reste pour « built »** : rejeu PG16 ; portage de la feuille Excel et du PV sur le modèle du contexte (puis retrait
+  de la passerelle et du modèle
+  historique) ; retrait du garde legacy avec les reliquats de S5 / S6 ; documentation RG-STK et annexe de traçabilité.
+
+### Rejeu PostgreSQL 16 réel (2026-10-24) — vert
+
+- `InventairePostgresContractIT` (3 tests, **les vrais adaptateurs** `InventairesJdbc`, `StockInventorieJdbc`,
+  `ArticlesJdbc`, `EcrituresDuStockJdbc`,
+  `RejeuDuPmp`) rejoué par `backend/scripts/stock-pg16-rejeu.sh` sur un cluster jetable : cycle ouverture → comptage →
+  clôture (FEFO avec date
+  absente en dernier, entrées figées, stock de départ, PMP rejoué, liste), deux ouvertures simultanées sérialisées par
+  le verrou du centre,
+  ouverture qui attend une écriture de stock en cours et l'inclut au théorique. Code de sortie 0 (avec les 3 contrats
+  S5 / S6).
+- **Reste pour « built »** : portage de la feuille Excel et du PV sur le modèle du contexte (puis retrait de la
+  passerelle et du modèle historique) ;
+  retrait du garde legacy avec les reliquats de S5 / S6 ; documentation RG-STK et annexe de traçabilité.

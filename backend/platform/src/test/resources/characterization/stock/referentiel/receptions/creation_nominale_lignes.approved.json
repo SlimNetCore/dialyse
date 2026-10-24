@@ -3,7 +3,7 @@
   "contentType": "application/json",
   "body": [
     {
-      "date_peremption": "2027-01-21",
+      "date_peremption": "<J+90>",
       "numero_lot": "LOT-X",
       "prix_unitaire": "1.33",
       "quantite": "3.00",

@@ -145,6 +145,9 @@ public final class GestionDesInventaires {
         String par = par(utilisateur);
         return uniteDeTravail.executer(() -> {
             inventaires.verrouillerLaPeriode(centre);
+            // Une écriture de stock commencée avant l'ouverture se termine avant le gel (l'ouverture attend les verrous des articles) ;
+            // celles qui suivent voient l'inventaire en cours et sont refusées (elles vérifient après avoir pris leurs verrous).
+            ecritures.verrouiller(centre, articles.identifiants(centre));
             inventaires.periode(centre).exigerOuvrable(date, sorties.premiereNonRapprochee(centre),
                     stock.mouvementsApres(centre, Inventaire.coupure(date)), recalculEnCours.test(centre));
             Inventaire ouvert = inventaires.creer(centre, reference -> Inventaire.ouvrir(identifiants.get(), centre, reference, date,
@@ -344,6 +347,7 @@ public final class GestionDesInventaires {
         }
     }
 }
+
 
 
 

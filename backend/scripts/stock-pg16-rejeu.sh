@@ -1,8 +1,9 @@
 #!/bin/bash
-# Rejeu des slices S5 (receptions et PMP) et S6 (sorties manuelles) sur un PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit
+# Rejeu des slices S5 (receptions et PMP), S6 (sorties manuelles) et S7 (inventaire) sur un PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit
 # en sortie. Chaine Flyway V1..Vn (psql), puis contrats PostgreSQL du contexte stock : verrou de ligne SELECT ... FOR UPDATE avec delai
 # de requete (409 STOCK_ECRITURE_CONCURRENTE apres 5 s), verrouillages croises sans interblocage, sorties simultanees d'un meme lot sans
-# survente ; enfin la requete FEFO des lots disponibles (NULLS LAST) et la sequence BS lues par SQL.
+# survente ; l'inventaire (S7 : cycle ouverture-comptage-cloture, deux ouvertures simultanees, ouverture qui attend une ecriture en
+# cours) ; enfin la requete FEFO des lots disponibles (NULLS LAST) et la sequence BS lues par SQL.
 # A lancer en arriere-plan avec un log : backend/scripts/stock-pg16-rejeu.sh 55443 > rejeu.log 2>&1 &
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Code de sortie : 0 si tout est vert, 1 sinon.
 set -uo pipefail
@@ -47,8 +48,8 @@ echo "-- S6 : la sequence SEQ_BS s'incremente atomiquement (UPDATE puis INSERT d
 "${PSQL[@]}" -d hemo_test -q -c "DELETE FROM app_settings WHERE center_id = '$C'" || RC=1
 
 cd "$RACINE/backend"
-echo "=== Contrats PostgreSQL du contexte stock (verrou de ligne et delai, verrouillages croises, sorties simultanees) ==="
-./mvnw -o -pl contexts/stock -am test -Dtest='StockPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+echo "=== Contrats PostgreSQL du contexte stock (verrou de ligne et delai, verrouillages croises, sorties simultanees, inventaire) ==="
+./mvnw -o -pl contexts/stock -am test -Dtest='StockPostgresContractIT,InventairePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dstock.pg16.url="$URL" -Dstock.pg16.user=stock_test -Dstock.pg16.password="$PW" || RC=1
 echo "=== Fin du rejeu : code $RC (0 = tout vert) ==="
 exit $RC
