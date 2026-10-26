@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.seance;
 
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.Seance;
@@ -46,7 +46,7 @@ public class SeanceApplicationService implements SeanceUseCase {
 
     public SeanceApplicationService(SeanceRepositoryPort seanceRepo,
                                     PatientRepositoryPort patientRepo,
-                                    ArticleRepositoryPort articleRepo,
+                                    CatalogueDArticles catalogue,
                                     ConsommationsDeSeance consommations,
                                     VoletParamedicalRepositoryPort voletParamedicalRepo,
                                     VoletMedicalRepositoryPort voletMedicalRepo,
@@ -54,7 +54,7 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     SeanceBillingEligibilityPort billingEligibilityPort,
                                     SeancePlanningPort planningPort,
                                     SeancePlacePort placePort) {
-        this.delegate = new SeanceDomainService(seanceRepo, patientRepo, articleRepo,
+        this.delegate = new SeanceDomainService(seanceRepo, patientRepo, catalogue,
                 consommations, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
                 planningPort, placePort);
     }

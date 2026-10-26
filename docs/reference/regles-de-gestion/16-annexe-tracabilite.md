@@ -119,7 +119,7 @@
 | `AuditScheduler`                      | écriture toutes les 3 s, purge 03:30 | RG-SEC-051, RG-SEC-052 |
 | `DirectionRealtimeScheduler`          | 1 s et 10 s                          | RG-DIR-100, RG-DIR-101 |
 | `DirectionSnapshotScheduler`          | 02:30 le 1er du mois                 | RG-DIR-090             |
-| `ExpirationAlertScheduler`            | 07:00 chaque jour                    | RG-STK-061             |
+| `ControleDesPeremptionsPlanifie`      | 07:00 chaque jour                    | RG-STK-061             |
 | `LicenseOnlineCheckJob`               | 03:15 chaque jour                    | RG-SEC-032             |
 | `LiberationPlacesScheduler`           | 04:00 chaque jour                    | RG-PAT-033             |
 | `ObservancePrescriptionScheduler`     | 06:30 chaque jour                    | RG-MED-073             |

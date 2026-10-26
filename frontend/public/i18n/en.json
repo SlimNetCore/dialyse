@@ -3707,10 +3707,12 @@
       "ABSENCES_A_QUALIFIER": "Patient absences to qualify",
       "SEANCES_A_REGULARISER": "Sessions to regularise",
       "STOCK_MOVEMENT_CHANGED": "Stock movement",
+      "LOTS_PROCHES_PEREMPTION": "Lots nearing expiry",
       "STOCK_INVENTORY_CHANGED": "Stock inventory",
       "INCONNUE": "Notification"
     },
     "STOCK_MOVEMENT_CHANGED": "Stock changed: document {{reference}}, {{count}} article(s) affected.",
+    "LOTS_PROCHES_PEREMPTION": "{{count}} stock lot(s) expire within 30 days or have expired ({{perimes}} already expired); earliest: {{date}}.",
     "STOCK_INVENTORY_CHANGED": {
       "EN_COURS": "Inventory {{reference}} of {{date}} was opened by {{par}}: stock movements are frozen until it is closed.",
       "CLOTURE": "Inventory {{reference}} of {{date}} was closed by {{par}}: stock can be changed again.",

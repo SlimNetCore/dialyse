@@ -94,7 +94,7 @@ couplage/données/risque ; 5 = fort pour valeur/douleur/testabilité).
 | S6    | Sorties manuelles                                                     | 3      | 2       | 3        | 3       | 4       | moyen      | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s6-sorties-manuelles.md`    |
 | S6b   | Sortie pour séances, consommations, rapprochement (nouveau)           | 5      | 4       | 5        | 4       | 3       | **élevé**  | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s6b-sortie-pour-seances.md` |
 | S7    | Inventaire et période de stock                                        | 4      | 3       | 4        | 4       | 3       | **élevé**  | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s7-inventaire.md`           |
-| S8    | Péremptions notifiées, événements, retrait de `bc-stock`/`bc-article` | 3      | 2       | 3        | 1       | 4       | moyen      | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s8-peremptions-retrait.md`  |
+| S8    | Péremptions notifiées, événements, retrait de `bc-stock`/`bc-article` | 3      | 2       | 3        | 1       | 4       | moyen      | `built`                                                                                                                                                                                                                                                    | `slices/stock-s8-peremptions-retrait.md`  |
 
 Ordre et parallélisme : S1 d'abord (crée le module, publie le catalogue) ; S2, S3, S4 indépendantes ensuite
 (parallélisables) ; S5 avant S6, S6b et S7 ;
@@ -103,10 +103,15 @@ lectures sur le nouveau code, Comptabilité
 découplée des tables) ; **J2** S5-S6 (argent : réceptions, PMP, sorties) ; **J3** S6b (nouveau processus) ; **J4** S7-S8
 (inventaire, retrait).
 
-Indicateurs : scénarios de caractérisation stock verts (cible 100 %) ; fichiers legacy restants de `bc-stock` (61) et
-`bc-article` (6) (cible 0) ; arêtes
+Indicateurs : scénarios de caractérisation stock verts (cible 100 %) ; fichiers legacy restants de `bc-stock` (61 → 0, S8 : retiré) et
+`bc-article` (6 → 0, S8 : module retiré) (cible 0) ; arêtes
 Séance → Stock (cible 0 hors langage publié) ; lectures SQL des tables du stock par d'autres contextes (cible 0 après
 S4/S6) ; `KB-STK-xx` ouverts datés.
+
+**État Stock au 2026-10-26** : S1 à S8 `built` (S8 : péremptions notifiées, événement `LotProcheExpiration` v1, retrait de
+`bc-article`, codes d'erreur unifiés en 400 ; ADR 0046 `proposed`). Plus aucun module `bc-stock` / `bc-article` : le contexte
+Stock est prêt pour `/ddd-verify`. Cinq contrats d'événements d'intégration restent différés jusqu'à l'existence de
+consommateurs.
 
 Décisions structurantes : pas de façade ni de flag (ADR 0024), **sauf** le paramètre par centre recommandé pour la
 bascule de S6b ; aucune migration avant S6b (tables additives de la sortie pour séances, mouvement `RETOUR`, rôle

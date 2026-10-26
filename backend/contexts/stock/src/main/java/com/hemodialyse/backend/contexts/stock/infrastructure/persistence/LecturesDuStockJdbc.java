@@ -75,13 +75,17 @@ public class LecturesDuStockJdbc implements LecturesDuStock {
 
     @Override
     public List<AlerteDeStock> peremptions(CentreId centre, LocalDate auPlusTard) {
-        return jdbc.query("SELECT lot.id AS lot_id, lot.numero_lot, lot.date_peremption, lot.quantite_restante, "
+        return jdbc.query("SELECT lot.id AS lot_id, lot.numero_lot, lot.date_peremption, lot.quantite_restante, lot.created_at, "
                         + "art.id AS article_id, art.libelle FROM lots lot JOIN articles art ON art.id = lot.article_id "
                         + "WHERE lot.center_id = ? AND lot.quantite_restante > 0 AND lot.date_peremption IS NOT NULL "
                         + "AND lot.date_peremption <= ? ORDER BY lot.date_peremption ASC, lot.numero_lot ASC, lot.id ASC",
-                (rs, i) -> new AlerteDeStock("PEREMPTION", rs.getObject("article_id", UUID.class), rs.getString("libelle"),
-                        rs.getObject("lot_id", UUID.class), rs.getString("numero_lot"),
-                        rs.getObject("date_peremption", LocalDate.class), rs.getBigDecimal("quantite_restante"), null),
+                (rs, i) -> {
+                    java.time.OffsetDateTime creeLe = rs.getObject("created_at", java.time.OffsetDateTime.class);
+                    return new AlerteDeStock("PEREMPTION", rs.getObject("article_id", UUID.class), rs.getString("libelle"),
+                            rs.getObject("lot_id", UUID.class), rs.getString("numero_lot"),
+                            rs.getObject("date_peremption", LocalDate.class), rs.getBigDecimal("quantite_restante"), null,
+                            creeLe == null ? null : creeLe.withOffsetSameInstant(java.time.ZoneOffset.UTC).toLocalDate());
+                },
                 centre.valeur(), auPlusTard);
     }
 

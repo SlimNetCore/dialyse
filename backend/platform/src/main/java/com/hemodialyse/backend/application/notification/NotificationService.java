@@ -26,7 +26,8 @@ public class NotificationService {
             "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
-            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE");
+            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
+            "LOTS_PROCHES_PEREMPTION");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -390,6 +391,20 @@ public class NotificationService {
         payload.put("nbEnRetard", String.valueOf(nbEnRetard));
         payload.put("targetRoles", "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN");
         send(centerId, "ABSENCES_A_QUALIFIER", payload, idImpose);
+    }
+
+    /**
+     * Des lots en stock périment dans les 30 jours ou sont périmés (contrôle quotidien du Stock, RG-STK-061) : le pharmacien et
+     * l'administrateur du centre en sont prévenus par une alerte à identifiant déterministe (une par centre et par jour du centre).
+     */
+    public void notifyLotsProchesPeremption(UUID centerId, long nbLots, long nbPerimes, java.time.LocalDate plusProche,
+                                            UUID idImpose) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("nbLots", String.valueOf(nbLots));
+        payload.put("nbPerimes", String.valueOf(nbPerimes));
+        payload.put("plusProche", plusProche == null ? "" : plusProche.toString());
+        payload.put("targetRoles", "ADMIN,PHARMACIEN");
+        send(centerId, "LOTS_PROCHES_PEREMPTION", payload, idImpose);
     }
 
     /**

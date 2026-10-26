@@ -11,8 +11,8 @@ import java.util.UUID;
 /**
  * Réponse « prescription médicale » : cibles de dialyse + traitement de l'anémie (EPO et fer injectable).
  * Les libellés d'article ({@code epoArticleCode}/{@code epoArticleLibelle} et équivalents fer) sont
- * résolus par le contrôleur à partir de {@code ArticleRepositoryPort} (bc-article), pour éviter que
- * bc-seance ne dépende du contexte article.
+ * résolus par le contrôleur à partir du catalogue publié du Stock ({@code CatalogueDArticles}), pour éviter que
+ * bc-seance ne dépende du modèle des articles.
  */
 public record PrescriptionMedicaleResponse(
         UUID id,

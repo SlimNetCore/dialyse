@@ -269,6 +269,10 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
       return alerte('pending_actions', profil === 'MEDECIN' ? accueil(profil) : action('REGULARISER', ['/seances']),
         {parametres: {count: p['nbSeances'] ?? '', date: dateLisible(p['plusAncienne'])}});
 
+    case 'LOTS_PROCHES_PEREMPTION':
+      // contrôle quotidien du Stock (RG-STK-061) : pharmacien et administrateur du centre ; le détail des lots est au stock
+      return alerte('hourglass_bottom', profil === 'GESTION' ? action('STOCK', ['/stock']) : accueil(profil),
+        {parametres: {count: p['nbLots'] ?? '0', perimes: p['nbPerimes'] ?? '0', date: dateLisible(p['plusProche'])}});
     case 'STOCK_MOVEMENT_CHANGED':
       return info('inventory', profil === 'GESTION' ? action('STOCK', ['/stock']) : accueil(profil),
         {parametres: {reference: p['reference'] ?? '', count: p['articles'] ?? '0'}});

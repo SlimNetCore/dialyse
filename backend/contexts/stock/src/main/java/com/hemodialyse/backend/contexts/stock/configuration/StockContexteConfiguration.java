@@ -329,4 +329,35 @@ public class StockContexteConfiguration {
                 ecritures, rejeu, pieces, centre -> !recalcul.enCours(centre).isEmpty(), uniteDeTravail, notifications, horloge,
                 UUID::randomUUID);
     }
+
+    // ------------------------------------------------------------------ slice S8 : contrôle des péremptions
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.peremptions.CentresActifs stockCentresActifs(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.CentresActifsLegacy(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.peremptions.EvenementsDePeremption stockEvenementsDePeremption(
+            org.springframework.context.ApplicationEventPublisher evenements) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.evenements.EvenementsDePeremptionSpring(evenements);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions stockControlerLesPeremptions(
+            com.hemodialyse.backend.contexts.stock.application.peremptions.CentresActifs centres,
+            com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres horloge,
+            com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock lectures, Articles articles,
+            com.hemodialyse.backend.contexts.stock.application.UniteDeTravail uniteDeTravail,
+            com.hemodialyse.backend.contexts.stock.application.peremptions.EvenementsDePeremption evenements,
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.NotificationsDesPeremptions notifications) {
+        return new com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions(centres, horloge,
+                lectures, articles, uniteDeTravail, evenements, notifications);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.interfaces.jobs.ControleDesPeremptionsPlanifie stockControleDesPeremptionsPlanifie(
+            com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions controler) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.jobs.ControleDesPeremptionsPlanifie(controler);
+    }
 }

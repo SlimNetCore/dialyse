@@ -25,7 +25,6 @@
 	</properties>
     <modules>
         <module>shared-kernel</module>
-        <module>bc-article</module>
         <module>bc-insurance</module>
         <module>bc-referential</module>
         <module>bc-patient</module>
@@ -51,11 +50,6 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>shared-kernel</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hemodialyse</groupId>
-                <artifactId>bc-article</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

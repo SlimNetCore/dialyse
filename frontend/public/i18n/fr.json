@@ -3707,10 +3707,12 @@
       "ABSENCES_A_QUALIFIER": "Absences de patients à qualifier",
       "SEANCES_A_REGULARISER": "Séances à régulariser",
       "STOCK_MOVEMENT_CHANGED": "Mouvement de stock",
+      "LOTS_PROCHES_PEREMPTION": "Lots proches de la péremption",
       "STOCK_INVENTORY_CHANGED": "Inventaire de stock",
       "INCONNUE": "Notification"
     },
     "STOCK_MOVEMENT_CHANGED": "Le stock a changé : pièce {{reference}}, {{count}} article(s) concerné(s).",
+    "LOTS_PROCHES_PEREMPTION": "{{count}} lot(s) en stock périment d'ici 30 jours ou sont périmés (dont {{perimes}} déjà périmé(s)) ; le plus proche : {{date}}.",
     "STOCK_INVENTORY_CHANGED": {
       "EN_COURS": "L'inventaire {{reference}} du {{date}} est ouvert par {{par}} : les mouvements de stock sont gelés jusqu'à sa clôture.",
       "CLOTURE": "L'inventaire {{reference}} du {{date}} est clôturé par {{par}} : le stock est de nouveau modifiable.",

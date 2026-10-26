@@ -1,12 +1,13 @@
 package com.hemodialyse.backend.domain.seance.service;
 
-import com.hemodialyse.backend.domain.article.model.Article;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.seance.port.SeanceRaccourciRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRaccourciUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,15 +17,33 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class SeanceRaccourciDomainServiceTest {
 
     private final CenterId centre = CenterId.of(UUID.randomUUID());
     private final Map<UUID, List<UUID>> stored = new HashMap<>();
-    private final ArticleRepositoryPort articles = mock(ArticleRepositoryPort.class);
+    private final Map<UUID, ArticleDuCatalogue> catalogue = new HashMap<>();
+    private final CatalogueDArticles articles = new CatalogueDArticles() {
+        @Override
+        public Optional<ArticleDuCatalogue> article(UUID centre, UUID article) {
+            return Optional.ofNullable(catalogue.get(article)).filter(a -> a.centre().equals(centre));
+        }
+
+        @Override
+        public List<ArticleDuCatalogue> articles(UUID centre) {
+            return List.of();
+        }
+
+        @Override
+        public List<ArticleDuCatalogue> articlesDeTraitement(UUID centre, String type) {
+            return List.of();
+        }
+
+        @Override
+        public BigDecimal quantitePourDose(UUID centre, UUID article, BigDecimal dose, String unite) {
+            return dose;
+        }
+    };
     private final SeanceRaccourciRepositoryPort repo = new SeanceRaccourciRepositoryPort() {
         @Override
         public List<UUID> findArticleIds(CenterId centerId) {
@@ -40,11 +59,8 @@ class SeanceRaccourciDomainServiceTest {
 
     private UUID activeArticle() {
         UUID id = UUID.randomUUID();
-        Article article = new Article();
-        article.setId(id);
-        article.setCode("A-" + id.toString().substring(0, 4));
-        article.setActive(true);
-        when(articles.findById(id, centre)).thenReturn(Optional.of(article));
+        catalogue.put(id, new ArticleDuCatalogue(id, centre.value(), "A-" + id.toString().substring(0, 4), "Article", "pce", true,
+                null, null, null, false, null, null));
         return id;
     }
 
@@ -89,16 +105,18 @@ class SeanceRaccourciDomainServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.replace(centre, List.of(a, a)));
 
         UUID unknown = UUID.randomUUID();
-        when(articles.findById(unknown, centre)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> service.replace(centre, List.of(unknown)));
 
+        UUID autreCentre = UUID.randomUUID();
+        catalogue.put(autreCentre, new ArticleDuCatalogue(autreCentre, UUID.randomUUID(), "AUTRE", "Autre", "pce", true, null,
+                null, null, false, null, null));
+        assertThrows(IllegalArgumentException.class, () -> service.replace(centre, List.of(autreCentre)));
+
+        // KB-STK-56 corrigé : un article inactif est refusé en 400 comme un article inconnu (c'était un 422)
         UUID inactive = UUID.randomUUID();
-        Article article = new Article();
-        article.setId(inactive);
-        article.setCode("OLD");
-        article.setActive(false);
-        when(articles.findById(inactive, centre)).thenReturn(Optional.of(article));
-        assertThrows(IllegalStateException.class, () -> service.replace(centre, List.of(inactive)));
+        catalogue.put(inactive, new ArticleDuCatalogue(inactive, centre.value(), "OLD", "Ancien", "pce", false, null, null, null,
+                false, null, null));
+        assertThrows(IllegalArgumentException.class, () -> service.replace(centre, List.of(inactive)));
 
         List<UUID> tooMany = new ArrayList<>();
         for (int i = 0; i <= SeanceRaccourciUseCase.MAX; i++) {

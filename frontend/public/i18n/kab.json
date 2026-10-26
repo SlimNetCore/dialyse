@@ -3347,10 +3347,12 @@
       "ABSENCES_A_QUALIFIER": "Lɣibat n yimuḍinen i usegzi",
       "SEANCES_A_REGULARISER": "Timsirin i useɣti",
       "STOCK_MOVEMENT_CHANGED": "Amussu n sselɛa",
+      "LOTS_PROCHES_PEREMPTION": "Tifelwiyin ad ifaten",
       "STOCK_INVENTORY_CHANGED": "Aḥettem n sselɛa",
       "INCONNUE": "Alɣu"
     },
     "STOCK_MOVEMENT_CHANGED": "Sselɛa tbeddel : taɣawsa {{reference}}, {{count}} n yiferdisen.",
+    "LOTS_PROCHES_PEREMPTION": "{{count}} n tfelwiyin deg sselɛa ara ifat deg 30 n wussan neɣ ifat yakan (seg-sent {{perimes}} ifat yakan) ; tin yellan d tin i yezgan : {{date}}.",
     "STOCK_INVENTORY_CHANGED": {
       "EN_COURS": "Aḥettem {{reference}} n {{date}} yeldi-t {{par}} : imussuten n sselɛa ḥebsen alamma yemdel.",
       "CLOTURE": "Aḥettem {{reference}} n {{date}} yemdel-it {{par}} : sselɛa tezmer ad tettwabeddel tikkelt-nniḍen.",

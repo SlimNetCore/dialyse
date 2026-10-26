@@ -51,7 +51,7 @@
     "stock-s6-sorties-manuelles": "built",
     "stock-s6b-sortie-pour-seances": "built",
     "stock-s7-inventaire": "built",
-    "stock-s8-peremptions-retrait": "planned"
+    "stock-s8-peremptions-retrait": "built"
   },
   "contexts": {
     "gmao": "architected",

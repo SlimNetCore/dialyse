@@ -339,7 +339,7 @@ centre** (nouveau nom, même données qu'aujourd'hui)
 | `ActiviteDeLArticle`                                       | politique                    | (dés)activation de la fiche ⇒ état `actif` du `StockArticle`                                                                                                                                                                                                            |
 | `ValorisationDePeriode`                                    | requête (read model)         | RG-STK-043 (cache invalidé à chaque écriture)                                                                                                                                                                                                                           |
 | `AlertesDeStock`, `TableauDeBordStock`, `TracabiliteDuLot` | requêtes                     | RG-STK-044, 060, 062                                                                                                                                                                                                                                                    |
-| `ControleDesPeremptions`                                   | tâche planifiée 07:00        | RG-STK-061 ; **ne parcourir que les centres actifs** (le legacy parcourt aussi les inactifs) ; publication `LotProcheExpiration` (Q5)                                                                                                                                   |
+| `ControleDesPeremptions`                                   | tâche planifiée 07:00        | RG-STK-061 ; **ne parcourir que les centres actifs** (le legacy parcourt aussi les inactifs) ; publication `LotProcheExpiration` v1 (Q5, construit en S8 ; ADR 0046)  |
 
 ## 7. Catalogue d'événements
 
@@ -549,3 +549,14 @@ retrait du legacy, documentation RG-STK).
 
 
 
+
+## Mise à jour S8 (2026-10-26, ADR 0046)
+
+`ControleDesPeremptions` est construit (`ControlerLesPeremptions`, `RegleDesPeremptions`) : centres actifs, articles actifs, J+30 inclus,
+périmés le lendemain puis chaque semaine, alerte unique par centre et par jour (ADMIN, PHARMACIEN). Du catalogue 7.2, seul
+`LotProcheExpiration` v1 est créé ; `ReceptionValidee`, `SortiePourSeancesEnregistree`, `RapprochementValide`, `PmpRecalcule` et
+`InventaireCloture` sont **différés jusqu'à l'existence de consommateurs**. Matrice invariant → test : voir la fiche de slice S8.
+
+**Consommateurs de `LotProcheExpiration`** : aucun en production. Le contrat v1 est prêt, la notification est envoyée directement par le
+cas d'usage (elle ne dépend pas de l'Outbox) ; la garantie « au moins une fois » du registre n'existe qu'à partir du premier écouteur
+transactionnel. YAGNI assumé (décision utilisateur du 2026-10-24).

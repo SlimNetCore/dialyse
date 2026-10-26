@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
-import com.hemodialyse.backend.domain.article.model.Article;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.seance.port.SeanceRaccourciRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRaccourciUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -17,11 +17,11 @@ import java.util.UUID;
 public class SeanceRaccourciDomainService implements SeanceRaccourciUseCase {
 
     private final SeanceRaccourciRepositoryPort repo;
-    private final ArticleRepositoryPort articleRepo;
+    private final CatalogueDArticles catalogue;
 
-    public SeanceRaccourciDomainService(SeanceRaccourciRepositoryPort repo, ArticleRepositoryPort articleRepo) {
+    public SeanceRaccourciDomainService(SeanceRaccourciRepositoryPort repo, CatalogueDArticles catalogue) {
         this.repo = repo;
-        this.articleRepo = articleRepo;
+        this.catalogue = catalogue;
     }
 
     @Override
@@ -40,10 +40,10 @@ public class SeanceRaccourciDomainService implements SeanceRaccourciUseCase {
             if (id == null || !seen.add(id)) {
                 throw new IllegalArgumentException("Article en double ou invalide dans les raccourcis");
             }
-            Article article = articleRepo.findById(id, centerId)
+            ArticleDuCatalogue article = catalogue.article(centerId.value(), id)
                     .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + id));
-            if (!article.isActive()) {
-                throw new IllegalStateException("Article inactif: " + article.getCode());
+            if (!article.actif()) {
+                throw new IllegalArgumentException("Article inactif: " + article.code());
             }
         }
         repo.replace(centerId, ids);

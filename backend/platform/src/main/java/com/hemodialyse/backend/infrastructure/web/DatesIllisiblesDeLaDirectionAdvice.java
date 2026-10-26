@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
- * KB-ABS-33 : {@code GET /api/v1/direction/absences?from=hier} répond 400 {@code BAD_REQUEST} (c'était un 500). Limité à cette seule
- * route (reconnue par son chemin) : pour toute autre route un paramètre illisible garde la réponse du gestionnaire commun
+ * KB-ABS-33 et KB-STK-55 : {@code GET /api/v1/direction/absences?from=hier} et {@code /stock-groupes} répondent 400 {@code BAD_REQUEST} (c'était un 500). Limité à ces seules
+ * routes (reconnues par leur chemin) : pour toute autre route un paramètre illisible garde la réponse du gestionnaire commun
  * {@link ApiExceptionHandler}, auquel on délègue.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(basePackages = "com.hemodialyse.backend.infrastructure.web.rest")
 class DatesIllisiblesDeLaDirectionAdvice {
 
-    private static final String ROUTE = "/api/v1/direction/absences";
+    private static final java.util.Set<String> ROUTES = java.util.Set.of("/api/v1/direction/absences", "/api/v1/direction/stock-groupes");
 
     private final ApiExceptionHandler gestionnaireCommun;
 
@@ -28,7 +28,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ProblemDetail parametreIllisible(MethodArgumentTypeMismatchException erreur, HttpServletRequest requete) {
-        if (!requete.getRequestURI().endsWith(ROUTE)) {
+        if (ROUTES.stream().noneMatch(requete.getRequestURI()::endsWith)) {
             return gestionnaireCommun.handleUnexpected(erreur);
         }
         ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

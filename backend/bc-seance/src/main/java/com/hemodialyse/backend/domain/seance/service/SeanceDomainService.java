@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
@@ -45,7 +45,7 @@ public class SeanceDomainService implements SeanceUseCase {
 
     private final SeanceRepositoryPort seanceRepo;
     private final PatientRepositoryPort patientRepo;
-    private final ArticleRepositoryPort articleRepo;
+    private final CatalogueDArticles catalogue;
     private final ConsommationsDeSeance stockConsommations;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
@@ -56,7 +56,7 @@ public class SeanceDomainService implements SeanceUseCase {
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
-                               ArticleRepositoryPort articleRepo,
+                               CatalogueDArticles catalogue,
                                ConsommationsDeSeance stockConsommations,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
@@ -66,7 +66,7 @@ public class SeanceDomainService implements SeanceUseCase {
                                SeancePlacePort placePort) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
-        this.articleRepo = articleRepo;
+        this.catalogue = catalogue;
         this.stockConsommations = stockConsommations;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
@@ -181,10 +181,10 @@ public class SeanceDomainService implements SeanceUseCase {
         if (seance.getStatus() != SeanceStatus.VALIDEE && seance.getStatus() != SeanceStatus.SIGNEE) {
             throw new IllegalStateException("La seance doit etre validee avant d'ajouter un consommable");
         }
-        var article = articleRepo.findById(articleId, centerId)
+        var article = catalogue.article(centerId.value(), articleId)
                 .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
-        if (!article.isActive()) {
-            throw new IllegalStateException("Article inactif: " + article.getCode());
+        if (!article.actif()) {
+            throw new IllegalArgumentException("Article inactif: " + article.code());
         }
         stockConsommations.ajouter(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, quantite,
                 userId != null ? userId : "system");
@@ -268,10 +268,10 @@ public class SeanceDomainService implements SeanceUseCase {
                 if (item == null || item.articleId() == null) {
                     throw new IllegalArgumentException("Article de consommation invalide");
                 }
-                var article = articleRepo.findById(item.articleId(), centerId)
+                var article = catalogue.article(centerId.value(), item.articleId())
                         .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
-                if (!article.isActive()) {
-                    throw new IllegalStateException("Article inactif: " + article.getCode());
+                if (!article.actif()) {
+                    throw new IllegalArgumentException("Article inactif: " + article.code());
                 }
                 lignes.add(new ConsommationsDeSeance.Ligne(item.articleId(), item.quantite()));
             }

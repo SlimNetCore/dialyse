@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.seance;
 
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.seance.port.SeanceRaccourciRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRaccourciUseCase;
 import com.hemodialyse.backend.domain.seance.service.SeanceRaccourciDomainService;
@@ -25,8 +25,8 @@ public class SeanceRaccourciApplicationService implements SeanceRaccourciUseCase
 
     private final SeanceRaccourciDomainService delegate;
 
-    public SeanceRaccourciApplicationService(SeanceRaccourciRepositoryPort repo, ArticleRepositoryPort articleRepo) {
-        this.delegate = new SeanceRaccourciDomainService(repo, articleRepo);
+    public SeanceRaccourciApplicationService(SeanceRaccourciRepositoryPort repo, CatalogueDArticles catalogue) {
+        this.delegate = new SeanceRaccourciDomainService(repo, catalogue);
     }
 
     @Override

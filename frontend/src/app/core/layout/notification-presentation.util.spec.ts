@@ -23,7 +23,7 @@ const TYPES = [
   'INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF', 'OPTIMISATION_PROPOSITION', 'GENERATEUR_INDISPONIBLE',
   'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
   'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
-  'REFORME_PROPOSEE',
+  'REFORME_PROPOSEE', 'LOTS_PROCHES_PEREMPTION',
 ];
 
 /** Écrans ouverts à l'infirmier seul et au médecin seul (mêmes règles que `role-scope.guard`). */
@@ -206,6 +206,13 @@ describe('présentation des notifications', () => {
     expect(saisie('ANEMIE').action.commands).toEqual(['/patients', 'p1', 'dossier-medical', 'anemie']);
     expect(saisie('ABSENCE').action).toMatchObject(
       {label: 'NOTIFICATION.ACTION.ABSENCES_PATIENTS', commands: ['/seances/absences-patients']});
+  });
+
+  it('mène au stock pour les lots proches de la péremption (alerte du contrôle quotidien)', () => {
+    expect(vue(event('LOTS_PROCHES_PEREMPTION', {nbLots: '7', nbPerimes: '2', plusProche: '2026-10-16'}), 'ADMIN')).toMatchObject({
+      message: 'NOTIFICATION.LOTS_PROCHES_PEREMPTION {"count":"7","perimes":"2","date":"16/10/2026"}', icone: 'hourglass_bottom',
+      actionRequise: true, action: {label: 'NOTIFICATION.ACTION.STOCK', commands: ['/stock']},
+    });
   });
 
   it('mène aux écrans de traitement : absences à qualifier, séances à régulariser, poste infirmier', () => {

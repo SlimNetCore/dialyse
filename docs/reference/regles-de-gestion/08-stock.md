@@ -5,10 +5,10 @@
 > inventaire, **surveille** péremptions, seuils et ruptures, et **trace** chaque lot jusqu'au patient. Sources (contexte
 > `stock`, `backend/contexts/stock`) : `FicheArticle`, `Article`, `BonDeCommande`, `BonDeReception`, `BonDeSortie`,
 > `GestionDesBonsDeCommande`, `GestionDesReceptions`, `GestionDesSorties`, `RejeuDuPmp`, `CalculDuPmp`,
-> `RecalculMassifDuPmp`, `Inventaire`, `PeriodeDeStock`, `GestionDesInventaires`, `EcrituresDuStock` (garde d'inventaire
+> `RecalculMassifDuPmp`, `ControlerLesPeremptions`, `RegleDesPeremptions`, `Inventaire`, `PeriodeDeStock`, `GestionDesInventaires`, `EcrituresDuStock` (garde d'inventaire
 > sous verrou), `SortiePourSeances`, `GestionDesGroupesDArticles`, contrôleurs `*Controleur` ; plateforme :
 > `ValorisationStockCalculator`,
-> `StockDashboardService`, `StockDashboardAdapter`, `ExpirationAlertScheduler`, `FeuilleComptageExcel`,
+> `StockDashboardService`, `StockDashboardAdapter`, `FeuilleComptageExcel`,
 > `InventaireReportService`.
 
 ## 8.1 Référentiel (articles, fournisseurs, emplacements)
@@ -202,11 +202,15 @@
 - **RG-STK-060** — Alertes de stock du centre : **péremption** (lot encore en stock dont la date de péremption est dans
   les 30 jours ou déjà dépassée), **rupture** (article actif dont le
   stock est ≤ 0) et **seuil** (stock > 0 mais ≤ seuil d'alerte). Consultation : `ADMIN`, `PHARMACIEN`, `INFIRMIER`.
-- **RG-STK-061** — Contrôle quotidien à 07:00 (`ExpirationAlertScheduler.scanExpirations`) : pour chaque centre, les
-  lots contenant du stock et expirant dans 30 jours sont **consignés au
-  journal technique**. **Point d'attention :** ce contrôle ne produit aujourd'hui ni notification temps réel ni
-  message ; les alertes visibles sont celles du tableau de bord (RG-STK-060). Il
-  parcourt aussi les centres inactifs.
+- **RG-STK-061** — Contrôle quotidien à 07:00 (`ControleDesPeremptionsPlanifie` → `ControlerLesPeremptions`, déclencheur au fuseau
+  `app.stock.fuseau-par-defaut`, à défaut `app.absences.fuseau-par-defaut`, `Africa/Algiers` ; « aujourd'hui » est le jour du fuseau de
+  chaque centre) : pour chaque centre **actif**, les lots contenant du stock (> 0) d'articles **actifs** et expirant dans les 30 jours
+  (borne J+30 incluse) sont signalés ; un lot **déjà périmé** est signalé le lendemain de sa péremption puis rappelé chaque semaine
+  (J+1, J+8, J+15…, sans état conservé) ; un lot **reçu déjà périmé** est signalé au premier contrôle qui suit sa réception ; si le contrôle de J+1 est manqué, le rappel suivant est J+8. Le signalement est une **alerte durable unique par centre et par jour** (identifiant
+  déterministe, sûre en multi-instance) destinée à `ADMIN` et `PHARMACIEN` (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord), et un événement
+  d'intégration `LotProcheExpiration` v1 par lot (registre Spring Modulith, consommateurs idempotents sur son identifiant). Un centre en
+  échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. *(Avant S8 : journal technique seul,
+  tous les centres, KB-STK-53.)* *Source :* `ControlerLesPeremptions`, `RegleDesPeremptions`, `NotificationsDesPeremptionsLegacy`.
 - **RG-STK-062** — **Traçabilité par lot** : de l'entrée (bon de réception, fournisseur) aux sorties (séances, patients)
   pour un numéro de lot donné (`ADMIN`, `PHARMACIEN`).
 

@@ -62,16 +62,30 @@ class FrontieresDesContextesTest {
             .orShould().callMethod(java.time.ZoneId.class, "systemDefault")
             .because("tous les horodatages et les jours métier du serveur sont en UTC");
 
+    private static final String STOCK = "com.hemodialyse.backend.contexts.stock";
+
     /**
-     * Slice S6b (ADR 0045) : la Séance ne sort plus de stock elle-même ; elle ne connaît du Stock que le port publié
-     * {@code ConsommationsDeSeance}, aiguillé par centre entre la sortie immédiate FEFO (historique) et la sortie pour séances.
+     * Slice S8 (ADR 0046) : les modules {@code bc-stock} et {@code bc-article} sont retirés ; aucune classe du dépôt (hors du
+     * contexte, qui n'en a pas besoin) ne doit réintroduire les paquets legacy {@code domain.stock} ni {@code domain.article}.
+     * Cette règle remplace le verrou « la Séance n'appelle plus {@code BonSortieUseCase} » (classe supprimée, ADR 0045).
      */
     @ArchTest
-    static final ArchRule la_seance_n_appelle_plus_le_bon_de_sortie_legacy = noClasses()
+    static final ArchRule plus_aucune_classe_ne_depend_des_paquets_legacy_du_stock_ni_des_articles = noClasses()
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    "com.hemodialyse.backend.domain.stock..", "com.hemodialyse.backend.domain.article..")
+            .allowEmptyShould(true)
+            .because("bc-stock et bc-article sont retirés depuis S8 : le Stock vit dans contexts/stock");
+
+    /**
+     * Slice S8 : la Séance ne connaît du Stock que son langage publié ({@code ConsommationsDeSeance}, {@code CatalogueDArticles}).
+     */
+    @ArchTest
+    static final ArchRule la_seance_n_utilise_le_stock_que_par_son_langage_publie = noClasses()
             .that().resideInAnyPackage("com.hemodialyse.backend.domain.seance..", "com.hemodialyse.backend.application.seance..")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.AdministrationTraitementRestController")
-            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.domain.stock.port.BonSortieUseCase")
-            .because("la Séance passe par le port publié ConsommationsDeSeance du Stock (ADR 0045)");
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    STOCK + ".domain..", STOCK + ".application..", STOCK + ".infrastructure..", STOCK + ".interfaces..",
+                    STOCK + ".configuration..")
+            .because("la Séance passe par les ports publiés du Stock (ADR 0045, 0046)");
 
 
     /**

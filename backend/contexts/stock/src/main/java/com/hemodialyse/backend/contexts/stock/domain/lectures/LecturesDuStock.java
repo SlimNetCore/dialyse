@@ -84,10 +84,16 @@ public interface LecturesDuStock {
     }
 
     /**
-     * @param type {@code PEREMPTION}, {@code RUPTURE} ou {@code SEUIL}
+     * @param type   {@code PEREMPTION}, {@code RUPTURE} ou {@code SEUIL}
+     * @param recuLe jour (UTC) de la création du lot, pour les péremptions du contrôle quotidien (nul sinon)
      */
     record AlerteDeStock(String type, UUID articleId, String articleLibelle, UUID lotId, String numeroLot,
-                         LocalDate datePeremption, BigDecimal quantite, BigDecimal seuil) {
+                         LocalDate datePeremption, BigDecimal quantite, BigDecimal seuil, LocalDate recuLe) {
+
+        public AlerteDeStock(String type, UUID articleId, String articleLibelle, UUID lotId, String numeroLot,
+                             LocalDate datePeremption, BigDecimal quantite, BigDecimal seuil) {
+            this(type, articleId, articleLibelle, lotId, numeroLot, datePeremption, quantite, seuil, null);
+        }
     }
 
     record LigneDeTracabilite(UUID lotId, String numeroLot, UUID articleId, String articleLibelle, UUID seanceId,

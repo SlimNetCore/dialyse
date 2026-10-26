@@ -1011,6 +1011,43 @@ Rejeu PostgreSQL 16 jetable (`FOR UPDATE` et délai de 5 s de la requête de ver
 avant la
 livraison de S5.
 
+## 30. Stock S8 : lots proches d'expiration avant la première notification (aucune migration, 2026-10-26)
+
+Le contrôle de 07:00 notifie désormais le pharmacien et l'administrateur (centres **actifs**, lots d'articles **actifs**,
+J+30 inclus ; périmés le lendemain puis chaque semaine). Pour prévoir le volume de la **première** alerte de chaque centre
+(lecture seule, `SELECT` uniquement) :
+
+```sql
+-- 30.1 Par centre (actif ou non) : lots en stock qui périment d'ici 30 jours ou sont déjà périmés, articles actifs / inactifs
+SELECT c.code AS centre, c.actif AS centre_actif, a.active AS article_actif,
+       COUNT(*) FILTER (WHERE l.date_peremption < CURRENT_DATE)                                   AS deja_perimes,
+       COUNT(*) FILTER (WHERE l.date_peremption BETWEEN CURRENT_DATE AND CURRENT_DATE + 30)       AS dans_30_jours
+FROM lots l JOIN articles a ON a.id = l.article_id JOIN centers c ON c.id = l.center_id
+WHERE l.quantite_restante > 0 AND l.date_peremption IS NOT NULL AND l.date_peremption <= CURRENT_DATE + 30
+GROUP BY c.code, c.actif, a.active ORDER BY c.code, c.actif DESC, a.active DESC;
+
+-- 30.2 Périmés les plus anciens (un lot périmé depuis longtemps encore en stock est un constat à traiter, pas une alerte)
+SELECT c.code AS centre, MIN(l.date_peremption) AS plus_ancienne_peremption, COUNT(*) AS lots
+FROM lots l JOIN centers c ON c.id = l.center_id
+WHERE l.quantite_restante > 0 AND l.date_peremption < CURRENT_DATE - 365 GROUP BY c.code ORDER BY c.code;
+
+-- 30.3 Fuseau des centres actifs (jour du centre) : valeurs nulles = UTC
+SELECT fuseau_horaire, COUNT(*) FROM centers WHERE actif GROUP BY fuseau_horaire;
+
+-- 30.4 Destinataires : rôles PHARMACIEN et ADMIN par centre actif (au moins un de chaque)
+SELECT c.code, COUNT(DISTINCT u.id) FILTER (WHERE r.code = 'PHARMACIEN') AS pharmaciens,
+       COUNT(DISTINCT u.id) FILTER (WHERE r.code = 'ADMIN') AS admins
+FROM centers c LEFT JOIN app_user_center uc ON uc.center_id = c.id
+LEFT JOIN app_user u ON u.id = uc.user_id AND u.active
+LEFT JOIN app_user_role ur ON ur.user_id = u.id LEFT JOIN app_role r ON r.id = ur.role_id
+WHERE c.actif GROUP BY c.code ORDER BY c.code;
+```
+
+**À rapporter** : 30.1 (tableau), 30.2 (nombre de lignes), 30.3 (valeurs), 30.4 (centres sans destinataire). Un centre
+actif sans pharmacien ni admin ne verra l'alerte qu'au rôle ciblé le plus proche ; les centres inactifs ne sont plus
+parcourus (le legacy les signalait au journal). Rejeu PostgreSQL 16 jetable : `backend/scripts/stock-s8-pg16-rejeu.sh 55444`
+(port différent de 5432).
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
@@ -1023,4 +1060,4 @@ toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, co
 (V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant
 V43**, 24.3 et 24.4 à rapporter) ; pour Absences A3, le point 25 (25.2 : sorties sans date à saisir, 25.3 et 25.6
 informatifs) ; pour Absences A6, le point 27 (27.2 : V44, tables vides ; **27.1 à rapporter avant la première clôture
-d'un mois**) ; pour la Facturation (ADR 0044), le point 28.1 (0 ligne attendue).
+d'un mois**) ; pour la Facturation (ADR 0044), le point 28.1 (0 ligne attendue) ; pour Stock S8, le point 30 (volume de la première alerte de péremption par centre, avant son activation).

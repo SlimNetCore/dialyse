@@ -162,7 +162,7 @@
   actifs du centre, ordre de sélection conservé) les articles proposés en un toucher à l'infirmier
   (`PUT /seances/raccourcis-consommables`) ; la lecture est ouverte à `ADMIN`, `INFIRMIER` et `SECRETAIRE`. Sans
   raccourci configuré, l'écran propose les articles les plus sortis du jour (6 au plus). La liste est propre au centre
-  (isolation stricte), mise en cache par centre et purgée à chaque modification. *Source :*
+  (isolation stricte), mise en cache par centre et purgée à chaque modification. Un article inconnu, d'un autre centre ou **inactif** est refusé en 400 (`BAD_REQUEST`, KB-STK-56 corrigé ; c'était 422 pour l'inactif) ; de même pour l'ajout d'un consommable et pour la **validation de la séance** avec consommations (KB-STK-57). *Source :*
   `SeanceRaccourciDomainService`, `SeanceRaccourciApplicationService`.
 - **RG-SEA-028** — **Rappel des dernières séances** (`GET /seances/patient/{id}/recentes`, `ADMIN`, `INFIRMIER`,
   `MEDECIN`) : les 3 dernières séances du patient antérieures à la séance ouverte (10 au plus, de la plus récente à

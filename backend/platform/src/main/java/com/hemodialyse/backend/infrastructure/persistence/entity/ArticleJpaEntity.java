@@ -9,6 +9,13 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+/**
+ * Mapping résiduel de la table {@code articles}, sans plus aucun usage applicatif (le référentiel est servi par le contexte Stock,
+ * S1 à S8, 2026-10-26). Conservé uniquement parce qu'il crée la table dans la H2 des tests et en dev ({@code ddl-auto: update}) et
+ * qu'il est vérifié par {@code validate} en production. <b>Retrait prévu avant le 2026-12-31</b> : fournir la table {@code articles}
+ * à la H2 par {@code db/schema.sql} (comme {@code event_publication}), puis supprimer cette classe ; ce retrait, comme celui de
+ * {@code LotJpaEntity}, {@code StockMovementJpaEntity}, etc., relève de ce même chantier de schéma de test.
+ */
 @Entity
 @Table(name = "articles")
 public class ArticleJpaEntity {

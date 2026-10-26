@@ -27,3 +27,9 @@ date: 2026-10-22
 | Date | Slice | Seam | Raison |
 |---|---|---|---|
 | 2026-10-24 | absences-patients-a4-lectures-publiees | `SeanceRestController`, `DirectionAbsencesQueryService`, `DatesIllisiblesDeLaDirectionAdvice` (retirés de `seamAllowed`, désormais vide) | A4 est `built` ; les lectures sont verrouillées par les filets A1 à A4 (goldens `_nouveau_code`). Les deux premiers fichiers étaient déjà dans `covered`; `DatesIllisiblesDeLaDirectionAdvice` y est ajouté. Décision de l'utilisateur (vérification globale du 2026-10-24). Les seams A2 (retiré avec A3) et A3 (exception ponctuelle `NotificationService`, déjà en `covered`) ne laissent rien d'ouvert. |
+
+## Seam S8 (stock-s8-peremptions-retrait) : fermé
+
+| Date | Slice | Seam | Raison |
+|---|---|---|---|
+| 2026-10-26 | stock-s8-peremptions-retrait | `SeanceDomainService`, `SeanceRaccourciDomainService`, `SeanceApplicationService`, `SeanceRaccourciApplicationService` (port `ArticleRepositoryPort` → `CatalogueDArticles`, article inactif en 400) ; `DatesIllisiblesDeLaDirectionAdvice` (route `/direction/stock-groupes`) ; `NotificationService` (`notifyLotsProchesPeremption`, type durable `LOTS_PROCHES_PEREMPTION`) ; `PrescriptionMedicaleResponse` (commentaire) | Accord de l'utilisateur du 2026-10-24 (édition minimale strictement nécessaire). Les fichiers sont inscrits dans `covered.json` (filet S8 : `ArticlesDeLaSeance…`, `ValorisationDeLaDirection…`, `ControleDesPeremptions…`) ; `seamAllowed` reste vide. `bc-article` et `ExpirationAlertScheduler` sont supprimés ; le nouveau fichier de plateforme `acl/stock/NotificationsDesPeremptionsLegacy` est couvert par `NotificationsDesPeremptionsLegacyTest` et le filet des péremptions. |

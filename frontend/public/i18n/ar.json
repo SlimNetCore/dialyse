@@ -3575,10 +3575,12 @@
       "ABSENCES_A_QUALIFIER": "غيابات مرضى يجب تبريرها",
       "SEANCES_A_REGULARISER": "حصص يجب تسويتها",
       "STOCK_MOVEMENT_CHANGED": "حركة مخزون",
+      "LOTS_PROCHES_PEREMPTION": "دفعات قاربت انتهاء الصلاحية",
       "STOCK_INVENTORY_CHANGED": "جرد المخزون",
       "INCONNUE": "إشعار"
     },
     "STOCK_MOVEMENT_CHANGED": "تغيّر المخزون: الوثيقة {{reference}}، {{count}} مادة معنية.",
+    "LOTS_PROCHES_PEREMPTION": "{{count}} دفعة(دفعات) في المخزون تنتهي صلاحيتها خلال 30 يومًا أو انتهت صلاحيتها (منها {{perimes}} منتهية فعلًا)؛ الأقرب: {{date}}.",
     "STOCK_INVENTORY_CHANGED": {
       "EN_COURS": "فُتح الجرد {{reference}} بتاريخ {{date}} من طرف {{par}}: حركات المخزون مجمّدة إلى غاية إغلاقه.",
       "CLOTURE": "أُغلق الجرد {{reference}} بتاريخ {{date}} من طرف {{par}}: يمكن تعديل المخزون من جديد.",

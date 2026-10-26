@@ -1,8 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
-import com.hemodialyse.backend.domain.article.model.Article;
-import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
-import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
@@ -39,7 +38,7 @@ class SeanceDomainServiceTest {
     private static SeanceDomainService buildService(
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
-            ArticleRepositoryPort articleRepo,
+            CatalogueDArticles articleRepo,
             InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase) {
         return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
@@ -49,7 +48,7 @@ class SeanceDomainServiceTest {
     private static SeanceDomainService buildService(
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
-            ArticleRepositoryPort articleRepo,
+            CatalogueDArticles articleRepo,
             InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort) {
@@ -187,6 +186,29 @@ class SeanceDomainServiceTest {
         assertEquals(1, spyBonSortie.lastItems.size());
         assertEquals(articleId, spyBonSortie.lastItems.getFirst().articleId());
         assertEquals(new BigDecimal("2"), spyBonSortie.lastItems.getFirst().quantite());
+    }
+
+    @Test
+    void validate_should_refuse_an_inactive_or_unknown_article_with_a_bad_request_and_consume_nothing() {
+        // KB-STK-57 : l'article inactif est refusé comme l'article inconnu (IllegalArgumentException, 400), il était refusé en 422
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID inactif = UUID.randomUUID();
+        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
+        articleRepo.addArticleInactif(inactif, centerId.value(), "ART-OLD");
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now()));
+        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId), articleRepo,
+                new InMemoryLotRepository(), spy);
+
+        IllegalArgumentException refus = assertThrows(IllegalArgumentException.class, () -> service.validate(centerId, seanceId,
+                "inf-01", List.of(new SeanceArticleConsumption(inactif, BigDecimal.ONE))));
+        assertEquals("Article inactif: ART-OLD", refus.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> service.validate(centerId, seanceId, "inf-01",
+                List.of(new SeanceArticleConsumption(UUID.randomUUID(), BigDecimal.ONE))));
+        assertFalse(spy.called, "aucune consommation n'est enregistrée");
     }
 
     @Test
@@ -329,7 +351,7 @@ class SeanceDomainServiceTest {
     private static SeanceDomainService buildService(
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
-            ArticleRepositoryPort articleRepo,
+            CatalogueDArticles articleRepo,
             InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort,
@@ -341,7 +363,7 @@ class SeanceDomainServiceTest {
     private static SeanceDomainService buildService(
             SeanceRepositoryPort seanceRepo,
             PatientRepositoryPort patientRepo,
-            ArticleRepositoryPort articleRepo,
+            CatalogueDArticles articleRepo,
             InMemoryLotRepository lotRepo,
             ConsommationsDeSeance bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort,
@@ -1008,43 +1030,38 @@ class SeanceDomainServiceTest {
         }
     }
 
-    private static final class InMemoryArticleRepository implements ArticleRepositoryPort {
-        private final Map<UUID, Article> data = new HashMap<>();
+
+    private static final class InMemoryArticleRepository implements CatalogueDArticles {
+        private final Map<UUID, ArticleDuCatalogue> data = new HashMap<>();
 
         void addArticle(UUID id, UUID centerId, String code, BigDecimal stock) {
-            Article a = new Article();
-            a.setId(id);
-            a.setCenterId(centerId);
-            a.setCode(code);
-            a.setLibelle("Article " + code);
-            a.setUnite("pce");
-            a.setStockQuantity(stock);
-            a.setPmpCourant(BigDecimal.TEN);
-            a.setActive(true);
-            data.put(id, a);
+            data.put(id, new ArticleDuCatalogue(id, centerId, code, "Article " + code, "pce", true, null, null, null, false,
+                    null, null));
         }
-        @Override
-        public Optional<Article> findById(UUID id, CenterId c) {
-            return Optional.ofNullable(data.get(id)).filter(a -> a.getCenterId().equals(c.value()));
+
+        void addArticleInactif(UUID id, UUID centerId, String code) {
+            data.put(id, new ArticleDuCatalogue(id, centerId, code, "Article " + code, "pce", false, null, null, null, false,
+                    null, null));
         }
 
         @Override
-        public Article save(Article a) {
-            data.put(a.getId(), a);
-            return a;
+        public Optional<ArticleDuCatalogue> article(UUID centre, UUID article) {
+            return Optional.ofNullable(data.get(article)).filter(a -> a.centre().equals(centre));
         }
 
         @Override
-        public List<Article> findAllByCenter(CenterId c) {
-            return data.values().stream().filter(a -> a.getCenterId().equals(c.value())).toList();
+        public List<ArticleDuCatalogue> articles(UUID centre) {
+            return data.values().stream().filter(a -> a.centre().equals(centre)).toList();
         }
 
         @Override
-        public List<Article> findAllByCenterAndTypeTraitementAnemie(CenterId c, TypeTraitementAnemie type) {
-            return data.values().stream()
-                    .filter(a -> a.getCenterId().equals(c.value()))
-                    .filter(a -> a.getTypeTraitementAnemie() == type)
-                    .toList();
+        public List<ArticleDuCatalogue> articlesDeTraitement(UUID centre, String typeTraitementAnemie) {
+            return List.of();
+        }
+
+        @Override
+        public BigDecimal quantitePourDose(UUID centre, UUID article, BigDecimal dose, String uniteDose) {
+            return dose;
         }
     }
 
