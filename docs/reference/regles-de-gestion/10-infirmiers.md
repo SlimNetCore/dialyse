@@ -4,37 +4,59 @@
 > créneaux en sous-effectif, **propose et classe des
 > remplaçants** et **équilibre la charge**. Sources : `Infirmier`, `AffectationInfirmier`, `AbsenceInfirmier`,
 > `RemplacementInfirmier`, `Presence`, `PresenceInfirmierService`,
-> `RemplacantService`, `ChargeInfirmierService`, `InfirmierService`, `AffectationInfirmierService`,
-> `AbsenceInfirmierService`, `RemplacementInfirmierService`, `CompteInfirmierService`,
-> `MonPlanningInfirmierService`, `GenerateurMotDePasseTemporaire`, `PresenceInfirmierScheduler`, contrôleurs
-> `Infirmier*`, `PresenceInfirmier*`, `MonPlanningInfirmier*`.
+> `RemplacantService`, `ChargeInfirmierService`, `AffectationInfirmierService`,
+> `AbsenceInfirmierService`, `RemplacementInfirmierService`,
+> `MonPlanningInfirmierService`, `PresenceInfirmierScheduler`, contrôleurs
+> `InfirmierRestController` (roulement), `PresenceInfirmier*`, `MonPlanningInfirmier*`. Le référentiel des fiches et
+> des comptes (10.1 et 10.2) est servi par le contexte `planification` (slice P2) : agrégat `Infirmier`, cas d'usage
+> `EnregistrerUnInfirmier`, `ModifierUnInfirmier`, `DesactiverUnInfirmier`, `ReactiverUnInfirmier`, `LierUnCompte`,
+> `CreerUnCompte`, `DelierLeCompte`, contrôleur `InfirmiersControleur`.
 
 ## 10.1 Référentiel du personnel soignant
 
 - **RG-INF-001** — Une fiche infirmier porte : matricule, nom (obligatoires), prénom, téléphone, **qualification**
-  (`INFIRMIER`, `MAJOR`, `AIDE_SOIGNANT` — obligatoire), indicateur **habilité isolement**, état actif, et un éventuel
-  compte utilisateur lié.
-- **RG-INF-002** — Le **matricule est unique par centre** (`INFIRMIER_MATRICULE_EXISTANT`) ; fiche inconnue du centre :
-  `INFIRMIER_INTROUVABLE`.
+  (`INFIRMIER`, `MAJOR`, `AIDE_SOIGNANT` — obligatoire), indicateur **habilité isolement** (facultatif à la saisie, faux par
+  défaut), état actif, et un éventuel compte utilisateur lié. Bornes (refus 400 `BAD_REQUEST`, 26/10/2026) : matricule 50
+  caractères, nom et prénom 255, téléphone 50. Un corps illisible, un champ obligatoire absent, une qualification inconnue ou une
+  pagination négative sont refusés en 400 (un corps qui n'est pas du JSON : 415) ; une taille de page est plafonnée à 100 et la
+  taille effective est renvoyée.
+- **RG-INF-002** — Le **matricule est unique par centre, sans tenir compte de la casse** (`INFIRMIER_MATRICULE_EXISTANT`) ;
+  il est enregistré **en majuscules** (26/10/2026 ; les fiches existantes gardent leur casse jusqu'à leur modification) ; fiche
+  inconnue du centre : `INFIRMIER_INTROUVABLE`. Deux écritures du référentiel d'un même centre sont sérialisées (verrou du
+  centre) ; une écriture qui n'obtient pas le verrou en 5 secondes est refusée en 409 `PLANIFICATION_ECRITURE_CONCURRENTE`.
+  Chaque cas d'usage est **une seule transaction** (fiche et compte atomiques).
 - **RG-INF-003** — Un infirmier **désactivé** n'apparaît plus dans le planning de présence mais reste au référentiel ;
   désactiver ou réactiver une fiche reliée à un compte désactive ou
   réactive aussi le compte, et inversement (un compte activé/désactivé dans l'administration des utilisateurs fait
-  suivre sa fiche ; un compte supprimé délie la fiche sans la supprimer).
-- **RG-INF-004** — Lecture du référentiel : `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` ; écriture : `ADMIN`. La liste
-  est paginée.
+  suivre sa fiche, **dans le centre de l'administrateur seulement** ; désactiver une fiche n'agit que sur le centre de la
+  fiche). Aucune opération n'impose à un compte un état que la fiche n'a pas : réactiver une fiche déjà active dont le compte
+  est désactivé, ou délier une fiche inactive dont le compte est actif, est refusé en 422 (`COMPTE_ETAT_INCOHERENT`,
+  `COMPTE_DELIAISON_INCOHERENTE`). Un compte **lié à une fiche active ne se supprime pas** (422
+  `COMPTE_LIE_A_UNE_FICHE_ACTIVE`) ; sinon ses fiches inactives sont déliées et le compte supprimé dans la même
+  transaction. Les noms de la fiche et du compte ne sont pas synchronisés (à décider, KB-PLN-14).
+- **RG-INF-004** — Droits (corrigé le 26/10/2026 : la règle disait « tous les rôles de centre peuvent lire », ce que le
+  filtre de périmètre n'a jamais permis). Lecture du référentiel : `ADMIN` et `SECRETAIRE` ; le `MEDECIN` seul et
+  l'`INFIRMIER` seul sont refusés (403 `ROLE_SCOPE`, seule la combinaison `MEDECIN` + `INFIRMIER` lit) ; le `SUPERADMIN` et la
+  `DIRECTION` sont refusés aussi. Écriture : `ADMIN` seul ; la liste des comptes liables : `ADMIN` seul. Le refus de rôle est
+  rendu avant toute lecture du corps (403 avant 400 et 415). La liste est paginée. *Garde :* matrice routes × profils de
+  `AutorisationsDesInfirmiersCharacterizationIntegrationTest`.
 
 ## 10.2 Comptes liés aux fiches
 
 - **RG-INF-010** — **Lier un compte existant** : le compte doit exister dans le centre avec le rôle infirmier
-  (`COMPTE_INTROUVABLE`), ne pas être déjà relié à un autre infirmier (`COMPTE_DEJA_UTILISE`), et avoir le même état que
+  (`COMPTE_INTROUVABLE`), ne pas être déjà relié à un autre infirmier (`COMPTE_DEJA_UTILISE`) ni à une fiche d'un autre centre
+  (`COMPTE_LIE_A_UN_AUTRE_CENTRE` : un compte ne se lie qu'à un seul centre, 26/10/2026), et avoir le même état que
   la fiche (`COMPTE_ETAT_INCOHERENT`) ; la fiche ne doit pas déjà avoir de compte (`COMPTE_DEJA_LIE`).
 - **RG-INF-011** — **Créer un compte depuis la fiche** : fiche active uniquement (`COMPTE_ETAT_INCOHERENT`), identifiant
   de 3 à 50 caractères `[A-Za-z0-9._-]`
-  (`COMPTE_IDENTIFIANT_INVALIDE`), identifiant libre (`COMPTE_IDENTIFIANT_EXISTANT`) ; un **mot de passe temporaire** de
+  (`COMPTE_IDENTIFIANT_INVALIDE`), identifiant libre tous centres confondus et sans tenir compte de la casse
+  (`COMPTE_IDENTIFIANT_EXISTANT`), adresse e-mail facultative mais au format valide et de 150 caractères au plus (400) ; un
+  **mot de passe temporaire** de
   14 caractères (majuscule, minuscule, chiffre, symbole, sans
   caractères ambigus) est généré, **affiché une seule fois** à l'administrateur et jamais journalisé ; le compte devra
-  être modifié au premier accès (RG-SEC-025).
-- **RG-INF-012** — Délier une fiche de son compte est toujours possible ; les comptes pouvant être liés sont listés
+  être modifié au premier accès (RG-SEC-025). Le compte et la liaison sont créés dans une seule transaction.
+- **RG-INF-012** — Délier une fiche de son compte est possible (le compte est conservé et redevient liable), sauf pour une
+  fiche inactive dont le compte est actif (`COMPTE_DELIAISON_INCOHERENTE`) ; les comptes pouvant être liés sont listés
   (paginés). Dans la liste des infirmiers, chaque ligne porte une action **« Compte d'accès »** (icône lien, ou gestion
   de compte si déjà lié) qui ouvre la carte permettant de lier un compte existant, d'en créer un ou de le délier.
   *Source :* `InfirmiersComponent`.

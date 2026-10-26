@@ -45,6 +45,13 @@ public final class Identifiants {
         }
     }
 
+    /** Compte utilisateur (contexte Identité et accès, référencé par identité depuis la fiche d'un infirmier). */
+    public record CompteId(UUID valeur) {
+        public CompteId {
+            requis(valeur, "Compte");
+        }
+    }
+
     /** Infirmier du centre. */
     public record InfirmierId(UUID valeur) {
         public InfirmierId {

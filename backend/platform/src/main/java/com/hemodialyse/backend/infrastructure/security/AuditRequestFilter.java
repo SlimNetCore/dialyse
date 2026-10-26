@@ -55,8 +55,15 @@ public class AuditRequestFilter extends OncePerRequestFilter {
         return attr instanceof String s ? s : null;
     }
 
+    /**
+     * Attribut de requête qu'un contrôleur pose pour désigner l'entité écrite quand le chemin n'en porte pas (ex. la fiche
+     * d'infirmier tout juste créée). Valeur : l'identifiant, en texte.
+     */
+    public static final String ATTRIBUT_IDENTIFIANT = "hemodialyse.audit.entityId";
+
     @SuppressWarnings("unchecked")
     private static String entityId(HttpServletRequest request) {
+        if (request.getAttribute(ATTRIBUT_IDENTIFIANT) instanceof String pose && !pose.isBlank()) return pose;
         Object attr = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         if (!(attr instanceof Map<?, ?> vars) || vars.isEmpty()) return null;
         // La dernière variable de chemin est en général l'identifiant le plus spécifique (ex. {patientId} avant

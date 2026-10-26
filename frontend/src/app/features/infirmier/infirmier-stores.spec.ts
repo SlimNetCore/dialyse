@@ -167,6 +167,10 @@ describe('stores infirmiers', () => {
     expect(store.error()).toBe('INFIRMIER.ERR.INFIRMIER_MATRICULE_EXISTANT');
     expect(store.saving()).toBe(false);
     expect(infirmierErrorKey(erreurServeur('AFFECTATION_CHEVAUCHEMENT'))).toBe('INFIRMIER.ERR.AFFECTATION_CHEVAUCHEMENT');
+    expect(infirmierErrorKey(erreurServeur('COMPTE_DELIAISON_INCOHERENTE'))).toBe('INFIRMIER.ERR.COMPTE_DELIAISON_INCOHERENTE');
+    expect(infirmierErrorKey(erreurServeur('COMPTE_LIE_A_UN_AUTRE_CENTRE'))).toBe('INFIRMIER.ERR.COMPTE_LIE_A_UN_AUTRE_CENTRE');
+    expect(infirmierErrorKey(erreurServeur('PLANIFICATION_ECRITURE_CONCURRENTE')))
+      .toBe('INFIRMIER.ERR.PLANIFICATION_ECRITURE_CONCURRENTE');
     expect(infirmierErrorKey(new Error('boom'))).toBe('INFIRMIER.ERR.SAVE');
   });
 

@@ -296,7 +296,20 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlanningParametresDuContexte.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ReglagesOptimisationDuContexte.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PreferencesPatientsDuContexte.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ProfilsInfirmiersDuContexte.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ProfilsInfirmiersDuContexte.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/InfirmierRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/infirmier/InfirmierService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/infirmier/CompteInfirmierService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/infirmier/GenerateurMotDePasseTemporaire.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/infirmier/InfirmierJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/infirmier/ComptesInfirmierJdbcAdapter.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/model/Infirmier.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/model/QualificationInfirmier.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/port/InfirmierRepositoryPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/port/ComptesInfirmierPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/UserRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/audit/AuditActionResolver.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/AuditRequestFilter.java"
   ],
   "seamAllowed": []
 }

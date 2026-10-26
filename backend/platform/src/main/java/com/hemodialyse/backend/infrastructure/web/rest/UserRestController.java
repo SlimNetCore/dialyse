@@ -1,7 +1,10 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.infirmier.CompteInfirmierService;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.CompteLieAUneFicheActive;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AppUserJpaEntity;
+import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.persistence.repository.AppUserJpaRepository;
 import com.hemodialyse.backend.infrastructure.persistence.spec.UserSpecifications;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateUserRequest;
@@ -15,6 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -33,14 +37,15 @@ public class UserRestController {
     private final AppUserJpaRepository userRepository;
     //private final LicenseService licenseService;
 
-    private final CompteInfirmierService comptesInfirmier;
+    /** Fiches d'infirmiers liées aux comptes : référentiel du contexte Planification (langage publié, slice P2). */
+    private final FichesDesInfirmiers fichesDesInfirmiers;
 
     public UserRestController(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, AppUserJpaRepository userRepository,
-                              CompteInfirmierService comptesInfirmier) {
+                              FichesDesInfirmiers fichesDesInfirmiers) {
         this.jdbc = jdbc;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.comptesInfirmier = comptesInfirmier;
+        this.fichesDesInfirmiers = fichesDesInfirmiers;
         //this.licenseService = licenseService;
     }
 
@@ -105,7 +110,11 @@ public class UserRestController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest req, Authentication authentication) {
+        // Même verrou que la création d'un compte depuis une fiche d'infirmier : app_user.username n'a aucune unicité en base
+        // PostgreSQL (KB-PLN-24) ; le contrôle d'existence qui suit est fait sous ce verrou (tenu jusqu'à la fin de la transaction).
+        fichesDesInfirmiers.verrouillerLesIdentifiantsDeConnexion();
         Integer count = jdbc.queryForObject("SELECT COUNT(1) FROM app_user WHERE username = ?", Integer.class, req.username());
         if (count != null && count > 0) {
             return ResponseEntity.badRequest().body(Map.of("error", "Nom d'utilisateur déjà existant"));
@@ -136,7 +145,11 @@ public class UserRestController {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> updateUser(@PathVariable UUID id, @RequestBody UpdateUserRequest req, Authentication authentication) {
+        // Ordre global des verrous (ADR 0056) : fiches d'infirmier AVANT la ligne app_user. La fiche reliée à ce compte, dans le
+        // centre de l'administrateur, suit son état (actif / inactif) ; elle est donc verrouillée et écrite en premier.
+        fichesDesInfirmiers.suivreLEtatDuCompte(id, req.active(), centreDeLAdministrateur(authentication));
         if (req.password() != null && !req.password().isBlank()) {
             String hash = passwordEncoder.encode(req.password());
             jdbc.update("UPDATE app_user SET email=?, full_name=?, active=?, password_hash=? WHERE id=?",
@@ -168,16 +181,32 @@ public class UserRestController {
                 jdbc.update("INSERT INTO app_user_center (user_id, center_id) VALUES (?,?)", id, centerId);
             }
         }
-        // Une fiche infirmier reliée à ce compte suit son état (actif / inactif).
-        comptesInfirmier.surChangementEtatCompte(id, req.active());
         return ResponseEntity.ok(Map.of("id", id));
     }
 
+    /**
+     * Un compte lié à une fiche d'infirmier active ne se supprime pas (422) ; sinon ses fiches inactives sont déliées et le
+     * compte supprimé dans la même transaction.
+     */
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-        comptesInfirmier.surSuppressionCompte(id);
+        try {
+            fichesDesInfirmiers.delierAvantLaSuppressionDuCompte(id);
+        } catch (CompteLieAUneFicheActive e) {
+            throw new BusinessException("COMPTE_LIE_A_UNE_FICHE_ACTIVE", e.getMessage());
+        }
         jdbc.update("DELETE FROM app_user WHERE id = ?", id);
         return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
+    /** Centre de la session de l'administrateur, ou {@code null} (accès transverse sans centre). */
+    private UUID centreDeLAdministrateur(Authentication authentication) {
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal
+                && principal.getCenterId() != null && !principal.getCenterId().isBlank()) {
+            return UUID.fromString(principal.getCenterId());
+        }
+        return null;
     }
 
     /**

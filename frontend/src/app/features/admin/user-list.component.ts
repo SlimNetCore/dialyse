@@ -240,8 +240,12 @@ export class UserListComponent implements OnInit {
     ref.afterClosed().subscribe((confirmed) => {
       if (!confirmed) return;
       // ✅ Appel API via le store maintenant
-      this.userListStore.deleteUser(u.id);
-      this.snackbar.open(this.translate.instant('ADMIN.USERS.DELETED_OK'), this.translate.instant('COMMON.OK'), {duration: 2000});
+      this.userListStore.deleteUser({
+        id: u.id,
+        done: (clefErreur) => this.snackbar.open(
+          this.translate.instant(clefErreur ?? 'ADMIN.USERS.DELETED_OK'), this.translate.instant('COMMON.OK'),
+          {duration: clefErreur ? 6000 : 2000}),
+      });
     });
   }
 

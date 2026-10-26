@@ -59,3 +59,18 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Compétence | Aptitude particulière d'un infirmier (`PEDIATRIE`, `CATHETER`) | `Competence` | `CompetenceInfirmier` | — | RG-PLN-097 | proposed |
 | Taux d'activité | Pourcentage d'un temps plein d'un infirmier (10 à 100) | `ProfilDePlanification.tauxActivite` | `tauxActivite` | quotité | RG-PLN-097 | proposed |
 | Verrou du centre | Exclusion mutuelle des écritures de paramétrage d'un centre : la seconde écriture attend puis passe ; 409 `PLANIFICATION_ECRITURE_CONCURRENTE` seulement après 5 s d'attente ou si la même clé est créée entre-temps | `VerrouDuCentre` | — | — | ADR 0049, 0055 | proposed |
+
+## Termes ajoutés par la slice P2 (2026-10-26) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Infirmier (fiche) | Fiche du personnel soignant d'un centre : matricule, nom, prénom, téléphone, qualification, habilité à l'isolement, état, compte lié éventuel | `Infirmier` | `Infirmier` (record) | soignant (sens générique), utilisateur | RG-INF-001 à 004 | proposed |
+| Matricule | Identifiant métier d'un infirmier, unique dans le centre sans tenir compte de la casse, enregistré en majuscules (50 car. max) | `Matricule` | `matricule` | code, numéro | RG-INF-002 ; ADR 0056 | proposed |
+| Qualification | `INFIRMIER`, `MAJOR`, `AIDE_SOIGNANT` | `Qualification` | `QualificationInfirmier` | grade, fonction | RG-INF-001 | proposed |
+| Habilité à l'isolement | Un infirmier habilité peut travailler en salle d'isolement ; facultatif à la saisie (faux par défaut) | `Infirmier.habiliteIsolement` | `habiliteIsolement` | — | RG-INF-001, 050 | proposed |
+| Compte lié | Compte utilisateur (Identité et accès) relié à une fiche ; même état que la fiche | `Infirmier.compte` (`CompteId`) | `userId` | accès, login | RG-INF-010 à 012 | proposed |
+| Compte liable | Compte INFIRMIER du centre qu'aucune fiche du centre n'utilise encore | `ComptesUtilisateurs.comptesLiables` | `comptesLiables` | — | RG-INF-012 | proposed |
+| Identifiant de connexion | Nom de connexion d'un compte créé depuis une fiche : 3 à 50 caractères `[A-Za-z0-9._-]`, unique tous centres sans la casse | `IdentifiantDeConnexion` | `username` | pseudo | RG-INF-011 | proposed |
+| Mot de passe temporaire | Mot de passe de 14 caractères affiché une seule fois à la création d'un compte ; changement exigé à la première connexion | `GenerateurDeMotDePasse` | `GenerateurMotDePasseTemporaire` | mot de passe initial | RG-INF-011, RG-SEC-025 | proposed |
+| Verrou du référentiel des infirmiers | Exclusion mutuelle des écritures du référentiel d'un centre (ligne du centre) ; 409 `PLANIFICATION_ECRITURE_CONCURRENTE` après 5 s | `VerrouDuReferentielDesInfirmiers` | — | — | ADR 0056 | proposed |
+| État du compte | Vu de la fiche : absent, actif, inactif ; sert à refuser les états incohérents | `EtatDuCompte` | — | — | RG-INF-003 | proposed |

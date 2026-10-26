@@ -2390,7 +2390,9 @@
       "EMPTY": "Aucun utilisateur trouvé",
       "DELETE_TITLE": "Supprimer l'utilisateur",
       "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{username}} ? Cette action est irréversible.",
-      "DELETED_OK": "Utilisateur supprimé"
+      "DELETED_OK": "Utilisateur supprimé",
+      "DELETE_BLOCKED_ACTIVE_NURSE": "Suppression impossible : ce compte est lié à une fiche d'infirmier active. Désactivez la fiche ou déliez le compte d'abord.",
+      "DELETE_ERROR": "Suppression impossible"
     }
   },
   "PATIENT": {
@@ -3024,6 +3026,9 @@
       "COMPTE_DEJA_LIE": "Cette fiche est déjà reliée à un compte",
       "COMPTE_DEJA_UTILISE": "Ce compte est déjà relié à un autre infirmier",
       "COMPTE_ETAT_INCOHERENT": "Le compte et la fiche doivent être tous deux actifs ou tous deux inactifs",
+      "COMPTE_LIE_A_UN_AUTRE_CENTRE": "Ce compte est déjà lié à une fiche d'un autre centre : un compte ne se lie qu'à un seul centre",
+      "COMPTE_DELIAISON_INCOHERENTE":"Impossible de délier : la fiche est inactive mais son compte est actif. Désactivez d'abord le compte.",
+      "PLANIFICATION_ECRITURE_CONCURRENTE": "Le référentiel du centre vient d'être modifié par quelqu'un d'autre. Rechargez puis recommencez.",
       "COMPTE_IDENTIFIANT_INVALIDE": "Identifiant invalide (3 à 50 caractères : lettres, chiffres, point, tiret, souligné)",
       "COMPTE_IDENTIFIANT_EXISTANT": "Cet identifiant de connexion existe déjà",
       "ABSENCE_PASSEE": "Une absence passée ne peut être saisie que par l'administration",

@@ -2,6 +2,35 @@ package com.hemodialyse.backend.contexts.planification.configuration;
 
 import com.hemodialyse.backend.contexts.planification.application.ConsulterLesParametres;
 import com.hemodialyse.backend.contexts.planification.application.ConsulterLesReglages;
+import com.hemodialyse.backend.contexts.planification.application.ComptesUtilisateurs;
+import com.hemodialyse.backend.contexts.planification.application.CreerUnCompte;
+import com.hemodialyse.backend.contexts.planification.application.CreneauxDuCentre;
+import com.hemodialyse.backend.contexts.planification.application.DelierAvantLaSuppressionDuCompte;
+import com.hemodialyse.backend.contexts.planification.application.DelierLeCompte;
+import com.hemodialyse.backend.contexts.planification.application.DesactiverUnInfirmier;
+import com.hemodialyse.backend.contexts.planification.application.EnregistrerUnInfirmier;
+import com.hemodialyse.backend.contexts.planification.application.FichesDetaillees;
+import com.hemodialyse.backend.contexts.planification.application.GenerateurDeMotDePasse;
+import com.hemodialyse.backend.contexts.planification.application.LierUnCompte;
+import com.hemodialyse.backend.contexts.planification.application.ListerLesComptesLiables;
+import com.hemodialyse.backend.contexts.planification.application.ListerLesInfirmiers;
+import com.hemodialyse.backend.contexts.planification.application.ModifierUnInfirmier;
+import com.hemodialyse.backend.contexts.planification.application.NouveauxIdentifiantsDInfirmier;
+import com.hemodialyse.backend.contexts.planification.application.ReactiverUnInfirmier;
+import com.hemodialyse.backend.contexts.planification.application.RoulementsDesInfirmiers;
+import com.hemodialyse.backend.contexts.planification.application.SuivreLEtatDuCompte;
+import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesIdentifiantsDeConnexion;
+import com.hemodialyse.backend.contexts.planification.domain.InfirmiersRepository;
+import com.hemodialyse.backend.contexts.planification.domain.VerrouDuReferentielDesInfirmiers;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyidentite.ComptesUtilisateursJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyroulement.RoulementsDesInfirmiersJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.GenerateurDeMotDePasseTemporaire;
+import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsAleatoires;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.InfirmiersJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDuReferentielDesInfirmiersJdbc;
+import com.hemodialyse.backend.contexts.planification.interfaces.publie.FichesDesInfirmiersPourLeLegacy;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.hemodialyse.backend.contexts.planification.application.CreneauxDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.DefinirLaPreferenceDuPatient;
 import com.hemodialyse.backend.contexts.planification.application.DefinirLeProfilDeLInfirmier;
@@ -153,6 +182,124 @@ public class PlanificationConfiguration {
     DefinirLeProfilDeLInfirmier planificationDefinirLeProfilDeLInfirmier(UniteDeTravail unite, VerrouDuCentre verrou,
                                                                          ProfilsRepository profils, InfirmiersDuCentre infirmiers) {
         return new DefinirLeProfilDeLInfirmier(unite, verrou, profils, infirmiers);
+    }
+
+    // ------------------------------------------------------------------ slice P2 : référentiel des infirmiers et comptes
+
+    @Bean
+    VerrouDuReferentielDesInfirmiers planificationVerrouDuReferentielDesInfirmiers(JdbcTemplate jdbc) {
+        return new VerrouDuReferentielDesInfirmiersJdbc(jdbc);
+    }
+
+    @Bean
+    InfirmiersRepository planificationInfirmiers(JdbcTemplate jdbc) {
+        return new InfirmiersJdbc(jdbc);
+    }
+
+    @Bean
+    ComptesUtilisateurs planificationComptesUtilisateurs(JdbcTemplate jdbc, PasswordEncoder encodeur) {
+        return new ComptesUtilisateursJdbc(jdbc, encodeur);
+    }
+
+    @Bean
+    RoulementsDesInfirmiers planificationRoulementsDesInfirmiers(JdbcTemplate jdbc) {
+        return new RoulementsDesInfirmiersJdbc(jdbc);
+    }
+
+    @Bean
+    GenerateurDeMotDePasse planificationGenerateurDeMotDePasse() {
+        return new GenerateurDeMotDePasseTemporaire();
+    }
+
+    @Bean
+    NouveauxIdentifiantsDInfirmier planificationNouveauxIdentifiantsDInfirmier() {
+        return new NouveauxIdentifiantsAleatoires();
+    }
+
+    @Bean
+    FichesDetaillees planificationFichesDetaillees(RoulementsDesInfirmiers roulements, ComptesUtilisateurs comptes) {
+        return new FichesDetaillees(roulements, comptes);
+    }
+
+    @Bean
+    ListerLesInfirmiers planificationListerLesInfirmiers(InfirmiersRepository infirmiers, FichesDetaillees fiches) {
+        return new ListerLesInfirmiers(infirmiers, fiches);
+    }
+
+    @Bean
+    EnregistrerUnInfirmier planificationEnregistrerUnInfirmier(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                                               InfirmiersRepository infirmiers,
+                                                               NouveauxIdentifiantsDInfirmier identifiants, FichesDetaillees fiches) {
+        return new EnregistrerUnInfirmier(unite, verrou, infirmiers, identifiants, fiches);
+    }
+
+    @Bean
+    ModifierUnInfirmier planificationModifierUnInfirmier(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                                         InfirmiersRepository infirmiers, FichesDetaillees fiches) {
+        return new ModifierUnInfirmier(unite, verrou, infirmiers, fiches);
+    }
+
+    @Bean
+    DesactiverUnInfirmier planificationDesactiverUnInfirmier(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                                             InfirmiersRepository infirmiers, ComptesUtilisateurs comptes,
+                                                             FichesDetaillees fiches) {
+        return new DesactiverUnInfirmier(unite, verrou, infirmiers, comptes, fiches);
+    }
+
+    @Bean
+    ReactiverUnInfirmier planificationReactiverUnInfirmier(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                                           InfirmiersRepository infirmiers, ComptesUtilisateurs comptes,
+                                                           FichesDetaillees fiches) {
+        return new ReactiverUnInfirmier(unite, verrou, infirmiers, comptes, fiches);
+    }
+
+    @Bean
+    ListerLesComptesLiables planificationListerLesComptesLiables(ComptesUtilisateurs comptes) {
+        return new ListerLesComptesLiables(comptes);
+    }
+
+    @Bean
+    LierUnCompte planificationLierUnCompte(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                           InfirmiersRepository infirmiers, ComptesUtilisateurs comptes, FichesDetaillees fiches) {
+        return new LierUnCompte(unite, verrou, infirmiers, comptes, fiches);
+    }
+
+    @Bean
+    CreerUnCompte planificationCreerUnCompte(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                             InfirmiersRepository infirmiers, ComptesUtilisateurs comptes,
+                                             GenerateurDeMotDePasse motsDePasse, FichesDetaillees fiches) {
+        return new CreerUnCompte(unite, verrou, infirmiers, comptes, motsDePasse, fiches);
+    }
+
+    @Bean
+    DelierLeCompte planificationDelierLeCompte(UniteDeTravail unite, VerrouDuReferentielDesInfirmiers verrou,
+                                               InfirmiersRepository infirmiers, ComptesUtilisateurs comptes,
+                                               FichesDetaillees fiches) {
+        return new DelierLeCompte(unite, verrou, infirmiers, comptes, fiches);
+    }
+
+    @Bean
+    SuivreLEtatDuCompte planificationSuivreLEtatDuCompte(UniteDeTravail unite, InfirmiersRepository infirmiers) {
+        return new SuivreLEtatDuCompte(unite, infirmiers);
+    }
+
+    @Bean
+    DelierAvantLaSuppressionDuCompte planificationDelierAvantLaSuppressionDuCompte(UniteDeTravail unite,
+                                                                                   InfirmiersRepository infirmiers) {
+        return new DelierAvantLaSuppressionDuCompte(unite, infirmiers);
+    }
+
+    /** Le langage publié d'écriture vers l'administration des utilisateurs (synchronisation compte → fiche, suppression). */
+    @Bean
+    VerrouillerLesIdentifiantsDeConnexion planificationVerrouillerLesIdentifiantsDeConnexion(UniteDeTravail unite,
+                                                                                            ComptesUtilisateurs comptes) {
+        return new VerrouillerLesIdentifiantsDeConnexion(unite, comptes);
+    }
+
+    @Bean
+    FichesDesInfirmiers planificationFichesDesInfirmiers(SuivreLEtatDuCompte suivre, DelierAvantLaSuppressionDuCompte delier,
+                                                         VerrouillerLesIdentifiantsDeConnexion identifiants) {
+        return new FichesDesInfirmiersPourLeLegacy(suivre, delier, identifiants);
     }
 
     /** Le langage publié de lecture du paramétrage, utilisé par la présence, la capacité de la Direction et l'optimisation. */

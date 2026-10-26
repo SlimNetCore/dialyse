@@ -2390,7 +2390,9 @@
       "EMPTY": "No user found",
       "DELETE_TITLE": "Delete user",
       "DELETE_CONFIRM": "Are you sure you want to delete user {{username}}? This action cannot be undone.",
-      "DELETED_OK": "User deleted"
+      "DELETED_OK": "User deleted",
+      "DELETE_BLOCKED_ACTIVE_NURSE": "Deletion impossible: this account is linked to an active nurse file. Deactivate the file or unlink the account first.",
+      "DELETE_ERROR": "Deletion impossible"
     }
   },
   "PATIENT": {
@@ -3024,6 +3026,9 @@
       "COMPTE_DEJA_LIE": "This file is already linked to an account",
       "COMPTE_DEJA_UTILISE": "This account is already linked to another nurse",
       "COMPTE_ETAT_INCOHERENT": "The account and the file must both be active or both be inactive",
+      "COMPTE_LIE_A_UN_AUTRE_CENTRE": "This account is already linked to a nurse file of another centre: an account can only be linked to one centre",
+      "COMPTE_DELIAISON_INCOHERENTE":"Cannot unlink: the file is inactive but its account is active. Deactivate the account first.",
+      "PLANIFICATION_ECRITURE_CONCURRENTE": "The centre nurse register was just changed by someone else. Reload and try again.",
       "COMPTE_IDENTIFIANT_INVALIDE": "Invalid login (3 to 50 characters: letters, digits, dot, dash, underscore)",
       "COMPTE_IDENTIFIANT_EXISTANT": "This login already exists",
       "ABSENCE_PASSEE": "A past absence can only be entered by the administration",

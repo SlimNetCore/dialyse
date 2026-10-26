@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.application.infirmier;
 
-import com.hemodialyse.backend.application.infirmier.InfirmierService.InfirmierDetail;
 import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.CasePresence;
@@ -9,10 +8,10 @@ import com.hemodialyse.backend.domain.infirmier.model.Presence.StatutCase;
 import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
+import com.hemodialyse.backend.domain.infirmier.port.AffectationInfirmierRepositoryPort;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +53,7 @@ class InfirmierPresenceIntegrationTest {
     private static final LocalDate LUNDI = DIMANCHE.plusDays(1);
 
     @Autowired
-    private InfirmierService infirmiers;
+    private AffectationInfirmierRepositoryPort roulements;
     @Autowired
     private AffectationInfirmierService affectations;
     @Autowired
@@ -85,8 +84,21 @@ class InfirmierPresenceIntegrationTest {
         }
     }
 
-    private InfirmierDetail infirmier(UUID centre, String matricule, String nom, boolean habilite) {
-        return infirmiers.creer(centre, matricule, nom, null, null, QualificationInfirmier.INFIRMIER, habilite);
+    /**
+     * Fiche posée directement dans le référentiel (les écritures du référentiel sont servies par le contexte Planification,
+     * slice P2) ; {@code .infirmier().id()} garde la forme des anciens appels.
+     */
+    private FicheCreee infirmier(UUID centre, String matricule, String nom, boolean habilite) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO infirmier (id, center_id, matricule, nom, qualification, habilite_isolement, actif) "
+                + "VALUES (?, ?, ?, ?, ?, ?, TRUE)", id, centre, matricule, nom, QualificationInfirmier.INFIRMIER.name(), habilite);
+        return new FicheCreee(new Fiche(id));
+    }
+
+    private record Fiche(UUID id) {
+    }
+
+    private record FicheCreee(Fiche infirmier) {
     }
 
     private CasePresence caseLundi() {
@@ -113,24 +125,9 @@ class InfirmierPresenceIntegrationTest {
     }
 
     @Test
-    void a_matricule_is_unique_per_center_and_each_center_only_sees_its_nurses() {
-        infirmier(CENTRE, "M1", "Amrani", false);
-        infirmier(AUTRE_CENTRE, "M1", "Benali", false);
-
-        BusinessException doublon = assertThrows(BusinessException.class, () -> infirmier(CENTRE, "m1", "Cherif", false));
-        PagedResult<InfirmierDetail> centre = infirmiers.lister(CENTRE, 0, 20);
-
-        assertEquals("INFIRMIER_MATRICULE_EXISTANT", doublon.getCode());
-        assertEquals(1, centre.total());
-        assertEquals("Amrani", centre.items().get(0).infirmier().nom());
-        assertEquals(1, infirmiers.lister(AUTRE_CENTRE, 0, 20).total());
-    }
-
-    @Test
     void a_nurse_of_another_center_cannot_be_read_modified_or_assigned() {
         UUID etranger = infirmier(AUTRE_CENTRE, "M9", "Etranger", false).infirmier().id();
 
-        assertThrows(BusinessException.class, () -> infirmiers.desactiver(CENTRE, etranger));
         assertThrows(BusinessException.class,
                 () -> affectations.ajouter(CENTRE, etranger, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI)));
         assertThrows(BusinessException.class,
@@ -153,10 +150,10 @@ class InfirmierPresenceIntegrationTest {
 
         affectations.modifier(CENTRE, id, lmv.id(), SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         assertEquals(Set.of(JourSemaine.LUNDI),
-                infirmiers.lister(CENTRE, 0, 20).items().get(0).affectations().get(0).jours());
+                roulements.findByInfirmierIds(CENTRE, List.of(id)).get(0).jours());
 
         affectations.supprimer(CENTRE, id, lmv.id());
-        assertTrue(infirmiers.lister(CENTRE, 0, 20).items().get(0).affectations().isEmpty());
+        assertTrue(roulements.findByInfirmierIds(CENTRE, List.of(id)).isEmpty());
     }
 
     @Test
@@ -230,7 +227,7 @@ class InfirmierPresenceIntegrationTest {
         affectations.ajouter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         assertEquals(StatutCase.COUVERT, caseLundi().statut());
 
-        infirmiers.desactiver(CENTRE, a);
+        jdbc.update("UPDATE infirmier SET actif = FALSE WHERE id = ?", a);
 
         assertEquals(StatutCase.SOUS_EFFECTIF, caseLundi().statut());
         assertThrows(IllegalArgumentException.class, () -> presence.alertes(CENTRE, LUNDI, 0));

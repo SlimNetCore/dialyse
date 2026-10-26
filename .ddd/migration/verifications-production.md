@@ -1223,3 +1223,36 @@ SELECT count(*) FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametr
 ```
 
 Après la bascule : les écritures d'un même centre passent l'une après l'autre (la seconde attend puis passe, la dernière écrite l'emporte). Le 409 `PLANIFICATION_ECRITURE_CONCURRENTE` est rare : il n'arrive qu'après 5 s d'attente du verrou ou si la même clé est créée entre-temps (à surveiller dans le journal d'audit : statut 409 sur `/api/v1/planning/**`).
+
+## 33. Planification P2 : référentiel des infirmiers et comptes (aucune migration, 2026-10-26) — SELECT seulement
+
+Aucune migration, aucun index ajouté (décision et justification : ADR 0056) : la contrainte `UNIQUE (center_id, matricule)` et l'index `ux_infirmier_user (center_id, user_id)` existent (Flyway V11). **Le matricule est désormais enregistré en majuscules** et l'unicité s'apprécie sans la casse, par le code, sous le verrou du centre. À contrôler **avant la mise en production** (lecture seule, base de production ou copie) :
+
+```sql
+-- 1. Doublons de casse du matricule dans un même centre (m-100 et M-100) : attendu 0 ligne. S'il y en a, le legacy les a laissés
+--    passer (contrainte sensible à la casse) : le nouveau code refusera de modifier l'une des deux fiches sous le matricule de l'autre ;
+--    à régulariser par l'exploitation avant la bascule (renommer l'une des fiches), jamais par suppression.
+SELECT center_id, upper(btrim(matricule)) AS matricule_normalise, count(*) AS fiches, array_agg(id) AS identifiants
+  FROM infirmier GROUP BY center_id, upper(btrim(matricule)) HAVING count(*) > 1;
+-- 2. Informatif : fiches dont le matricule n'est pas en majuscules (elles gardent leur casse jusqu'à leur modification)
+SELECT count(*) FROM infirmier WHERE matricule <> upper(matricule);
+-- 3. Identifiants de connexion en double sans tenir compte de la casse (app_user.username n'a AUCUNE contrainte d'unicité dans
+--    Flyway V1 : KB-PLN-24) : attendu 0 ligne ; la création de compte depuis une fiche refuse déjà un identifiant existant, mais
+--    elle ne corrige pas les doublons préexistants
+SELECT lower(username), count(*) FROM app_user GROUP BY lower(username) HAVING count(*) > 1;
+-- 4. États incohérents préexistants entre une fiche et son compte (KB-PLN-22) : ils restent lisibles ; réactiver la fiche (ou délier
+--    une fiche inactive) sera désormais refusé en 422 tant que le compte n'est pas aligné depuis l'administration des utilisateurs
+SELECT i.id, i.center_id, i.actif AS fiche_active, u.active AS compte_actif
+  FROM infirmier i JOIN app_user u ON u.id = i.user_id WHERE i.actif <> u.active;
+-- 5. Comptes DÉJÀ liés à des fiches de plusieurs centres (KB-PLN-15) : attendu 0 ligne. Le nouveau code interdit d'en créer
+--    (422 COMPTE_LIE_A_UN_AUTRE_CENTRE) mais ne corrige pas l'existant : TRAITEMENT MANUEL AVANT LE DÉPLOIEMENT (délier la fiche
+--    d'un des centres depuis l'écran des comptes, ou créer un compte par centre), jamais par suppression de données
+SELECT user_id, count(*) AS fiches, array_agg(center_id) AS centres FROM infirmier
+ WHERE user_id IS NOT NULL GROUP BY user_id HAVING count(DISTINCT center_id) > 1;
+-- 6. Fiches liées à un compte supprimé (clé non contrainte) : informatif, listées avec compte absent
+SELECT i.id FROM infirmier i LEFT JOIN app_user u ON u.id = i.user_id WHERE i.user_id IS NOT NULL AND u.id IS NULL;
+-- 7. Colonnes à la borne (nouveau refus 400 à la saisie, jamais à la lecture) : informatif
+SELECT count(*) FROM infirmier WHERE length(matricule) > 50 OR length(nom) > 255 OR length(prenom) > 255 OR length(telephone) > 50;
+```
+
+Après la bascule : surveiller dans le journal d'audit les actions `INFIRMIER_ENREGISTRE`, `INFIRMIER_MODIFIE`, `INFIRMIER_DESACTIVE`, `INFIRMIER_REACTIVE`, `INFIRMIER_COMPTE_LIE`, `INFIRMIER_COMPTE_CREE`, `INFIRMIER_COMPTE_DELIE` (identifiant de la fiche en `entity_id`), les statuts 400, 409 (`PLANIFICATION_ECRITURE_CONCURRENTE`, rare : après 5 s d'attente du verrou) et 422 sur `/api/v1/infirmiers/**`, et `DELETE /api/v1/users/{id}` en 422 `COMPTE_LIE_A_UNE_FICHE_ACTIVE`. Retour arrière : redéploiement de la version précédente (aucune migration ; les matricules déjà en majuscules restent valides pour l'ancien code).

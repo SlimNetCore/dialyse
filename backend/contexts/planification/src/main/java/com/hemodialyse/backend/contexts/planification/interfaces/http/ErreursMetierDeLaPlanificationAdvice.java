@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * du legacy sont conservés), 409 {@code PLANIFICATION_ECRITURE_CONCURRENTE} pour une écriture concurrente.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class})
+@RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class})
 class ErreursMetierDeLaPlanificationAdvice {
 
     static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {

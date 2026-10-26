@@ -30,15 +30,49 @@ final class SchemaDuParametrageH2 {
                 + "nom VARCHAR(255) NOT NULL, isolement VARCHAR(3) NOT NULL DEFAULT 'NON')");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
                 + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL)");
-        jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier (id UUID PRIMARY KEY, center_id UUID NOT NULL, matricule VARCHAR(50), "
-                + "nom VARCHAR(255) NOT NULL, prenom VARCHAR(255), qualification VARCHAR(30), "
-                + "habilite_isolement BOOLEAN NOT NULL DEFAULT FALSE, actif BOOLEAN NOT NULL DEFAULT TRUE)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier (id UUID PRIMARY KEY, center_id UUID NOT NULL, matricule VARCHAR(50) NOT NULL, "
+                + "nom VARCHAR(255) NOT NULL, prenom VARCHAR(255), telephone VARCHAR(50), qualification VARCHAR(30) NOT NULL, "
+                + "habilite_isolement BOOLEAN NOT NULL DEFAULT FALSE, actif BOOLEAN NOT NULL DEFAULT TRUE, user_id UUID, "
+                + "UNIQUE (center_id, matricule))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, code_patient VARCHAR(50), "
                 + "sexe VARCHAR(10), date_admission DATE, numero_assurance VARCHAR(255), type_patient VARCHAR(30), "
                 + "created_at TIMESTAMP WITH TIME ZONE, nom VARCHAR(255), "
                 + "prenom VARCHAR(255), etat_patient VARCHAR(30), position_id UUID, jour_dimanche BOOLEAN DEFAULT FALSE, "
                 + "jour_lundi BOOLEAN DEFAULT FALSE, jour_mardi BOOLEAN DEFAULT FALSE, jour_mercredi BOOLEAN DEFAULT FALSE, "
                 + "jour_jeudi BOOLEAN DEFAULT FALSE, jour_vendredi BOOLEAN DEFAULT FALSE, jour_samedi BOOLEAN DEFAULT FALSE)");
+    }
+
+    /** Tables de la slice P2 : le centre, les comptes (Identité et accès) et le roulement (P3), colonnes utiles seulement. */
+    static void creerLesInfirmiers(JdbcTemplate jdbc) {
+        jdbc.execute("CREATE TABLE IF NOT EXISTS centers (id UUID PRIMARY KEY, code VARCHAR(50), name VARCHAR(255))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS app_role (id UUID PRIMARY KEY, code VARCHAR(50) NOT NULL UNIQUE, "
+                + "name VARCHAR(100) NOT NULL)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS app_user (id UUID PRIMARY KEY, username VARCHAR(80) NOT NULL UNIQUE, "
+                + "password_hash VARCHAR(255) NOT NULL, email VARCHAR(150), full_name VARCHAR(150), "
+                + "active BOOLEAN NOT NULL DEFAULT TRUE, must_change_password BOOLEAN NOT NULL DEFAULT FALSE)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS app_user_role (user_id UUID NOT NULL, role_id UUID NOT NULL, "
+                + "PRIMARY KEY (user_id, role_id))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS app_user_center (user_id UUID NOT NULL, center_id UUID NOT NULL, "
+                + "PRIMARY KEY (user_id, center_id))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier_affectation (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
+                + "infirmier_id UUID NOT NULL, salle_id UUID NOT NULL, creneau_id UUID NOT NULL, jours VARCHAR(100) NOT NULL)");
+    }
+
+    /** Vide les comptes rattachés aux centres de test, le roulement, les fiches et les centres donnés. */
+    static void viderLesInfirmiers(JdbcTemplate jdbc, Object... centres) {
+        for (Object centre : centres) {
+            for (java.util.UUID compte : jdbc.queryForList("SELECT user_id FROM app_user_center WHERE center_id = ?",
+                    java.util.UUID.class, centre)) {
+                jdbc.update("DELETE FROM app_user_role WHERE user_id = ?", compte);
+                jdbc.update("DELETE FROM app_user_center WHERE user_id = ?", compte);
+                jdbc.update("DELETE FROM app_user WHERE id = ?", compte);
+            }
+            jdbc.update("DELETE FROM infirmier_affectation WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM infirmier WHERE center_id = ?", centre);
+        }
+        for (Object centre : centres) {
+            jdbc.update("DELETE FROM centers WHERE id = ?", centre);
+        }
     }
 
     static void vider(JdbcTemplate jdbc, Object... centres) {

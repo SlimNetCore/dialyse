@@ -2030,7 +2030,9 @@
       "EMPTY": "Ulac useqdac yettwaf",
       "DELETE_TITLE": "Kkes aseqdac",
       "DELETE_CONFIRM": "D tidet tebɣiḍ ad tekkseḍ aseqdac {{username}}? Tigawt-a ur tettwarru ara.",
-      "DELETED_OK": "Aseqdac yettwakkes"
+      "DELETED_OK": "Aseqdac yettwakkes",
+      "DELETE_BLOCKED_ACTIVE_NURSE": "Ur izmir ara ad yettwakkes: amiḍan-a yeqqen ɣer ufaylu n unemgal urmid. Sens afaylu neɣ kkes aseqqen uqbel.",
+      "DELETE_ERROR": "Ur izmir ara ad yettwakkes"
     }
   },
   "PATIENT": {
@@ -2664,6 +2666,9 @@
       "COMPTE_DEJA_LIE": "Afaylu-agi yeqqen yakan ɣer umiḍan",
       "COMPTE_DEJA_UTILISE": "Amiḍan-agi yeqqen yakan ɣer unemgal-nniḍen",
       "COMPTE_ETAT_INCOHERENT": "Amiḍan d ufaylu ilaq ad yermed sin neɣ ur yermid ara sin",
+      "COMPTE_LIE_A_UN_AUTRE_CENTRE": "Amiḍan-agi yeqqen yakan ɣer ufaylu n unemgal deg tlemmast-nniḍen: amiḍan yezmer ad yeqqen ɣer yiwet n tlemmast kan",
+      "COMPTE_DELIAISON_INCOHERENTE":"Ur izmir ara ad yettwakkes uqqen: afaylu ur yermid ara maca amiḍan-is yermed. Sens amiḍan uqbel.",
+      "PLANIFICATION_ECRITURE_CONCURRENTE": "Aɣmis n yimennaɣen n tlemmast yettwabeddel-d imir-a seg yiwen-nniḍen. Ales asali tikelt-nniḍen.",
       "COMPTE_IDENTIFIANT_INVALIDE": "Asulay arameɣtu (seg 3 ɣer 50 n yisekkilen: isekkilen, ineḍfaren, tanqiṭ, ajerriḍ, ajerriḍ ukessar)",
       "COMPTE_IDENTIFIANT_EXISTANT": "Asulay-agi n unekcum yella yakan",
       "ABSENCE_PASSEE": "Tamettant yezrin kan tadbelt i izemren ad tt-tessekcem",

@@ -153,7 +153,7 @@ Plan détaillé (scores, critères) : à produire par `/ddd-strangle-plan` (gate
 | Ordre | Slice | ADR | Prérequis / points d'attention | État |
 |---|---|---|---|---|
 | P1 | Paramétrage et préférences (crée le module réel) | 0049, 0053, 0055 | écriture `salle.isolement` via `SallesDuCentre` (B8) ; `archunit.properties` retiré ; fiche `slices/planification-p1-parametrage.md` | `built` (2026-10-26) |
-| P2 | Référentiel des infirmiers et comptes | — | synchro compte ↔ fiche (`FichesDesInfirmiers`) | à planifier |
+| P2 | Référentiel des infirmiers et comptes | 0056 | synchro compte ↔ fiche (`FichesDesInfirmiers`, publié) ; verrou de la ligne du centre (`UPDATE centers SET id = id`), matricule en majuscules sans index, comptes bornés au centre ; fiche `slices/planification-p2-infirmiers.md` ; `InfirmierService` réduit à la lecture du détail pour « Mon planning » (retiré avec P3) | `built` (2026-10-26) |
 | P3 | Roulement, absences, remplacements, Mon planning | 0049 | verrou `infirmier` (B4), chevauchement d'absences refusé (B6) | à planifier |
 | P4 | Présence, alertes, charge, impression, contrôle 07:15 | 0054 | job du contexte, isolation par centre | à planifier |
 | P5 | Placement | 0049, 0052, 0053 | **décision à prendre en tête de fiche (revue P1 #1, ADR 0055) : créer la ligne `planning_parametres` du centre avant `FOR UPDATE`, `VerrouDuCentreJdbc` ne suffit pas** ; **seam legacy Patient** (`seamAllowed`, accord du 2026-10-26) ; évolution GMAO (`gmao.v1`, désignation) livrée avant | à planifier |

@@ -176,6 +176,11 @@ proposition PATIENTS devient une transaction **d'un seul** agrégat.
   `ComptesUtilisateurs` (adaptateur sur les tables `app_user*`, comme aujourd'hui), dans la même transaction (comportement
   actuel). Synchronisation compte → fiche (RG-INF-003, sens inverse) : appel du port publié `FichesDesInfirmiers` par
   l'administration des utilisateurs (platform).
+- **Réalisé en P2 (2026-10-26, ADR 0056, fiche `slices/planification-p2-infirmiers.md`)** : agrégat immuable `Infirmier`, port
+  `ComptesUtilisateurs` (ACL `legacyidentite`), verrou de la ligne du centre `VerrouDuReferentielDesInfirmiers`, matricule en
+  majuscules sans index, comptes bornés au centre, `COMPTE_DELIAISON_INCOHERENTE` et `COMPTE_LIE_A_UNE_FICHE_ACTIVE` ajoutés aux
+  rejets, port publié `FichesDesInfirmiers` (`suivreLEtatDuCompte`, `delierAvantLaSuppressionDuCompte`). Événements de domaine non
+  introduits (aucun consommateur).
 
 ### Roulement de l'infirmier (root: `RoulementDeLInfirmier`) *(proposed)* — type: core
 

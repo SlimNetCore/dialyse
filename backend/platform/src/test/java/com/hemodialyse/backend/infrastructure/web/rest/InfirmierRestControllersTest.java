@@ -2,9 +2,6 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.infirmier.AbsenceInfirmierService;
 import com.hemodialyse.backend.application.infirmier.AffectationInfirmierService;
-import com.hemodialyse.backend.application.infirmier.CompteInfirmierService;
-import com.hemodialyse.backend.application.infirmier.InfirmierService;
-import com.hemodialyse.backend.application.infirmier.InfirmierService.InfirmierDetail;
 import com.hemodialyse.backend.application.infirmier.PresenceInfirmierQueryService;
 import com.hemodialyse.backend.application.infirmier.PresenceInfirmierQueryService.ChargePage;
 import com.hemodialyse.backend.application.infirmier.RemplacementInfirmierService;
@@ -24,8 +21,6 @@ import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.rest.AbsenceInfirmierRestController.AbsenceRequest;
 import com.hemodialyse.backend.infrastructure.web.rest.AbsenceInfirmierRestController.AbsenceResponse;
 import com.hemodialyse.backend.infrastructure.web.rest.InfirmierRestController.AffectationRequest;
-import com.hemodialyse.backend.infrastructure.web.rest.InfirmierRestController.InfirmierRequest;
-import com.hemodialyse.backend.infrastructure.web.rest.InfirmierRestController.InfirmierResponse;
 import com.hemodialyse.backend.infrastructure.web.rest.PresenceInfirmierRestController.ChargeResponse;
 import com.hemodialyse.backend.infrastructure.web.rest.PresenceInfirmierRestController.RemplacementRequest;
 import org.junit.jupiter.api.Test;
@@ -60,41 +55,6 @@ class InfirmierRestControllersTest {
     }
 
     @Test
-    void the_nurse_list_is_paginated_and_scoped_to_the_guarded_center() {
-        InfirmierService infirmiers = mock(InfirmierService.class);
-        Infirmier i = Infirmier.creer(centre, "M1", "Amrani", null, null, QualificationInfirmier.MAJOR, true);
-        AffectationInfirmier a = AffectationInfirmier.creer(centre, i.id(), UUID.randomUUID(), UUID.randomUUID(),
-                EnumSet.of(JourSemaine.MERCREDI, JourSemaine.LUNDI));
-        when(infirmiers.lister(centre, 1, 5)).thenReturn(PagedResult.of(List.of(new InfirmierDetail(i, List.of(a))), 6, 1, 5));
-        var controller = new InfirmierRestController(infirmiers, mock(AffectationInfirmierService.class),
-                mock(CompteInfirmierService.class), mock(PresenceInfirmierQueryService.class), guard);
-
-        PagedResult<InfirmierResponse> page = controller.lister(null, 1, 5).getBody();
-
-        assertEquals(6, page.total());
-        assertEquals(1, page.page());
-        assertEquals("Amrani", page.items().get(0).nom());
-        assertEquals(List.of(JourSemaine.LUNDI, JourSemaine.MERCREDI), page.items().get(0).affectations().get(0).jours());
-    }
-
-    @Test
-    void creating_a_nurse_uses_the_guarded_center_and_rejects_an_unknown_qualification() {
-        InfirmierService infirmiers = mock(InfirmierService.class);
-        Infirmier i = Infirmier.creer(centre, "M1", "Amrani", "Sara", null, QualificationInfirmier.INFIRMIER, false);
-        when(infirmiers.creer(eq(centre), eq("M1"), eq("Amrani"), eq("Sara"), eq(null),
-                eq(QualificationInfirmier.INFIRMIER), eq(false))).thenReturn(new InfirmierDetail(i, List.of()));
-        var controller = new InfirmierRestController(infirmiers, mock(AffectationInfirmierService.class),
-                mock(CompteInfirmierService.class), mock(PresenceInfirmierQueryService.class), guard);
-
-        ResponseEntity<InfirmierResponse> ok = controller.creer(null,
-                new InfirmierRequest("M1", "Amrani", "Sara", null, "INFIRMIER", false));
-
-        assertEquals(201, ok.getStatusCode().value());
-        assertThrows(IllegalArgumentException.class, () -> controller.creer(null,
-                new InfirmierRequest("M2", "Benali", null, null, "MAGICIEN", false)));
-    }
-
-    @Test
     void an_assignment_is_added_for_the_guarded_center() {
         AffectationInfirmierService affectations = mock(AffectationInfirmierService.class);
         UUID infirmier = UUID.randomUUID();
@@ -102,8 +62,8 @@ class InfirmierRestControllersTest {
         UUID creneau = UUID.randomUUID();
         when(affectations.ajouter(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)))
                 .thenReturn(AffectationInfirmier.creer(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)));
-        var controller = new InfirmierRestController(mock(InfirmierService.class), affectations,
-                mock(CompteInfirmierService.class), mock(PresenceInfirmierQueryService.class), guard);
+        var controller = new InfirmierRestController(affectations,
+                mock(PresenceInfirmierQueryService.class), guard);
 
         var response = controller.ajouterAffectation(null, infirmier, new AffectationRequest(salle, creneau, List.of(JourSemaine.LUNDI)));
 
@@ -124,8 +84,8 @@ class InfirmierRestControllersTest {
                 .thenReturn(AffectationInfirmier.creer(centre, infirmier, salle, creneau, jours));
         when(presence.joursEnSureffectif(eq(centre), eq(salle), eq(creneau), eq(jours), any()))
                 .thenReturn(List.of(JourSemaine.MERCREDI));
-        var controller = new InfirmierRestController(mock(InfirmierService.class), affectations,
-                mock(CompteInfirmierService.class), presence, guard);
+        var controller = new InfirmierRestController(affectations,
+                presence, guard);
 
         var response = controller.ajouterAffectation(null, infirmier,
                 new AffectationRequest(salle, creneau, List.of(JourSemaine.LUNDI, JourSemaine.MERCREDI)));
@@ -144,8 +104,8 @@ class InfirmierRestControllersTest {
         when(affectations.ajouter(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)))
                 .thenReturn(AffectationInfirmier.creer(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)));
         when(presence.joursEnSureffectif(any(), any(), any(), any(), any())).thenThrow(new IllegalStateException("boom"));
-        var controller = new InfirmierRestController(mock(InfirmierService.class), affectations,
-                mock(CompteInfirmierService.class), presence, guard);
+        var controller = new InfirmierRestController(affectations,
+                presence, guard);
 
         var response = controller.ajouterAffectation(null, infirmier,
                 new AffectationRequest(salle, creneau, List.of(JourSemaine.LUNDI)));

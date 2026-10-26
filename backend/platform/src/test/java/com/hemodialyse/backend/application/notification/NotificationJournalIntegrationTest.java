@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
 import com.hemodialyse.backend.application.infirmier.AbsenceInfirmierService;
-import com.hemodialyse.backend.application.infirmier.InfirmierService;
 import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
 import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
@@ -41,8 +40,6 @@ class NotificationJournalIntegrationTest {
     private NotificationService notifications;
     @Autowired
     private NotificationJournalPort journal;
-    @Autowired
-    private InfirmierService infirmiers;
     @Autowired
     private AbsenceInfirmierService absences;
     @Autowired
@@ -167,8 +164,10 @@ class NotificationJournalIntegrationTest {
 
     @Test
     void a_nurse_absence_always_reaches_the_doctor_and_the_administrator_only_when_the_secretary_entered_it() {
-        UUID infirmier = infirmiers.creer(CENTRE, "J1", "Amrani", "Sara", null, QualificationInfirmier.INFIRMIER, false)
-                .infirmier().id();
+        UUID infirmier = UUID.randomUUID();
+        jdbc.update("INSERT INTO infirmier (id, center_id, matricule, nom, prenom, qualification, habilite_isolement, actif) "
+                + "VALUES (?, ?, 'J1', 'Amrani', 'Sara', ?, FALSE, TRUE)", infirmier, CENTRE,
+                QualificationInfirmier.INFIRMIER.name());
         LocalDate lundi = LocalDate.of(2026, 9, 28);
 
         absences.declarer(CENTRE, infirmier, lundi, lundi, TypeAbsence.CONGE, null, false);

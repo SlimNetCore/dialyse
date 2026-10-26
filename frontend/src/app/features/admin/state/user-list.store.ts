@@ -12,6 +12,12 @@ type UserListState = SearchablePagedListState<AppUser> & {
   error: string | null;
 };
 
+/** Clé i18n de l'échec d'une suppression d'utilisateur : un compte lié à une fiche d'infirmier active est refusé (422). */
+export function userDeleteErrorKey(err: unknown): string {
+  const code = (err as { error?: { code?: string } } | null)?.error?.code;
+  return code === 'COMPTE_LIE_A_UNE_FICHE_ACTIVE' ? 'ADMIN.USERS.DELETE_BLOCKED_ACTIVE_NURSE' : 'ADMIN.USERS.DELETE_ERROR';
+}
+
 const initialState: UserListState = {
   ...createSearchablePagedListState<AppUser>(),
   visibleColumns: {
@@ -70,13 +76,14 @@ export const UserListStore = signalStore(
       )
     ),
 
-    // ✅ Suppression utilisateur dans le store
-    deleteUser: rxMethod<string>(
+    // ✅ Suppression utilisateur dans le store ; `done` reçoit la clé i18n de l'échec, ou null en cas de succès
+    deleteUser: rxMethod<{ id: string; done?: (clefErreur: string | null) => void }>(
       pipe(
         tap(() => patchState(store, {error: null})),
-        switchMap((userId) =>
+        switchMap(({id: userId, done}) =>
           api.deleteUser(userId).pipe(
             tap(() => {
+              done?.(null);
               // Rafraîchir la liste après suppression
               const page = store.pageIndex();
               const size = store.pageSize();
@@ -106,6 +113,7 @@ export const UserListStore = signalStore(
               patchState(store, {
                 error: err?.error?.message || err?.statusText || 'Erreur suppression'
               });
+              done?.(userDeleteErrorKey(err));
               return of(null);
             })
           )

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.audit;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,6 +29,19 @@ public final class AuditActionResolver {
             "/api/v1/patients/{patientId}/dossier-medical"
     );
 
+    /**
+     * Libellés métier des écritures du référentiel des infirmiers (slice P2, décision du 26/10/2026 : KB-PLN-17), par
+     * « MÉTHODE gabarit de route ». L'identifiant tracé est celui de la fiche (variable de chemin, ou fiche créée).
+     */
+    private static final Map<String, Resolved> ACTIONS_METIER = Map.of(
+            "POST /api/v1/infirmiers", new Resolved("INFIRMIER_ENREGISTRE", "infirmiers", "Infirmier enregistré"),
+            "PUT /api/v1/infirmiers/{id}", new Resolved("INFIRMIER_MODIFIE", "infirmiers", "Infirmier modifié"),
+            "POST /api/v1/infirmiers/{id}/desactiver", new Resolved("INFIRMIER_DESACTIVE", "infirmiers", "Infirmier désactivé"),
+            "POST /api/v1/infirmiers/{id}/reactiver", new Resolved("INFIRMIER_REACTIVE", "infirmiers", "Infirmier réactivé"),
+            "POST /api/v1/infirmiers/{id}/compte/lier", new Resolved("INFIRMIER_COMPTE_LIE", "infirmiers", "Compte lié à un infirmier"),
+            "POST /api/v1/infirmiers/{id}/compte/creer", new Resolved("INFIRMIER_COMPTE_CREE", "infirmiers", "Compte créé pour un infirmier"),
+            "DELETE /api/v1/infirmiers/{id}/compte", new Resolved("INFIRMIER_COMPTE_DELIE", "infirmiers", "Compte délié d'un infirmier"));
+
     private AuditActionResolver() {
     }
 
@@ -42,6 +56,8 @@ public final class AuditActionResolver {
     }
 
     public static Resolved resolve(String method, String routeTemplate) {
+        Resolved metier = ACTIONS_METIER.get(method + " " + routeTemplate);
+        if (metier != null) return metier;
         String verb = verb(method);
         String resource = resource(routeTemplate);
         String actionCode = (resource + "_" + verb).toUpperCase(Locale.ROOT).replace('-', '_');

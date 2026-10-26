@@ -52,7 +52,8 @@
     "stock-s6b-sortie-pour-seances": "verified",
     "stock-s7-inventaire": "built",
     "stock-s8-peremptions-retrait": "verified",
-    "planification-p1-parametrage": "built"
+    "planification-p1-parametrage": "built",
+    "planification-p2-infirmiers": "built"
   },
   "contexts": {
     "gmao": "architected",
