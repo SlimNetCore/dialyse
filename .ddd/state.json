@@ -13,7 +13,7 @@
   },
   "gates": {
     "strategic": "approved",
-    "tactical": "approved",
+    "tactical": "proposed",
     "plan": "approved"
   },
   "slices": {
@@ -58,6 +58,7 @@
     "comptabilite": "modeled",
     "facturation": "architected",
     "absences-patients": "modeled",
-    "stock": "architected"
+    "stock": "architected",
+    "planification": "modeled"
   }
 }
