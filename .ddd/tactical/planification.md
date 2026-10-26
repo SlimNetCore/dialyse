@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: approved
 date: 2026-10-26
 context: Planification (`planification`) — core (SD2)
 sources: [.ddd/strategic/bounded-contexts.md §Planification, .ddd/strategic/context-map.md R1/R2/R6/R7/R8/R20/R21, .ddd/strategic/glossaries/planification.md, .ddd/discovery/event-storming.md #10-20 et H1/H9, .ddd/migration/roadmap.md (§2 Planification, dette GMAO), docs/reference/regles-de-gestion/05-planning-placement.md (RG-PLN-001..107), 10-infirmiers.md (RG-INF-001..071), 04-patients-assures-pec.md (RG-PAT-014, 030..034), ADR 0005/0008/0009/0010/0013/0024/0031/0042, modèles .ddd/tactical/absences-patients.md, stock.md, gmao.md, scan (cluster C2, entrypoints) et lecture ciblée de PlacementPatientService, LiberationPlacesService, Patient.java:122-131, GmaoEvenementsPlanificationListener, GenerateurIndisponibleService, signatures des modèles bc-seance/domain/{planning,infirmier}]
@@ -487,4 +487,4 @@ aucune lecture SQL de `gmao_equipements` par la Planification.
 | 3, 5, 6, 7, 8 | Verrous, fuseau, chevauchement d'absences d'infirmier, transaction multi-agrégats, salles d'isolement | **Corriger avec les défauts du modèle** : verrous et réponses 409/422 ; fuseau du centre (Africa/Algiers par défaut) ; chevauchement d'absences refusé ; exception de transaction multi-agrégats assumée par ADR ; écriture des salles d'isolement conservée via un port Organisation. |
 | 9 | Termes du glossaire | **Restent `proposed`** : validation par les experts métier à venir. |
 
-Le gate `tactical` est à l'état `proposed` : l'approbation (`/ddd-gate tactical approve`) revient à l'utilisateur.
+Gate `tactical` approuvé par l'utilisateur le 2026-10-26 (`/ddd-gate tactical approve`).

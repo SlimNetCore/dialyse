@@ -13,7 +13,7 @@
   },
   "gates": {
     "strategic": "approved",
-    "tactical": "proposed",
+    "tactical": "approved",
     "plan": "approved"
   },
   "slices": {
