@@ -1,0 +1,20 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "infirmierId" : "<INFIRMIER_3>",
+      "nom" : "Prenom Nom3",
+      "profil" : {
+        "competences" : [ ],
+        "infirmierId" : "<INFIRMIER_3>",
+        "tauxActivite" : 100
+      },
+      "qualification" : "INFIRMIER"
+    } ],
+    "page" : 1,
+    "size" : 2,
+    "total" : 3
+  }
+}

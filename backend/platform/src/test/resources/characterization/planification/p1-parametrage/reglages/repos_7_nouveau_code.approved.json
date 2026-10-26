@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Le repos hebdomadaire doit être compris entre 0 et 6 jours",
+    "instance" : "/api/v1/planning/preferences/reglages",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

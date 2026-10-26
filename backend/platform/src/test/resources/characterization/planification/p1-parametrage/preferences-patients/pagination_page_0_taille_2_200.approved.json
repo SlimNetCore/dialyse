@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "creneauActuelId" : null,
+      "jours" : [ ],
+      "nom" : "Prenom Nom1",
+      "patientId" : "<PATIENT_1>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_1>",
+        "seancesParSemaine" : null
+      }
+    }, {
+      "creneauActuelId" : null,
+      "jours" : [ ],
+      "nom" : "Prenom Nom2",
+      "patientId" : "<PATIENT_2>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_2>",
+        "seancesParSemaine" : null
+      }
+    } ],
+    "page" : 0,
+    "size" : 2,
+    "total" : 5
+  }
+}

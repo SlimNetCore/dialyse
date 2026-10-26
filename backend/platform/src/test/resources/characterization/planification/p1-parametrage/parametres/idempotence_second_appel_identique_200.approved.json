@@ -1,0 +1,10 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "joursOuverts" : [ "LUNDI", "JEUDI" ],
+    "patientsParInfirmier" : 5,
+    "patientsParPosteEtSerie" : 4,
+    "sallesIsolement" : [ ]
+  }
+}

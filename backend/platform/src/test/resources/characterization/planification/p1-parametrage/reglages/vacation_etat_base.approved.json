@@ -1,0 +1,7 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "heures_hebdo_temps_plein" : "40",
+  "heures_par_vacation" : "12",
+  "replanification_auto" : "false",
+  "repos_hebdo_min" : "1"
+} ]

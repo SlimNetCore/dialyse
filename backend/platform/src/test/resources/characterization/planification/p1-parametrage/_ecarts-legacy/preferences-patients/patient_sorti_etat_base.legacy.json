@@ -1,0 +1,7 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "creneau_prefere_id" : null,
+  "jours_a_choisir" : "false",
+  "patient_id" : "<PATIENT_TRANSFERE>",
+  "seances_par_semaine" : "3"
+} ]

@@ -1,0 +1,8 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "jours_ouverts" : "LUNDI",
+  "patients_par_infirmier" : "4",
+  "patients_par_poste_serie" : "10",
+  "salles_isolement" : null,
+  "updated_at_nul" : "false"
+} ]

@@ -1,0 +1,11 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "heuresHebdoTempsPlein" : 60,
+    "heuresParVacation" : 12,
+    "replanificationAuto" : false,
+    "reposHebdoMin" : 6
+  }
+}

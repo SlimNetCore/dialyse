@@ -1,0 +1,44 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "creneauActuelId" : null,
+      "jours" : [ ],
+      "nom" : "Amine Amrani",
+      "patientId" : "<PATIENT_AMRANI_A>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_AMRANI_A>",
+        "seancesParSemaine" : null
+      }
+    }, {
+      "creneauActuelId" : null,
+      "jours" : [ "MARDI" ],
+      "nom" : "Zahra Amrani",
+      "patientId" : "<PATIENT_AMRANI_Z>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_AMRANI_Z>",
+        "seancesParSemaine" : null
+      }
+    }, {
+      "creneauActuelId" : "<CRENEAU_MATIN>",
+      "jours" : [ "LUNDI", "MERCREDI", "VENDREDI" ],
+      "nom" : "Karim Benali",
+      "patientId" : "<PATIENT_BENALI>",
+      "preference" : {
+        "creneauPrefereId" : "<CRENEAU_MATIN>",
+        "joursAChoisir" : true,
+        "patientId" : "<PATIENT_BENALI>",
+        "seancesParSemaine" : 3
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 3
+  }
+}

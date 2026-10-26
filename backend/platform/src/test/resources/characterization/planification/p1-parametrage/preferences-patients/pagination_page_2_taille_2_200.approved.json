@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "creneauActuelId" : null,
+      "jours" : [ ],
+      "nom" : "Prenom Nom5",
+      "patientId" : "<PATIENT_5>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_5>",
+        "seancesParSemaine" : null
+      }
+    } ],
+    "page" : 2,
+    "size" : 2,
+    "total" : 5
+  }
+}

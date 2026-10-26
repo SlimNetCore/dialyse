@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PREFERENCE_PATIENT_INTROUVABLE",
+    "detail" : "Patient introuvable",
+    "instance" : "/api/v1/planning/preferences/patients/<UUID_GENERE_1>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

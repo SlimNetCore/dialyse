@@ -1,0 +1,17 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "SALLE_1",
+  "isolement" : "NON"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "SALLE_2",
+  "isolement" : "OUI"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "SALLE_3",
+  "isolement" : "OUI"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "SALLE_B",
+  "isolement" : "OUI"
+} ]

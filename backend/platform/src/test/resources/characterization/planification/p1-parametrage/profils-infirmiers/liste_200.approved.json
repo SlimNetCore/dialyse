@@ -1,0 +1,29 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "infirmierId" : "<INFIRMIER_AMRANI>",
+      "nom" : "Amrani",
+      "profil" : {
+        "competences" : [ ],
+        "infirmierId" : "<INFIRMIER_AMRANI>",
+        "tauxActivite" : 100
+      },
+      "qualification" : "MAJOR"
+    }, {
+      "infirmierId" : "<INFIRMIER_BENALI>",
+      "nom" : "Samia Benali",
+      "profil" : {
+        "competences" : [ "CATHETER", "PEDIATRIE" ],
+        "infirmierId" : "<INFIRMIER_BENALI>",
+        "tauxActivite" : 60
+      },
+      "qualification" : "INFIRMIER"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

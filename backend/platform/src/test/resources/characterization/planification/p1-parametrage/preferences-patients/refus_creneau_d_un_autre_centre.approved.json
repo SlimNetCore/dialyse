@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PREFERENCE_CRENEAU_INCONNU",
+    "detail" : "Ce créneau n'appartient pas au centre",
+    "instance" : "/api/v1/planning/preferences/patients/<PATIENT_BENALI>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

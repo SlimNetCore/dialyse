@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Une salle d'isolement n'appartient pas à ce centre",
+    "instance" : "/api/v1/planning/parametres",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

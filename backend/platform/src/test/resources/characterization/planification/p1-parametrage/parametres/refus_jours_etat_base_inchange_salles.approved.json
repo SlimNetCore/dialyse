@@ -1,0 +1,9 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "SALLE_2",
+  "isolement" : "NON"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "SALLE_ISO_1",
+  "isolement" : "OUI"
+} ]

@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "creneauActuelId" : "<CRENEAU_MATIN>",
+      "jours" : [ "LUNDI" ],
+      "nom" : "Karim Benali",
+      "patientId" : "<PATIENT_BENALI>",
+      "preference" : {
+        "creneauPrefereId" : "<CRENEAU_MATIN>",
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_BENALI>",
+        "seancesParSemaine" : 2
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

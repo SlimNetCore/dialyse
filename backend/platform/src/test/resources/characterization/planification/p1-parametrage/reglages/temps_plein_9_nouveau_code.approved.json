@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Les heures hebdomadaires d'un temps plein doivent être comprises entre 10 et 60",
+    "instance" : "/api/v1/planning/preferences/reglages",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

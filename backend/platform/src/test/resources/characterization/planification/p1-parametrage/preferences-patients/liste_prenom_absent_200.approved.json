@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "creneauActuelId" : null,
+      "jours" : [ ],
+      "nom" : "Benali",
+      "patientId" : "<PATIENT_SANS_PRENOM>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_SANS_PRENOM>",
+        "seancesParSemaine" : null
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

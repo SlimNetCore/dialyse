@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "creneauActuelId" : null,
+      "jours" : [ ],
+      "nom" : "Rania Zerrouki",
+      "patientId" : "<PATIENT_B>",
+      "preference" : {
+        "creneauPrefereId" : null,
+        "joursAChoisir" : false,
+        "patientId" : "<PATIENT_B>",
+        "seancesParSemaine" : null
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Le ratio patients par infirmier doit être compris entre 1 et 20",
+    "instance" : "/api/v1/planning/parametres",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "joursOuverts" : [ "DIMANCHE", "LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI" ],
+    "patientsParInfirmier" : 4,
+    "patientsParPosteEtSerie" : 3,
+    "sallesIsolement" : [ "<SALLE_ISO_1>", "<SALLE_ISO_2>" ]
+  }
+}

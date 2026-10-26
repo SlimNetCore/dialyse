@@ -1,0 +1,20 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "infirmierId" : "<INFIRMIER_BENALI>",
+      "nom" : "Samia Benali",
+      "profil" : {
+        "competences" : [ ],
+        "infirmierId" : "<INFIRMIER_BENALI>",
+        "tauxActivite" : 100
+      },
+      "qualification" : "INFIRMIER"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

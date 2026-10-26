@@ -1,0 +1,9 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "competences" : [ "CATHETER" ],
+    "infirmierId" : "<INFIRMIER_INACTIF>",
+    "tauxActivite" : 70
+  }
+}

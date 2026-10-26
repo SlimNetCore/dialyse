@@ -1,0 +1,11 @@
+{
+  "status" : 415,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "UNSUPPORTED_MEDIA_TYPE",
+    "detail" : "Le corps de la requête doit être du JSON",
+    "instance" : "/api/v1/planning/parametres",
+    "status" : 415,
+    "title" : "Type de contenu non supporte"
+  }
+}

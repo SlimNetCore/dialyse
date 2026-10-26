@@ -1,0 +1,38 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "infirmierId" : "<INFIRMIER_A>",
+      "nom" : "Un Aaa",
+      "profil" : {
+        "competences" : [ ],
+        "infirmierId" : "<INFIRMIER_A>",
+        "tauxActivite" : 30
+      },
+      "qualification" : "INFIRMIER"
+    }, {
+      "infirmierId" : "<INFIRMIER_B>",
+      "nom" : "Deux Bbb",
+      "profil" : {
+        "competences" : [ ],
+        "infirmierId" : "<INFIRMIER_B>",
+        "tauxActivite" : 40
+      },
+      "qualification" : "INFIRMIER"
+    }, {
+      "infirmierId" : "<INFIRMIER_C>",
+      "nom" : "Trois Ccc",
+      "profil" : {
+        "competences" : [ "CATHETER", "PEDIATRIE" ],
+        "infirmierId" : "<INFIRMIER_C>",
+        "tauxActivite" : 50
+      },
+      "qualification" : "INFIRMIER"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 3
+  }
+}

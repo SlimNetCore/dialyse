@@ -1,0 +1,9 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "competences" : [ "CATHETER", "PEDIATRIE" ],
+    "infirmierId" : "<INFIRMIER_BENALI>",
+    "tauxActivite" : 80
+  }
+}
