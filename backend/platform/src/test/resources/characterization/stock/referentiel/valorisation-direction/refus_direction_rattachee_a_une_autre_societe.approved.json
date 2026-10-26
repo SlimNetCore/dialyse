@@ -1,0 +1,11 @@
+{
+  "status" : 403,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès à cette société refusé",
+    "instance" : "/api/v1/direction/stock-groupes",
+    "status" : 403,
+    "title" : "Acces refuse"
+  }
+}

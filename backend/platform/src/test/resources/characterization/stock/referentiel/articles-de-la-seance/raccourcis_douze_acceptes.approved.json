@@ -1,0 +1,5 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ "<ART_L0>", "<ART_L1>", "<ART_L2>", "<ART_L3>", "<ART_L4>", "<ART_L5>", "<ART_L6>", "<ART_L7>", "<ART_L8>", "<ART_L9>", "<ART_L10>", "<ART_L11>" ]
+}

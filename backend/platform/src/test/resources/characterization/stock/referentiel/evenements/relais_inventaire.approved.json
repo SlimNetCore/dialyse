@@ -1,0 +1,64 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "champsNuls" : {
+      "cacheDeValorisationRetenu" : true,
+      "evenementsSpring" : [ {
+        "contenu" : {
+          "centre" : "<CENTRE_A>",
+          "date" : null,
+          "par" : null,
+          "reference" : "INV-00002",
+          "statut" : "OUVERT"
+        },
+        "type" : "InventaireModifie"
+      } ],
+      "lignesAjoutees_au_registre_event_publication" : 0,
+      "messagesStomp" : [ {
+        "destination" : "/topic/center/<CENTRE_A>/events",
+        "message" : {
+          "centerId" : "<CENTRE_A>",
+          "payload" : {
+            "dateInventaire" : "",
+            "par" : "",
+            "reference" : "INV-00002",
+            "statut" : "OUVERT",
+            "targetRoles" : "ADMIN,PHARMACIEN,INFIRMIER"
+          },
+          "timestamp" : "<HORODATAGE>",
+          "type" : "STOCK_INVENTORY_CHANGED"
+        }
+      } ]
+    },
+    "complet" : {
+      "cacheDeValorisationRetenu" : true,
+      "evenementsSpring" : [ {
+        "contenu" : {
+          "centre" : "<CENTRE_A>",
+          "date" : "<J-2>",
+          "par" : "pharma-1",
+          "reference" : "INV-00001",
+          "statut" : "CLOTURE"
+        },
+        "type" : "InventaireModifie"
+      } ],
+      "lignesAjoutees_au_registre_event_publication" : 0,
+      "messagesStomp" : [ {
+        "destination" : "/topic/center/<CENTRE_A>/events",
+        "message" : {
+          "centerId" : "<CENTRE_A>",
+          "payload" : {
+            "dateInventaire" : "<J-2>",
+            "par" : "pharma-1",
+            "reference" : "INV-00001",
+            "statut" : "CLOTURE",
+            "targetRoles" : "ADMIN,PHARMACIEN,INFIRMIER"
+          },
+          "timestamp" : "<HORODATAGE>",
+          "type" : "STOCK_INVENTORY_CHANGED"
+        }
+      } ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "<CENTRE_ACTIF>" : [ {
+    "type" : "LOTS_PROCHES_PEREMPTION",
+    "rolesCibles" : ",ADMIN,PHARMACIEN,",
+    "identifiantDeterministe" : true,
+    "payload" : {
+      "nbLots" : "7",
+      "nbPerimes" : "2",
+      "plusProche" : "<J-8>",
+      "targetRoles" : "ADMIN,PHARMACIEN"
+    }
+  } ],
+  "<CENTRE_INACTIF>" : [ ],
+  "<CENTRE_SANS_LOT>" : [ ]
+}

@@ -1,0 +1,102 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "from" : "2025-11-01",
+    "generatedAt" : "<HORODATAGE>",
+    "groupes" : [ {
+      "centres" : [ {
+        "centerId" : "<CENTRE_A>",
+        "centreNom" : "Centre ZT-S8V-A",
+        "nbArticles" : 1,
+        "valeurs" : {
+          "autresVariations" : 0.00,
+          "entrees" : 0.00,
+          "sorties" : 0.00,
+          "valeurDebut" : 0.00,
+          "valeurFin" : 0.00
+        }
+      } ],
+      "nbArticles" : 1,
+      "nbCentres" : 1,
+      "nom" : "Dialyse",
+      "total" : {
+        "autresVariations" : 0.00,
+        "entrees" : 0.00,
+        "sorties" : 0.00,
+        "valeurDebut" : 0.00,
+        "valeurFin" : 0.00
+      }
+    }, {
+      "centres" : [ {
+        "centerId" : "<CENTRE_B>",
+        "centreNom" : "Centre ZT-S8V-B",
+        "nbArticles" : 1,
+        "valeurs" : {
+          "autresVariations" : 0.00,
+          "entrees" : 0.00,
+          "sorties" : 0.00,
+          "valeurDebut" : 0.00,
+          "valeurFin" : 0.00
+        }
+      } ],
+      "nbArticles" : 1,
+      "nbCentres" : 1,
+      "nom" : "Hémodialyse",
+      "total" : {
+        "autresVariations" : 0.00,
+        "entrees" : 0.00,
+        "sorties" : 0.00,
+        "valeurDebut" : 0.00,
+        "valeurFin" : 0.00
+      }
+    }, {
+      "centres" : [ {
+        "centerId" : "<CENTRE_A>",
+        "centreNom" : "Centre ZT-S8V-A",
+        "nbArticles" : 2,
+        "valeurs" : {
+          "autresVariations" : 0.00,
+          "entrees" : 0.00,
+          "sorties" : 0.00,
+          "valeurDebut" : 0.00,
+          "valeurFin" : 0.00
+        }
+      }, {
+        "centerId" : "<CENTRE_B>",
+        "centreNom" : "Centre ZT-S8V-B",
+        "nbArticles" : 1,
+        "valeurs" : {
+          "autresVariations" : 0.00,
+          "entrees" : 0.00,
+          "sorties" : 0.00,
+          "valeurDebut" : 0.00,
+          "valeurFin" : 0.00
+        }
+      }, {
+        "centerId" : "<CENTRE_INACTIF>",
+        "centreNom" : "Centre ZT-S8V-C",
+        "nbArticles" : 1,
+        "valeurs" : {
+          "autresVariations" : 0.00,
+          "entrees" : 0.00,
+          "sorties" : 0.00,
+          "valeurDebut" : 0.00,
+          "valeurFin" : 0.00
+        }
+      } ],
+      "nbArticles" : 4,
+      "nbCentres" : 3,
+      "nom" : "KIT CNAS",
+      "total" : {
+        "autresVariations" : 0.00,
+        "entrees" : 0.00,
+        "sorties" : 0.00,
+        "valeurDebut" : 0.00,
+        "valeurFin" : 0.00
+      }
+    } ],
+    "societeId" : "<SOCIETE_1>",
+    "to" : "2025-11-30"
+  }
+}

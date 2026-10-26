@@ -1,0 +1,11 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "from" : "2026-01-01",
+    "generatedAt" : "<HORODATAGE>",
+    "groupes" : [ ],
+    "societeId" : "<SOCIETE_1>",
+    "to" : "2026-01-31"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "logger" : "com.hemodialyse.backend.infrastructure.scheduling.ExpirationAlertScheduler",
+  "niveauxDesLignesDeNosCentres" : [ "WARN" ]
+}

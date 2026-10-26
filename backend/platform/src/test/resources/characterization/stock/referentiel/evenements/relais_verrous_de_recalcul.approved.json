@@ -1,0 +1,106 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "demarre" : {
+      "cacheDeValorisationRetenu" : true,
+      "evenementsSpring" : [ {
+        "contenu" : {
+          "articles" : [ "<ART_X>", "<ART_Y>" ],
+          "centre" : "<CENTRE_A>",
+          "etat" : "STARTED"
+        },
+        "type" : "VerrousDeRecalculModifies"
+      } ],
+      "lignesAjoutees_au_registre_event_publication" : 0,
+      "messagesStomp" : [ {
+        "destination" : "/topic/center/<CENTRE_A>/events",
+        "message" : {
+          "centerId" : "<CENTRE_A>",
+          "payload" : {
+            "articleIds" : "<ART_X>,<ART_Y>",
+            "count" : "2",
+            "status" : "STARTED"
+          },
+          "timestamp" : "<HORODATAGE>",
+          "type" : "STOCK_RECALC_LOCKS_CHANGED"
+        }
+      } ]
+    },
+    "echoue" : {
+      "cacheDeValorisationRetenu" : false,
+      "evenementsSpring" : [ {
+        "contenu" : {
+          "articles" : [ "<ART_X>" ],
+          "centre" : "<CENTRE_A>",
+          "etat" : "FAILED"
+        },
+        "type" : "VerrousDeRecalculModifies"
+      } ],
+      "lignesAjoutees_au_registre_event_publication" : 0,
+      "messagesStomp" : [ {
+        "destination" : "/topic/center/<CENTRE_A>/events",
+        "message" : {
+          "centerId" : "<CENTRE_A>",
+          "payload" : {
+            "articleIds" : "<ART_X>",
+            "count" : "1",
+            "status" : "FAILED"
+          },
+          "timestamp" : "<HORODATAGE>",
+          "type" : "STOCK_RECALC_LOCKS_CHANGED"
+        }
+      } ]
+    },
+    "sansArticle" : {
+      "cacheDeValorisationRetenu" : false,
+      "evenementsSpring" : [ {
+        "contenu" : {
+          "articles" : [ ],
+          "centre" : "<CENTRE_A>",
+          "etat" : "COMPLETED"
+        },
+        "type" : "VerrousDeRecalculModifies"
+      } ],
+      "lignesAjoutees_au_registre_event_publication" : 0,
+      "messagesStomp" : [ {
+        "destination" : "/topic/center/<CENTRE_A>/events",
+        "message" : {
+          "centerId" : "<CENTRE_A>",
+          "payload" : {
+            "articleIds" : "",
+            "count" : "0",
+            "status" : "COMPLETED"
+          },
+          "timestamp" : "<HORODATAGE>",
+          "type" : "STOCK_RECALC_LOCKS_CHANGED"
+        }
+      } ]
+    },
+    "termine" : {
+      "cacheDeValorisationRetenu" : false,
+      "evenementsSpring" : [ {
+        "contenu" : {
+          "articles" : [ "<ART_X>", "<ART_Y>" ],
+          "centre" : "<CENTRE_A>",
+          "etat" : "COMPLETED"
+        },
+        "type" : "VerrousDeRecalculModifies"
+      } ],
+      "lignesAjoutees_au_registre_event_publication" : 0,
+      "messagesStomp" : [ {
+        "destination" : "/topic/center/<CENTRE_A>/events",
+        "message" : {
+          "centerId" : "<CENTRE_A>",
+          "payload" : {
+            "articleIds" : "<ART_X>,<ART_Y>",
+            "count" : "2",
+            "status" : "COMPLETED"
+          },
+          "timestamp" : "<HORODATAGE>",
+          "type" : "STOCK_RECALC_LOCKS_CHANGED"
+        }
+      } ]
+    }
+  }
+}

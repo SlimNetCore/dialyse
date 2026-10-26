@@ -1,0 +1,17 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "annulee" : {
+      "cacheRetenu" : true,
+      "evenementsSpringPublies" : 2,
+      "messagesStomp" : 0
+    },
+    "validee" : {
+      "cacheRetenuApresCommit" : false,
+      "cacheRetenuAvantCommit" : true,
+      "messagesApresCommit" : 2,
+      "messagesAvantCommit" : 0
+    }
+  }
+}

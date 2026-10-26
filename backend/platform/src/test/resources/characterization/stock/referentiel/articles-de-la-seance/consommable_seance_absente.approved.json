@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "La seance doit etre validee avant d'ajouter un consommable",
+    "instance" : "/api/v1/seances/<SEANCE_ABSENTE>/consommables",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

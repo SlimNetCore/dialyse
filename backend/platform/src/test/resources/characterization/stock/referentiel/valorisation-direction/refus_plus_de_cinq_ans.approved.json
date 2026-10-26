@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PERIODE_TROP_LONGUE",
+    "detail" : "La période ne peut pas dépasser 5 ans",
+    "instance" : "/api/v1/direction/stock-groupes",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

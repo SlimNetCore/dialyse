@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Article en double ou invalide dans les raccourcis",
+    "instance" : "/api/v1/seances/raccourcis-consommables",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

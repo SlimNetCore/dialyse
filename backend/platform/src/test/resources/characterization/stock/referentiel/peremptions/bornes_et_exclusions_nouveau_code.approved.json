@@ -1,0 +1,15 @@
+{
+  "L-PERIME-8" : true,
+  "L-PERIME-3" : false,
+  "L-PERIME-1" : true,
+  "L-JOUR" : true,
+  "L-29" : true,
+  "L-30" : true,
+  "L-31" : false,
+  "L-90" : false,
+  "L-VIDE" : false,
+  "L-NEG" : false,
+  "L-SANS-DATE" : false,
+  "L-ART-INACTIF" : false,
+  "L-INACTIF" : false
+}

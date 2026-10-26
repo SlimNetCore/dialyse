@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PERIODE_INVALIDE",
+    "detail" : "La date de début doit précéder la date de fin",
+    "instance" : "/api/v1/direction/stock-groupes",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

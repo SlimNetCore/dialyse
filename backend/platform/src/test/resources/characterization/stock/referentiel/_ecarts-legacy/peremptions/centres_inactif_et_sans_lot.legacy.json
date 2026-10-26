@@ -1,0 +1,6 @@
+{
+  "centreInactifSignale" : true,
+  "centreActifSignale" : true,
+  "centreSansLotSignale" : false,
+  "centreInactif" : [ "[STOCK][J-30] Centre <CENTRE_INACTIF> : 1 lot(s) en peremption proche", "  -> Lot L-INACTIF (article <ART_B1>) peremption <J+5> - reste 11.00" ]
+}

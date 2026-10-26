@@ -1,0 +1,10 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "evenementsSpring" : [ ],
+    "lignesAjoutees_au_registre_event_publication" : 0,
+    "messagesStomp" : [ ],
+    "statutHttp" : 200
+  }
+}

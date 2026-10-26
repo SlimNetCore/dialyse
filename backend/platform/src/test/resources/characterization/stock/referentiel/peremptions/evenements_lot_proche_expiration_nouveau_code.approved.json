@@ -1,0 +1,73 @@
+{
+  "evenements" : [ {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_1",
+    "numeroLot" : "L-PERIME-8",
+    "datePeremption" : "<J-8>",
+    "quantite" : "2.50",
+    "perime" : true,
+    "identifiantDeterministe" : true
+  }, {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_1",
+    "numeroLot" : "L-PERIME-1",
+    "datePeremption" : "<J-1>",
+    "quantite" : "1.00",
+    "perime" : true,
+    "identifiantDeterministe" : true
+  }, {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_1",
+    "numeroLot" : "L-JOUR",
+    "datePeremption" : "<J+0>",
+    "quantite" : "1.00",
+    "perime" : false,
+    "identifiantDeterministe" : true
+  }, {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_2",
+    "numeroLot" : "L-A",
+    "datePeremption" : "<J+10>",
+    "quantite" : "3.50",
+    "perime" : false,
+    "identifiantDeterministe" : true
+  }, {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_2",
+    "numeroLot" : "L-B",
+    "datePeremption" : "<J+10>",
+    "quantite" : "4.00",
+    "perime" : false,
+    "identifiantDeterministe" : true
+  }, {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_1",
+    "numeroLot" : "L-29",
+    "datePeremption" : "<J+29>",
+    "quantite" : "6.00",
+    "perime" : false,
+    "identifiantDeterministe" : true
+  }, {
+    "version" : 1,
+    "centre" : "<CENTRE_ACTIF>",
+    "jourDuControle" : "<J+0>",
+    "codeArticle" : "ART_1",
+    "numeroLot" : "L-30",
+    "datePeremption" : "<J+30>",
+    "quantite" : "7.00",
+    "perime" : false,
+    "identifiantDeterministe" : true
+  } ]
+}

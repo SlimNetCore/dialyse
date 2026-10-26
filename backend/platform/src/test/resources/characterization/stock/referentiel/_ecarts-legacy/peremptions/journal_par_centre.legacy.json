@@ -1,0 +1,4 @@
+{
+  "<CENTRE_ACTIF>" : [ "[STOCK][J-30] Centre <CENTRE_ACTIF> : 7 lot(s) en peremption proche", "  -> Lot L-PERIME (article <ART_1>) peremption <J-3> - reste 2.00", "  -> Lot L-JOUR (article <ART_1>) peremption <J+0> - reste 1.00", "  -> Lot L-A (article <ART_2>) peremption <J+10> - reste 3.50", "  -> Lot L-B (article <ART_2>) peremption <J+10> - reste 4.00", "  -> Lot L-ART-INACTIF (article <ART_INACTIF>) peremption <J+12> - reste 2.00", "  -> Lot L-29 (article <ART_1>) peremption <J+29> - reste 6.00", "  -> Lot L-30 (article <ART_1>) peremption <J+30> - reste 7.00" ],
+  "<CENTRE_INACTIF>" : [ "[STOCK][J-30] Centre <CENTRE_INACTIF> : 1 lot(s) en peremption proche", "  -> Lot L-INACTIF (article <ART_B1>) peremption <J+5> - reste 11.00" ]
+}

@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "evenementsSpring" : [ {
+      "contenu" : {
+        "centre" : "<CENTRE_A>",
+        "date" : "<J-5>",
+        "par" : "u",
+        "reference" : "INV-00001",
+        "statut" : "EN_COURS"
+      },
+      "type" : "InventaireModifie"
+    } ],
+    "lignesAjoutees_au_registre_event_publication" : 0,
+    "messagesStomp" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "dateInventaire" : "<J-5>",
+          "par" : "u",
+          "reference" : "INV-00001",
+          "statut" : "EN_COURS",
+          "targetRoles" : "ADMIN,PHARMACIEN,INFIRMIER"
+        },
+        "timestamp" : "<HORODATAGE>",
+        "type" : "STOCK_INVENTORY_CHANGED"
+      }
+    } ],
+    "statutHttp" : 201
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "evenementsSpring" : [ {
+      "contenu" : {
+        "articles" : [ "<ART_1>" ],
+        "centre" : "<CENTRE_A>",
+        "etat" : "STARTED"
+      },
+      "type" : "VerrousDeRecalculModifies"
+    }, {
+      "contenu" : {
+        "articles" : [ "<ART_1>" ],
+        "centre" : "<CENTRE_A>",
+        "etat" : "COMPLETED"
+      },
+      "type" : "VerrousDeRecalculModifies"
+    } ],
+    "lignesAjoutees_au_registre_event_publication" : 0,
+    "messagesStomp" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "articleIds" : "<ART_1>",
+          "count" : "1",
+          "status" : "STARTED"
+        },
+        "timestamp" : "<HORODATAGE>",
+        "type" : "STOCK_RECALC_LOCKS_CHANGED"
+      }
+    }, {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "articleIds" : "<ART_1>",
+          "count" : "1",
+          "status" : "COMPLETED"
+        },
+        "timestamp" : "<HORODATAGE>",
+        "type" : "STOCK_RECALC_LOCKS_CHANGED"
+      }
+    } ],
+    "statutHttp" : 200
+  }
+}

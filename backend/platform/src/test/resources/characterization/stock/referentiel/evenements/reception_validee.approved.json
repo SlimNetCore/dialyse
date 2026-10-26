@@ -1,0 +1,30 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "evenementsSpring" : [ {
+      "contenu" : {
+        "centre" : "<CENTRE_A>",
+        "mouvement" : "ENTREE",
+        "nombreArticles" : 2,
+        "reference" : "BR-00001"
+      },
+      "type" : "MouvementsDeStockModifies"
+    } ],
+    "lignesAjoutees_au_registre_event_publication" : 0,
+    "messagesStomp" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "articles" : "2",
+          "mouvement" : "ENTREE",
+          "reference" : "BR-00001"
+        },
+        "timestamp" : "<HORODATAGE>",
+        "type" : "STOCK_MOVEMENT_CHANGED"
+      }
+    } ],
+    "statutHttp" : 200
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "from" : "2026-01-01",
+    "generatedAt" : "<HORODATAGE>",
+    "groupes" : [ {
+      "centres" : [ {
+        "centerId" : "<CENTRE_AUTRE_SOCIETE>",
+        "centreNom" : "Centre ZT-S8V-D",
+        "nbArticles" : 1,
+        "valeurs" : {
+          "autresVariations" : 0.00,
+          "entrees" : 25000.00,
+          "sorties" : 0.00,
+          "valeurDebut" : 0.00,
+          "valeurFin" : 25000.00
+        }
+      } ],
+      "nbArticles" : 1,
+      "nbCentres" : 1,
+      "nom" : "KIT CNAS",
+      "total" : {
+        "autresVariations" : 0.00,
+        "entrees" : 25000.00,
+        "sorties" : 0.00,
+        "valeurDebut" : 0.00,
+        "valeurFin" : 25000.00
+      }
+    } ],
+    "societeId" : "<SOCIETE_2>",
+    "to" : "2026-01-31"
+  }
+}

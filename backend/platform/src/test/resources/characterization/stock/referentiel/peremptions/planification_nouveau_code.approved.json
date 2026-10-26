@@ -1,0 +1,4 @@
+{
+  "cron" : "0 0 7 * * *",
+  "zone" : "${app.stock.fuseau-par-defaut:${app.absences.fuseau-par-defaut:Africa/Algiers}}"
+}
