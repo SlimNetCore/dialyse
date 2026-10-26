@@ -84,6 +84,9 @@ argent (écarts valorisés), Comptabilité.
   inactif,
   écart avec ses lots — gravité élevée, à trancher avant la construction), KB-STK-51 (comptage négatif : code générique
   `BUSINESS_ERROR`), KB-STK-52 (matrice des rôles et cloisonnement à reproduire).
+  *Statuts au 2026-10-26* : KB-STK-50 décidé et construit (écart) ; KB-STK-51 reproduit (code générique conservé,
+  amélioration facultative : D3) ; KB-STK-52 conforme et reproduit ; KB-STK-32 (explication du PMP et inventaire) non traité
+  en S7 : décision comptable D4 (`known-bugs.md`).
 - **Reste (7b)** : domaine `Inventaire` / `PeriodeDeStock`, ports et adapters JDBC dans `contexts/stock`, contrôleur,
   import/export de feuille, PV, garde sous verrou, notifications ; puis retrait du legacy.
 

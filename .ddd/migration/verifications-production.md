@@ -1048,6 +1048,137 @@ actif sans pharmacien ni admin ne verra l'alerte qu'au rôle ciblé le plus proc
 parcourus (le legacy les signalait au journal). Rejeu PostgreSQL 16 jetable : `backend/scripts/stock-s8-pg16-rejeu.sh 55444`
 (port différent de 5432).
 
+## 31. Stock : bascule S1 à S8, liste ordonnée des contrôles avant la mise en production (2026-10-26)
+
+Source : `.ddd/verify/verify-stock.md`, ADR 0045 à 0047. **Lecture seule, `SELECT` uniquement**, dans cet ordre (les points 31.1
+à 31.5 conditionnent le déploiement ; 31.6 à 31.9 sont les points d'argent). Les points § 29 (S5) et § 30 (S8) font partie de la
+liste (31.10 et 31.11). Jamais de `DROP`/`DELETE`/`UPDATE` pour « corriger » un écart relevé ici : rapportez-le d'abord.
+
+**31.1 `ddl-auto` de la production** : voir § 7 (attendu `validate` ; les entités JPA résiduelles du stock restent compatibles).
+
+**31.2 Flyway jusqu'à V46 et structures du Stock** (étend le § 8 : V38, V45, V46) :
+```sql
+SELECT version, description, success FROM flyway_schema_history WHERE version IN ('38', '45', '46') ORDER BY installed_rank;
+SELECT max(version::int) AS version_courante FROM flyway_schema_history WHERE success AND version ~ '^[0-9]+$';
+-- V38 : saisi_le ; V46 : fuseau_horaire (attendu : 2 lignes)
+SELECT table_name, column_name FROM information_schema.columns
+WHERE (table_name = 'stock_movements' AND column_name = 'saisi_le') OR (table_name = 'centers' AND column_name = 'fuseau_horaire');
+-- V45 : les 5 tables (attendu : 5 lignes)
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public' AND table_name IN ('stock_parametres', 'sorties_pour_seances', 'sorties_pour_seances_lignes',
+      'consommations_de_seance', 'consommations_de_seance_imputations');
+```
+Avant le déploiement qui les apporte, les lignes 38, 45 et 46 sont **absentes** (ou présentes avec `success = true` si déjà
+déployées) ; ne rien supprimer si une ligne a un autre état, le signaler.
+
+**31.3 Rôle `DIRECTEUR_ADMINISTRATIF`** : **aucune migration ni seed ne le crée** (vérifié : `seed.sql`, `seed-production.sql` et
+`db/migration/*.sql` n'en contiennent pas ; `InitialSetupService` ne crée que `SUPERADMIN`). Il doit être créé par
+l'administrateur avant d'attribuer le profil :
+```sql
+-- attendu : 1 ligne une fois le rôle créé ; 0 ligne avant (le rôle est une ligne de app_role)
+SELECT id, code, name FROM app_role WHERE code = 'DIRECTEUR_ADMINISTRATIF';
+-- rôles du Stock déjà présents (attendu : ADMIN, PHARMACIEN, INFIRMIER ; DIRECTEUR_ADMINISTRATIF seulement après création)
+SELECT code FROM app_role WHERE code IN ('ADMIN', 'PHARMACIEN', 'DIRECTEUR_ADMINISTRATIF', 'INFIRMIER') ORDER BY code;
+```
+**À rapporter** : présent ou absent, et la liste des comptes à qui l'attribuer.
+
+**31.4 État au moment de la bascule** (par centre) : aucun inventaire en cours, aucun recalcul de PMP en cours.
+```sql
+SELECT c.code, i.reference, i.statut FROM inventaires i JOIN centers c ON c.id = i.center_id WHERE i.statut = 'EN_COURS';
+```
+Attendu : 0 ligne. Le recalcul massif du PMP est une tâche en mémoire (KB-STK-43) : aucune requête ne le voit ; demandez à
+l'exploitation qu'aucun recalcul ne soit lancé pendant le déploiement et déployez hors des heures de saisie.
+
+**31.5 Prérequis S6b (ADR 0047) : une pièce préparée avant la première séance** — sans pièce, les consommations deviennent des
+alertes `AUCUNE_PIECE` et le stock ne baisse plus. Par centre actif, pour le premier jour de séances après le déploiement
+(remplacez `:jour`) :
+```sql
+-- Séances prévues ce jour-là et pièces « sortie pour séances » préparées ce jour-là (attendu : au moins une pièce par centre qui a des séances)
+SELECT c.code AS centre,
+       (SELECT COUNT(*) FROM seances s WHERE s.center_id = c.id AND s.date_seance = DATE ':jour') AS seances,
+       (SELECT COUNT(*) FROM sorties_pour_seances p WHERE p.center_id = c.id AND p.jour = DATE ':jour') AS pieces,
+       (SELECT COUNT(*) FROM sorties_pour_seances p WHERE p.center_id = c.id AND p.statut = 'ENREGISTREE' AND p.jour < DATE ':jour') AS pieces_anterieures_non_rapprochees
+FROM centers c WHERE c.actif ORDER BY c.code;
+
+-- Séances du jour déjà validées sous l'ancien mode (sorties historiques rattachées à une séance du jour)
+SELECT c.code, COUNT(DISTINCT bs.seance_id) AS seances_avec_sortie_historique
+FROM bons_sortie bs JOIN seances s ON s.id = bs.seance_id JOIN centers c ON c.id = s.center_id
+WHERE s.date_seance = DATE ':jour' GROUP BY c.code ORDER BY c.code;
+
+-- Profils capables de préparer la pièce : PHARMACIEN et ADMIN par centre actif (même requête que 30.4)
+SELECT c.code, COUNT(DISTINCT u.id) FILTER (WHERE r.code = 'PHARMACIEN') AS pharmaciens,
+       COUNT(DISTINCT u.id) FILTER (WHERE r.code = 'ADMIN') AS admins
+FROM centers c LEFT JOIN app_user_center uc ON uc.center_id = c.id
+LEFT JOIN app_user u ON u.id = uc.user_id AND u.active
+LEFT JOIN app_user_role ur ON ur.user_id = u.id LEFT JOIN app_role r ON r.id = ur.role_id
+WHERE c.actif GROUP BY c.code ORDER BY c.code;
+```
+**À rapporter** : un centre avec des séances et `pieces = 0` n'est pas prêt ; `pieces_anterieures_non_rapprochees > 0` bloquera
+la prochaine pièce du même périmètre (rapprochement obligatoire) et l'ouverture d'un inventaire (T43).
+
+**31.6 Point d'argent : stock de l'article = Σ des lots** (écarts hérités, KB-STK-50 et scénario « 48 au lieu de 46 » de S6),
+à rapporter **avant toute clôture d'inventaire** :
+```sql
+SELECT c.code AS centre, a.code AS article, a.stock_quantity, COALESCE(SUM(l.quantite_restante), 0) AS somme_des_lots
+FROM articles a JOIN centers c ON c.id = a.center_id LEFT JOIN lots l ON l.article_id = a.id AND l.center_id = a.center_id
+GROUP BY c.code, a.code, a.id, a.stock_quantity
+HAVING a.stock_quantity <> COALESCE(SUM(l.quantite_restante), 0)
+ORDER BY c.code, a.code;
+```
+
+**31.7 Point d'argent : lots anormaux** :
+```sql
+-- lots négatifs ou supérieurs à la quantité initiale (attendu : 0 ligne)
+SELECT c.code, a.code AS article, l.numero_lot, l.quantite_initiale, l.quantite_restante
+FROM lots l JOIN articles a ON a.id = l.article_id JOIN centers c ON c.id = l.center_id
+WHERE l.quantite_restante < 0 OR l.quantite_restante > l.quantite_initiale ORDER BY c.code, a.code;
+-- lots d'articles gérés par lot sans numéro réel ou sans péremption
+SELECT c.code, a.code AS article, COUNT(*) AS lots
+FROM lots l JOIN articles a ON a.id = l.article_id JOIN centers c ON c.id = l.center_id
+WHERE a.gere_par_lot AND l.quantite_restante > 0 AND (l.date_peremption IS NULL OR l.numero_lot LIKE 'AUTO-%')
+GROUP BY c.code, a.code ORDER BY c.code, a.code;
+```
+
+**31.8 Point d'argent : PMP**. Ordre de rejeu (`CHRONOLOGIE`) : date de pièce (`created_at`), heure de saisie (`saisi_le`, nulle
+pour l'ancien), entrées avant sorties.
+```sql
+-- articles dont le PMP courant diffère du pmp_apres du dernier mouvement dans l'ordre du rejeu
+SELECT c.code AS centre, a.code AS article, a.pmp_courant, d.pmp_apres AS pmp_du_dernier_mouvement
+FROM articles a JOIN centers c ON c.id = a.center_id
+JOIN (SELECT DISTINCT ON (article_id) article_id, pmp_apres
+      FROM stock_movements WHERE pmp_apres IS NOT NULL AND mouvement_type <> 'RETOUR'
+      ORDER BY article_id, created_at DESC, saisi_le DESC NULLS LAST, (mouvement_type = 'SORTIE') DESC) d ON d.article_id = a.id
+WHERE a.pmp_courant IS DISTINCT FROM d.pmp_apres ORDER BY c.code, a.code;
+-- sorties sans valeur (SANS_VALEUR, KB-STK-01, KB-CPT-42/44)
+SELECT c.code, COUNT(*) AS sorties_sans_valeur
+FROM stock_movements m JOIN centers c ON c.id = m.center_id
+WHERE m.mouvement_type = 'SORTIE' AND (m.pmp_apres IS NULL OR m.pmp_apres = 0 OR m.prix_unitaire IS NULL OR m.prix_unitaire = 0)
+GROUP BY c.code ORDER BY c.code;
+```
+Un écart du premier tableau est à **examiner, pas à corriger** (les inventaires clôturés repartent d'un stock de départ). Puis
+rejeu `backend/scripts/stock-pg16-rejeu.sh` sur une **copie** de la base.
+
+**31.9 Point d'argent : valorisation et Comptabilité**. Mouvements valorisés d'un mois clos, par centre, à faire comparer par le
+comptable aux écritures du journal du stock (lecture dans l'application : valorisation de période et écran des échecs de la
+synchronisation du stock, qui renvoie la liste `echecs` — **pas de requête SQL** pour ces deux écrans) :
+```sql
+SELECT c.code AS centre, m.mouvement_type, COUNT(*) AS mouvements, SUM(m.quantite * COALESCE(m.prix_unitaire, 0)) AS valeur
+FROM stock_movements m JOIN centers c ON c.id = m.center_id
+WHERE m.created_at >= DATE ':debut_du_mois' AND m.created_at < DATE ':debut_du_mois_suivant'
+GROUP BY c.code, m.mouvement_type ORDER BY c.code, m.mouvement_type;
+-- les retours en stock (RETOUR) doivent valoir 0 au départ (nouveau type de mouvement V45)
+SELECT COUNT(*) AS retours FROM stock_movements WHERE mouvement_type = 'RETOUR';
+```
+**À rapporter** : le tableau, le nombre de `RETOUR` (attendu 0) et la liste des `echecs` de la dernière synchronisation.
+
+**31.10 § 29** (S5) : bons de réception validés sans `lot_id`, cas ambigus, lots ≠ lignes (trois comptages).
+
+**31.11 § 30** (S8) : volume de la première alerte de péremption, fuseaux, destinataires.
+
+**31.12 § 9** : publications non acquittées (`event_publication`), aucune attendue pour `LotProcheExpiration` (pas d'écouteur).
+
+**31.13 Rejeux PostgreSQL 16 jetables** : `backend/scripts/stock-pg16-rejeu.sh` et `backend/scripts/stock-s8-pg16-rejeu.sh <port différent de 5432>`.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
@@ -1060,4 +1191,4 @@ toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, co
 (V42 : tables créées, aucun mois clos au départ) ; pour Absences A2, le point 24 (**24.1 doit rendre 0 ligne avant
 V43**, 24.3 et 24.4 à rapporter) ; pour Absences A3, le point 25 (25.2 : sorties sans date à saisir, 25.3 et 25.6
 informatifs) ; pour Absences A6, le point 27 (27.2 : V44, tables vides ; **27.1 à rapporter avant la première clôture
-d'un mois**) ; pour la Facturation (ADR 0044), le point 28.1 (0 ligne attendue) ; pour Stock S8, le point 30 (volume de la première alerte de péremption par centre, avant son activation).
+d'un mois**) ; pour la Facturation (ADR 0044), le point 28.1 (0 ligne attendue) ; pour Stock S8, le point 30 (volume de la première alerte de péremption par centre, avant son activation) ; **pour la bascule du Stock S1 à S8, le point 31 en entier, dans l'ordre : 31.2 (V38, V45, V46), 31.3 (rôle `DIRECTEUR_ADMINISTRATIF` à créer), 31.5 (une pièce préparée par centre avant la première séance, sinon le stock ne baisse plus) et les points d'argent 31.6 à 31.9 sont à confirmer avant le déploiement**.

@@ -37,7 +37,7 @@ sources: [.ddd/strategic/bounded-contexts.md (Stock), .ddd/strategic/glossaries/
 | 10 | Compter, ajouter / retirer une ligne, importer une feuille, reporter le théorique                   | Infirmier, Pharmacien                                 | `Inventaire`                                            | (domaine) `LigneComptee`                                                              | —                                                                               |
 | 11 | Clôturer l'inventaire                                                                               | Pharmacien, Admin                                     | `Inventaire` + `PeriodeDeStock` + `StockArticle` (tous) | `InventaireCloture`                                                                   | mouvements antérieurs figés ; stock de départ                                   |
 | 12 | Annuler l'inventaire                                                                                | Pharmacien, Admin                                     | `Inventaire` + `PeriodeDeStock`                         | `InventaireAnnule`                                                                    | dégel                                                                           |
-| 13 | Contrôle quotidien des péremptions (07:00)                                                          | Système                                               | lecture                                                 | `LotProcheExpiration` (aujourd'hui : journal technique, H10)                          | (cible à valider) notification                                                  |
+| 13 | Contrôle quotidien des péremptions (07:00)                                                          | Système                                               | lecture                                                 | `LotProcheExpiration` v1 (construit en S8, ADR 0046)                                  | notification pharmacien et admin (décision Q5)                                  |
 | 14 | Gérer un groupe d'articles (kit)                                                                    | Admin                                                 | `GroupeArticle`                                         | `GroupeArticleModifie`                                                                | —                                                                               |
 
 Read models : tableau de bord (RG-STK-044), alertes (RG-STK-060), valorisation de période (RG-STK-043), explication du
@@ -352,35 +352,36 @@ centre** (nouveau nom, même données qu'aujourd'hui)
 mouvement de stock, verrous de recalcul `STOCK_RECALC_LOCKS_CHANGED`, changements d'inventaire) — à conserver tels quels
 (contrat des écrans).
 
-### 7.2 Événements d'intégration (Published Language, Outbox Spring Modulith, ADR 0013) — cible,
-**après** les lectures publiées
+### 7.2 Événements d'intégration (Published Language, Outbox Spring Modulith, ADR 0013)
 
-| Événement                                               | Consommateurs                                                      | Contenu minimal                                                                                       | Version |
-|---------------------------------------------------------|--------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------|
-| `ReceptionValidee`                                      | Comptabilité (R17), Pilotage                                       | centre, bon, date, lignes (article, quantité, prix)                                                   | v1      |
-| `SortieDeSeanceEnregistree` / `SortiesDeSeanceAnnulees` | Comptabilité, Pilotage                                             | centre, séance, date, lignes valorisées (article, quantité, valeur) — **historique** (avant ADR 0045) | v1      |
-| `SortiePourSeancesEnregistree`                          | Comptabilité (sorties datées de l'enregistrement), Pilotage        | centre, pièce, date d'enregistrement, jour J, lignes valorisées                                       | v1      |
-| `RapprochementValide`                                   | Comptabilité (sorties supplémentaires, retours), Pilotage (écarts) | centre, pièce, lignes : écart, sens, motif, valeur                                                    | v1      |
-| `PmpRecalcule`                                          | Comptabilité (réécriture différentielle)                           | centre, article, depuis (date)                                                                        | v1      |
-| `InventaireCloture`                                     | Comptabilité, Pilotage (clôtures ADR 0009)                         | centre, date, écarts valorisés par article                                                            | v1      |
-| `LotProcheExpiration`                                   | Notifications (Q5)                                                 | centre, article, lot, péremption, quantité                                                            | v1      |
+État au 2026-10-26 (S8, ADR 0046) : **un seul contrat est créé** (`LotProcheExpiration` v1, sans consommateur). Les autres
+sont **différés jusqu'à l'existence de consommateurs** ; la Comptabilité lit `OperationsDeStock` (langage publié, requête
+planifiée, différentiel 35 j, `RETOUR` = sortie négative) et n'a pas besoin d'événements. `SortieDeSeanceEnregistree` /
+`SortiesDeSeanceAnnulees` sont obsolètes (mode historique retiré, ADR 0047).
+
+| Événement                                               | Consommateurs visés                                                | Contenu minimal                                                                                       | Version | État                                   |
+|---------------------------------------------------------|--------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------|----------------------------------------|
+| `ReceptionValidee`                                      | Comptabilité (R17), Pilotage                                       | centre, bon, date, lignes (article, quantité, prix)                                                   | v1      | **différé** (aucun consommateur)       |
+| `SortieDeSeanceEnregistree` / `SortiesDeSeanceAnnulees` | —                                                                  | centre, séance, date, lignes valorisées — **historique** (avant ADR 0045)                             | —       | **abandonné** (mode historique retiré) |
+| `SortiePourSeancesEnregistree`                          | Comptabilité (sorties datées de l'enregistrement), Pilotage        | centre, pièce, date d'enregistrement, jour J, lignes valorisées                                       | v1      | **différé** (aucun consommateur)       |
+| `RapprochementValide`                                   | Comptabilité (sorties supplémentaires, retours), Pilotage (écarts) | centre, pièce, lignes : écart, sens, motif, valeur                                                    | v1      | **différé** (aucun consommateur)       |
+| `PmpRecalcule`                                          | Comptabilité (réécriture différentielle)                           | centre, article, depuis (date)                                                                        | v1      | **différé** (aucun consommateur)       |
+| `InventaireCloture`                                     | Comptabilité, Pilotage (clôtures ADR 0009)                         | centre, date, écarts valorisés par article                                                            | v1      | **différé** (aucun consommateur)       |
+| `LotProcheExpiration`                                   | aucun en production (la notification est directe)                  | centre, article, lot, péremption, quantité                                                            | v1      | **construit** (S8), sans consommateur  |
 
 Consommateurs idempotents (clé : identifiant de pièce + version de la pièce).
 
-### 7.3 Ce qui existe aujourd'hui → cible
+### 7.3 Ce qui existait → état construit (2026-10-26)
 
-- **Comptabilité C6** lit les tables du stock par `OperationsStockJdbcAdapter` (port `OperationsDeStock`) + cron 03:15,
-  différentiel 35 j (RG-CPT-015).
-  Cible 1 : le Stock **fournit** ce port en langage publié (`publishedlanguage/OperationsDeStock`), comme les Absences
-  pour la Facturation (ADR 0041) —
-  la Comptabilité ne lit plus les tables. Cible 2 (facultative) : événements 7.2.
-- **Séance** appelle directement `BonSortieUseCase` (4 appelants : `SeanceDomainService:53`,
-  `SeanceApplicationService:52`, `SuppressionSeanceService:33`,
-  `AdministrationTraitementRestController:44`). Cible (ADR 0045) : port publié **synchrone** `ConsommationsDeSeance`
-  fourni par le Stock (imputer, remplacer, annuler les consommations d'une séance ; articles favoris du périmètre) :
-  **il ne sort plus le stock** et ne refuse jamais pour une
+*Les points ci-dessous décrivaient l'état de départ ; ils sont réalisés.*
+
+- **Comptabilité C6** : le Stock **fournit** `publishedlanguage/OperationsDeStock` (S4), la Comptabilité y accède par l'ACL
+  `OperationsDeStockDuStock` ; `OperationsStockJdbcAdapter` est retiré. Requête planifiée 03:15, différentiel 35 j
+  (RG-CPT-015) ; `RETOUR` est une sortie négative. Événements 7.2 : différés.
+- **Séance** : les 4 appels directs à `BonSortieUseCase` sont retirés (S6b, règle ArchUnit). La Séance appelle le port
+  publié **synchrone** `ConsommationsDeSeance` (ADR 0045) : il **ne sort pas le stock** et ne refuse jamais pour une
   quantité (alerte seulement) ; il refuse seulement une séance facturée ou une pièce rapprochée. La sortie d'une dose de
-  traitement (EPO, fer) suit la même voie.
+  traitement (EPO, fer) suit la même voie. Le mode historique est retiré (ADR 0047).
 - **Facturation** : la règle « séance facturée » est lue en SQL (`SeanceBillingStatusJdbcAdapter`). Cible : port publié
   de la Facturation (`SeancesFacturees.estFacturee(seanceId)`), ACL côté Stock.
 - **Catalogue** consommé par Séance (R14) et Dossier médical (types anémie, `listArticlesByTypeTraitementAnemie`) : port
@@ -418,6 +419,9 @@ d'une séance),
 0043), `Horloge`/`FuseauxDesCentres`.
 
 ## 9. Matrice invariant → test (pilote le TDD)
+
+> **Écart (ADR 0048, `proposed`)** : `StockArticle` n'existe pas dans le code ; T5 à T8 sont couverts par les tests des cas
+> d'usage et les goldens, pas par des tests d'agrégat.
 
 | #   | Invariant                                                                                                                                                 | Test (domaine sauf mention)                                                     |
 |-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
@@ -493,7 +497,10 @@ retrait du legacy, documentation RG-STK).
    (différentiel 35 j).
 5. FEFO : choix exact des lots (mêmes lots, mêmes quantités) pour une consommation de séance.
 
-## 12. Bugs et comportements suspects (à confirmer par caractérisation, `known-bugs.md` sous `KB-STK-xx`)
+## 12. Bugs et comportements suspects (état au 2026-10-26 : caractérisés et tracés dans `known-bugs.md`, `KB-STK-01` à `57`)
+
+*La liste ci-dessous est l'hypothèse de départ ; le statut réel de chaque point est dans `known-bugs.md`. Décisions encore à
+prendre : section « Décisions à prendre » de `known-bugs.md` (Stock).*
 
 - **Verrou de recalcul en mémoire** (`PmpRecalculationCoordinator.java:25-26`, `ConcurrentHashMap`) : perdu au
   redémarrage, non partagé entre
@@ -521,34 +528,22 @@ retrait du legacy, documentation RG-STK).
 | Q6 | `ANNULE`                         | Retiré du glossaire ; un brouillon se modifie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | —  | Profil `DIRECTEUR_ADMINISTRATIF` | Rapprochement des sorties pour séances + **lecture seule** du stock ; aucune autre écriture. Nouveau rôle de la plateforme (Identité & accès).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
-## Questions ouvertes (restantes, à trancher au plus tard avec la slice S6b)
+## Questions de S6b : état au 2026-10-26 (plus aucune question ouverte)
 
-1. **Bascule** : la sortie pour séances remplace-t-elle partout la sortie de séance immédiate, ou faut-il un **paramètre
-   par centre** le temps de la bascule ? *Recommandation : paramètre par centre, désactivé par défaut, puis activé
-   centre par centre.*
-2. **Qui saisit le motif d'un écart** : l'infirmier (au fil de l'eau) et/ou le gestionnaire au rapprochement ? *Décision
-   du 2026-10-24 : le gestionnaire de stock (et l'administrateur) seuls ; l'infirmier ne justifie pas ;
-   la validation reste réservée.*
-3. **Sortie supplémentaire** : depuis le lot de la pièce s'il en reste, sinon FEFO ? *Hypothèse retenue : oui.*
-4. **Valorisation et Facturation** : les consommations imputées restent-elles la base du coût par séance (pilotage), les
-   sorties réelles étant celles de la
-   pièce et du rapprochement ? *Hypothèse retenue : oui.*
+1. **Bascule** : **tranchée (décision utilisateur du 2026-10-25, ADR 0047)**. La pièce est impérative le jour de la séance ;
+   le mode historique (sortie immédiate) et le paramètre par centre sont retirés (commit `eaa76b31`), retrait confirmé.
+2. **Qui saisit le motif d'un écart** : **tranchée (2026-10-24)** : le gestionnaire de stock (et l'administrateur) seuls ;
+   l'infirmier ne justifie pas ; la validation reste réservée.
+3. **Sortie supplémentaire** : depuis le lot de la pièce s'il en reste, sinon FEFO. **Retenue et construite en S6b** ;
+   confirmation de l'utilisateur à recueillir (`verify-stock.md`, « Suites »).
+4. **Valorisation et Facturation** : les consommations imputées restent la base du coût par séance (pilotage), les sorties
+   réelles étant celles de la pièce et du rapprochement. **Retenue et construite en S6b** ; confirmation à recueillir (idem).
 
+## État construit (2026-10-26)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+S1 à S8 sont `built`. Écart de modèle assumé et proposé à validation : l'agrégat `StockArticle` (§ 3, § 8, § 9 T5 à T8) n'est
+pas extrait ; les règles de stock sont dans les cas d'usage (ADR 0048, `proposed`). Lectures SQL des tables du Stock par
+d'autres contextes : dette consignée dans `roadmap.md` § 1 (« Dette : lectures SQL hors contexte »).
 
 ## Mise à jour S8 (2026-10-26, ADR 0046)
 

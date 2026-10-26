@@ -88,17 +88,17 @@ couplage/données/risque ; 5 = fort pour valeur/douleur/testabilité).
 |-------|-----------------------------------------------------------------------|--------|---------|----------|---------|---------|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | S1    | Référentiel et catalogue publié                                       | 4      | 3       | 3        | 1       | 5       | **faible** | `built` (2026-10-23 : module `contexts/stock`, 23 scénarios verts 3 fois sur le nouveau code, KB-STK-03 à 06, 08, 09 corrigés, KB-STK-07 reproduit (422), catalogue publié utilisé par le Dossier médical ; Séance : reportée à S5/S6/S6b (accord du 23/10)) | `slices/stock-s1-referentiel.md`          |
 | S2    | Groupes d'articles                                                    | 2      | 1       | 1        | 1       | 5       | faible     | `built` (2026-10-23 : 12 scénarios, parité stricte, KB-STK-11 à 16 reproduits, direction par le langage publié `GroupesDArticlesDesCentres`)                                                                                                                 | `slices/stock-s2-groupes-articles.md`     |
-| S3    | Bons de commande                                                      | 2      | 1       | 2        | 1       | 5       | faible     | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s3-bons-commande.md`        |
-| S4    | Lectures publiées (dont `OperationsDeStock` pour la Comptabilité)     | 4      | 3       | 3        | 2       | 4       | moyen      | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s4-lectures-publiees.md`    |
-| S5    | Réceptions et PMP (verrou de ligne)                                   | 5      | 4       | 4        | 3       | 3       | **élevé**  | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s5-receptions-pmp.md`       |
-| S6    | Sorties manuelles                                                     | 3      | 2       | 3        | 3       | 4       | moyen      | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s6-sorties-manuelles.md`    |
-| S6b   | Sortie pour séances, consommations, rapprochement (nouveau)           | 5      | 4       | 5        | 4       | 3       | **élevé**  | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s6b-sortie-pour-seances.md` |
-| S7    | Inventaire et période de stock                                        | 4      | 3       | 4        | 4       | 3       | **élevé**  | `planned`                                                                                                                                                                                                                                                    | `slices/stock-s7-inventaire.md`           |
+| S3    | Bons de commande                                                      | 2      | 1       | 2        | 1       | 5       | faible     | `built` (2026-10-23 : bons de commande sur le module `contexts/stock`, filet vert) | `slices/stock-s3-bons-commande.md`        |
+| S4    | Lectures publiées (dont `OperationsDeStock` pour la Comptabilité)     | 4      | 3       | 3        | 2       | 4       | moyen      | `built` (2026-10-23 : lectures publiées, `OperationsDeStock` publié pour la Comptabilité, KB-STK-23 à 33 ; KB-STK-32 reproduit, décision comptable à prendre) | `slices/stock-s4-lectures-publiees.md`    |
+| S5    | Réceptions et PMP (verrou de ligne)                                   | 5      | 4       | 4        | 3       | 3       | **élevé**  | `built` (2026-10-23 : réceptions, rejeu du PMP, verrou de ligne, KB-STK-34 à 45, rejeu PostgreSQL 16 vert) | `slices/stock-s5-receptions-pmp.md`       |
+| S6    | Sorties manuelles                                                     | 3      | 2       | 3        | 3       | 4       | moyen      | `built` (2026-10-23 : sorties manuelles, KB-STK-46 à 49 corrigés ; contrôle de facturation à la création d'un bon manuel : décision à prendre) | `slices/stock-s6-sorties-manuelles.md`    |
+| S6b   | Sortie pour séances, consommations, rapprochement (nouveau)           | 5      | 4       | 5        | 4       | 3       | **élevé**  | `built` (2026-10-24 : pièce, consommations, rapprochement, `RETOUR`, T43/T44, écrans, i18n ; mode historique et paramètre par centre retirés, **confirmé le 2026-10-25, ADR 0047**) | `slices/stock-s6b-sortie-pour-seances.md` |
+| S7    | Inventaire et période de stock                                        | 4      | 3       | 4        | 4       | 3       | **élevé**  | `built` (2026-10-24 : inventaire et période de stock sous verrou, parité 13/13 hors l'écart décidé KB-STK-50, legacy de l'inventaire retiré) | `slices/stock-s7-inventaire.md`           |
 | S8    | Péremptions notifiées, événements, retrait de `bc-stock`/`bc-article` | 3      | 2       | 3        | 1       | 4       | moyen      | `built`                                                                                                                                                                                                                                                    | `slices/stock-s8-peremptions-retrait.md`  |
 
 Ordre et parallélisme : S1 d'abord (crée le module, publie le catalogue) ; S2, S3, S4 indépendantes ensuite
 (parallélisables) ; S5 avant S6, S6b et S7 ;
-S6b après S6 (et après décision sur la bascule par centre) ; S8 en dernier. Jalons : **J1** S1-S4 (référentiel et
+S6b après S6 (bascule tranchée le 2026-10-25, ADR 0047 : pas de paramètre par centre) ; S8 en dernier. Jalons : **J1** S1-S4 (référentiel et
 lectures sur le nouveau code, Comptabilité
 découplée des tables) ; **J2** S5-S6 (argent : réceptions, PMP, sorties) ; **J3** S6b (nouveau processus) ; **J4** S7-S8
 (inventaire, retrait).
@@ -109,16 +109,38 @@ Séance → Stock (cible 0 hors langage publié) ; lectures SQL des tables du st
 S4/S6) ; `KB-STK-xx` ouverts datés.
 
 **État Stock au 2026-10-26** : S1 à S8 `built` (S8 : péremptions notifiées, événement `LotProcheExpiration` v1, retrait de
-`bc-article`, codes d'erreur unifiés en 400 ; ADR 0046 `proposed`). Plus aucun module `bc-stock` / `bc-article` : le contexte
-Stock est prêt pour `/ddd-verify`. Cinq contrats d'événements d'intégration restent différés jusqu'à l'existence de
-consommateurs.
+`bc-article`, codes d'erreur unifiés en 400 ; ADR 0046 `proposed`). Plus aucun module `bc-stock` / `bc-article`.
+`/ddd-verify` rendu : `.ddd/verify/verify-stock.md` (pass-with-actions, actions traitées sauf les décisions listées dans
+sa section « Suites »). Cinq contrats d'événements d'intégration (`ReceptionValidee`, `SortiePourSeancesEnregistree`,
+`RapprochementValide`, `PmpRecalcule`, `InventaireCloture`) sont **différés** jusqu'à l'existence de consommateurs.
 
-Décisions structurantes : pas de façade ni de flag (ADR 0024), **sauf** le paramètre par centre recommandé pour la
-bascule de S6b ; aucune migration avant S6b (tables additives de la sortie pour séances, mouvement `RETOUR`, rôle
-`DIRECTEUR_ADMINISTRATIF`) et S7 (`periodes_de_stock` recommandée) ; bugs legacy reproduits (ADR 0019) sauf écarts
-décidés : verrou de ligne du PMP (S5), garde d'inventaire sous verrou (S7), péremptions limitées aux centres actifs et
-notifiées (S8),
-consommation de séance sans sortie immédiate (S6b).
+Décisions structurantes : pas de façade ni de flag (ADR 0024) et **pas de paramètre par centre** pour S6b (ADR 0047,
+décision utilisateur du 2026-10-25 : la pièce est impérative le jour de la séance, mode historique retiré) ; migrations
+additives V45 (sortie pour séances, mouvement `RETOUR`) et V46 (fuseau des centres) ; rôle `DIRECTEUR_ADMINISTRATIF` créé par
+l'administrateur (aucune migration ni seed) ; bugs legacy reproduits (ADR 0019) sauf écarts décidés : verrou de ligne du PMP
+(S5), garde d'inventaire sous verrou et articles hors inventaire non figés (S7, KB-STK-50), péremptions limitées aux centres
+actifs et notifiées (S8), consommation de séance sans sortie immédiate (S6b). Écart de modèle : `StockArticle` non extrait
+(ADR 0048, `proposed`).
+
+### Dette : lectures SQL des tables du Stock par d'autres contextes (vérification du 2026-10-26, constat M3)
+
+Indicateur « lectures SQL des tables du stock par d'autres contextes » : **cible 0, non atteinte** (7 lecteurs
+ci-dessous). Rien n'est codé ici ; solution commune : ports publiés du Stock (`publishedlanguage`), consommés par ACL, puis
+règle ArchUnit ou grep de garde « hors `contexts.stock`, pas de SQL sur les tables du stock ».
+
+| Contexte lecteur | Fichier:ligne | Tables lues | Port publié proposé |
+|---|---|---|---|
+| Séance | `SeanceRestController.java:309-312` | `stock_movements`, `articles` | `ConsommationsDeSeance` (lecture des sorties historiques d'une séance) |
+| Séance | `SeanceRestController.java:343-349` | `consommations_de_seance`, `consommations_de_seance_imputations`, `articles`, `sorties_pour_seances_lignes` | `ConsommationsDeSeance.resume(seanceId)` (résumé de séance en langage publié) |
+| Séance | `SeanceRestController.java:655-657` | `bons_sortie_lignes`, `bons_sortie`, `articles` | idem (sorties historiques lisibles) |
+| Direction | `DirectionIndicatorsQueryService.java:218` | `articles` | `IndicateursDuStock` (articles actifs et valeur par centre) |
+| Direction | `DirectionIndicatorsQueryService.java:234` | `lots` | `IndicateursDuStock` (lots en stock, péremptions) |
+| Référentiel (plateforme) | `ReferentialRepositoryAdapter.java:97` | `articles` | `CatalogueDArticles` (déjà publié : à utiliser) |
+| Comptabilité | `UsagesDuParametrageJdbc.java:71` | `articles` | `CatalogueDArticles.utiliseLeCompte(...)` (usage d'un compte comptable) |
+
+Créneau proposé : une slice **S9 « lectures publiées hors contexte »** (aucune migration, filet = goldens existants de la
+Séance et de la Direction), avant la modélisation de Séance. Tant qu'elle n'est pas faite, toute évolution de ces tables
+doit lister ces lecteurs.
 
 ## 2. Autres contextes (haut niveau, à détailler après `/ddd-tactical <ctx>`)
 
@@ -127,7 +149,7 @@ consommation de séance sans sortie immédiate (S6b).
 | Comptabilité                                                                                                                                                                                                                                                                                 | **C1 à C7 livrées : `bc-comptabilite` retiré** (voir 1 bis) ; écrans Angular de régénération (C5) et des échecs du stock (C6) livrés le 2026-10-19 ; reste les trois minors de la revue `.ddd/reviews/2026-10-19-comptabilite.md` (C1 à C7, verdict révisé pass-with-actions) et les décisions ouvertes de `known-bugs.md`                                                                                                                                                                                                               |
 | Facturation + règlement                                                                                                                                                                                                                                                                      | **F1 à F7 livrées le 2026-10-21 : `bc-facturation` retiré, Facturation terminée (clôture mensuelle comprise)** (§ 1 ter) ; revue F7 du 2026-10-23 (`.ddd/reviews/2026-10-23-facturation-f7.md`) : pass-with-actions ; constats 1, 3, 5, 6 corrigés par la slice `facturation-f7b-corrections-revue` (built) ; constats 2 et 4 tranchés le même jour (ADR 0043 délai de verrou commun, ADR 0044 seul un mois terminé se clôture, comme les absences) : revue close ; dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009) |
 | Absences patients                                                                                                                                                                                                                                                                            | dépend des jours prévus (Planification) et des séances                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
- **modele tactique propose le 2026-10-23** (.ddd/tactical/stock.md : 8 agregats, slices S1 a S8, 6 questions ouvertes) ; PMP, FEFO ; la recette C6 a révélé KB-STK-01/02 (rejeu du PMP à date égale, dates du jeu de démo), corrigés hors slice : à reprendre dans le filet de la slice Stock |
+| Stock | **modèle tactique approuvé le 2026-10-23, S1 à S8 construites** (`.ddd/tactical/stock.md`, ADR 0045 à 0048) ; vérifié le 2026-10-26 (`.ddd/verify/verify-stock.md`) ; PMP, FEFO ; KB-STK-01/02 repris dans le filet S5 |
 | Planification                                                                                                                                                                                                                                                                                | consommera les événements GMAO ; débloquera le retrait des lectures SQL de `gmao_equipements`                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Patient et couverture, Séance                                                                                                                                                                                                                                                                | les plus couplés : en dernier                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 

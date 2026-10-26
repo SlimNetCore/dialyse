@@ -42,11 +42,13 @@ et `consommations_de_seance_imputations` (article, lot?, quantité, alerte) ; ty
 (table des rôles / énumération de sécurité). Pas de reprise des sorties de séance historiques (elles restent des
 `bons_sortie` lisibles).
 
-## Bascule (question ouverte 1 du modèle)
+## Bascule (tranchée : décision utilisateur du 2026-10-25, ADR 0047)
 
-Recommandation : **paramètre par centre** « sortie pour séances activée » (désactivé par défaut) ; tant qu'il est
-désactivé, le port publié garde le comportement actuel (sortie immédiate FEFO) ; activation centre par centre après
-formation. Retour arrière : désactiver le paramètre (les pièces déjà enregistrées doivent être rapprochées).
+**Pas de paramètre par centre, pas de mode historique.** La pièce (bon de préparation) est impérative le jour de la
+séance ; le retrait du mode historique (commit `eaa76b31`) est confirmé. *(La recommandation initiale « paramètre par centre,
+désactivé par défaut » est abandonnée.)* Retour arrière : redéploiement de la version précédente ; les pièces déjà
+enregistrées devraient alors être rapprochées. Prérequis à la mise en production : une pièce préparée par centre avant la
+première séance (`verifications-production.md` § 31).
 
 ## Filet
 
@@ -60,7 +62,7 @@ formation. Retour arrière : désactiver le paramètre (les pièces déjà enreg
 
 ## Critères de « built »
 
-Les deux modes testés ; 4 appels directs de la Séance retirés (`FrontieresDesContextesTest`) ; écrans : préparation des
+(Critère initial, remplacé par l'ADR 0047 : un seul mode, la pièce impérative) 4 appels directs de la Séance retirés (`FrontieresDesContextesTest`) ; écrans : préparation des
 pièces (gestionnaire de stock), favoris et
 alertes au poste infirmier, rapprochement (gestionnaire, admin, directeur administratif) ; i18n fr/en/ar/kab ; RG-STK
 (nouvelle section 8.9) et documentation client.
@@ -74,9 +76,16 @@ périmètre le remplacent.
 
 Dépend de S5 et S6 (`StockArticle`, `BonSortie`). **Risque élevé** : nouveau processus métier, argent (sorties,
 retours), changement des habitudes infirmières ;
-questions ouvertes 2 à 4 du modèle tactique à trancher avant le code.## Avancement (2026-10-23) — phase A livrée (pièce
-et rapprochement), phases B et C restantes **Questions ouvertes tranchées (hypothèses et recommandation du modèle, à
-confirmer)** : 1) paramètre par centre
+questions ouvertes 2 à 4 du modèle tactique à trancher avant le code.
+
+## Avancement (2026-10-23) — phase A livrée (pièce et rapprochement), phases B et C restantes
+
+> **État final des questions (2026-10-26)** : 1) bascule : **pièce impérative, mode historique retiré, confirmé le
+> 2026-10-25 (ADR 0047)** ; 2) motif d'un écart : gestionnaire de stock et administrateur seuls (2026-10-24) ; 3) sortie
+> supplémentaire depuis les lots de la pièce puis FEFO et 4) consommations imputées comme base du coût par séance : retenues et
+> construites. Le texte ci-dessous est l'historique de la livraison (hypothèses du 2026-10-23, depuis remplacées).
+
+**Questions ouvertes tranchées à l'époque (hypothèses, remplacées ou confirmées depuis)** : 1) paramètre par centre
 `stock_parametres.sortie_pour_seances_activee` (FALSE par défaut) ; 2) le motif d'un écart est saisi par l'infirmier
 et/ou le
 gestionnaire, seule la validation est réservée ; 3) la sortie supplémentaire part des lots de la pièce s'il en reste,
@@ -108,7 +117,9 @@ sinon FEFO ;
    ``ConsommationsDeSeanceLegacyTest`` (FEFO déplacé depuis ``SeanceDomainServiceTest``), annexe de traçabilité des
    règles de gestion mise à jour ; suite backend complète verte. **Reste de B** : test de concurrence T44 (consommation
    pendant la validation) et retrait des méthodes de séance de ``BonSortieService`` (encore utilisées par l adapter
-   historique, à retirer quand tous les centres auront basculé).`r`n`r`n **Phase C (à faire)** : garde T43 (inventaire
+   historique, à retirer quand tous les centres auront basculé : fait le 2026-10-24, voir plus bas).
+
+**Phase C (livrée le 2026-10-24, voir plus bas)** : garde T43 (inventaire
    refusé tant qu'une pièce n'est pas rapprochée, avec S7) ; rôle
    `DIRECTEUR_ADMINISTRATIF` en lecture seule sur les routes de lecture du stock et dans la gestion des comptes ;
    comptabilité C6 (les mouvements `RETOUR` doivent être pris en compte dans `OperationsDeStock`) ; écrans (préparation,
@@ -162,6 +173,10 @@ sinon FEFO ;
   (`addSeanceConsommation`, `setSeanceConsommation`, `annulerSortiesSeance`, `createViaFefo`) sont supprimés ; la table
   `stock_parametres` est conservée (migration additive V45, rien à défaire). Restent `create`, `update`, `get`, `list`
   (démonstration et tests d'inventaire).
+
+- **Décision utilisateur du 2026-10-25 (ADR 0047)** : la pièce est impérative le jour de la séance ; le retrait du mode
+  historique et du paramètre par centre ci-dessus est **confirmé**. Plus rien d'ouvert sur la bascule. Prérequis de mise en
+  production : `verifications-production.md` § 31 (une pièce préparée par centre avant la première séance).
 
 - **Statut : built (2026-10-24)** : T44, retrait du mode historique et des appels directs de la Séance, écrans, i18n,
   RG-STK 8.9 et documentation client faits ; reste hors périmètre : capture d'écran de l'écran « Sorties pour séances »

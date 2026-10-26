@@ -2,7 +2,7 @@
 status: accepted
 date: 2026-10-23
 deciders: utilisateur (réponses du 2026-10-23 au modèle tactique du Stock)
-related: ADR 0006, 0009, 0024, 0029, 0043 ; `.ddd/tactical/stock.md`
+related: ADR 0006, 0009, 0024, 0029, 0043, 0047 (bascule confirmée) ; `.ddd/tactical/stock.md`
 ---
 
 # ADR 0045 — Stock : sortie pour séances, rapprochement des consommations et décisions du modèle tactique
@@ -47,6 +47,8 @@ demandé un nouveau processus pour la consommation en séance.
    comptage.
 8. **Lots proches de l'expiration** : notification (pharmacien, admin) au lieu du seul journal technique (slice S8).
 9. **`ANNULE`** retiré du glossaire des bons : un brouillon se modifie.
+10. **Bascule** (ajout du 2026-10-26, décision utilisateur du 2026-10-25, ADR 0047) : la pièce est impérative le jour de la
+    séance ; pas de mode historique ni de paramètre par centre.
 
 ## Conséquences
 
@@ -56,9 +58,11 @@ demandé un nouveau processus pour la consommation en séance.
   retours), plus les séances.
 - Slice dédiée **S6b** (migration additive : pièces, lignes, consommations, mouvement `RETOUR`) ; les sorties de séance
   historiques restent lisibles.
-- Points restant à trancher avec S6b (`tactical/stock.md`, questions ouvertes) : paramètre de bascule par centre, qui
-  saisit le motif d'un écart, lot de la sortie
-  supplémentaire, base du coût par séance pour le pilotage.
+- Points qui restaient à trancher avec S6b, **tous clos** : bascule (décision utilisateur du 2026-10-25, ADR 0047 : la
+  pièce est impérative le jour de la séance, mode historique et paramètre par centre retirés, confirmé) ; motif d'un écart
+  saisi par le gestionnaire de stock et l'administrateur seuls (décision du 2026-10-24) ; sortie supplémentaire depuis les
+  lots de la pièce puis FEFO et consommations imputées comme base du coût par séance (construits en S6b ; confirmation
+  demandée dans `verify-stock.md`, « Suites »).
 - Le nouveau rôle touche le contexte générique Identité & accès (création de comptes, écrans, i18n) et la documentation
   des profils (RG-SEC).
 

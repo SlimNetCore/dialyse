@@ -67,8 +67,8 @@ Dépend de S5 (`StockArticle`, `RejeuDuPmp`) ; port publié de la Facturation. R
   PMP courant,
   ordre des contrôles, lots FEFO (périmés inclus), article inactif accepté, **création sans contrôle de facturation de
   la séance**
-  (reproduit, à trancher), lots, mouvements et stock des articles. 74 goldens inchangés sur 126.
-- **Corrections (même ligne que S5, à valider), KB-STK-46 à 49** : 403 si le centre demandé ≠ session et centre
+  (reproduit ; **décision métier à prendre**, voir `known-bugs.md`, « Décisions à prendre » D1), lots, mouvements et stock des articles. 74 goldens inchangés sur 126.
+- **Corrections (même ligne que S5), KB-STK-46 à 49, désormais consignées dans `known-bugs.md` (confirmation demandée : D2)** : 403 si le centre demandé ≠ session et centre
   facultatif (= session) ;
   auteur = utilisateur de la session (le champ `userId` du corps est ignoré) ; **la correction d'un bon manuel ne
   supprime plus les
