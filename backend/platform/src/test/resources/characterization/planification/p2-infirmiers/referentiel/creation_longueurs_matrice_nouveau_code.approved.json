@@ -1,0 +1,9 @@
+{
+  "matricule_50_caracteres" : "201",
+  "matricule_51_caracteres" : "400 BAD_REQUEST",
+  "nom_255_caracteres" : "201",
+  "nom_256_caracteres" : "400 BAD_REQUEST",
+  "prenom_256_caracteres" : "400 BAD_REQUEST",
+  "telephone_50_caracteres" : "201",
+  "telephone_51_caracteres" : "400 BAD_REQUEST"
+}

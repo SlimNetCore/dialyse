@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_DELIAISON_INCOHERENTE",
+    "detail" : "La fiche est inactive mais son compte est actif : désactiver le compte avant de le délier",
+    "instance" : "/api/v1/infirmiers/<INF_1>/compte",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

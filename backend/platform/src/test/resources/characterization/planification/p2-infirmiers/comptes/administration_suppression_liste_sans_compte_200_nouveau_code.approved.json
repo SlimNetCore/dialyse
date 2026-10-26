@@ -1,0 +1,27 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : {
+        "actif" : true,
+        "id" : "<C_1>",
+        "nomComplet" : "Compte de Sara",
+        "username" : "p2.sara"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_1>",
+      "matricule" : "M1",
+      "nom" : "Amrani",
+      "prenom" : "Sara",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PROFIL_INFIRMIER_INACTIF",
+    "detail" : "Cet infirmier est inactif : son profil n'est plus modifiable",
+    "instance" : "/api/v1/planning/preferences/infirmiers/<UUID_GENERE_1>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

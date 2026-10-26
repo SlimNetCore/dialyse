@@ -1,0 +1,22 @@
+{
+  "corps_absent" : "400 BAD_REQUEST",
+  "habilite_isolement_absent" : "201",
+  "habilite_isolement_nombre_1_accepte" : "201",
+  "habilite_isolement_null" : "201",
+  "habilite_isolement_texte_invalide" : "400 BAD_REQUEST",
+  "habilite_isolement_texte_vrai_accepte" : "201",
+  "json_null" : "400 BAD_REQUEST",
+  "json_tronque" : "400 BAD_REQUEST",
+  "matricule_absent" : "400 BAD_REQUEST",
+  "matricule_blanc" : "400 BAD_REQUEST",
+  "nom_absent" : "400 BAD_REQUEST",
+  "nom_blanc" : "400 BAD_REQUEST",
+  "nom_nombre_accepte" : "201",
+  "objet_vide" : "400 BAD_REQUEST",
+  "qualification_absente" : "400 BAD_REQUEST",
+  "qualification_blanche" : "400 BAD_REQUEST",
+  "qualification_en_minuscules" : "400 BAD_REQUEST",
+  "qualification_inconnue" : "400 BAD_REQUEST",
+  "tableau_json" : "400 BAD_REQUEST",
+  "type_de_contenu_texte" : "415 UNSUPPORTED_MEDIA_TYPE"
+}

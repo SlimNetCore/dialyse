@@ -1,0 +1,11 @@
+[ {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "true",
+  "matricule" : "M1-BIS",
+  "nom" : "Renomme",
+  "prenom" : "Nouveau",
+  "qualification" : "MAJOR",
+  "telephone" : "0661",
+  "user_id" : "<COMPTE_1>"
+} ]

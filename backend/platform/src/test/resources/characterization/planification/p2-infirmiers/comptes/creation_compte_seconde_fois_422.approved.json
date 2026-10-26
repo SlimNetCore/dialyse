@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_DEJA_LIE",
+    "detail" : "Cette fiche est déjà reliée à un compte",
+    "instance" : "/api/v1/infirmiers/<INF_1>/compte/creer",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

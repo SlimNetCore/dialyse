@@ -1,0 +1,16 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "affectations" : [ ],
+    "compte" : null,
+    "habiliteIsolement" : true,
+    "id" : "<UUID_GENERE_1>",
+    "matricule" : "M-001",
+    "nom" : "Amrani",
+    "prenom" : "Sara",
+    "qualification" : "MAJOR",
+    "telephone" : "0550 11 22 33"
+  }
+}

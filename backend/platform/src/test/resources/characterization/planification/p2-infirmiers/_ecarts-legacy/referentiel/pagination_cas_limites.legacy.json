@@ -1,0 +1,9 @@
+{
+  "?page=-1" : "500 DATA_ACCESS_ERROR",
+  "?page=0&size=1" : "200 items=1 total=5 page=0 size=1",
+  "?page=abc" : "500 INTERNAL_ERROR",
+  "?size=" : "200 items=5 total=5 page=0 size=20",
+  "?size=-1" : "500 DATA_ACCESS_ERROR",
+  "?size=0" : "200 items=0 total=5 page=0 size=0",
+  "?size=abc" : "500 INTERNAL_ERROR"
+}

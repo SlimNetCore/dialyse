@@ -1,0 +1,36 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : false,
+      "id" : "<C_ALPHA_INACTIF>",
+      "nomComplet" : "Alpha",
+      "username" : "p2.alpha"
+    }, {
+      "actif" : true,
+      "id" : "<C_DEUX_CENTRES>",
+      "nomComplet" : "Deux centres",
+      "username" : "p2.deuxcentres"
+    }, {
+      "actif" : true,
+      "id" : "<C_LIE_AILLEURS>",
+      "nomComplet" : "Lie dans l autre centre",
+      "username" : "p2.lieailleurs"
+    }, {
+      "actif" : true,
+      "id" : "<C_MIXTE>",
+      "nomComplet" : "Deux roles",
+      "username" : "p2.mixte"
+    }, {
+      "actif" : true,
+      "id" : "<C_ZETA>",
+      "nomComplet" : "Zeta",
+      "username" : "p2.zeta"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 5
+  }
+}

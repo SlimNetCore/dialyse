@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_LIE_A_UNE_FICHE_ACTIVE",
+    "detail" : "Ce compte est lié à une fiche d'infirmier active : désactiver la fiche ou délier le compte avant de le supprimer",
+    "instance" : "/api/v1/users/<C_1>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

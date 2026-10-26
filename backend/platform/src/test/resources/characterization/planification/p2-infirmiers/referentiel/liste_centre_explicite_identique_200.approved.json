@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_A>",
+      "matricule" : "M1",
+      "nom" : "Amrani",
+      "prenom" : "Sara",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

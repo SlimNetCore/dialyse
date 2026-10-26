@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "affectations" : [ ],
+    "compte" : {
+      "actif" : true,
+      "id" : "<COMPTE_1>",
+      "nomComplet" : "Sara Amrani",
+      "username" : "p2.lie"
+    },
+    "habiliteIsolement" : true,
+    "id" : "<INF_1>",
+    "matricule" : "M1-BIS",
+    "nom" : "Renomme",
+    "prenom" : null,
+    "qualification" : "MAJOR",
+    "telephone" : null
+  }
+}

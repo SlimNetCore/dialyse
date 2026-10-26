@@ -1,0 +1,31 @@
+[ {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "false",
+  "matricule" : "M2",
+  "nom" : "Benali",
+  "prenom" : "Karim",
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+}, {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "false",
+  "matricule" : "M3",
+  "nom" : "Amrani",
+  "prenom" : "Prenom",
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+}, {
+  "actif" : "true",
+  "center_id" : "<CENTRE_B>",
+  "habilite_isolement" : "false",
+  "matricule" : "M3",
+  "nom" : "Zerrouki",
+  "prenom" : "Rania",
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+} ]

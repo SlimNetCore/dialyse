@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Paramètre illisible : id",
+    "instance" : "/api/v1/infirmiers/pas-un-uuid/reactiver",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

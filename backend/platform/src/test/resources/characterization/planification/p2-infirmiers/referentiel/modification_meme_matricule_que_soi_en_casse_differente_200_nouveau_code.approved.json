@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "affectations" : [ ],
+    "compte" : null,
+    "habiliteIsolement" : false,
+    "id" : "<INF_1>",
+    "matricule" : "M1",
+    "nom" : "Amrani",
+    "prenom" : "Prenom",
+    "qualification" : "INFIRMIER",
+    "telephone" : null
+  }
+}

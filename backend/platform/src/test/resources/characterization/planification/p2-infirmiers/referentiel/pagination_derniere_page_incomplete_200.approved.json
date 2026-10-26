@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_5>",
+      "matricule" : "M5",
+      "nom" : "Nom5",
+      "prenom" : "Prenom",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    } ],
+    "page" : 2,
+    "size" : 2,
+    "total" : 5
+  }
+}

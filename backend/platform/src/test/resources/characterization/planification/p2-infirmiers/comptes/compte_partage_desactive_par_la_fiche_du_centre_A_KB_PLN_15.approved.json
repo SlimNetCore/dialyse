@@ -1,0 +1,10 @@
+[ {
+  "active" : "false",
+  "centres" : "<CENTRE_A>,<CENTRE_B>",
+  "email" : null,
+  "full_name" : "Compte multi-centres",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "INFIRMIER",
+  "username" : "p2.multi"
+} ]

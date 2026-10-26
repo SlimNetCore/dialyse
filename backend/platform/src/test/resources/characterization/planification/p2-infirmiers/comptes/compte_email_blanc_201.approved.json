@@ -1,0 +1,24 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "infirmier" : {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : {
+        "actif" : true,
+        "id" : "<UUID_GENERE_1>",
+        "nomComplet" : "Nadia Chikhi",
+        "username" : "p2.c"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_3>",
+      "matricule" : "M3",
+      "nom" : "Chikhi",
+      "prenom" : "Nadia",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    },
+    "motDePasseTemporaire" : "<MOT_DE_PASSE_TEMPORAIRE>"
+  }
+}

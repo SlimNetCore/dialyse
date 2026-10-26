@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_IDENTIFIANT_INVALIDE",
+    "detail" : "Identifiant invalide (3 à 50 caractères : lettres, chiffres, point, tiret, souligné)",
+    "instance" : "/api/v1/infirmiers/<INF_1>/compte/creer",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

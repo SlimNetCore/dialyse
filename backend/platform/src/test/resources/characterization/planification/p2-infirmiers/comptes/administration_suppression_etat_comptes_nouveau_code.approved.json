@@ -1,0 +1,10 @@
+[ {
+  "active" : "true",
+  "centres" : "",
+  "email" : null,
+  "full_name" : "Compte de Sara",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "",
+  "username" : "p2.sara"
+} ]

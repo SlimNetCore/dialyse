@@ -1,0 +1,22 @@
+{
+  "corps_absent" : "500 INTERNAL_ERROR",
+  "habilite_isolement_absent" : "500 INTERNAL_ERROR",
+  "habilite_isolement_nombre_1_accepte" : "201",
+  "habilite_isolement_null" : "500 INTERNAL_ERROR",
+  "habilite_isolement_texte_invalide" : "500 INTERNAL_ERROR",
+  "habilite_isolement_texte_vrai_accepte" : "201",
+  "json_null" : "500 INTERNAL_ERROR",
+  "json_tronque" : "500 INTERNAL_ERROR",
+  "matricule_absent" : "400 VALIDATION_ERROR",
+  "matricule_blanc" : "400 VALIDATION_ERROR",
+  "nom_absent" : "400 VALIDATION_ERROR",
+  "nom_blanc" : "400 VALIDATION_ERROR",
+  "nom_nombre_accepte" : "201",
+  "objet_vide" : "500 INTERNAL_ERROR",
+  "qualification_absente" : "400 VALIDATION_ERROR",
+  "qualification_blanche" : "400 VALIDATION_ERROR",
+  "qualification_en_minuscules" : "400 BAD_REQUEST",
+  "qualification_inconnue" : "400 BAD_REQUEST",
+  "tableau_json" : "500 INTERNAL_ERROR",
+  "type_de_contenu_texte" : "500 INTERNAL_ERROR"
+}

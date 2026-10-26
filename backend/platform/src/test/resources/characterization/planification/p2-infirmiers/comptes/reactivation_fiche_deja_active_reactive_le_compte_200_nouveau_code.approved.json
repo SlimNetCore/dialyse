@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_ETAT_INCOHERENT",
+    "detail" : "La fiche est active mais son compte est désactivé : réactiver le compte depuis l'administration des utilisateurs",
+    "instance" : "/api/v1/infirmiers/<INF_ACTIVE>/reactiver",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

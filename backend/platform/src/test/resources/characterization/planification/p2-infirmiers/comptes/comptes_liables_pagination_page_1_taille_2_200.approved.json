@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "id" : "<C_LIE_AILLEURS>",
+      "nomComplet" : "Lie dans l autre centre",
+      "username" : "p2.lieailleurs"
+    }, {
+      "actif" : true,
+      "id" : "<C_MIXTE>",
+      "nomComplet" : "Deux roles",
+      "username" : "p2.mixte"
+    } ],
+    "page" : 1,
+    "size" : 2,
+    "total" : 5
+  }
+}

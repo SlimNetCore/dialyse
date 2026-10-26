@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_ETAT_INCOHERENT",
+    "detail" : "Le compte et la fiche doivent être tous deux actifs ou tous deux inactifs",
+    "instance" : "/api/v1/infirmiers/<INF_ACTIVE>/compte/lier",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

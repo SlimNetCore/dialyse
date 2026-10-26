@@ -1,0 +1,20 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "infirmierId" : "<UUID_GENERE_1>",
+      "nom" : "Sara Amrani",
+      "profil" : {
+        "competences" : [ ],
+        "infirmierId" : "<UUID_GENERE_1>",
+        "tauxActivite" : 100
+      },
+      "qualification" : "MAJOR"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

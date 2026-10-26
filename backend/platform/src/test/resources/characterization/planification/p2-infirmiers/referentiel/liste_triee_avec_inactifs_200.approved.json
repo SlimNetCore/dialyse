@@ -1,0 +1,66 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_AMRANI_SANS_PRENOM>",
+      "matricule" : "M1",
+      "nom" : "Amrani",
+      "prenom" : null,
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    }, {
+      "actif" : false,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_AMRANI_NADIA_A>",
+      "matricule" : "A1",
+      "nom" : "Amrani",
+      "prenom" : "Nadia",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    }, {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_AMRANI_NADIA_Z>",
+      "matricule" : "Z9",
+      "nom" : "Amrani",
+      "prenom" : "Nadia",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    }, {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : true,
+      "id" : "<INF_BENALI>",
+      "matricule" : "M2",
+      "nom" : "Benali",
+      "prenom" : "Samia",
+      "qualification" : "MAJOR",
+      "telephone" : "0550 11 22 33"
+    }, {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_MINUSCULE>",
+      "matricule" : "M3",
+      "nom" : "benali",
+      "prenom" : "Karim",
+      "qualification" : "AIDE_SOIGNANT",
+      "telephone" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 5
+  }
+}

@@ -1,0 +1,19 @@
+[ {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Sara Amrani",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.bord"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_B>",
+  "email" : null,
+  "full_name" : "Existant",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "MEDECIN",
+  "username" : "p2.existant"
+} ]

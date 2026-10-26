@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_3>",
+      "matricule" : "M3",
+      "nom" : "Nom3",
+      "prenom" : "Prenom",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    }, {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_4>",
+      "matricule" : "M4",
+      "nom" : "Nom4",
+      "prenom" : "Prenom",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    } ],
+    "page" : 1,
+    "size" : 2,
+    "total" : 5
+  }
+}

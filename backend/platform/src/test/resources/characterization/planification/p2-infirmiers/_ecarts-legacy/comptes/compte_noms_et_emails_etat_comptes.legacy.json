@@ -1,0 +1,46 @@
+[ {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Sara Amrani",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.a"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Benali",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.b"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Nadia Chikhi",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.c"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : "lina@example.dz",
+  "full_name" : "Lina Dahmani",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.d"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : "pas-un-email",
+  "full_name" : "Omar Essaid",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.e"
+} ]

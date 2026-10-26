@@ -1,0 +1,24 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "infirmier" : {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : {
+        "actif" : true,
+        "id" : "<UUID_GENERE_1>",
+        "nomComplet" : "Karim Benali",
+        "username" : "P2.MAJ_et-min.9"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_2>",
+      "matricule" : "M2",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    },
+    "motDePasseTemporaire" : "<MOT_DE_PASSE_TEMPORAIRE>"
+  }
+}

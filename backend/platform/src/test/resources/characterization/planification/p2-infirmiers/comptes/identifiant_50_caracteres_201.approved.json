@@ -1,0 +1,24 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "infirmier" : {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : {
+        "actif" : true,
+        "id" : "<UUID_GENERE_1>",
+        "nomComplet" : "Sara Amrani",
+        "username" : "p2.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_1>",
+      "matricule" : "M1",
+      "nom" : "Amrani",
+      "prenom" : "Sara",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    },
+    "motDePasseTemporaire" : "<MOT_DE_PASSE_TEMPORAIRE>"
+  }
+}

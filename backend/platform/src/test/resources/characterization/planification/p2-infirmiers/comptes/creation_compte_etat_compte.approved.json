@@ -1,0 +1,10 @@
+[ {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : "sara@example.dz",
+  "full_name" : "Sara Amrani",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.sara"
+} ]

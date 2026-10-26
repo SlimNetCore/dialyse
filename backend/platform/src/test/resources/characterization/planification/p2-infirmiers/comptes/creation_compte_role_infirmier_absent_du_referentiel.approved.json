@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Le rôle INFIRMIER n'existe pas",
+    "instance" : "/api/v1/infirmiers/<INF_1>/compte/creer",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

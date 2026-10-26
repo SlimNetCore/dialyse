@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "INFIRMIER_INTROUVABLE",
+    "detail" : "Infirmier introuvable",
+    "instance" : "/api/v1/infirmiers/<INF_B>/compte",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

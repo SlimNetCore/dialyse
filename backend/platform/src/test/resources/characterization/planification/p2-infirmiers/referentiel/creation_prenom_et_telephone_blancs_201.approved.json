@@ -1,0 +1,16 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "affectations" : [ ],
+    "compte" : null,
+    "habiliteIsolement" : false,
+    "id" : "<UUID_GENERE_1>",
+    "matricule" : "M-002",
+    "nom" : "Benali",
+    "prenom" : null,
+    "qualification" : "AIDE_SOIGNANT",
+    "telephone" : null
+  }
+}

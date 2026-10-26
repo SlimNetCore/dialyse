@@ -1,0 +1,16 @@
+{
+  "[   ]" : "400 VALIDATION_ERROR",
+  "[]" : "400 VALIDATION_ERROR",
+  "[ab]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "[p2.a@b]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "[p2.accentué]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "[p2.avec espace]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "[p2.slash/]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "[p2.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "[p2]" : "422 COMPTE_IDENTIFIANT_INVALIDE",
+  "absent" : "400 VALIDATION_ERROR",
+  "doublon_autre_casse" : "422 COMPTE_IDENTIFIANT_EXISTANT",
+  "doublon_avec_espaces" : "422 COMPTE_IDENTIFIANT_EXISTANT",
+  "doublon_meme_casse" : "422 COMPTE_IDENTIFIANT_EXISTANT",
+  "null" : "400 VALIDATION_ERROR"
+}

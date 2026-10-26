@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "id" : "<C_1>",
+      "nomComplet" : "Compte de Sara",
+      "username" : "p2.sara"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_LIE_A_UN_AUTRE_CENTRE",
+    "detail" : "Ce compte est déjà lié à une fiche d'un autre centre : un compte ne se lie qu'à un seul centre",
+    "instance" : "/api/v1/infirmiers/<INF_B>/compte/lier",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

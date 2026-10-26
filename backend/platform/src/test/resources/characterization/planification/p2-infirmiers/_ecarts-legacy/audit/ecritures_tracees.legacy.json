@@ -1,0 +1,57 @@
+[ {
+  "action_code" : "INFIRMIERS_CREATION",
+  "entity_id" : null,
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers",
+  "status_code" : "201"
+}, {
+  "action_code" : "INFIRMIERS_MODIFICATION",
+  "entity_id" : "<INF_LIBRE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/infirmiers/{id}",
+  "status_code" : "200"
+}, {
+  "action_code" : "INFIRMIERS_SUPPRESSION",
+  "entity_id" : "<INF_LIBRE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/infirmiers/{id}/compte",
+  "status_code" : "200"
+}, {
+  "action_code" : "INFIRMIERS_SUPPRESSION",
+  "entity_id" : "<INF_LIEE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/infirmiers/{id}/compte",
+  "status_code" : "200"
+}, {
+  "action_code" : "INFIRMIERS_CREATION",
+  "entity_id" : "<INF_LIBRE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/compte/creer",
+  "status_code" : "201"
+}, {
+  "action_code" : "INFIRMIERS_CREATION",
+  "entity_id" : "<INF_LIBRE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/compte/lier",
+  "status_code" : "200"
+}, {
+  "action_code" : "INFIRMIERS_CREATION",
+  "entity_id" : "<INF_LIBRE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/desactiver",
+  "status_code" : "200"
+}, {
+  "action_code" : "INFIRMIERS_CREATION",
+  "entity_id" : "<INF_LIBRE>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/reactiver",
+  "status_code" : "200"
+} ]

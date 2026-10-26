@@ -1,0 +1,66 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ {
+        "creneauId" : "<CRENEAU_1>",
+        "id" : "<AFF_2>",
+        "jours" : [ "LUNDI", "MARDI" ],
+        "joursEnSureffectif" : [ ],
+        "salleId" : "<SALLE_1>"
+      }, {
+        "creneauId" : "<CRENEAU_1>",
+        "id" : "<AFF_1>",
+        "jours" : [ "SAMEDI" ],
+        "joursEnSureffectif" : [ ],
+        "salleId" : "<SALLE_1>"
+      } ],
+      "compte" : {
+        "actif" : true,
+        "id" : "<COMPTE_ACTIF>",
+        "nomComplet" : "Compte actif",
+        "username" : "p2.actif"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_A>",
+      "matricule" : "A1",
+      "nom" : "Aaa",
+      "prenom" : "Un",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    }, {
+      "actif" : false,
+      "affectations" : [ ],
+      "compte" : {
+        "actif" : false,
+        "id" : "<COMPTE_INACTIF>",
+        "nomComplet" : "Compte inactif",
+        "username" : "p2.inactif"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_B>",
+      "matricule" : "B1",
+      "nom" : "Bbb",
+      "prenom" : "Deux",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    }, {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_C>",
+      "matricule" : "C1",
+      "nom" : "Ccc",
+      "prenom" : "Trois",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 3
+  }
+}

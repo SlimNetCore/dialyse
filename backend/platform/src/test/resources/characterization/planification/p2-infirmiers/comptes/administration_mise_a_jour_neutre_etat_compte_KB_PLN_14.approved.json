@@ -1,0 +1,10 @@
+[ {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Nom modifie par l administration",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "INFIRMIER",
+  "username" : "p2.sara"
+} ]

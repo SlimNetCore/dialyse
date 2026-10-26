@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : null,
+      "habiliteIsolement" : false,
+      "id" : "<INF_AUTRE_CENTRE>",
+      "matricule" : "M1",
+      "nom" : "Zerrouki",
+      "prenom" : "Rania",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

@@ -1,0 +1,21 @@
+[ {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "false",
+  "matricule" : "M-100",
+  "nom" : "Amrani",
+  "prenom" : "Prenom",
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+}, {
+  "actif" : "true",
+  "center_id" : "<CENTRE_B>",
+  "habilite_isolement" : "false",
+  "matricule" : "M-100",
+  "nom" : "Autre",
+  "prenom" : "Prenom",
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+} ]

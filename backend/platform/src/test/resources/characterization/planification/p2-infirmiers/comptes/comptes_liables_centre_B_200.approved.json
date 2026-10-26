@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "id" : "<C_AUTRE_CENTRE>",
+      "nomComplet" : "Autre centre",
+      "username" : "p2.autrecentre"
+    }, {
+      "actif" : true,
+      "id" : "<C_DEUX_CENTRES>",
+      "nomComplet" : "Deux centres",
+      "username" : "p2.deuxcentres"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_IDENTIFIANT_EXISTANT",
+    "detail" : "Cet identifiant de connexion existe déjà",
+    "instance" : "/api/v1/infirmiers/<INF_1>/compte/creer",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

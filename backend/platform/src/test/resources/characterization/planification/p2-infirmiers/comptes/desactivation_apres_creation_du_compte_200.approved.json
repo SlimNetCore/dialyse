@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : false,
+    "affectations" : [ ],
+    "compte" : {
+      "actif" : false,
+      "id" : "<UUID_GENERE_1>",
+      "nomComplet" : "Sara Amrani",
+      "username" : "p2.sara"
+    },
+    "habiliteIsolement" : false,
+    "id" : "<INF_1>",
+    "matricule" : "M1",
+    "nom" : "Amrani",
+    "prenom" : "Sara",
+    "qualification" : "INFIRMIER",
+    "telephone" : null
+  }
+}

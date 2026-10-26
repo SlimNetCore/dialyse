@@ -1,0 +1,24 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "infirmier" : {
+      "actif" : true,
+      "affectations" : [ ],
+      "compte" : {
+        "actif" : true,
+        "id" : "<UUID_GENERE_1>",
+        "nomComplet" : "Lina Dahmani",
+        "username" : "p2.d"
+      },
+      "habiliteIsolement" : false,
+      "id" : "<INF_4>",
+      "matricule" : "M4",
+      "nom" : "Dahmani",
+      "prenom" : "Lina",
+      "qualification" : "INFIRMIER",
+      "telephone" : null
+    },
+    "motDePasseTemporaire" : "<MOT_DE_PASSE_TEMPORAIRE>"
+  }
+}

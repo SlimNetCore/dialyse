@@ -1,0 +1,46 @@
+[ {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Compte actif",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "INFIRMIER",
+  "username" : "p2.actif"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_B>",
+  "email" : null,
+  "full_name" : "Autre centre",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "INFIRMIER",
+  "username" : "p2.autre"
+}, {
+  "active" : "false",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Compte inactif",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "INFIRMIER",
+  "username" : "p2.inactif"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Medecin",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "MEDECIN",
+  "username" : "p2.medecin"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Deja utilise",
+  "mot_de_passe_hache" : "false",
+  "must_change_password" : "false",
+  "roles" : "INFIRMIER",
+  "username" : "p2.utilise"
+} ]

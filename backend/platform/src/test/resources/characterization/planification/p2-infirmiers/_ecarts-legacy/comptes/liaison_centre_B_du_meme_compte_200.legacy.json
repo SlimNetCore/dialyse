@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "affectations" : [ ],
+    "compte" : {
+      "actif" : true,
+      "id" : "<C_MULTI>",
+      "nomComplet" : "Compte multi-centres",
+      "username" : "p2.multi"
+    },
+    "habiliteIsolement" : false,
+    "id" : "<INF_B>",
+    "matricule" : "M1",
+    "nom" : "Amrani",
+    "prenom" : "Sara",
+    "qualification" : "INFIRMIER",
+    "telephone" : null
+  }
+}

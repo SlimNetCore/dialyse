@@ -1,0 +1,19 @@
+[ {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Karim Benali",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "P2.MAJ_et-min.9"
+}, {
+  "active" : "true",
+  "centres" : "<CENTRE_A>",
+  "email" : null,
+  "full_name" : "Sara Amrani",
+  "mot_de_passe_hache" : "true",
+  "must_change_password" : "true",
+  "roles" : "INFIRMIER",
+  "username" : "p2.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+} ]

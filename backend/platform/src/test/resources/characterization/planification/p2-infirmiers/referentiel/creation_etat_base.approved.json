@@ -1,0 +1,41 @@
+[ {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "true",
+  "matricule" : "M-001",
+  "nom" : "Amrani",
+  "prenom" : "Sara",
+  "qualification" : "MAJOR",
+  "telephone" : "0550 11 22 33",
+  "user_id" : null
+}, {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "false",
+  "matricule" : "M-002",
+  "nom" : "Benali",
+  "prenom" : null,
+  "qualification" : "AIDE_SOIGNANT",
+  "telephone" : null,
+  "user_id" : null
+}, {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "false",
+  "matricule" : "M-003",
+  "nom" : "Chikhi",
+  "prenom" : null,
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+}, {
+  "actif" : "true",
+  "center_id" : "<CENTRE_A>",
+  "habilite_isolement" : "false",
+  "matricule" : "M-004",
+  "nom" : "Dahmani",
+  "prenom" : null,
+  "qualification" : "INFIRMIER",
+  "telephone" : null,
+  "user_id" : null
+} ]

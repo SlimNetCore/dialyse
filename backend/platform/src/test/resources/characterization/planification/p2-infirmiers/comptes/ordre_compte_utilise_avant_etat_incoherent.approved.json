@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COMPTE_DEJA_UTILISE",
+    "detail" : "Ce compte est déjà relié à un autre infirmier",
+    "instance" : "/api/v1/infirmiers/<INF_ACTIVE>/compte/lier",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}
