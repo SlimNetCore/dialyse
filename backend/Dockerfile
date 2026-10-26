@@ -25,6 +25,7 @@ COPY contexts/comptabilite/pom.xml ./contexts/comptabilite/pom.xml
 COPY contexts/facturation/pom.xml ./contexts/facturation/pom.xml
 COPY contexts/absences-patients/pom.xml ./contexts/absences-patients/pom.xml
 COPY contexts/stock/pom.xml ./contexts/stock/pom.xml
+COPY contexts/planification/pom.xml ./contexts/planification/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline

@@ -38,6 +38,7 @@
         <module>contexts/facturation</module>
         <module>contexts/absences-patients</module>
         <module>contexts/stock</module>
+        <module>contexts/planification</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

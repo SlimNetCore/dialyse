@@ -1,0 +1,1 @@
+Domaine pur de la Planification (agrégats PlacesDuCentre, ExecutionDOptimisation, Infirmier, RoulementDeLInfirmier, AbsenceInfirmier, Remplacement, DeplacementTemporaire, paramétrage ; VO ; services purs) — cf. .ddd/tactical/planification.md.

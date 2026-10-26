@@ -101,6 +101,24 @@ class FrontieresDesContextesTest {
                     ABSENCES + ".domain..", ABSENCES + ".application..", ABSENCES + ".infrastructure..",
                     ABSENCES + ".interfaces..", ABSENCES + ".configuration..")
             .because("les Absences de patients ne s'utiliseront que par leur langage publié (A2, A4)");
+
+    private static final String PLANIFICATION = "com.hemodialyse.backend.contexts.planification";
+
+    /**
+     * Contexte Planification (ADR 0049 à 0054) : le legacy (fiche patient, sérologie, Séance, Absences, Direction,
+     * administration des utilisateurs) ne l'utilise que par son langage publié ({@code PlacementDesPatients},
+     * {@code LiberationDesPlaces}, {@code ReaffectationEnIsolement}, {@code PlacesDesPatients}, {@code CapaciteDesCentres},
+     * {@code FichesDesInfirmiers}). Règle vide tant que le module est un squelette ; la règle « pas de SQL sur les tables de la
+     * Planification hors du contexte » s'ajoute à P9.
+     */
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_la_planification_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(PLANIFICATION + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    PLANIFICATION + ".domain..", PLANIFICATION + ".application..", PLANIFICATION + ".infrastructure..",
+                    PLANIFICATION + ".interfaces..", PLANIFICATION + ".configuration..")
+            .allowEmptyShould(true)
+            .because("la Planification ne s'utilise que par son langage publié (ADR 0053)");
 }
 
 

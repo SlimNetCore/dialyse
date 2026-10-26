@@ -57,6 +57,31 @@ Décision actuelle (refactoring sur place, G3) : événements non versionnés, l
 
 Règles : payloads en types JDK (UUID, String, BigDecimal, Instant) — pas de VO internes ; nouvelle version `v2` à côté de `v1`, jamais de modification d'un contrat publié.
 
+## Planification (`backend/contexts/planification`, ADR 0049 à 0054) — architecturé le 2026-10-26
+
+Use cases et routes : `.ddd/tactical/planification.md` §8 (mêmes URLs, adapters entrants `interfaces/http`).
+
+| Port (nom métier) | Dir. | Adapter | Techno | Test |
+|---|---|---|---|---|
+| Use cases HTTP (paramétrage, infirmiers, roulement, absences, présence, propositions, optimisations) | in | `interfaces/http/*Controleur` | Spring webmvc + Security (`centerAccessGuard` équivalent) | goldens HTTP (ApprovalTests) + MockMvc |
+| Jobs `LiberationDesPlacesEchues` 04:00, `ControleDeLaPresence` 07:15, `ReplanificationNocturne` 02:30, reprise au démarrage | in | `interfaces/jobs` | `@Scheduled(zone)`, `ApplicationReadyEvent` | application (fakes) + intégration |
+| `PlacementDesPatients`, `LiberationDesPlaces`, `ReaffectationEnIsolement` (publiés, transaction de l'appelant) | in | implémentés par les cas d'usage ; appelés par la fiche patient / sérologie legacy | Java pur | goldens `PUT /patients`, sérologie |
+| `PlacesDesPatients`, `CapaciteDesCentres`, `FichesDesInfirmiers` (publiés, lecture/synchro) | in | read models JDBC | JDBC | contrat partagé fake ↔ JDBC |
+| Écouteur `gmao.v1` (`EquipementMisHorsService`, `EquipementReforme`) | in | `infrastructure/acl/gmao` | `@ApplicationModuleListener` (Modulith 2.0.x) | `GmaoEvenementsPlanificationListenerTest` déplacé |
+| `PlacesDuCentreRepository` (verrou `planning_parametres` FOR UPDATE) | out | `infrastructure/persistence` UPDATE ciblé des colonnes de place de `patients` | JDBC, délai 5 s (ADR 0043) | contrat + `*PostgresContractIT` (concurrence) |
+| `ExecutionsRepository`, `CalendriersDesPropositions`, `DeplacementsTemporaires`, `InfirmiersRepository`, `RoulementsRepository` (verrou `infirmier`), `AbsencesInfirmiersRepository`, `RemplacementsRepository`, `ParametresRepository`, `ReglagesRepository`, `PreferencesRepository`, `ProfilsRepository` | out | `infrastructure/persistence` | JDBC, tables existantes | contrat fake ↔ JDBC (H2 + PG16) |
+| `LectureDesPlaces`, `LectureDeLaPresence`, `DonneesDOptimisation` (+ `Empreinte`) | out | read models JDBC | JDBC | intégration |
+| `Optimiseur` | out | `infrastructure/optimisation/timefold/TimefoldOptimiseurAdapter` | Timefold 2.7.0 `SolverManager` | `*ConstraintProviderTest` déplacés ; factice déterministe dans le filet |
+| `GenerateursDuCentre`, `IndisponibilitesDesGenerateurs` (nouveau), `GenerateursInstalles` | out | `infrastructure/acl/gmao` → `gmao.publishedlanguage` | Java | contrat GMAO |
+| `SallesDuCentre` (dont `marquerIsolement`), `Creneaux`, `CalendrierDuCentre` | out | `infrastructure/acl/legacyorganisation` | JDBC (même SQL) | traduction table-driven |
+| `FinsDOccupation`, `Patients`, `MouvementsDesPatients` (même transaction), `CachesDesPatients` | out | `infrastructure/acl/legacypatient` | JDBC | traduction + golden libération |
+| `RisquesInfectieux`, `AbordsVasculaires` | out | `infrastructure/acl/legacydossiermedical` | JDBC | table-driven par marqueur |
+| `SeancesRealisees` | out | `infrastructure/acl/legacyseance` | JDBC | intégration |
+| `AbsencesDesPatients` | out | `absencespatients.publishedlanguage` (P6) | Java | contrat |
+| `ComptesUtilisateurs`, `Utilisateurs`, `SessionCourante` | out | `infrastructure/acl/legacyidentite` | JDBC / réflexion | intégration |
+| `NotificationsDuCentre`, `MoteurDeDocuments` | out | `infrastructure/acl/legacynotifications`, `…/legacydocuments` | Java (ACL) | fake |
+| `UniteDeTravail`, `Horloge`, `FuseauxDesCentres`, `GenerateurIdentifiants` | out | `transaction/`, `horloge/`, `identifiants/` | spring-tx, JDK, V46 | fakes déterministes |
+
 ## Questions ouvertes
 1. Stockage des pièces jointes : BYTEA en base (comme legacy ?) ou système de fichiers/objet — à vérifier lors de la caractérisation.
 2. `Notifications` et `Habilitations` restent dans `platform` : ACL dédiées confirmées ou appel via un port générique commun ?

@@ -1,0 +1,1 @@
+Cas d'usage (une classe par intention), politiques (LiberationDesPlaces, ReaffectationEnIsolement, ControleDeLaPresence…) et ports sortants applicatifs (Optimiseur, Horloge, FuseauxDesCentres, UniteDeTravail…) — cf. .ddd/architecture/ports-adapters.md.

@@ -38,3 +38,7 @@ void on(OrderCompleted event) { /* idempotent */ }
 - Namastack/JobRunr : maturité et besoin réel d'un broker ? Décision par ADR.
 - Le registre d'événements fonctionne-t-il sans `@Modulithic` ni détection de modules (starter JDBC seul) ? À confirmer par un test pilote (slice GMAO n°1).
 - Sérialisation Jackson 3 des événements de domaine (records + VO) dans le registre : à vérifier par test d'intégration.
+
+## Complément 2026-10-26 (source: web repo1.maven.org spring-modulith-bom maven-metadata, non vérifié par context7 - clé invalide)
+- Ligne 2.0.x : 2.0.0 → **2.0.9** (dernier patch, ↔ Boot 4.0) ; latest = 2.2.0-RC1 (ne pas prendre). Projet : `spring-modulith.version` 2.0.8 dans `contexts/gmao/pom.xml` => la Planification n'ajoute **aucune** dépendance Modulith à la création du module : elle consomme les événements `gmao.v1` par `@ApplicationModuleListener` (artefact `spring-modulith-events-api`, même BOM que GMAO) à la slice P5, et publiera `planification.v1` (`PlaceLiberee`) seulement quand Patient & couverture sera extrait.
+- Constat projet : `@ApplicationModuleListener` fonctionne déjà entre jars (écouteur de platform sur les événements du jar `contexts-gmao`, sans `@Modulithic`) => question ouverte n°2 ci-dessus close pour l'usage du registre.

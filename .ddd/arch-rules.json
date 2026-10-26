@@ -1,5 +1,5 @@
 {
-  "_comment": "Règles hexagonales des nouveaux contextes (backend/contexts). Ordre des couches = priorité de correspondance (première qui matche). Java : 'interface' est un mot réservé => couche 'interfaces' ; 'published-language' => package 'publishedlanguage'. Voir .ddd/architecture/layout.md et ADR 0011-0016. Toute ouverture de règle exige un ADR.",
+  "_comment": "Règles hexagonales des nouveaux contextes (backend/contexts). Ordre des couches = priorité de correspondance (première qui matche). Java : 'interface' est un mot réservé => couche 'interfaces' ; 'published-language' => package 'publishedlanguage'. Voir .ddd/architecture/layout.md et ADR 0011-0016 ; Timefold confiné à infrastructure (ADR 0050). Toute ouverture de règle exige un ADR.",
   "layers": {
     "legacy": ["backend/bc-*/**", "backend/platform/**", "backend/shared-kernel/**"],
     "shared-kernel": ["backend/contexts/shared-kernel/**"],
@@ -22,10 +22,11 @@
     "configuration": ["domain", "application", "infrastructure", "acl", "interfaces", "configuration", "shared-kernel", "published-language"]
   },
   "forbiddenExternalInLayer": {
-    "shared-kernel": ["org.springframework", "jakarta", "javax", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok"],
-    "published-language": ["org.springframework", "jakarta.persistence", "javax.persistence", "org.hibernate", "lombok"],
+    "shared-kernel": ["org.springframework", "jakarta", "javax", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok", "ai.timefold"],
+    "published-language": ["org.springframework", "jakarta.persistence", "javax.persistence", "org.hibernate", "lombok", "ai.timefold"],
     "domain": ["org.springframework", "jakarta", "javax", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok", "org.slf4j", "ai.timefold"],
-    "application": ["org.springframework", "jakarta.persistence", "javax.persistence", "jakarta.servlet", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok"]
+    "application": ["org.springframework", "jakarta.persistence", "javax.persistence", "jakarta.servlet", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok", "ai.timefold"],
+    "interfaces": ["ai.timefold", "org.hibernate"]
   },
   "contexts": {
     "root": "backend/contexts",

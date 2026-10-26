@@ -26,6 +26,12 @@ sources: [.claude/rules/30-tests.md, .ddd/tactical/gmao.md §9, ADR 0015/0016, .
 - `*.received.*` ignorés par git ; `*.approved.*` versionnés et relus (1 scénario = 1 fichier).
 - Tests d'intégration taggés `integration` ; Docker requis en CI (déjà disponible : services PostgreSQL dans `flyway.yml`).
 
+## Planification (2026-10-26, matrice `tactical/planification.md` §9)
+- Aucun golden HTTP n'existe : chaque slice P1-P8 commence par son filet (`platform/src/test/.../characterization/planification/<slice>`).
+- Optimisation : `Optimiseur` **factice déterministe** dans le filet et les tests d'application ; Timefold testé seulement par les `*ConstraintProviderTest` (ADR 0050).
+- Concurrence (B1, B3, B4, ADR 0049/0051) : tests H2 + `*PostgresContractIT` activés par `-Dplanification.pg16.url` (jamais sur le port 5432 partagé).
+- Fuseau (ADR 0054) : `Horloge` et `FuseauxDesCentres` fakes ; scénario 00:30 Alger ; écarts décidés en goldens `*_nouveau_code`.
+
 ## Questions ouvertes
 1. Seams Horloge/UUID dans le legacy GMAO (`Intervention.java` utilise `now()`) : à demander à l'utilisateur (`seamAllowed`) ou scrubber les valeurs ?
 2. Les tests de caractérisation dans `platform/src/test` restent-ils hors `legacyPaths` (oui : seul `src/main/java` est gelé) — à confirmer.

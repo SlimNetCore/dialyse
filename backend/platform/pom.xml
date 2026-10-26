@@ -70,6 +70,12 @@
             <artifactId>contexts-stock</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Planification (ADR 0049 à 0054) : squelette, rempli slice par slice (P1 à P9) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-planification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
             <artifactId>bc-migration</artifactId>

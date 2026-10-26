@@ -1,0 +1,1 @@
+ACL : gmao/ (GenerateursDuCentre, IndisponibilitesDesGenerateurs, écouteur gmao.v1), legacyorganisation/, legacypatient/, legacydossiermedical/, legacyseance/, legacyidentite/, legacynotifications/ (ADR 0053) ; seul code autorisé à toucher le legacy.

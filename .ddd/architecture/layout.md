@@ -17,6 +17,8 @@ sources: [.ddd/config.json, backend/pom.xml, backend/platform/pom.xml, .ddd/stra
 | Architecture | `check-arch.ts` + ArchUnit `archunit-junit5` | 1.5.1 | architecture-tests-archunit-modulith.md | 0015 |
 | Caractérisation / parité | ApprovalTests.Java (`JsonApprovals`) | 31.0.0 | approval-golden-master-java.md | 0016 |
 | Mutation | PIT + pitest-junit5-plugin | 1.30.0 / 1.2.3 | mutation-testing-pit.md | 0016 |
+| Solveur (Planification) | Timefold Solver core, bibliothèque, infrastructure seulement | 2.7.0 (constaté, pas de montée) | timefold-solver.md (2026-10-26) | 0050 |
+| Jobs planifiés | `@Scheduled(cron, zone)` au fuseau par défaut, « aujourd'hui » par centre (V46) | Spring Framework 7.0.x | spring-scheduling-fuseau.md (2026-10-26) | 0054 |
 
 Toutes les notes : source web, context7 indisponible (clé invalide, re-testé le 2026-10-09) => versions à figer après `mvn dependency:tree`.
 
@@ -50,6 +52,23 @@ Adaptations Java du modèle : `interface` est un mot réservé => `interfaces` ;
 ## 5. Règles d'architecture actives
 `.ddd/arch-rules.json` (check-arch, hook PostToolUse) ; reprises en ArchUnit dans `src/test/.../architecture/` à la slice 1 (ADR 0015) :
 domain → {domain, shared-kernel} · application → + {publishedlanguage propre} · infrastructure/interfaces → + {application} · acl → + {legacy} · configuration → tout sauf legacy · inter-contextes : `publishedlanguage` ou shared-kernel uniquement · frameworks interdits : domaine (Spring, jakarta, javax, Hibernate, Jackson, Lombok, SLF4J, Timefold), application (Spring, JPA, Servlet, Jackson, Lombok).
+
+## 6. Planification (`backend/contexts/planification`, squelette du 2026-10-26, ADR 0049 à 0054)
+```
+planification/  pom.xml (contexts-planification ; Timefold ajouté à P8, modulith-events-api à P5)
+  src/main/java/com/hemodialyse/backend/contexts/planification/
+    domain/            PlacesDuCentre, ExecutionDOptimisation, Infirmier, RoulementDeLInfirmier, AbsenceInfirmier, Remplacement, DeplacementTemporaire, paramétrage, services purs
+    application/       cas d'usage, politiques (libération, réaffectation, présence, replanification), ports (Optimiseur, FuseauxDesCentres…)
+    infrastructure/    persistence/ (JDBC, verrou planning_parametres) · optimisation/timefold/ (seul import Timefold) · acl/{gmao,legacy*}/ · transaction/ horloge/ identifiants/
+    interfaces/        http/ (/api/v1/planning/**, /api/v1/infirmiers/**) · jobs/ (04:00, 07:15, 02:30)
+    publishedlanguage/ PlacesDesPatients, PlacementDesPatients, LiberationDesPlaces, ReaffectationEnIsolement, CapaciteDesCentres, FichesDesInfirmiers ; v1/ PlaceLiberee (différé)
+    configuration/     PlanificationConfiguration (toujours active)
+  src/test/…/architecture/ArchitectureHexagonaleTest (11 règles ; `archunit.properties` failOnEmptyShould=false à retirer à P1)
+```
+Câblage : `<module>` dans `backend/pom.xml`, dépendance dans `platform/pom.xml`, `COPY` dans `backend/Dockerfile` ;
+`FrontieresDesContextesTest` : règle `le_legacy_n_utilise_la_planification_que_par_son_langage_publie`.
+Règle ajoutée à `.ddd/arch-rules.json` : `ai.timefold` interdit hors infrastructure (shared-kernel, published-language,
+domain, application, interfaces) ; `org.hibernate` interdit en interfaces.
 
 ## Questions ouvertes
 1. Modulith : registre d'événements utilisable sans `@Modulithic` / détection de modules ? (pilote slice 1, ADR 0013)
