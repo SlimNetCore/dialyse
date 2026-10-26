@@ -81,7 +81,7 @@ class PlacementPatientIntegrationTest {
         assertEquals(Set.of(SALLE_ISO), parametres.lire(CENTRE).sallesIsolement());
         assertEquals(Set.of(), parametres.lire(AUTRE_CENTRE).sallesIsolement());
 
-        parametres.enregistrer(CENTRE, new PlanningParametres(EnumSet.allOf(JourSemaine.class), Set.of(SALLE)));
+        ParametrageDuPlanningPourLesTests.enregistrer(jdbc, CENTRE, new PlanningParametres(EnumSet.allOf(JourSemaine.class), Set.of(SALLE)));
 
         assertEquals(Set.of(SALLE), parametres.lire(CENTRE).sallesIsolement());
         assertEquals("NON", jdbc.queryForObject("SELECT isolement FROM salle WHERE id = ?", String.class, SALLE_ISO));
@@ -128,7 +128,7 @@ class PlacementPatientIntegrationTest {
 
     @Test
     void a_closed_weekday_is_refused() {
-        parametres.enregistrer(CENTRE, new PlanningParametres(EnumSet.complementOf(EnumSet.of(JourSemaine.LUNDI)), Set.of(SALLE_ISO)));
+        ParametrageDuPlanningPourLesTests.enregistrer(jdbc, CENTRE, new PlanningParametres(EnumSet.complementOf(EnumSet.of(JourSemaine.LUNDI)), Set.of(SALLE_ISO)));
 
         assertEquals("PLACEMENT_JOUR_FERME", assertThrows(BusinessException.class,
                 () -> service.verifier(CENTRE, null, SALLE, MATIN, G_OK, LUNDI)).getCode());

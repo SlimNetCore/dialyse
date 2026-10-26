@@ -46,3 +46,16 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Effectif requis | ⌈patients / ratio⌉ d'une case | `EffectifRequis` | `Presence` | — | RG-INF-040 | validated |
 | Sur-effectif | Infirmiers comptés au-delà de l'effectif requis | `SurEffectif` | `surplus` | — | RG-INF-047 | validated |
 | Remplaçant éligible | Infirmier non absent, pas déjà prévu sur le créneau, habilité si isolement | `RemplacantEligible` | `RemplacantService` | — | RG-INF-050 | validated |
+
+## Termes ajoutés par la slice P1 (2026-10-26) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Paramètres du planning | Jours d'ouverture, salles d'isolement, ratio de sécurité et patients par poste et par série d'un centre | `ParametresDuPlanning` | `PlanningParametres` | configuration | RG-PLN-001 à 006 ; remplacement total | proposed |
+| Ratio de sécurité | Nombre maximal de patients par infirmier (1 à 20, défaut 4) | `RatioDeSecurite` | `patientsParInfirmier` | — | RG-PLN-003 | proposed |
+| Patients par poste et par série | Base de la capacité théorique (1 à 10, défaut 3) | `PatientsParPosteEtSerie` | `patientsParPosteEtSerie` | — | RG-PLN-003 | proposed |
+| Jours d'ouverture | Jours de la semaine (dimanche à samedi) où le centre dialyse | `JourDeLaSemaine` | `JourSemaine` | — | RG-PLN-002, 006 | proposed |
+| Salle d'isolement | Salle réservée aux patients à risque infectieux ; propriété de la salle (Organisation) | `SalleId` + port `SallesDuCentre` | `salle.isolement` | — | RG-PLN-004 | proposed |
+| Compétence | Aptitude particulière d'un infirmier (`PEDIATRIE`, `CATHETER`) | `Competence` | `CompetenceInfirmier` | — | RG-PLN-097 | proposed |
+| Taux d'activité | Pourcentage d'un temps plein d'un infirmier (10 à 100) | `ProfilDePlanification.tauxActivite` | `tauxActivite` | quotité | RG-PLN-097 | proposed |
+| Verrou du centre | Exclusion mutuelle des écritures de paramétrage d'un centre : la seconde écriture attend puis passe ; 409 `PLANIFICATION_ECRITURE_CONCURRENTE` seulement après 5 s d'attente ou si la même clé est créée entre-temps | `VerrouDuCentre` | — | — | ADR 0049, 0055 | proposed |

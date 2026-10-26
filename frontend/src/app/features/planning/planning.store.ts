@@ -1,6 +1,7 @@
 import {computed, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
+import {HttpErrorResponse} from '@angular/common/http';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, EMPTY, firstValueFrom, forkJoin, of, pipe, switchMap, tap} from 'rxjs';
 import {
@@ -37,6 +38,20 @@ interface PlanningState {
   saving: boolean;
   error: string | null;
   successMessage: string | null;
+}
+
+/**
+ * Clé i18n de l'erreur d'enregistrement des paramètres du planning : écriture concurrente (409
+ * `PLANIFICATION_ECRITURE_CONCURRENTE`), salle d'isolement d'un autre centre (400), sinon message générique.
+ */
+export function parametresErrorKey(err: unknown): string {
+  if (err instanceof HttpErrorResponse) {
+    if (err.status === 409 && err.error?.code === 'PLANIFICATION_ECRITURE_CONCURRENTE') return 'PLANNING.PARAMS.ERR.CONCURRENTE';
+    if (err.status === 400 && String(err.error?.detail ?? '').includes("salle d'isolement")) {
+      return 'PLANNING.PARAMS.ERR.SALLE_ETRANGERE';
+    }
+  }
+  return 'PLANNING.PARAMS.ERR.SAVE';
 }
 
 const initialState: PlanningState = {
@@ -147,8 +162,8 @@ export const PlanningStore = signalStore(
               tap((parametres) => patchState(store, {
                 parametres, saving: false, successMessage: 'PLANNING.PARAMS.SAVED_OK',
               })),
-              catchError(() => {
-                patchState(store, {saving: false, error: 'PLANNING.PARAMS.ERR.SAVE'});
+              catchError((err) => {
+                patchState(store, {saving: false, error: parametresErrorKey(err)});
                 return EMPTY;
               }),
             ),

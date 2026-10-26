@@ -178,7 +178,7 @@ class InfirmierPresenceIntegrationTest {
     @Test
     void the_safety_ratio_of_the_center_changes_the_requirement() {
         patients(5, JourSemaine.LUNDI);
-        parametres.enregistrer(CENTRE, new PlanningParametres(EnumSet.allOf(JourSemaine.class), Set.of(), 2));
+        com.hemodialyse.backend.application.planning.ParametrageDuPlanningPourLesTests.enregistrer(jdbc, CENTRE, new PlanningParametres(EnumSet.allOf(JourSemaine.class), Set.of(), 2));
 
         assertEquals(3, caseLundi().requis());
     }

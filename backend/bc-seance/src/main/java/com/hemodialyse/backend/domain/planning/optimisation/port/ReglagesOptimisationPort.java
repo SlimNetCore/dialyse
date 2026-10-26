@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Port de persistance des réglages de l'optimisation (un jeu par centre — AGENTS.md §2).
+ * Lecture des réglages de l'optimisation (un jeu par centre). Les réglages sont tenus par le contexte Planification (slice P1) :
+ * ce port en est la lecture, implémentée par une ACL sur son langage publié.
  */
 public interface ReglagesOptimisationPort {
 
@@ -14,8 +15,6 @@ public interface ReglagesOptimisationPort {
      * Réglages du centre, ou les réglages par défaut tant qu'il n'en a pas enregistré.
      */
     ReglagesOptimisation lire(UUID centerId);
-
-    void enregistrer(UUID centerId, ReglagesOptimisation reglages);
 
     /**
      * Centres qui ont activé la replanification automatique nocturne ; réservé à la tâche planifiée.

@@ -2219,7 +2219,9 @@
       "POSTE_RANGE": "Gar 1 d {{max}} (3 s wudem amezwar: tlata n yiɣimen deg yimalas)",
       "ERR": {
         "LOAD": "Ur izmir ara ad yettwasali iɣewwaren n umuddu",
-        "SAVE": "Ur izmir ara ad yettwaklas"
+        "SAVE": "Ur izmir ara ad yettwaklas",
+        "CONCURRENTE": "Iɣewwaren n tlemmast ttwabeddlen-d imir-a seg yiwen-nniḍen. Ales asali tikelt-nniḍen.",
+        "SALLE_ETRANGERE": "Yiwet n texxamt n uzeglu ur tettekki ara deg tlemmast-a. Ales asali n usebter."
       }
     },
     "NO_PLACE": "Ulac amkan yernan: ɛreḍ drus n yisuddisen, ussan niḍen neɣ asuddis niḍen.",
@@ -2448,7 +2450,10 @@
           "DROITS": "Ur tesɛiḍ ara azref ad tgeḍ abeddel-a.",
           "PREFERENCE_CRENEAU_INCONNU": "Tallit-a ur tettekki ara deg tlemmast.",
           "PREFERENCE_PATIENT_INTROUVABLE": "Amuḍin ulac-it deg tlemmast-a.",
-          "PROFIL_INFIRMIER_INTROUVABLE": "Amennaɣ ulac-it deg tlemmast-a."
+          "PREFERENCE_PATIENT_SORTI": "Amuḍin-a yeffeɣ-d seg tlemmast: ur izmir ara ad yettwabeddel ugraw-is.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Amennaɣ ulac-it deg tlemmast-a.",
+          "PROFIL_INFIRMIER_INACTIF": "Amennaɣ-a ur yermid ara: ur izmir ara ad yettwabeddel umaɣnu-ines.",
+          "PLANIFICATION_ECRITURE_CONCURRENTE": "Iɣewwaren n tlemmast ttwabeddlen-d imir-a seg yiwen-nniḍen. Ales asali tikelt-nniḍen."
         }
       }
     }

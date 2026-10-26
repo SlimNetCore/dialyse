@@ -124,6 +124,12 @@ describe('PreferencesPlanningStore', () => {
   it('associe chaque refus à un message', () => {
     expect(preferencesErrorKey(httpError(422, 'PREFERENCE_CRENEAU_INCONNU')))
       .toBe('PLANNING.OPTIM.PREFS.ERR.PREFERENCE_CRENEAU_INCONNU');
+    expect(preferencesErrorKey(httpError(422, 'PREFERENCE_PATIENT_SORTI')))
+      .toBe('PLANNING.OPTIM.PREFS.ERR.PREFERENCE_PATIENT_SORTI');
+    expect(preferencesErrorKey(httpError(422, 'PROFIL_INFIRMIER_INACTIF')))
+      .toBe('PLANNING.OPTIM.PREFS.ERR.PROFIL_INFIRMIER_INACTIF');
+    expect(preferencesErrorKey(httpError(409, 'PLANIFICATION_ECRITURE_CONCURRENTE')))
+      .toBe('PLANNING.OPTIM.PREFS.ERR.PLANIFICATION_ECRITURE_CONCURRENTE');
     expect(preferencesErrorKey(httpError(400))).toBe('PLANNING.OPTIM.PREFS.ERR.VALEURS');
     expect(preferencesErrorKey(httpError(403))).toBe('PLANNING.OPTIM.PREFS.ERR.DROITS');
     expect(preferencesErrorKey(new Error('x'))).toBe('PLANNING.OPTIM.PREFS.ERR.GENERIC');

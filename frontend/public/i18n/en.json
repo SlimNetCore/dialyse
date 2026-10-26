@@ -2579,7 +2579,9 @@
       "POSTE_RANGE": "Between 1 and {{max}} (3 by default: three sessions per week)",
       "ERR": {
         "LOAD": "Unable to load the planning settings",
-        "SAVE": "Unable to save"
+        "SAVE": "Unable to save",
+        "CONCURRENTE": "The centre settings were just changed by someone else. Reload and try again.",
+        "SALLE_ETRANGERE": "An isolation room does not belong to this centre. Reload the page."
       }
     },
     "NO_PLACE": "No place matches: try fewer sessions, other days or another time slot.",
@@ -2808,7 +2810,10 @@
           "DROITS": "You are not allowed to make this change.",
           "PREFERENCE_CRENEAU_INCONNU": "This slot does not belong to the centre.",
           "PREFERENCE_PATIENT_INTROUVABLE": "Patient not found in this centre.",
-          "PROFIL_INFIRMIER_INTROUVABLE": "Nurse not found in this centre."
+          "PREFERENCE_PATIENT_SORTI": "This patient has left the centre: the preference can no longer be changed.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Nurse not found in this centre.",
+          "PROFIL_INFIRMIER_INACTIF": "This nurse is inactive: the profile can no longer be changed.",
+          "PLANIFICATION_ECRITURE_CONCURRENTE": "The centre settings were just changed by someone else. Reload and try again."
         }
       }
     }

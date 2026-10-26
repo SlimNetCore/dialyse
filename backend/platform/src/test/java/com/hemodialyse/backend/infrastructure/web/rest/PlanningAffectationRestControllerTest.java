@@ -2,15 +2,12 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.planning.PlanningAffectationQueryService;
 import com.hemodialyse.backend.application.planning.PlanningAffectationQueryService.Resultat;
-import com.hemodialyse.backend.application.planning.PlanningParametresService;
 import com.hemodialyse.backend.application.planning.PlanningSemaineQueryService;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SemainePlanning;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
-import com.hemodialyse.backend.infrastructure.web.rest.PlanningParametresRestController.ParametresRequest;
-import com.hemodialyse.backend.infrastructure.web.rest.PlanningParametresRestController.ParametresResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -81,25 +78,5 @@ class PlanningAffectationRestControllerTest {
 
         assertEquals(semaine, response.getBody());
         assertTrue(response.getHeaders().getCacheControl().contains("no-store"));
-    }
-
-    @Test
-    void the_parameters_endpoint_reads_and_writes_for_the_guarded_center() {
-        PlanningParametresService parametresService = mock(PlanningParametresService.class);
-        UUID centre = UUID.randomUUID();
-        UUID salle = UUID.randomUUID();
-        when(guard.requireCenter(null)).thenReturn(CenterId.of(centre));
-        PlanningParametres params = new PlanningParametres(EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI), Set.of(salle));
-        when(parametresService.lire(centre)).thenReturn(params);
-        when(parametresService.enregistrer(eq(centre), any(), any(), eq(3), eq(4))).thenReturn(params);
-        PlanningParametresRestController ctrl = new PlanningParametresRestController(parametresService, guard);
-
-        ParametresResponse lu = ctrl.lire(null).getBody();
-        ParametresResponse ecrit = ctrl.enregistrer(null,
-                new ParametresRequest(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), List.of(salle), 3, 4)).getBody();
-
-        assertEquals(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), lu.joursOuverts());
-        assertEquals(List.of(salle), ecrit.sallesIsolement());
-        verify(parametresService).enregistrer(centre, EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI), Set.of(salle), 3, 4);
     }
 }

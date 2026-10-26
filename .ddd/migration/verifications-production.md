@@ -1192,3 +1192,34 @@ toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, co
 V43**, 24.3 et 24.4 à rapporter) ; pour Absences A3, le point 25 (25.2 : sorties sans date à saisir, 25.3 et 25.6
 informatifs) ; pour Absences A6, le point 27 (27.2 : V44, tables vides ; **27.1 à rapporter avant la première clôture
 d'un mois**) ; pour la Facturation (ADR 0044), le point 28.1 (0 ligne attendue) ; pour Stock S8, le point 30 (volume de la première alerte de péremption par centre, avant son activation) ; **pour la bascule du Stock S1 à S8, le point 31 en entier, dans l'ordre : 31.2 (V38, V45, V46), 31.3 (rôle `DIRECTEUR_ADMINISTRATIF` à créer), 31.5 (une pièce préparée par centre avant la première séance, sinon le stock ne baisse plus) et les points d'argent 31.6 à 31.9 sont à confirmer avant le déploiement**.
+
+## 32. Planification P1 : paramétrage (aucune migration, 2026-10-26) — SELECT seulement
+
+Aucune migration : les quatre tables (`planning_parametres`, `planification_reglages`, `planning_preference_patient`, `infirmier_profil_planning`) sont celles de Flyway V10, V11, V16, V25. À contrôler avant la mise en production (lecture seule, base de production ou copie) :
+
+```sql
+-- 1. Préférences de patients sortis et profils d'infirmiers inactifs déjà enregistrés (le legacy les acceptait) : restent lisibles par l'optimisation, plus modifiables
+SELECT count(*) FROM planning_preference_patient pp JOIN patients p ON p.id = pp.patient_id AND p.center_id = pp.center_id
+ WHERE p.etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI');
+SELECT count(*) FROM infirmier_profil_planning pr JOIN infirmier i ON i.id = pr.infirmier_id AND i.center_id = pr.center_id WHERE i.actif = FALSE;
+-- 2. Compétences stockées illisibles (le nouveau code lève une erreur au-delà de PEDIATRIE, CATHETER) : attendu 0
+SELECT infirmier_id, competences FROM infirmier_profil_planning
+ WHERE competences IS NOT NULL AND btrim(competences) <> '' AND btrim(replace(replace(replace(competences, 'PEDIATRIE', ''), 'CATHETER', ''), ',', '')) <> '';
+-- 3. Jours d'ouverture stockés illisibles : attendu 0
+SELECT center_id, jours_ouverts FROM planning_parametres
+ WHERE regexp_replace(jours_ouverts, 'DIMANCHE|LUNDI|MARDI|MERCREDI|JEUDI|VENDREDI|SAMEDI|,| ', '', 'g') <> '';
+-- 4. Ratio ou patients par poste hors bornes (le nouveau code refuse de lire une valeur invalide) : attendu 0
+SELECT center_id FROM planning_parametres WHERE patients_par_infirmier NOT BETWEEN 1 AND 20 OR patients_par_poste_serie NOT BETWEEN 1 AND 10;
+-- 5. Réglages hors bornes : attendu 0
+SELECT center_id FROM planification_reglages WHERE heures_par_vacation NOT BETWEEN 1 AND 12 OR heures_hebdo_temps_plein NOT BETWEEN 10 AND 60 OR repos_hebdo_min NOT BETWEEN 0 AND 6;
+```
+
+```sql
+-- 6. Taux d'activité des profils hors bornes (le nouveau code refuse de lire une valeur invalide) : attendu 0
+SELECT infirmier_id FROM infirmier_profil_planning WHERE taux_activite NOT BETWEEN 10 AND 100;
+-- 7. Informatif (ADR 0055) : centres sans ligne planning_parametres = sans verrou de centre. Sans conséquence pour P1 ;
+--    PlacesDuCentre (P5) devra créer la ligne ou verrouiller autrement avant d'écrire une place.
+SELECT count(*) FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id);
+```
+
+Après la bascule : les écritures d'un même centre passent l'une après l'autre (la seconde attend puis passe, la dernière écrite l'emporte). Le 409 `PLANIFICATION_ECRITURE_CONCURRENTE` est rare : il n'arrive qu'après 5 s d'attente du verrou ou si la même clé est créée entre-temps (à surveiller dans le journal d'audit : statut 409 sur `/api/v1/planning/**`).

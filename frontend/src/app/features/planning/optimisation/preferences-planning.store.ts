@@ -32,7 +32,8 @@ const initialState: PreferencesPlanningState = {
   successMessage: null,
 };
 
-const CODES_CONNUS = ['PREFERENCE_CRENEAU_INCONNU', 'PREFERENCE_PATIENT_INTROUVABLE', 'PROFIL_INFIRMIER_INTROUVABLE'];
+const CODES_CONNUS = ['PREFERENCE_CRENEAU_INCONNU', 'PREFERENCE_PATIENT_INTROUVABLE', 'PREFERENCE_PATIENT_SORTI',
+  'PROFIL_INFIRMIER_INTROUVABLE', 'PROFIL_INFIRMIER_INACTIF', 'PLANIFICATION_ECRITURE_CONCURRENTE'];
 
 /** Clé i18n de l'erreur d'une action : code métier connu, valeurs refusées, sinon générique. */
 export function preferencesErrorKey(err: unknown): string {

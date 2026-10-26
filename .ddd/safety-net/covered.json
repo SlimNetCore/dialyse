@@ -283,7 +283,20 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/NotificationsDesPeremptionsLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/CatalogueDArticlesDeLaSeance.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/PrescriptionMedicaleResponse.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/ArticleJpaEntity.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/ArticleJpaEntity.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/model/PlanningParametres.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/PlanningParametresPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/model/PreferencePatient.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/model/ProfilInfirmier.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/model/ReglagesOptimisation.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/model/CompetenceInfirmier.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/port/PreferencePatientPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/port/ProfilInfirmierPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/optimisation/port/ReglagesOptimisationPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlanningParametresDuContexte.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ReglagesOptimisationDuContexte.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PreferencesPatientsDuContexte.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ProfilsInfirmiersDuContexte.java"
   ],
   "seamAllowed": []
 }

@@ -975,6 +975,17 @@ CREATE TABLE IF NOT EXISTS absence_patient
 CREATE INDEX IF NOT EXISTS idx_absence_patient_periode ON absence_patient (center_id, date_seance);
 CREATE INDEX IF NOT EXISTS idx_absence_patient_statut ON absence_patient (center_id, statut);
 
+-- Paramétrage du planning d'un centre (contexte Planification, slice P1). Auparavant créée par Hibernate (entité retirée) ; en
+-- production le schéma vient de Flyway (V10, V11, V16).
+CREATE TABLE IF NOT EXISTS planning_parametres (
+    center_id UUID NOT NULL PRIMARY KEY,
+    jours_ouverts VARCHAR(100) NOT NULL,
+    salles_isolement TEXT,
+    patients_par_infirmier INTEGER,
+    patients_par_poste_serie INTEGER,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
 -- Salle d'isolement : propriété de la salle (créée avec elle). 'OUI' = réservée aux patients à risque infectieux.
 ALTER TABLE IF EXISTS salle ADD COLUMN IF NOT EXISTS isolement VARCHAR (3) NOT NULL DEFAULT 'NON';
 -- Reprise des salles d'isolement de l'ancien paramétrage du planning (liste d'identifiants), une seule fois

@@ -19,7 +19,16 @@
   (sinon refus 400).
 - **RG-PLN-004** — Une salle d'isolement doit appartenir au centre (« Une salle d'isolement n'appartient pas à ce
   centre »).
-- **RG-PLN-005** — Lecture du paramétrage : `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` ; modification : `ADMIN` seul.
+- **RG-PLN-005** — Droits du paramétrage (corrigé le 26/10/2026 : la règle disait « tous les rôles de centre peuvent
+  lire », ce que le filtre de périmètre n'a jamais permis). Lecture : `ADMIN` et `SECRETAIRE` ; le `MEDECIN` seul et
+  l'`INFIRMIER` seul sont refusés (403 `ROLE_SCOPE`, seule la combinaison `MEDECIN` + `INFIRMIER` lit) ; le
+  `SUPERADMIN` est refusé aussi. Modification : `ADMIN` seul. Un refus de rôle est rendu avant toute lecture du corps.
+  Le paramétrage est un **remplacement total** : ratio ou patients par poste absents reviennent à leurs valeurs par défaut
+  (4 et 3), des salles d'isolement absentes effacent celles du centre. Les écritures d'un même centre passent l'une
+  après l'autre (verrou du centre : la seconde attend puis passe, la dernière écrite l'emporte) ; 409
+  `PLANIFICATION_ECRITURE_CONCURRENTE` seulement si l'attente dépasse 5 s ou si la même clé est créée entre-temps ; toute écriture est
+  tracée par le journal d'audit (action `PLANNING_MODIFICATION`, statut de la réponse compris). Valeur illisible
+  (JSON, jour inconnu, identifiant, texte pour un nombre) : 400 `BAD_REQUEST`, jamais 500.
 - **RG-PLN-006** — La semaine de dialyse commence le **dimanche** et se termine le samedi.
 
 ## 5.2 Données prises en compte
@@ -276,9 +285,11 @@
 - **RG-PLN-093** — **Préférences de planification d'un patient** (`/api/v1/planning/preferences/patients`, `ADMIN`,
   `SECRETAIRE`, liste paginée des patients non sortis du centre, sans cache) : créneau préféré (facultatif, du centre,
   sinon `PREFERENCE_CRENEAU_INCONNU`) et, pour un nouveau patient ou des jours à revoir, « jours choisis par
-  l'optimisation » avec un nombre de séances hebdomadaires de 1 à 7 (requis dans ce cas). Un patient d'un autre centre
-  ou sorti est introuvable (`PREFERENCE_PATIENT_INTROUVABLE`). Une préférence ne modifie rien par elle-même : elle n'est
-  prise en compte qu'au prochain calcul.
+  l'optimisation » avec un nombre de séances hebdomadaires de 1 à 7 (requis dans ce cas). Un patient inconnu ou d'un
+  autre centre est introuvable (`PREFERENCE_PATIENT_INTROUVABLE`) ; la préférence d'un patient **sorti** (transféré,
+  décédé, greffé, guéri) est refusée en 422 `PREFERENCE_PATIENT_SORTI` (corrigé le 26/10/2026). Une préférence ne modifie
+  rien par elle-même : elle n'est prise en compte qu'au prochain calcul. Listes paginées : page ou taille négative =
+  400 `BAD_REQUEST`, taille plafonnée à 100 (la taille effective est renvoyée) ; `champ obligatoire absent` = 400.
 - **RG-PLN-094** — **Jours choisis et préférences dans le placement** : les schémas de jours candidats d'un patient aux
   jours à choisir sont ceux du bon nombre de séances, parmi les jours d'ouverture, dont l'espacement (même note que
   l'aide au placement, RG-PLN-031) est à au plus 15 points du meilleur (8 schémas au plus) ; ses jours actuels restent
@@ -310,14 +321,15 @@
   (RG-PLN-040, RG-PLN-041).
 - **RG-PLN-097** — **Profil de planification d'un infirmier** (`/api/v1/planning/preferences/infirmiers`, `ADMIN`,
   `SECRETAIRE`, liste paginée des infirmiers actifs du centre) : taux d'activité de 10 à 100 % (défaut 100 : temps
-  plein) et compétences particulières `PEDIATRIE`, `CATHETER`. Un infirmier d'un autre centre ou inactif est introuvable
-  (`PROFIL_INFIRMIER_INTROUVABLE`). Quota d'heures hebdomadaire = heures d'un temps plein (RG-PLN-098) × taux, arrondi à
+  plein) et compétences particulières `PEDIATRIE`, `CATHETER`, toujours restituées dans cet ordre. Un infirmier inconnu ou
+  d'un autre centre est introuvable (`PROFIL_INFIRMIER_INTROUVABLE`) ; le profil d'un infirmier **inactif** est refusé en
+  422 `PROFIL_INFIRMIER_INACTIF` (corrigé le 26/10/2026). Quota d'heures hebdomadaire = heures d'un temps plein (RG-PLN-098) × taux, arrondi à
   l'heure. Compétences demandées par un patient : `PEDIATRIE` s'il a moins de 18 ans au début de l'horizon, `CATHETER`
   s'il a un abord vasculaire actif de type `KT_TUNNELISE` ou `KT_AIGU`.
 - **RG-PLN-098** — **Réglages de planification du centre** (`/api/v1/planning/preferences/reglages` ; lecture `ADMIN`,
   `SECRETAIRE`, modification `ADMIN`) : durée d'une vacation 1 à 12 h (défaut 5), heures hebdomadaires d'un temps plein
   10 à 60 (défaut 40), jours de repos minimum par semaine 0 à 6 (défaut 1), replanification automatique nocturne
-  (défaut non). Hors bornes : refus 400. Un centre sans réglage enregistré a les valeurs par défaut.
+  (défaut non). Hors bornes ou champ absent : refus 400 `BAD_REQUEST` (c'était 500 avant le 26/10/2026). Un centre sans réglage enregistré a les valeurs par défaut.
 - **RG-PLN-099** — **Contraintes de personnel** (objectifs souples, roulement, couverture et modèle conjoint) : chaque jour
   travaillé au-delà de `7 − repos minimum` dans une semaine (300), chaque heure au-delà du quota de l'infirmier, les
   vacations comptant la durée réglée (100 par heure, soit 500 pour une vacation de 5 h), chaque compétence demandée par

@@ -52,10 +52,6 @@ class PlanningAffectationIntegrationTest {
     @Autowired
     private PlanningSemaineQueryService semaineService;
     @Autowired
-    private PlanningParametresService parametresService;
-    @Autowired
-    private PlanningParametresPort parametres;
-    @Autowired
     private JdbcTemplate jdbc;
 
     @BeforeEach
@@ -136,7 +132,7 @@ class PlanningAffectationIntegrationTest {
 
     @Test
     void weekly_closed_days_are_never_proposed_and_are_scoped_to_the_center() {
-        parametres.enregistrer(CENTRE, new PlanningParametres(EnumSet.complementOf(EnumSet.of(JourSemaine.VENDREDI)), Set.of()));
+        ParametrageDuPlanningPourLesTests.enregistrer(jdbc, CENTRE, new PlanningParametres(EnumSet.complementOf(EnumSet.of(JourSemaine.VENDREDI)), Set.of()));
 
         jdbc.update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?, ?, 'PL3', 'Matin')",
                 UUID.randomUUID(), AUTRE_CENTRE);
@@ -155,7 +151,7 @@ class PlanningAffectationIntegrationTest {
         UUID salleIso = SALLE_ISO;
         jdbc.update("INSERT INTO salle (id, center_id, code, nom) VALUES (?, ?, 'PL-S3', 'Isolement')", salleIso, CENTRE);
         insertGenerateur(G_ISO, CENTRE, salleIso, "PL-G09", "EN_SERVICE");
-        parametres.enregistrer(CENTRE, new PlanningParametres(EnumSet.allOf(JourSemaine.class), Set.of(salleIso)));
+        ParametrageDuPlanningPourLesTests.enregistrer(jdbc, CENTRE, new PlanningParametres(EnumSet.allOf(JourSemaine.class), Set.of(salleIso)));
         UUID patient = UUID.randomUUID();
         insertPatient(patient, "PERMANENT", null, MATIN, EnumSet.of(JourSemaine.DIMANCHE));
         insertSerologie(patient, "AG_HBS", "NEGATIF", LocalDate.of(2025, 1, 1));
@@ -204,7 +200,7 @@ class PlanningAffectationIntegrationTest {
         UUID patient = UUID.randomUUID();
         insertPatient(patient, "PERMANENT", G_OK, MATIN, EnumSet.of(JourSemaine.LUNDI));
         insertPatientAutreCentre();
-        parametres.enregistrer(CENTRE, new PlanningParametres(EnumSet.complementOf(EnumSet.of(JourSemaine.SAMEDI)), Set.of()));
+        ParametrageDuPlanningPourLesTests.enregistrer(jdbc, CENTRE, new PlanningParametres(EnumSet.complementOf(EnumSet.of(JourSemaine.SAMEDI)), Set.of()));
         LocalDate dimanche = LocalDate.of(2026, 9, 27);
 
         SemainePlanning s = semaineService.semaine(CENTRE, dimanche.plusDays(3));   // mercredi
@@ -215,21 +211,6 @@ class PlanningAffectationIntegrationTest {
         assertEquals(1, occupants, "seul le patient du centre apparaît");
         assertEquals("Plan Test", s.cellules().stream().flatMap(c -> c.occupants().stream()).findFirst().orElseThrow().nom());
         assertTrue(s.conflits().isEmpty());
-    }
-
-    @Test
-    void isolation_rooms_must_belong_to_the_center() {
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, EnumSet.allOf(JourSemaine.class), Set.of(SALLE_AUTRE), 4, 3));
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, Set.of(), Set.of(), 4, 3));
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE), 4, 0));
-        parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE), 4, 5);
-        assertEquals(Set.of(SALLE), parametresService.lire(CENTRE).sallesIsolement());
-        assertEquals(5, parametresService.lire(CENTRE).patientsParPosteEtSerie(),
-                "le nombre de patients par poste et par série est paramétrable par centre");
-        assertEquals(3, parametresService.lire(AUTRE_CENTRE).patientsParPosteEtSerie(), "défaut pour un autre centre");
     }
 
     private Resultat proposer(Set<JourSemaine> jours, UUID creneau, int limite, UUID patient, Boolean isolement) {

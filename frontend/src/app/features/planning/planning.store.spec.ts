@@ -139,6 +139,26 @@ describe('PlanningStore', () => {
     expect(store.error()).toBe('PLANNING.PARAMS.ERR.SAVE');
   });
 
+  it('distingue l\'écriture concurrente et la salle d\'isolement étrangère d\'un échec générique', () => {
+    const parametres = {joursOuverts: ['LUNDI' as const], sallesIsolement: [], patientsParInfirmier: 4, patientsParPosteEtSerie: 3};
+    const store = TestBed.inject(PlanningStore);
+
+    api.enregistrerParametres.mockReturnValue(throwError(() => new HttpErrorResponse({
+      status: 409, error: {code: 'PLANIFICATION_ECRITURE_CONCURRENTE'}})));
+    store.enregistrerParametres(parametres);
+    expect(store.error()).toBe('PLANNING.PARAMS.ERR.CONCURRENTE');
+
+    api.enregistrerParametres.mockReturnValue(throwError(() => new HttpErrorResponse({
+      status: 400, error: {code: 'BAD_REQUEST', detail: 'Une salle d\'isolement n\'appartient pas à ce centre'}})));
+    store.enregistrerParametres(parametres);
+    expect(store.error()).toBe('PLANNING.PARAMS.ERR.SALLE_ETRANGERE');
+
+    api.enregistrerParametres.mockReturnValue(throwError(() => new HttpErrorResponse({
+      status: 400, error: {code: 'BAD_REQUEST', detail: 'Au moins un jour d\'ouverture est requis'}})));
+    store.enregistrerParametres(parametres);
+    expect(store.error()).toBe('PLANNING.PARAMS.ERR.SAVE');
+  });
+
   it('charge les absences de la semaine avec le planning, sans bloquer le planning si elles échouent', () => {
     const store = TestBed.inject(PlanningStore);
 

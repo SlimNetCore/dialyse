@@ -2579,7 +2579,9 @@
       "POSTE_RANGE": "Entre 1 et {{max}} (3 par défaut : trois séances par semaine)",
       "ERR": {
         "LOAD": "Impossible de charger les paramètres du planning",
-        "SAVE": "Enregistrement impossible"
+        "SAVE": "Enregistrement impossible",
+        "CONCURRENTE": "Le paramétrage du centre vient d'être modifié par quelqu'un d'autre. Rechargez puis recommencez.",
+        "SALLE_ETRANGERE": "Une salle d'isolement n'appartient pas à ce centre. Rechargez la page."
       }
     },
     "NO_PLACE": "Aucune place ne correspond : essayez moins de séances, d'autres jours ou un autre créneau.",
@@ -2808,7 +2810,10 @@
           "DROITS": "Vous n'avez pas le droit de faire cette modification.",
           "PREFERENCE_CRENEAU_INCONNU": "Ce créneau n'appartient pas au centre.",
           "PREFERENCE_PATIENT_INTROUVABLE": "Patient introuvable dans ce centre.",
-          "PROFIL_INFIRMIER_INTROUVABLE": "Infirmier introuvable dans ce centre."
+          "PREFERENCE_PATIENT_SORTI": "Ce patient est sorti du centre : sa préférence n'est plus modifiable.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Infirmier introuvable dans ce centre.",
+          "PROFIL_INFIRMIER_INACTIF": "Cet infirmier est inactif : son profil n'est plus modifiable.",
+          "PLANIFICATION_ECRITURE_CONCURRENTE": "Le paramétrage du centre vient d'être modifié par quelqu'un d'autre. Rechargez puis recommencez."
         }
       }
     }
