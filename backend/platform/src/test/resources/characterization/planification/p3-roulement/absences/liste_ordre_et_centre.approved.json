@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "cacheControl": "no-store",
+  "body": {
+    "items": [
+      {
+        "debut": "<S2.MER>",
+        "fin": "<S2.JEU>",
+        "id": "<ABS_RECENTE>",
+        "infirmierId": "<INF_BENALI>",
+        "motif": null,
+        "type": "MALADIE"
+      },
+      {
+        "debut": "<S1.LUN>",
+        "fin": "<S1.SAM>",
+        "id": "<ABS_MEME_DEBUT>",
+        "infirmierId": "<INF_CHIKHI>",
+        "motif": "Stage",
+        "type": "FORMATION"
+      },
+      {
+        "debut": "<S1.LUN>",
+        "fin": "<S1.MAR>",
+        "id": "<ABS_ANCIENNE>",
+        "infirmierId": "<INF_AMRANI>",
+        "motif": "Congé annuel",
+        "type": "CONGE"
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 3
+  }
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J+2>",
+    "date_fin": "<J+6>",
+    "id": "<UUID_GENERE_1>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J+2>",
+    "date_fin": "<J+6>",
+    "id": "<UUID_GENERE_2>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J+5>",
+    "date_fin": "<J+9>",
+    "id": "<UUID_GENERE_3>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "MALADIE"
+  }
+]

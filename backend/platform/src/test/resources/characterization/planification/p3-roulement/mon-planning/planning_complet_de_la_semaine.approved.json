@@ -1,0 +1,208 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "cacheControl": "no-store",
+  "body": {
+    "creneaux": [
+      {
+        "id": "<CRENEAU_APRES_MIDI>",
+        "libelle": "Apres-midi",
+        "ordre": 1
+      },
+      {
+        "id": "<CRENEAU_MATIN>",
+        "libelle": "Matin",
+        "ordre": 2
+      }
+    ],
+    "debut": "<S1.DIM>",
+    "fin": "<S1.SAM>",
+    "infirmier": {
+      "actif": true,
+      "affectations": [
+        {
+          "creneauId": "<CRENEAU_MATIN>",
+          "id": "<R_AMRANI_1>",
+          "jours": [
+            "LUNDI",
+            "MARDI"
+          ],
+          "joursEnSureffectif": [],
+          "salleId": "<SALLE_1>"
+        }
+      ],
+      "compte": {
+        "actif": true,
+        "id": "<COMPTE_AMRANI>",
+        "nomComplet": "Sara Amrani",
+        "username": "p2.amrani"
+      },
+      "habiliteIsolement": true,
+      "id": "<INF_AMRANI>",
+      "matricule": "AMRANI",
+      "nom": "Amrani",
+      "prenom": "Sara",
+      "qualification": "MAJOR",
+      "telephone": "0555000001"
+    },
+    "jours": [
+      {
+        "date": "<S1.DIM>",
+        "fermetureMotif": null,
+        "jour": "DIMANCHE",
+        "ouvertHebdomadaire": true
+      },
+      {
+        "date": "<S1.LUN>",
+        "fermetureMotif": null,
+        "jour": "LUNDI",
+        "ouvertHebdomadaire": true
+      },
+      {
+        "date": "<S1.MAR>",
+        "fermetureMotif": null,
+        "jour": "MARDI",
+        "ouvertHebdomadaire": true
+      },
+      {
+        "date": "<S1.MER>",
+        "fermetureMotif": null,
+        "jour": "MERCREDI",
+        "ouvertHebdomadaire": true
+      },
+      {
+        "date": "<S1.JEU>",
+        "fermetureMotif": null,
+        "jour": "JEUDI",
+        "ouvertHebdomadaire": true
+      },
+      {
+        "date": "<S1.VEN>",
+        "fermetureMotif": null,
+        "jour": "VENDREDI",
+        "ouvertHebdomadaire": true
+      },
+      {
+        "date": "<S1.SAM>",
+        "fermetureMotif": null,
+        "jour": "SAMEDI",
+        "ouvertHebdomadaire": true
+      }
+    ],
+    "mesCases": [
+      {
+        "collegues": 0,
+        "creneauId": "<CRENEAU_APRES_MIDI>",
+        "date": "<S1.VEN>",
+        "jour": "VENDREDI",
+        "occupants": [
+          {
+            "aRisque": false,
+            "dejaRealiseeLe": null,
+            "generateurCode": null,
+            "libereLe": null,
+            "nom": "Test Patient PAT_ISO_1",
+            "patientId": "<PAT_ISO_1>",
+            "realiseeHorsPlanning": false,
+            "temporaire": false
+          }
+        ],
+        "patients": 1,
+        "requis": 1,
+        "salleId": "<SALLE_ISO>",
+        "salleIsolement": true
+      },
+      {
+        "collegues": 1,
+        "creneauId": "<CRENEAU_MATIN>",
+        "date": "<S1.LUN>",
+        "jour": "LUNDI",
+        "occupants": [
+          {
+            "aRisque": false,
+            "dejaRealiseeLe": null,
+            "generateurCode": null,
+            "libereLe": null,
+            "nom": "Test Patient PAT_LUN_1",
+            "patientId": "<PAT_LUN_1>",
+            "realiseeHorsPlanning": false,
+            "temporaire": false
+          },
+          {
+            "aRisque": false,
+            "dejaRealiseeLe": null,
+            "generateurCode": null,
+            "libereLe": null,
+            "nom": "Test Patient PAT_LUN_2",
+            "patientId": "<PAT_LUN_2>",
+            "realiseeHorsPlanning": false,
+            "temporaire": false
+          }
+        ],
+        "patients": 2,
+        "requis": 1,
+        "salleId": "<SALLE_1>",
+        "salleIsolement": false
+      },
+      {
+        "collegues": 0,
+        "creneauId": "<CRENEAU_MATIN>",
+        "date": "<S1.MAR>",
+        "jour": "MARDI",
+        "occupants": [
+          {
+            "aRisque": false,
+            "dejaRealiseeLe": null,
+            "generateurCode": null,
+            "libereLe": null,
+            "nom": "Test Patient PAT_LUN_1",
+            "patientId": "<PAT_LUN_1>",
+            "realiseeHorsPlanning": false,
+            "temporaire": false
+          }
+        ],
+        "patients": 1,
+        "requis": 1,
+        "salleId": "<SALLE_1>",
+        "salleIsolement": false
+      }
+    ],
+    "mesCreneaux": [
+      {
+        "creneauId": "<CRENEAU_MATIN>",
+        "date": "<S1.LUN>",
+        "jour": "LUNDI",
+        "salleId": "<SALLE_1>",
+        "situation": "PREVU"
+      },
+      {
+        "creneauId": "<CRENEAU_MATIN>",
+        "date": "<S1.MAR>",
+        "jour": "MARDI",
+        "salleId": "<SALLE_1>",
+        "situation": "ABSENT"
+      },
+      {
+        "creneauId": "<CRENEAU_APRES_MIDI>",
+        "date": "<S1.VEN>",
+        "jour": "VENDREDI",
+        "salleId": "<SALLE_ISO>",
+        "situation": "REMPLACANT"
+      }
+    ],
+    "salles": [
+      {
+        "id": "<SALLE_1>",
+        "nom": "Salle 1"
+      },
+      {
+        "id": "<SALLE_2>",
+        "nom": "Salle 2"
+      },
+      {
+        "id": "<SALLE_ISO>",
+        "nom": "Salle isolement"
+      }
+    ]
+  }
+}

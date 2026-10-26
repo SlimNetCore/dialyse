@@ -1,0 +1,17 @@
+{
+  "JSON illisible": "400 BAD_REQUEST",
+  "champ inconnu ignoré": "201",
+  "date en texte libre": "400 BAD_REQUEST",
+  "date impossible": "400 BAD_REQUEST",
+  "début absent": "400 BAD_REQUEST",
+  "fin absente": "400 BAD_REQUEST",
+  "infirmier d'un autre centre": "422 INFIRMIER_INTROUVABLE",
+  "infirmier désactivé": "422 INFIRMIER_INACTIF",
+  "infirmier inconnu + période inversée": "400 BAD_REQUEST",
+  "infirmierId absent": "400 BAD_REQUEST",
+  "type absent": "400 BAD_REQUEST",
+  "type blanc": "400 BAD_REQUEST",
+  "type en minuscules": "400 BAD_REQUEST",
+  "type inconnu": "400 BAD_REQUEST",
+  "type inconnu + infirmier inconnu": "400 BAD_REQUEST"
+}

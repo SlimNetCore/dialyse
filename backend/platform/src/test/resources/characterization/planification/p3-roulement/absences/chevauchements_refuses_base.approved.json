@@ -1,0 +1,20 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.DIM>",
+    "date_fin": "<S1.DIM>",
+    "id": "<UUID_GENERE_1>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "AUTRE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.LUN>",
+    "date_fin": "<S1.JEU>",
+    "id": "<UUID_GENERE_2>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  }
+]

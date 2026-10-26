@@ -9,6 +9,7 @@ import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
 import com.hemodialyse.backend.domain.infirmier.port.AffectationInfirmierRepositoryPort;
+import com.hemodialyse.backend.domain.infirmier.port.RemplacementInfirmierRepositoryPort;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
@@ -55,11 +56,7 @@ class InfirmierPresenceIntegrationTest {
     @Autowired
     private AffectationInfirmierRepositoryPort roulements;
     @Autowired
-    private AffectationInfirmierService affectations;
-    @Autowired
-    private AbsenceInfirmierService absences;
-    @Autowired
-    private RemplacementInfirmierService remplacements;
+    private RemplacementInfirmierRepositoryPort remplacementsLegacy;
     @Autowired
     private PresenceInfirmierQueryService presence;
     @Autowired
@@ -111,8 +108,8 @@ class InfirmierPresenceIntegrationTest {
     void a_nurse_assigned_to_a_room_without_patients_is_reported_as_surplus_for_that_center_only() {
         UUID amrani = infirmier(CENTRE, "S1", "Amrani", false).infirmier().id();
         UUID autre = infirmier(AUTRE_CENTRE, "S2", "Etranger", false).infirmier().id();
-        affectations.ajouter(CENTRE, amrani, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI));
-        affectations.ajouter(AUTRE_CENTRE, autre, SALLE_AUTRE, CRENEAU_AUTRE, EnumSet.of(JourSemaine.LUNDI));
+        affecter(CENTRE, amrani, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI));
+        affecter(AUTRE_CENTRE, autre, SALLE_AUTRE, CRENEAU_AUTRE, EnumSet.of(JourSemaine.LUNDI));
 
         var alertes = presence.alertesSureffectif(CENTRE, DIMANCHE, 7);
         List<JourSemaine> jours = presence.joursEnSureffectif(CENTRE, SALLE, MATIN,
@@ -125,50 +122,18 @@ class InfirmierPresenceIntegrationTest {
     }
 
     @Test
-    void a_nurse_of_another_center_cannot_be_read_modified_or_assigned() {
-        UUID etranger = infirmier(AUTRE_CENTRE, "M9", "Etranger", false).infirmier().id();
-
-        assertThrows(BusinessException.class,
-                () -> affectations.ajouter(CENTRE, etranger, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI)));
-        assertThrows(BusinessException.class,
-                () -> absences.declarer(CENTRE, etranger, LUNDI, LUNDI, TypeAbsence.CONGE, null));
-    }
-
-    @Test
-    void the_rotation_is_validated_against_the_center_and_overlaps() {
-        UUID id = infirmier(CENTRE, "M1", "Amrani", false).infirmier().id();
-
-        assertEquals("AFFECTATION_SALLE_INCONNUE", assertThrows(BusinessException.class,
-                () -> affectations.ajouter(CENTRE, id, SALLE_AUTRE, MATIN, EnumSet.of(JourSemaine.LUNDI))).getCode());
-        assertEquals("AFFECTATION_CRENEAU_INCONNU", assertThrows(BusinessException.class,
-                () -> affectations.ajouter(CENTRE, id, SALLE, CRENEAU_AUTRE, EnumSet.of(JourSemaine.LUNDI))).getCode());
-
-        AffectationInfirmier lmv = affectations.ajouter(CENTRE, id, SALLE, MATIN,
-                EnumSet.of(JourSemaine.LUNDI, JourSemaine.MERCREDI));
-        assertEquals("AFFECTATION_CHEVAUCHEMENT", assertThrows(BusinessException.class,
-                () -> affectations.ajouter(CENTRE, id, SALLE, MATIN, EnumSet.of(JourSemaine.MERCREDI))).getCode());
-
-        affectations.modifier(CENTRE, id, lmv.id(), SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
-        assertEquals(Set.of(JourSemaine.LUNDI),
-                roulements.findByInfirmierIds(CENTRE, List.of(id)).get(0).jours());
-
-        affectations.supprimer(CENTRE, id, lmv.id());
-        assertTrue(roulements.findByInfirmierIds(CENTRE, List.of(id)).isEmpty());
-    }
-
-    @Test
     void the_week_shows_understaffing_then_coverage_once_nurses_are_planned() {
         patients(5, JourSemaine.LUNDI);
         UUID a = infirmier(CENTRE, "M1", "Amrani", false).infirmier().id();
         UUID b = infirmier(CENTRE, "M2", "Benali", false).infirmier().id();
-        affectations.ajouter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
+        affecter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
 
         CasePresence seul = caseLundi();
         assertEquals(StatutCase.SOUS_EFFECTIF, seul.statut());
         assertEquals(2, seul.requis());
         assertEquals(5, seul.patients());
 
-        affectations.ajouter(CENTRE, b, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
+        affecter(CENTRE, b, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         assertEquals(StatutCase.COUVERT, caseLundi().statut());
     }
 
@@ -185,10 +150,10 @@ class InfirmierPresenceIntegrationTest {
         patients(3, JourSemaine.LUNDI);
         UUID titulaire = infirmier(CENTRE, "M1", "Amrani", false).infirmier().id();
         UUID renfort = infirmier(CENTRE, "M2", "Benali", false).infirmier().id();
-        affectations.ajouter(CENTRE, titulaire, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
+        affecter(CENTRE, titulaire, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         assertEquals(StatutCase.COUVERT, caseLundi().statut());
 
-        AbsenceInfirmier absence = absences.declarer(CENTRE, titulaire, LUNDI, LUNDI, TypeAbsence.MALADIE, "Grippe");
+        AbsenceInfirmier absence = declarerAbsence(CENTRE, titulaire, LUNDI, LUNDI, TypeAbsence.MALADIE, "Grippe");
         CasePresence decouverte = caseLundi();
         assertEquals(StatutCase.SOUS_EFFECTIF, decouverte.statut());
         assertEquals(1, decouverte.absents().size());
@@ -196,35 +161,49 @@ class InfirmierPresenceIntegrationTest {
         assertEquals(List.of("Benali"),
                 presence.remplacants(CENTRE, LUNDI, SALLE, MATIN).stream().map(c -> c.nom()).toList());
 
-        assertEquals("REMPLACEMENT_INELIGIBLE", assertThrows(BusinessException.class,
-                () -> remplacements.affecter(CENTRE, LUNDI, SALLE, MATIN, titulaire, null)).getCode());
-        RemplacementInfirmier r = remplacements.affecter(CENTRE, LUNDI, SALLE, MATIN, renfort, titulaire);
+        RemplacementInfirmier r = remplacer(CENTRE, LUNDI, SALLE, MATIN, renfort, titulaire);
         assertEquals(StatutCase.COUVERT, caseLundi().statut());
         assertTrue(caseLundi().presents().get(0).remplacant());
         assertTrue(presence.alertes(CENTRE, LUNDI, 1).isEmpty());
 
-        remplacements.annuler(CENTRE, r.id());
+        jdbc.update("DELETE FROM infirmier_remplacement WHERE id = ?", r.id());
         assertEquals(StatutCase.SOUS_EFFECTIF, caseLundi().statut());
-        absences.supprimer(CENTRE, absence.id());
+        jdbc.update("DELETE FROM infirmier_absence WHERE id = ?", absence.id());
         assertEquals(StatutCase.COUVERT, caseLundi().statut());
     }
 
     @Test
     void nurses_and_replacements_of_another_center_never_cover_this_center() {
         patients(3, JourSemaine.LUNDI);
-        UUID etranger = infirmier(AUTRE_CENTRE, "M1", "Etranger", false).infirmier().id();
+        infirmier(AUTRE_CENTRE, "M1", "Etranger", false);
 
         assertEquals(StatutCase.SOUS_EFFECTIF, caseLundi().statut());
         assertTrue(presence.remplacants(CENTRE, LUNDI, SALLE, MATIN).isEmpty());
-        assertThrows(BusinessException.class,
-                () -> remplacements.affecter(CENTRE, LUNDI, SALLE, MATIN, etranger, null));
+    }
+
+    /**
+     * Écrit au roulement comme le fait l'optimisation (slice P8, encore dans le legacy) : les règles sont celles du contexte Planification.
+     */
+    private AffectationInfirmier affecter(UUID centre, UUID infirmier, UUID salle, UUID creneau, Set<JourSemaine> jours) {
+        return roulements.save(AffectationInfirmier.creer(centre, infirmier, salle, creneau, jours));
+    }
+
+    private AbsenceInfirmier declarerAbsence(UUID centre, UUID infirmier, LocalDate debut, LocalDate fin, TypeAbsence type, String motif) {
+        AbsenceInfirmier absence = AbsenceInfirmier.creer(centre, infirmier, debut, fin, type, motif);
+        jdbc.update("INSERT INTO infirmier_absence (id, center_id, infirmier_id, date_debut, date_fin, type, motif) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                absence.id(), centre, infirmier, java.sql.Date.valueOf(debut), java.sql.Date.valueOf(fin), type.name(), motif);
+        return absence;
+    }
+
+    private RemplacementInfirmier remplacer(UUID centre, LocalDate date, UUID salle, UUID creneau, UUID infirmier, UUID remplace) {
+        return remplacementsLegacy.save(RemplacementInfirmier.creer(centre, date, salle, creneau, infirmier, remplace));
     }
 
     @Test
     void a_deactivated_nurse_leaves_the_planning_and_alert_horizon_is_bounded() {
         patients(2, JourSemaine.LUNDI);
         UUID a = infirmier(CENTRE, "M1", "Amrani", false).infirmier().id();
-        affectations.ajouter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
+        affecter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         assertEquals(StatutCase.COUVERT, caseLundi().statut());
 
         jdbc.update("UPDATE infirmier SET actif = FALSE WHERE id = ?", a);
@@ -239,9 +218,9 @@ class InfirmierPresenceIntegrationTest {
     void the_monthly_workload_is_paginated_and_counts_rotation_and_replacements() {
         UUID a = infirmier(CENTRE, "M1", "Amrani", false).infirmier().id();
         UUID b = infirmier(CENTRE, "M2", "Benali", false).infirmier().id();
-        affectations.ajouter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
+        affecter(CENTRE, a, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         patients(1, JourSemaine.LUNDI);
-        remplacements.affecter(CENTRE, LocalDate.of(2026, 10, 5), SALLE, MATIN, b, null);
+        remplacer(CENTRE, LocalDate.of(2026, 10, 5), SALLE, MATIN, b, null);
 
         var page = presence.charge(CENTRE, YearMonth.of(2026, 10), 0, 1);
         var suite = presence.charge(CENTRE, YearMonth.of(2026, 10), 1, 1);

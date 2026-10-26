@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacy
 
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +44,27 @@ public class SessionLegacy implements SessionCourante {
         } catch (IllegalArgumentException e) {
             throw new AccessDeniedException("Centre de rattachement illisible dans la session");
         }
+    }
+
+    @Override
+    public CompteId utilisateur() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification == null || authentification.getPrincipal() == null) {
+            throw new AccessDeniedException("Contexte d'authentification invalide : utilisateur introuvable");
+        }
+        Object principal = authentification.getPrincipal();
+        try {
+            return new CompteId(UUID.fromString((String) principal.getClass().getMethod("getId").invoke(principal)));
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            throw new AccessDeniedException("Contexte d'authentification invalide : utilisateur illisible");
+        }
+    }
+
+    @Override
+    public boolean administrateur() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        return authentification != null && authentification.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).anyMatch("ROLE_ADMIN"::equals);
     }
 
     @Override

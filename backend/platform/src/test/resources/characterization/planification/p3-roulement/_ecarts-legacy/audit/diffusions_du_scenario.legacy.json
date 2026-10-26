@@ -1,0 +1,17 @@
+[
+  {
+    "destination": "/topic/center/<CENTRE_A>/events",
+    "message": {
+      "centerId": "<CENTRE_A>",
+      "id": "<UUID_GENERE_1>",
+      "payload": {
+        "debut": "<S1.LUN>",
+        "fin": "<S1.LUN>",
+        "infirmier": "Karim Benali",
+        "targetRoles": "MEDECIN"
+      },
+      "timestamp": "<HORODATAGE>",
+      "type": "INFIRMIER_ABSENCE_ENREGISTREE"
+    }
+  }
+]

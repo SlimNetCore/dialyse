@@ -865,6 +865,8 @@ CREATE TABLE IF NOT EXISTS infirmier_absence
 )
     );
 CREATE INDEX IF NOT EXISTS idx_infirmier_absence_periode ON infirmier_absence (center_id, date_debut, date_fin);
+-- Compte qui a saisi l'absence (V47) : nul pour les absences antérieures
+ALTER TABLE IF EXISTS infirmier_absence ADD COLUMN IF NOT EXISTS declaree_par UUID;
 
 CREATE TABLE IF NOT EXISTS infirmier_remplacement
 (

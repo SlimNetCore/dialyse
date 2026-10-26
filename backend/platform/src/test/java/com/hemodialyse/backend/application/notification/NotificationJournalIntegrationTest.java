@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.application.infirmier.AbsenceInfirmierService;
 import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
 import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
@@ -40,8 +39,6 @@ class NotificationJournalIntegrationTest {
     private NotificationService notifications;
     @Autowired
     private NotificationJournalPort journal;
-    @Autowired
-    private AbsenceInfirmierService absences;
     @Autowired
     private JdbcTemplate jdbc;
 
@@ -170,8 +167,8 @@ class NotificationJournalIntegrationTest {
                 QualificationInfirmier.INFIRMIER.name());
         LocalDate lundi = LocalDate.of(2026, 9, 28);
 
-        absences.declarer(CENTRE, infirmier, lundi, lundi, TypeAbsence.CONGE, null, false);
-        absences.declarer(CENTRE, infirmier, lundi.plusDays(7), lundi.plusDays(7), TypeAbsence.CONGE, null, true);
+        notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi, lundi, true);
+        notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi.plusDays(7), lundi.plusDays(7), false);
 
         PagedResult<Alerte> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total(), "l'absence saisie par l'administrateur ne le prévient pas");

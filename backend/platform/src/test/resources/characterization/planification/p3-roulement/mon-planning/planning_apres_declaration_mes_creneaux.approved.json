@@ -1,0 +1,16 @@
+[
+  {
+    "creneauId": "<CRENEAU_MATIN>",
+    "date": "<S1.LUN>",
+    "jour": "LUNDI",
+    "salleId": "<SALLE_1>",
+    "situation": "ABSENT"
+  },
+  {
+    "creneauId": "<CRENEAU_MATIN>",
+    "date": "<S1.MAR>",
+    "jour": "MARDI",
+    "salleId": "<SALLE_1>",
+    "situation": "PREVU"
+  }
+]

@@ -1,0 +1,63 @@
+{
+  "?page=-1": {
+    "code": "BAD_REQUEST",
+    "statut": 400
+  },
+  "?page=0&size=2": {
+    "elements": 2,
+    "page": 0,
+    "size": 2,
+    "statut": 200,
+    "total": 3
+  },
+  "?page=1&size=2": {
+    "elements": 1,
+    "page": 1,
+    "size": 2,
+    "statut": 200,
+    "total": 3
+  },
+  "?page=2&size=2": {
+    "elements": 0,
+    "page": 2,
+    "size": 2,
+    "statut": 200,
+    "total": 3
+  },
+  "?page=abc": {
+    "code": "BAD_REQUEST",
+    "statut": 400
+  },
+  "?size=": {
+    "elements": 3,
+    "page": 0,
+    "size": 20,
+    "statut": 200,
+    "total": 3
+  },
+  "?size=-1": {
+    "code": "BAD_REQUEST",
+    "statut": 400
+  },
+  "?size=0": {
+    "elements": 0,
+    "page": 0,
+    "size": 0,
+    "statut": 200,
+    "total": 3
+  },
+  "?size=1000": {
+    "elements": 3,
+    "page": 0,
+    "size": 100,
+    "statut": 200,
+    "total": 3
+  },
+  "?size=500&page=0": {
+    "elements": 3,
+    "page": 0,
+    "size": 100,
+    "statut": 200,
+    "total": 3
+  }
+}

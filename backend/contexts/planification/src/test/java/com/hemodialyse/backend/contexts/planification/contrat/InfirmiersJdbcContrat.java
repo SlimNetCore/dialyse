@@ -13,8 +13,8 @@ import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee;
 import com.hemodialyse.backend.contexts.planification.domain.VerrouDuReferentielDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyidentite.ComptesUtilisateursJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyroulement.RoulementsDesInfirmiersJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.InfirmiersJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RoulementsJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDuReferentielDesInfirmiersJdbc;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -154,7 +154,7 @@ public abstract class InfirmiersJdbcContrat extends InfirmiersContrat {
         UUID affectation = UUID.randomUUID();
         jdbc().update("INSERT INTO infirmier_affectation (id, center_id, infirmier_id, salle_id, creneau_id, jours) "
                 + "VALUES (?, ?, ?, ?, ?, 'MARDI,DIMANCHE,LUNDI')", affectation, CENTRE.valeur(), a.valeur(), salle, matin);
-        RoulementsDesInfirmiersJdbc roulements = new RoulementsDesInfirmiersJdbc(jdbc());
+        RoulementsJdbc roulements = new RoulementsJdbc(jdbc());
 
         List<AffectationLue> lues = roulements.deLaListe(CENTRE, List.of(a, new InfirmierId(UUID.randomUUID()))).get(a);
 

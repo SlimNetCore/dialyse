@@ -132,7 +132,7 @@ describe('classeOccupant', () => {
   it('recharge le planning pour les évènements qui le changent (séance, absence, déplacement, placement)', () => {
     for (const type of ['SEANCE_CREATED', 'SEANCE_VALIDATED', 'SEANCE_SUPPRIMEE', 'SEANCE_MEDICAL_SAVED', 'PATIENT_SCANNED',
       'PATIENT_UPDATED', 'SEANCES_DEPLACEES', 'GENERATEUR_INDISPONIBLE', 'INFIRMIER_ABSENCE_DECLAREE',
-      'INFIRMIER_ABSENCE_ENREGISTREE', 'ABSENCES_A_QUALIFIER']) {
+      'INFIRMIER_ABSENCE_ENREGISTREE', 'INFIRMIER_ABSENCE_RETIREE', 'ABSENCES_A_QUALIFIER']) {
       expect(evenementRafraichitPlanning(type), type).toBe(true);
     }
     expect(evenementRafraichitPlanning('SAISIE_INFIRMIER', {saisie: 'ABSENCE'})).toBe(true);

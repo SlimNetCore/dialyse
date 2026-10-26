@@ -1,0 +1,12 @@
+{
+  "avec fiche, JSON illisible": "500 INTERNAL_ERROR",
+  "avec fiche, dates absentes": "400 VALIDATION_ERROR",
+  "avec fiche, infirmierId d'un autre dans le corps (ignoré)": "201",
+  "avec fiche, type blanc": "400 VALIDATION_ERROR",
+  "avec fiche, type en minuscules": "400 BAD_REQUEST",
+  "avec fiche, type inconnu": "400 BAD_REQUEST",
+  "sans fiche, demande valide": "422 INFIRMIER_NON_LIE",
+  "sans fiche, début absent": "400 VALIDATION_ERROR",
+  "sans fiche, période inversée": "422 INFIRMIER_NON_LIE",
+  "sans fiche, type inconnu": "400 BAD_REQUEST"
+}

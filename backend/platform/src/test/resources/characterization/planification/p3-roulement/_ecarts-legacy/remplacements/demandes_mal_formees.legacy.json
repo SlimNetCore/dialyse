@@ -1,0 +1,12 @@
+{
+  "JSON illisible": "500 INTERNAL_ERROR",
+  "champ inconnu ignoré (mais doublon du remplacement posé par remplaceId null)": "422 REMPLACEMENT_INELIGIBLE",
+  "corps {}": "400 VALIDATION_ERROR",
+  "creneauId absent": "400 VALIDATION_ERROR",
+  "date absente": "400 VALIDATION_ERROR",
+  "date illisible": "500 INTERNAL_ERROR",
+  "identifiant illisible": "500 INTERNAL_ERROR",
+  "infirmierId absent": "400 VALIDATION_ERROR",
+  "remplaceId null": "201",
+  "salleId absent": "400 VALIDATION_ERROR"
+}

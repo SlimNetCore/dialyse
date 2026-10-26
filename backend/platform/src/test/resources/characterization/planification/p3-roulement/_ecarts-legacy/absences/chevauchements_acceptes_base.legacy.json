@@ -1,0 +1,47 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.DIM>",
+    "date_fin": "<S1.DIM>",
+    "id": "<UUID_GENERE_1>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "AUTRE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.LUN>",
+    "date_fin": "<S1.JEU>",
+    "id": "<UUID_GENERE_2>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.LUN>",
+    "date_fin": "<S1.JEU>",
+    "id": "<UUID_GENERE_3>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.MAR>",
+    "date_fin": "<S1.MER>",
+    "id": "<UUID_GENERE_4>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "FORMATION"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<S1.MER>",
+    "date_fin": "<S1.SAM>",
+    "id": "<UUID_GENERE_5>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "MALADIE"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "center_id": "<CENTRE_B>",
+    "date_debut": "<S1.LUN>",
+    "date_fin": "<S1.LUN>",
+    "id": "<ABS_AUTRE_CENTRE>",
+    "infirmier_id": "<INF_CENTRE_B>",
+    "motif": null,
+    "type": "CONGE"
+  }
+]

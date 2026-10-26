@@ -18,7 +18,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * 415 {@code UNSUPPORTED_MEDIA_TYPE} pour un corps qui n'est pas du JSON. Limité aux contrôleurs de la planification.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class})
+@RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class,
+        RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class})
 class EntreesDeLaPlanificationAdvice {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

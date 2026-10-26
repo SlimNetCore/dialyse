@@ -1,0 +1,8 @@
+{
+  "aujourd'hui seulement (J à J)": "201",
+  "en cours (J-2 à J+2)": "201",
+  "passée (J-10 à J-8)": "422 ABSENCE_PASSEE",
+  "terminée aujourd'hui (J-3 à J)": "201",
+  "terminée hier (J-3 à J-1)": "422 ABSENCE_PASSEE",
+  "à venir (J+3 à J+5)": "201"
+}

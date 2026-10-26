@@ -1,0 +1,18 @@
+[
+  {
+    "action_code": "ABSENCE_DECLAREE_PAR_L_INFIRMIER",
+    "entity_id": "<UUID_GENERE_1>",
+    "entity_type": "infirmiers",
+    "http_method": "POST",
+    "route_template": "/api/v1/infirmiers/moi/absences",
+    "status_code": "201"
+  },
+  {
+    "action_code": "ABSENCE_RETIREE_PAR_L_INFIRMIER",
+    "entity_id": "<UUID_GENERE_1>",
+    "entity_type": "infirmiers",
+    "http_method": "DELETE",
+    "route_template": "/api/v1/infirmiers/moi/absences/{id}",
+    "status_code": "204"
+  }
+]

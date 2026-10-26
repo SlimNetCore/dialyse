@@ -206,6 +206,10 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
       return alerte('event_busy', couverture(profil, evt, ctx.aujourdhui), {
         parametres: {infirmier: p['infirmier'] ?? '', debut: dateLisible(p['debut']), fin: dateLisible(p['fin'])},
       });
+    case 'INFIRMIER_ABSENCE_RETIREE':
+      return info('event_available', planning(profil, p['debut'] ?? null), {
+        parametres: {infirmier: p['infirmier'] ?? '', debut: dateLisible(p['debut']), fin: dateLisible(p['fin'])},
+      });
     case 'INFIRMIER_SOUS_EFFECTIF':
       return alerte('groups', couverture(profil, evt, ctx.aujourdhui),
         {parametres: {count: p['nbCreneaux'] ?? '', date: dateLisible(p['premiereDate'])}});

@@ -1,0 +1,39 @@
+{
+  "cases": [
+    {
+      "absents": [
+        "Sara Amrani : MALADIE"
+      ],
+      "creneauId": "<CRENEAU_MATIN>",
+      "date": "<S1.LUN>",
+      "manque": 0,
+      "patients": 0,
+      "presents": [
+        "Karim Benali (remplacant)"
+      ],
+      "requis": 0,
+      "salleId": "<SALLE_1>",
+      "statut": "SANS_PATIENT",
+      "surplus": 1
+    },
+    {
+      "absents": [],
+      "creneauId": "<CRENEAU_MATIN>",
+      "date": "<S1.MAR>",
+      "manque": 0,
+      "patients": 0,
+      "presents": [
+        "Karim Benali (remplacant)",
+        "Sara Amrani"
+      ],
+      "requis": 0,
+      "salleId": "<SALLE_1>",
+      "statut": "SANS_PATIENT",
+      "surplus": 2
+    }
+  ],
+  "casesSousEffectif": 0,
+  "conflits": [],
+  "debut": "<S1.DIM>",
+  "statut": 200
+}

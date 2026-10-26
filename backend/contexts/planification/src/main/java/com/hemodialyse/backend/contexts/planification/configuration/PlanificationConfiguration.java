@@ -19,17 +19,46 @@ import com.hemodialyse.backend.contexts.planification.application.NouveauxIdenti
 import com.hemodialyse.backend.contexts.planification.application.ReactiverUnInfirmier;
 import com.hemodialyse.backend.contexts.planification.application.RoulementsDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.SuivreLEtatDuCompte;
+import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesFichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesIdentifiantsDeConnexion;
 import com.hemodialyse.backend.contexts.planification.domain.InfirmiersRepository;
 import com.hemodialyse.backend.contexts.planification.domain.VerrouDuReferentielDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyidentite.ComptesUtilisateursJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyroulement.RoulementsDesInfirmiersJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.GenerateurDeMotDePasseTemporaire;
 import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsAleatoires;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.InfirmiersJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDuReferentielDesInfirmiersJdbc;
 import com.hemodialyse.backend.contexts.planification.interfaces.publie.FichesDesInfirmiersPourLeLegacy;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
+import com.hemodialyse.backend.contexts.planification.application.AffecterAuRoulement;
+import com.hemodialyse.backend.contexts.planification.application.AffecterUnRemplacant;
+import com.hemodialyse.backend.contexts.planification.application.AnnulerLeRemplacement;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.CalendrierDuCentre;
+import com.hemodialyse.backend.contexts.planification.application.ConsulterMonPlanning;
+import com.hemodialyse.backend.contexts.planification.application.DeclarerMonAbsence;
+import com.hemodialyse.backend.contexts.planification.application.DeclarerUneAbsenceDInfirmier;
+import com.hemodialyse.backend.contexts.planification.application.HorlogeDesCentres;
+import com.hemodialyse.backend.contexts.planification.application.ListerLesAbsences;
+import com.hemodialyse.backend.contexts.planification.application.ListerMesAbsences;
+import com.hemodialyse.backend.contexts.planification.application.ModifierLAffectation;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDesAbsencesDInfirmiers;
+import com.hemodialyse.backend.contexts.planification.application.NouveauxIdentifiantsDuPlanning;
+import com.hemodialyse.backend.contexts.planification.application.RetirerLAffectation;
+import com.hemodialyse.backend.contexts.planification.application.RetirerMonAbsence;
+import com.hemodialyse.backend.contexts.planification.application.RetirerUneAbsence;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.SurEffectifDuRoulement;
+import com.hemodialyse.backend.contexts.planification.domain.AbsencesRepository;
+import com.hemodialyse.backend.contexts.planification.domain.RemplacementsRepository;
+import com.hemodialyse.backend.contexts.planification.domain.RoulementsRepository;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
+import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsDuPlanningAleatoires;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.AbsencesJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RemplacementsJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RoulementEtAbsencesLusParLeLegacyJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RoulementsJdbc;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.RoulementEtAbsencesDesInfirmiers;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.hemodialyse.backend.contexts.planification.application.CreneauxDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.DefinirLaPreferenceDuPatient;
@@ -69,7 +98,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.ZoneId;
 
 /**
  * Composition root du contexte Planification : seul endroit qui connaît toutes les couches. Slice P1 : paramétrage (paramètres du
@@ -202,8 +233,8 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    RoulementsDesInfirmiers planificationRoulementsDesInfirmiers(JdbcTemplate jdbc) {
-        return new RoulementsDesInfirmiersJdbc(jdbc);
+    RoulementsJdbc planificationRoulements(JdbcTemplate jdbc) {
+        return new RoulementsJdbc(jdbc);
     }
 
     @Bean
@@ -298,8 +329,124 @@ public class PlanificationConfiguration {
 
     @Bean
     FichesDesInfirmiers planificationFichesDesInfirmiers(SuivreLEtatDuCompte suivre, DelierAvantLaSuppressionDuCompte delier,
-                                                         VerrouillerLesIdentifiantsDeConnexion identifiants) {
-        return new FichesDesInfirmiersPourLeLegacy(suivre, delier, identifiants);
+                                                         VerrouillerLesIdentifiantsDeConnexion identifiants,
+                                                         VerrouillerLesFichesDesInfirmiers fiches) {
+        return new FichesDesInfirmiersPourLeLegacy(suivre, delier, identifiants, fiches);
+    }
+
+    // ------------------------------------------------------------------ slice P3 : roulement, absences, remplacements, Mon planning
+
+    @Bean
+    AbsencesRepository planificationAbsences(JdbcTemplate jdbc) {
+        return new AbsencesJdbc(jdbc);
+    }
+
+    @Bean
+    RemplacementsRepository planificationRemplacements(JdbcTemplate jdbc) {
+        return new RemplacementsJdbc(jdbc);
+    }
+
+    @Bean
+    NouveauxIdentifiantsDuPlanning planificationNouveauxIdentifiantsDuPlanning() {
+        return new NouveauxIdentifiantsDuPlanningAleatoires();
+    }
+
+    /**
+     * « Aujourd'hui » du centre : son fuseau ({@code centers.fuseau_horaire}), à défaut {@code Africa/Algiers} (ADR 0054).
+     */
+    @Bean
+    HorlogeDesCentres planificationHorlogeDesCentres(JdbcTemplate jdbc,
+                                                     @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+        return new HorlogeDesCentresLegacy(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
+    }
+
+    @Bean
+    AffecterAuRoulement planificationAffecterAuRoulement(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                         RoulementsRepository roulements, SallesDuCentre salles,
+                                                         CreneauxDuCentre creneaux, NouveauxIdentifiantsDuPlanning identifiants,
+                                                         SurEffectifDuRoulement surEffectif, HorlogeDesCentres horloge) {
+        return new AffecterAuRoulement(unite, infirmiers, roulements, salles, creneaux, identifiants, surEffectif, horloge);
+    }
+
+    @Bean
+    ModifierLAffectation planificationModifierLAffectation(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                           RoulementsRepository roulements, SallesDuCentre salles,
+                                                           CreneauxDuCentre creneaux, SurEffectifDuRoulement surEffectif,
+                                                           HorlogeDesCentres horloge) {
+        return new ModifierLAffectation(unite, infirmiers, roulements, salles, creneaux, surEffectif, horloge);
+    }
+
+    @Bean
+    RetirerLAffectation planificationRetirerLAffectation(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                         RoulementsRepository roulements) {
+        return new RetirerLAffectation(unite, infirmiers, roulements);
+    }
+
+    @Bean
+    ListerLesAbsences planificationListerLesAbsences(AbsencesRepository absences) {
+        return new ListerLesAbsences(absences);
+    }
+
+    @Bean
+    DeclarerUneAbsenceDInfirmier planificationDeclarerUneAbsenceDInfirmier(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                                           AbsencesRepository absences,
+                                                                           NouveauxIdentifiantsDuPlanning identifiants,
+                                                                           NotificationsDesAbsencesDInfirmiers notifications) {
+        return new DeclarerUneAbsenceDInfirmier(unite, infirmiers, absences, identifiants, notifications);
+    }
+
+    @Bean
+    RetirerUneAbsence planificationRetirerUneAbsence(UniteDeTravail unite, AbsencesRepository absences,
+                                                     InfirmiersRepository infirmiers, NotificationsDesAbsencesDInfirmiers notifications) {
+        return new RetirerUneAbsence(unite, absences, infirmiers, notifications);
+    }
+
+    @Bean
+    ConsulterMonPlanning planificationConsulterMonPlanning(InfirmiersRepository infirmiers, FichesDetaillees fiches,
+                                                           SemaineDeLInfirmier semaines, HorlogeDesCentres horloge) {
+        return new ConsulterMonPlanning(infirmiers, fiches, semaines, horloge);
+    }
+
+    @Bean
+    ListerMesAbsences planificationListerMesAbsences(InfirmiersRepository infirmiers, AbsencesRepository absences) {
+        return new ListerMesAbsences(infirmiers, absences);
+    }
+
+    @Bean
+    DeclarerMonAbsence planificationDeclarerMonAbsence(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                       AbsencesRepository absences, NouveauxIdentifiantsDuPlanning identifiants,
+                                                       NotificationsDesAbsencesDInfirmiers notifications, HorlogeDesCentres horloge) {
+        return new DeclarerMonAbsence(unite, infirmiers, absences, identifiants, notifications, horloge);
+    }
+
+    @Bean
+    RetirerMonAbsence planificationRetirerMonAbsence(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                     AbsencesRepository absences, NotificationsDesAbsencesDInfirmiers notifications,
+                                                     HorlogeDesCentres horloge) {
+        return new RetirerMonAbsence(unite, infirmiers, absences, notifications, horloge);
+    }
+
+    @Bean
+    AffecterUnRemplacant planificationAffecterUnRemplacant(UniteDeTravail unite, InfirmiersRepository infirmiers,
+                                                           RoulementsRepository roulements, AbsencesRepository absences,
+                                                           RemplacementsRepository remplacements, SallesDuCentre salles,
+                                                           CreneauxDuCentre creneaux, CalendrierDuCentre calendrier,
+                                                           HorlogeDesCentres horloge, NouveauxIdentifiantsDuPlanning identifiants) {
+        return new AffecterUnRemplacant(unite, infirmiers, roulements, absences, remplacements, salles, creneaux, calendrier, horloge,
+                identifiants);
+    }
+
+    @Bean
+    AnnulerLeRemplacement planificationAnnulerLeRemplacement(UniteDeTravail unite, RemplacementsRepository remplacements) {
+        return new AnnulerLeRemplacement(unite, remplacements);
+    }
+
+    /**
+     * Le langage publié de lecture du roulement, des absences et des remplacements (présence, charge, optimisation du legacy).
+     */
+    @Bean
+    RoulementEtAbsencesDesInfirmiers planificationRoulementEtAbsencesDesInfirmiers(JdbcTemplate jdbc) {
+        return new RoulementEtAbsencesLusParLeLegacyJdbc(jdbc);
     }
 
     /** Le langage publié de lecture du paramétrage, utilisé par la présence, la capacité de la Direction et l'optimisation. */

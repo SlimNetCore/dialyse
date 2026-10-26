@@ -27,7 +27,7 @@ public class NotificationService {
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
             "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
-            "LOTS_PROCHES_PEREMPTION");
+            "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -372,6 +372,22 @@ public class NotificationService {
         payload.put("fin", fin.toString());
         payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
         send(centerId, "INFIRMIER_ABSENCE_DECLAREE", payload);
+    }
+
+    /**
+     * Une absence d'infirmier a été retirée (par l'administration, le secrétariat ou l'infirmier lui-même) : les écrans de
+     * planification se rafraîchissent (slice P3, KB-PLN-34).
+     *
+     * @param targetRoles rôles prévenus, séparés par des virgules
+     */
+    public void notifyAbsenceInfirmierRetiree(UUID centerId, String infirmier, java.time.LocalDate debut,
+                                              java.time.LocalDate fin, String targetRoles) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("infirmier", infirmier);
+        payload.put("debut", debut.toString());
+        payload.put("fin", fin.toString());
+        payload.put("targetRoles", targetRoles);
+        send(centerId, "INFIRMIER_ABSENCE_RETIREE", payload);
     }
 
     /**

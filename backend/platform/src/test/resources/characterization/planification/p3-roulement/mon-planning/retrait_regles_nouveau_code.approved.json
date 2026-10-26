@@ -1,0 +1,11 @@
+{
+  "celle d'un collègue": "422 ABSENCE_INTROUVABLE",
+  "commence aujourd'hui": "422 ABSENCE_NON_ANNULABLE",
+  "commence demain": "204",
+  "commence demain, deuxième suppression": "422 ABSENCE_INTROUVABLE",
+  "en cours": "422 ABSENCE_NON_ANNULABLE",
+  "future saisie par l'administration": "422 ABSENCE_NON_ANNULABLE",
+  "identifiant illisible": "400 BAD_REQUEST",
+  "inconnue": "422 ABSENCE_INTROUVABLE",
+  "passée": "422 ABSENCE_NON_ANNULABLE"
+}

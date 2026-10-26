@@ -58,6 +58,10 @@ public final class InfirmiersEnMemoire {
     public final Map<CompteId, CompteEnMemoire> comptes = new LinkedHashMap<>();
     public final Map<InfirmierId, List<RoulementsDesInfirmiers.AffectationLue>> roulements = new HashMap<>();
     public final List<CentreId> verrous = new ArrayList<>();
+    /**
+     * Les fiches lues sous verrou (P3 : le verrou de la fiche de l'infirmier), dans l'ordre.
+     */
+    public final List<InfirmierId> fichesVerrouillees = new ArrayList<>();
     public int transactions;
     public int verrousDIdentifiants;
     public int prochainIdentifiant = 1;
@@ -74,6 +78,12 @@ public final class InfirmiersEnMemoire {
     public final InfirmiersRepository infirmiers = new InfirmiersRepository() {
         @Override
         public Optional<Infirmier> pourEcriture(CentreId centre, InfirmierId id) {
+            fichesVerrouillees.add(id);
+            return Optional.ofNullable(fiches.get(id)).filter(f -> f.centre().equals(centre));
+        }
+
+        @Override
+        public Optional<Infirmier> parId(CentreId centre, InfirmierId id) {
             return Optional.ofNullable(fiches.get(id)).filter(f -> f.centre().equals(centre));
         }
 

@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "cacheControl": "no-store",
+  "body": {
+    "items": [
+      {
+        "debut": "<S1.LUN>",
+        "fin": "<S1.MAR>",
+        "id": "<ABS_1>",
+        "infirmierId": "<INF_AMRANI>",
+        "motif": "Un",
+        "type": "CONGE"
+      }
+    ],
+    "page": 1,
+    "size": 1,
+    "total": 2
+  }
+}

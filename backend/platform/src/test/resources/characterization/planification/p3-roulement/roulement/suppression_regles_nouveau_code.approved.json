@@ -1,0 +1,7 @@
+{
+  "depuis l'administrateur d'un autre centre": "422 AFFECTATION_INTROUVABLE",
+  "deuxième suppression": "422 AFFECTATION_INTROUVABLE",
+  "identifiant illisible": "400 BAD_REQUEST",
+  "nominale": "204",
+  "par un autre infirmier": "422 AFFECTATION_INTROUVABLE"
+}

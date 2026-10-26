@@ -58,4 +58,31 @@ public final class Identifiants {
             requis(valeur, "Infirmier");
         }
     }
+
+    /**
+     * Affectation d'un infirmier à une salle et un créneau pour certains jours (entité du roulement).
+     */
+    public record AffectationId(UUID valeur) {
+        public AffectationId {
+            requis(valeur, "Affectation");
+        }
+    }
+
+    /**
+     * Absence d'un infirmier.
+     */
+    public record AbsenceId(UUID valeur) {
+        public AbsenceId {
+            requis(valeur, "Absence");
+        }
+    }
+
+    /**
+     * Remplacement d'un infirmier sur une case du planning.
+     */
+    public record RemplacementId(UUID valeur) {
+        public RemplacementId {
+            requis(valeur, "Remplacement");
+        }
+    }
 }

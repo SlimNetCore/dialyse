@@ -1256,3 +1256,46 @@ SELECT count(*) FROM infirmier WHERE length(matricule) > 50 OR length(nom) > 255
 ```
 
 Après la bascule : surveiller dans le journal d'audit les actions `INFIRMIER_ENREGISTRE`, `INFIRMIER_MODIFIE`, `INFIRMIER_DESACTIVE`, `INFIRMIER_REACTIVE`, `INFIRMIER_COMPTE_LIE`, `INFIRMIER_COMPTE_CREE`, `INFIRMIER_COMPTE_DELIE` (identifiant de la fiche en `entity_id`), les statuts 400, 409 (`PLANIFICATION_ECRITURE_CONCURRENTE`, rare : après 5 s d'attente du verrou) et 422 sur `/api/v1/infirmiers/**`, et `DELETE /api/v1/users/{id}` en 422 `COMPTE_LIE_A_UNE_FICHE_ACTIVE`. Retour arrière : redéploiement de la version précédente (aucune migration ; les matricules déjà en majuscules restent valides pour l'ancien code).
+
+## 34. Planification P3 : roulement, absences, remplacements (une migration additive V47, 2026-10-26) — SELECT seulement
+
+**Migration** : `V47__infirmier_absence_auteur.sql` ajoute `infirmier_absence.declaree_par uuid NULL` (aucun index,
+aucune donnée modifiée ; l'ancien code
+l'ignore : le retour arrière est le redéploiement). Aucun index ni contrainte supplémentaire (ADR 0057). **Contrôles à
+exécuter AVANT le déploiement,
+en lecture seule** (ne jamais corriger par `DELETE`/`UPDATE` sans validation écrite de l'utilisateur ; ces requêtes sont
+aussi rejouées, vides, sur la base jetable par
+`backend/scripts/planification-p3-pg16-rejeu.sh`) :
+
+```sql
+-- 1. Affectations qui se chevauchent (KB-PLN-25 : deux POST simultanés ont pu créer deux lignes) : couples (infirmier, créneau, jour) en doublon.
+--    Attendu 0 ligne. Le nouveau code les laisse lisibles et supprimables, refuse de modifier l'une tant qu'elle chevauche l'autre, et la présence
+--    continue de signaler DOUBLE_AFFECTATION : à régulariser par l'exploitation en retirant l'affectation en trop depuis l'écran du roulement.
+SELECT a.infirmier_id, a.creneau_id, j AS jour, count(*) AS affectations, array_agg(a.id) AS identifiants
+  FROM infirmier_affectation a, unnest(string_to_array(a.jours, ',')) AS j
+ GROUP BY a.infirmier_id, a.creneau_id, j HAVING count(*) > 1;
+-- 2. Absences d'un même infirmier qui se chevauchent ou se répètent (KB-PLN-26) : attendu 0 ligne. Elles restent lisibles ; le nouveau code refuse
+--    d'en créer de nouvelles (422 ABSENCE_CHEVAUCHEMENT) mais ne corrige pas l'existant (la présence retient la première absence trouvée).
+SELECT a.infirmier_id, a.id AS absence, b.id AS autre_absence, a.date_debut, a.date_fin, b.date_debut AS autre_debut, b.date_fin AS autre_fin
+  FROM infirmier_absence a JOIN infirmier_absence b
+    ON a.infirmier_id = b.infirmier_id AND a.id < b.id AND a.date_debut <= b.date_fin AND b.date_debut <= a.date_fin;
+-- 3. Remplacements sur un jour passé ou fermé, informatif (le nouveau code les refuse à la création, jamais à la lecture)
+SELECT count(*) FROM infirmier_remplacement WHERE date_jour < current_date;
+-- 4. Absences et affectations d'infirmiers désactivés (KB-PLN-35 : le nouveau code refuse d'en créer ; la présence les ignorait déjà) : informatif
+SELECT count(*) FROM infirmier_absence a JOIN infirmier i ON i.id = a.infirmier_id WHERE NOT i.actif;
+SELECT count(*) FROM infirmier_affectation a JOIN infirmier i ON i.id = a.infirmier_id WHERE NOT i.actif;
+-- 5. Motifs d'absence à la borne (nouveau refus 400 à la saisie au-delà de 255, jamais à la lecture) : informatif
+SELECT count(*) FROM infirmier_absence WHERE length(motif) >= 255;
+-- 6. Absences à venir sans auteur connu (toutes celles antérieures à V47 : l'infirmier concerné peut encore les retirer, KB-PLN-39) : informatif
+SELECT count(*) FROM infirmier_absence WHERE declaree_par IS NULL AND date_debut > current_date;
+-- 7. Fuseau des centres (« aujourd'hui » de P3 est le jour du centre, Africa/Algiers par défaut) : centres sans fuseau ou avec un fuseau illisible
+SELECT id, code, fuseau_horaire FROM centers WHERE fuseau_horaire IS NULL OR btrim(fuseau_horaire) = '';
+```
+
+Après la bascule : surveiller dans le journal d'audit les actions `AFFECTATION_AJOUTEE`, `AFFECTATION_MODIFIEE`,
+`AFFECTATION_RETIREE`, `ABSENCE_DECLAREE`,
+`ABSENCE_RETIREE`, `ABSENCE_DECLAREE_PAR_L_INFIRMIER`, `ABSENCE_RETIREE_PAR_L_INFIRMIER`, `REMPLACANT_AFFECTE`,
+`REMPLACEMENT_ANNULE`, les statuts 400/409/422 sur
+`/api/v1/infirmiers/**` (notamment 409 `PLANIFICATION_ECRITURE_CONCURRENTE`, 422 `ABSENCE_CHEVAUCHEMENT`,
+`INFIRMIER_INACTIF`, `REMPLACEMENT_JOUR_FERME`) et les
+notifications `INFIRMIER_ABSENCE_RETIREE`.

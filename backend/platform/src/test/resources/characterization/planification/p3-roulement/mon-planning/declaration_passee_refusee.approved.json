@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ABSENCE_PASSEE",
+    "detail": "Une absence passée ne peut être saisie que par l'administration",
+    "instance": "/api/v1/infirmiers/moi/absences",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

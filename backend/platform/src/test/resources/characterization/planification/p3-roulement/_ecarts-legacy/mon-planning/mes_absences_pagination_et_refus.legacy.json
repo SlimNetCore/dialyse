@@ -1,0 +1,6 @@
+{
+  "page négative": "500 DATA_ACCESS_ERROR",
+  "sans fiche": "422 INFIRMIER_NON_LIE",
+  "taille 1000": "200",
+  "taille négative": "500 DATA_ACCESS_ERROR"
+}

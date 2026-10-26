@@ -51,6 +51,12 @@ public class InfirmiersJdbc implements InfirmiersRepository {
     }
 
     @Override
+    public Optional<Infirmier> parId(CentreId centre, InfirmierId id) {
+        return jdbc.query("SELECT " + COLONNES + " FROM infirmier WHERE center_id = ? AND id = ?", MAPPER, centre.valeur(),
+                id.valeur()).stream().findFirst();
+    }
+
+    @Override
     public PageDeResultats<Infirmier> page(CentreId centre, Pagination pagination) {
         Long total = jdbc.queryForObject("SELECT COUNT(*) FROM infirmier WHERE center_id = ?", Long.class, centre.valeur());
         List<Infirmier> fiches = jdbc.query("SELECT " + COLONNES + " FROM infirmier WHERE center_id = ? "

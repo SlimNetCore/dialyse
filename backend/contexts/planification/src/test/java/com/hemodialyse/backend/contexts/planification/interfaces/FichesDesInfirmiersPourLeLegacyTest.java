@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.planification.interfaces;
 import com.hemodialyse.backend.contexts.planification.application.ComptesUtilisateurs;
 import com.hemodialyse.backend.contexts.planification.application.DelierAvantLaSuppressionDuCompte;
 import com.hemodialyse.backend.contexts.planification.application.SuivreLEtatDuCompte;
+import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesFichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesIdentifiantsDeConnexion;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.EcritureConcurrenteDesFiches;
@@ -35,7 +36,8 @@ class FichesDesInfirmiersPourLeLegacyTest {
     private final FichesDesInfirmiers publie = new FichesDesInfirmiersPourLeLegacy(
             new SuivreLEtatDuCompte(monde.unite, monde.infirmiers),
             new DelierAvantLaSuppressionDuCompte(monde.unite, monde.infirmiers),
-            new VerrouillerLesIdentifiantsDeConnexion(monde.unite, monde.comptesUtilisateurs));
+            new VerrouillerLesIdentifiantsDeConnexion(monde.unite, monde.comptesUtilisateurs),
+            new VerrouillerLesFichesDesInfirmiers(monde.unite, monde.infirmiers));
 
     private Infirmier ficheLiee(CompteId compte) {
         Infirmier fiche = Infirmier.enregistrer(new InfirmierId(UUID.randomUUID()), CENTRE, Matricule.depuisLaSaisie("M-1"),
@@ -79,12 +81,20 @@ class FichesDesInfirmiersPourLeLegacyTest {
                     public void executer() {
                         throw new EcritureConcurrente();
                     }
+                },
+                new VerrouillerLesFichesDesInfirmiers(monde.unite, monde.infirmiers) {
+                    @Override
+                    public void executer(CentreId centre, java.util.Collection<InfirmierId> fiches) {
+                        throw new EcritureConcurrente();
+                    }
                 });
 
         UUID compte = UUID.randomUUID();
         assertThatThrownBy(() -> enConflit.suivreLEtatDuCompte(compte, true, null)).isInstanceOf(EcritureConcurrenteDesFiches.class);
         assertThatThrownBy(() -> enConflit.delierAvantLaSuppressionDuCompte(compte)).isInstanceOf(EcritureConcurrenteDesFiches.class);
         assertThatThrownBy(enConflit::verrouillerLesIdentifiantsDeConnexion).isInstanceOf(EcritureConcurrenteDesFiches.class);
+        assertThatThrownBy(() -> enConflit.verrouillerLesFiches(CENTRE.valeur(), java.util.List.of(compte)))
+                .isInstanceOf(EcritureConcurrenteDesFiches.class);
     }
 
     @Test

@@ -493,3 +493,19 @@ aucune lecture SQL de `gmao_equipements` par la Planification.
 | 9 | Termes du glossaire | **Restent `proposed`** : validation par les experts métier à venir. |
 
 Gate `tactical` approuvé par l'utilisateur le 2026-10-26 (`/ddd-gate tactical approve`).
+
+## Mise à jour après la slice P3 (2026-10-26, ADR 0057)
+
+- `RoulementDeLInfirmier` : agrégat immuable (liste d'`Affectation`), verrou de la fiche `infirmier` par le cas d'usage,
+  409 si non obtenu ; infirmier désactivé refusé (`INFIRMIER_INACTIF`) sauf retrait ; avertissement de sur-effectif par
+  le port `SurEffectifDuRoulement` (ACL vers la présence P4).
+- `AbsenceInfirmier` : `PeriodeDAbsence` (VO), motif ≤ 255, **auteur conservé** (`declaree_par`, V47) ; politique
+  `AbsencesSansChevauchement` (`ABSENCE_CHEVAUCHEMENT`, B6
+  corrigé) ; « aujourd'hui » par `HorlogeDesCentres` (fuseau du centre).
+- `Remplacement` : preuve `RemplacantEligible.prouver(Situation)` construite sous le verrou de la fiche du remplaçant ;
+  date passée, jour fermé (port `CalendrierDuCentre`) et
+  remplacé non concerné refusés ; soi-même contrôlé en premier (B5 corrigé).
+- Lecture publiée `RoulementEtAbsencesDesInfirmiers` pour la présence (P4) ; ports sortants ajoutés :
+  `HorlogeDesCentres`, `CalendrierDuCentre`, `NotificationsDuCentre`,
+  `SemaineDeLInfirmier`, `SurEffectifDuRoulement`, `NouveauxIdentifiantsDuPlanning`. Événements de domaine non
+  introduits (aucun consommateur).

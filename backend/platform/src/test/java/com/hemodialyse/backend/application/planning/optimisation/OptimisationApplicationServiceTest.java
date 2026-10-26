@@ -62,7 +62,8 @@ class OptimisationApplicationServiceTest {
     private final com.hemodialyse.backend.application.notification.NotificationService notifications =
             mock(com.hemodialyse.backend.application.notification.NotificationService.class);
     private final OptimisationApplicationService service = new OptimisationApplicationService(runs, donnees, placements,
-            affectations, remplacements, temporaires, notifications, horloge(T0.plusSeconds(60)));
+            affectations, remplacements, temporaires, notifications,
+            mock(com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.class), horloge(T0.plusSeconds(60)));
 
     private SalleRef a;
     private CreneauRef matin;

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.infirmier;
 
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.RoulementEtAbsencesDesInfirmiers;
 import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.DonneesPresence;
@@ -8,19 +9,22 @@ import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
 import com.hemodialyse.backend.domain.infirmier.port.PresenceDonneesPort;
+import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.port.PlanningDonneesPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * Données du planning de présence d'un centre sur une période : placement des patients (via le port du planning),
- * infirmiers actifs, roulement, absences chevauchant la période et remplacements de la période.
+ * Données du planning de présence d'un centre sur une période : placement des patients (via le port du planning), infirmiers
+ * actifs, puis roulement, absences chevauchant la période et remplacements de la période, lus par le langage publié du contexte
+ * Planification (slice P3) et traduits en modèle de présence.
  */
 @Component
 public class PresenceDonneesJdbcAdapter implements PresenceDonneesPort {
@@ -28,12 +32,14 @@ public class PresenceDonneesJdbcAdapter implements PresenceDonneesPort {
     private final JdbcTemplate jdbc;
     private final PlanningDonneesPort planning;
     private final PlanningParametresPort parametres;
+    private final RoulementEtAbsencesDesInfirmiers roulement;
 
-    public PresenceDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningDonneesPort planning,
-                                      PlanningParametresPort parametres) {
+    public PresenceDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningDonneesPort planning, PlanningParametresPort parametres,
+                                      RoulementEtAbsencesDesInfirmiers roulement) {
         this.jdbc = jdbc;
         this.planning = planning;
         this.parametres = parametres;
+        this.roulement = roulement;
     }
 
     @Override
@@ -49,34 +55,26 @@ public class PresenceDonneesJdbcAdapter implements PresenceDonneesPort {
                             rs.getBoolean("habilite_isolement"));
                 }, centerId);
 
-        List<AffectationInfirmier> affectations = jdbc.query(
-                "SELECT a.id, a.center_id, a.infirmier_id, a.salle_id, a.creneau_id, a.jours "
-                        + "FROM infirmier_affectation a JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id "
-                        + "WHERE a.center_id = ? AND i.actif = TRUE",
-                (rs, i) -> new AffectationInfirmier(rs.getObject("id", UUID.class), rs.getObject("center_id", UUID.class),
-                        rs.getObject("infirmier_id", UUID.class), rs.getObject("salle_id", UUID.class),
-                        rs.getObject("creneau_id", UUID.class), AffectationInfirmierJdbcAdapter.decoder(rs.getString("jours"))),
-                centerId);
+        List<AffectationInfirmier> affectations = roulement.affectationsDesInfirmiersActifs(centerId).stream()
+                .map(a -> new AffectationInfirmier(a.id(), centerId, a.infirmier(), a.salle(), a.creneau(), jours(a.jours())))
+                .toList();
 
-        List<AbsenceInfirmier> absences = jdbc.query(
-                "SELECT id, center_id, infirmier_id, date_debut, date_fin, type, motif FROM infirmier_absence "
-                        + "WHERE center_id = ? AND date_debut <= ? AND date_fin >= ?",
-                (rs, i) -> new AbsenceInfirmier(rs.getObject("id", UUID.class), rs.getObject("center_id", UUID.class),
-                        rs.getObject("infirmier_id", UUID.class), rs.getDate("date_debut").toLocalDate(),
-                        rs.getDate("date_fin").toLocalDate(), TypeAbsence.valueOf(rs.getString("type")),
-                        rs.getString("motif")),
-                centerId, Date.valueOf(au), Date.valueOf(du));
+        List<AbsenceInfirmier> absences = roulement.absencesSurLaPeriode(centerId, du, au).stream()
+                .map(a -> new AbsenceInfirmier(a.id(), centerId, a.infirmier(), a.debut(), a.fin(), TypeAbsence.valueOf(a.type()),
+                        a.motif()))
+                .toList();
 
-        List<RemplacementInfirmier> remplacements = jdbc.query(
-                "SELECT id, center_id, date_jour, salle_id, creneau_id, infirmier_id, remplace_infirmier_id "
-                        + "FROM infirmier_remplacement WHERE center_id = ? AND date_jour BETWEEN ? AND ?",
-                (rs, i) -> new RemplacementInfirmier(rs.getObject("id", UUID.class),
-                        rs.getObject("center_id", UUID.class), rs.getDate("date_jour").toLocalDate(),
-                        rs.getObject("salle_id", UUID.class), rs.getObject("creneau_id", UUID.class),
-                        rs.getObject("infirmier_id", UUID.class), rs.getObject("remplace_infirmier_id", UUID.class)),
-                centerId, Date.valueOf(du), Date.valueOf(au));
+        List<RemplacementInfirmier> remplacements = roulement.remplacementsSurLaPeriode(centerId, du, au).stream()
+                .map(r -> new RemplacementInfirmier(r.id(), centerId, r.date(), r.salle(), r.creneau(), r.infirmier(), r.remplace()))
+                .toList();
 
         return new DonneesPresence(planning.chargerPeriode(centerId, du, au),
                 parametres.lire(centerId).patientsParInfirmier(), infirmiers, affectations, absences, remplacements);
+    }
+
+    private static Set<JourSemaine> jours(Set<java.time.DayOfWeek> civils) {
+        Set<JourSemaine> jours = EnumSet.noneOf(JourSemaine.class);
+        civils.forEach(j -> jours.add(JourSemaine.de(j)));
+        return jours;
     }
 }

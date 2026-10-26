@@ -1,0 +1,16 @@
+{
+  "JSON illisible": "500 INTERNAL_ERROR",
+  "champ inconnu ignoré": "201",
+  "corps vide": "500 INTERNAL_ERROR",
+  "corps vide {}": "400 VALIDATION_ERROR",
+  "creneauId absent": "400 VALIDATION_ERROR",
+  "identifiant de l'infirmier illisible": "500 INTERNAL_ERROR",
+  "jour en minuscules": "500 INTERNAL_ERROR",
+  "jour inconnu": "500 INTERNAL_ERROR",
+  "jours absent": "400 VALIDATION_ERROR",
+  "jours contient null": "500 INTERNAL_ERROR",
+  "jours null": "400 VALIDATION_ERROR",
+  "jours vide": "400 VALIDATION_ERROR",
+  "salleId absent": "400 VALIDATION_ERROR",
+  "salleId illisible": "500 INTERNAL_ERROR"
+}

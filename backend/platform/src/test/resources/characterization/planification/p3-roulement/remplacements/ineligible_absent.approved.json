@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "REMPLACEMENT_INELIGIBLE",
+    "detail": "Cet infirmier ne peut pas être affecté à cette case (absent, déjà prévu ou non habilité)",
+    "instance": "/api/v1/infirmiers/presence/remplacements",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

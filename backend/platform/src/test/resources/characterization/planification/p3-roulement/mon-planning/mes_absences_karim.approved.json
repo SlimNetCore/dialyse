@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "cacheControl": "no-store",
+  "body": {
+    "items": [
+      {
+        "debut": "<S1.MER>",
+        "fin": "<S1.MER>",
+        "id": "<ABS_3>",
+        "infirmierId": "<INF_BENALI>",
+        "motif": "Pas la sienne",
+        "type": "MALADIE"
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "POST absences JSON illisible [COMPTABLE]": "500 INTERNAL_ERROR",
+  "POST absences corps valide [MEDECIN + INFIRMIER]": "403 ACCESS_DENIED",
+  "POST absences corps vide [MEDECIN + INFIRMIER]": "400 VALIDATION_ERROR",
+  "POST affectations corps vide [SECRETAIRE]": "400 VALIDATION_ERROR",
+  "POST moi/absences corps vide [COMPTABLE]": "400 VALIDATION_ERROR",
+  "POST moi/absences type inconnu [COMPTABLE]": "403 ACCESS_DENIED",
+  "POST remplacements corps valide [MEDECIN + INFIRMIER]": "403 ACCESS_DENIED",
+  "POST remplacements corps vide [MEDECIN + INFIRMIER]": "400 VALIDATION_ERROR"
+}

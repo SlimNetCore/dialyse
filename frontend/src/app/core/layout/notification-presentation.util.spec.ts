@@ -19,7 +19,7 @@ const TYPES = [
   'PATIENT_CREATED', 'PATIENT_UPDATED', 'PEC_VALIDATED', 'PEC_CLOSED', 'PEC_DELETED', 'ATTESTATION_CREATED',
   'ATTESTATION_DELETED', 'SEANCE_CREATED', 'SEANCE_VALIDATED', 'SEANCE_MEDICAL_SAVED', 'SEANCE_PARAMEDICAL_SAVED',
   'SEANCE_CONSOMMABLE_CHANGED', 'SEANCE_DEVERROUILLEE', 'SEANCE_SUPPRIMEE', 'SAISIE_INFIRMIER',
-  'OBSERVANCE_NON_RESPECTEE', 'INFIRMIER_ABSENCE_DECLAREE', 'INFIRMIER_ABSENCE_ENREGISTREE',
+  'OBSERVANCE_NON_RESPECTEE', 'INFIRMIER_ABSENCE_DECLAREE', 'INFIRMIER_ABSENCE_ENREGISTREE', 'INFIRMIER_ABSENCE_RETIREE',
   'INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF', 'OPTIMISATION_PROPOSITION', 'GENERATEUR_INDISPONIBLE',
   'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
   'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
@@ -84,6 +84,27 @@ describe('présentation des notifications', () => {
       .toEqual({perimetre: 'COUVERTURE', debut: '2026-09-29', semaines: '2'});
     expect(vue(event('INFIRMIER_SOUS_EFFECTIF', {nbCreneaux: '2', premiereDate: '2026-10-05'}), 'ADMIN').action)
       .toMatchObject({label: 'NOTIFICATION.ACTION.COUVERTURE', queryParams: {perimetre: 'COUVERTURE'}});
+  });
+
+  it('informe du retrait d\'une absence sans rien exiger et mène au planning de la semaine concernée', () => {
+    const retrait = event('INFIRMIER_ABSENCE_RETIREE', {
+      infirmier: 'Amrani Sara',
+      debut: '2026-10-19',
+      fin: '2026-11-02'
+    });
+
+    const v = vue(retrait, 'ADMIN');
+
+    expect(v.titre).toBe('NOTIFICATION.TITRE.INFIRMIER_ABSENCE_RETIREE');
+    expect(v.message).toContain('"infirmier":"Amrani Sara","debut":"19/10/2026","fin":"02/11/2026"');
+    expect(v.actionRequise).toBe(false);
+    expect(v.ton).toBe('info');
+    expect(v.action).toEqual({
+      label: 'NOTIFICATION.ACTION.PLANNING',
+      commands: ['/seances/planning'],
+      queryParams: {date: '2026-10-19'}
+    });
+    expect(vue(retrait, 'MEDECIN').action.commands).toEqual(['/medecin']);
   });
 
   it('mène le médecin au planning de la semaine de l\'absence, faute de pouvoir lancer l\'optimisation', () => {

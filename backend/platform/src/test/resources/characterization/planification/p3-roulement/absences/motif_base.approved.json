@@ -1,0 +1,26 @@
+[
+  {
+    "date_debut": "<S1.LUN>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": "<7>Mariage",
+    "type": "CONGE"
+  },
+  {
+    "date_debut": "<S1.MAR>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": "<NUL>",
+    "type": "CONGE"
+  },
+  {
+    "date_debut": "<S1.MER>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": "<255>xxxxxxxxxx",
+    "type": "CONGE"
+  },
+  {
+    "date_debut": "<S1.LUN>",
+    "infirmier_id": "<INF_BENALI>",
+    "motif": "<NUL>",
+    "type": "CONGE"
+  }
+]

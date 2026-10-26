@@ -80,6 +80,15 @@ public final class Infirmier {
         return avecActif(true);
     }
 
+    /**
+     * Roulement et absences ne s'écrivent que pour un infirmier actif (décision du 26/10/2026, KB-PLN-35).
+     */
+    public void exigerActifPourLePlanning() {
+        if (!actif) {
+            throw new RegleDePlanificationViolee("INFIRMIER_INACTIF", "Cet infirmier est désactivé");
+        }
+    }
+
     /** La fiche doit être sans compte pour en recevoir un. */
     public void exigerSansCompte() {
         if (compte != null) {

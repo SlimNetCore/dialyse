@@ -1,0 +1,38 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J-3>",
+    "date_fin": "<J>",
+    "id": "<UUID_GENERE_1>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "AUTRE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J-2>",
+    "date_fin": "<J+2>",
+    "id": "<UUID_GENERE_2>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "FORMATION"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J>",
+    "date_fin": "<J>",
+    "id": "<UUID_GENERE_3>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "MALADIE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J+3>",
+    "date_fin": "<J+5>",
+    "id": "<UUID_GENERE_4>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  }
+]

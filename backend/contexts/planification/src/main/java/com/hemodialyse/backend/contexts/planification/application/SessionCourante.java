@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 
 import java.util.UUID;
 
@@ -15,4 +16,14 @@ public interface SessionCourante {
      * n'est pas le sien ; {@code null} signifie « celui de ma session ».
      */
     CentreId centre(UUID centreDemande);
+
+    /**
+     * Le compte de l'utilisateur authentifié (« Mon planning », auteur des absences).
+     */
+    CompteId utilisateur();
+
+    /**
+     * L'utilisateur authentifié a-t-il le rôle d'administrateur ? (le secrétariat prévient aussi l'administrateur)
+     */
+    boolean administrateur();
 }

@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.planification.interfaces.publie;
 
 import com.hemodialyse.backend.contexts.planification.application.DelierAvantLaSuppressionDuCompte;
 import com.hemodialyse.backend.contexts.planification.application.SuivreLEtatDuCompte;
+import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesFichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesIdentifiantsDeConnexion;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
@@ -21,9 +22,12 @@ public class FichesDesInfirmiersPourLeLegacy implements FichesDesInfirmiers {
     private final SuivreLEtatDuCompte suivre;
     private final DelierAvantLaSuppressionDuCompte delier;
     private final VerrouillerLesIdentifiantsDeConnexion verrouillerLesIdentifiants;
+    private final VerrouillerLesFichesDesInfirmiers verrouillerLesFiches;
 
     public FichesDesInfirmiersPourLeLegacy(SuivreLEtatDuCompte suivre, DelierAvantLaSuppressionDuCompte delier,
-                                           VerrouillerLesIdentifiantsDeConnexion verrouillerLesIdentifiants) {
+                                           VerrouillerLesIdentifiantsDeConnexion verrouillerLesIdentifiants,
+                                           VerrouillerLesFichesDesInfirmiers verrouillerLesFiches) {
+        this.verrouillerLesFiches = verrouillerLesFiches;
         this.suivre = suivre;
         this.delier = delier;
         this.verrouillerLesIdentifiants = verrouillerLesIdentifiants;
@@ -56,6 +60,16 @@ public class FichesDesInfirmiersPourLeLegacy implements FichesDesInfirmiers {
     public void verrouillerLesIdentifiantsDeConnexion() {
         try {
             verrouillerLesIdentifiants.executer();
+        } catch (EcritureConcurrente concurrente) {
+            throw new EcritureConcurrenteDesFiches(concurrente.getMessage());
+        }
+    }
+
+    @Override
+    public void verrouillerLesFiches(UUID centre, java.util.Collection<UUID> infirmiers) {
+        try {
+            verrouillerLesFiches.executer(new CentreId(centre), infirmiers.stream()
+                    .map(com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId::new).toList());
         } catch (EcritureConcurrente concurrente) {
             throw new EcritureConcurrenteDesFiches(concurrente.getMessage());
         }

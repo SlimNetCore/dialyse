@@ -44,7 +44,14 @@ final class SchemaDuParametrageH2 {
 
     /** Tables de la slice P2 : le centre, les comptes (Identité et accès) et le roulement (P3), colonnes utiles seulement. */
     static void creerLesInfirmiers(JdbcTemplate jdbc) {
-        jdbc.execute("CREATE TABLE IF NOT EXISTS centers (id UUID PRIMARY KEY, code VARCHAR(50), name VARCHAR(255))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS centers (id UUID PRIMARY KEY, code VARCHAR(50), name VARCHAR(255), "
+                + "fuseau_horaire VARCHAR(50))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier_absence (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
+                + "infirmier_id UUID NOT NULL, date_debut DATE NOT NULL, date_fin DATE NOT NULL, type VARCHAR(20) NOT NULL, "
+                + "motif VARCHAR(255), declaree_par UUID)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier_remplacement (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
+                + "date_jour DATE NOT NULL, salle_id UUID NOT NULL, creneau_id UUID NOT NULL, infirmier_id UUID NOT NULL, "
+                + "remplace_infirmier_id UUID, UNIQUE (center_id, date_jour, creneau_id, infirmier_id))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS app_role (id UUID PRIMARY KEY, code VARCHAR(50) NOT NULL UNIQUE, "
                 + "name VARCHAR(100) NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS app_user (id UUID PRIMARY KEY, username VARCHAR(80) NOT NULL UNIQUE, "
@@ -68,6 +75,8 @@ final class SchemaDuParametrageH2 {
                 jdbc.update("DELETE FROM app_user WHERE id = ?", compte);
             }
             jdbc.update("DELETE FROM infirmier_affectation WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM infirmier_absence WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM infirmier_remplacement WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM infirmier WHERE center_id = ?", centre);
         }
         for (Object centre : centres) {

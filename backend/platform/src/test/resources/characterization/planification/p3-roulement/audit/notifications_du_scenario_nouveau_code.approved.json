@@ -1,0 +1,12 @@
+[
+  {
+    "payload": "{\"debut\":\"<S1.LUN>\",\"infirmier\":\"Karim Benali\",\"fin\":\"<S1.LUN>\",\"targetRoles\":\"MEDECIN\"}",
+    "target_roles": ",MEDECIN,",
+    "type": "INFIRMIER_ABSENCE_ENREGISTREE"
+  },
+  {
+    "payload": "{\"debut\":\"<S1.LUN>\",\"infirmier\":\"Karim Benali\",\"fin\":\"<S1.LUN>\",\"targetRoles\":\"MEDECIN\"}",
+    "target_roles": ",MEDECIN,",
+    "type": "INFIRMIER_ABSENCE_RETIREE"
+  }
+]

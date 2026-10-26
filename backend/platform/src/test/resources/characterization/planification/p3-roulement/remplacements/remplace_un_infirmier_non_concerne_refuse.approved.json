@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "REMPLACEMENT_REMPLACE_NON_CONCERNE",
+    "detail": "L'infirmier remplacé n'est ni absent ce jour-là ni prévu sur cette case",
+    "instance": "/api/v1/infirmiers/presence/remplacements",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

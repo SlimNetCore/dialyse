@@ -64,10 +64,15 @@ const initialState: PresenceState = {
   successMessage: null,
 };
 
+/** Codes d'erreur métier des remplacements (clés `INFIRMIER.ERR.<code>`). */
+const KNOWN_ERRORS = [
+  'REMPLACEMENT_INELIGIBLE', 'REMPLACEMENT_INTROUVABLE', 'REMPLACEMENT_DATE_PASSEE', 'REMPLACEMENT_JOUR_FERME',
+  'REMPLACEMENT_REMPLACE_NON_CONCERNE', 'INFIRMIER_INTROUVABLE', 'PLANIFICATION_ECRITURE_CONCURRENTE',
+];
+
 export function presenceErrorKey(err: unknown): string {
   const code = err instanceof HttpErrorResponse ? err.error?.code : undefined;
-  return code === 'REMPLACEMENT_INELIGIBLE' || code === 'REMPLACEMENT_INTROUVABLE'
-    ? `INFIRMIER.ERR.${code}` : 'INFIRMIER.ERR.SAVE';
+  return KNOWN_ERRORS.includes(code) ? `INFIRMIER.ERR.${code}` : 'INFIRMIER.ERR.SAVE';
 }
 
 /**

@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "cacheControl": "no-store",
+  "body": [
+    {
+      "habiliteIsolement": false,
+      "infirmierId": "<INF_BENALI>",
+      "nom": "Karim Benali",
+      "qualification": "INFIRMIER",
+      "raisons": [
+        "CHARGE_FAIBLE",
+        "JOUR_LIBRE"
+      ],
+      "score": 70,
+      "seancesSemaine": 0
+    }
+  ]
+}

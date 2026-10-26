@@ -33,14 +33,25 @@ public final class AuditActionResolver {
      * Libellés métier des écritures du référentiel des infirmiers (slice P2, décision du 26/10/2026 : KB-PLN-17), par
      * « MÉTHODE gabarit de route ». L'identifiant tracé est celui de la fiche (variable de chemin, ou fiche créée).
      */
-    private static final Map<String, Resolved> ACTIONS_METIER = Map.of(
-            "POST /api/v1/infirmiers", new Resolved("INFIRMIER_ENREGISTRE", "infirmiers", "Infirmier enregistré"),
-            "PUT /api/v1/infirmiers/{id}", new Resolved("INFIRMIER_MODIFIE", "infirmiers", "Infirmier modifié"),
-            "POST /api/v1/infirmiers/{id}/desactiver", new Resolved("INFIRMIER_DESACTIVE", "infirmiers", "Infirmier désactivé"),
-            "POST /api/v1/infirmiers/{id}/reactiver", new Resolved("INFIRMIER_REACTIVE", "infirmiers", "Infirmier réactivé"),
-            "POST /api/v1/infirmiers/{id}/compte/lier", new Resolved("INFIRMIER_COMPTE_LIE", "infirmiers", "Compte lié à un infirmier"),
-            "POST /api/v1/infirmiers/{id}/compte/creer", new Resolved("INFIRMIER_COMPTE_CREE", "infirmiers", "Compte créé pour un infirmier"),
-            "DELETE /api/v1/infirmiers/{id}/compte", new Resolved("INFIRMIER_COMPTE_DELIE", "infirmiers", "Compte délié d'un infirmier"));
+    private static final Map<String, Resolved> ACTIONS_METIER = Map.ofEntries(
+            Map.entry("POST /api/v1/infirmiers", new Resolved("INFIRMIER_ENREGISTRE", "infirmiers", "Infirmier enregistré")),
+            Map.entry("PUT /api/v1/infirmiers/{id}", new Resolved("INFIRMIER_MODIFIE", "infirmiers", "Infirmier modifié")),
+            Map.entry("POST /api/v1/infirmiers/{id}/desactiver", new Resolved("INFIRMIER_DESACTIVE", "infirmiers", "Infirmier désactivé")),
+            Map.entry("POST /api/v1/infirmiers/{id}/reactiver", new Resolved("INFIRMIER_REACTIVE", "infirmiers", "Infirmier réactivé")),
+            Map.entry("POST /api/v1/infirmiers/{id}/compte/lier", new Resolved("INFIRMIER_COMPTE_LIE", "infirmiers", "Compte lié à un infirmier")),
+            Map.entry("POST /api/v1/infirmiers/{id}/compte/creer", new Resolved("INFIRMIER_COMPTE_CREE", "infirmiers", "Compte créé pour un infirmier")),
+            Map.entry("DELETE /api/v1/infirmiers/{id}/compte", new Resolved("INFIRMIER_COMPTE_DELIE", "infirmiers", "Compte délié d'un infirmier")),
+            // Slice P3 (décision du 26/10/2026, KB-PLN-33) : roulement, absences, « Mon planning », remplacements ; l'identifiant tracé
+            // est celui de l'affectation, de l'absence ou du remplacement (créé ou visé).
+            Map.entry("POST /api/v1/infirmiers/{id}/affectations", new Resolved("AFFECTATION_AJOUTEE", "infirmiers", "Affectation ajoutée au roulement")),
+            Map.entry("PUT /api/v1/infirmiers/{id}/affectations/{affectationId}", new Resolved("AFFECTATION_MODIFIEE", "infirmiers", "Affectation modifiée")),
+            Map.entry("DELETE /api/v1/infirmiers/{id}/affectations/{affectationId}", new Resolved("AFFECTATION_RETIREE", "infirmiers", "Affectation retirée du roulement")),
+            Map.entry("POST /api/v1/infirmiers/absences", new Resolved("ABSENCE_DECLAREE", "infirmiers", "Absence d'infirmier déclarée")),
+            Map.entry("DELETE /api/v1/infirmiers/absences/{id}", new Resolved("ABSENCE_RETIREE", "infirmiers", "Absence d'infirmier retirée")),
+            Map.entry("POST /api/v1/infirmiers/moi/absences", new Resolved("ABSENCE_DECLAREE_PAR_L_INFIRMIER", "infirmiers", "Absence déclarée par l'infirmier")),
+            Map.entry("DELETE /api/v1/infirmiers/moi/absences/{id}", new Resolved("ABSENCE_RETIREE_PAR_L_INFIRMIER", "infirmiers", "Absence retirée par l'infirmier")),
+            Map.entry("POST /api/v1/infirmiers/presence/remplacements", new Resolved("REMPLACANT_AFFECTE", "infirmiers", "Remplaçant affecté")),
+            Map.entry("DELETE /api/v1/infirmiers/presence/remplacements/{id}", new Resolved("REMPLACEMENT_ANNULE", "infirmiers", "Remplacement annulé")));
 
     private AuditActionResolver() {
     }

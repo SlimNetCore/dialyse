@@ -2,15 +2,20 @@
 
 > Préfixe `RG-INF`. Le système **calcule l'effectif requis** à partir du ratio de sécurité, **détecte à l'avance** les
 > créneaux en sous-effectif, **propose et classe des
-> remplaçants** et **équilibre la charge**. Sources : `Infirmier`, `AffectationInfirmier`, `AbsenceInfirmier`,
-> `RemplacementInfirmier`, `Presence`, `PresenceInfirmierService`,
-> `RemplacantService`, `ChargeInfirmierService`, `AffectationInfirmierService`,
-> `AbsenceInfirmierService`, `RemplacementInfirmierService`,
-> `MonPlanningInfirmierService`, `PresenceInfirmierScheduler`, contrôleurs
-> `InfirmierRestController` (roulement), `PresenceInfirmier*`, `MonPlanningInfirmier*`. Le référentiel des fiches et
+> remplaçants** et **équilibre la charge**. Sources : `Presence`, `PresenceInfirmierService`,
+> `RemplacantService`, `ChargeInfirmierService`, `PresenceInfirmierScheduler`, contrôleur
+> `PresenceInfirmierRestController`
+> (présence, alertes, charge, impression). Le référentiel des fiches et
 > des comptes (10.1 et 10.2) est servi par le contexte `planification` (slice P2) : agrégat `Infirmier`, cas d'usage
 > `EnregistrerUnInfirmier`, `ModifierUnInfirmier`, `DesactiverUnInfirmier`, `ReactiverUnInfirmier`, `LierUnCompte`,
-> `CreerUnCompte`, `DelierLeCompte`, contrôleur `InfirmiersControleur`.
+> `CreerUnCompte`, `DelierLeCompte`, contrôleur `InfirmiersControleur`. Le **roulement, les absences, « Mon planning »
+et les
+> remplacements** (10.3, 10.4 et 10.6) sont servis par le même contexte (slice P3) : agrégats `RoulementDeLInfirmier`,
+> `AbsenceInfirmier`, `Remplacement`, cas d'usage `AffecterAuRoulement`, `ModifierLAffectation`, `RetirerLAffectation`,
+> `DeclarerUneAbsenceDInfirmier`, `RetirerUneAbsence`, `ConsulterMonPlanning`, `DeclarerMonAbsence`,
+> `RetirerMonAbsence`,
+> `AffecterUnRemplacant`, `AnnulerLeRemplacement`, contrôleurs `RoulementControleur`, `AbsencesDesInfirmiersControleur`,
+> `MonPlanningControleur`, `RemplacementsControleur`.
 
 ## 10.1 Référentiel du personnel soignant
 
@@ -63,35 +68,91 @@
 
 ## 10.3 Roulement (affectations)
 
-- **RG-INF-020** — Une affectation place un infirmier dans une **salle**, sur un **créneau**, certains **jours de la
-  semaine** (au moins un) ; un infirmier peut avoir plusieurs affectations.
+- **RG-INF-020** — Une affectation place un infirmier **actif** dans une **salle**, sur un **créneau**, certains **jours
+  de la
+  semaine** (au moins un) ; un infirmier peut avoir plusieurs affectations. Affecter ou modifier le roulement d'un
+  infirmier **désactivé** est refusé (`INFIRMIER_INACTIF`) ; retirer une de ses affectations reste possible. Écriture
+  réservée à `ADMIN`.
+  Ordre des contrôles : infirmier (`INFIRMIER_INTROUVABLE`), état, salle, créneau, chevauchement ; à la modification,
+  l'affectation (`AFFECTATION_INTROUVABLE`) d'abord. Les entrées illisibles (corps, jour inconnu ou en minuscules,
+  identifiant)
+  sont refusées en 400 `BAD_REQUEST` après la vérification des droits (403 avant le corps).
 - **RG-INF-021** — La salle et le créneau doivent appartenir au centre (`AFFECTATION_SALLE_INCONNUE`,
-  `AFFECTATION_CRENEAU_INCONNU`) ; affectation inconnue : `AFFECTATION_INTROUVABLE`.
-- **RG-INF-022** — **Jamais deux affectations d'un même infirmier sur le même créneau un même jour**
-  (`AFFECTATION_CHEVAUCHEMENT`).
+  `AFFECTATION_CRENEAU_INCONNU`) ; affectation inconnue ou d'un autre infirmier : `AFFECTATION_INTROUVABLE`.
+- **RG-INF-022** — **Jamais deux affectations d'un même infirmier sur le même créneau un même jour**, même dans deux
+  salles (`AFFECTATION_CHEVAUCHEMENT`). Le contrôle se fait **sous le verrou de la fiche de l'infirmier** : deux
+  écritures simultanées
+  du même infirmier sont départagées, la seconde est refusée (`AFFECTATION_CHEVAUCHEMENT`, ou 409
+  `PLANIFICATION_ECRITURE_CONCURRENTE` si le verrou n'est pas obtenu en 5 s). Des chevauchements hérités d'avant ce
+  verrou restent
+  lisibles et supprimables ; on ne peut modifier l'une des affectations tant qu'elle chevauche l'autre.
+- **RG-INF-023** — **Avertissement de sur-effectif** : la réponse d'une affectation ajoutée ou modifiée liste les jours
+  de la **semaine courante du centre** où la case dépasse l'effectif requis (`joursEnSureffectif`, RG-INF-047) ; il
+  n'est jamais
+  bloquant et son calcul en échec est ignoré. « Aujourd'hui » est le jour du **fuseau du centre** (Africa/Algiers par
+  défaut).
+- **RG-INF-024** — Chaque écriture du roulement est tracée au journal d'audit sous un libellé métier
+  (`AFFECTATION_AJOUTEE`,
+  `AFFECTATION_MODIFIEE`, `AFFECTATION_RETIREE`) avec l'identifiant de l'affectation.
 
 ## 10.4 Absences des infirmiers
 
-- **RG-INF-030** — Types : congé, maladie, formation, autre. Une absence couvre une période (bornes incluses) qui se
-  superpose au roulement ; la fin ne précède pas le début ; **durée maximale 366
-  jours** ; type obligatoire.
+- **RG-INF-030** — Types : congé, maladie, formation, autre (en majuscules). Une absence couvre une période (bornes
+  incluses)
+  qui se superpose au roulement ; la fin ne précède pas le début ; **durée maximale 366 jours** ; type obligatoire ;
+  **motif de
+  255 caractères au plus** (blanc = sans motif, espaces de bord retirés). Une période, un type ou un motif inutilisable
+  est
+  refusé en 400 `BAD_REQUEST`. **Deux absences du même infirmier ne partagent jamais un jour** (doublon, chevauchement
+  partiel,
+  absence incluse : `ABSENCE_CHEVAUCHEMENT`, y compris par « Mon planning » ; des absences contiguës sont acceptées) ;
+  le contrôle
+  se fait sous le verrou de la fiche. Écrire une absence pour un infirmier désactivé est refusé (`INFIRMIER_INACTIF`).
 - **RG-INF-031** — Déclaration par l'administration ou le secrétariat (`ADMIN`, `SECRETAIRE`) pour un infirmier du
-  centre ; suppression de même ; la liste est paginée et lisible par
-  `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`. Absence inconnue : `ABSENCE_INTROUVABLE`.
+  centre (`INFIRMIER_INTROUVABLE` sinon) ; suppression de même, **quelle que soit la date de l'absence ni son auteur**.
+  Droits de
+  lecture de la liste (paginée, du début le plus récent au plus ancien, 100 par page au plus, page ou taille négative
+  refusée en
+    400) : `ADMIN`, `SECRETAIRE`, et la **combinaison `MEDECIN` + `INFIRMIER`** ; le médecin seul et l'infirmier seul
+         sont refusés (403 `ROLE_SCOPE`) par le filtre de rôles (règle corrigée le 26/10/2026 : elle disait « lisible
+         par `ADMIN`, `SECRETAIRE`,
+         `MEDECIN`, `INFIRMIER` », ce que le filtre n'a jamais permis aux profils seuls ; le test d'autorisation des 12
+         routes verrouille
+         la matrice). Absence inconnue : `ABSENCE_INTROUVABLE`. Le médecin est toujours prévenu d'une déclaration,
+         l'administrateur
+         aussi quand la saisie ne vient pas de lui ; **le retrait d'une absence est lui aussi notifié et diffusé** (type
+         `INFIRMIER_ABSENCE_RETIREE`, les écrans de planification se rafraîchissent). L'auteur de la saisie est
+         conservé.
 - **RG-INF-032** — **« Mon planning »** : un infirmier connecté déclare lui-même ses absences **à venir ou en cours**
-  (fin non antérieure à aujourd'hui, sinon `ABSENCE_PASSEE`) et l'administration et
-  le secrétariat sont prévenus ; il ne retire que ses absences **non commencées** (début strictement postérieur à
-  aujourd'hui, sinon `ABSENCE_NON_ANNULABLE`). Il ne voit ni ne modifie jamais
-  les données d'un autre ; sans fiche liée à son compte : `INFIRMIER_NON_LIE`. Son planning de la semaine se présente
+  (fin non antérieure à aujourd'hui **au jour du centre**, sinon `ABSENCE_PASSEE`) et l'administration, le secrétariat
+  et le
+  médecin sont prévenus ; il ne retire que ses absences **non commencées** (début strictement postérieur à
+  aujourd'hui au jour du centre, sinon `ABSENCE_NON_ANNULABLE`) **et déclarées par lui** : une absence saisie par
+  l'administration ne peut être retirée que par l'administration (`ABSENCE_NON_ANNULABLE`) ; une absence sans auteur
+  connu (antérieure à la conservation de l'auteur) reste retirable par l'infirmier concerné. Il ne voit ni ne modifie
+  jamais
+  les données d'un autre (l'absence d'un collègue est `ABSENCE_INTROUVABLE`) ; sans fiche liée à son compte :
+  `INFIRMIER_NON_LIE`. **Droits** : « Mon planning » est ouvert à `ADMIN`, `SECRETAIRE`, `INFIRMIER` (seul) et
+  `MEDECIN` + `INFIRMIER` ; le médecin seul
+  est refusé (403 `ROLE_SCOPE`) ; un compte `ADMIN` ou `SECRETAIRE` lié à une fiche l'utilise comme un infirmier (règle
+  corrigée
+  le 26/10/2026 : elle ne précisait pas ces droits). Ordre des contrôles : entrées illisibles (400), fiche liée, état,
+  passé,
+  chevauchement. Son planning de la semaine (semaine courante du **fuseau du centre** par défaut) se présente
   comme le planning des séances : une **grille semaine** (salles et créneaux en lignes, jours du dimanche au samedi en
   colonnes) ou une **vue jour** (une carte par salle et créneau, onglets de jours), **limitées aux salles et créneaux
   où il est affecté**. Chaque case indique sa situation (prévu, remplaçant, absent), le nombre de patients de la salle,
   le nombre de collègues prévus avec lui (sans nom, un autre infirmier n'est jamais identifié), la salle
   d'isolement et le **détail des patients placés** dans cette salle et ce créneau ce jour-là (nom, générateur,
   signalement du risque infectieux, libération prochaine de la place) — uniquement ceux de ses propres cases ; les jours
-  de fermeture du centre (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont grisés.
-  L'écran est responsive : défilement horizontal local de la grille, cartes en une colonne sur mobile. *Source :*
-  `MonPlanningInfirmierService`, `MonPlanningComponent`.
+  de fermeture du centre (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont grisés. Une fiche désactivée
+  reste
+  lisible. L'écran est responsive : défilement horizontal local de la grille, cartes en une colonne sur mobile.
+  *Source :*
+  `ConsulterMonPlanning`, `DeclarerMonAbsence`, `RetirerMonAbsence`, `MonPlanningComponent`.
+- **RG-INF-033** — Chaque écriture d'absence est tracée au journal d'audit sous un libellé métier (`ABSENCE_DECLAREE`,
+  `ABSENCE_RETIREE`, `ABSENCE_DECLAREE_PAR_L_INFIRMIER`, `ABSENCE_RETIREE_PAR_L_INFIRMIER`) avec l'identifiant de
+  l'absence.
 
 ## 10.5 Présence et effectif requis
 
@@ -143,10 +204,19 @@
   autre créneau le même jour) ; +10 habilité isolement pour une salle d'isolement. Les **raisons** sont affichées :
   salle connue, créneau habituel, charge faible (≤ 2 séances),
   jour libre, habilité isolement, double vacation. Départage par nom.
-- **RG-INF-052** — **Affecter un remplaçant** (`ADMIN`, `SECRETAIRE`) : salle et créneau du centre, remplacé éventuel du
-  centre (`INFIRMIER_INTROUVABLE`), et le remplaçant doit figurer parmi les candidats
-  éligibles (`REMPLACEMENT_INELIGIBLE`) ; un infirmier ne peut se remplacer lui-même ; un remplaçant devenu absent n'est
-  plus compté ; l'annulation d'un remplacement est possible (`REMPLACEMENT_INTROUVABLE` sinon).
+- **RG-INF-052** — **Affecter un remplaçant** (`ADMIN`, `SECRETAIRE`). Ordre des contrôles : un infirmier ne peut se
+  remplacer lui-même (400 `BAD_REQUEST`, **en premier**) ; salle et créneau du centre (`AFFECTATION_SALLE_INCONNUE`,
+  `AFFECTATION_CRENEAU_INCONNU`) ; **date non passée** au jour du centre (`REMPLACEMENT_DATE_PASSEE`) et **jour ouvert**
+  (`REMPLACEMENT_JOUR_FERME` : fermeture hebdomadaire, férié, fermeture exceptionnelle) ; remplacé éventuel du centre
+  (`INFIRMIER_INTROUVABLE`) qui doit être **absent ce jour-là ou prévu sur la case**
+  (`REMPLACEMENT_REMPLACE_NON_CONCERNE`) ; remplaçant **éligible** (`REMPLACEMENT_INELIGIBLE` : inconnu, autre centre,
+  désactivé, absent, déjà prévu ou déjà remplaçant sur ce créneau, non habilité en salle d'isolement). L'éligibilité est
+  jugée **sous le verrou de la fiche du remplaçant** : deux affectations simultanées du même remplaçant sur un créneau
+  sont départagées (la seconde est `REMPLACEMENT_INELIGIBLE` ou 409 `PLANIFICATION_ECRITURE_CONCURRENTE`, jamais une
+  erreur 500) ; un remplaçant
+  devenu absent n'est plus compté ; l'annulation d'un remplacement est possible (`REMPLACEMENT_INTROUVABLE` sinon).
+  Écritures
+  tracées au journal d'audit (`REMPLACANT_AFFECTE`, `REMPLACEMENT_ANNULE`) avec l'identifiant du remplacement.
 
 ## 10.7 Charge de travail
 

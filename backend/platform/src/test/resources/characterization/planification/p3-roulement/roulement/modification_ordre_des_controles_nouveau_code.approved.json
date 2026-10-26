@@ -1,0 +1,12 @@
+{
+  "affectation d'un autre centre": "422 AFFECTATION_INTROUVABLE",
+  "affectation d'un autre infirmier": "422 AFFECTATION_INTROUVABLE",
+  "affectation inconnue": "422 AFFECTATION_INTROUVABLE",
+  "chevauchement": "422 AFFECTATION_CHEVAUCHEMENT",
+  "créneau inconnu + chevauchement": "422 AFFECTATION_CRENEAU_INCONNU",
+  "identifiant d'affectation illisible": "400 BAD_REQUEST",
+  "infirmier inconnu dans l'URL": "422 AFFECTATION_INTROUVABLE",
+  "jours vide": "400 BAD_REQUEST",
+  "salle d'un autre centre": "422 AFFECTATION_SALLE_INCONNUE",
+  "salle inconnue": "422 AFFECTATION_SALLE_INCONNUE"
+}

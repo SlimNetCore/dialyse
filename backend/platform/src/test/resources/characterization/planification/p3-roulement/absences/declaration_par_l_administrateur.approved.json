@@ -1,0 +1,12 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "debut": "<S1.LUN>",
+    "fin": "<S1.MER>",
+    "id": "<UUID_GENERE_1>",
+    "infirmierId": "<INF_AMRANI>",
+    "motif": "Congé annuel",
+    "type": "CONGE"
+  }
+}

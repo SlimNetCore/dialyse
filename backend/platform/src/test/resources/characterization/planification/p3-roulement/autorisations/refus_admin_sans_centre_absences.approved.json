@@ -1,0 +1,11 @@
+{
+  "status": 403,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ACCESS_DENIED",
+    "detail": "Session sans centre de rattachement",
+    "instance": "/api/v1/infirmiers/absences",
+    "status": 403,
+    "title": "Acces refuse"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "AFFECTATION_CHEVAUCHEMENT",
+    "detail": "L'infirmier est déjà affecté à ce créneau l'un de ces jours",
+    "instance": "/api/v1/infirmiers/<INF_AMRANI>/affectations",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

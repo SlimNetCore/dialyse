@@ -16,6 +16,11 @@ public interface InfirmiersRepository {
     /** La fiche du centre, verrouillée pour l'écriture (ADR 0049 : verrou de la ligne {@code infirmier}). */
     Optional<Infirmier> pourEcriture(CentreId centre, InfirmierId id);
 
+    /**
+     * La fiche du centre, lue sans verrou (lecture seule).
+     */
+    Optional<Infirmier> parId(CentreId centre, InfirmierId id);
+
     /** Une page des fiches du centre, actives et inactives, par nom, prénom puis matricule. */
     PageDeResultats<Infirmier> page(CentreId centre, Pagination pagination);
 

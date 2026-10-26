@@ -1,0 +1,17 @@
+{
+  "JSON illisible": "500 INTERNAL_ERROR",
+  "champ inconnu ignoré": "201",
+  "date en texte libre": "500 INTERNAL_ERROR",
+  "date impossible": "500 INTERNAL_ERROR",
+  "début absent": "400 VALIDATION_ERROR",
+  "fin absente": "400 VALIDATION_ERROR",
+  "infirmier d'un autre centre": "422 INFIRMIER_INTROUVABLE",
+  "infirmier désactivé": "201",
+  "infirmier inconnu + période inversée": "422 INFIRMIER_INTROUVABLE",
+  "infirmierId absent": "400 VALIDATION_ERROR",
+  "type absent": "400 VALIDATION_ERROR",
+  "type blanc": "400 VALIDATION_ERROR",
+  "type en minuscules": "400 BAD_REQUEST",
+  "type inconnu": "400 BAD_REQUEST",
+  "type inconnu + infirmier inconnu": "400 BAD_REQUEST"
+}

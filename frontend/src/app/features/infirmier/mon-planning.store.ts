@@ -46,7 +46,10 @@ const initialState: MonPlanningState = {
   successMessage: null,
 };
 
-const KNOWN_ERRORS = ['ABSENCE_PASSEE', 'ABSENCE_NON_ANNULABLE', 'ABSENCE_INTROUVABLE'];
+const KNOWN_ERRORS = [
+  'ABSENCE_PASSEE', 'ABSENCE_NON_ANNULABLE', 'ABSENCE_INTROUVABLE', 'ABSENCE_CHEVAUCHEMENT', 'INFIRMIER_INACTIF',
+  'PLANIFICATION_ECRITURE_CONCURRENTE',
+];
 
 function codeDe(err: unknown): string | undefined {
   return err instanceof HttpErrorResponse ? err.error?.code : undefined;

@@ -1,0 +1,9 @@
+{
+  "chevauchement seul": "422 AFFECTATION_CHEVAUCHEMENT",
+  "créneau d'un autre centre": "422 AFFECTATION_CRENEAU_INCONNU",
+  "créneau inconnu + chevauchement": "422 AFFECTATION_CRENEAU_INCONNU",
+  "infirmier d'un autre centre": "422 INFIRMIER_INTROUVABLE",
+  "infirmier inconnu + salle inconnue": "422 INFIRMIER_INTROUVABLE",
+  "salle d'un autre centre": "422 AFFECTATION_SALLE_INCONNUE",
+  "salle inconnue + créneau inconnu": "422 AFFECTATION_SALLE_INCONNUE"
+}

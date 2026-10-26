@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "La fin de l'absence précède son début",
+    "instance": "/api/v1/infirmiers/absences",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

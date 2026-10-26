@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.planning.optimisation;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.InfirmierRef;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
@@ -58,20 +59,22 @@ public class OptimisationApplicationService {
     private final DeplacementTemporairePort temporaires;
     private final NotificationService notifications;
     private final Clock horloge;
+    private final FichesDesInfirmiers fiches;
 
     @Autowired
     public OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
                                           PlacementPatientPort placements,
                                           AffectationInfirmierRepositoryPort affectations,
                                           RemplacementInfirmierRepositoryPort remplacements,
-                                          DeplacementTemporairePort temporaires, NotificationService notifications) {
-        this(runs, donnees, placements, affectations, remplacements, temporaires, notifications, Clock.systemUTC());
+                                          DeplacementTemporairePort temporaires, NotificationService notifications,
+                                          FichesDesInfirmiers fiches) {
+        this(runs, donnees, placements, affectations, remplacements, temporaires, notifications, fiches, Clock.systemUTC());
     }
 
     OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
                                    PlacementPatientPort placements, AffectationInfirmierRepositoryPort affectations,
                                    RemplacementInfirmierRepositoryPort remplacements,
-                                   DeplacementTemporairePort temporaires, NotificationService notifications,
+                                   DeplacementTemporairePort temporaires, NotificationService notifications, FichesDesInfirmiers fiches,
                                    Clock horloge) {
         this.runs = runs;
         this.donnees = donnees;
@@ -81,6 +84,7 @@ public class OptimisationApplicationService {
         this.temporaires = temporaires;
         this.notifications = notifications;
         this.horloge = horloge;
+        this.fiches = fiches;
     }
 
     /**
@@ -167,6 +171,8 @@ public class OptimisationApplicationService {
             exemples.putIfAbsent(cle, v);
         }
         List<UUID> infirmiers = actuelles.presence().infirmiers().stream().map(InfirmierRef::id).toList();
+        // verrou des fiches (Planification P3, ADR 0057) AVANT de lire le roulement : une écriture concurrente du même infirmier attend
+        fiches.verrouillerLesFiches(centerId, infirmiers);
         List<AffectationInfirmier> existantes = affectations.findByInfirmierIds(centerId, infirmiers);
         Set<String> traitees = new java.util.HashSet<>();
         for (AffectationInfirmier a : existantes) {
@@ -191,6 +197,7 @@ public class OptimisationApplicationService {
      */
     private void appliquerCouverture(UUID centerId, List<VacationPlanifiee> vacations) {
         List<RemplacementInfirmier> nouveaux = new ArrayList<>();
+        fiches.verrouillerLesFiches(centerId, vacations.stream().filter(v -> !v.existante()).map(VacationPlanifiee::infirmierId).distinct().toList());
         for (VacationPlanifiee v : vacations) {
             if (!v.existante()) {
                 nouveaux.add(RemplacementInfirmier.creer(centerId, v.date(), v.salleId(), v.creneauId(), v.infirmierId(),

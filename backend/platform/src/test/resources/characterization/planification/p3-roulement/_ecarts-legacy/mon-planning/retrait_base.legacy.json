@@ -1,0 +1,38 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J-9>",
+    "date_fin": "<J-7>",
+    "id": "<ABS_PASSEE>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J-2>",
+    "date_fin": "<J+2>",
+    "id": "<ABS_EN_COURS>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J>",
+    "date_fin": "<J+3>",
+    "id": "<ABS_AUJOURDHUI>",
+    "infirmier_id": "<INF_AMRANI>",
+    "motif": null,
+    "type": "CONGE"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "date_debut": "<J+10>",
+    "date_fin": "<J+11>",
+    "id": "<ABS_DE_KARIM>",
+    "infirmier_id": "<INF_BENALI>",
+    "motif": null,
+    "type": "CONGE"
+  }
+]

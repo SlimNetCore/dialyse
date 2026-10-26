@@ -32,6 +32,15 @@ public interface FichesDesInfirmiers {
     void verrouillerLesIdentifiantsDeConnexion();
 
     /**
+     * Prend, pour la transaction de l'appelant, le verrou de ces fiches d'infirmiers (par identifiant croissant) avant qu'il écrive
+     * leur roulement ou leurs remplacements : les écritures de la Planification (slice P3) sur les mêmes infirmiers l'attendent. À
+     * appeler AVANT de lire le roulement à modifier (application d'une proposition d'optimisation).
+     *
+     * @throws EcritureConcurrenteDesFiches le verrou n'est pas obtenu dans le délai
+     */
+    void verrouillerLesFiches(UUID centre, java.util.Collection<UUID> infirmiers);
+
+    /**
      * Une autre écriture tient les fiches ou les identifiants (verrou non obtenu dans le délai, ou interblocage) : 409
      * {@code PLANIFICATION_ECRITURE_CONCURRENTE} ; le client relit puis recommence. Rendu en 409 par l'advice du contexte pour toute route.
      */

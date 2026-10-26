@@ -53,7 +53,8 @@
     "stock-s7-inventaire": "built",
     "stock-s8-peremptions-retrait": "verified",
     "planification-p1-parametrage": "built",
-    "planification-p2-infirmiers": "built"
+    "planification-p2-infirmiers": "built",
+    "planification-p3-roulement-absences-remplacements": "built"
   },
   "contexts": {
     "gmao": "architected",

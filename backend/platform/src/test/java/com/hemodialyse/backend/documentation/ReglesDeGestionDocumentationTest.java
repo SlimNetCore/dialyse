@@ -69,7 +69,7 @@ class ReglesDeGestionDocumentationTest {
      * ({@code super("CODE", …)}) et règles construites par code ({@code regle("CODE", …)}, {@code new ReglePiece("CODE", …)}).
      */
     private static final Pattern CONTEXT_RULE_CODE = Pattern.compile(
-            "(?:super|regle|new ReglePiece)\\(\"([A-Z][A-Z0-9]*_[A-Z0-9_]*[A-Z0-9])\"");
+            "(?:super|regle|new ReglePiece|new RegleDePlanificationViolee)\\(\"([A-Z][A-Z0-9]*_[A-Z0-9_]*[A-Z0-9])\"");
 
     private static List<Path> mainSources() throws IOException {
         List<Path> sources = new ArrayList<>();
@@ -92,7 +92,7 @@ class ReglesDeGestionDocumentationTest {
             if (!source.toString().replace('\\', '/').contains("/contexts/")) continue;
             String content = Files.readString(source, StandardCharsets.UTF_8);
             if (!content.contains("RegleMetierViolee") && !content.contains("ReglePiece")
-                    && !content.contains("regle(")) continue;
+                    && !content.contains("regle(") && !content.contains("RegleDePlanificationViolee")) continue;
             Matcher matcher = CONTEXT_RULE_CODE.matcher(content);
             while (matcher.find()) {
                 if (!documentation.contains("`" + matcher.group(1) + "`")) missing.add(matcher.group(1));

@@ -171,6 +171,8 @@ describe('stores infirmiers', () => {
     expect(infirmierErrorKey(erreurServeur('COMPTE_LIE_A_UN_AUTRE_CENTRE'))).toBe('INFIRMIER.ERR.COMPTE_LIE_A_UN_AUTRE_CENTRE');
     expect(infirmierErrorKey(erreurServeur('PLANIFICATION_ECRITURE_CONCURRENTE')))
       .toBe('INFIRMIER.ERR.PLANIFICATION_ECRITURE_CONCURRENTE');
+    expect(infirmierErrorKey(erreurServeur('ABSENCE_CHEVAUCHEMENT'))).toBe('INFIRMIER.ERR.ABSENCE_CHEVAUCHEMENT');
+    expect(infirmierErrorKey(erreurServeur('INFIRMIER_INACTIF'))).toBe('INFIRMIER.ERR.INFIRMIER_INACTIF');
     expect(infirmierErrorKey(new Error('boom'))).toBe('INFIRMIER.ERR.SAVE');
   });
 
@@ -285,6 +287,8 @@ describe('stores infirmiers', () => {
 
     expect(store.error()).toBe('INFIRMIER.ERR.ABSENCE_NON_ANNULABLE');
     expect(monPlanningErrorKey(erreurServeur('ABSENCE_PASSEE'))).toBe('INFIRMIER.ERR.ABSENCE_PASSEE');
+    expect(monPlanningErrorKey(erreurServeur('ABSENCE_CHEVAUCHEMENT'))).toBe('INFIRMIER.ERR.ABSENCE_CHEVAUCHEMENT');
+    expect(monPlanningErrorKey(erreurServeur('INFIRMIER_INACTIF'))).toBe('INFIRMIER.ERR.INFIRMIER_INACTIF');
     expect(monPlanningErrorKey(new Error('boom'))).toBe('INFIRMIER.ERR.SAVE');
   });
 
@@ -352,6 +356,10 @@ describe('stores infirmiers', () => {
     api['affecterRemplacement'].mockReturnValue(throwError(() => erreurServeur('REMPLACEMENT_INELIGIBLE')));
     store.affecter({infirmierId: 'i2', remplaceId: null});
     expect(store.error()).toBe('INFIRMIER.ERR.REMPLACEMENT_INELIGIBLE');
+    for (const code of ['REMPLACEMENT_DATE_PASSEE', 'REMPLACEMENT_JOUR_FERME', 'REMPLACEMENT_REMPLACE_NON_CONCERNE',
+      'PLANIFICATION_ECRITURE_CONCURRENTE']) {
+      expect(presenceErrorKey(erreurServeur(code))).toBe(`INFIRMIER.ERR.${code}`);
+    }
     expect(presenceErrorKey(new Error('boom'))).toBe('INFIRMIER.ERR.SAVE');
   });
 

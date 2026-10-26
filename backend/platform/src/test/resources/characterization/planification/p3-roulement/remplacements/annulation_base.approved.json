@@ -1,0 +1,20 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "creneau_id": "<CRENEAU_MATIN>",
+    "date_jour": "<S1.LUN>",
+    "id": "<UUID_GENERE_1>",
+    "infirmier_id": "<INF_BENALI>",
+    "remplace_infirmier_id": null,
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_B>",
+    "creneau_id": "<CRENEAU_B>",
+    "date_jour": "<S1.LUN>",
+    "id": "<REMPL_AUTRE_CENTRE>",
+    "infirmier_id": "<INF_CENTRE_B>",
+    "remplace_infirmier_id": null,
+    "salle_id": "<SALLE_B>"
+  }
+]

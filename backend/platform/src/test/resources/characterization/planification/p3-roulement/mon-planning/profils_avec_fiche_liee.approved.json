@@ -1,0 +1,20 @@
+{
+  "GET absences [ADMIN]": "200",
+  "GET absences [COMPTABLE]": "403 ACCESS_DENIED",
+  "GET absences [DIRECTION]": "403 ROLE_SCOPE",
+  "GET absences [INFIRMIER seul]": "200",
+  "GET absences [MEDECIN + INFIRMIER]": "200",
+  "GET absences [MEDECIN seul]": "403 ROLE_SCOPE",
+  "GET absences [SECRETAIRE]": "200",
+  "GET absences [SUPERADMIN]": "403 ROLE_SCOPE",
+  "GET absences [aucun rôle]": "403 ACCESS_DENIED",
+  "GET planning [ADMIN]": "200",
+  "GET planning [COMPTABLE]": "403 ACCESS_DENIED",
+  "GET planning [DIRECTION]": "403 ROLE_SCOPE",
+  "GET planning [INFIRMIER seul]": "200",
+  "GET planning [MEDECIN + INFIRMIER]": "200",
+  "GET planning [MEDECIN seul]": "403 ROLE_SCOPE",
+  "GET planning [SECRETAIRE]": "200",
+  "GET planning [SUPERADMIN]": "403 ROLE_SCOPE",
+  "GET planning [aucun rôle]": "403 ACCESS_DENIED"
+}

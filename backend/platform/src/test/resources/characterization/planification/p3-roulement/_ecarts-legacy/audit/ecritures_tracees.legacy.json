@@ -1,0 +1,58 @@
+[
+  {
+    "action_code": "INFIRMIERS_CREATION",
+    "entity_id": null,
+    "entity_type": "infirmiers",
+    "http_method": "POST",
+    "route_template": "/api/v1/infirmiers/absences",
+    "status_code": "201"
+  },
+  {
+    "action_code": "INFIRMIERS_SUPPRESSION",
+    "entity_id": "<UUID_GENERE_1>",
+    "entity_type": "infirmiers",
+    "http_method": "DELETE",
+    "route_template": "/api/v1/infirmiers/absences/{id}",
+    "status_code": "204"
+  },
+  {
+    "action_code": "INFIRMIERS_CREATION",
+    "entity_id": null,
+    "entity_type": "infirmiers",
+    "http_method": "POST",
+    "route_template": "/api/v1/infirmiers/presence/remplacements",
+    "status_code": "201"
+  },
+  {
+    "action_code": "INFIRMIERS_SUPPRESSION",
+    "entity_id": "<UUID_GENERE_2>",
+    "entity_type": "infirmiers",
+    "http_method": "DELETE",
+    "route_template": "/api/v1/infirmiers/presence/remplacements/{id}",
+    "status_code": "204"
+  },
+  {
+    "action_code": "INFIRMIERS_CREATION",
+    "entity_id": "<INF_BENALI>",
+    "entity_type": "infirmiers",
+    "http_method": "POST",
+    "route_template": "/api/v1/infirmiers/{id}/affectations",
+    "status_code": "201"
+  },
+  {
+    "action_code": "INFIRMIERS_SUPPRESSION",
+    "entity_id": "<INF_BENALI>",
+    "entity_type": "infirmiers",
+    "http_method": "DELETE",
+    "route_template": "/api/v1/infirmiers/{id}/affectations/{affectationId}",
+    "status_code": "204"
+  },
+  {
+    "action_code": "INFIRMIERS_MODIFICATION",
+    "entity_id": "<INF_BENALI>",
+    "entity_type": "infirmiers",
+    "http_method": "PUT",
+    "route_template": "/api/v1/infirmiers/{id}/affectations/{affectationId}",
+    "status_code": "200"
+  }
+]
