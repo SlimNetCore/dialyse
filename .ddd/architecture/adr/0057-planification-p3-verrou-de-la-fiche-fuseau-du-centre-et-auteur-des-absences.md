@@ -25,7 +25,12 @@ présence, de la charge et de l'optimisation (P4, P8) restent dans le legacy et 
    l'absence d'un infirmier et chaque affectation de remplaçant lit la fiche par `InfirmiersRepository.pourEcriture`
    (`SELECT … FOR UPDATE`)
    **avant** de juger ; le jugement et l'écriture se font dans la même transaction (`UniteDeTravail`, `lock_timeout` 5
-   s). Un verrou non
+   s). **Seules les écritures qui jugent une règle d'ensemble prennent ce verrou** (ajout/modification d'une affectation,
+   déclaration d'absence, affectation d'un remplaçant). Les trois **suppressions** (`RetirerLAffectation` le prend quand même
+   pour lire un roulement cohérent ; `RetirerUneAbsence`, `RetirerMonAbsence`, `AnnulerLeRemplacement` ne le prennent pas)
+   ne protègent aucun invariant : supprimer une ligne par identifiant est idempotent et ne peut violer ni le non-chevauchement
+   ni l'unicité. Les écritures ne portent que sur la ligne touchée (`ajouter`, `remplacer`, `retirer`) : une ligne écrite par
+   ailleurs n'est jamais réécrite ni supprimée par déduction. Un verrou non
    obtenu, un interblocage ou une contrainte d'unicité violée devient `EcritureConcurrente` = 409
    `PLANIFICATION_ECRITURE_CONCURRENTE`. **Ordre global des verrous inchangé** (ADR 0056 § 2) : centre → fiches
    `infirmier` par identifiant → `app_user` → verrou consultatif.
@@ -62,8 +67,10 @@ présence, de la charge et de l'optimisation (P4, P8) restent dans le legacy et 
    créée par l'administration
    réservé à son auteur »* : l'infirmier concerné ne peut pas retirer ce que l'administration a saisi (il pouvait le
    faire avant) ; l'auteur
-   étant conservé, restreindre aussi l'administration à l'auteur exact reste possible sans nouvelle migration. **À
-   valider.**
+   étant conservé, restreindre aussi l'administration à l'auteur exact reste possible sans nouvelle migration.
+   **Validé par l'utilisateur (confirmation écrite du 2026-10-27)** : l'infirmier ne retire que ses propres déclarations ;
+   l'administration et le secrétariat retirent toute absence ; les absences sans auteur (antérieures à V47) restent
+   retirables par l'infirmier concerné.
 6. **Ports vers le legacy (ACL dans `platform/.../infrastructure/acl/planification/`, temporaires)** :
    `CalendrierDuCentreLegacy` (jour fermé),
    `SurEffectifDuRoulementLegacy` et `SemaineDeLInfirmierLegacy` (lectures de présence et de planning de la semaine,
@@ -91,8 +98,14 @@ présence, de la charge et de l'optimisation (P4, P8) restent dans le legacy et 
 ## Dette connue
 
 - `OptimisationApplicationService` (P8) écrit encore `infirmier_affectation` et `infirmier_remplacement` par les ports
-  legacy (`AffectationInfirmierRepositoryPort`, `RemplacementInfirmierRepositoryPort`) **sans le verrou de la fiche** :
-  P8 devra passer par le contexte.
+  legacy (`AffectationInfirmierRepositoryPort`, `RemplacementInfirmierRepositoryPort`). **Risque traité (revue P3, constat 1)** :
+  (1) les écritures de P3 ne touchent plus que la ligne concernée, donc une ligne écrite par P8 pendant une écriture de P3 n'est
+  plus supprimée ni écrasée ; (2) P8 prend désormais le verrou des fiches concernées avant de lire/écrire (port publié
+  `FichesDesInfirmiers.verrouillerLesFiches`, par identifiant croissant, dans sa transaction `@Transactional`), donc P3 et P8
+  se sérialisent par infirmier ; prouvé par `should_make_the_optimisation_wait…` (H2 et PostgreSQL 16) et
+  `should_not_lose_an_assignment_written_directly…`. **Reste** : P8 écrit toujours par SQL direct (ports legacy) et ne juge pas
+  l'invariant de non-chevauchement du roulement (RG-INF-070 le promettait par le calcul de la proposition, pas par la base) ;
+  retrait avec P8, qui passera par le contexte.
 - L'infirmier concerné d'une absence antérieure à V47 (sans auteur) peut encore retirer une absence saisie par
   l'administration.
 - `SemaineDeLInfirmierLegacy` recalcule toute la semaine de présence et de planning à chaque lecture (comme avant).

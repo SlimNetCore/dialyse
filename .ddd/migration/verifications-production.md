@@ -1299,3 +1299,10 @@ Après la bascule : surveiller dans le journal d'audit les actions `AFFECTATION_
 `/api/v1/infirmiers/**` (notamment 409 `PLANIFICATION_ECRITURE_CONCURRENTE`, 422 `ABSENCE_CHEVAUCHEMENT`,
 `INFIRMIER_INACTIF`, `REMPLACEMENT_JOUR_FERME`) et les
 notifications `INFIRMIER_ABSENCE_RETIREE`.
+
+**Complément (revue P3, 2026-10-27)** — remplacements hérités incohérents (écrits hors API, par l'optimisation ou à la main) : le nouveau code les laisse annulables mais ne sait plus en créer. Informatif :
+
+```sql
+-- 8. Remplacements où le remplaçant est aussi le remplacé (jamais créés par l'API) : attendu 0 ligne
+SELECT id, center_id, date_jour, infirmier_id FROM infirmier_remplacement WHERE infirmier_id = remplace_infirmier_id;
+```

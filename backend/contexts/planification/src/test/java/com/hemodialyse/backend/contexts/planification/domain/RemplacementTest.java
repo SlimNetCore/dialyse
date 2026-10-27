@@ -73,6 +73,17 @@ class RemplacementTest {
     }
 
     @Test
+    void should_not_replay_the_rules_on_an_inherited_row_so_that_it_stays_cancellable() {
+        Remplacement heritee = Remplacement.reconstituer(new RemplacementId(UUID.randomUUID()), new CentreId(UUID.randomUUID()), AUJOURDHUI,
+                new SalleId(UUID.randomUUID()), new CreneauId(UUID.randomUUID()), REMPLACANT, REMPLACANT);
+
+        assertThat(heritee.remplace()).contains(REMPLACANT);
+        assertThatThrownBy(() -> Remplacement.affecter(new RemplacementId(UUID.randomUUID()), new CentreId(UUID.randomUUID()), AUJOURDHUI,
+                new SalleId(UUID.randomUUID()), new CreneauId(UUID.randomUUID()),
+                RemplacantEligible.prouver(situation(true, true, false, false, false)), REMPLACANT)).isInstanceOf(SaisieInvalide.class);
+    }
+
+    @Test
     void should_assign_the_proven_replacement_to_the_case() {
         CentreId centre = new CentreId(UUID.randomUUID());
         SalleId salle = new SalleId(UUID.randomUUID());

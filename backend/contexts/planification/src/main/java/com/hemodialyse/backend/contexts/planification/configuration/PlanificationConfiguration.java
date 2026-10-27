@@ -328,6 +328,11 @@ public class PlanificationConfiguration {
     }
 
     @Bean
+    VerrouillerLesFichesDesInfirmiers planificationVerrouillerLesFichesDesInfirmiers(UniteDeTravail unite, InfirmiersRepository infirmiers) {
+        return new VerrouillerLesFichesDesInfirmiers(unite, infirmiers);
+    }
+
+    @Bean
     FichesDesInfirmiers planificationFichesDesInfirmiers(SuivreLEtatDuCompte suivre, DelierAvantLaSuppressionDuCompte delier,
                                                          VerrouillerLesIdentifiantsDeConnexion identifiants,
                                                          VerrouillerLesFichesDesInfirmiers fiches) {

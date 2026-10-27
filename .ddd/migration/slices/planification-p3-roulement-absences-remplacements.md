@@ -1,7 +1,7 @@
 ---
 slice: planification-p3-roulement-absences-remplacements
 status: built
-date: 2026-10-26
+date: 2026-10-27
 order: 3
 context: planification
 sources: [.ddd/tactical/planification.md (P14 à P16, B4, B5, B6, B9), .ddd/safety-net/planification-p3-roulement-absences-remplacements.md, RG-INF-020 à 024, 030 à 033, 052, ADR 0024, 0049, 0053, 0054, 0056, 0057, known-bugs.md KB-PLN-25 à 41]
@@ -64,12 +64,15 @@ directement et l'ancien est supprimé. **Une migration additive** (V47, colonne 
 
 ## Reste à faire / points ouverts
 
-- **À valider** : interprétation de KB-PLN-39 (l'infirmier ne peut plus retirer ce que l'administration a saisi ;
-  l'administration retire toute absence) ; absences sans auteur (antérieures à V47) restent retirables par l'infirmier ;
-  confirmation écrite de l'extension des libellés d'audit à P3 (`seams.md`) ; numérotation KB-36/38 de la demande.
-- **Dette** : P8 (`OptimisationApplicationService`) écrit encore roulement et remplacements par les ports legacy sans le
-  verrou de la fiche (KB-PLN-40) ; `AffectationInfirmierRepositoryPort`, `RemplacementInfirmierRepositoryPort` et leurs
-  adaptateurs subsistent pour lui.
+- **Validé par l'utilisateur (2026-10-27)** : interprétation de KB-PLN-39 (l'infirmier ne retire que ses propres déclarations ;
+  l'administration et le secrétariat retirent toute absence ; absences sans auteur antérieures à V47 retirables par l'infirmier) ;
+  éditions `AuditActionResolver` et `NotificationService` ratifiées (`seams.md`). Numérotation KB-36/38 de la demande : voir `known-bugs.md`.
+- **Dette réduite (revue P3, constat 1)** : `RoulementsJdbc` n'écrit plus que la ligne touchée et `OptimisationApplicationService` (P8)
+  prend le verrou des fiches (port publié `FichesDesInfirmiers.verrouillerLesFiches`, seam inscrit) : P3 et P8 se sérialisent par
+  infirmier. Reste : P8 écrit toujours par SQL direct (ports legacy `AffectationInfirmierRepositoryPort`,
+  `RemplacementInfirmierRepositoryPort` conservés) sans juger le non-chevauchement (KB-PLN-40) ; retrait avec P8.
+- Les suppressions d'absence et de remplacement ne verrouillent pas la fiche (ADR 0057 § 1, justification : idempotentes, aucun
+  invariant) ; `DeclarerMonAbsence` revérifie le lien compte/fiche sous le verrou.
 - Les 4 ACL de `platform/.../acl/planification/` et la lecture SQL de `infirmier` par `PresenceDonneesJdbcAdapter`
   disparaissent avec P4/P5.
 - L'ACL `legacyinfirmier/InfirmiersDuCentreJdbc` (P1) devrait lire `InfirmiersRepository`.

@@ -62,3 +62,7 @@ date: 2026-10-22
 
 `seamAllowed` reste vide. Le legacy `AffectationInfirmierRepositoryPort`/`RemplacementInfirmierRepositoryPort` et leurs
 adaptateurs restent (écritures de l'optimisation, P8 : KB-PLN-40).
+
+### Ratifications et ajouts de la revue P3 (2026-10-27)
+- **Ratifiées par écrit par l'utilisateur (2026-10-27)** : les éditions de `platform/.../application/audit/AuditActionResolver.java` (9 libellés métier de P3) et de `platform/.../application/notification/NotificationService.java` (`notifyAbsenceInfirmierRetiree`, type durable `INFIRMIER_ABSENCE_RETIREE`).
+- **Édition minimale autorisée par l'utilisateur (constat 1 de la revue P3)** : `platform/.../application/planning/optimisation/OptimisationApplicationService.java` reçoit le port publié `FichesDesInfirmiers` (constructeurs) et appelle `verrouillerLesFiches(centre, infirmiers)` avant de lire le roulement (`appliquerRoulement`) et avant de créer des remplacements (`appliquerCouverture`) ; `OptimisationApplicationServiceTest` adapté (constructeur). Fichier inscrit dans `covered.json` ; l'édition a été faite par une commande shell avant l'inscription (le garde-fou n'a donc pas été sollicité) : régularisée ici, la logique d'optimisation n'est pas modifiée. `seamAllowed` reste vide, seam **fermé**.
