@@ -38,6 +38,13 @@ public final class Identifiants {
         }
     }
 
+    /** Générateur de dialyse (identité de l'équipement GMAO, référencée par la place d'un patient ; sens différent de l'équipement). */
+    public record GenerateurId(UUID valeur) {
+        public GenerateurId {
+            requis(valeur, "Générateur");
+        }
+    }
+
     /** Patient (contexte Patient et couverture, référencé par identité). */
     public record PatientId(UUID valeur) {
         public PatientId {
