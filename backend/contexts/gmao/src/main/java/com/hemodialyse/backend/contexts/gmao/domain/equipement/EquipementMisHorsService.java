@@ -11,7 +11,7 @@ import java.time.Instant;
  * ({@code EN_SERVICE} vers un autre statut, KB-GMAO-37).
  */
 public record EquipementMisHorsService(EquipementId equipementId, CentreId centreId, TypeEquipement type, CodeEquipement code,
-                                       StatutEquipement statutPrecedent, StatutEquipement statut,
+                                       String designation, StatutEquipement statutPrecedent, StatutEquipement statut,
                                        CauseDIndisponibilite cause, UtilisateurId par, Instant survenuLe)
         implements EvenementDEquipement {
 }

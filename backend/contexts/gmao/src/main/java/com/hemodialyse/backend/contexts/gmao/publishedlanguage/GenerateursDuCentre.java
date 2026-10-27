@@ -13,6 +13,6 @@ public interface GenerateursDuCentre {
     List<Generateur> duCentre(UUID centreId);
 
     /** @param statut code du statut ({@code EN_SERVICE}, {@code EN_MAINTENANCE}, {@code HORS_SERVICE}, {@code REFORME}...) */
-    record Generateur(UUID id, String code, UUID salleId, String statut, UUID centreId) {
+    record Generateur(UUID id, String code, String designation, UUID salleId, String statut, UUID centreId) {
     }
 }

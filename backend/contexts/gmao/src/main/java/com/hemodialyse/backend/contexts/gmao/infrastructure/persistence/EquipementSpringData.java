@@ -39,7 +39,7 @@ public interface EquipementSpringData extends JpaRepository<EquipementJpa, UUID>
     List<Object[]> compterGenerateursInstalles(@Param("centres") Collection<UUID> centres, @Param("avant") Instant avant);
 
     /** Lignes (id, code, salle, statut) des générateurs de dialyse d'un centre, tous statuts, supprimés exclus, par code. */
-    @Query("SELECT e.id, e.code, e.salleId, e.statut FROM EquipementJpa e WHERE e.centreId = :centreId "
+    @Query("SELECT e.id, e.code, e.designation, e.salleId, e.statut FROM EquipementJpa e WHERE e.centreId = :centreId "
             + "AND e.type = 'GENERATEUR_DIALYSE' AND e.deletedAt IS NULL ORDER BY e.code")
     List<Object[]> generateursDuCentre(@Param("centreId") UUID centreId);
 

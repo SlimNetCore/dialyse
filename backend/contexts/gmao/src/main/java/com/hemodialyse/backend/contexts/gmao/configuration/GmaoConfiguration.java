@@ -61,6 +61,8 @@ import com.hemodialyse.backend.contexts.gmao.domain.piecejointe.PieceJointeRepos
 import com.hemodialyse.backend.contexts.gmao.domain.planmaintenance.PlanMaintenanceRepository;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.EtatEquipementPort;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs;
+import com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.IndisponibilitesDesGenerateursJpa;
 import com.hemodialyse.backend.contexts.gmao.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.gmao.infrastructure.evenements.JournalDesEvenements;
 import com.hemodialyse.backend.contexts.gmao.infrastructure.evenements.PublicateurSpring;
@@ -518,6 +520,12 @@ public class GmaoConfiguration {
     @Bean
     GenerateursDuCentre gmaoGenerateursDuCentre(EquipementSpringData equipements) {
         return new GenerateursDuCentreJpa(equipements);
+    }
+
+    /** Langage publié {@code IndisponibilitesDesGenerateurs} : la maintenance des générateurs de la Planification lit les immobilisations. */
+    @Bean
+    IndisponibilitesDesGenerateurs gmaoIndisponibilitesDesGenerateurs(InterventionSpringData interventions) {
+        return new IndisponibilitesDesGenerateursJpa(interventions);
     }
 
     // ------------------------------------------------------------------ pièces jointes

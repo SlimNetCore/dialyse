@@ -10,9 +10,11 @@ import com.hemodialyse.backend.contexts.gmao.domain.intervention.LigneDeCout;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.StatutIntervention;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.EquipementVue;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +27,8 @@ import java.util.function.Predicate;
  * parc et les interventions en mémoire, comme l'adapter JPA le calcule depuis la base (même contrat : {@code PilotageContrat}).
  * Les plans, que le double ne tient pas, sont posés par le test.
  */
-public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, GenerateursDuCentre {
+public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, GenerateursDuCentre,
+        IndisponibilitesDesGenerateurs {
 
     private static final Instant DEPUIS_TOUJOURS = Instant.parse("1970-01-01T00:00:00Z");
     private static final Instant SANS_LIMITE = Instant.parse("9999-01-01T00:00:00Z");
@@ -89,8 +92,29 @@ public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, 
         return parc.parcDuCentre(new CentreId(centreId)).stream()
                 .filter(e -> e.type().name().equals("GENERATEUR_DIALYSE"))
                 .sorted(java.util.Comparator.comparing(EquipementVue::code))
-                .map(e -> new Generateur(e.id(), e.code(), e.salleId(),
+                .map(e -> new Generateur(e.id(), e.code(), e.designation(), e.salleId(),
                         e.statut().name(), centreId))
+                .toList();
+    }
+
+    @Override
+    public List<Indisponibilite> entre(UUID centreId, java.time.LocalDate du, java.time.LocalDate au) {
+        CentreId centre = new CentreId(centreId);
+        java.util.Set<EquipementId> generateurs = parc.parcDuCentre(centre).stream()
+                .filter(e -> e.type().name().equals("GENERATEUR_DIALYSE"))
+                .map(e -> new EquipementId(e.id())).collect(java.util.stream.Collectors.toSet());
+        return duCentre(centre).stream()
+                .filter(i -> i.statut() == StatutIntervention.PLANIFIEE || i.statut() == StatutIntervention.EN_COURS)
+                .filter(i -> generateurs.contains(i.equipementId()))
+                .filter(i -> i.debut().isBefore(au.plusDays(1).atStartOfDay().toInstant(java.time.ZoneOffset.UTC)))
+                .map(i -> {
+                    LocalDate debut = i.debut().atZone(java.time.ZoneOffset.UTC).toLocalDate();
+                    LocalDate fin = i.fin() != null ? i.fin().atZone(java.time.ZoneOffset.UTC).toLocalDate()
+                            : i.statut() == StatutIntervention.EN_COURS ? au : debut;
+                    return new Indisponibilite(i.equipementId().valeur(), debut, fin.isBefore(debut) ? debut : fin,
+                            i.type().name());
+                })
+                .filter(i -> !i.fin().isBefore(du))
                 .toList();
     }
 

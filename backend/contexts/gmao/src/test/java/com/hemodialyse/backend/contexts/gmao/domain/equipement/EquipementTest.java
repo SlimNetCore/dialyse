@@ -154,8 +154,9 @@ class EquipementTest {
         assertThat(equipement.tirerChangementsDeStatut()).containsExactly(new ChangementDeStatut(
                 StatutEquipement.EN_SERVICE, StatutEquipement.HORS_SERVICE, "Hors service: Pompe HS", AUTRE, T1));
         assertThat(equipement.tirerEvenements()).containsExactly(new EquipementMisHorsService(ID, CENTRE,
-                TypeEquipement.GENERATEUR_DIALYSE, new CodeEquipement(" G-01 "), StatutEquipement.EN_SERVICE,
-                StatutEquipement.HORS_SERVICE, CauseDIndisponibilite.MISE_HORS_SERVICE, AUTRE, T1));
+                TypeEquipement.GENERATEUR_DIALYSE, new CodeEquipement(" G-01 "), "Générateur 01",
+                StatutEquipement.EN_SERVICE, StatutEquipement.HORS_SERVICE, CauseDIndisponibilite.MISE_HORS_SERVICE,
+                AUTRE, T1));
     }
 
     @Test
@@ -241,7 +242,7 @@ class EquipementTest {
         assertThat(equipement.tirerChangementsDeStatut()).containsExactly(
                 new ChangementDeStatut(depart, StatutEquipement.REFORME, "Réformé: Fin de vie", AUTRE, T1));
         assertThat(equipement.tirerEvenements()).containsExactly(new EquipementReforme(ID, CENTRE,
-                TypeEquipement.GENERATEUR_DIALYSE, new CodeEquipement("G-01"), depart, AUTRE, T1));
+                TypeEquipement.GENERATEUR_DIALYSE, new CodeEquipement("G-01"), "Générateur 01", depart, AUTRE, T1));
     }
 
     @Test
@@ -272,8 +273,8 @@ class EquipementTest {
         assertThat(equipement.tirerChangementsDeStatut()).containsExactly(
                 new ChangementDeStatut(StatutEquipement.EN_SERVICE, etat, "Intervention démarrée", AUTRE, T1));
         assertThat(equipement.tirerEvenements()).containsExactly(new EquipementMisHorsService(ID, CENTRE,
-                TypeEquipement.GENERATEUR_DIALYSE, new CodeEquipement(" G-01 "), StatutEquipement.EN_SERVICE, etat,
-                CauseDIndisponibilite.INTERVENTION, AUTRE, T1));
+                TypeEquipement.GENERATEUR_DIALYSE, new CodeEquipement(" G-01 "), "Générateur 01", StatutEquipement.EN_SERVICE,
+                etat, CauseDIndisponibilite.INTERVENTION, AUTRE, T1));
     }
 
     @Test

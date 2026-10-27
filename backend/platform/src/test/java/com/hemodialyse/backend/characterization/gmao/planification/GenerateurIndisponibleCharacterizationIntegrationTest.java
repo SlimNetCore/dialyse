@@ -107,12 +107,12 @@ class GenerateurIndisponibleCharacterizationIntegrationTest {
                                                            StatutEquipement precedent, StatutEquipement nouveau,
                                                            CauseDIndisponibilite cause) {
         return new EquipementMisHorsService(new EquipementId(GENERATEUR), new CentreId(centre), type, new CodeEquipement(code),
-                precedent, nouveau, cause, new UtilisateurId(UTILISATEUR), SURVENU);
+                "Générateur " + code, precedent, nouveau, cause, new UtilisateurId(UTILISATEUR), SURVENU);
     }
 
     private static EquipementReforme reforme(UUID centre, TypeEquipement type, String code, StatutEquipement precedent) {
         return new EquipementReforme(new EquipementId(GENERATEUR), new CentreId(centre), type, new CodeEquipement(code),
-                precedent, new UtilisateurId(UTILISATEUR), SURVENU);
+                "Générateur " + code, precedent, new UtilisateurId(UTILISATEUR), SURVENU);
     }
 
     private static EquipementMisHorsService generateurHorsService(UUID centre) {

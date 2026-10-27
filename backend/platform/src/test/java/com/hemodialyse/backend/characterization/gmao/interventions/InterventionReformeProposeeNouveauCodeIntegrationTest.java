@@ -127,7 +127,7 @@ class InterventionReformeProposeeNouveauCodeIntegrationTest extends Intervention
     void un_evenement_distinct_pour_le_meme_equipement_cree_une_nouvelle_proposition() throws Exception {
         cloturerEn("A_REFORMER");
         rejouer(new EquipementMisHorsService(new EquipementId(GEN), new CentreId(CENTRE_A), TypeEquipement.GENERATEUR_DIALYSE,
-                new CodeEquipement("G-01"), StatutEquipement.EN_SERVICE, StatutEquipement.A_REFORMER,
+                new CodeEquipement("G-01"), "Générateur 01", StatutEquipement.EN_SERVICE, StatutEquipement.A_REFORMER,
                 CauseDIndisponibilite.INTERVENTION, new UtilisateurId(ADMIN_A), Instant.parse("2026-12-01T10:00:00Z")));
 
         assertEquals(2, propositions(CENTRE_A).size());

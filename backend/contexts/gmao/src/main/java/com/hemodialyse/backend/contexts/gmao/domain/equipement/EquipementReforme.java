@@ -7,6 +7,6 @@ import java.time.Instant;
 
 /** Un équipement a été réformé : état terminal, aucun événement ultérieur pour cet équipement. */
 public record EquipementReforme(EquipementId equipementId, CentreId centreId, TypeEquipement type, CodeEquipement code,
-                                StatutEquipement statutPrecedent, UtilisateurId par, Instant survenuLe)
+                                String designation, StatutEquipement statutPrecedent, UtilisateurId par, Instant survenuLe)
         implements EvenementDEquipement {
 }

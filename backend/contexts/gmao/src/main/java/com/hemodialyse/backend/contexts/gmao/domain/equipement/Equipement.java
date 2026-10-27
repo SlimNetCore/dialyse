@@ -129,7 +129,7 @@ public final class Equipement {
         observations = cumuler("; ", "Hors service: " + raison);
         toucher(par, maintenant);
         changements.add(new ChangementDeStatut(precedent, statut, observations, par, maintenant));
-        evenements.add(new EquipementMisHorsService(id, centreId, type, code, precedent, statut,
+        evenements.add(new EquipementMisHorsService(id, centreId, type, code, designation, precedent, statut,
                 CauseDIndisponibilite.MISE_HORS_SERVICE, par, maintenant));
     }
 
@@ -166,7 +166,7 @@ public final class Equipement {
         changements.add(new ChangementDeStatut(precedent, statut, motif, par, maintenant));
         evenements.add(etat == StatutEquipement.EN_SERVICE
                 ? new EquipementRemisEnService(id, centreId, type, code, precedent, par, maintenant)
-                : new EquipementMisHorsService(id, centreId, type, code, precedent, statut,
+                : new EquipementMisHorsService(id, centreId, type, code, designation, precedent, statut,
                         CauseDIndisponibilite.INTERVENTION, par, maintenant));
         return true;
     }
@@ -180,7 +180,7 @@ public final class Equipement {
         observations = cumuler("; ", "Réformé: " + motif);
         toucher(par, maintenant);
         changements.add(new ChangementDeStatut(precedent, statut, observations, par, maintenant));
-        evenements.add(new EquipementReforme(id, centreId, type, code, precedent, par, maintenant));
+        evenements.add(new EquipementReforme(id, centreId, type, code, designation, precedent, par, maintenant));
     }
 
     /** Consigne une observation horodatée, à la suite des précédentes (saut de ligne). Possible sur un équipement réformé. */

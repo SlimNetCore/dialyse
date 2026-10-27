@@ -133,6 +133,11 @@ class PilotageJpaContratTest extends PilotageContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs indisponibilites() {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.IndisponibilitesDesGenerateursJpa(interventions);
+    }
+
+    @Override
     protected void supprimerLogiquementEquipement(EquipementId id) {
         jdbc.update("UPDATE gmao_equipements SET deleted_at = ? WHERE id = ?",
                 Timestamp.from(Instant.parse("2026-02-01T00:00:00Z")), id.valeur());

@@ -26,6 +26,8 @@ import com.hemodialyse.backend.contexts.gmao.domain.intervention.StatutIntervent
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.TypeIntervention;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.TypeLigneCout;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -70,6 +72,8 @@ public abstract class PilotageContrat {
     protected abstract LectureDesCouts couts();
 
     protected abstract GenerateursDuCentre generateursDuCentre();
+
+    protected abstract IndisponibilitesDesGenerateurs indisponibilites();
 
     /** La base sait poser {@code deleted_at} ; aucune commande du domaine ne le fait. */
     protected abstract void supprimerLogiquementEquipement(EquipementId id);
@@ -278,10 +282,55 @@ public abstract class PilotageContrat {
         assertThat(generateurs).extracting(GenerateursDuCentre.Generateur::statut)
                 .containsExactly("EN_SERVICE", "EN_MAINTENANCE", "REFORME");
         assertThat(generateurs.get(0).id()).isEqualTo(g1.id().valeur());
+        assertThat(generateurs).extracting(GenerateursDuCentre.Generateur::designation)
+                .containsExactly("Désignation G-01", "Désignation G-02", "Désignation G-03");
         assertThat(generateurs.get(0).salleId()).isNull();
         assertThat(generateurs.get(1).salleId()).isEqualTo(salle);
         assertThat(generateurs).allMatch(g -> g.centreId().equals(CENTRE_A.valeur()));
         assertThat(generateursDuCentre().duCentre(UUID.randomUUID())).isEmpty();
+    }
+
+    // ------------------------------------------------------------------ indisponibilités des générateurs
+
+    private static final LocalDate DU = LocalDate.parse("2026-03-09");
+    private static final LocalDate AU = LocalDate.parse("2026-03-12");
+
+    private Intervention planifieeEnregistree(CentreId centre, EquipementId equipement, String debut) {
+        Intervention intervention = planifiee(centre, equipement, Instant.parse(debut));
+        interventions().enregistrer(intervention);
+        return intervention;
+    }
+
+    @Test
+    void should_read_the_immobilisations_of_the_generators_planned_or_in_progress_overlapping_the_period() {
+        EquipementId g1 = generateur(CENTRE_A, "G-01").id();
+        planifieeEnregistree(CENTRE_A, g1, "2026-03-10T09:00:00Z");
+        enCours(CENTRE_A, g1, Instant.parse("2026-03-01T09:00:00Z"), "1", "10.00");
+
+        List<IndisponibilitesDesGenerateurs.Indisponibilite> lues = indisponibilites().entre(CENTRE_A.valeur(), DU, AU);
+
+        assertThat(lues).containsExactlyInAnyOrder(
+                new IndisponibilitesDesGenerateurs.Indisponibilite(g1.valeur(), LocalDate.parse("2026-03-10"),
+                        LocalDate.parse("2026-03-10"), "CURATIVE"),
+                new IndisponibilitesDesGenerateurs.Indisponibilite(g1.valeur(), LocalDate.parse("2026-03-01"), AU, "CURATIVE"));
+    }
+
+    @Test
+    void should_ignore_the_interventions_outside_the_period_cancelled_deleted_of_other_equipment_or_other_centres() {
+        EquipementId g1 = generateur(CENTRE_A, "G-01").id();
+        EquipementId osmoseur = equipement(CENTRE_A, "OSM", TypeEquipement.AUTRE, INSTALLATION).id();
+        EquipementId gB = generateur(CENTRE_B, "G-B").id();
+        planifieeEnregistree(CENTRE_A, g1, "2026-03-05T09:00:00Z");
+        planifieeEnregistree(CENTRE_A, g1, "2026-03-13T00:00:00Z");
+        planifieeEnregistree(CENTRE_A, osmoseur, "2026-03-10T09:00:00Z");
+        planifieeEnregistree(CENTRE_B, gB, "2026-03-10T09:00:00Z");
+        annulee(CENTRE_A, g1, Instant.parse("2026-03-10T09:00:00Z"));
+        Intervention supprimee = planifieeEnregistree(CENTRE_A, g1, "2026-03-11T09:00:00Z");
+        supprimerLogiquementIntervention(supprimee.id());
+
+        assertThat(indisponibilites().entre(CENTRE_A.valeur(), DU, AU)).isEmpty();
+        assertThat(indisponibilites().entre(CENTRE_B.valeur(), DU, AU)).hasSize(1);
+        assertThat(indisponibilites().entre(UUID.randomUUID(), DU, AU)).isEmpty();
     }
 
     // ------------------------------------------------------------------ coûts de maintenance

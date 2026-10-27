@@ -16,6 +16,9 @@ public class PublicateurSpring implements PublicateurDEvenements {
 
     @Override
     public void publier(Collection<?> evenements) {
-        evenements.forEach(publisher::publishEvent);
+        evenements.forEach(evenement -> {
+            publisher.publishEvent(evenement);
+            VersLeLangagePublie.traduire(evenement).ifPresent(publisher::publishEvent);
+        });
     }
 }

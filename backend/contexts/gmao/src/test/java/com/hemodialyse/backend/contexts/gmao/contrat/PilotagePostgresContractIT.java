@@ -141,6 +141,11 @@ class PilotagePostgresContractIT extends PilotageContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs indisponibilites() {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.IndisponibilitesDesGenerateursJpa(interventions);
+    }
+
+    @Override
     protected void supprimerLogiquementEquipement(EquipementId id) {
         jdbc.update("UPDATE gmao_equipements SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", id.valeur());
     }

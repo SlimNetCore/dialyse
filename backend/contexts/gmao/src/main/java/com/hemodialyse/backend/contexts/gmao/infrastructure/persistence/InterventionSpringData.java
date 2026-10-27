@@ -17,6 +17,16 @@ import java.util.UUID;
 /** Accès Spring Data au modèle de persistance des interventions ; détail d'infrastructure. Supprimées logiquement exclues des listes. */
 public interface InterventionSpringData extends JpaRepository<InterventionJpa, UUID> {
 
+    /**
+     * Lignes (équipement, statut, type, début, fin) des interventions planifiées ou en cours sur un générateur de dialyse du centre,
+     * commencées avant {@code limite} (exclue).
+     */
+    @Query("SELECT i.equipementId, i.statut, i.type, i.dateDebut, i.dateFin FROM InterventionJpa i, EquipementJpa e "
+            + "WHERE i.centreId = :centreId AND i.deletedAt IS NULL AND i.statut IN ('PLANIFIEE', 'EN_COURS') "
+            + "AND e.id = i.equipementId AND e.centreId = i.centreId AND e.type = 'GENERATEUR_DIALYSE' "
+            + "AND i.dateDebut < :limite ORDER BY i.dateDebut, i.id")
+    List<Object[]> immobilisantUnGenerateur(@Param("centreId") UUID centreId, @Param("limite") Instant limite);
+
     @Query(value = "SELECT i FROM InterventionJpa i WHERE i.centreId = :centreId AND i.deletedAt IS NULL",
             countQuery = "SELECT COUNT(i) FROM InterventionJpa i WHERE i.centreId = :centreId AND i.deletedAt IS NULL")
     Page<InterventionJpa> duCentre(@Param("centreId") UUID centreId, Pageable pageable);

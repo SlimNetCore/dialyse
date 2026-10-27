@@ -17,7 +17,7 @@ public class GenerateursDuCentreJpa implements GenerateursDuCentre {
     @Override
     public List<Generateur> duCentre(UUID centreId) {
         return equipements.generateursDuCentre(centreId).stream()
-                .map(l -> new Generateur((UUID) l[0], (String) l[1], (UUID) l[2], (String) l[3], centreId))
+                .map(l -> new Generateur((UUID) l[0], (String) l[1], (String) l[2], (UUID) l[3], (String) l[4], centreId))
                 .toList();
     }
 }
