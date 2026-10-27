@@ -262,6 +262,27 @@ public abstract class PilotageContrat {
     }
 
     @Test
+    void should_count_only_the_in_service_generators_installed_before_a_date_for_the_theoretical_capacity() {
+        generateur(CENTRE_A, "G-01");
+        generateur(CENTRE_A, "G-02");
+        equipement(CENTRE_A, "G-RECENT", TypeEquipement.GENERATEUR_DIALYSE, Instant.parse("2026-02-01T00:00:00Z"));
+        Equipement horsService = generateur(CENTRE_A, "G-HS");
+        horsService.mettreHorsService("Fuite", ADMIN, T0.plusSeconds(60));
+        equipements().enregistrer(horsService);
+        reconstituerAuStatut(generateur(CENTRE_A, "G-RF"), StatutEquipement.REFORME);
+        supprimerLogiquementEquipement(generateur(CENTRE_A, "G-SUP").id());
+        Equipement unSeulHorsService = generateur(CENTRE_B, "G-B");
+        unSeulHorsService.mettreHorsService("Panne", ADMIN, T0.plusSeconds(60));
+        equipements().enregistrer(unSeulHorsService);
+
+        Map<UUID, Long> parCentre = comptages().generateursEnServiceAvant(List.of(CENTRE_A.valeur(), CENTRE_B.valeur()),
+                Instant.parse("2026-01-01T00:00:00Z"));
+
+        assertThat(parCentre).containsOnlyKeys(CENTRE_A.valeur());
+        assertThat(parCentre.get(CENTRE_A.valeur())).as("G-01 et G-02 seulement").isEqualTo(2);
+    }
+
+    @Test
     void should_list_the_generators_of_a_centre_whatever_their_status_without_the_deleted_ones_by_code() {
         UUID salle = UUID.fromString("99997600-0000-0000-0000-0000000005a1");
         Equipement g2 = generateur(CENTRE_A, "G-02");

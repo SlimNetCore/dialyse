@@ -1362,3 +1362,55 @@ WHERE type = 'GENERATEUR_INDISPONIBLE' GROUP BY 1, 2, 3 HAVING count(*) > 1 ORDE
 Après le déploiement : surveiller les 403 sur `POST`/`PUT /api/v1/patients` (garde de centre et rôles, KB-PLN-52), les 422 `PLACEMENT_*` et les 409
 `PLANIFICATION_ECRITURE_CONCURRENTE`, les 400 sur `/planning/affectations` et `/planning/salles`, et l'unicité des alertes `GENERATEUR_INDISPONIBLE`,
 `ISOLEMENT_IMPOSSIBLE` et `RETOUR_SALLE_ORDINAIRE_PROPOSE` par centre et par jour.
+
+## Slice P6 — planning de la semaine et lectures publiées (2026-10-27) — SELECT uniquement
+
+Aucune migration de schéma. Contrôles à lancer avant le déploiement (lecture seule) ; ils mesurent l'effet des décisions du 27/10 (ADR 0060) :
+
+```sql
+-- 1. Patients EN SOMMEIL qui ont encore une case (salle, créneau, jours) : ils DISPARAISSENT de la grille de la semaine (KB-PLN-71).
+--    Informatif : la place reste tenue (colonnes de place inchangées, P5 les compte encore pour éviter un double placement).
+SELECT center_id, count(*) AS en_sommeil_avec_case FROM patients
+WHERE COALESCE(en_sommeil, FALSE) = TRUE AND salle_id IS NOT NULL AND position_id IS NOT NULL
+  AND (jour_dimanche OR jour_lundi OR jour_mardi OR jour_mercredi OR jour_jeudi OR jour_vendredi OR jour_samedi)
+GROUP BY center_id ORDER BY 2 DESC;
+-- 2. Centres dont la file active (patients présents, hors sommeil) est de 1 à 4 : masqués ET exclus du total de /direction/capacite (KB-PLN-75).
+--    Approximation de la file de l'année en cours ; la valeur exacte dépend de la période demandée.
+SELECT c.id, c.code, count(p.id) AS file_active FROM centers c
+LEFT JOIN patients p ON p.center_id = c.id AND COALESCE(p.en_sommeil, FALSE) = FALSE
+  AND (p.date_admission IS NULL OR p.date_admission <= current_date)
+  AND (p.etat_patient IS NULL OR p.etat_patient NOT IN ('TRANSFERE','DECEDE','GREFFE','GUERRI')
+       OR (p.date_evenement_etat IS NOT NULL AND p.date_evenement_etat >= date_trunc('year', current_date)))
+GROUP BY c.id, c.code HAVING count(p.id) BETWEEN 1 AND 4 ORDER BY 3;
+-- 3. Générateurs de dialyse comptés par l'ancienne capacité mais PLUS par la nouvelle (hors service, en maintenance : seuls EN_SERVICE comptent, KB-PLN-76).
+SELECT centre_id, statut, count(*) FROM gmao_equipements
+WHERE type = 'GENERATEUR_DIALYSE' AND deleted_at IS NULL AND statut NOT IN ('EN_SERVICE', 'REFORME', 'DESACTIF')
+GROUP BY centre_id, statut ORDER BY 1, 2;
+-- 4. Jours d'ouverture stockés en minuscules ou mal formés (la lecture de la semaine répond 400, KB-PLN-72 reproduit) : doit être vide
+SELECT center_id, jours_ouverts FROM planning_parametres
+WHERE jours_ouverts IS NOT NULL AND jours_ouverts <> upper(jours_ouverts);
+-- 5. Valeurs de patients_par_poste_serie hors 1..10 (lues comme 3 par défaut par la capacité Direction) : informatif
+SELECT center_id, patients_par_poste_serie FROM planning_parametres WHERE patients_par_poste_serie IS NOT NULL
+  AND (patients_par_poste_serie < 1 OR patients_par_poste_serie > 10);
+-- 6. Jours fériés / fermetures exceptionnelles des 60 prochains jours : la capacité de leurs cases passe à 0 dans la grille (KB-PLN-72)
+SELECT center_id, day_date, label FROM center_holiday WHERE day_date BETWEEN current_date AND current_date + 60
+UNION ALL SELECT center_id, day_date, reason FROM center_closure_day WHERE day_date BETWEEN current_date AND current_date + 60 ORDER BY 2;
+```
+
+Écart entre les règles de présence (impact avant déploiement, revue P6) : la grille, la détection des absences et la file active excluent désormais le
+sommeil et les places libérées, alors que la vue de la semaine de l'infirmier (jusqu'à P8) et la Séance (jusqu'à P9) gardent l'ancienne règle.
+
+```sql
+-- 7. Patients dont les règles divergent : en sommeil avec case (la grille ne les montre plus, la vue infirmier oui), ou sortis (place libérée) dont les colonnes de place sont encore remplies
+SELECT center_id,
+       count(*) FILTER (WHERE COALESCE(en_sommeil, FALSE) AND salle_id IS NOT NULL AND position_id IS NOT NULL) AS sommeil_avec_case,
+       count(*) FILTER (WHERE etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') AND date_evenement_etat IS NOT NULL
+                          AND date_evenement_etat < current_date AND salle_id IS NOT NULL AND position_id IS NOT NULL) AS sortis_avec_case,
+       count(*) FILTER (WHERE etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') AND date_evenement_etat IS NULL) AS sortis_sans_date
+FROM patients GROUP BY center_id HAVING count(*) FILTER (WHERE COALESCE(en_sommeil, FALSE) OR etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI')) > 0
+ORDER BY 1;
+```
+
+Après le déploiement : surveiller les 400 sur `GET /api/v1/planning/semaine` (date ou `centerId` illisible, jours d'ouverture en minuscules) et sur
+`GET /api/v1/direction/capacite`, la note « centres masqués » de l'écran de capacité de la Direction, et l'absence d'écart entre le nombre de patients
+attendus (Absences, détection de nuit) et l'ancienne règle (mêmes cas ; seul le sommeil était déjà exclu).

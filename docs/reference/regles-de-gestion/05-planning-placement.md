@@ -8,7 +8,11 @@
 > `CapaciteTheoriqueCalculator`, contrôleurs `Planning*RestController`. Depuis la slice P5 (ADR 0059), le placement
 > (propositions, contrôle d'une place, réaffectation, capacité, alerte du générateur) est servi par le contexte
 > `planification` (`PlacesDuCentre`, `PropositionsControleur`, `SallesControleur`) ; `PlacementPatientService`,
-> `PlanningAffectationQueryService` et `GenerateurIndisponibleService` sont retirés.
+> `PlanningAffectationQueryService` et `GenerateurIndisponibleService` sont retirés. Depuis la slice P6 (ADR 0060), le
+> planning de la semaine est servi par `SemaineControleur` / `SemaineDuPlanning` du contexte, la présence des patients
+> (`SejourDuPatient`, port publié `PresenceDesPatients`) est calculée une seule fois pour la semaine, les Absences et la
+> file active de la Direction, et la capacité de la Direction lit ses séries, son ratio et sa file active par le port
+> publié `BaseDeLaCapaciteTheorique`.
 
 ## 5.1 Paramétrage du planning (par centre)
 
@@ -106,13 +110,15 @@
   `INFIRMIER`, sous réserve des périmètres restreints (RG-SEC-022/023).
 - **RG-PLN-036** — La **grille de disponibilité** donne, pour chaque salle, créneau et jour, la capacité (générateurs en
   service) et
-  l'occupation ; un jour de fermeture hebdomadaire a une capacité nulle.
+  l'occupation ; un jour de fermeture hebdomadaire, un jour férié ou une fermeture exceptionnelle a une capacité nulle
+  (KB-PLN-72, ADR 0060).
 
 ## 5.5 Planning réel de la semaine et détection de conflits
 
 - **RG-PLN-040** — Le planning d'une semaine liste, par salle, créneau et jour, les patients présents (nom, générateur,
   risque) et la
-  capacité (nulle un jour fermé). Un patient dont la place est libérée à une date de la semaine (RG-PLN-010) n'apparaît
+  capacité (nulle un jour fermé : fermeture hebdomadaire, férié ou fermeture exceptionnelle). Un patient **en sommeil**
+  n'est pas affiché (KB-PLN-71, ADR 0060). Un patient dont la place est libérée à une date de la semaine (RG-PLN-010) n'apparaît
   plus à partir de cette date (de même qu'un séjour avant sa date d'admission) et porte l'indication « place libérée le
   jj/mm/aaaa » (infobulle de la grille et détail du
   patient). Les jours fermés (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont
@@ -143,7 +149,16 @@
   qu'aucune case ne peut accueillir (place non mémorisée, patient plus placé) est listée à part avec sa date. Les
   séances encore **prévues plus tard dans la même semaine** pour ce patient, et pas encore réalisées, portent
   l'alerte « séance déjà réalisée le jj/mm/aaaa » : le patient risque une séance en trop (par exemple séance du lundi
-  validée puis jours passés au mercredi).
+  validée puis jours passés au mercredi). Ces deux tolérances sont reproduites telles quelles en lecture (KB-PLN-73, 74) :
+  une cible de déplacement temporaire inconnue du centre est ignorée en silence, la place figée n'est pas recontrôlée ;
+  leur refus à l'écriture relève de la slice P8.
+- **RG-PLN-046** — **Une seule présence** (ADR 0060) : un patient est *présent* un jour donné si sa place est tenue
+  (admission commencée, dernier jour d'occupation non dépassé, RG-PLN-010) **et** s'il n'est pas en sommeil ; il est
+  *attendu* s'il est présent et n'est pas parti ce jour-là (transféré ou guéri : aucune séance le jour du départ ;
+  décédé ou greffé : place libérée la veille). Le planning de la semaine, les patients attendus des Absences et la file
+  active de la Direction (patients présents au moins un jour de la période) utilisent ce seul calcul. Un patient en
+  sommeil garde sa place pour le placement (RG-PLN-021) mais n'est ni affiché, ni attendu, ni compté : la grille peut donc
+  montrer une case apparemment libre que le contrôle de placement refuse encore tant que le patient n'a pas quitté sa place.
 
 ## 5.6 Contrôle du placement enregistré sur une fiche patient
 
@@ -202,7 +217,9 @@
 
 - **RG-PLN-070** — Générateurs de secours : **1 pour 8** générateurs, arrondi à l'entier supérieur (16 → 2 ; 17 → 3 ;
   0 → 0).
-- **RG-PLN-071** — Postes actifs = générateurs installés (hors réformés) − générateurs de secours.
+- **RG-PLN-071** — Postes actifs = générateurs **en service** installés au plus tard à la fin de la période (ni en
+  maintenance, ni hors service, ni réformés : comme le planning de la semaine, KB-PLN-76, ADR 0060) − générateurs de
+  secours.
 - **RG-PLN-072** — Capacité théorique (file active maximale) = postes actifs × séries par jour × patients par poste et
   par série (paramétrable, défaut 3). Exemple : 16 générateurs, 2 séries → 2 secours, 14 postes, 14 × 2 × 3 = **84
   patients**.
@@ -212,7 +229,11 @@
 - **RG-PLN-074** — Consolidation de plusieurs centres : générateurs, postes, capacités et files actives s'additionnent ;
   séries et
   patients par poste n'ont pas de sens consolidé (valent 0). La restitution à la direction est détaillée par centre
-  (voir RG-DIR).
+  (voir RG-DIR). **Masquage par centre** (comme les Absences, KB-PLN-75, ADR 0060) : un centre dont la file active est de
+  1 à 4 patients est masqué (file, taux, **capacité, niveau et « atteinte » nuls** : ils borneraient la file ; les équipements
+  restent publiés) et **exclu du total consolidé** (le total ne porte que sur les centres publiés) ; le nombre de centres masqués est
+  restitué (`centresMasques`) et affiché sur l'écran de capacité. Une file de 0 n'est pas masquée. La file active est
+  celle de la présence unique (RG-PLN-046), hors sommeil.
 
 ## 5.9 Optimisation du planning (moteur Timefold)
 

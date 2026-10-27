@@ -29,7 +29,11 @@ class ClotureMensuelleDesAbsencesNouveauCodeIntegrationTest extends CycleDeVieAb
     private static final String MOIS = ABSENCES + "/mois";
     private static final String FACTURATION = "/api/v1/facturation/periodes/";
     private static final String PREVIEW = "/api/v1/facturation/preview/seances/";
-    private static final Pattern MOIS_ISOLE = Pattern.compile("(?<![\\d-])(\\d{4})-(\\d{2})(?![\\d-])");
+    /**
+     * Une valeur JSON qui EST un mois (la chaîne entière « AAAA-MM », entre guillemets) : jamais un morceau d'identifiant. L'ancienne
+     * expression cherchait « dddd-dd » dans tout le texte et lisait des fragments d'UUID aléatoires (« mois 46 »).
+     */
+    private static final Pattern MOIS_ISOLE = Pattern.compile("\"(\\d{4})-(0[1-9]|1[0-2])\"");
 
     private static String chaineJson(String s) {
         return "'" + s.replace("'", "\\u0027") + "'";
@@ -93,7 +97,7 @@ class ClotureMensuelleDesAbsencesNouveauCodeIntegrationTest extends CycleDeVieAb
             YearMonth trouve = YearMonth.of(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
             long ecart = java.time.temporal.ChronoUnit.MONTHS.between(courant(), trouve);
             String alias = ecart == 0 ? "<MOIS>" : ecart > 0 ? "<MOIS+" + ecart + ">" : "<MOIS" + ecart + ">";
-            m.appendReplacement(sortie, Matcher.quoteReplacement(alias));
+            m.appendReplacement(sortie, Matcher.quoteReplacement("\"" + alias + "\""));
         }
         m.appendTail(sortie);
         return mapper.readTree(sortie.toString());

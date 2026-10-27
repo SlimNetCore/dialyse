@@ -1,0 +1,7 @@
+{
+  "debut apres fin" : "422 PERIODE_INVALIDE",
+  "debut egal fin" : "200",
+  "from illisible" : "400 BAD_REQUEST",
+  "plus de cinq ans" : "422 PERIODE_TROP_LONGUE",
+  "to illisible" : "400 BAD_REQUEST"
+}

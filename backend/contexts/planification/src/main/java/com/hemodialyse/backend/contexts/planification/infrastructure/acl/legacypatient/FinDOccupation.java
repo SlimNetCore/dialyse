@@ -19,6 +19,13 @@ public final class FinDOccupation {
     private FinDOccupation() {
     }
 
+    private static final Set<String> ETATS_DE_DEPART_LE_DERNIER_JOUR = Set.of("TRANSFERE", "GUERRI");
+
+    /** Transféré ou guéri : le dernier jour d'occupation est le jour du départ, aucune séance n'y est attendue (KB-ABS-24). */
+    public static boolean partLeDernierJour(String etat) {
+        return etat != null && ETATS_DE_DEPART_LE_DERNIER_JOUR.contains(etat);
+    }
+
     /** @return vide si la place est occupée sans limite ; {@link LocalDate#MIN} si elle est déjà libérée */
     public static Optional<LocalDate> dernierJourOccupe(String etat, LocalDate dateEvenement) {
         if (etat != null && ETATS_SEJOUR_LIMITE.contains(etat)) return Optional.ofNullable(dateEvenement);

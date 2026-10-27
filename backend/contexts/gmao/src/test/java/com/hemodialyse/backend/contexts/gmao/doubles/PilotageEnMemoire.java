@@ -88,6 +88,19 @@ public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, 
     }
 
     @Override
+    public Map<UUID, Long> generateursEnServiceAvant(Collection<UUID> centres, Instant avant) {
+        Map<UUID, Long> parCentre = new HashMap<>();
+        for (UUID centre : centres) {
+            long n = parc.parcDuCentre(new CentreId(centre)).stream()
+                    .filter(e -> e.type().name().equals("GENERATEUR_DIALYSE"))
+                    .filter(e -> e.statut() == StatutEquipement.EN_SERVICE)
+                    .filter(e -> e.dateInstallation() != null && e.dateInstallation().isBefore(avant)).count();
+            if (n > 0) parCentre.put(centre, n);
+        }
+        return parCentre;
+    }
+
+    @Override
     public List<Generateur> duCentre(UUID centreId) {
         return parc.parcDuCentre(new CentreId(centreId)).stream()
                 .filter(e -> e.type().name().equals("GENERATEUR_DIALYSE"))

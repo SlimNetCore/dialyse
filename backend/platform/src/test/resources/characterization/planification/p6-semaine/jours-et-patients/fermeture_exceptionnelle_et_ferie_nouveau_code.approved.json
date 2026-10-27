@@ -1,0 +1,22 @@
+{
+  "capaciteParSalleEtJour" : {
+    "Salle 1 / DIMANCHE" : 1,
+    "Salle 1 / JEUDI" : 0,
+    "Salle 1 / LUNDI" : 1,
+    "Salle 1 / MARDI" : 0,
+    "Salle 1 / MERCREDI" : 1,
+    "Salle 1 / SAMEDI" : 1,
+    "Salle 1 / VENDREDI" : 1
+  },
+  "cases" : [ "Salle 1 / Matin / MARDI cap=0 [Test Patient PAT_1 (G1A)]", "Salle 1 / Matin / JEUDI cap=0 [Test Patient PAT_1 (G1A)]", "Salle 1 / Matin / VENDREDI cap=1 [Test Patient PAT_1 (G1A)]" ],
+  "conflits" : [ ],
+  "creneaux" : [ "Matin" ],
+  "debut" : "<S1.DIM>",
+  "fin" : "<S1.SAM>",
+  "jours" : [ "DIMANCHE <S1.DIM>", "LUNDI <S1.LUN>", "MARDI <S1.MAR> FERMETURE=\"Travaux\"", "MERCREDI <S1.MER>", "JEUDI <S1.JEU> FERMETURE=\"Ferie du jeudi\"", "VENDREDI <S1.VEN>", "SAMEDI <S1.SAM>" ],
+  "nbCellules" : 7,
+  "patientsAReplanifier" : 1,
+  "salles" : [ "Salle 1" ],
+  "seancesSansCase" : [ ],
+  "statut" : 200
+}

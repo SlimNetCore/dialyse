@@ -311,7 +311,7 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
     // ------------------------------------------------------------------ part GMAO de la capacité
 
     @Test
-    void la_capacite_compte_les_generateurs_de_dialyse_installes_non_supprimes_ni_reformes_ni_desactives() throws Exception {
+    void la_capacite_compte_les_seuls_generateurs_de_dialyse_en_service_installes_et_non_supprimes() throws Exception {
         List<String> statuts = List.of("EN_SERVICE", "EN_SERVICE", "EN_SERVICE", "EN_MAINTENANCE", "HORS_SERVICE", "A_REFORMER", "EN_ATTENTE_PIECE");
         for (int k = 0; k < statuts.size(); k++) {
             String statut = statuts.get(k);
@@ -322,7 +322,7 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
         equipement("CAP_SUPPRIME", CENTRE_A, e -> e.supprimeLe = le("2026-02-01T00:00:00Z"));
         equipement("CAP_EAU", CENTRE_A, e -> e.type = "STATION_TRAITEMENT_EAU");
         equipement("CAP_FUTUR", CENTRE_A, e -> e.installation = le("2026-07-01T00:00:00Z"));
-        equipement("CAP_LIMITE", CENTRE_A, e -> e.installation = le("2026-06-30T23:59:00Z"));
+        equipement("CAP_LIMITE", CENTRE_A, e -> e.installation = le("2026-06-30T22:59:00Z")); // dernière minute avant la fin de période LOCALE (23:00Z à Alger) : revue P6, coupure au fuseau de la période
         equipement("CAP_B", CENTRE_B);
         jdbc.update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?,?,?,?)", UUID.randomUUID(), CENTRE_A, "M", "Matin");
         jdbc.update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?,?,?,?)", UUID.randomUUID(), CENTRE_A, "A", "Après-midi");
@@ -339,9 +339,10 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
                 "un générateur réformé par le nouveau module sort aussitôt de la capacité");
         UUID hs = nom("CAP_B");
         assertEquals(200, post(GMAO + "/equipements/" + hs + "/hors-service", body("raison", "Fuite"), adminB()).status);
-        assertEquals(apres.get("total").get("generateurs").asInt(),
+        // KB-PLN-76 (décision du 27/10, P6) : seuls les générateurs EN SERVICE comptent ; avant, un générateur hors service restait compté
+        assertEquals(apres.get("total").get("generateurs").asInt() - 1,
                 json(get(CAPACITE + PERIODE, direction())).get("total").get("generateurs").asInt(),
-                "un générateur hors service reste compté dans la capacité théorique");
+                "un générateur hors service sort de la capacité théorique");
     }
 
     @Test

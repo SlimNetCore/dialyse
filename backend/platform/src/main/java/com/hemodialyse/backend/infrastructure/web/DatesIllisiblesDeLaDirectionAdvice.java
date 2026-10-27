@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
- * KB-ABS-33 et KB-STK-55 : {@code GET /api/v1/direction/absences?from=hier} et {@code /stock-groupes} répondent 400 {@code BAD_REQUEST} (c'était un 500). Limité à ces seules
+ * KB-ABS-33, KB-STK-55 et KB-PLN-67 : {@code GET /api/v1/direction/absences?from=hier}, {@code /stock-groupes} et {@code /capacite} répondent 400 {@code BAD_REQUEST} (c'était un 500). Limité à ces seules
  * routes (reconnues par leur chemin) : pour toute autre route un paramètre illisible garde la réponse du gestionnaire commun
  * {@link ApiExceptionHandler}, auquel on délègue.
  */
@@ -18,7 +18,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice(basePackages = "com.hemodialyse.backend.infrastructure.web.rest")
 class DatesIllisiblesDeLaDirectionAdvice {
 
-    private static final java.util.Set<String> ROUTES = java.util.Set.of("/api/v1/direction/absences", "/api/v1/direction/stock-groupes");
+    private static final java.util.Set<String> ROUTES = java.util.Set.of("/api/v1/direction/absences", "/api/v1/direction/stock-groupes",
+            "/api/v1/direction/capacite");
 
     private final ApiExceptionHandler gestionnaireCommun;
 

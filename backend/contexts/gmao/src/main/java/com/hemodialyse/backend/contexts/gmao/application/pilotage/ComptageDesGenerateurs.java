@@ -20,4 +20,9 @@ public final class ComptageDesGenerateurs implements GenerateursInstalles {
     public Map<UUID, Long> parCentre(Collection<UUID> centres, Instant avant) {
         return centres.isEmpty() ? Map.of() : comptages.generateursInstallesAvant(centres, avant);
     }
+
+    @Override
+    public Map<UUID, Long> enServiceParCentre(Collection<UUID> centres, Instant avant) {
+        return centres.isEmpty() ? Map.of() : comptages.generateursEnServiceAvant(centres, avant);
+    }
 }

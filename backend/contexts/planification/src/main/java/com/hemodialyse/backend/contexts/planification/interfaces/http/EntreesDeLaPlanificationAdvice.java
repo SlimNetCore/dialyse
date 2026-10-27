@@ -20,7 +20,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class,
         RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class,
-        PresenceControleur.class, PropositionsControleur.class, SallesControleur.class})
+        PresenceControleur.class, PropositionsControleur.class, SallesControleur.class, SemaineControleur.class})
 class EntreesDeLaPlanificationAdvice {
 
     @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)

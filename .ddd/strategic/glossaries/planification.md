@@ -122,3 +122,15 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Isolement impossible | Patient à risque sans place d'isolement ; alerte une seule fois par patient et par jour du centre | `ISOLEMENT_IMPOSSIBLE` | `ISOLEMENT_IMPOSSIBLE` | — | RG-PLN-053 | proposed |
 | Alerte de générateur indisponible | Alerte idempotente par générateur et par jour du centre, citant 5 patients au plus et le total ; aucun déplacement | `AlerterUnGenerateurIndisponible` | `GenerateurIndisponibleService` | — | RG-NOT-007 | proposed |
 | Verrou des places | Verrou du centre qui crée d'abord la ligne de paramètres par défaut puis la verrouille ; 409 pour la perdante d'une création simultanée | `VerrouDesPlaces` | — | — | ADR 0059 | proposed |
+
+## Termes ajoutés par la slice P6 (2026-10-27) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Séjour du patient | Admission, dernier jour de place, départ le dernier jour, sommeil : l'unique calcul de présence | `SejourDuPatient` | `FinOccupation`, colonnes de `patients` | période de présence | RG-PLN-046 | proposed |
+| Patient présent | Place tenue un jour donné et patient pas en sommeil : il figure au planning | `estPresentLe` | — | actif | RG-PLN-046 | proposed |
+| Patient attendu | Patient présent qui n'est pas parti ce jour-là : une séance est attendue | `estAttenduLe`, `PresenceDesPatients.attendusLe` | `PatientsAttendusJdbc` | patient prévu | RG-PLN-046, RG-ABS-041 | proposed |
+| File active | Patients présents au moins un jour de la période, hors sommeil | `PresenceDesPatients.fileActive` | `FILE_ACTIVE` (SQL) | effectif | RG-PLN-074 | proposed |
+| Semaine du planning | Planning réel du dimanche au samedi : jours, cases, conflits, patients à replanifier | `SemaineDuPlanning.Semaine` | `SemainePlanning` | grille | RG-PLN-040 à 045 | proposed |
+| Centre masqué | Centre dont la file active est de 1 à 4, exclu du total consolidé de la capacité | `centresMasques` | — | centre caché | RG-PLN-074 | proposed |
+| Base de la capacité théorique | Séries, patients par poste et par série, file active d'un centre | `BaseDeLaCapaciteTheorique` | `SERIES`, `PARAMETRES` (SQL) | — | RG-PLN-072 | proposed |

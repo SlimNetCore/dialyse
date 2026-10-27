@@ -47,7 +47,9 @@ class PatientsAttendusJdbcTest {
     private int rang;
 
     private PatientsAttendusJdbc attendus() {
-        return new PatientsAttendusJdbc(jdbc);
+        // la présence est celle de la planification (langage publié) sur les tables de la plateforme : l'oracle de la règle reste ici
+        return new PatientsAttendusJdbc(jdbc, new com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresenceDesPatients(
+                new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc)));
     }
 
     @BeforeEach
@@ -55,7 +57,9 @@ class PatientsAttendusJdbcTest {
         jdbc.execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, jour_lundi BOOLEAN, "
                 + "jour_mardi BOOLEAN, jour_mercredi BOOLEAN, jour_jeudi BOOLEAN, jour_vendredi BOOLEAN, jour_samedi BOOLEAN, "
                 + "jour_dimanche BOOLEAN, en_sommeil BOOLEAN, date_admission DATE, etat_patient VARCHAR(40), "
-                + "date_evenement_etat DATE)");
+                + "date_evenement_etat DATE, nom VARCHAR(100), prenom VARCHAR(100), salle_id UUID, position_id UUID, generateur_id UUID)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS serologies_patient (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "
+                + "marqueur VARCHAR(20), resultat VARCHAR(20), date_prelevement DATE, created_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS center_holiday (id UUID PRIMARY KEY, center_id UUID NOT NULL, day_date DATE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS center_closure_day (id UUID PRIMARY KEY, center_id UUID NOT NULL, day_date DATE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS seances (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "

@@ -131,3 +131,34 @@ inscrit ici ET dans `seamAllowed` AVANT édition. **Extension ratifiée par l'ut
 |---|---|---|
 | `platform/.../web/rest/SerologieRestController.java` | **édité** : `create` / `update` appellent `ReaffectationEnIsolementDeLaSerologie` (ACL) qui exécute la sérologie ET la réaffectation dans UNE transaction, au lieu de `PlacementPatientService.reaffecterSiRisque` | KB-PLN-59 (patient hors centre refusé), KB-PLN-60 (une transaction, alerte dédupliquée), KB-PLN-61 (retour proposé) |
 | `platform/.../application/audit/AuditActionResolver.java` | **édité** (déjà couvert) : libellés métier `SEROLOGIE_ENREGISTREE` / `SEROLOGIE_MODIFIEE` / `SEROLOGIE_SUPPRIMEE` | KB-PLN-62 |
+
+## Slice planification-p6-planning-semaine-lectures (2026-10-27) : session 1 FERMÉE (`seamAllowed` vide) ; restent à traiter en session 2 : voir « Non faits »
+
+Édition **minimale** (constructeur / port) des lecteurs SQL hors module de P6, **autorisée par l'utilisateur le 2026-10-27 (décision 5)**. Chaque fichier est inscrit ici
+ET dans `covered.json` (déjà couvert) ou `seamAllowed` (non couvert) AVANT édition ; Read / Edit / Write uniquement. À FERMER à la fin de la slice (`seamAllowed` vide).
+
+| Fichier legacy | Filet | Nature | Raison |
+|---|---|---|---|
+| `platform/.../web/rest/PlanningSemaineRestController.java` | covered (P6) | **supprimé** : la route est servie par `SemaineControleur` du module | KB-PLN-67, 69 |
+| `platform/.../application/direction/DirectionCapaciteQueryService.java` | covered (P6) | **édité** : ports `BaseDeLaCapaciteTheorique`, `GenerateursInstalles` (en service), masquage par centre (`centresMasques`) | KB-PLN-75, 76 |
+| `platform/.../web/DatesIllisiblesDeLaDirectionAdvice.java` | covered (absences / stock) | **édité** : la route `/api/v1/direction/capacite` rejoint la liste des routes à 400 pour `from` / `to` illisibles (précédent KB-ABS-33, KB-STK-55) | KB-PLN-67 |
+| `platform/.../persistence/adapter/SeancePlaceJdbcAdapter.java` | covered (P6) | **édité** : lecture de la place de la fiche par `PlacesDesPatients` | lecteur SQL des colonnes de place |
+| `platform/.../persistence/adapter/planning/GenerateurImpactJdbcAdapter.java` + `bc-seance/.../port/GenerateurImpactPort.java` | covered | **supprimés** : code mort depuis P5 (plus aucun appelant, l'alerte est dans le module) | retrait |
+| tests `DirectionCapaciteIntegrationTest`, `DirectionGmaoCharacterizationIntegrationTest` + 2 goldens GMAO | tests existants | **mis à jour** (écarts décidés KB-PLN-75, 76) ; anciens goldens archivés dans `gmao/pilotage/_ecarts-legacy` | |
+| `platform/.../application/direction/DirectionGmaoQueryService.java` | covered (`DirectionGmaoCharacterizationIntegrationTest`) | **session 2, inscrit AVANT édition** : `countPatientsSurEquipementIndisponible` lit `GenerateursDuCentre` (GMAO) + `PatientsAuxGenerateurs` (Planification) au lieu de la jointure SQL `patients` x `gmao_equipements` ; `JdbcTemplate` retiré du constructeur | lecteur SQL de `patients.generateur_id` (:112) |
+
+| revue P6 (2026-10-27, `.ddd/verify/review-planification-p6.md`) : `DirectionCapaciteQueryService.java` (masquage de `capacite`/`niveau`/`atteinte` d'un centre masqué, coupure des générateurs au fuseau de la période), `DirectionGmaoQueryService.java` (méthode du chiffre rendue visible du paquet pour son test) | covered | **inscrits AVANT édition**, déjà dans `covered.json`, seam fermé après | constats major + minors de la revue |
+
+### Non faits (fichier non édité, raison, jalon : voir `roadmap.md` « Dette de P6 ») — `seamAllowed` reste vide. SESSION 2 : seam FERMÉ ; `DirectionGmaoQueryService` fait ; les autres consignés avec jalon (P7 / P9), aucun forcé ; `SalleVueJdbcAdapter` reporté à P9 (port publié `CapaciteDesSalles` à créer)
+
+| Fichier | Raison |
+|---|---|
+| `SeanceRestController.java:855-872, :1221-1227` | le tableau de bord lit les jours de dialyse de TOUS les patients (même sans salle) avec d'autres colonnes (`sexe`, `date_naissance`, `date_admission`, `en_sommeil`, `etat_patient`) dans la même requête ; `PlacesDesPatients.duCentre` ne rend que les places actives complètes (changerait le décompte des séances attendues). Demande un port `joursDeDialyse(centre)` et la reprise de l'effectif : session 2 |
+| `SeancePlanningJdbcAdapter.java` | rend à la Séance l'état brut (sommeil, état, dates) que le domaine Séance (`SituationPlanning`) interprète lui-même : remplacer exige de retirer cette règle côté Séance (port `attenduLe`), pas un simple changement de constructeur. Non couvert par `covered.json` : filet `SeanceScanIntegrationTest` non rejoué |
+| `DirectionGmaoQueryService.java:112` | **FAIT en session 2** (port `PatientsAuxGenerateurs`, tous états comme avant : à confirmer par l'utilisateur, un patient sorti compte encore) |
+| `MouvementPatientJdbcAdapter`, `ReferentialRepositoryAdapter` | non couverts par `covered.json` (filets P5 mouvements / référentiel non inscrits) et jointures sur `salle` / `position_creneau` (noms) : hors des colonnes de place ; consignés pour P7 / P9 |
+| `ReferentialAdminTables.java:29` | couvert, usage « la salle / le créneau est-il utilisé par un patient ? » : demande un port `SalleOuCreneauUtilise` ; session 2 |
+
+Conservés avec raison : `PlanningSemaineQueryService`, `PlanningSemaineService`, `PlanningSemainePort`, `PlanningDonneesJdbcAdapter` (encore lus par
+`SemaineDeLInfirmierLegacy`, `PresenceInfirmierService`, l'optimisation P8 et `PlacementPatientService`), `SalleVueJdbcAdapter` (lu par GMAO `SalleGenerateursService`).
+Retrait attaché au jalon : fin de P8 pour les quatre premiers (la vue de la semaine de l'infirmier garde l'ancienne règle du sommeil jusque-là), fin de P9 pour `SalleVueJdbcAdapter` (aligné sur `roadmap.md` « Dette de P6 »).

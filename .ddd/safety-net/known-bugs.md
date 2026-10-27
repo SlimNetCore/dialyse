@@ -1193,3 +1193,20 @@ Filet : `backend/platform/src/test/java/com/hemodialyse/backend/characterization
 | KB-PLN-74 | **Séances réalisées** : seules `VALIDEE`, `SIGNEE`, `FACTUREE` comptent (`CREE`, `ANNULEE` ignorées) ; une séance hors planning est affichée là où elle a eu lieu (place figée, sinon place actuelle du patient), sans conflit ; les séances prévues **après** la première séance hors planning du patient sont marquées « déjà réalisée le … » même si le patient dialyse bien ces jours-là d'ordinaire ; séance sans place figée d'un patient désormais non placé ou salle supprimée : liste `seancesSansCase` ; place figée sans contrôle du statut du générateur (validation d'une séance sur un générateur hors service acceptée) | Règle « séance peut-être en trop » à préciser ? |
 | KB-PLN-75 | **Capacité Direction** : `GET /direction/capacite` réservé au rôle `DIRECTION` (ADMIN, SUPERADMIN et tous les autres : 403) ; `from > to` = 422 `PERIODE_INVALIDE`, plus de 5 ans = 422 `PERIODE_TROP_LONGUE`, `from = to` accepté ; `patients_par_poste_serie` absent, 0 ou négatif = 3 par défaut ; **le total consolidé n'est pas masqué par la règle d'anonymat** : un centre dont la file active est de 1 à 4 est masqué (`null`) mais le total (somme réelle) permet de la retrouver par différence | Masquer aussi le total ? |
 | KB-PLN-76 | **Générateurs comptés par la capacité** : `EN_SERVICE`, `HORS_SERVICE` et `EN_MAINTENANCE` sont comptés comme installés (seuls `REFORME`, `DESACTIF`, supprimés, non encore installés à la fin de la période, autres types sont exclus) alors que la semaine ne retient que les `EN_SERVICE` ; postes actifs = générateurs − secours (6 générateurs : 1 secours, 5 postes ; 2 générateurs : 1 secours, 1 poste) ; centre inactif listé avec `actif=false` et compté dans le total | Compter seulement les générateurs utilisables ? |
+
+### Décisions de l'utilisateur (2026-10-27) et sort des KB-PLN-67 à 76 (construction P6, ADR 0060)
+
+| Id | Décision | Sort |
+|---|---|---|
+| KB-PLN-67 | 400 pour `date` / `centerId` (semaine) et `from` / `to` (capacité) illisibles | **corrigé** (goldens `date_illisible`, `garde_de_centre`, `periodes` : `_nouveau_code`) |
+| KB-PLN-68 | méthodes et chemins inconnus : INCHANGÉS (500, traitement global, hors périmètre) | **conservé, documenté** |
+| KB-PLN-69 | date et période par défaut au fuseau du centre (société : fuseau par défaut de la planification) | **corrigé** (non rejoué : fenêtre 23:00-24:00 UTC, test d'horloge du cas d'usage) |
+| KB-PLN-70 | droits et anonyme 403 : INCHANGÉS | **conservé** |
+| KB-PLN-71 | un patient en sommeil est exclu de la grille ; une seule présence partagée (`SejourDuPatient`, port `PresenceDesPatients`) | **corrigé** (golden `sommeil`) |
+| KB-PLN-72 | férié et fermeture exceptionnelle : capacité de la case à 0 ; jours d'ouverture en minuscules : 400 reproduit | **corrigé** (4 goldens) / **conservé** |
+| KB-PLN-73, 74 | déplacement temporaire et place figée : reproduits en lecture ; refus à l'écriture = P8 | **conservé, documenté** |
+| KB-PLN-75 | masquage par centre (1 à 4) avec `centresMasques`, centre masqué exclu du total ; revue : `capacite`, `niveau` et `atteinte` d'un centre masqué masqués aussi (ils bornaient la file : défaut déjà présent dans le legacy, non consigné avant) | **corrigé** (goldens `file_masquee`, `reponse_complete`, `parametres_par_defaut` : `_nouveau_code`) |
+| KB-PLN-77 | (revue P6) le chiffre « patients sur équipement indisponible » de la Direction comptait un patient rattaché au générateur d'un AUTRE centre (jointure sur l'identifiant seul) ; les générateurs sont maintenant lus par centre | **corrigé** (test `PatientsSurEquipementIndisponibleTest`) |
+| KB-PLN-76 | seuls les générateurs `EN_SERVICE` sont comptés | **corrigé** (golden `generateurs_comptes`) |
+
+Ordre des patients cités dans un conflit : tri prénom, nom, identifiant (le legacy n'avait pas d'`ORDER BY`) : sans effet sur les goldens.

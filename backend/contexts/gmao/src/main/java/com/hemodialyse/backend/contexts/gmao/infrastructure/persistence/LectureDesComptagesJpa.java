@@ -61,6 +61,15 @@ public class LectureDesComptagesJpa implements LectureDesComptages {
     }
 
     @Override
+    public Map<UUID, Long> generateursEnServiceAvant(Collection<UUID> centres, Instant avant) {
+        Map<UUID, Long> parCentre = new HashMap<>();
+        for (Object[] ligne : equipements.compterGenerateursEnService(centres, avant)) {
+            parCentre.put((UUID) ligne[0], ((Number) ligne[1]).longValue());
+        }
+        return parCentre;
+    }
+
+    @Override
     public long plansActifs(CentreId centre) {
         return plans.compterActifs(centre.valeur());
     }

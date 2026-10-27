@@ -21,6 +21,7 @@ import {
   capaciteRows,
   jaugeCapacite,
   nbCentresAtteints,
+  niveauClasse,
 } from './direction-capacite.util';
 import {
   absencesHeadline,
@@ -230,6 +231,7 @@ export class DirectionDashboardComponent implements OnInit {
   protected readonly nbCentresAtteints = computed(() => nbCentresAtteints(this.store.capacite()));
   protected readonly capaciteExemple = computed(() => capaciteExemple(this.store.capacite(), this.selectedCentre()));
   protected readonly jaugeCapacite = jaugeCapacite;
+  protected readonly niveauClasse = niveauClasse;
   protected readonly absencesMotifs = computed(() => absencesMotifs(this.store.absences(), this.selectedCentre()));
   protected readonly motifsValeurChart = computed(() => this.motifsChart('valeur'));
   protected readonly doughnutOptions: ChartOptions<'doughnut'> = {

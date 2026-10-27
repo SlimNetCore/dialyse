@@ -33,6 +33,9 @@ public interface LectureDesComptages {
      */
     Map<UUID, Long> generateursInstallesAvant(Collection<UUID> centres, Instant avant);
 
+    /** Générateurs de dialyse {@code EN_SERVICE} installés strictement avant {@code avant}, par centre ; supprimés exclus ; un centre sans générateur en service est absent. */
+    Map<UUID, Long> generateursEnServiceAvant(Collection<UUID> centres, Instant avant);
+
     long plansActifs(CentreId centre);
 
     /** Plans actifs dont la prochaine date prévue est antérieure ou égale à {@code maintenant}. */

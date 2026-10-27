@@ -35,6 +35,12 @@
             <artifactId>contexts-facturation</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Présence des patients (slice P6) : PresenceDesPatients, l'unique calcul des patients attendus (RG-PLN-045). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-planification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

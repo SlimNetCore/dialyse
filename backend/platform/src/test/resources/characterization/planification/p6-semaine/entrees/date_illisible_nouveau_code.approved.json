@@ -1,0 +1,12 @@
+{
+  "date : 30 fevrier" : "400 BAD_REQUEST",
+  "date : annee negative" : "200",
+  "date : annee signee" : "400 BAD_REQUEST",
+  "date : avec heure" : "400 BAD_REQUEST",
+  "date : jj/mm/aaaa" : "400 BAD_REQUEST",
+  "date : mois 13" : "400 BAD_REQUEST",
+  "date : sans tirets" : "400 BAD_REQUEST",
+  "date : sans zeros" : "400 BAD_REQUEST",
+  "date : texte" : "400 BAD_REQUEST",
+  "date : vide" : "200"
+}

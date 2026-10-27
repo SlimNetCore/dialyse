@@ -1,0 +1,61 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "centres" : [ {
+      "actif" : true,
+      "capacite" : {
+        "atteinte" : false,
+        "capacite" : 18,
+        "fileActive" : 6,
+        "generateurs" : 4,
+        "generateursSecours" : 1,
+        "niveau" : "MARGE",
+        "patientsParPosteEtSerie" : 3,
+        "postesActifs" : 3,
+        "series" : 2,
+        "tauxOccupation" : 33.3
+      },
+      "centerId" : "<CENTRE_A>",
+      "nom" : "Centre A"
+    }, {
+      "actif" : true,
+      "capacite" : {
+        "atteinte" : null,
+        "capacite" : null,
+        "fileActive" : null,
+        "generateurs" : 2,
+        "generateursSecours" : 1,
+        "niveau" : null,
+        "patientsParPosteEtSerie" : 2,
+        "postesActifs" : 1,
+        "series" : 1,
+        "tauxOccupation" : null
+      },
+      "centerId" : "<CENTRE_B>",
+      "nom" : "Centre B"
+    } ],
+    "centresMasques" : 1,
+    "from" : "<J-30>",
+    "generatedAt" : "<HORODATAGE>",
+    "regle" : {
+      "generateursParSecours" : 8,
+      "seuilProchePourcent" : 90
+    },
+    "societeId" : "<UUID_GENERE_1>",
+    "to" : "<J>",
+    "total" : {
+      "atteinte" : false,
+      "capacite" : 18,
+      "fileActive" : 6,
+      "generateurs" : 4,
+      "generateursSecours" : 1,
+      "niveau" : "MARGE",
+      "patientsParPosteEtSerie" : 0,
+      "postesActifs" : 3,
+      "series" : 0,
+      "tauxOccupation" : 33.3
+    }
+  }
+}

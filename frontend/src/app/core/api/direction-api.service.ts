@@ -493,11 +493,12 @@ export type LigneCapacite = {
   series: number;
   /** Patients suivis par poste et par série (paramètre du centre) ; 0 pour les totaux. */
   patientsParPosteEtSerie: number;
-  capacite: number;
+  /** Nul pour un centre masqué (file active de 1 à 4 patients) : capacité, niveau et « atteinte » la borneraient. */
+  capacite: number | null;
   fileActive: number | null;
   tauxOccupation: number | null;
-  niveau: NiveauCapacite;
-  atteinte: boolean;
+  niveau: NiveauCapacite | null;
+  atteinte: boolean | null;
 };
 
 export type CentreCapacite = {
@@ -521,4 +522,6 @@ export type CapaciteOverview = {
   regle: RegleCapacite;
   total: LigneCapacite;
   centres: CentreCapacite[];
+  /** Centres dont la file active (1 à 4 patients) est masquée et exclus du total consolidé. */
+  centresMasques: number;
 };

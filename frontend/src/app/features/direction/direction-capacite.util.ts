@@ -25,7 +25,7 @@ export function jaugeCapacite(ligne: Pick<LigneCapacite, 'tauxOccupation'>): num
 
 /** Nombre de centres ayant atteint ou dépassé leur capacité théorique. */
 export function nbCentresAtteints(o: CapaciteOverview | null): number {
-  return o ? o.centres.filter((c) => c.capacite.atteinte).length : 0;
+  return o ? o.centres.filter((c) => c.capacite.atteinte === true).length : 0;
 }
 
 /**
@@ -37,6 +37,11 @@ export function capaciteExemple(
 ): { nom: string; ligne: LigneCapacite } | null {
   if (!o) return null;
   const candidats = selectedCentre ? o.centres.filter((c) => c.centerId === selectedCentre) : o.centres;
-  const centre = candidats.find((c) => c.capacite.capacite > 0);
+  const centre = candidats.find((c) => (c.capacite.capacite ?? 0) > 0);
   return centre ? {nom: centre.nom, ligne: centre.capacite} : null;
+}
+
+/** Classe CSS du niveau d'une ligne : « masque » quand le centre est masqué (niveau nul). */
+export function niveauClasse(ligne: Pick<LigneCapacite, 'niveau'>): string {
+  return ligne.niveau === null ? 'masque' : ligne.niveau.toLowerCase();
 }

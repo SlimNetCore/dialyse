@@ -124,11 +124,17 @@ class DirectionCapaciteIntegrationTest {
         CentreCapacite petit = centre(o, PETIT);
         assertEquals(2, petit.capacite().patientsParPosteEtSerie(), "paramètre du centre");
         assertEquals(7, petit.capacite().postesActifs());
-        assertEquals(14, petit.capacite().capacite(), "7 postes × 1 série × 2 patients");
+        // revue P6 : capacité, niveau et « atteinte » bornent la file masquée : masqués avec elle ; les équipements restent publiés
+        assertNull(petit.capacite().capacite());
+        assertNull(petit.capacite().niveau());
+        assertNull(petit.capacite().atteinte());
 
-        assertEquals(24, o.total().generateurs());
-        assertEquals(98, o.total().capacite(), "84 + 14");
-        assertEquals(10L, o.total().fileActive(), "8 + 2");
+        // KB-PLN-75 : le petit centre (file de 2) est masqué ET exclu du total consolidé (décision du 27/10, comme les Absences)
+        assertNull(petit.capacite().fileActive());
+        assertEquals(1, o.centresMasques());
+        assertEquals(16, o.total().generateurs());
+        assertEquals(84, o.total().capacite(), "le grand centre seul");
+        assertEquals(8L, o.total().fileActive());
         assertEquals(8, o.regle().generateursParSecours());
     }
 
@@ -176,7 +182,7 @@ class DirectionCapaciteIntegrationTest {
         CapaciteOverview o = service.capacite(SOC, debut, aujourdhui);
 
         assertTrue(o.centres().stream().noneMatch(c -> c.centerId().equals(AUTRE)));
-        assertEquals(24, o.total().generateurs());
+        assertEquals(16, o.total().generateurs(), "le petit centre, masqué, n'est pas dans le total");
         assertEquals(1, service.capacite(SOC_AUTRE, debut, aujourdhui).total().generateurs());
     }
 

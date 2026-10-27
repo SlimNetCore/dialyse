@@ -633,6 +633,59 @@ public class PlanificationConfiguration {
         return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaCapacite(unite, places, ressources);
     }
 
+    // ---- Slice P6 : planning de la semaine et lectures publiées (présence, base de la capacité théorique) ----
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.SejoursDesPatients planificationSejoursDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.SeancesRealisees planificationSeancesRealisees(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyseance.SeancesRealiseesJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.DeplacementsTemporaires planificationDeplacementsTemporaires(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyoptimisation.DeplacementsTemporairesJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ConsulterLaSemaine planificationConsulterLaSemaine(
+            com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources,
+            com.hemodialyse.backend.contexts.planification.application.SejoursDesPatients patients,
+            com.hemodialyse.backend.contexts.planification.application.SeancesRealisees seances,
+            com.hemodialyse.backend.contexts.planification.application.DeplacementsTemporaires deplacements, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaSemaine(ressources, patients, seances,
+                deplacements, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.PresenceDesPatients planificationPresenceDesPatients(
+            com.hemodialyse.backend.contexts.planification.application.SejoursDesPatients patients) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresenceDesPatients(patients);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.PatientsAuxGenerateurs planificationPatientsAuxGenerateurs(
+            com.hemodialyse.backend.contexts.planification.application.SejoursDesPatients patients) {
+        return new com.hemodialyse.backend.contexts.planification.application.CompterLesPatientsAuxGenerateurs(patients);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.BaseDeLaCapaciteTheorique planificationBaseDeLaCapaciteTheorique(
+            com.hemodialyse.backend.contexts.planification.application.SeriesDuCentre series, ParametresDuPlanningRepository parametres,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PresenceDesPatients presence) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaBaseDeLaCapaciteTheorique(series, parametres,
+                presence);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.SeriesDuCentre planificationSeriesDuCentre(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SeriesDuCentreJdbc(jdbc);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.planification.application.ConsulterLesSalles planificationConsulterLesSalles(
             com.hemodialyse.backend.contexts.planification.application.VueDesSalles salles) {

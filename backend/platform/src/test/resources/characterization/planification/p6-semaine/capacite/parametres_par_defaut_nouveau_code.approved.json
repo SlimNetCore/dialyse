@@ -1,0 +1,8 @@
+{
+  "aucune ligne" : "patientsParPosteEtSerie=3",
+  "patients_par_poste_serie=-3" : "patientsParPosteEtSerie=3 capacite=null",
+  "patients_par_poste_serie=0" : "patientsParPosteEtSerie=3 capacite=null",
+  "patients_par_poste_serie=1" : "patientsParPosteEtSerie=1 capacite=null",
+  "patients_par_poste_serie=7" : "patientsParPosteEtSerie=7 capacite=null",
+  "patients_par_poste_serie=null" : "patientsParPosteEtSerie=3 capacite=null"
+}

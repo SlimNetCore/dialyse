@@ -10,12 +10,12 @@
       "seuilProchePourcent" : 90
     },
     "total" : {
-      "generateurs" : 9,
+      "generateurs" : 5,
       "generateursSecours" : 2,
-      "postesActifs" : 7,
+      "postesActifs" : 3,
       "series" : 0,
       "patientsParPosteEtSerie" : 0,
-      "capacite" : 42,
+      "capacite" : 18,
       "fileActive" : 0,
       "tauxOccupation" : 0.0,
       "niveau" : "MARGE",
@@ -26,12 +26,12 @@
       "nom" : "Centre Pilotage A",
       "actif" : true,
       "capacite" : {
-        "generateurs" : 8,
+        "generateurs" : 4,
         "generateursSecours" : 1,
-        "postesActifs" : 7,
+        "postesActifs" : 3,
         "series" : 2,
         "patientsParPosteEtSerie" : 3,
-        "capacite" : 42,
+        "capacite" : 18,
         "fileActive" : 0,
         "tauxOccupation" : 0.0,
         "niveau" : "MARGE",
@@ -53,6 +53,7 @@
         "niveau" : "SANS_CAPACITE",
         "atteinte" : false
       }
-    } ]
+    } ],
+    "centresMasques" : 0
   }
 }

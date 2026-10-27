@@ -1,23 +1,27 @@
 import {describe, expect, it} from 'vitest';
 import {CapaciteOverview, LigneCapacite} from '../../core/api/direction-api.service';
 import {
-  capaciteExemple, capaciteHeadline, capaciteRows, jaugeCapacite, nbCentresAtteints,
+  capaciteExemple, capaciteHeadline, capaciteRows, jaugeCapacite, nbCentresAtteints, niveauClasse,
 } from './direction-capacite.util';
 
+// une file nulle = centre masqué : capacité, niveau et « atteinte » sont masqués avec elle (revue P6, KB-PLN-75)
 const ligne = (capacite: number, fileActive: number | null, atteinte = false): LigneCapacite => ({
-  generateurs: 16, generateursSecours: 2, postesActifs: 14, series: 2, patientsParPosteEtSerie: 3, capacite, fileActive,
+  generateurs: 16, generateursSecours: 2, postesActifs: 14, series: 2, patientsParPosteEtSerie: 3,
+  capacite: fileActive === null ? null : capacite, fileActive,
   tauxOccupation: fileActive === null ? null : Math.round((fileActive / capacite) * 1000) / 10,
-  niveau: atteinte ? 'ATTEINTE' : 'MARGE', atteinte,
+  niveau: fileActive === null ? null : atteinte ? 'ATTEINTE' : 'MARGE', atteinte: fileActive === null ? null : atteinte,
 });
 
 const overview: CapaciteOverview = {
   societeId: 's', from: '2026-01-01', to: '2026-12-31', generatedAt: '',
   regle: {generateursParSecours: 8, seuilProchePourcent: 90},
-  total: ligne(105, 90),
+  // le centre B (file de 1 à 4) est masqué : sa file est nulle et il est exclu du total consolidé (KB-PLN-75)
+  total: ligne(84, 84, true),
   centres: [
     {centerId: 'a', nom: 'Centre A', actif: true, capacite: ligne(84, 84, true)},
     {centerId: 'b', nom: 'Centre B', actif: true, capacite: ligne(21, null)},
   ],
+  centresMasques: 1,
 };
 
 describe('direction capacité util', () => {
@@ -34,7 +38,9 @@ describe('direction capacité util', () => {
   });
 
   it('met en avant le total ou le centre isolé', () => {
-    expect(capaciteHeadline(overview, null)?.capacite).toBe(105);
+    expect(capaciteHeadline(overview, null)?.capacite).toBe(84);
+    expect(capaciteHeadline(overview, null)?.fileActive).toBe(84);
+    expect(overview.centresMasques).toBe(1);
     expect(capaciteHeadline(overview, 'a')?.capacite).toBe(84);
     expect(capaciteHeadline(overview, 'zzz')).toBeNull();
     expect(capaciteHeadline(null, null)).toBeNull();
@@ -53,10 +59,23 @@ describe('direction capacité util', () => {
   });
 });
 
+describe('centre masqué', () => {
+  it('masque capacité, niveau et « atteinte » avec la file, et le compte pas parmi les centres atteints', () => {
+    const b = overview.centres[1].capacite;
+    expect(b.fileActive).toBeNull();
+    expect(b.capacite).toBeNull();
+    expect(b.niveau).toBeNull();
+    expect(b.atteinte).toBeNull();
+    expect(niveauClasse(b)).toBe('masque');
+    expect(niveauClasse(overview.centres[0].capacite)).toBe('atteinte');
+    expect(nbCentresAtteints(overview)).toBe(1);
+  });
+});
+
 describe('capaciteExemple', () => {
   it('prend le premier centre ayant une capacité, ou le centre isolé', () => {
     expect(capaciteExemple(overview, null)?.nom).toBe('Centre A');
-    expect(capaciteExemple(overview, 'b')?.ligne.capacite).toBe(21);
+    expect(capaciteExemple(overview, 'b')).toBeNull(); // centre masqué : pas de capacité à citer
     expect(capaciteExemple(overview, 'zzz')).toBeNull();
     expect(capaciteExemple(null, null)).toBeNull();
   });

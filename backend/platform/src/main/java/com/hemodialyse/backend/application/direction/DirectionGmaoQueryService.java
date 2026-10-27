@@ -7,7 +7,8 @@ import com.hemodialyse.backend.application.direction.DirectionDashboardQueryServ
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre.Synthese;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.PatientsAuxGenerateurs;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,20 +31,31 @@ public class DirectionGmaoQueryService {
 
     private static final int MAX_YEARS = 5;
 
-    private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
     private static final int TOP_EQUIPEMENTS = 5;
+    /**
+     * Statuts GMAO d'un générateur « indisponible » : la liste de l'ancienne jointure SQL, reprise telle quelle (le port publié
+     * {@code IndisponibilitesDesGenerateurs} de GMAO parle d'interventions datées, pas de statuts : ce n'est pas le même besoin).
+     * Écart assumé : un patient rattaché au générateur d'un AUTRE centre comptait avant (jointure sur l'identifiant seul) ; il ne
+     * compte plus, les générateurs étant lus par centre (isolement des centres).
+     */
+    private static final java.util.Set<String> STATUTS_INDISPONIBLES =
+            java.util.Set.of("EN_MAINTENANCE", "EN_ATTENTE_PIECE", "HORS_SERVICE", "A_REFORMER", "REFORME");
 
     /** Les chiffres GMAO de chaque centre viennent de la lecture publiée par le module GMAO. */
     private final SyntheseGmaoDuCentre syntheses;
+    private final GenerateursDuCentre generateurs;
+    private final PatientsAuxGenerateurs patients;
 
     public DirectionGmaoQueryService(
-            JdbcTemplate jdbc,
             DirectionDashboardQueryService dashboard,
-            SyntheseGmaoDuCentre syntheses) {
-        this.jdbc = jdbc;
+            SyntheseGmaoDuCentre syntheses,
+            GenerateursDuCentre generateurs,
+            PatientsAuxGenerateurs patients) {
         this.dashboard = dashboard;
         this.syntheses = syntheses;
+        this.generateurs = generateurs;
+        this.patients = patients;
     }
 
     public GmaoOverview gmao(UUID societeId, LocalDate from, LocalDate to) {
@@ -107,15 +119,11 @@ public class DirectionGmaoQueryService {
      * Patients actuellement affectés à un générateur indisponible (en maintenance, en attente de pièce,
      * hors service, réformé) ou à réformer — alerte de sécurité patient (module GMAO v2).
      */
-    private long countPatientsSurEquipementIndisponible(UUID centreId) {
-        Long count = jdbc.queryForObject(
-                "SELECT COUNT(DISTINCT p.id) FROM patients p " +
-                        "JOIN gmao_equipements g ON g.id = p.generateur_id AND g.deleted_at IS NULL " +
-                        "WHERE p.center_id = ? AND (" +
-                        "  g.statut IN ('EN_MAINTENANCE','EN_ATTENTE_PIECE','HORS_SERVICE','A_REFORMER','REFORME')" +
-                        ")",
-                Long.class, centreId);
-        return count == null ? 0 : count;
+    long countPatientsSurEquipementIndisponible(UUID centreId) {
+        // P6 : les générateurs viennent de GMAO (langage publié), les patients rattachés de Planification (tous états, comme avant)
+        List<UUID> indisponibles = generateurs.duCentre(centreId).stream()
+                .filter(g -> STATUTS_INDISPONIBLES.contains(g.statut())).map(GenerateursDuCentre.Generateur::id).toList();
+        return patients.nombre(centreId, indisponibles);
     }
 
     private List<Alert> evaluateAlerts(UUID centreId, String nom, CentreGmao c) {

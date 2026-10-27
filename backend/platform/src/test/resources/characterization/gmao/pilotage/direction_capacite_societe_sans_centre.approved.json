@@ -21,6 +21,7 @@
       "niveau" : "SANS_CAPACITE",
       "atteinte" : false
     },
-    "centres" : [ ]
+    "centres" : [ ],
+    "centresMasques" : 0
   }
 }

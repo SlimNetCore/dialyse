@@ -274,8 +274,9 @@ public class AbsencesPatientsContexteConfiguration {
     }
 
     @Bean
-    PatientsAttendus absencesPatientsPatientsAttendus(JdbcTemplate jdbc) {
-        return new PatientsAttendusJdbc(jdbc);
+    PatientsAttendus absencesPatientsPatientsAttendus(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PresenceDesPatients presence) {
+        return new PatientsAttendusJdbc(jdbc, presence);
     }
 
     @Bean
