@@ -1,0 +1,51 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "cellules" : [ ],
+    "conflits" : [ ],
+    "creneaux" : [ ],
+    "debut" : "<S1.DIM>",
+    "fin" : "<S1.SAM>",
+    "jours" : [ {
+      "date" : "<S1.DIM>",
+      "fermetureMotif" : null,
+      "jour" : "DIMANCHE",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.LUN>",
+      "fermetureMotif" : null,
+      "jour" : "LUNDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.MAR>",
+      "fermetureMotif" : null,
+      "jour" : "MARDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.MER>",
+      "fermetureMotif" : null,
+      "jour" : "MERCREDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.JEU>",
+      "fermetureMotif" : null,
+      "jour" : "JEUDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.VEN>",
+      "fermetureMotif" : null,
+      "jour" : "VENDREDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.SAM>",
+      "fermetureMotif" : null,
+      "jour" : "SAMEDI",
+      "ouvertHebdomadaire" : true
+    } ],
+    "patientsAReplanifier" : 0,
+    "salles" : [ ],
+    "seancesSansCase" : [ ]
+  }
+}

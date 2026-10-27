@@ -1,0 +1,30 @@
+{
+  "sans creneau" : {
+    "capaciteParSalleEtJour" : { },
+    "cases" : [ ],
+    "conflits" : [ ],
+    "creneaux" : [ ],
+    "debut" : "<S1.DIM>",
+    "fin" : "<S1.SAM>",
+    "jours" : [ "DIMANCHE <S1.DIM>", "LUNDI <S1.LUN>", "MARDI <S1.MAR>", "MERCREDI <S1.MER>", "JEUDI <S1.JEU>", "VENDREDI <S1.VEN>", "SAMEDI <S1.SAM>" ],
+    "nbCellules" : 0,
+    "patientsAReplanifier" : 0,
+    "salles" : [ "Salle 1" ],
+    "seancesSansCase" : [ ],
+    "statut" : 200
+  },
+  "sans salle" : {
+    "capaciteParSalleEtJour" : { },
+    "cases" : [ ],
+    "conflits" : [ ],
+    "creneaux" : [ "Soir" ],
+    "debut" : "<S1.DIM>",
+    "fin" : "<S1.SAM>",
+    "jours" : [ "DIMANCHE <S1.DIM>", "LUNDI <S1.LUN>", "MARDI <S1.MAR>", "MERCREDI <S1.MER>", "JEUDI <S1.JEU>", "VENDREDI <S1.VEN>", "SAMEDI <S1.SAM>" ],
+    "nbCellules" : 0,
+    "patientsAReplanifier" : 0,
+    "salles" : [ ],
+    "seancesSansCase" : [ ],
+    "statut" : 200
+  }
+}

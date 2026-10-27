@@ -365,7 +365,17 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/SalleVuePort.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/GenerateurImpactPort.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/AlertesDuPlacementLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlacementDeLaFiche.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlacementDeLaFiche.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/PlanningSemaineRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/PlanningSemaineQueryService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/service/PlanningSemaineService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/PlanningSemainePort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/model/PlanningSemaine.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/model/DeplacementTemporaire.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/service/CapaciteTheoriqueCalculator.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/SeancePlacePort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/PlaceSeance.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlaceJdbcAdapter.java"
   ],
   "seamAllowed": []
 }

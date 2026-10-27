@@ -1,0 +1,12 @@
+{
+  "date : 30 fevrier" : "500 INTERNAL_ERROR",
+  "date : annee negative" : "200",
+  "date : annee signee" : "500 INTERNAL_ERROR",
+  "date : avec heure" : "500 INTERNAL_ERROR",
+  "date : jj/mm/aaaa" : "500 INTERNAL_ERROR",
+  "date : mois 13" : "500 INTERNAL_ERROR",
+  "date : sans tirets" : "500 INTERNAL_ERROR",
+  "date : sans zeros" : "500 INTERNAL_ERROR",
+  "date : texte" : "500 INTERNAL_ERROR",
+  "date : vide" : "200"
+}

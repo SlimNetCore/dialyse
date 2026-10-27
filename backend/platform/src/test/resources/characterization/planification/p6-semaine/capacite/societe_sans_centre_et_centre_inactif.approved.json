@@ -1,0 +1,4 @@
+{
+  "centre inactif" : "centres=1 actif=false generateurs=1",
+  "sans centre" : "centres=0 generateurs=0 capacite=0"
+}

@@ -1,0 +1,12 @@
+{
+  "SUPERADMIN sans centre de session ni demande" : "403 ROLE_SCOPE",
+  "SUPERADMIN sans centre demande" : "403 ROLE_SCOPE",
+  "SUPERADMIN sur un autre centre" : "403 ROLE_SCOPE",
+  "autre centre" : "403 ACCESS_DENIED",
+  "centre de la session" : "200",
+  "centre illisible" : "500 INTERNAL_ERROR",
+  "centre inconnu" : "403 ACCESS_DENIED",
+  "centre vide" : "200",
+  "session sans centre" : "403 ACCESS_DENIED",
+  "session sans centre avec centre demande" : "403 ACCESS_DENIED"
+}

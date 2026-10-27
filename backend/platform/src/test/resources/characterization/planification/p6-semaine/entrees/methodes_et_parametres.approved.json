@@ -1,0 +1,10 @@
+{
+  "DELETE" : "500 INTERNAL_ERROR",
+  "PATCH" : "500 INTERNAL_ERROR",
+  "POST" : "500 INTERNAL_ERROR",
+  "PUT" : "500 INTERNAL_ERROR",
+  "date repetee" : "200",
+  "parametre inconnu ignore" : "200",
+  "slash final" : "500 INTERNAL_ERROR",
+  "sous-chemin" : "500 INTERNAL_ERROR"
+}

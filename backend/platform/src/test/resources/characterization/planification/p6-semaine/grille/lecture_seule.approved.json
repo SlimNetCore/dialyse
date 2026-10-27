@@ -1,0 +1,8 @@
+{
+  "base inchangee" : true,
+  "cacheControl" : "no-store",
+  "contentType" : "application/json",
+  "diffusions" : 0,
+  "notifications" : 0,
+  "statut" : 200
+}

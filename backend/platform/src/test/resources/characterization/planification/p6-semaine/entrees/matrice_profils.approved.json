@@ -1,0 +1,14 @@
+{
+  "ADMIN" : "200 cellules=7",
+  "ADMIN sans centre" : "403 ACCESS_DENIED",
+  "DIRECTION" : "403 ROLE_SCOPE",
+  "INFIRMIER seul" : "403 ROLE_SCOPE",
+  "MEDECIN + INFIRMIER" : "200 cellules=7",
+  "MEDECIN seul" : "200 cellules=7",
+  "SECRETAIRE" : "200 cellules=7",
+  "SUPERADMIN" : "403 ROLE_SCOPE",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE",
+  "anonyme" : "403",
+  "aucun role" : "403 ACCESS_DENIED",
+  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED"
+}

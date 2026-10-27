@@ -1,0 +1,26 @@
+{
+  "capaciteParSalleEtJour" : {
+    "Salle 1 / DIMANCHE" : 0,
+    "Salle 1 / JEUDI" : 0,
+    "Salle 1 / LUNDI" : 2,
+    "Salle 1 / MARDI" : 2,
+    "Salle 1 / MERCREDI" : 0,
+    "Salle 1 / SAMEDI" : 0,
+    "Salle 1 / VENDREDI" : 0,
+    "Salle 2 / DIMANCHE" : 0,
+    "Salle 2 / JEUDI" : 0,
+    "Salle 2 / LUNDI" : 2,
+    "Salle 2 / MARDI" : 2,
+    "Salle 2 / MERCREDI" : 0,
+    "Salle 2 / SAMEDI" : 0,
+    "Salle 2 / VENDREDI" : 0,
+    "Salle isolement / DIMANCHE" : 0,
+    "Salle isolement / JEUDI" : 0,
+    "Salle isolement / LUNDI" : 1,
+    "Salle isolement / MARDI" : 1,
+    "Salle isolement / MERCREDI" : 0,
+    "Salle isolement / SAMEDI" : 0,
+    "Salle isolement / VENDREDI" : 0
+  },
+  "jours" : [ "DIMANCHE <S1.DIM> NON_OUVERT", "LUNDI <S1.LUN>", "MARDI <S1.MAR>", "MERCREDI <S1.MER> NON_OUVERT", "JEUDI <S1.JEU> NON_OUVERT", "VENDREDI <S1.VEN> NON_OUVERT", "SAMEDI <S1.SAM> NON_OUVERT" ]
+}

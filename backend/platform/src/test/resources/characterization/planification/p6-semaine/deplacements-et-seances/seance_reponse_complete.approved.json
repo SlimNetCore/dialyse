@@ -1,0 +1,118 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "cellules" : [ {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "DIMANCHE",
+      "occupants" : [ ],
+      "salleId" : "<SALLE_1>"
+    }, {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "LUNDI",
+      "occupants" : [ {
+        "aRisque" : false,
+        "dejaRealiseeLe" : null,
+        "generateurCode" : "G1A",
+        "libereLe" : null,
+        "nom" : "Test Patient PAT_1",
+        "patientId" : "<PAT_1>",
+        "realiseeHorsPlanning" : true,
+        "temporaire" : false
+      } ],
+      "salleId" : "<SALLE_1>"
+    }, {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "MARDI",
+      "occupants" : [ ],
+      "salleId" : "<SALLE_1>"
+    }, {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "MERCREDI",
+      "occupants" : [ {
+        "aRisque" : false,
+        "dejaRealiseeLe" : "<S1.LUN>",
+        "generateurCode" : "G1A",
+        "libereLe" : null,
+        "nom" : "Test Patient PAT_1",
+        "patientId" : "<PAT_1>",
+        "realiseeHorsPlanning" : false,
+        "temporaire" : false
+      } ],
+      "salleId" : "<SALLE_1>"
+    }, {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "JEUDI",
+      "occupants" : [ ],
+      "salleId" : "<SALLE_1>"
+    }, {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "VENDREDI",
+      "occupants" : [ ],
+      "salleId" : "<SALLE_1>"
+    }, {
+      "capacite" : 1,
+      "creneauId" : "<CRENEAU_MATIN>",
+      "jour" : "SAMEDI",
+      "occupants" : [ ],
+      "salleId" : "<SALLE_1>"
+    } ],
+    "conflits" : [ ],
+    "creneaux" : [ {
+      "id" : "<CRENEAU_MATIN>",
+      "libelle" : "Matin",
+      "ordre" : 1
+    } ],
+    "debut" : "<S1.DIM>",
+    "fin" : "<S1.SAM>",
+    "jours" : [ {
+      "date" : "<S1.DIM>",
+      "fermetureMotif" : null,
+      "jour" : "DIMANCHE",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.LUN>",
+      "fermetureMotif" : null,
+      "jour" : "LUNDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.MAR>",
+      "fermetureMotif" : null,
+      "jour" : "MARDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.MER>",
+      "fermetureMotif" : null,
+      "jour" : "MERCREDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.JEU>",
+      "fermetureMotif" : null,
+      "jour" : "JEUDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.VEN>",
+      "fermetureMotif" : null,
+      "jour" : "VENDREDI",
+      "ouvertHebdomadaire" : true
+    }, {
+      "date" : "<S1.SAM>",
+      "fermetureMotif" : null,
+      "jour" : "SAMEDI",
+      "ouvertHebdomadaire" : true
+    } ],
+    "patientsAReplanifier" : 0,
+    "salles" : [ {
+      "id" : "<SALLE_1>",
+      "nom" : "Salle 1"
+    } ],
+    "seancesSansCase" : [ ]
+  }
+}

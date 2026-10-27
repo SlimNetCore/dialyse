@@ -1,0 +1,13 @@
+{
+  "ADMIN / centre B demande" : "403 ACCESS_DENIED",
+  "ADMIN sans centre / centre B demande" : "403 ACCESS_DENIED",
+  "DIRECTION / centre B demande" : "403 ROLE_SCOPE",
+  "INFIRMIER seul / centre B demande" : "403 ROLE_SCOPE",
+  "MEDECIN + INFIRMIER / centre B demande" : "403 ACCESS_DENIED",
+  "MEDECIN seul / centre B demande" : "403 ACCESS_DENIED",
+  "SECRETAIRE / centre B demande" : "403 ACCESS_DENIED",
+  "SUPERADMIN + ADMIN / centre B demande" : "403 ROLE_SCOPE",
+  "SUPERADMIN / centre B demande" : "403 ROLE_SCOPE",
+  "aucun role / centre B demande" : "403 ACCESS_DENIED",
+  "role inconnu (COMPTABLE) / centre B demande" : "403 ACCESS_DENIED"
+}

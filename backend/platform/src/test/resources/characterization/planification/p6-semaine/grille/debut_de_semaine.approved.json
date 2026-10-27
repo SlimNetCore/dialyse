@@ -1,0 +1,8 @@
+{
+  "<S0.SAM>" : "<S0.DIM> -> <S0.SAM>",
+  "<S1.DIM>" : "<S1.DIM> -> <S1.SAM>",
+  "<S1.LUN>" : "<S1.DIM> -> <S1.SAM>",
+  "<S1.MER>" : "<S1.DIM> -> <S1.SAM>",
+  "<S1.SAM>" : "<S1.DIM> -> <S1.SAM>",
+  "<S2.DIM>" : "<S2.DIM> -> <S2.SAM>"
+}

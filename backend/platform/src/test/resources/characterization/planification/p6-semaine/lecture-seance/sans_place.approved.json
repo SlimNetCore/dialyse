@@ -1,0 +1,25 @@
+[ {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "date_seance" : "<S-1.LUN>",
+  "generateur_id" : "<G2A>",
+  "id" : "<SEANCE_3>",
+  "patient_id" : "<PAT_DEPLACE>",
+  "salle_id" : "<SALLE_2>",
+  "statut" : "VALIDEE"
+}, {
+  "creneau_id" : null,
+  "date_seance" : "<S-1.LUN>",
+  "generateur_id" : null,
+  "id" : "<SEANCE_2>",
+  "patient_id" : "<PAT_SANS_CRENEAU>",
+  "salle_id" : null,
+  "statut" : "VALIDEE"
+}, {
+  "creneau_id" : null,
+  "date_seance" : "<S-1.LUN>",
+  "generateur_id" : null,
+  "id" : "<SEANCE_1>",
+  "patient_id" : "<PAT_SANS_SALLE>",
+  "salle_id" : null,
+  "statut" : "VALIDEE"
+} ]
