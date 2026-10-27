@@ -1,0 +1,18 @@
+{
+  "GET mouvements : ADMIN" : "200",
+  "GET mouvements : ADMIN sans centre" : "403 ACCESS_DENIED",
+  "GET mouvements : DIRECTION" : "403 ROLE_SCOPE",
+  "GET mouvements : INFIRMIER seul" : "200",
+  "GET mouvements : MEDECIN + INFIRMIER" : "200",
+  "GET mouvements : MEDECIN seul" : "200",
+  "GET mouvements : SECRETAIRE" : "200",
+  "GET mouvements : SUPERADMIN" : "403 ROLE_SCOPE",
+  "GET mouvements : SUPERADMIN + ADMIN" : "403 ROLE_SCOPE",
+  "GET mouvements : anonyme" : "403",
+  "GET mouvements : aucun role" : "403 ACCESS_DENIED",
+  "GET mouvements : role inconnu (COMPTABLE)" : "403 ACCESS_DENIED",
+  "GET mouvements autre centre : ADMIN du centre B" : "403 ACCESS_DENIED",
+  "POST mouvements : ADMIN" : "500 INTERNAL_ERROR",
+  "POST patients/liberer-places : ADMIN" : "500 INTERNAL_ERROR",
+  "POST planning/liberation : ADMIN" : "500 INTERNAL_ERROR"
+}

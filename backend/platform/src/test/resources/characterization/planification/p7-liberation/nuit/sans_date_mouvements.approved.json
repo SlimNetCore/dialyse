@@ -1,0 +1,49 @@
+[ {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "DECEDE",
+  "etat_precedent" : "DECEDE",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient DECEDE_SANS_DATE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "GREFFE",
+  "etat_precedent" : "GREFFE",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient GREFFE_SANS_DATE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "GUERRI",
+  "etat_precedent" : "GUERRI",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient GUERRI_SANS_DATE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient TRANSFERE_SANS_DATE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+} ]

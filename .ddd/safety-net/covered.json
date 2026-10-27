@@ -375,7 +375,19 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/service/CapaciteTheoriqueCalculator.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/SeancePlacePort.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/PlaceSeance.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlaceJdbcAdapter.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlaceJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/patient/LiberationPlacesService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/LiberationPlacesScheduler.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/service/MouvementsPatient.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/service/FinOccupation.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/model/Patient.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/model/MouvementPatient.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/model/MouvementLigne.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/model/TypeMouvementPatient.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/port/MouvementPatientRepositoryPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/patient/MouvementPatientQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/MouvementPatientRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/MouvementPatientJdbcAdapter.java"
   ],
   "seamAllowed": []
 }

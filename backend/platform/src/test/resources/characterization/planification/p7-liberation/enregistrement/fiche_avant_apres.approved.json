@@ -1,0 +1,30 @@
+{
+  "apres" : {
+    "etatPatient" : "TRANSFERE",
+    "generateurId" : "null",
+    "positionId" : "null",
+    "salleId" : "null",
+    "statut" : 200
+  },
+  "apres_permanent" : {
+    "etatPatient" : "PERMANENT",
+    "generateurId" : "<G1A>",
+    "positionId" : "<CRENEAU_MATIN>",
+    "salleId" : "<SALLE_1>",
+    "statut" : 200
+  },
+  "avant" : {
+    "etatPatient" : "TRANSFERE",
+    "generateurId" : "<G1A>",
+    "positionId" : "<CRENEAU_MATIN>",
+    "salleId" : "<SALLE_1>",
+    "statut" : 200
+  },
+  "avant_permanent" : {
+    "etatPatient" : "PERMANENT",
+    "generateurId" : "<G1A>",
+    "positionId" : "<CRENEAU_MATIN>",
+    "salleId" : "<SALLE_1>",
+    "statut" : 200
+  }
+}

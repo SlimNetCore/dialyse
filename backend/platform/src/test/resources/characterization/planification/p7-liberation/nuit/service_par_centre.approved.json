@@ -1,0 +1,8 @@
+{
+  "centresAvecPlaces" : [ "<CENTRE_A>", "<CENTRE_B>" ],
+  "centresAvecPlacesApres" : [ "<CENTRE_A>", "<CENTRE_B>" ],
+  "liberees_centre_A" : 2,
+  "liberees_centre_A_au_second_appel" : 0,
+  "patients_encore_places_A" : 1,
+  "patients_encore_places_B" : 1
+}

@@ -1,0 +1,26 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "automatique" : true,
+      "creeLe" : "<HORODATAGE>",
+      "creneau" : "Creneau B",
+      "dateEffet" : "<J>",
+      "etatNouveau" : "DECEDE",
+      "etatPrecedent" : "DECEDE",
+      "generateur" : null,
+      "id" : "<UUID_GENERE_1>",
+      "joursDialyse" : "LUNDI,MERCREDI",
+      "patientCode" : "P3-B_DECEDE_J",
+      "patientId" : "<B_DECEDE_J>",
+      "patientNom" : "Test Patient B_DECEDE_J",
+      "salle" : "Salle B",
+      "type" : "PLACE_LIBEREE"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

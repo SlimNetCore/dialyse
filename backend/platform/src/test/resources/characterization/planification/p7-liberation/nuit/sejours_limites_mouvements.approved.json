@@ -1,0 +1,37 @@
+[ {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "OCCASIONNEL",
+  "etat_precedent" : "OCCASIONNEL",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient OCCASIONNEL_FIN_J-1",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "VACANCIER_ETRANGER",
+  "etat_precedent" : "VACANCIER_ETRANGER",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient VACANCIER_ETRANGER_FIN_J-1",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "VACANCIER_LOCAL",
+  "etat_precedent" : "VACANCIER_LOCAL",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient VACANCIER_LOCAL_FIN_J-4",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+} ]

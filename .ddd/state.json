@@ -57,7 +57,8 @@
     "planification-p3-roulement-absences-remplacements": "built",
     "planification-p4-presence-cron": "built",
     "planification-p5-placement": "built",
-    "planification-p6-planning-semaine-lectures": "built"
+    "planification-p6-planning-semaine-lectures": "built",
+    "planification-p7-liberation-places": "characterized"
   },
   "contexts": {
     "gmao": "architected",

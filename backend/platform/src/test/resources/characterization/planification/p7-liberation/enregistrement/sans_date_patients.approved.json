@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : null,
+  "etat" : "PERMANENT",
+  "evenement" : null,
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient TRANSFERE_SANS_DATE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+} ]

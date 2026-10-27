@@ -1,0 +1,71 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : null,
+  "etat" : "transfere",
+  "evenement" : "<J-5>",
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient ETAT_EN_MINUSCULES",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : null,
+  "etat" : "SUSPENDU",
+  "evenement" : "<J-5>",
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient ETAT_INCONNU",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : null,
+  "etat" : null,
+  "evenement" : "<J-5>",
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient ETAT_NON_RENSEIGNE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : null,
+  "etat" : "PERMANENT",
+  "evenement" : "<J-5>",
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient PERMANENT_AVEC_DATE_PASSEE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : "true",
+  "etat" : "PERMANENT",
+  "evenement" : null,
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient PERMANENT_EN_SOMMEIL",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : null,
+  "etat" : "PERMANENT",
+  "evenement" : null,
+  "generateur_id" : "<G1A>",
+  "jours" : ".L.M...",
+  "nom" : "Patient PERMANENT_SANS_DATE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "en_sommeil" : "true",
+  "etat" : "TRANSFERE",
+  "evenement" : "<J-5>",
+  "generateur_id" : null,
+  "jours" : ".......",
+  "nom" : "Patient TRANSFERE_EN_SOMMEIL",
+  "position_id" : null,
+  "salle_id" : null
+} ]

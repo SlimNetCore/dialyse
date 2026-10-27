@@ -1,0 +1,7 @@
+{
+  "apres_04h00_attendus_avant_hier" : [ "<PERMANENT>", "<TRANSFERE_J>" ],
+  "apres_04h00_attendus_hier" : [ "<PERMANENT>", "<TRANSFERE_J>" ],
+  "apres_04h00_places" : 2,
+  "avant_04h00_attendus_avant_hier" : [ "<DECEDE_J-1>", "<DECEDE_J>", "<GREFFE_J-1>", "<GUERRI_J-1>", "<OCCASIONNEL_FIN_J-1>", "<OCCASIONNEL_FIN_J-2>", "<PERMANENT>", "<TRANSFERE_J-1>", "<TRANSFERE_J>" ],
+  "avant_04h00_attendus_hier" : [ "<DECEDE_J>", "<OCCASIONNEL_FIN_J-1>", "<PERMANENT>", "<TRANSFERE_J>" ]
+}

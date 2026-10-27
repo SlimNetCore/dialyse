@@ -1,0 +1,61 @@
+[ {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "",
+  "nom" : "Patient SANS_JOURS",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : null,
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient SEULE_SALLE",
+  "position_id" : null,
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : null,
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient SEUL_CRENEAU",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : null,
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "LUNDI,MERCREDI",
+  "nom" : "Patient SEUL_GENERATEUR",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "PLACE_LIBEREE"
+}, {
+  "automatique" : "true",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "DIMANCHE,LUNDI,MARDI,MERCREDI,JEUDI,VENDREDI,SAMEDI",
+  "nom" : "Patient TOUS_LES_JOURS",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "PLACE_LIBEREE"
+} ]

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PATIENT_DATE_EVENEMENT_REQUISE",
+    "detail" : "La date de l'évènement est obligatoire pour l'état TRANSFERE",
+    "instance" : "/api/v1/patients/<TRANSFERE_SANS_DATE>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

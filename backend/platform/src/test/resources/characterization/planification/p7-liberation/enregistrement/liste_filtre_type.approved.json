@@ -1,0 +1,26 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "automatique" : true,
+      "creeLe" : "<HORODATAGE>",
+      "creneau" : "Matin",
+      "dateEffet" : "<J>",
+      "etatNouveau" : "TRANSFERE",
+      "etatPrecedent" : "TRANSFERE",
+      "generateur" : "G1A",
+      "id" : "<UUID_GENERE_1>",
+      "joursDialyse" : "LUNDI,MERCREDI",
+      "patientCode" : "P3-A_TRANSFERE_J-2",
+      "patientId" : "<A_TRANSFERE_J-2>",
+      "patientNom" : "Test Patient A_TRANSFERE_J-2",
+      "salle" : "Salle 1",
+      "type" : "PLACE_LIBEREE"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}
