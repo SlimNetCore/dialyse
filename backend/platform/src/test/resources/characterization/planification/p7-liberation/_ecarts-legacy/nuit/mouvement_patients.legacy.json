@@ -1,0 +1,24 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "DECEDE",
+    "evenement": "<J-3>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient DECEDE_J-3",
+    "position_id": null,
+    "salle_id": null
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "OCCASIONNEL",
+    "evenement": "<J-6>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient OCCASIONNEL_FIN_J-6",
+    "position_id": null,
+    "salle_id": null
+  }
+]

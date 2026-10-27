@@ -81,7 +81,9 @@
   perd sa salle, son créneau, son générateur et ses jours de dialyse ; le patient reste dans le centre (consultation,
   facturation, historique). Le traitement s'exécute chaque nuit à 04:00 (après le contrôle des absences de 02:30, qui a
   encore besoin des jours de dialyse de la veille) et à l'enregistrement d'une fiche dont l'échéance est dépassée de
-  plus d'un jour. Il est idempotent, par centre, et vide les caches de liste et de synthèse patient.
+  plus d'un jour. Il est idempotent, libère chaque patient dans sa propre transaction, pour les seuls centres actifs, au
+  jour du centre, et vide les caches de liste et de synthèse patient. Détail et exceptions : RG-PLN-108 à 111 (contexte
+  Planification, qui possède désormais l'écriture).
 - **RG-PAT-034** — **Mouvements de patients** : chaque admission, changement d'état ou de date d'évènement et chaque
   libération de place produit un mouvement immuable (`ADMISSION`, `SEJOUR_TEMPORAIRE`, `REPRISE`, `TRANSFERT`,
   `DECES`, `GREFFE`, `GUERISON`, `PLACE_LIBEREE`) portant l'état précédent et nouveau, la date d'effet et

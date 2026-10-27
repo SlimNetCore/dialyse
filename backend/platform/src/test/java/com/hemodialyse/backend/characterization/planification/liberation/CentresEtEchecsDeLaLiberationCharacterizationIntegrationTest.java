@@ -2,7 +2,7 @@ package com.hemodialyse.backend.characterization.planification.liberation;
 
 import com.hemodialyse.backend.characterization.planification.LiberationCharacterizationSupport;
 import com.hemodialyse.backend.contexts.absencespatients.interfaces.jobs.ControleDeNuitDesAbsences;
-import com.hemodialyse.backend.infrastructure.scheduling.LiberationPlacesScheduler;
+import com.hemodialyse.backend.contexts.planification.interfaces.jobs.LiberationDesPlacesDe0400;
 import com.hemodialyse.backend.infrastructure.scheduling.ReplanificationAutomatiqueScheduler;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -100,6 +100,12 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
             jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", CENTRE_B);
             jdbc.update("UPDATE patients SET salle_id = ?, position_id = ?, generateur_id = NULL, jour_lundi = TRUE, jour_mercredi = TRUE "
                     + "WHERE center_id = ? AND nom LIKE 'Patient B1%'", salleB, creneauB, CENTRE_B);
+            // P7 (une transaction par patient) : les autres patients du centre A sont libérés à chaque passage ; on remet le centre A
+            // dans son état de départ pour pouvoir faire échouer le patient suivant (la contrainte ne peut pas se poser sur un patient
+            // qui a déjà son mouvement)
+            jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", CENTRE_A);
+            jdbc.update("UPDATE patients SET salle_id = ?, position_id = ?, generateur_id = ?, jour_lundi = TRUE, jour_mercredi = TRUE "
+                    + "WHERE center_id = ? AND nom LIKE 'Patient A%'", salle1, matin, g1a, CENTRE_A);
         }
         arbre("passages_en_echec", m);
         etatDesPatients("apres_les_echecs_patients");
@@ -146,7 +152,7 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
     @Test
     void le_calendrier_de_nuit_le_cron_de_liberation_n_a_pas_de_fuseau_les_controles_de_02h30_ont_le_leur() throws Exception {
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("liberation", planification(LiberationPlacesScheduler.class, "libererPlaces"));
+        m.put("liberation", planification(LiberationDesPlacesDe0400.class, "libererLesPlaces"));
         m.put("controleDesAbsences", planification(ControleDeNuitDesAbsences.class, "controlerAbsences"));
         m.put("replanificationAutomatique", planification(ReplanificationAutomatiqueScheduler.class, "replanifier"));
         arbre("calendrier_de_nuit", m);

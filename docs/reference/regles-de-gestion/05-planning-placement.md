@@ -395,6 +395,54 @@
   « à pourvoir » et le manque d'infirmier est signalé. L'écran le dit et propose **« Chercher des remplaçants »** :
   la couverture est préremplie sur la période de la proposition (8 semaines au plus) ; c'est elle qui propose les
   remplaçants (RG-PLN-105). *Sources :* `CalendrierPropositionService.infirmiers`, `PlanningProposeComponent`.
+- **RG-PLN-108** — **Libération des places échues, de nuit** (contexte Planification, slice P7, ADR 0061). Chaque nuit à
+  04:00, fuseau `Africa/Algiers` (`app.planification.fuseau-par-defaut`), le job libère, **pour chaque centre ACTIF**
+  (`centers.actif`), les places dont le dernier jour d'occupation (RG-PAT-032) est dépassé **au jour du centre** :
+  salle,
+  créneau, générateur et jours de dialyse sont effacés, **seules ces colonnes de la fiche sont écrites**. Reproduit du
+  legacy : `TRANSFERE` et `GUERRI` sont libérés le lendemain de la date d'évènement, `DECEDE` et `GREFFE` le jour même
+  de la
+  date (dernier jour occupé = la veille), un état de sortie sans date tout de suite (l'API refuse déjà cette saisie,
+  422),
+  un séjour limité après sa date de fin (sans date de fin : jamais), `PERMANENT`, un état non renseigné, inconnu ou en
+  minuscules **jamais** ; **le sommeil n'empêche pas la libération d'un sorti** (à décider). Un patient sans salle,
+  créneau ni
+  générateur est ignoré ; une place partielle est libérée avec un mouvement partiel. Un centre inactif, ou sans ligne
+  `centers`, n'est **pas** libéré (écart décidé le 27/10 ; contrôle SELECT en recette). Le job est idempotent.
+  *Sources :*
+  `LibererLesPlacesEchues`, `PlaceTenue`, `PlacesTenuesJdbc`, `LiberationDesPlacesDe0400`.
+- **RG-PLN-109** — **Un patient, une transaction.** Chaque patient est libéré dans sa propre transaction, sous le verrou
+  des places du centre (RG-PLN-050, ordre global des verrous : centre, puis ligne de la fiche) : la fiche est relue sous
+  verrou et jugée sur son état réel (une fiche enregistrée au même instant n'est jamais écrasée). Un patient en échec
+  (écriture du mouvement refusée, verrou du centre non obtenu en 5 s) est journalisé et **signalé à l'administrateur**
+  par
+  la notification `LIBERATION_PLACES_EN_ECHEC` (une seule par centre et par jour du centre, nombre de patients
+  concernés) ;
+  les autres patients du centre et les autres centres sont libérés ; la nuit suivante réessaie. *Sources :*
+  `LibererUnePlace`, `NotificationsDeLaLiberationLegacy`.
+- **RG-PLN-110** — **Mouvement `PLACE_LIBEREE`.** Écrit dans la **même transaction** que la libération, avant
+  l'effacement : automatique, daté du **jour réel de la libération (jour du centre)**, état conservé (précédent et
+  nouveau), place quittée figée (salle, créneau, générateur, jours). Jamais en doublon : si le dernier mouvement du
+  patient
+  est déjà cette libération (même état, même place), il n'en est pas écrit un second (une fiche renvoyée avec la place
+  d'un
+  sorti est libérée sans nouveau mouvement). Aucune notification, aucune diffusion pour une libération normale ;
+  l'évènement
+  d'intégration `PlaceLiberee` v1 est différé (Patient et couverture reste legacy, ADR 0052). Les caches de la fiche, de
+  la
+  liste et des comptages sont évincés après validation. *Sources :* `MouvementsDesPatientsJdbc`,
+  `CachesDesPatientsLegacy`.
+- **RG-PLN-111** — **Ordre de nuit.** La **détection des absences (02:30, Africa/Algiers)** précède TOUJOURS la
+  **libération des places (04:00, Africa/Algiers)** : la détection a besoin des jours de dialyse de la veille ; si la
+  libération passait avant, un décédé du jour et un séjour fini la veille ne seraient plus « attendus » (leurs jours
+  seraient
+  effacés) et une absence en échec reprise les nuits suivantes ne les retrouverait pas. Un test de non-régression
+  (`OrdreDeNuitDeLaLiberationTest`) vérifie les deux horaires et fuseaux. À l' **enregistrement d'une fiche**
+  (RG-PAT-033),
+  l'échéance est jugée à la **veille** (la veille reste conservée) mais le mouvement est daté du jour réel du centre ;
+  le
+  verrou du centre n'est pris que s'il y a une place à libérer (409 si non obtenu en 5 s). *Sources :*
+  `LibererLaPlaceDeLaFiche`, `LiberationALEnregistrementDeLaFiche`.
 - **RG-PLN-100** — **Replanification automatique nocturne** (`ReplanificationAutomatiqueScheduler`, 02:30 UTC chaque
   nuit), pour les centres qui l'ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
   semaines au moins, **étendue jusqu'à la fin de la dernière absence d'infirmier à venir, 8 semaines au plus** : une

@@ -1,0 +1,79 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "OCCASIONNEL",
+    "evenement": "<J>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient OCCASIONNEL_FIN_J",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "OCCASIONNEL",
+    "evenement": "<J-1>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient OCCASIONNEL_FIN_J-1",
+    "position_id": null,
+    "salle_id": null
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "OCCASIONNEL",
+    "evenement": null,
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient OCCASIONNEL_SANS_FIN",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "VACANCIER_ETRANGER",
+    "evenement": "<J-1>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient VACANCIER_ETRANGER_FIN_J-1",
+    "position_id": null,
+    "salle_id": null
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "VACANCIER_ETRANGER",
+    "evenement": null,
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient VACANCIER_ETRANGER_SANS_FIN",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "VACANCIER_LOCAL",
+    "evenement": "<J+4>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient VACANCIER_LOCAL_FIN_J+4",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "VACANCIER_LOCAL",
+    "evenement": "<J-4>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient VACANCIER_LOCAL_FIN_J-4",
+    "position_id": null,
+    "salle_id": null
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "PERMANENT",
+    "evenement": null,
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient PERMANENT",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "TRANSFERE",
+    "evenement": "<J-2>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient TRANSFERE_J-2",
+    "position_id": null,
+    "salle_id": null
+  }
+]

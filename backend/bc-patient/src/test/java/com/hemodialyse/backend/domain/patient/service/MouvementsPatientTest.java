@@ -106,40 +106,12 @@ class MouvementsPatientTest {
     }
 
     @Test
-    void the_place_is_released_the_day_after_the_last_occupied_day() {
+    void aligning_the_returned_record_clears_the_assignment() {
+        // la libération elle-même est dans contexts/planification (P7) ; la fiche renvoyée est seulement alignée
         Patient p = patientPlace();
-        p.setEtatPatient("TRANSFERE");
-        p.setDateEvenementEtat(AUJOURDHUI);
 
-        assertFalse(MouvementsPatient.placeAReprendre(p, AUJOURDHUI), "dernier jour occupé : place encore due");
-        assertTrue(MouvementsPatient.placeAReprendre(p, AUJOURDHUI.plusDays(1)));
-    }
-
-    @Test
-    void a_patient_without_assignment_has_no_place_to_release() {
-        Patient p = patientPlace();
-        p.libererPlacement();
-        p.setEtatPatient("DECEDE");
-        p.setDateEvenementEtat(AUJOURDHUI.minusDays(10));
-
-        assertFalse(MouvementsPatient.placeAReprendre(p, AUJOURDHUI));
-    }
-
-    @Test
-    void releasing_clears_the_assignment_and_the_movement_keeps_it() {
-        Patient p = patientPlace();
-        p.setEtatPatient("DECEDE");
-        p.setDateEvenementEtat(AUJOURDHUI.minusDays(3));
-        UUID salle = p.getSalleId();
-
-        MouvementPatient m = MouvementsPatient.placeLiberee(p, AUJOURDHUI, MAINTENANT);
         p.libererPlacement();
 
-        assertEquals(TypeMouvementPatient.PLACE_LIBEREE, m.type());
-        assertTrue(m.automatique());
-        assertEquals(salle, m.salleId());
-        assertEquals("LUNDI,MERCREDI,VENDREDI", m.joursDialyse());
-        assertEquals("DECEDE", m.etatPrecedent());
         assertNull(p.getSalleId());
         assertNull(p.getPositionId());
         assertNull(p.getGenerateurId());

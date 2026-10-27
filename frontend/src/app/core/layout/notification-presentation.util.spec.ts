@@ -23,7 +23,7 @@ const TYPES = [
   'INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF', 'OPTIMISATION_PROPOSITION', 'GENERATEUR_INDISPONIBLE',
   'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'RETOUR_SALLE_ORDINAIRE_PROPOSE', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
   'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
-  'REFORME_PROPOSEE', 'LOTS_PROCHES_PEREMPTION',
+  'REFORME_PROPOSEE', 'LOTS_PROCHES_PEREMPTION', 'LIBERATION_PLACES_EN_ECHEC',
 ];
 
 /** Écrans ouverts à l'infirmier seul et au médecin seul (mêmes règles que `role-scope.guard`). */
@@ -118,6 +118,15 @@ describe('présentation des notifications', () => {
       {label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/medecin'], queryParams: {date: '2026-10-19'}});
     expect(vue(event('GENERATEUR_INDISPONIBLE'), 'MEDECIN').action.commands).toEqual(['/medecin']);
     expect(vue(event('OPTIMISATION_PROPOSITION', {runId: 'r1'}), 'MEDECIN').action.commands).toEqual(['/medecin']);
+  });
+
+  it('signale à l\'administrateur les patients dont la place n\'a pas pu être libérée, avec le nombre et le jour', () => {
+    const v = vue(event('LIBERATION_PLACES_EN_ECHEC', {nbPatients: '2', jour: '2026-10-27'}), 'ADMIN');
+
+    expect(v.titre).toBe('NOTIFICATION.TITRE.LIBERATION_PLACES_EN_ECHEC');
+    expect(v.message).toContain('NOTIFICATION.LIBERATION_PLACES_EN_ECHEC');
+    expect(v.message).toContain('"count":"2"');
+    expect(v.ton).toBe('attention');
   });
 
   it('donne chaque matin le bilan de la replanification nocturne, même quand elle n\'a rien proposé', () => {

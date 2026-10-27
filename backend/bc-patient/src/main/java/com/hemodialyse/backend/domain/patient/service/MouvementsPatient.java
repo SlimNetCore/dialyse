@@ -48,22 +48,7 @@ public final class MouvementsPatient {
                 etatAvant, false, maintenant));
     }
 
-    /**
-     * Mouvement de libération de la place, à produire <b>avant</b> que la fiche ne perde son affectation.
-     */
-    public static MouvementPatient placeLiberee(Patient patient, LocalDate aujourdhui, Instant maintenant) {
-        return nouveau(patient, TypeMouvementPatient.PLACE_LIBEREE, aujourdhui, patient.getEtatPatient(), true,
-                maintenant);
-    }
-
-    /**
-     * La fiche porte-t-elle encore une affectation (salle, créneau) alors que sa place est libérée ?
-     */
-    public static boolean placeAReprendre(Patient patient, LocalDate aujourdhui) {
-        boolean affecte = patient.getSalleId() != null || patient.getPositionId() != null
-                || patient.getGenerateurId() != null;
-        return affecte && FinOccupation.placeLiberee(patient.getEtatPatient(), patient.getDateEvenementEtat(), aujourdhui);
-    }
+    // La libération de la place (mouvement PLACE_LIBEREE) relève de la Planification (P7) : contexts/planification.
 
     static String jours(JoursDialyse j) {
         if (j == null) return "";

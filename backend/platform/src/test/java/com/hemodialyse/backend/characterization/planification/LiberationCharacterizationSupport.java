@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.planification;
 
-import com.hemodialyse.backend.application.patient.LiberationPlacesService;
-import com.hemodialyse.backend.infrastructure.scheduling.LiberationPlacesScheduler;
+import com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues;
+import com.hemodialyse.backend.contexts.planification.interfaces.jobs.LiberationDesPlacesDe0400;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
@@ -34,10 +34,25 @@ public abstract class LiberationCharacterizationSupport extends SemaineCharacter
     protected static final String CONTRAINTE_D_ECHEC = "ZZ_P7_ECHEC";
     protected static final String TOUS_LES_JOURS = "DIMANCHE,LUNDI,MARDI,MERCREDI,JEUDI,VENDREDI,SAMEDI";
 
+    /**
+     * Même point d'appel que dans le filet du legacy : {@code scheduler.libererPlaces()}.
+     */
+    protected final Nuit scheduler = new Nuit();
+    /**
+     * Le job de 04:00 du contexte Planification (P7), appelé directement comme l'ancien {@code LiberationPlacesScheduler}.
+     */
     @Autowired
-    protected LiberationPlacesScheduler scheduler;
+    protected LiberationDesPlacesDe0400 job;
     @Autowired
-    protected LiberationPlacesService service;
+    protected LibererLesPlacesEchues liberer;
+
+    /**
+     * Les centres A et B qui ont encore au moins un patient avec une place (nommés <CENTRE_A>, <CENTRE_B>).
+     */
+    protected java.util.List<String> centresAvecPlaces() {
+        return java.util.stream.Stream.of(CENTRE_A, CENTRE_B).filter(c -> patientsPlaces(c) > 0)
+                .map(c -> c.equals(CENTRE_A) ? "<CENTRE_A>" : "<CENTRE_B>").sorted().toList();
+    }
 
     @AfterEach
     protected void apresLiberation() {
@@ -92,6 +107,12 @@ public abstract class LiberationCharacterizationSupport extends SemaineCharacter
     protected int mouvementsDeLiberation(UUID centre) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM mouvement_patient WHERE center_id = ? AND type = 'PLACE_LIBEREE'",
                 Integer.class, centre);
+    }
+
+    protected class Nuit {
+        public void libererPlaces() {
+            job.libererLesPlaces();
+        }
     }
 
     protected int patientsPlaces(UUID centre) {

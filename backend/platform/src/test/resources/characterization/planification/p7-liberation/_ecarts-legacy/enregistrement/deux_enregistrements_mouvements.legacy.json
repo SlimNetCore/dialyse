@@ -1,0 +1,41 @@
+[
+  {
+    "automatique": "true",
+    "center_id": "<CENTRE_A>",
+    "date_effet": "<J-1>",
+    "etat_nouveau": "TRANSFERE",
+    "etat_precedent": "TRANSFERE",
+    "generateur_id": "<G1A>",
+    "jours_dialyse": "LUNDI,MERCREDI",
+    "nom": "Patient TRANSFERE_J-2",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>",
+    "type": "PLACE_LIBEREE"
+  },
+  {
+    "automatique": "true",
+    "center_id": "<CENTRE_A>",
+    "date_effet": "<J-1>",
+    "etat_nouveau": "TRANSFERE",
+    "etat_precedent": "TRANSFERE",
+    "generateur_id": "<G1A>",
+    "jours_dialyse": "LUNDI,MERCREDI",
+    "nom": "Patient TRANSFERE_J-2",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>",
+    "type": "PLACE_LIBEREE"
+  },
+  {
+    "automatique": "false",
+    "center_id": "<CENTRE_A>",
+    "date_effet": "<J-2>",
+    "etat_nouveau": "TRANSFERE",
+    "etat_precedent": "PERMANENT",
+    "generateur_id": "<G1A>",
+    "jours_dialyse": "LUNDI,MERCREDI",
+    "nom": "Patient TRANSFERE_J-2",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>",
+    "type": "TRANSFERT"
+  }
+]

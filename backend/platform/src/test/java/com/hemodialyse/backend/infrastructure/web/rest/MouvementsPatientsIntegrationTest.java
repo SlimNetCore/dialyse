@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.patient.LiberationPlacesService;
+import com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues;
 import com.hemodialyse.backend.application.patient.MouvementPatientQueryService;
 import com.hemodialyse.backend.domain.patient.model.MouvementLigne;
 import com.hemodialyse.backend.domain.patient.model.TypeMouvementPatient;
@@ -41,7 +41,12 @@ class MouvementsPatientsIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private LiberationPlacesService liberation;
+    private LibererLesPlacesEchues liberationDesPlaces;
+
+    private int libererCentre(CenterId centre) {
+        return liberationDesPlaces.liberer(
+                new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(centre.value())).liberees();
+    }
     @Autowired
     private MouvementPatientQueryService mouvements;
     @Autowired
@@ -87,7 +92,7 @@ class MouvementsPatientsIntegrationTest {
 
     @Test
     void releases_only_the_expired_places_of_the_center_and_keeps_the_assignment_in_the_history() {
-        assertEquals(1, liberation.libererCentre(CenterId.of(C1)), "seul le décédé a une place échue");
+        assertEquals(1, libererCentre(CenterId.of(C1)), "seul le décédé a une place échue");
 
         assertNull(salleDe(decede));
         assertFalse(joursActifs(decede), "les jours de dialyse sont retirés");
@@ -107,16 +112,16 @@ class MouvementsPatientsIntegrationTest {
 
     @Test
     void the_release_is_idempotent() {
-        assertEquals(1, liberation.libererCentre(CenterId.of(C1)));
-        assertEquals(0, liberation.libererCentre(CenterId.of(C1)));
+        assertEquals(1, libererCentre(CenterId.of(C1)));
+        assertEquals(0, libererCentre(CenterId.of(C1)));
 
         assertEquals(1, mouvements.lister(C1, decede, null, null, null, 0, 20).total());
     }
 
     @Test
     void the_history_is_scoped_to_the_center_and_paginated() {
-        liberation.libererCentre(CenterId.of(C1));
-        liberation.libererCentre(CenterId.of(C2));
+        libererCentre(CenterId.of(C1));
+        libererCentre(CenterId.of(C2));
 
         PagedResult<MouvementLigne> c1 = mouvements.lister(C1, null, null, null, null, 0, 20);
         PagedResult<MouvementLigne> c2 = mouvements.lister(C2, null, null, null, null, 0, 20);

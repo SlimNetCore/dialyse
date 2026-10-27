@@ -528,6 +528,45 @@ public class PlanificationConfiguration {
         return new com.hemodialyse.backend.contexts.planification.interfaces.jobs.ControleDeLaPresenceDe0715(controler);
     }
 
+    // ───────────── P7 : libération des places (ADR 0061) ─────────────
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.PlacesTenues planificationPlacesTenues(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesTenuesJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.MouvementsDesPatients planificationMouvementsDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.MouvementsDesPatientsJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues planificationLibererLesPlacesEchues(
+            com.hemodialyse.backend.contexts.planification.application.CentresActifs centres, HorlogeDesCentres horloge,
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces verrou,
+            com.hemodialyse.backend.contexts.planification.application.PlacesTenues places,
+            com.hemodialyse.backend.contexts.planification.application.MouvementsDesPatients mouvements,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.CachesDesPatients caches,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDeLaLiberation notifications) {
+        return new com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues(centres, horloge, unite, verrou,
+                places, mouvements, caches, notifications, Clock.systemUTC());
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.LiberationDesPlaces planificationLiberationDesPlaces(
+            HorlogeDesCentres horloge, UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces verrou,
+            com.hemodialyse.backend.contexts.planification.application.PlacesTenues places,
+            com.hemodialyse.backend.contexts.planification.application.MouvementsDesPatients mouvements,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.CachesDesPatients caches) {
+        return new com.hemodialyse.backend.contexts.planification.application.LibererLaPlaceDeLaFiche(horloge, unite, verrou, places,
+                mouvements, caches, Clock.systemUTC());
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.interfaces.jobs.LiberationDesPlacesDe0400 planificationLiberationDesPlacesDe0400(
+            com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues liberer) {
+        return new com.hemodialyse.backend.contexts.planification.interfaces.jobs.LiberationDesPlacesDe0400(liberer);
+    }
+
     // ───────────── P5 : placement (ADR 0049, 0052, 0053) ─────────────
     @Bean
     com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces planificationVerrouDesPlaces(JdbcTemplate jdbc) {

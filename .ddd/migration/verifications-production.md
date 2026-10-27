@@ -1414,3 +1414,54 @@ ORDER BY 1;
 Après le déploiement : surveiller les 400 sur `GET /api/v1/planning/semaine` (date ou `centerId` illisible, jours d'ouverture en minuscules) et sur
 `GET /api/v1/direction/capacite`, la note « centres masqués » de l'écran de capacité de la Direction, et l'absence d'écart entre le nombre de patients
 attendus (Absences, détection de nuit) et l'ancienne règle (mêmes cas ; seul le sommeil était déjà exclu).
+
+## Slice P7 — libération des places, job de 04:00 au fuseau du centre (2026-10-27) — SELECT uniquement
+
+Changements observables au déploiement (aucune migration) : le job ne libère plus que les centres ACTIFS
+(`centers.actif`), centre par centre à son jour, un patient
+par transaction (un patient en échec est signalé à l'administrateur, notification `LIBERATION_PLACES_EN_ECHEC`, une par
+centre et par jour), et il prend le verrou des
+places du centre (une ligne `planning_parametres` par défaut est créée pour un centre qui n'en avait pas). Le mouvement
+`PLACE_LIBEREE` est daté du jour réel du centre (plus de J-1 à l'enregistrement d'une fiche) et n'est jamais écrit deux
+fois de suite pour la même place. Rien n'est écrit dans `patients` hors des colonnes de place (`en_sommeil` NULL reste
+NULL).
+
+```sql
+-- 1. Centres NON actifs (ou sans ligne centers) dont des patients sortis tiennent encore une place échue : le job ne les libère plus (décision du 27/10), à traiter à la main avec l'utilisateur
+SELECT p.center_id, c.actif, count(*) AS places_echues
+FROM patients p LEFT JOIN centers c ON c.id = p.center_id
+WHERE (p.salle_id IS NOT NULL OR p.position_id IS NOT NULL OR p.generateur_id IS NOT NULL)
+  AND (c.id IS NULL OR c.actif IS NOT TRUE)
+  AND ((p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat < current_date)
+    OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat <= current_date)
+    OR (p.etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') AND p.date_evenement_etat IS NULL))
+GROUP BY p.center_id, c.actif ORDER BY 3 DESC;
+-- 2. Places échues encore tenues dans les centres actifs : doit tomber à 0 après la première nuit suivant le déploiement (sinon : notification d'échec reçue ?)
+SELECT p.center_id, p.etat_patient, count(*) AS places_echues
+FROM patients p JOIN centers c ON c.id = p.center_id AND c.actif = TRUE
+WHERE (p.salle_id IS NOT NULL OR p.position_id IS NOT NULL OR p.generateur_id IS NOT NULL)
+  AND ((p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat < current_date)
+    OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat <= current_date)
+    OR (p.etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') AND p.date_evenement_etat IS NULL))
+GROUP BY p.center_id, p.etat_patient ORDER BY 3 DESC;
+-- 3. États jamais libérés (permanent avec date, état inconnu, minuscules) qui tiennent une place avec une date d'évènement passée : informatif (comportement reproduit, KB-PLN-85)
+SELECT center_id, etat_patient, count(*) FROM patients
+WHERE (salle_id IS NOT NULL OR position_id IS NOT NULL OR generateur_id IS NOT NULL) AND date_evenement_etat < current_date
+  AND (etat_patient IS NULL OR etat_patient NOT IN ('TRANSFERE','DECEDE','GREFFE','GUERRI','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER'))
+GROUP BY center_id, etat_patient ORDER BY 3 DESC;
+-- 4. Patients sortis ET en sommeil qui tiennent une place échue : le sommeil n'empêche pas la libération (« à décider »)
+SELECT center_id, count(*) FROM patients WHERE COALESCE(en_sommeil, FALSE) AND (salle_id IS NOT NULL OR position_id IS NOT NULL)
+  AND etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') GROUP BY center_id ORDER BY 2 DESC;
+-- 5. Mouvements PLACE_LIBEREE consécutifs identiques pour un même patient (doublons de l'ancien code, KB-PLN-83) : n'augmente plus après le déploiement
+SELECT center_id, patient_id, count(*) FROM mouvement_patient WHERE type = 'PLACE_LIBEREE'
+GROUP BY center_id, patient_id, etat_nouveau, salle_id, position_id, generateur_id, jours_dialyse HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
+-- 6. Mouvements PLACE_LIBEREE par jour d'effet sur les 14 derniers jours : la date est celle du jour réel du centre (plus de J-1 à l'enregistrement)
+SELECT date_effet, count(*) FROM mouvement_patient WHERE type = 'PLACE_LIBEREE' AND date_effet >= current_date - 14 GROUP BY date_effet ORDER BY 1 DESC;
+-- 7. Alertes d'échec de la libération (une par centre et par jour) : toute ligne est à traiter
+SELECT center_id, count(*), max(cree_le) FROM notification_evenement WHERE type = 'LIBERATION_PLACES_EN_ECHEC' GROUP BY center_id;
+-- 8. Centres actifs sans ligne planning_parametres (la ligne par défaut sera créée au premier verrou de la nuit) : informatif
+SELECT c.id, c.code FROM centers c WHERE c.actif = TRUE AND NOT EXISTS (SELECT 1 FROM planning_parametres pp WHERE pp.center_id = c.id);
+```
+
+Ordre de nuit à vérifier après déploiement (Africa/Algiers) : détection des absences à 02:30, libération à 04:00 ; les
+journaux contiennent `[PLACES]` à 04:00 (pas avant 02:30 + durée du contrôle).

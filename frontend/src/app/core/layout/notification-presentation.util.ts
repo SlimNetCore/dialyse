@@ -221,6 +221,15 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
         },
       });
 
+    case 'LIBERATION_PLACES_EN_ECHEC':
+      // libération nocturne des places (04:00) : des patients n'ont pas pu être libérés, les autres l'ont été ; réessai la nuit suivante
+      return alerte('lock_reset', accueil(profil), {
+        parametres: {
+          count: p['nbPatients'] ?? '0',
+          jour: dateLisible(p['jour'])
+        }
+      });
+
     case 'OPTIMISATION_PROPOSITION': {
       const motif = p['motif'] ?? 'GAIN';
       const cible = optimisation(profil, p['runId'] ? 'PROPOSITION' : 'OPTIMISATION', p['runId'] ? {run: p['runId']} : {});

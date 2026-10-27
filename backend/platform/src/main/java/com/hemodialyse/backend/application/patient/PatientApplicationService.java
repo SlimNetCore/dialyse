@@ -50,7 +50,7 @@ public class PatientApplicationService implements PatientUseCase {
     private final AssureRepositoryPort assureRepo;
     private final AssurePatientRepositoryPort assurePatientRepo;
     private final MouvementPatientRepositoryPort mouvementRepo;
-    private final LiberationPlacesService liberationPlaces;
+    private final com.hemodialyse.backend.infrastructure.acl.planification.LiberationALEnregistrementDeLaFiche liberationPlaces;
 
     public PatientApplicationService(PatientRepositoryPort patientRepo,
                                      AttestationRepositoryPort attestationRepo,
@@ -58,7 +58,7 @@ public class PatientApplicationService implements PatientUseCase {
                                      AssureRepositoryPort assureRepo,
                                      AssurePatientRepositoryPort assurePatientRepo,
                                      MouvementPatientRepositoryPort mouvementRepo,
-                                     LiberationPlacesService liberationPlaces) {
+                                     com.hemodialyse.backend.infrastructure.acl.planification.LiberationALEnregistrementDeLaFiche liberationPlaces) {
         this.patientRepo = patientRepo;
         this.attestationRepo = attestationRepo;
         this.pecRepo = pecRepo;
@@ -104,7 +104,7 @@ public class PatientApplicationService implements PatientUseCase {
         syncAssureRelation(saved, cmd, centerId);
         MouvementsPatient.changementEtat(saved, etatAvant, dateAvant, LocalDate.now(ZoneOffset.UTC), Instant.now())
                 .ifPresent(mouvementRepo::save);
-        liberationPlaces.libererALEnregistrement(saved);
+        liberationPlaces.libererSiEchue(saved);
 
         enregistrerAttestation(saved, centerId, cmd);
         enregistrerPec(saved, centerId, cmd);

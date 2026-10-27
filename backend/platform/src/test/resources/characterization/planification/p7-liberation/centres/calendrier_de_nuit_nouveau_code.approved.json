@@ -1,0 +1,14 @@
+{
+  "controleDesAbsences": {
+    "cron": "0 30 2 * * *",
+    "zone": "${app.absences.fuseau-par-defaut:Africa/Algiers}"
+  },
+  "liberation": {
+    "cron": "0 0 4 * * *",
+    "zone": "${app.planification.fuseau-par-defaut:Africa/Algiers}"
+  },
+  "replanificationAutomatique": {
+    "cron": "0 30 2 * * *",
+    "zone": "(fuseau par defaut de la JVM)"
+  }
+}

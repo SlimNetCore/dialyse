@@ -1,0 +1,57 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "TRANSFERE",
+    "evenement": "<J-2>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient A1_TRANSFERE_J-2",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "DECEDE",
+    "evenement": "<J-1>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient A2_DECEDE_J-1",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "GUERRI",
+    "evenement": "<J-3>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient A3_GUERRI_J-3",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "PERMANENT",
+    "evenement": null,
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient A4_PERMANENT",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_B>",
+    "en_sommeil": "false",
+    "etat": "TRANSFERE",
+    "evenement": "<J-2>",
+    "generateur_id": null,
+    "jours": ".L.M...",
+    "nom": "Patient B1_TRANSFERE_J-2",
+    "position_id": "<CRENEAU_B>",
+    "salle_id": "<SALLE_B>"
+  }
+]

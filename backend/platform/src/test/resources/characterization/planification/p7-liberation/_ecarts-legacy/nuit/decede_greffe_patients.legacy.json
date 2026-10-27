@@ -1,0 +1,68 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "DECEDE",
+    "evenement": "<J>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient DECEDE_J",
+    "position_id": null,
+    "salle_id": null
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "DECEDE",
+    "evenement": "<J+1>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient DECEDE_J+1",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "DECEDE",
+    "evenement": "<J-1>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient DECEDE_J-1",
+    "position_id": null,
+    "salle_id": null
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "GREFFE",
+    "evenement": "<J>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient GREFFE_J",
+    "position_id": null,
+    "salle_id": null
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": null,
+    "etat": "GREFFE",
+    "evenement": "<J+1>",
+    "generateur_id": "<G1A>",
+    "jours": ".L.M...",
+    "nom": "Patient GREFFE_J+1",
+    "position_id": "<CRENEAU_MATIN>",
+    "salle_id": "<SALLE_1>"
+  },
+  {
+    "center_id": "<CENTRE_A>",
+    "en_sommeil": "false",
+    "etat": "GREFFE",
+    "evenement": "<J-3>",
+    "generateur_id": null,
+    "jours": ".......",
+    "nom": "Patient GREFFE_J-3",
+    "position_id": null,
+    "salle_id": null
+  }
+]

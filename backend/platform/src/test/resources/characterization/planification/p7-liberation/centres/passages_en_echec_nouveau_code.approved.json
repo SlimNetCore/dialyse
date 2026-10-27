@@ -1,0 +1,20 @@
+{
+  "echec_de_A1": {
+    "mouvementsPlaceLibereeA": 2,
+    "mouvementsPlaceLibereeB": 1,
+    "patientsEncorePlacesA": 2,
+    "patientsEncorePlacesB": 0
+  },
+  "echec_de_A2": {
+    "mouvementsPlaceLibereeA": 2,
+    "mouvementsPlaceLibereeB": 1,
+    "patientsEncorePlacesA": 2,
+    "patientsEncorePlacesB": 0
+  },
+  "echec_de_A3": {
+    "mouvementsPlaceLibereeA": 2,
+    "mouvementsPlaceLibereeB": 1,
+    "patientsEncorePlacesA": 2,
+    "patientsEncorePlacesB": 0
+  }
+}

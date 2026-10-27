@@ -114,18 +114,18 @@
 
 ## 16.2 Tâches planifiées
 
-| Tâche                                 | Cadence                              | Règles                 |
-|---------------------------------------|--------------------------------------|------------------------|
-| `ControleDeNuitDesAbsences`           | 02:30 chaque jour et au démarrage    | RG-ABS-040 à 046       |
-| `SeanceRegularisationScheduler`       | 07:00 chaque jour                    | RG-SEA-046             |
-| `AuditScheduler`                      | écriture toutes les 3 s, purge 03:30 | RG-SEC-051, RG-SEC-052 |
-| `DirectionRealtimeScheduler`          | 1 s et 10 s                          | RG-DIR-100, RG-DIR-101 |
-| `DirectionSnapshotScheduler`          | 02:30 le 1er du mois                 | RG-DIR-090             |
-| `ControleDesPeremptionsPlanifie`      | 07:00 chaque jour                    | RG-STK-061             |
-| `LicenseOnlineCheckJob`               | 03:15 chaque jour                    | RG-SEC-032             |
-| `LiberationPlacesScheduler`           | 04:00 chaque jour                    | RG-PAT-033             |
-| `ObservancePrescriptionScheduler`     | 06:30 chaque jour                    | RG-MED-073             |
-| `ControleDeLaPresenceDe0715`          | 07:15 chaque jour (fuseau Africa/Algiers) | RG-INF-046        |
-| `NotificationPurgeScheduler`          | 03:40 chaque jour                    | RG-NOT-005             |
-| `ReplanificationAutomatiqueScheduler` | 02:30 chaque nuit                    | RG-PLN-100             |
-| `ComptabilisationDuStockPlanifiee`    | 03:15 chaque jour                    | RG-CPT-015             |
+| Tâche                                 | Cadence                                   | Règles                       |
+|---------------------------------------|-------------------------------------------|------------------------------|
+| `ControleDeNuitDesAbsences`           | 02:30 chaque jour et au démarrage         | RG-ABS-040 à 046             |
+| `SeanceRegularisationScheduler`       | 07:00 chaque jour                         | RG-SEA-046                   |
+| `AuditScheduler`                      | écriture toutes les 3 s, purge 03:30      | RG-SEC-051, RG-SEC-052       |
+| `DirectionRealtimeScheduler`          | 1 s et 10 s                               | RG-DIR-100, RG-DIR-101       |
+| `DirectionSnapshotScheduler`          | 02:30 le 1er du mois                      | RG-DIR-090                   |
+| `ControleDesPeremptionsPlanifie`      | 07:00 chaque jour                         | RG-STK-061                   |
+| `LicenseOnlineCheckJob`               | 03:15 chaque jour                         | RG-SEC-032                   |
+| `LiberationDesPlacesDe0400`           | 04:00 chaque jour (fuseau Africa/Algiers) | RG-PAT-033, RG-PLN-108 à 111 |
+| `ObservancePrescriptionScheduler`     | 06:30 chaque jour                         | RG-MED-073                   |
+| `ControleDeLaPresenceDe0715`          | 07:15 chaque jour (fuseau Africa/Algiers) | RG-INF-046                   |
+| `NotificationPurgeScheduler`          | 03:40 chaque jour                         | RG-NOT-005                   |
+| `ReplanificationAutomatiqueScheduler` | 02:30 chaque nuit                         | RG-PLN-100                   |
+| `ComptabilisationDuStockPlanifiee`    | 03:15 chaque jour                         | RG-CPT-015                   |

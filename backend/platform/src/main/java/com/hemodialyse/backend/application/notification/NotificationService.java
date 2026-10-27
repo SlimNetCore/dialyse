@@ -29,7 +29,8 @@ public class NotificationService {
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
             "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
-            "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE", "RETOUR_SALLE_ORDINAIRE_PROPOSE");
+            "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE", "RETOUR_SALLE_ORDINAIRE_PROPOSE",
+            "LIBERATION_PLACES_EN_ECHEC");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -279,6 +280,19 @@ public class NotificationService {
         payload.put("premiereDate", premiereDate.toString());
         payload.put("targetRoles", "ADMIN");
         send(centerId, "INFIRMIER_SUREFFECTIF", payload, idImpose);
+    }
+
+    /**
+     * La libération nocturne des places (04:00) n'a pas pu libérer {@code nbPatients} patient(s) du centre ; les autres l'ont été et la
+     * nuit suivante réessaie (P7). Identifiant déterministe (type, centre, jour du centre) calculé par l'appelant : une seule alerte
+     * par centre et par jour.
+     */
+    public void notifyLiberationDesPlacesEnEchec(UUID centerId, java.time.LocalDate jour, int nbPatients, UUID idImpose) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("nbPatients", String.valueOf(nbPatients));
+        payload.put("jour", jour.toString());
+        payload.put("targetRoles", "ADMIN");
+        send(centerId, "LIBERATION_PLACES_EN_ECHEC", payload, idImpose);
     }
 
     /**

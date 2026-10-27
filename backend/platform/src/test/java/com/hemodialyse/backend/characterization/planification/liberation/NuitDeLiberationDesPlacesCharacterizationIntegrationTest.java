@@ -176,14 +176,12 @@ class NuitDeLiberationDesPlacesCharacterizationIntegrationTest extends Liberatio
         sorti(CENTRE_A, "TRANSFERE_J", "TRANSFERE", jour(0));
         sorti(CENTRE_B, "TRANSFERE_B_J-2", "TRANSFERE", jour(-2));
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("centresAvecPlaces", service.centres().stream().filter(c -> c.value().equals(CENTRE_A) || c.value().equals(CENTRE_B))
-                .map(c -> c.value().equals(CENTRE_A) ? "<CENTRE_A>" : "<CENTRE_B>").sorted().toList());
-        m.put("liberees_centre_A", service.libererCentre(com.hemodialyse.backend.domain.shared.vo.CenterId.of(CENTRE_A)));
-        m.put("liberees_centre_A_au_second_appel", service.libererCentre(com.hemodialyse.backend.domain.shared.vo.CenterId.of(CENTRE_A)));
+        m.put("centresAvecPlaces", centresAvecPlaces());
+        m.put("liberees_centre_A", liberer.liberer(new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(CENTRE_A)).liberees());
+        m.put("liberees_centre_A_au_second_appel", liberer.liberer(new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(CENTRE_A)).liberees());
         m.put("patients_encore_places_A", patientsPlaces(CENTRE_A));
         m.put("patients_encore_places_B", patientsPlaces(CENTRE_B));
-        m.put("centresAvecPlacesApres", service.centres().stream().filter(c -> c.value().equals(CENTRE_A) || c.value().equals(CENTRE_B))
-                .map(c -> c.value().equals(CENTRE_A) ? "<CENTRE_A>" : "<CENTRE_B>").sorted().toList());
+        m.put("centresAvecPlacesApres", centresAvecPlaces());
         arbre("service_par_centre", m);
     }
 }
