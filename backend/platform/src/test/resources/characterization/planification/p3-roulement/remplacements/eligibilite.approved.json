@@ -1,15 +1,15 @@
 {
-  "absent ce jour": "422 REMPLACEMENT_INELIGIBLE",
-  "déjà prévu sur l'autre créneau (double vacation)": "201",
-  "déjà remplaçant sur la même case (doublon)": "422 REMPLACEMENT_INELIGIBLE",
-  "déjà remplaçant sur le créneau (autre salle)": "422 REMPLACEMENT_INELIGIBLE",
-  "habilité en salle d'isolement": "201",
-  "infirmier d'un autre centre": "422 REMPLACEMENT_INELIGIBLE",
-  "infirmier désactivé": "422 REMPLACEMENT_INELIGIBLE",
-  "infirmier inconnu": "422 REMPLACEMENT_INELIGIBLE",
-  "l'absent un autre jour": "201",
-  "le prévu sur le même créneau un autre jour": "201",
-  "non habilité en salle d'isolement": "422 REMPLACEMENT_INELIGIBLE",
-  "prévu sur le créneau dans la même salle": "422 REMPLACEMENT_INELIGIBLE",
-  "prévu sur le créneau dans une autre salle": "422 REMPLACEMENT_INELIGIBLE"
+  "absent ce jour" : "422 REMPLACEMENT_INELIGIBLE",
+  "déjà prévu sur l'autre créneau (double vacation)" : "201",
+  "déjà remplaçant sur la même case (doublon)" : "422 REMPLACEMENT_INELIGIBLE",
+  "déjà remplaçant sur le créneau (autre salle)" : "422 REMPLACEMENT_INELIGIBLE",
+  "habilité en salle d'isolement" : "201",
+  "infirmier d'un autre centre" : "422 REMPLACEMENT_INELIGIBLE",
+  "infirmier désactivé" : "422 REMPLACEMENT_INELIGIBLE",
+  "infirmier inconnu" : "422 REMPLACEMENT_INELIGIBLE",
+  "l'absent un autre jour" : "201",
+  "le prévu sur le même créneau un autre jour" : "201",
+  "non habilité en salle d'isolement" : "422 REMPLACEMENT_INELIGIBLE",
+  "prévu sur le créneau dans la même salle" : "422 REMPLACEMENT_INELIGIBLE",
+  "prévu sur le créneau dans une autre salle" : "422 REMPLACEMENT_INELIGIBLE"
 }

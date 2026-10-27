@@ -177,8 +177,14 @@ class MonPlanningCharacterizationIntegrationTest extends RoulementCharacterizati
         ecriture("declaration_passee_refusee", doPost(MOI + "/absences", json(corpsMonAbsence(jour(-3), jour(-1), "CONGE", null)), sara));
     }
 
-    private Object declarerPuisRetirer(LocalDate debut, LocalDate fin, String type) throws Exception {
-        Object resultat = statutEtCode(doPost(MOI + "/absences", json(corpsMonAbsence(debut, fin, type, null)), sara));
+    private String declarerPuisRetirer(LocalDate debut, LocalDate fin, String type) throws Exception {
+        String resultat = statutEtCode(doPost(MOI + "/absences", json(corpsMonAbsence(debut, fin, type, null)), sara));
+        // l'état est contrôlé avant le retrait : une ligne écrite exactement quand la déclaration est acceptée, avec la période demandée
+        assertEquals(resultat.startsWith("201") ? 1 : 0, nombreDe("infirmier_absence"));
+        if (resultat.startsWith("201")) {
+            assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM infirmier_absence WHERE center_id = ? AND date_debut = ? AND date_fin = ? "
+                    + "AND type = ?", Integer.class, CENTRE_A, java.sql.Date.valueOf(debut), java.sql.Date.valueOf(fin), type));
+        }
         jdbc.update("DELETE FROM infirmier_absence WHERE center_id = ?", CENTRE_A);
         return resultat;
     }
@@ -221,6 +227,7 @@ class MonPlanningCharacterizationIntegrationTest extends RoulementCharacterizati
         Resp r = doPost(MOI + "/absences", json(corpsMonAbsence(jour(3), jour(5), "CONGE", "Mariage")), sara);
         assertEquals(201, r.status());
         ecriture("declaration_nominale", r);
+        auteursDesAbsences("declaration_nominale_auteur");
         notifications("declaration_notification");
         diffusionsCapturees("declaration_diffusions");
     }

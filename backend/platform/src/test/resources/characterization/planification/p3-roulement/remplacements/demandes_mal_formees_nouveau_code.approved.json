@@ -1,12 +1,12 @@
 {
-  "JSON illisible": "400 BAD_REQUEST",
-  "champ inconnu ignoré (mais doublon du remplacement posé par remplaceId null)": "422 REMPLACEMENT_INELIGIBLE",
-  "corps {}": "400 BAD_REQUEST",
-  "creneauId absent": "400 BAD_REQUEST",
-  "date absente": "400 BAD_REQUEST",
-  "date illisible": "400 BAD_REQUEST",
-  "identifiant illisible": "400 BAD_REQUEST",
-  "infirmierId absent": "400 BAD_REQUEST",
-  "remplaceId null": "201",
-  "salleId absent": "400 BAD_REQUEST"
+  "JSON illisible" : "400 BAD_REQUEST",
+  "champ inconnu ignoré (mais doublon du remplacement posé par remplaceId null)" : "422 REMPLACEMENT_INELIGIBLE",
+  "corps {}" : "400 BAD_REQUEST",
+  "creneauId absent" : "400 BAD_REQUEST",
+  "date absente" : "400 BAD_REQUEST",
+  "date illisible" : "400 BAD_REQUEST",
+  "identifiant illisible" : "400 BAD_REQUEST",
+  "infirmierId absent" : "400 BAD_REQUEST",
+  "remplaceId null" : "201",
+  "salleId absent" : "400 BAD_REQUEST"
 }

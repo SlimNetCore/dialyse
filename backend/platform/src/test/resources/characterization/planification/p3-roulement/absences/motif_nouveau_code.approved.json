@@ -1,7 +1,7 @@
 {
-  "motif avec espaces de bord": "201",
-  "motif blanc": "201",
-  "motif de 255 caractères": "201",
-  "motif de 256 caractères": "400 BAD_REQUEST",
-  "motif vide": "201"
+  "motif avec espaces de bord" : "201",
+  "motif blanc" : "201",
+  "motif de 255 caractères" : "201",
+  "motif de 256 caractères" : "400 BAD_REQUEST",
+  "motif vide" : "201"
 }

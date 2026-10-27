@@ -1,20 +1,18 @@
 {
-  "status": 200,
-  "contentType": "application/json",
-  "cacheControl": "no-store",
-  "body": {
-    "items": [
-      {
-        "debut": "<S1.LUN>",
-        "fin": "<S1.LUN>",
-        "id": "<ABS_AUTRE_CENTRE>",
-        "infirmierId": "<INF_CENTRE_B>",
-        "motif": null,
-        "type": "AUTRE"
-      }
-    ],
-    "page": 0,
-    "size": 20,
-    "total": 1
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "debut" : "<S1.LUN>",
+      "fin" : "<S1.LUN>",
+      "id" : "<ABS_AUTRE_CENTRE>",
+      "infirmierId" : "<INF_CENTRE_B>",
+      "motif" : null,
+      "type" : "AUTRE"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
   }
 }

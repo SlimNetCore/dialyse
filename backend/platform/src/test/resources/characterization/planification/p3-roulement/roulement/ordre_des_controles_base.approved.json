@@ -1,9 +1,7 @@
-[
-  {
-    "creneau_id": "<CRENEAU_MATIN>",
-    "id": "<UUID_GENERE_1>",
-    "infirmier_id": "<INF_AMRANI>",
-    "jours": "LUNDI",
-    "salle_id": "<SALLE_1>"
-  }
-]
+[ {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "id" : "<UUID_GENERE_1>",
+  "infirmier_id" : "<INF_AMRANI>",
+  "jours" : "LUNDI",
+  "salle_id" : "<SALLE_1>"
+} ]

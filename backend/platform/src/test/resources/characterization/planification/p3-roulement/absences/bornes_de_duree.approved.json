@@ -1,6 +1,6 @@
 {
-  "1 jour (début = fin)": "201",
-  "366 jours": "201",
-  "367 jours": "400 BAD_REQUEST",
-  "fin la veille du début": "400 BAD_REQUEST"
+  "1 jour (début = fin)" : "201",
+  "366 jours" : "201",
+  "367 jours" : "400 BAD_REQUEST",
+  "fin la veille du début" : "400 BAD_REQUEST"
 }

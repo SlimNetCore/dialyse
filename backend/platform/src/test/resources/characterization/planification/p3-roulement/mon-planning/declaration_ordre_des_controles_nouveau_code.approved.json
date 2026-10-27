@@ -1,12 +1,12 @@
 {
-  "avec fiche, JSON illisible": "400 BAD_REQUEST",
-  "avec fiche, dates absentes": "400 BAD_REQUEST",
-  "avec fiche, infirmierId d'un autre dans le corps (ignoré)": "201",
-  "avec fiche, type blanc": "400 BAD_REQUEST",
-  "avec fiche, type en minuscules": "400 BAD_REQUEST",
-  "avec fiche, type inconnu": "400 BAD_REQUEST",
-  "sans fiche, demande valide": "422 INFIRMIER_NON_LIE",
-  "sans fiche, début absent": "400 BAD_REQUEST",
-  "sans fiche, période inversée": "400 BAD_REQUEST",
-  "sans fiche, type inconnu": "400 BAD_REQUEST"
+  "avec fiche, JSON illisible" : "400 BAD_REQUEST",
+  "avec fiche, dates absentes" : "400 BAD_REQUEST",
+  "avec fiche, infirmierId d'un autre dans le corps (ignoré)" : "201",
+  "avec fiche, type blanc" : "400 BAD_REQUEST",
+  "avec fiche, type en minuscules" : "400 BAD_REQUEST",
+  "avec fiche, type inconnu" : "400 BAD_REQUEST",
+  "sans fiche, demande valide" : "422 INFIRMIER_NON_LIE",
+  "sans fiche, début absent" : "400 BAD_REQUEST",
+  "sans fiche, période inversée" : "400 BAD_REQUEST",
+  "sans fiche, type inconnu" : "400 BAD_REQUEST"
 }

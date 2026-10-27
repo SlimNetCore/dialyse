@@ -1,74 +1,64 @@
-[
-  {
-    "action_code": "ABSENCE_DECLAREE",
-    "entity_id": null,
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/absences",
-    "status_code": "400"
-  },
-  {
-    "action_code": "ABSENCE_DECLAREE",
-    "entity_id": null,
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/absences",
-    "status_code": "422"
-  },
-  {
-    "action_code": "ABSENCE_RETIREE",
-    "entity_id": "<UUID_GENERE_1>",
-    "entity_type": "infirmiers",
-    "http_method": "DELETE",
-    "route_template": "/api/v1/infirmiers/absences/{id}",
-    "status_code": "422"
-  },
-  {
-    "action_code": "ABSENCE_DECLAREE_PAR_L_INFIRMIER",
-    "entity_id": null,
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/moi/absences",
-    "status_code": "422"
-  },
-  {
-    "action_code": "REMPLACANT_AFFECTE",
-    "entity_id": null,
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/presence/remplacements",
-    "status_code": "422"
-  },
-  {
-    "action_code": "REMPLACEMENT_ANNULE",
-    "entity_id": "<UUID_GENERE_1>",
-    "entity_type": "infirmiers",
-    "http_method": "DELETE",
-    "route_template": "/api/v1/infirmiers/presence/remplacements/{id}",
-    "status_code": "422"
-  },
-  {
-    "action_code": "AFFECTATION_AJOUTEE",
-    "entity_id": "<INF_BENALI>",
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/{id}/affectations",
-    "status_code": "400"
-  },
-  {
-    "action_code": "AFFECTATION_AJOUTEE",
-    "entity_id": "<INF_BENALI>",
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/{id}/affectations",
-    "status_code": "403"
-  },
-  {
-    "action_code": "AFFECTATION_AJOUTEE",
-    "entity_id": "<INF_BENALI>",
-    "entity_type": "infirmiers",
-    "http_method": "POST",
-    "route_template": "/api/v1/infirmiers/{id}/affectations",
-    "status_code": "422"
-  }
-]
+[ {
+  "action_code" : "ABSENCE_DECLAREE",
+  "entity_id" : null,
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/absences",
+  "status_code" : "400"
+}, {
+  "action_code" : "ABSENCE_DECLAREE",
+  "entity_id" : null,
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/absences",
+  "status_code" : "422"
+}, {
+  "action_code" : "ABSENCE_RETIREE",
+  "entity_id" : "<UUID_GENERE_1>",
+  "entity_type" : "infirmiers",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/infirmiers/absences/{id}",
+  "status_code" : "422"
+}, {
+  "action_code" : "ABSENCE_DECLAREE_PAR_L_INFIRMIER",
+  "entity_id" : null,
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/moi/absences",
+  "status_code" : "422"
+}, {
+  "action_code" : "REMPLACANT_AFFECTE",
+  "entity_id" : null,
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/presence/remplacements",
+  "status_code" : "422"
+}, {
+  "action_code" : "REMPLACEMENT_ANNULE",
+  "entity_id" : "<UUID_GENERE_1>",
+  "entity_type" : "infirmiers",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/infirmiers/presence/remplacements/{id}",
+  "status_code" : "422"
+}, {
+  "action_code" : "AFFECTATION_AJOUTEE",
+  "entity_id" : "<INF_BENALI>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/affectations",
+  "status_code" : "400"
+}, {
+  "action_code" : "AFFECTATION_AJOUTEE",
+  "entity_id" : "<INF_BENALI>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/affectations",
+  "status_code" : "403"
+}, {
+  "action_code" : "AFFECTATION_AJOUTEE",
+  "entity_id" : "<INF_BENALI>",
+  "entity_type" : "infirmiers",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/infirmiers/{id}/affectations",
+  "status_code" : "422"
+} ]

@@ -1,20 +1,18 @@
 {
-  "status": 200,
-  "contentType": "application/json",
-  "cacheControl": "no-store",
-  "body": {
-    "items": [
-      {
-        "debut": "<S1.LUN>",
-        "fin": "<S1.LUN>",
-        "id": "<UUID_GENERE_1>",
-        "infirmierId": "<INF_AMRANI>",
-        "motif": "Grippe",
-        "type": "MALADIE"
-      }
-    ],
-    "page": 0,
-    "size": 20,
-    "total": 1
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "debut" : "<S1.LUN>",
+      "fin" : "<S1.LUN>",
+      "id" : "<UUID_GENERE_1>",
+      "infirmierId" : "<INF_AMRANI>",
+      "motif" : "Grippe",
+      "type" : "MALADIE"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
   }
 }

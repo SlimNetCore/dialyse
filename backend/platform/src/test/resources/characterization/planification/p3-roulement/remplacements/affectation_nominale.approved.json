@@ -1,12 +1,12 @@
 {
-  "status": 201,
-  "contentType": "application/json",
-  "body": {
-    "creneauId": "<CRENEAU_MATIN>",
-    "date": "<S1.LUN>",
-    "id": "<UUID_GENERE_1>",
-    "infirmierId": "<INF_BENALI>",
-    "remplaceId": null,
-    "salleId": "<SALLE_1>"
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "id" : "<UUID_GENERE_1>",
+    "infirmierId" : "<INF_BENALI>",
+    "remplaceId" : null,
+    "salleId" : "<SALLE_1>"
   }
 }

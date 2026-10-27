@@ -79,6 +79,7 @@ class AbsencesDesInfirmiersCharacterizationIntegrationTest extends RoulementChar
         assertEquals(201, r.status());
         ecriture("declaration_par_l_administrateur", r);
         etatAbsences("declaration_par_l_administrateur_base");
+        auteursDesAbsences("declaration_par_l_administrateur_auteur");
         notifications("declaration_par_l_administrateur_notification");
         diffusionsCapturees("declaration_par_l_administrateur_diffusions");
     }
@@ -89,6 +90,7 @@ class AbsencesDesInfirmiersCharacterizationIntegrationTest extends RoulementChar
         Resp r = doPost(ABSENCES, json(corpsAbsence(amrani, s(1, JourSemaine.LUNDI), s(1, JourSemaine.LUNDI), "MALADIE", null)), secretaire());
         assertEquals(201, r.status());
         ecriture("declaration_par_le_secretariat", r);
+        auteursDesAbsences("declaration_par_le_secretariat_auteur");
         notifications("declaration_par_le_secretariat_notification");
         diffusionsCapturees("declaration_par_le_secretariat_diffusions");
     }

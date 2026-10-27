@@ -1,30 +1,25 @@
-[
-  {
-    "creneau_id": "<CRENEAU_MATIN>",
-    "id": "<UUID_GENERE_1>",
-    "infirmier_id": "<INF_AMRANI>",
-    "jours": "LUNDI,MARDI",
-    "salle_id": "<SALLE_1>"
-  },
-  {
-    "creneau_id": "<CRENEAU_MATIN>",
-    "id": "<UUID_GENERE_2>",
-    "infirmier_id": "<INF_AMRANI>",
-    "jours": "MERCREDI,JEUDI",
-    "salle_id": "<SALLE_2>"
-  },
-  {
-    "creneau_id": "<CRENEAU_APRES_MIDI>",
-    "id": "<UUID_GENERE_3>",
-    "infirmier_id": "<INF_AMRANI>",
-    "jours": "LUNDI,MARDI",
-    "salle_id": "<SALLE_1>"
-  },
-  {
-    "creneau_id": "<CRENEAU_MATIN>",
-    "id": "<UUID_GENERE_4>",
-    "infirmier_id": "<INF_BENALI>",
-    "jours": "LUNDI,MARDI",
-    "salle_id": "<SALLE_1>"
-  }
-]
+[ {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "id" : "<UUID_GENERE_1>",
+  "infirmier_id" : "<INF_AMRANI>",
+  "jours" : "LUNDI,MARDI",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "id" : "<UUID_GENERE_2>",
+  "infirmier_id" : "<INF_AMRANI>",
+  "jours" : "MERCREDI,JEUDI",
+  "salle_id" : "<SALLE_2>"
+}, {
+  "creneau_id" : "<CRENEAU_APRES_MIDI>",
+  "id" : "<UUID_GENERE_3>",
+  "infirmier_id" : "<INF_AMRANI>",
+  "jours" : "LUNDI,MARDI",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "id" : "<UUID_GENERE_4>",
+  "infirmier_id" : "<INF_BENALI>",
+  "jours" : "LUNDI,MARDI",
+  "salle_id" : "<SALLE_1>"
+} ]

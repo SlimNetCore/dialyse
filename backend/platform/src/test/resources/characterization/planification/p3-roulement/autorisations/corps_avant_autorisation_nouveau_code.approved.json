@@ -1,10 +1,10 @@
 {
-  "POST absences JSON illisible [COMPTABLE]": "403 ACCESS_DENIED",
-  "POST absences corps valide [MEDECIN + INFIRMIER]": "403 ACCESS_DENIED",
-  "POST absences corps vide [MEDECIN + INFIRMIER]": "403 ACCESS_DENIED",
-  "POST affectations corps vide [SECRETAIRE]": "403 ACCESS_DENIED",
-  "POST moi/absences corps vide [COMPTABLE]": "403 ACCESS_DENIED",
-  "POST moi/absences type inconnu [COMPTABLE]": "403 ACCESS_DENIED",
-  "POST remplacements corps valide [MEDECIN + INFIRMIER]": "403 ACCESS_DENIED",
-  "POST remplacements corps vide [MEDECIN + INFIRMIER]": "403 ACCESS_DENIED"
+  "POST absences JSON illisible [COMPTABLE]" : "403 ACCESS_DENIED",
+  "POST absences corps valide [MEDECIN + INFIRMIER]" : "403 ACCESS_DENIED",
+  "POST absences corps vide [MEDECIN + INFIRMIER]" : "403 ACCESS_DENIED",
+  "POST affectations corps vide [SECRETAIRE]" : "403 ACCESS_DENIED",
+  "POST moi/absences corps vide [COMPTABLE]" : "403 ACCESS_DENIED",
+  "POST moi/absences type inconnu [COMPTABLE]" : "403 ACCESS_DENIED",
+  "POST remplacements corps valide [MEDECIN + INFIRMIER]" : "403 ACCESS_DENIED",
+  "POST remplacements corps vide [MEDECIN + INFIRMIER]" : "403 ACCESS_DENIED"
 }

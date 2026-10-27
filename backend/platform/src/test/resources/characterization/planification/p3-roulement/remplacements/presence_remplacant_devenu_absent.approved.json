@@ -1,20 +1,18 @@
 {
-  "cases": [
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_MATIN>",
-      "date": "<S1.LUN>",
-      "manque": 1,
-      "patients": 1,
-      "presents": [],
-      "requis": 1,
-      "salleId": "<SALLE_1>",
-      "statut": "SOUS_EFFECTIF",
-      "surplus": 0
-    }
-  ],
-  "casesSousEffectif": 1,
-  "conflits": [],
-  "debut": "<S1.DIM>",
-  "statut": 200
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 1,
+    "patients" : 1,
+    "presents" : [ ],
+    "requis" : 1,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  } ],
+  "casesSousEffectif" : 1,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
 }

@@ -1,7 +1,5 @@
-[
-  {
-    "date_debut": "<J+1>",
-    "infirmier_id": "<INF_AMRANI>",
-    "type": "CONGE"
-  }
-]
+[ {
+  "date_debut" : "<J+1>",
+  "infirmier_id" : "<INF_AMRANI>",
+  "type" : "CONGE"
+} ]

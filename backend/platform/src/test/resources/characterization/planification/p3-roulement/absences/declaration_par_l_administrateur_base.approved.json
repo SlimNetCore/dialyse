@@ -1,11 +1,9 @@
-[
-  {
-    "center_id": "<CENTRE_A>",
-    "date_debut": "<S1.LUN>",
-    "date_fin": "<S1.MER>",
-    "id": "<UUID_GENERE_1>",
-    "infirmier_id": "<INF_AMRANI>",
-    "motif": "Congé annuel",
-    "type": "CONGE"
-  }
-]
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<S1.LUN>",
+  "date_fin" : "<S1.MER>",
+  "id" : "<UUID_GENERE_1>",
+  "infirmier_id" : "<INF_AMRANI>",
+  "motif" : "Congé annuel",
+  "type" : "CONGE"
+} ]

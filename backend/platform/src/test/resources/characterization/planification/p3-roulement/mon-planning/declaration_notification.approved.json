@@ -1,7 +1,5 @@
-[
-  {
-    "payload": "{\"debut\":\"<J+3>\",\"infirmier\":\"Sara Amrani\",\"fin\":\"<J+5>\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
-    "target_roles": ",ADMIN,SECRETAIRE,MEDECIN,",
-    "type": "INFIRMIER_ABSENCE_DECLAREE"
-  }
-]
+[ {
+  "payload" : "{\"debut\":\"<J+3>\",\"infirmier\":\"Sara Amrani\",\"fin\":\"<J+5>\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,MEDECIN,",
+  "type" : "INFIRMIER_ABSENCE_DECLAREE"
+} ]

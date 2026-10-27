@@ -1,28 +1,25 @@
 {
-  "status": 200,
-  "contentType": "application/json",
-  "cacheControl": "no-store",
-  "body": {
-    "items": [
-      {
-        "debut": "<S1.LUN>",
-        "fin": "<S1.JEU>",
-        "id": "<UUID_GENERE_1>",
-        "infirmierId": "<INF_AMRANI>",
-        "motif": null,
-        "type": "CONGE"
-      },
-      {
-        "debut": "<S1.DIM>",
-        "fin": "<S1.DIM>",
-        "id": "<UUID_GENERE_2>",
-        "infirmierId": "<INF_AMRANI>",
-        "motif": null,
-        "type": "AUTRE"
-      }
-    ],
-    "page": 0,
-    "size": 20,
-    "total": 2
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "debut" : "<S1.LUN>",
+      "fin" : "<S1.JEU>",
+      "id" : "<UUID_GENERE_1>",
+      "infirmierId" : "<INF_AMRANI>",
+      "motif" : null,
+      "type" : "CONGE"
+    }, {
+      "debut" : "<S1.DIM>",
+      "fin" : "<S1.DIM>",
+      "id" : "<UUID_GENERE_2>",
+      "infirmierId" : "<INF_AMRANI>",
+      "motif" : null,
+      "type" : "AUTRE"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
   }
 }

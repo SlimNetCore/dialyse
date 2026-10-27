@@ -1,6 +1,6 @@
 {
-  "dimanche = samedi de la même semaine": true,
-  "début semaine suivante": "<S2.DIM>",
-  "fin semaine suivante": "<S2.SAM>",
-  "semaine suivante identique": false
+  "dimanche = samedi de la même semaine" : true,
+  "début semaine suivante" : "<S2.DIM>",
+  "fin semaine suivante" : "<S2.SAM>",
+  "semaine suivante identique" : false
 }

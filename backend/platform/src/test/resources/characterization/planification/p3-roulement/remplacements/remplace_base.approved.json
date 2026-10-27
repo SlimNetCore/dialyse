@@ -1,20 +1,17 @@
-[
-  {
-    "center_id": "<CENTRE_A>",
-    "creneau_id": "<CRENEAU_MATIN>",
-    "date_jour": "<S1.LUN>",
-    "id": "<UUID_GENERE_1>",
-    "infirmier_id": "<INF_BENALI>",
-    "remplace_infirmier_id": "<INF_AMRANI>",
-    "salle_id": "<SALLE_1>"
-  },
-  {
-    "center_id": "<CENTRE_A>",
-    "creneau_id": "<CRENEAU_MATIN>",
-    "date_jour": "<S1.MAR>",
-    "id": "<UUID_GENERE_2>",
-    "infirmier_id": "<INF_BENALI>",
-    "remplace_infirmier_id": "<INF_AMRANI>",
-    "salle_id": "<SALLE_1>"
-  }
-]
+[ {
+  "center_id" : "<CENTRE_A>",
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "date_jour" : "<S1.LUN>",
+  "id" : "<UUID_GENERE_1>",
+  "infirmier_id" : "<INF_BENALI>",
+  "remplace_infirmier_id" : "<INF_AMRANI>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "date_jour" : "<S1.MAR>",
+  "id" : "<UUID_GENERE_2>",
+  "infirmier_id" : "<INF_BENALI>",
+  "remplace_infirmier_id" : "<INF_AMRANI>",
+  "salle_id" : "<SALLE_1>"
+} ]

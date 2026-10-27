@@ -1,36 +1,29 @@
 {
-  "cases": [
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_MATIN>",
-      "date": "<S1.LUN>",
-      "manque": 0,
-      "patients": 4,
-      "presents": [
-        "Sara Amrani"
-      ],
-      "requis": 1,
-      "salleId": "<SALLE_1>",
-      "statut": "COUVERT",
-      "surplus": 0
-    },
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_MATIN>",
-      "date": "<S1.MAR>",
-      "manque": 0,
-      "patients": 4,
-      "presents": [
-        "Sara Amrani"
-      ],
-      "requis": 1,
-      "salleId": "<SALLE_1>",
-      "statut": "COUVERT",
-      "surplus": 0
-    }
-  ],
-  "casesSousEffectif": 0,
-  "conflits": [],
-  "debut": "<S1.DIM>",
-  "statut": 200
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 4,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 1,
+    "salleId" : "<SALLE_1>",
+    "statut" : "COUVERT",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MAR>",
+    "manque" : 0,
+    "patients" : 4,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 1,
+    "salleId" : "<SALLE_1>",
+    "statut" : "COUVERT",
+    "surplus" : 0
+  } ],
+  "casesSousEffectif" : 0,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
 }

@@ -1,17 +1,11 @@
 {
-  "status": 201,
-  "contentType": "application/json",
-  "body": {
-    "creneauId": "<CRENEAU_MATIN>",
-    "id": "<UUID_GENERE_1>",
-    "jours": [
-      "LUNDI",
-      "MERCREDI"
-    ],
-    "joursEnSureffectif": [
-      "LUNDI",
-      "MERCREDI"
-    ],
-    "salleId": "<SALLE_1>"
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "id" : "<UUID_GENERE_1>",
+    "jours" : [ "LUNDI", "MERCREDI" ],
+    "joursEnSureffectif" : [ "LUNDI", "MERCREDI" ],
+    "salleId" : "<SALLE_1>"
   }
 }

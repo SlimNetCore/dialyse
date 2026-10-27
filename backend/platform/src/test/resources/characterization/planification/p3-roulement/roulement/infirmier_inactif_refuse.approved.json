@@ -1,11 +1,11 @@
 {
-  "status": 422,
-  "contentType": "application/problem+json",
-  "body": {
-    "code": "INFIRMIER_INACTIF",
-    "detail": "Cet infirmier est désactivé",
-    "instance": "/api/v1/infirmiers/<INF_INACTIF>/affectations",
-    "status": 422,
-    "title": "Regle metier violee"
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "INFIRMIER_INACTIF",
+    "detail" : "Cet infirmier est désactivé",
+    "instance" : "/api/v1/infirmiers/<INF_INACTIF>/affectations",
+    "status" : 422,
+    "title" : "Regle metier violee"
   }
 }

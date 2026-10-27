@@ -1,10 +1,10 @@
 {
-  "créneau d'un autre centre": "422 AFFECTATION_CRENEAU_INCONNU",
-  "remplacé d'un autre centre": "422 INFIRMIER_INTROUVABLE",
-  "remplacé désactivé et non concerné (refusé)": "422 REMPLACEMENT_REMPLACE_NON_CONCERNE",
-  "remplacé inconnu + infirmier inéligible": "422 INFIRMIER_INTROUVABLE",
-  "salle d'un autre centre": "422 AFFECTATION_SALLE_INCONNUE",
-  "salle inconnue + créneau inconnu + infirmier inconnu": "400 BAD_REQUEST",
-  "soi-même, inéligible (400 en premier)": "400 BAD_REQUEST",
-  "soi-même, éligible (400)": "400 BAD_REQUEST"
+  "créneau d'un autre centre" : "422 AFFECTATION_CRENEAU_INCONNU",
+  "remplacé d'un autre centre" : "422 INFIRMIER_INTROUVABLE",
+  "remplacé désactivé et non concerné (refusé)" : "422 REMPLACEMENT_REMPLACE_NON_CONCERNE",
+  "remplacé inconnu + infirmier inéligible" : "422 INFIRMIER_INTROUVABLE",
+  "salle d'un autre centre" : "422 AFFECTATION_SALLE_INCONNUE",
+  "salle inconnue + créneau inconnu + infirmier inconnu" : "400 BAD_REQUEST",
+  "soi-même, inéligible (400 en premier)" : "400 BAD_REQUEST",
+  "soi-même, éligible (400)" : "400 BAD_REQUEST"
 }

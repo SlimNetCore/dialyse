@@ -1,6 +1,6 @@
 {
-  "366 jours (J à J+365)": "201",
-  "367 jours (J à J+366)": "400 BAD_REQUEST",
-  "fin avant début": "400 BAD_REQUEST",
-  "passée ET trop longue (400 avant 422)": "400 BAD_REQUEST"
+  "366 jours (J à J+365)" : "201",
+  "367 jours (J à J+366)" : "400 BAD_REQUEST",
+  "fin avant début" : "400 BAD_REQUEST",
+  "passée ET trop longue (400 avant 422)" : "400 BAD_REQUEST"
 }

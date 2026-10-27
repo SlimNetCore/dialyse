@@ -1,6 +1,6 @@
 {
-  "page négative": "400 BAD_REQUEST",
-  "sans fiche": "422 INFIRMIER_NON_LIE",
-  "taille 1000": "200",
-  "taille négative": "400 BAD_REQUEST"
+  "page négative" : "400 BAD_REQUEST",
+  "sans fiche" : "422 INFIRMIER_NON_LIE",
+  "taille 1000" : "200",
+  "taille négative" : "400 BAD_REQUEST"
 }

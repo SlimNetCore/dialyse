@@ -1,11 +1,11 @@
 {
-  "status": 400,
-  "contentType": "application/problem+json",
-  "body": {
-    "code": "BAD_REQUEST",
-    "detail": "Une absence ne peut pas dépasser 366 jours",
-    "instance": "/api/v1/infirmiers/absences",
-    "status": 400,
-    "title": "Requete invalide"
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Une absence ne peut pas dépasser 366 jours",
+    "instance" : "/api/v1/infirmiers/absences",
+    "status" : 400,
+    "title" : "Requete invalide"
   }
 }

@@ -1,17 +1,15 @@
-[
-  {
-    "destination": "/topic/center/<CENTRE_A>/events",
-    "message": {
-      "centerId": "<CENTRE_A>",
-      "id": "<UUID_GENERE_1>",
-      "payload": {
-        "debut": "<J+3>",
-        "fin": "<J+5>",
-        "infirmier": "Sara Amrani",
-        "targetRoles": "ADMIN,SECRETAIRE,MEDECIN"
-      },
-      "timestamp": "<HORODATAGE>",
-      "type": "INFIRMIER_ABSENCE_DECLAREE"
-    }
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "id" : "<UUID_GENERE_1>",
+    "payload" : {
+      "debut" : "<J+3>",
+      "fin" : "<J+5>",
+      "infirmier" : "Sara Amrani",
+      "targetRoles" : "ADMIN,SECRETAIRE,MEDECIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "INFIRMIER_ABSENCE_DECLAREE"
   }
-]
+} ]

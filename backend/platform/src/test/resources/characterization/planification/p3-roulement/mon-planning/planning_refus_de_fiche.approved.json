@@ -1,5 +1,5 @@
 {
-  "compte sans fiche": "422 INFIRMIER_NON_LIE",
-  "fiche liée dans un autre centre seulement": "422 INFIRMIER_NON_LIE",
-  "utilisateur inconnu": "422 INFIRMIER_NON_LIE"
+  "compte sans fiche" : "422 INFIRMIER_NON_LIE",
+  "fiche liée dans un autre centre seulement" : "422 INFIRMIER_NON_LIE",
+  "utilisateur inconnu" : "422 INFIRMIER_NON_LIE"
 }

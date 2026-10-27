@@ -1,7 +1,7 @@
 {
-  "chevauchement partiel, autre type (mercredi au samedi)": "422 ABSENCE_CHEVAUCHEMENT",
-  "contiguë (dimanche, veille du début)": "201",
-  "doublon exact": "422 ABSENCE_CHEVAUCHEMENT",
-  "incluse dans la première (mardi au mercredi)": "422 ABSENCE_CHEVAUCHEMENT",
-  "première (lundi au jeudi)": "201"
+  "chevauchement partiel, autre type (mercredi au samedi)" : "422 ABSENCE_CHEVAUCHEMENT",
+  "contiguë (dimanche, veille du début)" : "201",
+  "doublon exact" : "422 ABSENCE_CHEVAUCHEMENT",
+  "incluse dans la première (mardi au mercredi)" : "422 ABSENCE_CHEVAUCHEMENT",
+  "première (lundi au jeudi)" : "201"
 }

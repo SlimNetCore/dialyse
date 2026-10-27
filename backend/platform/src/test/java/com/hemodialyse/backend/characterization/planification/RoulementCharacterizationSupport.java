@@ -429,6 +429,12 @@ public abstract class RoulementCharacterizationSupport extends InfirmiersCharact
                 + "WHERE center_id IN ('" + CENTRE_A + "','" + CENTRE_B + "') ORDER BY center_id, infirmier_id, date_debut, date_fin, type, motif, id");
     }
 
+    /** Le compte qui a saisi chaque absence (V47, KB-PLN-39) : l'auteur est celui de la session, jamais un paramètre. */
+    protected void auteursDesAbsences(String name) {
+        sql(name, "SELECT infirmier_id, declaree_par FROM infirmier_absence WHERE center_id IN ('" + CENTRE_A + "','" + CENTRE_B
+                + "') ORDER BY infirmier_id, date_debut, id");
+    }
+
     protected void etatRemplacements(String name) {
         sql(name, "SELECT center_id, date_jour, salle_id, creneau_id, infirmier_id, remplace_infirmier_id, id FROM infirmier_remplacement "
                 + "WHERE center_id IN ('" + CENTRE_A + "','" + CENTRE_B + "') ORDER BY center_id, date_jour, creneau_id, salle_id, infirmier_id, id");

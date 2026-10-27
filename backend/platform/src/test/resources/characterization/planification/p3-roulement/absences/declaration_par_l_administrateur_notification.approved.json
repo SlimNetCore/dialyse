@@ -1,7 +1,5 @@
-[
-  {
-    "payload": "{\"debut\":\"<S1.LUN>\",\"infirmier\":\"Sara Amrani\",\"fin\":\"<S1.MER>\",\"targetRoles\":\"MEDECIN\"}",
-    "target_roles": ",MEDECIN,",
-    "type": "INFIRMIER_ABSENCE_ENREGISTREE"
-  }
-]
+[ {
+  "payload" : "{\"debut\":\"<S1.LUN>\",\"infirmier\":\"Sara Amrani\",\"fin\":\"<S1.MER>\",\"targetRoles\":\"MEDECIN\"}",
+  "target_roles" : ",MEDECIN,",
+  "type" : "INFIRMIER_ABSENCE_ENREGISTREE"
+} ]

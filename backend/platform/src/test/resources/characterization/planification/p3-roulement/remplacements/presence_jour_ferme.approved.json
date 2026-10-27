@@ -1,80 +1,73 @@
 {
-  "cases": [
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_APRES_MIDI>",
-      "date": "<S1.MER>",
-      "manque": 0,
-      "patients": 0,
-      "presents": [],
-      "requis": 0,
-      "salleId": "<SALLE_1>",
-      "statut": "FERME",
-      "surplus": 0
-    },
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_APRES_MIDI>",
-      "date": "<S1.MER>",
-      "manque": 0,
-      "patients": 0,
-      "presents": [],
-      "requis": 0,
-      "salleId": "<SALLE_2>",
-      "statut": "FERME",
-      "surplus": 0
-    },
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_APRES_MIDI>",
-      "date": "<S1.MER>",
-      "manque": 0,
-      "patients": 0,
-      "presents": [],
-      "requis": 0,
-      "salleId": "<SALLE_ISO>",
-      "statut": "FERME",
-      "surplus": 0
-    },
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_MATIN>",
-      "date": "<S1.MER>",
-      "manque": 0,
-      "patients": 0,
-      "presents": [],
-      "requis": 0,
-      "salleId": "<SALLE_1>",
-      "statut": "FERME",
-      "surplus": 0
-    },
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_MATIN>",
-      "date": "<S1.MER>",
-      "manque": 0,
-      "patients": 0,
-      "presents": [],
-      "requis": 0,
-      "salleId": "<SALLE_2>",
-      "statut": "FERME",
-      "surplus": 0
-    },
-    {
-      "absents": [],
-      "creneauId": "<CRENEAU_MATIN>",
-      "date": "<S1.MER>",
-      "manque": 0,
-      "patients": 0,
-      "presents": [],
-      "requis": 0,
-      "salleId": "<SALLE_ISO>",
-      "statut": "FERME",
-      "surplus": 0
-    }
-  ],
-  "casesSousEffectif": 0,
-  "conflits": [],
-  "debut": "<S1.DIM>",
-  "statut": 200
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_APRES_MIDI>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ ],
+    "requis" : 0,
+    "salleId" : "<SALLE_1>",
+    "statut" : "FERME",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_APRES_MIDI>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ ],
+    "requis" : 0,
+    "salleId" : "<SALLE_2>",
+    "statut" : "FERME",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_APRES_MIDI>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ ],
+    "requis" : 0,
+    "salleId" : "<SALLE_ISO>",
+    "statut" : "FERME",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ ],
+    "requis" : 0,
+    "salleId" : "<SALLE_1>",
+    "statut" : "FERME",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ ],
+    "requis" : 0,
+    "salleId" : "<SALLE_2>",
+    "statut" : "FERME",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ ],
+    "requis" : 0,
+    "salleId" : "<SALLE_ISO>",
+    "statut" : "FERME",
+    "surplus" : 0
+  } ],
+  "casesSousEffectif" : 0,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
 }

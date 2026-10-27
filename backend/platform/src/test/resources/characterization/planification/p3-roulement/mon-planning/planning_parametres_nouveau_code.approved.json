@@ -1,8 +1,8 @@
 {
-  "centre d'un autre centre": "403 ACCESS_DENIED",
-  "centre illisible": "400 BAD_REQUEST",
-  "date illisible": "400 BAD_REQUEST",
-  "date impossible": "400 BAD_REQUEST",
-  "date vide": "200",
-  "même centre": "200"
+  "centre d'un autre centre" : "403 ACCESS_DENIED",
+  "centre illisible" : "400 BAD_REQUEST",
+  "date illisible" : "400 BAD_REQUEST",
+  "date impossible" : "400 BAD_REQUEST",
+  "date vide" : "200",
+  "même centre" : "200"
 }

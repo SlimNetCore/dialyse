@@ -1,12 +1,12 @@
 {
-  "status": 201,
-  "contentType": "application/json",
-  "body": {
-    "debut": "<J+3>",
-    "fin": "<J+5>",
-    "id": "<UUID_GENERE_1>",
-    "infirmierId": "<INF_AMRANI>",
-    "motif": "Mariage",
-    "type": "CONGE"
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "debut" : "<J+3>",
+    "fin" : "<J+5>",
+    "id" : "<UUID_GENERE_1>",
+    "infirmierId" : "<INF_AMRANI>",
+    "motif" : "Mariage",
+    "type" : "CONGE"
   }
 }

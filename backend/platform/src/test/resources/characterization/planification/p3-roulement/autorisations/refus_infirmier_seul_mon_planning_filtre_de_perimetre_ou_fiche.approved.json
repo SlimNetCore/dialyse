@@ -1,11 +1,11 @@
 {
-  "status": 422,
-  "contentType": "application/problem+json",
-  "body": {
-    "code": "INFIRMIER_NON_LIE",
-    "detail": "Votre compte n'est relié à aucune fiche infirmier de ce centre",
-    "instance": "/api/v1/infirmiers/moi/planning",
-    "status": 422,
-    "title": "Regle metier violee"
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "INFIRMIER_NON_LIE",
+    "detail" : "Votre compte n'est relié à aucune fiche infirmier de ce centre",
+    "instance" : "/api/v1/infirmiers/moi/planning",
+    "status" : 422,
+    "title" : "Regle metier violee"
   }
 }

@@ -1,7 +1,7 @@
 {
-  "autre créneau, mêmes jours": "201",
-  "autre salle, mêmes jours": "422 AFFECTATION_CHEVAUCHEMENT",
-  "même créneau, jours disjoints": "201",
-  "même salle, un seul jour commun": "422 AFFECTATION_CHEVAUCHEMENT",
-  "un autre infirmier, même case, mêmes jours": "201"
+  "autre créneau, mêmes jours" : "201",
+  "autre salle, mêmes jours" : "422 AFFECTATION_CHEVAUCHEMENT",
+  "même créneau, jours disjoints" : "201",
+  "même salle, un seul jour commun" : "422 AFFECTATION_CHEVAUCHEMENT",
+  "un autre infirmier, même case, mêmes jours" : "201"
 }
