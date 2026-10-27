@@ -1,0 +1,10 @@
+{
+  "fiche avec un jour de plus" : "422 PLACEMENT_GENERATEUR_INCONNU",
+  "fiche inchangee" : "200",
+  "propositions salle 1 lundi" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1B autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=81 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=81 Salle 2 / Matin / G2A autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  }
+}

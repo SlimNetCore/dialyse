@@ -1,0 +1,26 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "capacite" : 3,
+      "code" : "SALLE_UNIQUE",
+      "depassement" : false,
+      "generateurs" : [ {
+        "code" : "GA",
+        "designation" : "Equipement GA",
+        "id" : "<GA>",
+        "statut" : "EN_SERVICE"
+      } ],
+      "id" : "<SALLE_UNIQUE>",
+      "isolement" : false,
+      "nbGenerateurs" : 1,
+      "nom" : "Salle unique",
+      "placesRestantes" : 2
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

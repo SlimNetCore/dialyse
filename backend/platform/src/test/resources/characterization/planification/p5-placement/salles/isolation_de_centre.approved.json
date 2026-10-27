@@ -1,0 +1,6 @@
+{
+  "centerId = centre de la session" : "200",
+  "centerId autre centre" : "403 ACCESS_DENIED",
+  "centerId illisible" : "500 INTERNAL_ERROR",
+  "centre B" : [ "SALLE_B isolement=false capacite=null nb=1 restantes=null depassement=false generateurs=[GB1:EN_SERVICE]" ]
+}

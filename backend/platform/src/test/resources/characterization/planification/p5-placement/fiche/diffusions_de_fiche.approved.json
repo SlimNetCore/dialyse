@@ -1,0 +1,27 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "nom" : "Patient PAT_1",
+      "patientCode" : "P3-PAT_1",
+      "patientId" : "<PAT_1>",
+      "prenom" : "Test"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "PATIENT_UPDATED"
+  }
+}, {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "nom" : "Patient PAT_1",
+      "patientCode" : "P3-PAT_1",
+      "patientId" : "<PAT_1>",
+      "prenom" : "Test"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "PATIENT_UPDATED"
+  }
+} ]

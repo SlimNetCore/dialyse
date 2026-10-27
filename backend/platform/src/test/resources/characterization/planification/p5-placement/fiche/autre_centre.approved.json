@@ -1,0 +1,4 @@
+{
+  "admin A sur un patient de B (centerId A)" : "400 BAD_REQUEST",
+  "admin A sur un patient de B (centerId B)" : "200"
+}

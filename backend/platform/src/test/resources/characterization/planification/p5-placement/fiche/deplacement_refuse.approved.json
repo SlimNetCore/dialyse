@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "PLACEMENT_GENERATEUR_OCCUPE",
+    "detail" : "Placement refusé par la planification : [GENERATEUR_OCCUPE]",
+    "instance" : "/api/v1/patients/<PAT_1>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

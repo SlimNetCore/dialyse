@@ -1,0 +1,11 @@
+{
+  "AC_HBC positif" : false,
+  "AC_VHC positif" : true,
+  "AG_HBS positif" : true,
+  "ARN_VHC positif" : true,
+  "VIH_AC positif" : true,
+  "negatif puis positif" : true,
+  "patient d'un autre centre" : false,
+  "positif puis negatif" : false,
+  "un marqueur positif, un autre negatif" : true
+}

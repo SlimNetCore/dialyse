@@ -1,0 +1,20 @@
+{
+  "jour de la fermeture exceptionnelle" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[<JOUR_DE_LA_DATE>] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE] fermetures=[<J+20> Travaux]" ],
+    "statut" : 200
+  },
+  "jour de la fermeture hors horizon" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[<JOUR_DE_LA_DATE>] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "jour du ferie" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[<JOUR_DE_LA_DATE>] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE] fermetures=[<J+3> Fete du centre]" ],
+    "statut" : 200
+  }
+}

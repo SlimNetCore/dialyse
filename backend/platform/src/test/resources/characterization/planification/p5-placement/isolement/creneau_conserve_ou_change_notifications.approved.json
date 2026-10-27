@@ -1,0 +1,9 @@
+[ {
+  "payload" : "{\"patientNom\":\"Test Patient PAT_2\",\"patientId\":\"<PAT_2>\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,MEDECIN,",
+  "type" : "ISOLEMENT_IMPOSSIBLE"
+}, {
+  "payload" : "{\"patientNom\":\"Test Patient PAT_1\",\"patientId\":\"<PAT_1>\",\"salle\":\"Salle isolement\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,MEDECIN,",
+  "type" : "PATIENT_REPLACE_ISOLEMENT"
+} ]

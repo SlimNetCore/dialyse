@@ -1,0 +1,40 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : "<G2A>",
+  "jeu" : "false",
+  "lun" : "false",
+  "mar" : "true",
+  "mer" : "false",
+  "nom" : "Patient PAT_DOUBLON_1",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_2>",
+  "sam" : "false",
+  "ven" : "false"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : "<G2A>",
+  "jeu" : "false",
+  "lun" : "false",
+  "mar" : "true",
+  "mer" : "false",
+  "nom" : "Patient PAT_DOUBLON_2",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_2>",
+  "sam" : "false",
+  "ven" : "false"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : "<G1HS>",
+  "jeu" : "false",
+  "lun" : "true",
+  "mar" : "false",
+  "mer" : "false",
+  "nom" : "Patient PAT_HERITE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "sam" : "false",
+  "ven" : "false"
+} ]

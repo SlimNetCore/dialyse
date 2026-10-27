@@ -344,7 +344,25 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/service/CalendrierCentre.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlanningDesPlacesLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/NotificationsDeLaPresenceLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDeLaPresenceLegacy.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDeLaPresenceLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/PlanningAffectationRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SalleGenerateursRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SerologieRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/PatientRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/PlanningAffectationQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/SalleGenerateursService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/PlacementPatientService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/PlanningDonneesJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/PlacementPatientJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SalleVueJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/planning/GenerateurImpactJdbcAdapter.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/service/PlanificationAffectationService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/model/Planning.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/model/SalleVue.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/PlacementPatientPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/PlanningDonneesPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/SalleVuePort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/GenerateurImpactPort.java"
   ],
   "seamAllowed": []
 }

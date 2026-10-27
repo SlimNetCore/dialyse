@@ -1,0 +1,33 @@
+{
+  "creneau illisible" : "500 INTERNAL_ERROR",
+  "creneau inconnu" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=76 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]", "score=76 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "creneau souhaite" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, CRENEAU_PREFERE, SALLE_PEU_CHARGEE]", "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, CRENEAU_PREFERE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, CRENEAU_PREFERE, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "les deux" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, CRENEAU_PREFERE, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, CRENEAU_PREFERE, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=85 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, CRENEAU_PREFERE, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "salle d'isolement souhaitee par un patient sans risque" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=81 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]", "score=81 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]", "score=81 Salle 1 / Matin / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "salle souhaitee" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Matin / G2A autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  }
+}

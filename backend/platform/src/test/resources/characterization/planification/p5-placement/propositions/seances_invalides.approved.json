@@ -1,0 +1,8 @@
+{
+  "seances=-1" : "400 BAD_REQUEST",
+  "seances=0" : "400 BAD_REQUEST",
+  "seances=2.5" : "500 INTERNAL_ERROR",
+  "seances=8" : "400 BAD_REQUEST",
+  "seances=99999999999" : "500 INTERNAL_ERROR",
+  "seances=abc" : "500 INTERNAL_ERROR"
+}

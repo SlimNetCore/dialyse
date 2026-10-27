@@ -1,0 +1,7 @@
+{
+  "deuxieme mise hors service du meme generateur" : "200/422",
+  "generateur d'un autre centre" : 400,
+  "generateur d'une autre salle mis hors service puis reactive" : "200/200",
+  "reforme depuis hors service" : 200,
+  "station d'eau hors service" : 200
+}

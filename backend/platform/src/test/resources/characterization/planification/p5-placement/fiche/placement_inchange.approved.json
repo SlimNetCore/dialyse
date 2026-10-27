@@ -1,0 +1,6 @@
+{
+  "double occupation heritee, autre jour" : "422 PLACEMENT_GENERATEUR_OCCUPE : Placement refusé par la planification : [GENERATEUR_OCCUPE]",
+  "double occupation heritee, inchangee" : "200",
+  "generateur hors service, inchange" : "200",
+  "generateur hors service, un jour de plus" : "422 PLACEMENT_GENERATEUR_INCONNU : Placement refusé par la planification : [GENERATEUR_INCONNU]"
+}

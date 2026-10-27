@@ -1,0 +1,4 @@
+{
+  "jour ferme + isolement requis + occupe" : "422 PLACEMENT_JOUR_FERME : Placement refusé par la planification : [JOUR_FERME, ISOLEMENT_REQUIS, GENERATEUR_INCOMPATIBLE, GENERATEUR_OCCUPE]",
+  "salle inconnue + creneau inconnu + generateur inconnu + jour ferme" : "422 PLACEMENT_SALLE_INCONNUE : Placement refusé par la planification : [SALLE_INCONNUE, CRENEAU_INCONNU, JOUR_FERME, GENERATEUR_INCONNU]"
+}

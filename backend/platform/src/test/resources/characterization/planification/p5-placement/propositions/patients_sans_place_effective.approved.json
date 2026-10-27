@@ -1,0 +1,9 @@
+{
+  "propositions lundi salle 1" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 1 / Matin / G1A autres=[G1B] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=81 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=81 Salle 2 / Matin / G2A autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "sansJour" : true
+}

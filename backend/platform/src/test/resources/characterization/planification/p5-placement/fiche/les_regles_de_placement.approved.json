@@ -1,0 +1,16 @@
+{
+  "CRENEAU_INCONNU : creneau d'un autre centre" : "422 PLACEMENT_CRENEAU_INCONNU : Placement refusé par la planification : [CRENEAU_INCONNU]",
+  "GENERATEUR_INCONNU : d'un autre centre" : "422 PLACEMENT_GENERATEUR_INCONNU : Placement refusé par la planification : [GENERATEUR_INCONNU]",
+  "GENERATEUR_INCONNU : d'une autre salle" : "422 PLACEMENT_GENERATEUR_INCONNU : Placement refusé par la planification : [GENERATEUR_INCONNU]",
+  "GENERATEUR_INCONNU : hors service" : "422 PLACEMENT_GENERATEUR_INCONNU : Placement refusé par la planification : [GENERATEUR_INCONNU]",
+  "GENERATEUR_INCONNU : inexistant" : "422 PLACEMENT_GENERATEUR_INCONNU : Placement refusé par la planification : [GENERATEUR_INCONNU]",
+  "GENERATEUR_OCCUPE : meme generateur, creneau, jour" : "422 PLACEMENT_GENERATEUR_OCCUPE : Placement refusé par la planification : [GENERATEUR_OCCUPE]",
+  "GENERATEUR_OCCUPE : un des jours seulement" : "422 PLACEMENT_GENERATEUR_OCCUPE : Placement refusé par la planification : [GENERATEUR_OCCUPE]",
+  "INCOMPLET : jours seuls" : "422 PLACEMENT_INCOMPLET : Placement refusé par la planification : [INCOMPLET]",
+  "INCOMPLET : salle seule" : "422 PLACEMENT_INCOMPLET : Placement refusé par la planification : [INCOMPLET]",
+  "INCOMPLET : sans generateur" : "422 PLACEMENT_INCOMPLET : Placement refusé par la planification : [INCOMPLET]",
+  "INCOMPLET : sans jour" : "422 PLACEMENT_INCOMPLET : Placement refusé par la planification : [INCOMPLET]",
+  "ISOLEMENT_REQUIS : patient a risque en salle ordinaire" : "422 PLACEMENT_ISOLEMENT_REQUIS : Placement refusé par la planification : [ISOLEMENT_REQUIS]",
+  "SALLE_INCONNUE : salle d'un autre centre" : "422 PLACEMENT_SALLE_INCONNUE : Placement refusé par la planification : [SALLE_INCONNUE, GENERATEUR_INCONNU]",
+  "SALLE_INCONNUE : salle inexistante" : "422 PLACEMENT_SALLE_INCONNUE : Placement refusé par la planification : [SALLE_INCONNUE, GENERATEUR_INCONNU]"
+}

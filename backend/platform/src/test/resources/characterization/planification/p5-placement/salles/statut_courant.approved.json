@@ -1,0 +1,5 @@
+{
+  "apres" : [ "SALLE_1 isolement=false capacite=null nb=2 restantes=null depassement=false generateurs=[G1A:HORS_SERVICE, G1B:EN_SERVICE]", "SALLE_2 isolement=false capacite=null nb=1 restantes=null depassement=false generateurs=[G2A:EN_SERVICE]", "SALLE_ISO isolement=true capacite=null nb=1 restantes=null depassement=false generateurs=[GISO:EN_SERVICE]" ],
+  "avant" : [ "SALLE_1 isolement=false capacite=null nb=2 restantes=null depassement=false generateurs=[G1A:EN_SERVICE, G1B:EN_SERVICE]", "SALLE_2 isolement=false capacite=null nb=1 restantes=null depassement=false generateurs=[G2A:EN_SERVICE]", "SALLE_ISO isolement=true capacite=null nb=1 restantes=null depassement=false generateurs=[GISO:EN_SERVICE]" ],
+  "cacheControl" : "no-store"
+}

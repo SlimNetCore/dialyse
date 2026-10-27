@@ -1,0 +1,18 @@
+{
+  "a risque, jeudi, matin" : {
+    "alertes" : [ ],
+    "patientARisque" : true,
+    "propositions" : [ "score=94 Salle isolement / Matin / GISO2 autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_ISOLEMENT, CRENEAU_PREFERE]", "score=76 Salle isolement / Apres-midi / GISO2 autres=[] jours=[LUNDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_ISOLEMENT, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "ids" : {
+    "aRisque" : true,
+    "sansRisque" : true
+  },
+  "sans risque, mardi" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1B autres=[] jours=[MARDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=94 Salle 1 / Matin / G1B autres=[] jours=[MARDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PREFEREE]", "score=81 Salle 2 / Apres-midi / G2A autres=[] jours=[MARDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=81 Salle 2 / Matin / G2A autres=[] jours=[MARDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  }
+}

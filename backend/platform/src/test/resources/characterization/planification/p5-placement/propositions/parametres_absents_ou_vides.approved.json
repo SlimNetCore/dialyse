@@ -1,0 +1,14 @@
+{
+  "jours ouverts vide" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[DIMANCHE, LUNDI, MARDI, MERCREDI, JEUDI, VENDREDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "pas de ligne" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[DIMANCHE, LUNDI, MARDI, MERCREDI, JEUDI, VENDREDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  }
+}

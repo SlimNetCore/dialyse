@@ -1,0 +1,6 @@
+{
+  "alertes" : [ ],
+  "patientARisque" : false,
+  "propositions" : [ "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[DIMANCHE] raisons=[SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI] raisons=[SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Matin / G2A autres=[] jours=[DIMANCHE] raisons=[SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Matin / G2A autres=[] jours=[LUNDI] raisons=[SALLE_PREFEREE, SALLE_PEU_CHARGEE]", "score=81 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[DIMANCHE] raisons=[SALLE_PEU_CHARGEE]", "score=81 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI] raisons=[SALLE_PEU_CHARGEE]", "score=81 Salle 1 / Matin / G1A autres=[G1B] jours=[DIMANCHE] raisons=[SALLE_PEU_CHARGEE]", "score=81 Salle 1 / Matin / G1A autres=[G1B] jours=[LUNDI] raisons=[SALLE_PEU_CHARGEE]" ],
+  "statut" : 200
+}

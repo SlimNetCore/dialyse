@@ -1,0 +1,5 @@
+{
+  "au moins un accepte" : true,
+  "aucun autre statut que 200 ou 422" : true,
+  "occupants du generateur coherents avec les reponses" : true
+}

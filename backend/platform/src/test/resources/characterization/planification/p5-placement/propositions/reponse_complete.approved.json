@@ -1,0 +1,106 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "alertes" : [ ],
+    "creneaux" : [ {
+      "id" : "<CRENEAU_UNIQUE>",
+      "libelle" : "Matin",
+      "ordre" : 1
+    } ],
+    "grille" : [ {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "DIMANCHE",
+      "occupes" : 0,
+      "salleId" : "<SALLE_UNIQUE>"
+    }, {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "LUNDI",
+      "occupes" : 1,
+      "salleId" : "<SALLE_UNIQUE>"
+    }, {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "MARDI",
+      "occupes" : 0,
+      "salleId" : "<SALLE_UNIQUE>"
+    }, {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "MERCREDI",
+      "occupes" : 1,
+      "salleId" : "<SALLE_UNIQUE>"
+    }, {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "JEUDI",
+      "occupes" : 0,
+      "salleId" : "<SALLE_UNIQUE>"
+    }, {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "VENDREDI",
+      "occupes" : 1,
+      "salleId" : "<SALLE_UNIQUE>"
+    }, {
+      "capacite" : 2,
+      "creneauId" : "<CRENEAU_UNIQUE>",
+      "jour" : "SAMEDI",
+      "occupes" : 0,
+      "salleId" : "<SALLE_UNIQUE>"
+    } ],
+    "patientARisque" : false,
+    "propositions" : [ {
+      "creneau" : {
+        "id" : "<CRENEAU_UNIQUE>",
+        "libelle" : "Matin",
+        "ordre" : 1
+      },
+      "fermetures" : [ ],
+      "generateur" : {
+        "code" : "GA",
+        "id" : "<GA>",
+        "salleId" : "<SALLE_UNIQUE>"
+      },
+      "generateursAlternatifs" : [ {
+        "code" : "GB",
+        "id" : "<GB>",
+        "salleId" : "<SALLE_UNIQUE>"
+      } ],
+      "jours" : [ "MARDI", "JEUDI", "SAMEDI" ],
+      "raisons" : [ "JOURS_BIEN_ESPACES", "SALLE_PEU_CHARGEE" ],
+      "salle" : {
+        "id" : "<SALLE_UNIQUE>",
+        "nom" : "Salle unique"
+      },
+      "score" : 100
+    }, {
+      "creneau" : {
+        "id" : "<CRENEAU_UNIQUE>",
+        "libelle" : "Matin",
+        "ordre" : 1
+      },
+      "fermetures" : [ ],
+      "generateur" : {
+        "code" : "GA",
+        "id" : "<GA>",
+        "salleId" : "<SALLE_UNIQUE>"
+      },
+      "generateursAlternatifs" : [ ],
+      "jours" : [ "DIMANCHE", "MARDI", "JEUDI" ],
+      "raisons" : [ "JOURS_BIEN_ESPACES", "SALLE_PEU_CHARGEE" ],
+      "salle" : {
+        "id" : "<SALLE_UNIQUE>",
+        "nom" : "Salle unique"
+      },
+      "score" : 97
+    } ],
+    "salles" : [ {
+      "id" : "<SALLE_UNIQUE>",
+      "nom" : "Salle unique"
+    } ]
+  }
+}

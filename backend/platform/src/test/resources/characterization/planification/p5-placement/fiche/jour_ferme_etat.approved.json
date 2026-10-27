@@ -1,0 +1,14 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : "<G1A>",
+  "jeu" : "false",
+  "lun" : "false",
+  "mar" : "true",
+  "mer" : "false",
+  "nom" : "Patient PAT_NEUF",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "sam" : "false",
+  "ven" : "false"
+} ]

@@ -1,0 +1,9 @@
+{
+  "centerId absent" : "400 BAD_REQUEST",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+  "json illisible" : "500 INTERNAL_ERROR",
+  "patient inconnu, avec placement" : "400 BAD_REQUEST",
+  "patient inconnu, sans placement" : "400 BAD_REQUEST",
+  "salleId illisible" : "500 INTERNAL_ERROR"
+}

@@ -1,0 +1,7 @@
+{
+  "page" : 0,
+  "salles" : [ "SALLE_1 isolement=false capacite=2 nb=2 restantes=0 depassement=false generateurs=[G1A:EN_SERVICE, G1B:EN_SERVICE]", "SALLE_2 isolement=false capacite=1 nb=2 restantes=-1 depassement=true generateurs=[G2A:EN_SERVICE, G2B:EN_SERVICE]", "SALLE_ISO isolement=true capacite=null nb=1 restantes=null depassement=false generateurs=[GISO:EN_SERVICE]" ],
+  "size" : 20,
+  "statut" : 200,
+  "total" : 3
+}

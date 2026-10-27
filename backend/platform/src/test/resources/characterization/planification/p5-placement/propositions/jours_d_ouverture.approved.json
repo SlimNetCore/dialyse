@@ -1,0 +1,28 @@
+{
+  "5 seances sur 5 jours ouverts" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=68 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[DIMANCHE, LUNDI, MARDI, MERCREDI, JEUDI] raisons=[SALLE_PEU_CHARGEE]", "score=68 Salle 1 / Matin / G1A autres=[G1B] jours=[DIMANCHE, LUNDI, MARDI, MERCREDI, JEUDI] raisons=[SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "6 seances (impossible)" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ ],
+    "statut" : 200
+  },
+  "cases de la grille un jour ferme" : 12,
+  "dont avec une capacite" : 0,
+  "jour impose ferme" : {
+    "alertes" : [ "JOURS_IMPOSES_FERMES" ],
+    "patientARisque" : false,
+    "propositions" : [ ],
+    "statut" : 200
+  },
+  "jours imposes dont un ferme" : {
+    "alertes" : [ "JOURS_IMPOSES_FERMES" ],
+    "patientARisque" : false,
+    "propositions" : [ ],
+    "statut" : 200
+  }
+}

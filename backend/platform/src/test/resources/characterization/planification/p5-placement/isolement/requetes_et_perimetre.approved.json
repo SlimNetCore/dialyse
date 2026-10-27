@@ -1,0 +1,8 @@
+{
+  "centre de la session different" : "403 ACCESS_DENIED",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "marqueur inconnu" : "400 BAD_REQUEST",
+  "patient d'un autre centre (centerId A)" : "200 AG_HBS POSITIF",
+  "patient inconnu" : "200 AG_HBS POSITIF",
+  "resultat inconnu" : "400 BAD_REQUEST"
+}

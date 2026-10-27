@@ -1,0 +1,6 @@
+{
+  "apres la desaffectation du premier" : "200",
+  "autre creneau, meme jour" : "200",
+  "meme jour et creneau (occupe)" : "422 PLACEMENT_GENERATEUR_OCCUPE : Placement refusé par la planification : [GENERATEUR_OCCUPE]",
+  "meme place, autre jour" : "200"
+}

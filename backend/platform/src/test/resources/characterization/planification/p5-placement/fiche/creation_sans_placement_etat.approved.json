@@ -1,0 +1,14 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : null,
+  "jeu" : "false",
+  "lun" : "false",
+  "mar" : "false",
+  "mer" : "false",
+  "nom" : "Nouveau",
+  "position_id" : null,
+  "salle_id" : null,
+  "sam" : "false",
+  "ven" : "false"
+} ]

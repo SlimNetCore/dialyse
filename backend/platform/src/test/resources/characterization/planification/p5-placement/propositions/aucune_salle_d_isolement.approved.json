@@ -1,0 +1,14 @@
+{
+  "a risque" : {
+    "alertes" : [ "AUCUNE_SALLE_ISOLEMENT" ],
+    "patientARisque" : true,
+    "propositions" : [ ],
+    "statut" : 200
+  },
+  "sans risque" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  }
+}

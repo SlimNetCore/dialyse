@@ -1,0 +1,16 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "id" : "<UUID_GENERE_1>",
+    "payload" : {
+      "generateur" : "G1A",
+      "nbPatients" : "2",
+      "patients" : "Patient PAT_AMRANI Test, Patient PAT_BENALI Test",
+      "statut" : "HORS_SERVICE",
+      "targetRoles" : "ADMIN,SECRETAIRE"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "GENERATEUR_INDISPONIBLE"
+  }
+} ]

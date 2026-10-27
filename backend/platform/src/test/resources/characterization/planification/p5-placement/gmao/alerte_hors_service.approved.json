@@ -1,0 +1,5 @@
+[ {
+  "payload" : "{\"nbPatients\":\"2\",\"patients\":\"Patient PAT_AMRANI Test, Patient PAT_BENALI Test\",\"generateur\":\"G1A\",\"targetRoles\":\"ADMIN,SECRETAIRE\",\"statut\":\"HORS_SERVICE\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,",
+  "type" : "GENERATEUR_INDISPONIBLE"
+} ]
