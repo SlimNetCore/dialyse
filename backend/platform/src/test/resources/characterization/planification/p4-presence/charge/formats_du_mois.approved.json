@@ -1,0 +1,13 @@
+{
+  "mois annee 5 chiffres" : "400 BAD_REQUEST",
+  "mois annee signee" : "400 BAD_REQUEST",
+  "mois date complete" : "400 BAD_REQUEST",
+  "mois espace" : "400 BAD_REQUEST",
+  "mois mois 00" : "400 BAD_REQUEST",
+  "mois mois 13" : "400 BAD_REQUEST",
+  "mois texte" : "400 BAD_REQUEST",
+  "mois vide" : "200 items=1",
+  "mois yyyy-M" : "400 BAD_REQUEST",
+  "mois yyyy-MM" : "200 items=1",
+  "mois yyyyMM" : "400 BAD_REQUEST"
+}

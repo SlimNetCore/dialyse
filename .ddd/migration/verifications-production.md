@@ -1306,3 +1306,28 @@ notifications `INFIRMIER_ABSENCE_RETIREE`.
 -- 8. Remplacements où le remplaçant est aussi le remplacé (jamais créés par l'API) : attendu 0 ligne
 SELECT id, center_id, date_jour, infirmier_id FROM infirmier_remplacement WHERE infirmier_id = remplace_infirmier_id;
 ```
+
+## Slice P4 — présence, alertes, charge, impression, contrôle de 07:15 (2026-10-27) — SELECT uniquement
+
+Aucune migration de schéma. Contrôles à lancer avant le déploiement (lecture seule, sur une copie ou en lecture sur la production) :
+
+```sql
+-- 1. Ratios de sécurité hors 1-20 (lus comme le défaut 4 et journalisés par le nouveau code ; l'ancien code répondait 500 hors 1-99 et utilisait
+--    tel quel 21 à 99). Décision du 27/10/2026 : on garde 1-20. Attendu 0 ligne ; sinon TRAITEMENT MANUEL AVANT DÉPLOIEMENT (corriger le ratio du centre)
+SELECT center_id, patients_par_infirmier FROM planning_parametres
+WHERE patients_par_infirmier IS NOT NULL AND (patients_par_infirmier < 1 OR patients_par_infirmier > 20);
+-- 2. Centres actifs sans infirmier actif (désormais contrôlés à 07:15 : ils recevront une alerte de sous-effectif s'ils ont des patients) : informatif
+SELECT c.id, c.code FROM centers c WHERE c.actif AND NOT EXISTS (SELECT 1 FROM infirmier i WHERE i.center_id = c.id AND i.actif);
+-- 3. Doublons éventuels d'alertes de présence (ancien code : une notification par exécution) : informatif, sans suppression
+SELECT center_id, type, cree_le::date AS jour, count(*) FROM notification_evenement
+WHERE type IN ('INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF') GROUP BY 1, 2, 3 HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
+-- 4. Modèles de documents de présence désactivés ou au format non servi (CSV, RTF, inconnu : l'impression répondra 400) : informatif
+SELECT center_id, format_impression, active FROM modele_document
+WHERE UPPER(type_document) = 'PLANNING_PRESENCE_INFIRMIERS' AND (NOT active OR UPPER(format_impression) NOT IN ('PDF', 'HTML', 'EXCEL', 'XLS', 'XLSX'));
+-- 5. Fuseau des centres (le jour de la présence est le jour du centre) : centres sans fuseau ou avec un fuseau illisible
+SELECT id, code, fuseau_horaire FROM centers WHERE fuseau_horaire IS NULL OR btrim(fuseau_horaire) = '';
+```
+
+Après le déploiement : surveiller les statuts 400 sur `/api/v1/infirmiers/presence/**` (les clients qui envoyaient des paramètres illisibles
+recevaient 500), le journal `[PRESENCE]` (ratio illisible, contrôle impossible) et l'unicité des notifications `INFIRMIER_SOUS_EFFECTIF` /
+`INFIRMIER_SUREFFECTIF` par centre et par jour.

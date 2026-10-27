@@ -239,11 +239,19 @@ public class NotificationService {
      * Des créneaux sont en sous-effectif d'infirmiers dans les prochains jours (remplacements à organiser).
      */
     public void notifyPresenceSousEffectif(UUID centerId, int nbCreneaux, java.time.LocalDate premiereDate) {
+        notifyPresenceSousEffectif(centerId, nbCreneaux, premiereDate, null);
+    }
+
+    /**
+     * Variante à identifiant déterministe (un par centre et par jour du centre, calculé par l'appelant, KB-PLN-46) : déjà enregistrée,
+     * l'alerte n'est ni renvoyée ni dupliquée.
+     */
+    public void notifyPresenceSousEffectif(UUID centerId, int nbCreneaux, java.time.LocalDate premiereDate, UUID idImpose) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("nbCreneaux", String.valueOf(nbCreneaux));
         payload.put("premiereDate", premiereDate.toString());
         payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
-        send(centerId, "INFIRMIER_SOUS_EFFECTIF", payload);
+        send(centerId, "INFIRMIER_SOUS_EFFECTIF", payload, idImpose);
     }
 
     /**
@@ -256,13 +264,19 @@ public class NotificationService {
      */
     public void notifyPresenceSureffectif(UUID centerId, int nbCreneaux, int nbVacations, int heures,
                                           java.time.LocalDate premiereDate) {
+        notifyPresenceSureffectif(centerId, nbCreneaux, nbVacations, heures, premiereDate, null);
+    }
+
+    /** Variante à identifiant déterministe, voir {@link #notifyPresenceSousEffectif(UUID, int, java.time.LocalDate, UUID)}. */
+    public void notifyPresenceSureffectif(UUID centerId, int nbCreneaux, int nbVacations, int heures,
+                                          java.time.LocalDate premiereDate, UUID idImpose) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("nbCreneaux", String.valueOf(nbCreneaux));
         payload.put("nbVacations", String.valueOf(nbVacations));
         payload.put("heures", String.valueOf(heures));
         payload.put("premiereDate", premiereDate.toString());
         payload.put("targetRoles", "ADMIN");
-        send(centerId, "INFIRMIER_SUREFFECTIF", payload);
+        send(centerId, "INFIRMIER_SUREFFECTIF", payload, idImpose);
     }
 
     /**

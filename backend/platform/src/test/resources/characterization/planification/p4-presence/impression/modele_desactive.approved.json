@@ -1,0 +1,12 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "DOCUMENT_MODEL_INACTIVE",
+    "detail" : "Le modèle de document « Planning de présence des infirmiers » est désactivé pour ce centre : réactivez-le dans Modèles de documents.",
+    "instance" : "/api/v1/infirmiers/presence/imprimer",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

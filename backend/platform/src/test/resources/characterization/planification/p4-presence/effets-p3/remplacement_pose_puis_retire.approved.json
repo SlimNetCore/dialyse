@@ -1,0 +1,10 @@
+{
+  "apres_pose" : [ "<J+2> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[Sara Amrani]" ],
+  "apres_retrait" : [ "<J+1> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[Sara Amrani]", "<J+2> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[Sara Amrani]" ],
+  "avant" : [ "<J+1> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[Sara Amrani]", "<J+2> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[Sara Amrani]" ],
+  "pose" : "201",
+  "remplacants_j1_apres" : [ ],
+  "remplacants_j1_avant" : [ "Lina Cherif:70" ],
+  "remplacements_dans_la_charge_du_mois_en_plus" : 1,
+  "retrait" : "204"
+}

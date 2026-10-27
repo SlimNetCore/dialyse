@@ -92,3 +92,20 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Verrou de la fiche           | Exclusion mutuelle des écritures d'un même infirmier (ligne `infirmier`, `FOR UPDATE`) ; 409 `PLANIFICATION_ECRITURE_CONCURRENTE` après 5 s                       | `InfirmiersRepository.pourEcriture` | —                              | —                                                    | ADR 0057         | proposed |
 | Absence sans chevauchement | Politique d'ensemble : deux absences d'un même infirmier ne partagent jamais un jour (contiguës acceptées), jugée sous le verrou de la fiche | `AbsencesSansChevauchement` | — | — | RG-INF-030 | proposed |
 | Auteur de l'absence | Compte qui a saisi l'absence (administration, secrétariat ou l'infirmier lui-même) ; l'infirmier ne retire que ses propres déclarations ; nul avant V47 | `AbsenceInfirmier.auteur` / `declaree_par` | — | — | RG-INF-032, KB-PLN-39 | proposed |
+
+## Termes ajoutés par la slice P4 (2026-10-27) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Présence de la semaine | Pour chaque case (salle, créneau, jour) : infirmiers prévus, absents, effectif requis, manque, surplus, statut | `PresenceDeLaSemaine`, `SemainePresence` | `PresenceInfirmierService`, `SemainePresence` | planning de présence (écran) | RG-INF-040 à 044 | proposed |
+| Case | Une salle, un créneau, un jour : unité de présence et de calendrier | `CasePresence` | `CasePresence` | cellule | RG-INF-040 | proposed |
+| Effectif requis | ⌈patients / ratio⌉, 0 sans patient | `PresenceDeLaSemaine.requis` | `requis` | besoin | RG-INF-040 | proposed |
+| Ratio lu | Ratio de sécurité tel que la présence le lit : valeur de 1 à 20, défaut 4 si absente ou illisible (journalisée) | `RatioDeLaPresence` | `patientsParInfirmier` | — | RG-INF-046, KB-PLN-47 | proposed |
+| Alerte de sous-effectif | Case en sous-effectif dans les jours à venir, avec les absents responsables | `AlertePresence` | `AlertePresence` | — | RG-INF-045 | proposed |
+| Alerte de sur-effectif | Case dont le surplus d'infirmiers est positif, y compris en salle sans patient | `AlerteSureffectif` | `AlerteSureffectif` | — | RG-INF-047 | proposed |
+| Double affectation | Infirmier prévu dans deux salles au même créneau le même jour ; signalée dans la semaine et par la route des alertes de sur-effectif | `AlerteDoubleAffectation` | `DOUBLE_AFFECTATION` | doublon | RG-INF-043, 047 | proposed |
+| Candidat remplaçant | Infirmier proposé pour une case, noté de 0 à 100 avec ses raisons | `Candidat`, `ClassementDesRemplacants` | `RemplacantService` | suppléant | RG-INF-050, 051 | proposed |
+| Charge mensuelle | Séances du roulement, remplacements un jour de présence et d'ouverture, jours d'absence ; moyenne du centre | `ChargeDesInfirmiers` | `ChargeInfirmierService` | — | RG-INF-060 | proposed |
+| Ouverture du centre | Jours d'ouverture hebdomadaires moins fériés et fermetures exceptionnelles | `OuvertureDuCentre` | `CalendrierCentre` | — | RG-INF-042 | proposed |
+| Contrôle de la présence | Passage quotidien de 07:15 sur tous les centres actifs ; une alerte par type, centre et jour du centre | `ControlerLaPresence` | `PresenceInfirmierScheduler` | job de présence | RG-INF-046 | proposed |
+| Impression de la présence | Planning de présence d'une semaine au format du modèle du centre (PDF, HTML, EXCEL) ; sans modèle, le modèle livré | `ImprimerLaPresence` | `PresenceInfirmierReportService` | — | RG-INF-061 | proposed |

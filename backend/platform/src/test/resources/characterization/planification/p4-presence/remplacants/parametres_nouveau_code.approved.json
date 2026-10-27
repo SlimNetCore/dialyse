@@ -1,0 +1,13 @@
+{
+  "creneau inconnu" : "422 AFFECTATION_CRENEAU_INCONNU [ score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  []]",
+  "date illisible" : "400 BAD_REQUEST",
+  "date lointaine (J+400)" : "200",
+  "date passee (J-5)" : "422 REMPLACEMENT_DATE_PASSEE [ score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  []]",
+  "salle de l'autre centre" : "422 AFFECTATION_SALLE_INCONNUE [ score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  []]",
+  "salle illisible" : "400 BAD_REQUEST",
+  "salle inconnue" : "422 AFFECTATION_SALLE_INCONNUE [ score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  [],  score=0 seances=0 isolement=false  []]",
+  "sans aucun parametre" : "400 BAD_REQUEST",
+  "sans creneau" : "400 BAD_REQUEST",
+  "sans date" : "400 BAD_REQUEST",
+  "sans salle" : "400 BAD_REQUEST"
+}

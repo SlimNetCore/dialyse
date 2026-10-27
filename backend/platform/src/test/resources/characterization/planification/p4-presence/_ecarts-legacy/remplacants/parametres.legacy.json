@@ -1,0 +1,13 @@
+{
+  "creneau inconnu" : "200 [Lina Libre score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]]",
+  "date illisible" : "500 INTERNAL_ERROR",
+  "date lointaine (J+400)" : "200",
+  "date passee (J-5)" : "200 [Lina Libre score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]]",
+  "salle de l'autre centre" : "200 [Lina Libre score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]]",
+  "salle illisible" : "500 INTERNAL_ERROR",
+  "salle inconnue" : "200 [Lina Libre score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]]",
+  "sans aucun parametre" : "500 INTERNAL_ERROR",
+  "sans creneau" : "500 INTERNAL_ERROR",
+  "sans date" : "500 INTERNAL_ERROR",
+  "sans salle" : "500 INTERNAL_ERROR"
+}

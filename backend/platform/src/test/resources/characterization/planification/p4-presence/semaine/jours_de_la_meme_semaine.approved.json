@@ -1,0 +1,11 @@
+{
+  "S1.DIMANCHE donne la meme reponse que S1.DIMANCHE" : true,
+  "S1.JEUDI donne la meme reponse que S1.DIMANCHE" : true,
+  "S1.LUNDI donne la meme reponse que S1.DIMANCHE" : true,
+  "S1.MARDI donne la meme reponse que S1.DIMANCHE" : true,
+  "S1.MERCREDI donne la meme reponse que S1.DIMANCHE" : true,
+  "S1.SAMEDI donne la meme reponse que S1.DIMANCHE" : true,
+  "S1.VENDREDI donne la meme reponse que S1.DIMANCHE" : true,
+  "debut de la semaine du dimanche suivant" : "<S2.DIM>",
+  "fin" : "<S2.SAM>"
+}

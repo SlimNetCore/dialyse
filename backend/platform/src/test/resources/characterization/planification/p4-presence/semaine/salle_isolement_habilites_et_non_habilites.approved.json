@@ -1,0 +1,31 @@
+{
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 1,
+    "patients" : 5,
+    "presents" : [ "Karim Nonhabilite", "Lina Nonhabilite2", "Sara Habilite" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_ISO>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 1,
+  "conflits" : [ {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "infirmier" : "Karim Nonhabilite",
+    "salleId" : "<SALLE_ISO>",
+    "type" : "NON_HABILITE"
+  }, {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "infirmier" : "Lina Nonhabilite2",
+    "salleId" : "<SALLE_ISO>",
+    "type" : "NON_HABILITE"
+  } ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
+}

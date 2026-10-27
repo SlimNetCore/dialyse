@@ -1,0 +1,10 @@
+{
+  "status" : 403,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "ROLE_SCOPE",
+    "detail" : "Ce profil n'a pas accès à cette ressource.",
+    "title" : "Accès refusé"
+  }
+}

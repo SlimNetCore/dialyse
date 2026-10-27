@@ -1,0 +1,8 @@
+{
+  "ratio=10" : [ ],
+  "ratio=2" : [ "<J> <SALLE_1> <CRENEAU_MATIN> patients=6 requis=3 manque=2 absents=[]" ],
+  "ratio=3" : [ "<J> <SALLE_1> <CRENEAU_MATIN> patients=6 requis=2 manque=1 absents=[]" ],
+  "ratio=4" : [ "<J> <SALLE_1> <CRENEAU_MATIN> patients=6 requis=2 manque=1 absents=[]" ],
+  "ratio=6" : [ ],
+  "ratio=null" : [ "<J> <SALLE_1> <CRENEAU_MATIN> patients=6 requis=2 manque=1 absents=[]" ]
+}

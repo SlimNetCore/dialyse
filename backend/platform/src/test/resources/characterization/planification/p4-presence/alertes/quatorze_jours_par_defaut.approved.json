@@ -1,0 +1,6 @@
+{
+  "cacheControl" : "no-store",
+  "contentType" : "application/json",
+  "lignes" : [ "<J> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+1> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+2> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+3> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+4> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+5> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+6> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+7> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+8> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+9> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+10> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+11> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+12> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]", "<J+13> <SALLE_1> <CRENEAU_MATIN> patients=5 requis=2 manque=2 absents=[]" ],
+  "statut" : 200
+}

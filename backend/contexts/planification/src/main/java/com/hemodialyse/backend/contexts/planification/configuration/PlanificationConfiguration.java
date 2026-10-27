@@ -461,4 +461,70 @@ public class PlanificationConfiguration {
                                                                            PreferencesRepository preferences, ProfilsRepository profils) {
         return new ParametrageLuParLeLegacy(parametres, reglages, preferences, profils);
     }
+
+    // ------------------------------------------------------------------ slice P4 : présence, alertes, charge, impression, contrôle de 07:15
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence planificationPersonnelDeLaPresence(
+            JdbcTemplate jdbc, RoulementEtAbsencesDesInfirmiers roulement) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.persistence.PersonnelDeLaPresenceJdbc(jdbc, roulement);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.CentresActifs planificationCentresActifs(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.CentresActifsLegacy(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresence planificationConsulterLaPresence(
+            com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence personnel,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces places, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresence(personnel, places, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ClasserLesRemplacants planificationClasserLesRemplacants(
+            com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence personnel,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces places, SallesDuCentre salles,
+            CreneauxDuCentre creneaux, CalendrierDuCentre calendrier, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ClasserLesRemplacants(personnel, places, salles, creneaux,
+                calendrier, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ConsulterLaChargeDesInfirmiers planificationConsulterLaCharge(
+            com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence personnel,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces places, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaChargeDesInfirmiers(personnel, places, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ImprimerLaPresence planificationImprimerLaPresence(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence impression, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ImprimerLaPresence(impression, horloge);
+    }
+
+    /** Le sur-effectif du roulement (P3) est calculé par la présence du contexte. */
+    @Bean
+    SurEffectifDuRoulement planificationSurEffectifDuRoulement(
+            com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence personnel,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces places) {
+        return new com.hemodialyse.backend.contexts.planification.application.SurEffectifCalculeParLaPresence(personnel, places);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ControlerLaPresence planificationControlerLaPresence(
+            com.hemodialyse.backend.contexts.planification.application.CentresActifs centres, HorlogeDesCentres horloge,
+            com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence personnel,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces places, ReglagesRepository reglages,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDeLaPresence notifications) {
+        return new com.hemodialyse.backend.contexts.planification.application.ControlerLaPresence(centres, horloge, personnel, places,
+                reglages, notifications);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.interfaces.jobs.ControleDeLaPresenceDe0715 planificationControleDeLaPresenceDe0715(
+            com.hemodialyse.backend.contexts.planification.application.ControlerLaPresence controler) {
+        return new com.hemodialyse.backend.contexts.planification.interfaces.jobs.ControleDeLaPresenceDe0715(controler);
+    }
 }

@@ -332,7 +332,19 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/SemaineDeLInfirmierLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/NotificationsDesAbsencesDInfirmiersLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/infirmier/PresenceDonneesJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/optimisation/OptimisationApplicationService.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/optimisation/OptimisationApplicationService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/infirmier/PresenceInfirmierQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/PresenceInfirmierScheduler.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/PresenceInfirmierReportService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/port/PresenceDonneesPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/model/Presence.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/service/PresenceInfirmierService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/service/ChargeInfirmierService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/service/RemplacantService.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/infirmier/service/CalendrierCentre.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlanningDesPlacesLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/NotificationsDeLaPresenceLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDeLaPresenceLegacy.java"
   ],
   "seamAllowed": []
 }

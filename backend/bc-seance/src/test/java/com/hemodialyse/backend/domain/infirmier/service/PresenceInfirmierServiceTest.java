@@ -107,36 +107,6 @@ class PresenceInfirmierServiceTest {
     }
 
     @Test
-    void surplus_alerts_list_every_case_with_nurses_beyond_the_requirement_in_chronological_order() {
-        PresenceTestData t = new PresenceTestData().patients(4, SALLE, MATIN, JourSemaine.MARDI)
-                .patients(5, SALLE, SOIR, JourSemaine.LUNDI);
-        t.affecter(t.infirmier("Amrani", false), SALLE, MATIN, JourSemaine.MARDI);
-        t.affecter(t.infirmier("Benali", false), SALLE, MATIN, JourSemaine.MARDI);   // 4 patients : 1 requis → 1 en trop
-        t.affecter(t.infirmier("Cherif", false), SALLE, MATIN, JourSemaine.LUNDI);   // salle sans patient → 1 en trop
-        t.affecter(t.infirmier("Dahmani", false), SALLE, SOIR, JourSemaine.LUNDI);
-        t.affecter(t.infirmier("Essaid", false), SALLE, SOIR, JourSemaine.LUNDI);    // 5 patients : 2 requis → juste
-
-        var alertes = PresenceInfirmierService.alertesSureffectif(t.build(), DIMANCHE, DIMANCHE.plusDays(6));
-
-        assertEquals(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), alertes.stream().map(a -> a.jour()).toList());
-        assertEquals(List.of(1, 1), alertes.stream().map(a -> a.surplus()).toList());
-        assertEquals(0, alertes.get(0).patients(), "salle sans patient");
-        assertEquals(1, alertes.get(1).requis());
-    }
-
-    @Test
-    void surplus_alerts_stay_within_the_dates_and_ignore_closed_days_and_covered_cases() {
-        PresenceTestData t = new PresenceTestData().fermeture(MARDI);
-        t.affecter(t.infirmier("Amrani", false), SALLE, MATIN, JourSemaine.LUNDI, JourSemaine.MARDI);
-
-        var toute = PresenceInfirmierService.alertesSureffectif(t.build(), DIMANCHE, DIMANCHE.plusDays(6));
-        var apresLundi = PresenceInfirmierService.alertesSureffectif(t.build(), DIMANCHE.plusDays(2), DIMANCHE.plusDays(6));
-
-        assertEquals(List.of(JourSemaine.LUNDI), toute.stream().map(a -> a.jour()).toList(), "mardi est férié");
-        assertTrue(apresLundi.isEmpty());
-    }
-
-    @Test
     void the_ratio_of_the_center_drives_the_requirement() {
         PresenceTestData t = new PresenceTestData().ratio(2).patients(5, SALLE, MATIN, JourSemaine.LUNDI);
 
@@ -259,24 +229,4 @@ class PresenceInfirmierServiceTest {
         assertTrue(PresenceInfirmierService.creneauxDe(s, UUID.randomUUID()).isEmpty());
     }
 
-    @Test
-    void alerts_list_understaffed_slots_inside_the_window_in_chronological_order() {
-        PresenceTestData t = new PresenceTestData()
-                .patients(2, SALLE, SOIR, JourSemaine.LUNDI)
-                .patients(2, SALLE, MATIN, JourSemaine.LUNDI, JourSemaine.MARDI);
-        InfirmierRef a = t.infirmier("Amrani", false);
-        t.affecter(a, SALLE, MATIN, JourSemaine.MARDI).affecter(a, SALLE, SOIR, JourSemaine.LUNDI);
-        t.absence(a, MARDI, MARDI);
-
-        List<AlertePresence> alertes = PresenceInfirmierService.alertes(t.build(), LUNDI, LUNDI.plusDays(1));
-
-        // lundi matin : personne de prévu ; mardi matin : titulaire absent ; lundi soir : couvert
-        assertEquals(2, alertes.size());
-        assertEquals(LUNDI, alertes.get(0).date());
-        assertEquals(MATIN.id(), alertes.get(0).creneauId());
-        assertEquals(MARDI, alertes.get(1).date());
-        assertEquals(List.of("Amrani"), alertes.get(1).absents());
-        assertFalse(alertes.stream().anyMatch(x -> x.creneauId().equals(SOIR.id())));
-        assertTrue(PresenceInfirmierService.alertes(t.build(), LUNDI.plusDays(2), LUNDI.plusDays(3)).isEmpty());
-    }
 }

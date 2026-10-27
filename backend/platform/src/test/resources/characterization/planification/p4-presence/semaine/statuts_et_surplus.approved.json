@@ -1,0 +1,52 @@
+{
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_APRES_MIDI>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ "Omar Djaballah" ],
+    "requis" : 0,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SANS_PATIENT",
+    "surplus" : 1
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_APRES_MIDI>",
+    "date" : "<S1.MAR>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ "Omar Djaballah" ],
+    "requis" : 0,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SANS_PATIENT",
+    "surplus" : 1
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 1,
+    "patients" : 5,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 4,
+    "presents" : [ "Karim Benali", "Lina Cherif" ],
+    "requis" : 1,
+    "salleId" : "<SALLE_2>",
+    "statut" : "COUVERT",
+    "surplus" : 1
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 1,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
+}

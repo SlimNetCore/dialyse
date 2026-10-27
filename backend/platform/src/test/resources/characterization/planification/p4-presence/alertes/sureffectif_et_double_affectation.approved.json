@@ -1,0 +1,6 @@
+{
+  "cacheControl" : "no-store",
+  "doublesAffectations" : [ "<J> <CRENEAU_APRES_MIDI> Karim Benali salles=2" ],
+  "statut" : 200,
+  "sureffectifs" : [ "<J> <SALLE_1> <CRENEAU_APRES_MIDI> patients=0 requis=0 surplus=1", "<J> <SALLE_2> <CRENEAU_APRES_MIDI> patients=0 requis=0 surplus=1" ]
+}

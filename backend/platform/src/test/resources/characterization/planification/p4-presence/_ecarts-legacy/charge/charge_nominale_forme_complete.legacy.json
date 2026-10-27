@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "infirmierId" : "<INF_B>",
+      "joursAbsence" : 0,
+      "nom" : "Karim Benali",
+      "remplacements" : 0,
+      "seances" : 28,
+      "total" : 28
+    }, {
+      "infirmierId" : "<INF_C>",
+      "joursAbsence" : 0,
+      "nom" : "Lina Cherif",
+      "remplacements" : 2,
+      "seances" : 0,
+      "total" : 2
+    }, {
+      "infirmierId" : "<INF_A>",
+      "joursAbsence" : 0,
+      "nom" : "Sara Amrani",
+      "remplacements" : 0,
+      "seances" : 12,
+      "total" : 12
+    } ],
+    "moyenne" : 14.0,
+    "page" : 0,
+    "size" : 20,
+    "total" : 3
+  }
+}

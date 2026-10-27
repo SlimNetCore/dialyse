@@ -1,0 +1,12 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ ],
+    "moyenne" : 0.0,
+    "page" : 0,
+    "size" : 20,
+    "total" : 0
+  }
+}

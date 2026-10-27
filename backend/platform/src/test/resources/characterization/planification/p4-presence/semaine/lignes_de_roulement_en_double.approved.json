@@ -1,0 +1,30 @@
+{
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 1,
+    "patients" : 5,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MAR>",
+    "manque" : 1,
+    "patients" : 5,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 2,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
+}

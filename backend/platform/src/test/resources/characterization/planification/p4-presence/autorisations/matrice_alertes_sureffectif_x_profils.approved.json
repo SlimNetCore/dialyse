@@ -1,0 +1,14 @@
+{
+  "GET /presence/alertes-sureffectif [ADMIN sans centre]" : "403 ACCESS_DENIED",
+  "GET /presence/alertes-sureffectif [ADMIN]" : "200",
+  "GET /presence/alertes-sureffectif [DIRECTION]" : "403 ROLE_SCOPE",
+  "GET /presence/alertes-sureffectif [INFIRMIER seul]" : "403 ROLE_SCOPE",
+  "GET /presence/alertes-sureffectif [MEDECIN + INFIRMIER]" : "200",
+  "GET /presence/alertes-sureffectif [MEDECIN seul]" : "403 ROLE_SCOPE",
+  "GET /presence/alertes-sureffectif [SECRETAIRE]" : "200",
+  "GET /presence/alertes-sureffectif [SUPERADMIN + ADMIN]" : "403 ROLE_SCOPE",
+  "GET /presence/alertes-sureffectif [SUPERADMIN]" : "403 ROLE_SCOPE",
+  "GET /presence/alertes-sureffectif [anonyme]" : "403",
+  "GET /presence/alertes-sureffectif [aucun role]" : "403 ACCESS_DENIED",
+  "GET /presence/alertes-sureffectif [role inconnu (COMPTABLE)]" : "403 ACCESS_DENIED"
+}

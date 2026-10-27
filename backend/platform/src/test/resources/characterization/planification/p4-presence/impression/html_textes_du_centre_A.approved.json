@@ -1,0 +1,8 @@
+{
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "contentDisposition" : null,
+  "contentType" : "text/html",
+  "statut" : 200,
+  "tailleNonNulle" : true,
+  "textes" : [ "Centre P2 A", "PLANNING DE PRÉSENCE DES INFIRMIERS", "Semaine du <S1.DIM> au <S1.SAM>", "Créneau Salle Infirmier Situation", "lundi <S1.LUN>", "Matin Salle 1BenaliAbsent", "Matin Salle 1Sara AmraniPrévu", "Matin Salle 1Lina CherifRemplaçant", "mercredi <S1.MER>", "Matin Salle 1Sara AmraniPrévu", "Centre P2 A" ]
+}

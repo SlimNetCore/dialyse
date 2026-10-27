@@ -1,0 +1,10 @@
+{
+  "date 30 fevrier" : "400 BAD_REQUEST",
+  "date an 1" : "200",
+  "date an 9999" : "200",
+  "date an 999999999" : "200",
+  "date format jj/mm/aaaa" : "400 BAD_REQUEST",
+  "date mois 13" : "400 BAD_REQUEST",
+  "date texte" : "400 BAD_REQUEST",
+  "date vide" : "200"
+}

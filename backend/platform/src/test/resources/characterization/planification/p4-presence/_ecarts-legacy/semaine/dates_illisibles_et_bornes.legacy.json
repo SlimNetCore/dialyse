@@ -1,0 +1,10 @@
+{
+  "date 30 fevrier" : "500 INTERNAL_ERROR",
+  "date an 1" : "200",
+  "date an 9999" : "200",
+  "date an 999999999" : "200",
+  "date format jj/mm/aaaa" : "500 INTERNAL_ERROR",
+  "date mois 13" : "500 INTERNAL_ERROR",
+  "date texte" : "500 INTERNAL_ERROR",
+  "date vide" : "200"
+}

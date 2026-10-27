@@ -1,0 +1,35 @@
+{
+  "format EXCEL" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "cellules" : [ "Centre P2 A", "PLANNING DE PRÉSENCE DES INFIRMIERS", "Semaine du <S1.DIM> au <S1.SAM>", "Créneau", "Salle", "Infirmier", "Situation", "Matin", "Salle 1", "Benali", "Absent", "Sara Amrani", "Prévu", "Lina Cherif", "Remplaçant" ],
+    "contentDisposition" : "attachment; filename=\"presence-infirmiers-<S1.DIM>.xlsx\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.xlsx",
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "signatureZip" : "PK",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format XLS" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "attachment; filename=\"presence-infirmiers-<S1.DIM>.xlsx\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.xlsx",
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "signatureZip" : "PK",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format XLSX" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "attachment; filename=\"presence-infirmiers-<S1.DIM>.xlsx\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.xlsx",
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "signatureZip" : "PK",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format excel" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "attachment; filename=\"presence-infirmiers-<S1.DIM>.xlsx\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.xlsx",
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "signatureZip" : "PK",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  }
+}

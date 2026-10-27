@@ -2,10 +2,11 @@
 
 > Préfixe `RG-INF`. Le système **calcule l'effectif requis** à partir du ratio de sécurité, **détecte à l'avance** les
 > créneaux en sous-effectif, **propose et classe des
-> remplaçants** et **équilibre la charge**. Sources : `Presence`, `PresenceInfirmierService`,
-> `RemplacantService`, `ChargeInfirmierService`, `PresenceInfirmierScheduler`, contrôleur
-> `PresenceInfirmierRestController`
-> (présence, alertes, charge, impression). Le référentiel des fiches et
+> remplaçants** et **équilibre la charge**. La présence, les alertes, le classement des remplaçants, la charge, l'impression et
+> le contrôle de 07:15 sont servis par le contexte `planification` (slice P4) : service de domaine `PresenceDeLaSemaine`,
+> `ClassementDesRemplacants`, `ChargeDesInfirmiers`, cas d'usage `ConsulterLaPresence`, `ClasserLesRemplacants`,
+> `ConsulterLaChargeDesInfirmiers`, `ImprimerLaPresence`, `ControlerLaPresence`, contrôleur `PresenceControleur`, job
+> `ControleDeLaPresenceDe0715`. Le référentiel des fiches et
 > des comptes (10.1 et 10.2) est servi par le contexte `planification` (slice P2) : agrégat `Infirmier`, cas d'usage
 > `EnregistrerUnInfirmier`, `ModifierUnInfirmier`, `DesactiverUnInfirmier`, `ReactiverUnInfirmier`, `LierUnCompte`,
 > `CreerUnCompte`, `DelierLeCompte`, contrôleur `InfirmiersControleur`. Le **roulement, les absences, « Mon planning »
@@ -167,16 +168,26 @@ et les
 - **RG-INF-043** — **Conflits** : `DOUBLE_AFFECTATION` (un infirmier prévu dans deux salles sur le même créneau le même
   jour) et `NON_HABILITE` (infirmier non habilité prévu en salle d'isolement).
 - **RG-INF-044** — La semaine de présence (dimanche → samedi) donne le nombre de cases en sous-effectif ; elle est
-  calculée à la demande, non mise en cache, bornée au centre ; lisible par
-  `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` (le médecin « seul » la lit, RG-SEC-023) et **imprimable**.
+  calculée à la demande, non mise en cache, bornée au centre. **Droits (corrigé le 27/10/2026 : la règle disait « lisible
+  par `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` ») :** les routes de présence sont annotées pour ces quatre rôles mais
+  le filtre de périmètre refuse le `MEDECIN` seul sur tout sauf la **semaine** (403 `ROLE_SCOPE` sur alertes, sur-effectif,
+  remplaçants, charge, impression), refuse l'`INFIRMIER` seul partout (il lit son planning par « Mon planning », RG-INF-032),
+  et refuse le `SUPERADMIN` et la `DIRECTION` ; seuls `ADMIN`, `SECRETAIRE` et la combinaison `MEDECIN` + `INFIRMIER` lisent
+  tout. **Entrées (27/10/2026) :** un paramètre illisible ou manquant (`centerId`, `date`, `jours`, `page`, `size`, `mois`,
+  `salleId`, `creneauId`) est refusé en 400 `BAD_REQUEST` ; sans date, **le jour du centre** (fuseau du centre, défaut
+  Africa/Algiers) et non le jour UTC. *Garde :* matrice routes × profils de
+  `AutorisationsDeLaPresenceCharacterizationIntegrationTest`.
 - **RG-INF-045** — **Alertes de sous-effectif** : liste des cases en sous-effectif sur un horizon donné (14 jours par
-  défaut), de la plus proche à la plus lointaine, avec les absents
-  responsables.
-- **RG-INF-046** — **Contrôle quotidien à 07:15** (`PresenceInfirmierScheduler.controlerPresence`) : pour chaque centre
-  ayant des infirmiers actifs, si au moins un créneau est en sous-effectif dans
-  les 14 jours à venir, l'administration et le secrétariat reçoivent une notification temps réel
-  (`INFIRMIER_SOUS_EFFECTIF` : nombre de créneaux et première date). Un centre en erreur
-  n'empêche pas les autres.
+  défaut, de 1 à 60, sinon 400), de la plus proche à la plus lointaine, avec les absents responsables. Le jour de départ est
+  « aujourd'hui » au fuseau du centre.
+- **RG-INF-046** — **Contrôle quotidien à 07:15** (`ControleDeLaPresenceDe0715.controlerLaPresence`, fuseau Africa/Algiers,
+  « aujourd'hui » calculé **par centre**) : pour **chaque centre actif** (avec ou sans infirmier actif ; un centre désactivé
+  n'est pas contrôlé), si au moins un créneau est en sous-effectif dans les 14 jours à venir, l'administration, le
+  secrétariat et les médecins reçoivent une notification temps réel et durable (`INFIRMIER_SOUS_EFFECTIF` : nombre de
+  créneaux et première date). **Une seule alerte par centre, par jour du centre et par type** (identifiant déterministe) :
+  une nouvelle exécution le même jour n'envoie rien de plus (un sous-effectif apparu après la première exécution du jour n'est signalé que le lendemain). Un seul cron à 07:15 Africa/Algiers sert tous les centres : un centre d'un autre fuseau est contrôlé à une autre heure locale, mais sur son propre jour. Un **ratio illisible en base** (hors 1 à 20) est lu comme le
+  défaut 4 et journalisé ; le ratio est refusé en 400 à l'écriture hors de 1 à 20 (RG-PLN-003). Un centre ou un contrôle en
+  erreur n'empêche pas les autres (journalisé).
 
 - **RG-INF-047** — **Sur-effectif.** Chaque case porte aussi le nombre d'infirmiers **en trop** (`surplus`) : infirmiers
   comptés (en salle d'isolement, seuls les habilités comptent) moins l'effectif requis, jamais négatif ; dans une salle
@@ -192,7 +203,12 @@ et les
   sous-effectif : l'échec de l'un n'empêche pas l'autre. À l' **affectation** d'un infirmier à une salle (RG-INF-020),
   la
   réponse indique les jours de la semaine en cours où elle crée un sur-effectif ; l'écran affiche un avertissement, sans
-  jamais refuser ni annuler l'affectation (un échec du calcul de cet avertissement est ignoré).
+  jamais refuser ni annuler l'affectation (un échec du calcul de cet avertissement est ignoré). **Lecture par HTTP
+  (27/10/2026) :** `GET /api/v1/infirmiers/presence/alertes-sureffectif?jours=` (horizon des alertes, RG-INF-045) liste les
+  cases en sur-effectif (`sureffectifs`) **et** les infirmiers prévus dans deux salles au même créneau le même jour
+  (`doublesAffectations` : date, créneau, infirmier, salles) — un tel infirmier reste compté présent dans chaque salle (la
+  couverture peut être surestimée) et la semaine continue de signaler le conflit `DOUBLE_AFFECTATION` (RG-INF-043). Le
+  contrôle de 07:15 ne notifie que les surplus par case.
 
 ## 10.6 Remplaçants
 
@@ -203,7 +219,11 @@ et les
   (0 ; 20 − 4 × séances de la semaine) selon la charge ; +10 jour libre ou −25 si double vacation (déjà prévu sur un
   autre créneau le même jour) ; +10 habilité isolement pour une salle d'isolement. Les **raisons** sont affichées :
   salle connue, créneau habituel, charge faible (≤ 2 séances),
-  jour libre, habilité isolement, double vacation. Départage par nom.
+  jour libre, habilité isolement, double vacation. Départage par nom ; **dix candidats au plus**. **La case est validée
+  (27/10/2026)** comme pour l'affectation d'un remplaçant (RG-INF-052) : salle et créneau du centre (422
+  `AFFECTATION_SALLE_INCONNUE`, `AFFECTATION_CRENEAU_INCONNU`), date non passée au jour du centre (422
+  `REMPLACEMENT_DATE_PASSEE`), jour ouvert (422 `REMPLACEMENT_JOUR_FERME`) ; `date`, `salleId` et `creneauId` sont
+  obligatoires (400).
 - **RG-INF-052** — **Affecter un remplaçant** (`ADMIN`, `SECRETAIRE`). Ordre des contrôles : un infirmier ne peut se
   remplacer lui-même (400 `BAD_REQUEST`, **en premier**) ; salle et créneau du centre (`AFFECTATION_SALLE_INCONNUE`,
   `AFFECTATION_CRENEAU_INCONNU`) ; **date non passée** au jour du centre (`REMPLACEMENT_DATE_PASSEE`) et **jour ouvert**
@@ -221,9 +241,17 @@ et les
 ## 10.7 Charge de travail
 
 - **RG-INF-060** — **Charge mensuelle** d'un infirmier = séances du roulement (jours d'ouverture du centre, hors jours
-  d'absence) + remplacements effectués dans le mois ; les jours d'absence sont
-  comptés à part ; la **moyenne** du centre (une décimale) sert de repère d'équité pour répartir les remplacements. La
-  liste est paginée.
+  d'absence) + remplacements effectués dans le mois **un jour de présence et d'ouverture** (un remplacement posé un jour
+  d'absence du remplaçant ou de fermeture du centre n'est pas compté, 27/10/2026) ; les jours d'absence sont comptés à
+  part ; la **moyenne** du centre (une décimale) sert de repère d'équité pour répartir les remplacements. La liste est
+  **triée par nom de famille puis prénom** (27/10/2026) et paginée : page négative 400, taille plafonnée à **100** et
+  taille effective renvoyée (`size`), mois illisible 400 ; sans mois, le mois courant du centre.
+- **RG-INF-061** — **Impression** du planning de présence d'une semaine (`GET …/presence/imprimer`) par le modèle de
+  document `PLANNING_PRESENCE_INFIRMIERS` du centre. Formats servis : `PDF` (par défaut, en ligne), `HTML` (une page qui
+  embarque le PDF en base64) et `EXCEL`, `XLS`, `XLSX` (toujours un classeur `.xlsx`, en pièce jointe) ; tout autre format
+  de modèle (`CSV`, `RTF`, inconnu) est refusé en 400 (27/10/2026). Un centre **sans** modèle utilise le modèle livré, sans
+  que la lecture le crée (aucune écriture dans `modele_document`) ; un modèle **désactivé** refuse l'impression (422
+  `DOCUMENT_MODEL_INACTIVE`).
 
 ## 10.8 Roulement et remplacements issus de l'optimisation
 

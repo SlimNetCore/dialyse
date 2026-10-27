@@ -1,0 +1,29 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "id" : "<UUID_GENERE_1>",
+    "payload" : {
+      "nbCreneaux" : "14",
+      "premiereDate" : "<J>",
+      "targetRoles" : "ADMIN,SECRETAIRE,MEDECIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "INFIRMIER_SOUS_EFFECTIF"
+  }
+}, {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "id" : "<UUID_GENERE_2>",
+    "payload" : {
+      "heures" : "70",
+      "nbCreneaux" : "14",
+      "nbVacations" : "14",
+      "premiereDate" : "<J>",
+      "targetRoles" : "ADMIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "INFIRMIER_SUREFFECTIF"
+  }
+} ]

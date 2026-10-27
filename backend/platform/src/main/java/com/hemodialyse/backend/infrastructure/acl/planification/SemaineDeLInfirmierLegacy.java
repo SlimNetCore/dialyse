@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
-import com.hemodialyse.backend.application.infirmier.PresenceInfirmierQueryService;
 import com.hemodialyse.backend.application.planning.PlanningSemaineQueryService;
+import com.hemodialyse.backend.domain.infirmier.port.PresenceDonneesPort;
+import com.hemodialyse.backend.domain.planning.service.PlanningSemaineService;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.SemainePresence;
@@ -26,17 +27,18 @@ import java.util.stream.Collectors;
 @Component
 public class SemaineDeLInfirmierLegacy implements SemaineDeLInfirmier {
 
-    private final PresenceInfirmierQueryService presence;
+    private final PresenceDonneesPort donnees;
     private final PlanningSemaineQueryService planningSemaine;
 
-    public SemaineDeLInfirmierLegacy(PresenceInfirmierQueryService presence, PlanningSemaineQueryService planningSemaine) {
-        this.presence = presence;
+    public SemaineDeLInfirmierLegacy(PresenceDonneesPort donnees, PlanningSemaineQueryService planningSemaine) {
+        this.donnees = donnees;
         this.planningSemaine = planningSemaine;
     }
 
     @Override
     public PlanningDeLaSemaine semaine(UUID centre, UUID infirmier, LocalDate date) {
-        SemainePresence semaine = presence.semaine(centre, date);
+        LocalDate debut = PlanningSemaineService.debutSemaine(date);
+        SemainePresence semaine = PresenceInfirmierService.construire(donnees.charger(centre, debut, debut.plusDays(6)), debut);
         List<Presence.CreneauPersonnel> mes = PresenceInfirmierService.creneauxDe(semaine, infirmier);
         SemainePlanning planning = planningSemaine.semaine(centre, date);
         return new PlanningDeLaSemaine(semaine.debut(), semaine.fin(),

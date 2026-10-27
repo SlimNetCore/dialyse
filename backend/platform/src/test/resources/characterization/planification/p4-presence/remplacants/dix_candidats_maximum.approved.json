@@ -1,0 +1,5 @@
+{
+  "nombre" : 10,
+  "noms" : [ "Prenom Nom01 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom02 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom03 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom04 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom05 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom06 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom07 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom08 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom09 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Prenom Nom10 score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]" ],
+  "statut" : 200
+}

@@ -1,0 +1,41 @@
+{
+  "cases" : [ {
+    "absents" : [ "Sara Amrani : CONGE" ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 5,
+    "presents" : [ "Karim Benali", "Lina Cherif (remplacant)" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "COUVERT",
+    "surplus" : 0
+  }, {
+    "absents" : [ "Karim Benali : MALADIE", "Sara Amrani : CONGE" ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MAR>",
+    "manque" : 1,
+    "patients" : 5,
+    "presents" : [ "Lina Cherif (remplacant)" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MER>",
+    "manque" : 0,
+    "patients" : 5,
+    "presents" : [ "Karim Benali", "Sara Amrani" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "COUVERT",
+    "surplus" : 0
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 1,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
+}

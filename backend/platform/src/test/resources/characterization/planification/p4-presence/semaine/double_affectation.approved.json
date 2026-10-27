@@ -1,0 +1,58 @@
+{
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_APRES_MIDI>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 0,
+    "salleId" : "<SALLE_2>",
+    "statut" : "SANS_PATIENT",
+    "surplus" : 1
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 3,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 1,
+    "salleId" : "<SALLE_1>",
+    "statut" : "COUVERT",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 0,
+    "salleId" : "<SALLE_2>",
+    "statut" : "SANS_PATIENT",
+    "surplus" : 1
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MAR>",
+    "manque" : 0,
+    "patients" : 0,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 0,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SANS_PATIENT",
+    "surplus" : 1
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 0,
+  "conflits" : [ {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "infirmier" : "Sara Amrani",
+    "salleId" : "<SALLE_2>",
+    "type" : "DOUBLE_AFFECTATION"
+  } ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
+}

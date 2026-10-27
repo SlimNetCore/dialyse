@@ -19,8 +19,15 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class,
-        RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class})
+        RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class,
+        PresenceControleur.class})
 class EntreesDeLaPlanificationAdvice {
+
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    ProblemDetail parametreManquant(org.springframework.web.bind.MissingServletRequestParameterException erreur) {
+        return ErreursMetierDeLaPlanificationAdvice.probleme(HttpStatus.BAD_REQUEST, "Requete invalide",
+                "Paramètre obligatoire absent : " + erreur.getParameterName(), "BAD_REQUEST");
+    }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ProblemDetail parametreIllisible(MethodArgumentTypeMismatchException erreur) {

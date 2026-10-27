@@ -1,0 +1,19 @@
+{
+  "cases" : [ {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_B>",
+    "date" : "<S1.LUN>",
+    "manque" : 2,
+    "patients" : 3,
+    "presents" : [ ],
+    "requis" : 2,
+    "salleId" : "<SALLE_B>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 1,
+  "conflits" : [ ],
+  "debut" : "<S1.DIM>",
+  "statut" : 200
+}

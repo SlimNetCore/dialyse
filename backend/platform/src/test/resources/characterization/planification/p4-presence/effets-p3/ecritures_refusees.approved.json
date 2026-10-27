@@ -1,0 +1,5 @@
+{
+  "alertesInchangees" : true,
+  "periodeInversee" : "400 BAD_REQUEST",
+  "refus" : "403 ACCESS_DENIED"
+}

@@ -1,0 +1,9 @@
+[ {
+  "payload" : "{\"premiereDate\":\"<J>\",\"nbCreneaux\":\"18\",\"nbVacations\":\"18\",\"heures\":\"126\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "INFIRMIER_SUREFFECTIF"
+}, {
+  "payload" : "{\"premiereDate\":\"<J>\",\"nbCreneaux\":\"18\",\"nbVacations\":\"18\",\"heures\":\"90\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "INFIRMIER_SUREFFECTIF"
+} ]

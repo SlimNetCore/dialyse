@@ -1,0 +1,9 @@
+{
+  "DIMANCHE" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+  "JEUDI" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+  "LUNDI" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+  "MARDI" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+  "MERCREDI" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+  "SAMEDI" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+  "VENDREDI" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf"
+}

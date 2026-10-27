@@ -1,0 +1,38 @@
+{
+  "jours" : [ {
+    "date" : "<S1.DIM>",
+    "fermetureMotif" : null,
+    "jour" : "DIMANCHE",
+    "ouvertHebdomadaire" : true
+  }, {
+    "date" : "<S1.LUN>",
+    "fermetureMotif" : null,
+    "jour" : "LUNDI",
+    "ouvertHebdomadaire" : true
+  }, {
+    "date" : "<S1.MAR>",
+    "fermetureMotif" : "Fete nationale",
+    "jour" : "MARDI",
+    "ouvertHebdomadaire" : true
+  }, {
+    "date" : "<S1.MER>",
+    "fermetureMotif" : "Travaux",
+    "jour" : "MERCREDI",
+    "ouvertHebdomadaire" : true
+  }, {
+    "date" : "<S1.JEU>",
+    "fermetureMotif" : null,
+    "jour" : "JEUDI",
+    "ouvertHebdomadaire" : true
+  }, {
+    "date" : "<S1.VEN>",
+    "fermetureMotif" : null,
+    "jour" : "VENDREDI",
+    "ouvertHebdomadaire" : false
+  }, {
+    "date" : "<S1.SAM>",
+    "fermetureMotif" : null,
+    "jour" : "SAMEDI",
+    "ouvertHebdomadaire" : true
+  } ]
+}

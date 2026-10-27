@@ -45,7 +45,7 @@ final class SchemaDuParametrageH2 {
     /** Tables de la slice P2 : le centre, les comptes (Identité et accès) et le roulement (P3), colonnes utiles seulement. */
     static void creerLesInfirmiers(JdbcTemplate jdbc) {
         jdbc.execute("CREATE TABLE IF NOT EXISTS centers (id UUID PRIMARY KEY, code VARCHAR(50), name VARCHAR(255), "
-                + "fuseau_horaire VARCHAR(50))");
+                + "fuseau_horaire VARCHAR(50), actif BOOLEAN NOT NULL DEFAULT TRUE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier_absence (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
                 + "infirmier_id UUID NOT NULL, date_debut DATE NOT NULL, date_fin DATE NOT NULL, type VARCHAR(20) NOT NULL, "
                 + "motif VARCHAR(255), declaree_par UUID)");

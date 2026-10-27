@@ -1,0 +1,9 @@
+[ {
+  "payload" : "{\"premiereDate\":\"<J+1>\",\"nbCreneaux\":\"13\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,MEDECIN,",
+  "type" : "INFIRMIER_SOUS_EFFECTIF"
+}, {
+  "payload" : "{\"premiereDate\":\"<J+1>\",\"nbCreneaux\":\"13\",\"nbVacations\":\"13\",\"heures\":\"65\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "INFIRMIER_SUREFFECTIF"
+} ]

@@ -1,0 +1,5 @@
+[ {
+  "payload" : "{\"premiereDate\":\"<J>\",\"nbCreneaux\":\"14\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,MEDECIN,",
+  "type" : "INFIRMIER_SOUS_EFFECTIF"
+} ]

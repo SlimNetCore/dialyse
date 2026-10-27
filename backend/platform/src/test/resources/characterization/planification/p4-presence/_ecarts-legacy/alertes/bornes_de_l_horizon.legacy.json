@@ -1,0 +1,13 @@
+{
+  "jours 60 premiere et derniere date" : "<J> .. <J+59>",
+  "jours decimal" : "500 INTERNAL_ERROR",
+  "jours negatif" : "400 BAD_REQUEST L'horizon des alertes doit être compris entre 1 et 60 jours",
+  "jours soixante" : "200 lignes=60",
+  "jours soixante et un" : "400 BAD_REQUEST L'horizon des alertes doit être compris entre 1 et 60 jours",
+  "jours texte" : "500 INTERNAL_ERROR",
+  "jours tres grand" : "500 INTERNAL_ERROR",
+  "jours trois" : "200 lignes=3",
+  "jours un" : "200 lignes=1",
+  "jours vide" : "200 lignes=14",
+  "jours zero" : "400 BAD_REQUEST L'horizon des alertes doit être compris entre 1 et 60 jours"
+}

@@ -1,0 +1,42 @@
+{
+  "format CSV" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+    "contentType" : "application/pdf",
+    "debutDuContenu" : "%PDF",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format INCONNU" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+    "contentType" : "application/pdf",
+    "debutDuContenu" : "%PDF",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format PDF" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+    "contentType" : "application/pdf",
+    "debutDuContenu" : "%PDF",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format RTF" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+    "contentType" : "application/pdf",
+    "debutDuContenu" : "%PDF",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  },
+  "format pdf" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"presence-infirmiers-<S1.DIM>.pdf\"; filename*=UTF-8''presence-infirmiers-<S1.DIM>.pdf",
+    "contentType" : "application/pdf",
+    "debutDuContenu" : "%PDF",
+    "statut" : 200,
+    "tailleNonNulle" : true
+  }
+}

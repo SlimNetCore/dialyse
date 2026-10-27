@@ -1,0 +1,6 @@
+{
+  "cron" : "0 15 7 * * *",
+  "fixedDelay" : -1,
+  "fixedRate" : -1,
+  "zone" : "${app.planification.fuseau-par-defaut:Africa/Algiers}"
+}

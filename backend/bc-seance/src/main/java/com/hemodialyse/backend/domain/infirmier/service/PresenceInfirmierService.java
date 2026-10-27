@@ -93,49 +93,6 @@ public final class PresenceInfirmierService {
     }
 
     /**
-     * Cases en sous-effectif entre deux dates (bornes incluses), de la plus proche à la plus lointaine.
-     */
-    public static List<AlertePresence> alertes(DonneesPresence donnees, LocalDate du, LocalDate au) {
-        Map<UUID, Integer> ordreCreneau = new HashMap<>();
-        for (int i = 0; i < donnees.planning().creneaux().size(); i++) {
-            ordreCreneau.put(donnees.planning().creneaux().get(i).id(), i);
-        }
-        List<AlertePresence> alertes = new ArrayList<>();
-        for (LocalDate debut = PlanningSemaineService.debutSemaine(du); !debut.isAfter(au); debut = debut.plusDays(7)) {
-            for (CasePresence c : construire(donnees, debut).cases()) {
-                if (c.statut() != StatutCase.SOUS_EFFECTIF || c.date().isBefore(du) || c.date().isAfter(au)) continue;
-                alertes.add(new AlertePresence(c.date(), c.jour(), c.salleId(), c.creneauId(), c.patients(), c.requis(),
-                        c.manque(), c.absents().stream().map(Absent::nom).toList()));
-            }
-        }
-        alertes.sort(Comparator.comparing(AlertePresence::date)
-                .thenComparing(a -> ordreCreneau.getOrDefault(a.creneauId(), 0)));
-        return alertes;
-    }
-
-    /**
-     * Cases en sur-effectif entre deux dates (bornes incluses), de la plus proche à la plus lointaine : infirmiers
-     * prévus au-delà de l'effectif requis, y compris dans une salle sans patient. Un jour fermé n'en compte pas.
-     */
-    public static List<AlerteSureffectif> alertesSureffectif(DonneesPresence donnees, LocalDate du, LocalDate au) {
-        Map<UUID, Integer> ordreCreneau = new HashMap<>();
-        for (int i = 0; i < donnees.planning().creneaux().size(); i++) {
-            ordreCreneau.put(donnees.planning().creneaux().get(i).id(), i);
-        }
-        List<AlerteSureffectif> alertes = new ArrayList<>();
-        for (LocalDate debut = PlanningSemaineService.debutSemaine(du); !debut.isAfter(au); debut = debut.plusDays(7)) {
-            for (CasePresence c : construire(donnees, debut).cases()) {
-                if (c.surplus() <= 0 || c.date().isBefore(du) || c.date().isAfter(au)) continue;
-                alertes.add(new AlerteSureffectif(c.date(), c.jour(), c.salleId(), c.creneauId(), c.patients(),
-                        c.requis(), c.surplus()));
-            }
-        }
-        alertes.sort(Comparator.comparing(AlerteSureffectif::date)
-                .thenComparing(a -> ordreCreneau.getOrDefault(a.creneauId(), 0)));
-        return alertes;
-    }
-
-    /**
      * Créneaux d'un infirmier dans une semaine déjà construite : prévu, remplaçant ou absent, dans l'ordre
      * chronologique puis selon l'ordre des créneaux de la journée. Les jours fermés n'apparaissent pas.
      */

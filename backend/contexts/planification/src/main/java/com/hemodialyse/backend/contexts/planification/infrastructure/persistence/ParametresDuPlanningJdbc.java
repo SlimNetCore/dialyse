@@ -6,6 +6,7 @@ import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanning;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanningRepository;
 import com.hemodialyse.backend.contexts.planification.domain.PatientsParPosteEtSerie;
+import com.hemodialyse.backend.contexts.planification.domain.RatioDeLaPresence;
 import com.hemodialyse.backend.contexts.planification.domain.RatioDeSecurite;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -51,8 +52,19 @@ public class ParametresDuPlanningJdbc implements ParametresDuPlanningRepository 
         Arrays.stream(ligne.jours().split(",")).map(String::trim).filter(s -> !s.isEmpty())
                 .forEach(s -> jours.add(JourDeLaSemaine.valueOf(s)));
         return new ParametresDuPlanning(jours.isEmpty() ? EnumSet.allOf(JourDeLaSemaine.class) : jours, Set.of(),
-                ligne.ratio() == null ? RatioDeSecurite.parDefaut() : new RatioDeSecurite(ligne.ratio()),
+                ratioLu(ligne.ratio()),
                 ligne.poste() == null ? PatientsParPosteEtSerie.parDefaut() : new PatientsParPosteEtSerie(ligne.poste()));
+    }
+
+    /** Un ratio hérité inutilisable (hors 1 à 20) est lu comme le défaut, jamais comme une erreur (KB-PLN-47). */
+    private static RatioDeSecurite ratioLu(Integer valeur) {
+        RatioDeLaPresence lu = RatioDeLaPresence.depuisLaBase(valeur);
+        if (lu.remplaceParLeDefaut()) {
+            org.slf4j.LoggerFactory.getLogger(ParametresDuPlanningJdbc.class)
+                    .warn("[PLANIFICATION] Ratio de sécurité inutilisable en base ({}) : le défaut {} est utilisé", valeur,
+                            lu.patientsParInfirmier());
+        }
+        return new RatioDeSecurite(lu.patientsParInfirmier());
     }
 
     @Override

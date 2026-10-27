@@ -1,0 +1,12 @@
+{
+  "status" : 403,
+  "contentType" : "application/problem+json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+    "instance" : "/api/v1/infirmiers/presence/semaine",
+    "status" : 403,
+    "title" : "Acces refuse"
+  }
+}

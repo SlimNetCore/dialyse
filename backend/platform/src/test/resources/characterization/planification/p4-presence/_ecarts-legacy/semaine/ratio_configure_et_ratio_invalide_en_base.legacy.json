@@ -1,0 +1,12 @@
+{
+  "ratio en base=-3" : "500 INTERNAL_ERROR",
+  "ratio en base=0" : "500 INTERNAL_ERROR",
+  "ratio en base=1" : "requis=6 statut=SOUS_EFFECTIF manque=5 casesSousEffectif=1",
+  "ratio en base=100" : "500 INTERNAL_ERROR",
+  "ratio en base=1000" : "500 INTERNAL_ERROR",
+  "ratio en base=2" : "requis=3 statut=SOUS_EFFECTIF manque=2 casesSousEffectif=1",
+  "ratio en base=3" : "requis=2 statut=SOUS_EFFECTIF manque=1 casesSousEffectif=1",
+  "ratio en base=6" : "requis=1 statut=COUVERT manque=0 casesSousEffectif=0",
+  "ratio en base=7" : "requis=1 statut=COUVERT manque=0 casesSousEffectif=0",
+  "ratio en base=null" : "requis=2 statut=SOUS_EFFECTIF manque=1 casesSousEffectif=1"
+}

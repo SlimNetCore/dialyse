@@ -128,5 +128,5 @@
 | `ObservancePrescriptionScheduler`              | 06:30 chaque jour    | contrôle l'observance des prescriptions                     | RG-MED-073        |
 | `ControleDesPeremptionsPlanifie.controlerLesPeremptions` | 07:00 chaque jour (fuseau du serveur, Africa/Algiers) | notifie les lots proches de la péremption (centres actifs) | RG-STK-061 |
 | `ReplanificationAutomatiqueScheduler.replanifier` | 02:30 chaque nuit | replanification automatique (centres volontaires)        | RG-PLN-100        |
-| `PresenceInfirmierScheduler.controlerPresence` | 07:15 chaque jour    | alerte de sous-effectif infirmiers                          | RG-INF-046        |
+| `ControleDeLaPresenceDe0715.controlerLaPresence` | 07:15 chaque jour (Africa/Algiers) | alerte de sous-effectif infirmiers                          | RG-INF-046        |
 | `DirectionRealtimeScheduler`                   | 1 s et 10 s          | diffusion temps réel de la direction                        | RG-DIR-100        |

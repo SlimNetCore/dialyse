@@ -66,3 +66,30 @@ adaptateurs restent (écritures de l'optimisation, P8 : KB-PLN-40).
 ### Ratifications et ajouts de la revue P3 (2026-10-27)
 - **Ratifiées par écrit par l'utilisateur (2026-10-27)** : les éditions de `platform/.../application/audit/AuditActionResolver.java` (9 libellés métier de P3) et de `platform/.../application/notification/NotificationService.java` (`notifyAbsenceInfirmierRetiree`, type durable `INFIRMIER_ABSENCE_RETIREE`).
 - **Édition minimale autorisée par l'utilisateur (constat 1 de la revue P3)** : `platform/.../application/planning/optimisation/OptimisationApplicationService.java` reçoit le port publié `FichesDesInfirmiers` (constructeurs) et appelle `verrouillerLesFiches(centre, infirmiers)` avant de lire le roulement (`appliquerRoulement`) et avant de créer des remplacements (`appliquerCouverture`) ; `OptimisationApplicationServiceTest` adapté (constructeur). Fichier inscrit dans `covered.json` ; l'édition a été faite par une commande shell avant l'inscription (le garde-fou n'a donc pas été sollicité) : régularisée ici, la logique d'optimisation n'est pas modifiée. `seamAllowed` reste vide, seam **fermé**.
+
+## Slice planification-p4-presence-cron (2026-10-27)
+
+Pendant la phase de caractérisation : aucun seam (le contrôle de 07:15 est appelé directement, `PresenceInfirmierScheduler.controlerPresence()`
+étant publique ; l'horloge est observée par alias de dates relatifs au jour UTC).
+
+### Seam de la construction (autorisé par l'utilisateur le 2026-10-27, fichiers déjà inscrits dans `covered.json`)
+
+Édition minimale des seuls fichiers legacy nécessaires, par Read/Edit/Write (le hook de garde reste actif) :
+
+| Fichier legacy | Nature | Raison |
+|---|---|---|
+| `platform/.../application/notification/NotificationService.java` | **édité** : `notifyPresenceSousEffectif` / `notifyPresenceSureffectif` reçoivent une variante à identifiant imposé | clé déterministe (centre, jour, type) du contrôle de 07:15 (KB-PLN-46) |
+| `platform/.../infrastructure/acl/planification/SemaineDeLInfirmierLegacy.java` | **édité** : lit `PresenceDonneesPort` + `PresenceInfirmierService.construire` au lieu de `PresenceInfirmierQueryService` | « Mon planning » (P3) garde sa source legacy (données du planning, P5) ; le service de requête est retiré |
+| `platform/.../infrastructure/web/rest/PresenceInfirmierRestController.java` | **supprimé** (mort : les 5 routes sont servies par `PresenceControleur`, même chemin) | |
+| `platform/.../infrastructure/scheduling/PresenceInfirmierScheduler.java` | **supprimé** (remplacé par le job du module, 07:15, fuseau Africa/Algiers) | |
+| `platform/.../infrastructure/reporting/PresenceInfirmierReportService.java` | **supprimé** (impression reprise par l'ACL d'impression) | |
+| `platform/.../application/infirmier/PresenceInfirmierQueryService.java` | **supprimé** (plus aucun appelant) | |
+| `platform/.../infrastructure/acl/planification/SurEffectifDuRoulementLegacy.java` | **supprimé** (le port est fourni par le module) | |
+| `bc-seance/.../service/{ChargeInfirmierService,RemplacantService}.java` | **supprimés** (code mort) | |
+| `bc-seance/.../service/PresenceInfirmierService.java` | **édité** : `alertes` et `alertesSureffectif` retirées (mortes) ; `construire`, `creneauxDe`, `requis` restent (optimisation P8, Mon planning) | |
+| `platform/.../persistence/adapter/infirmier/PresenceDonneesJdbcAdapter.java`, `bc-seance/.../port/PresenceDonneesPort.java`, `model/Presence.java`, `CalendrierCentre.java` | **conservés, non édités** : encore lus par l'optimisation (P8) et « Mon planning » | dette P4 vers P8 |
+
+Fichiers **nouveaux** inscrits dans `covered.json` (ACL, aucun comportement legacy modifié) : `acl/planification/{PlanningDesPlacesLegacy,
+NotificationsDeLaPresenceLegacy, ImpressionDeLaPresenceLegacy}.java`.
+
+`seamAllowed` reste vide ; **seam fermé le 2026-10-27 à la fin de la slice** (voir la fiche de slice).

@@ -1,0 +1,9 @@
+{
+  "apres_desactivation" : [ "<J> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[]", "<J+1> <SALLE_1> <CRENEAU_MATIN> patients=4 requis=1 manque=1 absents=[]" ],
+  "apres_reactivation" : [ ],
+  "avant" : [ ],
+  "desactivation" : "200",
+  "fiches_dans_la_charge_apres" : 1,
+  "fiches_dans_la_charge_avant" : 2,
+  "reactivation" : "200"
+}

@@ -1,0 +1,41 @@
+{
+  "cases" : [ {
+    "absents" : [ "Sara Amrani : CONGE" ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S2.DIM>",
+    "manque" : 2,
+    "patients" : 5,
+    "presents" : [ ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  }, {
+    "absents" : [ "Sara Amrani : CONGE" ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S2.LUN>",
+    "manque" : 2,
+    "patients" : 5,
+    "presents" : [ ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  }, {
+    "absents" : [ ],
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S2.SAM>",
+    "manque" : 1,
+    "patients" : 5,
+    "presents" : [ "Sara Amrani" ],
+    "requis" : 2,
+    "salleId" : "<SALLE_1>",
+    "statut" : "SOUS_EFFECTIF",
+    "surplus" : 0
+  } ],
+  "casesFermeesSansPatient" : 0,
+  "casesSousEffectif" : 3,
+  "conflits" : [ ],
+  "debut" : "<S2.DIM>",
+  "statut" : 200
+}

@@ -17,8 +17,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class,
-        RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class})
+        RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class,
+        PresenceControleur.class})
 class ErreursMetierDeLaPlanificationAdvice {
+
+    @ExceptionHandler(com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence.ImpressionRefusee.class)
+    ProblemDetail impressionRefusee(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence.ImpressionRefusee erreur) {
+        return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), erreur.code());
+    }
 
     static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
         ProblemDetail probleme = ProblemDetail.forStatus(statut);
