@@ -1,0 +1,14 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "id" : "<UUID_GENERE_1>",
+    "payload" : {
+      "patientId" : "<PAT_1>",
+      "patientNom" : "Patient PAT_1 Test",
+      "targetRoles" : "ADMIN,SECRETAIRE,MEDECIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "ISOLEMENT_IMPOSSIBLE"
+  }
+} ]

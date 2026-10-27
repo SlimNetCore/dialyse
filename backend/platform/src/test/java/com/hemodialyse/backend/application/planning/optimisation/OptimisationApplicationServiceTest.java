@@ -61,9 +61,12 @@ class OptimisationApplicationServiceTest {
     private final DeplacementTemporairePort temporaires = mock(DeplacementTemporairePort.class);
     private final com.hemodialyse.backend.application.notification.NotificationService notifications =
             mock(com.hemodialyse.backend.application.notification.NotificationService.class);
+    private final com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre verrouDesPlaces =
+            mock(com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre.class);
     private final OptimisationApplicationService service = new OptimisationApplicationService(runs, donnees, placements,
             affectations, remplacements, temporaires, notifications,
-            mock(com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.class), horloge(T0.plusSeconds(60)));
+            mock(com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.class),
+            verrouDesPlaces, horloge(T0.plusSeconds(60)));
 
     private SalleRef a;
     private CreneauRef matin;
@@ -104,7 +107,10 @@ class OptimisationApplicationServiceTest {
 
         RunOptimisation appliquee = service.appliquer(centre, run.id());
 
-        verify(placements).deplacer(centre, p1.patientId(), a.id(), matin.id(), vers.generateurId());
+        // le verrou des places du centre est pris avant toute écriture de place (exclusion mutuelle avec la fiche, ADR 0059)
+        org.mockito.InOrder ordre = org.mockito.Mockito.inOrder(verrouDesPlaces, placements);
+        ordre.verify(verrouDesPlaces).verrouiller(centre);
+        ordre.verify(placements).deplacer(centre, p1.patientId(), a.id(), matin.id(), vers.generateurId());
         assertThat(appliquee.appliqueLe()).isEqualTo(T0.plusSeconds(60));
         assertThat(runs.findById(centre, run.id()).orElseThrow().appliqueLe()).isNotNull();
         verify(notifications).notifySeancesDeplacees(centre, "PATIENTS", 1, 0);
@@ -254,6 +260,8 @@ class OptimisationApplicationServiceTest {
         RunOptimisation run = run(PerimetreOptimisation.MAINTENANCE, proposition);
 
         service.appliquer(centre, run.id());
+
+        verify(verrouDesPlaces, never()).verrouiller(any());
 
         ArgumentCaptor<List<DeplacementTemporaire>> enregistres = ArgumentCaptor.forClass(List.class);
         verify(temporaires).enregistrer(enregistres.capture());

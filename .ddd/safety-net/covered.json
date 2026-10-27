@@ -348,6 +348,7 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/PlanningAffectationRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SalleGenerateursRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SerologieRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ReaffectationEnIsolementDeLaSerologie.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/PatientRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/PlanningAffectationQueryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/planning/SalleGenerateursService.java",
@@ -362,7 +363,9 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/PlacementPatientPort.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/PlanningDonneesPort.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/SalleVuePort.java",
-    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/GenerateurImpactPort.java"
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/planning/port/GenerateurImpactPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/AlertesDuPlacementLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/PlacementDeLaFiche.java"
   ],
   "seamAllowed": []
 }

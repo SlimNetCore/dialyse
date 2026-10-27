@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
-import com.hemodialyse.backend.application.planning.PlacementPatientService;
+import com.hemodialyse.backend.infrastructure.acl.planification.PlacementDeLaFiche;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 
 import java.util.EnumSet;
@@ -46,6 +46,12 @@ public class PatientRestController {
      */
     private static final String ECRITURE_FICHE = "!hasRole('MEDECIN') or hasAnyRole('ADMIN','SECRETAIRE','INFIRMIER')";
 
+    /**
+     * Création et modification de la fiche, qui porte la place du patient (P5, KB-PLN-52) : liste blanche de rôles (un rôle inconnu ou
+     * l'absence de rôle ne suffit plus). Les autres écritures de la fiche gardent {@link #ECRITURE_FICHE}.
+     */
+    private static final String ECRITURE_FICHE_PLACEMENT = "hasAnyRole('ADMIN','SECRETAIRE','INFIRMIER')";
+
     private final PatientUseCase useCase;
     private final NotificationService notificationService;
     private final AssureRepositoryPort assureRepo;
@@ -53,13 +59,13 @@ public class PatientRestController {
     private final PatientListQueryService patientListQueryService;
     private final PatientSummaryQueryService patientSummaryQueryService;
     private final JdbcTemplate jdbc;
-    private final PlacementPatientService placementService;
+    private final PlacementDeLaFiche placementService;
 
     public PatientRestController(PatientUseCase useCase, NotificationService notificationService,
                                  AssureRepositoryPort assureRepo, AssurePatientRepositoryPort assurePatientRepo,
                                  PatientListQueryService patientListQueryService,
                                  PatientSummaryQueryService patientSummaryQueryService,
-                                 JdbcTemplate jdbc, PlacementPatientService placementService) {
+                                 JdbcTemplate jdbc, PlacementDeLaFiche placementService) {
         this.placementService = placementService;
         this.useCase = useCase;
         this.notificationService = notificationService;
@@ -95,7 +101,7 @@ public class PatientRestController {
      * L'affectation (salle, créneau, générateur, jours) ne s'enregistre que si elle respecte les règles de la
      * planification : mêmes contrôles que l'aide au placement, appliqués côté serveur.
      */
-    private void verifierPlacement(CreatePatientRequest r, UUID patientId) {
+    private <T> T enregistrerAvecPlacement(CreatePatientRequest r, UUID patientId, java.util.function.Supplier<T> enregistrement) {
         Set<JourSemaine> jours = EnumSet.noneOf(JourSemaine.class);
         if (r.jourDimanche()) jours.add(JourSemaine.DIMANCHE);
         if (r.jourLundi()) jours.add(JourSemaine.LUNDI);
@@ -104,7 +110,10 @@ public class PatientRestController {
         if (r.jourJeudi()) jours.add(JourSemaine.JEUDI);
         if (r.jourVendredi()) jours.add(JourSemaine.VENDREDI);
         if (r.jourSamedi()) jours.add(JourSemaine.SAMEDI);
-        placementService.verifier(r.centerId(), patientId, r.salleId(), r.positionId(), r.generateurId(), jours);
+        // P5 (seam Patient) : garde de centre, contrôle de la place par la Planification et enregistrement de la fiche dans la
+        // même transaction, pour que le verrou du centre tienne jusqu'à l'écriture.
+        return placementService.verifierPuisEnregistrer(r.centerId(), patientId, r.salleId(), r.positionId(), r.generateurId(),
+                jours, enregistrement);
     }
 
     private CreatePatientCommand toCommand(CreatePatientRequest r) {
@@ -134,10 +143,9 @@ public class PatientRestController {
 
     @PostMapping
     @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
-    @PreAuthorize(ECRITURE_FICHE)
+    @PreAuthorize(ECRITURE_FICHE_PLACEMENT)
     public ResponseEntity<?> create(@RequestBody @Valid CreatePatientRequest r) {
-        verifierPlacement(r, null);
-        Patient p = useCase.createPatient(CenterId.of(r.centerId()), toCommand(r));
+        Patient p = enregistrerAvecPlacement(r, null, () -> useCase.createPatient(CenterId.of(r.centerId()), toCommand(r)));
 
         // Send real-time notification
         notificationService.notifyPatientCreated(
@@ -152,10 +160,9 @@ public class PatientRestController {
 
     @PutMapping("/{id}")
     @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
-    @PreAuthorize(ECRITURE_FICHE)
+    @PreAuthorize(ECRITURE_FICHE_PLACEMENT)
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid CreatePatientRequest r) {
-        verifierPlacement(r, id);
-        Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
+        Patient p = enregistrerAvecPlacement(r, id, () -> useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r)));
 
         // Notify connected clients to refresh fiche/list in real-time.
         notificationService.notifyPatientUpdated(

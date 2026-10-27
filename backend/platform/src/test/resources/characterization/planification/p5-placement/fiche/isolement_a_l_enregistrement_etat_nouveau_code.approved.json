@@ -1,0 +1,27 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : "<GISO>",
+  "jeu" : "false",
+  "lun" : "true",
+  "mar" : "false",
+  "mer" : "false",
+  "nom" : "Patient PAT_A_RISQUE",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_ISO>",
+  "sam" : "false",
+  "ven" : "false"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "dim" : "false",
+  "generateur_id" : null,
+  "jeu" : "false",
+  "lun" : "false",
+  "mar" : "false",
+  "mer" : "false",
+  "nom" : "Patient PAT_SAIN",
+  "position_id" : null,
+  "salle_id" : null,
+  "sam" : "false",
+  "ven" : "false"
+} ]

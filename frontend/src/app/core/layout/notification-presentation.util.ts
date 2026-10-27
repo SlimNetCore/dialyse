@@ -259,6 +259,10 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
     case 'PATIENT_REPLACE_ISOLEMENT':
       return info('masks', profil === 'GESTION' ? action('PLACEMENT', ['/seances/planning']) : planning(profil),
         {parametres: {nom: p['patientNom'] ?? '', salle: p['salle'] ?? ''}});
+    case 'RETOUR_SALLE_ORDINAIRE_PROPOSE':
+      // proposition seulement (P5) : le déplacement se décide au planning, jamais appliqué automatiquement
+      return info('masks', profil === 'GESTION' ? action('PLACEMENT', ['/seances/planning']) : planning(profil),
+        {parametres: {nom: p['patientNom'] ?? '', salle: p['salle'] ?? ''}});
     case 'ISOLEMENT_IMPOSSIBLE':
       return alerte('masks', profil === 'GESTION'
           ? action('REPLANIFIER', ['/seances/optimisation'], {perimetre: 'PATIENTS'})

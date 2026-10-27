@@ -17,6 +17,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 class EcritureConcurrenteDesFichesAdvice {
 
+    /**
+     * Place refusée par une règle de la planification lors de l'enregistrement d'une fiche : 422 avec le code stable
+     * {@code PLACEMENT_<règle>} (même corps que le legacy). Levé par le langage publié des places, appelé par la fiche du patient.
+     */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacementDesPatients.Refus.class)
+    ProblemDetail placementRefuse(com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacementDesPatients.Refus erreur) {
+        return ErreursMetierDeLaPlanificationAdvice.probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee",
+                erreur.getMessage(), erreur.code());
+    }
+
+    @ExceptionHandler(com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacementDesPatients.EcritureConcurrente.class)
+    ProblemDetail placementConcurrent(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacementDesPatients.EcritureConcurrente erreur) {
+        return ErreursMetierDeLaPlanificationAdvice.probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(),
+                "PLANIFICATION_ECRITURE_CONCURRENTE");
+    }
+
     @ExceptionHandler(EcritureConcurrenteDesFiches.class)
     ProblemDetail ecritureConcurrente(EcritureConcurrenteDesFiches erreur) {
         return ErreursMetierDeLaPlanificationAdvice.probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(),

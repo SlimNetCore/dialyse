@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {ParametresControleur.class, PreferencesControleur.class, InfirmiersControleur.class,
         RoulementControleur.class, AbsencesDesInfirmiersControleur.class, MonPlanningControleur.class, RemplacementsControleur.class,
-        PresenceControleur.class})
+        PresenceControleur.class, PropositionsControleur.class, SallesControleur.class})
 class ErreursMetierDeLaPlanificationAdvice {
 
     @ExceptionHandler(com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence.ImpressionRefusee.class)

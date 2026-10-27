@@ -10,6 +10,7 @@ import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementMisHors
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementReforme;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.StatutEquipement;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.TypeEquipement;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateurDevenuIndisponible;
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.AfterEach;
@@ -28,6 +29,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -98,8 +100,23 @@ class GenerateurIndisponibleCharacterizationIntegrationTest {
                 () -> jdbc.queryForObject("SELECT COUNT(*) FROM event_publication", Integer.class) == 0);
     }
 
+    /**
+     * Publie l'événement de domaine ET l'événement publié {@code gmao.v1} qui l'accompagne en production (le consommateur de la
+     * Planification, P5, écoute {@code GenerateurDevenuIndisponible}) ; même traduction que le publicateur du module GMAO
+     * (générateurs de dialyse seulement).
+     */
     private void publier(Object evenement) {
-        transaction.executeWithoutResult(statut -> evenements.publishEvent(evenement));
+        transaction.executeWithoutResult(statut -> {
+            evenements.publishEvent(evenement);
+            if (evenement instanceof EquipementMisHorsService e && e.type() == TypeEquipement.GENERATEUR_DIALYSE) {
+                evenements.publishEvent(new GenerateurDevenuIndisponible(e.equipementId().valeur(), e.centreId().valeur(),
+                        e.code().valeur(), e.designation(), e.statutPrecedent().name(), e.statut().name(), e.survenuLe()));
+            } else if (evenement instanceof EquipementReforme e && e.type() == TypeEquipement.GENERATEUR_DIALYSE) {
+                evenements.publishEvent(new GenerateurDevenuIndisponible(e.equipementId().valeur(), e.centreId().valeur(),
+                        e.code().valeur(), e.designation(), e.statutPrecedent().name(), StatutEquipement.REFORME.name(),
+                        e.survenuLe()));
+            }
+        });
         attendreLaLivraison();
     }
 
@@ -147,7 +164,9 @@ class GenerateurIndisponibleCharacterizationIntegrationTest {
     }
 
     private void golden(String name, ObjectNode node) {
-        GoldenMaster.verify(GOLDENS, name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node));
+        // Écart décidé (P5) : le golden approuvé du nouveau code est <nom>_nouveau_code ; l'ancien est dans _ecarts-legacy.
+        String nomDuGolden = Files.exists(GOLDENS.resolve(name + "_nouveau_code.approved.json")) ? name + "_nouveau_code" : name;
+        GoldenMaster.verify(GOLDENS, nomDuGolden, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node));
     }
 
     // ------------------------------------------------------------------ règle KB-GMAO-37 : statuts
@@ -271,15 +290,16 @@ class GenerateurIndisponibleCharacterizationIntegrationTest {
     // ------------------------------------------------------------------ livraison au moins une fois, cache
 
     @Test
-    void un_evenement_rejoue_alerte_autant_de_fois_qu_il_est_livre_sans_dedoublonnage_contrairement_a_la_proposition_de_reforme() {
+    void un_evenement_rejoue_n_alerte_qu_une_fois_par_generateur_et_par_jour_comme_la_proposition_de_reforme() {
         EquipementMisHorsService evenement = misHorsService(CENTRE_A, TypeEquipement.GENERATEUR_DIALYSE, "G-01",
                 StatutEquipement.EN_SERVICE, StatutEquipement.A_REFORMER, CauseDIndisponibilite.INTERVENTION);
         publier(evenement);
         publier(evenement);
         publier(evenement);
 
-        assertEquals(3, alertes(CENTRE_A).size(), "KB-GMAO-80 : l'alerte n'a pas d'identifiant déterministe");
-        assertEquals(3, jdbc.queryForObject("SELECT COUNT(DISTINCT id) FROM notification_evenement WHERE center_id = ? "
+        // Écart décidé (KB-PLN-63, P5) : le consommateur est idempotent, une alerte par générateur et par jour du centre (legacy : 3).
+        assertEquals(1, alertes(CENTRE_A).size(), "KB-PLN-63 : l'alerte a un identifiant déterministe (générateur + jour du centre)");
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(DISTINCT id) FROM notification_evenement WHERE center_id = ? "
                 + "AND type = 'GENERATEUR_INDISPONIBLE'", Integer.class, CENTRE_A));
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM notification_evenement WHERE center_id = ? "
                 + "AND type = 'REFORME_PROPOSEE'", Integer.class, CENTRE_A), "la proposition de réforme est dédoublonnée");

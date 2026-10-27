@@ -119,6 +119,13 @@ public final class PlacesEnMemoire implements PlacesDuCentreRepository, LectureD
     }
 
     @Override
+    public List<PatientId> patientsDuGenerateur(CentreId centre, GenerateurId generateur, LocalDate jugeLe) {
+        return fiches.values().stream()
+                .filter(o -> generateur.equals(o.generateur()) && !sortis.contains(o.patient()) && !autreCentre.contains(o.patient()))
+                .map(Occupation::patient).sorted(java.util.Comparator.comparing(p -> p.valeur().toString())).toList();
+    }
+
+    @Override
     public void enregistrer(PlacesDuCentre places) {
         for (Changement c : places.changements()) {
             ecritures++;
@@ -149,6 +156,11 @@ public final class PlacesEnMemoire implements PlacesDuCentreRepository, LectureD
     @Override
     public LocalDate aujourdhui(CentreId centre) {
         return aujourdhui;
+    }
+
+    @Override
+    public LocalDate jourDe(CentreId centre, java.time.Instant instant) {
+        return instant.atZone(java.time.ZoneId.of("Africa/Algiers")).toLocalDate();
     }
 
     @Override

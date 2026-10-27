@@ -3,9 +3,12 @@
 > Préfixe `RG-PLN`. Le système **propose** les meilleures places, **refuse** les placements incohérents, **détecte** les
 > conflits
 > du planning réel et **replace** automatiquement un patient devenu à risque infectieux. Sources :
-> `PlanificationAffectationService`, `PlanningSemaineService`, `PlacementPatientService`, `PlanningParametres`,
+> `PlanificationAffectationService`, `PlanningSemaineService`, `PlanningParametres`,
 > `PlanningParametresService`, `PlanningDonneesJdbcAdapter`, `SalleGenerateursService`, `CapaciteSalleRegle`,
-> `CapaciteTheoriqueCalculator`, contrôleurs `Planning*RestController`, `SalleGenerateursRestController`.
+> `CapaciteTheoriqueCalculator`, contrôleurs `Planning*RestController`. Depuis la slice P5 (ADR 0059), le placement
+> (propositions, contrôle d'une place, réaffectation, capacité, alerte du générateur) est servi par le contexte
+> `planification` (`PlacesDuCentre`, `PropositionsControleur`, `SallesControleur`) ; `PlacementPatientService`,
+> `PlanningAffectationQueryService` et `GenerateurIndisponibleService` sont retirés.
 
 ## 5.1 Paramétrage du planning (par centre)
 
@@ -150,7 +153,16 @@
   jours
   manquants), `SALLE_INCONNUE`, `CRENEAU_INCONNU`, `JOUR_FERME`, `ISOLEMENT_REQUIS`, `GENERATEUR_INCONNU`,
   `GENERATEUR_INCOMPATIBLE`,
-  `GENERATEUR_OCCUPE`.
+  `GENERATEUR_OCCUPE`, et (P5, décision du 27/10) `ISOLEMENT_RESERVE` (un patient sans risque infectieux n'est jamais
+  placé en salle d'isolement). Une place partielle est refusée avec `PLACEMENT_INCOMPLET`. Code `PLACEMENT_PATIENT_INTROUVABLE` : la fiche ou la sérologie vise un patient inconnu ou
+  d'un autre centre. Un refus répond 422 ; un verrou du centre non obtenu en 5 s répond 409
+  `PLANIFICATION_ECRITURE_CONCURRENTE`. **Verrou (P5, ADR 0059)** : le contrôle et l'écriture de la fiche se font dans
+  une même transaction sous le verrou du centre ; si le centre n'a pas encore de ligne de paramètres, elle est **créée
+  avec ses valeurs par défaut** (la perdante d'une création simultanée reçoit 409). Deux fiches ne peuvent donc plus
+  occuper le même générateur le même jour. **Garde** : le centre de la fiche doit être celui du jeton (403 sinon) et
+  seuls `ADMIN`, `SECRETAIRE` et `INFIRMIER` enregistrent une fiche (403 pour les autres profils, y compris sans rôle).
+  Les paramètres illisibles répondent 400. Le patient qui n'est pas à risque infectieux ne peut pas être placé en salle
+  d'isolement (`PLACEMENT_ISOLEMENT_RESERVE`, y compris sur un générateur d'isolement qu'un autre jour partage).
 - **RG-PLN-051** — Exceptions : fiche sans aucun placement (acceptée) ; fiche dont le placement n'a pas changé
   (acceptée, une anomalie
   héritée ne bloque pas une autre modification).
@@ -159,14 +171,26 @@
   replacé
   automatiquement en salle d'isolement (mêmes jours, créneau conservé si possible, meilleure proposition) et le centre
   est notifié (`patient replacé en isolement`). Sans place d'isolement, le patient **reste en place** et
-  l'administration est alertée (`isolement impossible`) pour replanifier. Issues : aucun risque, non placé, déjà
-  conforme, déplacé, à replanifier.
+  l'administration est alertée (`isolement impossible`, **une seule fois par patient et par jour du centre**) pour
+  replanifier. Issues : aucun risque, non placé, déjà conforme, déplacé, à replanifier, retour proposé. **P5 (ADR 0059)** :
+  l'enregistrement de la sérologie et la réaffectation se font dans **une seule transaction** (l'un échoue avec l'autre) ;
+  la sérologie d'un patient inconnu ou d'un autre centre est refusée (422 `PLACEMENT_PATIENT_INTROUVABLE`) ; un patient
+  redevenu sans risque encore en salle d'isolement n'est **jamais déplacé** : une alerte
+  `RETOUR_SALLE_ORDINAIRE_PROPOSE` propose son retour en salle ordinaire à l'administration. L'enregistrement d'une
+  sérologie est audité `SEROLOGIE_ENREGISTREE` / `SEROLOGIE_MODIFIEE` / `SEROLOGIE_SUPPRIMEE`.
+- **RG-PLN-054** — **Alerte « générateur indisponible »** : quand un générateur de dialyse quitte l'état « en service »
+  (panne, maintenance, état constaté par une intervention, réforme), une alerte est déposée pour l'administration du
+  centre, avec le nom du générateur et les cinq premiers patients placés dessus (ordre nom, prénom, affichés « nom
+  prénom ») et leur nombre total. **Une seule alerte par générateur et par jour du centre** (une panne puis une réforme
+  le même jour = une alerte), même sans patient. **Aucun patient n'est déplacé automatiquement** ; le déplacement se
+  décide à l'optimisation. Source : événement publié `gmao.v1` `GenerateurDevenuIndisponible`.
 
 ## 5.7 Salles et générateurs
 
 - **RG-PLN-060** — Vue d'ensemble des salles (générateurs affectés, capacité, places restantes) : paginée, limitée au
   centre, non
-  mise en cache, réservée à `ADMIN` et `SECRETAIRE`.
+  mise en cache, réservée à `ADMIN` et `SECRETAIRE`. `page` et `size` négatifs ou illisibles répondent 400 ; `size` est
+  plafonnée à 100.
 - **RG-PLN-061** — Capacité d'une salle : le nombre de générateurs affectés ne dépasse **jamais** la capacité fixée
   (`SALLE_CAPACITE_DEPASSEE`) ;
   sans capacité, aucune limite. Le contrôle s'applique à l'affectation d'un générateur à une salle

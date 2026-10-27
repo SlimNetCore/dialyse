@@ -51,7 +51,11 @@ public final class AuditActionResolver {
             Map.entry("POST /api/v1/infirmiers/moi/absences", new Resolved("ABSENCE_DECLAREE_PAR_L_INFIRMIER", "infirmiers", "Absence déclarée par l'infirmier")),
             Map.entry("DELETE /api/v1/infirmiers/moi/absences/{id}", new Resolved("ABSENCE_RETIREE_PAR_L_INFIRMIER", "infirmiers", "Absence retirée par l'infirmier")),
             Map.entry("POST /api/v1/infirmiers/presence/remplacements", new Resolved("REMPLACANT_AFFECTE", "infirmiers", "Remplaçant affecté")),
-            Map.entry("DELETE /api/v1/infirmiers/presence/remplacements/{id}", new Resolved("REMPLACEMENT_ANNULE", "infirmiers", "Remplacement annulé")));
+            Map.entry("DELETE /api/v1/infirmiers/presence/remplacements/{id}", new Resolved("REMPLACEMENT_ANNULE", "infirmiers", "Remplacement annulé")),
+            // P5 (KB-PLN-62) : la sérologie n'est plus auditée sous l'action de la fiche du patient.
+            Map.entry("POST /api/v1/patients/{patientId}/serologies", new Resolved("SEROLOGIE_ENREGISTREE", "patients", "Sérologie enregistrée")),
+            Map.entry("PUT /api/v1/patients/{patientId}/serologies/{serologieId}", new Resolved("SEROLOGIE_MODIFIEE", "patients", "Sérologie modifiée")),
+            Map.entry("DELETE /api/v1/patients/{patientId}/serologies/{serologieId}", new Resolved("SEROLOGIE_SUPPRIMEE", "patients", "Sérologie supprimée")));
 
     private AuditActionResolver() {
     }

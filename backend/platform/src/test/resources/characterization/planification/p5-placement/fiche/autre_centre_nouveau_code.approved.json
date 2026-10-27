@@ -1,0 +1,4 @@
+{
+  "admin A sur un patient de B (centerId A)" : "422 PLACEMENT_PATIENT_INTROUVABLE",
+  "admin A sur un patient de B (centerId B)" : "403 ACCESS_DENIED"
+}

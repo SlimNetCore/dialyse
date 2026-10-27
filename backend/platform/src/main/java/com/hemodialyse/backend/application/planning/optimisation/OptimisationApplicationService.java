@@ -2,6 +2,7 @@ package com.hemodialyse.backend.application.planning.optimisation;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.InfirmierRef;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
@@ -60,6 +61,7 @@ public class OptimisationApplicationService {
     private final NotificationService notifications;
     private final Clock horloge;
     private final FichesDesInfirmiers fiches;
+    private final VerrouDesPlacesDuCentre verrouDesPlaces;
 
     @Autowired
     public OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
@@ -67,15 +69,17 @@ public class OptimisationApplicationService {
                                           AffectationInfirmierRepositoryPort affectations,
                                           RemplacementInfirmierRepositoryPort remplacements,
                                           DeplacementTemporairePort temporaires, NotificationService notifications,
-                                          FichesDesInfirmiers fiches) {
-        this(runs, donnees, placements, affectations, remplacements, temporaires, notifications, fiches, Clock.systemUTC());
+                                          FichesDesInfirmiers fiches, VerrouDesPlacesDuCentre verrouDesPlaces) {
+        this(runs, donnees, placements, affectations, remplacements, temporaires, notifications, fiches, verrouDesPlaces,
+                Clock.systemUTC());
     }
 
     OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
                                    PlacementPatientPort placements, AffectationInfirmierRepositoryPort affectations,
                                    RemplacementInfirmierRepositoryPort remplacements,
                                    DeplacementTemporairePort temporaires, NotificationService notifications, FichesDesInfirmiers fiches,
-                                   Clock horloge) {
+                                   VerrouDesPlacesDuCentre verrouDesPlaces, Clock horloge) {
+        this.verrouDesPlaces = verrouDesPlaces;
         this.runs = runs;
         this.donnees = donnees;
         this.placements = placements;
@@ -101,6 +105,8 @@ public class OptimisationApplicationService {
         ParametresOptimisation parametres = run.parametres();
         ResultatOptimisation resultat = run.resultat();
 
+        // verrou des places du centre (Planification P5, ADR 0059) AVANT de relire l'état : une fiche enregistrée en même temps attend
+        if (parametres.perimetre().placePatients()) verrouDesPlaces.verrouiller(centerId);
         DonneesOptimisation actuelles = donnees.charger(centerId, parametres.debutSemaine(), parametres.finHorizon());
         if (!EmpreinteOptimisation.calculer(actuelles, parametres).equals(run.empreinte())) {
             throw new BusinessException("OPTIMISATION_PERIMEE",

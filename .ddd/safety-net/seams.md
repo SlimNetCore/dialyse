@@ -93,3 +93,41 @@ Fichiers **nouveaux** inscrits dans `covered.json` (ACL, aucun comportement lega
 NotificationsDeLaPresenceLegacy, ImpressionDeLaPresenceLegacy}.java`.
 
 `seamAllowed` reste vide ; **seam fermé le 2026-10-27 à la fin de la slice** (voir la fiche de slice).
+
+## Slice planification-p5-placement (session 2, 2026-10-27) : OUVERT
+
+Seam **explicitement autorisé de nouveau par l'utilisateur le 2026-10-27** (décision de la demande de la session 2), inscrit ici ET dans
+`covered.json` (`seamAllowed`) AVANT toute édition ; éditions par Read/Edit/Write uniquement (le hook de garde reste actif).
+
+| Fichier legacy | Nature | Raison |
+|---|---|---|
+| `platform/.../infrastructure/web/rest/PatientRestController.java` | **édité** : `verifierPlacement` appelle `PlacementDeLaFiche` (ACL du port publié `PlacementDesPatients`) au lieu de `PlacementPatientService` ; garde de centre + liste blanche de rôles (`ADMIN`, `SECRETAIRE`, `INFIRMIER`) sur `POST`/`PUT /api/v1/patients` | KB-PLN-52 (garde de centre et rôles), KB-PLN-53 (verrou), KB-PLN-54 (422 `PLACEMENT_*`) |
+| `platform/.../application/notification/NotificationService.java` | **édité** (déjà couvert) : variantes à identifiant déterministe de `notifyGenerateurIndisponible`, `notifyIsolementImpossible`, nouvelle alerte `notifyRetourEnSalleOrdinairePropose` (type `RETOUR_SALLE_ORDINAIRE_PROPOSE`) | KB-PLN-60, 61, 63 |
+| `platform/.../infrastructure/acl/gmao/GmaoEvenementsPlanificationListener.java` | **supprimé** | remplacé par l'écouteur `gmao.v1` du module (sinon double alerte) |
+| `platform/.../web/rest/PlanningAffectationRestController.java`, `SalleGenerateursRestController.java` | **supprimés** | mêmes routes servies par `PropositionsControleur` et `SallesControleur` du module (deux contrôleurs sur une route = échec du démarrage) |
+
+`Patient.libererPlacement` (P7) **n'est pas touché**. `SerologieRestController` (réaffectation) **n'est pas encore édité** : session 3.
+Fichiers **nouveaux** inscrits dans `covered.json` (ACL) : `acl/planification/{AlertesDuPlacementLegacy,PlacementDeLaFiche}.java`.
+
+`seamAllowed` contient `PatientRestController.java` ; **à fermer en session 3** (parité et retrait).
+
+### Revue P5 (2026-10-27, 16h) : seam `OptimisationApplicationService` — FERMÉ le 2026-10-27 (`seamAllowed` vide), autorisé par l'utilisateur le 2026-10-27
+
+Constat 2 de `.ddd/verify/review-planification-p5.md` : l'application d'une proposition d'optimisation écrit les places sans le verrou du
+centre. Édition minimale autorisée, inscrite ici ET dans `seamAllowed` AVANT l'édition, fermée après.
+
+| Fichier legacy | Nature | Raison |
+|---|---|---|
+| `platform/.../application/planning/optimisation/OptimisationApplicationService.java` | **édité** : appel du port publié `VerrouDesPlacesDuCentre.verrouiller(centre)` au début de `appliquer` quand le périmètre place des patients (avant la lecture de l'empreinte), comme `FichesDesInfirmiers.verrouillerLesFiches` en P3 | la fiche et l'optimisation s'excluent mutuellement (ordre centre -> fiches) |
+| `platform/.../application/planning/optimisation/OptimisationApplicationServiceTest.java` | constructeur du test | |
+
+### Session 3 (2026-10-27) : extension du seam à `SerologieRestController` et `AuditActionResolver` (RATIFIÉ PAR L'UTILISATEUR par écrit le 2026-10-27)
+
+Demande de la session 3 : câbler la sérologie sur `ReaffectationEnIsolement`. Ce fichier n'était PAS listé dans l'autorisation du seam Patient
+(`PatientRestController` seul) ; il est couvert par `covered.json` (filet P5 `ReaffectationEnIsolementCharacterizationIntegrationTest`) et a été
+inscrit ici ET dans `seamAllowed` AVANT édition. **Extension ratifiée par l'utilisateur (écrit, 2026-10-27)**, y compris les libellés d'audit `SEROLOGIE_*` ; fermée avec le seam à la fin de la session.
+
+| Fichier legacy | Nature | Raison |
+|---|---|---|
+| `platform/.../web/rest/SerologieRestController.java` | **édité** : `create` / `update` appellent `ReaffectationEnIsolementDeLaSerologie` (ACL) qui exécute la sérologie ET la réaffectation dans UNE transaction, au lieu de `PlacementPatientService.reaffecterSiRisque` | KB-PLN-59 (patient hors centre refusé), KB-PLN-60 (une transaction, alerte dédupliquée), KB-PLN-61 (retour proposé) |
+| `platform/.../application/audit/AuditActionResolver.java` | **édité** (déjà couvert) : libellés métier `SEROLOGIE_ENREGISTREE` / `SEROLOGIE_MODIFIEE` / `SEROLOGIE_SUPPRIMEE` | KB-PLN-62 |

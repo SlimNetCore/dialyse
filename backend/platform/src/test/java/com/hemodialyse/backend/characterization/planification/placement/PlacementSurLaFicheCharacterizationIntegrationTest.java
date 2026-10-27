@@ -261,7 +261,7 @@ class PlacementSurLaFicheCharacterizationIntegrationTest extends PlacementCharac
     // ------------------------------------------------------------------ verrou et concurrence (H2)
 
     @Test
-    void le_controle_ne_cree_aucune_ligne_de_parametres_et_ne_pose_aucun_verrou_de_centre() throws Exception {
+    void le_controle_cree_la_ligne_de_parametres_par_defaut_du_centre_et_la_verrouille() throws Exception {
         decorDePlacement();
         patientPlace(CENTRE_A, "PAT_1", null, null);
         Integer avant = jdbc.queryForObject("SELECT COUNT(*) FROM planning_parametres WHERE center_id = ?", Integer.class, CENTRE_A);
@@ -271,7 +271,7 @@ class PlacementSurLaFicheCharacterizationIntegrationTest extends PlacementCharac
     }
 
     @Test
-    void deux_enregistrements_simultanes_sur_la_meme_place_ne_sont_jamais_serialises_par_un_verrou_de_centre() throws Exception {
+    void deux_enregistrements_simultanes_sur_la_meme_place_sont_serialises_par_un_verrou_de_centre() throws Exception {
         decorDePlacement();
         patientPlace(CENTRE_A, "PAT_1", null, null);
         patientPlace(CENTRE_A, "PAT_2", null, null);
@@ -282,12 +282,14 @@ class PlacementSurLaFicheCharacterizationIntegrationTest extends PlacementCharac
         long refuses = reponses.stream().filter(r -> r.status() == 422).count();
         int occupants = jdbc.queryForObject("SELECT COUNT(*) FROM patients WHERE center_id = ? AND generateur_id = ? AND jour_lundi",
                 Integer.class, CENTRE_A, g1a);
-        // Aucun 409, aucune attente de verrou (RG-PLN-050 contrôle puis écriture, B1) : au moins un enregistrement passe ; le
-        // second est refusé (422) s'il lit après l'écriture du premier, sinon (course) les deux passent et le générateur est
-        // doublement occupé. Le résultat de la course n'est pas figé (non déterministe) : seules ses bornes le sont.
+        long conflits = reponses.stream().filter(r -> r.status() == 409).count();
+        // Écart décidé (KB-PLN-53, P5) : le verrou de centre sérialise le contrôle et l'écriture (legacy : course possible, deux
+        // enregistrements acceptés et générateur doublement occupé). Le second est refusé (422) ou, s'il perd la création
+        // simultanée de la ligne de paramètres du centre, en conflit (409). Le résultat exact n'est pas figé : seules ses bornes le sont.
         arbre("course_sur_la_meme_place", Map.of(
                 "au moins un accepte", acceptes >= 1,
-                "aucun autre statut que 200 ou 422", acceptes + refuses == 2,
+                "jamais deux acceptes", acceptes <= 1,
+                "aucun autre statut que 200, 409 ou 422", acceptes + refuses + conflits == 2,
                 "occupants du generateur coherents avec les reponses", occupants == acceptes));
     }
 

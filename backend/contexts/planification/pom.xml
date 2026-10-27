@@ -21,9 +21,34 @@
 
     <properties>
         <archunit.version>1.5.1</archunit.version>
+        <spring-modulith.version>2.0.8</spring-modulith.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.modulith</groupId>
+                <artifactId>spring-modulith-bom</artifactId>
+                <version>${spring-modulith.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <!-- Langage publié de GMAO (P5) : GenerateursDuCentre, GenerateurDevenuIndisponible (gmao.v1). Seul point d'entrée vers
+             ce contexte (ArchUnit). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-gmao</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!-- Registre d'événements : écouteur @ApplicationModuleListener (livraison au moins une fois, rejeu) -->
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-events-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

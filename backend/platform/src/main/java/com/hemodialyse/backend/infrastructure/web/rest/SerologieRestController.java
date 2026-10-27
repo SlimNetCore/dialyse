@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.planning.PlacementPatientService;
 import com.hemodialyse.backend.domain.medical.serologie.aggregate.Serologie;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieUseCase;
 import com.hemodialyse.backend.domain.medical.serologie.valueobject.MarqueurSerologique;
 import com.hemodialyse.backend.domain.medical.serologie.valueobject.ResultatSerologique;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.acl.planification.ReaffectationEnIsolementDeLaSerologie;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateSerologieRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.UpdateSerologieRequest;
@@ -39,11 +39,11 @@ public class SerologieRestController {
     private final SerologieUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
 
-    private final PlacementPatientService placementService;
+    private final ReaffectationEnIsolementDeLaSerologie reaffectation;
 
     public SerologieRestController(SerologieUseCase useCase, CenterAccessGuard centerAccessGuard,
-                                   PlacementPatientService placementService) {
-        this.placementService = placementService;
+                                   ReaffectationEnIsolementDeLaSerologie reaffectation) {
+        this.reaffectation = reaffectation;
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
     }
@@ -77,12 +77,12 @@ public class SerologieRestController {
     public ResponseEntity<SerologieResponse> create(@PathVariable UUID patientId,
                                                     @RequestBody @Valid CreateSerologieRequest request) {
         CenterId center = centerAccessGuard.requireCenter(request.centerId());
-        Serologie serologie = useCase.create(center, patientId, MarqueurSerologique.valueOf(request.marqueur()),
-                ResultatSerologique.valueOf(request.resultat()), request.titre(), request.unite(),
-                request.datePrelevement(), request.laboratoire(), request.dateProchainControle(),
-                request.conduiteATenir());
-        // Sérologie positive : le patient doit être replacé en isolement s'il ne l'est pas déjà.
-        placementService.reaffecterSiRisque(center.value(), patientId);
+        // Sérologie positive : le patient est replacé en isolement s'il ne l'est pas déjà, dans la même transaction.
+        Serologie serologie = reaffectation.enregistrerPuisReaffecter(center.value(), patientId,
+                () -> useCase.create(center, patientId, MarqueurSerologique.valueOf(request.marqueur()),
+                        ResultatSerologique.valueOf(request.resultat()), request.titre(), request.unite(),
+                        request.datePrelevement(), request.laboratoire(), request.dateProchainControle(),
+                        request.conduiteATenir()));
         return ResponseEntity.ok(SerologieResponse.from(serologie));
     }
 
@@ -92,9 +92,9 @@ public class SerologieRestController {
                                                     @PathVariable UUID serologieId,
                                                     @RequestBody @Valid UpdateSerologieRequest request) {
         CenterId center = centerAccessGuard.requireCenter(request.centerId());
-        Serologie serologie = useCase.update(center, patientId, serologieId,
-                ResultatSerologique.valueOf(request.resultat()), request.conduiteATenir());
-        placementService.reaffecterSiRisque(center.value(), patientId);
+        Serologie serologie = reaffectation.enregistrerPuisReaffecter(center.value(), patientId,
+                () -> useCase.update(center, patientId, serologieId,
+                        ResultatSerologique.valueOf(request.resultat()), request.conduiteATenir()));
         return ResponseEntity.ok(SerologieResponse.from(serologie));
     }
 

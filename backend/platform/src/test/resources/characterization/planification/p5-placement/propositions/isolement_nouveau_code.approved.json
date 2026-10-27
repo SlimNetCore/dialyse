@@ -1,0 +1,33 @@
+{
+  "deduit patient positif" : {
+    "alertes" : [ ],
+    "patientARisque" : true,
+    "propositions" : [ "score=100 Salle isolement / Apres-midi / GISO autres=[] jours=[JEUDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_ISOLEMENT, SALLE_PEU_CHARGEE]", "score=100 Salle isolement / Matin / GISO autres=[] jours=[JEUDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_ISOLEMENT, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "deduit patient sain" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[JEUDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "force faux malgre sero positive" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[JEUDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "isolement illisible" : "400 BAD_REQUEST",
+  "isolement=false" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]", "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "isolement=true" : {
+    "alertes" : [ ],
+    "patientARisque" : true,
+    "propositions" : [ "score=100 Salle isolement / Apres-midi / GISO autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_ISOLEMENT, SALLE_PEU_CHARGEE]", "score=100 Salle isolement / Apres-midi / GISO autres=[] jours=[MARDI, JEUDI, SAMEDI] raisons=[JOURS_BIEN_ESPACES, SALLE_ISOLEMENT, SALLE_PEU_CHARGEE]", "score=100 Salle isolement / Matin / GISO autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_BIEN_ESPACES, SALLE_ISOLEMENT, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  }
+}

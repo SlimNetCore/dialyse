@@ -1,0 +1,8 @@
+{
+  "seances=-1" : "400 BAD_REQUEST",
+  "seances=0" : "400 BAD_REQUEST",
+  "seances=2.5" : "400 BAD_REQUEST",
+  "seances=8" : "400 BAD_REQUEST",
+  "seances=99999999999" : "400 BAD_REQUEST",
+  "seances=abc" : "400 BAD_REQUEST"
+}

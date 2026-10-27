@@ -56,7 +56,7 @@
     "planification-p2-infirmiers": "built",
     "planification-p3-roulement-absences-remplacements": "built",
     "planification-p4-presence-cron": "built",
-    "planification-p5-placement": "characterized"
+    "planification-p5-placement": "built"
   },
   "contexts": {
     "gmao": "architected",

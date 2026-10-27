@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.characterization.absencespatients.cyclevie;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -312,7 +313,14 @@ class ClotureMensuelleDesAbsencesNouveauCodeIntegrationTest extends CycleDeVieAb
 
         ObjectNode o = mapper.createObjectNode();
         o.set("moisVoisin", statut(declarer(P_AMRANI, nomme(courant(), 1, "<01_DU_MOIS>"), "MALADIE")));
-        o.set("moisAvant", statut(declarer(P_BELKACEM, nomme(precedent().minusMonths(1), 28, "<28_DU_MOIS-2>"), "MALADIE")));
+        // Une absence ne se déclare que 60 jours au plus après la séance (RG-ABS-010) : un jour de mois FIXE (le 28) devient
+        // indéclarable certains jours d'exécution (échec observé selon la date réelle). On prend donc le DERNIER jour du mois M-2, la date
+        // déclarable la plus récente de ce mois ; l'alias « <28_DU_MOIS-2> » est historique (golden inchangé), il désigne ce jour.
+        YearMonth moisAvant = precedent().minusMonths(1);
+        LocalDate avant = nomme(moisAvant, moisAvant.lengthOfMonth(), "<28_DU_MOIS-2>");
+        Assumptions.assumeTrue(!avant.isBefore(aujourdhui().minusDays(60)),
+                "aucun jour de M-2 n'est encore déclarable aujourd'hui (les 30 et 31 de janvier et d'août)");
+        o.set("moisAvant", statut(declarer(P_BELKACEM, avant, "MALADIE")));
         o.set("base", etat(CENTRE_A));
         goldenNode("mois_voisins_libres_nouveau_code", o);
     }

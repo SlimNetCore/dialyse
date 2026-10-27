@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.util.Map;
@@ -27,7 +29,7 @@ public class NotificationService {
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
             "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
-            "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE");
+            "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE", "RETOUR_SALLE_ORDINAIRE_PROPOSE");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -326,6 +328,44 @@ public class NotificationService {
     }
 
     /**
+     * Variante à identifiant déterministe (générateur et jour du centre, calculé par l'appelant, P5 KB-PLN-63) : le total des patients
+     * est donné à part, seuls les noms déjà choisis par l'appelant sont cités. Déjà enregistrée, l'alerte n'est ni renvoyée ni dupliquée.
+     */
+    public void notifyGenerateurIndisponible(UUID centerId, String generateur, String statut, int nbPatients,
+                                             java.util.List<String> patientsCites, UUID idImpose) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("generateur", generateur);
+        payload.put("statut", statut);
+        payload.put("nbPatients", String.valueOf(nbPatients));
+        payload.put("patients", String.join(", ", patientsCites));
+        payload.put("targetRoles", "ADMIN,SECRETAIRE");
+        send(centerId, "GENERATEUR_INDISPONIBLE", payload, idImpose);
+    }
+
+    /** Variante à identifiant déterministe (patient et jour du centre, P5 KB-PLN-60), voir {@link #notifyIsolementImpossible(UUID, UUID, String)}. */
+    public void notifyIsolementImpossible(UUID centerId, UUID patientId, String patientNom, UUID idImpose) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom);
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
+        send(centerId, "ISOLEMENT_IMPOSSIBLE", payload, idImpose);
+    }
+
+    /**
+     * Un patient redevenu sans risque infectieux pourrait quitter la salle d'isolement : le retour en salle ordinaire est proposé à
+     * l'administration, jamais appliqué (P5 KB-PLN-61). Identifiant déterministe (patient et jour du centre).
+     */
+    public void notifyRetourEnSalleOrdinairePropose(UUID centerId, UUID patientId, String patientNom, String salleProposee,
+                                                    UUID idImpose) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom);
+        payload.put("salle", salleProposee);
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
+        send(centerId, "RETOUR_SALLE_ORDINAIRE_PROPOSE", payload, idImpose);
+    }
+
+    /**
      * Une intervention a constaté l'état « à réformer » d'un équipement (P2, KB-GMAO-57) : les détenteurs de l'habilitation
      * {@code GMAO_REFORME} du centre sont prévenus qu'une réforme est à examiner. Jamais de réforme automatique (RG-GMA-063).
      * L'identifiant de l'alerte se déduit de l'équipement et de l'instant de l'événement : un événement rejoué (livraison au
@@ -514,10 +554,24 @@ public class NotificationService {
                 log.warn("[NOTIFICATION] Alerte {} non enregistrée pour le centre {}", eventType, centerId, e);
             }
         }
-        String destination = "/topic/center/" + centerId + "/events";
-        messaging.convertAndSend(destination, (Object) event);
-        // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.
-        directionRealtime.markDirtyForCentre(centerId);
+        Runnable tempsReel = () -> {
+            String destination = "/topic/center/" + centerId + "/events";
+            messaging.convertAndSend(destination, (Object) event);
+            // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.
+            directionRealtime.markDirtyForCentre(centerId);
+        };
+        // Alerte à identifiant imposé (P3 à P5) émise dans une transaction : le temps réel part APRÈS le commit, pour qu'une
+        // transaction annulée (409, 422, échec du commit) ne diffuse jamais d'alerte fantôme (revue P5, constat 4).
+        if (idImpose != null && TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    tempsReel.run();
+                }
+            });
+        } else {
+            tempsReel.run();
+        }
     }
 }
 

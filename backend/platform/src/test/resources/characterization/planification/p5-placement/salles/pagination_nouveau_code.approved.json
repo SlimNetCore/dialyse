@@ -1,0 +1,11 @@
+{
+  "?page=-1" : "400 BAD_REQUEST",
+  "?page=abc" : "400 BAD_REQUEST",
+  "?size=-1" : "400 BAD_REQUEST",
+  "?size=0" : "200 total=3 page=0 size=0 items=0",
+  "?size=1000" : "200 total=3 page=0 size=100 items=3",
+  "?size=2" : "200 total=3 page=0 size=2 items=2",
+  "?size=2&page=1" : "200 total=3 page=1 size=2 items=1",
+  "?size=2&page=5" : "200 total=3 page=5 size=2 items=0",
+  "?size=abc" : "400 BAD_REQUEST"
+}

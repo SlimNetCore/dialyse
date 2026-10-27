@@ -1,0 +1,8 @@
+{
+  "admin du centre B sur le centre A" : "403 ACCESS_DENIED",
+  "admin sans centre" : "403 ACCESS_DENIED",
+  "autre centre" : "403 ACCESS_DENIED",
+  "centre de la session" : "200",
+  "centre illisible" : "400 BAD_REQUEST",
+  "centre inconnu" : "403 ACCESS_DENIED"
+}

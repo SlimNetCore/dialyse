@@ -109,3 +109,16 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Ouverture du centre | Jours d'ouverture hebdomadaires moins fériés et fermetures exceptionnelles | `OuvertureDuCentre` | `CalendrierCentre` | — | RG-INF-042 | proposed |
 | Contrôle de la présence | Passage quotidien de 07:15 sur tous les centres actifs ; une alerte par type, centre et jour du centre | `ControlerLaPresence` | `PresenceInfirmierScheduler` | job de présence | RG-INF-046 | proposed |
 | Impression de la présence | Planning de présence d'une semaine au format du modèle du centre (PDF, HTML, EXCEL) ; sans modèle, le modèle livré | `ImprimerLaPresence` | `PresenceInfirmierReportService` | — | RG-INF-061 | proposed |
+
+## Termes ajoutés par la slice P5 (2026-10-27) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Places du centre | Ensemble des places occupées d'un centre, protégé par le verrou du centre ; racine du placement | `PlacesDuCentre` | `PlacementPatientService` | — | RG-PLN-050 | proposed |
+| Place | Salle + créneau + générateur + jours d'un patient ; complète ou absente | `Place` | `Placement` | affectation | `PLACEMENT_INCOMPLET` | proposed |
+| Proposition de place | Place suggérée à un patient, notée de 0 à 100 avec ses raisons ; 30 au plus | `PropositionsDePlace` | `PlanificationAffectationService` | suggestion | RG-PLN-020 à 026 | proposed |
+| Salle d'isolement réservée | Une salle d'isolement n'accueille que des patients à risque infectieux | `PLACEMENT_ISOLEMENT_RESERVE` | — | — | RG-PLN-050, 052 | proposed |
+| Retour en salle ordinaire proposé | Patient redevenu sans risque encore en salle d'isolement : l'administration est alertée, rien n'est déplacé | `RETOUR_PROPOSE`, alerte `RETOUR_SALLE_ORDINAIRE_PROPOSE` | — | retour automatique | RG-PLN-053 | proposed |
+| Isolement impossible | Patient à risque sans place d'isolement ; alerte une seule fois par patient et par jour du centre | `ISOLEMENT_IMPOSSIBLE` | `ISOLEMENT_IMPOSSIBLE` | — | RG-PLN-053 | proposed |
+| Alerte de générateur indisponible | Alerte idempotente par générateur et par jour du centre, citant 5 patients au plus et le total ; aucun déplacement | `AlerterUnGenerateurIndisponible` | `GenerateurIndisponibleService` | — | RG-NOT-007 | proposed |
+| Verrou des places | Verrou du centre qui crée d'abord la ligne de paramètres par défaut puis la verrouille ; 409 pour la perdante d'une création simultanée | `VerrouDesPlaces` | — | — | ADR 0059 | proposed |

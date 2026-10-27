@@ -1140,6 +1140,27 @@ KB-PLN-41 est déjà pris (P3) ; la suite commence à KB-PLN-42.
 
 Filet : `backend/platform/src/test/java/com/hemodialyse/backend/characterization/planification/placement/` (goldens `p5-placement/`). Comportements reproduits tels quels.
 
+**Statuts après la slice (2026-10-27, session 3 ; ADR 0059 `proposed`)** : l'ancien comportement est archivé dans `p5-placement/_ecarts-legacy/**.legacy.json` (et `gmao/planification/_ecarts-legacy/`), le nouveau dans les goldens `*_nouveau_code`.
+
+| KB | Statut | Décision appliquée |
+|---|---|---|
+| KB-PLN-52 | **corrigé** | garde de centre (403) + liste blanche `ADMIN`/`SECRETAIRE`/`INFIRMIER` sur `POST`/`PUT /patients` (seam Patient) |
+| KB-PLN-53 | **corrigé** | verrou de centre avec création de la ligne par défaut ; perdante d'une création simultanée = 409 |
+| KB-PLN-54 | **conservé** | 422 `PLACEMENT_<premier manquement>`, même ordre ; code nouveau `PLACEMENT_PATIENT_INTROUVABLE` à la place du 400 |
+| KB-PLN-55 | **corrigé** | patient sain refusé en salle d'isolement : 422 `PLACEMENT_ISOLEMENT_RESERVE` |
+| KB-PLN-56 | **corrigé** pour propositions et salles ; **non corrigé** pour les corps de fiche illisibles (`ApiExceptionHandler` global, hors seam) | 400 `BAD_REQUEST` |
+| KB-PLN-57 | **conservé** | plafond silencieux inchangé (golden `limite`) |
+| KB-PLN-58 | **corrigé** | jour du centre (Africa/Algiers) |
+| KB-PLN-59 | **corrigé** | sérologie d'un patient hors centre : 422 `PLACEMENT_PATIENT_INTROUVABLE`, rien n'est enregistré (seam Sérologie) |
+| KB-PLN-60 | **corrigé** | sérologie + réaffectation dans une transaction ; `ISOLEMENT_IMPOSSIBLE` une fois par patient et par jour |
+| KB-PLN-61 | **corrigé en partie** | retour en salle ordinaire PROPOSÉ (`RETOUR_SALLE_ORDINAIRE_PROPOSE`), jamais appliqué ; `DELETE` d'une sérologie ne réévalue toujours rien |
+| KB-PLN-62 | **corrigé** | audit `SEROLOGIE_ENREGISTREE` / `SEROLOGIE_MODIFIEE` / `SEROLOGIE_SUPPRIMEE` |
+| KB-PLN-63 | **corrigé** | alerte idempotente (générateur + jour du centre), nom « nom prénom », aucun déplacement automatique |
+| KB-PLN-64 | **corrigé** | négatifs et texte = 400, `size` plafonnée à 100 ; droits `MEDECIN`+`INFIRMIER` non alignés (inchangé) |
+| KB-PLN-65 | **Nouveau (revue P5), corrigé** | l'application d'une proposition d'optimisation (`OptimisationApplicationService.appliquer`) écrivait les places SANS le verrou du centre (contrôle par empreinte seulement) : une fiche simultanée pouvait doubler un générateur. Corrigé par le port publié `VerrouDesPlacesDuCentre` (seam autorisé le 2026-10-27, fermé) ; test de course H2 et PG16 ; retrait du seam avec P8 (ADR 0059 §9) |
+| KB-PLN-66 | **Nouveau (revue P5), corrigé** | `lock_timeout` jamais posé quand la transaction est ouverte par l'appelant (ACL fiche / sérologie, `@Transactional` legacy) : attente illimitée sous PostgreSQL. Corrigé dans `UniteDeTravailSpring` (ADR 0059 §8) ; 3 tests PG16 |
+| KB-PLN-63 (précision) | **corrigé** | clé d'idempotence sur le jour du centre de `survenuLe` ; `nbPatients` = tous les patients du générateur |
+
 | KB        | Comportement observé                                                                                                                                                                                                                                                                                                                                   | Décision à prendre                                                              |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | KB-PLN-52 | **Écriture de fiche sans garde de centre ni de rôle sérieux** : `POST`/`PUT /api/v1/patients` n'appellent pas `CenterAccessGuard` : un ADMIN du centre A enregistre (200) la fiche d'un patient du centre B avec `centerId` = B ; la condition `!hasRole('MEDECIN') or hasAnyRole(...)` laisse passer « aucun rôle », un rôle inconnu (COMPTABLE) et ADMIN sans centre (200) ; seuls MEDECIN seul, DIRECTION et SUPERADMIN sont refusés | Garde de centre + liste blanche de rôles sur l'écriture de fiche ? (hors périmètre P5 strict, touche Patient) |

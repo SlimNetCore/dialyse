@@ -21,7 +21,7 @@ const TYPES = [
   'SEANCE_CONSOMMABLE_CHANGED', 'SEANCE_DEVERROUILLEE', 'SEANCE_SUPPRIMEE', 'SAISIE_INFIRMIER',
   'OBSERVANCE_NON_RESPECTEE', 'INFIRMIER_ABSENCE_DECLAREE', 'INFIRMIER_ABSENCE_ENREGISTREE', 'INFIRMIER_ABSENCE_RETIREE',
   'INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF', 'OPTIMISATION_PROPOSITION', 'GENERATEUR_INDISPONIBLE',
-  'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
+  'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'RETOUR_SALLE_ORDINAIRE_PROPOSE', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
   'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
   'REFORME_PROPOSEE', 'LOTS_PROCHES_PEREMPTION',
 ];
@@ -267,6 +267,11 @@ describe('présentation des notifications', () => {
     expect(vue(event('ATTESTATION_CREATED', {}), 'SECRETAIRE').action.commands).toEqual(['/patients/attestations-list']);
     expect(vue(event('PATIENT_REPLACE_ISOLEMENT', {patientNom: 'Kaci', salle: 'Isolement 1'}), 'ADMIN').action)
       .toMatchObject({label: 'NOTIFICATION.ACTION.PLACEMENT', commands: ['/seances/planning']});
+    expect(vue(event('RETOUR_SALLE_ORDINAIRE_PROPOSE', {patientNom: 'Kaci Lila', salle: 'Salle 1'}), 'ADMIN'))
+      .toMatchObject({
+        message: 'NOTIFICATION.RETOUR_SALLE_ORDINAIRE_PROPOSE {"nom":"Kaci Lila","salle":"Salle 1"}',
+        action: {label: 'NOTIFICATION.ACTION.PLACEMENT', commands: ['/seances/planning']},
+      });
   });
 
   it('annonce l\'ouverture d\'un inventaire et mène la gestion aux inventaires', () => {

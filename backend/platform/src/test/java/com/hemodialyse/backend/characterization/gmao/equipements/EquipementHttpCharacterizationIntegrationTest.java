@@ -1321,7 +1321,8 @@ class EquipementHttpCharacterizationIntegrationTest {
         assertEquals(List.of("null>EN_SERVICE", "EN_SERVICE>HORS_SERVICE", "HORS_SERVICE>EN_SERVICE", "EN_SERVICE>REFORME"),
                 transitions(e));
         goldenNode("parcours_journal", mapper.valueToTree(historique(e)));
-        assertEquals(2, alertes(CENTRE_A).size(), "une alerte à la panne, une à la réforme");
+        // Écart décidé (KB-PLN-63, P5) : alerte idempotente par générateur et par jour du centre ; legacy : 2 (panne puis réforme).
+        assertEquals(1, alertes(CENTRE_A).size(), "une seule alerte pour la panne puis la réforme du même jour");
     }
 
     @Test

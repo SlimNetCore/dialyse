@@ -1,0 +1,5 @@
+{
+  "a risque en isolement" : "200",
+  "sain dans le generateur d'un patient a risque, autre jour" : "422 PLACEMENT_ISOLEMENT_RESERVE : Placement refusé par la planification : [ISOLEMENT_RESERVE]",
+  "sain en isolement sur un autre generateur" : "422 PLACEMENT_ISOLEMENT_RESERVE : Placement refusé par la planification : [ISOLEMENT_RESERVE]"
+}

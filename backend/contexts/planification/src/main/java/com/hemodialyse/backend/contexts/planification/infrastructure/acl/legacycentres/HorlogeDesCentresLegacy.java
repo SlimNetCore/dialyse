@@ -31,6 +31,11 @@ public class HorlogeDesCentresLegacy implements HorlogeDesCentres {
         return LocalDate.now(horloge.withZone(fuseauDe(centre)));
     }
 
+    @Override
+    public LocalDate jourDe(CentreId centre, java.time.Instant instant) {
+        return instant.atZone(fuseauDe(centre)).toLocalDate();
+    }
+
     ZoneId fuseauDe(CentreId centre) {
         String identifiant = jdbc.queryForList("SELECT fuseau_horaire FROM centers WHERE id = ?", String.class, centre.valeur())
                 .stream().filter(f -> f != null && !f.isBlank()).findFirst().orElse(null);

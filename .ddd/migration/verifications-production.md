@@ -1331,3 +1331,34 @@ SELECT id, code, fuseau_horaire FROM centers WHERE fuseau_horaire IS NULL OR btr
 Après le déploiement : surveiller les statuts 400 sur `/api/v1/infirmiers/presence/**` (les clients qui envoyaient des paramètres illisibles
 recevaient 500), le journal `[PRESENCE]` (ratio illisible, contrôle impossible) et l'unicité des notifications `INFIRMIER_SOUS_EFFECTIF` /
 `INFIRMIER_SUREFFECTIF` par centre et par jour.
+
+## Slice P5 — placement, isolement, alerte du générateur (2026-10-27) — SELECT uniquement
+
+Aucune migration de schéma. Contrôles à lancer avant le déploiement (lecture seule, copie ou lecture sur la production) :
+
+```sql
+-- 1. Centres SANS ligne planning_parametres : le premier contrôle de placement (fiche, sérologie) en CRÉERA une (valeurs par défaut) sous verrou.
+--    Informatif : noter la liste, vérifier ensuite que les valeurs par défaut conviennent (ADR 0059, KB-PLN-53).
+SELECT c.id, c.code FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id);
+-- 2. Patients SANS risque infectieux placés dans une salle d'isolement (désormais refusés à l'enregistrement : PLACEMENT_ISOLEMENT_RESERVE ;
+--    une fiche inchangée reste acceptée, mais un déplacement ou une modification de place sera refusé) : informatif, aucun traitement automatique
+SELECT p.center_id, p.id, p.nom, p.prenom, s.nom AS salle FROM patients p JOIN salle s ON s.id = p.salle_id
+WHERE s.isolement = 'OUI' AND NOT EXISTS (
+  SELECT 1 FROM serologies_patient x WHERE x.center_id = p.center_id AND x.patient_id = p.id
+    AND x.marqueur IN ('AG_HBS', 'AC_VHC', 'ARN_VHC', 'VIH_AC') AND x.resultat = 'POSITIF'
+    AND NOT EXISTS (SELECT 1 FROM serologies_patient n WHERE n.center_id = x.center_id AND n.patient_id = x.patient_id
+      AND n.marqueur = x.marqueur AND (n.date_prelevement > x.date_prelevement
+        OR (n.date_prelevement = x.date_prelevement AND n.created_at > x.created_at))));
+-- 3. Sérologies dont le patient n'est pas du centre de la sérologie ou n'existe pas (ancien code : acceptées ; nouveau : refusées en 422) : informatif
+SELECT s.center_id, s.patient_id, count(*) FROM serologies_patient s
+WHERE NOT EXISTS (SELECT 1 FROM patients p WHERE p.id = s.patient_id AND p.center_id = s.center_id) GROUP BY 1, 2;
+-- 4. Centres dont le fuseau est absent (« aujourd'hui » du placement = jour du centre, KB-PLN-58)
+SELECT id, code, fuseau_horaire FROM centers WHERE fuseau_horaire IS NULL OR btrim(fuseau_horaire) = '';
+-- 5. Anciennes alertes GENERATEUR_INDISPONIBLE en doublon (même générateur, même jour : désormais une seule) : informatif, sans suppression
+SELECT center_id, payload::jsonb->>'generateur' AS generateur, cree_le::date AS jour, count(*) FROM notification_evenement
+WHERE type = 'GENERATEUR_INDISPONIBLE' GROUP BY 1, 2, 3 HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
+```
+
+Après le déploiement : surveiller les 403 sur `POST`/`PUT /api/v1/patients` (garde de centre et rôles, KB-PLN-52), les 422 `PLACEMENT_*` et les 409
+`PLANIFICATION_ECRITURE_CONCURRENTE`, les 400 sur `/planning/affectations` et `/planning/salles`, et l'unicité des alertes `GENERATEUR_INDISPONIBLE`,
+`ISOLEMENT_IMPOSSIBLE` et `RETOUR_SALLE_ORDINAIRE_PROPOSE` par centre et par jour.

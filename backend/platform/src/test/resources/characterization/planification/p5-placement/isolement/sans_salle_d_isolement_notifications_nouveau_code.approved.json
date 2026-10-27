@@ -1,0 +1,5 @@
+[ {
+  "payload" : "{\"patientNom\":\"Patient PAT_1 Test\",\"patientId\":\"<PAT_1>\",\"targetRoles\":\"ADMIN,SECRETAIRE,MEDECIN\"}",
+  "target_roles" : ",ADMIN,SECRETAIRE,MEDECIN,",
+  "type" : "ISOLEMENT_IMPOSSIBLE"
+} ]

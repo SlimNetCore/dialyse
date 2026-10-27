@@ -152,12 +152,6 @@ public final class PlacesDuCentre {
                 generateurs * ressources.creneaux().size() * ouverts, occupees);
     }
 
-    /** Patients dont la place habituelle est ce générateur (même place incomplète), identifiant le plus petit d'abord. */
-    public List<PatientId> patientsSur(GenerateurId generateur) {
-        return occupations.values().stream().filter(o -> generateur.equals(o.generateur())).map(Occupation::patient)
-                .sorted(Comparator.comparing(p -> p.valeur().toString())).toList();
-    }
-
     // ───────────────────────────── Placement ─────────────────────────────
 
     /** Contrôle une place demandée à la création d'une fiche (pas encore de patient), sans rien écrire. */

@@ -1,0 +1,8 @@
+{
+  "centre de la session different" : "403 ACCESS_DENIED",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "marqueur inconnu" : "400 BAD_REQUEST",
+  "patient d'un autre centre (centerId A)" : "422 PLACEMENT_PATIENT_INTROUVABLE",
+  "patient inconnu" : "422 PLACEMENT_PATIENT_INTROUVABLE",
+  "resultat inconnu" : "400 BAD_REQUEST"
+}

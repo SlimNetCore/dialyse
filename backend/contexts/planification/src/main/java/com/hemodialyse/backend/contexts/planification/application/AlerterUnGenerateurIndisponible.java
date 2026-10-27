@@ -8,6 +8,7 @@ import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentre;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository;
 import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -37,18 +38,24 @@ public class AlerterUnGenerateurIndisponible {
         this.horloge = horloge;
     }
 
-    /** @return vrai si l'alerte du jour a été émise par cet appel */
-    public boolean executer(CentreId centre, GenerateurId generateur, String code, String statutPrecedent, String statut) {
+    /**
+     * @param survenuLe instant du changement de statut : le jour de la clé d'idempotence est le jour du centre de CET instant, pas
+     *                  celui du traitement (un rejeu après minuit ne crée pas une seconde alerte)
+     * @return vrai si l'alerte de ce jour a été émise par cet appel
+     */
+    public boolean executer(CentreId centre, GenerateurId generateur, String code, String statutPrecedent, String statut,
+                            Instant survenuLe) {
         if (!IndisponibiliteDeGenerateur.aSignaler(statutPrecedent, statut)) return false;
         return uniteDeTravail.executer(() -> {
-            LocalDate jour = horloge.aujourdhui(centre);
-            PlacesDuCentre lues = places.charger(centre, new RessourcesDuCentre(null, null, null, null, null), jour);
-            List<PatientId> concernes = lues.patientsSur(generateur);
+            LocalDate jourDeLAlerte = horloge.jourDe(centre, survenuLe);
+            // les places occupées se jugent à aujourd'hui : un patient sorti depuis n'est plus cité
+            List<PatientId> concernes = places.patientsDuGenerateur(centre, generateur, horloge.aujourdhui(centre));
             Map<PatientId, String> nomsParPatient = noms.de(centre, concernes);
             List<String> tries = concernes.stream().map(nomsParPatient::get).filter(n -> n != null)
                     .sorted(Comparator.naturalOrder()).toList();
-            return notifications.generateurIndisponible(centre, generateur, code, statut, tries.size(),
-                    IndisponibiliteDeGenerateur.citer(tries), jour);
+            // nbPatients compte tous les patients du générateur, nommés ou non (KB-PLN-63, comme le legacy)
+            return notifications.generateurIndisponible(centre, generateur, code, statut, concernes.size(),
+                    IndisponibiliteDeGenerateur.citer(tries), jourDeLAlerte);
         });
     }
 }

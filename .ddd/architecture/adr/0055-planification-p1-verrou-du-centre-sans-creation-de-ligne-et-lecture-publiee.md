@@ -21,6 +21,8 @@ les ports vers Organisation, Patient et infirmiers.
    d'ensemble : un centre sans ligne n'aurait aucune exclusion mutuelle (double occupation d'un générateur possible). Cette slice devra donc créer la
    ligne par défaut (`INSERT … ON CONFLICT DO NOTHING` puis `FOR UPDATE`) ou verrouiller autrement ; `VerrouDuCentreJdbc` ne doit pas être réutilisé tel
    quel. Décision à prendre en tête de la fiche de cette slice (rappelée dans `roadmap.md`).
+   **Amendement 2026-10-27 (P5, ADR 0059)** : la variante « sans création de ligne » est **limitée au paramétrage** (P1 à P4) ; `PlacesDuCentre` crée la
+   ligne par défaut puis la verrouille (`VerrouDesPlacesJdbc`), la perdante d'une création simultanée est refusée en 409.
    **Ordre des verrous** : le verrou du centre est toujours pris en premier ; ensuite seulement `salle`, la table propre, puis (roulement, application
    d'une proposition) les infirmiers par identifiant croissant (ADR 0051). Un autre ordre risque l'interblocage, que `RefusDeVerrou` transformerait en 409.
    **Sémantique** : la seconde écriture d'un centre attend le verrou puis passe (la dernière écrite l'emporte) ; le 409 n'arrive qu'après 5 s d'attente

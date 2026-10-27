@@ -527,4 +527,121 @@ public class PlanificationConfiguration {
             com.hemodialyse.backend.contexts.planification.application.ControlerLaPresence controler) {
         return new com.hemodialyse.backend.contexts.planification.interfaces.jobs.ControleDeLaPresenceDe0715(controler);
     }
+
+    // ───────────── P5 : placement (ADR 0049, 0052, 0053) ─────────────
+    @Bean
+    com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces planificationVerrouDesPlaces(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDesPlacesJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository planificationPlacesDuCentre(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux planificationRisquesInfectieux(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.NomsDesPatients planificationNomsDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.NomsDesPatientsJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.LectureDesRessources planificationLectureDesRessources(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs,
+            ParametresDuPlanningRepository parametres) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.LectureDesRessourcesLegacy(
+                jdbc, generateurs, parametres);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.VueDesSalles planificationVueDesSalles(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.VueDesSallesLegacy(jdbc,
+                generateurs);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.NotificationsDuPlacement planificationNotificationsDuPlacement(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement alertes) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacynotifications.NotificationsDuPlacementLegacy(
+                alertes);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacementDesPatients planificationPlacementDesPatients(
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces verrou,
+            com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places,
+            com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources,
+            com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux risques, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.PlacerLePatient(unite, verrou, places, ressources,
+                risques, horloge);
+    }
+
+    /** Verrou des places pour l'application d'une proposition d'optimisation (legacy, P8) : exclusion mutuelle avec la fiche. */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre planificationVerrouDesPlacesDuCentre(
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces verrou) {
+        return new com.hemodialyse.backend.contexts.planification.application.VerrouillerLesPlaces(unite, verrou);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.ReaffectationEnIsolement planificationReaffectationEnIsolement(
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces verrou,
+            com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places,
+            com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources,
+            com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux risques, PatientsDuCentre patients,
+            com.hemodialyse.backend.contexts.planification.application.NomsDesPatients noms,
+            com.hemodialyse.backend.contexts.planification.application.NotificationsDuPlacement notifications,
+            HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ReaffecterEnIsolementSiRisque(unite, verrou, places,
+                ressources, risques, patients, noms, notifications, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.AlerterUnGenerateurIndisponible planificationAlerterUnGenerateurIndisponible(
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places,
+            com.hemodialyse.backend.contexts.planification.application.NomsDesPatients noms,
+            com.hemodialyse.backend.contexts.planification.application.NotificationsDuPlacement notifications,
+            HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.AlerterUnGenerateurIndisponible(unite, places, noms,
+                notifications, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ProposerDesPlaces planificationProposerDesPlaces(
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places,
+            com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources,
+            com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux risques, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.planification.application.ProposerDesPlaces(unite, places, ressources, risques,
+                horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients planificationPlacesDesPatients(
+            com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLesPlacesDesPatients(places);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteDesCentres planificationCapaciteDesCentres(
+            UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places,
+            com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaCapacite(unite, places, ressources);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.application.ConsulterLesSalles planificationConsulterLesSalles(
+            com.hemodialyse.backend.contexts.planification.application.VueDesSalles salles) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLesSalles(salles);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.interfaces.evenements.GenerateurDevenuIndisponibleEcouteur planificationGenerateurDevenuIndisponibleEcouteur(
+            com.hemodialyse.backend.contexts.planification.application.AlerterUnGenerateurIndisponible alerter) {
+        return new com.hemodialyse.backend.contexts.planification.interfaces.evenements.GenerateurDevenuIndisponibleEcouteur(alerter);
+    }
 }

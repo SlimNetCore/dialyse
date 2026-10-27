@@ -334,15 +334,6 @@ class PlacesDuCentreTest {
     // ── Lectures ──
 
     @Test
-    void should_list_the_patients_whose_usual_place_is_a_generator() {
-        PlacesDuCentre places = places(occupation(PAT, A, MATIN, A1, SANS_RISQUE, LUNDI),
-                occupation(AUTRE, A, SOIR, A1, SANS_RISQUE, MARDI), occupation(patient(3), A, MATIN, A2, SANS_RISQUE, LUNDI));
-
-        assertThat(places.patientsSur(A1)).containsExactlyInAnyOrder(PAT, AUTRE);
-        assertThat(places.patientsSur(B1)).isEmpty();
-    }
-
-    @Test
     void should_compute_the_weekly_capacity() {
         PlacesDuCentre places = places(occupation(PAT, A, MATIN, A1, SANS_RISQUE, LUNDI, MERCREDI));
 

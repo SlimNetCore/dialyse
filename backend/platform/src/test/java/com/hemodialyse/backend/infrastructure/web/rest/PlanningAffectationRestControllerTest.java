@@ -1,10 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.planning.PlanningAffectationQueryService;
-import com.hemodialyse.backend.application.planning.PlanningAffectationQueryService.Resultat;
 import com.hemodialyse.backend.application.planning.PlanningSemaineQueryService;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
-import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SemainePlanning;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -12,57 +8,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * P5 : l'aide au placement ({@code GET /planning/affectations}) est servie par {@code PropositionsControleur} du module
+ * Planification (ses tests sont dans le module) ; il ne reste ici que le test de la route de la semaine, qui n'est pas migrée.
+ */
 class PlanningAffectationRestControllerTest {
 
-    private final PlanningAffectationQueryService service = mock(PlanningAffectationQueryService.class);
     private final CenterAccessGuard guard = mock(CenterAccessGuard.class);
-    private final PlanningAffectationRestController controller = new PlanningAffectationRestController(service, guard);
-
-    private static Resultat vide() {
-        return new Resultat(List.of(), List.of(), List.of(), List.of(), List.of(), false);
-    }
-
-    @Test
-    void should_use_the_center_validated_by_the_guard_and_forward_the_request() {
-        UUID demande = UUID.randomUUID();
-        UUID centre = UUID.randomUUID();
-        UUID creneau = UUID.randomUUID();
-        UUID patient = UUID.randomUUID();
-        when(guard.requireCenter(demande)).thenReturn(CenterId.of(centre));
-        when(service.proposer(eq(centre), eq(2), any(), eq(creneau), eq(null), eq(8), eq(patient), eq(true)))
-                .thenReturn(vide());
-
-        ResponseEntity<Resultat> response = controller.proposer(
-                demande, 2, List.of(JourSemaine.LUNDI, JourSemaine.JEUDI), creneau, null, patient, true, 8);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertTrue(response.getHeaders().getCacheControl().contains("no-store"));
-        verify(service).proposer(centre, 2, EnumSet.of(JourSemaine.LUNDI, JourSemaine.JEUDI), creneau, null, 8, patient, true);
-    }
-
-    @Test
-    void should_default_to_no_imposed_days_and_automatic_risk_when_none_are_given() {
-        UUID centre = UUID.randomUUID();
-        when(guard.requireCenter(any())).thenReturn(CenterId.of(centre));
-        when(service.proposer(eq(centre), eq(3), any(), eq(null), eq(null), eq(12), eq(null), eq(null))).thenReturn(vide());
-
-        controller.proposer(null, 3, null, null, null, null, null, 12);
-
-        verify(service).proposer(centre, 3, Set.of(), null, null, 12, null, null);
-    }
 
     @Test
     void the_week_endpoint_uses_the_guarded_center() {

@@ -1,0 +1,28 @@
+{
+  "jours repetes" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, JEUDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=100 Salle 1 / Matin / G1A autres=[G1B] jours=[LUNDI, JEUDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "jours vide" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[DIMANCHE] raisons=[SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "jours=FUNDI" : "400 BAD_REQUEST",
+  "jours=LUNDI,MERCREDI,VENDREDI" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=100 Salle 1 / Matin / G1A autres=[G1B] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Apres-midi / G2A autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=100 Salle 2 / Matin / G2A autres=[] jours=[LUNDI, MERCREDI, VENDREDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "jours=MARDI&seances=5" : {
+    "alertes" : [ ],
+    "patientARisque" : false,
+    "propositions" : [ "score=100 Salle 1 / Apres-midi / G1A autres=[G1B] jours=[MARDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]", "score=100 Salle 1 / Matin / G1A autres=[G1B] jours=[MARDI] raisons=[JOURS_IMPOSES_LIBRES, SALLE_PEU_CHARGEE]" ],
+    "statut" : 200
+  },
+  "jours=lundi (minuscule)" : "400 BAD_REQUEST"
+}

@@ -1,0 +1,8 @@
+[ {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "entity_id" : "<PAT_1>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/serologies",
+  "status_code" : "200"
+} ]

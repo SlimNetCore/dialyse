@@ -47,7 +47,7 @@
   de **sur-effectif** (`INFIRMIER_SUREFFECTIF`, RG-INF-047) prévient `ADMIN` des infirmiers payés au-delà de l'effectif
   requis, avec les heures concernées. Un échec de ces
   alertes ne fait jamais échouer l'opération qu'elles accompagnent. Depuis la cloche, chaque alerte porte une action
-  qui mène à l'écran où la traiter (RG-NOT-007). *Source :* `GenerateurIndisponibleService`,
+  qui mène à l'écran où la traiter (RG-NOT-007). *Source :* `AlerterUnGenerateurIndisponible` (RG-PLN-054),
   `AbsenceInfirmierService`, `OptimisationApplicationService`.
 - **RG-NOT-007** — **Chaque notification a un libellé, un message et une action.** Dans la cloche, une notification
   n'affiche jamais un code technique : elle porte un **libellé court** (« Absence d'un infirmier à remplacer »,

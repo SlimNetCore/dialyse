@@ -250,6 +250,8 @@ class PlacementApplicationTest {
 
     // ── AlerterUnGenerateurIndisponible ──
 
+    private static final java.time.Instant PANNE_LE_27 = java.time.Instant.parse("2026-10-27T10:00:00Z");
+
     private void sept_patients_sur_le_generateur() {
         for (int i = 0; i < 7; i++) {
             PatientId p = patient(10 + i);
@@ -261,7 +263,7 @@ class PlacementApplicationTest {
     void should_alert_with_the_five_first_patients_and_the_total_without_moving_anybody() {
         sept_patients_sur_le_generateur();
 
-        boolean emise = alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE");
+        boolean emise = alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27);
 
         assertThat(emise).isTrue();
         assertThat(monde.alertes).containsExactly("GENERATEUR_INDISPONIBLE|G-A1|HORS_SERVICE|7|NOM0 Prenom, NOM1 Prenom, NOM2 Prenom, NOM3 Prenom, NOM4 Prenom");
@@ -273,13 +275,35 @@ class PlacementApplicationTest {
     void should_be_idempotent_per_generator_and_day() {
         sept_patients_sur_le_generateur();
 
-        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE")).isTrue();
-        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE")).isFalse();
-        assertThat(alerter.executer(CENTRE, A2, "G-A2", "EN_SERVICE", "HORS_SERVICE")).isTrue();
-        monde.aujourdhui = monde.aujourdhui.plusDays(1);
-        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "REFORME")).isTrue();
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27)).isTrue();
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27)).isFalse();
+        assertThat(alerter.executer(CENTRE, A2, "G-A2", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27)).isTrue();
+        // une réforme survenue le lendemain est une autre alerte
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "REFORME", PANNE_LE_27.plus(java.time.Duration.ofDays(1)))).isTrue();
 
         assertThat(monde.alertes).hasSize(3);
+    }
+
+    @Test
+    void should_not_alert_twice_when_the_same_event_is_replayed_after_midnight() {
+        sept_patients_sur_le_generateur();
+
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27)).isTrue();
+        // l'événement est rejoué le lendemain (redémarrage, registre) : le jour de la clé est celui de la panne, pas du rejeu
+        monde.aujourdhui = monde.aujourdhui.plusDays(1);
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27)).isFalse();
+
+        assertThat(monde.alertes).hasSize(1);
+    }
+
+    @Test
+    void should_count_every_patient_of_the_generator_even_one_whose_name_is_unknown() {
+        sept_patients_sur_le_generateur();
+        monde.noms.remove(patient(10));
+
+        alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "HORS_SERVICE", PANNE_LE_27);
+
+        assertThat(monde.alertes).singleElement().asString().contains("|HORS_SERVICE|7|").doesNotContain("NOM0 Prenom");
     }
 
     @Test
@@ -287,16 +311,16 @@ class PlacementApplicationTest {
         monde.patient(PAT, "DUPONT Anne", occupe(PAT, A, MATIN, A1, LUNDI));
         monde.sortis.add(PAT);
 
-        alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "EN_MAINTENANCE");
+        alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "EN_MAINTENANCE", PANNE_LE_27);
 
         assertThat(monde.alertes).containsExactly("GENERATEUR_INDISPONIBLE|G-A1|EN_MAINTENANCE|0|");
     }
 
     @Test
     void should_not_alert_for_a_creation_a_return_to_service_or_an_already_unavailable_generator() {
-        assertThat(alerter.executer(CENTRE, A1, "G-A1", null, "HORS_SERVICE")).isFalse();
-        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "EN_SERVICE")).isFalse();
-        assertThat(alerter.executer(CENTRE, A1, "G-A1", "HORS_SERVICE", "REFORME")).isFalse();
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", null, "HORS_SERVICE", PANNE_LE_27)).isFalse();
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "EN_SERVICE", "EN_SERVICE", PANNE_LE_27)).isFalse();
+        assertThat(alerter.executer(CENTRE, A1, "G-A1", "HORS_SERVICE", "REFORME", PANNE_LE_27)).isFalse();
 
         assertThat(monde.alertes).isEmpty();
         assertThat(monde.transactions).isZero();
