@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.stock.application.peremptions;
 import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions.ResultatDuCentre;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.MouvementDeStock;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Article;

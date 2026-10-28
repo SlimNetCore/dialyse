@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.absencespatients.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.application.CloturerLeMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.GardeDesMoisDAbsences;
@@ -6,7 +7,6 @@ import com.hemodialyse.backend.contexts.absencespatients.application.HorlogeDesC
 import com.hemodialyse.backend.contexts.absencespatients.application.PublicationDesMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.absencespatients.doubles.SuiviEnMemoire;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsencesRepository;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisDAbsencesClos;

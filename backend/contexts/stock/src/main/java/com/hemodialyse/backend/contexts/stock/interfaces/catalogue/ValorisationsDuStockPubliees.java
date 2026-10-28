@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.interfaces.catalogue;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.HistoriqueDesMouvements;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.MouvementDeStock;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.ValorisationHistorique;

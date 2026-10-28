@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances;
 import org.springframework.jdbc.core.JdbcTemplate;
 

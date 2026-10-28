@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain.stock;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

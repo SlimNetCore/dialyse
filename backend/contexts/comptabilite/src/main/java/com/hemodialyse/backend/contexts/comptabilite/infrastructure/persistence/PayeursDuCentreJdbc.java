@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.LectureDesPayeurs;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.PayeurVue;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.PayeurId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

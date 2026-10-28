@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.application.parametres;
 
 import com.hemodialyse.backend.contexts.facturation.doubles.ParametresEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.UniteDeTravailDirecte;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.parametres.ModeleDeNumerotationInvalide;
 import com.hemodialyse.backend.contexts.facturation.domain.parametres.ParametresDeFacturation;
 import org.junit.jupiter.api.Test;

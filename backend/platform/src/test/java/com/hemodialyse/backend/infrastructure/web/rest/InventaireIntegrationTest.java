@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;

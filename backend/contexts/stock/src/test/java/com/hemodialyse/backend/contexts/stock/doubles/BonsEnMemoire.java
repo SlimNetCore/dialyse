@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.doubles;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonDeCommande;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonsDeCommande;
 

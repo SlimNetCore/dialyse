@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,8 +17,12 @@ import java.util.List;
 public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
 
     private final JdbcTemplate jdbc;
+    private final CatalogueDArticles catalogue;
 
-    public ReferentialRepositoryAdapter(JdbcTemplate jdbc) { this.jdbc = jdbc; }
+    public ReferentialRepositoryAdapter(JdbcTemplate jdbc, CatalogueDArticles catalogue) {
+        this.jdbc = jdbc;
+        this.catalogue = catalogue;
+    }
 
     @Override
     @Cacheable(cacheNames = "ref.centresPayeurs", key = "#c.value().toString()")
@@ -93,11 +99,11 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
     @Override
     @Cacheable(cacheNames = "ref.articles", key = "#c.value().toString()")
     public List<RefItem> findArticles(CenterId c) {
-        return jdbc.query(
-                "SELECT id, code, libelle, null, null, unite, gere_par_lot FROM articles WHERE center_id = ? AND active = true ORDER BY libelle",
-                (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3), null, null, rs.getString(6), rs.getBoolean(7)),
-                c.value()
-        );
+        return catalogue.articles(c.value()).stream()
+                .filter(ArticleDuCatalogue::actif)
+                .map(a -> new RefItem(a.id().toString(), a.code(), a.libelle(), null, null, a.unite(), a.gereParLot()))
+                .sorted(java.util.Comparator.comparing(RefItem::nom, java.util.Comparator.nullsLast(String::compareTo)))
+                .toList();
     }
 
     @Override

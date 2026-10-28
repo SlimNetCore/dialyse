@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.mapping;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.OperationComptable;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.MappingComptableDuCentre;

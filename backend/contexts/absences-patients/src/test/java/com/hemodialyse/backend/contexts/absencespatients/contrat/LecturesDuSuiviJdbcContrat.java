@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.contexts.absencespatients.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.application.LectureDesAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.SeancesRealisees;
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsenceSuivie;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.SeancesRealiseesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.LectureDesAbsencesJdbc;

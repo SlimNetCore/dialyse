@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.application.planmaintenance;
 
 import com.hemodialyse.backend.contexts.gmao.application.Horloge;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 

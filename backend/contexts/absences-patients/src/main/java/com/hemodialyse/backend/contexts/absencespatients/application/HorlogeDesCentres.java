@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.application;
 
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 
 import java.time.Clock;
 import java.time.Instant;

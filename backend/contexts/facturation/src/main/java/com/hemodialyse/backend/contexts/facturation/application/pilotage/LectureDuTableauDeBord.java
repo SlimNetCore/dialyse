@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.application.pilotage;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.YearMonth;
 

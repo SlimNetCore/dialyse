@@ -1,11 +1,12 @@
 package com.hemodialyse.backend.contexts.absencespatients.domain;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceAnnulee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceDeclaree;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceQualifiee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EvenementDAbsence.AbsenceRattrapee;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.ForfaitId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;

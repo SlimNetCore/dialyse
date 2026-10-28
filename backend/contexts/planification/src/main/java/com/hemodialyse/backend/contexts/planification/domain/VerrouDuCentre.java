@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 
 /**
  * Port sortant : le verrou du centre (ADR 0049), pris par toute écriture de paramétrage. C'est le verrou de la ligne

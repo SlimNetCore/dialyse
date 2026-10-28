@@ -7,7 +7,7 @@ import com.hemodialyse.backend.contexts.facturation.doubles.ParametresEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SequenceEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.UniteDeTravailDirecte;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.PriseEnChargeTarifee;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.TauxDeTva;

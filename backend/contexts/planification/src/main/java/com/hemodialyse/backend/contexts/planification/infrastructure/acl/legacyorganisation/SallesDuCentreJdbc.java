@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.SallesDuCentre;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;
 import org.springframework.jdbc.core.JdbcTemplate;
 

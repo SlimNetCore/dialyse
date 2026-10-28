@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.ComptesUtilisateurs;
 import com.hemodialyse.backend.contexts.planification.doubles.InfirmiersEnMemoire;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.InfirmiersRepository;
 

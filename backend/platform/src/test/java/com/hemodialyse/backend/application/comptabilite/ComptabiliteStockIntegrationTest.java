@@ -2,7 +2,7 @@ package com.hemodialyse.backend.application.comptabilite;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock.Synchronisation;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;

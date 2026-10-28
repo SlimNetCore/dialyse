@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.domain.seance;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.StatutDeSeance;
 import org.junit.jupiter.api.Test;
 

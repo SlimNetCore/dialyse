@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain.payeur;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.NumeroDeCompte;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.PlanDuCentre;
 

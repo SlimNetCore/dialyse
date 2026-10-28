@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.application.piece;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.AxeAnalytique;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptableRepository;

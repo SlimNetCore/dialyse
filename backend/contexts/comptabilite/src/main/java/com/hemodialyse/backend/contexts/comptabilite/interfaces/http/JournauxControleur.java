@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante
 import com.hemodialyse.backend.contexts.comptabilite.application.journal.EnregistrerUnJournal;
 import com.hemodialyse.backend.contexts.comptabilite.application.journal.ListerLesJournaux;
 import com.hemodialyse.backend.contexts.comptabilite.application.journal.SupprimerUnJournal;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

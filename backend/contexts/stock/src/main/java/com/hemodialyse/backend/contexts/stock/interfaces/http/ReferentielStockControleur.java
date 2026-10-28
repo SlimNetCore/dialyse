@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.stock.interfaces.http;
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesFournisseursEtEmplacements;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.TypeTraitementAnemie;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.ReferentielJson.ArticleReponse;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.ReferentielJson.EmplacementReponse;

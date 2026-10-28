@@ -110,16 +110,16 @@ Crons métier : chacun devient une **politique** dans son contexte propriétaire
 
 | Contexte | Situation | Legacy concerné | Ordre d'extraction proposé (à arbitrer au gate `plan`) |
 |---|---|---|---|
-| GMAO | **restant** — candidat n°1 | `bc-gmao` + adapters `platform` | 1 (isolé, risque bas) |
-| Comptabilité | restant | `bc-comptabilite`, listeners, cron 03:15 | 2 (déjà événementiel ; filet de caractérisation d'abord, 0 test) |
-| Facturation | restant | `bc-facturation`, `bc-reglement` (**retirés**, F4 et F6, 2026-10-21) ; `SeanceFacturationJdbcAdapter` (**supprimé**, remplacé par l'ACL des séances du contexte) | 3 (ACL de lecture des séances legacy le temps de la migration) |
-| Absences patients | restant | `bc-seance/domain/absence`, cron 02:30 | 4 |
-| Stock | restant | `bc-stock`, `bc-article` | 5 |
-| Planification | restant | `bc-seance/domain/{planning,infirmier}`, Timefold | 6 |
+| GMAO | **extrait** (G1-G6) | `bc-gmao` retiré | 1 (isolé, risque bas) — livré |
+| Comptabilité | **extrait** (C1-C7) | `bc-comptabilite` retiré | 2 — livré |
+| Facturation | **extrait** (F1-F7) | `bc-facturation`, `bc-reglement` retirés | 3 — livré |
+| Absences patients | **extrait** (A1-A6) | `bc-seance/domain/absence` retiré | 4 — livré |
+| Stock | **extrait** (S1-S8) | `bc-stock`, `bc-article` retirés | 5 — livré |
+| Planification | **extrait** (P1-P8) | `bc-seance/domain/{planning,infirmier}`, Timefold retirés | 6 — livré |
 | Patient & couverture | restant | 4 `bc-*` | 7 |
 | Séance | restant | `bc-seance/domain/seance`, `SeanceRestController` (1209 l.) | 8 (cœur, le plus couplé : en dernier, quand ses voisins consomment ses événements) |
 | Dossier médical, Organisation, Direction, Génériques | restant | `bc-medical`, `bc-referential`, `platform` | à planifier |
-| **Extraits** | **aucun** (`backend/contexts` n'existe pas encore) | — | — |
+| **Extraits** | **6** : GMAO, Comptabilité, Facturation, Absences patients, Stock, Planification (`backend/contexts`) | — | 1 à 6 livrées |
 
 Règle de transition : tant qu'un contexte est dans le legacy, les contextes extraits lui parlent **uniquement via une ACL** (adapter qui traduit le modèle legacy — ex. `SeanceStatus.ABSENT` → « exclue de facturation ») ; le legacy lit les données extraites via la façade de routage, jamais par leurs tables.
 

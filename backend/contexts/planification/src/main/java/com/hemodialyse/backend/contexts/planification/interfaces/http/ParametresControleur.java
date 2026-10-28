@@ -1,9 +1,10 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.ConsulterLesParametres;
 import com.hemodialyse.backend.contexts.planification.application.ModifierLesParametres;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanning;

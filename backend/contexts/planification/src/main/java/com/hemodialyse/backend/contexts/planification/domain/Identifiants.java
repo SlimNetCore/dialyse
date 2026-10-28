@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import java.util.UUID;
 
 /**
@@ -15,13 +17,6 @@ public final class Identifiants {
     private static UUID requis(UUID valeur, String nom) {
         if (valeur == null) throw new SaisieInvalide(nom + " requis");
         return valeur;
-    }
-
-    /** Identité d'un centre de dialyse. */
-    public record CentreId(UUID valeur) {
-        public CentreId {
-            requis(valeur, "Centre");
-        }
     }
 
     /** Salle du centre (référence conformiste à Organisation). */

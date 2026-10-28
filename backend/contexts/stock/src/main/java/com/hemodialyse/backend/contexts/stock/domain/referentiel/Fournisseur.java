@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.domain.referentiel;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.Objects;
 import java.util.UUID;

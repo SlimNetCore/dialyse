@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.CentresActifs;
 import com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.Presence.Personnel;
 import com.hemodialyse.backend.contexts.planification.domain.RatioDeLaPresence;

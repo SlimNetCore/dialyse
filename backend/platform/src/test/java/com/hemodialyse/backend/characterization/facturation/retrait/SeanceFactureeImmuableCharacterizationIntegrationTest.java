@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.facturation.retrait;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.StatutDesSeancesLegacy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

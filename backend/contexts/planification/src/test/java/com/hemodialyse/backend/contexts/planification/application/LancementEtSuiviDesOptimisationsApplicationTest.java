@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.application;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.doubles.MondeDOptimisation;
 import com.hemodialyse.backend.contexts.planification.doubles.OptimisationEnMemoire;
@@ -113,7 +114,7 @@ class LancementEtSuiviDesOptimisationsApplicationTest {
     @Test
     void should_allow_a_calculation_for_another_centre() {
         lancer(Perimetre.PATIENTS);
-        ExecutionDOptimisation autre = m.lancer.executer(new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(
+        ExecutionDOptimisation autre = m.lancer.executer(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(
                 UUID.randomUUID()), ParametresDOptimisation.parDefaut(Perimetre.PATIENTS, JeuDOptimisation.LUNDI), "admin");
         assertThat(autre.enCours()).isTrue();
     }
@@ -258,7 +259,7 @@ class LancementEtSuiviDesOptimisationsApplicationTest {
     void should_report_an_unknown_or_foreign_execution_as_not_found_everywhere() {
         ExecutionId inconnue = new ExecutionId(UUID.randomUUID());
         ExecutionDOptimisation e = lancer(Perimetre.PATIENTS);
-        var autreCentre = new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(UUID.randomUUID());
+        var autreCentre = new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(UUID.randomUUID());
 
         assertThat(code(() -> m.arreter.executer(CENTRE, inconnue))).isEqualTo("OPTIMISATION_INTROUVABLE");
         assertThat(code(() -> m.arreter.executer(autreCentre, e.id()))).isEqualTo("OPTIMISATION_INTROUVABLE");

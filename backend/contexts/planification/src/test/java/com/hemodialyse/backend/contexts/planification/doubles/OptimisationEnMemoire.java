@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.doubles;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
 import com.hemodialyse.backend.contexts.planification.application.DonneesDeLOptimisation;
 import com.hemodialyse.backend.contexts.planification.application.NotificationsDeLOptimisation;
@@ -13,7 +15,6 @@ import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisatio
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.DeplacementTemporaireId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;

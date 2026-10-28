@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.ConsulterLaSemaine;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.SemaineDuPlanning.Semaine;
 import com.hemodialyse.backend.contexts.planification.domain.SemaineDuPlanning.TypeDeConflit;

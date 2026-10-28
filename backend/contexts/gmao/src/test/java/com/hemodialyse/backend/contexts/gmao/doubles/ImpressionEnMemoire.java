@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.gmao.doubles;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.DocumentImprime;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.DonneesDuBon;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.ImpressionDuBon;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.ZoneId;
 

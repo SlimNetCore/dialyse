@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.domain.simulation;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.domain.EntreeDuJournalDuMois;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsencesRepository;

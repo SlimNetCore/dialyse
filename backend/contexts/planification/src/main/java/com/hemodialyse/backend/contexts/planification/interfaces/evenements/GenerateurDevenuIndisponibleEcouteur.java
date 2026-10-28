@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.evenements;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateurDevenuIndisponible;
 import com.hemodialyse.backend.contexts.planification.application.AlerterUnGenerateurIndisponible;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
 import org.springframework.modulith.events.ApplicationModuleListener;
 

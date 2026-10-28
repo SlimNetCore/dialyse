@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.gmao.application.pilotage;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.EquipementVue;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.HistoriqueDesStatuts;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.LectureEquipements;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.AnalyseDeDecision;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CalculDIndisponibilite;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.ChangementDeStatut;

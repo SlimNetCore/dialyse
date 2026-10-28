@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.interfaces;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.ComptesUtilisateurs;
 import com.hemodialyse.backend.contexts.planification.application.DelierAvantLaSuppressionDuCompte;
 import com.hemodialyse.backend.contexts.planification.application.SuivreLEtatDuCompte;
@@ -9,7 +11,6 @@ import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.EcritureConcurrenteDesFiches;
 import com.hemodialyse.backend.contexts.planification.doubles.InfirmiersEnMemoire;
 import com.hemodialyse.backend.contexts.planification.domain.IdentiteDeLInfirmier;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Infirmier;

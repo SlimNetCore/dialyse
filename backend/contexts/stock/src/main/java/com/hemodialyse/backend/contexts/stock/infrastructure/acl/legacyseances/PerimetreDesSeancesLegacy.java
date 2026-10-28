@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.consommations.PerimetreDesSeances;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.DemiJournee;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.PerimetreDeSortie;

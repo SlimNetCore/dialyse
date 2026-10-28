@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.gmao.doubles;
 
 import com.hemodialyse.backend.contexts.gmao.application.planmaintenance.LecturePlans;
 import com.hemodialyse.backend.contexts.gmao.application.planmaintenance.PlanMaintenanceVue;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.planmaintenance.PlanMaintenance;
 import com.hemodialyse.backend.contexts.gmao.domain.planmaintenance.PlanMaintenanceId;

@@ -1,11 +1,12 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.AbsenceInfirmier;
 import com.hemodialyse.backend.contexts.planification.domain.AbsencesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AbsenceId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;

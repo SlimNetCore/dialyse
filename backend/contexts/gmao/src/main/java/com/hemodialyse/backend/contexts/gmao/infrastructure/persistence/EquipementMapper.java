@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.gmao.application.equipement.EquipementVue;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.ChangementDeStatut;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CodeEquipement;

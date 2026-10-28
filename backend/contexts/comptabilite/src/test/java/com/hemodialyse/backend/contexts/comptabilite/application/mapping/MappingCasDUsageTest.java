@@ -6,7 +6,7 @@ import com.hemodialyse.backend.contexts.comptabilite.doubles.JournauxEnMemoire;
 import com.hemodialyse.backend.contexts.comptabilite.doubles.MappingsEnMemoire;
 import com.hemodialyse.backend.contexts.comptabilite.doubles.UniteDeTravailDirecte;
 import com.hemodialyse.backend.contexts.comptabilite.doubles.UsagesEnMemoire;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.Journal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteComptable;

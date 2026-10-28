@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.NumeroDeCompte;

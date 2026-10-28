@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.absences;
 
 import com.hemodialyse.backend.contexts.facturation.application.cloture.AbsencesDuMois;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ClotureDesAbsences;
 
 import java.time.YearMonth;

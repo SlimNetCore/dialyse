@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyseance;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.SeancesRealisees;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;

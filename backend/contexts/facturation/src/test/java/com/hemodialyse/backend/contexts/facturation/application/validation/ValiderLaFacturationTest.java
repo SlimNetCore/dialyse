@@ -10,7 +10,7 @@ import com.hemodialyse.backend.contexts.facturation.doubles.PublicationEnMemoire
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SequenceEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.UniteDeTravailDirecte;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.Facture;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.LigneFacture;

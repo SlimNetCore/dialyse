@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.application.reglement;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.Reglement;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.Reglements;
 

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure;
 
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.comptabilite.TauxDeTvaComptabilite;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal.RegleTvaApplicable;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.domain.simulation;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Port sortant : la séquence de numérotation des factures du centre (F9, RG-FAC-010), une valeur par centre et par année. La

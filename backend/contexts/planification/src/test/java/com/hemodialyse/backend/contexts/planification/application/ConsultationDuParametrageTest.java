@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.application;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.doubles.ParametrageEnMemoire;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import com.hemodialyse.backend.contexts.planification.domain.ReglagesDePlanification;

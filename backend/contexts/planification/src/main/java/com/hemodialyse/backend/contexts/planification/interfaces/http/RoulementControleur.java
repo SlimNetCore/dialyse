@@ -1,12 +1,13 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.AffecterAuRoulement;
 import com.hemodialyse.backend.contexts.planification.application.AffecterAuRoulement.Resultat;
 import com.hemodialyse.backend.contexts.planification.application.ModifierLAffectation;
 import com.hemodialyse.backend.contexts.planification.application.RetirerLAffectation;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;

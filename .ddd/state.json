@@ -63,9 +63,9 @@
   },
   "contexts": {
     "gmao": "architected",
-    "comptabilite": "modeled",
+    "comptabilite": "architected",
     "facturation": "architected",
-    "absences-patients": "modeled",
+    "absences-patients": "architected",
     "stock": "architected",
     "planification": "architected",
     "seance": "modeled",

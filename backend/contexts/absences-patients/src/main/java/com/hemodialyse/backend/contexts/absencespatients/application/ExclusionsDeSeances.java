@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.absencespatients.application;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 
 /**
  * Port sortant : l'origine d'une absence lue chez la Facturation (séance exclue de la facturation, ADR 0031).

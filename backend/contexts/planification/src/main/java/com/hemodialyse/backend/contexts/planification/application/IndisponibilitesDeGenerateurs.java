@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation.IndisponibiliteDatee;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 
 import java.time.LocalDate;
 import java.util.List;

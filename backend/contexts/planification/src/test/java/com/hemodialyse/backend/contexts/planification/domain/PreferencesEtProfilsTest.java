@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
@@ -94,7 +96,7 @@ class PreferencesEtProfilsTest {
     @Test
     void should_refuse_a_missing_identifier() {
         assertThatThrownBy(() -> new PatientId(null)).isInstanceOf(SaisieInvalide.class);
-        assertThatThrownBy(() -> new Identifiants.CentreId(null)).isInstanceOf(SaisieInvalide.class);
+        assertThatThrownBy(() -> new CentreId(null)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new Identifiants.SalleId(null)).isInstanceOf(SaisieInvalide.class);
         assertThatThrownBy(() -> new CreneauId(null)).isInstanceOf(SaisieInvalide.class);
         assertThatThrownBy(() -> new InfirmierId(null)).isInstanceOf(SaisieInvalide.class);

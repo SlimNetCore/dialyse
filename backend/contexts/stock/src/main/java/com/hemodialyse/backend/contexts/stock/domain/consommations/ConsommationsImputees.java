@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.domain.consommations;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.math.BigDecimal;
 import java.util.Map;

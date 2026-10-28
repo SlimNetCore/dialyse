@@ -63,7 +63,7 @@ import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptesCl
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.JournauxDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.MappingComptableDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PeriodesComptables;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PlanComptableEnLecture;
 import org.springframework.context.annotation.Bean;

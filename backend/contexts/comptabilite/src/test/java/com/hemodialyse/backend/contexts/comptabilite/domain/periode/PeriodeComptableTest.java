@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain.periode;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacygmao;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs;
 import com.hemodialyse.backend.contexts.planification.application.IndisponibilitesDeGenerateurs;
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation.IndisponibiliteDatee;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
 
 import java.time.LocalDate;

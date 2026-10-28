@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.doubles;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CachesDesPatients;
 import com.hemodialyse.backend.contexts.planification.application.CentresActifs;
@@ -7,7 +8,6 @@ import com.hemodialyse.backend.contexts.planification.application.MouvementsDesP
 import com.hemodialyse.backend.contexts.planification.application.PlacesTenues;
 import com.hemodialyse.backend.contexts.planification.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.planification.domain.PlaceTenue;
 import com.hemodialyse.backend.contexts.planification.domain.PlaceTenue.PlaceLiberee;

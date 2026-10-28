@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.contrat;
 
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.domain.CategorieDIsolement;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.SemaineDuPlanning.PatientDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyoptimisation.DeplacementsTemporairesJdbc;

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.SequenceDesNumerosDePieces;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import org.springframework.dao.DuplicateKeyException;

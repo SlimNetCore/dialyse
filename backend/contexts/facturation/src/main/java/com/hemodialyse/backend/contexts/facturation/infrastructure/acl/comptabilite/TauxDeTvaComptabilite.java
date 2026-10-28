@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabi
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.TauxDeTva;
 
 import java.time.LocalDate;

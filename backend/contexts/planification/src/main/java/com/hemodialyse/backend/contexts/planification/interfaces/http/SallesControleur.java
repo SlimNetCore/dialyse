@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.ConsulterLesSalles;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.application.VueDesSalles;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

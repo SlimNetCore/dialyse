@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.gmao.interventions;
 
 import com.hemodialyse.backend.application.notification.NotificationJournalPort;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CauseDIndisponibilite;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CodeEquipement;

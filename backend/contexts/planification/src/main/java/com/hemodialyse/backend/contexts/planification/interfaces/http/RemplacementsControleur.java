@@ -1,10 +1,10 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.AffecterUnRemplacant;
 import com.hemodialyse.backend.contexts.planification.application.AnnulerLeRemplacement;
 import com.hemodialyse.backend.contexts.planification.application.RemplacementLu;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.RemplacementId;

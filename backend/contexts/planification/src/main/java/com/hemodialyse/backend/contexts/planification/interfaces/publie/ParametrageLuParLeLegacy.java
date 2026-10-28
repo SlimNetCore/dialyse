@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.publie;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanning;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanningRepository;

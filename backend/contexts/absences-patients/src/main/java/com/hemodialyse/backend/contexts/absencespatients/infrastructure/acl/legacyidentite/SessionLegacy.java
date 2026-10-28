@@ -1,10 +1,11 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyidentite;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.application.Intervenant;
 import com.hemodialyse.backend.contexts.absencespatients.application.SessionCourante;
 import com.hemodialyse.backend.contexts.absencespatients.domain.DroitDeCorrection;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

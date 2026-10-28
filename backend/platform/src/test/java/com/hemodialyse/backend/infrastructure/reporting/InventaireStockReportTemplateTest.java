@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import net.sf.jasperreports.engine.JRParameter;

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.absencespatients.domain;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import org.junit.jupiter.api.Test;
 

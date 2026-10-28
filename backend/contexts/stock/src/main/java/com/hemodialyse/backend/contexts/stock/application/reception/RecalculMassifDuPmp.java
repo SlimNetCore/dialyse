@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.stock.application.reception;
 
 import com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock;
 import com.hemodialyse.backend.contexts.stock.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.ArticleIntrouvable;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Articles;

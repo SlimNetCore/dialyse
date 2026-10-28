@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain.piece;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.Optional;
 import java.util.UUID;

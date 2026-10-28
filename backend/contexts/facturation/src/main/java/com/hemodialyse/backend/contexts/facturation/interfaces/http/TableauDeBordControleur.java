@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.interfaces.http;
 
 import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.ConsulterLeTableauDeBord;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.absencespatients.domain;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
@@ -185,7 +186,7 @@ class RegleDeSuiviDesAbsencesTest {
 
     @Test
     void les_identifiants_exigent_une_valeur_et_une_absence_suivie_une_identite_complete() {
-        assertThrows(IllegalArgumentException.class, () -> new Identifiants.CentreId(null));
+        assertThrows(IllegalArgumentException.class, () -> new CentreId(null));
         assertThrows(IllegalArgumentException.class, () -> new PatientId(null));
         assertThrows(IllegalArgumentException.class, () -> new AbsenceId(null));
         assertThrows(IllegalArgumentException.class, () -> new AbsenceSuivie(null, new PatientId(UUID.randomUUID()),

@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsencesRepository;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesJdbc;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +40,7 @@ class EcrituresConcurrentesPostgresContractIT extends EcrituresConcurrentesContr
 
     @BeforeEach
     void viderLesLignes() {
-        for (var centre : new com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId[]{CENTRE, AUTRE_CENTRE}) {
+        for (var centre : new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId[]{CENTRE, AUTRE_CENTRE}) {
             jdbc.update("DELETE FROM absence_patient WHERE center_id = ?", centre.valeur());
         }
     }

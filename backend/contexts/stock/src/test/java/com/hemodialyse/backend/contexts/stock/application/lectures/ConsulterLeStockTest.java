@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock.ExplicationDuPmp;
 import com.hemodialyse.backend.contexts.stock.application.lectures.ConsulterLeStock.TableauDeBord;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock.AlerteDeStock;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock.ArticleClasse;

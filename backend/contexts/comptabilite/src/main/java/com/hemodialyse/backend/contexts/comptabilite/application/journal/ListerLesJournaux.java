@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.application.journal;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Journaux du centre (RG-CPT-009), paginés en mémoire : quelques lignes par centre ; taille de page de 1 à 100.

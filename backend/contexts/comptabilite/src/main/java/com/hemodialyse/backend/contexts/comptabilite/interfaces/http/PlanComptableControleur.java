@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.EnregistrerUnCompte;
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.ListerLesComptes;
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.SupprimerUnCompte;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres;
 
 import com.hemodialyse.backend.contexts.stock.application.peremptions.CentresActifs;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;

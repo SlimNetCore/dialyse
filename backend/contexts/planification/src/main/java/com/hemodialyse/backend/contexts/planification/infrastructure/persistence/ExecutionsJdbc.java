@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.persistence;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.OptimisationLue;
 import com.hemodialyse.backend.contexts.planification.application.OptimisationLue.ExecutionLue;
@@ -6,7 +7,6 @@ import com.hemodialyse.backend.contexts.planification.application.OptimisationLu
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation.Statut;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;

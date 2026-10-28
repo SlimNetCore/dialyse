@@ -1,11 +1,12 @@
 package com.hemodialyse.backend.contexts.absencespatients.interfaces.facturation;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.application.DeclarerUneAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.application.Intervenant;
 import com.hemodialyse.backend.contexts.absencespatients.application.RetirerLAbsenceDeLExclusion;
 import com.hemodialyse.backend.contexts.absencespatients.domain.DroitDeCorrection;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MotifAbsence;

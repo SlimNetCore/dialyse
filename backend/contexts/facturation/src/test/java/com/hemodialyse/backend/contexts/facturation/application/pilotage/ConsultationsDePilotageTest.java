@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FormatDImp
 
 import com.hemodialyse.backend.contexts.facturation.doubles.PilotageEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.PilotageEnMemoire.Facture;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

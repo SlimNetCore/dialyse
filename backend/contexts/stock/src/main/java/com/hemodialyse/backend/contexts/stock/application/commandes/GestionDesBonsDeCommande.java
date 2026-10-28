@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.application.commandes;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonDeCommande;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonsDeCommande;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.LigneDeBon;

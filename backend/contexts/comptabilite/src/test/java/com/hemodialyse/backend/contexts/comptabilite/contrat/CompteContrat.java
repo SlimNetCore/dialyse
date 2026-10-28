@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.comptabilite.contrat;
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.CompteVue;
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.LecturePlan;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.NumeroDeCompte;

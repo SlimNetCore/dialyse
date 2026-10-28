@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.absencespatients.doubles;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.application.LectureDesAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.NomsDesPatients;
@@ -6,7 +7,6 @@ import com.hemodialyse.backend.contexts.absencespatients.application.SeancesReal
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsenceSuivie;
 import com.hemodialyse.backend.contexts.absencespatients.domain.FiltreDesAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.NomDuPatient;
 import com.hemodialyse.backend.contexts.absencespatients.domain.PageDeResultats;

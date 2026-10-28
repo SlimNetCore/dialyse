@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.contrat;
 
 import com.hemodialyse.backend.contexts.comptabilite.doubles.ReglesTvaEnMemoire;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.tva.RegleTvaRepository;
 
 /**

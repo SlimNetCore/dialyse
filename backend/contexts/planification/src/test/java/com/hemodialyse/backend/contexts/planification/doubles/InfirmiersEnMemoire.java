@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.doubles;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.ComptesUtilisateurs;
 import com.hemodialyse.backend.contexts.planification.application.GenerateurDeMotDePasse;
@@ -7,7 +8,6 @@ import com.hemodialyse.backend.contexts.planification.application.RoulementsDesI
 import com.hemodialyse.backend.contexts.planification.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.planification.domain.AdresseEmail;
 import com.hemodialyse.backend.contexts.planification.domain.IdentifiantDeConnexion;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Infirmier;

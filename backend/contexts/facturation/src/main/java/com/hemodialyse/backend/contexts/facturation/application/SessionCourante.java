@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.application;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.UUID;
 

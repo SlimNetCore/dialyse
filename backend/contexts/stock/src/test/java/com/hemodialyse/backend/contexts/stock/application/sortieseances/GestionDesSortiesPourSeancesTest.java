@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.stock.application.NotificationsDuStock;
 import com.hemodialyse.backend.contexts.stock.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp;
 import com.hemodialyse.backend.contexts.stock.application.sortieseances.GestionDesSortiesPourSeances.Demande;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock;
 import com.hemodialyse.backend.contexts.stock.domain.reception.EcrituresDuStock;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Article;

@@ -1,11 +1,12 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.publie;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.DelierAvantLaSuppressionDuCompte;
 import com.hemodialyse.backend.contexts.planification.application.SuivreLEtatDuCompte;
 import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesFichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesIdentifiantsDeConnexion;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;

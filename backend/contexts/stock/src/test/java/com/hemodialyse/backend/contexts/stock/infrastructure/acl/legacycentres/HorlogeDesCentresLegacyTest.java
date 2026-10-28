@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres;
 
 import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;

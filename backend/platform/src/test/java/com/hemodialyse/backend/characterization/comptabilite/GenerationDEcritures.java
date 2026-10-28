@@ -2,7 +2,7 @@ package com.hemodialyse.backend.characterization.comptabilite;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.CloturerUnePeriode;
 import com.hemodialyse.backend.contexts.comptabilite.application.vente.ComptabiliserLesVentesEtReglements;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.RegleMetierViolee;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.FactureAComptabiliser;

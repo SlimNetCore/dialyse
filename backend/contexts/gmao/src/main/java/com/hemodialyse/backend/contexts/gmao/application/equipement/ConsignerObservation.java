@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.gmao.application.equipement;
 
 import com.hemodialyse.backend.contexts.gmao.application.Horloge;
 import com.hemodialyse.backend.contexts.gmao.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.Equipement;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;

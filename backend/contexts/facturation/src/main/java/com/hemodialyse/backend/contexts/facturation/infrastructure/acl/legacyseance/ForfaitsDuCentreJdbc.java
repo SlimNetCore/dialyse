@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitsDuCentre;
 import org.springframework.jdbc.core.JdbcTemplate;

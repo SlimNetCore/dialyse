@@ -10,7 +10,7 @@ import com.hemodialyse.backend.contexts.gmao.application.piecejointe.JoindrePiec
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.JoindrePieceJointeCommande;
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.PieceJointeVue;
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.RetirerPieceJointe;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;

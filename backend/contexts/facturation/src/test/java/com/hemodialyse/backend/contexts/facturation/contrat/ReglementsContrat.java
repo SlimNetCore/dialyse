@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.reglement.Criter
 import com.hemodialyse.backend.contexts.facturation.application.reglement.LigneDeSituation;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.PageDeSituations;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.SituationsDesFactures;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.EtatDeReglement;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.FactureARegler;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.ModeDeReglement;

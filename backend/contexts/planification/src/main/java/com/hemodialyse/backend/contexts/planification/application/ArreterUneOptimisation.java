@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 
 /**

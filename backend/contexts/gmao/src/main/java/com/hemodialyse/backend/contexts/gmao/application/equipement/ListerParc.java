@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.gmao.application.equipement;
 
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Liste paginée du parc du centre (équipements supprimés logiquement exclus), du plus récent au plus ancien, filtrable par

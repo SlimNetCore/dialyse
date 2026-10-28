@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.pilotage.Lecture
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois.RepartitionParCaisse;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois.RepartitionParSituation;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;

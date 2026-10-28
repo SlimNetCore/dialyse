@@ -7,7 +7,7 @@ import com.hemodialyse.backend.contexts.gmao.application.intervention.DonneesDuB
 import com.hemodialyse.backend.contexts.gmao.application.intervention.EvenementVu;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.ImpressionDuBon;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.InterventionVue;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.StatutEquipement;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.NatureIntervenant;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.EvenementDeChronologie;

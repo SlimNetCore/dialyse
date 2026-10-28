@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.gmao.domain.equipement;
 
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Port sortant du domaine : les codes déjà portés par les équipements d'un centre. Les équipements supprimés logiquement

@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.contexts.absencespatients.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hemodialyse.backend.contexts.absencespatients.application.CloturerLeMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.ConsulterLesMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.RouvrirLeMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.SessionCourante;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsences;
 import org.springframework.http.CacheControl;

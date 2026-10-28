@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.ConsulterLesReglements;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.CriteresDeSituation;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.EnregistrerUnReglement;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import jakarta.validation.Valid;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;

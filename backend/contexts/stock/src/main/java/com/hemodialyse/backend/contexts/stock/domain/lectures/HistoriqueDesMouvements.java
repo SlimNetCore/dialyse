@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.domain.lectures;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 import java.util.Map;

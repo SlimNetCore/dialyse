@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.gmao.contrat;
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.LecturePiecesJointes;
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.PageDePiecesJointes;
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.PieceJointeVue;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;
 import com.hemodialyse.backend.contexts.gmao.domain.piecejointe.PieceJointe;

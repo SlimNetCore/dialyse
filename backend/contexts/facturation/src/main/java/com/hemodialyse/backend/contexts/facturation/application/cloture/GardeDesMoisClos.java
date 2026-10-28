@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.application.cloture;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationRepository;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.PeriodeDeFacturation;

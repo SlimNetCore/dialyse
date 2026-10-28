@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.gmao.application.intervention.Intervenan
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.ConditionsDeValorisation;
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.LectureIntervenants;
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.PageDIntervenants;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.Intervenant;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.IntervenantId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.IntervenantRepository;

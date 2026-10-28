@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.absences;
 
 import com.hemodialyse.backend.contexts.facturation.application.simulation.AbsencesDesPatients;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.MotifDAbsence;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.DeclarationDesAbsences;
 

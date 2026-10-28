@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.application.tva;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.tva.RegleTva;
 import com.hemodialyse.backend.contexts.comptabilite.domain.tva.RegleTvaId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.tva.RegleTvaRepository;

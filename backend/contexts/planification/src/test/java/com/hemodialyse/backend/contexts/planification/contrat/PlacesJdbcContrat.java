@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.LectureDesRessources;
 import com.hemodialyse.backend.contexts.planification.application.NomsDesPatients;
@@ -410,25 +411,25 @@ abstract class PlacesJdbcContrat extends PlacesContrat {
     /** Alertes sans effet : ces épreuves ne regardent que le verrou. */
     private static final class AlertesMuettes implements com.hemodialyse.backend.contexts.planification.application.NotificationsDuPlacement {
         @Override
-        public boolean patientReplaceEnIsolement(com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId centre,
+        public boolean patientReplaceEnIsolement(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centre,
                                                  PatientId patient, String nomDuPatient, String salle, LocalDate jour) {
             return true;
         }
 
         @Override
-        public boolean isolementImpossible(com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId centre,
+        public boolean isolementImpossible(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centre,
                                            PatientId patient, String nomDuPatient, LocalDate jour) {
             return true;
         }
 
         @Override
-        public boolean retourEnSalleOrdinairePropose(com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId centre,
+        public boolean retourEnSalleOrdinairePropose(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centre,
                                                      PatientId patient, String nomDuPatient, String salleProposee, LocalDate jour) {
             return true;
         }
 
         @Override
-        public boolean generateurIndisponible(com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId centre,
+        public boolean generateurIndisponible(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centre,
                                               com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId generateur,
                                               String code, String statut, int nombreDePatients, List<String> patientsCites,
                                               LocalDate jour) {

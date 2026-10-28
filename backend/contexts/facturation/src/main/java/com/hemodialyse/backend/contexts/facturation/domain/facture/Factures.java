@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.domain.facture;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Port sortant : les factures émises du centre (tables {@code factures} et {@code facture_lignes}). Une facture émise ne se

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite;
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.TauxDeTva;
 import org.junit.jupiter.api.Test;
 

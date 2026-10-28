@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.infrastructure.persistence;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationDeSeance;
 import com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationsImputees;
 import com.hemodialyse.backend.contexts.stock.domain.consommations.Imputation;

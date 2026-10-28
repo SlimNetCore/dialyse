@@ -33,6 +33,7 @@
         <module>bc-seance</module>
         <module>bc-medical</module>
         <module>bc-migration</module>
+        <module>contexts/shared-kernel</module>
         <module>contexts/gmao</module>
         <module>contexts/comptabilite</module>
         <module>contexts/facturation</module>

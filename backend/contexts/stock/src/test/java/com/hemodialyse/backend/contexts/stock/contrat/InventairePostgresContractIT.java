@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.stock.contrat;
 import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.GestionDesInventaires;
 import com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.StatutDInventaire;

@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.gmao.application.Horloge;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.EquipementIntrouvable;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.HistoriqueDesStatuts;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.LectureEquipements;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.IndicateursDIntervention;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.IndicateursDIntervention.Indicateurs;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.Intervention;

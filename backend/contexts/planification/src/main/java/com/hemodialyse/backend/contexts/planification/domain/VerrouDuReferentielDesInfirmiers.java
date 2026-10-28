@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 
 /**
  * Port sortant : exclusion mutuelle des écritures du référentiel des infirmiers d'un centre (ADR 0056), prise en premier par

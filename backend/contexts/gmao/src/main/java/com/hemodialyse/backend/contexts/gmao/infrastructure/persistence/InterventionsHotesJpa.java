@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.InterventionsHotes;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.StatutIntervention;
 import com.hemodialyse.backend.contexts.gmao.domain.piecejointe.InterventionHote;

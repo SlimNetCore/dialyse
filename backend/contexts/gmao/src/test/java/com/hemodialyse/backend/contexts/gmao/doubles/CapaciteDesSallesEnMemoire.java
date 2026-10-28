@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.doubles;
 
 import com.hemodialyse.backend.contexts.gmao.application.equipement.CapaciteDesSalles;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.SalleId;
 

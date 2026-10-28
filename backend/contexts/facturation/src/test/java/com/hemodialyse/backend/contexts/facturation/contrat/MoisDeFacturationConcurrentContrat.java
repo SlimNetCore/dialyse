@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.facturation.contrat;
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.CloturerLeMois;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationClos;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationRepository;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.PeriodeDeFacturation;

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.application.lectures;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.groupes.GroupeDArticles;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.CalculDuPmp;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock;

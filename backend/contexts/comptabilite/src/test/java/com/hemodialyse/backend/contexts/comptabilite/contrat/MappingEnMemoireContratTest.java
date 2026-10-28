@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.contrat;
 
 import com.hemodialyse.backend.contexts.comptabilite.doubles.MappingsEnMemoire;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingComptableRepository;
 

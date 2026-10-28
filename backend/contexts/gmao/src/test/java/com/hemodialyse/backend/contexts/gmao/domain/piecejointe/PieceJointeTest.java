@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.domain.piecejointe;
 
 import com.hemodialyse.backend.contexts.gmao.doubles.Fichiers;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.StatutIntervention;

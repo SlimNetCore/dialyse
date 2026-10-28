@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.plan;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.UsagesDuParametrage;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteRepository;

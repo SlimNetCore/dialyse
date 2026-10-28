@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.journal;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.JournalAvecEcritures;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.JournalIntrouvable;

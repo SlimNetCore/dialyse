@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.comptabilite.interfaces.http;
 import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante;
 import com.hemodialyse.backend.contexts.comptabilite.application.piece.GererLesModelesEtPieces;
 import com.hemodialyse.backend.contexts.comptabilite.application.piece.GererLesModelesEtPieces.CommandeSaisie;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.piece.ModeleDePiece;

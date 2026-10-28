@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.absencespatients.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsencesRepository;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesJdbc;
 import org.springframework.jdbc.core.JdbcTemplate;
 

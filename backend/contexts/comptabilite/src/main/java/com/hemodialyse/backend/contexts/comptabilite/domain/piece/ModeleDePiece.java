@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain.piece;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.RegleMetierViolee;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.AxeAnalytique;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.LigneEcriture;

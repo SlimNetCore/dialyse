@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.doubles.MondeDOptimisation;
 import com.hemodialyse.backend.contexts.planification.doubles.OptimisationEnMemoire;
 import com.hemodialyse.backend.contexts.planification.domain.Affectation;
@@ -138,7 +140,7 @@ class ApplicationDUnePropositionApplicationTest {
     @Test
     void should_refuse_a_foreign_centre_as_not_found() {
         ExecutionDOptimisation e = calculee(Perimetre.PATIENTS, deplacements());
-        assertThat(code(() -> m.appliquer.executer(new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(
+        assertThat(code(() -> m.appliquer.executer(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(
                 UUID.randomUUID()), e.id()))).isEqualTo("OPTIMISATION_INTROUVABLE");
     }
 

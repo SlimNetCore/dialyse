@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.plan;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteAvecEcritures;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteIntrouvable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.CompteUtilise;

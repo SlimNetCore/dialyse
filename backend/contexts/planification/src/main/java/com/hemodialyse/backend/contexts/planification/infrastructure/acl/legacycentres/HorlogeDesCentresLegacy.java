@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.HorlogeDesCentres;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Clock;

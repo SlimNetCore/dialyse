@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.comptabilite;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.application.TauxDeTva;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal.RegleTvaApplicable;
 

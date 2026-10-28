@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.acl.gmao;
 
 import com.hemodialyse.backend.application.planning.SalleGenerateursService;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.CapaciteDesSalles;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.SalleId;
 import org.springframework.stereotype.Component;

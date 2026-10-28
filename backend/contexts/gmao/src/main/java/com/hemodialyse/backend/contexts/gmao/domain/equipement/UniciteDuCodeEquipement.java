@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.gmao.domain.equipement;
 
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Service de domaine R7 : un code d'équipement est unique dans son centre. La règle porte sur l'ensemble des équipements,

@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.application.stock;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.comptabilite.application.mapping.MappingDuCentreVu;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptableRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.NumeroDePiece;

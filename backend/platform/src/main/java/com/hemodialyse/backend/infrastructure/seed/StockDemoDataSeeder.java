@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.stock.application.reception.GestionDesRe
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesFournisseursEtEmplacements;
 import com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.FicheArticle;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Fournisseur;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.TypeTraitementAnemie;

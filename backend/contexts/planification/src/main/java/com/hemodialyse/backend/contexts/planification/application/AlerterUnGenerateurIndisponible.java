@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.IndisponibiliteDeGenerateur;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentre;

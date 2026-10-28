@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.persistence;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.JourDuCalendrier;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import tools.jackson.core.type.TypeReference;

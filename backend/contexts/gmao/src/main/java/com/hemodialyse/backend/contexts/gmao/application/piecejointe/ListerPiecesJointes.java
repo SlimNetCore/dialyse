@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.application.piecejointe;
 
 import com.hemodialyse.backend.contexts.gmao.application.intervention.InterventionIntrouvable;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;
 
 /**

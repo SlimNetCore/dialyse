@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.AffecterAuRoulement;
 import com.hemodialyse.backend.contexts.planification.application.AffecterUnRemplacant;
 import com.hemodialyse.backend.contexts.planification.application.UniteDeTravail;
@@ -8,7 +10,6 @@ import com.hemodialyse.backend.contexts.planification.domain.AbsencesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.planification.domain.IdentiteDeLInfirmier;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;

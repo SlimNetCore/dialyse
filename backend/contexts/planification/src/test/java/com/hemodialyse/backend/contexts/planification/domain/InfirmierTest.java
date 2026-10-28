@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import org.junit.jupiter.api.Test;

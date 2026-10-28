@@ -11,7 +11,7 @@ import com.hemodialyse.backend.contexts.gmao.application.intervention.DemarrerTa
 import com.hemodialyse.backend.contexts.gmao.application.intervention.InterventionVue;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.PlanifierIntervention;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.PlanifierInterventionCommande;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;

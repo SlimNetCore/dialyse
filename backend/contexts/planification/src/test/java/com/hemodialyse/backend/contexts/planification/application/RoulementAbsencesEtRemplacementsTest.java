@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.application;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.doubles.PlanningDesInfirmiersEnMemoire;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier;
@@ -6,7 +7,6 @@ import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente
 import com.hemodialyse.backend.contexts.planification.domain.IdentiteDeLInfirmier;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AbsenceId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;

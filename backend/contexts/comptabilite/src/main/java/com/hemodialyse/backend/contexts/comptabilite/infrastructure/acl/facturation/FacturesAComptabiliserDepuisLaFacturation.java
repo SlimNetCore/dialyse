@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.facturation;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.FactureAComptabiliser;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.FacturesAComptabiliser;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.FacturesEmises;

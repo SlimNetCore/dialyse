@@ -1,10 +1,11 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.ContraintesDesPatients.Contraintes;
 import com.hemodialyse.backend.contexts.planification.domain.DeplacementsTemporairesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation.PatientAPlacer;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;

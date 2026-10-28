@@ -95,7 +95,12 @@
             <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+            <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-shared-kernel</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+</dependencies>
 
     <build>
         <plugins>

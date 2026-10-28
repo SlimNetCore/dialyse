@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.stock.application.commandes;
 
 import com.hemodialyse.backend.contexts.stock.application.commandes.GestionDesBonsDeCommande.LigneSaisie;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonDeCommande;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonDeCommandeInvalide;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.StatutDuBon;

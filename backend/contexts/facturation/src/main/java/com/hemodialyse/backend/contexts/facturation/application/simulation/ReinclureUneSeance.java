@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.application.simulation;
 
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.Reinclusion;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeanceDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;

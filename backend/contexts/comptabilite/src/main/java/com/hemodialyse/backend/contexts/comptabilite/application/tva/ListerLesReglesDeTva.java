@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.tva;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.tva.RegleTvaRepository;
 
 import java.util.List;

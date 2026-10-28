@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.application;
 
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.ProfilDePlanification;
 import com.hemodialyse.backend.contexts.planification.domain.ProfilsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee;

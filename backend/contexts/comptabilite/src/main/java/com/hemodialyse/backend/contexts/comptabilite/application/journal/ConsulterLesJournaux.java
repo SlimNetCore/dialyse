@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.journal;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.JournauxDuCentre;
 
 import java.util.List;

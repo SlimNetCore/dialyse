@@ -1,11 +1,12 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.domain.EvenementDePlacement.IsolementImpossible;
 import com.hemodialyse.backend.contexts.planification.domain.EvenementDePlacement.PatientPlace;
 import com.hemodialyse.backend.contexts.planification.domain.EvenementDePlacement.PatientReplaceEnIsolement;
 import com.hemodialyse.backend.contexts.planification.domain.EvenementDePlacement.PlaceRetiree;
 import com.hemodialyse.backend.contexts.planification.domain.EvenementDePlacement.PlacementModifie;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.planification.domain.PropositionsDePlace.CaseDeGrille;

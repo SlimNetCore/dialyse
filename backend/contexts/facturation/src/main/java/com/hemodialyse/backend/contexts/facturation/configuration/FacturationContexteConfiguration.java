@@ -26,7 +26,7 @@ import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDes
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.DeclarationDesAbsences;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.absences.AbsencesDesPatientsPubliees;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.facturation.application.parametres.ConfigurerLaFacturation;

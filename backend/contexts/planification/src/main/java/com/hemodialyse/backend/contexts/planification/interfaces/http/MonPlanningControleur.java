@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.AbsenceLue;
 import com.hemodialyse.backend.contexts.planification.application.ConsulterMonPlanning;
 import com.hemodialyse.backend.contexts.planification.application.ConsulterMonPlanning.MonPlanning;
@@ -13,7 +15,6 @@ import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineD
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier.Salle;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import com.hemodialyse.backend.contexts.planification.domain.PeriodeDAbsence;

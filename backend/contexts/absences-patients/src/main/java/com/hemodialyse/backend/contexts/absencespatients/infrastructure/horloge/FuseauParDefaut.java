@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.horloge;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.application.FuseauxDesCentres;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 
 import java.time.ZoneId;
 

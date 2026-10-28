@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.comptabilite.domain.payeur;
 
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Port sortant : compte client de chaque payeur d'un centre. Toute écriture est bornée au centre.

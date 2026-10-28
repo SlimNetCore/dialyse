@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.interfaces.http;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.application.ListerLesAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.ListerLesSeancesDeRattrapage;
 import com.hemodialyse.backend.contexts.absencespatients.application.ObtenirLaSynthese;
@@ -7,7 +9,6 @@ import com.hemodialyse.backend.contexts.absencespatients.application.SessionCour
 import com.hemodialyse.backend.contexts.absencespatients.application.SuivreLaSemaine;
 import com.hemodialyse.backend.contexts.absencespatients.domain.FiltreDesAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MotifAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Pagination;

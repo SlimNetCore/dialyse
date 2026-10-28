@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.gmao.application.pilotage;
 
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 
 import java.math.BigDecimal;

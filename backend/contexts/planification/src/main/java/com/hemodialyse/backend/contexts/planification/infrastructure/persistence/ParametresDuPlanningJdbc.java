@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.SallesDuCentre;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanning;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanningRepository;

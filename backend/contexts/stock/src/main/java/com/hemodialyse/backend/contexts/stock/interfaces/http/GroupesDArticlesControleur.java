@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.stock.interfaces.http;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.groupes.GestionDesGroupesDArticles;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.GroupesDArticlesJson.GroupeReponse;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.GroupesDArticlesJson.GroupeRequete;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.GroupesDArticlesJson.PageReponse;

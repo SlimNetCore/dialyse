@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.application.payeur;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.PageDe;
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Payeurs du centre avec leur compte client (RG-CPT-019) ; taille de page de 1 à 100.

@@ -1,9 +1,10 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.RoulementsDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.domain.Affectation;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;

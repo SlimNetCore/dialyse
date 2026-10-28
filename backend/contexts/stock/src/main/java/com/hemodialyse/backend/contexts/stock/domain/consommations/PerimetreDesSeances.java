@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.domain.consommations;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.PerimetreDeSortie;
 
 import java.util.UUID;

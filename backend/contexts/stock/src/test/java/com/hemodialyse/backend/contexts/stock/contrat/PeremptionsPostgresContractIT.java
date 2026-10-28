@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.stock.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions;
@@ -112,7 +113,7 @@ class PeremptionsPostgresContractIT {
     @Test
     void les_lots_proches_des_centres_actifs_sont_publies_et_notifies_sur_la_vraie_base() {
         HorlogeDesCentres horloge = new HorlogeDesCentresLegacy(jdbc, FIXE);
-        LocalDate jour = horloge.aujourdHui(new com.hemodialyse.backend.contexts.stock.domain.CentreId(ACTIF));
+        LocalDate jour = horloge.aujourdHui(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(ACTIF));
         UUID a = article(ACTIF, "PGPER1", true);
         UUID inactif = article(ACTIF, "PGPER2", false);
         lot(ACTIF, a, "L-30", jour.plusDays(30), "7");

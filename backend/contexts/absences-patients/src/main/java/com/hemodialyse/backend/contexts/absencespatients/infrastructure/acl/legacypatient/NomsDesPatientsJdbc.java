@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacypatient;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.application.NomsDesPatients;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.NomDuPatient;
 import org.springframework.jdbc.core.JdbcTemplate;

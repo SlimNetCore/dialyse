@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.ComptesUtilisateurs.Compte;
 import com.hemodialyse.backend.contexts.planification.application.CreerUnCompte;
 import com.hemodialyse.backend.contexts.planification.application.CreerUnCompte.CompteCree;
@@ -16,7 +18,6 @@ import com.hemodialyse.backend.contexts.planification.application.RoulementsDesI
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.AdresseEmail;
 import com.hemodialyse.backend.contexts.planification.domain.IdentiteDeLInfirmier;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;

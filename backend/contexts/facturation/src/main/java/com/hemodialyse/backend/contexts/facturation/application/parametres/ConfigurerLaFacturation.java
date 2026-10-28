@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.application.parametres;
 
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.parametres.ParametresDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.parametres.ParametresDeFacturationRepository;
 

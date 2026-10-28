@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.characterization.planification.liberation;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.characterization.planification.LiberationCharacterizationSupport;
 import org.junit.jupiter.api.Test;
 
@@ -177,8 +179,8 @@ class NuitDeLiberationDesPlacesCharacterizationIntegrationTest extends Liberatio
         sorti(CENTRE_B, "TRANSFERE_B_J-2", "TRANSFERE", jour(-2));
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("centresAvecPlaces", centresAvecPlaces());
-        m.put("liberees_centre_A", liberer.liberer(new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(CENTRE_A)).liberees());
-        m.put("liberees_centre_A_au_second_appel", liberer.liberer(new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(CENTRE_A)).liberees());
+        m.put("liberees_centre_A", liberer.liberer(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A)).liberees());
+        m.put("liberees_centre_A_au_second_appel", liberer.liberer(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A)).liberees());
         m.put("patients_encore_places_A", patientsPlaces(CENTRE_A));
         m.put("patients_encore_places_B", patientsPlaces(CENTRE_B));
         m.put("centresAvecPlacesApres", centresAvecPlaces());

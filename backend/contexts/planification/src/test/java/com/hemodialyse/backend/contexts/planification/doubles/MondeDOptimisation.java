@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.doubles;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.planification.application.AppliquerUneProposition;
 import com.hemodialyse.backend.contexts.planification.application.ArreterUneOptimisation;
 import com.hemodialyse.backend.contexts.planification.application.CentresActifs;
@@ -11,7 +13,6 @@ import com.hemodialyse.backend.contexts.planification.application.ReprendreLesEx
 import com.hemodialyse.backend.contexts.planification.application.SupprimerUneExecution;
 import com.hemodialyse.backend.contexts.planification.application.VerrouillerLesFichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Remplacement;
 import com.hemodialyse.backend.contexts.planification.domain.RemplacementsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.Presence.Personnel;

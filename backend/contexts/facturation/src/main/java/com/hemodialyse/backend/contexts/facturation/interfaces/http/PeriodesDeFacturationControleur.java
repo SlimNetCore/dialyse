@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.CloturerLeMois;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.ConsulterLesPeriodes;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.RouvrirLeMois;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

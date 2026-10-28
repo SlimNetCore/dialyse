@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.gmao.application.intervenant;
 
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Liste paginée des intervenants du centre, désactivés compris, triés par nom. Les bornes reproduisent les refus du legacy

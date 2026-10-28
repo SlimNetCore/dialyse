@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.SeriesDuCentre;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** ACL vers les créneaux d'Organisation (table {@code position_creneau}) : le nombre de séries du centre. Borné au centre. */

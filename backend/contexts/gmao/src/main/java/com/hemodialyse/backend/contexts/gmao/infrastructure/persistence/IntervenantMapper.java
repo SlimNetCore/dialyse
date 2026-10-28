@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.IntervenantVue;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.Intervenant;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.IntervenantId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.NatureIntervenant;

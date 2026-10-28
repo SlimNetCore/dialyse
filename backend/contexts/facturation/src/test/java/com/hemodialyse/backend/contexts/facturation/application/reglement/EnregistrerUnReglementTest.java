@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.facturation.application.reglement;
 import com.hemodialyse.backend.contexts.facturation.doubles.PublicationDesReglementsEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.ReglementsEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.UniteDeTravailDirecte;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.EtatDeReglement;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.ModeDeReglement;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.RemboursementSuperieurAuTotalRegle;

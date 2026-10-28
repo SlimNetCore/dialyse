@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.contexts.absencespatients.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hemodialyse.backend.contexts.absencespatients.application.DetecterUnePeriodePassee;
 import com.hemodialyse.backend.contexts.absencespatients.application.SessionCourante;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.CacheControl;

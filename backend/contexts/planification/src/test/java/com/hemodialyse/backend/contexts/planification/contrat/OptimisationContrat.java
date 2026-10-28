@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
@@ -11,7 +12,6 @@ import com.hemodialyse.backend.contexts.planification.domain.DeplacementsTempora
 import com.hemodialyse.backend.contexts.planification.domain.Empreinte;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.DeplacementTemporaireId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;

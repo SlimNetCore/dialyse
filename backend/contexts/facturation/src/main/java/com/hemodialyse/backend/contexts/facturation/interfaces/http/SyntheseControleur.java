@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FormatDImpression;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.ImprimerLaSynthese;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

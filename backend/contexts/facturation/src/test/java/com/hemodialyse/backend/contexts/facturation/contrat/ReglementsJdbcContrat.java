@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.contrat;
 
 import com.hemodialyse.backend.contexts.facturation.application.reglement.SituationsDesFactures;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.ModeDeReglement;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.Reglements;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ReglementsJdbc;

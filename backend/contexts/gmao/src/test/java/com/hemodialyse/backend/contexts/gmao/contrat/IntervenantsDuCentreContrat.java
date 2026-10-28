@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.contrat;
 
 import com.hemodialyse.backend.contexts.gmao.application.intervention.IntervenantsDuCentre;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.Intervenant;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.IntervenantId;

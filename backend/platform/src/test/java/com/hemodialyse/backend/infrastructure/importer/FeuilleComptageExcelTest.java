@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
 import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.ComptageImporte;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;

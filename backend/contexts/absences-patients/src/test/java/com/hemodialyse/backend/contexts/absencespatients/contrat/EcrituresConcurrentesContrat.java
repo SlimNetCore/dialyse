@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.contrat;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.application.AnnulerUneAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.application.DeclarerUneAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.application.GenerateurIdentifiants;
@@ -13,7 +15,6 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.DroitDeCorrectio
 import com.hemodialyse.backend.contexts.absencespatients.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.absencespatients.domain.FaitsDuRattrapage;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodesFacturees;
 import com.hemodialyse.backend.contexts.absencespatients.domain.RegleDAbsenceViolee;

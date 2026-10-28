@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.gmao.infrastructure.evenements;
 import com.hemodialyse.backend.contexts.gmao.GmaoTestApplication;
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.EnregistrerIntervenant;
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.EnregistrerIntervenantCommande;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.IntervenantEnregistre;
 import org.junit.jupiter.api.AfterEach;

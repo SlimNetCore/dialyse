@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.gmao.infrastructure.acl.legacyidentite;
 
 import com.hemodialyse.backend.contexts.gmao.application.SessionCourante;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

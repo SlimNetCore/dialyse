@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.application.mapping;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 /**
  * Le mapping comptable du centre ; sans mapping enregistré, les valeurs par défaut, sans rien enregistrer.

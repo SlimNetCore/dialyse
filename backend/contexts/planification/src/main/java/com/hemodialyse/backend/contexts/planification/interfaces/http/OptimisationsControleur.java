@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.AppliquerUneProposition;
 import com.hemodialyse.backend.contexts.planification.application.ArreterUneOptimisation;
@@ -11,7 +12,6 @@ import com.hemodialyse.backend.contexts.planification.application.OptimisationLu
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.application.SupprimerUneExecution;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 import com.hemodialyse.backend.contexts.planification.domain.ObjectifDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;

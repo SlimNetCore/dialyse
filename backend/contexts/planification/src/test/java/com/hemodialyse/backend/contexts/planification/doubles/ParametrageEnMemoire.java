@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.contexts.planification.doubles;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CreneauxDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.InfirmiersDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.PatientsDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.SallesDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;

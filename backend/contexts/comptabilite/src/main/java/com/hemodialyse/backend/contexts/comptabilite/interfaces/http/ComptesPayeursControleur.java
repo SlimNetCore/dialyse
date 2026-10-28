@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.comptabilite.interfaces.http;
 import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.AffecterUnCompteAuPayeur;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.ListerLesPayeurs;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.PayeurId;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

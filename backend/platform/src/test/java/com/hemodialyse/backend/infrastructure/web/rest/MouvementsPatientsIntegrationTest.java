@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues;
 import com.hemodialyse.backend.application.patient.MouvementPatientQueryService;
@@ -45,7 +46,7 @@ class MouvementsPatientsIntegrationTest {
 
     private int libererCentre(CenterId centre) {
         return liberationDesPlaces.liberer(
-                new com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId(centre.value())).liberees();
+                new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(centre.value())).liberees();
     }
     @Autowired
     private MouvementPatientQueryService mouvements;

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.application.referentiel;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Article;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.ArticleIntrouvable;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.FicheArticle;

@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabi
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.PeriodesComptables;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.ClotureComptable;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.YearMonth;
 

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacynotifications;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.NotificationsDuPlacement;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement;

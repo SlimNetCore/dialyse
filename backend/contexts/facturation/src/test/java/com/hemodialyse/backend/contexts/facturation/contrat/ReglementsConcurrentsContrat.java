@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.reglement.Demand
 import com.hemodialyse.backend.contexts.facturation.application.reglement.EnregistrerUnReglement;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.LigneDeSituation;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.PublicationDesReglements;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.RemboursementSuperieurAuTotalRegle;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ReglementsJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.SituationsDesFacturesJdbc;

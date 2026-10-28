@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.facturation.application.pilotage.Lecture
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois;
 import com.hemodialyse.backend.contexts.facturation.doubles.PilotageEnMemoire.Facture;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
 import org.junit.jupiter.api.Test;

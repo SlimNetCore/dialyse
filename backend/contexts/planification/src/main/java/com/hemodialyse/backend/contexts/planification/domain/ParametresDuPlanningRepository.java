@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.domain;
 
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 
 /**
  * Port sortant : le paramétrage du planning d'un centre (un par centre, toujours borné au centre).

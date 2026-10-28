@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.legacyidentite;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

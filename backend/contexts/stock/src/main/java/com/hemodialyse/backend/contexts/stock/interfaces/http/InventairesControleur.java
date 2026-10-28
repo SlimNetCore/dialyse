@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.GestionDesInventaires;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.ProcesVerbalDInventaire;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.InventairesJson.AjoutLigneRequete;
 import com.hemodialyse.backend.contexts.stock.interfaces.http.InventairesJson.ComptageRequete;

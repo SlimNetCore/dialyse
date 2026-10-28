@@ -1,10 +1,11 @@
 package com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsencePatient;
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsencesRepository;
 import com.hemodialyse.backend.contexts.absencespatients.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.AbsenceId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.ForfaitId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;

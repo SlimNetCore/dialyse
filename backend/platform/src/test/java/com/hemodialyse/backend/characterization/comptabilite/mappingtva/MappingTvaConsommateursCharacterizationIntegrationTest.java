@@ -4,7 +4,7 @@ import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcriture
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal.RegleTvaApplicable;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.TauxDeTva;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -227,7 +227,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
         // Lecteur de la Facturation (depuis F3) : sans règle applicable, le taux est TauxDeTva.AUCUN
         TauxDeTva facturation = fiscalFacturation.aLaDate(new CentreId(CENTRE_A), date);
         n.put("facturation_taux", TauxDeTva.AUCUN.equals(facturation) ? "aucune" : facturation.pourcentage().toPlainString());
-        n.put("absences_taux", forfaitsAbsence.pour(new com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId(CENTRE_A), date).toPlainString());
+        n.put("absences_taux", forfaitsAbsence.pour(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), date).toPlainString());
         return n;
     }
 
@@ -346,7 +346,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
         enBase("HEMODIALYSE", "150.00", false, "2026-01-01", null);
         LocalDate jour = LocalDate.of(2026, 2, 1);
         assertEquals(new BigDecimal("150.00"), fiscalComptabilite.regleApplicable(CENTRE_A, "HEMODIALYSE", jour).orElseThrow().taux());
-        assertEquals(new BigDecimal("150.00"), forfaitsAbsence.pour(new com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.CentreId(CENTRE_A), jour));
+        assertEquals(new BigDecimal("150.00"), forfaitsAbsence.pour(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), jour));
         // la Facturation lit la règle ancienne telle quelle (l'ancien lecteur TypeTVA la refusait ; il est retiré)
         assertEquals(0, new BigDecimal("150.00").compareTo(fiscalFacturation.aLaDate(new CentreId(CENTRE_A), jour).pourcentage()));
         Resp liste = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders

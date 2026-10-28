@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.gmao.doubles.IdentifiantsSequentiels;
 import com.hemodialyse.backend.contexts.gmao.doubles.IntervenantsEnMemoire;
 import com.hemodialyse.backend.contexts.gmao.doubles.PublicateurEnMemoire;
 import com.hemodialyse.backend.contexts.gmao.doubles.UniteDeTravailDirecte;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.CoordonneesIntervenantCorrigees;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.IntervenantDesactive;

@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.absencespatients.domain;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import java.util.UUID;
 
 /**
@@ -14,13 +16,6 @@ public final class Identifiants {
     private static UUID requis(UUID valeur, String nom) {
         if (valeur == null) throw new IllegalArgumentException(nom + " requis");
         return valeur;
-    }
-
-    /** Identité d'un centre de dialyse. */
-    public record CentreId(UUID valeur) {
-        public CentreId {
-            requis(valeur, "Centre");
-        }
     }
 
     /** Identité d'un patient (contexte Patient et couverture, référencé par identité). */

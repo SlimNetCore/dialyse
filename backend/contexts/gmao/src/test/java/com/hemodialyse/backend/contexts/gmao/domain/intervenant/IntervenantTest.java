@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.gmao.domain.intervenant;
 
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import org.junit.jupiter.api.Test;
 

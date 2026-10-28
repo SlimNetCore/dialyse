@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.contexts.planification.contrat;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.InfirmiersDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.LectureDesPreferences;
 import com.hemodialyse.backend.contexts.planification.application.PatientsDuCentre;
 import com.hemodialyse.backend.contexts.planification.domain.Competence;
 import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;

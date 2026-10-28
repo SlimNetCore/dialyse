@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.stock.interfaces.consommations;
 
 import com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations;
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 
 import java.math.BigDecimal;

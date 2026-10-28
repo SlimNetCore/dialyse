@@ -1,9 +1,10 @@
 package com.hemodialyse.backend.contexts.planification.infrastructure;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre.Generateur;
 import com.hemodialyse.backend.contexts.planification.application.VueDesSalles;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.PaginationInvalide;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;

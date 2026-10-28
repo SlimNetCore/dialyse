@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.planification.interfaces.http;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.ClasserLesRemplacants;
 import com.hemodialyse.backend.contexts.planification.application.ConsulterLaChargeDesInfirmiers;
@@ -8,7 +9,6 @@ import com.hemodialyse.backend.contexts.planification.application.ConsulterLaPre
 import com.hemodialyse.backend.contexts.planification.application.ImprimerLaPresence;
 import com.hemodialyse.backend.contexts.planification.application.ImprimerLaPresence.Impression;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.contrat;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SequenceDeFacturation;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.support.TransactionTemplate;

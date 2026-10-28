@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.contrat;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.LectureDesPayeurs;
 import com.hemodialyse.backend.contexts.comptabilite.doubles.PayeursEnMemoire;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.CompteClientDuPayeurRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.PayeurId;
 

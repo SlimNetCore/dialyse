@@ -7,7 +7,7 @@ import com.hemodialyse.backend.contexts.gmao.application.pilotage.LectureDesComp
 import com.hemodialyse.backend.contexts.gmao.application.pilotage.LectureDesCouts;
 import com.hemodialyse.backend.contexts.gmao.application.planmaintenance.LecturePlans;
 import com.hemodialyse.backend.contexts.gmao.application.planmaintenance.PlanMaintenanceVue;
-import com.hemodialyse.backend.contexts.gmao.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.AnalyseDeDecision;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CalculDIndisponibilite;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;

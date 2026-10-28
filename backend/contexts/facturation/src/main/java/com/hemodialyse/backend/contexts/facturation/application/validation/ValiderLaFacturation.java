@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.GardeDesMoisClos;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.DemandeDeSimulation;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.Facture;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.Factures;
 import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;

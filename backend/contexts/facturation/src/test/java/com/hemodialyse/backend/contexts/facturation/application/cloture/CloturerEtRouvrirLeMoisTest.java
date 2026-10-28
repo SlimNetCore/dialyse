@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.application.cloture.Cloturer
 import com.hemodialyse.backend.contexts.facturation.doubles.MoisDeFacturationEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.doubles.UniteDeTravailDirecte;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.EntreeDuJournal;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.cloture.MoisDeFacturationNonTermine;

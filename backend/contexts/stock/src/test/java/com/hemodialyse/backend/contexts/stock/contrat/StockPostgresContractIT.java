@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.contrat;
 
-import com.hemodialyse.backend.contexts.stock.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.reception.EcritureDeStockConcurrente;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.EcrituresDuStockJdbc;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.SortiesDuStockJdbc;

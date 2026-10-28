@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.interfaces.planification;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock.Synchronisation;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;

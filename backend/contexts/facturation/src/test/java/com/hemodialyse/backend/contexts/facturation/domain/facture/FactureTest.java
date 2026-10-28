@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.domain.facture;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.parametres.ModeleDeNumerotation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.FactureSimulee;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;

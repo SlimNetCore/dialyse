@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.domain.parametres;
 
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
 import java.util.Locale;

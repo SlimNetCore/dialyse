@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.interfaces.http;
 
 import com.hemodialyse.backend.contexts.facturation.application.cloture.CloturerLeMois.ResultatDeCloture;
-import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.Instant;
 import java.util.UUID;

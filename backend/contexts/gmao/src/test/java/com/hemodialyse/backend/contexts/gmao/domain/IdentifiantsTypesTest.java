@@ -1,4 +1,5 @@
 package com.hemodialyse.backend.contexts.gmao.domain;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.planmaintenance.PlanMaintenanceId;
