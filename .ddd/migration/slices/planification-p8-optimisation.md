@@ -1,5 +1,6 @@
 ---
-status: built (S1+S2+S3-parité le 2026-10-28 : 4 classes de caractérisation vertes sur le nouveau code, goldens `_nouveau_code` générés ; retrait complet du legacy et PIT restent à faire)
+status:
+  built (S1+S2+S3 le 2026-10-28: 4 classes de caractérisation vertes sur le nouveau code ; retrait complet du legacy d'optimisation effectué)
 date: 2026-10-28
 sources: .ddd/safety-net/planification-p8-optimisation.md, .ddd/tactical/planification.md (P20 à P25), ADR 0024, 0049 à 0061, known-bugs.md KB-PLN-89 à 105
 ---

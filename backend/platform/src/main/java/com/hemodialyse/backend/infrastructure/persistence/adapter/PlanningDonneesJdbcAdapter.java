@@ -14,7 +14,6 @@ import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SeanceReali
 import com.hemodialyse.backend.domain.planning.port.PlanningDonneesPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningSemainePort;
-import com.hemodialyse.backend.domain.planning.port.DeplacementTemporairePort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -63,13 +62,10 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
 
     private final JdbcTemplate jdbc;
     private final PlanningParametresPort parametres;
-    private final DeplacementTemporairePort temporaires;
 
-    public PlanningDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningParametresPort parametres,
-                                      DeplacementTemporairePort temporaires) {
+    public PlanningDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningParametresPort parametres) {
         this.jdbc = jdbc;
         this.parametres = parametres;
-        this.temporaires = temporaires;
     }
 
     @Override
@@ -101,8 +97,20 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                             rs.getObject("salle_id", UUID.class), rs.getObject("creneau_id", UUID.class),
                             rs.getObject("generateur_id", UUID.class), aRisque.contains(patientId));
                 }, centerId, Date.valueOf(debutSemaine), Date.valueOf(fin));
-        return new DonneesSemaine(planning, noms, planning.fermetures(), temporaires.entre(centerId, debutSemaine, fin),
-                realisees);
+        List<com.hemodialyse.backend.domain.planning.model.DeplacementTemporaire> temporaires = jdbc.query(
+                "SELECT id, patient_id, date_seance, salle_id, creneau_id, generateur_id, motif "
+                        + "FROM deplacement_temporaire WHERE center_id = ? AND date_seance BETWEEN ? AND ? "
+                        + "ORDER BY date_seance, patient_id",
+                (rs, i) -> new com.hemodialyse.backend.domain.planning.model.DeplacementTemporaire(
+                        rs.getObject("id", java.util.UUID.class), centerId,
+                        rs.getObject("patient_id", java.util.UUID.class),
+                        rs.getDate("date_seance").toLocalDate(),
+                        rs.getObject("salle_id", java.util.UUID.class),
+                        rs.getObject("creneau_id", java.util.UUID.class),
+                        rs.getObject("generateur_id", java.util.UUID.class),
+                        rs.getString("motif")),
+                centerId, java.sql.Date.valueOf(debutSemaine), java.sql.Date.valueOf(fin));
+        return new DonneesSemaine(planning, noms, planning.fermetures(), temporaires, realisees);
     }
 
     @Override
