@@ -3,7 +3,7 @@ package com.hemodialyse.backend.characterization.planification.liberation;
 import com.hemodialyse.backend.characterization.planification.LiberationCharacterizationSupport;
 import com.hemodialyse.backend.contexts.absencespatients.interfaces.jobs.ControleDeNuitDesAbsences;
 import com.hemodialyse.backend.contexts.planification.interfaces.jobs.LiberationDesPlacesDe0400;
-import com.hemodialyse.backend.infrastructure.scheduling.ReplanificationAutomatiqueScheduler;
+import com.hemodialyse.backend.contexts.planification.interfaces.jobs.ReplanificationDe0230;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -158,7 +158,7 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("liberation", planification(LiberationDesPlacesDe0400.class, "libererLesPlaces"));
         m.put("controleDesAbsences", planification(ControleDeNuitDesAbsences.class, "controlerAbsences"));
-        m.put("replanificationAutomatique", planification(ReplanificationAutomatiqueScheduler.class, "replanifier"));
+        m.put("replanificationAutomatique", planification(ReplanificationDe0230.class, "replanifier"));
         arbre("calendrier_de_nuit", m);
     }
 

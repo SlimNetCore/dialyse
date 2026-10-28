@@ -2,7 +2,7 @@ package com.hemodialyse.backend.characterization.planification.liberation;
 
 import com.hemodialyse.backend.contexts.absencespatients.interfaces.jobs.ControleDeNuitDesAbsences;
 import com.hemodialyse.backend.contexts.planification.interfaces.jobs.LiberationDesPlacesDe0400;
-import com.hemodialyse.backend.infrastructure.scheduling.ReplanificationAutomatiqueScheduler;
+import com.hemodialyse.backend.contexts.planification.interfaces.jobs.ReplanificationDe0230;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,7 +36,7 @@ class OrdreDeNuitDeLaLiberationTest {
     @Test
     void should_detect_the_absences_at_0230_before_freeing_the_places_at_0400_in_the_same_zone() throws Exception {
         Scheduled detection = planifie(ControleDeNuitDesAbsences.class, "controlerAbsences");
-        Scheduled replanification = planifie(ReplanificationAutomatiqueScheduler.class, "replanifier");
+        Scheduled replanification = planifie(ReplanificationDe0230.class, "replanifier");
         Scheduled liberation = planifie(LiberationDesPlacesDe0400.class, "libererLesPlaces");
         MockEnvironment parDefaut = new MockEnvironment();
 
@@ -61,7 +61,7 @@ class OrdreDeNuitDeLaLiberationTest {
 
         for (Scheduled job : new Scheduled[]{
                 planifie(ControleDeNuitDesAbsences.class, "controlerAbsences"),
-                planifie(ReplanificationAutomatiqueScheduler.class, "replanifier"),
+                planifie(ReplanificationDe0230.class, "replanifier"),
                 planifie(LiberationDesPlacesDe0400.class, "libererLesPlaces")}) {
             assertThat(fuseau(job, environnement)).as(job.cron()).isEqualTo(ZoneId.of("Pacific/Auckland"));
         }

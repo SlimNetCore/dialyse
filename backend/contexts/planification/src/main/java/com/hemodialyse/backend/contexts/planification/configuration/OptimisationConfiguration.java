@@ -57,9 +57,8 @@ import java.time.Clock;
 
 /**
  * Composition root de la slice P8 (optimisation du planning) : exécutions d'optimisation, déplacements temporaires, application d'une
- * proposition, replanification de nuit, solveur Timefold derrière le port {@code Optimiseur} (ADR 0050). Active seulement avec
- * {@code app.planification.optimisation.moteur=nouveau} : tant que le legacy d'optimisation n'est pas retiré (fin de la slice), le
- * défaut reste le legacy ; la propriété disparaît avec lui.
+ * proposition, replanification de nuit, solveur Timefold derrière le port {@code Optimiseur} (ADR 0050). Le legacy d'optimisation a
+ * été retiré : ce module est désormais le seul chemin.
  */
 @Configuration(proxyBeanMethods = false)
 public class OptimisationConfiguration {

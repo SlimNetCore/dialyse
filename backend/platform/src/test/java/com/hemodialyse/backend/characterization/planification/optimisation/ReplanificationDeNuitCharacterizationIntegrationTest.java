@@ -16,7 +16,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Filet de caractérisation P8, lot 3 : replanification automatique de nuit ({@link ReplanificationAutomatiqueScheduler}, appel
+ * Filet de caractérisation P8, lot 3 : replanification automatique de nuit ({@link com.hemodialyse.backend.contexts.planification.interfaces.jobs.ReplanificationDe0230}, appel
  * direct de la méthode du job ; le cron n'est pas attendu). Enchaînement COUVERTURE puis MAINTENANCE puis PATIENTS par centre ayant
  * activé l'option, bilan toujours notifié, propositions signalées mais jamais appliquées.
  * <p>
