@@ -118,6 +118,22 @@ class PlacementApplicationTest {
     }
 
     @Test
+    void should_refuse_a_new_place_for_a_patient_who_has_left_and_keep_the_unchanged_place() {
+        monde.patient(PAT, "DUPONT Anne", null);
+        monde.sortis.add(PAT);
+
+        assertThatThrownBy(() -> placer.placer(CENTRE.valeur(), PAT.valeur(), A.valeur(), MATIN.valeur(), A1.valeur(), LUN))
+                .isInstanceOfSatisfying(PlacementDesPatients.Refus.class, e -> assertThat(e.code()).isEqualTo("PLACEMENT_PATIENT_SORTI"));
+        assertThatThrownBy(() -> placer.verifier(CENTRE.valeur(), PAT.valeur(), A.valeur(), MATIN.valeur(), A1.valeur(), LUN))
+                .isInstanceOfSatisfying(PlacementDesPatients.Refus.class, e -> assertThat(e.code()).isEqualTo("PLACEMENT_PATIENT_SORTI"));
+        // la reprise du patient dans la même saisie (état PERMANENT) le replace normalement
+        placer.placer(CENTRE.valeur(), PAT.valeur(), A.valeur(), MATIN.valeur(), A1.valeur(), LUN, "PERMANENT", null);
+        assertThat(monde.fiches.get(PAT).salle()).isEqualTo(A);
+        // retirer la place d'un sorti reste permis
+        placer.placer(CENTRE.valeur(), PAT.valeur(), null, null, null, java.util.Set.of());
+    }
+
+    @Test
     void should_refuse_a_healthy_patient_in_the_isolation_room() {
         monde.patient(PAT, "DUPONT Anne", null);
 

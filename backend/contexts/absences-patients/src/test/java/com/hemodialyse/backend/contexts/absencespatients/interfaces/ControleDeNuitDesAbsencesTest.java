@@ -41,7 +41,9 @@ class ControleDeNuitDesAbsencesTest {
         Scheduled planification = ControleDeNuitDesAbsences.class.getMethod("controlerAbsences").getAnnotation(Scheduled.class);
 
         assertThat(planification.cron()).isEqualTo("0 30 2 * * *");
-        assertThat(planification.zone()).isEqualTo("${app.absences.fuseau-par-defaut:Africa/Algiers}");
+        // une seule clé de fuseau pour les jobs de nuit (revue P7) : la clé des Absences n'est qu'une surcharge facultative
+        assertThat(planification.zone())
+                .isEqualTo("${app.absences.fuseau-par-defaut:${app.planification.fuseau-par-defaut:Africa/Algiers}}");
     }
 
     @Test

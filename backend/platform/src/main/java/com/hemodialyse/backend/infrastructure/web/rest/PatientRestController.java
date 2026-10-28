@@ -113,7 +113,7 @@ public class PatientRestController {
         // P5 (seam Patient) : garde de centre, contrôle de la place par la Planification et enregistrement de la fiche dans la
         // même transaction, pour que le verrou du centre tienne jusqu'à l'écriture.
         return placementService.verifierPuisEnregistrer(r.centerId(), patientId, r.salleId(), r.positionId(), r.generateurId(),
-                jours, enregistrement);
+                jours, r.etatPatient(), r.dateEvenementEtat(), enregistrement);
     }
 
     private CreatePatientCommand toCommand(CreatePatientRequest r) {

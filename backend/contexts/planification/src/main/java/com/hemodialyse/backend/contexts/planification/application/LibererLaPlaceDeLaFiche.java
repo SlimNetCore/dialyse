@@ -27,6 +27,11 @@ public class LibererLaPlaceDeLaFiche implements LiberationDesPlaces {
     }
 
     @Override
+    public LocalDate aujourdhui(UUID centre) {
+        return horloge.aujourdhui(new CentreId(centre));
+    }
+
+    @Override
     public boolean siEchue(UUID centre, UUID patient) {
         CentreId centreId = new CentreId(centre);
         PatientId patientId = new PatientId(patient);

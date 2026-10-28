@@ -30,14 +30,14 @@ req() { # $1 = libelle, $2 = SQL
 }
 PLACE="(p.salle_id IS NOT NULL OR p.position_id IS NOT NULL OR p.generateur_id IS NOT NULL)"
 ECHUE="((p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat < current_date) OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat <= current_date) OR (p.etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') AND p.date_evenement_etat IS NULL))"
-req "1 (centres inactifs avec places echues)" "SELECT p.center_id, c.actif, count(*) FROM patients p LEFT JOIN centers c ON c.id = p.center_id WHERE $PLACE AND (c.id IS NULL OR c.actif IS NOT TRUE) AND $ECHUE GROUP BY p.center_id, c.actif ORDER BY 3 DESC"
-req "2 (places echues des centres actifs)" "SELECT p.center_id, p.etat_patient, count(*) FROM patients p JOIN centers c ON c.id = p.center_id AND c.actif = TRUE WHERE $PLACE AND $ECHUE GROUP BY p.center_id, p.etat_patient ORDER BY 3 DESC"
+req "1 (centres inactifs avec places echues)" "SELECT p.center_id, c.actif, count(*) FROM patients p LEFT JOIN centers c ON c.id = p.center_id WHERE $PLACE AND (c.id IS NULL OR c.actif = FALSE) AND $ECHUE GROUP BY p.center_id, c.actif ORDER BY 3 DESC"
+req "2 (places echues des centres actifs)" "SELECT p.center_id, p.etat_patient, count(*) FROM patients p JOIN centers c ON c.id = p.center_id AND COALESCE(c.actif, TRUE) = TRUE WHERE $PLACE AND $ECHUE GROUP BY p.center_id, p.etat_patient ORDER BY 3 DESC"
 req "3 (etats jamais liberes)" "SELECT center_id, etat_patient, count(*) FROM patients WHERE (salle_id IS NOT NULL OR position_id IS NOT NULL OR generateur_id IS NOT NULL) AND date_evenement_etat < current_date AND (etat_patient IS NULL OR etat_patient NOT IN ('TRANSFERE','DECEDE','GREFFE','GUERRI','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER')) GROUP BY center_id, etat_patient ORDER BY 3 DESC"
 req "4 (sortis en sommeil avec place)" "SELECT center_id, count(*) FROM patients WHERE COALESCE(en_sommeil, FALSE) AND (salle_id IS NOT NULL OR position_id IS NOT NULL) AND etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') GROUP BY center_id ORDER BY 2 DESC"
 req "5 (mouvements PLACE_LIBEREE identiques)" "SELECT center_id, patient_id, count(*) FROM mouvement_patient WHERE type = 'PLACE_LIBEREE' GROUP BY center_id, patient_id, etat_nouveau, salle_id, position_id, generateur_id, jours_dialyse HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50"
 req "6 (PLACE_LIBEREE par jour d'effet)" "SELECT date_effet, count(*) FROM mouvement_patient WHERE type = 'PLACE_LIBEREE' AND date_effet >= current_date - 14 GROUP BY date_effet ORDER BY 1 DESC"
 req "7 (alertes d'echec de la liberation)" "SELECT center_id, count(*), max(cree_le) FROM notification_evenement WHERE type = 'LIBERATION_PLACES_EN_ECHEC' GROUP BY center_id"
-req "8 (centres actifs sans planning_parametres)" "SELECT c.id, c.code FROM centers c WHERE c.actif = TRUE AND NOT EXISTS (SELECT 1 FROM planning_parametres pp WHERE pp.center_id = c.id)"
+req "8 (centres actifs sans planning_parametres)" "SELECT c.id, c.code FROM centers c WHERE COALESCE(c.actif, TRUE) = TRUE AND NOT EXISTS (SELECT 1 FROM planning_parametres pp WHERE pp.center_id = c.id)"
 
 cd "$RACINE/backend"
 P=com.hemodialyse.backend.contexts.planification.contrat

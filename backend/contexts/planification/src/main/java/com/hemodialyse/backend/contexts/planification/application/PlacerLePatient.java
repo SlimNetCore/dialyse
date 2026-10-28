@@ -49,18 +49,31 @@ public class PlacerLePatient implements PlacementDesPatients {
 
     @Override
     public void verifier(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours) {
+        verifier(centre, patient, salle, creneau, generateur, jours, null, null);
+    }
+
+    @Override
+    public void verifier(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours,
+                         String etatAVenir, LocalDate dateAVenir) {
         RefusDuPlacement.traduire(() -> {
             Optional<Place> demandee = demandee(salle, creneau, generateur, jours);
             if (demandee.isEmpty()) return null;
-            traiter(new CentreId(centre), patient == null ? null : new PatientId(patient), demandee, false);
+            traiter(new CentreId(centre), patient == null ? null : new PatientId(patient), demandee, false, etatAVenir, dateAVenir);
             return null;
         });
     }
 
     @Override
     public void placer(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours) {
+        placer(centre, patient, salle, creneau, generateur, jours, null, null);
+    }
+
+    @Override
+    public void placer(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours,
+                       String etatAVenir, LocalDate dateAVenir) {
         RefusDuPlacement.traduire(() -> {
-            traiter(new CentreId(centre), new PatientId(patient), demandee(salle, creneau, generateur, jours), true);
+            traiter(new CentreId(centre), new PatientId(patient), demandee(salle, creneau, generateur, jours), true, etatAVenir,
+                    dateAVenir);
             return null;
         });
     }
@@ -72,7 +85,8 @@ public class PlacerLePatient implements PlacementDesPatients {
                 generateur == null ? null : new GenerateurId(generateur), joursDemandes);
     }
 
-    private void traiter(CentreId centre, PatientId patient, Optional<Place> demandee, boolean ecrire) {
+    private void traiter(CentreId centre, PatientId patient, Optional<Place> demandee, boolean ecrire, String etatAVenir,
+                         LocalDate dateAVenir) {
         uniteDeTravail.executer(() -> {
             verrou.prendre(centre);
             LocalDate jour = horloge.aujourdhui(centre);
@@ -82,6 +96,7 @@ public class PlacerLePatient implements PlacementDesPatients {
                 lues.connaitre(places.placementActuel(centre, patient).orElseThrow(() -> new RegleDePlanificationViolee(
                         "PLACEMENT_PATIENT_INTROUVABLE", "Patient introuvable dans ce centre")));
                 categorie = risques.de(centre, patient);
+                if (places.estSorti(centre, patient, jour, etatAVenir, dateAVenir)) lues.connaitreUnSorti(patient);
             }
             if (!ecrire) {
                 if (patient == null) lues.verifierPourUneCreation(demandee, categorie);

@@ -45,4 +45,23 @@ public interface PlacementDesPatients {
 
     /** Contrôle puis écrit la place d'un patient existant (ou l'efface si rien n'est renseigné). */
     void placer(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours);
+
+    /**
+     * Comme {@link #verifier(UUID, UUID, UUID, UUID, UUID, Set)} mais avec l'état que la fiche aura une fois enregistrée : une NOUVELLE
+     * place est refusée en 422 {@code PLACEMENT_PATIENT_SORTI} si le patient est sorti à cet état (KB-PLN-83, décision du 28/10) ; une
+     * reprise (état {@code PERMANENT}) dans la même saisie reste possible. Une place inchangée n'est jamais contrôlée.
+     *
+     * @param etatAVenir état saisi sur la fiche ; nul : l'état enregistré est conservé (la date aussi)
+     * @param dateAVenir date d'évènement saisie (ignorée si {@code etatAVenir} et elle sont nuls)
+     */
+    default void verifier(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours,
+                          String etatAVenir, java.time.LocalDate dateAVenir) {
+        verifier(centre, patient, salle, creneau, generateur, jours);
+    }
+
+    /** Comme {@link #placer(UUID, UUID, UUID, UUID, UUID, Set)} avec l'état à venir de la fiche (voir {@code verifier}). */
+    default void placer(UUID centre, UUID patient, UUID salle, UUID creneau, UUID generateur, Set<DayOfWeek> jours,
+                        String etatAVenir, java.time.LocalDate dateAVenir) {
+        placer(centre, patient, salle, creneau, generateur, jours);
+    }
 }

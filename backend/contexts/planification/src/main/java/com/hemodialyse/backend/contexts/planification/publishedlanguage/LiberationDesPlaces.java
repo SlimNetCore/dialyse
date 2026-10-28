@@ -18,4 +18,10 @@ public interface LiberationDesPlaces {
      * @return vrai si la place a été libérée par cet appel (la fiche renvoyée doit alors être alignée), faux sinon
      */
     boolean siEchue(UUID centre, UUID patient);
+
+    /**
+     * « Aujourd'hui » du centre, au fuseau du centre : le jour que la libération porte sur le mouvement {@code PLACE_LIBEREE}. La fiche
+     * date ses propres mouvements (changement d'état) du même jour (revue P7 : plus de J-1 entre 00:00 et 01:00 à Alger).
+     */
+    java.time.LocalDate aujourdhui(UUID centre);
 }

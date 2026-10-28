@@ -1417,6 +1417,12 @@ attendus (Absences, détection de nuit) et l'ancienne règle (mêmes cas ; seul 
 
 ## Slice P7 — libération des places, job de 04:00 au fuseau du centre (2026-10-27) — SELECT uniquement
 
+> **PRÉREQUIS BLOQUANT AVANT TOUT DÉPLOIEMENT DE P7 — à lancer PAR L'UTILISATEUR (SELECT seulement) : la requête 1 ci-dessous.** Elle liste les
+> centres NON actifs (`actif = FALSE`) ou sans ligne `centers` dont des patients sortis tiennent encore une place échue : le job de 04:00 ne les
+> libère plus (le legacy libérait tous les centres). Un centre dont `actif` est NULL est ACTIF (`COALESCE`, comme les Absences). Toute ligne
+> rendue est à traiter AVANT la mise en production (réactiver le centre ou libérer ces places avec l'utilisateur) ; résultat vide = feu vert.
+> Les requêtes utilisent `current_date` (jour du serveur SQL) : au plus un jour d'écart avec le jour du centre (Africa/Algiers) autour de minuit.
+
 Changements observables au déploiement (aucune migration) : le job ne libère plus que les centres ACTIFS
 (`centers.actif`), centre par centre à son jour, un patient
 par transaction (un patient en échec est signalé à l'administrateur, notification `LIBERATION_PLACES_EN_ECHEC`, une par
@@ -1431,14 +1437,14 @@ NULL).
 SELECT p.center_id, c.actif, count(*) AS places_echues
 FROM patients p LEFT JOIN centers c ON c.id = p.center_id
 WHERE (p.salle_id IS NOT NULL OR p.position_id IS NOT NULL OR p.generateur_id IS NOT NULL)
-  AND (c.id IS NULL OR c.actif IS NOT TRUE)
+  AND (c.id IS NULL OR c.actif = FALSE)
   AND ((p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat < current_date)
     OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat <= current_date)
     OR (p.etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') AND p.date_evenement_etat IS NULL))
 GROUP BY p.center_id, c.actif ORDER BY 3 DESC;
 -- 2. Places échues encore tenues dans les centres actifs : doit tomber à 0 après la première nuit suivant le déploiement (sinon : notification d'échec reçue ?)
 SELECT p.center_id, p.etat_patient, count(*) AS places_echues
-FROM patients p JOIN centers c ON c.id = p.center_id AND c.actif = TRUE
+FROM patients p JOIN centers c ON c.id = p.center_id AND COALESCE(c.actif, TRUE) = TRUE
 WHERE (p.salle_id IS NOT NULL OR p.position_id IS NOT NULL OR p.generateur_id IS NOT NULL)
   AND ((p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat < current_date)
     OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat <= current_date)
@@ -1460,7 +1466,7 @@ SELECT date_effet, count(*) FROM mouvement_patient WHERE type = 'PLACE_LIBEREE' 
 -- 7. Alertes d'échec de la libération (une par centre et par jour) : toute ligne est à traiter
 SELECT center_id, count(*), max(cree_le) FROM notification_evenement WHERE type = 'LIBERATION_PLACES_EN_ECHEC' GROUP BY center_id;
 -- 8. Centres actifs sans ligne planning_parametres (la ligne par défaut sera créée au premier verrou de la nuit) : informatif
-SELECT c.id, c.code FROM centers c WHERE c.actif = TRUE AND NOT EXISTS (SELECT 1 FROM planning_parametres pp WHERE pp.center_id = c.id);
+SELECT c.id, c.code FROM centers c WHERE COALESCE(c.actif, TRUE) = TRUE AND NOT EXISTS (SELECT 1 FROM planning_parametres pp WHERE pp.center_id = c.id);
 ```
 
 Ordre de nuit à vérifier après déploiement (Africa/Algiers) : détection des absences à 02:30, libération à 04:00 ; les

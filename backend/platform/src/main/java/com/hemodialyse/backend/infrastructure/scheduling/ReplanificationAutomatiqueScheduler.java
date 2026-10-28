@@ -27,7 +27,7 @@ public class ReplanificationAutomatiqueScheduler {
     /**
      * Toutes les nuits à 02:30.
      */
-    @Scheduled(cron = "0 30 2 * * *")
+    @Scheduled(cron = "0 30 2 * * *", zone = "${app.planification.fuseau-par-defaut:Africa/Algiers}")
     public void replanifier() {
         LocalDate aujourdhui = LocalDate.now(ZoneOffset.UTC);
         for (UUID centre : replanification.centres()) {

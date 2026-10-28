@@ -77,6 +77,7 @@ public final class PlacesDuCentre {
     private final Map<PatientId, Occupation> occupations = new LinkedHashMap<>();
     private final Map<PatientId, Optional<Place>> changements = new LinkedHashMap<>();
     private final List<EvenementDePlacement> evenements = new ArrayList<>();
+    private final java.util.Set<PatientId> sortis = new java.util.HashSet<>();
 
     private PlacesDuCentre(CentreId centre, RessourcesDuCentre ressources) {
         if (centre == null) throw new SaisieInvalide("Centre requis");
@@ -113,6 +114,14 @@ public final class PlacesDuCentre {
      */
     public void connaitre(Occupation occupation) {
         occupations.putIfAbsent(occupation.patient(), occupation);
+    }
+
+    /**
+     * Retient qu'un patient est SORTI (dernier jour de place dépassé) : une nouvelle place lui est refusée
+     * ({@code PLACEMENT_PATIENT_SORTI}, KB-PLN-83) ; sa place inchangée reste acceptée (RG-PLN-051).
+     */
+    public void connaitreUnSorti(PatientId patient) {
+        sortis.add(patient);
     }
 
     public List<Changement> changements() {
@@ -193,6 +202,10 @@ public final class PlacesDuCentre {
         if (demandee.isEmpty()) return true;
         Occupation actuelle = occupations.get(patient);
         if (actuelle != null && actuelle.correspondA(demandee.get())) return false;
+        if (sortis.contains(patient)) {
+            throw new RegleDePlanificationViolee("PLACEMENT_PATIENT_SORTI",
+                    "Placement refusé : le patient est sorti (transfert, guérison, décès, greffe ou séjour terminé)");
+        }
         controler(new IndexDOccupation(ressources, sans(patient).occupations.values()), categorie, demandee.get());
         return true;
     }

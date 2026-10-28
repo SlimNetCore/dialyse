@@ -68,6 +68,33 @@ class LiberationJdbcPostgresContractIT extends LiberationJdbcContrat {
     }
 
     /**
+     * Ordre global des verrous (revue P7, ADR 0056/0061) : la fiche prend le verrou du centre AVANT d'écrire la ligne du patient, comme
+     * la nuit. Rejouée en parallèle, aucun interblocage (40P01) ni délai dépassé (55P03) : la nuit n'a aucun incident et la fiche réussit.
+     */
+    @Test
+    void should_never_deadlock_when_a_record_and_the_night_take_the_centre_lock_before_the_patient_row() throws Exception {
+        var tx = new org.springframework.transaction.support.TransactionTemplate(
+                new org.springframework.jdbc.datasource.DataSourceTransactionManager(jdbc.getDataSource()));
+        var verrou = new com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDesPlacesJdbc(jdbc);
+        // la ligne du centre existe (committée) : sa création simultanée est une autre règle (la perdante reçoit 409, ADR 0059)
+        tx.executeWithoutResult(s -> verrou.prendre(CENTRE));
+        for (int tour = 0; tour < 8; tour++) {
+            jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", CENTRE.valeur());
+            jdbc.update("DELETE FROM patients WHERE center_id = ?", CENTRE.valeur());
+            fiche(CENTRE, 1, "TRANSFERE", J.minusDays(2));
+            fiche(CENTRE, 2, "TRANSFERE", J.minusDays(2));
+            CompletableFuture<LibererLesPlacesEchues.ResultatDuCentre> nuit =
+                    CompletableFuture.supplyAsync(() -> monde().nuit().liberer(CENTRE));
+            CompletableFuture<Void> fiche = CompletableFuture.runAsync(() -> tx.executeWithoutResult(s -> {
+                verrou.prendre(CENTRE);
+                jdbc.update("UPDATE patients SET nom = 'Modifie' WHERE id = ?", patient(1));
+            }));
+            fiche.get(20, TimeUnit.SECONDS);
+            assertThat(nuit.get(20, TimeUnit.SECONDS).incidents()).as("tour " + tour).isEmpty();
+        }
+    }
+
+    /**
      * Course : la fiche tient la ligne du patient (et la change) pendant que la nuit la libère ; la nuit attend, relit, ne perd rien.
      */
     @Test

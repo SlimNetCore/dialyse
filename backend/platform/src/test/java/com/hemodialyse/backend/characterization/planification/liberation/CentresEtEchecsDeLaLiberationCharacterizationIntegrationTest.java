@@ -95,7 +95,11 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
             passage.put("mouvementsPlaceLibereeA", mouvementsDeLiberation(CENTRE_A));
             passage.put("mouvementsPlaceLibereeB", mouvementsDeLiberation(CENTRE_B));
             passage.put("patientsEncorePlacesB", patientsPlaces(CENTRE_B));
-            m.put("echec_de_" + (fautif.equals(a1) ? "A1" : fautif.equals(a2) ? "A2" : "A3"), passage);
+            String nom = fautif.equals(a1) ? "A1" : fautif.equals(a2) ? "A2" : "A3";
+            m.put("echec_de_" + nom, passage);
+            // Revue P7 : l'état des patients est photographié AVANT la remise à zéro du harnais (sinon le golden ne montrerait plus
+            // la sortie du système) : seul le patient en échec garde sa place, les autres sont libérés
+            etatDesPatients("apres_echec_de_" + nom + "_patients");
             // remet le centre B dans son état de départ pour que les passages soient comparables
             jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", CENTRE_B);
             jdbc.update("UPDATE patients SET salle_id = ?, position_id = ?, generateur_id = NULL, jour_lundi = TRUE, jour_mercredi = TRUE "
@@ -108,7 +112,6 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
                     + "WHERE center_id = ? AND nom LIKE 'Patient A%'", salle1, matin, g1a, CENTRE_A);
         }
         arbre("passages_en_echec", m);
-        etatDesPatients("apres_les_echecs_patients");
         retirerLEchec();
         scheduler.libererPlaces();
         etatDesPatients("apres_reprise_patients");
@@ -133,10 +136,11 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
     // ------------------------------------------------------------------ fuseau et calendrier
 
     @Test
-    void la_date_du_jour_du_job_et_du_mouvement_est_celle_du_fuseau_utc() {
+    void la_date_du_jour_du_job_et_du_mouvement_est_celle_du_jour_du_centre() {
         decorDePlacement();
-        // pas de nommerLesJours() : ce scénario n'est pas ignoré entre 23:00 et 24:00 UTC (il ne lit que le jour UTC)
-        LocalDate utc = LocalDate.now(ZoneOffset.UTC);
+        // Le legacy jugeait au jour UTC, le nouveau code au jour du centre (Africa/Algiers) : entre 23:00 et 24:00 UTC les deux
+        // diffèrent et ce scénario est IGNORÉ (garde de proximité de minuit, revue P7). Les alias <UTC> désignent le jour (identique).
+        LocalDate utc = aujourdhui();
         alias(utc.minusDays(1), "<UTC-1>");
         alias(utc, "<UTC>");
         alias(utc.plusDays(1), "<UTC+1>");
@@ -150,7 +154,7 @@ class CentresEtEchecsDeLaLiberationCharacterizationIntegrationTest extends Liber
     }
 
     @Test
-    void le_calendrier_de_nuit_le_cron_de_liberation_n_a_pas_de_fuseau_les_controles_de_02h30_ont_le_leur() throws Exception {
+    void le_calendrier_de_nuit_les_trois_jobs_de_nuit_lisent_la_meme_cle_de_fuseau() throws Exception {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("liberation", planification(LiberationDesPlacesDe0400.class, "libererLesPlaces"));
         m.put("controleDesAbsences", planification(ControleDeNuitDesAbsences.class, "controlerAbsences"));

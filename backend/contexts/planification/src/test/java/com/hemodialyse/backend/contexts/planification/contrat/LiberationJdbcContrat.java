@@ -259,6 +259,19 @@ abstract class LiberationJdbcContrat {
         assertThat(mouvements()).isEqualTo(3);
     }
 
+    /**
+     * Écrasement inverse (revue P7) : une fiche enregistrée APRÈS la nuit avec l'ancienne place d'un patient sorti est refusée par le
+     * contrôle de placement (PLACEMENT_PATIENT_SORTI) ; ici, le patient libéré par la nuit est bien vu « sorti » par ce contrôle.
+     */
+    @Test
+    void should_see_as_left_the_patient_freed_by_the_night_so_that_a_late_record_cannot_give_the_place_back() {
+        fiche(CENTRE, 1, "TRANSFERE", J.minusDays(2));
+        monde().nuit().liberer(CENTRE);
+        assertThat(aUnePlace(1)).isFalse();
+        assertThat(new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc(jdbc())
+                .estSorti(CENTRE, new PatientId(patient(1)), J)).isTrue();
+    }
+
     @Test
     void should_free_a_record_judged_the_day_before_and_keep_a_record_left_yesterday() {
         fiche(CENTRE, 1, "TRANSFERE", J.minusDays(2));

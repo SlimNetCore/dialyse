@@ -103,6 +103,22 @@ abstract class PlacesContrat {
     }
 
     @Test
+    void should_tell_who_has_left_the_centre_and_ignore_the_patients_of_another_centre() {
+        patient(ALICE, "DUPONT Alice", place(SALLE, GENERATEUR, JourDeLaSemaine.LUNDI));
+        patient(BORIS, "MARTIN Boris", place(SALLE, GENERATEUR_2, JourDeLaSemaine.MARDI));
+        patientDUnAutreCentre(CHLOE, "DURAND Chloé", place(SALLE, GENERATEUR_2, JourDeLaSemaine.MERCREDI));
+        sortir(BORIS);
+
+        assertThat(places().estSorti(CENTRE, BORIS, aujourdhui())).isTrue();
+        assertThat(places().estSorti(CENTRE, ALICE, aujourdhui())).isFalse();
+        assertThat(places().estSorti(CENTRE, BORIS, aujourdhui(), "PERMANENT", null)).as("reprise dans la même saisie").isFalse();
+        assertThat(places().estSorti(CENTRE, ALICE, aujourdhui(), "TRANSFERE", aujourdhui().minusDays(3)))
+                .as("sortie saisie dans la même fiche").isTrue();
+        assertThat(places().estSorti(CENTRE, CHLOE, aujourdhui())).as("d'un autre centre").isFalse();
+        assertThat(places().estSorti(CENTRE, INCONNU, aujourdhui())).isFalse();
+    }
+
+    @Test
     void should_never_load_the_places_of_another_centre() {
         patient(ALICE, "DUPONT Alice", place(SALLE, GENERATEUR, JourDeLaSemaine.LUNDI));
         patientDUnAutreCentre(BORIS, "MARTIN Boris", place(SALLE, GENERATEUR_2, JourDeLaSemaine.MARDI));

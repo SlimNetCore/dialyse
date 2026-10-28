@@ -2463,6 +2463,7 @@
     "PEU_IMPORTE": "Peu importe",
     "JOURS_SOUHAITES": "Jours souhaités :",
     "PLACEMENT_ERR": {
+      "PLACEMENT_PATIENT_SORTI": "Placement refusé : ce patient est sorti (transfert, guérison, décès, greffe ou séjour terminé). Pour le replacer, reprenez d'abord sa prise en charge (état « permanent ») dans la même fiche.",
       "PLACEMENT_INCOMPLET": "Placement refusé : choisissez une place complète (salle, créneau, générateur et au moins un jour) avec le planificateur.",
       "PLACEMENT_SALLE_INCONNUE": "Placement refusé : cette salle n'existe pas dans le centre.",
       "PLACEMENT_CRENEAU_INCONNU": "Placement refusé : ce créneau n'existe pas dans le centre.",

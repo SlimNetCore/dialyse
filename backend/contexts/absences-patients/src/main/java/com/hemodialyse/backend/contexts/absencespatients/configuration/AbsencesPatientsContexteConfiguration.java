@@ -215,7 +215,7 @@ public class AbsencesPatientsContexteConfiguration {
 
     @Bean
     FuseauxDesCentres absencesPatientsFuseauxDesCentres(
-            @Value("${app.absences.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+            @Value("${app.absences.fuseau-par-defaut:${app.planification.fuseau-par-defaut:Africa/Algiers}}") String fuseauParDefaut) {
         return new FuseauParDefaut(ZoneId.of(fuseauParDefaut));
     }
 
@@ -319,7 +319,7 @@ public class AbsencesPatientsContexteConfiguration {
 
     @Bean
     AbsencesDuPilotage absencesPatientsAbsencesDuPilotage(JdbcTemplate jdbc,
-            @Value("${app.absences.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+            @Value("${app.absences.fuseau-par-defaut:${app.planification.fuseau-par-defaut:Africa/Algiers}}") String fuseauParDefaut) {
         return new AbsencesDuPilotageJdbc(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
     }
 

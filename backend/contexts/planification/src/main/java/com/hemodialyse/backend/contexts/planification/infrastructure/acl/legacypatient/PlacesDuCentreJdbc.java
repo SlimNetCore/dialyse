@@ -67,6 +67,16 @@ public class PlacesDuCentreJdbc implements PlacesDuCentreRepository {
     }
 
     @Override
+    public boolean estSorti(CentreId centre, PatientId patient, LocalDate jugeLe, String etatAVenir, LocalDate dateAVenir) {
+        return jdbc.query("SELECT etat_patient, date_evenement_etat FROM patients WHERE center_id = ? AND id = ?", (rs, i) -> {
+            Date evenement = rs.getDate("date_evenement_etat");
+            String etat = etatAVenir != null ? etatAVenir : rs.getString("etat_patient");
+            LocalDate date = etatAVenir != null ? dateAVenir : evenement == null ? null : evenement.toLocalDate();
+            return FinDOccupation.dernierJourOccupe(etat, date).map(jugeLe::isAfter).orElse(false);
+        }, centre.valeur(), patient.valeur()).stream().findFirst().orElse(false);
+    }
+
+    @Override
     public List<PatientId> patientsDuGenerateur(CentreId centre, GenerateurId generateur, LocalDate jugeLe) {
         List<PatientId> patients = new ArrayList<>();
         jdbc.query("SELECT id, etat_patient, date_evenement_etat FROM patients WHERE center_id = ? AND generateur_id = ? ORDER BY id",

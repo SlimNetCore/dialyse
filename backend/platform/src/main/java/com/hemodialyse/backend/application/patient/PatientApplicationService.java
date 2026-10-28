@@ -102,7 +102,7 @@ public class PatientApplicationService implements PatientUseCase {
 
         Patient saved = delegate.updatePatient(centerId, patientId, cmd);
         syncAssureRelation(saved, cmd, centerId);
-        MouvementsPatient.changementEtat(saved, etatAvant, dateAvant, LocalDate.now(ZoneOffset.UTC), Instant.now())
+        MouvementsPatient.changementEtat(saved, etatAvant, dateAvant, liberationPlaces.aujourdhuiDuCentre(saved), Instant.now())
                 .ifPresent(mouvementRepo::save);
         liberationPlaces.libererSiEchue(saved);
 

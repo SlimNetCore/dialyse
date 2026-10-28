@@ -23,6 +23,21 @@ public interface PlacesDuCentreRepository {
     java.util.Optional<Occupation> placementActuel(CentreId centre, Identifiants.PatientId patient);
 
     /**
+     * Le patient est-il sorti au jour donné (jour du centre) : dernier jour de place dépassé (transféré, guéri, décédé, greffé, séjour
+     * fini, sortie sans date) ? Faux s'il est inconnu ou d'un autre centre. Sert à refuser une NOUVELLE place pour un sorti
+     * ({@code PLACEMENT_PATIENT_SORTI}, KB-PLN-83). Le sommeil n'y change rien.
+     */
+    default boolean estSorti(CentreId centre, Identifiants.PatientId patient, LocalDate jugeLe) {
+        return estSorti(centre, patient, jugeLe, null, null);
+    }
+
+    /**
+     * Comme ci-dessus, mais à l'état que la fiche aura une fois enregistrée : {@code etatAVenir} nul = état et date enregistrés
+     * conservés ; sinon l'état et la date d'évènement saisis (une reprise {@code PERMANENT} n'est pas un sorti).
+     */
+    boolean estSorti(CentreId centre, Identifiants.PatientId patient, LocalDate jugeLe, String etatAVenir, LocalDate dateAVenir);
+
+    /**
      * Les patients dont le générateur de la fiche est celui-ci, avec ou sans jours, salle ou créneau (place héritée incomplète
      * comprise), hors patients sortis jugés au jour donné (RG-PLN-010) ; triés par identifiant. Borné au centre. Sert à citer les
      * patients de l'alerte « générateur indisponible » (KB-PLN-63).

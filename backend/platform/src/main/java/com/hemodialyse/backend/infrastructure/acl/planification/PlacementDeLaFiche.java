@@ -40,7 +40,8 @@ public class PlacementDeLaFiche {
      * @param patientId {@code null} à la création de la fiche
      */
     public <T> T verifierPuisEnregistrer(UUID centerId, UUID patientId, UUID salleId, UUID creneauId, UUID generateurId,
-                                         Set<JourSemaine> jours, Supplier<T> enregistrement) {
+                                         Set<JourSemaine> jours, String etatAVenir, java.time.LocalDate dateAVenir,
+                                         Supplier<T> enregistrement) {
         UUID centre = garde.requireCenter(centerId).value();
         Set<DayOfWeek> joursCivils = EnumSet.noneOf(DayOfWeek.class);
         if (jours != null) {
@@ -57,7 +58,8 @@ public class PlacementDeLaFiche {
             }
         }
         return transaction.execute(statut -> {
-            placements.verifier(centre, patientId, salleId, creneauId, generateurId, joursCivils);
+            // état à venir de la fiche : un sorti ne reçoit pas de nouvelle place (PLACEMENT_PATIENT_SORTI), une reprise le peut
+            placements.verifier(centre, patientId, salleId, creneauId, generateurId, joursCivils, etatAVenir, dateAVenir);
             return enregistrement.get();
         });
     }

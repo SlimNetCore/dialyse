@@ -119,6 +119,16 @@ public final class PlacesEnMemoire implements PlacesDuCentreRepository, LectureD
     }
 
     @Override
+    public boolean estSorti(CentreId centre, PatientId patient, LocalDate jugeLe, String etatAVenir, LocalDate dateAVenir) {
+        // l'état à venir « PERMANENT » est une reprise ; un état de sortie saisi avec une date passée est un sorti ; sinon l'état enregistré
+        if ("PERMANENT".equals(etatAVenir)) return false;
+        if (etatAVenir != null && java.util.Set.of("TRANSFERE", "DECEDE", "GREFFE", "GUERRI").contains(etatAVenir)) {
+            return !autreCentre.contains(patient) && fiches.containsKey(patient);
+        }
+        return sortis.contains(patient) && !autreCentre.contains(patient);
+    }
+
+    @Override
     public List<PatientId> patientsDuGenerateur(CentreId centre, GenerateurId generateur, LocalDate jugeLe) {
         return fiches.values().stream()
                 .filter(o -> generateur.equals(o.generateur()) && !sortis.contains(o.patient()) && !autreCentre.contains(o.patient()))

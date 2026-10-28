@@ -120,6 +120,30 @@ class PlacementSurLaFicheCharacterizationIntegrationTest extends PlacementCharac
         etatDesPlaces("jour_ferme_etat");
     }
 
+    // ------------------------------------------------------------------ patient sorti (P7, KB-PLN-83, décision du 28/10)
+
+    /**
+     * Scénario AJOUTÉ par P7 (pas de golden au HEAD à archiver : le legacy acceptait ce placement, 200, KB-PLN-83). Une nouvelle place
+     * pour un patient SORTI est refusée en 422 {@code PLACEMENT_PATIENT_SORTI} ; la reprise (état PERMANENT) dans la même saisie, ou une
+     * place retirée, restent permises.
+     */
+    @Test
+    void une_nouvelle_place_pour_un_patient_sorti_est_refusee_sauf_reprise_dans_la_meme_saisie() throws Exception {
+        decorDePlacement();
+        UUID sorti = patientPlace(CENTRE_A, "PAT_SORTI", null, null);
+        etat(sorti, "TRANSFERE", jour(-3));
+        String corpsSorti = ficheDe("PAT_SORTI", CENTRE_A, salle1, matin, g1a, "LUNDI")
+                .replace("\"etatPatient\":\"PERMANENT\"", "\"etatPatient\":\"TRANSFERE\",\"dateEvenementEtat\":\"" + jour(-3) + "\"");
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("sorti, nouvelle place", refus(doPut(PATIENTS + "/" + sorti, corpsSorti, adminA())));
+        m.put("sorti, fiche sans place", refus(doPut(PATIENTS + "/" + sorti,
+                ficheDe("PAT_SORTI", CENTRE_A, null, null, null).replace("\"etatPatient\":\"PERMANENT\"",
+                        "\"etatPatient\":\"TRANSFERE\",\"dateEvenementEtat\":\"" + jour(-3) + "\""), adminA())));
+        m.put("reprise dans la meme saisie", refus(enregistrer("PAT_SORTI", salle1, matin, g1a, "LUNDI")));
+        arbre("sorti_nouvelle_place", m);
+        etatDesPlaces("sorti_nouvelle_place_etat");
+    }
+
     // ------------------------------------------------------------------ modifications d'un placement
 
     @Test

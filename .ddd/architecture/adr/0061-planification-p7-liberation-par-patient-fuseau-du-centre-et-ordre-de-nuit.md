@@ -29,11 +29,11 @@ renvoyée.
 2. **Fuseau du centre** :
    `@Scheduled(cron = "0 0 4 * * *", zone = "${app.planification.fuseau-par-defaut:Africa/Algiers}")` ; le jour de
    libération est celui du centre (`HorlogeDesCentres`) ; seuls les centres ACTIFS sont libérés (les autres : requête de
-   recette).
+   recette ; définition de « actif » : décision 10).
 3. **Ordre de nuit explicite** : détection des absences 02:30 puis libération 04:00, même fuseau (RG-PLN-111) ; test de
    non-régression
-   `OrdreDeNuitDeLaLiberationTest` en plus du golden `ordre_de_nuit`. La replanification automatique de 02:30 (P8) reste
-   hors périmètre.
+   `OrdreDeNuitDeLaLiberationTest` en plus du golden `ordre_de_nuit`. La zone de la replanification automatique de 02:30
+   est alignée (décision 11) ; son calcul reste en P8.
 4. **`PLACE_LIBEREE`** : daté du jour réel de la libération (jour du centre), jamais deux fois de suite pour la même
    place (dernier
    mouvement du patient comparé : état et place), écrit dans la MÊME transaction (`MouvementsDesPatientsJdbc`, ACL) ;
@@ -49,18 +49,37 @@ renvoyée.
    fiche renvoyée.
 7. **Reproduit tel quel** : asymétrie du jour d'évènement, sortis sans date libérés tout de suite, états jamais libérés
    (permanent, inconnu,
-   minuscules), le sommeil n'empêche pas la libération d'un sorti (**à décider**), place partielle libérée, centre fermé
-   libéré.
-8. **Caches** : port `CachesDesPatients` (ACL `CachesDesPatientsLegacy`), éviction APRÈS validation de la transaction.
+   minuscules), le sommeil n'empêche pas la libération d'un sorti (**voulu, décision du 28/10**), place partielle
+   libérée, centre fermé libéré.
+8. **Caches** : port `CachesDesPatients` (publishedlanguage, ACL `CachesDesPatientsLegacy`), éviction APRÈS validation de la transaction.
 
-## Exception documentée à l'ordre global des verrous
+### Décisions du 28/10 (suite de la revue P7)
 
-À l'enregistrement d'une fiche, la ligne du patient est déjà modifiée (flush JPA) quand le verrou du centre est demandé
-(cas « place échue »
-seulement). Un job de nuit tenant le verrou du centre et attendant cette ligne produirait un cycle ; il est borné par
-`lock_timeout` 5 s (PostgreSQL : erreur 55P03 ; la fiche répond 409, la nuit signale le patient et réessaie). Aucun
-cycle sans limite. Même nature que l'exception
-de la sérologie (ADR 0059 § 10).
+9. **Patient sorti** : une NOUVELLE place pour un patient sorti est refusée en 422 `PLACEMENT_PATIENT_SORTI` (P5, `PlacementDeLaFiche`
+   → `PlacesDuCentre`), jugé à l'état À VENIR de la fiche (la reprise `PERMANENT` dans la même saisie reste possible) ; place inchangée,
+   fiche sans place : acceptées. RG-PLN-050 amendée. Le dédoublonnage de `PLACE_LIBEREE` ne peut donc plus masquer une vraie seconde libération
+   d'un sorti replacé.
+10. **« Centre actif » unique** : `COALESCE(centers.actif, TRUE)` (Planification comme Absences) ; un centre à `actif` NULL est libéré (comme
+    le legacy). Requête 1 de recette = PRÉREQUIS BLOQUANT avant déploiement (à lancer par l'utilisateur).
+11. **Une seule clé de fuseau** `app.planification.fuseau-par-defaut` pour les trois jobs de nuit (détection des absences, replanification
+    automatique, libération) : seam minimal `ReplanificationAutomatiqueScheduler` (zone) ; `app.absences.fuseau-par-defaut` n'est qu'une
+    surcharge facultative. Test : `OrdreDeNuitDeLaLiberationTest` (valeurs résolues).
+12. **Dates d'un même enregistrement** : le mouvement de changement d'état est daté du jour du centre (`LiberationDesPlaces.aujourdhui`), comme `PLACE_LIBEREE`.
+
+## Ordre global des verrous (exception levée le 28/10)
+
+À l'enregistrement d'une fiche qui tient une place échue, l'ACL `LiberationALEnregistrementDeLaFiche` prend le verrou du centre AVANT le
+vidage du contexte de persistance (qui verrouille la ligne du patient) : ordre centre → fiche, identique à la nuit. Jugement prudent sur la
+fiche en mémoire (jour UTC ≥ veille du centre). Test PG16 de non-deadlock (fiche et nuit en parallèle, 8 tours). Limite : si un
+auto-flush JPA antérieur dans la même requête a déjà verrouillé la ligne, le cycle redevient possible mais reste borné par `lock_timeout`
+5 s (409 côté fiche, signalement côté nuit) ; le contrôle de placement de la fiche (P5) prend déjà le verrou du centre en premier dès
+qu'une place est saisie, ce qui est le cas de toute place échue encore portée par la fiche.
+
+## À valider par l'utilisateur
+
+- **KB-PLN-84** : l'écriture limitée aux colonnes de place (au lieu de la fiche entière, `en_sommeil` NULL conservé) ne figure pas dans la
+  liste des décisions du 27/10 ; elle est conséquence du choix « transaction par patient » et du verrou de relecture.
+- Statut de l'ADR : reste `proposed` jusqu'à validation.
 
 ## Conséquences
 

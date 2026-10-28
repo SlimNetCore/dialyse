@@ -1,0 +1,5 @@
+{
+  "reprise dans la meme saisie" : "200",
+  "sorti, fiche sans place" : "200",
+  "sorti, nouvelle place" : "422 PLACEMENT_PATIENT_SORTI : Placement refusé : le patient est sorti (transfert, guérison, décès, greffe ou séjour terminé)"
+}

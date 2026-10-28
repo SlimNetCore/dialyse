@@ -394,7 +394,8 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/NotificationsDeLaLiberationLegacy.java",
     "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/port/PatientRepositoryPort.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/PatientRepositoryAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PatientJpaRepository.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PatientJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/ReplanificationAutomatiqueScheduler.java"
   ],
   "seamAllowed": []
 }

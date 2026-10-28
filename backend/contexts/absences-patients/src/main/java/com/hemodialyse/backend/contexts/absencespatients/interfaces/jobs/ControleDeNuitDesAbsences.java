@@ -33,7 +33,7 @@ public class ControleDeNuitDesAbsences {
     }
 
     /** Tous les jours à 02:30. */
-    @Scheduled(cron = "0 30 2 * * *", zone = "${app.absences.fuseau-par-defaut:Africa/Algiers}")
+    @Scheduled(cron = "0 30 2 * * *", zone = "${app.absences.fuseau-par-defaut:${app.planification.fuseau-par-defaut:Africa/Algiers}}")
     public void controlerAbsences() {
         journaliser("nuit", controler.controlerLaNuit());
     }

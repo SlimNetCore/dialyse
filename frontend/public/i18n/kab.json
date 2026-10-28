@@ -2103,6 +2103,7 @@
     "PEU_IMPORTE": "Ur d-yettwarǧa ara",
     "JOURS_SOUHAITES": "Ussan i d-yettwarǧan:",
     "PLACEMENT_ERR": {
+      "PLACEMENT_PATIENT_SORTI": "Placement refused: this patient has left (transfer, recovery, death, transplant or stay ended). To place the patient again, first resume the care (state \"permanent\") in the same record.",
       "PLACEMENT_INCOMPLET": "Asbedd yettwagdel: fren amkan ummid (taxxamt, tallit, asmal d yiwen wass ugar-agi) s umuddu n usnulfu.",
       "PLACEMENT_SALLE_INCONNUE": "Asbedd yettwagdel: taxxamt-a ulac-itt deg uɣallis.",
       "PLACEMENT_CRENEAU_INCONNU": "Asbedd yettwagdel: tallit-a ulac-itt deg uɣallis.",

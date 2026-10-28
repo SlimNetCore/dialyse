@@ -54,12 +54,37 @@ ordre de nuit (`OrdreDeNuitDeLaLiberationTest`), `check-arch.ts` 0 violation, fr
 
 ## Points à valider (utilisateur)
 
-1. Le sommeil n'empêche pas la libération d'un sorti (reproduit, « à décider »).
-2. Le placement d'un patient sorti reste accepté par P5 (KB-PLN-83) : refuser en 422 ?
-3. Les centres inactifs ne sont plus libérés : contrôle de recette (requête 1) avant déploiement.
-4. Traduction kabyle de `LIBERATION_PLACES_EN_ECHEC` à faire relire par un locuteur.
-5. La replanification automatique de 02:30 (P8) garde la zone de la JVM.
-6. `docs/client/documentation-fonctionnelle.html` et la maquette sont à régénérer (RG-PLN-108 à 111).
+Décisions de l'utilisateur du 28/10 (appliquées, voir « Corrections de la revue P7 » plus bas) : sommeil et libération d'un sorti = VOULU
+(« à décider » levé) ; placement d'un sorti refusé en 422 `PLACEMENT_PATIENT_SORTI` ; requête 1 de recette = prérequis bloquant ;
+ordre des verrous ; zone de la replanification et clé unique ; documents clients régénérés.
+
+Reste à valider / à faire :
+1. **KB-PLN-84** : écriture limitée aux colonnes de place (absente de la liste des décisions du 27/10). ADR 0061 reste `proposed`.
+2. **Prérequis bloquant avant déploiement** : l'utilisateur lance la requête 1 de `verifications-production.md` (centres inactifs avec places échues).
+3. **Relecture kabyle par un locuteur** (textes laissés en anglais ou approximatifs) : `NOTIFICATION.TITRE.LIBERATION_PLACES_EN_ECHEC`,
+   `NOTIFICATION.LIBERATION_PLACES_EN_ECHEC` (kab traduit, à relire) et `PLANNING.PLACEMENT_ERR.PLACEMENT_PATIENT_SORTI` (kab EN ANGLAIS) ;
+   dettes P6 déjà consignées : `MASKED_NOTE`, `VERDICT_MASQUE`, `CARTE_MASQUEE`.
+4. La replanification automatique garde `LocalDate.now(UTC)` pour son calcul (P8).
+
+## Corrections de la revue P7 (`.ddd/verify/review-planification-p7.md`, 2026-10-28)
+
+| Constat | Correction |
+|---|---|
+| major 1 : scénario `fuseau` dépendant de l'heure | garde 23-24 UTC (`aujourdhui()`, scénario ignoré dans la fenêtre) ; renommé « …est_celle_du_jour_du_centre » ; calendrier de nuit renommé « …lisent_la_meme_cle_de_fuseau » |
+| major 2 : « centre actif » divergent | `CentresActifsLegacy` : `COALESCE(actif, TRUE)` (aussi pour le contrôle de présence 07:15) ; test H2 `should_consider_a_centre_with_a_null_active_flag…` ; requêtes 1, 2, 8 de recette alignées |
+| minor : écrasement inverse | refus 422 `PLACEMENT_PATIENT_SORTI` (voir ci-dessous) + test de contrat H2/PG16 `should_see_as_left_the_patient_freed_by_the_night…` ; risque résiduel consigné (KB-PLN-84) |
+| minor : `apres_les_echecs_patients` | photographié AVANT la remise à zéro : `apres_echec_de_A1/A2/A3_patients` (3 goldens `_nouveau_code`) ; l'ancien golden retiré (archive `_ecarts-legacy/centres/apres_les_echecs_patients.legacy.json` conservée) ; `centresAvecPlaces` est une requête du harnais (n'observe pas le système) |
+| minor : dates incohérentes | le mouvement de changement d'état est daté du jour du centre (`LiberationDesPlaces.aujourdhui`, seam `PatientApplicationService`) |
+| minor : application dépend d'une ACL | accepté comme seam, tracé dans `seams.md` |
+| minor : dédoublonnage vs replacement | levé par `PLACEMENT_PATIENT_SORTI` (un sorti ne peut plus être replacé) |
+| minor : deux clés de fuseau | UNE clé `app.planification.fuseau-par-defaut` pour absences 02:30, replanification 02:30 (seam `ReplanificationAutomatiqueScheduler`) et libération 04:00 ; test sur les valeurs résolues |
+| minor : ADR `proposed` | reste `proposed` ; KB-PLN-84 inscrit dans les décisions à valider |
+| nits | non traités (alerte sur échec de lecture d'un centre, VO `DernierJourDePlace`) ; requêtes de recette : décalage `current_date` signalé |
+
+Décisions du 28/10 : (1) sommeil = voulu (« à décider » levé partout, aucun code) ; (2) `PLACEMENT_PATIENT_SORTI` (P5 : `PlacementDesPatients` + `PlacerLePatient` + `PlacesDuCentre` + `estSorti`; goldens P5 `sorti_nouvelle_place` et `sorti_nouvelle_place_etat` `_nouveau_code`, scénario AJOUTÉ donc sans golden HEAD à archiver ; RG-PLN-050 amendée ; i18n fr/en/ar/kab) ;
+(3) requête 1 de recette en tête de section, prérequis bloquant ; (4) ordre des verrous : le verrou du centre est pris AVANT le vidage JPA (ACL de la fiche) quand la fiche tient une place échue, test PG16 de non-deadlock ; (5) zone de la replanification ; (6) `docs/client/documentation-fonctionnelle.{html,pdf,docx}` et `maquette-commerciale.{html,pdf,docx}` régénérés par `docs/client/tools/build-*.cjs` (584 règles).
+
+Build après corrections (2026-10-28) : `./mvnw -o test` COMPLET 2484 tests, 0 échec, 4 ignorés ; `check-arch.ts` 0 violation ; PostgreSQL 16 jetable 16/16 (2 exécutions, dont non-deadlock fiche/nuit) ; filets P5 (24 scénarios fiche) et P7 (29) verts.
 
 ## Plan de bascule
 
