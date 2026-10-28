@@ -1,0 +1,15 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "id" : "<UUID_GENERE_1>",
+    "payload" : {
+      "echecs" : "0",
+      "issue" : "RIEN",
+      "propositions" : "0",
+      "targetRoles" : "ADMIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "REPLANIFICATION_NOCTURNE"
+  }
+} ]

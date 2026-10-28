@@ -1,0 +1,31 @@
+[ {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_B>",
+  "erreur" : null,
+  "lance_par" : "SYSTEME",
+  "parametres" : "{\"perimetre\":\"COUVERTURE\",\"debutSemaine\":\"<S0.DIM>\",\"nbSemaines\":2,\"dureeMaxSecondes\":30,\"stabilite\":5,\"objectif\":\"EQUITE\",\"maxVacationsParJour\":2,\"maxVacationsParSemaine\":6,\"heuresParVacation\":5,\"heuresHebdoTempsPlein\":40,\"reposHebdoMin\":1}",
+  "perimetre" : "COUVERTURE",
+  "phase" : null,
+  "score" : "INFIRMIERS null",
+  "statut" : "TERMINEE"
+}, {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_B>",
+  "erreur" : null,
+  "lance_par" : "SYSTEME",
+  "parametres" : "{\"perimetre\":\"MAINTENANCE\",\"debutSemaine\":\"<S0.DIM>\",\"nbSemaines\":2,\"dureeMaxSecondes\":30,\"stabilite\":5,\"objectif\":\"EQUITE\",\"maxVacationsParJour\":2,\"maxVacationsParSemaine\":6,\"heuresParVacation\":5,\"heuresHebdoTempsPlein\":40,\"reposHebdoMin\":1}",
+  "perimetre" : "MAINTENANCE",
+  "phase" : null,
+  "score" : "MAINTENANCE null",
+  "statut" : "TERMINEE"
+}, {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_B>",
+  "erreur" : null,
+  "lance_par" : "SYSTEME",
+  "parametres" : "{\"perimetre\":\"PATIENTS\",\"debutSemaine\":\"<S1.DIM>\",\"nbSemaines\":2,\"dureeMaxSecondes\":30,\"stabilite\":5,\"objectif\":\"EQUITE\",\"maxVacationsParJour\":2,\"maxVacationsParSemaine\":6,\"heuresParVacation\":5,\"heuresHebdoTempsPlein\":40,\"reposHebdoMin\":1}",
+  "perimetre" : "PATIENTS",
+  "phase" : null,
+  "score" : "PATIENTS null",
+  "statut" : "TERMINEE"
+} ]

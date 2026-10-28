@@ -1,0 +1,9 @@
+[ {
+  "payload" : "{\"issue\":\"ECHEC\",\"propositions\":\"0\",\"echecs\":\"3\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "REPLANIFICATION_NOCTURNE"
+}, {
+  "payload" : "{\"issue\":\"RIEN\",\"propositions\":\"0\",\"echecs\":\"0\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "REPLANIFICATION_NOCTURNE"
+} ]

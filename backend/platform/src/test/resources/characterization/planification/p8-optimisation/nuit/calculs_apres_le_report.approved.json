@@ -1,0 +1,11 @@
+[ {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_A>",
+  "erreur" : null,
+  "lance_par" : null,
+  "parametres" : "{\"perimetre\":\"PATIENTS\",\"debutSemaine\":\"<S1.DIM>\",\"nbSemaines\":1,\"dureeMaxSecondes\":2,\"stabilite\":5,\"objectif\":\"EQUITE\",\"maxVacationsParJour\":2,\"maxVacationsParSemaine\":6,\"heuresParVacation\":5,\"heuresHebdoTempsPlein\":40,\"reposHebdoMin\":1}",
+  "perimetre" : "PATIENTS",
+  "phase" : null,
+  "score" : null,
+  "statut" : "EN_COURS"
+} ]

@@ -1,0 +1,22 @@
+[ {
+  "action_code" : "PLANNING_CREATION",
+  "entity_id" : null,
+  "entity_type" : "planning",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/planning/optimisations",
+  "status_code" : "202"
+}, {
+  "action_code" : "PLANNING_CREATION",
+  "entity_id" : "<RUN>",
+  "entity_type" : "planning",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/planning/optimisations/{id}/application",
+  "status_code" : "200"
+}, {
+  "action_code" : "PLANNING_CREATION",
+  "entity_id" : "<RUN>",
+  "entity_type" : "planning",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/planning/optimisations/{id}/application",
+  "status_code" : "422"
+} ]

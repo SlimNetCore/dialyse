@@ -1,0 +1,9 @@
+{
+  "base inchangee" : true,
+  "base inchangee apres le second refus" : true,
+  "detail" : "Une nouvelle place proposée enfreint les règles de la planification : [[GENERATEUR_INCONNU]]",
+  "detail du generateur inconnu" : "Une nouvelle place proposée enfreint les règles de la planification : [[GENERATEUR_INCONNU]]",
+  "execution toujours non appliquee" : 1,
+  "generateur d'une autre salle" : "422 OPTIMISATION_PLACEMENT_GENERATEUR_INCONNU",
+  "generateur inconnu" : "422 OPTIMISATION_PLACEMENT_GENERATEUR_INCONNU"
+}

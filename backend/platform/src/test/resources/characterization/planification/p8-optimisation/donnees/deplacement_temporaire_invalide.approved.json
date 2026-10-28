@@ -1,0 +1,9 @@
+{
+  "sans centre" : "IllegalArgumentException : Centre requis",
+  "sans creneau" : "IllegalArgumentException : Place de remplacement requise",
+  "sans date" : "IllegalArgumentException : Date requise",
+  "sans generateur" : "IllegalArgumentException : Place de remplacement requise",
+  "sans motif" : "accepte",
+  "sans patient" : "IllegalArgumentException : Patient requis",
+  "sans salle" : "IllegalArgumentException : Place de remplacement requise"
+}

@@ -1,0 +1,17 @@
+[ {
+  "de" : {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "generateurCode" : null,
+    "generateurId" : null,
+    "salleId" : null
+  },
+  "jours" : null,
+  "nom" : "Alice Attente",
+  "patientId" : "<ATTENTE>",
+  "vers" : {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "generateurCode" : "G1A",
+    "generateurId" : "<G1A>",
+    "salleId" : "<SALLE_1>"
+  }
+} ]

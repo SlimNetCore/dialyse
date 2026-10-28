@@ -1,0 +1,10 @@
+[ {
+  "appliquee" : "true",
+  "center_id" : "<CENTRE_A>",
+  "empreinte_longueur" : "64",
+  "erreur" : null,
+  "lance_par" : "<UTILISATEUR>",
+  "perimetre" : "PATIENTS",
+  "phase" : "PATIENTS",
+  "statut" : "TERMINEE"
+} ]

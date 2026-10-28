@@ -1,0 +1,130 @@
+{
+  "indisponibilites" : [ "<G1A> <S1.MER> -> <S1.MER> PREVENTIVE", "<G1B> <S0.LUN> -> <S1.SAM> PREVENTIVE" ],
+  "infirmiers" : 2,
+  "patients" : [ {
+    "aRisque" : false,
+    "actuelle" : null,
+    "competences" : [ ],
+    "creneauPrefere" : "<CRENEAU_MATIN>",
+    "dernierJour" : null,
+    "jours" : [ ],
+    "nom" : "AChoisir Attente",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : 3,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : false,
+    "actuelle" : {
+      "code" : "null",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "null",
+      "salle" : "null"
+    },
+    "competences" : [ ],
+    "creneauPrefere" : null,
+    "dernierJour" : "<S3.LUN>",
+    "jours" : [ "JEUDI" ],
+    "nom" : "Apres Sorti",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : false,
+    "actuelle" : {
+      "code" : "null",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "null",
+      "salle" : "null"
+    },
+    "competences" : [ "PEDIATRIE" ],
+    "creneauPrefere" : null,
+    "dernierJour" : null,
+    "jours" : [ "MERCREDI" ],
+    "nom" : "Eve Enfant",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : false,
+    "actuelle" : {
+      "code" : "null",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "null",
+      "salle" : "null"
+    },
+    "competences" : [ ],
+    "creneauPrefere" : null,
+    "dernierJour" : null,
+    "jours" : [ "SAMEDI" ],
+    "nom" : "Fred Fistule",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : false,
+    "actuelle" : {
+      "code" : "null",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "null",
+      "salle" : "null"
+    },
+    "competences" : [ ],
+    "creneauPrefere" : null,
+    "dernierJour" : null,
+    "jours" : [ "MARDI" ],
+    "nom" : "Jours Attente",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : false,
+    "actuelle" : {
+      "code" : "null",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "null",
+      "salle" : "null"
+    },
+    "competences" : [ ],
+    "creneauPrefere" : null,
+    "dernierJour" : null,
+    "jours" : [ "DIMANCHE" ],
+    "nom" : "Ray Retire",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : false,
+    "actuelle" : {
+      "code" : "null",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "null",
+      "salle" : "null"
+    },
+    "competences" : [ "CATHETER" ],
+    "creneauPrefere" : null,
+    "dernierJour" : null,
+    "jours" : [ "VENDREDI" ],
+    "nom" : "Ter Cathe",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ ]
+  }, {
+    "aRisque" : true,
+    "actuelle" : {
+      "code" : "G1A",
+      "creneau" : "<CRENEAU_MATIN>",
+      "generateur" : "<G1A>",
+      "salle" : "<SALLE_1>"
+    },
+    "competences" : [ ],
+    "creneauPrefere" : null,
+    "dernierJour" : null,
+    "jours" : [ "LUNDI" ],
+    "nom" : "Test Patient PLACE",
+    "premierJour" : "<ADMISSION>",
+    "seancesAChoisir" : null,
+    "transporteurs" : [ "<TRANSPORTEUR>" ]
+  } ],
+  "profils" : [ "<INF_A> ProfilInfirmier[infirmierId=<INF_A>, tauxActivite=50, competences=[PEDIATRIE]]" ],
+  "temporaires" : [ "<PLACE> <S1.MAR> <G1B> MAINTENANCE" ]
+}

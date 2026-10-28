@@ -1,0 +1,10 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "cases" : [ ],
+    "semaine" : "<S3.LUN>",
+    "semaines" : [ "<S1.DIM>" ]
+  }
+}

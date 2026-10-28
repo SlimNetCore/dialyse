@@ -1,0 +1,6 @@
+{
+  "1er lancement du centre A" : "202",
+  "2e lancement du centre A pendant le calcul (autre perimetre, autre profil)" : "422 OPTIMISATION_DEJA_EN_COURS",
+  "lancement du centre A apres la fin du calcul" : "202",
+  "lancement du centre B pendant le calcul du centre A" : "202"
+}

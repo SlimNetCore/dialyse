@@ -1,0 +1,13 @@
+[ {
+  "code_patient" : "PLN-ATTENTE",
+  "generateur_id" : null,
+  "jour_dimanche" : "false",
+  "jour_jeudi" : "false",
+  "jour_lundi" : "true",
+  "jour_mardi" : "false",
+  "jour_mercredi" : "true",
+  "jour_samedi" : "false",
+  "jour_vendredi" : "true",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : null
+} ]

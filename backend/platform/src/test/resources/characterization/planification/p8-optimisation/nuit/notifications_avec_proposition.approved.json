@@ -1,0 +1,9 @@
+[ {
+  "payload" : "{\"valeur\":\"1\",\"perimetre\":\"PATIENTS\",\"targetRoles\":\"ADMIN\",\"runId\":\"<UUID_GENERE_1>\",\"motif\":\"GAIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "OPTIMISATION_PROPOSITION"
+}, {
+  "payload" : "{\"issue\":\"PROPOSITIONS\",\"propositions\":\"1\",\"echecs\":\"0\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "REPLANIFICATION_NOCTURNE"
+} ]

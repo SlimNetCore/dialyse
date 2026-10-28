@@ -1,0 +1,19 @@
+[ {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_A>",
+  "empreinte_longueur" : "64",
+  "erreur" : null,
+  "lance_par" : "<UTILISATEUR>",
+  "perimetre" : "ROULEMENT",
+  "phase" : null,
+  "statut" : "TERMINEE"
+}, {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_A>",
+  "empreinte_longueur" : "64",
+  "erreur" : null,
+  "lance_par" : "<UTILISATEUR>",
+  "perimetre" : "ROULEMENT",
+  "phase" : null,
+  "statut" : "TERMINEE"
+} ]

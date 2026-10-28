@@ -1,0 +1,19 @@
+[ {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "id" : "<AFF_A_LUNDI>",
+  "infirmier_id" : "<INF_A>",
+  "jours" : "LUNDI",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "creneau_id" : "<CRENEAU_APRES_MIDI>",
+  "id" : "<AFF_A_MARDI_SALLE_2>",
+  "infirmier_id" : "<INF_A>",
+  "jours" : "MARDI",
+  "salle_id" : "<SALLE_2>"
+}, {
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "id" : "<AFF_INACTIF>",
+  "infirmier_id" : "<INF_INACTIF>",
+  "jours" : "JEUDI",
+  "salle_id" : "<SALLE_2>"
+} ]

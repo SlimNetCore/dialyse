@@ -1,0 +1,5 @@
+[ {
+  "payload" : "{\"nbPatients\":\"1\",\"nbSeancesTemporaires\":\"0\",\"perimetre\":\"COMPLET\",\"targetRoles\":\"MEDECIN,SECRETAIRE\"}",
+  "target_roles" : ",MEDECIN,SECRETAIRE,",
+  "type" : "SEANCES_DEPLACEES"
+} ]

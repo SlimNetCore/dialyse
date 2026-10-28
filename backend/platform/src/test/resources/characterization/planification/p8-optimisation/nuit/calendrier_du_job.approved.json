@@ -1,0 +1,5 @@
+{
+  "cron" : "0 30 2 * * *",
+  "zone declaree" : "${app.planification.fuseau-par-defaut:Africa/Algiers}",
+  "zone resolue" : "Africa/Algiers"
+}

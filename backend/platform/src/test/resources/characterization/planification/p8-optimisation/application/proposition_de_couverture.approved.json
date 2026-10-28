@@ -1,0 +1,75 @@
+{
+  "appliquee" : false,
+  "deplacements" : [ ],
+  "empreinteLongueur" : 64,
+  "erreur" : null,
+  "indicateursApres" : {
+    "depassementsHebdo" : 0,
+    "ecartCharge" : 1,
+    "generateursUtilises" : 1,
+    "infirmiersMobilises" : 2,
+    "patientsNonPlaces" : 0,
+    "placesInfirmierInutilisees" : 9,
+    "sallesOuvertes" : 3,
+    "vacationsNonPourvues" : 0,
+    "vacationsRequises" : 3
+  },
+  "indicateursAvant" : {
+    "depassementsHebdo" : 0,
+    "ecartCharge" : 0,
+    "generateursUtilises" : 1,
+    "infirmiersMobilises" : 1,
+    "patientsNonPlaces" : 0,
+    "placesInfirmierInutilisees" : 9,
+    "sallesOuvertes" : 3,
+    "vacationsNonPourvues" : 2,
+    "vacationsRequises" : 3
+  },
+  "lancePar" : "<UTILISATEUR>",
+  "manques" : [ ],
+  "nonPlaces" : [ ],
+  "parametres" : {
+    "debutSemaine" : "<S1.DIM>",
+    "dureeMaxSecondes" : 2,
+    "heuresHebdoTempsPlein" : 40,
+    "heuresParVacation" : 5,
+    "maxVacationsParJour" : 2,
+    "maxVacationsParSemaine" : 6,
+    "nbSemaines" : 1,
+    "objectif" : "EQUITE",
+    "perimetre" : "COUVERTURE",
+    "reposHebdoMin" : 1,
+    "stabilite" : 5
+  },
+  "phase" : "INFIRMIERS",
+  "score" : "INFIRMIERS 0hard/0medium/-90soft",
+  "seancesSansSolution" : [ ],
+  "statut" : 200,
+  "statutExecution" : "TERMINEE",
+  "temporaires" : [ ],
+  "vacations" : [ {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.LUN>",
+    "existante" : false,
+    "infirmierId" : "<INF_B>",
+    "jour" : "LUNDI",
+    "nom" : "Bob Beta",
+    "salleId" : "<SALLE_1>"
+  }, {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.MER>",
+    "existante" : false,
+    "infirmierId" : "<INF_B>",
+    "jour" : "MERCREDI",
+    "nom" : "Bob Beta",
+    "salleId" : "<SALLE_1>"
+  }, {
+    "creneauId" : "<CRENEAU_MATIN>",
+    "date" : "<S1.VEN>",
+    "existante" : true,
+    "infirmierId" : "<INF_A>",
+    "jour" : "VENDREDI",
+    "nom" : "Anne Alpha",
+    "salleId" : "<SALLE_1>"
+  } ]
+}

@@ -1,0 +1,9 @@
+{
+  "autre centre" : 0,
+  "entre lundi et lundi" : [ "SECOND", "DOUBLON_2" ],
+  "entre lundi et mardi" : [ "<S1.LUN> SECOND", "<S1.LUN> DOUBLON_2", "<S1.MAR> AUTRE_JOUR" ],
+  "entre mardi et mardi" : [ "AUTRE_JOUR" ],
+  "entre mercredi et jeudi" : 0,
+  "lignes apres la liste vide" : 3,
+  "liste vide enregistree" : "sans effet"
+}

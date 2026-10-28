@@ -1,0 +1,32 @@
+{
+  "status" : 202,
+  "contentType" : "application/json",
+  "body" : {
+    "appliqueLe" : null,
+    "centerId" : "<CENTRE_A>",
+    "creeLe" : "<HORODATAGE>",
+    "empreinte" : "<EMPREINTE>",
+    "erreur" : null,
+    "id" : "<RUN>",
+    "lancePar" : "<UTILISATEUR>",
+    "parametres" : {
+      "debutSemaine" : "<S1.DIM>",
+      "dureeMaxSecondes" : 2,
+      "heuresHebdoTempsPlein" : 40,
+      "heuresParVacation" : 5,
+      "maxVacationsParJour" : 2,
+      "maxVacationsParSemaine" : 6,
+      "nbSemaines" : 1,
+      "objectif" : "EQUITE",
+      "perimetre" : "PATIENTS",
+      "reposHebdoMin" : 1,
+      "stabilite" : 5
+    },
+    "phase" : null,
+    "resultat" : null,
+    "resume" : null,
+    "score" : null,
+    "statut" : "EN_COURS",
+    "termineLe" : null
+  }
+}

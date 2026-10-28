@@ -1,0 +1,6 @@
+{
+  "arret d'un calcul termine" : "202",
+  "arret d'une execution inconnue" : "422 OPTIMISATION_INTROUVABLE",
+  "arret demande pendant le calcul" : "202",
+  "statut apres l'arret" : "TERMINEE"
+}

@@ -1,0 +1,5 @@
+[ {
+  "payload" : "{\"issue\":\"REPORTEE\",\"propositions\":\"0\",\"echecs\":\"0\",\"targetRoles\":\"ADMIN\"}",
+  "target_roles" : ",ADMIN,",
+  "type" : "REPLANIFICATION_NOCTURNE"
+} ]

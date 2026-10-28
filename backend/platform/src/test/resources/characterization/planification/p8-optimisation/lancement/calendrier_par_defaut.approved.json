@@ -1,0 +1,113 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "cases" : [ {
+      "creneauId" : "<CRENEAU_MATIN>",
+      "creneauLibelle" : "Matin",
+      "creneauOrdre" : 1,
+      "jours" : [ {
+        "date" : "<S1.DIM>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "DIMANCHE",
+        "manque" : 0,
+        "motifFermeture" : null,
+        "patients" : [ ],
+        "requis" : 0,
+        "surplus" : 0
+      }, {
+        "date" : "<S1.LUN>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "LUNDI",
+        "manque" : 1,
+        "motifFermeture" : null,
+        "patients" : [ {
+          "aRisque" : false,
+          "avant" : null,
+          "deplace" : true,
+          "generateurCode" : "G1A",
+          "nom" : "Alice Attente",
+          "patientId" : "<ATTENTE>",
+          "temporaire" : false
+        } ],
+        "requis" : 1,
+        "surplus" : 0
+      }, {
+        "date" : "<S1.MAR>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "MARDI",
+        "manque" : 0,
+        "motifFermeture" : null,
+        "patients" : [ ],
+        "requis" : 0,
+        "surplus" : 0
+      }, {
+        "date" : "<S1.MER>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "MERCREDI",
+        "manque" : 1,
+        "motifFermeture" : null,
+        "patients" : [ {
+          "aRisque" : false,
+          "avant" : null,
+          "deplace" : true,
+          "generateurCode" : "G1A",
+          "nom" : "Alice Attente",
+          "patientId" : "<ATTENTE>",
+          "temporaire" : false
+        } ],
+        "requis" : 1,
+        "surplus" : 0
+      }, {
+        "date" : "<S1.JEU>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "JEUDI",
+        "manque" : 0,
+        "motifFermeture" : null,
+        "patients" : [ ],
+        "requis" : 0,
+        "surplus" : 0
+      }, {
+        "date" : "<S1.VEN>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "VENDREDI",
+        "manque" : 1,
+        "motifFermeture" : null,
+        "patients" : [ {
+          "aRisque" : false,
+          "avant" : null,
+          "deplace" : true,
+          "generateurCode" : "G1A",
+          "nom" : "Alice Attente",
+          "patientId" : "<ATTENTE>",
+          "temporaire" : false
+        } ],
+        "requis" : 1,
+        "surplus" : 0
+      }, {
+        "date" : "<S1.SAM>",
+        "ferme" : false,
+        "infirmiers" : [ ],
+        "jour" : "SAMEDI",
+        "manque" : 0,
+        "motifFermeture" : null,
+        "patients" : [ ],
+        "requis" : 0,
+        "surplus" : 0
+      } ],
+      "salleId" : "<SALLE_1>",
+      "salleNom" : "Salle 1",
+      "salleOrdre" : 1,
+      "semaineDebut" : "<S1.DIM>"
+    } ],
+    "semaine" : "<S1.DIM>",
+    "semaines" : [ "<S1.DIM>" ]
+  }
+}

@@ -1,0 +1,25 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "date_seance" : "<S1.LUN>",
+  "generateur_id" : "<G1B>",
+  "motif" : "SECOND",
+  "patient_id" : "<P1>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "date_seance" : "<S1.LUN>",
+  "generateur_id" : "<G1A>",
+  "motif" : "AUTRE_PATIENT",
+  "patient_id" : "<P2>",
+  "salle_id" : "<SALLE_1>"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "creneau_id" : "<CRENEAU_MATIN>",
+  "date_seance" : "<S1.MAR>",
+  "generateur_id" : "<G1A>",
+  "motif" : "AUTRE_JOUR",
+  "patient_id" : "<P1>",
+  "salle_id" : "<SALLE_1>"
+} ]

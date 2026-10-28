@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "OPTIMISATION_DEJA_EN_COURS",
+    "detail" : "Une optimisation est déjà en cours pour ce centre",
+    "instance" : "/api/v1/planning/optimisations",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

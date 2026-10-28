@@ -1,0 +1,28 @@
+[ {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_A>",
+  "empreinte_longueur" : "64",
+  "erreur" : null,
+  "lance_par" : "<UTILISATEUR>",
+  "perimetre" : "COUVERTURE",
+  "phase" : null,
+  "statut" : "TERMINEE"
+}, {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_A>",
+  "empreinte_longueur" : "64",
+  "erreur" : null,
+  "lance_par" : "<UTILISATEUR>",
+  "perimetre" : "PATIENTS",
+  "phase" : "PATIENTS",
+  "statut" : "TERMINEE"
+}, {
+  "appliquee" : "false",
+  "center_id" : "<CENTRE_B>",
+  "empreinte_longueur" : "64",
+  "erreur" : null,
+  "lance_par" : "<UUID_GENERE_1>",
+  "perimetre" : "PATIENTS",
+  "phase" : null,
+  "statut" : "TERMINEE"
+} ]

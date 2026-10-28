@@ -1,0 +1,67 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-store",
+  "body" : {
+    "items" : [ {
+      "appliqueLe" : null,
+      "centerId" : "<CENTRE_A>",
+      "creeLe" : "<HORODATAGE>",
+      "empreinte" : "<EMPREINTE>",
+      "erreur" : null,
+      "id" : "<RUN_1>",
+      "lancePar" : "<UTILISATEUR>",
+      "parametres" : {
+        "debutSemaine" : "<S1.DIM>",
+        "dureeMaxSecondes" : 2,
+        "heuresHebdoTempsPlein" : 40,
+        "heuresParVacation" : 5,
+        "maxVacationsParJour" : 2,
+        "maxVacationsParSemaine" : 6,
+        "nbSemaines" : 1,
+        "objectif" : "EQUITE",
+        "perimetre" : "ROULEMENT",
+        "reposHebdoMin" : 1,
+        "stabilite" : 5
+      },
+      "phase" : null,
+      "resultat" : null,
+      "resume" : {
+        "apres" : {
+          "depassementsHebdo" : 0,
+          "ecartCharge" : 0,
+          "generateursUtilises" : 0,
+          "infirmiersMobilises" : 0,
+          "patientsNonPlaces" : 1,
+          "placesInfirmierInutilisees" : 0,
+          "sallesOuvertes" : 0,
+          "vacationsNonPourvues" : 0,
+          "vacationsRequises" : 0
+        },
+        "avant" : {
+          "depassementsHebdo" : 0,
+          "ecartCharge" : 0,
+          "generateursUtilises" : 0,
+          "infirmiersMobilises" : 0,
+          "patientsNonPlaces" : 1,
+          "placesInfirmierInutilisees" : 0,
+          "sallesOuvertes" : 0,
+          "vacationsNonPourvues" : 0,
+          "vacationsRequises" : 0
+        },
+        "deplacements" : 0,
+        "manques" : 0,
+        "nonPlaces" : 0,
+        "seancesSansSolution" : 0,
+        "temporaires" : 0,
+        "vacations" : 0
+      },
+      "score" : "INFIRMIERS null",
+      "statut" : "TERMINEE",
+      "termineLe" : "<HORODATAGE>"
+    } ],
+    "page" : 1,
+    "size" : 2,
+    "total" : 3
+  }
+}

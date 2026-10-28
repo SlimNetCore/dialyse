@@ -1,0 +1,51 @@
+{
+  "appliquee" : false,
+  "deplacements" : [ ],
+  "empreinteLongueur" : 64,
+  "erreur" : null,
+  "indicateursApres" : {
+    "depassementsHebdo" : 0,
+    "ecartCharge" : 0,
+    "generateursUtilises" : 1,
+    "infirmiersMobilises" : 0,
+    "patientsNonPlaces" : 0,
+    "placesInfirmierInutilisees" : 9,
+    "sallesOuvertes" : 3,
+    "vacationsNonPourvues" : 3,
+    "vacationsRequises" : 3
+  },
+  "indicateursAvant" : {
+    "depassementsHebdo" : 0,
+    "ecartCharge" : 0,
+    "generateursUtilises" : 1,
+    "infirmiersMobilises" : 0,
+    "patientsNonPlaces" : 0,
+    "placesInfirmierInutilisees" : 9,
+    "sallesOuvertes" : 3,
+    "vacationsNonPourvues" : 3,
+    "vacationsRequises" : 3
+  },
+  "lancePar" : "<UTILISATEUR>",
+  "manques" : [ ],
+  "nonPlaces" : [ ],
+  "parametres" : {
+    "debutSemaine" : "<S1.DIM>",
+    "dureeMaxSecondes" : 2,
+    "heuresHebdoTempsPlein" : 40,
+    "heuresParVacation" : 5,
+    "maxVacationsParJour" : 2,
+    "maxVacationsParSemaine" : 6,
+    "nbSemaines" : 1,
+    "objectif" : "EQUITE",
+    "perimetre" : "MAINTENANCE",
+    "reposHebdoMin" : 1,
+    "stabilite" : 5
+  },
+  "phase" : null,
+  "score" : "MAINTENANCE null",
+  "seancesSansSolution" : [ ],
+  "statut" : 200,
+  "statutExecution" : "TERMINEE",
+  "temporaires" : [ ],
+  "vacations" : [ ]
+}

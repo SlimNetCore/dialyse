@@ -1,0 +1,67 @@
+{
+  "appliquee" : false,
+  "deplacements" : [ {
+    "de" : {
+      "creneauId" : "<CRENEAU_MATIN>",
+      "generateurCode" : null,
+      "generateurId" : null,
+      "salleId" : null
+    },
+    "jours" : null,
+    "nom" : "Alice Attente",
+    "patientId" : "<ATTENTE>",
+    "vers" : {
+      "creneauId" : "<CRENEAU_MATIN>",
+      "generateurCode" : "G1A",
+      "generateurId" : "<G1A>",
+      "salleId" : "<SALLE_1>"
+    }
+  } ],
+  "empreinteLongueur" : 64,
+  "erreur" : null,
+  "indicateursApres" : {
+    "depassementsHebdo" : 0,
+    "ecartCharge" : 0,
+    "generateursUtilises" : 1,
+    "infirmiersMobilises" : 0,
+    "patientsNonPlaces" : 0,
+    "placesInfirmierInutilisees" : 9,
+    "sallesOuvertes" : 3,
+    "vacationsNonPourvues" : 3,
+    "vacationsRequises" : 3
+  },
+  "indicateursAvant" : {
+    "depassementsHebdo" : 0,
+    "ecartCharge" : 0,
+    "generateursUtilises" : 0,
+    "infirmiersMobilises" : 0,
+    "patientsNonPlaces" : 1,
+    "placesInfirmierInutilisees" : 0,
+    "sallesOuvertes" : 0,
+    "vacationsNonPourvues" : 0,
+    "vacationsRequises" : 0
+  },
+  "lancePar" : "<UTILISATEUR>",
+  "manques" : [ ],
+  "nonPlaces" : [ ],
+  "parametres" : {
+    "debutSemaine" : "<S1.DIM>",
+    "dureeMaxSecondes" : 2,
+    "heuresHebdoTempsPlein" : 40,
+    "heuresParVacation" : 5,
+    "maxVacationsParJour" : 2,
+    "maxVacationsParSemaine" : 6,
+    "nbSemaines" : 1,
+    "objectif" : "EQUITE",
+    "perimetre" : "PATIENTS",
+    "reposHebdoMin" : 1,
+    "stabilite" : 5
+  },
+  "phase" : "PATIENTS",
+  "score" : "PATIENTS 0hard/0medium/-550soft",
+  "seancesSansSolution" : [ ],
+  "statut" : 200,
+  "statutExecution" : "TERMINEE",
+  "temporaires" : [ ],
+  "vacations" : [ ]
+}
