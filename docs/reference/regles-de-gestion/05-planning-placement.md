@@ -326,7 +326,8 @@
   Effets : `PATIENTS` déplace les patients et enregistre sur leur fiche les jours choisis par l'optimisation ;
   `ROULEMENT` remplace le roulement des infirmiers actifs (affectations identiques conservées, autres modifiées, créées
   ou supprimées) ; `COUVERTURE` crée les remplacements ; `COMPLET` fait les deux premiers ; `MAINTENANCE` enregistre
-  les déplacements temporaires (RG-PLN-096) sans toucher aux places habituelles.
+  les déplacements temporaires (RG-PLN-096) sans toucher aux places habituelles — une cible de déplacement incomplète
+  ou inconnue du centre est refusée (`DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE`), rien n'est écrit.
 - **RG-PLN-092** — Accès : lancer, consulter, arrêter et lister (`ADMIN`, `SECRETAIRE`) ; appliquer (`ADMIN`). Interdit
   à l'infirmier « seul » et au médecin « seul » (RG-SEC-022/023). Aucune mise en cache (RG-TRV-041). L'historique est
   paginé (`page`, `size`) et ne charge pas le détail des propositions ; une exécution d'un autre centre est introuvable

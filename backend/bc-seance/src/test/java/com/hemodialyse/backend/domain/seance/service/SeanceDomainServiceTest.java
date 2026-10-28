@@ -1136,6 +1136,24 @@ class SeanceDomainServiceTest {
             throw new UnsupportedOperationException();
         }
 
+        @Override
+        public List<com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance.LigneHistorique> historique(
+                UUID centre, UUID seance) {
+            return List.of();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance.LigneHistorique> sortiesHistoriques(
+                UUID centre, UUID seance) {
+            return List.of();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance.SortieParDate> sortiesParDate(
+                UUID centre, LocalDate date) {
+            return List.of();
+        }
+
         /**
          * Consommable relevé : article et quantité (le choix des lots est l'affaire du Stock).
          */
