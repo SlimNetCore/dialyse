@@ -14,9 +14,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Fournit au contexte Planification son port consommé {@link PlanningDesPlaces} (ACL vers le planning des places du legacy, slice P5,
- * retirée avec elle) : salles et créneaux du centre, patients placés avec leurs jours et leurs bornes d'occupation, jours d'ouverture,
- * salles d'isolement et fermetures de la période. Traducteur des types legacy vers ceux du langage publié.
+ * Fournit au contexte Planification son port consomm├® {@link PlanningDesPlaces} (ACL vers le planning des places du legacy, slice P5,
+ * retir├®e avec elle) : salles et cr├®neaux du centre, patients plac├®s avec leurs jours et leurs bornes d'occupation, jours d'ouverture,
+ * salles d'isolement et fermetures de la p├®riode. Traducteur des types legacy vers ceux du langage publi├®.
  */
 @Component
 public class PlanningDesPlacesLegacy implements PlanningDesPlaces {
