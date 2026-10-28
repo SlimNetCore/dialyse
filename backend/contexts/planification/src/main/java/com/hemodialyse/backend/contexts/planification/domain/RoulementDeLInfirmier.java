@@ -54,6 +54,72 @@ public final class RoulementDeLInfirmier {
                 affectations.stream().map(a -> a.id().equals(id) ? modifiee : a).toList());
     }
 
+    /** Une case habituelle voulue par une proposition d'optimisation : salle et créneau. */
+    public record CaseVoulue(SalleId salle, CreneauId creneau) {
+    }
+
+    /**
+     * Ce qu'il faut écrire pour atteindre le roulement voulu : seules les lignes touchées (P22).
+     *
+     * @param suivant  le roulement une fois appliqué
+     * @param ajoutees nouvelles affectations
+     * @param modifiees affectations dont les jours changent
+     * @param retirees affectations qui disparaissent
+     */
+    public record Changements(RoulementDeLInfirmier suivant, List<Affectation> ajoutees, List<Affectation> modifiees,
+                              List<AffectationId> retirees) {
+        public boolean estVide() {
+            return ajoutees.isEmpty() && modifiees.isEmpty() && retirees.isEmpty();
+        }
+    }
+
+    /**
+     * Remplace le roulement par celui d'une proposition d'optimisation : les affectations identiques (même salle, même créneau)
+     * sont conservées, celles dont les jours changent modifiées, les autres supprimées, les cases nouvelles créées. Le roulement
+     * obtenu est JUGÉ comme toute autre écriture : jamais deux affectations sur le même créneau un même jour.
+     *
+     * @param voulu les jours voulus par case ; une case sans jour n'est pas voulue
+     * @param ids   fournit l'identité des affectations créées
+     * @throws RegleDePlanificationViolee {@code AFFECTATION_CHEVAUCHEMENT}
+     */
+    public Changements remplacerPar(java.util.Map<CaseVoulue, Set<JourDeLaSemaine>> voulu,
+                                    java.util.function.Supplier<AffectationId> ids) {
+        List<Affectation> ajoutees = new ArrayList<>();
+        List<Affectation> modifiees = new ArrayList<>();
+        List<AffectationId> retirees = new ArrayList<>();
+        List<Affectation> suivantes = new ArrayList<>();
+        java.util.Set<CaseVoulue> traitees = new java.util.HashSet<>();
+        for (Affectation a : affectations) {
+            CaseVoulue cle = new CaseVoulue(a.salle(), a.creneau());
+            Set<JourDeLaSemaine> jours = voulu.get(cle);
+            if (jours == null || jours.isEmpty() || !traitees.add(cle)) {
+                retirees.add(a.id());
+            } else if (!jours.equals(a.jours())) {
+                Affectation modifiee = new Affectation(a.id(), a.salle(), a.creneau(), jours);
+                modifiees.add(modifiee);
+                suivantes.add(modifiee);
+            } else {
+                suivantes.add(a);
+            }
+        }
+        for (java.util.Map.Entry<CaseVoulue, Set<JourDeLaSemaine>> souhait : voulu.entrySet()) {
+            if (traitees.contains(souhait.getKey()) || souhait.getValue().isEmpty()) continue;
+            Affectation nouvelle = new Affectation(ids.get(), souhait.getKey().salle(), souhait.getKey().creneau(), souhait.getValue());
+            ajoutees.add(nouvelle);
+            suivantes.add(nouvelle);
+        }
+        for (int i = 0; i < suivantes.size(); i++) {
+            for (int j = i + 1; j < suivantes.size(); j++) {
+                if (suivantes.get(i).chevauche(suivantes.get(j))) {
+                    throw new RegleDePlanificationViolee("AFFECTATION_CHEVAUCHEMENT",
+                            "L'infirmier est déjà affecté à ce créneau l'un de ces jours");
+                }
+            }
+        }
+        return new Changements(new RoulementDeLInfirmier(centre, infirmier, suivantes), List.copyOf(ajoutees), List.copyOf(modifiees),
+                List.copyOf(retirees));
+    }
+
     public RoulementDeLInfirmier retirer(AffectationId id) {
         exigerConnue(id);
         return new RoulementDeLInfirmier(centre, infirmier, affectations.stream().filter(a -> !a.id().equals(id)).toList());

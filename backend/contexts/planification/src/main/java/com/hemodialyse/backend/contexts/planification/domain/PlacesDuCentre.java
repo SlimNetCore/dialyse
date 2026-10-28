@@ -239,6 +239,41 @@ public final class PlacesDuCentre {
         return violations;
     }
 
+    /**
+     * Les règles qu'enfreindrait cette place pour un patient de cette catégorie face aux occupations ACTUELLES de ce centre (le
+     * patient lui-même doit en être absent : voir {@link #sans}). Lecture seule ; sert aux propositions d'optimisation.
+     */
+    public List<Violation> violationsDe(Place place, CategorieDIsolement categorie) {
+        return violations(new IndexDOccupation(ressources, occupations.values()), categorie.aRisque(), place);
+    }
+
+    /**
+     * Replace d'un coup les patients d'une proposition d'optimisation (P22) : <b>tout ou rien</b>. Chaque nouvelle place est jugée
+     * face à l'état FINAL de tous les patients (les échanges de places entre deux patients sont donc possibles) ; si l'une enfreint
+     * une règle rien n'est enregistré. Les jours de la place sont écrits avec elle.
+     *
+     * @param nouvelles  la nouvelle place de chaque patient déplacé (ordre conservé : c'est celui du premier refus)
+     * @param categories catégorie d'isolement de chaque patient déplacé
+     * @throws RegleDePlanificationViolee {@code PLACEMENT_<violation>} de la première place refusée
+     */
+    public void replacerLesPatients(Map<PatientId, Place> nouvelles, Map<PatientId, CategorieDIsolement> categories) {
+        Map<PatientId, Occupation> finales = new LinkedHashMap<>(occupations);
+        nouvelles.forEach((patient, place) -> finales.put(patient, new Occupation(patient, place.salle(), place.creneau(),
+                place.generateur(), place.jours(), categories.getOrDefault(patient, CategorieDIsolement.SANS_RISQUE))));
+        for (Map.Entry<PatientId, Place> n : nouvelles.entrySet()) {
+            List<Occupation> autres = finales.values().stream().filter(o -> !o.patient().equals(n.getKey())).toList();
+            controler(new IndexDOccupation(ressources, autres), categories.getOrDefault(n.getKey(), CategorieDIsolement.SANS_RISQUE),
+                    n.getValue());
+        }
+        nouvelles.forEach((patient, place) -> {
+            Occupation actuelle = occupations.get(patient);
+            occupations.put(patient, finales.get(patient));
+            changements.put(patient, Optional.of(place));
+            lever(actuelle == null || actuelle.estVide() ? new PatientPlace(patient, place)
+                    : new PlacementModifie(patient, actuelle, place));
+        });
+    }
+
     // ───────────────────────────── Isolement ─────────────────────────────
 
     /**

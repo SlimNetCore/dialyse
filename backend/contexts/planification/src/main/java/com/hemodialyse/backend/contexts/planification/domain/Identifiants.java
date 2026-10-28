@@ -92,4 +92,18 @@ public final class Identifiants {
             requis(valeur, "Remplacement");
         }
     }
+
+    /** Exécution d'optimisation (un calcul de planning, de son lancement à son éventuelle application). */
+    public record ExecutionId(UUID valeur) {
+        public ExecutionId {
+            requis(valeur, "Exécution");
+        }
+    }
+
+    /** Déplacement temporaire d'un patient à une date. */
+    public record DeplacementTemporaireId(UUID valeur) {
+        public DeplacementTemporaireId {
+            requis(valeur, "Déplacement temporaire");
+        }
+    }
 }
