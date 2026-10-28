@@ -5,7 +5,7 @@
     "scan": "done",
     "discover": "done",
     "strategic": "done",
-    "tactical": "in-progress",
+    "tactical": "done",
     "architecture": "done",
     "plan": "done",
     "slices": "in-progress",
@@ -67,6 +67,11 @@
     "facturation": "architected",
     "absences-patients": "modeled",
     "stock": "architected",
-    "planification": "architected"
+    "planification": "architected",
+    "seance": "modeled",
+    "patient-couverture": "modeled",
+    "dossier-medical": "modeled",
+    "organisation": "modeled",
+    "pilotage-direction": "modeled"
   }
 }
