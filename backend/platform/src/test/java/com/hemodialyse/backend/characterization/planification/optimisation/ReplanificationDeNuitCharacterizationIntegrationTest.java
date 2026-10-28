@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.characterization.planification.optimisation;
 
 import com.hemodialyse.backend.characterization.planification.OptimisationCharacterizationSupport;
+import com.hemodialyse.backend.contexts.planification.interfaces.jobs.ReplanificationDe0230;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
-import com.hemodialyse.backend.infrastructure.scheduling.ReplanificationAutomatiqueScheduler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ReplanificationDeNuitCharacterizationIntegrationTest extends OptimisationCharacterizationSupport {
 
     @Autowired
-    private ReplanificationAutomatiqueScheduler job;
+    private ReplanificationDe0230 job;
     @Autowired
     private Environment environnement;
 
@@ -57,7 +57,7 @@ class ReplanificationDeNuitCharacterizationIntegrationTest extends OptimisationC
 
     @Test
     void le_job_de_nuit_est_planifie_a_0230_dans_le_fuseau_par_defaut_des_centres() throws Exception {
-        Scheduled s = ReplanificationAutomatiqueScheduler.class.getMethod("replanifier").getAnnotation(Scheduled.class);
+        Scheduled s = ReplanificationDe0230.class.getMethod("replanifier").getAnnotation(Scheduled.class);
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cron", s.cron());
         m.put("zone declaree", s.zone());

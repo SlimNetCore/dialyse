@@ -62,15 +62,14 @@ class ReplanificationDeNuitApplicationTest {
     // ── centres ──
 
     @Test
-    void should_only_replan_the_active_centres_that_enabled_the_option() {
+    void should_replan_the_centres_that_enabled_the_option_regardless_of_the_active_flag() {
         CentreId inactif = new CentreId(UUID.randomUUID());
         CentreId sansOption = new CentreId(UUID.randomUUID());
         m.parametrage.reglages.enregistrer(CENTRE, new ReglagesDePlanification(true, 5, 40, 1));
         m.parametrage.reglages.enregistrer(inactif, new ReglagesDePlanification(true, 5, 40, 1));
         m.parametrage.reglages.enregistrer(sansOption, new ReglagesDePlanification(false, 5, 40, 1));
-        m.centresActifs.add(sansOption);
 
-        assertThat(m.nuit.centres()).containsExactly(CENTRE);
+        assertThat(m.nuit.centres()).containsExactlyInAnyOrder(CENTRE, inactif);
     }
 
     @Test

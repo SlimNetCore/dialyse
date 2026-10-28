@@ -121,7 +121,7 @@ public final class MondeDOptimisation {
         return personnelDeLaPresence;
     };
 
-    public final ReplanifierLaNuit nuit = new ReplanifierLaNuit(parametrage.reglages, actifs, places, lancer, personnel,
+    public final ReplanifierLaNuit nuit = new ReplanifierLaNuit(parametrage.reglages, places, lancer, personnel,
             optimisation.notificationsDeLOptimisation);
 
     public MondeDOptimisation() {

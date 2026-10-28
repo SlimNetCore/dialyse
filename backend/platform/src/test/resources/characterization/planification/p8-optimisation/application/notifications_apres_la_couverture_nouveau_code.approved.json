@@ -1,0 +1,12 @@
+[
+  {
+    "payload": "{\"date\":\"<S1.LUN>\",\"salleId\":\"<SALLE_1>\",\"infirmierId\":\"<INF_B>\",\"creneauId\":\"<CRENEAU_MATIN>\",\"targetRoles\":\"ADMIN,INFIRMIER\",\"runId\":\"<RUN>\"}",
+    "target_roles": ",ADMIN,INFIRMIER,",
+    "type": "INFIRMIER_REMPLACEMENT_AFFECTE"
+  },
+  {
+    "payload": "{\"date\":\"<S1.MER>\",\"salleId\":\"<SALLE_1>\",\"infirmierId\":\"<INF_B>\",\"creneauId\":\"<CRENEAU_MATIN>\",\"targetRoles\":\"ADMIN,INFIRMIER\",\"runId\":\"<RUN>\"}",
+    "target_roles": ",ADMIN,INFIRMIER,",
+    "type": "INFIRMIER_REMPLACEMENT_AFFECTE"
+  }
+]

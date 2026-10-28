@@ -1,0 +1,23 @@
+{
+  "corps vide": "400 BAD_REQUEST",
+  "debutSemaine mal forme": "400 BAD_REQUEST",
+  "dureeMaxSecondes 1": "400 BAD_REQUEST",
+  "dureeMaxSecondes 301": "400 BAD_REQUEST",
+  "json illisible": "400 BAD_REQUEST",
+  "limites acceptees (nbSemaines 8, duree 2, stabilite 0 et 10, vacations 1/1 et 3/14)": "voir ci-dessous",
+  "maxVacationsParJour 0": "400 BAD_REQUEST",
+  "maxVacationsParJour 4": "400 BAD_REQUEST",
+  "maxVacationsParSemaine 0": "400 BAD_REQUEST",
+  "maxVacationsParSemaine 15": "400 BAD_REQUEST",
+  "nbSemaines 0": "400 BAD_REQUEST",
+  "nbSemaines 9": "400 BAD_REQUEST",
+  "nbSemaines texte": "400 BAD_REQUEST",
+  "objectif inconnu": "400 BAD_REQUEST",
+  "objet vide": "400 BAD_REQUEST",
+  "perimetre en minuscules": "400 BAD_REQUEST",
+  "perimetre inconnu": "400 BAD_REQUEST",
+  "stabilite -1": "400 BAD_REQUEST",
+  "stabilite 11": "400 BAD_REQUEST",
+  "{'perimetre':'ROULEMENT','nbSemaines':1,'dureeMaxSecondes':300,'stabilite':10,'maxVacationsParJour':3,'maxVacationsParSemaine':14,'objectif':'ECONOMIE'}": "202",
+  "{'perimetre':'ROULEMENT','nbSemaines':8,'dureeMaxSecondes':2,'stabilite':0,'maxVacationsParJour':1,'maxVacationsParSemaine':1}": "202"
+}

@@ -1,0 +1,9 @@
+{
+  "autre centre": "404 OPTIMISATION_INTROUVABLE",
+  "debut du contenu": "%PDF-",
+  "en-tete Content-Disposition": "inline; filename=\"planning-propose-<RUN>.pdf\"; filename*=UTF-8''planning-propose-<RUN>.pdf",
+  "execution inconnue": "404 OPTIMISATION_INTROUVABLE",
+  "execution sans calendrier": "422 OPTIMISATION_CALENDRIER_ABSENT",
+  "statut": 200,
+  "type": "application/pdf"
+}

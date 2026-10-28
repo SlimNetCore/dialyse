@@ -48,7 +48,6 @@ import com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesD
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CachesDesPatients;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDuCalendrierDeLaProposition;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -63,7 +62,6 @@ import java.time.Clock;
  * défaut reste le legacy ; la propriété disparaît avec lui.
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(name = "app.planification.optimisation.moteur", havingValue = "nouveau")
 public class OptimisationConfiguration {
 
     @Bean
@@ -169,10 +167,10 @@ public class OptimisationConfiguration {
     }
 
     @Bean
-    ReplanifierLaNuit planificationReplanifierLaNuit(ReglagesRepository reglages, CentresActifs centres, HorlogeDesCentres horloge,
+    ReplanifierLaNuit planificationReplanifierLaNuit(ReglagesRepository reglages, HorlogeDesCentres horloge,
                                                      LancerUneOptimisation lancer, PersonnelDeLaPresence personnel,
                                                      NotificationsDeLOptimisation notifications) {
-        return new ReplanifierLaNuit(reglages, centres, horloge, lancer, personnel, notifications);
+        return new ReplanifierLaNuit(reglages, horloge, lancer, personnel, notifications);
     }
 
     @Bean

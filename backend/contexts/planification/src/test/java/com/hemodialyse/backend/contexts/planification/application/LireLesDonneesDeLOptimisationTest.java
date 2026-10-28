@@ -102,13 +102,13 @@ class LireLesDonneesDeLOptimisationTest {
                 (centre, du, au) -> seances).charger(CENTRE, DU, AU);
     }
 
-    private void patient(int n, String nom, Occupation place, SejourDuPatient sejour) {
+    private void ajouterPatient(int n, String nom, Occupation place, SejourDuPatient sejour) {
         sejours.add(new PatientDeLaSemaine(patient(n), nom, place, sejour));
     }
 
     @Test
     void should_read_a_placed_patient_with_the_code_of_its_generator_and_its_stay() {
-        patient(1, "Anne Alpha", place(1, LMV, true), new SejourDuPatient(DU.minusDays(30), null, false, false));
+        ajouterPatient(1, "Anne Alpha", place(1, LMV, true), new SejourDuPatient(DU.minusDays(30), null, false, false));
 
         PatientAPlacer p = lire().patients().getFirst();
 
@@ -124,31 +124,31 @@ class LireLesDonneesDeLOptimisationTest {
 
     @Test
     void should_keep_a_sleeping_patient_who_keeps_its_place_but_drop_one_whose_place_is_already_freed() {
-        patient(1, "Endormi", place(1, LMV, true), new SejourDuPatient(null, null, false, true));
-        patient(2, "Parti", place(2, LMV, true), new SejourDuPatient(null, DU.minusDays(1), true, false));
-        patient(3, "Sorti sans date", place(3, LMV, false), new SejourDuPatient(null, LocalDate.MIN, false, false));
+        ajouterPatient(1, "Endormi", place(1, LMV, true), new SejourDuPatient(null, null, false, true));
+        ajouterPatient(2, "Parti", place(2, LMV, true), new SejourDuPatient(null, DU.minusDays(1), true, false));
+        ajouterPatient(3, "Sorti sans date", place(3, LMV, false), new SejourDuPatient(null, LocalDate.MIN, false, false));
 
         assertThat(lire().patients()).extracting(PatientAPlacer::nom).containsExactly("Endormi");
     }
 
     @Test
     void should_keep_a_patient_whose_last_day_is_the_first_day_of_the_horizon() {
-        patient(1, "Dernier jour", place(1, LMV, true), new SejourDuPatient(null, DU, false, false));
+        ajouterPatient(1, "Dernier jour", place(1, LMV, true), new SejourDuPatient(null, DU, false, false));
         assertThat(lire().patients()).hasSize(1);
         assertThat(lire().patients().getFirst().dernierJour()).isEqualTo(DU);
     }
 
     @Test
     void should_drop_a_placed_patient_without_days() {
-        patient(1, "Sans jours", place(1, Set.of(), true), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(1, "Sans jours", place(1, Set.of(), true), SejourDuPatient.SANS_LIMITE);
         assertThat(lire().patients()).isEmpty();
     }
 
     @Test
     void should_read_a_waiting_patient_only_with_prescribed_days_or_days_to_choose() {
-        patient(1, "Attend avec jours", place(1, LMV, false), SejourDuPatient.SANS_LIMITE);
-        patient(2, "Attend sans rien", place(2, Set.of(), false), SejourDuPatient.SANS_LIMITE);
-        patient(3, "Jours a choisir", place(3, Set.of(), false), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(1, "Attend avec jours", place(1, LMV, false), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(2, "Attend sans rien", place(2, Set.of(), false), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(3, "Jours a choisir", place(3, Set.of(), false), SejourDuPatient.SANS_LIMITE);
         preferences.put(patient(3), new PreferenceDePlanification(patient(3), SOIR, 3, true));
 
         List<PatientAPlacer> lus = lire().patients();
@@ -176,7 +176,7 @@ class LireLesDonneesDeLOptimisationTest {
 
     @Test
     void should_ignore_the_choice_of_days_when_the_preference_does_not_ask_for_it() {
-        patient(1, "Avec creneau prefere", place(1, LMV, true), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(1, "Avec creneau prefere", place(1, LMV, true), SejourDuPatient.SANS_LIMITE);
         preferences.put(patient(1), new PreferenceDePlanification(patient(1), SOIR, 3, false));
 
         PatientAPlacer p = lire().patients().getFirst();
@@ -187,16 +187,16 @@ class LireLesDonneesDeLOptimisationTest {
 
     @Test
     void should_sort_the_patients_by_name_then_by_identifier() {
-        patient(2, "Bob", place(2, LMV, true), SejourDuPatient.SANS_LIMITE);
-        patient(1, "Anne", place(1, LMV, true), SejourDuPatient.SANS_LIMITE);
-        patient(4, "Bob", place(4, LMV, true), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(2, "Bob", place(2, LMV, true), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(1, "Anne", place(1, LMV, true), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(4, "Bob", place(4, LMV, true), SejourDuPatient.SANS_LIMITE);
 
         assertThat(lire().patients()).extracting(PatientAPlacer::patient).containsExactly(patient(1), patient(2), patient(4));
     }
 
     @Test
     void should_carry_the_transporters_and_the_required_skills() {
-        patient(1, "Anne", place(1, LMV, true), SejourDuPatient.SANS_LIMITE);
+        ajouterPatient(1, "Anne", place(1, LMV, true), SejourDuPatient.SANS_LIMITE);
         UUID transporteur = UUID.randomUUID();
         contraintes.put(patient(1), new Contraintes(Set.of(transporteur), EnumSet.of(Competence.PEDIATRIE, Competence.CATHETER)));
 

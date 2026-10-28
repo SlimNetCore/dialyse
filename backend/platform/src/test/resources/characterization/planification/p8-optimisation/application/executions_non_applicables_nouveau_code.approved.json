@@ -1,0 +1,6 @@
+{
+  "calcul en cours": "422 OPTIMISATION_NON_APPLICABLE",
+  "calcul en echec": "422 OPTIMISATION_NON_APPLICABLE",
+  "execution inconnue": "404 OPTIMISATION_INTROUVABLE",
+  "terminee sans resultat": "422 OPTIMISATION_NON_APPLICABLE"
+}

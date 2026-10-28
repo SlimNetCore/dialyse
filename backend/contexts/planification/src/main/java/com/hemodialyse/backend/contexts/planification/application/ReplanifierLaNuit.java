@@ -35,16 +35,14 @@ public class ReplanifierLaNuit {
     private static final Logger journal = Logger.getLogger(ReplanifierLaNuit.class.getName());
 
     private final ReglagesRepository reglages;
-    private final CentresActifs centresActifs;
     private final HorlogeDesCentres horloge;
     private final LancerUneOptimisation lancer;
     private final PersonnelDeLaPresence personnel;
     private final NotificationsDeLOptimisation notifications;
 
-    public ReplanifierLaNuit(ReglagesRepository reglages, CentresActifs centresActifs, HorlogeDesCentres horloge,
+    public ReplanifierLaNuit(ReglagesRepository reglages, HorlogeDesCentres horloge,
                              LancerUneOptimisation lancer, PersonnelDeLaPresence personnel, NotificationsDeLOptimisation notifications) {
         this.reglages = reglages;
-        this.centresActifs = centresActifs;
         this.horloge = horloge;
         this.lancer = lancer;
         this.personnel = personnel;
@@ -53,8 +51,7 @@ public class ReplanifierLaNuit {
 
     /** Les centres à replanifier cette nuit : actifs, option activée, par identifiant. */
     public List<CentreId> centres() {
-        Set<CentreId> actifs = new HashSet<>(centresActifs.liste());
-        return reglages.centresEnReplanificationNocturne().stream().filter(actifs::contains).toList();
+        return reglages.centresEnReplanificationNocturne();
     }
 
     /** Lance la nuit de tous les centres ; un centre en erreur n'empêche pas les autres. */

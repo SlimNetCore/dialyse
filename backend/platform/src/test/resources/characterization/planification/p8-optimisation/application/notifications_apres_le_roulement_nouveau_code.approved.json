@@ -1,0 +1,7 @@
+[
+  {
+    "payload": "{\"infirmierId\":\"<INF_A>\",\"targetRoles\":\"ADMIN,INFIRMIER\",\"runId\":\"<RUN>\"}",
+    "target_roles": ",ADMIN,INFIRMIER,",
+    "type": "INFIRMIER_ROULEMENT_MODIFIE"
+  }
+]

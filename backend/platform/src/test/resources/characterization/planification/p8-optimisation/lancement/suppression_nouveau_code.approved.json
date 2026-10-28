@@ -1,0 +1,10 @@
+{
+  "execution restante": 0,
+  "lignes du calendrier apres": 0,
+  "lignes du calendrier avant": true,
+  "seconde suppression": "404 OPTIMISATION_INTROUVABLE",
+  "suppression par l'administrateur": "204",
+  "suppression par l'administrateur d'un autre centre": "404 OPTIMISATION_INTROUVABLE",
+  "suppression par un secretaire": "403 ACCESS_DENIED",
+  "suppression pendant le calcul": "422 OPTIMISATION_SUPPRESSION_EN_COURS"
+}

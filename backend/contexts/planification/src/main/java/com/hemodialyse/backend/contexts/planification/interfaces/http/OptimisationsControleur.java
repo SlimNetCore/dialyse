@@ -20,7 +20,6 @@ import com.hemodialyse.backend.contexts.planification.domain.ParametresDOptimisa
 import com.hemodialyse.backend.contexts.planification.domain.Perimetre;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDuCalendrierDeLaProposition.Document;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
@@ -57,7 +56,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/planning/optimisations")
 @PreAuthorize("hasAnyRole('ADMIN','SECRETAIRE')")
-@ConditionalOnProperty(name = "app.planification.optimisation.moteur", havingValue = "nouveau")
 public class OptimisationsControleur {
 
     private final SessionCourante session;

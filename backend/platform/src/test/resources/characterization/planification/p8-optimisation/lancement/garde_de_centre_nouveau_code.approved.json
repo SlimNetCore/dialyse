@@ -1,0 +1,10 @@
+{
+  "appliquer depuis B": "404 OPTIMISATION_INTROUVABLE",
+  "arreter depuis B": "404 OPTIMISATION_INTROUVABLE",
+  "consulter A en demandant le centre B": "403 ACCESS_DENIED",
+  "consulter depuis A avec son propre centre": "200",
+  "consulter depuis B": "404 OPTIMISATION_INTROUVABLE",
+  "historique de A en demandant le centre B": "403 ACCESS_DENIED",
+  "lancer pour le centre B depuis A": "403 ACCESS_DENIED",
+  "supprimer depuis B": "404 OPTIMISATION_INTROUVABLE"
+}

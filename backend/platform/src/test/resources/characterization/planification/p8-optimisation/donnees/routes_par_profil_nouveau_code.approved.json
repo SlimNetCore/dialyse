@@ -1,0 +1,134 @@
+{
+  "ADMIN": {
+    "DELETE execution": "404 OPTIMISATION_INTROUVABLE",
+    "GET calendrier": "404 OPTIMISATION_INTROUVABLE",
+    "GET execution": "404 OPTIMISATION_INTROUVABLE",
+    "GET historique": "200",
+    "GET impression": "404 OPTIMISATION_INTROUVABLE",
+    "POST application": "404 OPTIMISATION_INTROUVABLE",
+    "POST arret": "404 OPTIMISATION_INTROUVABLE",
+    "POST lancer (corps valide, calcul vide)": "202",
+    "POST lancer (corps vide {})": "400 BAD_REQUEST"
+  },
+  "ADMIN sans centre": {
+    "DELETE execution": "403 ACCESS_DENIED",
+    "GET calendrier": "403 ACCESS_DENIED",
+    "GET execution": "403 ACCESS_DENIED",
+    "GET historique": "403 ACCESS_DENIED",
+    "GET impression": "403 ACCESS_DENIED",
+    "POST application": "403 ACCESS_DENIED",
+    "POST arret": "403 ACCESS_DENIED",
+    "POST lancer (corps valide, calcul vide)": "403 ACCESS_DENIED",
+    "POST lancer (corps vide {})": "403 ACCESS_DENIED"
+  },
+  "DIRECTION": {
+    "DELETE execution": "403 ROLE_SCOPE",
+    "GET calendrier": "403 ROLE_SCOPE",
+    "GET execution": "403 ROLE_SCOPE",
+    "GET historique": "403 ROLE_SCOPE",
+    "GET impression": "403 ROLE_SCOPE",
+    "POST application": "403 ROLE_SCOPE",
+    "POST arret": "403 ROLE_SCOPE",
+    "POST lancer (corps valide, calcul vide)": "403 ROLE_SCOPE",
+    "POST lancer (corps vide {})": "403 ROLE_SCOPE"
+  },
+  "INFIRMIER seul": {
+    "DELETE execution": "403 ROLE_SCOPE",
+    "GET calendrier": "403 ROLE_SCOPE",
+    "GET execution": "403 ROLE_SCOPE",
+    "GET historique": "403 ROLE_SCOPE",
+    "GET impression": "403 ROLE_SCOPE",
+    "POST application": "403 ROLE_SCOPE",
+    "POST arret": "403 ROLE_SCOPE",
+    "POST lancer (corps valide, calcul vide)": "403 ROLE_SCOPE",
+    "POST lancer (corps vide {})": "403 ROLE_SCOPE"
+  },
+  "MEDECIN + INFIRMIER": {
+    "DELETE execution": "403 ACCESS_DENIED",
+    "GET calendrier": "403 ACCESS_DENIED",
+    "GET execution": "403 ACCESS_DENIED",
+    "GET historique": "403 ACCESS_DENIED",
+    "GET impression": "403 ACCESS_DENIED",
+    "POST application": "403 ACCESS_DENIED",
+    "POST arret": "403 ACCESS_DENIED",
+    "POST lancer (corps valide, calcul vide)": "403 ACCESS_DENIED",
+    "POST lancer (corps vide {})": "403 ACCESS_DENIED"
+  },
+  "MEDECIN seul": {
+    "DELETE execution": "403 ROLE_SCOPE",
+    "GET calendrier": "403 ROLE_SCOPE",
+    "GET execution": "403 ROLE_SCOPE",
+    "GET historique": "403 ROLE_SCOPE",
+    "GET impression": "403 ROLE_SCOPE",
+    "POST application": "403 ROLE_SCOPE",
+    "POST arret": "403 ROLE_SCOPE",
+    "POST lancer (corps valide, calcul vide)": "403 ROLE_SCOPE",
+    "POST lancer (corps vide {})": "403 ROLE_SCOPE"
+  },
+  "SECRETAIRE": {
+    "DELETE execution": "403 ACCESS_DENIED",
+    "GET calendrier": "404 OPTIMISATION_INTROUVABLE",
+    "GET execution": "404 OPTIMISATION_INTROUVABLE",
+    "GET historique": "200",
+    "GET impression": "404 OPTIMISATION_INTROUVABLE",
+    "POST application": "403 ACCESS_DENIED",
+    "POST arret": "404 OPTIMISATION_INTROUVABLE",
+    "POST lancer (corps valide, calcul vide)": "202",
+    "POST lancer (corps vide {})": "400 BAD_REQUEST"
+  },
+  "SUPERADMIN": {
+    "DELETE execution": "403 ROLE_SCOPE",
+    "GET calendrier": "403 ROLE_SCOPE",
+    "GET execution": "403 ROLE_SCOPE",
+    "GET historique": "403 ROLE_SCOPE",
+    "GET impression": "403 ROLE_SCOPE",
+    "POST application": "403 ROLE_SCOPE",
+    "POST arret": "403 ROLE_SCOPE",
+    "POST lancer (corps valide, calcul vide)": "403 ROLE_SCOPE",
+    "POST lancer (corps vide {})": "403 ROLE_SCOPE"
+  },
+  "SUPERADMIN + ADMIN": {
+    "DELETE execution": "403 ROLE_SCOPE",
+    "GET calendrier": "403 ROLE_SCOPE",
+    "GET execution": "403 ROLE_SCOPE",
+    "GET historique": "403 ROLE_SCOPE",
+    "GET impression": "403 ROLE_SCOPE",
+    "POST application": "403 ROLE_SCOPE",
+    "POST arret": "403 ROLE_SCOPE",
+    "POST lancer (corps valide, calcul vide)": "403 ROLE_SCOPE",
+    "POST lancer (corps vide {})": "403 ROLE_SCOPE"
+  },
+  "anonyme": {
+    "DELETE execution": "403",
+    "GET calendrier": "403",
+    "GET execution": "403",
+    "GET historique": "403",
+    "GET impression": "403",
+    "POST application": "403",
+    "POST arret": "403",
+    "POST lancer (corps valide, calcul vide)": "403",
+    "POST lancer (corps vide {})": "403"
+  },
+  "aucun role": {
+    "DELETE execution": "403 ACCESS_DENIED",
+    "GET calendrier": "403 ACCESS_DENIED",
+    "GET execution": "403 ACCESS_DENIED",
+    "GET historique": "403 ACCESS_DENIED",
+    "GET impression": "403 ACCESS_DENIED",
+    "POST application": "403 ACCESS_DENIED",
+    "POST arret": "403 ACCESS_DENIED",
+    "POST lancer (corps valide, calcul vide)": "403 ACCESS_DENIED",
+    "POST lancer (corps vide {})": "403 ACCESS_DENIED"
+  },
+  "role inconnu (COMPTABLE)": {
+    "DELETE execution": "403 ACCESS_DENIED",
+    "GET calendrier": "403 ACCESS_DENIED",
+    "GET execution": "403 ACCESS_DENIED",
+    "GET historique": "403 ACCESS_DENIED",
+    "GET impression": "403 ACCESS_DENIED",
+    "POST application": "403 ACCESS_DENIED",
+    "POST arret": "403 ACCESS_DENIED",
+    "POST lancer (corps valide, calcul vide)": "403 ACCESS_DENIED",
+    "POST lancer (corps vide {})": "403 ACCESS_DENIED"
+  }
+}

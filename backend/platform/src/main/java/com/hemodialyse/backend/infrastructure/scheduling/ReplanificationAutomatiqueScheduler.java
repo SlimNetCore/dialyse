@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.scheduling;
 import com.hemodialyse.backend.application.planning.optimisation.ReplanificationAutomatiqueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.UUID;
  * (couverture, maintenances, placement des patients). Les propositions sont signalées, jamais appliquées d'office.
  */
 @Component
+@ConditionalOnProperty(name = "app.planification.optimisation.moteur", havingValue = "legacy", matchIfMissing = false)
 public class ReplanificationAutomatiqueScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(ReplanificationAutomatiqueScheduler.class);
