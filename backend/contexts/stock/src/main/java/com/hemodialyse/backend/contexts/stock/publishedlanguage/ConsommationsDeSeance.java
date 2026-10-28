@@ -39,6 +39,31 @@ public interface ConsommationsDeSeance {
      */
     void enregistrerALaValidation(UUID centre, UUID seance, UUID patient, LocalDate dateSeance, List<Ligne> lignes, String auteur);
 
+    /**
+     * Historique des consommables imputés sur la séance (sorties historiques + consommations imputées sur la pièce),
+     * valorisés au PMP de sortie. Lecture pour l'affichage de la fiche séance (S9).
+     */
+    List<LigneHistorique> historique(UUID centre, UUID seance);
+
+    /**
+     * Sorties historiques (bons de sortie) rattachées à la séance, valorisées au PMP. Lecture pour l'affichage de la fiche
+     * séance (S9).
+     */
+    List<LigneHistorique> sortiesHistoriques(UUID centre, UUID seance);
+
+    /**
+     * Sorties de stock (bons de sortie) pour une date de séance donnée, agrégées par article. Lecture pour l'affichage du tableau
+     * de bord (S9).
+     */
+    List<SortieParDate> sortiesParDate(UUID centre, LocalDate date);
+
     record Ligne(UUID article, BigDecimal quantite) {
+    }
+
+    record LigneHistorique(UUID articleId, String articleCode, String articleLibelle, String articleUnite,
+                           BigDecimal quantite, BigDecimal valeurUnitaire, BigDecimal totalValorise) {
+    }
+
+    record SortieParDate(UUID articleId, String articleCode, String articleLibelle, BigDecimal quantiteTotale) {
     }
 }

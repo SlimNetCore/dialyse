@@ -48,17 +48,20 @@ public class SeanceRestController {
     private final JdbcTemplate jdbc;
     private final CenterAccessGuard centerAccessGuard;
     private final AbsencesDuPilotage absencesDuPilotage;
+    private final com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance consommationsStock;
 
     public SeanceRestController(SeanceUseCase seanceUseCase,
                                 NotificationService notificationService,
                                 JdbcTemplate jdbc,
                                 CenterAccessGuard centerAccessGuard,
-                                AbsencesDuPilotage absencesDuPilotage) {
+                                AbsencesDuPilotage absencesDuPilotage,
+                                com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance consommationsStock) {
         this.absencesDuPilotage = absencesDuPilotage;
         this.seanceUseCase = seanceUseCase;
         this.notificationService = notificationService;
         this.jdbc = jdbc;
         this.centerAccessGuard = centerAccessGuard;
+        this.consommationsStock = consommationsStock;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
@@ -297,79 +300,24 @@ public class SeanceRestController {
             medicalMap.put("conclusionMedicale", voletMedical.getConclusionMedicale());
         }
 
-        var consommables = Optional.ofNullable(jdbc.query(
-                """
-                        SELECT sm.article_id AS article_id,
-                               a.code AS article_code,
-                               a.libelle AS article_libelle,
-                               a.unite AS article_unite,
-                               sm.prix_unitaire AS valeur_unitaire,
-                               SUM(sm.quantite) AS quantite,
-                               SUM(COALESCE(sm.quantite, 0) * COALESCE(sm.prix_unitaire, 0)) AS total_valorise
-                        FROM stock_movements sm
-                        INNER JOIN articles a ON a.id = sm.article_id AND a.center_id = sm.center_id
-                        WHERE sm.center_id = ?
-                          AND sm.seance_id = ?
-                          AND sm.mouvement_type = 'SORTIE'
-                        GROUP BY sm.article_id, a.code, a.libelle, a.unite, sm.prix_unitaire
-                        ORDER BY a.code
-                        """,
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("articleId", rs.getObject("article_id", UUID.class));
-                    row.put("articleCode", rs.getString("article_code"));
-                    row.put("articleLibelle", rs.getString("article_libelle"));
-                    row.put("articleUnite", rs.getString("article_unite"));
-                    row.put("quantite", rs.getBigDecimal("quantite"));
-                    row.put("valeurUnitaire", rs.getBigDecimal("valeur_unitaire"));
-                    row.put("totalValorise", rs.getBigDecimal("total_valorise"));
-                    return row;
-                },
-                centerId,
-                seance.getId()
-        )).map(java.util.ArrayList::new).orElseGet(java.util.ArrayList::new);
-
-        // Sortie pour séances activée (S6b) : la consommation est imputée sur la pièce, sans mouvement de stock ; elle est valorisée
-        // à la valeur de sortie du lot de la pièce (0 pour un excédent ou une consommation sans pièce).
-        consommables.addAll(jdbc.query(
-                """
-                        SELECT i.article_id AS article_id,
-                               a.code AS article_code,
-                               a.libelle AS article_libelle,
-                               a.unite AS article_unite,
-                               l.valeur_unitaire AS valeur_unitaire,
-                               SUM(i.quantite) AS quantite,
-                               SUM(i.quantite * COALESCE(l.valeur_unitaire, 0)) AS total_valorise
-                        FROM consommations_de_seance c
-                        INNER JOIN consommations_de_seance_imputations i ON i.seance_id = c.seance_id
-                        INNER JOIN articles a ON a.id = i.article_id AND a.center_id = c.center_id
-                        LEFT JOIN sorties_pour_seances_lignes l ON l.sortie_id = c.sortie_id
-                                                              AND l.article_id = i.article_id AND l.lot_id = i.lot_id
-                        WHERE c.center_id = ?
-                          AND c.seance_id = ?
-                        GROUP BY i.article_id, a.code, a.libelle, a.unite, l.valeur_unitaire
-                        ORDER BY a.code
-                        """,
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("articleId", rs.getObject("article_id", UUID.class));
-                    row.put("articleCode", rs.getString("article_code"));
-                    row.put("articleLibelle", rs.getString("article_libelle"));
-                    row.put("articleUnite", rs.getString("article_unite"));
-                    row.put("quantite", rs.getBigDecimal("quantite"));
-                    row.put("valeurUnitaire", rs.getBigDecimal("valeur_unitaire"));
-                    row.put("totalValorise", rs.getBigDecimal("total_valorise"));
-                    return row;
-                },
-                centerId,
-                seance.getId()
-        ));
+        var consommables = new java.util.ArrayList<Map<String, Object>>();
+        for (var ligne : consommationsStock.historique(centerId, seance.getId())) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("articleId", ligne.articleId());
+            row.put("articleCode", ligne.articleCode());
+            row.put("articleLibelle", ligne.articleLibelle());
+            row.put("articleUnite", ligne.articleUnite());
+            row.put("quantite", ligne.quantite());
+            row.put("valeurUnitaire", ligne.valeurUnitaire());
+            row.put("totalValorise", ligne.totalValorise());
+            consommables.add(row);
+        }
 
         var totalValoriseConsommables = consommables.stream()
                 .map(item -> (java.math.BigDecimal) item.getOrDefault("totalValorise", java.math.BigDecimal.ZERO))
                 .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
 
-        Map<String, Object> forfait = loadCurrentForfait(
+        var forfait = loadCurrentForfait(
                 seance.getId(),
                 centerId,
                 patient.getId().value(),
@@ -377,12 +325,12 @@ public class SeanceRestController {
         );
 
         var payload = new LinkedHashMap<String, Object>();
+        payload.put("consommables", consommables);
+        payload.put("consommablesTotalValorise", totalValoriseConsommables);
         payload.put("seance", seanceMap);
         payload.put("patient", patientMap);
         payload.put("paramedical", paramedicalMap);
         payload.put("medical", medicalMap);
-        payload.put("consommables", consommables);
-        payload.put("consommablesTotalValorise", totalValoriseConsommables);
         payload.put("forfait", forfait);
         return ResponseEntity.ok(payload);
     }
@@ -646,31 +594,15 @@ public class SeanceRestController {
                 Date.valueOf(dateSeance)
         );
 
-        var articles = jdbc.query(
-                """
-                        SELECT bsl.article_id AS article_id,
-                               a.code AS article_code,
-                               a.libelle AS article_libelle,
-                               SUM(bsl.quantite) AS quantite_totale
-                        FROM bons_sortie_lignes bsl
-                        INNER JOIN bons_sortie bs ON bs.id = bsl.bon_sortie_id
-                        INNER JOIN articles a ON a.id = bsl.article_id AND a.center_id = bs.center_id
-                        WHERE bs.center_id = ?
-                          AND bs.date_sortie = ?
-                        GROUP BY bsl.article_id, a.code, a.libelle
-                        ORDER BY a.code ASC
-                        """,
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("articleId", rs.getObject("article_id", UUID.class));
-                    row.put("articleCode", rs.getString("article_code"));
-                    row.put("articleLibelle", rs.getString("article_libelle"));
-                    row.put("quantiteTotale", rs.getBigDecimal("quantite_totale"));
-                    return row;
-                },
-                centerId,
-                Date.valueOf(dateSeance)
-        );
+        var articles = new java.util.ArrayList<Map<String, Object>>();
+        for (var s : consommationsStock.sortiesParDate(centerId, dateSeance)) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("articleId", s.articleId());
+            row.put("articleCode", s.articleCode());
+            row.put("articleLibelle", s.articleLibelle());
+            row.put("quantiteTotale", s.quantiteTotale());
+            articles.add(row);
+        }
 
         var payload = new LinkedHashMap<String, Object>();
         payload.put("dateSeance", dateSeance);

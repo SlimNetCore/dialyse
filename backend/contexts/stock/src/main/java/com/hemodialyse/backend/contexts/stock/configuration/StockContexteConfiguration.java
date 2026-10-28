@@ -283,9 +283,10 @@ public class StockContexteConfiguration {
      * Consommation de séance imputée sur la sortie pour séances : seule implémentation du port publié appelé par la Séance.
      */
     @Bean
-    com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock stockConsommationsDeSeance(
-            com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations consommations) {
-        return new com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock(consommations);
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance stockConsommationsDeSeance(
+            com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations consommations,
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock(consommations, jdbc);
     }
 
     @Bean

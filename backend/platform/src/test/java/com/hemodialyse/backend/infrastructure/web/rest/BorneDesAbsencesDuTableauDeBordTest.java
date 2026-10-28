@@ -72,7 +72,7 @@ class BorneDesAbsencesDuTableauDeBordTest {
         when(jdbc.queryForList(eq("SELECT id, nom, prenom FROM patients WHERE center_id = ?"), eq(CENTRE)))
                 .thenReturn(List.of(Map.of("id", PATIENT, "nom", "Amrani", "prenom", "Lina")));
         return new SeanceRestController(mock(SeanceUseCase.class), mock(NotificationService.class), jdbc,
-                mock(CenterAccessGuard.class), new PortSimule());
+                mock(CenterAccessGuard.class), new PortSimule(), mock(com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance.class));
     }
 
     @Test

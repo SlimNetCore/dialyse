@@ -49,7 +49,7 @@ class SeanceScanValidationControllerTest {
     private final NotificationService notif = mock(NotificationService.class);
     private final SeanceRestController controller = new SeanceRestController(useCase, notif, mock(JdbcTemplate.class),
             mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class),
-            mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class));
+            mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class), mock(com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance.class));
 
     private static void connectedAs(String username, String role) {
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, "n/a",
