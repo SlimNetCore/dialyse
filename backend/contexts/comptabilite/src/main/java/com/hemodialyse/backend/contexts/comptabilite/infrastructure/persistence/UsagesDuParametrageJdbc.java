@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.UsagesDuParametrage;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.NumeroDeCompte;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.LinkedHashSet;
@@ -34,9 +35,11 @@ public class UsagesDuParametrageJdbc implements UsagesDuParametrage {
             "journal_stock_sortie", "ST", "journal_stock_inventaire", "ST");
 
     private final JdbcTemplate jdbc;
+    private final CatalogueDArticles catalogue;
 
-    public UsagesDuParametrageJdbc(JdbcTemplate jdbc) {
+    public UsagesDuParametrageJdbc(JdbcTemplate jdbc, CatalogueDArticles catalogue) {
         this.jdbc = jdbc;
+        this.catalogue = catalogue;
     }
 
     /**
@@ -68,8 +71,10 @@ public class UsagesDuParametrageJdbc implements UsagesDuParametrage {
 
     @Override
     public boolean compteRattacheAUnArticle(CentreId centre, NumeroDeCompte compte) {
-        return existe("SELECT COUNT(*) FROM articles WHERE center_id = ? AND (UPPER(TRIM(compte_stock)) = ? "
-                + "OR UPPER(TRIM(compte_charge)) = ?)", centre, compte.valeur(), compte.valeur());
+        String cible = compte.valeur().toUpperCase();
+        return catalogue.articles(centre.valeur()).stream().anyMatch(a ->
+                (a.compteStock() != null && a.compteStock().trim().equalsIgnoreCase(cible))
+                        || (a.compteCharge() != null && a.compteCharge().trim().equalsIgnoreCase(cible)));
     }
 
     @Override

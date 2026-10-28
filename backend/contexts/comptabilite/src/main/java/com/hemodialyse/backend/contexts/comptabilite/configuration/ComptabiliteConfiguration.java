@@ -134,8 +134,8 @@ public class ComptabiliteConfiguration {
     }
 
     @Bean
-    UsagesDuParametrage comptabiliteUsagesDuParametrage(JdbcTemplate jdbc) {
-        return new UsagesDuParametrageJdbc(jdbc);
+    UsagesDuParametrage comptabiliteUsagesDuParametrage(JdbcTemplate jdbc, com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles catalogue) {
+        return new UsagesDuParametrageJdbc(jdbc, catalogue);
     }
 
     @Bean

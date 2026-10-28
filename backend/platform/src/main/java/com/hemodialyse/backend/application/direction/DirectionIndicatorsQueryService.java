@@ -36,9 +36,13 @@ public class DirectionIndicatorsQueryService {
     private static final int MAX_YEARS = 5;
     private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
-    public DirectionIndicatorsQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard) {
+    private final com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock;
+
+    public DirectionIndicatorsQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
+                                           com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock) {
         this.jdbc = jdbc;
         this.dashboard = dashboard;
+        this.indicateursStock = indicateursStock;
     }
 
     private static Object[] prepend(List<UUID> ids, Object... first) {
@@ -212,34 +216,19 @@ public class DirectionIndicatorsQueryService {
     }
 
     private void loadStock(String in, List<UUID> ids, LocalDate today, Map<UUID, Raw> raw) {
-        jdbc.query("SELECT center_id, COUNT(*) AS actifs, "
-                        + "SUM(CASE WHEN seuil_alerte > 0 AND stock_quantity <= seuil_alerte THEN 1 ELSE 0 END) AS sous, "
-                        + "COALESCE(SUM(stock_quantity * COALESCE(pmp_courant, 0)), 0) AS valeur "
-                        + "FROM articles WHERE center_id IN (" + in + ") AND active = TRUE GROUP BY center_id",
-                rs -> {
-                    Raw r = raw.get(rs.getObject("center_id", UUID.class));
-                    if (r != null) {
-                        r.articlesActifs = rs.getLong("actifs");
-                        r.articlesSousSeuil = rs.getLong("sous");
-                        r.valeurStock = rs.getBigDecimal("valeur");
-                    }
-                }, ids.toArray());
-        Date now = Date.valueOf(today);
-        Date horizon = Date.valueOf(today.plusDays(DirectionAlertPolicy.PEREMPTION_JOURS));
-        List<Object> args = new ArrayList<>(List.of(now, now, horizon));
-        args.addAll(ids);
-        jdbc.query("SELECT center_id, "
-                        + "SUM(CASE WHEN date_peremption < ? THEN 1 ELSE 0 END) AS perimes, "
-                        + "SUM(CASE WHEN date_peremption >= ? AND date_peremption <= ? THEN 1 ELSE 0 END) AS proches "
-                        + "FROM lots WHERE center_id IN (" + in + ") AND quantite_restante > 0 "
-                        + "AND date_peremption IS NOT NULL GROUP BY center_id",
-                rs -> {
-                    Raw r = raw.get(rs.getObject("center_id", UUID.class));
-                    if (r != null) {
-                        r.lotsPerimes = rs.getLong("perimes");
-                        r.lotsProches = rs.getLong("proches");
-                    }
-                }, args.toArray());
+        var indicateurs = indicateursStock.pourCentres(ids, today);
+        for (UUID id : ids) {
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock.Indicateur ind =
+                    indicateurs.get(id);
+            Raw r = raw.get(id);
+            if (r != null && ind != null) {
+                r.articlesActifs = ind.articlesActifs();
+                r.articlesSousSeuil = ind.articlesSousSeuil();
+                r.valeurStock = ind.valeurStock();
+                r.lotsPerimes = ind.lotsPerimes();
+                r.lotsProches = ind.lotsProches();
+            }
+        }
     }
 
     /**

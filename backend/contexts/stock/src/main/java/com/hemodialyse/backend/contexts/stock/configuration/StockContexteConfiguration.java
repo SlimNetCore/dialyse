@@ -41,6 +41,11 @@ import java.util.UUID;
 public class StockContexteConfiguration {
 
     @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock stockIndicateursDuStock(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.IndicateursDuStockJdbc(jdbc);
+    }
+
+    @Bean
     com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres stockHorloge(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy(jdbc, Clock.systemUTC());
     }

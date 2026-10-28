@@ -64,7 +64,39 @@ class UsagesPostgresContractIT extends UsagesContrat {
                 "modeles_piece", "mapping_comptable", "comptes_payeurs"}) {
             jdbc.update("DELETE FROM " + table);
         }
-        adaptateur = new UsagesDuParametrageJdbc(jdbc);
+        com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles catalogue =
+                new com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles() {
+                    public java.util.Optional<com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue> article(
+                            java.util.UUID centre, java.util.UUID article) {
+                        return java.util.Optional.empty();
+                    }
+
+                    public java.util.List<com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue> articles(
+                            java.util.UUID centre) {
+                        var rs = jdbc.queryForRowSet(
+                                "SELECT id, code, libelle, unite, gere_par_lot, compte_stock, compte_charge FROM articles WHERE center_id = ?",
+                                centre);
+                        var liste = new java.util.ArrayList<com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue>();
+                        while (rs.next()) {
+                            liste.add(new com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue(
+                                    java.util.UUID.fromString(rs.getString("id")), centre,
+                                    rs.getString("code"), rs.getString("libelle"), rs.getString("unite"), true, null, null, null,
+                                    rs.getBoolean("gere_par_lot"), rs.getString("compte_stock"), rs.getString("compte_charge")));
+                        }
+                        return liste;
+                    }
+
+                    public java.util.List<com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue> articlesDeTraitement(
+                            java.util.UUID centre, String typeTraitementAnemie) {
+                        return java.util.List.of();
+                    }
+
+                    public java.math.BigDecimal quantitePourDose(java.util.UUID centre, java.util.UUID article,
+                                                                 java.math.BigDecimal dose, String uniteDose) {
+                        return java.math.BigDecimal.ZERO;
+                    }
+                };
+        adaptateur = new UsagesDuParametrageJdbc(jdbc, catalogue);
     }
 
     @Override
