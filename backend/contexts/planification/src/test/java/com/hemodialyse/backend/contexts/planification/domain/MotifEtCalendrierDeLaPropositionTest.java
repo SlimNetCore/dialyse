@@ -99,7 +99,7 @@ class MotifEtCalendrierDeLaPropositionTest {
 
     private static Optional<JourDuCalendrier> jour(List<CaseDuCalendrier> cases, Identifiants.SalleId salle, LocalDate semaine,
                                                    JourDeLaSemaine jour) {
-        return cases.stream().filter(c -> c.salle().equals(salle.valeur()) && c.semaineDebut().equals(semaine))
+        return cases.stream().filter(c -> c.salleId().equals(salle.valeur()) && c.semaineDebut().equals(semaine))
                 .flatMap(c -> c.jours().stream()).filter(j -> j.jour() == jour).findFirst();
     }
 
@@ -110,7 +110,7 @@ class MotifEtCalendrierDeLaPropositionTest {
                 parametres);
 
         assertThat(cases).singleElement().satisfies(c -> {
-            assertThat(c.salle()).isEqualTo(A.valeur());
+            assertThat(c.salleId()).isEqualTo(A.valeur());
             assertThat(c.salleNom()).isEqualTo("Salle A");
             assertThat(c.creneauLibelle()).isEqualTo("Matin");
         });

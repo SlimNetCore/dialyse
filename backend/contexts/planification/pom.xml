@@ -44,6 +44,11 @@
             <artifactId>contexts-gmao</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Solveur d'optimisation (P8, ADR 0050) : utilisé UNIQUEMENT dans infrastructure/optimisation/timefold (ArchUnit). -->
+        <dependency>
+            <groupId>ai.timefold.solver</groupId>
+            <artifactId>timefold-solver-core</artifactId>
+        </dependency>
         <!-- Registre d'événements : écouteur @ApplicationModuleListener (livraison au moins une fois, rejeu) -->
         <dependency>
             <groupId>org.springframework.modulith</groupId>

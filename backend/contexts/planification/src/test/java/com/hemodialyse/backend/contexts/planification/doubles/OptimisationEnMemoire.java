@@ -12,7 +12,6 @@ import com.hemodialyse.backend.contexts.planification.domain.DeplacementsTempora
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AbsenceId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CentreId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
@@ -53,6 +52,35 @@ public final class OptimisationEnMemoire implements UniteDeTravail {
     public final Map<ExecutionId, ExecutionDOptimisation> executions = new LinkedHashMap<>();
     public final List<DeplacementTemporaire> temporaires = new ArrayList<>();
     public final Map<ExecutionId, List<CaseDuCalendrier>> calendriersEnregistres = new LinkedHashMap<>();
+    public final CalendriersDesPropositions calendriers = new CalendriersDesPropositions() {
+        @Override
+        public void enregistrer(CentreId centre, ExecutionId execution, List<CaseDuCalendrier> cases) {
+            calendriersEnregistres.put(execution, List.copyOf(cases));
+            centresDesCalendriers.put(execution, centre);
+        }
+
+        private List<CaseDuCalendrier> duCentre(CentreId centre, ExecutionId execution) {
+            return centre.equals(centresDesCalendriers.get(execution)) ? calendriersEnregistres.getOrDefault(execution, List.of())
+                    : List.of();
+        }
+
+        @Override
+        public List<CaseDuCalendrier> lire(CentreId centre, ExecutionId execution, LocalDate semaineDebut) {
+            return duCentre(centre, execution).stream().filter(c -> c.semaineDebut().equals(semaineDebut))
+                    .sorted(Comparator.comparingInt(CaseDuCalendrier::creneauOrdre).thenComparingInt(CaseDuCalendrier::salleOrdre))
+                    .toList();
+        }
+
+        @Override
+        public List<LocalDate> semaines(CentreId centre, ExecutionId execution) {
+            return duCentre(centre, execution).stream().map(CaseDuCalendrier::semaineDebut).distinct().sorted().toList();
+        }
+
+        @Override
+        public void purgerOrphelins(CentreId centre) {
+            calendriersEnregistres.keySet().removeIf(id -> centre.equals(centresDesCalendriers.get(id)) && !executions.containsKey(id));
+        }
+    };
     public final List<String> notifications = new ArrayList<>();
     public final List<Demande> demandes = new ArrayList<>();
     public final List<ExecutionId> arrets = new ArrayList<>();
@@ -188,30 +216,7 @@ public final class OptimisationEnMemoire implements UniteDeTravail {
             return true;
         }
     };
-
-    public final CalendriersDesPropositions calendriers = new CalendriersDesPropositions() {
-        @Override
-        public void enregistrer(CentreId centre, ExecutionId execution, List<CaseDuCalendrier> cases) {
-            calendriersEnregistres.put(execution, List.copyOf(cases));
-        }
-
-        @Override
-        public List<CaseDuCalendrier> lire(CentreId centre, ExecutionId execution, LocalDate semaineDebut) {
-            return calendriersEnregistres.getOrDefault(execution, List.of()).stream()
-                    .filter(c -> c.semaineDebut().equals(semaineDebut)).toList();
-        }
-
-        @Override
-        public List<LocalDate> semaines(CentreId centre, ExecutionId execution) {
-            return calendriersEnregistres.getOrDefault(execution, List.of()).stream().map(CaseDuCalendrier::semaineDebut).distinct()
-                    .sorted().toList();
-        }
-
-        @Override
-        public void purgerOrphelins(CentreId centre) {
-            calendriersEnregistres.keySet().removeIf(id -> !executions.containsKey(id));
-        }
-    };
+    private final Map<ExecutionId, CentreId> centresDesCalendriers = new LinkedHashMap<>();
 
     public final NotificationsDeLOptimisation notificationsDeLOptimisation = new NotificationsDeLOptimisation() {
         @Override
@@ -260,11 +265,6 @@ public final class OptimisationEnMemoire implements UniteDeTravail {
         @Override
         public AffectationId affectation() {
             return new AffectationId(suivant());
-        }
-
-        @Override
-        public AbsenceId absence() {
-            return new AbsenceId(suivant());
         }
 
         @Override

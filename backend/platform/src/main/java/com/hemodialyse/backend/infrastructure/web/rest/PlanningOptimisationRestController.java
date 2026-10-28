@@ -45,6 +45,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/planning/optimisations")
 @PreAuthorize("hasAnyRole('ADMIN','SECRETAIRE')")
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.planification.optimisation.moteur",
+        havingValue = "legacy", matchIfMissing = true)
 public class PlanningOptimisationRestController {
 
     private final OptimisationPlanningService planification;

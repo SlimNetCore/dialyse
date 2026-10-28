@@ -158,7 +158,8 @@ public class AppliquerUneProposition {
         try {
             for (DeplacementDePatient d : deplaces) {
                 PatientAPlacer patient = parPatient.get(d.patient());
-                if (patient == null) throw new RegleDePlanificationViolee("PLACEMENT_INCOMPLET", "Patient inconnu");
+                if (patient == null)
+                    throw new RegleDePlanificationViolee("PLACEMENT_INCOMPLET", "Placement refusé par la planification : [INCOMPLET]");
                 Set<JourDeLaSemaine> jours = d.jours() == null ? patient.jours() : EnumSet.copyOf(d.jours());
                 nouvelles.put(d.patient(), new Place(d.vers().salle(), d.vers().creneau(), d.vers().generateur(), jours));
                 categories.put(d.patient(), patient.categorie());
@@ -169,8 +170,10 @@ public class AppliquerUneProposition {
             places.enregistrer(lues);
         } catch (RegleDePlanificationViolee e) {
             if (e.code().startsWith("PLACEMENT_")) {
+                // même libellé que le legacy : les règles enfreintes, entre crochets
+                String regles = e.getMessage().substring(e.getMessage().lastIndexOf(": ") + 2);
                 throw new RegleDePlanificationViolee("OPTIMISATION_" + e.code(),
-                        "Une nouvelle place proposée enfreint les règles de la planification : " + e.getMessage());
+                        "Une nouvelle place proposée enfreint les règles de la planification : [" + regles + "]");
             }
             throw e;
         }

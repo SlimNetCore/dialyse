@@ -30,7 +30,7 @@ public class NotificationService {
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
             "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
             "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE", "RETOUR_SALLE_ORDINAIRE_PROPOSE",
-            "LIBERATION_PLACES_EN_ECHEC");
+            "LIBERATION_PLACES_EN_ECHEC", "INFIRMIER_ROULEMENT_MODIFIE", "INFIRMIER_REMPLACEMENT_AFFECTE");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -411,6 +411,34 @@ public class NotificationService {
         payload.put("nbSeancesTemporaires", String.valueOf(nbSeancesTemporaires));
         payload.put("targetRoles", "MEDECIN,SECRETAIRE");
         send(centerId, "SEANCES_DEPLACEES", payload);
+    }
+
+    /**
+     * Le roulement d'un infirmier a été modifié par une proposition d'optimisation appliquée (slice P8) : l'infirmier concerné (et
+     * l'administration) en sont prévenus. Identifiant déterministe : une seule alerte par exécution et par infirmier.
+     */
+    public void notifyRoulementModifie(UUID centerId, UUID infirmierId, UUID runId, UUID id) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("infirmierId", infirmierId.toString());
+        payload.put("runId", runId.toString());
+        payload.put("targetRoles", "ADMIN,INFIRMIER");
+        send(centerId, "INFIRMIER_ROULEMENT_MODIFIE", payload, id);
+    }
+
+    /**
+     * Un infirmier a été affecté comme remplaçant par une proposition d'optimisation appliquée (slice P8). Identifiant déterministe :
+     * une seule alerte par exécution, infirmier et case datée.
+     */
+    public void notifyRemplacementAffecte(UUID centerId, UUID infirmierId, java.time.LocalDate date, UUID salleId, UUID creneauId,
+                                          UUID runId, UUID id) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("infirmierId", infirmierId.toString());
+        payload.put("date", date.toString());
+        payload.put("salleId", salleId.toString());
+        payload.put("creneauId", creneauId.toString());
+        payload.put("runId", runId.toString());
+        payload.put("targetRoles", "ADMIN,INFIRMIER");
+        send(centerId, "INFIRMIER_REMPLACEMENT_AFFECTE", payload, id);
     }
 
     /**
