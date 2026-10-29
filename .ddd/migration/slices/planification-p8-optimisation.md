@@ -44,6 +44,8 @@ Goldens `_nouveau_code` (archivage préalable des anciens dans `_ecarts-legacy/*
 | Premier refus de place | ordre des déplacements de la proposition (le legacy dépendait de l'ordre d'une `HashMap`) | déterminisme |
 | Empreinte | une proposition calculée avant la montée de version est périmée | élargissement voulu |
 
-## Points ouverts
-- Le solveur Timefold n'est pas encore dans le module : le port est prêt et la fausse implémentation sert aux tests.
-- PIT et PG16 non lancés (S3).
+## État des lieux du 2026-10-29 (reprise)
+
+- **S2 : fait et commité** (e5f1cfbd, a6fbbe09, 8fb1821f) : adapters JDBC (`ExecutionsJdbc`, `CalendriersDesPropositionsJdbc`, `DeplacementsTemporairesJdbc`), lecture des données (`LireLesDonneesDeLOptimisation` + `ContraintesDesPatientsJdbc`, GMAO), notifications à clé déterministe, Timefold 2.7.0 dans `infrastructure/optimisation/timefold` (mappers et contraintes déplacés, types adaptés), `OptimisationsControleur` + advices (404 / 409 / 422 / 400, pagination <= 100, 403 avant lecture du corps), jobs 02:30 et reprise au démarrage, contrats double / H2 / PG16 + course « un seul calcul par centre » tenue en base. Module : 704 tests verts (ArchUnit 11), `check-arch.ts` 0 violation, PG16 jetable (`planification-p8-pg16-rejeu.sh 55468`) vert : 18 tests, 12 requêtes SELECT-only exécutables.
+- Les sections « Reste à faire » ci-dessus sont historiques (S1) : tout a été livré. Seam P8 FERMÉ le 2026-10-29 (`seamAllowed` vide, les 2 ACL neuves dans `covered.json`).
+- **Non constaté dans le dépôt, à confirmer ou faire** : ADR P8 (le dernier est le 0061), entrées `known-bugs.md` / glossaire / `verifications-production.md` pour P8, PIT du domaine et de l'application (solveur exclu), `./mvnw -o test` complet, tests frontend.
