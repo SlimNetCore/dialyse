@@ -83,6 +83,30 @@ class NotificationJournalIntegrationTest {
     }
 
     @Test
+    void a_roster_change_alert_reaches_the_account_of_the_nurse_and_the_administrator_but_not_the_other_nurses() {
+        UUID infirmier = UUID.randomUUID();
+        UUID compte = UUID.randomUUID();
+        UUID run = UUID.randomUUID();
+
+        notifications.notifyRoulementModifie(CENTRE, infirmier, compte, run, UUID.randomUUID());
+        notifications.notifyRemplacementAffecte(CENTRE, infirmier, compte, LocalDate.of(2026, 11, 2), UUID.randomUUID(),
+                UUID.randomUUID(), run, UUID.randomUUID());
+
+        assertEquals(2, pour(CENTRE, compte.toString(), "INFIRMIER").total(), "l'infirmier concerné, par son compte");
+        assertEquals(2, pour(CENTRE, "admin-1", "ADMIN").total(), "l'administration du centre");
+        assertEquals(0, pour(CENTRE, UUID.randomUUID().toString(), "INFIRMIER").total(), "un autre infirmier du centre");
+        assertEquals(0, pour(AUTRE_CENTRE, compte.toString(), "INFIRMIER", "ADMIN").total(), "un autre centre");
+    }
+
+    @Test
+    void a_roster_change_alert_of_a_nurse_without_account_is_for_the_administrator_only() {
+        notifications.notifyRoulementModifie(CENTRE, UUID.randomUUID(), null, UUID.randomUUID(), UUID.randomUUID());
+
+        assertEquals(1, pour(CENTRE, "admin-1", "ADMIN").total());
+        assertEquals(0, pour(CENTRE, "inf-1", "INFIRMIER").total());
+    }
+
+    @Test
     void an_alert_is_only_visible_to_the_targeted_roles_of_its_own_center() {
         notifications.notifyOptimisationProposition(CENTRE, UUID.randomUUID(), "PATIENTS", "GAIN", 2);
 

@@ -95,7 +95,7 @@ class LancementConcurrentPostgresContractIT {
         };
         NouveauxIdentifiantsDeLOptimisation ids = new NouveauxIdentifiantsDeLOptimisationAleatoires();
         return new LancerUneOptimisation(new UniteDeTravailSpring(tx, jdbc, delaiDeVerrou), new VerrouDesPlacesJdbc(jdbc),
-                new ReglagesJdbc(jdbc), new ExecutionsJdbc(jdbc, mapper), (centre, du, au) -> {
+                new ReglagesJdbc(jdbc), new ExecutionsJdbc(jdbc, mapper, "instance-test"), (centre, du, au) -> {
             try {
                 Thread.sleep(attenteDansLaTransaction);
             } catch (InterruptedException e) {

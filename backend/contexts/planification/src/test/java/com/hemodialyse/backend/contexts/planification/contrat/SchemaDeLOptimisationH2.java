@@ -14,7 +14,7 @@ final class SchemaDeLOptimisationH2 {
         jdbc.execute("CREATE TABLE IF NOT EXISTS planification_optimisation (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
                 + "statut VARCHAR(20) NOT NULL, perimetre VARCHAR(20) NOT NULL, parametres TEXT NOT NULL, cree_le TIMESTAMP NOT NULL, "
                 + "termine_le TIMESTAMP, lance_par VARCHAR(100), phase VARCHAR(20), score VARCHAR(255), empreinte VARCHAR(64) NOT NULL, "
-                + "resume TEXT, resultat TEXT, erreur TEXT, applique_le TIMESTAMP)");
+                + "resume TEXT, resultat TEXT, erreur TEXT, applique_le TIMESTAMP, instance_id VARCHAR(64), battement_le TIMESTAMP)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS planification_calendrier_case (run_id UUID NOT NULL, center_id UUID NOT NULL, "
                 + "semaine_debut DATE NOT NULL, salle_id UUID NOT NULL, salle_nom VARCHAR(255) NOT NULL, salle_ordre INTEGER NOT NULL, "
                 + "creneau_id UUID NOT NULL, creneau_libelle VARCHAR(255) NOT NULL, creneau_ordre INTEGER NOT NULL, jours TEXT NOT NULL, "

@@ -20,9 +20,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Fournit au contexte Planification son port consomm├® {@link SemaineDeLInfirmier} (ACL vers la pr├®sence et le planning de la semaine
- * du legacy, slices P4 et P5, retir├®e avec elles). Traducteur des types legacy vers ceux du langage publi├® : m├¬mes noms, m├¬mes valeurs.
- * Aucune donn├®e nominative d'un autre infirmier n'est expos├®e : les patients sont ceux des salles et cr├®neaux de l'infirmier.
+ * Fournit au contexte Planification son port consommé {@link SemaineDeLInfirmier} (ACL vers la présence et le planning de la semaine
+ * du legacy, slices P4 et P5, retirée avec elles : jalon P9, voir roadmap). Traducteur des types legacy vers ceux du langage publié :
+ * mêmes noms, mêmes valeurs.
+ * Aucune donnée nominative d'un autre infirmier n'est exposée : les patients sont ceux des salles et créneaux de l'infirmier.
  */
 @Component
 public class SemaineDeLInfirmierLegacy implements SemaineDeLInfirmier {
@@ -56,7 +57,7 @@ public class SemaineDeLInfirmierLegacy implements SemaineDeLInfirmier {
     }
 
     /**
-     * Une ligne par case o├╣ l'infirmier est pr├®vu, rempla├ºant ou absent : patients, effectif requis, coll├¿gues, occupants.
+     * Une ligne par case où l'infirmier est prévu, remplaçant ou absent : patients, effectif requis, collègues, occupants.
      */
     private static List<CaseDeLInfirmier> mesCases(SemainePresence semaine, SemainePlanning planning, List<Presence.CreneauPersonnel> mes,
                                                    UUID infirmier) {

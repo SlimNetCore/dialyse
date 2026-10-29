@@ -30,9 +30,22 @@ public class ParametresDuPlanningJdbc implements ParametresDuPlanningRepository 
     private final JdbcTemplate jdbc;
     private final SallesDuCentre salles;
 
+    private final java.time.Clock horloge;
+
+    /**
+     * Horloge du serveur (UTC) : les tests de contrat qui ne regardent pas l'heure n'ont pas à en fournir.
+     */
     public ParametresDuPlanningJdbc(JdbcTemplate jdbc, SallesDuCentre salles) {
+        this(jdbc, salles, java.time.Clock.systemUTC());
+    }
+
+    /**
+     * L'horloge est injectée par la composition : l'adapter ne lit pas l'heure du système de lui-même.
+     */
+    public ParametresDuPlanningJdbc(JdbcTemplate jdbc, SallesDuCentre salles, java.time.Clock horloge) {
         this.jdbc = jdbc;
         this.salles = salles;
+        this.horloge = horloge;
     }
 
     private record Ligne(String jours, Integer ratio, Integer poste) {
@@ -72,7 +85,7 @@ public class ParametresDuPlanningJdbc implements ParametresDuPlanningRepository 
     public void enregistrer(CentreId centre, ParametresDuPlanning p) {
         RefusDeVerrou.verrouillant(() -> {
             String jours = p.joursOuverts().stream().sorted().map(Enum::name).collect(Collectors.joining(","));
-            Timestamp maintenant = Timestamp.from(Instant.now());
+            Timestamp maintenant = Timestamp.from(horloge.instant());
             // KB-PLN-06 reproduit : la colonne historique est remise à NULL à chaque écriture, comme le faisait le legacy.
             int modifiees = jdbc.update("UPDATE planning_parametres SET jours_ouverts = ?, salles_isolement = NULL, "
                             + "patients_par_infirmier = ?, patients_par_poste_serie = ?, updated_at = ? WHERE center_id = ?",

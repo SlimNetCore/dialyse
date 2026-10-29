@@ -6,6 +6,8 @@ import {withDevtools} from '@angular-architects/ngrx-toolkit';
 
 export type AuthSession = {
   username: string;
+  /** Identifiant du compte : destinataire des alertes personnelles (roulement, remplacement). */
+  userId?: string | null;
   fullName?: string;
   centerId: string | null;
   centerName: string | null;
@@ -19,6 +21,7 @@ export type AuthSession = {
 
 type AuthState = {
   username: string | null;
+  userId: string | null;
   fullName: string | null;
   centerId: string | null;
   centerName: string | null;
@@ -33,6 +36,7 @@ type AuthState = {
 
 const INITIAL_STATE: AuthState = {
   username: null,
+  userId: null,
   fullName: null,
   centerId: null,
   centerName: null,
@@ -65,6 +69,7 @@ export const AuthStore = signalStore(
       setSession(session: AuthSession): void {
         patchState(store, {
           username: session.username,
+          userId: session.userId ?? null,
           fullName: session.fullName ?? session.username,
           centerId: session.centerId,
           centerName: session.centerName,
@@ -93,6 +98,7 @@ export const AuthStore = signalStore(
       clearSession(): void {
         patchState(store, {
           username: null,
+          userId: null,
           fullName: null,
           centerId: null,
           centerName: null,
@@ -178,6 +184,7 @@ export const AuthStore = signalStore(
 function mapLoginResponseToSession(res: LoginResponse): AuthSession {
   return {
     username: res.username,
+    userId: res.userId ?? null,
     fullName: res.fullName,
     centerId: res.centerId,
     centerName: res.centerName,

@@ -19,6 +19,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -40,9 +41,15 @@ public class ExecutionsJdbc implements ExecutionsRepository {
     private final ObjectMapper mapper;
     private final RowMapper<ExecutionDOptimisation> sansResultat = (rs, i) -> lire(rs, null);
 
-    public ExecutionsJdbc(JdbcTemplate jdbc, ObjectMapper mapper) {
+    private final String instance;
+
+    /**
+     * @param instance jeton de cette instance du serveur (un par démarrage) : seule elle fait avancer les calculs qu'elle a lancés
+     */
+    public ExecutionsJdbc(JdbcTemplate jdbc, ObjectMapper mapper, String instance) {
         this.jdbc = jdbc;
         this.mapper = mapper;
+        this.instance = instance;
     }
 
     private static Timestamp horodatage(Instant instant) {
@@ -66,22 +73,36 @@ public class ExecutionsJdbc implements ExecutionsRepository {
     }
 
     @Override
-    public void enregistrer(ExecutionDOptimisation e) {
+    public void creer(ExecutionDOptimisation e) {
         String parametres = mapper.writeValueAsString(e.parametres());
         String resume = e.resume() == null ? null : mapper.writeValueAsString(e.resume());
         String resultat = e.resultat() == null ? null : mapper.writeValueAsString(OptimisationLue.depuis(e.resultat()));
-        int maj = jdbc.update("UPDATE planification_optimisation SET statut = ?, termine_le = ?, phase = ?, score = ?, "
-                        + "resume = ?, resultat = ?, erreur = ?, applique_le = ? WHERE id = ? AND center_id = ?",
-                e.statut().name(), horodatage(e.termineLe()), e.phase(), e.score(), resume, resultat, e.erreur(),
-                horodatage(e.appliqueeLe()), e.id().valeur(), e.centre().valeur());
-        if (maj == 0) {
-            jdbc.update("INSERT INTO planification_optimisation (" + COLONNES + ", resultat) "
-                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    e.id().valeur(), e.centre().valeur(), e.statut().name(), e.parametres().perimetre().name(), parametres,
-                    horodatage(e.creeLe()), horodatage(e.termineLe()), e.lancePar(), e.phase(), e.score(),
-                    e.empreinte() == null ? null : e.empreinte().valeur(), resume, e.erreur(), horodatage(e.appliqueeLe()),
-                    resultat);
-        }
+        jdbc.update("INSERT INTO planification_optimisation (" + COLONNES + ", resultat, instance_id, battement_le) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                e.id().valeur(), e.centre().valeur(), e.statut().name(), e.parametres().perimetre().name(), parametres,
+                horodatage(e.creeLe()), horodatage(e.termineLe()), e.lancePar(), e.phase(), e.score(),
+                e.empreinte() == null ? null : e.empreinte().valeur(), resume, e.erreur(), horodatage(e.appliqueeLe()),
+                resultat, instance, horodatage(e.creeLe()));
+    }
+
+    @Override
+    public boolean transiter(ExecutionDOptimisation e, Statut avant) {
+        String resume = e.resume() == null ? null : mapper.writeValueAsString(e.resume());
+        String resultat = e.resultat() == null ? null : mapper.writeValueAsString(OptimisationLue.depuis(e.resultat()));
+        String condition = "WHERE id = ? AND center_id = ? AND statut = ?" + (avant == Statut.EN_COURS ? " AND instance_id = ?" : "");
+        Object[] valeurs = avant == Statut.EN_COURS
+                ? new Object[]{e.statut().name(), horodatage(e.termineLe()), e.phase(), e.score(), resume, resultat, e.erreur(),
+                horodatage(e.appliqueeLe()), e.id().valeur(), e.centre().valeur(), avant.name(), instance}
+                : new Object[]{e.statut().name(), horodatage(e.termineLe()), e.phase(), e.score(), resume, resultat, e.erreur(),
+                horodatage(e.appliqueeLe()), e.id().valeur(), e.centre().valeur(), avant.name()};
+        return jdbc.update("UPDATE planification_optimisation SET statut = ?, termine_le = ?, phase = ?, score = ?, "
+                + "resume = ?, resultat = ?, erreur = ?, applique_le = ? " + condition, valeurs) > 0;
+    }
+
+    @Override
+    public void battre(Instant maintenant) {
+        jdbc.update("UPDATE planification_optimisation SET battement_le = ? WHERE statut = 'EN_COURS' AND instance_id = ?",
+                horodatage(maintenant), instance);
     }
 
     @Override
@@ -120,8 +141,9 @@ public class ExecutionsJdbc implements ExecutionsRepository {
     }
 
     @Override
-    public int interrompreLesEnCours(String motif) {
+    public int interrompreLesOrphelines(String motif, Instant maintenant, Duration delai) {
         return jdbc.update("UPDATE planification_optimisation SET statut = 'ECHEC', erreur = ?, termine_le = ? "
-                + "WHERE statut = 'EN_COURS'", motif, horodatage(Instant.now()));
+                        + "WHERE statut = 'EN_COURS' AND (battement_le IS NULL OR battement_le < ?)",
+                motif, horodatage(maintenant), horodatage(maintenant.minus(delai)));
     }
 }

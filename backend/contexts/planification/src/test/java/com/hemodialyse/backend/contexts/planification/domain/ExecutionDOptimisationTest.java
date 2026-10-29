@@ -76,6 +76,19 @@ class ExecutionDOptimisationTest {
     }
 
     @Test
+    void should_never_leave_a_final_state() {
+        ExecutionDOptimisation echec = lancee().echouer("interrompue", T1);
+        ExecutionDOptimisation terminee = lancee().terminer(resultat(), "s", T1);
+
+        for (ExecutionDOptimisation finale : List.of(echec, terminee)) {
+            refuse(() -> finale.terminer(resultat(), "s", T1), "OPTIMISATION_TRANSITION_INTERDITE");
+            refuse(() -> finale.echouer("x", T1), "OPTIMISATION_TRANSITION_INTERDITE");
+            refuse(() -> finale.progresser("PATIENTS", "s"), "OPTIMISATION_TRANSITION_INTERDITE");
+        }
+        assertThat(echec.statut()).isEqualTo(ExecutionDOptimisation.Statut.ECHEC);
+    }
+
+    @Test
     void should_refuse_to_apply_a_calculation_that_is_not_finished_with_a_result() {
         refuse(() -> lancee().appliquer(EMPREINTE, T1), "OPTIMISATION_NON_APPLICABLE");
         refuse(() -> lancee().echouer("x", T1).appliquer(EMPREINTE, T1), "OPTIMISATION_NON_APPLICABLE");

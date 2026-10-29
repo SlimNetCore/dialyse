@@ -73,19 +73,15 @@ public class LancerUneOptimisation {
      */
     public ExecutionDOptimisation executer(CentreId centre, ParametresDOptimisation demandes, String utilisateur,
                                            Consumer<ExecutionDOptimisation> aLaFin) {
-        Lancement lancement = uniteDeTravail.executer(() -> {
-            verrou.prendre(centre);
-            ReglagesDePlanification reglagesDuCentre = reglages.lire(centre);
-            ParametresDOptimisation parametres = demandes.avecReglages(reglagesDuCentre);
-            ExecutionDOptimisation.exigerAucuneEnCours(executions.enCours(centre).isPresent());
-            DonneesDOptimisation lues = donnees.charger(centre, parametres.debutSemaine(), parametres.finHorizon());
-            ExecutionDOptimisation execution = ExecutionDOptimisation.lancer(identifiants.execution(), centre, parametres, utilisateur,
-                    Empreinte.calculer(lues, parametres), horloge.instant());
-            executions.enregistrer(execution);
-            executions.purger(centre, HISTORIQUE_MAX);
-            calendriers.purgerOrphelins(centre);
-            return new Lancement(execution, lues, parametres);
-        });
+        Lancement lancement;
+        try {
+            lancement = preparer(centre, demandes, utilisateur);
+        } catch (com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente occupe) {
+            // Le verrou du centre est tenu : si c'est un autre lancement, le motif est « déjà en cours », pas « écriture concurrente ».
+            boolean unCalculEstEnCours = uniteDeTravail.executer(() -> executions.enCours(centre).isPresent());
+            ExecutionDOptimisation.exigerAucuneEnCours(unCalculEstEnCours);
+            throw occupe;
+        }
         Suivi suivi = new Suivi(lancement.execution(), lancement.lues(), aLaFin);
         try {
             optimiseur.demarrer(lancement.execution().id(), lancement.lues(), lancement.parametres(), suivi);
@@ -94,6 +90,22 @@ public class LancerUneOptimisation {
             throw e;
         }
         return lancement.execution();
+    }
+
+    private Lancement preparer(CentreId centre, ParametresDOptimisation demandes, String utilisateur) {
+        return uniteDeTravail.executer(() -> {
+            verrou.prendre(centre);
+            ReglagesDePlanification reglagesDuCentre = reglages.lire(centre);
+            ParametresDOptimisation parametres = demandes.avecReglages(reglagesDuCentre);
+            ExecutionDOptimisation.exigerAucuneEnCours(executions.enCours(centre).isPresent());
+            DonneesDOptimisation lues = donnees.charger(centre, parametres.debutSemaine(), parametres.finHorizon());
+            ExecutionDOptimisation execution = ExecutionDOptimisation.lancer(identifiants.execution(), centre, parametres, utilisateur,
+                    Empreinte.calculer(lues, parametres), horloge.instant());
+            executions.creer(execution);
+            executions.purger(centre, HISTORIQUE_MAX);
+            calendriers.purgerOrphelins(centre);
+            return new Lancement(execution, lues, parametres);
+        });
     }
 
     private record Lancement(ExecutionDOptimisation execution, DonneesDOptimisation lues, ParametresDOptimisation parametres) {
@@ -120,13 +132,14 @@ public class LancerUneOptimisation {
             Instant maintenant = horloge.instant();
             if (Duration.between(derniereProgression, maintenant).compareTo(INTERVALLE_PROGRESSION) < 0) return;
             derniereProgression = maintenant;
-            enregistrer(courante.progresser(phase, score));
+            transiter(() -> courante.progresser(phase, score));
         }
 
         @Override
         public void termine(ResultatDOptimisation resultat, String score) {
-            enregistrer(courante.terminer(resultat, score, horloge.instant()));
-            figerLeCalendrier(resultat);
+            if (transiter(() -> courante.terminer(resultat, score, horloge.instant()))) {
+                figerLeCalendrier(resultat);
+            }
             signalerLaFin();
         }
 
@@ -145,7 +158,7 @@ public class LancerUneOptimisation {
 
         @Override
         public void echec(String message) {
-            enregistrer(courante.echouer(message, horloge.instant()));
+            transiter(() -> courante.echouer(message, horloge.instant()));
             signalerLaFin();
         }
 
@@ -157,15 +170,25 @@ public class LancerUneOptimisation {
             }
         }
 
-        private void enregistrer(ExecutionDOptimisation execution) {
+        /**
+         * Enregistre une transition du calcul, gardée par le domaine (depuis EN_COURS seulement) ET par la base (mise à jour
+         * conditionnelle). Rend faux si l'exécution n'est plus en cours en base (interrompue comme orpheline, supprimée) : le résultat
+         * tardif est alors abandonné, jamais réécrit par-dessus l'état final.
+         */
+        private boolean transiter(java.util.function.Supplier<ExecutionDOptimisation> transition) {
             try {
-                uniteDeTravail.executer(() -> {
-                    executions.enregistrer(execution);
-                    return null;
-                });
-                courante = execution;
+                ExecutionDOptimisation apres = transition.get();
+                boolean faite = uniteDeTravail.executer(() -> executions.transiter(apres, ExecutionDOptimisation.Statut.EN_COURS));
+                if (faite) {
+                    courante = apres;
+                } else {
+                    journal.log(Level.WARNING, "[OPTIMISATION] L'exécution " + courante.id().valeur()
+                            + " n'est plus en cours en base : transition abandonnée");
+                }
+                return faite;
             } catch (RuntimeException e) {
-                journal.log(Level.WARNING, "[OPTIMISATION] Enregistrement impossible de l'exécution " + execution.id().valeur(), e);
+                journal.log(Level.WARNING, "[OPTIMISATION] Enregistrement impossible de l'exécution " + courante.id().valeur(), e);
+                return false;
             }
         }
     }

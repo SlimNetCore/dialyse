@@ -148,7 +148,7 @@ public class PlanificationConfiguration {
 
     @Bean
     ParametresDuPlanningRepository planificationParametres(JdbcTemplate jdbc, SallesDuCentre salles) {
-        return new ParametresDuPlanningJdbc(jdbc, salles);
+        return new ParametresDuPlanningJdbc(jdbc, salles, Clock.systemUTC());
     }
 
     @Bean
@@ -570,7 +570,7 @@ public class PlanificationConfiguration {
     // ───────────── P5 : placement (ADR 0049, 0052, 0053) ─────────────
     @Bean
     com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces planificationVerrouDesPlaces(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDesPlacesJdbc(jdbc);
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDesPlacesJdbc(jdbc, Clock.systemUTC());
     }
 
     @Bean

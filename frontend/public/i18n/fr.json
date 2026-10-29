@@ -2738,6 +2738,10 @@
         "PLACEMENT": "Une nouvelle place proposée enfreint les règles de la planification : relancez l'optimisation.",
         "OPTIMISATION_CALENDRIER_ABSENT": "Cette proposition n'a pas de planning calendaire : relancez l'optimisation.",
         "OPTIMISATION_SUPPRESSION_EN_COURS": "Un calcul en cours ne peut pas être supprimé : arrêtez-le d'abord.",
+        "AFFECTATION_CHEVAUCHEMENT": "Un infirmier serait dans deux salles au même créneau : relancez l'optimisation.",
+        "REMPLACEMENT_INELIGIBLE": "Un remplaçant proposé n'est plus éligible (absent, déjà prévu ou non habilité) : relancez l'optimisation.",
+        "DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE": "La place de remplacement proposée est incohérente : relancez l'optimisation.",
+        "PLANIFICATION_ECRITURE_CONCURRENTE": "Le centre est en cours de modification par une autre action : réessayez dans un instant.",
         "IMPRESSION": "Impossible de générer l'impression du planning proposé."
       },
       "CALENDRIER": {
@@ -3715,6 +3719,8 @@
       "INFIRMIER_ABSENCE_DECLAREE": "Absence d'un infirmier à remplacer",
       "INFIRMIER_ABSENCE_ENREGISTREE": "Absence d'un infirmier à remplacer",
       "INFIRMIER_ABSENCE_RETIREE": "Absence d'un infirmier retirée",
+      "INFIRMIER_ROULEMENT_MODIFIE": "Votre roulement a changé",
+      "INFIRMIER_REMPLACEMENT_AFFECTE": "Vous êtes affecté en remplacement",
       "INFIRMIER_SOUS_EFFECTIF": "Sous-effectif d'infirmiers",
       "INFIRMIER_SUREFFECTIF": "Sur-effectif d'infirmiers",
       "LIBERATION_PLACES_EN_ECHEC": "Libération des places en échec",
@@ -3768,6 +3774,8 @@
     "LIBERATION_PLACES_EN_ECHEC": "La libération des places du {{jour}} a échoué pour {{count}} patient(s) : les autres places ont été libérées, une nouvelle tentative a lieu cette nuit",
     "INFIRMIER_ABSENCE_ENREGISTREE": "Absence de {{infirmier}} enregistrée du {{debut}} au {{fin}} : remplacement à organiser",
     "INFIRMIER_ABSENCE_RETIREE": "L'absence de {{infirmier}} du {{debut}} au {{fin}} a été retirée : le planning est à jour",
+    "INFIRMIER_ROULEMENT_MODIFIE": "Une proposition d'optimisation appliquée a modifié un roulement d'infirmier : consultez le planning de la semaine",
+    "INFIRMIER_REMPLACEMENT_AFFECTE": "Un remplacement est affecté le {{date}} : consultez le planning",
     "GENERATEUR_INDISPONIBLE": "Générateur {{generateur}} indisponible ({{statut}}) : {{count}} patient(s) à déplacer {{patients}}",
     "REFORME_PROPOSEE": "Équipement {{code}} : état constaté « à réformer » à la clôture d'une intervention. Aucune réforme n'est décidée automatiquement : consultez la fiche de l'équipement.",
     "SEANCES_DEPLACEES": "Planning modifié : {{patients}} patient(s) déplacé(s), {{temporaires}} séance(s) déplacée(s) temporairement",
@@ -3800,7 +3808,8 @@
       "ACCUEIL": "Ouvrir le tableau de bord",
       "STOCK": "Ouvrir le stock",
       "INVENTAIRES": "Voir les inventaires",
-      "PLANNING": "Voir le planning"
+      "PLANNING": "Voir le planning",
+      "MON_PLANNING": "Voir mon planning"
     },
     "SEANCE_CREATED": "Séance créée pour {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Séance validée pour {{nom}} ({{date}})",

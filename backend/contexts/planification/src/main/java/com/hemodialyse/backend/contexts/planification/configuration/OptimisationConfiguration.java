@@ -65,7 +65,8 @@ public class OptimisationConfiguration {
 
     @Bean
     ExecutionsRepository planificationExecutions(JdbcTemplate jdbc, ObjectMapper mapper) {
-        return new ExecutionsJdbc(jdbc, mapper);
+        // un jeton par démarrage : seule cette instance fait avancer les calculs qu'elle a lancés
+        return new ExecutionsJdbc(jdbc, mapper, java.util.UUID.randomUUID().toString());
     }
 
     @Bean
@@ -89,8 +90,9 @@ public class OptimisationConfiguration {
     }
 
     @Bean
-    NotificationsDeLOptimisation planificationNotificationsDeLOptimisation(AlertesDeLOptimisation alertes) {
-        return new NotificationsDeLOptimisationLegacy(alertes);
+    NotificationsDeLOptimisation planificationNotificationsDeLOptimisation(AlertesDeLOptimisation alertes,
+                                                                           com.hemodialyse.backend.contexts.planification.domain.InfirmiersRepository infirmiers) {
+        return new NotificationsDeLOptimisationLegacy(alertes, infirmiers);
     }
 
     @Bean
@@ -134,15 +136,16 @@ public class OptimisationConfiguration {
     }
 
     @Bean
-    SupprimerUneExecution planificationSupprimerUneExecution(UniteDeTravail unite, ExecutionsRepository executions,
+    SupprimerUneExecution planificationSupprimerUneExecution(UniteDeTravail unite, VerrouDesPlaces verrou,
+                                                             ExecutionsRepository executions,
                                                              CalendriersDesPropositions calendriers) {
-        return new SupprimerUneExecution(unite, executions, calendriers);
+        return new SupprimerUneExecution(unite, verrou, executions, calendriers);
     }
 
     @Bean
     ReprendreLesExecutionsInterrompues planificationReprendreLesExecutionsInterrompues(UniteDeTravail unite,
                                                                                        ExecutionsRepository executions) {
-        return new ReprendreLesExecutionsInterrompues(unite, executions);
+        return new ReprendreLesExecutionsInterrompues(unite, executions, Clock.systemUTC());
     }
 
     @Bean

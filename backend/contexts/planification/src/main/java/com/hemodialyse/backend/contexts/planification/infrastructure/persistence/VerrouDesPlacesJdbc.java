@@ -23,7 +23,20 @@ public class VerrouDesPlacesJdbc implements VerrouDesPlaces {
 
     private final JdbcTemplate jdbc;
 
+    private final java.time.Clock horloge;
+
+    /**
+     * Horloge du serveur (UTC) : les tests de contrat qui ne regardent pas l'heure n'ont pas à en fournir.
+     */
     public VerrouDesPlacesJdbc(JdbcTemplate jdbc) {
+        this(jdbc, java.time.Clock.systemUTC());
+    }
+
+    /**
+     * L'horloge est injectée par la composition : l'adapter ne lit pas l'heure du système de lui-même.
+     */
+    public VerrouDesPlacesJdbc(JdbcTemplate jdbc, java.time.Clock horloge) {
+        this.horloge = horloge;
         this.jdbc = jdbc;
     }
 
@@ -40,7 +53,7 @@ public class VerrouDesPlacesJdbc implements VerrouDesPlaces {
                             + "CAST(? AS INTEGER), CAST(? AS INTEGER), CAST(? AS TIMESTAMP WITH TIME ZONE) "
                             + "WHERE NOT EXISTS (SELECT 1 FROM planning_parametres WHERE center_id = ?)",
                     centre.valeur(), jours, defaut.ratio().patientsParInfirmier(), defaut.patientsParPoste().nombre(),
-                    Timestamp.from(Instant.now()), centre.valeur());
+                    Timestamp.from(horloge.instant()), centre.valeur());
             jdbc.queryForList(VERROUILLER, centre.valeur());
             return null;
         });

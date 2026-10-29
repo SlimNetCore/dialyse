@@ -17,9 +17,11 @@ describe('NotificationBellStore', () => {
   let wsEvents: ReturnType<typeof signal<WsEvent[]>>;
   let roles: string[];
   let centre: ReturnType<typeof signal<string | null>>;
+  let utilisateur: string | null;
 
   beforeEach(() => {
     roles = ['ADMIN'];
+    utilisateur = null;
     centre = signal<string | null>(CENTRE);
     wsEvents = signal<WsEvent[]>([]);
     api = {
@@ -39,7 +41,10 @@ describe('NotificationBellStore', () => {
         provideZonelessChangeDetection(),
         {provide: NotificationApiService, useValue: api},
         {provide: WebSocketService, useValue: {events: wsEvents}},
-        {provide: AuthStore, useValue: {centerId: centre, hasRole: (r: string) => roles.includes(r)}},
+        {
+          provide: AuthStore,
+          useValue: {centerId: centre, userId: () => utilisateur, hasRole: (r: string) => roles.includes(r)}
+        },
       ],
     });
   });
@@ -82,6 +87,55 @@ describe('NotificationBellStore', () => {
     const medecin = await store();
 
     expect(medecin.tous().map((e) => e.id)).toEqual(['a3']);
+  });
+
+  const alertePersonnelle = () => alerte('p1', 'INFIRMIER_ROULEMENT_MODIFIE', '2026-10-08T02:31:00Z',
+    {targetRoles: 'ADMIN', targetUserId: 'compte-sara', infirmierId: 'i1'});
+
+  it('montre une alerte personnelle au compte visé', async () => {
+    api.liste.mockReturnValue(of({items: [alertePersonnelle()], total: 1, page: 0, size: 50}));
+    roles = ['INFIRMIER'];
+    utilisateur = 'compte-sara';
+
+    expect((await store()).tous().map((e) => e.id)).toEqual(['p1']);
+  });
+
+  it('ne montre pas une alerte personnelle aux autres infirmiers du centre', async () => {
+    api.liste.mockReturnValue(of({items: [alertePersonnelle()], total: 1, page: 0, size: 50}));
+    roles = ['INFIRMIER'];
+    utilisateur = 'compte-autre';
+
+    expect((await store()).tous().map((e) => e.id)).toEqual([]);
+  });
+
+  it('montre une alerte personnelle à l\'administration du centre', async () => {
+    api.liste.mockReturnValue(of({items: [alertePersonnelle()], total: 1, page: 0, size: 50}));
+    roles = ['ADMIN'];
+    utilisateur = 'compte-admin';
+
+    expect((await store()).tous().map((e) => e.id)).toEqual(['p1']);
+  });
+
+  it('relit le journal quand une alerte personnelle arrive en direct (seule sa cible est diffusée), une seule fois', async () => {
+    roles = ['INFIRMIER'];
+    utilisateur = 'compte-sara';
+    const s = await store();
+    TestBed.tick(); // les effets d'initialisation (lecture à la connexion) ont passé
+    await Promise.resolve();
+    const appels = api.liste.mock.calls.length;
+
+    wsEvents.set([{
+      id: 'p2', type: 'INFIRMIER_REMPLACEMENT_AFFECTE', centerId: CENTRE, timestamp: '2026-10-08T03:00:00Z',
+      payload: {targetRoles: 'ADMIN', targetUserId: 'compte-sara'},
+    } as WsEvent]);
+    TestBed.tick();
+    await Promise.resolve();
+    expect(api.liste.mock.calls.length).toBe(appels + 1);
+
+    wsEvents.set([...wsEvents()]);
+    TestBed.tick();
+    expect(api.liste.mock.calls.length).toBe(appels + 1);
+    expect(s.tous().length).toBeGreaterThan(0);
   });
 
   it('réunit temps réel et journal sans doublon et du plus récent au plus ancien', async () => {

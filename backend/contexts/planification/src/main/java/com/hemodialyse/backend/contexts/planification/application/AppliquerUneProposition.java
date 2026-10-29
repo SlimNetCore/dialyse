@@ -3,10 +3,12 @@ package com.hemodialyse.backend.contexts.planification.application;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.domain.CategorieDIsolement;
+import com.hemodialyse.backend.contexts.planification.domain.CouvertureDesAbsences;
 import com.hemodialyse.backend.contexts.planification.domain.DeplacementTemporaire;
 import com.hemodialyse.backend.contexts.planification.domain.DeplacementsTemporairesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.DonneesDOptimisation.PatientAPlacer;
+import com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.planification.domain.Empreinte;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
@@ -19,12 +21,8 @@ import com.hemodialyse.backend.contexts.planification.domain.Perimetre;
 import com.hemodialyse.backend.contexts.planification.domain.Place;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentre;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository;
-import com.hemodialyse.backend.contexts.planification.domain.Presence.AbsenceConnue;
-import com.hemodialyse.backend.contexts.planification.domain.Presence.AffectationPrevue;
-import com.hemodialyse.backend.contexts.planification.domain.Presence.InfirmierDeLaPresence;
-import com.hemodialyse.backend.contexts.planification.domain.Presence.Personnel;
+import com.hemodialyse.backend.contexts.planification.domain.PlacementRefuse;
 import com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee;
-import com.hemodialyse.backend.contexts.planification.domain.RemplacantEligible;
 import com.hemodialyse.backend.contexts.planification.domain.Remplacement;
 import com.hemodialyse.backend.contexts.planification.domain.RemplacementsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.ResultatDOptimisation;
@@ -44,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -130,7 +127,8 @@ public class AppliquerUneProposition {
             } else if (parametres.perimetre() == Perimetre.MAINTENANCE) {
                 appliquerLesTemporaires(centre, actuelles, resultat.temporaires());
             }
-            executions.enregistrer(appliquee);
+            if (!executions.transiter(appliquee, ExecutionDOptimisation.Statut.TERMINEE))
+                throw new EcritureConcurrente();
             signalerLesDeplacements(centre, parametres.perimetre(), resultat);
             return appliquee;
         });
@@ -145,6 +143,11 @@ public class AppliquerUneProposition {
         }
         resultat.vacations().stream().filter(v -> !v.existante() || parametres.perimetre().planifieLeRoulement())
                 .forEach(v -> fiches.add(v.infirmier()));
+        if (parametres.perimetre() == Perimetre.COUVERTURE) {
+            DonneesDOptimisation lues = donnees.charger(centre, parametres.debutSemaine(), parametres.finHorizon());
+            CouvertureDesAbsences couverture = new CouvertureDesAbsences(lues.personnel(), lues.ressources());
+            resultat.vacations().stream().filter(v -> !v.existante()).forEach(v -> fiches.addAll(couverture.remplacesPossibles(v)));
+        }
         return fiches;
     }
 
@@ -160,7 +163,7 @@ public class AppliquerUneProposition {
             for (DeplacementDePatient d : deplaces) {
                 PatientAPlacer patient = parPatient.get(d.patient());
                 if (patient == null)
-                    throw new RegleDePlanificationViolee("PLACEMENT_INCOMPLET", "Placement refusé par la planification : [INCOMPLET]");
+                    throw new PlacementRefuse("PLACEMENT_INCOMPLET", List.of("INCOMPLET"));
                 Set<JourDeLaSemaine> jours = d.jours() == null ? patient.jours() : EnumSet.copyOf(d.jours());
                 nouvelles.put(d.patient(), new Place(d.vers().salle(), d.vers().creneau(), d.vers().generateur(), jours));
                 categories.put(d.patient(), patient.categorie());
@@ -169,14 +172,10 @@ public class AppliquerUneProposition {
             PlacesDuCentre lues = places.charger(centre, actuelles.ressources(), jour);
             lues.replacerLesPatients(nouvelles, categories);
             places.enregistrer(lues);
-        } catch (RegleDePlanificationViolee e) {
-            if (e.code().startsWith("PLACEMENT_")) {
-                // même libellé que le legacy : les règles enfreintes, entre crochets
-                String regles = e.getMessage().substring(e.getMessage().lastIndexOf(": ") + 2);
-                throw new RegleDePlanificationViolee("OPTIMISATION_" + e.code(),
-                        "Une nouvelle place proposée enfreint les règles de la planification : [" + regles + "]");
-            }
-            throw e;
+        } catch (PlacementRefuse e) {
+            // même libellé que le legacy : les règles enfreintes, entre crochets
+            throw new RegleDePlanificationViolee("OPTIMISATION_" + e.code(),
+                    "Une nouvelle place proposée enfreint les règles de la planification : [" + e.regles() + "]");
         }
         nouvelles.keySet().forEach(patient -> caches.evincer(centre.valeur(), patient.valeur()));
     }
@@ -215,51 +214,14 @@ public class AppliquerUneProposition {
      */
     private void appliquerLaCouverture(CentreId centre, ExecutionId execution, DonneesDOptimisation actuelles,
                                        List<VacationPlanifiee> vacations) {
-        Personnel personnel = actuelles.personnel();
-        Map<UUID, InfirmierDeLaPresence> fiches = new HashMap<>();
-        personnel.infirmiers().forEach(i -> fiches.put(i.id(), i));
-        Set<String> dejaRemplaces = new HashSet<>();
+        CouvertureDesAbsences couverture = new CouvertureDesAbsences(actuelles.personnel(), actuelles.ressources());
         for (VacationPlanifiee v : vacations) {
             if (v.existante()) continue;
-            boolean salleDIsolement = actuelles.ressources().estIsolement(v.salle());
-            InfirmierDeLaPresence fiche = fiches.get(v.infirmier().valeur());
-            RemplacantEligible.Situation situation = new RemplacantEligible.Situation(v.infirmier(), fiche != null,
-                    fiche != null && fiche.habiliteIsolement(), salleDIsolement, estAbsent(personnel, v.infirmier().valeur(), v.date()),
-                    estDejaPrevu(personnel, v));
-            RemplacantEligible eligible = RemplacantEligible.prouver(situation);
-            InfirmierId remplace = absentPrevuSurLaCase(personnel, v, dejaRemplaces);
+            CouvertureDesAbsences.Affectation affectation = couverture.affecter(v);
             remplacements.enregistrer(Remplacement.affecter(identifiants.remplacement(), centre, v.date(), v.salle(), v.creneau(),
-                    eligible, remplace));
+                    affectation.remplacant(), affectation.remplace()));
             notifications.remplacementAffecte(centre, v.infirmier(), v.date(), v.salle(), v.creneau(), execution);
         }
-    }
-
-    private static boolean estAbsent(Personnel personnel, UUID infirmier, LocalDate jour) {
-        return personnel.absences().stream().anyMatch(a -> a.infirmier().equals(infirmier) && a.couvre(jour));
-    }
-
-    private static boolean estDejaPrevu(Personnel personnel, VacationPlanifiee v) {
-        JourDeLaSemaine jour = v.jour();
-        boolean auRoulement = personnel.affectations().stream().anyMatch(a -> a.infirmier().equals(v.infirmier().valeur())
-                && a.creneau().equals(v.creneau().valeur()) && a.jours().contains(jour));
-        boolean remplacant = personnel.remplacements().stream().anyMatch(r -> r.infirmier().equals(v.infirmier().valeur())
-                && r.date().equals(v.date()) && r.creneau().equals(v.creneau().valeur()));
-        return auRoulement || remplacant;
-    }
-
-    /** L'absent (ordre des identifiants) prévu sur la case au roulement qui n'a pas encore de remplaçant ; vide si personne. */
-    private static InfirmierId absentPrevuSurLaCase(Personnel personnel, VacationPlanifiee v, Set<String> dejaRemplaces) {
-        List<UUID> candidats = personnel.affectations().stream()
-                .filter((AffectationPrevue a) -> a.salle().equals(v.salle().valeur()) && a.creneau().equals(v.creneau().valeur())
-                        && a.jours().contains(v.jour()))
-                .map(AffectationPrevue::infirmier)
-                .filter(i -> estAbsent(personnel, i, v.date()))
-                .distinct().sorted(Comparator.comparing(UUID::toString)).toList();
-        for (UUID candidat : candidats) {
-            String cle = candidat + "|" + v.date() + "|" + v.creneau().valeur();
-            if (dejaRemplaces.add(cle)) return new InfirmierId(candidat);
-        }
-        return null;
     }
 
     // ───────────────────────────── Maintenance ─────────────────────────────

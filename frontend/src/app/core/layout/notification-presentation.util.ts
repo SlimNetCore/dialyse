@@ -91,6 +91,12 @@ function planning(profil: Profil, date?: string | null): NotificationAction {
   return accueil(profil);
 }
 
+/** « Mon planning » pour l'infirmier concerné ; le planning du centre pour l'administration. */
+function planningDeLInfirmier(profil: Profil, date?: string | null): NotificationAction {
+  if (profil === 'INFIRMIER') return action('MON_PLANNING', ['/infirmiers/moi'], date ? {date} : {});
+  return planning(profil, date);
+}
+
 /** L'optimisation d'un périmètre, pour qui peut la lancer ; sinon le planning. */
 function optimisation(profil: Profil, label: string, queryParams: Record<string, string>): NotificationAction {
   return profil === 'GESTION' ? action(label, ['/seances/optimisation'], queryParams) : planning(profil);
@@ -264,6 +270,12 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
     case 'SEANCES_DEPLACEES':
       return info('swap_horiz', planning(profil),
         {parametres: {patients: p['nbPatients'] ?? '0', temporaires: p['nbSeancesTemporaires'] ?? '0'}});
+
+    case 'INFIRMIER_ROULEMENT_MODIFIE':
+      // alerte personnelle (P8) : l'infirmier concerné et l'administration ; l'infirmier ouvre « Mon planning »
+      return info('event_repeat', planningDeLInfirmier(profil), {});
+    case 'INFIRMIER_REMPLACEMENT_AFFECTE':
+      return alerte('swap_calls', planningDeLInfirmier(profil, p['date']), {parametres: {date: dateLisible(p['date'])}});
 
     case 'PATIENT_REPLACE_ISOLEMENT':
       return info('masks', profil === 'GESTION' ? action('PLACEMENT', ['/seances/planning']) : planning(profil),

@@ -11,6 +11,7 @@ import com.hemodialyse.backend.contexts.planification.domain.DeplacementTemporai
 import com.hemodialyse.backend.contexts.planification.domain.DeplacementsTemporairesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.Empreinte;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation;
+import com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation.Statut;
 import com.hemodialyse.backend.contexts.planification.domain.ExecutionsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.DeplacementTemporaireId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
@@ -32,6 +33,7 @@ import com.hemodialyse.backend.contexts.planification.domain.ResultatDOptimisati
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -103,7 +105,17 @@ abstract class OptimisationContrat {
                 List.of(jour, ferme));
     }
 
-    abstract ExecutionsRepository executions();
+    /**
+     * Le dépôt vu par l'instance « instance-A » du serveur.
+     */
+    ExecutionsRepository executions() {
+        return executionsDeLInstance("instance-A");
+    }
+
+    /**
+     * Le dépôt vu par une instance donnée du serveur, sur les MÊMES données (deux serveurs, une base).
+     */
+    abstract ExecutionsRepository executionsDeLInstance(String instance);
 
     abstract DeplacementsTemporairesRepository deplacements();
 
@@ -124,7 +136,7 @@ abstract class OptimisationContrat {
     @Test
     void should_read_back_a_started_execution_as_it_was_written() {
         ExecutionDOptimisation e = lancee(1, CENTRE, T0);
-        executions().enregistrer(e);
+        executions().creer(e);
 
         assertThat(executions().parId(CENTRE, e.id())).contains(e);
         assertThat(executions().enCours(CENTRE)).contains(e);
@@ -133,16 +145,16 @@ abstract class OptimisationContrat {
     @Test
     void should_keep_the_parameters_the_summary_and_the_whole_result_through_the_transitions() {
         ExecutionDOptimisation e = lancee(1, CENTRE, T0);
-        executions().enregistrer(e);
-        executions().enregistrer(e.progresser("COMPLET", "0hard/-3soft"));
+        executions().creer(e);
+        assertThat(executions().transiter(e.progresser("COMPLET", "0hard/-3soft"), Statut.EN_COURS)).isTrue();
         ExecutionDOptimisation terminee = e.progresser("COMPLET", "0hard/-3soft").terminer(resultatComplet(), "0hard/-1soft", T0.plusSeconds(30));
-        executions().enregistrer(terminee);
+        assertThat(executions().transiter(terminee, Statut.EN_COURS)).isTrue();
 
         assertThat(executions().parId(CENTRE, e.id())).contains(terminee);
         assertThat(executions().enCours(CENTRE)).isEmpty();
 
         ExecutionDOptimisation appliquee = terminee.appliquer(new Empreinte("e".repeat(64)), T0.plusSeconds(90));
-        executions().enregistrer(appliquee);
+        assertThat(executions().transiter(appliquee, Statut.TERMINEE)).isTrue();
         assertThat(executions().parId(CENTRE, e.id())).contains(appliquee);
         assertThat(executions().parId(CENTRE, e.id()).orElseThrow().appliqueeLe()).isEqualTo(T0.plusSeconds(90));
     }
@@ -150,17 +162,87 @@ abstract class OptimisationContrat {
     @Test
     void should_record_a_failure_with_its_reason() {
         ExecutionDOptimisation e = lancee(1, CENTRE, T0);
-        executions().enregistrer(e);
+        executions().creer(e);
         ExecutionDOptimisation echec = e.echouer("pas de solution", T0.plusSeconds(5));
-        executions().enregistrer(echec);
+        assertThat(executions().transiter(echec, Statut.EN_COURS)).isTrue();
 
         assertThat(executions().parId(CENTRE, e.id())).contains(echec);
     }
 
     @Test
+    void should_never_leave_a_final_state_and_never_recreate_a_missing_execution() {
+        ExecutionDOptimisation e = lancee(1, CENTRE, T0);
+        executions().creer(e);
+        ExecutionDOptimisation echec = e.echouer("interrompue", T0.plusSeconds(5));
+        assertThat(executions().transiter(echec, Statut.EN_COURS)).isTrue();
+
+        // le calcul tardif veut se terminer : la base refuse (statut != EN_COURS), l'ECHEC reste
+        assertThat(executions().transiter(e.terminer(resultatVide(), "s", T0.plusSeconds(9)), Statut.EN_COURS)).isFalse();
+        assertThat(executions().parId(CENTRE, e.id())).contains(echec);
+
+        // une exécution supprimée n'est pas ressuscitée par une transition tardive
+        executions().supprimer(CENTRE, e.id());
+        ExecutionDOptimisation autre = lancee(2, CENTRE, T0);
+        assertThat(executions().transiter(autre.terminer(resultatVide(), "s", T0.plusSeconds(9)), Statut.EN_COURS)).isFalse();
+        assertThat(executions().parId(CENTRE, e.id())).isEmpty();
+        assertThat(executions().parId(CENTRE, autre.id())).isEmpty();
+    }
+
+    @Test
+    void should_let_only_the_launching_instance_move_its_calculation_forward() {
+        ExecutionDOptimisation e = lancee(1, CENTRE, T0);
+        executions().creer(e);
+
+        assertThat(executionsDeLInstance("instance-B").transiter(e.terminer(resultatVide(), "s", T0.plusSeconds(9)), Statut.EN_COURS))
+                .isFalse();
+        assertThat(executions().enCours(CENTRE)).contains(e);
+        assertThat(executions().transiter(e.terminer(resultatVide(), "s", T0.plusSeconds(9)), Statut.EN_COURS)).isTrue();
+    }
+
+    @Test
+    void should_interrupt_only_the_orphans_never_the_calculation_of_a_living_instance() {
+        executions().creer(lancee(1, CENTRE, T0)); // instance A, battement T0
+        executionsDeLInstance("instance-B").creer(lancee(2, AUTRE_CENTRE, T0)); // instance B, battement T0
+        Duration delai = Duration.ofSeconds(60);
+
+        // A bat son cœur, B a disparu
+        executions().battre(T0.plusSeconds(100));
+        int n = executions().interrompreLesOrphelines("disparue", T0.plusSeconds(100), delai);
+
+        assertThat(n).isEqualTo(1);
+        assertThat(executions().parId(CENTRE, execution(1)).orElseThrow().enCours()).isTrue();
+        ExecutionDOptimisation orpheline = executions().parId(AUTRE_CENTRE, execution(2)).orElseThrow();
+        assertThat(orpheline.statut()).isEqualTo(Statut.ECHEC);
+        assertThat(orpheline.erreur()).isEqualTo("disparue");
+    }
+
+    @Test
+    void should_race_launch_restart_and_termination_without_a_second_calculation_nor_a_resurrection() {
+        // 1. A lance et tourne ; 2. l'instance B redémarre : sa reprise ne voit aucun orphelin (A bat son cœur)
+        ExecutionDOptimisation premier = lancee(1, CENTRE, T0);
+        executions().creer(premier);
+        executions().battre(T0.plusSeconds(50));
+        assertThat(executionsDeLInstance("instance-B").interrompreLesOrphelines("redemarrage", T0.plusSeconds(55), Duration.ofSeconds(60)))
+                .isZero();
+        assertThat(executions().enCours(CENTRE)).isPresent(); // le centre reste verrouillé par « un calcul en cours »
+
+        // 3. A se termine normalement
+        ExecutionDOptimisation terminee = premier.terminer(resultatVide(), "s", T0.plusSeconds(58));
+        assertThat(executions().transiter(terminee, Statut.EN_COURS)).isTrue();
+
+        // 4. cas inverse : A meurt (plus de battement), B reprend ; A « revient » trop tard : l'ECHEC est définitif
+        ExecutionDOptimisation second = lancee(2, CENTRE, T0.plusSeconds(60));
+        executions().creer(second);
+        assertThat(executionsDeLInstance("instance-B").interrompreLesOrphelines("perdu", T0.plusSeconds(200), Duration.ofSeconds(60)))
+                .isEqualTo(1);
+        assertThat(executions().transiter(second.terminer(resultatVide(), "s", T0.plusSeconds(210)), Statut.EN_COURS)).isFalse();
+        assertThat(executions().parId(CENTRE, second.id()).orElseThrow().statut()).isEqualTo(Statut.ECHEC);
+    }
+
+    @Test
     void should_never_show_an_execution_to_another_centre() {
         ExecutionDOptimisation e = lancee(1, CENTRE, T0);
-        executions().enregistrer(e);
+        executions().creer(e);
 
         assertThat(executions().parId(AUTRE_CENTRE, e.id())).isEmpty();
         assertThat(executions().enCours(AUTRE_CENTRE)).isEmpty();
@@ -173,7 +255,7 @@ abstract class OptimisationContrat {
     void should_page_the_history_from_the_most_recent_with_the_total() {
         for (int i = 1; i <= 5; i++) {
             ExecutionDOptimisation e = lancee(i, CENTRE, T0.plusSeconds(i));
-            executions().enregistrer(e.terminer(resultatVide(), "s", T0.plusSeconds(100 + i)));
+            executions().creer(e.terminer(resultatVide(), "s", T0.plusSeconds(100 + i)));
         }
 
         var premiere = executions().page(CENTRE, new Pagination(0, 2));
@@ -190,9 +272,9 @@ abstract class OptimisationContrat {
     @Test
     void should_keep_only_the_most_recent_executions_of_the_centre_when_purging() {
         for (int i = 1; i <= 4; i++) {
-            executions().enregistrer(lancee(i, CENTRE, T0.plusSeconds(i)).echouer("x", T0.plusSeconds(i)));
+            executions().creer(lancee(i, CENTRE, T0.plusSeconds(i)).echouer("x", T0.plusSeconds(i)));
         }
-        executions().enregistrer(lancee(9, AUTRE_CENTRE, T0).echouer("x", T0));
+        executions().creer(lancee(9, AUTRE_CENTRE, T0).echouer("x", T0));
 
         executions().purger(CENTRE, 2);
 
@@ -203,7 +285,7 @@ abstract class OptimisationContrat {
 
     @Test
     void should_delete_an_execution_of_the_centre_only() {
-        executions().enregistrer(lancee(1, CENTRE, T0).echouer("x", T0));
+        executions().creer(lancee(1, CENTRE, T0).echouer("x", T0));
 
         assertThat(executions().supprimer(CENTRE, execution(1))).isTrue();
         assertThat(executions().supprimer(CENTRE, execution(1))).isFalse();
@@ -213,12 +295,12 @@ abstract class OptimisationContrat {
     // ───────────────────────────── déplacements temporaires ─────────────────────────────
 
     @Test
-    void should_fail_every_execution_left_in_progress_by_a_restart_in_every_centre() {
-        executions().enregistrer(lancee(1, CENTRE, T0));
-        executions().enregistrer(lancee(2, AUTRE_CENTRE, T0));
-        executions().enregistrer(lancee(3, CENTRE, T0.plusSeconds(1)).terminer(resultatVide(), "s", T0.plusSeconds(2)));
+    void should_fail_the_orphans_of_every_centre_and_leave_the_finished_ones() {
+        executions().creer(lancee(1, CENTRE, T0));
+        executions().creer(lancee(2, AUTRE_CENTRE, T0));
+        executions().creer(lancee(3, CENTRE, T0.plusSeconds(1)).terminer(resultatVide(), "s", T0.plusSeconds(2)));
 
-        int n = executions().interrompreLesEnCours("Calcul interrompu par l'arrêt du serveur");
+        int n = executions().interrompreLesOrphelines("Calcul interrompu par l'arrêt du serveur", T0.plusSeconds(500), Duration.ofSeconds(60));
 
         assertThat(n).isEqualTo(2);
         ExecutionDOptimisation interrompue = executions().parId(CENTRE, execution(1)).orElseThrow();
@@ -278,7 +360,7 @@ abstract class OptimisationContrat {
 
     @Test
     void should_freeze_and_read_the_calendar_by_week_ordered_by_slot_then_room() {
-        executions().enregistrer(lancee(1, CENTRE, T0));
+        executions().creer(lancee(1, CENTRE, T0));
         LocalDate dimanche = LocalDate.of(2026, 11, 1);
         calendriers().enregistrer(CENTRE, execution(1), List.of(ligne(dimanche, A.valeur(), 2, SOIR.valeur(), 2),
                 ligne(dimanche, B.valeur(), 3, MATIN.valeur(), 1), ligne(dimanche, A.valeur(), 1, MATIN.valeur(), 1),
@@ -302,7 +384,7 @@ abstract class OptimisationContrat {
 
     @Test
     void should_replace_the_calendar_of_an_execution_when_frozen_again() {
-        executions().enregistrer(lancee(1, CENTRE, T0));
+        executions().creer(lancee(1, CENTRE, T0));
         LocalDate dimanche = LocalDate.of(2026, 11, 1);
         calendriers().enregistrer(CENTRE, execution(1), List.of(ligne(dimanche, A.valeur(), 1, MATIN.valeur(), 1)));
         calendriers().enregistrer(CENTRE, execution(1), List.of(ligne(dimanche.plusWeeks(1), A.valeur(), 1, MATIN.valeur(), 1)));
@@ -312,8 +394,8 @@ abstract class OptimisationContrat {
 
     @Test
     void should_scope_the_calendar_to_the_centre_and_purge_the_orphans_of_deleted_executions() {
-        executions().enregistrer(lancee(1, CENTRE, T0));
-        executions().enregistrer(lancee(2, CENTRE, T0.plusSeconds(1)));
+        executions().creer(lancee(1, CENTRE, T0));
+        executions().creer(lancee(2, CENTRE, T0.plusSeconds(1)));
         LocalDate dimanche = LocalDate.of(2026, 11, 1);
         calendriers().enregistrer(CENTRE, execution(1), List.of(ligne(dimanche, A.valeur(), 1, MATIN.valeur(), 1)));
         calendriers().enregistrer(CENTRE, execution(2), List.of(ligne(dimanche, A.valeur(), 1, MATIN.valeur(), 1)));

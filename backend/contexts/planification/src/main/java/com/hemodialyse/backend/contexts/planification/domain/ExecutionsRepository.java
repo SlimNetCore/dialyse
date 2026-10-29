@@ -13,8 +13,23 @@ import java.util.Optional;
  */
 public interface ExecutionsRepository {
 
-    /** Crée ou remplace l'exécution (même identité). */
-    void enregistrer(ExecutionDOptimisation execution);
+    /**
+     * Crée l'exécution lancée ({@code EN_COURS}), à la charge de l'instance du serveur qui l'a lancée (jeton propre au dépôt) ;
+     * son battement de cœur démarre à son lancement.
+     */
+    void creer(ExecutionDOptimisation execution);
+
+    /**
+     * Enregistre la transition d'une exécution, SEULEMENT si elle est encore dans le statut {@code avant} en base (mise à jour
+     * conditionnelle, jamais de réinsertion) ; pour un calcul {@code EN_COURS}, seule l'instance qui l'a lancé peut le faire
+     * avancer. Faux si la transition n'a pas eu lieu (exécution supprimée, déjà interrompue par la reprise, déjà terminée).
+     */
+    boolean transiter(ExecutionDOptimisation apres, ExecutionDOptimisation.Statut avant);
+
+    /**
+     * Signe de vie de cette instance : renouvelle le battement de cœur de ses calculs en cours.
+     */
+    void battre(java.time.Instant maintenant);
 
     /** L'exécution du centre ; vide si elle est inconnue ou d'un autre centre. */
     Optional<ExecutionDOptimisation> parId(CentreId centre, ExecutionId id);
@@ -31,6 +46,9 @@ public interface ExecutionsRepository {
     /** Supprime l'exécution du centre ; faux si elle est inconnue ou d'un autre centre. */
     boolean supprimer(CentreId centre, ExecutionId id);
 
-    /** Au démarrage : tout calcul encore en cours (tous centres) échoue avec ce motif ; rend le nombre d'exécutions touchées. */
-    int interrompreLesEnCours(String motif);
+    /**
+     * Reprise : les calculs ORPHELINS (en cours dont le battement de cœur a plus de {@code delai}, ou n'en a jamais eu) échouent
+     * avec ce motif ; ceux d'une instance vivante ne sont jamais touchés. Rend le nombre d'exécutions interrompues.
+     */
+    int interrompreLesOrphelines(String motif, java.time.Instant maintenant, java.time.Duration delai);
 }

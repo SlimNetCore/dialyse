@@ -19,8 +19,8 @@ class OptimisationEnMemoireContratTest extends OptimisationContrat {
     });
 
     @Override
-    ExecutionsRepository executions() {
-        return monde.executionsRepository;
+    ExecutionsRepository executionsDeLInstance(String instance) {
+        return monde.executionsPour(instance);
     }
 
     @Override

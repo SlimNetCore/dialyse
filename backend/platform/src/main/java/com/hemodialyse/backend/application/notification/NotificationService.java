@@ -410,34 +410,43 @@ public class NotificationService {
         payload.put("nbPatients", String.valueOf(nbPatients));
         payload.put("nbSeancesTemporaires", String.valueOf(nbSeancesTemporaires));
         payload.put("targetRoles", "MEDECIN,SECRETAIRE");
-        send(centerId, "SEANCES_DEPLACEES", payload);
+        // émise dans la transaction d'application d'une proposition : le temps réel part après le commit (revue P8, m8)
+        send(centerId, "SEANCES_DEPLACEES", payload, null, true);
     }
 
     /**
-     * Le roulement d'un infirmier a été modifié par une proposition d'optimisation appliquée (slice P8) : l'infirmier concerné (et
-     * l'administration) en sont prévenus. Identifiant déterministe : une seule alerte par exécution et par infirmier.
+     * Le roulement d'un infirmier a été modifié par une proposition d'optimisation appliquée (slice P8) : l'infirmier concerné (par
+     * son COMPTE) et l'administration du centre en sont prévenus, pas les autres infirmiers (revue P8, M2). Sans compte lié à la
+     * fiche, seule l'administration est prévenue. Identifiant déterministe : une seule alerte par exécution et par infirmier.
+     *
+     * @param compteId le compte lié à la fiche de l'infirmier, ou {@code null}
      */
-    public void notifyRoulementModifie(UUID centerId, UUID infirmierId, UUID runId, UUID id) {
+    public void notifyRoulementModifie(UUID centerId, UUID infirmierId, UUID compteId, UUID runId, UUID id) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("infirmierId", infirmierId.toString());
         payload.put("runId", runId.toString());
-        payload.put("targetRoles", "ADMIN,INFIRMIER");
+        payload.put("targetRoles", "ADMIN");
+        if (compteId != null) payload.put("targetUserId", compteId.toString());
         send(centerId, "INFIRMIER_ROULEMENT_MODIFIE", payload, id);
     }
 
     /**
-     * Un infirmier a été affecté comme remplaçant par une proposition d'optimisation appliquée (slice P8). Identifiant déterministe :
-     * une seule alerte par exécution, infirmier et case datée.
+     * Un infirmier a été affecté comme remplaçant par une proposition d'optimisation appliquée (slice P8) : lui seul (par son compte)
+     * et l'administration du centre en sont prévenus (revue P8, M2). Identifiant déterministe : une seule alerte par exécution,
+     * infirmier et case datée.
+     *
+     * @param compteId le compte lié à la fiche de l'infirmier, ou {@code null}
      */
-    public void notifyRemplacementAffecte(UUID centerId, UUID infirmierId, java.time.LocalDate date, UUID salleId, UUID creneauId,
-                                          UUID runId, UUID id) {
+    public void notifyRemplacementAffecte(UUID centerId, UUID infirmierId, UUID compteId, java.time.LocalDate date, UUID salleId,
+                                          UUID creneauId, UUID runId, UUID id) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("infirmierId", infirmierId.toString());
         payload.put("date", date.toString());
         payload.put("salleId", salleId.toString());
         payload.put("creneauId", creneauId.toString());
         payload.put("runId", runId.toString());
-        payload.put("targetRoles", "ADMIN,INFIRMIER");
+        payload.put("targetRoles", "ADMIN");
+        if (compteId != null) payload.put("targetUserId", compteId.toString());
         send(centerId, "INFIRMIER_REMPLACEMENT_AFFECTE", payload, id);
     }
 
@@ -569,11 +578,19 @@ public class NotificationService {
     }
 
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
-        send(centerId, eventType, payload, null);
+        send(centerId, eventType, payload, null, false);
     }
 
-    /** {@code idImpose} : identifiant déterministe d'une alerte durable ; déjà enregistrée, elle n'est ni renvoyée ni dupliquée. */
     private void send(UUID centerId, String eventType, Map<String, String> payload, UUID idImpose) {
+        send(centerId, eventType, payload, idImpose, false);
+    }
+
+    /**
+     * {@code idImpose} : identifiant déterministe d'une alerte durable ; déjà enregistrée, elle n'est ni renvoyée ni dupliquée.
+     * {@code apresLeCommit} : le temps réel part après le commit de la transaction en cours (jamais d'alerte fantôme si elle est
+     * annulée), même sans identifiant imposé.
+     */
+    private void send(UUID centerId, String eventType, Map<String, String> payload, UUID idImpose, boolean apresLeCommit) {
         if (idImpose != null && DURABLES.contains(eventType) && journal.existe(idImpose)) {
             return;
         }
@@ -581,7 +598,11 @@ public class NotificationService {
         Instant maintenant = Instant.now();
         event.put("type", eventType);
         event.put("centerId", centerId.toString());
-        event.put("payload", payload);
+        // Alerte personnelle : le canal temps réel du centre ne porte que la cible ; le contenu (infirmier, date, salle, créneau)
+        // se lit au journal, filtré par compte (revue P8, M2)
+        event.put("payload", payload.containsKey("targetUserId")
+                ? Map.of("targetRoles", payload.getOrDefault("targetRoles", ""), "targetUserId", payload.get("targetUserId"))
+                : payload);
         event.put("timestamp", maintenant.toString());
         if (DURABLES.contains(eventType)) {
             UUID id = idImpose != null ? idImpose : UUID.randomUUID();
@@ -604,7 +625,7 @@ public class NotificationService {
         };
         // Alerte à identifiant imposé (P3 à P5) émise dans une transaction : le temps réel part APRÈS le commit, pour qu'une
         // transaction annulée (409, 422, échec du commit) ne diffuse jamais d'alerte fantôme (revue P5, constat 4).
-        if (idImpose != null && TransactionSynchronizationManager.isSynchronizationActive()) {
+        if ((idImpose != null || apresLeCommit) && TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {

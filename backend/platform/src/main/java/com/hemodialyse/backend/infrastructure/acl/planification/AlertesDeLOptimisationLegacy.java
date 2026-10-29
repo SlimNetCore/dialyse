@@ -49,15 +49,16 @@ public class AlertesDeLOptimisationLegacy implements AlertesDeLOptimisation {
     }
 
     @Override
-    public boolean roulementModifie(UUID centre, UUID infirmier, UUID execution) {
+    public boolean roulementModifie(UUID centre, UUID infirmier, UUID compte, UUID execution) {
         UUID id = identifiant(ROULEMENT_MODIFIE + "|" + execution + "|" + infirmier);
-        return emettre(id, () -> notifications.notifyRoulementModifie(centre, infirmier, execution, id));
+        return emettre(id, () -> notifications.notifyRoulementModifie(centre, infirmier, compte, execution, id));
     }
 
     @Override
-    public boolean remplacementAffecte(UUID centre, UUID infirmier, LocalDate date, UUID salle, UUID creneau, UUID execution) {
+    public boolean remplacementAffecte(UUID centre, UUID infirmier, UUID compte, LocalDate date, UUID salle, UUID creneau,
+                                       UUID execution) {
         UUID id = identifiant(REMPLACEMENT_AFFECTE + "|" + execution + "|" + infirmier + "|" + date + "|" + salle + "|" + creneau);
-        return emettre(id, () -> notifications.notifyRemplacementAffecte(centre, infirmier, date, salle, creneau, execution, id));
+        return emettre(id, () -> notifications.notifyRemplacementAffecte(centre, infirmier, compte, date, salle, creneau, execution, id));
     }
 
     private boolean emettre(UUID id, Runnable envoi) {

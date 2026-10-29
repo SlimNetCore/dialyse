@@ -38,21 +38,21 @@ class OptimisationJdbcPostgresContractIT extends OptimisationContrat {
     @Autowired
     private JdbcTemplate jdbc;
 
-    private ExecutionsRepository executions;
+    private JsonMapper mapperDuContrat;
     private DeplacementsTemporairesRepository deplacements;
     private CalendriersDesPropositions calendriers;
 
     @BeforeEach
     void composer() {
         JsonMapper mapper = JsonMapper.builder().build();
-        executions = new ExecutionsJdbc(jdbc, mapper);
+        mapperDuContrat = mapper;
         deplacements = new DeplacementsTemporairesJdbc(jdbc);
         calendriers = new CalendriersDesPropositionsJdbc(jdbc, mapper);
     }
 
     @Override
-    ExecutionsRepository executions() {
-        return executions;
+    ExecutionsRepository executionsDeLInstance(String instance) {
+        return new ExecutionsJdbc(jdbc, mapperDuContrat, instance);
     }
 
     @Override

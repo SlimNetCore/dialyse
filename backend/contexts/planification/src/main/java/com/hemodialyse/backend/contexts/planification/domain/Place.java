@@ -17,8 +17,7 @@ public record Place(SalleId salle, CreneauId creneau, GenerateurId generateur, S
 
     public Place {
         if (salle == null || creneau == null || generateur == null || jours == null || jours.isEmpty()) {
-            throw new RegleDePlanificationViolee("PLACEMENT_INCOMPLET",
-                    "Placement refusé par la planification : [INCOMPLET]");
+            throw new PlacementRefuse("PLACEMENT_INCOMPLET", java.util.List.of("INCOMPLET"));
         }
         jours = Collections.unmodifiableSet(EnumSet.copyOf(jours));
     }

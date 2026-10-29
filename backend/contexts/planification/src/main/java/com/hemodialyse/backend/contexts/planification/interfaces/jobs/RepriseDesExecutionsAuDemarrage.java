@@ -23,6 +23,14 @@ public class RepriseDesExecutionsAuDemarrage {
 
     @EventListener(ApplicationReadyEvent.class)
     public void interrompreLesCalculsOrphelins() {
+        battreEtReprendre();
+    }
+
+    /**
+     * Toutes les 10 s : signe de vie de cette instance, puis reprise des orphelins (jamais ceux d'une instance vivante).
+     */
+    @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 10_000, initialDelay = 10_000)
+    public void battreEtReprendre() {
         try {
             int interrompues = reprendre.executer();
             if (interrompues > 0) log.warn("[OPTIMISATION] {} calcul(s) orphelin(s) marqué(s) en échec", interrompues);

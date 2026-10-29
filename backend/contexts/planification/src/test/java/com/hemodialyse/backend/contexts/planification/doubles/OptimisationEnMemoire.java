@@ -27,6 +27,7 @@ import com.hemodialyse.backend.contexts.planification.domain.ParametresDOptimisa
 import com.hemodialyse.backend.contexts.planification.domain.Perimetre;
 import com.hemodialyse.backend.contexts.planification.domain.ResultatDOptimisation;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -130,10 +131,42 @@ public final class OptimisationEnMemoire implements UniteDeTravail {
         });
     }
 
-    public final ExecutionsRepository executionsRepository = new ExecutionsRepository() {
-        @Override
-        public void enregistrer(ExecutionDOptimisation execution) {
+    /**
+     * Instance « locale » du serveur dans les tests d'application.
+     */
+    public final ExecutionsRepository executionsRepository = executionsPour("instance-locale");
+
+    private final Map<ExecutionId, String> instances = new LinkedHashMap<>();
+    private final Map<ExecutionId, Instant> battements = new LinkedHashMap<>();
+
+    /**
+     * Le dépôt des exécutions vu par UNE instance du serveur (les données sont partagées entre instances, comme en base).
+     */
+    public ExecutionsRepository executionsPour(String instance) {
+        return new ExecutionsRepository() {
+            @Override
+            public void creer(ExecutionDOptimisation execution) {
+                if (executions.containsKey(execution.id())) throw new IllegalStateException("exécution déjà créée");
             executions.put(execution.id(), execution);
+                instances.put(execution.id(), instance);
+                battements.put(execution.id(), execution.creeLe());
+            }
+
+            @Override
+            public boolean transiter(ExecutionDOptimisation apres, ExecutionDOptimisation.Statut avant) {
+                ExecutionDOptimisation stockee = executions.get(apres.id());
+                if (stockee == null || !stockee.centre().equals(apres.centre()) || stockee.statut() != avant)
+                    return false;
+                if (avant == ExecutionDOptimisation.Statut.EN_COURS && !instance.equals(instances.get(apres.id())))
+                    return false;
+                executions.put(apres.id(), apres);
+                return true;
+            }
+
+            @Override
+            public void battre(Instant maintenant) {
+                executions.values().stream().filter(e -> e.enCours() && instance.equals(instances.get(e.id())))
+                        .forEach(e -> battements.put(e.id(), maintenant));
         }
 
         @Override
@@ -168,18 +201,20 @@ public final class OptimisationEnMemoire implements UniteDeTravail {
             return parId(centre, id).isPresent() && executions.remove(id) != null;
         }
 
-        @Override
-        public int interrompreLesEnCours(String motif) {
+            @Override
+            public int interrompreLesOrphelines(String motif, Instant maintenant, java.time.Duration delai) {
             int n = 0;
             for (ExecutionDOptimisation e : List.copyOf(executions.values())) {
-                if (e.enCours()) {
-                    executions.put(e.id(), e.echouer(motif, e.creeLe()));
+                Instant battement = battements.get(e.id());
+                if (e.enCours() && (battement == null || battement.isBefore(maintenant.minus(delai)))) {
+                    executions.put(e.id(), e.echouer(motif, maintenant));
                     n++;
                 }
             }
-            return n;
-        }
-    };
+                return n;
+            }
+        };
+    }
 
     public final DeplacementsTemporairesRepository deplacements = new DeplacementsTemporairesRepository() {
         @Override

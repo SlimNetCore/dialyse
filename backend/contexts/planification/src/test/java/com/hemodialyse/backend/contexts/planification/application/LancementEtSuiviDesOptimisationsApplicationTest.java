@@ -302,7 +302,12 @@ class LancementEtSuiviDesOptimisationsApplicationTest {
     void should_fail_the_calculations_left_in_progress_by_a_restart() {
         ExecutionDOptimisation enCours = lancer(Perimetre.PATIENTS);
         opt.derniereDemande().ecouteur().termine(OptimisationEnMemoire.resultatVide(), "s");
-        ExecutionDOptimisation orpheline = lancer(Perimetre.COMPLET);
+        ExecutionDOptimisation orpheline = ExecutionDOptimisation.lancer(
+                new com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId(java.util.UUID.randomUUID()), CENTRE,
+                ParametresDOptimisation.parDefaut(Perimetre.COMPLET, JeuDOptimisation.LUNDI), "admin",
+                new com.hemodialyse.backend.contexts.planification.domain.Empreinte("e".repeat(64)), m.maintenant);
+        opt.executionsPour("instance-disparue").creer(orpheline);
+        m.maintenant = m.maintenant.plus(ReprendreLesExecutionsInterrompues.DELAI_D_ORPHELIN).plusSeconds(1);
 
         int n = m.reprendre.executer();
 
@@ -311,6 +316,60 @@ class LancementEtSuiviDesOptimisationsApplicationTest {
         assertThat(opt.executions.get(orpheline.id()).erreur()).isEqualTo(ReprendreLesExecutionsInterrompues.MOTIF);
         assertThat(opt.executions.get(enCours.id()).statut()).isEqualTo(Statut.TERMINEE);
         assertThat(lancer(Perimetre.PATIENTS).enCours()).isTrue();
+    }
+
+    @Test
+    void should_answer_already_running_and_not_concurrent_write_when_the_lock_is_held_by_another_launch() {
+        lancer(Perimetre.PATIENTS);
+        m.places.verrouRefuse = true;
+        assertThatThrownBy(() -> lancer(Perimetre.COMPLET))
+                .isInstanceOf(com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee.class)
+                .hasMessageContaining("déjà en cours");
+    }
+
+    @Test
+    void should_answer_concurrent_write_when_the_lock_is_held_by_something_else_than_a_launch() {
+        m.places.verrouRefuse = true;
+        assertThatThrownBy(() -> lancer(Perimetre.COMPLET))
+                .isInstanceOf(com.hemodialyse.backend.contexts.planification.domain.EcritureConcurrente.class);
+    }
+
+    @Test
+    void should_never_interrupt_a_calculation_of_a_living_instance_nor_let_it_be_overwritten_after_a_restart_of_another() {
+        ExecutionDOptimisation vivante = lancer(Perimetre.PATIENTS);
+        OptimisationEnMemoire.Demande demande = opt.derniereDemande();
+        m.maintenant = m.maintenant.plus(ReprendreLesExecutionsInterrompues.DELAI_D_ORPHELIN).plusSeconds(1);
+        opt.executionsPour("autre-instance").battre(m.maintenant); // l'autre instance ne signe que ses propres calculs
+
+        // l'instance locale bat son propre cœur avant de reprendre : son calcul n'est jamais pris pour un orphelin
+        assertThat(m.reprendre.executer()).isZero();
+        assertThat(opt.executions.get(vivante.id()).enCours()).isTrue();
+
+        demande.ecouteur().termine(OptimisationEnMemoire.resultatVide(), "s");
+        assertThat(opt.executions.get(vivante.id()).statut()).isEqualTo(Statut.TERMINEE);
+    }
+
+    @Test
+    void should_drop_the_late_result_of_a_calculation_already_failed_as_orphan_and_never_resurrect_it() {
+        ExecutionDOptimisation e = lancer(Perimetre.PATIENTS);
+        OptimisationEnMemoire.Demande demande = opt.derniereDemande();
+        // la reprise d'une autre instance a jugé ce calcul orphelin (battement perdu)
+        opt.executions.put(e.id(), e.echouer(ReprendreLesExecutionsInterrompues.MOTIF, m.maintenant));
+
+        demande.ecouteur().termine(OptimisationEnMemoire.resultatVide(), "s");
+
+        assertThat(opt.executions.get(e.id()).statut()).isEqualTo(Statut.ECHEC);
+        assertThat(opt.calendriersEnregistres).doesNotContainKey(e.id());
+    }
+
+    @Test
+    void should_refuse_a_second_launch_while_the_first_still_runs_even_after_the_restart_of_another_instance() {
+        lancer(Perimetre.PATIENTS);
+        // une autre instance redémarre (sa reprise s'exécute à cet instant) : le calcul vivant de celle-ci n'est pas touché
+        m.reprendre.executer();
+        assertThatThrownBy(() -> lancer(Perimetre.COMPLET))
+                .isInstanceOf(com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee.class)
+                .hasMessageContaining("déjà en cours");
     }
 
     @Test

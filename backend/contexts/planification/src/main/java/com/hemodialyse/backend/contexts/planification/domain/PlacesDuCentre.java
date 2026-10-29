@@ -214,8 +214,7 @@ public final class PlacesDuCentre {
     private void controler(IndexDOccupation autres, CategorieDIsolement categorie, Place place) {
         List<Violation> violations = violations(autres, categorie.aRisque(), place);
         if (!violations.isEmpty()) {
-            throw new RegleDePlanificationViolee("PLACEMENT_" + violations.getFirst().name(),
-                    "Placement refusé par la planification : " + violations);
+            throw new PlacementRefuse("PLACEMENT_" + violations.getFirst().name(), violations.stream().map(Violation::name).toList());
         }
     }
 

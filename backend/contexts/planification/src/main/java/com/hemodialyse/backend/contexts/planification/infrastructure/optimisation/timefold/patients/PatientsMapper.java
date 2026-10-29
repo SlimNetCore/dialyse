@@ -33,17 +33,7 @@ import java.util.UUID;
  */
 public final class PatientsMapper {
 
-    /**
-     * Un générateur de secours pour huit générateurs en service (capacité théorique, RG-PLN-060).
-     */
-    static final int GENERATEURS_PAR_SECOURS = 8;
-
     private PatientsMapper() {
-    }
-
-    static int generateursDeSecours(int generateurs) {
-        if (generateurs <= 0) return 0;
-        return (generateurs + GENERATEURS_PAR_SECOURS - 1) / GENERATEURS_PAR_SECOURS;
     }
 
     /**
@@ -90,7 +80,7 @@ public final class PatientsMapper {
     public static ContexteCentre contexte(DonneesDOptimisation donnees) {
         int generateurs = donnees.ressources().generateurs().size();
         return new ContexteCentre(donnees.personnel().ratio().patientsParInfirmier(), generateurs,
-                generateursDeSecours(generateurs));
+                com.hemodialyse.backend.contexts.planification.domain.GenerateursDeSecours.pour(generateurs));
     }
 
     /**

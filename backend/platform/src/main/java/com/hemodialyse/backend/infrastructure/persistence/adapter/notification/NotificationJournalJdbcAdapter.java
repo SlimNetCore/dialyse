@@ -48,23 +48,27 @@ public class NotificationJournalJdbcAdapter implements NotificationJournalPort {
     }
 
     /**
-     * Filtre « visible par ces rôles » : alerte sans cible, ou ciblant au moins l'un d'eux.
+     * Filtre « visible par cet utilisateur » : alerte sans cible, ou ciblant au moins l'un de ses rôles, ou adressée à son compte
+     * ({@code targetUserId} du contenu : alerte personnelle, comme celles d'un infirmier dont le roulement change).
      */
-    private static String filtreRoles(Set<String> roles, List<Object> args) {
+    private static String filtreRoles(Set<String> roles, String userId, List<Object> args) {
         StringBuilder sql = new StringBuilder("(n.target_roles = ''");
         for (String role : roles) {
             sql.append(" OR n.target_roles LIKE ?");
             args.add("%," + role + ",%");
         }
+        sql.append(" OR n.target_user_id = ?");
+        args.add(userId);
         return sql.append(')').toString();
     }
 
     @Override
     public void enregistrer(UUID id, UUID centerId, String type, Map<String, String> payload, Instant creeLe) {
         String cibles = payload.getOrDefault("targetRoles", "").trim();
-        jdbc.update("INSERT INTO notification_evenement (id, center_id, type, payload, target_roles, cree_le) "
-                        + "VALUES (?, ?, ?, ?, ?, ?)", id, centerId, type, mapper.writeValueAsString(payload),
-                cibles.isEmpty() ? "" : "," + cibles + ",", horodatage(creeLe));
+        String compte = payload.getOrDefault("targetUserId", "").trim();
+        jdbc.update("INSERT INTO notification_evenement (id, center_id, type, payload, target_roles, cree_le, target_user_id) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?)", id, centerId, type, mapper.writeValueAsString(payload),
+                cibles.isEmpty() ? "" : "," + cibles + ",", horodatage(creeLe), compte.isEmpty() ? null : compte);
     }
 
     @Override
@@ -76,7 +80,7 @@ public class NotificationJournalJdbcAdapter implements NotificationJournalPort {
     @Override
     public PagedResult<Alerte> lister(UUID centerId, String userId, Set<String> roles, int page, int size) {
         List<Object> filtre = new ArrayList<>();
-        String roleSql = filtreRoles(roles, filtre);
+        String roleSql = filtreRoles(roles, userId, filtre);
         List<Object> argsTotal = new ArrayList<>(List.of(centerId, horodatage(Instant.now().minus(FENETRE))));
         argsTotal.addAll(filtre);
         Long total = jdbc.queryForObject("SELECT COUNT(*) FROM notification_evenement n WHERE n.center_id = ? "
@@ -114,7 +118,7 @@ public class NotificationJournalJdbcAdapter implements NotificationJournalPort {
     public void toutMarquerLu(UUID centerId, String userId, Set<String> roles) {
         List<Object> args = new ArrayList<>(List.of(userId, horodatage(Instant.now()), centerId,
                 horodatage(Instant.now().minus(FENETRE))));
-        String roleSql = filtreRoles(roles, args);
+        String roleSql = filtreRoles(roles, userId, args);
         args.add(userId);
         jdbc.update("INSERT INTO notification_lecture (notification_id, user_id, lue_le) "
                 + "SELECT n.id, ?, ? FROM notification_evenement n WHERE n.center_id = ? AND n.cree_le >= ? AND "

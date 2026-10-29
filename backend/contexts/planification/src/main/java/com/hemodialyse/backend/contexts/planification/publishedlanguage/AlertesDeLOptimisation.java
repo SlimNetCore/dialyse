@@ -27,12 +27,14 @@ public interface AlertesDeLOptimisation {
     void bilanDeLaNuit(UUID centre, String issue, int propositions, int echecs);
 
     /**
-     * Le roulement de cet infirmier a changé. Clé : exécution et infirmier.
+     * Le roulement de cet infirmier a changé. Clé : exécution et infirmier. Alerte PERSONNELLE : adressée au {@code compte} lié à sa
+     * fiche (nul s'il n'en a pas) et à l'administration, jamais aux autres infirmiers.
      */
-    boolean roulementModifie(UUID centre, UUID infirmier, UUID execution);
+    boolean roulementModifie(UUID centre, UUID infirmier, UUID compte, UUID execution);
 
     /**
-     * Cet infirmier a été affecté comme remplaçant sur une case. Clé : exécution, infirmier, date, salle et créneau.
+     * Cet infirmier a été affecté comme remplaçant sur une case. Clé : exécution, infirmier, date, salle et créneau. Alerte
+     * PERSONNELLE, comme {@link #roulementModifie}.
      */
-    boolean remplacementAffecte(UUID centre, UUID infirmier, LocalDate date, UUID salle, UUID creneau, UUID execution);
+    boolean remplacementAffecte(UUID centre, UUID infirmier, UUID compte, LocalDate date, UUID salle, UUID creneau, UUID execution);
 }

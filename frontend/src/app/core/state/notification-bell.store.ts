@@ -42,6 +42,9 @@ export const NotificationBellStore = signalStore(
     const auth = inject(AuthStore);
 
     const isTargetedToCurrentUser = (evt: WsEvent): boolean => {
+      // alerte personnelle (roulement, remplacement) : le compte visé, ou les rôles listés (l'administration du centre)
+      const compteVise = (evt.payload['targetUserId'] ?? '').trim();
+      if (compteVise && compteVise === auth.userId()) return true;
       const rawTargetRoles = (evt.payload['targetRoles'] ?? '').trim();
       if (!rawTargetRoles) {
         return true;
@@ -62,7 +65,8 @@ export const NotificationBellStore = signalStore(
     const tous = computed(() => {
       const vus = new Set<string>();
       const reunis: WsEvent[] = [];
-      for (const evt of [...ws.events(), ...store.persistees()]) {
+      // le journal d'abord : une alerte personnelle reçue en direct ne porte que sa cible, son contenu vient du journal
+      for (const evt of [...store.persistees(), ...ws.events()]) {
         if (EVENEMENTS_TECHNIQUES.has(evt.type) || vus.has(eventId(evt))) continue;
         vus.add(eventId(evt));
         reunis.push(evt);
@@ -172,6 +176,16 @@ export const NotificationBellStore = signalStore(
       // Les alertes durables sont relues à la connexion, puis quand le centre actif change.
       effect(() => {
         if (auth.centerId()) untracked(() => void store.charger());
+      });
+      // Une alerte personnelle reçue en direct ne porte que sa cible (le contenu n'est pas diffusé à tout le centre) :
+      // le journal, filtré par compte, est relu pour en obtenir le contenu.
+      const ws = inject(WebSocketService);
+      const dejaRelues = new Set<string>(); // au plus une relecture par alerte : jamais de boucle
+      effect(() => {
+        const nouvelles = ws.events().filter((e) => e.id && e.payload['targetUserId'] && !dejaRelues.has(e.id));
+        if (nouvelles.length === 0) return;
+        nouvelles.forEach((e) => dejaRelues.add(e.id as string));
+        untracked(() => void store.charger());
       });
     },
   }),

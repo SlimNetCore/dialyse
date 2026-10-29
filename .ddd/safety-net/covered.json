@@ -446,7 +446,9 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/optimisation/timefold/patients/PlacementPatient.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/optimisation/timefold/patients/PlanPatients.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/AlertesDeLOptimisationLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDuCalendrierDeLaPropositionLegacy.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDuCalendrierDeLaPropositionLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/NotificationJournalPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/notification/NotificationJournalJdbcAdapter.java"
   ],
   "seamAllowed": []
 }

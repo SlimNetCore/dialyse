@@ -2599,6 +2599,10 @@
         "PLACEMENT": "مكان مقترح يخالف قواعد التخطيط: أعد تشغيل التحسين.",
         "OPTIMISATION_CALENDRIER_ABSENT": "هذا الاقتراح لا يتضمن جدولاً تقويمياً: أعد تشغيل التحسين.",
         "OPTIMISATION_SUPPRESSION_EN_COURS": "لا يمكن حذف حساب قيد التشغيل: أوقفه أولاً.",
+        "AFFECTATION_CHEVAUCHEMENT": "سيكون ممرض في قاعتين في الفترة نفسها: أعد تشغيل التحسين.",
+        "REMPLACEMENT_INELIGIBLE": "بديل مقترح لم يعد مؤهلاً (غائب أو مبرمج بالفعل أو غير مؤهل): أعد تشغيل التحسين.",
+        "DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE": "المكان البديل المقترح غير متسق: أعد تشغيل التحسين.",
+        "PLANIFICATION_ECRITURE_CONCURRENTE": "المركز قيد التعديل بإجراء آخر: أعد المحاولة بعد لحظات.",
         "IMPRESSION": "تعذّر إنشاء طباعة الجدول المقترح."
       },
       "CALENDRIER": {
@@ -3583,6 +3587,8 @@
       "INFIRMIER_ABSENCE_DECLAREE": "غياب ممرض يجب تعويضه",
       "INFIRMIER_ABSENCE_ENREGISTREE": "غياب ممرض يجب تعويضه",
       "INFIRMIER_ABSENCE_RETIREE": "تم سحب غياب ممرض",
+      "INFIRMIER_ROULEMENT_MODIFIE": "تغيّر جدول مناوباتك",
+      "INFIRMIER_REMPLACEMENT_AFFECTE": "تم تعيينك كبديل",
       "INFIRMIER_SOUS_EFFECTIF": "نقص في عدد الممرضين",
       "INFIRMIER_SUREFFECTIF": "فائض في عدد الممرضين",
       "LIBERATION_PLACES_EN_ECHEC": "فشل تحرير الأماكن",
@@ -3636,6 +3642,8 @@
     "LIBERATION_PLACES_EN_ECHEC": "فشل تحرير أماكن {{jour}} لدى {{count}} مريض(ا): تم تحرير الأماكن الأخرى وستُعاد المحاولة هذه الليلة",
     "INFIRMIER_ABSENCE_ENREGISTREE": "تم تسجيل غياب {{infirmier}} من {{debut}} إلى {{fin}}: استبدال يجب تنظيمه",
     "INFIRMIER_ABSENCE_RETIREE": "تم سحب غياب {{infirmier}} من {{debut}} إلى {{fin}}: الجدول محدّث",
+    "INFIRMIER_ROULEMENT_MODIFIE": "اقتراح تحسين مطبّق غيّر جدول مناوبات ممرض: راجع جدول الأسبوع",
+    "INFIRMIER_REMPLACEMENT_AFFECTE": "تم تعيين بديل بتاريخ {{date}}: راجع الجدول",
     "GENERATEUR_INDISPONIBLE": "المولّد {{generateur}} غير متاح ({{statut}}): {{count}} مريض(ا) يجب نقلهم {{patients}}",
     "REFORME_PROPOSEE": "الجهاز {{code}}: تبيّن عند إغلاق تدخل أنه «للإخراج من الخدمة». لا يتم أي قرار تلقائياً: راجع بطاقة الجهاز.",
     "SEANCES_DEPLACEES": "تم تعديل الجدول: نقل {{patients}} مريض(ا)، و{{temporaires}} حصة(حصص) مؤقتاً",
@@ -3668,7 +3676,8 @@
       "ACCUEIL": "فتح لوحة القيادة",
       "STOCK": "فتح المخزون",
       "INVENTAIRES": "عرض الجرود",
-      "PLANNING": "عرض الجدول"
+      "PLANNING": "عرض الجدول",
+      "MON_PLANNING": "عرض جدولي"
     },
     "SEANCE_CREATED": "تم إنشاء حصة لـ {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "تم اعتماد حصة لـ {{nom}} ({{date}})",

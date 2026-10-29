@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Fournit au contexte Planification son port consomm├® {@link CalendrierDuCentre} (ACL vers les donn├®es de planning du legacy, retir├®e
- * avec la slice P4) : un jour est ferm├® s'il n'est pas un jour d'ouverture hebdomadaire ou s'il porte une fermeture (f├®ri├®, fermeture
- * exceptionnelle). M├¬me r├¿gle que le calcul de pr├®sence ({@code CalendrierCentre}).
+ * Fournit au contexte Planification son port consommé {@link CalendrierDuCentre} (ACL vers les données de planning du legacy, retirée
+ * avec la slice P4) : un jour est fermé s'il n'est pas un jour d'ouverture hebdomadaire ou s'il porte une fermeture (férié, fermeture
+ * exceptionnelle). Même règle que le calcul de présence ({@code CalendrierCentre}).
  */
 @Component
 public class CalendrierDuCentreLegacy implements CalendrierDuCentre {

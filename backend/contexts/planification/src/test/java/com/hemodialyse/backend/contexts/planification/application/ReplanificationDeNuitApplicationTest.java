@@ -191,10 +191,13 @@ class ReplanificationDeNuitApplicationTest {
     @Test
     void should_postpone_after_a_first_step_when_a_manual_calculation_starts_in_between() {
         m.nuit.replanifier(CENTRE, AUJOURDHUI);
-        // pendant la couverture, un calcul est lancé à la main : on simule en le posant après la fin de la première étape
-        opt.executions.put(opt.demandes.getFirst().execution(), opt.executions.get(opt.demandes.getFirst().execution())
-                .terminer(rien(), "s", MondeDOptimisation.MAINTENANT));
-        ExecutionDOptimisation manuelle = m.lancer.executer(CENTRE, JeuDOptimisation.parametres(Perimetre.PATIENTS), "admin");
+        // pendant la couverture, un calcul est lancé à la main : on le pose directement en base (la première étape reste en cours,
+        // les transitions étant gardées, elle ne peut plus être « terminée » à la main)
+        ExecutionDOptimisation manuelle = ExecutionDOptimisation.lancer(
+                new com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId(UUID.randomUUID()), CENTRE,
+                JeuDOptimisation.parametres(Perimetre.PATIENTS), "admin",
+                new com.hemodialyse.backend.contexts.planification.domain.Empreinte("e".repeat(64)), MondeDOptimisation.MAINTENANT);
+        opt.executions.put(manuelle.id(), manuelle);
         assertThat(manuelle.enCours()).isTrue();
 
         opt.demandes.getFirst().ecouteur().termine(rien(), "s");

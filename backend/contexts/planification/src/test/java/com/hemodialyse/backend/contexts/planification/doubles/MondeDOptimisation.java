@@ -77,10 +77,10 @@ public final class MondeDOptimisation {
             new ArreterUneOptimisation(optimisation.executionsRepository, optimisation.optimiseur);
 
     public final SupprimerUneExecution supprimer =
-            new SupprimerUneExecution(optimisation, optimisation.executionsRepository, optimisation.calendriers);
+            new SupprimerUneExecution(optimisation, places, optimisation.executionsRepository, optimisation.calendriers);
 
     public final ReprendreLesExecutionsInterrompues reprendre =
-            new ReprendreLesExecutionsInterrompues(optimisation, optimisation.executionsRepository);
+            new ReprendreLesExecutionsInterrompues(optimisation, optimisation.executionsRepository, horloge);
 
     public final List<String> caches = new ArrayList<>();
 

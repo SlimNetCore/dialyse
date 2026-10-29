@@ -1068,6 +1068,9 @@ CREATE TABLE IF NOT EXISTS planification_optimisation
     applique_le TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_planification_optimisation_centre ON planification_optimisation (center_id, cree_le);
+-- Reprise des calculs orphelins instance par instance (V48, revue P8 B1) : jeton d'instance et battement de coeur.
+ALTER TABLE IF EXISTS planification_optimisation ADD COLUMN IF NOT EXISTS instance_id VARCHAR (64);
+ALTER TABLE IF EXISTS planification_optimisation ADD COLUMN IF NOT EXISTS battement_le TIMESTAMP;
 
 -- Planning calendaire figé d'une proposition (une ligne par exécution, semaine, salle et créneau) : détail JSON des
 -- sept jours et textes prêts à imprimer (entete_i / cell_i, i = 0 dimanche … 6 samedi).
@@ -1161,6 +1164,8 @@ CREATE TABLE IF NOT EXISTS notification_evenement
     cree_le TIMESTAMP NOT NULL
     );
 CREATE INDEX IF NOT EXISTS idx_notification_evenement_centre ON notification_evenement (center_id, cree_le);
+-- Alerte personnelle : compte destinataire (V49, revue P8 M2).
+ALTER TABLE IF EXISTS notification_evenement ADD COLUMN IF NOT EXISTS target_user_id VARCHAR (64);
 
 -- Lecture d'une alerte par un utilisateur.
 CREATE TABLE IF NOT EXISTS notification_lecture

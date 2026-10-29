@@ -360,6 +360,14 @@ describe('optimisationErrorKey', () => {
       .toBe('PLANNING.OPTIM.ERR.OPTIMISATION_DEJA_APPLIQUEE');
   });
 
+  it('affiche un message dédié aux refus de l\'application et au calcul déjà en cours (409)', () => {
+    expect(optimisationErrorKey(httpError(409, 'OPTIMISATION_DEJA_EN_COURS'))).toBe('PLANNING.OPTIM.ERR.OPTIMISATION_DEJA_EN_COURS');
+    for (const code of ['AFFECTATION_CHEVAUCHEMENT', 'REMPLACEMENT_INELIGIBLE', 'DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE',
+      'PLANIFICATION_ECRITURE_CONCURRENTE']) {
+      expect(optimisationErrorKey(httpError(422, code))).toBe(`PLANNING.OPTIM.ERR.${code}`);
+    }
+  });
+
   it('regroupe les refus de placement par règle sous un seul message', () => {
     expect(optimisationErrorKey(httpError(422, 'OPTIMISATION_PLACEMENT_GENERATEUR_OCCUPE')))
       .toBe('PLANNING.OPTIM.ERR.PLACEMENT');

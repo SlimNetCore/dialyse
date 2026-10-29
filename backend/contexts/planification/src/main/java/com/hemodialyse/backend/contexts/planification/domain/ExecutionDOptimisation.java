@@ -63,18 +63,32 @@ public record ExecutionDOptimisation(
         return statut == Statut.EN_COURS;
     }
 
+    /**
+     * Les transitions du calcul ne partent que de {@code EN_COURS} : une exécution terminée, en échec ou interrompue ne change plus
+     * (aucune sortie d'un état final, B1 de la revue P8).
+     */
+    private void exigerEnCours(String intention) {
+        if (statut != Statut.EN_COURS) {
+            throw new RegleDePlanificationViolee("OPTIMISATION_TRANSITION_INTERDITE",
+                    "Impossible de " + intention + " une optimisation qui n'est plus en cours (" + statut + ")");
+        }
+    }
+
     /** L'avancement du calcul (sans autre effet). */
     public ExecutionDOptimisation progresser(String phase, String score) {
+        exigerEnCours("faire progresser");
         return new ExecutionDOptimisation(id, centre, statut, parametres, creeLe, termineLe, lancePar, phase, score, empreinte,
                 resume, resultat, erreur, appliqueeLe);
     }
 
     public ExecutionDOptimisation terminer(ResultatDOptimisation resultat, String score, Instant maintenant) {
+        exigerEnCours("terminer");
         return new ExecutionDOptimisation(id, centre, Statut.TERMINEE, parametres, creeLe, maintenant, lancePar, phase, score,
                 empreinte, resultat.resume(), resultat, null, appliqueeLe);
     }
 
     public ExecutionDOptimisation echouer(String erreur, Instant maintenant) {
+        exigerEnCours("faire échouer");
         return new ExecutionDOptimisation(id, centre, Statut.ECHEC, parametres, creeLe, maintenant, lancePar, phase, score, empreinte,
                 null, null, erreur, appliqueeLe);
     }

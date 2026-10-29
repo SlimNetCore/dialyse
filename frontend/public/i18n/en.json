@@ -2738,6 +2738,10 @@
         "PLACEMENT": "A proposed place breaks the planning rules: run the optimisation again.",
         "OPTIMISATION_CALENDRIER_ABSENT": "This proposal has no calendar planning: run the optimisation again.",
         "OPTIMISATION_SUPPRESSION_EN_COURS": "A running calculation cannot be deleted: stop it first.",
+        "AFFECTATION_CHEVAUCHEMENT": "A nurse would be in two rooms at the same slot: run the optimisation again.",
+        "REMPLACEMENT_INELIGIBLE": "A proposed replacement is no longer eligible (absent, already planned or not qualified): run the optimisation again.",
+        "DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE": "The proposed replacement place is inconsistent: run the optimisation again.",
+        "PLANIFICATION_ECRITURE_CONCURRENTE": "The center is being modified by another action: try again in a moment.",
         "IMPRESSION": "Unable to generate the print of the proposed planning."
       },
       "CALENDRIER": {
@@ -3715,6 +3719,8 @@
       "INFIRMIER_ABSENCE_DECLAREE": "Nurse absence to cover",
       "INFIRMIER_ABSENCE_ENREGISTREE": "Nurse absence to cover",
       "INFIRMIER_ABSENCE_RETIREE": "Nurse absence withdrawn",
+      "INFIRMIER_ROULEMENT_MODIFIE": "Your roster has changed",
+      "INFIRMIER_REMPLACEMENT_AFFECTE": "You are assigned as a replacement",
       "INFIRMIER_SOUS_EFFECTIF": "Nurse understaffing",
       "INFIRMIER_SUREFFECTIF": "Nurse overstaffing",
       "LIBERATION_PLACES_EN_ECHEC": "Place release failed",
@@ -3768,6 +3774,8 @@
     "LIBERATION_PLACES_EN_ECHEC": "Releasing the places of {{jour}} failed for {{count}} patient(s): the other places were released, a new attempt is made tonight",
     "INFIRMIER_ABSENCE_ENREGISTREE": "Absence of {{infirmier}} recorded from {{debut}} to {{fin}}: replacement to organize",
     "INFIRMIER_ABSENCE_RETIREE": "The absence of {{infirmier}} from {{debut}} to {{fin}} was withdrawn: the schedule is up to date",
+    "INFIRMIER_ROULEMENT_MODIFIE": "An applied optimisation proposal changed a nurse roster: check the schedule of the week",
+    "INFIRMIER_REMPLACEMENT_AFFECTE": "A replacement is assigned on {{date}}: check the schedule",
     "GENERATEUR_INDISPONIBLE": "Generator {{generateur}} unavailable ({{statut}}): {{count}} patient(s) to move {{patients}}",
     "REFORME_PROPOSEE": "Equipment {{code}}: found \"to be decommissioned\" when an intervention was closed. No decommissioning is decided automatically: see the equipment record.",
     "SEANCES_DEPLACEES": "Planning changed: {{patients}} patient(s) moved, {{temporaires}} session(s) moved temporarily",
@@ -3800,7 +3808,8 @@
       "ACCUEIL": "Open the dashboard",
       "STOCK": "Open the stock",
       "INVENTAIRES": "See the inventories",
-      "PLANNING": "See the planning"
+      "PLANNING": "See the planning",
+      "MON_PLANNING": "See my planning"
     },
     "SEANCE_CREATED": "Session created for {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})",

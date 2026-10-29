@@ -2378,6 +2378,10 @@
         "PLACEMENT": "Amkan i d-yettwasumren yextalaf ilugan n usuddes: ales asnerni.",
         "OPTIMISATION_CALENDRIER_ABSENT": "Asumer-agi ur yesɛi ara aɣawas n useggas: ales asnerni.",
         "OPTIMISATION_SUPPRESSION_EN_COURS": "Aḥseb teddu ur yezmir ara ad yettwakkes: seḥbes-it uqbel.",
+        "AFFECTATION_CHEVAUCHEMENT": "A nurse would be in two rooms at the same slot: run the optimisation again.",
+        "REMPLACEMENT_INELIGIBLE": "A proposed replacement is no longer eligible (absent, already planned or not qualified): run the optimisation again.",
+        "DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE": "The proposed replacement place is inconsistent: run the optimisation again.",
+        "PLANIFICATION_ECRITURE_CONCURRENTE": "The center is being modified by another action: try again in a moment.",
         "IMPRESSION": "Ur izmir ara ad yettwaxdem usiggez n uɣawas yettwasumren."
       },
       "CALENDRIER": {
@@ -3355,6 +3359,8 @@
       "INFIRMIER_ABSENCE_DECLAREE": "Lɣiba n unemgal i usemselsi",
       "INFIRMIER_ABSENCE_ENREGISTREE": "Lɣiba n unemgal i usemselsi",
       "INFIRMIER_ABSENCE_RETIREE": "Tamettant n unemgal tettwakkes",
+      "INFIRMIER_ROULEMENT_MODIFIE": "Your roster has changed",
+      "INFIRMIER_REMPLACEMENT_AFFECTE": "You are assigned as a replacement",
       "INFIRMIER_SOUS_EFFECTIF": "Ixuṣṣ deg yinemgalen",
       "INFIRMIER_SUREFFECTIF": "Inemgalen yugaren",
       "LIBERATION_PLACES_EN_ECHEC": "Asefsex n yinegmayen ur yeddi ara",
@@ -3408,6 +3414,8 @@
     "LIBERATION_PLACES_EN_ECHEC": "Asefsex n yinegmayen n {{jour}} ur yeddi ara i {{count}} n inelmaden: wiyaḍ ttwafsin, tikkelt-nniḍen ad tettwarmed iḍ-a",
     "INFIRMIER_ABSENCE_ENREGISTREE": "Tamettant n {{infirmier}} tettwaseklas seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
     "INFIRMIER_ABSENCE_RETIREE": "Tamettant n {{infirmier}} seg {{debut}} ɣer {{fin}} tettwakkes: afaylu n usenfar yettwarna",
+    "INFIRMIER_ROULEMENT_MODIFIE": "An applied optimisation proposal changed a nurse roster: check the schedule of the week",
+    "INFIRMIER_REMPLACEMENT_AFFECTE": "A replacement is assigned on {{date}}: check the schedule",
     "GENERATEUR_INDISPONIBLE": "Amsedday {{generateur}} ulac-it ({{statut}}): {{count}} n inelmaden ilaq ad ttwazzuzren {{patients}}",
     "REFORME_PROPOSEE": "Asenfar {{code}}: yettwafa \"ilaq ad yettwakkes\" ticki yettwasdukel usenqed. Ulac aɣbalu yettwaɛnen s tikli: wali tafelwit n usenfar.",
     "SEANCES_DEPLACEES": "Aɣawas yettwabeddel: {{patients}} n inelmaden ttwazzuzren, {{temporaires}} n tɣimiyin ttwazzuzren s wakud",
@@ -3440,7 +3448,8 @@
       "ACCUEIL": "Ldi tafelwit n usenqed",
       "STOCK": "Ldi sselɛa",
       "INVENTAIRES": "Wali iḥettmen",
-      "PLANNING": "Wali aɣawas"
+      "PLANNING": "Wali aɣawas",
+      "MON_PLANNING": "See my planning"
     },
     "SEANCE_CREATED": "Tamsirt tettwarna i {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Tamsirt tettwaqbel i {{nom}} ({{date}})",

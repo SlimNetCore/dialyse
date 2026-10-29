@@ -24,6 +24,7 @@ const TYPES = [
   'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'RETOUR_SALLE_ORDINAIRE_PROPOSE', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
   'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
   'REFORME_PROPOSEE', 'LOTS_PROCHES_PEREMPTION', 'LIBERATION_PLACES_EN_ECHEC',
+  'INFIRMIER_ROULEMENT_MODIFIE', 'INFIRMIER_REMPLACEMENT_AFFECTE',
 ];
 
 /** Écrans ouverts à l'infirmier seul et au médecin seul (mêmes règles que `role-scope.guard`). */
@@ -118,6 +119,22 @@ describe('présentation des notifications', () => {
       {label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/medecin'], queryParams: {date: '2026-10-19'}});
     expect(vue(event('GENERATEUR_INDISPONIBLE'), 'MEDECIN').action.commands).toEqual(['/medecin']);
     expect(vue(event('OPTIMISATION_PROPOSITION', {runId: 'r1'}), 'MEDECIN').action.commands).toEqual(['/medecin']);
+  });
+
+  it('mène l\'infirmier concerné à « Mon planning » quand son roulement change ou qu\'il remplace', () => {
+    const roulement = vue(event('INFIRMIER_ROULEMENT_MODIFIE', {runId: 'r1'}), 'INFIRMIER');
+    expect(roulement.titre).toBe('NOTIFICATION.TITRE.INFIRMIER_ROULEMENT_MODIFIE');
+    expect(roulement.action.commands).toEqual(['/infirmiers/moi']);
+
+    const remplacement = vue(event('INFIRMIER_REMPLACEMENT_AFFECTE', {date: '2026-11-04'}), 'INFIRMIER');
+    expect(remplacement.titre).toBe('NOTIFICATION.TITRE.INFIRMIER_REMPLACEMENT_AFFECTE');
+    expect(remplacement.message).toContain('"date":"04/11/2026"');
+    expect(remplacement.action.commands).toEqual(['/infirmiers/moi']);
+    expect(remplacement.action.queryParams).toEqual({date: '2026-11-04'});
+    expect(remplacement.ton).toBe('attention');
+
+    expect(vue(event('INFIRMIER_REMPLACEMENT_AFFECTE', {date: '2026-11-04'}), 'ADMIN').action.commands)
+      .toEqual(['/seances/planning']);
   });
 
   it('signale à l\'administrateur les patients dont la place n\'a pas pu être libérée, avec le nombre et le jour', () => {
