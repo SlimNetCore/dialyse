@@ -1,7 +1,7 @@
 [
   {
-    "payload": "{\"infirmierId\":\"<INF_A>\",\"targetRoles\":\"ADMIN,INFIRMIER\",\"runId\":\"<RUN>\"}",
-    "target_roles": ",ADMIN,INFIRMIER,",
+    "payload": "{\"infirmierId\":\"<INF_A>\",\"targetRoles\":\"ADMIN\",\"runId\":\"<RUN>\"}",
+    "target_roles": ",ADMIN,",
     "type": "INFIRMIER_ROULEMENT_MODIFIE"
   },
   {

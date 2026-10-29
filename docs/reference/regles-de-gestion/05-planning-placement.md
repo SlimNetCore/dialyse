@@ -320,7 +320,9 @@
   étant un temps, deux exécutions identiques peuvent différer légèrement.
 - **RG-PLN-091** — **Application** d'une proposition (`ADMIN` seul), tout ou rien : l'exécution doit exister dans le
   centre (`OPTIMISATION_INTROUVABLE`), être terminée avec un résultat (`OPTIMISATION_NON_APPLICABLE`) et ne pas être
-  déjà appliquée (`OPTIMISATION_DEJA_APPLIQUEE`). Le centre ne doit pas avoir changé depuis le calcul : l'**empreinte**
+  déjà appliquée (`OPTIMISATION_DEJA_APPLIQUEE`). Les transitions d'état sont gardées : une exécution terminée ne peut
+  plus être repassée en cours, ni marquée échouée ou progressée (`OPTIMISATION_TRANSITION_INTERDITE`). Le centre ne doit
+  pas avoir changé depuis le calcul : l' **empreinte**
   (SHA-256 des données lues) est recalculée, sinon `OPTIMISATION_PERIMEE` et il faut relancer. Chaque nouvelle place est
   revérifiée avec les règles de RG-PLN-050 face à l'état final des autres patients (`OPTIMISATION_PLACEMENT_<règle>`).
   Effets : `PATIENTS` déplace les patients et enregistre sur leur fiche les jours choisis par l'optimisation ;

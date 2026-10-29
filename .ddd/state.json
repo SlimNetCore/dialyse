@@ -59,7 +59,8 @@
     "planification-p5-placement": "built",
     "planification-p6-planning-semaine-lectures": "built",
     "planification-p7-liberation-places": "built",
-    "planification-p8-optimisation": "built"
+    "planification-p8-optimisation": "built",
+    "stock-s9-lectures-publiees": "verified"
   },
   "contexts": {
     "gmao": "architected",

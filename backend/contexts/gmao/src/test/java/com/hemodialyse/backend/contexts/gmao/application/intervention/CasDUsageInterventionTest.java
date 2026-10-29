@@ -229,8 +229,9 @@ class CasDUsageInterventionTest {
             assertThat(changement.nouveau()).isEqualTo(StatutEquipement.EN_MAINTENANCE);
             assertThat(changement.motif()).isEqualTo("Intervention démarrée");
         });
-        assertThat(publicateur.publies).extracting(Object::getClass)
-                .containsExactlyInAnyOrder(InterventionDemarree.class, EquipementMisHorsService.class);
+        assertThat(publicateur.publies).hasSize(2);
+        assertThat(publicateur.publies).anySatisfy(e -> assertThat(e).isInstanceOf(InterventionDemarree.class));
+        assertThat(publicateur.publies).anySatisfy(e -> assertThat(e).isInstanceOf(EquipementMisHorsService.class));
     }
 
     @Test

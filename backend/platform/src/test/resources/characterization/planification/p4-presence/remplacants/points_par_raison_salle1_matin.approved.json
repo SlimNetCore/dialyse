@@ -1,1 +1,7 @@
-[ "Dalila Rien score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Chams Iso score=66 seances=1 isolement=true INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]", "Eden Deja score=31 seances=1 isolement=false INFIRMIER [CHARGE_FAIBLE, DOUBLE_VACATION]", "Anis Salle score=30 seances=7 isolement=false INFIRMIER [SALLE_CONNUE, DOUBLE_VACATION]", "Bilal Charge score=15 seances=5 isolement=false INFIRMIER [DOUBLE_VACATION]" ]
+[
+  "Dalila Rien score=70 seances=0 isolement=false INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]",
+  "Chams Iso score=66 seances=1 isolement=true INFIRMIER [CHARGE_FAIBLE, JOUR_LIBRE]",
+  "Bilal Charge score=50 seances=5 isolement=false INFIRMIER [JOUR_LIBRE]",
+  "Eden Deja score=31 seances=1 isolement=false INFIRMIER [CHARGE_FAIBLE, DOUBLE_VACATION]",
+  "Anis Salle score=30 seances=7 isolement=false INFIRMIER [SALLE_CONNUE, DOUBLE_VACATION]"
+]

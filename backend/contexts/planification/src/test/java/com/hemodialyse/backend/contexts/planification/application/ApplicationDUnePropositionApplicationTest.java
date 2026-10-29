@@ -365,7 +365,7 @@ class ApplicationDUnePropositionApplicationTest {
             assertThat(r.creneau()).isEqualTo(MATIN);
         });
         assertThat(opt.notifications).containsExactly("REMPLACEMENT|" + e.id().valeur() + "|" + infirmier(2).valeur() + "|" + LUNDI);
-        assertThat(m.planning.monde.fichesVerrouillees).containsExactly(infirmier(2));
+        assertThat(m.planning.monde.fichesVerrouillees).containsExactly(infirmier(1), infirmier(2));
     }
 
     @Test
