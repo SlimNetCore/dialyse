@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.organisation.domain.CentreRepository;
 import com.hemodialyse.backend.contexts.organisation.domain.Creneau;
 import com.hemodialyse.backend.contexts.organisation.domain.CreneauId;
 import com.hemodialyse.backend.contexts.organisation.domain.CreneauRepository;
+import com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete;
 import com.hemodialyse.backend.contexts.organisation.domain.Salle;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleId;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleRepository;
@@ -86,6 +87,12 @@ public class OrganisationService implements OrganisationUseCases {
     }
 
     @Override
+    public com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> listerSocietesParPage(
+            String recherche, int page, int size) {
+        return societes.listerParPage(recherche, page, size);
+    }
+
+    @Override
     public Societe consulterSociete(SocieteId societeId) {
         return societes.trouver(societeId).orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
     }
@@ -93,6 +100,31 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public List<Centre> listerCentres(SocieteId societeId) {
         return centres.listerParSociete(societeId);
+    }
+
+    @Override
+    public LogoDeSociete lireLogoSociete(SocieteId societeId) {
+        return societes.lireLogo(societeId)
+                .orElseThrow(() -> new IllegalArgumentException("Logo introuvable"));
+    }
+
+    @Override
+    public void televerserLogoSociete(SocieteId societeId, byte[] contenu) {
+        if (societes.trouver(societeId).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
+        LogoDeSociete logo = LogoDeSociete.valider(contenu);
+        ValidateurImage.verifierDecodable(contenu);
+        societes.enregistrerLogo(societeId, logo);
+    }
+
+    @Override
+    public void supprimerLogoSociete(SocieteId societeId) {
+        if (societes.trouver(societeId).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
+        societes.supprimerLogo(societeId);
+    }
+
+    @Override
+    public java.util.Set<SocieteId> societesAvecLogo(java.util.Collection<SocieteId> ids) {
+        return societes.idsAvecLogo(ids);
     }
 
     @Override

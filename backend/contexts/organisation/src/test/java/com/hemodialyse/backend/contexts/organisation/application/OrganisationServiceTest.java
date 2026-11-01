@@ -17,8 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests unitaires du service {@link OrganisationService} pour les lectures
@@ -73,8 +72,102 @@ class OrganisationServiceTest {
         assertEquals(0, service.listerCentres(SOCIETE).size());
     }
 
+    private static byte[] pngValide() throws Exception {
+        java.awt.image.BufferedImage img =
+                new java.awt.image.BufferedImage(4, 4, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(img, "png", bos);
+        return bos.toByteArray();
+    }
+
+    @Test
+    void lister_societes_par_page_filtre_et_pagine() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "RENADIAL", "Renadial", true));
+        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "NEPHRO+", "Nephro Plus", true));
+        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "CENTREX", "Centrex", true));
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+
+        com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> page =
+                service.listerSocietesParPage("na", 0, 20);
+
+        assertEquals(1, page.total());
+        assertEquals(1, page.items().size());
+        assertEquals("RENADIAL", page.items().get(0).code());
+    }
+
+    @Test
+    void televerser_lire_puis_supprimer_logo() throws Exception {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+
+        byte[] png = pngValide();
+        service.televerserLogoSociete(SOCIETE, png);
+
+        com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete relu =
+                service.lireLogoSociete(SOCIETE);
+        assertEquals("image/png", relu.contentType());
+
+        service.supprimerLogoSociete(SOCIETE);
+        assertThrows(IllegalArgumentException.class, () -> service.lireLogoSociete(SOCIETE));
+    }
+
+    @Test
+    void televerser_logo_invalide_rejette() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+
+        assertThrows(com.hemodialyse.backend.contexts.organisation.domain.LogoRefuse.class,
+                () -> service.televerserLogoSociete(SOCIETE, "<svg/>".getBytes()));
+    }
+
+    @Test
+    void televerser_logo_societe_inconnue_rejette() throws Exception {
+        OrganisationService service = nouveauService(new FakeSocieteRepository(), new FakeCentreRepository());
+
+        byte[] png = pngValide();
+        assertThrows(IllegalArgumentException.class, () -> service.televerserLogoSociete(SOCIETE, png));
+    }
+
+    @Test
+    void societes_avec_logo() throws Exception {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        SocieteId autre = new SocieteId(UUID.randomUUID());
+        societes.sauvegarder(new Societe(autre, "AUTRE", "Autre", true));
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+        service.televerserLogoSociete(SOCIETE, pngValide());
+
+        java.util.Set<SocieteId> avecLogo =
+                service.societesAvecLogo(java.util.List.of(SOCIETE, autre));
+
+        assertEquals(1, avecLogo.size());
+        assertTrue(avecLogo.contains(SOCIETE));
+    }
+
+    @Test
+    void lister_societes_sans_filtre_pagine() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        for (int i = 0; i < 5; i++) {
+            societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "CODE" + i, "Raison " + i, true));
+        }
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+
+        com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> premiere =
+                service.listerSocietesParPage(null, 0, 2);
+        com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> troisieme =
+                service.listerSocietesParPage("", 2, 2);
+
+        assertEquals(5, premiere.total());
+        assertEquals(2, premiere.items().size());
+        assertEquals(1, troisieme.items().size());
+    }
+
     private static class FakeSocieteRepository implements SocieteRepository {
         private final Map<SocieteId, Societe> stock = new HashMap<>();
+        private final Map<SocieteId, com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete> logos = new HashMap<>();
 
         @Override
         public Optional<Societe> trouver(SocieteId id) {
@@ -89,6 +182,46 @@ class OrganisationServiceTest {
         @Override
         public List<Societe> lister() {
             return new ArrayList<>(stock.values());
+        }
+
+        @Override
+        public com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> listerParPage(
+                String recherche, int page, int size) {
+            String filtre = (recherche == null || recherche.isBlank()) ? "" : recherche.trim().toLowerCase();
+            List<Societe> filtrees = stock.values().stream()
+                    .filter(s -> filtre.isEmpty()
+                            || s.code().toLowerCase().contains(filtre)
+                            || s.raisonSociale().toLowerCase().contains(filtre))
+                    .sorted(java.util.Comparator.comparing(Societe::code))
+                    .toList();
+            int from = Math.min(page * size, filtrees.size());
+            int to = Math.min(from + size, filtrees.size());
+            return com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult.of(
+                    filtrees.subList(from, to), filtrees.size(), page, size);
+        }
+
+        @Override
+        public Optional<com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete> lireLogo(
+                SocieteId id) {
+            return Optional.ofNullable(logos.get(id));
+        }
+
+        @Override
+        public void enregistrerLogo(SocieteId id,
+                                    com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete logo) {
+            logos.put(id, logo);
+        }
+
+        @Override
+        public void supprimerLogo(SocieteId id) {
+            logos.remove(id);
+        }
+
+        @Override
+        public java.util.Set<SocieteId> idsAvecLogo(java.util.Collection<SocieteId> ids) {
+            java.util.Set<SocieteId> resultat = new java.util.HashSet<>(ids);
+            resultat.retainAll(logos.keySet());
+            return resultat;
         }
     }
 

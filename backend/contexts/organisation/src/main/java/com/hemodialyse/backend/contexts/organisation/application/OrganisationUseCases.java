@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.organisation.application;
 
 import com.hemodialyse.backend.contexts.organisation.domain.Centre;
 import com.hemodialyse.backend.contexts.organisation.domain.Creneau;
+import com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete;
 import com.hemodialyse.backend.contexts.organisation.domain.Salle;
 import com.hemodialyse.backend.contexts.organisation.domain.Societe;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
@@ -27,9 +28,20 @@ public interface OrganisationUseCases {
 
     List<Societe> listerSocietes();
 
+    com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> listerSocietesParPage(
+            String recherche, int page, int size);
+
     Societe consulterSociete(SocieteId societeId);
 
     List<Centre> listerCentres(SocieteId societeId);
+
+    LogoDeSociete lireLogoSociete(SocieteId societeId);
+
+    void televerserLogoSociete(SocieteId societeId, byte[] contenu);
+
+    void supprimerLogoSociete(SocieteId societeId);
+
+    java.util.Set<SocieteId> societesAvecLogo(java.util.Collection<SocieteId> ids);
 
     void ouvrirSalle(CommandesOrganisation.OuvrirSalle commande);
 

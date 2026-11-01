@@ -28,14 +28,35 @@ describe('OrganisationApiService', () => {
     service = TestBed.inject(OrganisationApiService);
   });
 
-  it('liste les sociétés sur /api/v1/organisation/societes', () => {
-    service.listerSocietes().subscribe();
-    expect(http.get).toHaveBeenCalledWith('/api/v1/organisation/societes');
+  it('liste les sociétés paginées avec recherche sur /api/v1/organisation/societes', () => {
+    service.listerSocietes('rena', 0, 20).subscribe();
+    const [url, options] = http.get.mock.calls[0] as [string, { params: { get: (k: string) => string } }];
+    expect(url).toBe('/api/v1/organisation/societes');
+    expect(options.params.get('q')).toBe('rena');
+    expect(options.params.get('page')).toBe('0');
+    expect(options.params.get('size')).toBe('20');
   });
 
   it('consulte une société par id', () => {
     service.consulterSociete('soc-1').subscribe();
     expect(http.get).toHaveBeenCalledWith('/api/v1/organisation/societes/soc-1');
+  });
+
+  it('envoie un logo en multipart', () => {
+    const file = new File(['bytes'], 'logo.png', {type: 'image/png'});
+    service.uploadLogo('soc-1', file).subscribe();
+    const [url, body] = http.put.mock.calls[0] as [string, FormData];
+    expect(url).toBe('/api/v1/organisation/societes/soc-1/logo');
+    const envoye = body.get('file') as File;
+    expect(envoye.name).toBe('logo.png');
+    expect(envoye.type).toBe('image/png');
+  });
+
+  it('liste les sociétés avec logo', () => {
+    service.societesAvecLogo(['soc-1', 'soc-2']).subscribe();
+    const [url, options] = http.get.mock.calls[0] as [string, { params: { getAll: (k: string) => string[] } }];
+    expect(url).toBe('/api/v1/organisation/societes/logos');
+    expect(options.params.getAll('ids')).toEqual(['soc-1', 'soc-2']);
   });
 
   it('liste tous les centres de la société', () => {

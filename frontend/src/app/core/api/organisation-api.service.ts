@@ -84,12 +84,34 @@ export class OrganisationApiService {
     return this.http.put<void>(`${this.base}/societes/${id}`, {code, raisonSociale, actif});
   }
 
-  listerSocietes(): Observable<SocieteOrganisation[]> {
-    return this.http.get<SocieteOrganisation[]>(`${this.base}/societes`);
+  listerSocietes(recherche: string, page: number, size: number): Observable<Page<SocieteOrganisation>> {
+    return this.http.get<Page<SocieteOrganisation>>(`${this.base}/societes`, {
+      params: new HttpParams().set('q', recherche).set('page', page).set('size', size),
+    });
   }
 
   consulterSociete(id: string): Observable<SocieteOrganisation> {
     return this.http.get<SocieteOrganisation>(`${this.base}/societes/${id}`);
+  }
+
+  uploadLogo(id: string, file: File): Observable<unknown> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    return this.http.put(`${this.base}/societes/${id}/logo`, body);
+  }
+
+  getLogo(id: string): Observable<Blob> {
+    return this.http.get(`${this.base}/societes/${id}/logo`, {responseType: 'blob'});
+  }
+
+  deleteLogo(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/societes/${id}/logo`);
+  }
+
+  societesAvecLogo(ids: string[]): Observable<string[]> {
+    let params = new HttpParams();
+    ids.forEach((id) => (params = params.append('ids', id)));
+    return this.http.get<string[]>(`${this.base}/societes/logos`, {params});
   }
 
   // --- Centres (O1) ---
