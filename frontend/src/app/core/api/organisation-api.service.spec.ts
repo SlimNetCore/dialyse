@@ -98,4 +98,19 @@ describe('OrganisationApiService', () => {
     service.supprimerProtocole('proto-1').subscribe();
     expect(http.delete).toHaveBeenCalledWith('/api/v1/organisation/referentiels/protocoles/proto-1');
   });
+
+  it('liste les articles paginés du catalogue', () => {
+    service.listerArticles(CENTER_ID, 0, 20).subscribe();
+    const [url, options] = http.get.mock.calls[0] as [string, { params: { get: (k: string) => string } }];
+    expect(url).toBe('/api/v1/organisation/referentiels/articles');
+    expect(options.params.get('centreId')).toBe(CENTER_ID);
+    expect(options.params.get('page')).toBe('0');
+  });
+
+  it('liste les générateurs du centre', () => {
+    service.listerGenerateurs(CENTER_ID).subscribe();
+    const [url, options] = http.get.mock.calls[0] as [string, { params: { get: (k: string) => string } }];
+    expect(url).toBe('/api/v1/organisation/referentiels/generateurs');
+    expect(options.params.get('centreId')).toBe(CENTER_ID);
+  });
 });

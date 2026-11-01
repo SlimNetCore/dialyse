@@ -80,3 +80,20 @@ migration. Garde `TableDeLOrganisationTest` déjà verte et couvrant le périmè
   vers Organisation ou leurs contextes proprietaires.
 - [ ] Admin generique + import/export + templates + migration de donnees : decision ADR requise.
 
+
+- [x] Liste societes paginee + recherche (GET /societes?q=&page=&size=, ILIKE compatible
+  H2/PostgreSQL, PagedResult) : fait (use case listerSocietesParPage, tests 6/6,
+  SDK frontend + specs vitest a jour).
+- [x] Logos societe : portes dans le contexte (LogoDeSociete + LogoRefuse + ValidateurImage,
+  eleverser/lire/supprimerLogos, societesAvecLogo, endpoints PUT/GET/DELETE + GET /logos,
+  422 iolations comme le legacy, SDK frontend + specs). Reste : brancher le rendu dans les
+  documents (ModeleDocumentPrinter lit la table societes en direct - hors perimetre O5).
+- [x] Articles et generateurs : couverts via langages publies (CatalogueDArticles du Stock,
+  GenerateursDuCentre de la GMAO) + ReferentielsLectureService + GET /referentiels/articles,
+  /generateurs + SDK frontend.
+- [ ] Restent non couverts : centres-payeurs (+details), agences, caisses, transporteurs,
+  categories-transport, forfaits, etats-patients (aucun contexte proprietaire ni langage publie).
+- [ ] Admin generique + import/export + templates + migration de donnees : decision ADR requise.
+- [ ] DTOs serialisables pour les nouveaux endpoints (risque {} Jackson sur objets du domaine
+  a accesseurs style record - meme dette que DM7/PD4).
+

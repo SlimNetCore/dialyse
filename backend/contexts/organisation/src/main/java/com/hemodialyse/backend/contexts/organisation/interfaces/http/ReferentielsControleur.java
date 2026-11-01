@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsOrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.Machine;
 import com.hemodialyse.backend.contexts.organisation.domain.Medecin;
@@ -8,15 +9,18 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/organisation/referentiels")
 public class ReferentielsControleur {
     private final ReferentielsOrganisationUseCases service;
+    private final ReferentielsLectureUseCases lectures;
 
-    public ReferentielsControleur(ReferentielsOrganisationUseCases service) {
+    public ReferentielsControleur(ReferentielsOrganisationUseCases service, ReferentielsLectureUseCases lectures) {
         this.service = service;
+        this.lectures = lectures;
     }
 
     @PostMapping("/medecins")
@@ -77,6 +81,19 @@ public class ReferentielsControleur {
     @GetMapping("/protocoles")
     public PagedResult<Protocole> listerProtocoles(@RequestParam UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         return service.listerProtocoles(new CentreId(centreId), page, size);
+    }
+
+    @GetMapping("/articles")
+    public PagedResult<ReferentielsLectureUseCases.ArticleLu> listerArticles(
+            @RequestParam UUID centreId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return lectures.listerArticles(new CentreId(centreId), page, size);
+    }
+
+    @GetMapping("/generateurs")
+    public List<ReferentielsLectureUseCases.GenerateurLu> listerGenerateurs(@RequestParam UUID centreId) {
+        return lectures.listerGenerateurs(new CentreId(centreId));
     }
 
     public record CreerMedecinRequete(UUID centreId, String nom, String prenom, String specialite) {

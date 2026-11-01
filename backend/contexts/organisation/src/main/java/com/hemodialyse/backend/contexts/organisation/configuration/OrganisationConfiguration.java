@@ -1,7 +1,10 @@
 package com.hemodialyse.backend.contexts.organisation.configuration;
 
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationService;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureService;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.CentreRepository;
 import com.hemodialyse.backend.contexts.organisation.domain.CreneauRepository;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleRepository;
@@ -18,6 +21,7 @@ import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.ProtocolesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SocietesJdbc;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -67,5 +71,12 @@ public class OrganisationConfiguration {
     @Bean
     public ReferentielsOrganisationUseCases referentielsOrganisationUseCases(MedecinRepository m, MachineRepository ma, ProtocoleRepository p) {
         return new ReferentielsOrganisationService(m, ma, p);
+    }
+
+    @Bean
+    public ReferentielsLectureUseCases referentielsLectureUseCases(
+            CatalogueDArticles catalogue,
+            GenerateursDuCentre generateurs) {
+        return new ReferentielsLectureService(catalogue, generateurs);
     }
 }

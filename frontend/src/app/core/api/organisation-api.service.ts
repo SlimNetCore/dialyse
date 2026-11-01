@@ -62,6 +62,21 @@ export type ProtocoleOrganisation = {
   libelle: string;
 };
 
+export type ArticleReferentiel = {
+  id: string;
+  code: string;
+  libelle: string;
+  unite: string | null;
+};
+
+export type GenerateurReferentiel = {
+  id: string;
+  code: string;
+  nom: string;
+  salleId: string | null;
+  statut: string;
+};
+
 /**
  * Client HTTP du contexte Organisation (`/api/v1/organisation/*`, slices O1-O4).
  * <p>
@@ -241,5 +256,17 @@ export class OrganisationApiService {
 
   supprimerProtocole(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/referentiels/protocoles/${id}`);
+  }
+
+  listerArticles(centreId: string, page: number, size: number): Observable<Page<ArticleReferentiel>> {
+    return this.http.get<Page<ArticleReferentiel>>(`${this.base}/referentiels/articles`, {
+      params: new HttpParams().set('centreId', centreId).set('page', page).set('size', size),
+    });
+  }
+
+  listerGenerateurs(centreId: string): Observable<GenerateurReferentiel[]> {
+    return this.http.get<GenerateurReferentiel[]>(`${this.base}/referentiels/generateurs`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
   }
 }

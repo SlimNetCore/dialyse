@@ -79,5 +79,18 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langages publiés consommés (lecture seule) : Stock (catalogue d'articles),
+             GMAO (générateurs du centre). Imports limités aux packages publishedlanguage
+             (règle ArchUnit les_autres_contextes_seulement_par_leur_langage_publie). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-stock</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-gmao</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
