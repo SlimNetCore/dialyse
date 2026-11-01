@@ -90,6 +90,27 @@ export type ProtocoleOrganisation = {
   libelle: string;
 };
 
+export type RefItem = {
+  id: string;
+  code?: string | null;
+  nom?: string | null;
+  adresse?: string | null;
+  prenom?: string | null;
+  libelle?: string | null;
+  unite?: string | null;
+};
+
+export type CentrePayeurDetail = {
+  id: string;
+  codeCentrePayeur: string;
+  libelleCentrePayeur: string;
+  adresseCentrePayeur?: string | null;
+  codeAgence?: string | null;
+  libelleAgence?: string | null;
+  codeCaisse?: string | null;
+  libelleCaisse?: string | null;
+};
+
 export type ArticleReferentiel = {
   id: string;
   code: string;
@@ -304,5 +325,51 @@ export class OrganisationApiService {
     return this.http.get<GenerateurReferentiel[]>(`${this.base}/referentiels/generateurs`, {
       params: new HttpParams().set('centreId', centreId),
     });
+  }
+
+  listerCentresPayeurs(centreId: string): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/centres-payeurs`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerCentresPayeursDetails(centreId: string): Observable<CentrePayeurDetail[]> {
+    return this.http.get<CentrePayeurDetail[]>(`${this.base}/referentiels/centres-payeurs-details`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerAgences(centreId: string): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/agences`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerCaisses(centreId: string): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/caisses`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerTransporteurs(centreId: string): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/transporteurs`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerCategoriesTransport(centreId: string): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/categories-transport`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerForfaits(centreId: string): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/forfaits`, {
+      params: new HttpParams().set('centreId', centreId),
+    });
+  }
+
+  listerEtatsPatients(): Observable<RefItem[]> {
+    return this.http.get<RefItem[]>(`${this.base}/referentiels/etats-patients`);
   }
 }

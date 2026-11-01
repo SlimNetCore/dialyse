@@ -3,6 +3,9 @@ package com.hemodialyse.backend.contexts.organisation.configuration;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationService;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsService;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsUseCases;
+import com.hemodialyse.backend.contexts.organisation.domain.ReferentielsCommunsRepository;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureService;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.CentreRepository;
@@ -19,6 +22,7 @@ import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.MachinesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.MedecinsJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.ProtocolesJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.ReferentielsCommunsJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SocietesJdbc;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
@@ -75,8 +79,17 @@ public class OrganisationConfiguration {
 
     @Bean
     public ReferentielsLectureUseCases referentielsLectureUseCases(
-            CatalogueDArticles catalogue,
-            GenerateursDuCentre generateurs) {
+            CatalogueDArticles catalogue, GenerateursDuCentre generateurs) {
         return new ReferentielsLectureService(catalogue, generateurs);
+    }
+
+    @Bean
+    public ReferentielsCommunsRepository referentielsCommunsRepository(JdbcTemplate jdbc) {
+        return new ReferentielsCommunsJdbc(jdbc);
+    }
+
+    @Bean
+    public ReferentielsCommunsUseCases referentielsCommunsUseCases(ReferentielsCommunsRepository referentiels) {
+        return new ReferentielsCommunsService(referentiels);
     }
 }

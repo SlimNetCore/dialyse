@@ -116,4 +116,23 @@ describe('OrganisationApiService', () => {
     expect(url).toBe('/api/v1/organisation/referentiels/generateurs');
     expect(options.params.get('centreId')).toBe(CENTER_ID);
   });
+
+  it('liste les centres payeurs du centre', () => {
+    service.listerCentresPayeurs(CENTER_ID).subscribe();
+    const [url, options] = http.get.mock.calls[0] as [string, { params: { get: (k: string) => string } }];
+    expect(url).toBe('/api/v1/organisation/referentiels/centres-payeurs');
+    expect(options.params.get('centreId')).toBe(CENTER_ID);
+  });
+
+  it('liste les forfaits du centre', () => {
+    service.listerForfaits(CENTER_ID).subscribe();
+    const [url, options] = http.get.mock.calls[0] as [string, { params: { get: (k: string) => string } }];
+    expect(url).toBe('/api/v1/organisation/referentiels/forfaits');
+    expect(options.params.get('centreId')).toBe(CENTER_ID);
+  });
+
+  it('liste les états patient statiques', () => {
+    service.listerEtatsPatients().subscribe();
+    expect(http.get).toHaveBeenCalledWith('/api/v1/organisation/referentiels/etats-patients');
+  });
 });

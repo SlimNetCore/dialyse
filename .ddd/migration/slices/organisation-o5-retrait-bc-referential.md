@@ -109,3 +109,15 @@ migration. Garde `TableDeLOrganisationTest` déjà verte et couvrant le périmè
   consommateur legacy ; le tactique proposed sera revise en ce sens).
 - [x] SDK frontend aligne (types riches + payloads coordonnees imbriquees) + specs 12/12.
 
+
+- [x] Referentiels orphelins couverts en lecture seule : payeurs (+details), agences, caisses,
+  transporteurs, categories, forfaits (requetes SQL reprises telles quelles du legacy + cache
+
+ef.* existant), etats-patients (liste statique identique). Articles et generateurs via
+langages publies (Stock, GMAO). Nouveaux endpoints GET /api/v1/organisation/referentiels/*,
+ReferentielsCommunsServiceTest 8/8, SDK frontend + specs.
+
+- [ ] Restent sans equivalent : admin generique (CRUD + import/export + templates) et outillage
+  de migration (ReferentialAdmin*, Migration*) : decision ADR requise (porter vers le
+  contexte, re-heberger en plateforme comme code technique, ou retirer avec bc-migration).
+

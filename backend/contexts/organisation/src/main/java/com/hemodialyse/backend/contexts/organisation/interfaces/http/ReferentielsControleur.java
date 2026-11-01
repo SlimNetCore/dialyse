@@ -1,7 +1,10 @@
 package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsOrganisationUseCases;
+import com.hemodialyse.backend.contexts.organisation.domain.DetailPayeur;
+import com.hemodialyse.backend.contexts.organisation.domain.EntreeReferentiel;
 import com.hemodialyse.backend.contexts.organisation.domain.Machine;
 import com.hemodialyse.backend.contexts.organisation.domain.Medecin;
 import com.hemodialyse.backend.contexts.organisation.domain.Protocole;
@@ -17,10 +20,13 @@ import java.util.UUID;
 public class ReferentielsControleur {
     private final ReferentielsOrganisationUseCases service;
     private final ReferentielsLectureUseCases lectures;
+    private final ReferentielsCommunsUseCases communs;
 
-    public ReferentielsControleur(ReferentielsOrganisationUseCases service, ReferentielsLectureUseCases lectures) {
+    public ReferentielsControleur(ReferentielsOrganisationUseCases service, ReferentielsLectureUseCases lectures,
+                                  ReferentielsCommunsUseCases communs) {
         this.service = service;
         this.lectures = lectures;
+        this.communs = communs;
     }
 
     @PostMapping("/medecins")
@@ -94,6 +100,46 @@ public class ReferentielsControleur {
     @GetMapping("/generateurs")
     public List<ReferentielsLectureUseCases.GenerateurLu> listerGenerateurs(@RequestParam UUID centreId) {
         return lectures.listerGenerateurs(new CentreId(centreId));
+    }
+
+    @GetMapping("/centres-payeurs")
+    public List<EntreeReferentiel> listerCentresPayeurs(@RequestParam UUID centreId) {
+        return communs.centresPayeurs(new CentreId(centreId));
+    }
+
+    @GetMapping("/centres-payeurs-details")
+    public List<DetailPayeur> listerCentresPayeursDetails(@RequestParam UUID centreId) {
+        return communs.centresPayeursDetails(new CentreId(centreId));
+    }
+
+    @GetMapping("/agences")
+    public List<EntreeReferentiel> listerAgences(@RequestParam UUID centreId) {
+        return communs.agences(new CentreId(centreId));
+    }
+
+    @GetMapping("/caisses")
+    public List<EntreeReferentiel> listerCaisses(@RequestParam UUID centreId) {
+        return communs.caisses(new CentreId(centreId));
+    }
+
+    @GetMapping("/transporteurs")
+    public List<EntreeReferentiel> listerTransporteurs(@RequestParam UUID centreId) {
+        return communs.transporteurs(new CentreId(centreId));
+    }
+
+    @GetMapping("/categories-transport")
+    public List<EntreeReferentiel> listerCategoriesTransport(@RequestParam UUID centreId) {
+        return communs.categoriesTransport(new CentreId(centreId));
+    }
+
+    @GetMapping("/forfaits")
+    public List<EntreeReferentiel> listerForfaits(@RequestParam UUID centreId) {
+        return communs.forfaits(new CentreId(centreId));
+    }
+
+    @GetMapping("/etats-patients")
+    public List<EntreeReferentiel> listerEtatsPatients() {
+        return communs.etatsPatients();
     }
 
     public record CreerMedecinRequete(UUID centreId, String nom, String prenom, String specialite) {
