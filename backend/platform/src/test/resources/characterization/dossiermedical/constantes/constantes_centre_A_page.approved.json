@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "seanceId": "<SEANCE_A>",
+      "dateSeance": "2026-03-01",
+      "poidsAvantKg": 70.50,
+      "poidsApresKg": 68.00,
+      "taAvant": "12/8",
+      "taApres": "11/7",
+      "debitSangMlMin": 300,
+      "ultrafiltrationMl": 2000.00,
+      "dureeMinutes": 240
+    }
+  ],
+  "total": 1,
+  "page": 0,
+  "size": 5
+}

@@ -57,6 +57,8 @@ public class CacheConfig {
         register(manager, "ref.centresPayeursDetails", referentialTtl);
         register(manager, "ref.generateurs", referentialTtl);
         register(manager, "seance.raccourcis", referentialTtl);
+        register(manager, "ref.seances.du.jour", patientListTtl);
+        register(manager, "ref.seances.validees.non.signees", patientListTtl);
 
         // Patient caches
         register(manager, "patient.byId", patientDetailTtl);

@@ -1,0 +1,14 @@
+[
+  {
+    "numeroAssurance": "AS-B",
+    "nom": "Martin",
+    "prenom": "Paul",
+    "sexe": "M",
+    "dateNaissance": null,
+    "telPersonnel": null,
+    "telMobile": null,
+    "telBureau": null,
+    "adresse": null,
+    "groupeSanguin": null
+  }
+]

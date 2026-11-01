@@ -34,11 +34,58 @@ CREATE TABLE IF NOT EXISTS medecin (
     specialite VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS machine
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    code
+    VARCHAR
+(
+    100
+) NOT NULL,
+    libelle VARCHAR
+(
+    255
+) NOT NULL,
+    actif BOOLEAN NOT NULL DEFAULT TRUE
+    );
+
+CREATE TABLE IF NOT EXISTS protocole
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    code
+    VARCHAR
+(
+    100
+) NOT NULL,
+    libelle VARCHAR
+(
+    255
+) NOT NULL
+    );
+
 CREATE TABLE IF NOT EXISTS salle (
     id UUID PRIMARY KEY,
     center_id UUID NOT NULL,
     code VARCHAR(50) NOT NULL,
-    nom VARCHAR(255) NOT NULL
+    nom VARCHAR
+(
+    255
+) NOT NULL,
+    ouverte BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- Les générateurs de dialyse sont l'agrégat GMAO Equipement (type GENERATEUR_DIALYSE, table gmao_equipements, gérée
@@ -500,6 +547,8 @@ ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS statut_avant_exclusion VARCHAR (20);
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS exclusion_absence_id UUID;
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS verrouille_facturation BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- ••• Reprise des données d'un système existant (voir aussi migration/V3__reprise_donnees.sql) •••
 
@@ -1762,3 +1811,108 @@ CREATE TABLE IF NOT EXISTS consommations_de_seance_imputations
 )
     );
 CREATE INDEX IF NOT EXISTS idx_consommations_imputations_seance ON consommations_de_seance_imputations (seance_id);
+
+-- ═══ Dossier médical : demandes d'examen et résultats (slice DM3, ADR 0065) ═══
+CREATE TABLE IF NOT EXISTS demandes_examen
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    patient_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    prescripteur_id
+    VARCHAR
+(
+    100
+),
+    date_demande DATE NOT NULL,
+    categorie VARCHAR
+(
+    15
+) NOT NULL,
+    urgent BOOLEAN NOT NULL DEFAULT FALSE,
+    motif VARCHAR
+(
+    500
+),
+    statut VARCHAR
+(
+    20
+) NOT NULL,
+    conclusion TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                             CONSTRAINT chk_demande_examen_categorie CHECK (categorie IN ('BIOLOGIE', 'IMAGERIE', 'FONCTIONNEL', 'ANAPATH')),
+    CONSTRAINT chk_demande_examen_statut CHECK
+(
+    statut
+    IN
+(
+    'DEMANDE',
+    'PRELEVE',
+    'RESULTAT_DISPONIBLE',
+    'VALIDE',
+    'ANNULE'
+))
+    );
+
+CREATE INDEX IF NOT EXISTS idx_demandes_examen_center_patient ON demandes_examen (center_id, patient_id);
+
+CREATE TABLE IF NOT EXISTS lignes_demande_examen
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    demande_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    analyte_code_system
+    VARCHAR
+(
+    10
+),
+    analyte_code VARCHAR
+(
+    20
+),
+    analyte_code_display VARCHAR
+(
+    255
+),
+    libelle VARCHAR
+(
+    255
+),
+    commentaire VARCHAR
+(
+    500
+),
+    CONSTRAINT chk_ligne_demande_examen_contenu CHECK
+(
+    analyte_code
+    IS
+    NOT
+    NULL
+    OR
+    libelle
+    IS
+    NOT
+    NULL
+)
+    );
+
+CREATE INDEX IF NOT EXISTS idx_lignes_demande_examen_demande ON lignes_demande_examen (demande_id);
+CREATE INDEX IF NOT EXISTS idx_lignes_demande_examen_center ON lignes_demande_examen (center_id);

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "patientId": "<PATIENT_B>",
+    "centerId": "<CENTRE_B>",
+    "dateDebutDemande": "2026-01-01",
+    "dateFinDemande": "2026-12-31",
+    "forfaitDemandeId": null,
+    "createdAt": "<TIMESTAMP>",
+    "dateDebutEffectif": null,
+    "dateFinEffectif": null,
+    "forfaitEffectifId": null,
+    "status": "CREE"
+  }
+]

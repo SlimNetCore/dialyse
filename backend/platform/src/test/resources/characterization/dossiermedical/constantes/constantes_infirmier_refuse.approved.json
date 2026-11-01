@@ -1,0 +1,7 @@
+{
+  "detail": "Access Denied",
+  "instance": "/api/v1/patients/<PATIENT_A>/constantes",
+  "status": 403,
+  "title": "Acces refuse",
+  "code": "ACCESS_DENIED"
+}

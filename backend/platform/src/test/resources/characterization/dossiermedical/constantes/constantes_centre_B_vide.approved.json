@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "seanceId": "<SEANCE_B>",
+      "dateSeance": "2026-03-02",
+      "poidsAvantKg": null,
+      "poidsApresKg": null,
+      "taAvant": null,
+      "taApres": null,
+      "debitSangMlMin": null,
+      "ultrafiltrationMl": null,
+      "dureeMinutes": null
+    }
+  ],
+  "total": 1,
+  "page": 0,
+  "size": 5
+}

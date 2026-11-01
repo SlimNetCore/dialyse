@@ -104,6 +104,8 @@ class FrontieresDesContextesTest {
 
     private static final String PLANIFICATION = "com.hemodialyse.backend.contexts.planification";
 
+    private static final String SEANCE = "com.hemodialyse.backend.contexts.seance";
+
     /**
      * Contexte Planification (ADR 0049 à 0054) : le legacy (fiche patient, sérologie, Séance, Absences, Direction,
      * administration des utilisateurs) ne l'utilise que par son langage publié ({@code PlacementDesPatients},
@@ -119,6 +121,61 @@ class FrontieresDesContextesTest {
                     PLANIFICATION + ".interfaces..", PLANIFICATION + ".configuration..")
             .allowEmptyShould(true)
             .because("la Planification ne s'utilise que par son langage publié (ADR 0053)");
+
+    /**
+     * Contexte Seance (ADR 0062) : le legacy ne l'utilise que par son langage publie. Regle vide tant que le module
+     * est un squelette.
+     */
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_la_seance_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(SEANCE + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    SEANCE + ".domain..", SEANCE + ".application..", SEANCE + ".infrastructure..",
+                    SEANCE + ".interfaces..", SEANCE + ".configuration..")
+            .allowEmptyShould(true)
+            .because("la Seance ne s'utilise que par son langage publie (ADR 0062)");
+
+    private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
+
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_l_organisation_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(ORGANISATION + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    ORGANISATION + ".domain..", ORGANISATION + ".application..", ORGANISATION + ".infrastructure..",
+                    ORGANISATION + ".interfaces..", ORGANISATION + ".configuration..")
+            .allowEmptyShould(true)
+            .because("l'Organisation ne s'utilise que par son langage publie (ADR 0063)");
+
+    private static final String PATIENT_COUVERTURE = "com.hemodialyse.backend.contexts.patientcouverture";
+
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_le_patient_couverture_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(PATIENT_COUVERTURE + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    PATIENT_COUVERTURE + ".domain..", PATIENT_COUVERTURE + ".application..", PATIENT_COUVERTURE + ".infrastructure..",
+                    PATIENT_COUVERTURE + ".interfaces..", PATIENT_COUVERTURE + ".configuration..")
+            .allowEmptyShould(true)
+            .because("le Patient & couverture ne s'utilise que par son langage publie (ADR 0004, 0064)");
+
+    private static final String DOSSIER_MEDICAL = "com.hemodialyse.backend.contexts.dossiermedical";
+
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_le_dossier_medical_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(DOSSIER_MEDICAL + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    DOSSIER_MEDICAL + ".domain..", DOSSIER_MEDICAL + ".application..", DOSSIER_MEDICAL + ".infrastructure..",
+                    DOSSIER_MEDICAL + ".interfaces..", DOSSIER_MEDICAL + ".configuration..")
+            .allowEmptyShould(true)
+            .because("le Dossier medical ne s'utilise que par son langage publie (ADR 0007, 0065)");
+
+    private static final String PILOTAGE_DIRECTION = "com.hemodialyse.backend.contexts.pilotagedirection";
+
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_le_pilotage_direction_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(PILOTAGE_DIRECTION + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    PILOTAGE_DIRECTION + ".domain..", PILOTAGE_DIRECTION + ".application..", PILOTAGE_DIRECTION + ".infrastructure..",
+                    PILOTAGE_DIRECTION + ".interfaces..", PILOTAGE_DIRECTION + ".configuration..")
+            .allowEmptyShould(true)
+            .because("le Pilotage direction ne s'utilise que par son langage publie (ADR 0009, 0066)");
 }
-
-

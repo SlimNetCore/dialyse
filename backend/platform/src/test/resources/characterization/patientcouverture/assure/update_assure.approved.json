@@ -1,0 +1,12 @@
+{
+  "numeroAssurance": "AS-A",
+  "nom": "Dupont2",
+  "prenom": "Jean2",
+  "sexe": "M",
+  "dateNaissance": null,
+  "telPersonnel": null,
+  "telMobile": null,
+  "telBureau": null,
+  "adresse": "rue",
+  "groupeSanguin": null
+}

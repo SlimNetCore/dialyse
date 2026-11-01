@@ -1,0 +1,29 @@
+# Ports & adapters — contexte `seance` (ADR 0062)
+
+## Ports entrants (driving)
+
+| Port (use case)                                                                                                                                                             | Adapter entrant                    | Techno                                                      | Test                                      |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------|-------------------------------------------------------------|-------------------------------------------|
+| `CreerSeanceUseCase`, `ValiderSeanceUseCase`, `SignerSeanceUseCase`, `DeclarerConsommablesUseCase`, `DeclarerForfaitSurchargeUseCase`, `DebloquerPourRegularisationUseCase` | `interfaces/http` controleurs REST | Spring webmvc + Security (centre de session, habilitations) | MockMvc + goldens HTTP                    |
+| Handler `VerrouillageFacturation` (sur `FacturationValidee`)                                                                                                                | `interfaces/consumers`             | `@ApplicationModuleListener` (Modulith)                     | application (fake) + integration registre |
+| Queries `SeancesDuJour`, `SeancesValideesNonSignees`, `FicheSeance`, `ConsommablesDeSeance`, `SeancesEnRetardValidation`                                                    | `interfaces/http`                  | Spring webmvc                                               | integration Testcontainers                |
+
+## Ports sortants (driven)
+
+| Port (nom metier)                                                                          | Couche      | Adapter                                                                                                              | Techno                           | Test                                              |
+|--------------------------------------------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------------------------------|----------------------------------|---------------------------------------------------|
+| `SeanceRepository`, `ConsommableDeclareRepository`                                         | domain      | `infrastructure/persistence/*JpaRepositoryAdapter` + `*Jpa` + mappers                                                | JPA/Hibernate, version optimiste | contrat fake in-memory -> JPA Testcontainers PG16 |
+| `PECRepository` (lecture PEC valide, Customer-Supplier Patient & couverture)               | domain      | `infrastructure/acl/patientcouverture`                                                                               | Java (published language)        | contrat                                           |
+| `StockPublishedLanguage` (lecture article, motif de sortie, OHS Stock)                     | domain      | `infrastructure/acl/stock`                                                                                           | Java (published language)        | contrat Stock                                     |
+| `PublicateurDEvenements` (Outbox)                                                          | application | `infrastructure/evenements` -> `ApplicationEventPublisher` (registre Modulith)                                       | Spring Modulith 2.0.x            | integration (`PublishedEvents`)                   |
+| `JournalDesMessagesTraites` (idempotence)                                                  | application | table `seance.message_traite`                                                                                        | JPA                              | contrat                                           |
+| `UniteDeTravail`, `Horloge`, `GenerateurIdentifiants`, `Habilitations`, `ParametresSeance` | application | `transaction/`, `horloge/`, `identifiants/`, ACL identite, propriete `hemodialyse.seance.regularisation.delai-jours` | spring-tx, JDK, Spring config    | fakes deterministes                               |
+| `LectureSeances`, `LectureSeancesDetaillees`, `LectureConsommables`                        | application | read models SQL                                                                                                      | JPA/SQL natif                    | integration Testcontainers                        |
+
+## Published language `seance.v1` (outbox)
+
+| Evenement                                                                                                                                           | Producteur                                   | Consommateurs                                                          | Livraison                                                        |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|------------------------------------------------------------------------|------------------------------------------------------------------|
+| `SeanceCreee`, `SeanceValidee`, `SeanceSignee`, `ConsommablesDeSeanceDeclares`, `ForfaitDeSeanceSurcharge`, `SeanceDeverrouilleePourRegularisation` | traducteur domaine -> `publishedlanguage/v1` | Facturation, Stock, Absences, Dossier medical, Pilotage, Planification | registre Modulith, at-least-once, idempotence eventId (ADR 0013) |
+
+Regles : payloads en types JDK (UUID, String, BigDecimal, Instant) ; nouvelle version `v2` a cote de `v1`.

@@ -30,6 +30,20 @@
   },
   "contexts": {
     "root": "backend/contexts",
+    "modules": [
+      "gmao",
+      "comptabilite",
+      "facturation",
+      "absences-patients",
+      "stock",
+      "planification",
+      "seance",
+      "organisation",
+      "patient-couverture",
+      "dossier-medical",
+      "pilotage-direction",
+      "shared-kernel"
+    ],
     "publicApi": ["backend/contexts/**/publishedlanguage/**", "backend/contexts/shared-kernel/**"]
   },
   "exclude": [

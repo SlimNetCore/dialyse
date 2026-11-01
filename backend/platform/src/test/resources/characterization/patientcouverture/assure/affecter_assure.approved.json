@@ -1,0 +1,8 @@
+{
+  "prenom": "Jean",
+  "dateDebutAffectation": "2026-11-01",
+  "id": "<UUID_GENERE_1>",
+  "nom": "Dupont",
+  "numeroAssurance": "AS-A",
+  "assigned": true
+}
