@@ -22,8 +22,8 @@ public final class CommandesOrganisation {
                               String fuseauHoraire) {
     }
 
-    public record ModifierCentre(CentreId id, String nom, Coordonnees coordonnees, String fuseauHoraire,
-                                 boolean actif) {
+    public record ModifierCentre(CentreId id, String code, String nom, Coordonnees coordonnees,
+                                 String fuseauHoraire, boolean actif) {
     }
 
     public record TransfererCentre(CentreId id, SocieteId nouvelleSociete) {

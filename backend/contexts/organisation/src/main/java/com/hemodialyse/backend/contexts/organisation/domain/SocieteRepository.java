@@ -11,6 +11,8 @@ import java.util.Set;
 public interface SocieteRepository {
     Optional<Societe> trouver(SocieteId id);
 
+    Optional<Societe> trouverParCode(String code);
+
     void sauvegarder(Societe societe);
 
     List<Societe> lister();

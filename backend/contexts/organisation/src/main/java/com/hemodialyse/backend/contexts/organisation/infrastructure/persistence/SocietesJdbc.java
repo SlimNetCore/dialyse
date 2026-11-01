@@ -49,6 +49,12 @@ public class SocietesJdbc implements SocieteRepository {
     }
 
     @Override
+    public Optional<Societe> trouverParCode(String code) {
+        List<Societe> r = jdbc.query("SELECT " + COLONNES + " FROM societes WHERE code = ?", MAPPER, code);
+        return r.stream().findFirst();
+    }
+
+    @Override
     public void sauvegarder(Societe s) {
         int n = jdbc.update("UPDATE societes SET code=?, raison_sociale=?, nif=?, nis=?, rc=?, "
                         + "adresse=?, ville=?, wilaya=?, telephone=?, email=?, site_web=?, pied_page=?, actif=? "

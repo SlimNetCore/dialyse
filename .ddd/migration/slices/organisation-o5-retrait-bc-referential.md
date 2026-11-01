@@ -121,3 +121,11 @@ ReferentielsCommunsServiceTest 8/8, SDK frontend + specs.
   de migration (ReferentialAdmin*, Migration*) : decision ADR requise (porter vers le
   contexte, re-heberger en plateforme comme code technique, ou retirer avec bc-migration).
 
+
+- [x] Invariants metier portes : unicite des codes societe/centre (SOCIETE_CODE_DEJA_UTILISE,
+  CENTRE_CODE_DEJA_UTILISE), interdiction de desactiver/transferer le dernier centre actif
+  (SOCIETE_DERNIER_CENTRE_ACTIF, RG-ORG-013), changement de code centre autorise.
+- [x] Correction bug bloquant : CentresJdbc lisait des colonnes inexistantes (useau,
+  capacite) et rouver/listerParSociete ignoraient useau_horaire/tous les centres ;
+  capaciteTheorique supprime (aucune colonne, aucun consommateur legacy).
+

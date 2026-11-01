@@ -28,8 +28,8 @@ public class CentresControleur {
 
     @PutMapping("/{id}")
     public void modifier(@PathVariable UUID id, @RequestBody ModifierCentreRequete req) {
-        service.modifierCentre(new CommandesOrganisation.ModifierCentre(new CentreId(id), req.nom(),
-                req.coordonnees(), req.fuseauHoraire(), req.actif()));
+        service.modifierCentre(new CommandesOrganisation.ModifierCentre(new CentreId(id), req.code(),
+                req.nom(), req.coordonnees(), req.fuseauHoraire(), req.actif()));
     }
 
     @PostMapping("/{id}/transferer")
@@ -56,8 +56,8 @@ public class CentresControleur {
                                      String fuseauHoraire) {
     }
 
-    public record ModifierCentreRequete(String nom, Coordonnees coordonnees, String fuseauHoraire,
-                                        boolean actif) {
+    public record ModifierCentreRequete(String code, String nom, Coordonnees coordonnees,
+                                        String fuseauHoraire, boolean actif) {
     }
 
     public record TransfererCentreRequete(UUID nouvelleSocieteId) {

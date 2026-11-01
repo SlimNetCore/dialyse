@@ -15,7 +15,7 @@ public class Centre {
 
     private final CentreId id;
     private SocieteId societeId;
-    private final String code;
+    private String code;
     private String nom;
     private Coordonnees coordonnees;
     private String fuseauHoraire;
@@ -68,7 +68,11 @@ public class Centre {
         return actif;
     }
 
-    public void modifierParametres(String nom, Coordonnees coordonnees, String fuseauHoraire, boolean actif) {
+    public void modifierParametres(String code, String nom, Coordonnees coordonnees, String fuseauHoraire, boolean actif) {
+        if (code != null && !code.isBlank()) {
+            if (!CODE.matcher(code.trim()).matches()) throw new IllegalArgumentException("CENTRE_CODE_INVALIDE");
+            this.code = code.trim();
+        }
         if (nom != null && !nom.isBlank()) {
             if (nom.trim().length() > 150) throw new IllegalArgumentException("CENTRE_NOM_INVALIDE");
             this.nom = nom.trim();

@@ -51,7 +51,7 @@ class CentreTest {
     @Test
     void modifier_parametres() {
         Centre c = centreValide();
-        c.modifierParametres("Nouveau nom", null, "Europe/Paris", false);
+        c.modifierParametres(null, "Nouveau nom", null, "Europe/Paris", false);
         assertThat(c.nom()).isEqualTo("Nouveau nom");
         assertThat(c.fuseauHoraire()).isEqualTo("Europe/Paris");
         assertThat(c.actif()).isFalse();

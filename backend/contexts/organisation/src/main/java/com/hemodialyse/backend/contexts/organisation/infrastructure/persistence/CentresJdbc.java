@@ -37,6 +37,12 @@ public class CentresJdbc implements CentreRepository {
     }
 
     @Override
+    public Optional<Centre> trouverParCode(String code) {
+        List<Centre> r = jdbc.query("SELECT " + COLONNES + " FROM centers WHERE code = ?", MAPPER, code);
+        return r.stream().findFirst();
+    }
+
+    @Override
     public void sauvegarder(Centre c) {
         int n = jdbc.update("UPDATE centers SET code=?, name=?, societe_id=?, adresse=?, ville=?, "
                         + "wilaya=?, telephone=?, email=?, site_web=?, fuseau_horaire=?, actif=? WHERE id=?",

@@ -67,7 +67,10 @@ describe('OrganisationApiService', () => {
   });
 
   it('crée une société avec identité complète', () => {
-    service.creerSociete('RENADIAL', 'Renadial', '12345678901234', null, null, null, null).subscribe();
+    service.creerSociete({
+      code: 'RENADIAL', raisonSociale: 'Renadial', nif: '12345678901234', nis: null,
+      rc: null, coordonnees: null, piedDePage: null,
+    }).subscribe();
     expect(http.post).toHaveBeenCalledWith('/api/v1/organisation/societes',
       {
         code: 'RENADIAL', raisonSociale: 'Renadial', nif: '12345678901234',

@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface CentreRepository {
     Optional<Centre> trouver(CentreId id);
 
+    Optional<Centre> trouverParCode(String code);
+
     void sauvegarder(Centre centre);
 
     List<Centre> listerActifs(SocieteId societeId);

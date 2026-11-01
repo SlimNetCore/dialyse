@@ -167,6 +167,50 @@ class OrganisationServiceTest {
         assertEquals(1, troisieme.items().size());
     }
 
+    @Test
+    void creer_societe_code_deja_utilise_rejette() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null,
+                null, null, true, MAINTENANT_SOCIETE));
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+
+        assertThrows(IllegalArgumentException.class, () -> service.creerSociete(
+                        new CommandesOrganisation.CreerSociete("RENADIAL", "Autre", null, null, null, null, null)),
+                "SOCIETE_CODE_DEJA_UTILISE");
+    }
+
+    @Test
+    void desactiver_dernier_centre_actif_rejette() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null,
+                null, null, true, MAINTENANT_SOCIETE));
+        FakeCentreRepository centres = new FakeCentreRepository();
+        CentreId seul = new CentreId(UUID.randomUUID());
+        centres.sauvegarder(new Centre(seul, SOCIETE, "C1", "Centre 1", null, "Africa/Algiers", true));
+        OrganisationService service = nouveauService(societes, centres);
+
+        assertThrows(IllegalArgumentException.class, () -> service.modifierCentre(
+                new CommandesOrganisation.ModifierCentre(seul, "C1", "Centre 1", null,
+                        "Africa/Algiers", false)));
+    }
+
+    @Test
+    void transferer_dernier_centre_actif_rejette() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null,
+                null, null, true, MAINTENANT_SOCIETE));
+        SocieteId cible = new SocieteId(UUID.randomUUID());
+        societes.sauvegarder(new Societe(cible, "AUTRE", "Autre", null, null, null,
+                null, null, true, MAINTENANT_SOCIETE));
+        FakeCentreRepository centres = new FakeCentreRepository();
+        CentreId seul = new CentreId(UUID.randomUUID());
+        centres.sauvegarder(new Centre(seul, SOCIETE, "C1", "Centre 1", null, "Africa/Algiers", true));
+        OrganisationService service = nouveauService(societes, centres);
+
+        assertThrows(IllegalArgumentException.class, () -> service.transfererCentre(
+                new CommandesOrganisation.TransfererCentre(seul, cible)));
+    }
+
     private static class FakeSocieteRepository implements SocieteRepository {
         private final Map<SocieteId, Societe> stock = new HashMap<>();
         private final Map<SocieteId, com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete> logos = new HashMap<>();
@@ -174,6 +218,11 @@ class OrganisationServiceTest {
         @Override
         public Optional<Societe> trouver(SocieteId id) {
             return Optional.ofNullable(stock.get(id));
+        }
+
+        @Override
+        public Optional<Societe> trouverParCode(String code) {
+            return stock.values().stream().filter(s -> s.code().equals(code)).findFirst();
         }
 
         @Override
@@ -233,6 +282,11 @@ class OrganisationServiceTest {
         @Override
         public Optional<Centre> trouver(CentreId id) {
             return Optional.ofNullable(stock.get(id));
+        }
+
+        @Override
+        public Optional<Centre> trouverParCode(String code) {
+            return stock.values().stream().filter(c -> c.code().equals(code)).findFirst();
         }
 
         @Override

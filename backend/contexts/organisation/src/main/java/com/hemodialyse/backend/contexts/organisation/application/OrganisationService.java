@@ -35,6 +35,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public SocieteId creerSociete(CommandesOrganisation.CreerSociete commande) {
+        garantirCodeSocieteLibre(commande.code(), null);
         SocieteId id = new SocieteId(UUID.randomUUID());
         Societe s = new Societe(id, commande.code(), commande.raisonSociale(), commande.nif(),
                 commande.nis(), commande.rc(), commande.coordonnees(), commande.piedDePage(), true,
@@ -46,6 +47,7 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public void modifierSociete(CommandesOrganisation.ModifierSociete commande) {
         Societe s = societes.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
+        garantirCodeSocieteLibre(commande.code(), commande.id());
         s.modifier(commande.code(), commande.raisonSociale(), commande.nif(), commande.nis(),
                 commande.rc(), commande.coordonnees(), commande.piedDePage(), commande.actif());
         societes.sauvegarder(s);
@@ -54,6 +56,7 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public CentreId creerCentre(CommandesOrganisation.CreerCentre commande) {
         if (societes.trouver(commande.societeId()).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
+        garantirCodeCentreLibre(commande.code(), null);
         CentreId id = new CentreId(UUID.randomUUID());
         Centre c = new Centre(id, commande.societeId(), commande.code(), commande.nom(),
                 commande.coordonnees(), commande.fuseauHoraire(), true);
@@ -64,7 +67,11 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public void modifierCentre(CommandesOrganisation.ModifierCentre commande) {
         Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
-        c.modifierParametres(commande.nom(), commande.coordonnees(), commande.fuseauHoraire(), commande.actif());
+        garantirCodeCentreLibre(commande.code(), commande.id());
+        if (!commande.actif() && c.actif() && estDernierCentreActif(c)) {
+            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE_ACTIF");
+        }
+        c.modifierParametres(commande.code(), commande.nom(), commande.coordonnees(), commande.fuseauHoraire(), commande.actif());
         centres.sauvegarder(c);
     }
 
@@ -73,8 +80,34 @@ public class OrganisationService implements OrganisationUseCases {
         Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
         if (societes.trouver(commande.nouvelleSociete()).isEmpty())
             throw new IllegalArgumentException("Societe inconnue");
+        if (c.actif() && estDernierCentreActif(c)) {
+            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE_ACTIF");
+        }
         c.transferer(commande.nouvelleSociete());
         centres.sauvegarder(c);
+    }
+
+    private void garantirCodeSocieteLibre(String code, SocieteId exclu) {
+        if (code == null || code.isBlank()) return;
+        societes.trouverParCode(code.trim()).ifPresent(existante -> {
+            if (!existante.id().equals(exclu)) {
+                throw new IllegalArgumentException("SOCIETE_CODE_DEJA_UTILISE");
+            }
+        });
+    }
+
+    private void garantirCodeCentreLibre(String code, CentreId exclu) {
+        if (code == null || code.isBlank()) return;
+        centres.trouverParCode(code.trim()).ifPresent(existant -> {
+            if (!existant.id().equals(exclu)) {
+                throw new IllegalArgumentException("CENTRE_CODE_DEJA_UTILISE");
+            }
+        });
+    }
+
+    private boolean estDernierCentreActif(Centre centre) {
+        return centres.listerActifs(centre.societeId()).stream()
+                .allMatch(a -> a.id().equals(centre.id()));
     }
 
     @Override
