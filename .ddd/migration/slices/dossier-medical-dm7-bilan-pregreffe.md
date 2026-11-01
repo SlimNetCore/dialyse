@@ -1,6 +1,6 @@
 ---
 slice: dossier-medical-dm7-bilan-pregreffe
-status: planned
+status: built
 date: 2026-10-29
 order: 7
 context: dossier-medical

@@ -27,6 +27,10 @@ public interface OrganisationUseCases {
 
     List<Societe> listerSocietes();
 
+    Societe consulterSociete(SocieteId societeId);
+
+    List<Centre> listerCentres(SocieteId societeId);
+
     void ouvrirSalle(CommandesOrganisation.OuvrirSalle commande);
 
     void fermerSalle(CommandesOrganisation.FermerSalle commande);

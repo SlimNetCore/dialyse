@@ -60,7 +60,7 @@ public class DemandeExamenRepositoryAdapter implements DemandeExamenRepositoryPo
         DemandeExamenJpaEntity saved = demandeJpa.save(toJpa(demande));
         ligneJpa.deleteByDemandeId(saved.getId());
         for (LigneDemandeExamen ligne : demande.getLignes()) {
-            ligneJpa.save(toLigneJpa(saved.getId(), ligne));
+            ligneJpa.save(toLigneJpa(saved.getId(), saved.getCenterId(), ligne));
         }
         return toDomain(saved, demande.getLignes());
     }
@@ -101,10 +101,11 @@ public class DemandeExamenRepositoryAdapter implements DemandeExamenRepositoryPo
         return e;
     }
 
-    private LigneDemandeExamenJpaEntity toLigneJpa(UUID demandeId, LigneDemandeExamen ligne) {
+    private LigneDemandeExamenJpaEntity toLigneJpa(UUID demandeId, UUID centerId, LigneDemandeExamen ligne) {
         LigneDemandeExamenJpaEntity e = new LigneDemandeExamenJpaEntity();
         e.setId(ligne.getId());
         e.setDemandeId(demandeId);
+        e.setCenterId(centerId);
         ConceptCode analyte = ligne.getAnalyte();
         e.setAnalyteCodeSystem(analyte == null ? null : analyte.system().name());
         e.setAnalyteCode(analyte == null ? null : analyte.code());

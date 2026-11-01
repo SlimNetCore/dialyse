@@ -1,25 +1,26 @@
 ---
 slice: pilotage-direction-pd1-tableau-bord
-status: planned
+status: built
 date: 2026-10-29
 order: 1
 context: pilotage-direction
 sources: [.ddd/tactical/pilotage-direction.md, ADR 0066]
 ---
 
-# PD1 — Tableau de bord direction (read models)
+# PD1 â€” Tableau de bord direction (read models)
 
-Agrégat `TableauDeBord` (entité dédiée). Consomme les langages publiés des autres contextes (lecture uniquement, aucune
-écriture cross-context R4).
+AgrÃ©gat `TableauDeBord` (entitÃ© dÃ©diÃ©e). Consomme les langages publiÃ©s des autres contextes (lecture uniquement,
+aucune
+Ã©criture cross-context R4).
 
 ## Cas d'usage
 
 `ConsulterTableauDeBord`, `FiltrerParCentre`.
 
-## Entrées legacy
+## EntrÃ©es legacy
 
 `platform/application/direction` (`Direction*QueryService`).
 
-## Données
+## DonnÃ©es
 
-Read models ; aucune migration. centerId + société anonymisée. Cache `ref.alertes.centre`.
+Read models ; aucune migration. centerId + sociÃ©tÃ© anonymisÃ©e. Cache `ref.alertes.centre`.

@@ -54,7 +54,7 @@ public class DemandeExamenService implements DemandeExamenUseCases {
         // via l'outbox / l'\u00e9diteur d'\u00e9v\u00e9nements Spring Modulith.
         ResultatExamenRecu evenement = new ResultatExamenRecu(
                 commande.eventId() != null ? commande.eventId() : UUID.randomUUID(),
-                demande.id().value(), demande.patientId(), demande.centreId(),
+                demande.id().value(), demande.patientId(), demande.centreId().valeur(),
                 demande.categorie().name(), commande.maintenant());
     }
 

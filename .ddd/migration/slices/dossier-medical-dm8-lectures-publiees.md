@@ -1,6 +1,6 @@
 ---
 slice: dossier-medical-dm8-lectures-publiees
-status: planned
+status: built
 date: 2026-10-29
 order: 8
 context: dossier-medical

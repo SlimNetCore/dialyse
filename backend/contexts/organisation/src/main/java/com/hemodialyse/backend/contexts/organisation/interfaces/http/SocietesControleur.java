@@ -33,6 +33,11 @@ public class SocietesControleur {
         return service.listerSocietes();
     }
 
+    @GetMapping("/{id}")
+    public Societe consulter(@PathVariable UUID id) {
+        return service.consulterSociete(new SocieteId(id));
+    }
+
     public record CreerSocieteRequete(String code, String raisonSociale) {
     }
 

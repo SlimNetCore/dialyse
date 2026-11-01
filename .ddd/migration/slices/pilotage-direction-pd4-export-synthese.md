@@ -1,24 +1,25 @@
 ---
 slice: pilotage-direction-pd4-export-synthese
-status: planned
+status: built
 date: 2026-10-29
 order: 4
 context: pilotage-direction
 sources: [.ddd/tactical/pilotage-direction.md, ADR 0066]
 ---
 
-# PD4 — Export synthèse (reporting)
+# PD4 â€” Export synthÃ¨se (reporting)
 
-Entité `ExportSynthese`. Impression via `ModeleDocumentPrinter` (modèle de document, §11.1).
+EntitÃ© `ExportSynthese`. Impression via `ModeleDocumentPrinter` (modÃ¨le de document, Â§11.1).
 
 ## Cas d'usage
 
 `GenererExportSynthese`, `TelechargerExport`.
 
-## Entrées legacy
+## EntrÃ©es legacy
 
 `Direction*QueryService` + reporting.
 
-## Données
+## DonnÃ©es
 
-Export on-demand ; pas de table dédiée (ou table tracking). Modèle de document à déclarer dans `ModeleDocumentCatalog`.
+Export on-demand ; pas de table dÃ©diÃ©e (ou table tracking). ModÃ¨le de document Ã  dÃ©clarer dans
+`ModeleDocumentCatalog`.

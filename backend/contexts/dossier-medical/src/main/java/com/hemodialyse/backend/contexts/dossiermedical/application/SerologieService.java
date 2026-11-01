@@ -47,7 +47,7 @@ public class SerologieService implements SerologieUseCases {
         if (serologie.estPositif()) {
             SerologiePositiveDetectee evenement = new SerologiePositiveDetectee(
                     UUID.randomUUID(), serologie.id().value(), serologie.patientId(),
-                    serologie.centreId(), serologie.typeSerologie().name(),
+                    serologie.centreId().valeur(), serologie.typeSerologie().name(),
                     commande.dateResultat() != null ? commande.dateResultat() : maintenant);
             evenementPositif.accept(evenement);
         }

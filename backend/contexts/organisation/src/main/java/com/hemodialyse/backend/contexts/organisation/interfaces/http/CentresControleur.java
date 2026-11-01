@@ -39,6 +39,11 @@ public class CentresControleur {
         return service.listerCentresActifs(new SocieteId(societeId));
     }
 
+    @GetMapping
+    public List<Centre> lister(@RequestParam UUID societeId) {
+        return service.listerCentres(new SocieteId(societeId));
+    }
+
     @GetMapping("/{id}/parametres")
     public Centre parametres(@PathVariable UUID id) {
         return service.lireParametresCentre(new CentreId(id));

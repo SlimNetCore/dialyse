@@ -86,6 +86,16 @@ public class OrganisationService implements OrganisationUseCases {
     }
 
     @Override
+    public Societe consulterSociete(SocieteId societeId) {
+        return societes.trouver(societeId).orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
+    }
+
+    @Override
+    public List<Centre> listerCentres(SocieteId societeId) {
+        return centres.listerParSociete(societeId);
+    }
+
+    @Override
     public void ouvrirSalle(CommandesOrganisation.OuvrirSalle commande) {
         Salle s = salles.trouver(commande.centreId(), commande.salleId()).orElseThrow(() -> new IllegalArgumentException("Salle inconnue"));
         s.ouvrir();

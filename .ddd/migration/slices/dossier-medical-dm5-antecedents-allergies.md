@@ -1,6 +1,6 @@
 ---
 slice: dossier-medical-dm5-antecedents-allergies
-status: planned
+status: built
 date: 2026-10-29
 order: 5
 context: dossier-medical

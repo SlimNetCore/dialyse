@@ -1,14 +1,14 @@
 package com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage;
 
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-
 import java.time.Instant;
 import java.util.UUID;
 
 /**
- * \u00c9v\u00e9nement de domaine publi\u00e9 : un r\u00e9sultat d'examen a \u00e9t\u00e9 re\u00e7u pour une demande.
- * Produit par la couche application apr\u00e8s ex\u00e9cution de {@code RecevoirResultat}.
+ * Evenement de domaine publie : un resultat d'examen a ete recu pour une demande.
+ * Produit par la couche application apres execution de {@code RecevoirResultat}.
+ * Le centre est un UUID brut pour ne pas exposer le shared-kernel (regle ArchUnit
+ * {@code le_langage_publie_ne_depend_de_rien_du_contexte}).
  */
-public record ResultatExamenRecu(UUID eventId, UUID demandeExamenId, UUID patientId, CentreId centreId,
+public record ResultatExamenRecu(UUID eventId, UUID demandeExamenId, UUID patientId, UUID centreId,
                                  String categorie, Instant dateReception) {
 }

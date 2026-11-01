@@ -297,3 +297,114 @@ CREATE TABLE IF NOT EXISTS allergies
 
 CREATE INDEX IF NOT EXISTS idx_allergies_center_patient ON allergies (center_id, patient_id);
 CREATE INDEX IF NOT EXISTS idx_allergies_center_type ON allergies (center_id, type);
+
+-- Table pour le slice DM6 observations biologiques (ADR 0065).
+-- Table non g�r�e par une entit� JPA (acc�s JDBC via ObservationsBiologiquesJdbc).
+CREATE TABLE IF NOT EXISTS observations_biologiques
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    patient_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    code
+    VARCHAR
+(
+    30
+) NOT NULL,
+    libelle VARCHAR
+(
+    200
+),
+    valeur VARCHAR
+(
+    100
+) NOT NULL,
+    unite VARCHAR
+(
+    50
+),
+    seuil_bas DOUBLE,
+    seuil_haut DOUBLE,
+    date_observation DATE NOT NULL,
+    prescripteur_id VARCHAR
+(
+    100
+),
+    laboratoire VARCHAR
+(
+    200
+),
+    commentaire TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                             );
+
+CREATE INDEX IF NOT EXISTS idx_observations_bio_center_patient ON observations_biologiques (center_id, patient_id);
+CREATE INDEX IF NOT EXISTS idx_observations_bio_center_code ON observations_biologiques (center_id, code);
+
+-- Tables pour le slice DM7 bilan pr�-greffe (ADR 0007 : agr�gat isol� et extractible).
+-- Tables non g�r�es par une entit� JPA (acc�s JDBC via BilansPreGreffeJdbc).
+CREATE TABLE IF NOT EXISTS bilans_pregreffe
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    patient_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    statut
+    VARCHAR
+(
+    20
+) NOT NULL,
+    date_demarrage DATE NOT NULL,
+    commentaire TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                             CONSTRAINT chk_bilan_statut CHECK (statut IN ('EN_COURS', 'COMPLET', 'ANNULE'))
+    );
+
+CREATE TABLE IF NOT EXISTS etapes_bilan_pregreffe
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    bilan_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    code
+    VARCHAR
+(
+    50
+) NOT NULL,
+    libelle VARCHAR
+(
+    200
+),
+    validee BOOLEAN NOT NULL DEFAULT FALSE,
+    validee_le TIMESTAMP WITH TIME ZONE,
+                             validee_par VARCHAR (100)
+    );
+
+CREATE INDEX IF NOT EXISTS idx_bilans_pregreffe_center_patient ON bilans_pregreffe (center_id, patient_id);
+CREATE INDEX IF NOT EXISTS idx_etapes_bilan_pregreffe_bilan ON etapes_bilan_pregreffe (bilan_id);
