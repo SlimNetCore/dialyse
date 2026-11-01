@@ -3,26 +3,40 @@ package com.hemodialyse.backend.contexts.organisation.domain;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.SocieteId;
 
+import java.util.regex.Pattern;
+
+/**
+ * Agrégat {@code Centre} : un centre de dialyse appartient à exactement une société.
+ * Coordonnées de contact (RG-ORG-020 à RG-ORG-022) et paramètres d'exploitation.
+ */
 public class Centre {
+
+    private static final Pattern CODE = Pattern.compile("[A-Z0-9][A-Z0-9_\\-]{1,29}");
+
     private final CentreId id;
     private SocieteId societeId;
     private final String code;
     private String nom;
+    private Coordonnees coordonnees;
     private String fuseauHoraire;
-    private int capaciteTheorique;
     private boolean actif;
 
-    public Centre(CentreId id, SocieteId societeId, String code, String nom, String fuseauHoraire, int capaciteTheorique, boolean actif) {
+    public Centre(CentreId id, SocieteId societeId, String code, String nom, Coordonnees coordonnees,
+                  String fuseauHoraire, boolean actif) {
         if (id == null) throw new IllegalArgumentException("Centre requis");
         if (societeId == null) throw new IllegalArgumentException("Societe requise");
-        if (code == null || code.isBlank()) throw new IllegalArgumentException("Code requis");
-        if (nom == null || nom.isBlank()) throw new IllegalArgumentException("Nom requis");
+        if (code == null || !CODE.matcher(code.trim()).matches()) {
+            throw new IllegalArgumentException("CENTRE_CODE_INVALIDE");
+        }
+        if (nom == null || nom.isBlank() || nom.trim().length() > 150) {
+            throw new IllegalArgumentException("CENTRE_NOM_INVALIDE");
+        }
         this.id = id;
         this.societeId = societeId;
-        this.code = code;
-        this.nom = nom;
-        this.fuseauHoraire = fuseauHoraire == null ? "UTC" : fuseauHoraire;
-        this.capaciteTheorique = capaciteTheorique;
+        this.code = code.trim();
+        this.nom = nom.trim();
+        this.coordonnees = coordonnees == null ? Coordonnees.VIDES : coordonnees;
+        this.fuseauHoraire = fuseauHoraire == null || fuseauHoraire.isBlank() ? "UTC" : fuseauHoraire;
         this.actif = actif;
     }
 
@@ -42,22 +56,25 @@ public class Centre {
         return nom;
     }
 
-    public String fuseauHoraire() {
-        return fuseauHoraire;
+    public Coordonnees coordonnees() {
+        return coordonnees;
     }
 
-    public int capaciteTheorique() {
-        return capaciteTheorique;
+    public String fuseauHoraire() {
+        return fuseauHoraire;
     }
 
     public boolean actif() {
         return actif;
     }
 
-    public void modifierParametres(String nom, String fuseauHoraire, int capaciteTheorique, boolean actif) {
-        if (nom != null && !nom.isBlank()) this.nom = nom;
+    public void modifierParametres(String nom, Coordonnees coordonnees, String fuseauHoraire, boolean actif) {
+        if (nom != null && !nom.isBlank()) {
+            if (nom.trim().length() > 150) throw new IllegalArgumentException("CENTRE_NOM_INVALIDE");
+            this.nom = nom.trim();
+        }
+        if (coordonnees != null) this.coordonnees = coordonnees;
         if (fuseauHoraire != null && !fuseauHoraire.isBlank()) this.fuseauHoraire = fuseauHoraire;
-        this.capaciteTheorique = capaciteTheorique;
         this.actif = actif;
     }
 

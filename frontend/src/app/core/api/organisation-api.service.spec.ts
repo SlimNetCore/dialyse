@@ -66,10 +66,13 @@ describe('OrganisationApiService', () => {
     expect(options.params.get('societeId')).toBe('soc-1');
   });
 
-  it('crée une société avec code et raison sociale', () => {
-    service.creerSociete('RENADIAL', 'Renadial').subscribe();
+  it('crée une société avec identité complète', () => {
+    service.creerSociete('RENADIAL', 'Renadial', '12345678901234', null, null, null, null).subscribe();
     expect(http.post).toHaveBeenCalledWith('/api/v1/organisation/societes',
-      {code: 'RENADIAL', raisonSociale: 'Renadial'});
+      {
+        code: 'RENADIAL', raisonSociale: 'Renadial', nif: '12345678901234',
+        nis: null, rc: null, coordonnees: null, piedDePage: null
+      });
   });
 
   it('transfère un centre vers la société cible', () => {

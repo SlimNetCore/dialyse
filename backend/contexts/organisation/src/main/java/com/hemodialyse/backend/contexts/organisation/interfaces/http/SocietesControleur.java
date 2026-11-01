@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
+import com.hemodialyse.backend.contexts.organisation.domain.Coordonnees;
 import com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete;
 import com.hemodialyse.backend.contexts.organisation.domain.LogoRefuse;
 import com.hemodialyse.backend.contexts.organisation.domain.Societe;
@@ -30,12 +31,15 @@ public class SocietesControleur {
 
     @PostMapping
     public UUID creer(@RequestBody CreerSocieteRequete req) {
-        return service.creerSociete(new CommandesOrganisation.CreerSociete(req.code(), req.raisonSociale())).valeur();
+        return service.creerSociete(new CommandesOrganisation.CreerSociete(req.code(), req.raisonSociale(),
+                req.nif(), req.nis(), req.rc(), req.coordonnees(), req.piedDePage())).valeur();
     }
 
     @PutMapping("/{id}")
     public void modifier(@PathVariable UUID id, @RequestBody ModifierSocieteRequete req) {
-        service.modifierSociete(new CommandesOrganisation.ModifierSociete(new SocieteId(id), req.code(), req.raisonSociale(), req.actif()));
+        service.modifierSociete(new CommandesOrganisation.ModifierSociete(new SocieteId(id), req.code(),
+                req.raisonSociale(), req.nif(), req.nis(), req.rc(), req.coordonnees(), req.piedDePage(),
+                req.actif()));
     }
 
     @GetMapping
@@ -89,9 +93,12 @@ public class SocietesControleur {
                 .stream().map(SocieteId::valeur).collect(Collectors.toSet());
     }
 
-    public record CreerSocieteRequete(String code, String raisonSociale) {
+    public record CreerSocieteRequete(String code, String raisonSociale, String nif, String nis,
+                                      String rc, Coordonnees coordonnees, String piedDePage) {
     }
 
-    public record ModifierSocieteRequete(String code, String raisonSociale, boolean actif) {
+    public record ModifierSocieteRequete(String code, String raisonSociale, String nif, String nis,
+                                         String rc, Coordonnees coordonnees, String piedDePage,
+                                         boolean actif) {
     }
 }

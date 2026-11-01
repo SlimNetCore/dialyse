@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.organisation.infrastructure.persistence
 
 import com.hemodialyse.backend.contexts.organisation.domain.Centre;
 import com.hemodialyse.backend.contexts.organisation.domain.CentreRepository;
+import com.hemodialyse.backend.contexts.organisation.domain.Coordonnees;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.SocieteId;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,9 +18,12 @@ public class CentresJdbc implements CentreRepository {
             new SocieteId(rs.getObject("societe_id", UUID.class)),
             rs.getString("code"),
             rs.getString("name"),
-            rs.getString("fuseau") == null ? "UTC" : rs.getString("fuseau"),
-            rs.getInt("capacite"),
+            new Coordonnees(rs.getString("adresse"), rs.getString("ville"), rs.getString("wilaya"),
+                    rs.getString("telephone"), rs.getString("email"), rs.getString("site_web")),
+            rs.getString("fuseau_horaire") == null ? "UTC" : rs.getString("fuseau_horaire"),
             rs.getBoolean("actif"));
+    private static final String COLONNES = "id, code, name, societe_id, adresse, ville, wilaya, "
+            + "telephone, email, site_web, fuseau_horaire, actif";
     private final JdbcTemplate jdbc;
 
     public CentresJdbc(JdbcTemplate jdbc) {
@@ -28,39 +32,37 @@ public class CentresJdbc implements CentreRepository {
 
     @Override
     public Optional<Centre> trouver(CentreId id) {
-        List<Centre> r = jdbc.query("SELECT id, code, name, societe_id, actif FROM centers WHERE id = ?", (rs, i) -> new Centre(
-                new CentreId(rs.getObject("id", UUID.class)),
-                new SocieteId(rs.getObject("societe_id", UUID.class)),
-                rs.getString("code"),
-                rs.getString("name"),
-                "UTC",
-                0,
-                rs.getBoolean("actif")), id.valeur());
+        List<Centre> r = jdbc.query("SELECT " + COLONNES + " FROM centers WHERE id = ?", MAPPER, id.valeur());
         return r.stream().findFirst();
     }
 
     @Override
     public void sauvegarder(Centre c) {
-        int n = jdbc.update("UPDATE centers SET code=?, name=?, societe_id=?, actif=? WHERE id=?", c.code(), c.nom(), c.societeId().valeur(), c.actif(), c.id().valeur());
+        int n = jdbc.update("UPDATE centers SET code=?, name=?, societe_id=?, adresse=?, ville=?, "
+                        + "wilaya=?, telephone=?, email=?, site_web=?, fuseau_horaire=?, actif=? WHERE id=?",
+                c.code(), c.nom(), c.societeId().valeur(),
+                c.coordonnees().adresse(), c.coordonnees().ville(), c.coordonnees().wilaya(),
+                c.coordonnees().telephone(), c.coordonnees().email(), c.coordonnees().siteWeb(),
+                c.fuseauHoraire(), c.actif(), c.id().valeur());
         if (n == 0) {
-            jdbc.update("INSERT INTO centers (id, code, name, societe_id, actif) VALUES (?,?,?,?,?)", c.id().valeur(), c.code(), c.nom(), c.societeId().valeur(), c.actif());
+            jdbc.update("INSERT INTO centers (id, code, name, societe_id, adresse, ville, wilaya, "
+                            + "telephone, email, site_web, fuseau_horaire, actif) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                    c.id().valeur(), c.code(), c.nom(), c.societeId().valeur(),
+                    c.coordonnees().adresse(), c.coordonnees().ville(), c.coordonnees().wilaya(),
+                    c.coordonnees().telephone(), c.coordonnees().email(), c.coordonnees().siteWeb(),
+                    c.fuseauHoraire(), c.actif());
         }
     }
 
     @Override
     public List<Centre> listerActifs(SocieteId societeId) {
-        return jdbc.query("SELECT id, code, name, societe_id, actif FROM centers WHERE societe_id = ? AND actif = TRUE", (rs, i) -> new Centre(
-                new CentreId(rs.getObject("id", UUID.class)),
-                new SocieteId(rs.getObject("societe_id", UUID.class)),
-                rs.getString("code"),
-                rs.getString("name"),
-                "UTC",
-                0,
-                rs.getBoolean("actif")), societeId.valeur());
+        return jdbc.query("SELECT " + COLONNES + " FROM centers WHERE societe_id = ? AND actif = TRUE",
+                MAPPER, societeId.valeur());
     }
 
     @Override
     public List<Centre> listerParSociete(SocieteId societeId) {
-        return listerActifs(societeId);
+        return jdbc.query("SELECT " + COLONNES + " FROM centers WHERE societe_id = ? ORDER BY code",
+                MAPPER, societeId.valeur());
     }
 }

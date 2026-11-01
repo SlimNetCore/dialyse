@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.organisation.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.organisation.domain.Coordonnees;
 import com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete;
 import com.hemodialyse.backend.contexts.organisation.domain.Societe;
 import com.hemodialyse.backend.contexts.organisation.domain.SocieteRepository;
@@ -8,6 +9,9 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.SocieteId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +24,18 @@ public class SocietesJdbc implements SocieteRepository {
             new SocieteId(rs.getObject("id", UUID.class)),
             rs.getString("code"),
             rs.getString("raison_sociale"),
-            rs.getBoolean("actif"));
+            rs.getString("nif"),
+            rs.getString("nis"),
+            rs.getString("rc"),
+            new Coordonnees(rs.getString("adresse"), rs.getString("ville"), rs.getString("wilaya"),
+                    rs.getString("telephone"), rs.getString("email"), rs.getString("site_web")),
+            rs.getString("pied_page"),
+            rs.getBoolean("actif"),
+            rs.getTimestamp("created_at") == null ? OffsetDateTime.now(ZoneOffset.UTC)
+                    : rs.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
+    private static final String COLONNES = "id, code, raison_sociale, nif, nis, rc, adresse, ville, "
+            + "wilaya, telephone, email, site_web, pied_page, actif, created_at";
+
     private final JdbcTemplate jdbc;
 
     public SocietesJdbc(JdbcTemplate jdbc) {
@@ -29,21 +44,34 @@ public class SocietesJdbc implements SocieteRepository {
 
     @Override
     public Optional<Societe> trouver(SocieteId id) {
-        List<Societe> r = jdbc.query("SELECT id, code, raison_sociale, actif FROM societes WHERE id = ?", MAPPER, id.valeur());
+        List<Societe> r = jdbc.query("SELECT " + COLONNES + " FROM societes WHERE id = ?", MAPPER, id.valeur());
         return r.stream().findFirst();
     }
 
     @Override
     public void sauvegarder(Societe s) {
-        int n = jdbc.update("UPDATE societes SET code=?, raison_sociale=?, actif=? WHERE id=?", s.code(), s.raisonSociale(), s.actif(), s.id().valeur());
+        int n = jdbc.update("UPDATE societes SET code=?, raison_sociale=?, nif=?, nis=?, rc=?, "
+                        + "adresse=?, ville=?, wilaya=?, telephone=?, email=?, site_web=?, pied_page=?, actif=? "
+                        + "WHERE id=?",
+                s.code(), s.raisonSociale(), s.nif(), s.nis(), s.rc(),
+                s.coordonnees().adresse(), s.coordonnees().ville(), s.coordonnees().wilaya(),
+                s.coordonnees().telephone(), s.coordonnees().email(), s.coordonnees().siteWeb(),
+                s.piedDePage(), s.actif(), s.id().valeur());
         if (n == 0) {
-            jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,?,CURRENT_TIMESTAMP)", s.id().valeur(), s.code(), s.raisonSociale(), s.actif());
+            jdbc.update("INSERT INTO societes (id, code, raison_sociale, nif, nis, rc, adresse, ville, "
+                            + "wilaya, telephone, email, site_web, pied_page, actif, created_at) "
+                            + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    s.id().valeur(), s.code(), s.raisonSociale(), s.nif(), s.nis(), s.rc(),
+                    s.coordonnees().adresse(), s.coordonnees().ville(), s.coordonnees().wilaya(),
+                    s.coordonnees().telephone(), s.coordonnees().email(), s.coordonnees().siteWeb(),
+                    s.piedDePage(), s.actif(),
+                    Timestamp.from(s.createdAt().toInstant()));
         }
     }
 
     @Override
     public List<Societe> lister() {
-        return jdbc.query("SELECT id, code, raison_sociale, actif FROM societes ORDER BY code", MAPPER);
+        return jdbc.query("SELECT " + COLONNES + " FROM societes ORDER BY code", MAPPER);
     }
 
     @Override
@@ -53,7 +81,7 @@ public class SocietesJdbc implements SocieteRepository {
                 "SELECT COUNT(*) FROM societes WHERE code ILIKE ? OR raison_sociale ILIKE ?",
                 Long.class, filtre, filtre);
         List<Societe> items = jdbc.query(
-                "SELECT id, code, raison_sociale, actif FROM societes "
+                "SELECT " + COLONNES + " FROM societes "
                         + "WHERE code ILIKE ? OR raison_sociale ILIKE ? "
                         + "ORDER BY code LIMIT ? OFFSET ?",
                 MAPPER, filtre, filtre, size, page * size);
@@ -77,8 +105,7 @@ public class SocietesJdbc implements SocieteRepository {
 
     @Override
     public void supprimerLogo(SocieteId id) {
-        jdbc.update("UPDATE societes SET logo = NULL, logo_content_type = NULL WHERE id = ?",
-                id.valeur());
+        jdbc.update("UPDATE societes SET logo = NULL, logo_content_type = NULL WHERE id = ?", id.valeur());
     }
 
     @Override

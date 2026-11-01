@@ -14,6 +14,8 @@ import com.hemodialyse.backend.contexts.organisation.domain.SocieteRepository;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.SocieteId;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +36,9 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public SocieteId creerSociete(CommandesOrganisation.CreerSociete commande) {
         SocieteId id = new SocieteId(UUID.randomUUID());
-        Societe s = new Societe(id, commande.code(), commande.raisonSociale(), true);
+        Societe s = new Societe(id, commande.code(), commande.raisonSociale(), commande.nif(),
+                commande.nis(), commande.rc(), commande.coordonnees(), commande.piedDePage(), true,
+                OffsetDateTime.now(ZoneOffset.UTC));
         societes.sauvegarder(s);
         return id;
     }
@@ -42,7 +46,8 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public void modifierSociete(CommandesOrganisation.ModifierSociete commande) {
         Societe s = societes.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
-        s.modifier(commande.code(), commande.raisonSociale(), commande.actif());
+        s.modifier(commande.code(), commande.raisonSociale(), commande.nif(), commande.nis(),
+                commande.rc(), commande.coordonnees(), commande.piedDePage(), commande.actif());
         societes.sauvegarder(s);
     }
 
@@ -50,7 +55,8 @@ public class OrganisationService implements OrganisationUseCases {
     public CentreId creerCentre(CommandesOrganisation.CreerCentre commande) {
         if (societes.trouver(commande.societeId()).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
         CentreId id = new CentreId(UUID.randomUUID());
-        Centre c = new Centre(id, commande.societeId(), commande.code(), commande.nom(), commande.fuseauHoraire(), commande.capaciteTheorique(), true);
+        Centre c = new Centre(id, commande.societeId(), commande.code(), commande.nom(),
+                commande.coordonnees(), commande.fuseauHoraire(), true);
         centres.sauvegarder(c);
         return id;
     }
@@ -58,7 +64,7 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public void modifierCentre(CommandesOrganisation.ModifierCentre commande) {
         Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
-        c.modifierParametres(commande.nom(), commande.fuseauHoraire(), commande.capaciteTheorique(), commande.actif());
+        c.modifierParametres(commande.nom(), commande.coordonnees(), commande.fuseauHoraire(), commande.actif());
         centres.sauvegarder(c);
     }
 
@@ -89,7 +95,8 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> listerSocietesParPage(
             String recherche, int page, int size) {
-        return societes.listerParPage(recherche, page, size);
+        // RG-ORG-008 : taille plafonnée à 100.
+        return societes.listerParPage(recherche, page, Math.min(size, 100));
     }
 
     @Override

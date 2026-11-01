@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.Centre;
+import com.hemodialyse.backend.contexts.organisation.domain.Coordonnees;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.SocieteId;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +22,14 @@ public class CentresControleur {
 
     @PostMapping
     public UUID creer(@RequestBody CreerCentreRequete req) {
-        return service.creerCentre(new CommandesOrganisation.CreerCentre(new SocieteId(req.societeId()), req.code(), req.nom(), req.fuseauHoraire(), req.capaciteTheorique())).valeur();
+        return service.creerCentre(new CommandesOrganisation.CreerCentre(new SocieteId(req.societeId()),
+                req.code(), req.nom(), req.coordonnees(), req.fuseauHoraire())).valeur();
     }
 
     @PutMapping("/{id}")
     public void modifier(@PathVariable UUID id, @RequestBody ModifierCentreRequete req) {
-        service.modifierCentre(new CommandesOrganisation.ModifierCentre(new CentreId(id), req.nom(), req.fuseauHoraire(), req.capaciteTheorique(), req.actif()));
+        service.modifierCentre(new CommandesOrganisation.ModifierCentre(new CentreId(id), req.nom(),
+                req.coordonnees(), req.fuseauHoraire(), req.actif()));
     }
 
     @PostMapping("/{id}/transferer")
@@ -49,11 +52,12 @@ public class CentresControleur {
         return service.lireParametresCentre(new CentreId(id));
     }
 
-    public record CreerCentreRequete(UUID societeId, String code, String nom, String fuseauHoraire,
-                                     int capaciteTheorique) {
+    public record CreerCentreRequete(UUID societeId, String code, String nom, Coordonnees coordonnees,
+                                     String fuseauHoraire) {
     }
 
-    public record ModifierCentreRequete(String nom, String fuseauHoraire, int capaciteTheorique, boolean actif) {
+    public record ModifierCentreRequete(String nom, Coordonnees coordonnees, String fuseauHoraire,
+                                        boolean actif) {
     }
 
     public record TransfererCentreRequete(UUID nouvelleSocieteId) {

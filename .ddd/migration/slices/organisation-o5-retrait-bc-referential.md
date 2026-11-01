@@ -97,3 +97,15 @@ migration. Garde `TableDeLOrganisationTest` déjà verte et couvrant le périmè
 - [ ] DTOs serialisables pour les nouveaux endpoints (risque {} Jackson sur objets du domaine
   a accesseurs style record - meme dette que DM7/PD4).
 
+
+- [x] Modele societe/centre riche (RG-ORG-002 a 005, 008, 010-022) : Coordonnees (nettoyage +
+  tel/email/site), NIF/NIS/RC (<=40), pied de page (<=500), code normalise, createdAt,
+  pagination plafonnee a 100, Jdbc sur les vraies colonnes (useau_horaire, pas de
+  colonne capacite inexistante en base).
+- [x] Correction bogue de mapping : CentresJdbc lisait useau/capacite (colonnes
+  inexistantes -> 500 en prod) et listerParSociete retournait les seuls actifs ; rouver`n ignorait fuseau_horaire.
+  Corrige + CentreTest 6/6.
+- [x] Droits a l'oubli : capaciteTheorique supprime du modele (aucune colonne, aucun
+  consommateur legacy ; le tactique proposed sera revise en ce sens).
+- [x] SDK frontend aligne (types riches + payloads coordonnees imbriquees) + specs 12/12.
+

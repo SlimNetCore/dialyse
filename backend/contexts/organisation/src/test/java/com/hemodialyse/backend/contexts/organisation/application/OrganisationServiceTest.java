@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrganisationServiceTest {
 
     private static final SocieteId SOCIETE = new SocieteId(UUID.fromString("99997300-0000-0000-0000-0000000000a1"));
+    private static final java.time.OffsetDateTime MAINTENANT_SOCIETE = java.time.OffsetDateTime.ofInstant(
+            java.time.Instant.parse("2026-03-10T08:00:00Z"), java.time.ZoneOffset.UTC);
 
     private OrganisationService nouveauService(FakeSocieteRepository societes, FakeCentreRepository centres) {
         return new OrganisationService(societes, centres,
@@ -35,7 +37,7 @@ class OrganisationServiceTest {
     @Test
     void consulter_societe_existante() {
         FakeSocieteRepository societes = new FakeSocieteRepository();
-        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null, null, null, true, MAINTENANT_SOCIETE));
         OrganisationService service = nouveauService(societes, new FakeCentreRepository());
 
         Societe trouvee = service.consulterSociete(SOCIETE);
@@ -56,8 +58,8 @@ class OrganisationServiceTest {
         FakeCentreRepository centres = new FakeCentreRepository();
         CentreId id1 = new CentreId(UUID.randomUUID());
         CentreId id2 = new CentreId(UUID.randomUUID());
-        centres.sauvegarder(new Centre(id1, SOCIETE, "C1", "Centre 1", "Africa/Algiers", 10, true));
-        centres.sauvegarder(new Centre(id2, SOCIETE, "C2", "Centre 2", "Africa/Algiers", 12, false));
+        centres.sauvegarder(new Centre(id1, SOCIETE, "C1", "Centre 1", null, "Africa/Algiers", true));
+        centres.sauvegarder(new Centre(id2, SOCIETE, "C2", "Centre 2", null, "Africa/Algiers", false));
         OrganisationService service = nouveauService(new FakeSocieteRepository(), centres);
 
         List<Centre> resultat = service.listerCentres(SOCIETE);
@@ -83,9 +85,9 @@ class OrganisationServiceTest {
     @Test
     void lister_societes_par_page_filtre_et_pagine() {
         FakeSocieteRepository societes = new FakeSocieteRepository();
-        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "RENADIAL", "Renadial", true));
-        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "NEPHRO+", "Nephro Plus", true));
-        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "CENTREX", "Centrex", true));
+        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "RENADIAL", "Renadial", null, null, null, null, null, true, MAINTENANT_SOCIETE));
+        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "NEPHRO", "Nephro Plus", null, null, null, null, null, true, MAINTENANT_SOCIETE));
+        societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "CENTREX", "Centrex", null, null, null, null, null, true, MAINTENANT_SOCIETE));
         OrganisationService service = nouveauService(societes, new FakeCentreRepository());
 
         com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> page =
@@ -99,7 +101,7 @@ class OrganisationServiceTest {
     @Test
     void televerser_lire_puis_supprimer_logo() throws Exception {
         FakeSocieteRepository societes = new FakeSocieteRepository();
-        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null, null, null, true, MAINTENANT_SOCIETE));
         OrganisationService service = nouveauService(societes, new FakeCentreRepository());
 
         byte[] png = pngValide();
@@ -116,7 +118,7 @@ class OrganisationServiceTest {
     @Test
     void televerser_logo_invalide_rejette() {
         FakeSocieteRepository societes = new FakeSocieteRepository();
-        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null, null, null, true, MAINTENANT_SOCIETE));
         OrganisationService service = nouveauService(societes, new FakeCentreRepository());
 
         assertThrows(com.hemodialyse.backend.contexts.organisation.domain.LogoRefuse.class,
@@ -134,9 +136,9 @@ class OrganisationServiceTest {
     @Test
     void societes_avec_logo() throws Exception {
         FakeSocieteRepository societes = new FakeSocieteRepository();
-        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", true));
+        societes.sauvegarder(new Societe(SOCIETE, "RENADIAL", "Renadial", null, null, null, null, null, true, MAINTENANT_SOCIETE));
         SocieteId autre = new SocieteId(UUID.randomUUID());
-        societes.sauvegarder(new Societe(autre, "AUTRE", "Autre", true));
+        societes.sauvegarder(new Societe(autre, "AUTRE", "Autre", null, null, null, null, null, true, MAINTENANT_SOCIETE));
         OrganisationService service = nouveauService(societes, new FakeCentreRepository());
         service.televerserLogoSociete(SOCIETE, pngValide());
 
@@ -151,7 +153,7 @@ class OrganisationServiceTest {
     void lister_societes_sans_filtre_pagine() {
         FakeSocieteRepository societes = new FakeSocieteRepository();
         for (int i = 0; i < 5; i++) {
-            societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "CODE" + i, "Raison " + i, true));
+            societes.sauvegarder(new Societe(new SocieteId(UUID.randomUUID()), "CODE" + i, "Raison " + i, null, null, null, null, null, true, MAINTENANT_SOCIETE));
         }
         OrganisationService service = nouveauService(societes, new FakeCentreRepository());
 

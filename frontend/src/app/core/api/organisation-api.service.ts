@@ -15,17 +15,45 @@ export type Page<T> = {
   size: number;
 };
 
+export type CoordonneesOrganisation = {
+  adresse: string | null;
+  ville: string | null;
+  wilaya: string | null;
+  telephone: string | null;
+  email: string | null;
+  siteWeb: string | null;
+};
+
 export type SocieteOrganisation = {
   id: string;
   code: string;
   raisonSociale: string;
+  nif: string | null;
+  nis: string | null;
+  rc: string | null;
+  adresse: string | null;
+  ville: string | null;
+  wilaya: string | null;
+  telephone: string | null;
+  email: string | null;
+  siteWeb: string | null;
+  piedDePage: string | null;
+  hasLogo: boolean;
   actif: boolean;
+  createdAt: string;
 };
 
 export type CentreOrganisation = {
   id: string;
   code: string;
   nom: string;
+  adresse: string | null;
+  ville: string | null;
+  wilaya: string | null;
+  telephone: string | null;
+  email: string | null;
+  siteWeb: string | null;
+  fuseauHoraire: string;
   actif: boolean;
 };
 
@@ -91,12 +119,19 @@ export class OrganisationApiService {
 
   // --- Sociétés (O1) ---
 
-  creerSociete(code: string, raisonSociale: string): Observable<IdResponse> {
-    return this.http.post<IdResponse>(`${this.base}/societes`, {code, raisonSociale});
+  creerSociete(code: string, raisonSociale: string, nif: string | null, nis: string | null,
+               rc: string | null, coordonnees: CoordonneesOrganisation | null,
+               piedDePage: string | null): Observable<IdResponse> {
+    return this.http.post<IdResponse>(`${this.base}/societes`,
+      {code, raisonSociale, nif, nis, rc, coordonnees, piedDePage});
   }
 
-  modifierSociete(id: string, code: string, raisonSociale: string, actif: boolean): Observable<void> {
-    return this.http.put<void>(`${this.base}/societes/${id}`, {code, raisonSociale, actif});
+  modifierSociete(id: string, code: string, raisonSociale: string, nif: string | null,
+                  nis: string | null, rc: string | null,
+                  coordonnees: CoordonneesOrganisation | null, piedDePage: string | null,
+                  actif: boolean): Observable<void> {
+    return this.http.put<void>(`${this.base}/societes/${id}`,
+      {code, raisonSociale, nif, nis, rc, coordonnees, piedDePage, actif});
   }
 
   listerSocietes(recherche: string, page: number, size: number): Observable<Page<SocieteOrganisation>> {
@@ -131,16 +166,17 @@ export class OrganisationApiService {
 
   // --- Centres (O1) ---
 
-  creerCentre(societeId: string, code: string, nom: string, fuseauHoraire: string,
-              capaciteTheorique: number): Observable<IdResponse> {
+  creerCentre(societeId: string, code: string, nom: string,
+              coordonnees: CoordonneesOrganisation | null,
+              fuseauHoraire: string): Observable<IdResponse> {
     return this.http.post<IdResponse>(`${this.base}/centres`,
-      {societeId, code, nom, fuseauHoraire, capaciteTheorique});
+      {societeId, code, nom, coordonnees, fuseauHoraire});
   }
 
-  modifierCentre(id: string, nom: string, fuseauHoraire: string, capaciteTheorique: number,
-                 actif: boolean): Observable<void> {
+  modifierCentre(id: string, nom: string, coordonnees: CoordonneesOrganisation | null,
+                 fuseauHoraire: string, actif: boolean): Observable<void> {
     return this.http.put<void>(`${this.base}/centres/${id}`,
-      {nom, fuseauHoraire, capaciteTheorique, actif});
+      {nom, coordonnees, fuseauHoraire, actif});
   }
 
   transfererCentre(id: string, nouvelleSocieteId: string): Observable<void> {

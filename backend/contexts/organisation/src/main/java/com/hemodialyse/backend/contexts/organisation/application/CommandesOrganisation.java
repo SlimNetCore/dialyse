@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.organisation.application;
 
+import com.hemodialyse.backend.contexts.organisation.domain.Coordonnees;
 import com.hemodialyse.backend.contexts.organisation.domain.CreneauId;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
@@ -9,17 +10,20 @@ public final class CommandesOrganisation {
     private CommandesOrganisation() {
     }
 
-    public record CreerSociete(String code, String raisonSociale) {
+    public record CreerSociete(String code, String raisonSociale, String nif, String nis, String rc,
+                               Coordonnees coordonnees, String piedDePage) {
     }
 
-    public record ModifierSociete(SocieteId id, String code, String raisonSociale, boolean actif) {
+    public record ModifierSociete(SocieteId id, String code, String raisonSociale, String nif, String nis,
+                                  String rc, Coordonnees coordonnees, String piedDePage, boolean actif) {
     }
 
-    public record CreerCentre(SocieteId societeId, String code, String nom, String fuseauHoraire,
-                              int capaciteTheorique) {
+    public record CreerCentre(SocieteId societeId, String code, String nom, Coordonnees coordonnees,
+                              String fuseauHoraire) {
     }
 
-    public record ModifierCentre(CentreId id, String nom, String fuseauHoraire, int capaciteTheorique, boolean actif) {
+    public record ModifierCentre(CentreId id, String nom, Coordonnees coordonnees, String fuseauHoraire,
+                                 boolean actif) {
     }
 
     public record TransfererCentre(CentreId id, SocieteId nouvelleSociete) {
