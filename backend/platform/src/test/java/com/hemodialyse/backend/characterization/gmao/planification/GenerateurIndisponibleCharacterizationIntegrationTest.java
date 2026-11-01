@@ -11,8 +11,8 @@ import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementReforme
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.StatutEquipement;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.TypeEquipement;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateurDevenuIndisponible;
-import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,9 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Filet de caractérisation G6 temps 2 : l'alerte « générateur indisponible » de la Planification
@@ -76,7 +74,7 @@ class GenerateurIndisponibleCharacterizationIntegrationTest {
     @Autowired
     private CacheManager caches;
     @Autowired
-    private ReferentialRepositoryPort referentiel;
+    private ReferentielsLectureUseCases lectures;
 
     private final ObjectMapper mapper = JsonMapper.builder().build();
 
@@ -308,13 +306,12 @@ class GenerateurIndisponibleCharacterizationIntegrationTest {
     @Test
     void la_livraison_de_l_evenement_ne_touche_ni_au_cache_ref_generateurs_ni_a_la_table_des_equipements() {
         caches.getCache("ref.generateurs").clear();
-        referentiel.findGenerateurs(new CenterId(CENTRE_A));
-        assertTrue(caches.getCache("ref.generateurs").get(CENTRE_A.toString()) != null, "cache amorcé");
+        lectures.listerGenerateurs(new CentreId(CENTRE_A));
+        assertNotNull(caches.getCache("ref.generateurs").get(CENTRE_A.toString()), "cache amorcé");
 
         publier(generateurHorsService(CENTRE_A));
 
-        assertTrue(caches.getCache("ref.generateurs").get(CENTRE_A.toString()) != null,
-                "l'éviction est synchrone, portée par le contrôleur du module, pas par l'écouteur");
+        assertNotNull(caches.getCache("ref.generateurs").get(CENTRE_A.toString()), "l'éviction est synchrone, portée par le contrôleur du module, pas par l'écouteur");
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM gmao_equipements WHERE centre_id = ?", Integer.class, CENTRE_A));
         assertNotEquals(0, alertes(CENTRE_A).size());
     }

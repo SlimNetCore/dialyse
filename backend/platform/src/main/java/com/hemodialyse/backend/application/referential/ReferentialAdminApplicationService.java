@@ -1,10 +1,10 @@
 package com.hemodialyse.backend.application.referential;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ImportReport;
-import com.hemodialyse.backend.domain.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialEntry;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
-import com.hemodialyse.backend.domain.referential.admin.port.ReferentialAdminUseCase;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportReport;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminUseCase;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.stereotype.Service;

@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.infrastructure.web.dto.migration;
 
-import com.hemodialyse.backend.domain.migration.model.ColumnDef;
-import com.hemodialyse.backend.domain.migration.model.EntityRun;
-import com.hemodialyse.backend.domain.migration.model.MigrationBatch;
-import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.migration.port.MigrationUseCase;
-import com.hemodialyse.backend.domain.referential.admin.model.ValidationIssue;
+import com.hemodialyse.backend.infrastructure.migration.model.ColumnDef;
+import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
+import com.hemodialyse.backend.infrastructure.migration.port.MigrationUseCase;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 

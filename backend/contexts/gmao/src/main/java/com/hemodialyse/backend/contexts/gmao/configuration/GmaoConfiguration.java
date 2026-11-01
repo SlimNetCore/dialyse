@@ -115,6 +115,7 @@ import java.math.BigDecimal;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -518,6 +519,7 @@ public class GmaoConfiguration {
 
     /** Langage publié {@code GenerateursDuCentre} : la reprise de données retrouve le générateur d'un patient. */
     @Bean
+    @Primary
     GenerateursDuCentre gmaoGenerateursDuCentre(EquipementSpringData equipements) {
         return new GenerateursDuCentreJpa(equipements);
     }

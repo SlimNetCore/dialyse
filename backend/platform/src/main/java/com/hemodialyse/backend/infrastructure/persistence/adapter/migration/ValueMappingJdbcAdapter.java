@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
-import com.hemodialyse.backend.domain.migration.port.ValueMappingPort;
+import com.hemodialyse.backend.infrastructure.migration.port.ValueMappingPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

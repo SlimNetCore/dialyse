@@ -1,12 +1,11 @@
 package com.hemodialyse.backend.contexts.comptabilite.interfaces.http;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante;
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
-import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock.Echec;
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock.Synchronisation;
+import com.hemodialyse.backend.contexts.comptabilite.interfaces.http.dto.PeriodeRequete;
+import com.hemodialyse.backend.contexts.comptabilite.interfaces.http.dto.SynchronisationReponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Adaptateur HTTP entrant de la slice C6 : comptabilisation du stock à la demande, sur 1 à 366 jours (borne historique :
@@ -54,17 +51,6 @@ public class ComptabilisationDuStockControleur {
                 requete.to(), LocalDate.now(horloge));
         return ResponseEntity.ok(new SynchronisationReponse(s.receptions(), s.joursSorties(), s.inventaires(),
                 s.complements(), s.ignorees(), s.echecs()));
-    }
-
-    public record PeriodeRequete(UUID centerId, @NotNull LocalDate from, @NotNull LocalDate to) {
-    }
-
-    /**
-     * {@code echecs} n'apparaît que s'il y en a : sans échec, la réponse est celle du legacy.
-     */
-    public record SynchronisationReponse(int receptions, int joursSorties, int inventaires, int complements,
-                                         int ignorees,
-                                         @JsonInclude(JsonInclude.Include.NON_EMPTY) List<Echec> echecs) {
     }
 }
 

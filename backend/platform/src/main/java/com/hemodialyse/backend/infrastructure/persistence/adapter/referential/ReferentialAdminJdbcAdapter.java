@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialEntry;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
-import com.hemodialyse.backend.domain.referential.admin.port.ReferentialAdminRepositoryPort;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.adapter.referential.ReferentialAdminTables.Column;

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
-import com.hemodialyse.backend.domain.migration.model.ColumnDef;
-import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
+import com.hemodialyse.backend.infrastructure.migration.model.ColumnDef;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;

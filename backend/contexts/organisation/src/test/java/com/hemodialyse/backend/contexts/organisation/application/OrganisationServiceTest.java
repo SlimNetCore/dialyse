@@ -189,9 +189,7 @@ class OrganisationServiceTest {
         centres.sauvegarder(new Centre(seul, SOCIETE, "C1", "Centre 1", null, "Africa/Algiers", true));
         OrganisationService service = nouveauService(societes, centres);
 
-        assertThrows(IllegalArgumentException.class, () -> service.modifierCentre(
-                new CommandesOrganisation.ModifierCentre(seul, "C1", "Centre 1", null,
-                        "Africa/Algiers", false)));
+        assertThrows(IllegalArgumentException.class, () -> service.desactiverCentre(seul));
     }
 
     @Test

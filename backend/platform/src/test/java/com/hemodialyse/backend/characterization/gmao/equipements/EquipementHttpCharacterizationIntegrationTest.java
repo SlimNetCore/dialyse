@@ -4,8 +4,8 @@ import com.hemodialyse.backend.contexts.gmao.domain.equipement.CalculDIndisponib
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.ChangementDeStatut;
 import com.hemodialyse.backend.characterization.gmao.plans.GoldenMaster;
 import com.hemodialyse.backend.domain.planning.port.SalleVuePort;
-import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
@@ -109,7 +105,7 @@ class EquipementHttpCharacterizationIntegrationTest {
     @Autowired
     private CacheManager caches;
     @Autowired
-    private ReferentialRepositoryPort referentiel;
+    private ReferentielsLectureUseCases lectures;
     @Autowired
     private SalleVuePort salles;
 
@@ -412,7 +408,7 @@ class EquipementHttpCharacterizationIntegrationTest {
     }
 
     private void amorcerCache() {
-        referentiel.findGenerateurs(new CenterId(CENTRE_A));
+        lectures.listerGenerateurs(new CentreId(CENTRE_A));
         assertTrue(cacheAmorce(), "le cache doit être amorcé");
     }
 
@@ -538,7 +534,7 @@ class EquipementHttpCharacterizationIntegrationTest {
         assertEquals("EN_SERVICE", db.get("STATUT"));
         assertEquals(CENTRE_A, db.get("CENTRE_ID"));
         assertEquals(ADMIN_A, db.get("CREE_PAR"));
-        assertFalse(INCONNU.equals(db.get("ID")));
+        assertNotEquals(INCONNU, db.get("ID"));
     }
 
     @Test
@@ -1009,8 +1005,7 @@ class EquipementHttpCharacterizationIntegrationTest {
         assertEquals(List.of(), historique(GEN));
         assertEquals(ADMIN_A, row(GEN).get("MODIFIE_PAR"));
         assertTrue(cacheAmorce(), "une observation n'évince pas le cache");
-        assertTrue(masquer((String) row(GEN).get("OBSERVATIONS"))
-                .equals("<HORLOGE> - Bruit anormal\n<HORLOGE> - Plus de bruit"));
+        assertEquals("<HORLOGE> - Bruit anormal\n<HORLOGE> - Plus de bruit", masquer((String) row(GEN).get("OBSERVATIONS")));
     }
 
     @Test
@@ -1163,16 +1158,16 @@ class EquipementHttpCharacterizationIntegrationTest {
     @Test
     void le_referentiel_des_generateurs_lit_la_table_apres_chaque_ecriture() throws Exception {
         // lecteur ReferentialRepositoryAdapter : générateurs non supprimés du centre, par code, statut ignoré
-        List<String> avant = referentiel.findGenerateurs(new CenterId(CENTRE_A)).stream().map(g -> g.code()).toList();
+        List<String> avant = lectures.listerGenerateurs(new CentreId(CENTRE_A)).stream().map(g -> g.code()).toList();
         assertEquals(List.of("G-01", "G-HS", "G-RF"), avant);
         assertEquals(201, post("", creation("G-00"), adminA()).status);
         assertEquals(200, post("/" + GEN + "/reformer", "{\"motif\":\"m\"}", reformeur()).status);
-        List<String> apres = referentiel.findGenerateurs(new CenterId(CENTRE_A)).stream().map(g -> g.code()).toList();
+        List<String> apres = lectures.listerGenerateurs(new CentreId(CENTRE_A)).stream().map(g -> g.code()).toList();
         assertEquals(List.of("G-00", "G-01", "G-HS", "G-RF"), apres, "un générateur réformé reste dans le référentiel");
-        assertEquals(List.of("G-01"), referentiel.findGenerateursBySalle(new CenterId(CENTRE_A), SALLE_1).stream()
+        assertEquals(List.of("G-01"), lectures.listerGenerateurs(new CentreId(CENTRE_A)).stream().filter(g -> SALLE_1.equals(g.salleId()))
                 .map(g -> g.code()).toList());
         assertEquals(200, put("/" + GEN, "{\"designation\":\"D\",\"salleId\":\"" + SALLE_2 + "\"}", adminA()).status);
-        assertEquals(List.of("G-01", "G-HS"), referentiel.findGenerateursBySalle(new CenterId(CENTRE_A), SALLE_2).stream()
+        assertEquals(List.of("G-01", "G-HS"), lectures.listerGenerateurs(new CentreId(CENTRE_A)).stream().filter(g -> SALLE_2.equals(g.salleId()))
                 .map(g -> g.code()).toList());
     }
 

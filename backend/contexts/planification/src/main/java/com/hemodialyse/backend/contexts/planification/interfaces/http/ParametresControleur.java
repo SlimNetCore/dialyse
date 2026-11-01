@@ -9,6 +9,8 @@ import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleI
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDuPlanning;
 import com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ParametresDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ParametresReponse;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,22 +72,5 @@ public class ParametresControleur {
         ParametresDuPlanning enregistres = modifier.executer(centre, new ModifierLesParametres.Commande(jours, salles,
                 demande.patientsParInfirmier(), demande.patientsParPosteEtSerie()));
         return ResponseEntity.ok(ParametresReponse.depuis(enregistres));
-    }
-
-    /**
-     * @param patientsParInfirmier    ratio de sécurité ; absent = valeur par défaut
-     * @param patientsParPosteEtSerie patients suivis par poste et par série (capacité théorique) ; absent = défaut
-     */
-    public record ParametresDemande(List<JourDeLaSemaine> joursOuverts, List<UUID> sallesIsolement,
-                                    Integer patientsParInfirmier, Integer patientsParPosteEtSerie) {
-    }
-
-    public record ParametresReponse(List<JourDeLaSemaine> joursOuverts, List<UUID> sallesIsolement,
-                                    int patientsParInfirmier, int patientsParPosteEtSerie) {
-        static ParametresReponse depuis(ParametresDuPlanning p) {
-            return new ParametresReponse(EnumSet.copyOf(p.joursOuverts()).stream().toList(),
-                    p.sallesIsolement().stream().map(SalleId::valeur).sorted(Comparator.naturalOrder()).toList(),
-                    p.ratio().patientsParInfirmier(), p.patientsParPoste().nombre());
-        }
     }
 }

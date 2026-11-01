@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.organisation.domain.MedecinId;
 import com.hemodialyse.backend.contexts.organisation.domain.MedecinRepository;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class MedecinsJdbc implements MedecinRepository {
     }
 
     @Override
+    @Cacheable(cacheNames = "ref.medecins", key = "#centreId.valeur().toString() + ':' + #page + ':' + #size")
     public PagedResult<Medecin> listerParCentre(CentreId centreId, int page, int size) {
         long total = Optional.ofNullable(jdbc.queryForObject("SELECT COUNT(*) FROM medecin WHERE center_id = ?", Long.class, centreId.valeur())).orElse(0L);
         int offset = page * size;

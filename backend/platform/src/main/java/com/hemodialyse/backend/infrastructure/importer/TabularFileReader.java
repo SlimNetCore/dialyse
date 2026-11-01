@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ImportTable;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;

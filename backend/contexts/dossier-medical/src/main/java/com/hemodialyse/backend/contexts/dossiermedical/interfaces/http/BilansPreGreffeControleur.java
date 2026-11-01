@@ -4,13 +4,15 @@ import com.hemodialyse.backend.contexts.dossiermedical.application.BilanPreGreff
 import com.hemodialyse.backend.contexts.dossiermedical.domain.BilanPreGreffe;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.BilanPreGreffeId;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EtapeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.BilanCentreRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.DemarrerBilanRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.ValiderEtapeBilanRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +44,7 @@ public class BilansPreGreffeControleur {
 
     @PostMapping
     public ResponseEntity<BilanPreGreffeId> demarrer(
-            @RequestBody DemarrerRequest req) {
+            @RequestBody DemarrerBilanRequete req) {
         List<EtapeBilan> etapes = req.etapes() == null ? List.of() : req.etapes().stream()
                 .map(e -> EtapeBilan.aFaire(e.code(), e.libelle()))
                 .toList();
@@ -57,7 +59,7 @@ public class BilansPreGreffeControleur {
     public ResponseEntity<BilanPreGreffe> validerEtape(
             @PathVariable UUID bilanId,
             @PathVariable String codeEtape,
-            @RequestBody ValiderEtapeRequest req) {
+            @RequestBody ValiderEtapeBilanRequete req) {
         return ResponseEntity.ok(useCases.validerEtape(new BilanPreGreffeId(bilanId),
                 new CentreId(req.centreId()), codeEtape, req.validePar(), Instant.now()));
     }
@@ -65,7 +67,7 @@ public class BilansPreGreffeControleur {
     @PostMapping("/{bilanId}/completion")
     public ResponseEntity<BilanPreGreffe> completer(
             @PathVariable UUID bilanId,
-            @RequestBody CentreRequest req) {
+            @RequestBody BilanCentreRequete req) {
         return ResponseEntity.ok(useCases.completer(new BilanPreGreffeId(bilanId),
                 new CentreId(req.centreId()), Instant.now()));
     }
@@ -73,23 +75,8 @@ public class BilansPreGreffeControleur {
     @PostMapping("/{bilanId}/annulation")
     public ResponseEntity<BilanPreGreffe> annuler(
             @PathVariable UUID bilanId,
-            @RequestBody CentreRequest req) {
+            @RequestBody BilanCentreRequete req) {
         return ResponseEntity.ok(useCases.annuler(new BilanPreGreffeId(bilanId),
                 new CentreId(req.centreId()), Instant.now()));
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record EtapeRequest(String code, String libelle) {
-    }
-
-    public record DemarrerRequest(UUID patientId, UUID centreId, List<EtapeRequest> etapes,
-                                  LocalDate dateDemarrage, String commentaire) {
-    }
-
-    public record ValiderEtapeRequest(UUID centreId, String validePar) {
-    }
-
-    public record CentreRequest(UUID centreId) {
     }
 }

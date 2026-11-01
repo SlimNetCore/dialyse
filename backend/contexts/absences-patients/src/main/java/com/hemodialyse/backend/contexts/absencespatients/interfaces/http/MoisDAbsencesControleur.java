@@ -1,13 +1,15 @@
 package com.hemodialyse.backend.contexts.absencespatients.interfaces.http;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hemodialyse.backend.contexts.absencespatients.application.CloturerLeMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.ConsulterLesMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.RouvrirLeMoisDAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.SessionCourante;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.UtilisateurId;
-import com.hemodialyse.backend.contexts.absencespatients.domain.MoisAbsences;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.ClotureReponse;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.MoisReponse;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.ReouvertureDemande;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.ReouvertureReponse;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,10 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -128,44 +128,5 @@ public class MoisDAbsencesControleur {
         rouvrir.executer(centre, moisARouvrir, auteur(), demande == null ? null : demande.motif());
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .body(new ReouvertureReponse(centre.valeur(), moisARouvrir.toString(), "OUVERT"));
-    }
-
-    /**
-     * Corps de la réouverture : le motif est obligatoire (vérifié par le domaine).
-     */
-    public record ReouvertureDemande(String motif) {
-    }
-
-    public record ReouvertureReponse(UUID centerId, String mois, String statut) {
-    }
-
-    /**
-     * Réponse de la clôture : l'état du mois et l'avertissement chiffré (absences encore « à qualifier » et, parmi elles, en retard).
-     */
-    public record ClotureReponse(UUID centerId, String mois, String statut, UUID cloturePar, Instant clotureLe,
-                                 long absencesAQualifierRestantes, long absencesEnRetard) {
-    }
-
-    /**
-     * Les 12 mois d'une année. {@code statut} vaut {@code OUVERT} ou {@code CLOTURE} ; les champs de dernière clôture et de dernière
-     * réouverture restent renseignés après une réouverture (l'historique complet est au journal).
-     */
-    public record MoisReponse(UUID centerId, int annee, List<Mois> mois) {
-
-        static MoisReponse depuis(CentreId centre, int annee, List<MoisAbsences> mois, boolean complet) {
-            return new MoisReponse(centre.valeur(), annee, mois.stream().map(m -> new Mois(m.mois().toString(),
-                    m.estClos() ? "CLOTURE" : "OUVERT", complet ? id(m.closPar()) : null, m.closLe(),
-                    complet ? id(m.rouvertPar()) : null, m.rouvertLe(), complet ? m.motifDeReouverture() : null)).toList());
-        }
-
-        private static UUID id(UtilisateurId utilisateur) {
-            return utilisateur == null ? null : utilisateur.valeur();
-        }
-
-        @JsonInclude(JsonInclude.Include.ALWAYS)
-        public record Mois(String mois, String statut, UUID cloturePar, Instant clotureLe, UUID rouvertPar,
-                           Instant rouvertLe,
-                           String motifDeReouverture) {
-        }
     }
 }

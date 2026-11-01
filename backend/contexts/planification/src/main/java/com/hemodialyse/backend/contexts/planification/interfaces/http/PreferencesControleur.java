@@ -21,8 +21,16 @@ import com.hemodialyse.backend.contexts.planification.domain.PreferenceDePlanifi
 import com.hemodialyse.backend.contexts.planification.domain.ProfilDePlanification;
 import com.hemodialyse.backend.contexts.planification.domain.ReglagesDePlanification;
 import com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.LigneInfirmierReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.LignePatientReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.PageReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.PreferenceDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.PreferenceReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ProfilDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ProfilReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ReglagesDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ReglagesReponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -146,55 +153,5 @@ public class PreferencesControleur {
         return ResponseEntity.ok(ReglagesReponse.depuis(modifierReglages.executer(centre, reglages)));
     }
 
-    /** @param joursAChoisir obligatoire : les jours de dialyse sont choisis par l'optimisation ({@code seancesParSemaine} requis) */
-    public record PreferenceDemande(UUID creneauPrefereId, Integer seancesParSemaine, Boolean joursAChoisir) {
-    }
-
-    public record ProfilDemande(@NotNull Integer tauxActivite, List<Competence> competences) {
-    }
-
-    /** Tous les champs sont obligatoires (un champ absent est refusé en 400, KB-PLN-02). */
-    public record ReglagesDemande(Boolean replanificationAuto, Integer heuresParVacation, Integer heuresHebdoTempsPlein,
-                                  Integer reposHebdoMin) {
-    }
-
-    public record PreferenceReponse(UUID patientId, UUID creneauPrefereId, Integer seancesParSemaine, boolean joursAChoisir) {
-        static PreferenceReponse depuis(PreferenceDePlanification p) {
-            return new PreferenceReponse(p.patient().valeur(), p.creneauPrefere() == null ? null : p.creneauPrefere().valeur(),
-                    p.seancesParSemaine(), p.joursAChoisir());
-        }
-    }
-
-    public record ProfilReponse(UUID infirmierId, int tauxActivite, List<Competence> competences) {
-        static ProfilReponse depuis(ProfilDePlanification p) {
-            return new ProfilReponse(p.infirmier().valeur(), p.tauxActivite(), p.competences().stream().sorted().toList());
-        }
-    }
-
-    public record ReglagesReponse(boolean replanificationAuto, int heuresParVacation, int heuresHebdoTempsPlein, int reposHebdoMin) {
-        static ReglagesReponse depuis(ReglagesDePlanification r) {
-            return new ReglagesReponse(r.replanificationNocturne(), r.heuresParVacation(), r.heuresHebdoTempsPlein(), r.reposHebdoMin());
-        }
-    }
-
-    public record LignePatientReponse(UUID patientId, String nom, List<JourDeLaSemaine> jours, UUID creneauActuelId,
-                                      PreferenceReponse preference) {
-        static LignePatientReponse depuis(LigneDePatient l) {
-            return new LignePatientReponse(l.patient().valeur(), l.nom(), l.jours().stream().sorted().toList(),
-                    l.creneauActuel() == null ? null : l.creneauActuel().valeur(), PreferenceReponse.depuis(l.preference()));
-        }
-    }
-
-    public record LigneInfirmierReponse(UUID infirmierId, String nom, String qualification, ProfilReponse profil) {
-        static LigneInfirmierReponse depuis(LigneDInfirmier l) {
-            return new LigneInfirmierReponse(l.infirmier().valeur(), l.nom(), l.qualification(), ProfilReponse.depuis(l.profil()));
-        }
-    }
-
-    /** Page de résultats : {@code size} est la taille effective (plafonnée), {@code total} le nombre sans pagination. */
-    public record PageReponse<T>(List<T> items, int page, int size, long total) {
-        static <S, T> PageReponse<T> depuis(PageDeResultats<S> page, java.util.function.Function<S, T> vers) {
-            return new PageReponse<>(page.elements().stream().map(vers).toList(), page.page(), page.taille(), page.total());
-        }
-    }
 }
+

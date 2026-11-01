@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.referential.ReferentialAdminApplicationService;
-import com.hemodialyse.backend.domain.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.importer.ReferentialTemplateWriter;

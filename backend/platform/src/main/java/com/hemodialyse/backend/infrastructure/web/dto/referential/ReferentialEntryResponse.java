@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.dto.referential;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialEntry;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 
 import java.util.Map;
 import java.util.UUID;

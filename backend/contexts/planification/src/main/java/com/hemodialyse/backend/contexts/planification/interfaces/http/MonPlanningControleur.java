@@ -4,24 +4,19 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.AbsenceLue;
 import com.hemodialyse.backend.contexts.planification.application.ConsulterMonPlanning;
-import com.hemodialyse.backend.contexts.planification.application.ConsulterMonPlanning.MonPlanning;
 import com.hemodialyse.backend.contexts.planification.application.DeclarerMonAbsence;
 import com.hemodialyse.backend.contexts.planification.application.ListerMesAbsences;
 import com.hemodialyse.backend.contexts.planification.application.RetirerMonAbsence;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier.CaseDeLInfirmier;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier.Creneau;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier.CreneauPersonnel;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier.JourDuPlanning;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.SemaineDeLInfirmier.Salle;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AbsenceId;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
-import com.hemodialyse.backend.contexts.planification.domain.PeriodeDAbsence;
 import com.hemodialyse.backend.contexts.planification.domain.TypeAbsence;
-import com.hemodialyse.backend.contexts.planification.interfaces.http.AbsencesDesInfirmiersControleur.AbsenceReponse;
-import com.hemodialyse.backend.contexts.planification.interfaces.http.InfirmiersControleur.InfirmierReponse;
-import com.hemodialyse.backend.contexts.planification.interfaces.http.InfirmiersControleur.PageReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.AbsenceReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.InfirmierReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.MonAbsenceDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.MonPlanningReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.PageReponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
@@ -40,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -106,22 +100,5 @@ public class MonPlanningControleur {
         CentreId centre = session.centre(centerId);
         retirer.executer(centre, session.utilisateur(), new AbsenceId(id));
         return ResponseEntity.noContent().build();
-    }
-
-    public record MonAbsenceDemande(LocalDate debut, LocalDate fin, String type, String motif) {
-        PeriodeDAbsence periode() {
-            return new PeriodeDAbsence(debut, fin);
-        }
-    }
-
-    public record MonPlanningReponse(InfirmierReponse infirmier, LocalDate debut, LocalDate fin, List<Salle> salles,
-                                     List<Creneau> creneaux, List<CreneauPersonnel> mesCreneaux,
-                                     List<JourDuPlanning> jours,
-                                     List<CaseDeLInfirmier> mesCases) {
-        static MonPlanningReponse depuis(MonPlanning p) {
-            var s = p.semaine();
-            return new MonPlanningReponse(InfirmierReponse.depuis(p.infirmier()), s.debut(), s.fin(), s.salles(), s.creneaux(),
-                    s.mesCreneaux(), s.jours(), s.mesCases());
-        }
     }
 }

@@ -5,12 +5,13 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.Antecedent;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.AntecedentId;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.ConceptCode;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.TypeAntecedent;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.EnregistrerAntecedentRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.ModifierAntecedentRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -41,7 +42,7 @@ public class AntecedentsControleur {
     }
 
     @PostMapping
-    public ResponseEntity<AntecedentId> enregistrer(@RequestBody EnregistrerRequest req) {
+    public ResponseEntity<AntecedentId> enregistrer(@RequestBody EnregistrerAntecedentRequete req) {
         AntecedentId id = useCases.enregistrer(new AntecedentUseCases.EnregistrerAntecedentCommande(
                 req.patientId(), new CentreId(req.centreId()), TypeAntecedent.valueOf(req.type()),
                 req.diagnosticSystem() == null || req.diagnosticCode() == null ? null
@@ -54,7 +55,7 @@ public class AntecedentsControleur {
     public ResponseEntity<Antecedent> modifier(
             @PathVariable UUID antecedentId,
             @RequestParam UUID centreId,
-            @RequestBody ModifierRequest req) {
+            @RequestBody ModifierAntecedentRequete req) {
         Antecedent modifie = useCases.modifier(new AntecedentUseCases.ModifierAntecedentCommande(
                 new AntecedentId(antecedentId), new CentreId(centreId),
                 req.diagnosticSystem() == null || req.diagnosticCode() == null ? null
@@ -72,18 +73,5 @@ public class AntecedentsControleur {
             @RequestParam UUID centreId) {
         useCases.supprimer(new AntecedentId(antecedentId), new CentreId(centreId));
         return ResponseEntity.noContent().build();
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record EnregistrerRequest(UUID patientId, UUID centreId, String type,
-                                     String diagnosticSystem, String diagnosticCode, String diagnosticDisplay,
-                                     String libelleLibre, LocalDate dateDebut, LocalDate dateFin,
-                                     String severite, String note) {
-    }
-
-    public record ModifierRequest(String diagnosticSystem, String diagnosticCode, String diagnosticDisplay,
-                                  String libelleLibre, LocalDate dateDebut, LocalDate dateFin,
-                                  String statutClinique, String severite, String note) {
     }
 }

@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.contexts.absencespatients.interfaces.http;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hemodialyse.backend.contexts.absencespatients.application.DetecterUnePeriodePassee;
 import com.hemodialyse.backend.contexts.absencespatients.application.SessionCourante;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.PeriodeDemande;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.RattrapageReponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -49,13 +48,5 @@ public class DetectionControleur {
                 bilan.annulees(), periode.finRamenee() ? periode.au() : null, periode.finRamenee() ? Boolean.TRUE : null,
                 bilan.echecs().isEmpty() ? null : bilan.echecs().size(),
                 bilan.joursIgnores().isEmpty() ? null : bilan.joursIgnores().stream().sorted().toList()));
-    }
-
-    public record PeriodeDemande(@NotNull LocalDate from, @NotNull LocalDate to) {
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record RattrapageReponse(int creees, int annulees, LocalDate fin, Boolean finRamenee, Integer echecs,
-                                    java.util.List<LocalDate> joursIgnores) {
     }
 }

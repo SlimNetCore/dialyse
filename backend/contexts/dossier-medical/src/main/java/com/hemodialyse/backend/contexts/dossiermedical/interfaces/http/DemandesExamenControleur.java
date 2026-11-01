@@ -5,13 +5,17 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.CategorieExamen;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamen;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamenId;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.LigneDemandeExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.AnnulerDemandeRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.DemanderExamenRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.PreleverDemandeRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.ResultatDisponibleRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.ValiderDemandeRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +48,7 @@ public class DemandesExamenControleur {
 
     @PostMapping
     public ResponseEntity<DemandeExamenId> demander(
-            @RequestBody DemanderRequest req) {
+            @RequestBody DemanderExamenRequete req) {
         List<LigneDemandeExamen> lignes = req.lignes().stream()
                 .map(l -> new LigneDemandeExamen(
                         l.id() == null ? UUID.randomUUID() : l.id(),
@@ -60,18 +64,18 @@ public class DemandesExamenControleur {
     @PutMapping("/{demandeId}/preleve")
     public ResponseEntity<Void> preleve(
             @PathVariable UUID demandeId,
-            @RequestBody PreleveRequest req) {
+            @RequestBody PreleverDemandeRequete req) {
         DemandeExamen demande = useCases.consulter(new DemandeExamenId(demandeId), new CentreId(req.centreId()));
         demande.preleve((req.maintenant() == null ? Instant.now() : req.maintenant()).atOffset(java.time.ZoneOffset.UTC));
-        // Note : la persistance de l'\u00e9tat se fait via le service d'application ;
-        // cet endpoint illustre l'appel domaine. \u00c0 compl\u00e9ter par un use case d\u00e9di\u00e9 si n\u00e9cessaire.
+        // Note : la persistance de l'état se fait via le service d'application ;
+        // cet endpoint illustre l'appel domaine. À compléter par un use case dédié si nécessaire.
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{demandeId}/resultat-disponible")
     public ResponseEntity<Void> marquerResultatDisponible(
             @PathVariable UUID demandeId,
-            @RequestBody ResultatDisponibleRequest req) {
+            @RequestBody ResultatDisponibleRequete req) {
         useCases.recevoirResultat(new DemandeExamenUseCases.RecevoirResultatCommande(
                 new DemandeExamenId(demandeId), new CentreId(req.centreId()), req.eventId(), req.maintenant()));
         return ResponseEntity.noContent().build();
@@ -80,7 +84,7 @@ public class DemandesExamenControleur {
     @PutMapping("/{demandeId}/valider")
     public ResponseEntity<Void> valider(
             @PathVariable UUID demandeId,
-            @RequestBody ValiderRequest req) {
+            @RequestBody ValiderDemandeRequete req) {
         useCases.valider(new DemandeExamenUseCases.ValiderExamenCommande(
                 new DemandeExamenId(demandeId), new CentreId(req.centreId()), req.conclusion(),
                 Instant.now()));
@@ -90,32 +94,9 @@ public class DemandesExamenControleur {
     @PutMapping("/{demandeId}/annuler")
     public ResponseEntity<Void> annuler(
             @PathVariable UUID demandeId,
-            @RequestBody AnnulerRequest req) {
+            @RequestBody AnnulerDemandeRequete req) {
         useCases.annuler(new DemandeExamenUseCases.AnnulerExamenCommande(
                 new DemandeExamenId(demandeId), new CentreId(req.centreId()), Instant.now()));
         return ResponseEntity.noContent().build();
-    }
-
-    // ---------- DTOs de requ\u00eate ----------
-
-    public record DemanderRequest(UUID patientId, UUID centreId, String prescripteurId,
-                                  LocalDate dateDemande, String categorie, boolean urgent, String motif,
-                                  List<LigneRequest> lignes) {
-    }
-
-    public record LigneRequest(UUID id, String codeSystem, String code, String codeDisplay,
-                               String libelle, String commentaire) {
-    }
-
-    public record PreleveRequest(UUID centreId, UUID eventId, Instant maintenant) {
-    }
-
-    public record ResultatDisponibleRequest(UUID centreId, UUID eventId, Instant maintenant) {
-    }
-
-    public record ValiderRequest(UUID centreId, String conclusion) {
-    }
-
-    public record AnnulerRequest(UUID centreId) {
     }
 }

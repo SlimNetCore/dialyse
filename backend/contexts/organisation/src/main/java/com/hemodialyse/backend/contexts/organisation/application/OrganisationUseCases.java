@@ -35,6 +35,10 @@ public interface OrganisationUseCases {
 
     List<Centre> listerCentres(SocieteId societeId);
 
+    void activerCentre(CentreId centreId);
+
+    void desactiverCentre(CentreId centreId);
+
     LogoDeSociete lireLogoSociete(SocieteId societeId);
 
     void televerserLogoSociete(SocieteId societeId, byte[] contenu);

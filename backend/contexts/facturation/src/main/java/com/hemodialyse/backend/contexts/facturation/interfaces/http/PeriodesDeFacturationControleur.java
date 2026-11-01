@@ -4,6 +4,9 @@ import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.CloturerLeMois;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.ConsulterLesPeriodes;
 import com.hemodialyse.backend.contexts.facturation.application.cloture.RouvrirLeMois;
+import com.hemodialyse.backend.contexts.facturation.interfaces.http.dto.CentreDemandeRequete;
+import com.hemodialyse.backend.contexts.facturation.interfaces.http.dto.ReouvertureReponse;
+import com.hemodialyse.backend.contexts.facturation.interfaces.http.dto.ReouvertureRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -96,16 +99,5 @@ public class PeriodesDeFacturationControleur {
         CentreId centre = session.centre(requete == null ? null : requete.centerId());
         rouvrir.executer(centre, moisARouvrir, session.utilisateur(), requete == null ? null : requete.motif());
         return ResponseEntity.ok(new ReouvertureReponse(centre.valeur(), moisARouvrir.toString(), "OUVERT"));
-    }
-
-    /** Corps facultatif de la clôture : seul le centre (par défaut, celui de la session). */
-    public record CentreDemandeRequete(UUID centerId) {
-    }
-
-    /** Corps de la réouverture : le motif est obligatoire (vérifié par le domaine). */
-    public record ReouvertureRequete(UUID centerId, String motif) {
-    }
-
-    public record ReouvertureReponse(UUID centerId, String mois, String statut) {
     }
 }

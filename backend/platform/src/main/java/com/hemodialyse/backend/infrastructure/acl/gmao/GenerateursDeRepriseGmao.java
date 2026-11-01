@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.gmao;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
-import com.hemodialyse.backend.domain.migration.port.GenerateursDeReprise;
+import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeReprise;
 
 import java.util.List;
 import java.util.UUID;

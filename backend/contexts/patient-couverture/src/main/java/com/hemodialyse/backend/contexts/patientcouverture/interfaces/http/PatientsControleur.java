@@ -4,13 +4,14 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.PatientUse
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Identite;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Patient;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.AdmettreRequest;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.SortieRequest;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -47,12 +48,5 @@ public class PatientsControleur {
         useCases.declarerSortie(new PatientUseCases.SortirPatientCommande(new PatientId(id), new CentreId(req.centreId()),
                 req.dateSortie(), req.auteurId()), Instant.now());
         return ResponseEntity.noContent().build();
-    }
-
-    public record AdmettreRequest(UUID centreId, String nom, String prenom, String sexe, LocalDate dateNaissance,
-                                  String numeroAssurance, LocalDate dateAdmission, UUID auteurId) {
-    }
-
-    public record SortieRequest(UUID centreId, LocalDate dateSortie, UUID auteurId) {
     }
 }

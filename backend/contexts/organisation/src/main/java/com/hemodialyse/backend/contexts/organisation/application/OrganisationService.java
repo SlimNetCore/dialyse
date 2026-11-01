@@ -68,20 +68,41 @@ public class OrganisationService implements OrganisationUseCases {
     public void modifierCentre(CommandesOrganisation.ModifierCentre commande) {
         Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
         garantirCodeCentreLibre(commande.code(), commande.id());
-        if (!commande.actif() && c.actif() && estDernierCentreActif(c)) {
-            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE_ACTIF");
+        c.modifier(commande.code(), commande.nom(), commande.coordonnees());
+        centres.sauvegarder(c);
+    }
+
+    @Override
+    public void activerCentre(CentreId centreId) {
+        changerActivationCentre(centreId, true);
+    }
+
+    @Override
+    public void desactiverCentre(CentreId centreId) {
+        Centre c = centres.trouver(centreId).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
+        if (c.actif() && estDernierCentreActif(c)) {
+            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE");
         }
-        c.modifierParametres(commande.code(), commande.nom(), commande.coordonnees(), commande.fuseauHoraire(), commande.actif());
+        changerActivationCentre(centreId, false);
+    }
+
+    private void changerActivationCentre(CentreId centreId, boolean actif) {
+        Centre c = centres.trouver(centreId).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
+        c.setActif(actif);
         centres.sauvegarder(c);
     }
 
     @Override
     public void transfererCentre(CommandesOrganisation.TransfererCentre commande) {
         Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
-        if (societes.trouver(commande.nouvelleSociete()).isEmpty())
-            throw new IllegalArgumentException("Societe inconnue");
+        if (c.societeId().equals(commande.nouvelleSociete())) {
+            throw new IllegalArgumentException("CENTRE_TRANSFERT_MEME_SOCIETE");
+        }
+        Societe cible = societes.trouver(commande.nouvelleSociete())
+                .orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
+        if (!cible.actif()) throw new IllegalArgumentException("SOCIETE_INACTIVE");
         if (c.actif() && estDernierCentreActif(c)) {
-            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE_ACTIF");
+            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE");
         }
         c.transferer(commande.nouvelleSociete());
         centres.sauvegarder(c);
@@ -128,8 +149,8 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult<Societe> listerSocietesParPage(
             String recherche, int page, int size) {
-        // RG-ORG-008 : taille plafonnée à 100.
-        return societes.listerParPage(recherche, page, Math.min(size, 100));
+        // RG-ORG-008 : page positive, taille entre 1 et 100.
+        return societes.listerParPage(recherche, Math.max(page, 0), Math.min(Math.max(size, 1), 100));
     }
 
     @Override

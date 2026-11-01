@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.seance.application.DerogationRegularisat
 import com.hemodialyse.backend.contexts.seance.domain.DerogationId;
 import com.hemodialyse.backend.contexts.seance.domain.DerogationRegularisation;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.CreerDerogationRequest;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class DerogationsRegularisationControleur {
     }
 
     @PostMapping
-    public ResponseEntity<DerogationId> creer(@RequestBody CreerRequest req) {
+    public ResponseEntity<DerogationId> creer(@RequestBody CreerDerogationRequest req) {
         DerogationId id = useCases.creer(new DerogationRegularisationUseCases.CreerDerogationCommande(
                 new SeanceId(req.seanceId()), new CentreId(req.centreId()), req.motif(), req.autorite()));
         return ResponseEntity.ok(id);
@@ -34,8 +35,5 @@ public class DerogationsRegularisationControleur {
     @GetMapping("/seance/{seanceId}")
     public ResponseEntity<DerogationRegularisation> consulterParSeance(@PathVariable UUID seanceId, @RequestParam UUID centreId) {
         return ResponseEntity.ok(useCases.consulterParSeance(new SeanceId(seanceId), new CentreId(centreId)));
-    }
-
-    public record CreerRequest(UUID seanceId, UUID centreId, String motif, String autorite) {
     }
 }

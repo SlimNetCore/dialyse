@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
-import com.hemodialyse.backend.domain.referential.admin.model.FieldType;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialField;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.FieldType;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;

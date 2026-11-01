@@ -4,13 +4,14 @@ import com.hemodialyse.backend.contexts.pilotagedirection.application.AlerteDire
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.AlerteDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.AlerteDirectionId;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.TypeAlerte;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.dto.AcquitterAlerteRequete;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.dto.GenererAlerteRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -40,7 +41,7 @@ public class AlertesDirectionControleur {
     }
 
     @PostMapping
-    public ResponseEntity<AlerteDirectionId> generer(@RequestBody GenererRequest req) {
+    public ResponseEntity<AlerteDirectionId> generer(@RequestBody GenererAlerteRequete req) {
         AlerteDirectionId id = useCases.generer(
                 new AlerteDirectionUseCases.GenererAlerteCommande(
                         new CentreId(req.centreId()), TypeAlerte.valueOf(req.type()),
@@ -51,17 +52,8 @@ public class AlertesDirectionControleur {
     @PostMapping("/{alerteId}/acquittement")
     public ResponseEntity<AlerteDirection> acquitter(
             @PathVariable UUID alerteId,
-            @RequestBody CentreRequest req) {
+            @RequestBody AcquitterAlerteRequete req) {
         return ResponseEntity.ok(useCases.acquitter(new AlerteDirectionId(alerteId),
                 new CentreId(req.centreId()), Instant.now()));
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record GenererRequest(UUID centreId, String type, String seuil,
-                                 String message, LocalDate date) {
-    }
-
-    public record CentreRequest(UUID centreId) {
     }
 }

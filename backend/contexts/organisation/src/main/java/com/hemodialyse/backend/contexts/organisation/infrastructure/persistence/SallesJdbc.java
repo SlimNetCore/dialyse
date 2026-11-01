@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.organisation.domain.Salle;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleId;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleRepository;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class SallesJdbc implements SalleRepository {
     }
 
     @Override
+    @Cacheable(cacheNames = "ref.salles", key = "#centreId.valeur().toString()")
     public List<Salle> listerParCentre(CentreId centreId) {
         return jdbc.query("SELECT id, center_id, code, nom, ouverte FROM salle WHERE center_id = ? ORDER BY code",
                 (rs, i) -> new Salle(new SalleId(rs.getObject("id", UUID.class)), new CentreId(rs.getObject("center_id", UUID.class)),

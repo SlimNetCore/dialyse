@@ -68,6 +68,14 @@ public class Centre {
         return actif;
     }
 
+    public void modifier(String code, String nom, Coordonnees coordonnees) {
+        modifierParametres(code, nom, coordonnees, this.fuseauHoraire, this.actif);
+    }
+
+    public void setActif(boolean actif) {
+        this.actif = actif;
+    }
+
     public void modifierParametres(String code, String nom, Coordonnees coordonnees, String fuseauHoraire, boolean actif) {
         if (code != null && !code.isBlank()) {
             if (!CODE.matcher(code.trim()).matches()) throw new IllegalArgumentException("CENTRE_CODE_INVALIDE");

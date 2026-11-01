@@ -12,9 +12,11 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Abs
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.MotifAbsence;
 import com.hemodialyse.backend.contexts.absencespatients.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.AnnulationDemande;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.DeclarationDemande;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.QualificationDemande;
+import com.hemodialyse.backend.contexts.absencespatients.interfaces.http.dto.RattrapageDemande;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -107,18 +108,5 @@ public class AbsencesEcrituresControleur {
         CentreId centre = session.centre(centerId);
         var ligne = annuler.executer(centre, new AbsenceId(id), demande.commentaire(), session.intervenant());
         return ResponseEntity.ok(AbsenceReponse.depuis(ligne));
-    }
-
-    public record DeclarationDemande(@NotNull UUID patientId, @NotNull LocalDate dateSeance, String motif,
-                                     String commentaire) {
-    }
-
-    public record QualificationDemande(@NotBlank String motif, String commentaire) {
-    }
-
-    public record RattrapageDemande(@NotNull LocalDate dateRattrapage) {
-    }
-
-    public record AnnulationDemande(@NotBlank String commentaire) {
     }
 }

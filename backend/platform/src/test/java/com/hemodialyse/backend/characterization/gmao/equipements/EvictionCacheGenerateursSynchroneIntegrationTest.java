@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.gmao.equipements;
 
-import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ class EvictionCacheGenerateursSynchroneIntegrationTest {
     @Autowired
     private CacheManager caches;
     @Autowired
-    private ReferentialRepositoryPort referentiel;
+    private ReferentielsLectureUseCases lectures;
 
     private MockMvc mvc;
 
@@ -73,7 +73,7 @@ class EvictionCacheGenerateursSynchroneIntegrationTest {
 
     @Test
     void apres_la_reponse_de_la_mise_hors_service_le_cache_ne_contient_plus_l_ancien_statut() throws Exception {
-        referentiel.findGenerateurs(new CenterId(CENTRE));
+        lectures.listerGenerateurs(new CentreId(CENTRE));
         assertNotNull(caches.getCache("ref.generateurs").get(CENTRE.toString()), "cache amorcé");
 
         mvc.perform(post("/api/v1/gmao/equipements/" + GENERATEUR + "/hors-service")

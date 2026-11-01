@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
-import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.migration.port.HistoricalRecordPort;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
+import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

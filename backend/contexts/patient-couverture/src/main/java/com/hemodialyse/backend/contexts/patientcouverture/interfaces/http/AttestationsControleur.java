@@ -4,13 +4,13 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.Attestatio
 import com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroitId;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.EnregistrerRequest;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -51,8 +51,5 @@ public class AttestationsControleur {
     public ResponseEntity<Void> supprimer(@PathVariable UUID id, @RequestParam UUID centreId) {
         useCases.supprimer(new AttestationDroitId(id), new CentreId(centreId));
         return ResponseEntity.noContent().build();
-    }
-
-    public record EnregistrerRequest(UUID patientId, UUID centreId, LocalDate dateDebut, LocalDate dateFin) {
     }
 }

@@ -8,11 +8,9 @@ import com.hemodialyse.backend.contexts.planification.application.ModifierLAffec
 import com.hemodialyse.backend.contexts.planification.application.RetirerLAffectation;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
-import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;
-import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
-import com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.AffectationDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.AffectationReponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -92,47 +87,5 @@ public class RoulementControleur {
         requete.setAttribute(InfirmiersControleur.ATTRIBUT_AUDIT_IDENTIFIANT, affectationId.toString());
         retirer.executer(centre, new InfirmierId(id), new AffectationId(affectationId));
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Affectation saisie : identifiants et jours lus comme du texte, jugés par le domaine (400 si inutilisables).
-     */
-    public record AffectationDemande(UUID salleId, UUID creneauId, List<String> jours) {
-        SalleId salle() {
-            return new SalleId(salleId);
-        }
-
-        CreneauId creneau() {
-            return new CreneauId(creneauId);
-        }
-
-        Set<JourDeLaSemaine> joursLus() {
-            if (jours == null || jours.isEmpty()) {
-                throw new SaisieInvalide("Au moins un jour de travail est requis");
-            }
-            Set<JourDeLaSemaine> lus = EnumSet.noneOf(JourDeLaSemaine.class);
-            for (String jour : jours) {
-                if (jour == null) {
-                    throw new SaisieInvalide("Jour de travail illisible");
-                }
-                try {
-                    lus.add(JourDeLaSemaine.valueOf(jour));
-                } catch (IllegalArgumentException e) {
-                    throw new SaisieInvalide("Jour de travail inconnu");
-                }
-            }
-            return lus;
-        }
-    }
-
-    /**
-     * @param joursEnSureffectif jours de la semaine courante où l'affectation porte la case au-dessus de l'effectif requis (avertissement)
-     */
-    public record AffectationReponse(UUID id, UUID salleId, UUID creneauId, List<JourDeLaSemaine> jours,
-                                     List<JourDeLaSemaine> joursEnSureffectif) {
-        static AffectationReponse depuis(Resultat r) {
-            return new AffectationReponse(r.affectation().id(), r.affectation().salle().valeur(), r.affectation().creneau().valeur(),
-                    r.affectation().jours(), r.joursEnSureffectif());
-        }
     }
 }

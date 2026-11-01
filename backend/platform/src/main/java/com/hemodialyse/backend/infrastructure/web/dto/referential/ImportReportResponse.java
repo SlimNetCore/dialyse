@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.dto.referential;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ImportReport;
-import com.hemodialyse.backend.domain.referential.admin.model.ValidationIssue;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportReport;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 
 import java.util.List;
 

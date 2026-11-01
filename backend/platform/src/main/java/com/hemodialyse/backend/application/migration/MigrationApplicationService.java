@@ -1,10 +1,10 @@
 package com.hemodialyse.backend.application.migration;
 
-import com.hemodialyse.backend.domain.migration.model.EntityRun;
-import com.hemodialyse.backend.domain.migration.model.MigrationBatch;
-import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.migration.port.MigrationUseCase;
-import com.hemodialyse.backend.domain.referential.admin.model.ImportTable;
+import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
+import com.hemodialyse.backend.infrastructure.migration.port.MigrationUseCase;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.cache.Cache;

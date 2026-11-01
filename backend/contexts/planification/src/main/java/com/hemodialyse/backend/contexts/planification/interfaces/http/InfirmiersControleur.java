@@ -14,18 +14,22 @@ import com.hemodialyse.backend.contexts.planification.application.ListerLesCompt
 import com.hemodialyse.backend.contexts.planification.application.ListerLesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.ModifierUnInfirmier;
 import com.hemodialyse.backend.contexts.planification.application.ReactiverUnInfirmier;
-import com.hemodialyse.backend.contexts.planification.application.RoulementsDesInfirmiers.AffectationLue;
 import com.hemodialyse.backend.contexts.planification.application.SessionCourante;
 import com.hemodialyse.backend.contexts.planification.domain.AdresseEmail;
-import com.hemodialyse.backend.contexts.planification.domain.IdentiteDeLInfirmier;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CompteId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
-import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.Matricule;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import com.hemodialyse.backend.contexts.planification.domain.Qualification;
 import com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.CompteCreeReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.CompteReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.CreerCompteDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.InfirmierDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.InfirmierReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.LierCompteDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.PageReponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -43,9 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 
 /**
  * Adapter entrant HTTP du référentiel des infirmiers et de leurs comptes (slice P2) : mêmes URLs, mêmes droits et même JSON que le
@@ -193,58 +195,5 @@ public class InfirmiersControleur {
     public ResponseEntity<InfirmierReponse> delierCompte(@RequestParam(required = false) UUID centerId, @PathVariable UUID id) {
         CentreId centre = session.centre(centerId);
         return ResponseEntity.ok(InfirmierReponse.depuis(delierCompte.executer(centre, new InfirmierId(id))));
-    }
-
-    /** Fiche saisie : tout est lu comme du texte, les valeurs sont jugées par le domaine (400 si inutilisables). */
-    public record InfirmierDemande(String matricule, String nom, String prenom, String telephone, String qualification,
-                                   Boolean habiliteIsolement) {
-        IdentiteDeLInfirmier identite() {
-            return new IdentiteDeLInfirmier(nom, prenom, telephone);
-        }
-
-        boolean habilite() {
-            return Boolean.TRUE.equals(habiliteIsolement);
-        }
-    }
-
-    public record LierCompteDemande(UUID userId) {
-    }
-
-    public record CreerCompteDemande(String identifiant, String email) {
-    }
-
-    public record AffectationReponse(UUID id, UUID salleId, UUID creneauId, List<JourDeLaSemaine> jours,
-                                     List<JourDeLaSemaine> joursEnSureffectif) {
-        static AffectationReponse depuis(AffectationLue a) {
-            return new AffectationReponse(a.id(), a.salle().valeur(), a.creneau().valeur(), a.jours(), List.of());
-        }
-    }
-
-    public record CompteReponse(UUID id, String username, String nomComplet, boolean actif) {
-        static CompteReponse depuis(Compte c) {
-            return c == null ? null : new CompteReponse(c.id().valeur(), c.identifiant(), c.nomComplet(), c.actif());
-        }
-    }
-
-    /** @param compte le compte lié à la fiche, absent si la fiche n'a pas d'accès à l'application */
-    public record InfirmierReponse(UUID id, String matricule, String nom, String prenom, String telephone,
-                                   Qualification qualification, boolean habiliteIsolement, boolean actif,
-                                   List<AffectationReponse> affectations, CompteReponse compte) {
-        static InfirmierReponse depuis(FicheDetaillee f) {
-            return new InfirmierReponse(f.id(), f.matricule(), f.nom(), f.prenom(), f.telephone(), f.qualification(),
-                    f.habiliteIsolement(), f.actif(), f.roulement().stream().map(AffectationReponse::depuis).toList(),
-                    CompteReponse.depuis(f.compte()));
-        }
-    }
-
-    /** @param motDePasseTemporaire communiqué une seule fois : il n'est jamais relisible ensuite */
-    public record CompteCreeReponse(InfirmierReponse infirmier, String motDePasseTemporaire) {
-    }
-
-    /** Page de résultats : {@code size} est la taille effective (plafonnée), {@code total} le nombre sans pagination. */
-    public record PageReponse<T>(List<T> items, int page, int size, long total) {
-        static <S, T> PageReponse<T> depuis(PageDeResultats<S> page, Function<S, T> vers) {
-            return new PageReponse<>(page.elements().stream().map(vers).toList(), page.page(), page.taille(), page.total());
-        }
     }
 }

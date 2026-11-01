@@ -4,12 +4,13 @@ import com.hemodialyse.backend.contexts.dossiermedical.application.AllergieUseCa
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Allergie;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.AllergieId;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.TypeAllergie;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.EnregistrerAllergieRequete;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.ModifierAllergieRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -40,7 +41,7 @@ public class AllergiesControleur {
     }
 
     @PostMapping
-    public ResponseEntity<AllergieId> enregistrer(@RequestBody EnregistrerRequest req) {
+    public ResponseEntity<AllergieId> enregistrer(@RequestBody EnregistrerAllergieRequete req) {
         AllergieId id = useCases.enregistrer(new AllergieUseCases.EnregistrerAllergieCommande(
                 req.patientId(), new CentreId(req.centreId()), req.allergene(),
                 TypeAllergie.valueOf(req.type()), req.reaction(), req.dateDebut(), req.dateFin(),
@@ -52,7 +53,7 @@ public class AllergiesControleur {
     public ResponseEntity<Allergie> modifier(
             @PathVariable UUID allergieId,
             @RequestParam UUID centreId,
-            @RequestBody ModifierRequest req) {
+            @RequestBody ModifierAllergieRequete req) {
         Allergie modifie = useCases.modifier(new AllergieUseCases.ModifierAllergieCommande(
                 new AllergieId(allergieId), new CentreId(centreId), req.reaction(),
                 req.dateDebut(), req.dateFin(),
@@ -68,16 +69,5 @@ public class AllergiesControleur {
             @RequestParam UUID centreId) {
         useCases.supprimer(new AllergieId(allergieId), new CentreId(centreId));
         return ResponseEntity.noContent().build();
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record EnregistrerRequest(UUID patientId, UUID centreId, String allergene, String type,
-                                     String reaction, LocalDate dateDebut, LocalDate dateFin,
-                                     String severite, String note) {
-    }
-
-    public record ModifierRequest(String reaction, LocalDate dateDebut, LocalDate dateFin,
-                                  String statutClinique, String severite, String note) {
     }
 }

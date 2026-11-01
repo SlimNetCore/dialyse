@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController
+@RestController("organisationSallesControleur")
 @RequestMapping("/api/v1/organisation/salles")
 public class SallesControleur {
     private final OrganisationUseCases service;

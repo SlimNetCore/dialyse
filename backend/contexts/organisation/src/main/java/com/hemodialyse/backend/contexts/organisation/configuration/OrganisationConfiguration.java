@@ -25,6 +25,7 @@ import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.ReferentielsCommunsJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SocietesJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.GenerateursDuCentreMisEnCache;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,8 +79,14 @@ public class OrganisationConfiguration {
     }
 
     @Bean
+    public GenerateursDuCentre generateursDuCentreMisEnCache(GenerateursDuCentre generateurs) {
+        return new GenerateursDuCentreMisEnCache(generateurs);
+    }
+
+    @Bean
     public ReferentielsLectureUseCases referentielsLectureUseCases(
-            CatalogueDArticles catalogue, GenerateursDuCentre generateurs) {
+            CatalogueDArticles catalogue,
+            @org.springframework.beans.factory.annotation.Qualifier("generateursDuCentreMisEnCache") GenerateursDuCentre generateurs) {
         return new ReferentielsLectureService(catalogue, generateurs);
     }
 

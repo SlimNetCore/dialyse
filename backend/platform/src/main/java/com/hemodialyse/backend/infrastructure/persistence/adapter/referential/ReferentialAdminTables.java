@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 
 import java.util.EnumMap;
 import java.util.List;

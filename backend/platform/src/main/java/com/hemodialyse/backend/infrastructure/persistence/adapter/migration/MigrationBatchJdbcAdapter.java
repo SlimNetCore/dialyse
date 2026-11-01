@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
-import com.hemodialyse.backend.domain.migration.model.EntityRun;
-import com.hemodialyse.backend.domain.migration.model.MigrationBatch;
-import com.hemodialyse.backend.domain.migration.port.MigrationBatchRepositoryPort;
-import com.hemodialyse.backend.domain.referential.admin.model.ValidationIssue;
+import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
+import com.hemodialyse.backend.infrastructure.migration.port.MigrationBatchRepositoryPort;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.jdbc.core.JdbcTemplate;

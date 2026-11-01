@@ -10,9 +10,10 @@ import com.hemodialyse.backend.contexts.planification.domain.Identifiants.Absenc
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.InfirmierId;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
-import com.hemodialyse.backend.contexts.planification.domain.PeriodeDAbsence;
 import com.hemodialyse.backend.contexts.planification.domain.TypeAbsence;
-import com.hemodialyse.backend.contexts.planification.interfaces.http.InfirmiersControleur.PageReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.AbsenceDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.AbsenceReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.PageReponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -90,21 +90,5 @@ public class AbsencesDesInfirmiersControleur {
         CentreId centre = session.centre(centerId);
         retirer.executer(centre, new AbsenceId(id), session.administrateur());
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Absence saisie : identifiants, dates et type lus tels quels, jugés par le domaine (400 si inutilisables).
-     */
-    public record AbsenceDemande(UUID infirmierId, LocalDate debut, LocalDate fin, String type, String motif) {
-        PeriodeDAbsence periode() {
-            return new PeriodeDAbsence(debut, fin);
-        }
-    }
-
-    public record AbsenceReponse(UUID id, UUID infirmierId, LocalDate debut, LocalDate fin, TypeAbsence type,
-                                 String motif) {
-        static AbsenceReponse depuis(AbsenceLue a) {
-            return new AbsenceReponse(a.id(), a.infirmier(), a.debut(), a.fin(), a.type(), a.motif());
-        }
     }
 }

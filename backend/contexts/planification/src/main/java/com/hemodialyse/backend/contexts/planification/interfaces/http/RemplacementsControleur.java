@@ -10,6 +10,8 @@ import com.hemodialyse.backend.contexts.planification.domain.Identifiants.Infirm
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.RemplacementId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleId;
 import com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.RemplacementDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.RemplacementReponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -71,15 +72,5 @@ public class RemplacementsControleur {
         CentreId centre = session.centre(centerId);
         annuler.executer(centre, new RemplacementId(id));
         return ResponseEntity.noContent().build();
-    }
-
-    public record RemplacementDemande(LocalDate date, UUID salleId, UUID creneauId, UUID infirmierId, UUID remplaceId) {
-    }
-
-    public record RemplacementReponse(UUID id, LocalDate date, UUID salleId, UUID creneauId, UUID infirmierId,
-                                      UUID remplaceId) {
-        static RemplacementReponse depuis(RemplacementLu r) {
-            return new RemplacementReponse(r.id(), r.date(), r.salle(), r.creneau(), r.infirmier(), r.remplace());
-        }
     }
 }

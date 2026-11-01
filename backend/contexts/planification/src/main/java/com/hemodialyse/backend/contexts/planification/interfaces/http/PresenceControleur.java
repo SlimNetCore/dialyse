@@ -14,9 +14,9 @@ import com.hemodialyse.backend.contexts.planification.domain.Identifiants.SalleI
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import com.hemodialyse.backend.contexts.planification.domain.Presence.AlertePresence;
 import com.hemodialyse.backend.contexts.planification.domain.Presence.Candidat;
-import com.hemodialyse.backend.contexts.planification.domain.Presence.ChargeInfirmier;
 import com.hemodialyse.backend.contexts.planification.domain.Presence.SemainePresence;
 import com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.ChargeReponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
@@ -143,8 +143,5 @@ public class PresenceControleur {
         } catch (DateTimeException e) {
             throw new SaisieInvalide("Mois invalide (format attendu : yyyy-MM)");
         }
-    }
-
-    public record ChargeReponse(List<ChargeInfirmier> items, long total, int page, int size, double moyenne) {
     }
 }

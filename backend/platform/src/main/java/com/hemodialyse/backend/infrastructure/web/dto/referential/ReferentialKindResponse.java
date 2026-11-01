@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.dto.referential;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialField;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 
 import java.util.List;
 

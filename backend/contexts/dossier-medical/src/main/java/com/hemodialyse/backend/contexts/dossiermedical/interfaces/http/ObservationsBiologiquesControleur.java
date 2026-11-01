@@ -3,13 +3,13 @@ package com.hemodialyse.backend.contexts.dossiermedical.interfaces.http;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ObservationBiologiqueUseCases;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.ObservationBiologique;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.ObservationBiologiqueId;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.EnregistrerObservationRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -41,7 +41,7 @@ public class ObservationsBiologiquesControleur {
 
     @PostMapping
     public ResponseEntity<ObservationBiologiqueId> enregistrer(
-            @RequestBody EnregistrerRequest req) {
+            @RequestBody EnregistrerObservationRequete req) {
         ObservationBiologiqueId id = useCases.enregistrer(
                 new ObservationBiologiqueUseCases.EnregistrerObservationCommande(
                         req.patientId(), new CentreId(req.centreId()), req.code(), req.libelle(),
@@ -49,13 +49,5 @@ public class ObservationsBiologiquesControleur {
                         req.dateObservation(), req.prescripteurId(), req.laboratoire(),
                         req.commentaire()), Instant.now());
         return ResponseEntity.ok(id);
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record EnregistrerRequest(UUID patientId, UUID centreId, String code, String libelle,
-                                     String valeur, String unite, Double seuilBas, Double seuilHaut,
-                                     LocalDate dateObservation, String prescripteurId,
-                                     String laboratoire, String commentaire) {
     }
 }

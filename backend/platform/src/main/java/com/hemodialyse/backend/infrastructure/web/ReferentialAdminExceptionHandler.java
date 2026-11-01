@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialValidationException;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

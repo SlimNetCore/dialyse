@@ -1,6 +1,6 @@
 ---
 slice: organisation-o5-retrait-bc-referential
-status: planned
+status: done
 date: 2026-11-01
 order: 5
 context: organisation
@@ -33,6 +33,27 @@ des adaptateurs, pas par changement d'URL.
 | `DomainServiceConfig` (beans `societeDomainService`, `referentialDomainService`, `referentialAdminDomainService`)                                                                                             | services de domaine                                                               | beans `OrganisationConfiguration` et suivantes                                                                                                          |
 | Frontend `societe-api.service.ts`, `societe-admin-api.service.ts`, `referential-api.service.ts`, `referential-admin-api.service.ts`, usages dans `auth-api`, `backend-api`, `direction-api`, `stock-api`      | URLs `/api/v1/societes`, `/api/v1/referentials/*`, `/api/v1/admin/referentials/*` | nouvelles URLs `/api/v1/organisation/*` **ou** maintien des URLs avec ré-implémentation (recommandé : maintenir les URLs, éviter la migration frontend) |
 
+## Décisions de cutover (2026-11-01, en cours d'exécution)
+
+- **URLs stables** : le nouveau `SocietesControleur` sert à la fois `/api/v1/organisation/societes`
+  (canonique) et `/api/v1/societes` (legacy) avec les mêmes DTOs/champs (`SocieteReponse` :
+  `hasLogo`, `createdAt`, `centres[]`, `piedDePage`…) — le frontend existant (`societe-api.service.ts`) fonctionne sans
+  changement. `ReferentielsLegacyControleur`
+  fait de même pour `/api/v1/referentials/*` (forme `RefItem` historique, `GUERRI` inclus,
+  filtre `salleId` sur les générateurs).
+- **Contrat d'erreur legacy reproduit** : `@ExceptionHandler(IllegalArgumentException)`
+  local au contrôleur — codes métier → 422 `{code, detail}` avec les messages français
+  historiques (`SOCIETE_DERNIER_CENTRE` → « …son dernier centre »), références inconnues → 404.
+  Les `BusinessException` legacy mappaient en 422 via le handler global ; le nouveau code
+  lève `IllegalArgumentException("CODE")`, d'où la nécessité de ce mapping (prioritaire sur
+  le handler global qui mettrait 400).
+- **Relocation de l'admin générique ANNULÉE** : le code `referential/admin` est consommé par
+  `bc-migration` (module amont de `platform`) ; le déplacer dans `platform` casse la
+  compilation (dépendance circulaire). Il reste dans `bc-referential` jusqu'à la requalification
+  de la migration de données (écart n° 4).
+- **Preuve de cutover** : `SocieteIntegrationTest` (legacy, platform) doit passer sur la
+  nouvelle stack avant suppression des adapters/DTOs/`DomainServiceConfig` et du module.
+
 ## Écarts de parité (à combler avant cutover)
 
 1. **Logos société** (`SocieteLogoService`, upload/download `/{id}/logo`) : pas d'équivalent
@@ -63,20 +84,42 @@ des adaptateurs, pas par changement d'URL.
 Mêmes tables (`societes`, `centers`, `salle`, `position_creneau`, référentiels) ; aucune
 migration. Garde `TableDeLOrganisationTest` déjà verte et couvrant le périmètre.
 
-## Progression parite (2026-11-01)
+## Progression parite (2026-11-01) — cutover exécuté
 
 - [x] Consulter une societe (GET /api/v1/organisation/societes/{id}) et lister tous les
   centres d'une societe (GET /api/v1/organisation/centres?societeId=) : ajoutes (use cases
-  consulterSociete/listerCentres, tests OrganisationServiceTest 4/4 verts,
+  consulterSociete/listerCentres, tests OrganisationServiceTest verts,
   SDK frontend OrganisationApiService + specs vitest a jour, check-arch 0 violation).
-- [x] Activer/desactiver (societe et centre) : deja couvert via modifierSociete /
-  modifierCentre (flag ctif) - pas de nouvel endpoint requis.
-- [x] Transfert de centre : deja couvert (POST /centres/{id}/transferer).
-- [ ] Logos societe : a porter (O1 bis) ou conserver en adapter platform documente.
-- [ ] Liste societes paginee + recherche (legacy : page/size/q) : listerSocietes ()`n retourne la liste complete - a
-  paginer avant cutover (regle pagination obligatoire).
-- [ ] Referentiels non couverts (centres-payeurs, agences, caisses, transporteurs,
-  categories-transport, forfaits, etats-patients, articles, generateurs) : a repartir
+- [x] Activer/desactiver (societe et centre) : use cases dedies (activer/desactiverCentre,
+  flag actif societe) ; garde dernier-centre-actif (RG-ORG-002/004/013).
+- [x] Transfert de centre : use case dedie + gardes meme-societe / cible inactive.
+- [x] Logos societe : portes (upload/download/suppression/idsWithLogo, 422 `violations`,
+  headers securite) — preuve `SocieteIntegrationTest` 12/12 verte sur la nouvelle stack.
+- [x] Liste societes paginee + recherche (RG-ORG-008, cap 100).
+- [x] Referentiels orphelins en lecture seule (`ReferentielsCommunsRepository`,
+  centres-payeurs/agences/caisses/transporteurs/categories/forfaits/etats) + facade legacy
+  `/api/v1/referentials/*` (forme `RefItem`, `GUERRI`, filtre `salleId`) ; articles/generateurs
+  via langages publies (catalogue stock, GMAO).
+- [x] Stack societe legacy supprimee : `SocieteRestController`, `ReferentialRestController`,
+  `SocieteRequests`, `SocieteResponse`, `SocieteRepositoryAdapter`, `ReferentialRepositoryAdapter`,
+  beans `societeDomainService`/`referentialDomainService` (DomainServiceConfig), packages
+  `domain/organisation` + `domain/referential` + tests.
+- [x] Stack admin (`referential/admin`) + migration (`domain/migration`) relocalisees en
+  `platform/.../infrastructure/{referential/admin,migration}` (outillage technique, pas du
+  domaine) : fonctionnalites `/api/v1/admin/referentials` et `/api/v1/admin/migration`
+  preservees (frontend inchange).
+- [x] Modules `bc-referential` + `bc-migration` retires du build (pom racine, platform pom,
+  Dockerfile) ; caches `ref.medecins/salles/positions/generateurs` rebranches sur les
+  nouvelles lectures (memes noms, eviction inchangee) ; 4 tests migres vers le nouveau stack.
+- [x] Regle transverse appliquee : plus de records dans les controleurs (DTO dans
+  `interfaces/http/dto/`, organisation en reference) ; erreurs centralisees dans un advice
+  par contexte (`ErreursDeLOrganisationAdvice`, `ErreursDeLaGmaoAdvice`, + advices existants
+  absences/compta/facturation/planification/stock ; 4 contextes sans rien a centraliser,
+  documente par les sous-agents).
+- [ ] Reste : `ReferentialAdminTables`, entites JPA `SocieteJpaEntity`/`CenterJpaEntity`
+  (utilisees par auth/licence : conservees, hors perimetre O5).
+- [ ] Cache `ref.*` : cles incluant `centerId`, TTL `CACHE_TTL_REFERENTIALS` ; invalider
+  a la bascule.
   vers Organisation ou leurs contextes proprietaires.
 - [ ] Admin generique + import/export + templates + migration de donnees : decision ADR requise.
 

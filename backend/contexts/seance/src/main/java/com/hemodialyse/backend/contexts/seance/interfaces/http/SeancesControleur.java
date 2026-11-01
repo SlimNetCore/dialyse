@@ -6,6 +6,9 @@ import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.PecId;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.CentreRequest;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.CreerSeanceRequest;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ForfaitRequest;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,7 +28,7 @@ public class SeancesControleur {
     }
 
     @PostMapping
-    public ResponseEntity<SeanceId> creer(@RequestBody CreerRequest req) {
+    public ResponseEntity<SeanceId> creer(@RequestBody CreerSeanceRequest req) {
         SeanceId id = useCases.creer(new SeanceUseCases.CreerSeanceCommande(
                 new PatientId(req.patientId()), new CentreId(req.centreId()), new PecId(req.pecId()),
                 req.dateSeance(), req.typeSeance()), java.time.Instant.now());
@@ -95,15 +98,5 @@ public class SeancesControleur {
                         req.auteur() == null ? "system" : req.auteur(), java.time.OffsetDateTime.now()),
                 req.montantSurcharge(), req.auteur(), java.time.Instant.now()));
         return ResponseEntity.noContent().build();
-    }
-
-    public record CreerRequest(UUID patientId, UUID centreId, UUID pecId, LocalDate dateSeance, String typeSeance) {
-    }
-
-    public record CentreRequest(UUID centreId) {
-    }
-
-    public record ForfaitRequest(UUID centreId, UUID forfaitId, String code, String libelle,
-                                 java.math.BigDecimal prixHt, java.math.BigDecimal montantSurcharge, String auteur) {
     }
 }

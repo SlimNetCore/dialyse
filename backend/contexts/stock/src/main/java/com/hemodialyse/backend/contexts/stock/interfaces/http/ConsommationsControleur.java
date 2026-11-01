@@ -2,9 +2,10 @@ package com.hemodialyse.backend.contexts.stock.interfaces.http;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.consommations.GestionDesConsommations;
-import com.hemodialyse.backend.contexts.stock.domain.consommations.ConsommationDeSeance;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.DemiJournee;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.PerimetreDeSortie;
+import com.hemodialyse.backend.contexts.stock.interfaces.http.dto.ConsommationReponse;
+import com.hemodialyse.backend.contexts.stock.interfaces.http.dto.FavoriReponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -55,23 +55,6 @@ public class ConsommationsControleur {
     @GetMapping("/consommations-de-seance/{seanceId}")
     public ConsommationReponse consommation(@PathVariable UUID seanceId, @RequestParam(required = false) UUID centerId) {
         return ConsommationReponse.depuis(consommations.consulter(session.centre(centerId), seanceId));
-    }
-
-    record FavoriReponse(UUID articleId, BigDecimal quantiteSortie, BigDecimal reste) {
-    }
-
-    record ImputationReponse(UUID id, UUID articleId, UUID lotId, BigDecimal quantite, String alerte) {
-    }
-
-    record ConsommationReponse(UUID seanceId, UUID patientId, UUID sortieId, List<ImputationReponse> imputations) {
-        static ConsommationReponse depuis(ConsommationDeSeance c) {
-            return new ConsommationReponse(c.seanceId(), c.patientId(), c.sortieId(), c.imputations().stream()
-                    .map(i -> new ImputationReponse(i.id(), i.articleId(), i.lotId(), i.quantite(), i.alerte())).toList());
-        }
-    }
-
-
-    record ParametresRequete(UUID centerId, boolean sortiePourSeancesActivee) {
     }
 }
 

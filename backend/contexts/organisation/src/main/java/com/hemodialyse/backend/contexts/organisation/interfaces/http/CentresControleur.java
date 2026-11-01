@@ -3,7 +3,9 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.Centre;
-import com.hemodialyse.backend.contexts.organisation.domain.Coordonnees;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerCentreRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierCentreRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.TransfererCentreRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.SocieteId;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,7 @@ public class CentresControleur {
     @PutMapping("/{id}")
     public void modifier(@PathVariable UUID id, @RequestBody ModifierCentreRequete req) {
         service.modifierCentre(new CommandesOrganisation.ModifierCentre(new CentreId(id), req.code(),
-                req.nom(), req.coordonnees(), req.fuseauHoraire(), req.actif()));
+                req.nom(), req.coordonnees()));
     }
 
     @PostMapping("/{id}/transferer")
@@ -50,16 +52,5 @@ public class CentresControleur {
     @GetMapping("/{id}/parametres")
     public Centre parametres(@PathVariable UUID id) {
         return service.lireParametresCentre(new CentreId(id));
-    }
-
-    public record CreerCentreRequete(UUID societeId, String code, String nom, Coordonnees coordonnees,
-                                     String fuseauHoraire) {
-    }
-
-    public record ModifierCentreRequete(String code, String nom, Coordonnees coordonnees,
-                                        String fuseauHoraire, boolean actif) {
-    }
-
-    public record TransfererCentreRequete(UUID nouvelleSocieteId) {
     }
 }

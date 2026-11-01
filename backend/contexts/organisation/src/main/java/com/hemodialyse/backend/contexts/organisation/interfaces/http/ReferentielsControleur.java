@@ -3,6 +3,12 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsOrganisationUseCases;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerMachineRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerMedecinRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerProtocoleRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierMachineRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierMedecinRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierProtocoleRequete;
 import com.hemodialyse.backend.contexts.organisation.domain.DetailPayeur;
 import com.hemodialyse.backend.contexts.organisation.domain.EntreeReferentiel;
 import com.hemodialyse.backend.contexts.organisation.domain.Machine;
@@ -140,23 +146,5 @@ public class ReferentielsControleur {
     @GetMapping("/etats-patients")
     public List<EntreeReferentiel> listerEtatsPatients() {
         return communs.etatsPatients();
-    }
-
-    public record CreerMedecinRequete(UUID centreId, String nom, String prenom, String specialite) {
-    }
-
-    public record ModifierMedecinRequete(String nom, String prenom, String specialite) {
-    }
-
-    public record CreerMachineRequete(UUID centreId, String code, String libelle) {
-    }
-
-    public record ModifierMachineRequete(String code, String libelle, Boolean actif) {
-    }
-
-    public record CreerProtocoleRequete(UUID centreId, String code, String libelle) {
-    }
-
-    public record ModifierProtocoleRequete(String code, String libelle) {
     }
 }

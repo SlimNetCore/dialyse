@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.application.ExportSynt
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.ExportSynthese;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.ExportSyntheseId;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.FormatExport;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.dto.GenererExportRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,16 +31,11 @@ public class ExportsSyntheseControleur {
     }
 
     @PostMapping
-    public ResponseEntity<ExportSyntheseId> generer(@RequestBody GenererRequest req) {
+    public ResponseEntity<ExportSyntheseId> generer(@RequestBody GenererExportRequete req) {
         ExportSyntheseId id = useCases.generer(
                 new ExportSyntheseUseCases.GenererExportCommande(
                         new CentreId(req.centreId()), req.periode(),
                         FormatExport.valueOf(req.format())), Instant.now());
         return ResponseEntity.ok(id);
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record GenererRequest(UUID centreId, String periode, String format) {
     }
 }

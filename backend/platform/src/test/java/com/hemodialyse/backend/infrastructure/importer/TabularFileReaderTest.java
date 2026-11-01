@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.importer;
 
-import com.hemodialyse.backend.domain.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialField;
-import com.hemodialyse.backend.domain.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 

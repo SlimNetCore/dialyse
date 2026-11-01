@@ -1,10 +1,10 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
-import com.hemodialyse.backend.domain.migration.model.IdMapping;
-import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.migration.port.MigrationRollbackPort;
-import com.hemodialyse.backend.domain.migration.port.OpeningBalancePort;
+import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
+import com.hemodialyse.backend.infrastructure.migration.port.MigrationRollbackPort;
+import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,13 +4,15 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.PecUseCase
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Pec;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PecId;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.CloturerRequest;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.CreerRequest;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.ValiderRequest;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -70,16 +72,5 @@ public class PecControleur {
     public ResponseEntity<Void> supprimer(@PathVariable UUID pecId, @RequestParam UUID centreId) {
         useCases.supprimer(new PecId(pecId), new CentreId(centreId));
         return ResponseEntity.noContent().build();
-    }
-
-    public record CreerRequest(UUID patientId, UUID centreId, LocalDate dateDebutDemande, LocalDate dateFinDemande,
-                               UUID forfaitDemandeId, UUID auteurId) {
-    }
-
-    public record ValiderRequest(UUID centreId, LocalDate dateDebutEffectif, LocalDate dateFinEffectif,
-                                 UUID forfaitEffectifId) {
-    }
-
-    public record CloturerRequest(UUID centreId) {
     }
 }

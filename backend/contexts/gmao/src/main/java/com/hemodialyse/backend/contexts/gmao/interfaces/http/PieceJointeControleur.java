@@ -9,16 +9,13 @@ import com.hemodialyse.backend.contexts.gmao.application.piecejointe.RetirerPiec
 import com.hemodialyse.backend.contexts.gmao.application.piecejointe.TelechargerPieceJointe;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.InterventionId;
 import com.hemodialyse.backend.contexts.gmao.domain.piecejointe.PieceJointeId;
-import com.hemodialyse.backend.contexts.gmao.domain.piecejointe.TypeDePieceInconnu;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,18 +93,5 @@ public class PieceJointeControleur {
         retirer.executer(new InterventionId(interventionId), session.centre(), new PieceJointeId(documentId),
                 session.utilisateur());
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Type de pièce inconnu : 400 {@code BAD_REQUEST} dont le détail reproduit le texte observé du legacy (KB-GMAO-63 : nom de
-     * l'énumération legacy {@code TypeDocumentIntervention}), le contrat HTTP étant verrouillé par les golden masters.
-     */
-    @ExceptionHandler(TypeDePieceInconnu.class)
-    ProblemDetail typeInconnu(TypeDePieceInconnu erreur) {
-        ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        probleme.setTitle("Requete invalide");
-        probleme.setDetail("No enum constant com.hemodialyse.backend.domain.gmao.model.TypeDocumentIntervention." + erreur.code());
-        probleme.setProperty("code", "BAD_REQUEST");
-        return probleme;
     }
 }

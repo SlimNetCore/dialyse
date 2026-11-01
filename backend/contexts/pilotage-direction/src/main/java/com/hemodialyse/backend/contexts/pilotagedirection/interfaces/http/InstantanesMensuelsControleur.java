@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.InstantaneMensuelUseCases;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.InstantaneMensuel;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.InstantaneMensuelId;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.dto.CapturerInstantaneRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.Mois;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
@@ -39,16 +40,11 @@ public class InstantanesMensuelsControleur {
     }
 
     @PostMapping
-    public ResponseEntity<InstantaneMensuelId> capturer(@RequestBody CapturerRequest req) {
+    public ResponseEntity<InstantaneMensuelId> capturer(@RequestBody CapturerInstantaneRequete req) {
         InstantaneMensuelId id = useCases.capturer(
                 new InstantaneMensuelUseCases.CapturerInstantaneCommande(
                         new CentreId(req.centreId()), Mois.de(req.annee(), req.mois()),
                         req.donnees()), Instant.now());
         return ResponseEntity.ok(id);
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record CapturerRequest(UUID centreId, int annee, int mois, String donnees) {
     }
 }

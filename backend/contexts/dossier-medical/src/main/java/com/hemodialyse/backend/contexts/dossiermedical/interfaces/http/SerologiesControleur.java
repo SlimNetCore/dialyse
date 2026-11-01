@@ -5,14 +5,13 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.ResultatSerologie;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Serologie;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.SerologieId;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.TypeSerologie;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.dto.EnregistrerSerologieRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -43,20 +42,12 @@ public class SerologiesControleur {
 
     @PostMapping
     public ResponseEntity<SerologieId> enregistrer(
-            @RequestBody EnregistrerRequest req) {
+            @RequestBody EnregistrerSerologieRequete req) {
         SerologieId id = useCases.enregistrer(new SerologieUseCases.EnregistrerSerologieCommande(
                 req.patientId(), new CentreId(req.centreId()), req.prescripteurId(),
                 req.datePrelevement(), TypeSerologie.valueOf(req.typeSerologie()),
                 ResultatSerologie.valueOf(req.resultat()), req.valeur(), req.unite(),
                 req.dateResultat(), req.laboratoire(), req.commentaire()), Instant.now());
         return ResponseEntity.ok(id);
-    }
-
-    // ---------- DTOs de requête ----------
-
-    public record EnregistrerRequest(UUID patientId, UUID centreId, String prescripteurId,
-                                     LocalDate datePrelevement, String typeSerologie, String resultat,
-                                     String valeur, String unite, Instant dateResultat,
-                                     String laboratoire, String commentaire) {
     }
 }

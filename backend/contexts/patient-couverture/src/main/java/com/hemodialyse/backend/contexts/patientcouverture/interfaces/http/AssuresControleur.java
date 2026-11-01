@@ -5,12 +5,13 @@ import com.hemodialyse.backend.contexts.patientcouverture.domain.Assure;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.AssureId;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.TypeAssure;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.AffecterRequest;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.dto.ModifierRequest;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -50,16 +51,5 @@ public class AssuresControleur {
     @GetMapping("/principal")
     public ResponseEntity<Assure> consulterPrincipal(@RequestParam UUID patientId, @RequestParam UUID centreId) {
         return ResponseEntity.ok(useCases.consulterPrincipal(new PatientId(patientId), new CentreId(centreId)));
-    }
-
-    public record AffecterRequest(UUID patientId, UUID centreId, String numeroAssurance, String nom, String prenom,
-                                  String sexe, LocalDate dateNaissance, String telPersonnel, String telMobile,
-                                  String telBureau, String adresse, String groupeSanguin, String typeAssure,
-                                  UUID auteurId) {
-    }
-
-    public record ModifierRequest(String nom, String prenom, String sexe, LocalDate dateNaissance, String telPersonnel,
-                                  String telMobile, String telBureau, String adresse, String groupeSanguin,
-                                  String typeAssure) {
     }
 }

@@ -13,11 +13,12 @@ import com.hemodialyse.backend.contexts.planification.application.SessionCourant
 import com.hemodialyse.backend.contexts.planification.application.SupprimerUneExecution;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
-import com.hemodialyse.backend.contexts.planification.domain.ObjectifDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.domain.PageDeResultats;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDOptimisation;
-import com.hemodialyse.backend.contexts.planification.domain.Perimetre;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.CalendrierReponse;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.LancerDemande;
+import com.hemodialyse.backend.contexts.planification.interfaces.http.dto.OptimisationPageReponse;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDuCalendrierDeLaProposition.Document;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -142,13 +143,13 @@ public class OptimisationsControleur {
      * Historique paginé, des plus récentes aux plus anciennes (sans le détail des propositions).
      */
     @GetMapping
-    public ResponseEntity<PageReponse> historique(@RequestParam(required = false) UUID centerId,
-                                                  @RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<OptimisationPageReponse> historique(@RequestParam(required = false) UUID centerId,
+                                                              @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "20") int size) {
         CentreId centre = session.centre(centerId);
         PageDeResultats<com.hemodialyse.backend.contexts.planification.domain.ExecutionDOptimisation> lues =
                 consulter.historique(centre, new Pagination(page, size));
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(new PageReponse(
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(new OptimisationPageReponse(
                 lues.elements().stream().map(OptimisationLue::depuis).toList(), lues.total(), lues.page(), lues.taille()));
     }
 
@@ -172,45 +173,5 @@ public class OptimisationsControleur {
         CentreId centre = session.centre(centerId);
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .body(OptimisationLue.depuis(appliquer.executer(centre, new ExecutionId(id))));
-    }
-
-    /**
-     * @param semaines semaines (dates de début) disponibles ; vide si la proposition n'a pas de calendrier
-     * @param semaine  semaine des {@code cases}
-     */
-    public record CalendrierReponse(List<LocalDate> semaines, LocalDate semaine, List<CaseDuCalendrier> cases) {
-    }
-
-    public record PageReponse(List<ExecutionLue> items, long total, int page, int size) {
-    }
-
-    /**
-     * @param debutSemaine           un jour de la première semaine (défaut : semaine en cours au jour du centre)
-     * @param nbSemaines             horizon en semaines (défaut 1)
-     * @param dureeMaxSecondes       durée maximale de calcul par phase (défaut 20)
-     * @param stabilite              0 à 10 (défaut 5)
-     * @param objectif               {@code EQUITE} (défaut) ou {@code ECONOMIE}
-     * @param maxVacationsParJour    1 à 3 (défaut 2)
-     * @param maxVacationsParSemaine 1 à 14 (défaut 6)
-     */
-    public record LancerDemande(Perimetre perimetre, LocalDate debutSemaine, Integer nbSemaines,
-                                Integer dureeMaxSecondes,
-                                Integer stabilite, ObjectifDesInfirmiers objectif, Integer maxVacationsParJour,
-                                Integer maxVacationsParSemaine) {
-
-        ParametresDOptimisation versParametres(LocalDate aujourdhui) {
-            ParametresDOptimisation defauts = ParametresDOptimisation.parDefaut(
-                    perimetre == null ? Perimetre.PATIENTS : perimetre, debutSemaine != null ? debutSemaine : aujourdhui);
-            if (perimetre == null) {
-                throw new com.hemodialyse.backend.contexts.planification.domain.SaisieInvalide("Périmètre requis");
-            }
-            return new ParametresDOptimisation(perimetre, defauts.debutSemaine(),
-                    nbSemaines != null ? nbSemaines : defauts.nbSemaines(),
-                    dureeMaxSecondes != null ? dureeMaxSecondes : defauts.dureeMaxSecondes(),
-                    stabilite != null ? stabilite : defauts.stabilite(),
-                    objectif != null ? objectif : defauts.objectif(),
-                    maxVacationsParJour != null ? maxVacationsParJour : defauts.maxVacationsParJour(),
-                    maxVacationsParSemaine != null ? maxVacationsParSemaine : defauts.maxVacationsParSemaine());
-        }
     }
 }

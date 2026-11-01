@@ -22,10 +22,6 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>bc-referential</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-patient</artifactId>
         </dependency>
         <dependency>
@@ -76,9 +72,11 @@
             <artifactId>contexts-planification</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Organisation (slice O5) : sociétés/centres + référentiels, cutover legacy -->
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>bc-migration</artifactId>
+            <artifactId>contexts-organisation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ai.timefold.solver</groupId>

@@ -3,6 +3,8 @@ package com.hemodialyse.backend.contexts.stock.interfaces.http;
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp;
 import com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp.Suivi;
+import com.hemodialyse.backend.contexts.stock.interfaces.http.dto.Demande;
+import com.hemodialyse.backend.contexts.stock.interfaces.http.dto.Demarrage;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,12 +52,6 @@ public class RecalculDuPmpControleur {
     @GetMapping("/locks")
     public List<UUID> verrous(@RequestParam(required = false) UUID centerId) {
         return recalcul.enCours(session.centre(centerId));
-    }
-
-    record Demande(UUID centerId, List<UUID> articleIds) {
-    }
-
-    record Demarrage(UUID jobId) {
     }
 }
 

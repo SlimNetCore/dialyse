@@ -26,13 +26,11 @@
     <modules>
         <module>shared-kernel</module>
         <module>bc-insurance</module>
-        <module>bc-referential</module>
         <module>bc-patient</module>
         <module>bc-assure</module>
         <module>bc-pec</module>
         <module>bc-seance</module>
         <module>bc-medical</module>
-        <module>bc-migration</module>
         <module>contexts/shared-kernel</module>
         <module>contexts/gmao</module>
         <module>contexts/comptabilite</module>
@@ -62,16 +60,6 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-insurance</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hemodialyse</groupId>
-                <artifactId>bc-migration</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hemodialyse</groupId>
-                <artifactId>bc-referential</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

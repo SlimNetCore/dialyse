@@ -4,6 +4,8 @@ import com.hemodialyse.backend.contexts.organisation.application.CommandesOrgani
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.Creneau;
 import com.hemodialyse.backend.contexts.organisation.domain.CreneauId;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerCreneauRequete;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierCreneauRequete;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,11 +34,5 @@ public class CreneauxControleur {
     @GetMapping
     public List<Creneau> lister(@RequestParam UUID centreId) {
         return service.listerCreneaux(new CentreId(centreId));
-    }
-
-    public record CreerCreneauRequete(UUID centreId, String code, String libelle) {
-    }
-
-    public record ModifierCreneauRequete(UUID centreId, String code, String libelle) {
     }
 }

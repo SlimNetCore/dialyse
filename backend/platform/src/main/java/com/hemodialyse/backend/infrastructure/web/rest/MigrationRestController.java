@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.migration.MigrationApplicationService;
-import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.referential.admin.model.ImportTable;
+import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
+import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.importer.MigrationTemplateWriter;

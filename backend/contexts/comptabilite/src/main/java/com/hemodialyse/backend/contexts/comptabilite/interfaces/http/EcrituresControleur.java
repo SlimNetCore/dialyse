@@ -8,10 +8,8 @@ import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.Lister
 import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.ValiderUneEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.StatutEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
+import com.hemodialyse.backend.contexts.comptabilite.interfaces.http.dto.ClotureRequete;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -93,10 +91,6 @@ public class EcrituresControleur {
     public ResponseEntity<Map<String, Object>> cloturer(@RequestBody @Valid ClotureRequete requete) {
         cloturer.executer(session.centre(requete.centerId()), YearMonth.of(requete.annee(), requete.mois()), requete.userId());
         return ResponseEntity.ok(Map.of("closed", true, "periode", requete.annee() + "-" + requete.mois()));
-    }
-
-    public record ClotureRequete(UUID centerId, @Min(2000) @Max(3000) int annee,
-                                 @Min(1) @Max(12) int mois, @NotBlank String userId) {
     }
 }
 

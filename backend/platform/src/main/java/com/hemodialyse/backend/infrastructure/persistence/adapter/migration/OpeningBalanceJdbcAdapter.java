@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes.SoldeDOuverture;
-import com.hemodialyse.backend.domain.migration.port.OpeningBalancePort;
+import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.stereotype.Component;
 
