@@ -40,6 +40,7 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/application/gmao/InterventionEquipementStatutService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/gmao/GmaoEvenementsPlanificationListener.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/gmao/CapaciteDesSallesLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/gmao/CapaciteDesSallesDePlanification.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/gmao/InterventionRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/gmao/AjouterLigneCoutRequest.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/gmao/AnnulerInterventionRequest.java",

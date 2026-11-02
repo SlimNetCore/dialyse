@@ -169,4 +169,15 @@ class ReglesDeGestionDocumentationTest {
         assertThat(PLACEHOLDER.matcher(documentation).find())
                 .as("identifiant de règle laissé en suspens (RG-XXX-…)").isFalse();
     }
+
+    /**
+     * Slice P9 (KB-PLN-106) : « Mon planning » suit la présence unique : un patient en sommeil n'y apparaît plus. La règle amendée
+     * (RG-PLN-104) doit rester documentée tant que le golden {@code planning_patient_en_sommeil_base_nouveau_code} existe.
+     */
+    @Test
+    void mon_planning_documente_que_le_sommeil_retire_le_patient_des_occupants() {
+        assertThat(documentation)
+                .contains("KB-PLN-106")
+                .contains("n'apparaît plus parmi les occupants des cases de « Mon planning »");
+    }
 }

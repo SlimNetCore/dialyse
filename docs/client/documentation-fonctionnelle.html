@@ -921,7 +921,9 @@ conflits
 du planning réel et <strong>replace</strong> automatiquement un patient devenu à risque infectieux. Sources :
 <code>PlanificationAffectationService</code>, <code>PlanningSemaineService</code>, <code>PlanningParametres</code>,
 <code>PlanningParametresService</code>, <code>PlanningDonneesJdbcAdapter</code>, <code>SalleGenerateursService</code>, <code>CapaciteSalleRegle</code>,
-<code>CapaciteTheoriqueCalculator</code>, contrôleurs <code>Planning*RestController</code>. Depuis la slice P5 (ADR 0059), le placement
+<code>CapaciteTheoriqueCalculator</code>, contrôleurs <code>Planning*RestController</code> (historique : <code>PlanificationAffectationService</code>,
+<code>PlanningSemaineService</code>, <code>PlanningDonneesJdbcAdapter</code>, <code>SalleGenerateursService</code> et <code>CapaciteSalleRegle</code> sont retirés par la slice
+P9, ADR 0069 : la capacité d&#39;une salle est contrôlée par <code>ControlerLaCapaciteDeLaSalle</code>, port publié <code>CapaciteDesSalles</code>). Depuis la slice P5 (ADR 0059), le placement
 (propositions, contrôle d&#39;une place, réaffectation, capacité, alerte du générateur) est servi par le contexte
 <code>planification</code> (<code>PlacesDuCentre</code>, <code>PropositionsControleur</code>, <code>SallesControleur</code>) ; <code>PlacementPatientService</code>,
 <code>PlanningAffectationQueryService</code> et <code>GenerateurIndisponibleService</code> sont retirés. Depuis la slice P6 (ADR 0060), le
@@ -1524,7 +1526,10 @@ rechargent la semaine affichée, sans action de l&#39;utilisateur (de même la d
 <code>ABSENCES_A_QUALIFIER</code>) ; seuls les évènements du centre actif comptent (RG-NOT-001). <strong>Le planning de l&#39;infirmier («
 Mon planning »)</strong> suit la même règle : une absence de patient déclarée, même le jour J, y <strong>barre</strong> aussitôt le
 patient (couleur selon le statut de l&#39;absence) et une séance validée y marque un soleil, comme sur le planning des
-séances. Pour le <strong>médecin</strong>, le planning est en <strong>lecture seule</strong> : il ne peut pas déclarer l&#39;absence d&#39;un
+séances. <strong>Un seul calcul de présence (P9, KB-PLN-106)</strong> : un patient <strong>en sommeil</strong> (comme un patient sorti ou pas encore
+admis) n&#39;apparaît plus parmi les occupants des cases de « Mon planning », exactement comme sur la semaine du centre ; le
+nombre <code>patients</code> de la case (présence des infirmiers, où le sommeil garde sa place) n&#39;en est pas modifié.
+Pour le <strong>médecin</strong>, le planning est en <strong>lecture seule</strong> : il ne peut pas déclarer l&#39;absence d&#39;un
 patient (RG-ABS-015) ; le détail d&#39;un patient reste consultable, avec les liens vers sa fiche et son dossier.
 <em>Source :</em> <code>PlanningSemaineComponent</code>, <code>evenementRafraichitPlanning</code>, <code>DetectionControleur</code>, <code>AbsencesEcrituresControleur</code>.</p>
 </div></div>

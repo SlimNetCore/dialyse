@@ -123,6 +123,30 @@ class FrontieresDesContextesTest {
             .because("la Planification ne s'utilise que par son langage publié (ADR 0053)");
 
     /**
+     * Slice P9 (ADR 0069) : le paquet legacy {@code domain.infirmier} est retiré ; l'Infirmier vit dans contexts/planification.
+     */
+    @ArchTest
+    static final ArchRule plus_aucune_classe_ne_depend_du_paquet_legacy_des_infirmiers = noClasses()
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.domain.infirmier..")
+            .allowEmptyShould(true)
+            .because("domain.infirmier est retiré depuis P9 : la présence et le roulement vivent dans contexts/planification");
+
+    /**
+     * Slice P9 : il ne reste du paquet legacy {@code domain.planning} (module bc-seance) que quatre classes de dette, consommées par
+     * une liste fermée de sources (jalons dans {@code roadmap.md}, « Dette de P9 ») : {@code JourSemaine} (fiche patient),
+     * {@code PlanningParametres} et son port (paramétrage lu par la fiche patient), {@code CapaciteTheoriqueCalculator} (tableau de
+     * bord de la Direction). Toute nouvelle dépendance échoue.
+     */
+    @ArchTest
+    static final ArchRule le_paquet_legacy_du_planning_n_a_que_les_consommateurs_de_la_dette_de_p9 = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.domain.planning..")
+            .and().haveNameNotMatching(
+                    ".*\\.(PlacementDeLaFiche|PlanningParametresDuContexte|PatientRestController|DirectionCapaciteQueryService)(\\$.*)?")
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.domain.planning..")
+            .allowEmptyShould(true)
+            .because("domain.planning est en voie de retrait (P9) : liste fermée des consommateurs restants");
+
+    /**
      * Contexte Seance (ADR 0062) : le legacy ne l'utilise que par son langage publie. Regle vide tant que le module
      * est un squelette.
      */

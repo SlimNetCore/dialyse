@@ -258,6 +258,14 @@ et ses trois tests (`PlanificationAffectationServiceTest`, `PlanificationAffecta
 `PlanificationVerificationTest`),
 orphelins depuis le retrait de l'optimisation en P8.
 
+**P9, session 1 (2026-11-02) : etat `in-progress`, PAS `built`** (fiche `slices/planification-p9-retrait-du-legacy.md`, ADR 0069 proposed,
+KB-PLN-106). Solde : `SemaineDeLInfirmierLegacy`, `PresenceInfirmierService`, `PresenceDonnees*`, `PlanningSemaine*`,
+`PlanningDonneesPort` et son adapter, ACL `PlanningDesPlacesLegacy` / `CalendrierDuCentreLegacy`, `SalleVue*`, `SalleGenerateursService`,
+`CapaciteSalleRegle`, `CapaciteDesSallesLegacy` (remplace par le port publie `CapaciteDesSalles`), tout `domain.infirmier`. Reste
+(jalons) : `SeanceRestController`, `SeancePlanningJdbcAdapter` (contexte Seance) ; `ReferentialRepositoryAdapter`,
+`ReferentialAdminTables` (Organisation, port `UtilisePourUnPatient`) ; `MouvementPatientJdbcAdapter`, `JourSemaine`, `PlanningParametres`,
+`PlacementDeLaFiche`, `PatientRestController` (Patient et couverture) ; `CapaciteTheoriqueCalculator` (Pilotage de la direction).
+
 ## 1 septies. Slices Organisation (contexte `organisation`, module `backend/contexts/organisation`, ADR 0063, 0067)
 
 Fondation multi-centre (OHS). Squelette existant. Refonte sur place.

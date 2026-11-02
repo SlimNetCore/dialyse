@@ -5,7 +5,9 @@
 > du planning réel et **replace** automatiquement un patient devenu à risque infectieux. Sources :
 > `PlanificationAffectationService`, `PlanningSemaineService`, `PlanningParametres`,
 > `PlanningParametresService`, `PlanningDonneesJdbcAdapter`, `SalleGenerateursService`, `CapaciteSalleRegle`,
-> `CapaciteTheoriqueCalculator`, contrôleurs `Planning*RestController`. Depuis la slice P5 (ADR 0059), le placement
+> `CapaciteTheoriqueCalculator`, contrôleurs `Planning*RestController` (historique : `PlanificationAffectationService`,
+> `PlanningSemaineService`, `PlanningDonneesJdbcAdapter`, `SalleGenerateursService` et `CapaciteSalleRegle` sont retirés par la slice
+> P9, ADR 0069 : la capacité d'une salle est contrôlée par `ControlerLaCapaciteDeLaSalle`, port publié `CapaciteDesSalles`). Depuis la slice P5 (ADR 0059), le placement
 > (propositions, contrôle d'une place, réaffectation, capacité, alerte du générateur) est servi par le contexte
 > `planification` (`PlacesDuCentre`, `PropositionsControleur`, `SallesControleur`) ; `PlacementPatientService`,
 > `PlanningAffectationQueryService` et `GenerateurIndisponibleService` sont retirés. Depuis la slice P6 (ADR 0060), le
@@ -548,7 +550,10 @@
   `ABSENCES_A_QUALIFIER`) ; seuls les évènements du centre actif comptent (RG-NOT-001). **Le planning de l'infirmier («
   Mon planning »)** suit la même règle : une absence de patient déclarée, même le jour J, y **barre** aussitôt le
   patient (couleur selon le statut de l'absence) et une séance validée y marque un soleil, comme sur le planning des
-  séances. Pour le **médecin**, le planning est en **lecture seule** : il ne peut pas déclarer l'absence d'un
+  séances. **Un seul calcul de présence (P9, KB-PLN-106)** : un patient **en sommeil** (comme un patient sorti ou pas encore
+  admis) n'apparaît plus parmi les occupants des cases de « Mon planning », exactement comme sur la semaine du centre ; le
+  nombre `patients` de la case (présence des infirmiers, où le sommeil garde sa place) n'en est pas modifié.
+  Pour le **médecin**, le planning est en **lecture seule** : il ne peut pas déclarer l'absence d'un
   patient (RG-ABS-015) ; le détail d'un patient reste consultable, avec les liens vers sa fiche et son dossier.
   *Source :* `PlanningSemaineComponent`, `evenementRafraichitPlanning`, `DetectionControleur`, `AbsencesEcrituresControleur`.
 

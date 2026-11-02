@@ -407,6 +407,26 @@ public class PlanificationConfiguration {
     }
 
     @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces planificationPlanningDesPlaces(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlanningDesPlacesDuCentreJdbc(
+                jdbc, ressources);
+    }
+
+    @Bean
+    CalendrierDuCentre planificationCalendrierDuCentre(
+            com.hemodialyse.backend.contexts.planification.application.LectureDesRessources ressources) {
+        return new com.hemodialyse.backend.contexts.planification.application.CalendrierDuCentreDuModule(ressources);
+    }
+
+    @Bean
+    SemaineDeLInfirmier planificationSemaineDeLInfirmier(
+            com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresence presence,
+            com.hemodialyse.backend.contexts.planification.application.ConsulterLaSemaine planning) {
+        return new com.hemodialyse.backend.contexts.planification.application.SemaineDeLInfirmierDuModule(presence, planning);
+    }
+
+    @Bean
     ConsulterMonPlanning planificationConsulterMonPlanning(InfirmiersRepository infirmiers, FichesDetaillees fiches,
                                                            SemaineDeLInfirmier semaines, HorlogeDesCentres horloge) {
         return new ConsulterMonPlanning(infirmiers, fiches, semaines, horloge);
@@ -597,10 +617,16 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.VueDesSalles planificationVueDesSalles(
+    com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.VueDesSallesLegacy planificationVueDesSalles(
             JdbcTemplate jdbc, com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs) {
         return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.VueDesSallesLegacy(jdbc,
                 generateurs);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteDesSalles planificationCapaciteDesSalles(
+            com.hemodialyse.backend.contexts.planification.application.SalleDuCentre salles) {
+        return new com.hemodialyse.backend.contexts.planification.application.ControlerLaCapaciteDeLaSalle(salles);
     }
 
     @Bean

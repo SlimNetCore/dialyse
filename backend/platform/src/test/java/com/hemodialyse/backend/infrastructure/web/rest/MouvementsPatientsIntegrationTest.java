@@ -5,8 +5,8 @@ import com.hemodialyse.backend.contexts.planification.application.LibererLesPlac
 import com.hemodialyse.backend.application.patient.MouvementPatientQueryService;
 import com.hemodialyse.backend.domain.patient.model.MouvementLigne;
 import com.hemodialyse.backend.domain.patient.model.TypeMouvementPatient;
-import com.hemodialyse.backend.domain.planning.model.Planning.Occupation;
-import com.hemodialyse.backend.domain.planning.port.PlanningDonneesPort;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlanningDesPlaces.Occupation;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.AfterEach;
@@ -51,7 +51,7 @@ class MouvementsPatientsIntegrationTest {
     @Autowired
     private MouvementPatientQueryService mouvements;
     @Autowired
-    private PlanningDonneesPort planning;
+    private PlanningDesPlaces planning;
 
     private UUID salle;
     private UUID creneau;
@@ -59,10 +59,6 @@ class MouvementsPatientsIntegrationTest {
     private UUID transfereBientot;
     private UUID permanent;
     private UUID autreCentre;
-
-    private static Occupation occupation(List<Occupation> occupations, UUID patient) {
-        return occupations.stream().filter(o -> o.patientId().equals(patient)).findFirst().orElseThrow();
-    }
 
     @BeforeEach
     void setup() {
@@ -139,15 +135,13 @@ class MouvementsPatientsIntegrationTest {
 
     @Test
     void the_planning_keeps_a_future_exit_until_its_last_day_and_drops_a_past_one() {
-        List<Occupation> occupations = planning.charger(C1, null).occupations();
+        List<Occupation> occupations = planning.sur(C1, aujourdhui, aujourdhui).occupations();
 
-        Occupation futur = occupation(occupations, transfereBientot);
+        assertEquals(2, occupations.size(), "le transféré et le permanent ; ni le décédé (3 jours), ni l'autre centre");
+        Occupation futur = occupations.stream().filter(o -> o.dernierJour() != null).findFirst().orElseThrow();
         assertEquals(aujourdhui.plusDays(5), futur.dernierJour(), "le transféré garde sa place jusqu'à son transfert");
         assertEquals(LocalDate.of(2026, 1, 2), futur.premierJour(), "le séjour commence à l'admission");
-        assertNull(occupation(occupations, permanent).dernierJour());
-        assertTrue(occupations.stream().noneMatch(o -> o.patientId().equals(decede)),
-                "le décédé (3 jours) n'occupe plus la place");
-        assertTrue(occupations.stream().noneMatch(o -> o.patientId().equals(autreCentre)), "isolation par centre");
+        assertTrue(occupations.stream().anyMatch(o -> o.dernierJour() == null), "le permanent garde sa place");
     }
 
     private UUID salleDe(UUID patient) {

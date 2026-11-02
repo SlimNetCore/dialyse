@@ -1,8 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
 import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
-import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
-import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -188,7 +186,7 @@ class NotificationJournalIntegrationTest {
         UUID infirmier = UUID.randomUUID();
         jdbc.update("INSERT INTO infirmier (id, center_id, matricule, nom, prenom, qualification, habilite_isolement, actif) "
                 + "VALUES (?, ?, 'J1', 'Amrani', 'Sara', ?, FALSE, TRUE)", infirmier, CENTRE,
-                QualificationInfirmier.INFIRMIER.name());
+                "INFIRMIER");
         LocalDate lundi = LocalDate.of(2026, 9, 28);
 
         notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi, lundi, true);

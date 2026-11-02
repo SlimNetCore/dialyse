@@ -62,6 +62,23 @@ class MonPlanningCharacterizationIntegrationTest extends RoulementCharacterizati
         lecture("planning_complet_de_la_semaine", r);
     }
 
+    /**
+     * P9, KB-PLN-106 (écart décidé le 2026-11-02) : l'ancien « Mon planning » comptait un patient en sommeil dans la case de l'infirmier ;
+     * la règle de présence de P4 l'en retire, comme la semaine, les alertes et les Absences. Golden {@code _base} : l'ancien
+     * comportement, archivé avant la réécriture ; golden {@code _nouveau_code} : la nouvelle règle.
+     */
+    @Test
+    void un_patient_en_sommeil_disparait_de_mon_planning_comme_de_la_presence_KB_PLN_106() throws Exception {
+        semaine(1);
+        UUID actif = patientPlace(CENTRE_A, "PAT_ACTIF", salle1, matin, JourSemaine.LUNDI);
+        UUID dort = patientPlace(CENTRE_A, "PAT_SOMMEIL", salle1, matin, JourSemaine.LUNDI);
+        jdbc.update("UPDATE patients SET en_sommeil = TRUE WHERE id = ?", dort);
+        affectation(CENTRE_A, "R_AMRANI_1", amrani, salle1, matin, "LUNDI");
+        Resp r = doGet(MOI + "/planning?date=" + semaine(1, JourSemaine.LUNDI), sara);
+        assertEquals(200, r.status());
+        lecture("planning_patient_en_sommeil_base", r);
+    }
+
     @Test
     void n_importe_quel_jour_de_la_semaine_donne_le_meme_planning_dimanche_a_samedi() throws Exception {
         semaine(1);

@@ -1507,3 +1507,18 @@ SELECT r.center_id FROM planification_reglages r JOIN centers c ON c.id = r.cent
 
 Attendus après la première nuit : (3), (4), (6), (7), (8) vides ; aucune ligne `EN_COURS` ancienne en (2) ; les alertes personnelles
 de (11) portent `target_user_id` pour les infirmiers ayant un compte.
+
+## Slice planification-p9-retrait-du-legacy (2026-11-02) : requêtes de contrôle (SELECT seulement)
+
+Effet de la présence unique sur « Mon planning » (KB-PLN-106) : les patients en sommeil placés disparaissent des occupants des cases.
+
+```sql
+-- 1. Patients en sommeil qui tiennent encore une place (ils disparaissent de « Mon planning » mais gardent leur place)
+SELECT center_id, count(*) FROM patients WHERE en_sommeil = TRUE AND salle_id IS NOT NULL AND position_id IS NOT NULL GROUP BY center_id;
+-- 2. Capacité des salles (RG-PLN-061) : salles dont le nombre de générateurs affectés dépasse la capacité (informatif)
+SELECT s.center_id, s.code, s.capacite, count(g.id) AS generateurs FROM salle s
+  JOIN gmao_equipements g ON g.salle_id = s.id AND g.type = 'GENERATEUR_DIALYSE' AND g.deleted_at IS NULL AND g.statut NOT IN ('REFORME','DESACTIF')
+ WHERE s.capacite IS NOT NULL GROUP BY s.center_id, s.code, s.capacite HAVING count(g.id) > s.capacite;
+```
+
+Attendu : (1) donne le nombre de patients qui n'apparaîtront plus dans « Mon planning » (à annoncer aux infirmiers) ; (2) sans effet de bord.

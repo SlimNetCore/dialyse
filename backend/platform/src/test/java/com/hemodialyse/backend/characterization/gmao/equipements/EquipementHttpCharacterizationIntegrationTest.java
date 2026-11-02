@@ -3,7 +3,6 @@ package com.hemodialyse.backend.characterization.gmao.equipements;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CalculDIndisponibilite;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.ChangementDeStatut;
 import com.hemodialyse.backend.characterization.gmao.plans.GoldenMaster;
-import com.hemodialyse.backend.domain.planning.port.SalleVuePort;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
@@ -107,7 +106,7 @@ class EquipementHttpCharacterizationIntegrationTest {
     @Autowired
     private ReferentielsLectureUseCases lectures;
     @Autowired
-    private SalleVuePort salles;
+    private com.hemodialyse.backend.contexts.planification.application.SalleDuCentre salles;
 
     private final ObjectMapper mapper = JsonMapper.builder()
             .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
@@ -699,22 +698,22 @@ class EquipementHttpCharacterizationIntegrationTest {
         String corps = "{\"code\":\"CAP\",\"designation\":\"D\",\"type\":\"GENERATEUR_DIALYSE\",\"salleId\":\"" + SALLE_1
                 + "\",\"dateInstallation\":\"" + INSTALLATION_JSON + "\"}";
         assertEquals(422, post("", corps, adminA()).status);
-        var occupants = salles.findById(CENTRE_A, SALLE_1).orElseThrow().generateurs().stream().map(g -> g.code()).toList();
+        var occupants = salles.parIdentifiant(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), SALLE_1).orElseThrow().generateurs().stream().map(g -> g.code()).toList();
         assertEquals(List.of("G-01", "G-HS"), occupants);
 
         assertEquals(200, post("/" + GEN + "/hors-service", "{\"raison\":\"panne\"}", adminA()).status);
-        assertEquals(2, salles.findById(CENTRE_A, SALLE_1).orElseThrow().generateurs().size(), "hors service : toujours affecté");
+        assertEquals(2, salles.parIdentifiant(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), SALLE_1).orElseThrow().generateurs().size(), "hors service : toujours affecté");
         assertEquals(422, post("", corps, adminA()).status);
 
         assertEquals(200, post("/" + GEN + "/reformer", "{\"motif\":\"fin\"}", reformeur()).status);
-        occupants = salles.findById(CENTRE_A, SALLE_1).orElseThrow().generateurs().stream().map(g -> g.code()).toList();
+        occupants = salles.parIdentifiant(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), SALLE_1).orElseThrow().generateurs().stream().map(g -> g.code()).toList();
         assertEquals(List.of("G-HS"), occupants, "réformé : n'occupe plus la salle");
         // HS occupe encore la salle (capacité 1) : le refus subsiste tant que G-HS y reste
         assertEquals(422, post("", corps, adminA()).status);
         jdbc.update("UPDATE gmao_equipements SET statut = 'DESACTIF' WHERE id = ?", HS);
-        assertEquals(0, salles.findById(CENTRE_A, SALLE_1).orElseThrow().generateurs().size(), "désactivé : libère la salle");
+        assertEquals(0, salles.parIdentifiant(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), SALLE_1).orElseThrow().generateurs().size(), "désactivé : libère la salle");
         jdbc.update("UPDATE gmao_equipements SET deleted_at = CURRENT_TIMESTAMP, statut = 'EN_SERVICE' WHERE id = ?", HS);
-        assertEquals(0, salles.findById(CENTRE_A, SALLE_1).orElseThrow().generateurs().size(), "supprimé logiquement : libère la salle");
+        assertEquals(0, salles.parIdentifiant(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(CENTRE_A), SALLE_1).orElseThrow().generateurs().size(), "supprimé logiquement : libère la salle");
         assertEquals(201, post("", corps, adminA()).status);
     }
 

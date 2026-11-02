@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacy
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
+import com.hemodialyse.backend.contexts.planification.application.SalleDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.VueDesSalles;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,7 +22,7 @@ import java.util.UUID;
  * une salle sont ceux de dialyse non supprimés, hors réformés et désactivés (les générateurs en maintenance ou hors service restent
  * comptés, KB-PLN-64).
  */
-public class VueDesSallesLegacy implements VueDesSalles {
+public class VueDesSallesLegacy implements VueDesSalles, SalleDuCentre {
 
     private static final Set<String> STATUTS_SANS_AFFECTATION = Set.of("REFORME", "DESACTIF");
 
@@ -53,5 +55,18 @@ public class VueDesSallesLegacy implements VueDesSalles {
         List<SalleVue> items = lignes.stream().map(l -> new SalleVue(l.id(), l.code(), l.nom(), l.isolement(), l.capacite(),
                 parSalle.getOrDefault(l.id(), List.of()))).toList();
         return new Page(items, total == null ? 0 : total);
+    }
+
+    @Override
+    public Optional<SalleVue> parIdentifiant(CentreId centre, UUID salle) {
+        return jdbc.query("SELECT id, code, nom, isolement, capacite FROM salle WHERE center_id = ? AND id = ?",
+                (rs, i) -> new Ligne(rs.getObject("id", UUID.class), rs.getString("code"), rs.getString("nom"),
+                        SallesDuCentreJdbc.OUI.equals(rs.getString("isolement")),
+                        rs.getObject("capacite") == null ? null : rs.getInt("capacite")),
+                centre.valeur(), salle).stream().findFirst().map(l -> new SalleVue(l.id(), l.code(), l.nom(), l.isolement(),
+                l.capacite(), generateurs.duCentre(centre.valeur()).stream()
+                .filter(g -> salle.equals(g.salleId()) && !STATUTS_SANS_AFFECTATION.contains(g.statut()))
+                .sorted(Comparator.comparing(GenerateursDuCentre.Generateur::code))
+                .map(g -> new GenerateurVue(g.id(), g.code(), g.designation(), g.statut())).toList()));
     }
 }
