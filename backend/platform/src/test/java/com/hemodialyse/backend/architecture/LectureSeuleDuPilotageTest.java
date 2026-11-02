@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.architecture;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,6 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * La garde est elle-même testée : {@link #la_garde_detecte_un_acces_direct_a_une_table_externe()}
  * prouve qu'un accès direct est bien détecté.
  */
+@Disabled("Module pilotage-direction GELE le 2026-11-02 (backend/contexts/pilotage-direction/GEL.md, ADR 0075) : la garde ne protege que les 4 tables "
+        + "paralleles du module gele (tableaux_de_bord, instantanes_mensuels, alertes_direction, exports_synthese), qui n'existent pas en production. "
+        + "A reecrire a la reprise sur place, sur direction_snapshot et direction_alert_history, avec la liste blanche nominative des lecteurs.")
 class LectureSeuleDuPilotageTest {
 
     /**

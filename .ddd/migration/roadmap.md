@@ -347,6 +347,8 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | PD4   | Export synthese (reporting)             | moyen  | planned | slices/pilotage-direction-pd4-export-synthese.md      |
 | PD5   | Lectures publiees et retrait du legacy  | moyen  | planned | slices/pilotage-direction-pd5-lectures-publiees.md    |
 
+> **GEL du 2026-11-02 (ADR 0075, `backend/contexts/pilotage-direction/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice PD n'est `built` ni `characterized` (aucun golden Direction dedie ; le filet existant est reparti entre Planification P6, Absences A4, GMAO, Facturation F5, Stock). Reprise SUR PLACE : memes tables `direction_snapshot` et `direction_alert_history`, memes URL `/api/v1/direction/*`, masquage par centre, fuseau du centre. Regle R2 des alertes a trancher a la reprise (fiche PD3).
+
 ## 2. Autres contextes (haut niveau, Ã  dÃ©tailler aprÃ¨s `/ddd-tactical <ctx>`)
 
 | Contexte                       | Remarque                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |

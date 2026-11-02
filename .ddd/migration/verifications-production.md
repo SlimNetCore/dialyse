@@ -1692,3 +1692,16 @@ SELECT statut, count(*) FROM seances GROUP BY 1 ORDER BY 1;
 SELECT statut, count(*) FROM seances WHERE (statut = 'FACTUREE') <> (facture_id IS NOT NULL) GROUP BY 1;
 ```
 Voir `backend/contexts/seance/GEL.md` et l'ADR 0074.
+
+## 40. Pilotage direction : gel du module, aucun changement de production (2026-11-02) — SELECT seulement
+Décision : AUCUN revert. Audit depuis `2978e639^` : le legacy Direction (`application/direction`, `DirectionDashboardRestController`, `DirectionSnapshotRestController`, tests) n'est pas modifié ; aucune table ni colonne ajoutée au schéma de production ; `schema.sql` H2 de `platform` sans table parallèle ; aucune entrée `covered.json` à retirer. Rejeu PostgreSQL 16 jetable : `backend/scripts/pilotage-direction-pg16-rejeu.sh` (V1..V52, colonnes de `direction_snapshot` et `direction_alert_history` lues en JDBC par le legacy présentes, tables parallèles absentes). Le module gelé n'est pas dans le jar : aucune route `/api/v1/pilotage/*`. Contrôles (constats seuls) :
+```sql
+-- 1. Les tables parallèles du module gelé n'existent pas (attendu : 0 ligne, ne PAS les créer).
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('tableaux_de_bord', 'instantanes_mensuels', 'alertes_direction', 'exports_synthese');
+-- 2. Volumes des tables legacy réellement utilisées.
+SELECT (SELECT count(*) FROM direction_snapshot) AS instantanes, (SELECT count(*) FROM direction_alert_history) AS alertes;
+-- 3. Alertes ouvertes par centre et code (base de la décision R2 à la reprise : plusieurs codes ouverts le même jour ?).
+SELECT center_id, code, count(*) FROM direction_alert_history WHERE resolved_at IS NULL GROUP BY 1, 2 HAVING count(*) > 1;
+SELECT center_id, first_seen_at::date AS jour, count(DISTINCT code) FROM direction_alert_history GROUP BY 1, 2 HAVING count(DISTINCT code) > 1 LIMIT 20;
+```
+Voir `backend/contexts/pilotage-direction/GEL.md` et l'ADR 0075.

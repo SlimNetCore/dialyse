@@ -39,7 +39,6 @@
         <module>contexts/stock</module>
         <module>contexts/planification</module>
         <module>contexts/organisation</module>
-        <module>contexts/pilotage-direction</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

@@ -1,26 +1,28 @@
 ---
 slice: pilotage-direction-pd1-tableau-bord
-status: built
-date: 2026-10-29
+status: planned
+date: 2026-11-02
 order: 1
 context: pilotage-direction
-sources: [.ddd/tactical/pilotage-direction.md, ADR 0066]
+sources: [.ddd/tactical/pilotage-direction.md, ADR 0066, ADR 0075, backend/contexts/pilotage-direction/GEL.md]
 ---
 
-# PD1 â€” Tableau de bord direction (read models)
+# PD1 — Tableau de bord direction (lectures)
 
-AgrÃ©gat `TableauDeBord` (entitÃ© dÃ©diÃ©e). Consomme les langages publiÃ©s des autres contextes (lecture uniquement,
-aucune
-Ã©criture cross-context R4).
+> **GEL (2026-11-02, ADR 0075)** : le module `contexts/pilotage-direction` est gelé (non branché, hors réacteur). Statut réel : `planned`, aucune parité. Reprise **sur place** : mêmes URL `/api/v1/direction/*`, filet de caractérisation du legacy d'abord.
 
 ## Cas d'usage
 
-`ConsulterTableauDeBord`, `FiltrerParCentre`.
+`ConsulterTableauDeBord` (vue d'ensemble, indicateurs, ventilation), filtrage par centre.
 
-## EntrÃ©es legacy
+## Entrées legacy
 
-`platform/application/direction` (`Direction*QueryService`).
+`platform/application/direction` : `DirectionDashboardQueryService`, `DirectionIndicatorsQueryService`, `DirectionBreakdownQueryService`, `AnonymityPolicy` ; `DirectionDashboardRestController` (`/overview`, `/indicators`, `/breakdown`, `/societe`).
 
-## DonnÃ©es
+## Filet existant et manques
 
-Read models ; aucune migration. centerId + sociÃ©tÃ© anonymisÃ©e. Cache `ref.alertes.centre`.
+Voir l'inventaire de `backend/contexts/pilotage-direction/GEL.md`. Manque : caractérisation HTTP de la vue d'ensemble, des indicateurs et de la ventilation, avec masquage par centre.
+
+## Données
+
+Aucune table nouvelle ni migration : lectures des langages publiés des autres contextes. Rôle DIRECTION, périmètre société et garde de centre issus de la session.

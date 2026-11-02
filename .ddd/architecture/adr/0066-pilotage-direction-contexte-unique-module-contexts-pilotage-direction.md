@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted (partiellement remplacée par l'ADR 0075 : module parallèle gelé le 2026-11-02, reprise sur place)
 date: 2026-10-29
 deciders: utilisateur
 ---

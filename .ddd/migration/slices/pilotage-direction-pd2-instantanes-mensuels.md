@@ -1,25 +1,28 @@
 ---
 slice: pilotage-direction-pd2-instantanes-mensuels
-status: built
-date: 2026-10-29
+status: planned
+date: 2026-11-02
 order: 2
 context: pilotage-direction
-sources: [.ddd/tactical/pilotage-direction.md, ADR 0009, 0066]
+sources: [.ddd/tactical/pilotage-direction.md, ADR 0009, 0066, 0075, backend/contexts/pilotage-direction/GEL.md]
 ---
 
-# PD2 â€” InstantanÃ©s mensuels figÃ©s
+# PD2 — Instantanés mensuels figés
 
-AgrÃ©gat `InstantaneMensuel` (root). Un instantanÃ© par centre et mois (R1). Consomme le verrou de clÃ´ture Facturation
-(OHS).
+> **GEL (2026-11-02, ADR 0075)** : module gelé, statut réel `planned`. Le module avait créé une table parallèle `instantanes_mensuels` : abandonnée. Reprise sur la table legacy **`direction_snapshot`** (V1 : `societe_id`, `mois`, `payload`, `generated_at`, unicité `uq_direction_snapshot`).
 
 ## Cas d'usage
 
-`CapturerInstantaneMensuel`, `ConsulterInstantane`.
+`CapturerInstantaneMensuel`, `ConsulterInstantane` (immuable une fois créé ; mois clôturé non recalculé).
 
-## EntrÃ©es legacy
+## Entrées legacy
 
-`DirectionSnapshotService`.
+`DirectionSnapshotService` ; `DirectionSnapshotRestController` (`/api/v1/direction/snapshots/{mois}`, `/{mois}/report`). Tests classiques : `DirectionSnapshotIntegrationTest`.
 
-## DonnÃ©es
+## Filet existant et manques
 
-Table instantanÃ©s ; aucune migration. Cache `ref.instants.mois` (PT3M).
+Aucun golden dédié. À caractériser : lecture, création, immuabilité, liste des mois, rapport.
+
+## Données
+
+Aucune migration. Fuseau du centre (`centers.fuseau_horaire`) pour la date de capture.

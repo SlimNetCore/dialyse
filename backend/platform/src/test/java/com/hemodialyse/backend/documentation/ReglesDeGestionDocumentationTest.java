@@ -82,7 +82,9 @@ class ReglesDeGestionDocumentationTest {
                     // module GELE le 2026-11-02 (ADR 0073, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies
                     && !p.toString().replace('\\', '/').contains("/contexts/patient-couverture/")
                     // module GELE le 2026-11-02 (ADR 0074, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies
-                    && !p.toString().replace('\\', '/').contains("/contexts/seance/")).toList()) {
+                    && !p.toString().replace('\\', '/').contains("/contexts/seance/")
+                    // module GELE le 2026-11-02 (ADR 0075, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies
+                    && !p.toString().replace('\\', '/').contains("/contexts/pilotage-direction/")).toList()) {
                 try (Stream<Path> files = Files.walk(main)) {
                     files.filter(p -> p.toString().endsWith(".java")).forEach(sources::add);
                 }

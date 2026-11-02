@@ -26,7 +26,6 @@ COPY contexts/absences-patients/pom.xml ./contexts/absences-patients/pom.xml
 COPY contexts/stock/pom.xml ./contexts/stock/pom.xml
 COPY contexts/planification/pom.xml ./contexts/planification/pom.xml
 COPY contexts/organisation/pom.xml ./contexts/organisation/pom.xml
-COPY contexts/pilotage-direction/pom.xml ./contexts/pilotage-direction/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline
