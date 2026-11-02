@@ -44,7 +44,7 @@ class ReplanificationDeNuitCharacterizationIntegrationTest extends OptimisationC
     private void etatDesCalculs(String name) {
         sql(name, "SELECT center_id, perimetre, statut, lance_par, phase, score, erreur, (applique_le IS NOT NULL) AS appliquee, "
                 + "parametres FROM planification_optimisation WHERE center_id IN ('" + CENTRE_A + "','" + CENTRE_B
-                + "') ORDER BY center_id, cree_le, id");
+                + "') ORDER BY center_id, perimetre, cree_le, id");
     }
 
     private int semainesDeCouverture() throws Exception {
