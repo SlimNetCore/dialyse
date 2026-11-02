@@ -80,4 +80,49 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
+    <!-- Reprise sur place (ADR 0024, GEL.md) : les sources gelées d'avant la reprise (Assure, Pec, Attestation, services,
+         adapters et contrôleurs aux URL et aux tables inventées) ne sont plus compilées. Elles sont à SUPPRIMER (aucun outil de
+         suppression dans la session de reprise) ; PC2 à PC5 réécriront leur périmètre. -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/domain/Assure*.java</exclude>
+                        <exclude>**/domain/Attestation*.java</exclude>
+                        <exclude>**/domain/EtatPatient.java</exclude>
+                        <exclude>**/domain/MouvementPatient*.java</exclude>
+                        <exclude>**/domain/MouvementType.java</exclude>
+                        <exclude>**/domain/NumeroDossier.java</exclude>
+                        <exclude>**/domain/Pec*.java</exclude>
+                        <exclude>**/domain/StatutPec.java</exclude>
+                        <exclude>**/domain/TypeAssure.java</exclude>
+                        <exclude>**/application/AssureService.java</exclude>
+                        <exclude>**/application/AssureUseCases.java</exclude>
+                        <exclude>**/application/AttestationService.java</exclude>
+                        <exclude>**/application/AttestationUseCases.java</exclude>
+                        <exclude>**/application/PatientService.java</exclude>
+                        <exclude>**/application/PatientUseCases.java</exclude>
+                        <exclude>**/application/PecService.java</exclude>
+                        <exclude>**/application/PecUseCases.java</exclude>
+                        <exclude>**/configuration/PatientCouvertureConfiguration.java</exclude>
+                        <exclude>**/infrastructure/persistence/*Jdbc.java</exclude>
+                        <exclude>**/interfaces/http/*Controleur.java</exclude>
+                        <exclude>**/interfaces/http/dto/*Request.java</exclude>
+                        <exclude>**/publishedlanguage/Assure*.java</exclude>
+                        <exclude>**/publishedlanguage/Attestation*.java</exclude>
+                        <exclude>**/publishedlanguage/PatientAdmis.java</exclude>
+                        <exclude>**/publishedlanguage/PEC*.java</exclude>
+                    </excludes>
+                    <testExcludes>
+                        <testExclude>**/domain/AssureTest.java</testExclude>
+                        <testExclude>**/domain/PecTest.java</testExclude>
+                    </testExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

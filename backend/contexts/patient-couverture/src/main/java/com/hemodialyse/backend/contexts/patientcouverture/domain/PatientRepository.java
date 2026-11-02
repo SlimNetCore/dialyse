@@ -1,18 +1,20 @@
 package com.hemodialyse.backend.contexts.patientcouverture.domain;
 
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
+/**
+ * Port sortant : les patients (table {@code patients}). Une lecture ne rend que les patients du centre demandé : un patient d'un
+ * autre centre est introuvable.
+ */
 public interface PatientRepository {
-    Optional<Patient> trouver(PatientId id, CentreId centreId);
 
-    void sauvegarder(Patient patient);
+    Optional<Patient> trouver(CentreId centre, PatientId id);
 
-    PagedResult<Patient> lister(CentreId centreId, int page, int size);
+    /** Patient du centre qui porte ce numéro d'assurance (numéro normalisé), s'il y en a un. */
+    Optional<PatientId> trouverLeDetenteurDuNumero(CentreId centre, NumeroAssurance numero);
 
-    List<Patient> listerTous(CentreId centreId);
+    /** Crée ou met à jour le patient (fiche) ; la place est écrite par la Planification, jamais par cet appel seul. */
+    void enregistrer(Patient patient);
 }
