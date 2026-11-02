@@ -1,0 +1,7 @@
+{
+  "affecter l'assuré A au patient B avec centerId=B par l'ADMIN du centre A" : "200",
+  "affecter l'assuré B au patient A avec centerId=A" : "200",
+  "assuré du centre A modifié avec centerId=A par l'ADMIN du centre B" : "200",
+  "assuré du centre B modifié avec centerId=A" : "403",
+  "assuré du centre B modifié avec centerId=B par l'ADMIN du centre A" : "200"
+}

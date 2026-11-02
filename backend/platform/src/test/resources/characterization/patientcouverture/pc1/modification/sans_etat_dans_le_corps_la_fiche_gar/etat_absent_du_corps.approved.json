@@ -1,0 +1,6 @@
+{
+  "GUERRI J+5, corps sans état avec date J+6" : "200",
+  "GUERRI J+5, corps sans état ni date" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état GUERRI",
+  "OCCASIONNEL J+5, corps sans état ni date" : "200",
+  "PERMANENT, état explicitement nul" : "200"
+}

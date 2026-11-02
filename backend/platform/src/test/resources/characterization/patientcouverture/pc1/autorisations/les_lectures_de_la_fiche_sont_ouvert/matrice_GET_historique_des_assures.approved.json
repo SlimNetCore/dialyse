@@ -1,0 +1,13 @@
+{
+  "ADMIN" : "200",
+  "ADMIN sans centre" : "200",
+  "DIRECTION" : "403 ROLE_SCOPE",
+  "INFIRMIER seul" : "200",
+  "MEDECIN + INFIRMIER" : "200",
+  "MEDECIN seul" : "200",
+  "SECRETAIRE" : "200",
+  "SUPERADMIN" : "403 ROLE_SCOPE",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE",
+  "aucun role" : "200",
+  "role inconnu (COMPTABLE)" : "200"
+}

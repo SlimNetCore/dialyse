@@ -85,7 +85,23 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/AlertesDeLOptimisationLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDuCalendrierDeLaPropositionLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/NotificationJournalPort.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/notification/NotificationJournalJdbcAdapter.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/notification/NotificationJournalJdbcAdapter.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/model/PatientType.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/service/PatientDomainService.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/vo/AssureInfo.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/vo/JoursDialyse.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/vo/NumeroAssurance.java",
+    "backend/bc-patient/src/main/java/com/hemodialyse/backend/domain/patient/vo/PatientId.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/query/PatientListQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/query/PatientSummaryQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/spec/PatientSpecifications.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/CreatePatientRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/PatientSearchRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/UpdateAssignmentRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/UpdateAssureRequest.java",
+    "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/Email.java",
+    "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/PhoneNumber.java"
   ],
   "seamAllowed": []
 }

@@ -1,0 +1,80 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "adresse" : "1 rue X",
+    "assureHistoryJson" : "[]",
+    "assureInfo" : {
+      "adresse" : "1 rue X",
+      "dateNaissance" : "<J-20000>",
+      "groupeSanguin" : "A+",
+      "nom" : "Complet",
+      "prenom" : "Prenom",
+      "sexe" : "M",
+      "telBureau" : "00213 23 12 34 56",
+      "telMobile" : "0555123456",
+      "telPersonnel" : "021 12 34 56"
+    },
+    "assureNumeroAssurance" : "PC1-FICHE-1",
+    "categorieTransportId" : null,
+    "centerId" : {
+      "value" : "<CENTRE_A>"
+    },
+    "centrePayeurId" : null,
+    "civilite" : "M.",
+    "codePatient" : "<CODE_PATIENT>",
+    "createdAt" : "<HORODATAGE>",
+    "dateAdmission" : "<J-400>",
+    "dateEvenementEtat" : null,
+    "dateNaissance" : "<J-20000>",
+    "email" : "x@y.zz",
+    "enSommeil" : true,
+    "epoDate" : "<J-30>",
+    "epoEnabled" : true,
+    "etatPatient" : "PERMANENT",
+    "ferDate" : "<J-20>",
+    "ferEnabled" : true,
+    "generateurEtat" : null,
+    "generateurId" : null,
+    "generateurMarque" : null,
+    "generateurNom" : null,
+    "groupeSanguin" : "A+",
+    "id" : {
+      "value" : "<COMPLET>"
+    },
+    "joursDialyse" : {
+      "dimanche" : false,
+      "jeudi" : false,
+      "lundi" : false,
+      "mardi" : false,
+      "mercredi" : false,
+      "samedi" : false,
+      "vendredi" : false
+    },
+    "lieuNaissance" : "Alger",
+    "medecinTraitantId" : null,
+    "nom" : "Complet",
+    "nombreEnfants" : 2,
+    "numeroAssurance" : {
+      "value" : "PC1-FICHE-1"
+    },
+    "observation" : "Observation",
+    "photoBase64" : null,
+    "piecesJointesJson" : null,
+    "positionId" : null,
+    "prenom" : "Prenom",
+    "profession" : "Enseignant",
+    "qualiteAssure" : "ASSURE_LUI_MEME",
+    "salleId" : null,
+    "sexe" : "M",
+    "situationFamiliale" : "Marié",
+    "sousKt" : true,
+    "telBureau" : "+21323123456",
+    "telMobile" : "0555123456",
+    "telPersonnel" : "021123456",
+    "transporteurAllerId" : null,
+    "transporteurRetourId" : null,
+    "typePatient" : "NON_VACANCIER"
+  }
+}

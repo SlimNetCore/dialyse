@@ -1,0 +1,25 @@
+[ {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J+6>",
+  "etat_nouveau" : "GUERRI",
+  "etat_precedent" : "GUERRI",
+  "generateur_id" : null,
+  "jours_dialyse" : "",
+  "nom" : "Patient K2",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "GUERISON"
+}, {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "OCCASIONNEL",
+  "etat_precedent" : "OCCASIONNEL",
+  "generateur_id" : null,
+  "jours_dialyse" : "",
+  "nom" : "Patient K3",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "SEJOUR_TEMPORAIRE"
+} ]

@@ -1,0 +1,25 @@
+[ {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J>",
+  "etat_nouveau" : "PERMANENT",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : null,
+  "jours_dialyse" : "",
+  "nom" : "Patient R1",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "REPRISE"
+}, {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J-2>",
+  "etat_nouveau" : "PERMANENT",
+  "etat_precedent" : "TRANSFERE",
+  "generateur_id" : null,
+  "jours_dialyse" : "",
+  "nom" : "Patient R2",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "REPRISE"
+} ]

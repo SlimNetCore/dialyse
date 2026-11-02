@@ -1,0 +1,8 @@
+{
+  "conjoint, date de naissance de l'assuré illisible" : "200",
+  "deuxième patient sur le même assuré" : "200",
+  "enfant avec assuré" : "200",
+  "enfant sans numéro d'assuré" : "400 BAD_REQUEST : N° assurance assuré obligatoire pour cette qualité d'assuré",
+  "fiches écrites après le refus" : 0,
+  "qualité d'assuré inconnue" : "200"
+}

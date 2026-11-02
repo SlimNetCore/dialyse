@@ -1,0 +1,16 @@
+{
+  "détail du résumé" : "200",
+  "enSommeil" : "false",
+  "etatPatient" : "null",
+  "joursDialyse" : "{\"dimanche\":false,\"lundi\":false,\"mardi\":false,\"mercredi\":false,\"jeudi\":false,\"vendredi\":false,\"samedi\":false}",
+  "lecture de la fiche" : "200",
+  "modification" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "nombreEnfants" : "0",
+  "qualiteAssure" : "null",
+  "recherche" : "200",
+  "recherche : etatPatient" : "null",
+  "recherche : jourLundi" : "null",
+  "recherche : nonFacturable" : "true",
+  "résumé" : "200",
+  "sousKt" : "false"
+}

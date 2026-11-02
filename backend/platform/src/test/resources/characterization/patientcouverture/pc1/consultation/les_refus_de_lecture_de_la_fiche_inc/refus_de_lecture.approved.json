@@ -1,0 +1,11 @@
+{
+  "centerId illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centre A demandé par l'ADMIN du centre B" : 200,
+  "centre B demandé par l'ADMIN du centre B pour un patient du centre A" : "400 BAD_REQUEST : Patient introuvable",
+  "centre B demandé pour un patient du centre A (ADMIN du centre A)" : "400 BAD_REQUEST : Patient introuvable",
+  "fiche connue" : 200,
+  "identifiant illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "identifiant inconnu" : "400 BAD_REQUEST : Patient introuvable",
+  "sans centerId" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "userId inutilisé accepté" : 200
+}

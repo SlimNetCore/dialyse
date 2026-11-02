@@ -1,0 +1,7 @@
+{
+  "admission dans le futur" : "200",
+  "admission le 30 février" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "naissance au format jj/mm/aaaa" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "naissance dans le futur" : "200",
+  "naissance postérieure à l'admission" : "200"
+}

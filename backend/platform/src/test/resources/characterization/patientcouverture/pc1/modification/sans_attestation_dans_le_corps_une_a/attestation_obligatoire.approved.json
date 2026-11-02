@@ -1,0 +1,6 @@
+{
+  "début seul sans attestation existante" : "400 BAD_REQUEST : Attestation obligatoire pour un patient non-vacancier",
+  "permanent avec attestation existante" : "200",
+  "permanent sans attestation existante ni saisie" : "400 BAD_REQUEST : Attestation obligatoire pour un patient non-vacancier",
+  "vacancier sans attestation" : "200"
+}

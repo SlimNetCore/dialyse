@@ -1,0 +1,13 @@
+[ {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J+3>",
+  "etat_nouveau" : "PERMANENT",
+  "etat_precedent" : null,
+  "generateur_id" : "<G1A>",
+  "jours_dialyse" : "DIMANCHE,LUNDI,MARDI,MERCREDI,JEUDI,VENDREDI,SAMEDI",
+  "nom" : "Futur",
+  "position_id" : "<CRENEAU_MATIN>",
+  "salle_id" : "<SALLE_1>",
+  "type" : "ADMISSION"
+} ]

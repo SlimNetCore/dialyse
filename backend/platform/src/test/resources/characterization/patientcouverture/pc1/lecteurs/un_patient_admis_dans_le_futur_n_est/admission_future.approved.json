@@ -1,0 +1,15 @@
+{
+  "attendus" : {
+    "attendus J" : [ ],
+    "attendus J+1" : [ ],
+    "attendus J+2" : [ ],
+    "attendus J-1" : [ ],
+    "attendus J-2" : [ ]
+  },
+  "autour de l'admission" : {
+    "attendus J+2" : [ ],
+    "attendus J+3" : [ "<FUTUR>" ],
+    "attendus J+4" : [ "<FUTUR>" ]
+  },
+  "création" : "200"
+}

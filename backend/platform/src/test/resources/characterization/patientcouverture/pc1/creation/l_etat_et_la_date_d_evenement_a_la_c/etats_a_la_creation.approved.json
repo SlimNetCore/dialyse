@@ -1,0 +1,21 @@
+{
+  "état '' date absente" : "200",
+  "état 'BIDON' date absente" : "200",
+  "état 'DECEDE' date J+5" : "200",
+  "état 'DECEDE' date absente" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état DECEDE",
+  "état 'GREFFE' date J+5" : "200",
+  "état 'GREFFE' date absente" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état GREFFE",
+  "état 'GUERRI' date J+5" : "200",
+  "état 'GUERRI' date absente" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état GUERRI",
+  "état 'OCCASIONNEL' date J+5" : "200",
+  "état 'OCCASIONNEL' date absente" : "200",
+  "état 'PERMANENT' date J+5" : "200",
+  "état 'PERMANENT' date J-400" : "200",
+  "état 'PERMANENT' date J-401" : "422 PATIENT_DATE_EVENEMENT_AVANT_ADMISSION : La date de l'évènement ne peut pas précéder la date d'admission",
+  "état 'TRANSFERE' date J+5" : "200",
+  "état 'TRANSFERE' date J-401" : "422 PATIENT_DATE_EVENEMENT_AVANT_ADMISSION : La date de l'évènement ne peut pas précéder la date d'admission",
+  "état 'TRANSFERE' date absente" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état TRANSFERE",
+  "état 'VACANCIER_ETRANGER' date absente" : "200",
+  "état 'VACANCIER_LOCAL' date J+5" : "200",
+  "état 'permanent' date absente" : "200"
+}

@@ -1,0 +1,11 @@
+{
+  "DECEDE sans date" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état DECEDE",
+  "GREFFE sans date" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état GREFFE",
+  "GUERRI sans date" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état GUERRI",
+  "OCCASIONNEL J-401, admission J-400" : "422 PATIENT_DATE_EVENEMENT_AVANT_ADMISSION : La date de l'évènement ne peut pas précéder la date d'admission",
+  "PERMANENT J-401, admission J-400" : "422 PATIENT_DATE_EVENEMENT_AVANT_ADMISSION : La date de l'évènement ne peut pas précéder la date d'admission",
+  "TRANSFERE J-401, admission J-400" : "422 PATIENT_DATE_EVENEMENT_AVANT_ADMISSION : La date de l'évènement ne peut pas précéder la date d'admission",
+  "TRANSFERE le jour même de l'admission" : "200",
+  "TRANSFERE sans date" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état TRANSFERE",
+  "admission reculée après la date d'événement saisie" : "422 PATIENT_DATE_EVENEMENT_AVANT_ADMISSION : La date de l'évènement ne peut pas précéder la date d'admission"
+}

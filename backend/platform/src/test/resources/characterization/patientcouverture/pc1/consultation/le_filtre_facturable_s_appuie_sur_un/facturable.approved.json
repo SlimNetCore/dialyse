@@ -1,0 +1,5 @@
+{
+  "colonnes de la liste" : [ "Alpha nonFacturable=false pecStatus=\"VALIDEE\"", "Beta nonFacturable=true pecStatus=null", "Delta nonFacturable=true pecStatus=null", "Epsilon nonFacturable=false pecStatus=\"VALIDEE\"", "Eta_Bis nonFacturable=true pecStatus=null", "Gamma nonFacturable=true pecStatus=null", "Theta nonFacturable=true pecStatus=null" ],
+  "nonFacturable=false" : "[Alpha, Beta, Epsilon]",
+  "nonFacturable=true" : "[Delta, Eta_Bis, Gamma, Theta]"
+}

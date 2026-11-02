@@ -1,0 +1,9 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Renomme",
+  "numero_assurance" : "PC1-AS-A"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "nom" : "Renomme",
+  "numero_assurance" : "PC1-AS-B"
+} ]

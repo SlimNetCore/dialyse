@@ -1,0 +1,7 @@
+{
+  "même numéro avec espace final" : "200",
+  "même numéro, autre centre" : "200",
+  "même numéro, casse différente" : "422 BUSINESS_RULE_VIOLATION : Numero assurance deja utilise pour ce centre",
+  "même numéro, même centre" : "422 BUSINESS_RULE_VIOLATION : Numero assurance deja utilise pour ce centre",
+  "première création" : "200"
+}

@@ -1,0 +1,18 @@
+{
+  "corps []" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps vide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':'<CENTRE_A>','page':'a','size':20}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':'<CENTRE_A>','page':-1,'size':20}" : "400 VALIDATION_ERROR : Invalid request content.",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':0}" : "400 VALIDATION_ERROR : Invalid request content.",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':1}" : "200 total=7 items=1",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':20,'dateAdmissionFrom':'pas une date'}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':20,'nonFacturable':'peut-etre'}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':200}" : "200 total=7 items=7",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':201}" : "400 VALIDATION_ERROR : Invalid request content.",
+  "corps {'centerId':'<CENTRE_A>','page':9,'size':20}" : "200 total=7 items=0",
+  "corps {'centerId':'<CENTRE_A>'}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':'x','page':0,'size':20}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':null,'page':0,'size':20}" : "400 VALIDATION_ERROR : Invalid request content.",
+  "corps {'page':0,'size':20}" : "400 VALIDATION_ERROR : Invalid request content."
+}

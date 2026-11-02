@@ -1,0 +1,25 @@
+[ {
+  "date_debut_affectation" : null,
+  "date_fin_affectation" : null,
+  "is_primary" : "true",
+  "nom" : "Ascendant",
+  "numero_assurance" : "PC1-ASSURE-3"
+}, {
+  "date_debut_affectation" : null,
+  "date_fin_affectation" : null,
+  "is_primary" : "true",
+  "nom" : "Conjoint",
+  "numero_assurance" : "PC1-ASSURE-2"
+}, {
+  "date_debut_affectation" : null,
+  "date_fin_affectation" : null,
+  "is_primary" : "true",
+  "nom" : "Enfant",
+  "numero_assurance" : "PC1-ASSURE-1"
+}, {
+  "date_debut_affectation" : null,
+  "date_fin_affectation" : null,
+  "is_primary" : "true",
+  "nom" : "Soeur",
+  "numero_assurance" : "PC1-ASSURE-1"
+} ]

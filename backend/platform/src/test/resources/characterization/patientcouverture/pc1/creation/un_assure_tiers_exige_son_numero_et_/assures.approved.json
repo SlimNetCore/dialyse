@@ -1,0 +1,22 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : "<J-15000>",
+  "nom" : "Parent modifié",
+  "numero_assurance" : "PC1-ASSURE-1",
+  "prenom" : null,
+  "sexe" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : null,
+  "nom" : "Conjointe",
+  "numero_assurance" : "PC1-ASSURE-2",
+  "prenom" : null,
+  "sexe" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : null,
+  "nom" : null,
+  "numero_assurance" : "PC1-ASSURE-3",
+  "prenom" : null,
+  "sexe" : null
+} ]

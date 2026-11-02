@@ -1,0 +1,11 @@
+{
+  "corps []" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps null" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps vide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'centerId':'pas-un-uuid'}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'nombreEnfants':'beaucoup'}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {'sousKt':'peut-etre'}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps {}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "empreinte inchangée" : true
+}

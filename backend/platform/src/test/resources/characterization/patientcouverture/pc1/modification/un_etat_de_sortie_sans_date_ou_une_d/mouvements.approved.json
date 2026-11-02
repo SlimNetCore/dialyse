@@ -1,0 +1,13 @@
+[ {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J-400>",
+  "etat_nouveau" : "TRANSFERE",
+  "etat_precedent" : "PERMANENT",
+  "generateur_id" : null,
+  "jours_dialyse" : "",
+  "nom" : "Patient B1",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "TRANSFERT"
+} ]

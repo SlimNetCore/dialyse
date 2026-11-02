@@ -1,0 +1,5 @@
+{
+  "enfant avec assuré" : "200",
+  "enfant sans assuré" : "400 BAD_REQUEST : N° assurance assuré obligatoire pour cette qualité d'assuré",
+  "retour à assuré lui-même" : "200"
+}

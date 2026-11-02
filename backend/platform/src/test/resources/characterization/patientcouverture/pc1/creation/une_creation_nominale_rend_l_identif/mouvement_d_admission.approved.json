@@ -1,0 +1,13 @@
+[ {
+  "automatique" : "false",
+  "center_id" : "<CENTRE_A>",
+  "date_effet" : "<J-400>",
+  "etat_nouveau" : "PERMANENT",
+  "etat_precedent" : null,
+  "generateur_id" : null,
+  "jours_dialyse" : "",
+  "nom" : "Dupont",
+  "position_id" : null,
+  "salle_id" : null,
+  "type" : "ADMISSION"
+} ]

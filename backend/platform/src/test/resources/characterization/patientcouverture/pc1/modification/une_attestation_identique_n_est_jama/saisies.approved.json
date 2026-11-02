@@ -1,0 +1,6 @@
+{
+  "autre date de fin" : "200",
+  "fin avant début" : "400 BAD_REQUEST : Date fin avant date debut",
+  "même saisie" : "200",
+  "première saisie" : "200"
+}

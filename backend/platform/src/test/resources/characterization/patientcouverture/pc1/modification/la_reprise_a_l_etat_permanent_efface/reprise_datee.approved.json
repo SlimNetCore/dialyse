@@ -1,0 +1,10 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "codePatient" : "P3-R2",
+    "id" : "<R2>",
+    "typePatient" : "NON_VACANCIER"
+  }
+}

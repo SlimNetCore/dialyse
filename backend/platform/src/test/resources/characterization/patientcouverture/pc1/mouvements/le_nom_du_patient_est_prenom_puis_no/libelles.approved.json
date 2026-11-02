@@ -1,0 +1,20 @@
+{
+  "DECES" : {
+    "creneau" : "null",
+    "generateur" : "null",
+    "patientNom" : "Test Patient C",
+    "salle" : "null"
+  },
+  "REPRISE" : {
+    "creneau" : "null",
+    "generateur" : "null",
+    "patientNom" : "Patient A",
+    "salle" : "null"
+  },
+  "TRANSFERT" : {
+    "creneau" : "\"Apres-midi\"",
+    "generateur" : "\"G2A\"",
+    "patientNom" : "Patient B",
+    "salle" : "\"Salle 2\""
+  }
+}

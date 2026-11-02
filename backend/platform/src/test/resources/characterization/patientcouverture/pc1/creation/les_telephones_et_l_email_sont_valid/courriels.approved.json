@@ -1,0 +1,14 @@
+{
+  "email '   '" : "200 -> stocké null",
+  "email '  a@b.co  '" : "200 -> stocké a@b.co",
+  "email ''" : "200 -> stocké null",
+  "email '@b.co'" : "400 BAD_REQUEST : Email invalide",
+  "email 'Jean.Dupont+x@Exemple.FR'" : "200 -> stocké jean.dupont+x@exemple.fr",
+  "email 'a b@c.co'" : "400 BAD_REQUEST : Email invalide",
+  "email 'a@@b.co'" : "400 BAD_REQUEST : Email invalide",
+  "email 'a@b'" : "400 BAD_REQUEST : Email invalide",
+  "email 'a@b..co'" : "200 -> stocké a@b..co",
+  "email 'a@b.c'" : "400 BAD_REQUEST : Email invalide",
+  "email 'a@b.co'" : "200 -> stocké a@b.co",
+  "email 'é@b.co'" : "400 BAD_REQUEST : Email invalide"
+}

@@ -1,0 +1,54 @@
+{
+  "body" : {
+    "ageDistribution" : [ {
+      "code" : "0_17",
+      "count" : 0,
+      "label" : "0-17 ans"
+    }, {
+      "code" : "18_29",
+      "count" : 0,
+      "label" : "18-29 ans"
+    }, {
+      "code" : "30_44",
+      "count" : 0,
+      "label" : "30-44 ans"
+    }, {
+      "code" : "45_59",
+      "count" : 7,
+      "label" : "45-59 ans"
+    }, {
+      "code" : "60_PLUS",
+      "count" : 0,
+      "label" : "60 ans et +"
+    }, {
+      "code" : "INCONNU",
+      "count" : 0,
+      "label" : "Non renseigné"
+    } ],
+    "ktDistribution" : [ {
+      "code" : "OUI",
+      "count" : 0,
+      "label" : "Sous KT"
+    }, {
+      "code" : "NON",
+      "count" : 7,
+      "label" : "Sans KT"
+    } ],
+    "sexDistribution" : [ {
+      "code" : "M",
+      "count" : 4,
+      "label" : "Masculin"
+    }, {
+      "code" : "F",
+      "count" : 3,
+      "label" : "Féminin"
+    }, {
+      "code" : "AUTRE",
+      "count" : 0,
+      "label" : "Autre / inconnu"
+    } ],
+    "totalPatients" : 7
+  },
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "status" : 200
+}

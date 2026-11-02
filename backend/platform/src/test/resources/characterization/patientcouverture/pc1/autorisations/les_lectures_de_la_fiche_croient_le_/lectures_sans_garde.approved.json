@@ -1,0 +1,10 @@
+{
+  "détail du résumé du centre B par l'ADMIN du centre A" : 1,
+  "fiche du centre B lue par l'ADMIN du centre A" : 200,
+  "fiche du centre B lue sans centre de session" : 200,
+  "historique des assurés du patient B demandé avec le centre B" : 200,
+  "recherche du centre B par l'ADMIN du centre A" : "200 total=1",
+  "recherche du centre B par le médecin du centre A" : 200,
+  "recherche sans centre de session (ADMIN sans centre)" : 200,
+  "résumé du centre B par l'ADMIN du centre A" : 1
+}

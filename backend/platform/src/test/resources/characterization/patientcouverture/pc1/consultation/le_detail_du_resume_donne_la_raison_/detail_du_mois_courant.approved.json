@@ -1,0 +1,86 @@
+{
+  "body" : {
+    "items" : [ {
+      "codePatient" : "PC1-C1",
+      "dateAdmission" : "<J-50>",
+      "dateEvenementEtat" : null,
+      "etatPatient" : "PERMANENT",
+      "inclusionReason" : "PERMANENT",
+      "nom" : "Alpha",
+      "patientId" : "<C1>",
+      "prenom" : "Zoe",
+      "sexe" : "F",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C2",
+      "dateAdmission" : "<J-40>",
+      "dateEvenementEtat" : "<J+100>",
+      "etatPatient" : "TRANSFERE",
+      "inclusionReason" : "ACTIVE_PERIOD",
+      "nom" : "Beta",
+      "patientId" : "<C2>",
+      "prenom" : "Yann",
+      "sexe" : "M",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C4",
+      "dateAdmission" : "<J-20>",
+      "dateEvenementEtat" : "<J+100>",
+      "etatPatient" : "GUERRI",
+      "inclusionReason" : "ACTIVE_PERIOD",
+      "nom" : "Delta",
+      "patientId" : "<C4>",
+      "prenom" : "Walid",
+      "sexe" : "M",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C5",
+      "dateAdmission" : "<J-10>",
+      "dateEvenementEtat" : "<J+100>",
+      "etatPatient" : "OCCASIONNEL",
+      "inclusionReason" : "ACTIVE_PERIOD",
+      "nom" : "Epsilon",
+      "patientId" : "<C5>",
+      "prenom" : "Victor",
+      "sexe" : "F",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C6",
+      "dateAdmission" : "<J-5>",
+      "dateEvenementEtat" : "<J+100>",
+      "etatPatient" : "VACANCIER_LOCAL",
+      "inclusionReason" : "ACTIVE_PERIOD",
+      "nom" : "Eta_Bis",
+      "patientId" : "<C6>",
+      "prenom" : "Ulysse",
+      "sexe" : "M",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C3",
+      "dateAdmission" : "<J-30>",
+      "dateEvenementEtat" : "<J+100>",
+      "etatPatient" : "DECEDE",
+      "inclusionReason" : "ACTIVE_PERIOD",
+      "nom" : "Gamma",
+      "patientId" : "<C3>",
+      "prenom" : "Xavier",
+      "sexe" : "M",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C7",
+      "dateAdmission" : "<J-400>",
+      "dateEvenementEtat" : null,
+      "etatPatient" : "PERMANENT",
+      "inclusionReason" : "PERMANENT",
+      "nom" : "Theta",
+      "patientId" : "<C7>",
+      "prenom" : "Tess",
+      "sexe" : "F",
+      "sousKt" : false
+    } ],
+    "month" : "<MOIS_COURANT>",
+    "total" : 7
+  },
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "status" : 200
+}

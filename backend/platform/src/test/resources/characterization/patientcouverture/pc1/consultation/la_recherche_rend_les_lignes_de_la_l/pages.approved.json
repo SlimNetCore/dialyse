@@ -1,0 +1,26 @@
+{
+  "page 0 taille 3" : {
+    "noms" : [ "Alpha", "Beta", "Delta" ],
+    "page" : 0,
+    "size" : 3,
+    "total" : 7
+  },
+  "page 1 taille 3" : {
+    "noms" : [ "Epsilon", "Eta_Bis", "Gamma" ],
+    "page" : 1,
+    "size" : 3,
+    "total" : 7
+  },
+  "page 2 taille 3" : {
+    "noms" : [ "Theta" ],
+    "page" : 2,
+    "size" : 3,
+    "total" : 7
+  },
+  "page 3 taille 3" : {
+    "noms" : [ ],
+    "page" : 3,
+    "size" : 3,
+    "total" : 7
+  }
+}

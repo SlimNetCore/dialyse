@@ -1,0 +1,5 @@
+{
+  "liste complète" : "400 BAD_REQUEST : No enum constant com.hemodialyse.backend.domain.patient.model.TypeMouvementPatient.TYPE_HERITE",
+  "liste filtrée hors de la ligne héritée (dates)" : 200,
+  "liste filtrée sur un autre type" : 200
+}

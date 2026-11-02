@@ -1,0 +1,80 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "adresse" : null,
+    "assureHistoryJson" : null,
+    "assureInfo" : {
+      "adresse" : null,
+      "dateNaissance" : null,
+      "groupeSanguin" : null,
+      "nom" : null,
+      "prenom" : null,
+      "sexe" : null,
+      "telBureau" : null,
+      "telMobile" : null,
+      "telPersonnel" : null
+    },
+    "assureNumeroAssurance" : null,
+    "categorieTransportId" : null,
+    "centerId" : {
+      "value" : "<CENTRE_A>"
+    },
+    "centrePayeurId" : null,
+    "civilite" : null,
+    "codePatient" : "P3-LUI_MEME",
+    "createdAt" : "<HORODATAGE>",
+    "dateAdmission" : "<J-400>",
+    "dateEvenementEtat" : null,
+    "dateNaissance" : null,
+    "email" : null,
+    "enSommeil" : false,
+    "epoDate" : null,
+    "epoEnabled" : false,
+    "etatPatient" : "PERMANENT",
+    "ferDate" : null,
+    "ferEnabled" : false,
+    "generateurEtat" : null,
+    "generateurId" : null,
+    "generateurMarque" : null,
+    "generateurNom" : null,
+    "groupeSanguin" : null,
+    "id" : {
+      "value" : "<LUI_MEME>"
+    },
+    "joursDialyse" : {
+      "dimanche" : false,
+      "jeudi" : false,
+      "lundi" : false,
+      "mardi" : false,
+      "mercredi" : false,
+      "samedi" : false,
+      "vendredi" : false
+    },
+    "lieuNaissance" : null,
+    "medecinTraitantId" : null,
+    "nom" : "Patient LUI_MEME",
+    "nombreEnfants" : 0,
+    "numeroAssurance" : {
+      "value" : "ASS-P3-LUI_MEME"
+    },
+    "observation" : null,
+    "photoBase64" : null,
+    "piecesJointesJson" : null,
+    "positionId" : null,
+    "prenom" : "Test",
+    "profession" : null,
+    "qualiteAssure" : null,
+    "salleId" : null,
+    "sexe" : "M",
+    "situationFamiliale" : null,
+    "sousKt" : false,
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null,
+    "transporteurAllerId" : null,
+    "transporteurRetourId" : null,
+    "typePatient" : "NON_VACANCIER"
+  }
+}

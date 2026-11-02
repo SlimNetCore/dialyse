@@ -1,0 +1,5 @@
+{
+  "POST dans le centre B par l'ADMIN du centre A" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "PUT d'un patient du centre A avec le centre A dans le corps (ADMIN du centre B)" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "PUT d'un patient du centre A avec le centre B dans le corps (ADMIN du centre A)" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session"
+}

@@ -1,0 +1,32 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "codePatient" : "PC1-C1",
+      "dateAdmission" : "<J-50>",
+      "dateEvenementEtat" : null,
+      "etatPatient" : "PERMANENT",
+      "inclusionReason" : "PERMANENT",
+      "nom" : "Alpha",
+      "patientId" : "<C1>",
+      "prenom" : "Zoe",
+      "sexe" : "F",
+      "sousKt" : false
+    }, {
+      "codePatient" : "PC1-C7",
+      "dateAdmission" : "<J-400>",
+      "dateEvenementEtat" : null,
+      "etatPatient" : "PERMANENT",
+      "inclusionReason" : "PERMANENT",
+      "nom" : "Theta",
+      "patientId" : "<C7>",
+      "prenom" : "Tess",
+      "sexe" : "F",
+      "sousKt" : false
+    } ],
+    "month" : "2099-12",
+    "total" : 2
+  }
+}
