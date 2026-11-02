@@ -1247,9 +1247,31 @@ Filet : `backend/platform/src/test/java/com/hemodialyse/backend/characterization
 
 ## Slice planification-p8-optimisation (2026-10-28) : KB-PLN-89 à KB-PLN-105
 
-Observés par `backend/platform/src/test/java/com/hemodialyse/backend/characterization/planification/optimisation/*IntegrationTest` (39 scénarios), goldens `src/test/resources/characterization/planification/p8-optimisation/`. Reproduits tels quels (rien n'est corrigé). Les décisions « reproduire / corriger » sont à prendre par l'utilisateur dans l'ADR de la slice.
+Observés par `backend/platform/src/test/java/com/hemodialyse/backend/characterization/planification/optimisation/*IntegrationTest` (39 scénarios), goldens `src/test/resources/characterization/planification/p8-optimisation/`. Reproduits tels quels sur le legacy. **Décisions prises** (utilisateur, 2026-10-28) et tracées dans l'ADR 0068 (à valider) : la colonne de droite du tableau est l'hypothèse de départ, le tableau « Statuts » ci-dessous fait foi.
 
-| Id | Comportement constaté (legacy) | Décision à prendre |
+### Statuts (ADR 0068)
+
+| Id | Statut | Golden / test |
+|---|---|---|
+| KB-PLN-89 | **CORRIGÉ** : 400 `BAD_REQUEST` | `lancement/validations_du_lancement_nouveau_code`, `consultations_mal_formees_nouveau_code` |
+| KB-PLN-90 | **CORRIGÉ** : `page` négative 400, `size` ≤ 100 | `consultations_mal_formees_nouveau_code`, test `Pagination` |
+| KB-PLN-91 | **CORRIGÉ** : 409 `DEJA_EN_COURS`/`DEJA_APPLIQUEE`/`PERIMEE`, 404 `INTROUVABLE` ; autres règles 422 reproduites | `lancement/*_nouveau_code`, `application/executions_non_applicables_nouveau_code` |
+| KB-PLN-92 | **CORRIGÉ** : verrou en base, y compris multi-instance ; transitions gardées, reprise par instance | `OptimisationContrat` (H2, PG16), `LancementConcurrentPostgresContractIT`, `deux_lancements_simultanes_nouveau_code` |
+| KB-PLN-93 | **CORRIGÉ** : 403 avant la lecture du corps | `lancement/garde_de_centre_nouveau_code`, `donnees/routes_par_profil_nouveau_code` |
+| KB-PLN-94 | **REPRODUIT** (droits inchangés) | golden legacy |
+| KB-PLN-95 | **CORRIGÉ** : empreinte élargie | tests de domaine `Empreinte`, `application/seconde_application_*_nouveau_code` |
+| KB-PLN-96 | **CORRIGÉ** : infirmiers notifiés (compte de l'infirmier + ADMIN), `SEANCES_DEPLACEES` après le commit | `application/notifications_*_nouveau_code`, `NotificationJournalIntegrationTest` |
+| KB-PLN-97 | **CORRIGÉ** : remplacé relié, application via les agrégats P3 (`CouvertureDesAbsences`) | `application/remplacements_apres_*_nouveau_code`, `CouvertureDesAbsencesTest` |
+| KB-PLN-98 | **REPRODUIT** (tout ou rien, vérifié avant d'écrire) | golden legacy |
+| KB-PLN-99 | **REPRODUIT** | golden legacy |
+| KB-PLN-100 | **REPRODUIT** | golden legacy |
+| KB-PLN-101 | **REPRODUIT** (historique plafonné à 20) | golden legacy |
+| KB-PLN-102 | **REPRODUIT** (réglages du centre figés au lancement) | golden legacy |
+| KB-PLN-103 | **CORRIGÉ** : centres actifs, jour du centre pour « aujourd'hui » | `ReplanificationDeNuitApplicationTest`, filet de nuit |
+| KB-PLN-104 | **REPRODUIT** | golden legacy |
+| KB-PLN-105 | **CORRIGÉ** : propriétaire unique (le contexte) ; cible incohérente 422 `DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE` | contrat `OptimisationContrat`, `application/effet_de_chaque_changement_*` |
+
+| Id | Comportement constaté (legacy) | Hypothèse de départ (voir « Statuts ») |
 |---|---|---|
 | KB-PLN-89 | **500 `INTERNAL_ERROR` au lieu de 400** pour toute entrée illisible : corps vide ou JSON tronqué, périmètre inconnu ou en minuscules (`patients`), objectif inconnu, `nbSemaines` texte, `debutSemaine` mal formée, identifiant non UUID dans le chemin, `calendrier?semaine=abc`, `?page=abc`. Seules les bornes (durée 2 à 300, horizon 1 à 8, stabilité 0 à 10, vacations 1 à 3 / 1 à 14) donnent 400 `BAD_REQUEST` et l'absence de périmètre 400 `VALIDATION_ERROR` (dette commune KB-PLN-68) | corriger en 400 (probable) ou reproduire |
 | KB-PLN-90 | **Pagination sans validation** : `page=-1&size=0` rend 200 avec `items=[]` et renvoie `page`/`size` tels quels ; `size=1000` accepté (aucun plafond) ; `page` au-delà du total : page vide | reproduire ou borner |
