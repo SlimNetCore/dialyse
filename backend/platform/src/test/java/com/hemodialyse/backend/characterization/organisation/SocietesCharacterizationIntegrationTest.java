@@ -99,8 +99,7 @@ class SocietesCharacterizationIntegrationTest extends OrganisationCharacterizati
         golden("detail-inconnu", doGet(S + "/" + UUID.fromString("99998200-0000-0000-0000-0000000000e9"), superadmin()));
     }
 
-    /** ÉCART À DÉCIDER (KB-ORG-02) : 500 legacy contre 400 nouveau code pour un identifiant de société illisible. */
-    @org.junit.jupiter.api.Disabled("KB-ORG-02 : 500 legacy contre 400 nouveau code, décision de l'utilisateur attendue")
+    /** ÉCART DÉCIDÉ (KB-ORG-02, 2026-11-03) : 500 legacy contre 400 nouveau code pour un identifiant de société illisible. */
     @Test
     void identifiant_de_societe_illisible_ecart_a_decider() throws Exception {
         amorcer();

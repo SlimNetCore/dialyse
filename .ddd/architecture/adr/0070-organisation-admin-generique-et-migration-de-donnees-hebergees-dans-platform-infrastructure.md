@@ -31,8 +31,7 @@ contexte Organisation.
 ## Décision proposée
 
 Option 1 à court terme, avec une dette explicite : l'admin générique contourne les invariants d'Organisation (écrit en SQL dans ses tables
-sans passer par les use cases) et la désactivation logique des médecins (migration V52) n'y est pas appliquée (la suppression d'un médecin y
-reste physique, avec contrôle d'usage). Chemin de sortie : option 2, par type de référentiel, quand O4 (lectures publiées) sera faite.
+sans passer par les use cases) (la désactivation logique des médecins, migration V52, y a été appliquée le 2026-11-03 : voir la mise à jour ci-dessous). Chemin de sortie : option 2, par type de référentiel, quand O4 (lectures publiées) sera faite.
 
 Garde-fous en attendant : le filet rétroactif caractérise ces routes
 (`AdministrationDesReferentielsCharacterizationIntegrationTest`, matrice de droits et gardes de centre) ; `TableDeLOrganisationTest` liste
@@ -44,7 +43,18 @@ les lecteurs SQL directs.
   propriétaire en écriture »).
 - À valider par l'utilisateur ; non appliqué au-delà de l'existant.
 
+## Mise à jour du 2026-11-03 (décision de l'utilisateur)
+
+- **Question tranchée** : la suppression d'un médecin de l'admin générique est alignée sur la désactivation logique (migration V52,
+  `medecin.actif`) : édition minimale de `ReferentialAdminJdbcAdapter` (seam inscrit puis fermé, `seams.md`) : pour le seul référentiel
+  `medecin`, `delete` fait `UPDATE medecin SET actif = FALSE` et les lectures ignorent les médecins inactifs. Le contrôle d'usage du service
+  de domaine (422 `REFERENTIAL_IN_USE` quand des patients ou prescriptions référencent le médecin) est conservé tel quel. Filet :
+  `AdministrationDesReferentielsCharacterizationIntegrationTest` (golden `medecin-lignes-en-base_nouveau_code`, legacy archivé dans
+  `o2-administration/_ecarts-legacy`) ; l'import CSV des médecins est caractérisé et à parité.
+- **Constat O4** : `organisation.v1` n'a aucun consommateur, 30 sources lisent les tables en SQL direct ; la slice O4 reste `planned` (voir
+  sa fiche). Tant qu'elle n'est pas faite, l'option 1 ci-dessus reste la décision de fait.
+
 ## Questions ouvertes
 
-- Faut-il aligner la suppression d'un médecin de l'admin générique sur la désactivation logique (V52) ?
 - L'outillage de migration de données doit-il être retiré ?
+- L'admin générique doit-il passer par les use cases d'Organisation pour les salles, créneaux et médecins (option 2) ?

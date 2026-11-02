@@ -78,11 +78,7 @@ class ReferentielsCharacterizationIntegrationTest extends OrganisationCharacteri
         golden("salles-sans-centre", doGet(R + "/salles", as(CENTRE_A, "ADMIN")));
     }
 
-    /**
-     * ÉCART À DÉCIDER (KB-ORG-02) : le legacy répondait 500 à un identifiant illisible ; le nouveau code répond 400. Aucun golden
-     * {@code _nouveau_code} n'est approuvé tant que l'utilisateur n'a pas tranché : le scénario reste désactivé.
-     */
-    @org.junit.jupiter.api.Disabled("KB-ORG-02 : 500 legacy contre 400 nouveau code, décision de l'utilisateur attendue")
+    /** ÉCART DÉCIDÉ (KB-ORG-02, 2026-11-03) : le legacy répondait 500 à un identifiant illisible ; le nouveau code répond 400. */
     @Test
     void identifiants_illisibles_ecart_a_decider() throws Exception {
         amorcer();
@@ -91,11 +87,9 @@ class ReferentielsCharacterizationIntegrationTest extends OrganisationCharacteri
     }
 
     /**
-     * ÉCART À DÉCIDER (KB-ORG-03) : le legacy listait les médecins dans l'ordre physique de la table ; le nouveau code les trie par
-     * nom (liste paginée de {@code /organisation/referentiels/medecins}). Le tri par code des salles et des positions, lui, est un écart
-     * décidé et accepté (2026-11-03).
+     * ÉCART DÉCIDÉ (KB-ORG-03, 2026-11-03) : le legacy listait les médecins dans l'ordre physique de la table ; le nouveau code les
+     * trie par nom. Le tri par code des salles et des positions est aussi un écart décidé et accepté.
      */
-    @org.junit.jupiter.api.Disabled("KB-ORG-03 : ordre des médecins, décision de l'utilisateur attendue")
     @Test
     void ordre_des_medecins_ecart_a_decider() throws Exception {
         amorcer();

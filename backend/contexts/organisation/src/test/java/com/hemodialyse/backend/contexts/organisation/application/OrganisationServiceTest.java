@@ -30,8 +30,23 @@ class OrganisationServiceTest {
             java.time.Instant.parse("2026-03-10T08:00:00Z"), java.time.ZoneOffset.UTC);
 
     private OrganisationService nouveauService(FakeSocieteRepository societes, FakeCentreRepository centres) {
+        java.util.concurrent.atomic.AtomicLong sequence = new java.util.concurrent.atomic.AtomicLong();
         return new OrganisationService(societes, centres,
-                new FakeSalleRepository(), new FakeCreneauRepository());
+                new FakeSalleRepository(), new FakeCreneauRepository(), UniteDeTravail.DIRECTE,
+                com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete.AUCUN,
+                java.time.Clock.fixed(java.time.Instant.parse("2026-03-10T08:00:00Z"), java.time.ZoneOffset.UTC),
+                () -> new UUID(0, sequence.incrementAndGet()));
+    }
+
+    @Test
+    void creer_societe_utilise_l_horloge_et_le_generateur_d_identifiants_injectes() {
+        FakeSocieteRepository societes = new FakeSocieteRepository();
+        OrganisationService service = nouveauService(societes, new FakeCentreRepository());
+
+        SocieteId id = service.creerSociete(new CommandesOrganisation.CreerSociete("NOUV", "Nouvelle", null, null, null, null, null));
+
+        assertEquals(new SocieteId(new UUID(0, 1)), id);
+        assertEquals(MAINTENANT_SOCIETE, service.consulterSociete(id).createdAt());
     }
 
     @Test

@@ -1,0 +1,10 @@
+{
+  "CENTRE_NOM" : "Centre C1",
+  "SOCIETE_NOM" : "Société S1",
+  "SOCIETE_PIED_PAGE" : "Pied du document",
+  "htmlContientLeCorps" : true,
+  "htmlContientLeLogoEnDataUri" : true,
+  "htmlContientLePiedDePage" : true,
+  "logoIdentiqueAuLogoEnvoye" : true,
+  "logoPresent" : true
+}

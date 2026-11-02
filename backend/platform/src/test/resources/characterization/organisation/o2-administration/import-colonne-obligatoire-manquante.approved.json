@@ -1,0 +1,15 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "applied" : false,
+    "created" : 0,
+    "errors" : [ ],
+    "ignoredColumns" : [ ],
+    "kind" : "medecins",
+    "missingColumns" : [ "nom" ],
+    "totalRows" : 1,
+    "updated" : 0,
+    "valid" : false
+  }
+}

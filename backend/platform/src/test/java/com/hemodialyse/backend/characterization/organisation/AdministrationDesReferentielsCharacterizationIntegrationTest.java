@@ -78,6 +78,45 @@ class AdministrationDesReferentielsCharacterizationIntegrationTest extends Organ
         golden("referentiel-inconnu", doGet(A + "/inconnu?centerId=" + CENTRE_A, as(CENTRE_A, "ADMIN")));
     }
 
+    /**
+     * Décision de l'utilisateur (2026-11-03) : un médecin est désactivé, jamais supprimé (référencé par les patients). Le legacy
+     * supprimait la ligne : son comportement est archivé dans {@code _ecarts-legacy}.
+     */
+    @Test
+    void suppression_d_un_medecin_non_utilise() throws Exception {
+        amorcer();
+        golden("suppression-medecin", doDelete(A + "/medecins/" + medecinA + "?centerId=" + CENTRE_A, as(CENTRE_A, "ADMIN")));
+        goldenSql("medecin-lignes-en-base", "SELECT COUNT(*) AS lignes FROM medecin WHERE id = ?", medecinA);
+        golden("liste-des-medecins-apres-suppression", doGet(A + "/medecins?centerId=" + CENTRE_A, as(CENTRE_A, "ADMIN")));
+        golden("suppression-medecin-deja-supprime", doDelete(A + "/medecins/" + medecinA + "?centerId=" + CENTRE_A, as(CENTRE_A, "ADMIN")));
+        golden("suppression-medecin-d-un-autre-centre", doDelete(A + "/medecins/" + medecinA + "?centerId=" + CENTRE_B, as(CENTRE_A, "ADMIN")));
+    }
+
+    private static byte[] csv(String contenu) {
+        return contenu.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @Test
+    void import_csv_des_medecins_verification_import_et_refus() throws Exception {
+        amorcer();
+        RequestPostProcessor admin = as(CENTRE_A, "ADMIN");
+        String valide = "nom,prenom,specialite\nOuaret,Mustapha,Néphrologue\nBenali,Karim,Cardiologue\n";
+        golden("import-verification-par-defaut", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A, csv(valide), "medecins.csv", admin));
+        goldenSql("import-rien-ecrit-apres-verification", "SELECT nom, prenom FROM medecin WHERE center_id = ? ORDER BY nom", CENTRE_A);
+        golden("import-reel", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A + "&dryRun=false", csv(valide), "medecins.csv", admin));
+        goldenSql("import-medecins-en-base", "SELECT nom, prenom, specialite FROM medecin WHERE center_id = ? ORDER BY nom", CENTRE_A);
+        golden("import-reel-rejoue", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A + "&dryRun=false", csv(valide), "medecins.csv", admin));
+        goldenSql("import-rejoue-medecins-en-base", "SELECT nom, prenom, specialite FROM medecin WHERE center_id = ? ORDER BY nom", CENTRE_A);
+        golden("import-colonne-obligatoire-manquante", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A + "&dryRun=false",
+                csv("prenom,specialite\nMustapha,X\n"), "medecins.csv", admin));
+        golden("import-fichier-vide", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A, csv(""), "medecins.csv", admin));
+        golden("import-ligne-sans-nom", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A + "&dryRun=false",
+                csv("nom,prenom\n,Sans nom\nValide,Un\n"), "medecins.csv", admin));
+        goldenSql("import-refuse-rien-ecrit", "SELECT nom FROM medecin WHERE center_id = ? ORDER BY nom", CENTRE_A);
+        golden("import-par-un-secretaire", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_A + "&dryRun=false", csv(valide), "medecins.csv", as(CENTRE_A, "SECRETAIRE")));
+        golden("import-dans-un-autre-centre", doPostFichier(A + "/medecins/import?centerId=" + CENTRE_B + "&dryRun=false", csv(valide), "medecins.csv", admin));
+    }
+
     @Test
     void creation_modification_et_suppression_d_une_salle() throws Exception {
         amorcer();

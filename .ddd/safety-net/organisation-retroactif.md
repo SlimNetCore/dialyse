@@ -23,15 +23,19 @@ le nouveau code. Rien n'a été approuvé en lot côté nouveau code : chaque é
 Aucune date réelle, aucun jour de mois fixe, aucun minuit : aucune date n'intervient dans ces scénarios.
 
 ## Parité : résultat
-- Rejouée sur le nouveau code : 18 scénarios, 15 actifs verts, 3 désactivés (écarts à décider).
+- Rejouée sur le nouveau code : 22 scénarios, tous actifs et verts (plus de scénario désactivé).
 - Bugs du nouveau code corrigés pour rétablir la parité : codes d'erreur 422 `SOCIETE_INTROUVABLE` / `CENTRE_INTROUVABLE` (le nouveau code
   répondait 404 `NOT_FOUND`), 404 sans corps pour société ou logo absent, suppression d'un logo absent = 204 (le nouveau code répondait 404).
   Exceptions typées `SocieteIntrouvable`, `CentreIntrouvable`, `LogoIntrouvable` (plus de correspondance par sous-chaîne pour ces cas).
 - Écarts DÉCIDÉS par l'utilisateur (2026-11-03), goldens `_nouveau_code`, ancien comportement dans `o3-referentiels/_ecarts-legacy` :
   garde de centre sur `/referentials/*` (3 goldens + 12 cellules de la matrice : ADMIN sans centre 200 -> 403), tri par code des salles et
   positions (2 goldens).
-- Écarts À DÉCIDER (scénarios `@Disabled`, aucun golden `_nouveau_code` approuvé) : KB-ORG-02 (UUID illisible : 500 legacy, 400 nouveau),
-  KB-ORG-03 (médecins : ordre physique legacy, tri par nom nouveau). Comportement douteux reproduit : KB-ORG-01. Voir `known-bugs.md`.
+- Écarts décidés le 2026-11-03, goldens `_nouveau_code` relus un par un, legacy archivé (`o1-societes`, `o2-administration`,
+  `o3-referentiels/_ecarts-legacy`) : KB-ORG-02 (UUID illisible : 400, 3 goldens), KB-ORG-03 (médecins triés par nom, 1 golden) et
+  suppression logique des médecins dans l'admin générique (`medecin-lignes-en-base`). Comportement douteux reproduit : KB-ORG-01.
+- Filet étendu le 2026-11-03 (legacy rejoué sur un worktree jetable de `b365a63a^`, puis supprimé) : import CSV de l'admin générique (11
+  scénarios, parité complète) et logo et pied de page imprimés dans les documents (`LogoDansLesDocumentsCharacterizationIntegrationTest`,
+  parité complète). Au total 22 scénarios, tous actifs et verts.
 
 ## Droits du legacy reconstitués (`git show b365a63a^`)
 | Route legacy | Droit legacy | Garde de centre legacy | Nouveau code |
@@ -55,9 +59,9 @@ Verrou de la société (`SELECT ... FOR UPDATE`) pris AVANT la lecture des centr
 et PostgreSQL 16 : deux désactivations simultanées, une seule passe.
 
 ## Reste à faire
-- Décider KB-ORG-02 et KB-ORG-03.
-- Étendre le filet : rendu du logo dans les documents (`ModeleDocumentPrinter`), import CSV de l'admin générique, paramétrage du planning (couvert par les filets P1).
-- Entités de domaine encore renvoyées en JSON par les lectures communes (`EntreeReferentiel`, `DetailPayeur` : records, rendus corrects) et
-  les use cases ; Horloge et générateur d'identifiant injectables dans `OrganisationService` (`OffsetDateTime.now`, `UUID.randomUUID`).
+- Corps absent ou illisible (KB-ORG-01, 500 aux deux) : non décidé.
+- `SocietesJdbc` fabrique `now()` pour un `created_at` NULL à la lecture (mineur, non caractérisé).
+- Entités de domaine encore renvoyées en JSON par les lectures communes (`EntreeReferentiel`, `DetailPayeur` : records, rendus corrects).
+- O4 `planned` : `organisation.v1` sans consommateur (constat dans la fiche O4 et l'ADR 0070).
 - Test instable hors périmètre : `ReplanificationDeNuitCharacterizationIntegrationTest.une_proposition_qui_apporte_quelque_chose_...`
   (deux lignes `calculs` permutées, ordre SQL non déterministe) a échoué une fois en suite complète, vert isolé.

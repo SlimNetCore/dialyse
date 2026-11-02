@@ -64,16 +64,21 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         return sql.toString();
     }
 
+    /** Les médecins sont désactivés, jamais supprimés (V52) : les lectures ignorent les médecins inactifs. */
+    private static String actifSeulement(Table table) {
+        return "medecin".equals(table.name()) ? " AND t.actif = TRUE" : "";
+    }
+
     private static String where(Table table, CenterId centerId, String search, List<Object> params) {
         params.add(centerId.value());
-        if (search == null || search.isBlank()) return " WHERE t.center_id = ?";
+        if (search == null || search.isBlank()) return " WHERE t.center_id = ?" + actifSeulement(table);
         String like = "%" + search.trim().toLowerCase(Locale.ROOT)
                 .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
         String conditions = table.searchColumns().stream()
                 .map(col -> "LOWER(COALESCE(" + col + ", '')) LIKE ? ESCAPE '\\'")
                 .collect(Collectors.joining(" OR "));
         table.searchColumns().forEach(col -> params.add(like));
-        return " WHERE t.center_id = ? AND (" + conditions + ")";
+        return " WHERE t.center_id = ? AND (" + conditions + ")" + actifSeulement(table);
     }
 
     private static RowMapper<ReferentialEntry> mapper(Table table) {
@@ -138,14 +143,14 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     @Override
     public Optional<ReferentialEntry> findById(CenterId centerId, ReferentialKind kind, UUID id) {
         Table table = ReferentialAdminTables.of(kind);
-        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ? AND t.id = ?",
+        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ? AND t.id = ?" + actifSeulement(table),
                 mapper(table), centerId.value(), id).stream().findFirst();
     }
 
     @Override
     public List<ReferentialEntry> findAllForMatching(CenterId centerId, ReferentialKind kind) {
         Table table = ReferentialAdminTables.of(kind);
-        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?", mapper(table), centerId.value());
+        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?" + actifSeulement(table), mapper(table), centerId.value());
     }
 
     @Override
@@ -179,7 +184,11 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     @Override
     public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
         Table table = ReferentialAdminTables.of(kind);
-        jdbc.update("DELETE FROM " + table.name() + " WHERE id = ? AND center_id = ?", id, centerId.value());
+        if ("medecin".equals(table.name())) {
+            jdbc.update("UPDATE medecin SET actif = FALSE WHERE id = ? AND center_id = ?", id, centerId.value());
+        } else {
+            jdbc.update("DELETE FROM " + table.name() + " WHERE id = ? AND center_id = ?", id, centerId.value());
+        }
         cacheEvictor.evictAfterCommit(centerId, table.caches());
     }
 

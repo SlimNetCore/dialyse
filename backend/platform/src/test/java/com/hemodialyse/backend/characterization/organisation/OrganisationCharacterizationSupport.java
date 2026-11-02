@@ -228,6 +228,12 @@ public abstract class OrganisationCharacterizationSupport {
         return send(multipart(org.springframework.http.HttpMethod.PUT, java.net.URI.create(path)).file(fichier), who);
     }
 
+    /** POST multipart d'un fichier ({@code file}) avec paramètres de requête (import CSV). */
+    protected Resp doPostFichier(String path, byte[] contenu, String nomDuFichier, RequestPostProcessor who) throws Exception {
+        MockMultipartFile fichier = new MockMultipartFile("file", nomDuFichier, "text/csv", contenu);
+        return send(multipart(java.net.URI.create(path)).file(fichier), who);
+    }
+
     protected String statutEtCode(Resp r) {
         if (r.raw == null || r.raw.isBlank()) return String.valueOf(r.status);
         try {

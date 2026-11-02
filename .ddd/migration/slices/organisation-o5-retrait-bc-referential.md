@@ -45,25 +45,31 @@ vers le contexte `organisation`. Les URLs historiques restent servies (aucune co
 4. Médecins : suppression LOGIQUE (désactivation, `medecin.actif`, migration V52), car référencés par `patients.medecin_traitant_id`.
 5. Tri par `code` de `/referentials/salles` et `/positions` : accepté (le legacy ne triait pas).
 
-## Écarts de parité restants (à décider par l'utilisateur, aucun golden `_nouveau_code` approuvé)
+## Écarts décidés le 2026-11-03 (goldens `_nouveau_code` relus un par un, legacy archivé dans `_ecarts-legacy`)
 
-| N° | Écart | Legacy | Nouveau code | Scénario (désactivé) |
-|---|---|---|---|---|
-| KB-ORG-02 | identifiant ou paramètre UUID illisible | 500 `INTERNAL_ERROR` | 400 `BAD_REQUEST` | `identifiant_de_societe_illisible_ecart_a_decider`, `identifiants_illisibles_ecart_a_decider` |
-| KB-ORG-03 | ordre des médecins de `/referentials/medecins` | ordre physique de la table | tri par nom (ou liste paginée) | `ordre_des_medecins_ecart_a_decider` |
+| N° | Écart | Legacy | Nouveau code |
+|---|---|---|---|
+| KB-ORG-02 | identifiant ou paramètre UUID illisible | 500 `INTERNAL_ERROR` | 400 `BAD_REQUEST` (décision : garder) |
+| KB-ORG-03 | ordre des médecins de `/referentials/medecins` | ordre physique de la table | tri par nom (décision : accepté) |
+| KB-ORG-05 | lecture de `/referentials/*` | centre du client cru | garde de centre, 403 |
+| (admin) | suppression d'un médecin via `/admin/referentials/medecins` | `DELETE` physique | désactivation (`actif = FALSE`) |
+| (tri) | salles et positions | non triées | triées par code |
 
-Comportements douteux du legacy reproduits tels quels : KB-ORG-01 (500 pour un corps absent ou illisible sur `POST /societes`),
-KB-ORG-04 (ordre des centres d'une société non déterministe : le filet trie `centres` par code).
+Comportements douteux du legacy reproduits tels quels : KB-ORG-01 (500 pour un corps absent ou illisible sur `POST /societes`, non
+décidé), KB-ORG-04 (ordre des centres d'une société non déterministe : le filet trie `centres` par code). Aucun écart décidé n'attend
+plus d'approbation.
 
 ## Reste à faire
 
-- [ ] Décider KB-ORG-02 et KB-ORG-03, puis approuver (ou non) les goldens correspondants.
-- [ ] Slice O4 (lectures publiées `organisation.v1`) : aucun consommateur ; `TableDeLOrganisationTest` liste 29 lecteurs SQL directs
-      (liste blanche datée 2026-11-02, un lecteur migré fait échouer le test tant que l'entrée n'est pas retirée).
+- [x] KB-ORG-02 et KB-ORG-03 décidés (voir ci-dessus).
+- [ ] Slice O4 (lectures publiées `organisation.v1`) : `planned`, constat consigné (aucun consommateur) ; `TableDeLOrganisationTest` liste
+      30 lecteurs SQL directs (liste blanche datée 2026-11-02, un lecteur migré fait échouer le test tant que l'entrée n'est pas retirée).
 - [ ] Référentiels orphelins (payeurs, agences, caisses, transporteurs, forfaits) : propriétaires à décider.
 - [ ] `SocieteJpaEntity` et `CenterJpaEntity` (auth, licence) conservées, hors périmètre.
 - [ ] Cache `ref.*` : invalider à la bascule (clés incluant `centerId`).
-- [ ] Étendre le filet rétroactif aux logos en documents (`ModeleDocumentPrinter`) et à l'import CSV de l'admin générique.
+- [x] Filet étendu au logo et au pied de page imprimés dans les documents (`DocumentIdentityProvider`, 4 goldens) et à l'import CSV de
+      l'admin générique (vérification, import, rejeu, refus ; à parité avec le legacy).
+- [x] Horloge (`Clock`) et générateur d'identifiants injectés dans `OrganisationService` et `ReferentielsOrganisationService`.
 
 ## Données
 

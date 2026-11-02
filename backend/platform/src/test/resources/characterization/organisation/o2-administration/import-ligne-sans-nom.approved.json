@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "applied" : false,
+    "created" : 1,
+    "errors" : [ {
+      "code" : "REQUIRED",
+      "field" : "nom",
+      "message" : "« Nom » est obligatoire.",
+      "params" : { },
+      "row" : 2
+    } ],
+    "ignoredColumns" : [ ],
+    "kind" : "medecins",
+    "missingColumns" : [ ],
+    "totalRows" : 2,
+    "updated" : 0,
+    "valid" : false
+  }
+}

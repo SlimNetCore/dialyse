@@ -1,0 +1,9 @@
+[ {
+  "nom" : "Benali",
+  "prenom" : "Karim",
+  "specialite" : "Cardiologue"
+}, {
+  "nom" : "Ouaret",
+  "prenom" : "Mustapha",
+  "specialite" : "Néphrologue"
+} ]

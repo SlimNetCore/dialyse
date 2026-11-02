@@ -28,29 +28,29 @@ public class OrganisationService implements OrganisationUseCases {
     private final UniteDeTravail unite;
     private final com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou;
 
-    /** Sans transaction ni verrou : tests d'application avec des fakes en mémoire. */
-    public OrganisationService(SocieteRepository societes, CentreRepository centres, SalleRepository salles, CreneauRepository creneaux) {
-        this(societes, centres, salles, creneaux, UniteDeTravail.DIRECTE,
-                com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete.AUCUN);
-    }
+    private final java.time.Clock horloge;
+    private final GenerateurDIdentifiants identifiants;
 
     public OrganisationService(SocieteRepository societes, CentreRepository centres, SalleRepository salles, CreneauRepository creneaux,
-                               UniteDeTravail unite, com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou) {
+                               UniteDeTravail unite, com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou,
+                               java.time.Clock horloge, GenerateurDIdentifiants identifiants) {
         this.societes = societes;
         this.centres = centres;
         this.salles = salles;
         this.creneaux = creneaux;
         this.unite = unite;
         this.verrou = verrou;
+        this.horloge = horloge;
+        this.identifiants = identifiants;
     }
 
     @Override
     public SocieteId creerSociete(CommandesOrganisation.CreerSociete commande) {
         garantirCodeSocieteLibre(commande.code(), null);
-        SocieteId id = new SocieteId(UUID.randomUUID());
+        SocieteId id = new SocieteId(identifiants.suivant());
         Societe s = new Societe(id, commande.code(), commande.raisonSociale(), commande.nif(),
                 commande.nis(), commande.rc(), commande.coordonnees(), commande.piedDePage(), true,
-                OffsetDateTime.now(ZoneOffset.UTC));
+                OffsetDateTime.now(horloge).withOffsetSameInstant(ZoneOffset.UTC));
         societes.sauvegarder(s);
         return id;
     }
@@ -68,7 +68,7 @@ public class OrganisationService implements OrganisationUseCases {
     public CentreId creerCentre(CommandesOrganisation.CreerCentre commande) {
         if (societes.trouver(commande.societeId()).isEmpty()) throw new com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable();
         garantirCodeCentreLibre(commande.code(), null);
-        CentreId id = new CentreId(UUID.randomUUID());
+        CentreId id = new CentreId(identifiants.suivant());
         Centre c = new Centre(id, commande.societeId(), commande.code(), commande.nom(),
                 commande.coordonnees(), commande.fuseauHoraire(), true);
         centres.sauvegarder(c);
@@ -212,7 +212,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public CreneauId creerCreneau(CommandesOrganisation.CreerCreneau commande) {
-        CreneauId id = new CreneauId(UUID.randomUUID());
+        CreneauId id = new CreneauId(identifiants.suivant());
         Creneau c = new Creneau(id, commande.centreId(), commande.code(), commande.libelle());
         creneaux.sauvegarder(c);
         return id;

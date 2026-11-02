@@ -61,6 +61,8 @@ class TableDeLOrganisationTest {
             "platform/src/main/java/com/hemodialyse/backend/application/query/PatientReferenceLookup.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/MouvementPatientJdbcAdapter.java",
+            // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-03) ; salle et position_creneau par SQL dynamique.
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentProvisioner.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/ObservancePrescriptionScheduler.java",

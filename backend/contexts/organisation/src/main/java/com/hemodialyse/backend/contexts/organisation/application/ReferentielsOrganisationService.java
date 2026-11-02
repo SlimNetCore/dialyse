@@ -20,15 +20,19 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     private final MachineRepository machines;
     private final ProtocoleRepository protocoles;
 
-    public ReferentielsOrganisationService(MedecinRepository medecins, MachineRepository machines, ProtocoleRepository protocoles) {
+    private final GenerateurDIdentifiants identifiants;
+
+    public ReferentielsOrganisationService(MedecinRepository medecins, MachineRepository machines, ProtocoleRepository protocoles,
+                                           GenerateurDIdentifiants identifiants) {
         this.medecins = medecins;
         this.machines = machines;
         this.protocoles = protocoles;
+        this.identifiants = identifiants;
     }
 
     @Override
     public MedecinId referencerMedecin(CentreId centreId, String nom, String prenom, String specialite) {
-        MedecinId id = new MedecinId(UUID.randomUUID());
+        MedecinId id = new MedecinId(identifiants.suivant());
         Medecin m = new Medecin(id, centreId, nom, prenom, specialite);
         medecins.sauvegarder(m);
         return id;
@@ -57,7 +61,7 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
 
     @Override
     public MachineId referencerMachine(CentreId centreId, String code, String libelle) {
-        MachineId id = new MachineId(UUID.randomUUID());
+        MachineId id = new MachineId(identifiants.suivant());
         Machine m = new Machine(id, centreId, code, libelle, true);
         machines.sauvegarder(m);
         return id;
@@ -83,7 +87,7 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
 
     @Override
     public ProtocoleId referencerProtocole(CentreId centreId, String code, String libelle) {
-        ProtocoleId id = new ProtocoleId(UUID.randomUUID());
+        ProtocoleId id = new ProtocoleId(identifiants.suivant());
         Protocole p = new Protocole(id, centreId, code, libelle);
         protocoles.sauvegarder(p);
         return id;

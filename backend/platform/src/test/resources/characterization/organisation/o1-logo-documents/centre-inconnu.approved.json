@@ -1,0 +1,9 @@
+{
+  "CENTRE_NOM" : "",
+  "SOCIETE_NOM" : "",
+  "SOCIETE_PIED_PAGE" : "",
+  "htmlContientLeCorps" : true,
+  "htmlContientLeLogoEnDataUri" : false,
+  "htmlContientLePiedDePage" : false,
+  "logoPresent" : false
+}

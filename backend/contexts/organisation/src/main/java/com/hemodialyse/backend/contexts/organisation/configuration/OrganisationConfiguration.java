@@ -90,12 +90,12 @@ public class OrganisationConfiguration {
     public OrganisationUseCases organisationUseCases(SocieteRepository s, CentreRepository c, SalleRepository sl, CreneauRepository cr,
                                                      com.hemodialyse.backend.contexts.organisation.application.UniteDeTravail unite,
                                                      com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou) {
-        return new OrganisationService(s, c, sl, cr, unite, verrou);
+        return new OrganisationService(s, c, sl, cr, unite, verrou, java.time.Clock.systemUTC(), java.util.UUID::randomUUID);
     }
 
     @Bean
     public ReferentielsOrganisationUseCases referentielsOrganisationUseCases(MedecinRepository m, MachineRepository ma, ProtocoleRepository p) {
-        return new ReferentielsOrganisationService(m, ma, p);
+        return new ReferentielsOrganisationService(m, ma, p, java.util.UUID::randomUUID);
     }
 
     @Bean

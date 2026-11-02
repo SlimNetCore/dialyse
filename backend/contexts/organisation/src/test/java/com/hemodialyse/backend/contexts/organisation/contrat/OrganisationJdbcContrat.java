@@ -59,7 +59,8 @@ abstract class OrganisationJdbcContrat {
                 new SallesJdbc(jdbc()), new CreneauxJdbc(jdbc()),
                 new com.hemodialyse.backend.contexts.organisation.infrastructure.transaction.UniteDeTravailSpring(
                         new org.springframework.transaction.support.TransactionTemplate(transactions), jdbc(), java.time.Duration.ofSeconds(5)),
-                new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDeLaSocieteJdbc(jdbc()));
+                new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDeLaSocieteJdbc(jdbc()),
+                java.time.Clock.systemUTC(), UUID::randomUUID);
         java.util.concurrent.CountDownLatch depart = new java.util.concurrent.CountDownLatch(1);
         java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(2);
         try {
