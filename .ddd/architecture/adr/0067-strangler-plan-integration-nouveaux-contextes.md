@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: partially superseded by ADR 0072 for dossier-medical, and to be reviewed for seance, patient-couverture and pilotage-direction (2026-11-02 : vérifications indépendantes : modules non branchés, nouvelles tables et URLs contraires à ADR 0024)
 date: 2026-10-29
 deciders: utilisateur
 ---

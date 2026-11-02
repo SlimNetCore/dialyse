@@ -1,7 +1,7 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-02
-decision-makers: [utilisateur (décision du 2026-11-02, à accepter formellement), architecte]
+decision-makers: [utilisateur (décision du 2026-11-02, décision déléguée à l'assistant pour l'acceptation formelle), architecte]
 context-scope: dossier-medical
 related: ADR 0024 (refactoring sur place), 0007, 0065, 0067 ; `.ddd/verify/verify-dossier-medical.md` ; `backend/contexts/dossier-medical/GEL.md`
 ---

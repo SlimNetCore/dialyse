@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: partially superseded by ADR 0072 (2026-11-02 : le module est gelé ; le contexte unique reste valide)
 date: 2026-10-29
 deciders: utilisateur
 ---
