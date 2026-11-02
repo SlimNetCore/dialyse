@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "contentType" : "application/json",
+  "body" : {
+    "violations" : [ {
+      "code" : "EMPTY",
+      "detail" : "Le fichier est vide."
+    } ]
+  }
+}

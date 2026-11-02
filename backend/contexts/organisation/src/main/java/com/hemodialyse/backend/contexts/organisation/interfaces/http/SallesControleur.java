@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.SessionCourante;
-import com.hemodialyse.backend.contexts.organisation.domain.Salle;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ReponsesDuReferentiel;
 import com.hemodialyse.backend.contexts.organisation.domain.SalleId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +43,7 @@ public class SallesControleur {
     }
 
     @GetMapping
-    public List<Salle> lister(@RequestParam(required = false) UUID centreId) {
-        return service.listerSallesDuCentre(session.centre(centreId));
+    public List<ReponsesDuReferentiel.SalleReponse> lister(@RequestParam(required = false) UUID centreId) {
+        return ReponsesDuReferentiel.liste(service.listerSallesDuCentre(session.centre(centreId)), ReponsesDuReferentiel.SalleReponse::de);
     }
 }

@@ -1,0 +1,17 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "id" : "<CRENEAU_A1>",
+      "references" : { },
+      "values" : {
+        "code" : "P1",
+        "libelle" : "Matin"
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

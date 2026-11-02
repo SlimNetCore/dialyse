@@ -43,8 +43,11 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     }
 
     @Override
-    public void supprimerMedecin(CentreId centreId, MedecinId id) {
-        medecins.supprimer(centreId, id);
+    public void desactiverMedecin(CentreId centreId, MedecinId id) {
+        Medecin m = medecins.trouver(id).filter(x -> x.centreId().equals(centreId))
+                .orElseThrow(() -> new IllegalArgumentException("Medecin inconnu"));
+        m.desactiver();
+        medecins.sauvegarder(m);
     }
 
     @Override

@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "contentType" : "application/json",
+  "body" : {
+    "violations" : [ {
+      "code" : "FILE_TYPE",
+      "detail" : "Seuls les fichiers PNG et JPEG sont acceptés."
+    } ]
+  }
+}

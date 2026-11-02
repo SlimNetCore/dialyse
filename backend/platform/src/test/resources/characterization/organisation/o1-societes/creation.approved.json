@@ -1,0 +1,34 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "adresse" : null,
+    "centres" : [ {
+      "actif" : true,
+      "adresse" : null,
+      "code" : "ORGT-NC1",
+      "email" : null,
+      "id" : "<UUID_GENERE_1>",
+      "nom" : "Premier centre",
+      "siteWeb" : null,
+      "telephone" : null,
+      "ville" : "Alger",
+      "wilaya" : null
+    } ],
+    "code" : "ORGT-N1",
+    "createdAt" : "<HORODATAGE>",
+    "email" : "a@b.dz",
+    "hasLogo" : false,
+    "id" : "<UUID_GENERE_2>",
+    "nif" : "123",
+    "nis" : null,
+    "piedDePage" : "Pied",
+    "raisonSociale" : "Nouvelle société",
+    "rc" : null,
+    "siteWeb" : null,
+    "telephone" : "0555000000",
+    "ville" : "Alger",
+    "wilaya" : null
+  }
+}

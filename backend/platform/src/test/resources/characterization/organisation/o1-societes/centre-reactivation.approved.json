@@ -1,0 +1,56 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "actif" : true,
+    "adresse" : null,
+    "centres" : [ {
+      "actif" : true,
+      "adresse" : null,
+      "code" : "ORGT-C1",
+      "email" : null,
+      "id" : "<CENTRE_1>",
+      "nom" : "Centre renommé",
+      "siteWeb" : null,
+      "telephone" : null,
+      "ville" : null,
+      "wilaya" : null
+    }, {
+      "actif" : true,
+      "adresse" : null,
+      "code" : "ORGT-C2",
+      "email" : null,
+      "id" : "<CENTRE_2>",
+      "nom" : "Centre C2",
+      "siteWeb" : null,
+      "telephone" : null,
+      "ville" : null,
+      "wilaya" : null
+    }, {
+      "actif" : true,
+      "adresse" : null,
+      "code" : "ORGT-C4",
+      "email" : null,
+      "id" : "<UUID_GENERE_1>",
+      "nom" : "Centre 4",
+      "siteWeb" : null,
+      "telephone" : null,
+      "ville" : "Blida",
+      "wilaya" : null
+    } ],
+    "code" : "ORGT-S1",
+    "createdAt" : "<HORODATAGE>",
+    "email" : null,
+    "hasLogo" : false,
+    "id" : "<SOCIETE_1>",
+    "nif" : null,
+    "nis" : null,
+    "piedDePage" : null,
+    "raisonSociale" : "Société S1",
+    "rc" : null,
+    "siteWeb" : null,
+    "telephone" : null,
+    "ville" : null,
+    "wilaya" : null
+  }
+}

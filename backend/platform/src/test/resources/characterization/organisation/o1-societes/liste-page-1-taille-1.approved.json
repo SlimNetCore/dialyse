@@ -1,0 +1,39 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "adresse" : null,
+      "centres" : [ {
+        "actif" : true,
+        "adresse" : null,
+        "code" : "ORGT-C3",
+        "email" : null,
+        "id" : "<CENTRE_3>",
+        "nom" : "Centre C3",
+        "siteWeb" : null,
+        "telephone" : null,
+        "ville" : null,
+        "wilaya" : null
+      } ],
+      "code" : "ORGT-S2",
+      "createdAt" : "<HORODATAGE>",
+      "email" : null,
+      "hasLogo" : false,
+      "id" : "<SOCIETE_2>",
+      "nif" : null,
+      "nis" : null,
+      "piedDePage" : null,
+      "raisonSociale" : "Société S2",
+      "rc" : null,
+      "siteWeb" : null,
+      "telephone" : null,
+      "ville" : null,
+      "wilaya" : null
+    } ],
+    "page" : 1,
+    "size" : 1,
+    "total" : 2
+  }
+}

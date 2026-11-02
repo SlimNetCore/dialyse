@@ -1,0 +1,13 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "adresse" : null,
+    "code" : "PB",
+    "gereParLot" : null,
+    "id" : "<CRENEAU_B1>",
+    "libelle" : "Nuit B",
+    "nom" : null,
+    "prenom" : null
+  } ]
+}

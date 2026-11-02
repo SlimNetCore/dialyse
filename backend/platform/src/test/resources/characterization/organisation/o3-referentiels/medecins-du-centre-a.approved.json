@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "adresse" : null,
+    "code" : null,
+    "gereParLot" : null,
+    "id" : "<MEDECIN_A2>",
+    "libelle" : "Néphrologue",
+    "nom" : "Zerrouki",
+    "prenom" : "Amine"
+  }, {
+    "adresse" : null,
+    "code" : null,
+    "gereParLot" : null,
+    "id" : "<MEDECIN_A1>",
+    "libelle" : null,
+    "nom" : "Benali",
+    "prenom" : "Karim"
+  } ]
+}

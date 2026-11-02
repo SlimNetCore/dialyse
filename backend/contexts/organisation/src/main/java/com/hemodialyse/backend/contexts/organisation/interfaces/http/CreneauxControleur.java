@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.SessionCourante;
-import com.hemodialyse.backend.contexts.organisation.domain.Creneau;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ReponsesDuReferentiel;
 import com.hemodialyse.backend.contexts.organisation.domain.CreneauId;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerCreneauRequete;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierCreneauRequete;
@@ -54,7 +54,7 @@ public class CreneauxControleur {
     }
 
     @GetMapping
-    public List<Creneau> lister(@RequestParam(required = false) UUID centreId) {
-        return service.listerCreneaux(session.centre(centreId));
+    public List<ReponsesDuReferentiel.CreneauReponse> lister(@RequestParam(required = false) UUID centreId) {
+        return ReponsesDuReferentiel.liste(service.listerCreneaux(session.centre(centreId)), ReponsesDuReferentiel.CreneauReponse::de);
     }
 }

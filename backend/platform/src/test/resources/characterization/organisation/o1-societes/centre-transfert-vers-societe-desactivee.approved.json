@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "SOCIETE_INACTIVE",
+    "detail" : "La société de destination est désactivée",
+    "instance" : "/api/v1/societes/<SOCIETE_1>/centres/<CENTRE_2>/transfert",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

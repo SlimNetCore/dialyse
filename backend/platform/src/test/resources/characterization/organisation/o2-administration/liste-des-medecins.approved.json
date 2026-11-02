@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "id" : "<MEDECIN_A1>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Karim",
+        "specialite" : "Néphrologue"
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

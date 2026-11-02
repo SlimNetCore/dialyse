@@ -1,0 +1,11 @@
+[ {
+  "actif" : "true",
+  "code" : "ORGT-S1",
+  "raison_sociale" : "Raison modifiée",
+  "ville" : "Oran"
+}, {
+  "actif" : "true",
+  "code" : "ORGT-S2",
+  "raison_sociale" : "Société S2",
+  "ville" : null
+} ]

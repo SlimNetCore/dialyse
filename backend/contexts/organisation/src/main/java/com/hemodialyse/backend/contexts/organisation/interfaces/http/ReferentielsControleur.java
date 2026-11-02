@@ -12,12 +12,10 @@ import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.Modifie
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierProtocoleRequete;
 import com.hemodialyse.backend.contexts.organisation.domain.DetailPayeur;
 import com.hemodialyse.backend.contexts.organisation.domain.EntreeReferentiel;
-import com.hemodialyse.backend.contexts.organisation.domain.Machine;
 import com.hemodialyse.backend.contexts.organisation.domain.MachineId;
-import com.hemodialyse.backend.contexts.organisation.domain.Medecin;
 import com.hemodialyse.backend.contexts.organisation.domain.MedecinId;
-import com.hemodialyse.backend.contexts.organisation.domain.Protocole;
 import com.hemodialyse.backend.contexts.organisation.domain.ProtocoleId;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ReponsesDuReferentiel;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,12 +75,12 @@ public class ReferentielsControleur {
     @DeleteMapping("/medecins/{id}")
     @PreAuthorize(ECRITURE)
     public void supprimerMedecin(@PathVariable UUID id, @RequestParam(required = false) UUID centreId) {
-        service.supprimerMedecin(session.centre(centreId), new MedecinId(id));
+        service.desactiverMedecin(session.centre(centreId), new MedecinId(id));
     }
 
     @GetMapping("/medecins")
-    public PagedResult<Medecin> listerMedecins(@RequestParam(required = false) UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        return service.listerMedecins(session.centre(centreId), page, size);
+    public PagedResult<ReponsesDuReferentiel.MedecinReponse> listerMedecins(@RequestParam(required = false) UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return ReponsesDuReferentiel.page(service.listerMedecins(session.centre(centreId), page, size), ReponsesDuReferentiel.MedecinReponse::de);
     }
 
     @PostMapping("/machines")
@@ -111,8 +109,8 @@ public class ReferentielsControleur {
     }
 
     @GetMapping("/machines")
-    public PagedResult<Machine> listerMachines(@RequestParam(required = false) UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        return service.listerMachines(session.centre(centreId), page, size);
+    public PagedResult<ReponsesDuReferentiel.MachineReponse> listerMachines(@RequestParam(required = false) UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return ReponsesDuReferentiel.page(service.listerMachines(session.centre(centreId), page, size), ReponsesDuReferentiel.MachineReponse::de);
     }
 
     @PostMapping("/protocoles")
@@ -141,8 +139,8 @@ public class ReferentielsControleur {
     }
 
     @GetMapping("/protocoles")
-    public PagedResult<Protocole> listerProtocoles(@RequestParam(required = false) UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        return service.listerProtocoles(session.centre(centreId), page, size);
+    public PagedResult<ReponsesDuReferentiel.ProtocoleReponse> listerProtocoles(@RequestParam(required = false) UUID centreId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return ReponsesDuReferentiel.page(service.listerProtocoles(session.centre(centreId), page, size), ReponsesDuReferentiel.ProtocoleReponse::de);
     }
 
     @GetMapping("/articles")

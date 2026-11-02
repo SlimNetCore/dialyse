@@ -1,0 +1,21 @@
+[ {
+  "actif" : "true",
+  "code" : "ORGT-C1",
+  "name" : "Centre renommé",
+  "societe_id" : "<SOCIETE_1>"
+}, {
+  "actif" : "true",
+  "code" : "ORGT-C2",
+  "name" : "Centre C2",
+  "societe_id" : "<SOCIETE_2>"
+}, {
+  "actif" : "true",
+  "code" : "ORGT-C3",
+  "name" : "Centre C3",
+  "societe_id" : "<SOCIETE_2>"
+}, {
+  "actif" : "true",
+  "code" : "ORGT-C4",
+  "name" : "Centre 4",
+  "societe_id" : "<SOCIETE_1>"
+} ]

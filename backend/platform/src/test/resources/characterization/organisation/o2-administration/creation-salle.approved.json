@@ -1,0 +1,14 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "references" : { },
+    "values" : {
+      "capacite" : null,
+      "code" : "S9",
+      "isolement" : "NON",
+      "nom" : "Neuf"
+    }
+  }
+}

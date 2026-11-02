@@ -1,0 +1,13 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "adresse" : null,
+    "code" : "SB",
+    "gereParLot" : null,
+    "id" : "<SALLE_B1>",
+    "libelle" : null,
+    "nom" : "Salle du centre B",
+    "prenom" : null
+  } ]
+}

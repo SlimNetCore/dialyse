@@ -93,9 +93,10 @@ class AutorisationsDeLOrganisationIntegrationTest {
     }
 
     private static final Set<String> TOUS_SAUF_FERMES = Set.of("ADMIN", "SECRETAIRE", "MEDECIN seul", "INFIRMIER seul",
-            "MEDECIN + INFIRMIER", "role inconnu (COMPTABLE)", "aucun role");
-    private static final Set<String> ADMIN_DU_CENTRE = Set.of("ADMIN");
-    private static final Set<String> AUCUN = Set.of();
+            "MEDECIN + INFIRMIER", "role inconnu (COMPTABLE)", "aucun role", "SUPERADMIN", "SUPERADMIN + ADMIN");
+    /** Décision du 2026-11-03 : le RoleScopeFilter ouvre /api/v1/organisation au SUPERADMIN. */
+    private static final Set<String> ADMIN_DU_CENTRE = Set.of("ADMIN", "SUPERADMIN", "SUPERADMIN + ADMIN");
+    private static final Set<String> AUCUN = Set.of("SUPERADMIN", "SUPERADMIN + ADMIN");
 
     @BeforeEach
     void monter() {
@@ -216,14 +217,51 @@ class AutorisationsDeLOrganisationIntegrationTest {
 
         int suppression = mvc.perform(delete("/api/v1/organisation/referentiels/medecins/" + medecinB).with(adminA))
                 .andReturn().getResponse().getStatus();
-        assertThat(suppression).isLessThan(300);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM medecin WHERE id = ?", Integer.class, medecinB))
-                .as("le médecin du centre B survit à la suppression demandée par l'admin du centre A").isEqualTo(1);
+        assertThat(suppression).isEqualTo(404);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM medecin WHERE id = ? AND actif = TRUE", Integer.class, medecinB))
+                .as("le médecin du centre B reste actif après la désactivation demandée par l'admin du centre A").isEqualTo(1);
 
         int modification = mvc.perform(json(put("/api/v1/organisation/referentiels/medecins/" + medecinB),
                 "{'nom':'Pirate','prenom':'x','specialite':'x'}").with(adminA)).andReturn().getResponse().getStatus();
         assertThat(modification).isEqualTo(404);
         assertThat(jdbc.queryForObject("SELECT nom FROM medecin WHERE id = ?", String.class, medecinB)).isEqualTo("B");
+    }
+
+    @Test
+    void un_superadmin_atteint_les_societes_sous_les_deux_familles_d_urls_et_les_autres_profils_aucune() throws Exception {
+        UUID societe = UUID.fromString("99998000-0000-0000-0000-0000000000f2");
+        jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?, 'ORGT-COEX', 'Coexistence', TRUE, CURRENT_TIMESTAMP)", societe);
+        try {
+            for (String base : List.of("/api/v1/societes", "/api/v1/organisation/societes")) {
+                assertThat(statut(() -> get(base + "/" + societe), as(CENTRE_A, "SUPERADMIN"))).as(base).isEqualTo(200);
+                assertThat(statut(() -> get(base + "/" + societe), as(CENTRE_A, "ADMIN"))).as(base + " ADMIN").isEqualTo(403);
+                assertThat(statut(() -> get(base + "/" + societe), as(CENTRE_A, "SECRETAIRE"))).as(base + " SECRETAIRE").isEqualTo(403);
+            }
+            String legacy = mvc.perform(get("/api/v1/societes/" + societe).with(as(CENTRE_A, "SUPERADMIN"))).andReturn().getResponse().getContentAsString();
+            String canonique = mvc.perform(get("/api/v1/organisation/societes/" + societe).with(as(CENTRE_A, "SUPERADMIN"))).andReturn().getResponse().getContentAsString();
+            assertThat(canonique).as("même contenu sous les deux URLs").isEqualTo(legacy);
+        } finally {
+            jdbc.update("DELETE FROM societes WHERE id = ?", societe);
+        }
+    }
+
+    @Test
+    void les_reponses_sont_des_dto_non_vides_et_la_suppression_d_un_medecin_le_desactive() throws Exception {
+        RequestPostProcessor admin = as(CENTRE_A, "ADMIN");
+        for (String chemin : List.of("/salles", "/creneaux", "/referentiels/medecins", "/referentiels/machines", "/referentiels/protocoles")) {
+            String corps = mvc.perform(get("/api/v1/organisation" + chemin).param("centreId", A).with(admin)).andReturn().getResponse().getContentAsString();
+            assertThat(corps).as(chemin).isNotEqualTo("[]").doesNotContain("{}").contains("\"centreId\"");
+        }
+        assertThat(mvc.perform(get("/api/v1/organisation/salles").param("centreId", A).with(admin)).andReturn().getResponse().getContentAsString())
+                .contains("\"code\":\"S-A\"").contains("\"ouverte\":true");
+        assertThat(mvc.perform(get("/api/v1/organisation/referentiels/medecins").param("centreId", A).with(admin)).andReturn().getResponse().getContentAsString())
+                .contains("\"nom\":\"Nom\"");
+        assertThat(mvc.perform(delete("/api/v1/organisation/referentiels/medecins/" + MEDECIN_A).with(admin)).andReturn().getResponse().getStatus())
+                .isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT actif FROM medecin WHERE id = ?", Boolean.class, MEDECIN_A))
+                .as("la ligne reste, désactivée").isFalse();
+        assertThat(mvc.perform(get("/api/v1/organisation/referentiels/medecins").param("centreId", A).with(admin)).andReturn().getResponse().getContentAsString())
+                .doesNotContain("\"nom\":\"Nom\"");
     }
 
     @Test

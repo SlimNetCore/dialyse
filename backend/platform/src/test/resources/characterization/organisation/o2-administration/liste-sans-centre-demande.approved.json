@@ -1,0 +1,19 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "id" : "<SALLE_A1>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S1",
+        "isolement" : "NON",
+        "nom" : "Salle une"
+      }
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

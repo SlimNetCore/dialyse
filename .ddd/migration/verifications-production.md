@@ -1616,8 +1616,11 @@ Rejeu PostgreSQL 16 jetable : `backend/scripts/organisation-pg16-rejeu.sh`.
 | ORG-6 | `SELECT s.id, s.center_id FROM salle s LEFT JOIN centers c ON c.id = s.center_id WHERE c.id IS NULL` ; idem `position_creneau` | 0 ligne | Idem |
 | ORG-7 | `SELECT center_id, code, count(*) FROM salle GROUP BY center_id, code HAVING count(*) > 1` ; idem `position_creneau` | 0 ligne (doublons de code) | Informatif |
 | ORG-8 | `SELECT s.id FROM societes s WHERE NOT EXISTS (SELECT 1 FROM centers c WHERE c.societe_id = s.id AND c.actif)` | 0 ligne (société sans centre actif) | Bloquant pour l'invariant « dernier centre actif » |
-| ORG-9 | `SELECT count(*) FROM medecin x JOIN patients p ON p.medecin_traitant_id = x.id` | Informatif : médecins référencés (leur suppression physique laisse des références orphelines : à décider, suppression logique) | Décision |
+| ORG-9 | `SELECT count(*) FROM medecin x JOIN patients p ON p.medecin_traitant_id = x.id` | Informatif : médecins référencés par des patients (décision du 2026-11-03 : suppression LOGIQUE, `medecin.actif`, migration V52) | Informatif |
+| ORG-10 | `SELECT column_name FROM information_schema.columns WHERE table_name = 'medecin' AND column_name = 'actif'` ; `SELECT count(*) FROM medecin WHERE actif = FALSE` | 1 ligne après V52 ; 0 médecin désactivé juste après V52 | Bloquant si la colonne manque : appliquer V52 avant le déploiement |
 
 Contrôles de droits après déploiement (avec comptes de test, jamais en production réelle) : `POST /api/v1/organisation/referentiels/medecins`
-et `POST /api/v1/organisation/salles/{id}/ouvrir` avec un SECRETAIRE ou un ADMIN d'un autre centre : **403** ; `GET /api/v1/referentials/salles`
-reste ouvert à tout utilisateur authentifié (comportement legacy conservé, voir `.ddd/safety-net/organisation-retroactif.md`).
+et `POST /api/v1/organisation/salles/{id}/ouvrir` avec un SECRETAIRE ou un ADMIN d'un autre centre : **403** ; `GET /api/v1/referentials/salles?centerId=<autre centre>`
+avec un compte de centre : **403** (garde de centre, décision du 2026-11-03 ; le legacy répondait 200) ; sans `centerId` ou avec un identifiant
+illisible : 500 comme le legacy (KB-ORG-01/02, à décider). Un SUPERADMIN atteint `/api/v1/organisation/**` et `/api/v1/societes/**`, pas
+`/api/v1/referentials/**`. Voir `.ddd/safety-net/organisation-retroactif.md`.

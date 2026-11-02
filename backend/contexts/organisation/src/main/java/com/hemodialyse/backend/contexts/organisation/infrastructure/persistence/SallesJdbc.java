@@ -28,6 +28,7 @@ public class SallesJdbc implements SalleRepository {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(cacheNames = "ref.salles", key = "#s.centreId().valeur().toString()")
     public void sauvegarder(Salle s) {
         int n = jdbc.update("UPDATE salle SET code=?, nom=?, ouverte=? WHERE id=? AND center_id=?", s.code(), s.nom(), s.ouverte(), s.id().valeur(), s.centreId().valeur());
         if (n == 0) {

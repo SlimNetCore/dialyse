@@ -74,8 +74,23 @@ public class OrganisationConfiguration {
     }
 
     @Bean
-    public OrganisationUseCases organisationUseCases(SocieteRepository s, CentreRepository c, SalleRepository sl, CreneauRepository cr) {
-        return new OrganisationService(s, c, sl, cr);
+    public com.hemodialyse.backend.contexts.organisation.application.UniteDeTravail organisationUniteDeTravail(
+            org.springframework.transaction.PlatformTransactionManager transactionManager, JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.transaction.UniteDeTravailSpring(
+                new org.springframework.transaction.support.TransactionTemplate(transactionManager), jdbc,
+                java.time.Duration.ofSeconds(5));
+    }
+
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete organisationVerrouDeLaSociete(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDeLaSocieteJdbc(jdbc);
+    }
+
+    @Bean
+    public OrganisationUseCases organisationUseCases(SocieteRepository s, CentreRepository c, SalleRepository sl, CreneauRepository cr,
+                                                     com.hemodialyse.backend.contexts.organisation.application.UniteDeTravail unite,
+                                                     com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou) {
+        return new OrganisationService(s, c, sl, cr, unite, verrou);
     }
 
     @Bean

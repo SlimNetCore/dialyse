@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS medecin (
     center_id UUID NOT NULL,
     nom VARCHAR(255) NOT NULL,
     prenom VARCHAR(255),
-    specialite VARCHAR(255)
+    specialite VARCHAR(255),
+    actif BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS machine

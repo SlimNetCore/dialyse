@@ -35,6 +35,10 @@ echo "=== Constats sur le schema Flyway PUR ==="
   && echo "machine et protocole vides au depart" || { echo "ATTENDU : 0 ligne"; RC=1; }
 echo "-- V51 est idempotente (rejeu sans erreur)"
 "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V51__organisation_salle_ouverte_machine_protocole.sql" >/dev/null && echo "rejeu V51 ok" || RC=1
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM information_schema.columns WHERE table_name = 'medecin' AND column_name = 'actif'" | tr -d '\r' | grep -qx 1 \
+  && echo "medecin.actif presente" || { echo "ATTENDU : medecin.actif"; RC=1; }
+echo "-- V52 est idempotente (rejeu sans erreur) ; les medecins existants restent actifs"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V52__organisation_medecin_actif.sql" >/dev/null && echo "rejeu V52 ok" || RC=1
 
 cd "$RACINE/backend"
 P=com.hemodialyse.backend.contexts.organisation.contrat

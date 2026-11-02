@@ -16,7 +16,8 @@ public interface ReferentielsOrganisationUseCases {
 
     void modifierMedecin(CentreId centreId, MedecinId id, String nom, String prenom, String specialite);
 
-    void supprimerMedecin(CentreId centreId, MedecinId id);
+    /** Désactive le médecin (suppression logique : il est référencé par les patients et les prescriptions). */
+    void desactiverMedecin(CentreId centreId, MedecinId id);
 
     PagedResult<Medecin> listerMedecins(CentreId centreId, int page, int size);
 

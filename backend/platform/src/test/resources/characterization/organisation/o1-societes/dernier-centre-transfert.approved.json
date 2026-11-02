@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "SOCIETE_DERNIER_CENTRE",
+    "detail" : "Une société doit conserver au moins un centre actif : impossible de désactiver ou retirer son dernier centre",
+    "instance" : "/api/v1/societes/<SOCIETE_2>/centres/<CENTRE_3>/transfert",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

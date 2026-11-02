@@ -1,0 +1,10 @@
+[ {
+  "actif" : "true",
+  "code" : "ORGT-N1",
+  "email" : "a@b.dz",
+  "nif" : "123",
+  "pied_page" : "Pied",
+  "raison_sociale" : "Nouvelle société",
+  "telephone" : "0555000000",
+  "ville" : "Alger"
+} ]

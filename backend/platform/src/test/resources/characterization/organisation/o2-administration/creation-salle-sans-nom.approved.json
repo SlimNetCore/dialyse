@@ -1,0 +1,18 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "REFERENTIAL_VALIDATION",
+    "detail" : "« Nom » est obligatoire.",
+    "instance" : "/api/v1/admin/referentials/salles",
+    "issues" : [ {
+      "code" : "REQUIRED",
+      "field" : "nom",
+      "message" : "« Nom » est obligatoire.",
+      "params" : { },
+      "row" : 0
+    } ],
+    "status" : 422,
+    "title" : "Saisie invalide"
+  }
+}

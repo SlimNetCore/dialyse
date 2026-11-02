@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "COORDONNEES_EMAIL_INVALIDE",
+    "detail" : "Adresse email invalide",
+    "instance" : "/api/v1/societes",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Référentiel inconnu : inconnu",
+    "instance" : "/api/v1/admin/referentials/inconnu",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

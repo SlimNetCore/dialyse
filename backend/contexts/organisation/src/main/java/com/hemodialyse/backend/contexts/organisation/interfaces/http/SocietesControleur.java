@@ -3,6 +3,9 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.Centre;
+import com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable;
+import com.hemodialyse.backend.contexts.organisation.domain.LogoIntrouvable;
+import com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable;
 import com.hemodialyse.backend.contexts.organisation.domain.LogoDeSociete;
 import com.hemodialyse.backend.contexts.organisation.domain.Societe;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CentreRequete;
@@ -67,7 +70,11 @@ public class SocietesControleur {
 
     @GetMapping("/{id}")
     public ResponseEntity<SocieteReponse> consulter(@PathVariable UUID id) {
-        return ResponseEntity.ok(toReponse(service.consulterSociete(new SocieteId(id))));
+        try {
+            return ResponseEntity.ok(toReponse(service.consulterSociete(new SocieteId(id))));
+        } catch (SocieteIntrouvable e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -105,14 +112,21 @@ public class SocietesControleur {
     @PutMapping(value = "/{id}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SocieteReponse> televerserLogo(@PathVariable UUID id,
                                                          @RequestParam("file") MultipartFile file) throws IOException {
-        service.televerserLogoSociete(new SocieteId(id), file.getBytes());
+        try {
+            service.televerserLogoSociete(new SocieteId(id), file.getBytes());
+        } catch (SocieteIntrouvable e) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(toReponse(service.consulterSociete(new SocieteId(id))));
     }
 
     @DeleteMapping("/{id}/logo")
     public ResponseEntity<Void> supprimerLogo(@PathVariable UUID id) {
-        service.lireLogoSociete(new SocieteId(id));
-        service.supprimerLogoSociete(new SocieteId(id));
+        try {
+            service.supprimerLogoSociete(new SocieteId(id));
+        } catch (SocieteIntrouvable e) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -124,7 +138,12 @@ public class SocietesControleur {
 
     @GetMapping("/{id}/logo")
     public ResponseEntity<byte[]> lireLogo(@PathVariable UUID id) {
-        LogoDeSociete logo = service.lireLogoSociete(new SocieteId(id));
+        LogoDeSociete logo;
+        try {
+            logo = service.lireLogoSociete(new SocieteId(id));
+        } catch (LogoIntrouvable e) {
+            return ResponseEntity.notFound().build();
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(logo.contentType()));
         headers.setCacheControl("no-store");
@@ -198,7 +217,7 @@ public class SocietesControleur {
     private Centre centreAppartenant(UUID id, UUID centreId) {
         Centre centre = service.lireParametresCentre(new CentreId(centreId));
         if (!centre.societeId().valeur().equals(id)) {
-            throw new IllegalArgumentException("Centre introuvable dans cette societe");
+            throw new CentreIntrouvable();
         }
         return centre;
     }

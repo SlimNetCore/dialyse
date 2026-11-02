@@ -35,10 +35,60 @@ abstract class OrganisationJdbcContrat {
     protected abstract JdbcTemplate jdbc();
 
     protected void vider() {
+        jdbc().update("DELETE FROM centers WHERE code LIKE 'ORGT-%'");
+        jdbc().update("DELETE FROM societes WHERE code LIKE 'ORGT-%'");
         for (CentreId c : new CentreId[]{CENTRE_A, CENTRE_B}) {
             for (String t : new String[]{"salle", "medecin", "machine", "protocole", "position_creneau"}) {
                 jdbc().update("DELETE FROM " + t + " WHERE center_id = ?", c.valeur());
             }
+        }
+    }
+
+    @Test
+    void should_keep_one_active_centre_when_two_deactivations_run_concurrently() throws Exception {
+        UUID societe = UUID.fromString("99998100-0000-0000-0000-0000000000f1");
+        UUID c1 = UUID.fromString("99998100-0000-0000-0000-0000000000c1");
+        UUID c2 = UUID.fromString("99998100-0000-0000-0000-0000000000c2");
+        jdbc().update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?, 'ORGT-CC', 'Concurrence', TRUE, CURRENT_TIMESTAMP)", societe);
+        jdbc().update("INSERT INTO centers (id, code, name, societe_id, actif) VALUES (?, 'ORGT-CC1', 'C1', ?, TRUE)", c1, societe);
+        jdbc().update("INSERT INTO centers (id, code, name, societe_id, actif) VALUES (?, 'ORGT-CC2', 'C2', ?, TRUE)", c2, societe);
+        var transactions = new org.springframework.jdbc.datasource.DataSourceTransactionManager(jdbc().getDataSource());
+        var service = new com.hemodialyse.backend.contexts.organisation.application.OrganisationService(
+                new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SocietesJdbc(jdbc()),
+                new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.CentresJdbc(jdbc()),
+                new SallesJdbc(jdbc()), new CreneauxJdbc(jdbc()),
+                new com.hemodialyse.backend.contexts.organisation.infrastructure.transaction.UniteDeTravailSpring(
+                        new org.springframework.transaction.support.TransactionTemplate(transactions), jdbc(), java.time.Duration.ofSeconds(5)),
+                new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDeLaSocieteJdbc(jdbc()));
+        java.util.concurrent.CountDownLatch depart = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var f1 = pool.submit(() -> {
+                depart.await();
+                service.desactiverCentre(new CentreId(c1));
+                return null;
+            });
+            var f2 = pool.submit(() -> {
+                depart.await();
+                service.desactiverCentre(new CentreId(c2));
+                return null;
+            });
+            depart.countDown();
+            int reussies = 0;
+            for (var f : java.util.List.of(f1, f2)) {
+                try {
+                    f.get(30, java.util.concurrent.TimeUnit.SECONDS);
+                    reussies++;
+                } catch (java.util.concurrent.ExecutionException e) {
+                    assertThat(e.getCause()).isInstanceOfAny(IllegalArgumentException.class,
+                            com.hemodialyse.backend.contexts.organisation.domain.EcritureConcurrente.class);
+                }
+            }
+            assertThat(reussies).as("une seule désactivation passe").isEqualTo(1);
+            assertThat(jdbc().queryForObject("SELECT COUNT(*) FROM centers WHERE societe_id = ? AND actif = TRUE", Integer.class, societe))
+                    .as("la société garde un centre actif").isEqualTo(1);
+        } finally {
+            pool.shutdownNow();
         }
     }
 
@@ -69,14 +119,18 @@ abstract class OrganisationJdbcContrat {
     }
 
     @Test
-    void should_never_delete_a_doctor_of_another_centre() {
+    void should_deactivate_a_doctor_without_deleting_the_row_and_hide_him_from_the_list() {
         MedecinsJdbc medecins = new MedecinsJdbc(jdbc());
         MedecinId id = new MedecinId(UUID.randomUUID());
         medecins.sauvegarder(new Medecin(id, CENTRE_A, "Benali", "Karim", "Néphrologue"));
-        medecins.supprimer(CENTRE_B, id);
-        assertThat(medecins.trouver(id)).isPresent();
-        medecins.supprimer(CENTRE_A, id);
-        assertThat(medecins.trouver(id)).isEmpty();
+        assertThat(medecins.listerParCentre(CENTRE_A, 0, 10).items()).hasSize(1);
+        Medecin lu = medecins.trouver(id).orElseThrow();
+        lu.desactiver();
+        medecins.sauvegarder(lu);
+        assertThat(medecins.trouver(id)).as("la ligne reste (référencée par les patients)").isPresent();
+        assertThat(medecins.trouver(id).orElseThrow().actif()).isFalse();
+        assertThat(medecins.listerParCentre(CENTRE_A, 0, 10).items()).isEmpty();
+        assertThat(medecins.listerParCentre(CENTRE_A, 0, 10).total()).isZero();
     }
 
     @Test

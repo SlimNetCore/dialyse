@@ -25,12 +25,23 @@ public class OrganisationService implements OrganisationUseCases {
     private final CentreRepository centres;
     private final SalleRepository salles;
     private final CreneauRepository creneaux;
+    private final UniteDeTravail unite;
+    private final com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou;
 
+    /** Sans transaction ni verrou : tests d'application avec des fakes en mémoire. */
     public OrganisationService(SocieteRepository societes, CentreRepository centres, SalleRepository salles, CreneauRepository creneaux) {
+        this(societes, centres, salles, creneaux, UniteDeTravail.DIRECTE,
+                com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete.AUCUN);
+    }
+
+    public OrganisationService(SocieteRepository societes, CentreRepository centres, SalleRepository salles, CreneauRepository creneaux,
+                               UniteDeTravail unite, com.hemodialyse.backend.contexts.organisation.domain.VerrouDeLaSociete verrou) {
         this.societes = societes;
         this.centres = centres;
         this.salles = salles;
         this.creneaux = creneaux;
+        this.unite = unite;
+        this.verrou = verrou;
     }
 
     @Override
@@ -46,7 +57,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public void modifierSociete(CommandesOrganisation.ModifierSociete commande) {
-        Societe s = societes.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
+        Societe s = societes.trouver(commande.id()).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable::new);
         garantirCodeSocieteLibre(commande.code(), commande.id());
         s.modifier(commande.code(), commande.raisonSociale(), commande.nif(), commande.nis(),
                 commande.rc(), commande.coordonnees(), commande.piedDePage(), commande.actif());
@@ -55,7 +66,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public CentreId creerCentre(CommandesOrganisation.CreerCentre commande) {
-        if (societes.trouver(commande.societeId()).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
+        if (societes.trouver(commande.societeId()).isEmpty()) throw new com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable();
         garantirCodeCentreLibre(commande.code(), null);
         CentreId id = new CentreId(UUID.randomUUID());
         Centre c = new Centre(id, commande.societeId(), commande.code(), commande.nom(),
@@ -66,7 +77,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public void modifierCentre(CommandesOrganisation.ModifierCentre commande) {
-        Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
+        Centre c = centres.trouver(commande.id()).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
         garantirCodeCentreLibre(commande.code(), commande.id());
         c.modifier(commande.code(), commande.nom(), commande.coordonnees());
         centres.sauvegarder(c);
@@ -74,38 +85,40 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public void activerCentre(CentreId centreId) {
-        changerActivationCentre(centreId, true);
+        Centre c = centres.trouver(centreId).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
+        c.activer();
+        centres.sauvegarder(c);
     }
 
+    /**
+     * Invariant « au moins un centre actif par société » : la société est verrouillée AVANT de lire ses centres actifs, dans la
+     * même transaction que l'écriture. Deux désactivations concurrentes ne passent donc pas toutes les deux (la seconde attend,
+     * relit, puis est refusée ; au-delà du délai de verrou : 409).
+     */
     @Override
     public void desactiverCentre(CentreId centreId) {
-        Centre c = centres.trouver(centreId).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
-        if (c.actif() && estDernierCentreActif(c)) {
-            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE");
-        }
-        changerActivationCentre(centreId, false);
-    }
-
-    private void changerActivationCentre(CentreId centreId, boolean actif) {
-        Centre c = centres.trouver(centreId).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
-        c.setActif(actif);
-        centres.sauvegarder(c);
+        unite.executer(() -> {
+            Centre lu = centres.trouver(centreId).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
+            verrou.prendre(lu.societeId());
+            Centre c = centres.trouver(centreId).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
+            c.desactiver(centres.listerActifs(c.societeId()));
+            centres.sauvegarder(c);
+            return null;
+        });
     }
 
     @Override
     public void transfererCentre(CommandesOrganisation.TransfererCentre commande) {
-        Centre c = centres.trouver(commande.id()).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
-        if (c.societeId().equals(commande.nouvelleSociete())) {
-            throw new IllegalArgumentException("CENTRE_TRANSFERT_MEME_SOCIETE");
-        }
-        Societe cible = societes.trouver(commande.nouvelleSociete())
-                .orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
-        if (!cible.actif()) throw new IllegalArgumentException("SOCIETE_INACTIVE");
-        if (c.actif() && estDernierCentreActif(c)) {
-            throw new IllegalArgumentException("SOCIETE_DERNIER_CENTRE");
-        }
-        c.transferer(commande.nouvelleSociete());
-        centres.sauvegarder(c);
+        unite.executer(() -> {
+            Centre lu = centres.trouver(commande.id()).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
+            verrou.prendre(lu.societeId());
+            Centre c = centres.trouver(commande.id()).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
+            Societe cible = societes.trouver(commande.nouvelleSociete())
+                    .orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable::new);
+            c.transfererVers(cible, centres.listerActifs(c.societeId()));
+            centres.sauvegarder(c);
+            return null;
+        });
     }
 
     private void garantirCodeSocieteLibre(String code, SocieteId exclu) {
@@ -126,11 +139,6 @@ public class OrganisationService implements OrganisationUseCases {
         });
     }
 
-    private boolean estDernierCentreActif(Centre centre) {
-        return centres.listerActifs(centre.societeId()).stream()
-                .allMatch(a -> a.id().equals(centre.id()));
-    }
-
     @Override
     public List<Centre> listerCentresActifs(SocieteId societeId) {
         return centres.listerActifs(societeId);
@@ -138,7 +146,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public Centre lireParametresCentre(CentreId centreId) {
-        return centres.trouver(centreId).orElseThrow(() -> new IllegalArgumentException("Centre inconnu"));
+        return centres.trouver(centreId).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
     }
 
     @Override
@@ -155,7 +163,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public Societe consulterSociete(SocieteId societeId) {
-        return societes.trouver(societeId).orElseThrow(() -> new IllegalArgumentException("Societe inconnue"));
+        return societes.trouver(societeId).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable::new);
     }
 
     @Override
@@ -166,12 +174,12 @@ public class OrganisationService implements OrganisationUseCases {
     @Override
     public LogoDeSociete lireLogoSociete(SocieteId societeId) {
         return societes.lireLogo(societeId)
-                .orElseThrow(() -> new IllegalArgumentException("Logo introuvable"));
+                .orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.LogoIntrouvable::new);
     }
 
     @Override
     public void televerserLogoSociete(SocieteId societeId, byte[] contenu) {
-        if (societes.trouver(societeId).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
+        if (societes.trouver(societeId).isEmpty()) throw new com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable();
         LogoDeSociete logo = LogoDeSociete.valider(contenu);
         ValidateurImage.verifierDecodable(contenu);
         societes.enregistrerLogo(societeId, logo);
@@ -179,7 +187,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public void supprimerLogoSociete(SocieteId societeId) {
-        if (societes.trouver(societeId).isEmpty()) throw new IllegalArgumentException("Societe inconnue");
+        if (societes.trouver(societeId).isEmpty()) throw new com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable();
         societes.supprimerLogo(societeId);
     }
 

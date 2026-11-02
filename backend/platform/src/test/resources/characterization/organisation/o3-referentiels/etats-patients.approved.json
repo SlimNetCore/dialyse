@@ -1,0 +1,69 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "adresse" : null,
+    "code" : "PERMANENT",
+    "gereParLot" : null,
+    "id" : "PERMANENT",
+    "libelle" : null,
+    "nom" : "PERMANENT",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "OCCASIONNEL",
+    "gereParLot" : null,
+    "id" : "OCCASIONNEL",
+    "libelle" : null,
+    "nom" : "OCCASIONNEL",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "VACANCIER_LOCAL",
+    "gereParLot" : null,
+    "id" : "VACANCIER_LOCAL",
+    "libelle" : null,
+    "nom" : "VACANCIER_LOCAL",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "VACANCIER_ETRANGER",
+    "gereParLot" : null,
+    "id" : "VACANCIER_ETRANGER",
+    "libelle" : null,
+    "nom" : "VACANCIER_ETRANGER",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "TRANSFERE",
+    "gereParLot" : null,
+    "id" : "TRANSFERE",
+    "libelle" : null,
+    "nom" : "TRANSFERE",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "DECEDE",
+    "gereParLot" : null,
+    "id" : "DECEDE",
+    "libelle" : null,
+    "nom" : "DECEDE",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "GREFFE",
+    "gereParLot" : null,
+    "id" : "GREFFE",
+    "libelle" : null,
+    "nom" : "GREFFE",
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "GUERRI",
+    "gereParLot" : null,
+    "id" : "GUERRI",
+    "libelle" : null,
+    "nom" : "GUERRI",
+    "prenom" : null
+  } ]
+}

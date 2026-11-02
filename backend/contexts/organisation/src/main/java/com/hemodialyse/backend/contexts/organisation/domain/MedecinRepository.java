@@ -4,15 +4,12 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface MedecinRepository {
     Optional<Medecin> trouver(MedecinId id);
 
     void sauvegarder(Medecin m);
 
-    /** Supprime le médecin du centre : sans effet si le médecin appartient à un autre centre. */
-    void supprimer(CentreId centreId, MedecinId id);
-
+    /** Médecins actifs du centre (les médecins désactivés ne sont plus proposés). */
     PagedResult<Medecin> listerParCentre(CentreId centreId, int page, int size);
 }

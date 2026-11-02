@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "CENTRE_CODE_DEJA_UTILISE",
+    "detail" : "Ce code de centre est déjà utilisé",
+    "instance" : "/api/v1/societes/<SOCIETE_1>/centres",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

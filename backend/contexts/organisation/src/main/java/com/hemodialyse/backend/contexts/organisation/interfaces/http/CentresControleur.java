@@ -3,7 +3,7 @@ package com.hemodialyse.backend.contexts.organisation.interfaces.http;
 import com.hemodialyse.backend.contexts.organisation.application.CommandesOrganisation;
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.SessionCourante;
-import com.hemodialyse.backend.contexts.organisation.domain.Centre;
+import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ReponsesDuReferentiel;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerCentreRequete;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierCentreRequete;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.TransfererCentreRequete;
@@ -64,19 +64,19 @@ public class CentresControleur {
 
     @GetMapping("/actifs")
     @PreAuthorize("hasRole('SUPERADMIN')")
-    public List<Centre> actifs(@RequestParam UUID societeId) {
-        return service.listerCentresActifs(new SocieteId(societeId));
+    public List<ReponsesDuReferentiel.CentreDetail> actifs(@RequestParam UUID societeId) {
+        return ReponsesDuReferentiel.liste(service.listerCentresActifs(new SocieteId(societeId)), ReponsesDuReferentiel.CentreDetail::de);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('SUPERADMIN')")
-    public List<Centre> lister(@RequestParam UUID societeId) {
-        return service.listerCentres(new SocieteId(societeId));
+    public List<ReponsesDuReferentiel.CentreDetail> lister(@RequestParam UUID societeId) {
+        return ReponsesDuReferentiel.liste(service.listerCentres(new SocieteId(societeId)), ReponsesDuReferentiel.CentreDetail::de);
     }
 
     @GetMapping("/{id}/parametres")
-    public Centre parametres(@PathVariable UUID id) {
+    public ReponsesDuReferentiel.CentreDetail parametres(@PathVariable UUID id) {
         CentreId centre = session.centre(id);
-        return service.lireParametresCentre(centre);
+        return ReponsesDuReferentiel.CentreDetail.de(service.lireParametresCentre(centre));
     }
 }

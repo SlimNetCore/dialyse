@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "adresse" : null,
+    "code" : "P1",
+    "gereParLot" : null,
+    "id" : "<CRENEAU_A1>",
+    "libelle" : "Matin",
+    "nom" : null,
+    "prenom" : null
+  }, {
+    "adresse" : null,
+    "code" : "P2",
+    "gereParLot" : null,
+    "id" : "<CRENEAU_A2>",
+    "libelle" : "Soir",
+    "nom" : null,
+    "prenom" : null
+  } ]
+}

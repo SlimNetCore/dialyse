@@ -29,6 +29,8 @@ class ErreursDeLOrganisationAdvice {
     private static final Map<String, String> DETAILS_METIER = Map.ofEntries(
             Map.entry("SOCIETE_DERNIER_CENTRE",
                     "Une société doit conserver au moins un centre actif : impossible de désactiver ou retirer son dernier centre"),
+            Map.entry("SOCIETE_INTROUVABLE", "Société introuvable"),
+            Map.entry("CENTRE_INTROUVABLE", "Centre introuvable dans cette société"),
             Map.entry("SOCIETE_CODE_DEJA_UTILISE", "Ce code de société est déjà utilisé"),
             Map.entry("CENTRE_CODE_DEJA_UTILISE", "Ce code de centre est déjà utilisé"),
             Map.entry("CENTRE_TRANSFERT_MEME_SOCIETE", "Le centre appartient déjà à cette société"),
@@ -53,6 +55,18 @@ class ErreursDeLOrganisationAdvice {
         problem.setDetail(detail);
         problem.setProperty("code", code);
         return problem;
+    }
+
+    /** Verrou de la société tenu par une autre écriture au-delà du délai : 409, à réessayer. */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.organisation.domain.EcritureConcurrente.class)
+    ProblemDetail ecritureConcurrente(com.hemodialyse.backend.contexts.organisation.domain.EcritureConcurrente ex) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente",
+                "Une autre ecriture est en cours sur cette societe : reessayer", "ORGANISATION_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(com.hemodialyse.backend.contexts.organisation.domain.LogoIntrouvable.class)
+    ProblemDetail logoIntrouvable(com.hemodialyse.backend.contexts.organisation.domain.LogoIntrouvable ex) {
+        return probleme(HttpStatus.NOT_FOUND, "Ressource introuvable", "Logo introuvable", "NOT_FOUND");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

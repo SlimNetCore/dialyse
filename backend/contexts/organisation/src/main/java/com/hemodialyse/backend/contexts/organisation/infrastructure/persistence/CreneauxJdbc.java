@@ -28,6 +28,7 @@ public class CreneauxJdbc implements CreneauRepository {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(cacheNames = "ref.positions", key = "#c.centreId().valeur().toString()")
     public void sauvegarder(Creneau c) {
         int n = jdbc.update("UPDATE position_creneau SET code=?, libelle=? WHERE id=? AND center_id=?", c.code(), c.libelle(), c.id().valeur(), c.centreId().valeur());
         if (n == 0) {
