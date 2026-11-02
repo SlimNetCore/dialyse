@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {Component, provideZonelessChangeDetection, signal} from '@angular/core';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {NotificationBellComponent} from './notification-bell.component';
 import {provideRouter} from '@angular/router';
 import {AuthStore} from '../state/auth.store';
@@ -31,6 +31,10 @@ describe('NotificationBellComponent', () => {
   };
 
   beforeEach(() => {
+    // Horloge fixée (Date seule) : l'horizon de l'absence commence « aujourd'hui » ou au début de l'absence si elle est à venir ;
+    // sans cela les liens attendus dépendraient du jour d'exécution (l'absence du test est passée dès le 03/11/2026).
+    vi.useFakeTimers({toFake: ['Date']});
+    vi.setSystemTime(new Date('2026-10-05T07:00:00Z'));
     roles = ['ADMIN'];
     store = {
       open: signal(true), activeTab: signal('unread'), selectedEventId: signal(null),
@@ -70,6 +74,10 @@ describe('NotificationBellComponent', () => {
       },
     });
     translate.use('fr');
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   function render() {

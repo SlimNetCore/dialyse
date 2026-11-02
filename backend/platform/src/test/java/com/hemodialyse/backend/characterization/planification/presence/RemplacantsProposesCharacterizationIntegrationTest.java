@@ -29,6 +29,11 @@ class RemplacantsProposesCharacterizationIntegrationTest extends PresenceCharact
         nommerJours(-7, 14);
     }
 
+    /** Nom du jour de la semaine au format du roulement (DIMANCHE à SAMEDI, comme {@link JourSemaine}). */
+    private static String nomDuJour(LocalDate date) {
+        return TOUS_LES_JOURS[date.getDayOfWeek().getValue() % 7].name();
+    }
+
     private String url(LocalDate date, UUID salle, UUID creneau) {
         return PRESENCE + "/remplacants?date=" + date + "&salleId=" + salle + "&creneauId=" + creneau;
     }
@@ -84,8 +89,17 @@ class RemplacantsProposesCharacterizationIntegrationTest extends PresenceCharact
         amorcer();
         // salle connue + créneau habituel (autre jour du créneau : roulement sur le matin dans la salle 1 mais case saturée par ailleurs)
         infirmierAffecte(CENTRE_A, "INF_SALLE", "Salle", "Anis", false, salle1, apresMidi, tousLesJours());     // salle connue, double vacation
-        infirmierAffecte(CENTRE_A, "INF_CHARGE", "Charge", "Bilal", false, salle2, apresMidi, "LUNDI,MARDI,MERCREDI,JEUDI,VENDREDI");
-        infirmierAffecte(CENTRE_A, "INF_ISO", "Iso", "Chams", true, salleIsolement, apresMidi, "LUNDI");
+        // Le roulement est calculé par rapport au jour demandé (J+2) pour que le résultat ne dépende pas du jour d'exécution :
+        // Bilal travaille cinq jours de la semaine, tous sauf le jour demandé et le lendemain (jour libre le J+2, 5 séances) ;
+        // Chams travaille un seul jour, différent du jour demandé (jour libre le J+2, 1 séance).
+        String jourDemande = nomDuJour(jour(2));
+        String lendemain = nomDuJour(jour(3));
+        List<String> cinqJours = new ArrayList<>();
+        for (JourSemaine j : TOUS_LES_JOURS) {
+            if (!j.name().equals(jourDemande) && !j.name().equals(lendemain)) cinqJours.add(j.name());
+        }
+        infirmierAffecte(CENTRE_A, "INF_CHARGE", "Charge", "Bilal", false, salle2, apresMidi, String.join(",", cinqJours));
+        infirmierAffecte(CENTRE_A, "INF_ISO", "Iso", "Chams", true, salleIsolement, apresMidi, lendemain);
         inf(CENTRE_A, "INF_RIEN", "Rien", "Dalila", false);
         // remplaçant déjà posé le même jour dans une autre salle, sur l'autre créneau
         UUID deja = inf(CENTRE_A, "INF_DEJA", "Deja", "Eden", false);
