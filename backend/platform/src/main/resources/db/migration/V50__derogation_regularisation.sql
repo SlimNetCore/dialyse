@@ -1,4 +1,4 @@
--- Migration V22 : agrégat satellite DerogationRegularisation (slice SE4).
+-- Migration V50 (renumérotée depuis V22, doublon avec V22__fiche_article_complete) : agrégat satellite DerogationRegularisation (slice SE4).
 CREATE TABLE IF NOT EXISTS derogations_regularisation
 (
     id
