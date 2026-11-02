@@ -32,7 +32,11 @@ JDBC `ExecutionsRepository` (+ calendrier `planification_calendrier_case`), `Dep
 ### S3 (parité et retrait)
 Goldens `_nouveau_code` (archivage préalable des anciens dans `_ecarts-legacy/**/*.legacy.json` depuis `git show HEAD:`), retrait du legacy d'optimisation, suppression du double calcul de présence (`PlanningDonneesJdbcAdapter`, `PresenceDonnees*`, `PresenceInfirmierService`, `SemaineDeLInfirmierLegacy`) après accord seam par seam (`seams.md` + `covered.json`), `SeancePlaceJdbcAdapter` et ACL P6 `DeplacementsTemporairesJdbc` lisent via le port publié, PIT domaine + application (solveur exclu), `./mvnw -o test` complet, frontend si touché, ADR suivant (proposed), known-bugs, glossaire (proposed), référentiel RG + test garde, `verifications-production.md`, `roadmap.md`, état `built`.
 
-## Écarts décidés (à tracer dans l'ADR, à valider)
+## Écarts décidés (tracés dans l'ADR 0068, proposed, à valider ; revue du 2026-10-29 : voir `.ddd/verify/review-planification-p8.md`)
+
+Corrections de la revue (2026-11-02) : B1 (transitions gardées, UPDATE conditionnels, reprise par instance, V48), B2 (ADR 0068, statuts
+KB-PLN-89 à 105), M1 (3 goldens supprimés + garde), M2 (alertes personnelles, V49, front), M3 (3 tests restaurés, encodage), M4 (reporté P9,
+roadmap), M5 (`CouvertureDesAbsences`), M6 (docs), m1 à m6, m8, n1, n2.
 
 | Sujet | Décision prise en S1 | Pourquoi |
 |---|---|---|

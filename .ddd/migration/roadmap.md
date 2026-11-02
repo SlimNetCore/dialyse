@@ -208,6 +208,16 @@ Plan dÃ©taillÃ© (scores, critÃ¨res) : Ã  produire par `/ddd-strangle-pla
 | `SalleVuePort`, `SalleVueJdbcAdapter`, `SalleGenerateursService` (capacitÃ© GMAO)                                                 | P6 -> reportÃ© Ã  P9 (dette de P6 ci-dessous)      | fin de P9                                                                                                                                                                        |
 | Verrou des places pris par `OptimisationApplicationService` (seam fermÃ©)                                                         | P8                                                 | fin de P8                                                                                                                                                                        |
 
+**Dette de « fin de P8 » : décision du 2026-11-02 (revue P8, M4) : reportée au jalon P9, avec la liste des lecteurs.** Le verrou des places de
+l'ancienne optimisation est retiré (fait). Le reste ne peut pas partir en P8 sans changer un comportement observable ou sans toucher un
+lecteur hors lot :
+
+| Code conservé | Lecteurs restants (vérifiés par `git grep`) | Pourquoi pas en P8 | Jalon |
+|---|---|---|---|
+| `PlanningSemaineService`, `PlanningSemaineQueryService`, `PlanningSemainePort`, `PlanningDonneesJdbcAdapter` ; `PresenceInfirmierService`, `PresenceDonneesPort`, `PresenceDonneesJdbcAdapter` (double calcul de présence) | un seul lecteur de production : l'ACL `SemaineDeLInfirmierLegacy` (« Mon planning » de l'infirmier) ; tests restaurés : `PresenceInfirmierServiceTest`, `PlanningSemaineServiceTest` | « Mon planning » garde l'ANCIENNE règle du sommeil du legacy ; la lire via la règle P4 (`PresenceDeLaSemaine`) change la sortie observable (décision et goldens à approuver un par un) | **P9** : composer `ConsulterLaPresence` et `ConsulterLaSemaine` dans `ConsulterMonPlanning`, retirer le port `SemaineDeLInfirmier`, l'ACL et les 7 classes |
+| `PlanningDonneesPort`, `PlanningDonneesJdbcAdapter`, ACL `PlanningDesPlacesLegacy`, `CalendrierDuCentreLegacy` | `PresenceDonneesJdbcAdapter`, `MouvementsPatientsIntegrationTest` ; ACL lues par P4 à P7 | encore lus par le calendrier du centre de P4-P7 | **P9** |
+| `PlacementPatientPort`, `PlacementPatientJdbcAdapter`, `PlanificationAffectationService` (bc-seance) | l'adapter n'a plus d'appelant de production ; le service n'a que ses tests | retrait sans risque mais hors périmètre « édition minimale autorisée » | **P9** (à vérifier par `/ddd-verify`) |
+
 **Dette de P6 et jalons de retrait (session 2, 2026-10-27).** MÃªme rÃ¨gle : pas de date de calendrier, retrait attachÃ©
 au jalon.
 

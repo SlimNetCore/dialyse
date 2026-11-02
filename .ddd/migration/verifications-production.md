@@ -1471,3 +1471,39 @@ SELECT c.id, c.code FROM centers c WHERE COALESCE(c.actif, TRUE) = TRUE AND NOT 
 
 Ordre de nuit à vérifier après déploiement (Africa/Algiers) : détection des absences à 02:30, libération à 04:00 ; les
 journaux contiennent `[PLACES]` à 04:00 (pas avant 02:30 + durée du contrôle).
+
+## Slice planification-p8-optimisation (2026-11-02) : requêtes de contrôle (SELECT seulement)
+
+Après déploiement des migrations V48 (colonnes `instance_id`, `battement_le`) et V49 (`target_user_id`). Ces 12 requêtes sont exécutées sur
+le schéma réel (PostgreSQL 16 jetable) par `backend/scripts/planification-p8-pg16-rejeu.sh`, qui rejoue aussi le contrat de persistance et la
+course lancement / reprise / terminaison. Lecture seule : jamais d'UPDATE ni de DELETE sur une base partagée.
+
+```sql
+-- 1. Exécutions par centre, statut et périmètre
+SELECT center_id, statut, perimetre, count(*), max(cree_le) FROM planification_optimisation GROUP BY center_id, statut, perimetre ORDER BY 1, 2, 3;
+-- 2. Calculs restés EN_COURS depuis plus d'une heure : à examiner (la reprise interrompt un calcul sans battement depuis 60 s)
+SELECT id, center_id, cree_le, lance_par FROM planification_optimisation WHERE statut = 'EN_COURS' AND cree_le < now() - interval '1 hour' ORDER BY cree_le;
+-- 3. Centres avec plusieurs calculs EN_COURS : DOIT être vide (un seul calcul par centre)
+SELECT center_id, count(*) FROM planification_optimisation WHERE statut = 'EN_COURS' GROUP BY center_id HAVING count(*) > 1;
+-- 4. Plus de 20 exécutions par centre : DOIT être vide (historique plafonné)
+SELECT center_id, count(*) FROM planification_optimisation GROUP BY center_id HAVING count(*) > 20;
+-- 5. Propositions appliquées
+SELECT center_id, perimetre, count(*), max(applique_le) FROM planification_optimisation WHERE applique_le IS NOT NULL GROUP BY center_id, perimetre ORDER BY 1, 2;
+-- 6. Empreintes absentes ou de longueur inattendue (64 attendus) : doit être vide
+SELECT id, center_id, length(empreinte) FROM planification_optimisation WHERE empreinte IS NULL OR length(empreinte) <> 64;
+-- 7. Calendriers orphelins (sans exécution) : doit être vide
+SELECT c.center_id, c.run_id, count(*) FROM planification_calendrier_case c WHERE NOT EXISTS (SELECT 1 FROM planification_optimisation o WHERE o.id = c.run_id AND o.center_id = c.center_id) GROUP BY c.center_id, c.run_id;
+-- 8. Déplacements temporaires dont la cible est incohérente (générateur hors service, salle ou créneau d'un autre centre) : doit être vide
+SELECT d.center_id, d.patient_id, d.date_seance FROM deplacement_temporaire d WHERE NOT EXISTS (SELECT 1 FROM gmao_equipements e WHERE e.id = d.generateur_id AND e.statut = 'EN_SERVICE' AND e.deleted_at IS NULL) OR NOT EXISTS (SELECT 1 FROM salle s WHERE s.id = d.salle_id AND s.center_id = d.center_id) OR NOT EXISTS (SELECT 1 FROM position_creneau p WHERE p.id = d.creneau_id AND p.center_id = d.center_id) ORDER BY d.date_seance;
+-- 9. Déplacements temporaires passés : informatif
+SELECT center_id, count(*), min(date_seance), max(date_seance) FROM deplacement_temporaire WHERE date_seance < current_date GROUP BY center_id;
+-- 10. Remplacements sans remplacé : informatif (héritage d'avant la liaison du remplacé, KB-PLN-97 ; la couverture en relie désormais un quand il existe)
+SELECT center_id, count(*) FROM infirmier_remplacement WHERE remplace_infirmier_id IS NULL GROUP BY center_id;
+-- 11. Alertes de l'optimisation (dont les deux alertes personnelles d'infirmier)
+SELECT type, count(*), max(cree_le) FROM notification_evenement WHERE type IN ('OPTIMISATION_PROPOSITION','SEANCES_DEPLACEES','REPLANIFICATION_NOCTURNE','INFIRMIER_ROULEMENT_MODIFIE','INFIRMIER_REMPLACEMENT_AFFECTE') GROUP BY type;
+-- 12. Centres actifs avec replanification de nuit (ceux que le job de 02:30 traite)
+SELECT r.center_id FROM planification_reglages r JOIN centers c ON c.id = r.center_id AND COALESCE(c.actif, TRUE) = TRUE WHERE r.replanification_auto = TRUE ORDER BY 1;
+```
+
+Attendus après la première nuit : (3), (4), (6), (7), (8) vides ; aucune ligne `EN_COURS` ancienne en (2) ; les alertes personnelles
+de (11) portent `target_user_id` pour les infirmiers ayant un compte.
