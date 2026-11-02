@@ -1598,3 +1598,26 @@ place échue n'est pas empêchée par le sommeil (VOULU, 28/10/2026, KB-PLN-83).
 
 **À rapporter** : pour chaque ligne, le nombre de lignes renvoyées par centre et, pour les lignes bloquantes, la liste des centres ou
 comptes concernés.
+
+## 36. Organisation O1 à O5 : schéma et droits (une migration additive V51, 2026-11-02) — SELECT seulement
+
+Contexte : `SallesJdbc` lit `salle.ouverte`, `MachinesJdbc` et `ProtocolesJdbc` lisent `machine` et `protocole`. Ces trois éléments
+n'existaient que dans `db/schema.sql` (H2), pas dans la chaîne Flyway V1..V50. La migration **V51** (additive, idempotente : `ADD COLUMN
+IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, aucune donnée modifiée) les crée ; elle doit être appliquée AVANT le déploiement du code.
+Rejeu PostgreSQL 16 jetable : `backend/scripts/organisation-pg16-rejeu.sh`.
+
+| N° | Requête (SELECT) | Attendu | Si écart |
+|---|---|---|---|
+| ORG-1 | `SELECT column_name FROM information_schema.columns WHERE table_name = 'salle' AND column_name = 'ouverte'` | 1 ligne après V51 (0 avant : appliquer V51) | Bloquant : ne pas déployer |
+| ORG-2 | `SELECT table_name FROM information_schema.tables WHERE table_name IN ('machine','protocole')` | 2 lignes après V51 | Bloquant |
+| ORG-3 | `SELECT count(*) FROM salle WHERE ouverte = FALSE` | 0 juste après V51 (les salles existantes restent ouvertes) | Informatif : une valeur > 0 avant action utilisateur est anormale |
+| ORG-4 | `SELECT count(*) FROM machine` ; `SELECT count(*) FROM protocole` | 0 et 0 juste après V51 | Informatif |
+| ORG-5 | `SELECT m.id, m.center_id FROM medecin m LEFT JOIN centers c ON c.id = m.center_id WHERE c.id IS NULL` | 0 ligne (médecins orphelins de centre) | À corriger avec le métier avant d'activer le filtre de centre |
+| ORG-6 | `SELECT s.id, s.center_id FROM salle s LEFT JOIN centers c ON c.id = s.center_id WHERE c.id IS NULL` ; idem `position_creneau` | 0 ligne | Idem |
+| ORG-7 | `SELECT center_id, code, count(*) FROM salle GROUP BY center_id, code HAVING count(*) > 1` ; idem `position_creneau` | 0 ligne (doublons de code) | Informatif |
+| ORG-8 | `SELECT s.id FROM societes s WHERE NOT EXISTS (SELECT 1 FROM centers c WHERE c.societe_id = s.id AND c.actif)` | 0 ligne (société sans centre actif) | Bloquant pour l'invariant « dernier centre actif » |
+| ORG-9 | `SELECT count(*) FROM medecin x JOIN patients p ON p.medecin_traitant_id = x.id` | Informatif : médecins référencés (leur suppression physique laisse des références orphelines : à décider, suppression logique) | Décision |
+
+Contrôles de droits après déploiement (avec comptes de test, jamais en production réelle) : `POST /api/v1/organisation/referentiels/medecins`
+et `POST /api/v1/organisation/salles/{id}/ouvrir` avec un SECRETAIRE ou un ADMIN d'un autre centre : **403** ; `GET /api/v1/referentials/salles`
+reste ouvert à tout utilisateur authentifié (comportement legacy conservé, voir `.ddd/safety-net/organisation-retroactif.md`).

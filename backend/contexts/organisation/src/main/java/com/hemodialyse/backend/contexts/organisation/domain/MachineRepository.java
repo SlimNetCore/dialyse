@@ -10,7 +10,8 @@ public interface MachineRepository {
 
     void sauvegarder(Machine m);
 
-    void supprimer(MachineId id);
+    /** Supprime la machine du centre : sans effet si la machine appartient à un autre centre. */
+    void supprimer(CentreId centreId, MachineId id);
 
     PagedResult<Machine> listerParCentre(CentreId centreId, int page, int size);
 }

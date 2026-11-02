@@ -36,8 +36,8 @@ public class MedecinsJdbc implements MedecinRepository {
     }
 
     @Override
-    public void supprimer(MedecinId id) {
-        jdbc.update("DELETE FROM medecin WHERE id = ?", id.valeur());
+    public void supprimer(CentreId centreId, MedecinId id) {
+        jdbc.update("DELETE FROM medecin WHERE id = ? AND center_id = ?", id.valeur(), centreId.valeur());
     }
 
     @Override

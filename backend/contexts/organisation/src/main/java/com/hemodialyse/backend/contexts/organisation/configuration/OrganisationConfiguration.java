@@ -34,6 +34,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 public class OrganisationConfiguration {
     @Bean
+    public com.hemodialyse.backend.contexts.organisation.application.SessionCourante organisationSessionCourante() {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.acl.legacyidentite.SessionLegacy();
+    }
+
+    @Bean
     public SocieteRepository societeRepository(JdbcTemplate jdbc) {
         return new SocietesJdbc(jdbc);
     }

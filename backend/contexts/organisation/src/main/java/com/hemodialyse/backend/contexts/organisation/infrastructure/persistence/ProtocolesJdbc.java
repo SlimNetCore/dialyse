@@ -35,8 +35,8 @@ public class ProtocolesJdbc implements ProtocoleRepository {
     }
 
     @Override
-    public void supprimer(ProtocoleId id) {
-        jdbc.update("DELETE FROM protocole WHERE id = ?", id.valeur());
+    public void supprimer(CentreId centreId, ProtocoleId id) {
+        jdbc.update("DELETE FROM protocole WHERE id = ? AND center_id = ?", id.valeur(), centreId.valeur());
     }
 
     @Override

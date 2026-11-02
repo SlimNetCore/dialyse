@@ -72,6 +72,13 @@ class ErreursDeLOrganisationAdvice {
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", code, "BAD_REQUEST");
     }
 
+    /** Corps non JSON sur une écriture lue après les droits : 415 (et non 500). */
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+    ProblemDetail typeDeContenuNonSupporte(org.springframework.web.HttpMediaTypeNotSupportedException ex) {
+        return probleme(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Type de contenu non supporte",
+                "Le corps de la requete doit etre du JSON", "UNSUPPORTED_MEDIA_TYPE");
+    }
+
     /**
      * Logo refusé (contenu illisible, trop lourd, type interdit) : 422
      * {@code {violations: [{code, detail}]}, comme le legacy.

@@ -10,7 +10,8 @@ public interface ProtocoleRepository {
 
     void sauvegarder(Protocole p);
 
-    void supprimer(ProtocoleId id);
+    /** Supprime le protocole du centre : sans effet si le protocole appartient à un autre centre. */
+    void supprimer(CentreId centreId, ProtocoleId id);
 
     PagedResult<Protocole> listerParCentre(CentreId centreId, int page, int size);
 }

@@ -35,15 +35,16 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     }
 
     @Override
-    public void modifierMedecin(MedecinId id, String nom, String prenom, String specialite) {
-        Medecin m = medecins.trouver(id).orElseThrow(() -> new IllegalArgumentException("Medecin inconnu"));
+    public void modifierMedecin(CentreId centreId, MedecinId id, String nom, String prenom, String specialite) {
+        Medecin m = medecins.trouver(id).filter(x -> x.centreId().equals(centreId))
+                .orElseThrow(() -> new IllegalArgumentException("Medecin inconnu"));
         m.modifier(nom, prenom, specialite);
         medecins.sauvegarder(m);
     }
 
     @Override
-    public void supprimerMedecin(MedecinId id) {
-        medecins.supprimer(id);
+    public void supprimerMedecin(CentreId centreId, MedecinId id) {
+        medecins.supprimer(centreId, id);
     }
 
     @Override
@@ -60,15 +61,16 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     }
 
     @Override
-    public void modifierMachine(MachineId id, String code, String libelle, Boolean actif) {
-        Machine m = machines.trouver(id).orElseThrow(() -> new IllegalArgumentException("Machine inconnue"));
+    public void modifierMachine(CentreId centreId, MachineId id, String code, String libelle, Boolean actif) {
+        Machine m = machines.trouver(id).filter(x -> x.centreId().equals(centreId))
+                .orElseThrow(() -> new IllegalArgumentException("Machine inconnue"));
         m.modifier(code, libelle, actif);
         machines.sauvegarder(m);
     }
 
     @Override
-    public void supprimerMachine(MachineId id) {
-        machines.supprimer(id);
+    public void supprimerMachine(CentreId centreId, MachineId id) {
+        machines.supprimer(centreId, id);
     }
 
     @Override
@@ -85,15 +87,16 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     }
 
     @Override
-    public void modifierProtocole(ProtocoleId id, String code, String libelle) {
-        Protocole p = protocoles.trouver(id).orElseThrow(() -> new IllegalArgumentException("Protocole inconnu"));
+    public void modifierProtocole(CentreId centreId, ProtocoleId id, String code, String libelle) {
+        Protocole p = protocoles.trouver(id).filter(x -> x.centreId().equals(centreId))
+                .orElseThrow(() -> new IllegalArgumentException("Protocole inconnu"));
         p.modifier(code, libelle);
         protocoles.sauvegarder(p);
     }
 
     @Override
-    public void supprimerProtocole(ProtocoleId id) {
-        protocoles.supprimer(id);
+    public void supprimerProtocole(CentreId centreId, ProtocoleId id) {
+        protocoles.supprimer(centreId, id);
     }
 
     @Override

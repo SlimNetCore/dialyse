@@ -35,8 +35,8 @@ public class MachinesJdbc implements MachineRepository {
     }
 
     @Override
-    public void supprimer(MachineId id) {
-        jdbc.update("DELETE FROM machine WHERE id = ?", id.valeur());
+    public void supprimer(CentreId centreId, MachineId id) {
+        jdbc.update("DELETE FROM machine WHERE id = ? AND center_id = ?", id.valeur(), centreId.valeur());
     }
 
     @Override

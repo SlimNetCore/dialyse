@@ -11,7 +11,8 @@ public interface MedecinRepository {
 
     void sauvegarder(Medecin m);
 
-    void supprimer(MedecinId id);
+    /** Supprime le médecin du centre : sans effet si le médecin appartient à un autre centre. */
+    void supprimer(CentreId centreId, MedecinId id);
 
     PagedResult<Medecin> listerParCentre(CentreId centreId, int page, int size);
 }
