@@ -261,9 +261,13 @@
   générateur est indisponible, RG-PLN-096). Une proposition **n'est jamais appliquée automatiquement**, y compris
   celles de la replanification nocturne (RG-PLN-100).
 - **RG-PLN-081** — Le calcul est **asynchrone** : le lancement répond immédiatement (`202`) avec une exécution
-  `EN_COURS`, suivie ensuite (avancement et score de la meilleure solution). **Un seul calcul à la fois par centre**
-  (`OPTIMISATION_DEJA_EN_COURS`). Les 20 dernières exécutions de chaque centre sont conservées (historique) ; au
-  démarrage du serveur, toute exécution restée en cours passe en échec (« calcul interrompu par l'arrêt du serveur »).
+  `EN_COURS`, suivie ensuite (avancement et score de la meilleure solution). **Un seul calcul à la fois par centre**,
+  garanti par le verrou du centre en base, y compris avec plusieurs instances du serveur : un second lancement répond
+  409 `OPTIMISATION_DEJA_EN_COURS` (jamais `PLANIFICATION_ECRITURE_CONCURRENTE` quand le verrou est tenu par un autre
+  lancement). Les 20 dernières exécutions de chaque centre sont conservées (historique). **Reprise** : chaque instance
+  signe ses calculs en cours (battement de cœur toutes les 10 s) ; un calcul sans signe de vie depuis 60 s passe en échec
+  (« calcul interrompu par l'arrêt du serveur »), jamais celui d'une instance vivante ; un résultat tardif ne remplace
+  jamais un état final (mise à jour conditionnelle). Après un arrêt brutal, le centre reste donc « en cours » 70 s au plus.
   Nombre de calculs en parallèle : `PLANNING_OPTIMISATION_WORKERS` (défaut 2).
 - **RG-PLN-082** — Paramètres et bornes (sinon refus 400) : début de l'horizon (ramené au dimanche de sa semaine),
   nombre de semaines de l'horizon 1 à 8 (défaut du formulaire : 4 ; huit semaines couvrent une absence déclarée
@@ -308,7 +312,11 @@
   d'heures et compétences (RG-PLN-099).
 - **RG-PLN-088** — Couverture : les infirmiers déjà prévus (roulement moins absences, plus remplacements en place) sont
   conservés tels quels ; seules les vacations manquantes sont à pourvoir, par des infirmiers disponibles sur le créneau.
-  L'application crée des remplacements (RG-INF-052) ; les vacations déjà tenues sont ignorées.
+  L'application crée des remplacements (RG-INF-052) ; les vacations déjà tenues sont ignorées. **Le remplacé est relié** :
+  c'est l'infirmier absent ce jour-là, normalement prévu sur la case au roulement, pas encore remplacé par une vacation
+  précédente de la même application, par ordre d'identifiant ; à défaut, aucun. Le remplaçant est jugé éligible (actif, présent,
+  libre sur le créneau, habilité en salle d'isolement) : sinon toute l'application est refusée,
+  `422 REMPLACEMENT_INELIGIBLE`. Règle portée par le domaine (`CouvertureDesAbsences`).
 - **RG-PLN-089** — Chaque proposition comporte les **indicateurs avant / après** : générateurs utilisés, salles
   ouvertes, vacations requises, places d'infirmier inutilisées, patients non placés, vacations non pourvues,
   infirmiers mobilisés, écart de charge, dépassements hebdomadaires. Ils sont **recalculés par le domaine** à partir des
@@ -318,12 +326,17 @@
 - **RG-PLN-090** — Arrêt anticipé : un calcul en cours peut être arrêté ; la meilleure solution trouvée est conservée
   et les phases restantes ne reçoivent que 2 secondes. La graine aléatoire du moteur est fixe, mais la limite de calcul
   étant un temps, deux exécutions identiques peuvent différer légèrement.
-- **RG-PLN-091** — **Application** d'une proposition (`ADMIN` seul), tout ou rien : l'exécution doit exister dans le
-  centre (`OPTIMISATION_INTROUVABLE`), être terminée avec un résultat (`OPTIMISATION_NON_APPLICABLE`) et ne pas être
-  déjà appliquée (`OPTIMISATION_DEJA_APPLIQUEE`). Les transitions d'état sont gardées : une exécution terminée ne peut
+- **RG-PLN-091** — **Application** d'une proposition (`ADMIN` seul), tout ou rien, dans UNE transaction, sous le verrou du
+  centre puis celui des fiches des infirmiers concernés (remplaçants et remplacés) : l'exécution doit exister dans le
+  centre (404 `OPTIMISATION_INTROUVABLE`), être terminée avec un résultat (`OPTIMISATION_NON_APPLICABLE`, 422) et ne pas être
+  déjà appliquée (409 `OPTIMISATION_DEJA_APPLIQUEE`). Un roulement qui mettrait un infirmier dans deux salles au même
+  créneau est refusé (`422 AFFECTATION_CHEVAUCHEMENT`). Après l'application, les infirmiers concernés sont
+  prévenus (RG-PLN-112). Les transitions d'état sont gardées : une exécution terminée ne peut
   plus être repassée en cours, ni marquée échouée ou progressée (`OPTIMISATION_TRANSITION_INTERDITE`). Le centre ne doit
   pas avoir changé depuis le calcul : l' **empreinte**
-  (SHA-256 des données lues) est recalculée, sinon `OPTIMISATION_PERIMEE` et il faut relancer. Chaque nouvelle place est
+  (SHA-256 de tout ce que le calcul a lu : jours, places, patients à placer, générateurs, interventions, salles, créneaux,
+  personnel, absences, roulement, remplacements, réglages) est recalculée sous verrou, sinon 409 `OPTIMISATION_PERIMEE` et il
+  faut relancer (une proposition calculée avant la montée de version est périmée). Chaque nouvelle place est
   revérifiée avec les règles de RG-PLN-050 face à l'état final des autres patients (`OPTIMISATION_PLACEMENT_<règle>`).
   Effets : `PATIENTS` déplace les patients et enregistre sur leur fiche les jours choisis par l'optimisation ;
   `ROULEMENT` remplace le roulement des infirmiers actifs (affectations identiques conservées, autres modifiées, créées
@@ -332,8 +345,10 @@
   ou inconnue du centre est refusée (`DEPLACEMENT_TEMPORAIRE_CIBLE_INCOHERENTE`), rien n'est écrit.
 - **RG-PLN-092** — Accès : lancer, consulter, arrêter et lister (`ADMIN`, `SECRETAIRE`) ; appliquer (`ADMIN`). Interdit
   à l'infirmier « seul » et au médecin « seul » (RG-SEC-022/023). Aucune mise en cache (RG-TRV-041). L'historique est
-  paginé (`page`, `size`) et ne charge pas le détail des propositions ; une exécution d'un autre centre est introuvable
-  (`OPTIMISATION_INTROUVABLE`).
+  paginé (`page`, `size` ; `page` négative : 400 ; `size` plafonnée à 100, la taille effective est renvoyée) et ne charge pas
+  le détail des propositions ; une exécution d'un autre centre est introuvable (404 `OPTIMISATION_INTROUVABLE`). Une entrée
+  illisible (corps vide ou tronqué, périmètre ou objectif inconnu, nombre ou date mal formés) répond `400 BAD_REQUEST`. **L'accès
+  est jugé avant la lecture du corps** : un profil sans droit reçoit 403, jamais 400.
 - **RG-PLN-093** — **Préférences de planification d'un patient** (`/api/v1/planning/preferences/patients`, `ADMIN`,
   `SECRETAIRE`, liste paginée des patients non sortis du centre, sans cache) : créneau préféré (facultatif, du centre,
   sinon `PREFERENCE_CRENEAU_INCONNU`) et, pour un nouveau patient ou des jours à revoir, « jours choisis par
@@ -454,7 +469,7 @@
   verrous : centre, puis fiche, comme la nuit) quand la fiche tient une place échue, jamais sinon (409 si non obtenu en 5 s). *Sources :*
   `LibererLaPlaceDeLaFiche`, `LiberationALEnregistrementDeLaFiche`.
 - **RG-PLN-100** — **Replanification automatique nocturne** (`ReplanificationAutomatiqueScheduler`, 02:30 chaque
-  nuit, fuseau `Africa/Algiers` depuis P7 : RG-PLN-111), pour les centres qui l'ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
+  nuit, fuseau `Africa/Algiers` depuis P7 : RG-PLN-111), pour les centres ACTIFS qui l'ont activée, « aujourd'hui » étant le jour de chaque centre : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
   semaines au moins, **étendue jusqu'à la fin de la dernière absence d'infirmier à venir, 8 semaines au plus** : une
   absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
   semaine en cours, puis le placement des patients (semaine type, projetée sur les deux semaines à partir de la
@@ -498,7 +513,15 @@
   exécution terminée, en échec ou déjà appliquée peut être supprimée de l'historique du centre, avec son planning
   calendaire. La suppression n'annule jamais une proposition déjà appliquée (le planning du centre ne change pas). Un
   calcul encore en cours est refusé par `OPTIMISATION_SUPPRESSION_EN_COURS` (l'arrêter d'abord) ; l'exécution d'un autre
-  centre est introuvable (`OPTIMISATION_INTROUVABLE`).
+  centre est introuvable (404 `OPTIMISATION_INTROUVABLE`). La suppression prend le verrou du centre (exclusion avec une
+  application ou un lancement).
+- **RG-PLN-112** — **Infirmiers prévenus à l'application d'une proposition** (ADR 0068). Quand l'application change le roulement
+  d'un infirmier (`INFIRMIER_ROULEMENT_MODIFIE`) ou l'affecte comme remplaçant (`INFIRMIER_REMPLACEMENT_AFFECTE`), l'alerte est
+  adressée au **compte lié à sa fiche** et à l'administration (`ADMIN`) du centre, JAMAIS aux autres infirmiers ; sans compte
+  lié, à l'administration seule. Une seule alerte par exécution, infirmier et case (identifiant déterministe : un rejeu ne
+  duplique pas). Le contenu (infirmier, date, salle, créneau) se lit au journal des alertes, filtré par compte ; le canal temps
+  réel du centre ne porte que la cible. `SEANCES_DEPLACEES` (médecin, secrétariat) part après le commit de l'application.
+  *Sources :* `AlertesDeLOptimisationLegacy`, `NotificationService`, `NotificationJournalJdbcAdapter`.
 - **RG-PLN-103** — **Infirmiers sur le planning de la semaine et accès du médecin.** Le planning de la semaine
   (RG-PLN-043)
   affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les **infirmiers** de la

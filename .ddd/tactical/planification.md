@@ -509,3 +509,18 @@ Gate `tactical` approuvé par l'utilisateur le 2026-10-26 (`/ddd-gate tactical a
   `HorlogeDesCentres`, `CalendrierDuCentre`, `NotificationsDuCentre`,
   `SemaineDeLInfirmier`, `SurEffectifDuRoulement`, `NouveauxIdentifiantsDuPlanning`. Événements de domaine non
   introduits (aucun consommateur).
+
+## Mise à jour après la slice P8 et sa revue (2026-11-02, ADR 0068, status: proposed)
+
+- `ExecutionDOptimisation` : transitions gardées (`progresser`, `terminer`, `echouer` seulement depuis `EN_COURS`,
+  `OPTIMISATION_TRANSITION_INTERDITE`) ; B3 (verrou en mémoire) corrigé par le verrou du centre en base ; concurrence : mise à jour
+  conditionnelle (`ExecutionsRepository.transiter(apres, avant)`), jeton d'instance et battement de cœur, reprise des seuls orphelins
+  (`interrompreLesOrphelines`). Le port ne connaît plus d'upsert (`creer` + `transiter`).
+- Politique de domaine `CouvertureDesAbsences` (éligibilité du remplaçant via `RemplacantEligible`, remplacé relié, remplacés possibles
+  pour le verrou des fiches) ; `GenerateursDeSecours` (RG-PLN-060) ; `PlacementRefuse` (règles enfreintes structurées, plus d'analyse de message).
+- Ports : `AlertesDeLOptimisation.roulementModifie/remplacementAffecte` portent le compte de l'infirmier (alerte personnelle) ;
+  `Optimiseur` injectable (solveur hors domaine) ; horloge injectée dans les adapters.
+- Matrice invariant → test ajoutée : transitions gardées (`ExecutionDOptimisationTest`), course lancement / reprise / terminaison à deux
+  instances (`OptimisationContrat`, H2 + PG16), couverture (`CouvertureDesAbsencesTest`), alertes personnelles
+  (`NotificationJournalIntegrationTest`).
+- Reporté au jalon P9 : retrait du double calcul de présence (`roadmap.md`, « Dette de fin de P8 »).

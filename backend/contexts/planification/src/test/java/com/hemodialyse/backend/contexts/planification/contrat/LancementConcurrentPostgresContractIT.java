@@ -12,7 +12,7 @@ import com.hemodialyse.backend.contexts.planification.domain.JeuDePlaces;
 import com.hemodialyse.backend.contexts.planification.domain.ParametresDOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.Perimetre;
 import com.hemodialyse.backend.contexts.planification.domain.RegleDePlanificationViolee;
-import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsDeLOptimisationAleatoires;
+import com.hemodialyse.backend.contexts.planification.infrastructure.identifiants.NouveauxIdentifiantsDeLOptimisationAleatoires;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.CalendriersDesPropositionsJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.ExecutionsJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.ReglagesJdbc;

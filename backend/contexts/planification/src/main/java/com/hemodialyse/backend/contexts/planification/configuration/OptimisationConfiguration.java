@@ -37,7 +37,7 @@ import com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacygmao.IndisponibilitesDeGenerateursGmao;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacynotifications.NotificationsDeLOptimisationLegacy;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.ContraintesDesPatientsJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsDeLOptimisationAleatoires;
+import com.hemodialyse.backend.contexts.planification.infrastructure.identifiants.NouveauxIdentifiantsDeLOptimisationAleatoires;
 import com.hemodialyse.backend.contexts.planification.infrastructure.optimisation.timefold.TimefoldOptimiseurAdapter;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.CalendriersDesPropositionsJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.DeplacementsTemporairesJdbc;

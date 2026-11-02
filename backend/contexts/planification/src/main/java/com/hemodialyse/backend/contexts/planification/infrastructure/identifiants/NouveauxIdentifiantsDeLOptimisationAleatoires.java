@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse;
+package com.hemodialyse.backend.contexts.planification.infrastructure.identifiants;
 
 import com.hemodialyse.backend.contexts.planification.application.NouveauxIdentifiantsDeLOptimisation;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.AffectationId;

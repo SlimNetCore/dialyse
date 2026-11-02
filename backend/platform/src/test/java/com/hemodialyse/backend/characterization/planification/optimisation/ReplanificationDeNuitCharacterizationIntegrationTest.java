@@ -75,7 +75,12 @@ class ReplanificationDeNuitCharacterizationIntegrationTest extends OptimisationC
         jdbc.update("INSERT INTO planification_reglages (center_id, replanification_auto, heures_par_vacation, heures_hebdo_temps_plein, "
                 + "repos_hebdo_min) VALUES (?, FALSE, 5, 40, 1)", CENTRE_A);
         job.replanifier();
-        Thread.sleep(500);
+        // le lancement est synchrone : l'absence de calcul se constate dès le retour, une fois qu'aucun n'est plus en cours (borné à 10 s)
+        long limite = System.currentTimeMillis() + 10_000;
+        while (System.currentTimeMillis() < limite && jdbc.queryForObject(
+                "SELECT COUNT(*) FROM planification_optimisation WHERE center_id = ? AND statut = 'EN_COURS'", Integer.class, CENTRE_A) > 0) {
+            Thread.onSpinWait();
+        }
         etatDesCalculs("calculs_sans_option");
         notifications("notifications_sans_option");
     }
