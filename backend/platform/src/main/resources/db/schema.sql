@@ -548,8 +548,6 @@ ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS statut_avant_exclusion VARCHAR (20);
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS exclusion_absence_id UUID;
-ALTER TABLE IF EXISTS seances
-    ADD COLUMN IF NOT EXISTS verrouille_facturation BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- ••• Reprise des données d'un système existant (voir aussi migration/V3__reprise_donnees.sql) •••
 

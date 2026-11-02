@@ -220,3 +220,9 @@ Retrait attaché au jalon : fin de P8 pour les quatre premiers (la vue de la sem
 | Date       | Slice            | Fichiers édités | Raison |
 |------------|------------------|-----------------|--------|
 | 2026-11-02 | dossier-medical  | `platform/.../persistence/entity/LigneDemandeExamenJpaEntity.java` et `platform/.../persistence/adapter/DemandeExamenRepositoryAdapter.java` (déjà listés dans `covered.json` par 2978e639 sans filet ; édités AVANT leur retrait de `covered.json`) : retour exact à la version de `21f6ff7a^` (suppression de la colonne `center_id` de `lignes_demande_examen`) | La colonne n'existe pas dans le schéma Flyway de production (V1..V52) : le code de 21f6ff7a ferait échouer `validate` au démarrage. Aucun code déployé n'a besoin de la colonne. Restauration du comportement de production, aucun changement fonctionnel. |
+
+## Séance : REVERT du code legacy de production modifié par 2978e639 (décision déléguée à l'assistant le 2026-11-02, gel du module, audit A de `verify-seance.md`) : FERMÉ le 2026-11-02 (`seamAllowed` vidé)
+
+| Date       | Slice        | Fichiers édités | Raison |
+|------------|--------------|-----------------|--------|
+| 2026-11-02 | seance-se1-se7 | `platform/.../infrastructure/config/CacheConfig.java` (**inscrit dans `seamAllowed` de `covered.json` AVANT l'édition**) : retrait des deux lignes `register(... "ref.seances.du.jour" ...)` et `"ref.seances.validees.non.signees"` ajoutées par 2978e639 ; retour exact à la version de `2978e639^`. | Ces caches n'étaient utilisés que par `SeancesControleur` du module gelé `contexts/seance` ; aucun code déployé ne les référence. Aucun changement fonctionnel. |

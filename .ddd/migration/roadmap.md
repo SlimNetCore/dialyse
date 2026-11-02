@@ -318,6 +318,8 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | SE6   | Verrou facturation (reception FacturationValidee) | eleve  | planned | slices/seance-se6-verrou-facturation.md        |
 | SE7   | Lectures publiees et retrait du legacy Seance     | eleve  | planned | slices/seance-se7-lectures-publiees.md         |
 
+> **GEL du 2026-11-02 (ADR 0074, `backend/contexts/seance/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice SE n'est `built` ni `characterized` (aucun golden Seance dedie). Statuts de seance = ceux du LEGACY (`FACTUREE`, `ABSENT` inclus ; retrait d'`ABSENT` avec Facturation F2 / Absences, ADR 0002). **Ordre de reprise : Seance reste la DERNIERE** (coeur le plus couple, 18 lecteurs SQL de `seances`). Jalons deja poses : par Planification (port `attenduLe`, regle de presence dupliquee dans `SeancePlanningJdbcAdapter`, colonnes de place de `patients` dans `SeanceRestController`, `SeanceRestController` de 1 315 lignes a decouper) ; par Stock (`ConsommationsDeSeance`, SE3). Filet legacy existant reparti entre Stock, Planification, Absences, Facturation (inventaire dans `GEL.md`). Reprise : filet Seance d'abord (creation, validation/signature, forfait, deverrouillage, liste blanche des lecteurs), puis slices sur place (memes tables, memes URL).
+
 ## 1 decies. Slices Dossier medical (contexte `dossier-medical`, module
 `backend/contexts/dossier-medical`, ADR 0065, 0067)
 

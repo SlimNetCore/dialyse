@@ -1674,3 +1674,21 @@ SELECT count(*) FROM patients p
 -- 6. Après reprise et câblage (hors périmètre du gel) : relancer les goldens legacy sur le nouveau code et contrôler la garde de centre (`*_cross_centre_adminB`).
 ```
 Les noms de colonnes viennent des entités JPA (vérifiées par le rejeu PG16). Voir `backend/contexts/patient-couverture/GEL.md` et l'ADR 0073.
+
+## 39. Séance : gel du module, aucun changement de comportement en production (2026-11-02) — SELECT seulement
+Décision : AUCUN revert de comportement. Audit de `2978e639` : le code legacy de Séance (`bc-seance`, `SeanceRestController`, adapters, `SeanceJpaEntity`) n'est pas modifié sans filet ; résidus corrigés : `CacheConfig` (2 caches inutilisés retirés), colonne H2 `seances.verrouille_facturation` retirée de `schema.sql`, entrée `SeanceUseCase.java` retirée de `covered.json`. Rejeu PostgreSQL 16 jetable : `backend/scripts/seance-pg16-rejeu.sh` (V1..V52, aucun doublon de version, `SeanceJpaEntity` conforme, `pec_id` / `type_seance` / `verrouille_facturation` absentes). Le module gelé n'est pas dans le jar : aucune route nouvelle.
+
+**Migration V50 `derogations_regularisation`** (renumérotée depuis V22, doublon de `V22__fiche_article_complete`) : table utilisée par le seul module gelé, donc par aucun code déployé. Conservée (additive, idempotente, vide). Contrôles (constats seuls, rien à supprimer sans validation écrite) :
+```sql
+-- 1. La version 22 est bien la fiche article (une seule ligne) et la 50 la dérogation.
+SELECT version, description FROM flyway_schema_history WHERE version IN ('22', '50') ORDER BY installed_rank;
+-- 2. La table existe et est vide (attendu : 0 ligne).
+SELECT count(*) FROM derogations_regularisation;
+-- 3. Colonnes inexistantes lues par le module gelé (attendu : 0 ligne, ne PAS les créer).
+SELECT column_name FROM information_schema.columns WHERE table_name = 'seances' AND column_name IN ('pec_id', 'type_seance', 'verrouille_facturation');
+-- 4. Vocabulaire réel des statuts (le module gelé ignore FACTUREE et ABSENT).
+SELECT statut, count(*) FROM seances GROUP BY 1 ORDER BY 1;
+-- 5. Séances facturées sans facture, ou facture sans statut FACTUREE (incohérence du verrou legacy).
+SELECT statut, count(*) FROM seances WHERE (statut = 'FACTUREE') <> (facture_id IS NOT NULL) GROUP BY 1;
+```
+Voir `backend/contexts/seance/GEL.md` et l'ADR 0074.
