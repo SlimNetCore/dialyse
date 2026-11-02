@@ -214,3 +214,9 @@ Retrait attaché au jalon : fin de P8 pour les quatre premiers (la vue de la sem
 | Date       | Slice              | Fichiers édités | Raison |
 |------------|--------------------|-----------------|--------|
 | 2026-11-02 | organisation-o1-o5 | `platform/.../infrastructure/security/RoleScopeFilter.java` (**inscrit dans `seamAllowed` de `covered.json` AVANT l'édition**) : le préfixe `/api/v1/organisation` du SUPERADMIN est remplacé par `/api/v1/organisation/societes` et `/api/v1/organisation/centres` ; **rien d'autre** | Le SUPERADMIN garde les sociétés et les centres (création, modification, transfert, lecture) mais retrouve le 403 `ROLE_SCOPE` du legacy sur les salles, créneaux, médecins, machines, protocoles et référentiels (écriture transverse sans consommateur : constat M3 de `verify-organisation-2.md`). À FERMER après le test de la matrice SUPERADMIN. |
+
+## Dossier médical : REVERT du code legacy de production modifié par 21f6ff7a (décision de l'utilisateur du 2026-11-02, gel du module, constats B1/B2 de `verify-dossier-medical.md`)
+
+| Date       | Slice            | Fichiers édités | Raison |
+|------------|------------------|-----------------|--------|
+| 2026-11-02 | dossier-medical  | `platform/.../persistence/entity/LigneDemandeExamenJpaEntity.java` et `platform/.../persistence/adapter/DemandeExamenRepositoryAdapter.java` (déjà listés dans `covered.json` par 2978e639 sans filet ; édités AVANT leur retrait de `covered.json`) : retour exact à la version de `21f6ff7a^` (suppression de la colonne `center_id` de `lignes_demande_examen`) | La colonne n'existe pas dans le schéma Flyway de production (V1..V52) : le code de 21f6ff7a ferait échouer `validate` au démarrage. Aucun code déployé n'a besoin de la colonne. Restauration du comportement de production, aucun changement fonctionnel. |

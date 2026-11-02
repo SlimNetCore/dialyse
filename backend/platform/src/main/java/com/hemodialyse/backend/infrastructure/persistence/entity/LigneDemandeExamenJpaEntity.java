@@ -22,9 +22,6 @@ public class LigneDemandeExamenJpaEntity {
     @Column(name = "demande_id", nullable = false)
     private UUID demandeId;
 
-    @Column(name = "center_id", nullable = false)
-    private UUID centerId;
-
     @Column(name = "analyte_code_system", length = 10)
     private String analyteCodeSystem;
 
@@ -54,14 +51,6 @@ public class LigneDemandeExamenJpaEntity {
 
     public void setDemandeId(UUID demandeId) {
         this.demandeId = demandeId;
-    }
-
-    public UUID getCenterId() {
-        return centerId;
-    }
-
-    public void setCenterId(UUID centerId) {
-        this.centerId = centerId;
     }
 
     public String getAnalyteCodeSystem() {

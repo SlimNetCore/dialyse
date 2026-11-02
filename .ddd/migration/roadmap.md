@@ -330,6 +330,8 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | DM7   | Bilan pre-greffe                       | moyen  | planned | slices/dossier-medical-dm7-bilan-pregreffe.md       |
 | DM8   | Lectures publiees et retrait du legacy | eleve  | planned | slices/dossier-medical-dm8-lectures-publiees.md     |
 
+> **GEL du 2026-11-02 (ADR 0072, `backend/contexts/dossier-medical/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice DM n'est `built`. Etats reels : DM1 `characterized` (4 goldens constantes), DM2 a DM8 `planned`. Reprise : filet de caracterisation du legacy medical d'abord, puis slices SUR PLACE (memes tables, memes URL). Le tableau ci-dessus donne l'etat `planned` des slices, pas la realite de DM1 (`characterized`).
+
 ## 1 undecies. Slices Pilotage direction (contexte `pilotage-direction`, module
 `backend/contexts/pilotage-direction`, ADR 0066, 0067)
 

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.architecture;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -27,6 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link #la_liste_des_tables_couvre_les_tables_lues_par_le_dossier_medical()} prouve que la
  * liste ne peut pas dériver des tables réellement manipulées par le contexte.
  */
+@Disabled("Module dossier-medical GELE le 2026-11-02 (backend/contexts/dossier-medical/GEL.md, ADR 0072) : la garde liste les tables du "
+        + "schema PARALLELE du module (serologies, antecedents...), pas les tables reelles du legacy (serologies_patient...), et exclut "
+        + "platform : elle n'a aucun sens tant que le refactoring sur place n'a pas redefini les tables possedees. A reecrire a la reprise.")
 class TableDuDossierMedicalTest {
 
     /**

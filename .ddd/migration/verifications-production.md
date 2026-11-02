@@ -1629,3 +1629,23 @@ avec un compte de centre : **403** (garde de centre, décision du 2026-11-02 ; l
 illisible : **400** (décision du 2026-11-02, KB-ORG-02 ; le legacy répondait 500) ; sans `centerId` : 500 comme le legacy. Un SUPERADMIN
 atteint `/api/v1/societes/**`, `/api/v1/organisation/societes` et `/api/v1/organisation/centres`, et RIEN d'autre sous `/api/v1/organisation`
 (403 `ROLE_SCOPE`, comme `/api/v1/referentials` et `/api/v1/admin/referentials`). Voir `.ddd/safety-net/organisation-retroactif.md`.
+
+## 37. Dossier médical : gel du module et revert de `lignes_demande_examen.center_id` (2026-11-02) — SELECT seulement
+Décision : AUCUNE migration. Le commit `21f6ff7a` avait ajouté au code legacy une colonne JPA `center_id` (NOT NULL) absente de Flyway V1..V52 ;
+le code est revenu à la version de `21f6ff7a^` (rejeu PostgreSQL 16 jetable : `backend/scripts/dossier-medical-pg16-rejeu.sh`, 14 entités médicales
+conformes à Flyway, `lignes_demande_examen` sans `center_id`). À exécuter en production AVANT le prochain déploiement :
+```sql
+-- 1. La colonne ne doit pas exister (ou, si une base de dev en `update` l'a créée, voir 2).
+SELECT count(*) FROM information_schema.columns WHERE table_name = 'lignes_demande_examen' AND column_name = 'center_id';
+-- 2. Seulement si la requête 1 renvoie 1 : lignes sans centre (aucune action destructive, constat seul).
+SELECT count(*) FROM lignes_demande_examen WHERE center_id IS NULL;
+-- 3. Aucune table du module gelé ne doit exister (attendu : 0 ligne).
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
+  AND table_name IN ('serologies', 'antecedents', 'allergies', 'bilans_pregreffe', 'etapes_bilan_pregreffe');
+-- 4. Les tables réelles du legacy médical existent (attendu : 9 lignes au moins).
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
+  AND table_name IN ('serologies_patient', 'antecedents_medicaux', 'allergies_patient', 'bilans_pre_greffe', 'etapes_bilan_pre_greffe',
+                     'ordonnances', 'prescriptions_medicales', 'demandes_examen', 'observations_biologiques');
+```
+Aucune route `/api/v1/dossier-medical/*` n'est servie (le module n'est pas dans le jar). Les routes réelles restent `/api/v1/patients/{id}/...` (rôles
+inchangés : `MEDECIN` en écriture, `MEDECIN`/`ADMIN` en lecture). Voir `backend/contexts/dossier-medical/GEL.md` et l'ADR 0072.
