@@ -63,9 +63,12 @@ class MonPlanningCharacterizationIntegrationTest extends RoulementCharacterizati
     }
 
     /**
-     * P9, KB-PLN-106 (écart décidé le 2026-11-02) : l'ancien « Mon planning » comptait un patient en sommeil dans la case de l'infirmier ;
-     * la règle de présence de P4 l'en retire, comme la semaine, les alertes et les Absences. Golden {@code _base} : l'ancien
-     * comportement, archivé avant la réécriture ; golden {@code _nouveau_code} : la nouvelle règle.
+     * P9, KB-PLN-106 et KB-PLN-50 (écart décidé le 2026-11-02) : l'ancien « Mon planning » comptait un patient en sommeil dans la case de
+     * l'infirmier (liste des occupants, nombre {@code patients} et {@code requis}, comme les alertes de sous-effectif et de sur-effectif
+     * de P4). Un seul calcul de présence (celui de {@code SejourDuPatient}) : le patient en sommeil est retiré partout, y compris du
+     * nombre de patients et de l'effectif requis. Ancien comportement : {@code p3-roulement/_ecarts-legacy/mon-planning/
+     * planning_patient_en_sommeil.legacy.json} (rejoué sur le legacy de {@code de7fcd20~1}, identique octet à octet) ; golden
+     * {@code _nouveau_code} : la nouvelle règle.
      */
     @Test
     void un_patient_en_sommeil_disparait_de_mon_planning_comme_de_la_presence_KB_PLN_106() throws Exception {
@@ -76,7 +79,7 @@ class MonPlanningCharacterizationIntegrationTest extends RoulementCharacterizati
         affectation(CENTRE_A, "R_AMRANI_1", amrani, salle1, matin, "LUNDI");
         Resp r = doGet(MOI + "/planning?date=" + semaine(1, JourSemaine.LUNDI), sara);
         assertEquals(200, r.status());
-        lecture("planning_patient_en_sommeil_base", r);
+        lecture("planning_patient_en_sommeil", r);
     }
 
     @Test

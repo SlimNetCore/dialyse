@@ -144,7 +144,7 @@
   patient sont
   affichés sur le planning (voir RG-ABS-0xx).
 - **RG-PLN-045** — Le planning de la semaine est recalculé à chaque affichage à partir des jours et de la place
-  **actuels** des patients. Une **séance réalisée** (validée, signée ou facturée) que ce calcul ne montre plus — jours
+  **actuels** des patients (hors patients en sommeil, présence unique RG-PLN-046). Une **séance réalisée** (validée, signée ou facturée) que ce calcul ne montre plus — jours
   ou place du patient modifiés depuis — reste affichée dans la case où elle a eu lieu (place mémorisée à la validation,
   RG-SEA-049 ; à défaut, place actuelle du patient), avec le repère « réalisée hors du planning actuel ». Elle ne crée
   pas de conflit (RG-PLN-041) et ne compte pas parmi les patients à replanifier (RG-PLN-042). Une séance réalisée
@@ -158,7 +158,10 @@
   (admission commencée, dernier jour d'occupation non dépassé, RG-PLN-010) **et** s'il n'est pas en sommeil ; il est
   *attendu* s'il est présent et n'est pas parti ce jour-là (transféré ou guéri : aucune séance le jour du départ ;
   décédé ou greffé : place libérée la veille). Le planning de la semaine, les patients attendus des Absences et la file
-  active de la Direction (patients présents au moins un jour de la période) utilisent ce seul calcul. Un patient en
+  active de la Direction (patients présents au moins un jour de la période) utilisent ce seul calcul. **Depuis la décision
+  du 2026-11-02 (KB-PLN-50, KB-PLN-106), il est aussi celui de la présence des infirmiers** : le nombre de patients d'une
+  case, l'effectif requis, les alertes de sous-effectif et de sur-effectif (RG-PLN-050 et suivantes), la charge et « Mon
+  planning » ne comptent plus un patient en sommeil (auparavant, la présence des infirmiers le comptait). Un patient en
   sommeil garde sa place pour le placement (RG-PLN-021) mais n'est ni affiché, ni attendu, ni compté : la grille peut donc
   montrer une case apparemment libre que le contrôle de placement refuse encore tant que le patient n'a pas quitté sa place.
 
@@ -551,8 +554,10 @@
   Mon planning »)** suit la même règle : une absence de patient déclarée, même le jour J, y **barre** aussitôt le
   patient (couleur selon le statut de l'absence) et une séance validée y marque un soleil, comme sur le planning des
   séances. **Un seul calcul de présence (P9, KB-PLN-106)** : un patient **en sommeil** (comme un patient sorti ou pas encore
-  admis) n'apparaît plus parmi les occupants des cases de « Mon planning », exactement comme sur la semaine du centre ; le
-  nombre `patients` de la case (présence des infirmiers, où le sommeil garde sa place) n'en est pas modifié.
+  admis) n'apparaît plus dans « Mon planning » : ni parmi les occupants des cases, ni dans le nombre `patients` de la case, ni
+  dans l'effectif requis (décision du 2026-11-02, KB-PLN-50 et KB-PLN-106). Le calcul est le même que celui de la semaine du
+  centre et des alertes de sous-effectif et de sur-effectif de la présence (RG-PLN-046) ; auparavant, la présence des
+  infirmiers comptait le patient en sommeil (un seul de ces trois calculs divergeait).
   Pour le **médecin**, le planning est en **lecture seule** : il ne peut pas déclarer l'absence d'un
   patient (RG-ABS-015) ; le détail d'un patient reste consultable, avec les liens vers sa fiche et son dossier.
   *Source :* `PlanningSemaineComponent`, `evenementRafraichitPlanning`, `DetectionControleur`, `AbsencesEcrituresControleur`.

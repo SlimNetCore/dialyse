@@ -5,7 +5,6 @@ import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.infrastructure.security.AuditRequestFilter;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
@@ -26,7 +25,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,10 +55,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *   la semaine courante ({@code S0}). Les semaines S1 et suivantes sont entièrement dans le futur, quel que soit le jour
  *   d'exécution : ces scénarios ne dépendent pas du jour de la semaine.</li>
  * </ul>
- * Horloge : le legacy lit {@code LocalDate.now(UTC)} (« Mon planning », sur-effectif), la cible lit le fuseau du centre
- * ({@code Africa/Algiers}, décision du 26/10/2026). Les deux jours sont identiques sauf entre 23:00 et 24:00 UTC : dans cette
- * heure les scénarios sont ignorés (hypothèse JUnit) et, à moins de deux minutes de l'un des deux minuits, le test attend. Aucun
- * scénario ne dépend de l'instant d'exécution autrement.
+ * Horloge : seul le jour du centre compte ({@code Africa/Algiers}, décision du 26/10/2026) depuis le retrait du legacy, qui lisait
+ * l'UTC : aucun scénario n'est plus ignoré selon l'heure. À moins de deux minutes de minuit au fuseau du centre, le test attend
+ * (l'application lit l'horloge système). Aucun scénario ne dépend de l'instant d'exécution autrement.
  * <p>
  * Observation : état SQL normalisé des trois tables ({@code infirmier_affectation}, {@code infirmier_absence},
  * {@code infirmier_remplacement}), notifications durables ({@code notification_evenement}), diffusions temps réel (canal du
@@ -141,15 +138,15 @@ public abstract class RoulementCharacterizationSupport extends InfirmiersCharact
     }
 
     /**
-     * Aucune bascule de jour (UTC ou centre) pendant un test : on attend minuit si l'on en est à moins de deux minutes.
+     * Seul le jour du centre compte depuis le retrait du legacy (revue de P9, m8) : plus de double horloge UTC, plus de scénario
+     * ignoré entre 23:00 et 24:00 UTC. L'application lit l'horloge système ; on évite seulement une bascule du jour du centre
+     * pendant un test, en attendant minuit (fuseau du centre) si l'on en est à moins de deux minutes.
      */
     private static void attendreSiProcheDeMinuit() throws InterruptedException {
-        for (ZoneId zone : List.of(ZoneOffset.UTC, FUSEAU_DU_CENTRE)) {
-            Instant minuit = LocalDate.now(zone).plusDays(1).atStartOfDay(zone).toInstant();
-            Duration reste = Duration.between(Instant.now(), minuit);
-            if (reste.compareTo(Duration.ofMinutes(2)) < 0) {
-                Thread.sleep(reste.toMillis() + 2000);
-            }
+        Instant minuit = LocalDate.now(FUSEAU_DU_CENTRE).plusDays(1).atStartOfDay(FUSEAU_DU_CENTRE).toInstant();
+        Duration reste = Duration.between(Instant.now(), minuit);
+        if (reste.compareTo(Duration.ofMinutes(2)) < 0) {
+            Thread.sleep(reste.toMillis() + 2000);
         }
     }
 
@@ -250,13 +247,10 @@ public abstract class RoulementCharacterizationSupport extends InfirmiersCharact
     // ------------------------------------------------------------------ dates
 
     /**
-     * Aujourd'hui (UTC pour le legacy = fuseau du centre pour la cible) ; ignore le test dans l'heure où les deux diffèrent.
+     * Aujourd'hui, au fuseau du centre (celui que lit l'application) : aucun scénario n'est plus ignoré selon l'heure d'exécution.
      */
     protected static LocalDate aujourdhui() {
-        LocalDate utc = LocalDate.now(ZoneOffset.UTC);
-        Assumptions.assumeTrue(utc.equals(LocalDate.now(FUSEAU_DU_CENTRE)),
-                "entre 23:00 et 24:00 UTC le jour UTC et le jour du centre diffèrent : scénario ignoré");
-        return utc;
+        return LocalDate.now(FUSEAU_DU_CENTRE);
     }
 
     private void nommer(LocalDate date, String alias) {

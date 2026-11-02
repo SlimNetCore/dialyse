@@ -16,13 +16,19 @@ mêmes tables, mêmes URL, pas de façade ni de routage.
 
 ## Décisions
 
-1. **« Mon planning » passe sur la règle de présence de P4/P6** (décision de l'utilisateur, 2026-11-02, KB-PLN-106) : le module compose
-   lui-même `ConsulterLaPresence` et `ConsulterLaSemaine` (`SemaineDeLInfirmierDuModule`). Un patient en sommeil disparaît des
-   occupants des cases. Le nombre `patients` de la case (présence des infirmiers, le sommeil GARDE la place) est inchangé : **écart
-   à valider** (une case peut afficher `patients: 2` pour 1 occupant). Goldens : `planning_patient_en_sommeil_base` (ancien
-   comportement, archivé depuis le legacy avant la réécriture) et `..._nouveau_code`.
+1. **Un seul calcul de présence, le patient en sommeil est exclu partout** (décision de l'utilisateur, 2026-11-02, M1 de la vérification,
+   KB-PLN-50 et KB-PLN-106) : le module compose lui-même `ConsulterLaPresence` et `ConsulterLaSemaine` (`SemaineDeLInfirmierDuModule`),
+   et la lecture des places de la présence (`PlanningDesPlacesDuCentreJdbc`) ne lit plus les patients en sommeil. Le patient en sommeil
+   n'est donc compté ni dans les occupants, ni dans le nombre `patients` de la case, ni dans l'effectif requis, ni dans les alertes de
+   sous-effectif et de sur-effectif, ni dans la charge, ni dans « Mon planning ». **Correction d'une prémisse inexacte** : la première
+   version de cette décision affirmait que la présence P4 écartait déjà le sommeil ; ce n'était pas le cas (le legacy le comptait dans
+   le requis et les alertes, KB-PLN-50 « non décidé »). L'écart est donc plus large que « Mon planning » : il touche les cases de P4.
+   La place du patient en sommeil reste tenue sur sa fiche (RG-PLN-021, `PlacesDuCentreJdbc`), pour éviter un double placement à son
+   retour. Goldens (ancien comportement archivé avant réécriture dans `_ecarts-legacy`) : « Mon planning » `planning_patient_en_sommeil`
+   (legacy rejoué sur un worktree jetable de `de7fcd20~1`, identique octet à octet) et P4 `patients_pris_en_compte`, tous deux en
+   `_nouveau_code`. Mesure SELECT seule en recette : `verifications-production.md`, §35, contrôle 12. Reste `proposed`.
 2. **Le module possède ses lectures de places et de calendrier** : `PlanningDesPlacesDuCentreJdbc` (mêmes règles que l'ancien
-   `PlanningDonneesJdbcAdapter` : sorti garde sa place jusqu'à son dernier jour, sommeil garde la sienne) et `CalendrierDuCentreDuModule`.
+   `PlanningDonneesJdbcAdapter` : sorti garde sa place jusqu'à son dernier jour, **sauf le sommeil, désormais exclu**) et `CalendrierDuCentreDuModule`.
    Les ACL legacy `PlanningDesPlacesLegacy`, `CalendrierDuCentreLegacy`, `SemaineDeLInfirmierLegacy` sont supprimées.
 3. **Port publié `CapaciteDesSalles`** (RG-PLN-061) : fourni par la Planification (`ControlerLaCapaciteDeLaSalle`, règle de domaine
    `CapaciteDeLaSalle`), consommé par GMAO par l'ACL `CapaciteDesSallesDePlanification`, qui traduit le refus en 422
@@ -30,17 +36,19 @@ mêmes tables, mêmes URL, pas de façade ni de routage.
 4. **Retraits** : tout `domain.infirmier` et, dans `domain.planning`, `PlanningSemaine*`, `PlanningDonnees*`, `SalleVue*`,
    `CapaciteSalleRegle`, `Planning`, `DeplacementTemporaire*`, ainsi que les adapters et services qui les portaient.
 5. **Gardes** : `FrontieresDesContextesTest` (plus aucune dépendance à `domain.infirmier` ; `domain.planning` limité à une liste fermée de
-   consommateurs) et `TableDeLaPlanificationTest` (pas de SQL sur les tables de la Planification hors contexte, liste blanche
-   documentée, garde testée par un test négatif).
+   consommateurs) et `TableDeLaPlanificationTest` (pas de SQL sur les tables de la Planification hors contexte ; **aucune liste
+   blanche** : les quatre entrées de la première version ne lisaient aucune table de la Planification, et l'une désignait un fichier
+   inexistant ; un test échoue si une entrée est ajoutée sans correspondre à un lecteur réel).
 
 ## Conséquences et dette restante (jalons : roadmap, « Dette de P9 »)
 
 `JourSemaine`, `PlanningParametres(+Port)`, `CapaciteTheoriqueCalculator` restent dans `domain.planning` (fiche patient, tableau de
-bord Direction). Séance : `SeancePlanningJdbcAdapter` (règle de présence recopiée) et `SeanceRestController`. Organisation :
-`ReferentialRepositoryAdapter` / `ReferentialAdminTables`. Patient : `MouvementPatientJdbcAdapter`. Aucun fichier legacy de ces
-listes n'a été édité (seam non utilisé).
+bord Direction). Séance : `SeancePlanningJdbcAdapter` (règle de présence recopiée ; lit les colonnes de place de `patients`) et
+`SeanceRestController`. Organisation : `ReferentialAdminJdbcAdapter` / `ReferentialAdminTables` (« utilisé par un patient ? », lit les
+colonnes de place de `patients`). Patient : `MouvementPatientJdbcAdapter`. Cette dette porte sur les colonnes de place de `patients`
+(Patient et couverture) et sur des classes Java de `domain.planning`, pas sur les tables de la Planification. Aucun fichier legacy de
+ces listes n'a été édité (seam non utilisé).
 
 ## Questions ouvertes
 
-- Faut-il aussi retirer le sommeil du compte `patients` de la case de « Mon planning » (cohérence avec les occupants) ? Cela changerait
-  la présence de P4 (hors périmètre).
+- Aucune sur le sommeil (tranché le 2026-11-02). L'ADR reste `proposed` jusqu'à validation.

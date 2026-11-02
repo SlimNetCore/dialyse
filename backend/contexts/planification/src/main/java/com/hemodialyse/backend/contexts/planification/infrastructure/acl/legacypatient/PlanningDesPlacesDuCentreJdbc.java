@@ -18,9 +18,11 @@ import java.util.UUID;
  * Le planning des places du centre sur une période (P9, ADR 0069) : salles, créneaux, jours d'ouverture et fermetures lus par
  * {@link LectureDesRessources} (Organisation, paramétrage, calendrier clinique), places des patients lues sur les colonnes de place
  * de {@code patients} (aucune migration). Un patient sorti (transféré, décédé, greffé, guéri) garde sa place jusqu'à son dernier jour
- * ({@link FinDOccupation}) ; un patient en sommeil garde la sienne (choix prudent du legacy, évite un double placement à son retour) ;
- * un séjour pas encore commencé reste compté ; une place déjà libérée au début de la période est ignorée. Remplace l'ancienne lecture
- * du legacy ({@code PlanningDonneesJdbcAdapter}) : mêmes règles, mêmes requêtes, bornées au centre.
+ * ({@link FinDOccupation}) ; un patient en sommeil n'est pas lu : il ne compte ni dans le nombre de patients d'une case, ni dans
+ * l'effectif requis, ni dans les alertes (décision du 2026-11-02, KB-PLN-50 et KB-PLN-106 ; sa place reste tenue dans la fiche, cf.
+ * {@code PlacesDuCentreJdbc}) ; un séjour pas encore commencé reste compté ; une place déjà libérée au début de la période est
+ * ignorée. Remplace l'ancienne lecture du legacy ({@code PlanningDonneesJdbcAdapter}), dont le sommeil gardait sa place dans le
+ * calcul de la présence : seule cette règle diffère, un seul calcul de présence (celui de {@code SejourDuPatient}).
  */
 public class PlanningDesPlacesDuCentreJdbc implements PlanningDesPlaces {
 
@@ -48,7 +50,7 @@ public class PlanningDesPlacesDuCentreJdbc implements PlanningDesPlaces {
     private List<Occupation> occupations(UUID centre, LocalDate du) {
         String sql = "SELECT salle_id, position_id, etat_patient, date_evenement_etat, date_admission, jour_dimanche, jour_lundi, "
                 + "jour_mardi, jour_mercredi, jour_jeudi, jour_vendredi, jour_samedi FROM patients "
-                + "WHERE center_id = ? AND salle_id IS NOT NULL AND position_id IS NOT NULL";
+                + "WHERE center_id = ? AND salle_id IS NOT NULL AND position_id IS NOT NULL AND COALESCE(en_sommeil, FALSE) = FALSE";
         return jdbc.query(sql, (rs, i) -> {
             Set<DayOfWeek> jours = EnumSet.noneOf(DayOfWeek.class);
             for (DayOfWeek jour : DayOfWeek.values()) {

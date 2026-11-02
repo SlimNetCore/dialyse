@@ -67,7 +67,7 @@ adaptateurs restent (écritures de l'optimisation, P8 : KB-PLN-40).
 - **Ratifiées par écrit par l'utilisateur (2026-10-27)** : les éditions de `platform/.../application/audit/AuditActionResolver.java` (9 libellés métier de P3) et de `platform/.../application/notification/NotificationService.java` (`notifyAbsenceInfirmierRetiree`, type durable `INFIRMIER_ABSENCE_RETIREE`).
 - **Édition minimale autorisée par l'utilisateur (constat 1 de la revue P3)** : `platform/.../application/planning/optimisation/OptimisationApplicationService.java` reçoit le port publié `FichesDesInfirmiers` (constructeurs) et appelle `verrouillerLesFiches(centre, infirmiers)` avant de lire le roulement (`appliquerRoulement`) et avant de créer des remplacements (`appliquerCouverture`) ; `OptimisationApplicationServiceTest` adapté (constructeur). Fichier inscrit dans `covered.json` ; l'édition a été faite par une commande shell avant l'inscription (le garde-fou n'a donc pas été sollicité) : régularisée ici, la logique d'optimisation n'est pas modifiée. `seamAllowed` reste vide, seam **fermé**.
 
-## Slice planification-p4-presence-cron (2026-10-27)
+## Slice planification-p4-presence-cron (2026-10-27) : FERMÉ le 2026-10-27
 
 Pendant la phase de caractérisation : aucun seam (le contrôle de 07:15 est appelé directement, `PresenceInfirmierScheduler.controlerPresence()`
 étant publique ; l'horloge est observée par alias de dates relatifs au jour UTC).
@@ -94,7 +94,7 @@ NotificationsDeLaPresenceLegacy, ImpressionDeLaPresenceLegacy}.java`.
 
 `seamAllowed` reste vide ; **seam fermé le 2026-10-27 à la fin de la slice** (voir la fiche de slice).
 
-## Slice planification-p5-placement (session 2, 2026-10-27) : OUVERT
+## Slice planification-p5-placement (session 2, 2026-10-27) : FERMÉ (`seamAllowed = []`, revue de P9)
 
 Seam **explicitement autorisé de nouveau par l'utilisateur le 2026-10-27** (décision de la demande de la session 2), inscrit ici ET dans
 `covered.json` (`seamAllowed`) AVANT toute édition ; éditions par Read/Edit/Write uniquement (le hook de garde reste actif).

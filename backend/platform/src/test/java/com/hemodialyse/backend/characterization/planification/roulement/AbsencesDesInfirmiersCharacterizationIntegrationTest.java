@@ -111,15 +111,20 @@ class AbsencesDesInfirmiersCharacterizationIntegrationTest extends RoulementChar
 
     @Test
     void l_annee_bissextile_compte_366_jours_exactement() throws Exception {
-        // 2028 est bissextile : du 1er janvier au 31 décembre = 366 jours (accepté), un jour de plus = 367 (refusé)
-        // (dates fixes de calendrier, sans lien avec l'exécution : nommées explicitement)
-        LocalDate debut = LocalDate.of(2028, 1, 1);
-        datesNommees.put("2028-01-01", "<BISSEXTILE_DEBUT>");
-        datesNommees.put("2028-12-31", "<BISSEXTILE_FIN>");
-        datesNommees.put("2029-01-01", "<BISSEXTILE_FIN_PLUS_1>");
+        // Première année bissextile strictement postérieure à l'année d'exécution (revue de P9, m8 : plus de date fixe 2028 qui
+        // deviendrait passée) : du 1er janvier au 31 décembre = 366 jours (accepté), un jour de plus = 367 (refusé). Les dates sont
+        // nommées par alias : le golden ne dépend pas de l'année calculée.
+        int annee = aujourdhui().getYear() + 1;
+        while (!java.time.Year.isLeap(annee)) annee++;
+        LocalDate debut = LocalDate.of(annee, 1, 1);
+        LocalDate fin = LocalDate.of(annee, 12, 31);
+        LocalDate finPlus1 = LocalDate.of(annee + 1, 1, 1);
+        datesNommees.put(debut.toString(), "<BISSEXTILE_DEBUT>");
+        datesNommees.put(fin.toString(), "<BISSEXTILE_FIN>");
+        datesNommees.put(finPlus1.toString(), "<BISSEXTILE_FIN_PLUS_1>");
         Map<String, Object> r = new LinkedHashMap<>();
-        r.put("2028-01-01 au 2028-12-31", statutEtCode(doPost(ABSENCES, json(corpsAbsence(amrani, debut, LocalDate.of(2028, 12, 31), "CONGE", null)), adminA())));
-        r.put("2028-01-01 au 2029-01-01", statutEtCode(doPost(ABSENCES, json(corpsAbsence(benali, debut, LocalDate.of(2029, 1, 1), "CONGE", null)), adminA())));
+        r.put(debut + " au " + fin, statutEtCode(doPost(ABSENCES, json(corpsAbsence(amrani, debut, fin, "CONGE", null)), adminA())));
+        r.put(debut + " au " + finPlus1, statutEtCode(doPost(ABSENCES, json(corpsAbsence(benali, debut, finPlus1, "CONGE", null)), adminA())));
         arbre("bornes_annee_bissextile", r);
     }
 
@@ -168,7 +173,7 @@ class AbsencesDesInfirmiersCharacterizationIntegrationTest extends RoulementChar
     @Test
     void l_administration_peut_saisir_le_passe_et_le_futur_lointains_sans_controle_de_date() throws Exception {
         LocalDate passe = LocalDate.of(2020, 3, 1);
-        LocalDate futur = LocalDate.of(2040, 3, 1);
+        LocalDate futur = aujourdhui().plusYears(10).withMonth(3).withDayOfMonth(1);
         datesNommees.put(passe.toString(), "<PASSE_LOINTAIN>");
         datesNommees.put(futur.toString(), "<FUTUR_LOINTAIN>");
         Map<String, Object> r = new LinkedHashMap<>();

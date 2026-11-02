@@ -132,7 +132,7 @@ class RemplacementsCharacterizationIntegrationTest extends RoulementCharacteriza
     void un_jour_ferme_du_centre_ou_une_date_passee_refusent_l_affectation_une_date_future_lointaine_non_KB_PLN_28() throws Exception {
         jourFerme(CENTRE_A, s(JourSemaine.MERCREDI), "Jour férié");
         LocalDate passe = alias(LocalDate.of(2020, 1, 6), "<PASSE_LOINTAIN>");
-        LocalDate futur = alias(LocalDate.of(2040, 1, 6), "<FUTUR_LOINTAIN>");
+        LocalDate futur = alias(aujourdhui().plusYears(10).withMonth(1).withDayOfMonth(6), "<FUTUR_LOINTAIN>");
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("jour férié du centre", statutEtCode(affecter(s(JourSemaine.MERCREDI), salle1, matin, benali, null)));
         r.put("date passée lointaine", statutEtCode(affecter(passe, salle1, matin, benali, null)));

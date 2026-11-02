@@ -21,8 +21,9 @@ import java.util.stream.Collectors;
 
 /**
  * La semaine d'un infirmier dans la grille du centre, composée par le module lui-même (P9, ADR 0069) : la présence unique
- * ({@link ConsulterLaPresence}, règle de présence de P4) et le planning réel ({@link ConsulterLaSemaine}, P6). Un patient en sommeil,
- * sorti ou pas encore admis n'apparaît donc plus dans « Mon planning » (écart décidé le 2026-11-02, KB-PLN-106). Aucune donnée
+ * ({@link ConsulterLaPresence}) et le planning réel ({@link ConsulterLaSemaine}), qui reposent sur le même calcul de présence
+ * ({@code SejourDuPatient}). Un patient en sommeil n'est compté nulle part dans « Mon planning » : ni parmi les occupants, ni dans le
+ * nombre de patients, ni dans l'effectif requis (écart décidé le 2026-11-02, KB-PLN-50 et KB-PLN-106). Aucune donnée
  * nominative d'un autre infirmier : les patients sont ceux des salles et créneaux de l'infirmier. Lecture seule.
  */
 public class SemaineDeLInfirmierDuModule implements SemaineDeLInfirmier {

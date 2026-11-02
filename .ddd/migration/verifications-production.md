@@ -1455,7 +1455,7 @@ SELECT center_id, etat_patient, count(*) FROM patients
 WHERE (salle_id IS NOT NULL OR position_id IS NOT NULL OR generateur_id IS NOT NULL) AND date_evenement_etat < current_date
   AND (etat_patient IS NULL OR etat_patient NOT IN ('TRANSFERE','DECEDE','GREFFE','GUERRI','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER'))
 GROUP BY center_id, etat_patient ORDER BY 3 DESC;
--- 4. Patients sortis ET en sommeil qui tiennent une place échue : le sommeil n'empêche pas la libération (« à décider »)
+-- 4. Patients sortis ET en sommeil qui tiennent une place échue : le sommeil n'empêche pas la libération (VOULU, décision du 28/10/2026, KB-PLN-83)
 SELECT center_id, count(*) FROM patients WHERE COALESCE(en_sommeil, FALSE) AND (salle_id IS NOT NULL OR position_id IS NOT NULL)
   AND etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI') GROUP BY center_id ORDER BY 2 DESC;
 -- 5. Mouvements PLACE_LIBEREE consécutifs identiques pour un même patient (doublons de l'ancien code, KB-PLN-83) : n'augmente plus après le déploiement
@@ -1510,15 +1510,91 @@ de (11) portent `target_user_id` pour les infirmiers ayant un compte.
 
 ## Slice planification-p9-retrait-du-legacy (2026-11-02) : requêtes de contrôle (SELECT seulement)
 
-Effet de la présence unique sur « Mon planning » (KB-PLN-106) : les patients en sommeil placés disparaissent des occupants des cases.
+Effet de la présence unique (KB-PLN-50 et KB-PLN-106, décision du 2026-11-02) : un patient en sommeil n'est plus compté **nulle part** :
+ni dans les occupants, ni dans le nombre `patients` d'une case, ni dans l'effectif requis, ni dans les alertes de sous-effectif et de
+sur-effectif (07:15 et écran), ni dans la charge, ni dans « Mon planning ». Il garde sa place sur sa fiche. À mesurer en recette, avant
+livraison, pour annoncer l'effet aux infirmiers : les requêtes 1, 3 et 4 (SELECT seul).
 
 ```sql
--- 1. Patients en sommeil qui tiennent encore une place (ils disparaissent de « Mon planning » mais gardent leur place)
+-- 1. Patients en sommeil qui tiennent encore une place (ils n'apparaissent plus dans la présence ni dans « Mon planning » mais gardent leur place)
 SELECT center_id, count(*) FROM patients WHERE en_sommeil = TRUE AND salle_id IS NOT NULL AND position_id IS NOT NULL GROUP BY center_id;
 -- 2. Capacité des salles (RG-PLN-061) : salles dont le nombre de générateurs affectés dépasse la capacité (informatif)
 SELECT s.center_id, s.code, s.capacite, count(g.id) AS generateurs FROM salle s
   JOIN gmao_equipements g ON g.salle_id = s.id AND g.type = 'GENERATEUR_DIALYSE' AND g.deleted_at IS NULL AND g.statut NOT IN ('REFORME','DESACTIF')
  WHERE s.capacite IS NOT NULL GROUP BY s.center_id, s.code, s.capacite HAVING count(g.id) > s.capacite;
+-- 3. Cases de la grille type (centre, salle, créneau, jour de dialyse) qui contiennent au moins un patient en sommeil : patients et effectif requis
+--    AVANT (sommeil compté) et APRÈS (sommeil exclu), au ratio du centre (4 par défaut). Approximation : états de sortie écartés, dates de séjour ignorées.
+SELECT p.center_id, p.salle_id, p.position_id, j.jour,
+       count(*) AS patients_avant, count(*) FILTER (WHERE NOT COALESCE(p.en_sommeil, FALSE)) AS patients_apres,
+       ceil(count(*)::numeric / COALESCE(pp.patients_par_infirmier, 4)) AS requis_avant,
+       ceil(count(*) FILTER (WHERE NOT COALESCE(p.en_sommeil, FALSE))::numeric / COALESCE(pp.patients_par_infirmier, 4)) AS requis_apres
+FROM patients p
+CROSS JOIN LATERAL (VALUES ('DIMANCHE', p.jour_dimanche), ('LUNDI', p.jour_lundi), ('MARDI', p.jour_mardi), ('MERCREDI', p.jour_mercredi),
+                           ('JEUDI', p.jour_jeudi), ('VENDREDI', p.jour_vendredi), ('SAMEDI', p.jour_samedi)) AS j(jour, coche)
+LEFT JOIN planning_parametres pp ON pp.center_id = p.center_id
+WHERE j.coche AND p.salle_id IS NOT NULL AND p.position_id IS NOT NULL
+  AND COALESCE(p.etat_patient, 'PERMANENT') NOT IN ('TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI')
+GROUP BY p.center_id, p.salle_id, p.position_id, j.jour, pp.patients_par_infirmier
+HAVING count(*) FILTER (WHERE COALESCE(p.en_sommeil, FALSE)) > 0
+ORDER BY p.center_id, p.salle_id, p.position_id, j.jour;
+-- 4. Par centre : nombre de cases dont l'effectif requis BAISSE (moins de sous-effectif, plus de sur-effectif possible : alertes différentes à 07:15)
+SELECT center_id, count(*) AS cases_dont_le_requis_baisse FROM (
+  SELECT p.center_id, p.salle_id, p.position_id, j.jour
+  FROM patients p
+  CROSS JOIN LATERAL (VALUES ('DIMANCHE', p.jour_dimanche), ('LUNDI', p.jour_lundi), ('MARDI', p.jour_mardi), ('MERCREDI', p.jour_mercredi),
+                             ('JEUDI', p.jour_jeudi), ('VENDREDI', p.jour_vendredi), ('SAMEDI', p.jour_samedi)) AS j(jour, coche)
+  LEFT JOIN planning_parametres pp ON pp.center_id = p.center_id
+  WHERE j.coche AND p.salle_id IS NOT NULL AND p.position_id IS NOT NULL
+    AND COALESCE(p.etat_patient, 'PERMANENT') NOT IN ('TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI')
+  GROUP BY p.center_id, p.salle_id, p.position_id, j.jour, pp.patients_par_infirmier
+  HAVING ceil(count(*)::numeric / COALESCE(pp.patients_par_infirmier, 4))
+       > ceil(count(*) FILTER (WHERE NOT COALESCE(p.en_sommeil, FALSE))::numeric / COALESCE(pp.patients_par_infirmier, 4))
+) t GROUP BY center_id ORDER BY 2 DESC;
 ```
 
-Attendu : (1) donne le nombre de patients qui n'apparaîtront plus dans « Mon planning » (à annoncer aux infirmiers) ; (2) sans effet de bord.
+Attendu : (1) le nombre de patients qui ne compteront plus ; (3) et (4) l'impact chiffré sur le requis et les alertes, à annoncer aux
+infirmiers et à la direction ; (2) sans effet de bord. Les requêtes 1, 3 et 4 ont été exécutées sans erreur sur un PostgreSQL 16 jetable
+(schéma Flyway) ; la requête 2 lit `gmao_equipements.salle_id`, colonne créée par JPA et absente des migrations Flyway (présente en production).
+
+## 35. Planification P1 à P9 : liste ordonnée des contrôles avant la mise en service (2026-11-02)
+
+Source : `.ddd/verify/verify-planification.md` (§ 3), sections 32 à 34 et « Slice P4 » à « Slice P9 » de ce fichier. **Lecture seule, `SELECT`
+uniquement**, sur une copie ou en lecture sur la production, **dans cet ordre** : les lignes 0 à 9 sont **bloquantes** (aucun déploiement
+tant qu'une ligne annoncée « 0 ligne » en renvoie une ou qu'un prérequis manque) ; 10 à 17 sont informatives ; 18 est la surveillance après
+déploiement. Jamais de `DROP`/`DELETE`/`UPDATE` pour « corriger » un écart relevé ici : le rapporter d'abord (règle de sécurité du legacy n° 7).
+
+**Décisions encore « à décider » (non tranchées, reproduites telles quelles par le nouveau code, à faire arbitrer par l'utilisateur)**
+
+| KB | Comportement reproduit | Question |
+|---|---|---|
+| KB-PLN-04 | nombres décimaux tronqués sans erreur (ratio 4.9 lu 4, 20.9 lu 20, 0.9 refusé ; taux d'activité 75.5 lu 75) | refuser les décimaux ? |
+| KB-PLN-06 | salle d'isolement inconnue = même 400 qu'une salle d'un autre centre ; colonne `planning_parametres.salles_isolement` jamais réécrite (reste NULL ou valeur ancienne) | conserver ; retirer la colonne à terme ? |
+| KB-PLN-14 | noms de la fiche et du compte non synchronisés, dans les deux sens | propager (dans quel sens) ou assumer deux noms ? |
+
+Décidé le 2026-11-02 (et non plus « à décider ») : le patient en sommeil est exclu partout (KB-PLN-50, KB-PLN-106) ; la libération d'une
+place échue n'est pas empêchée par le sommeil (VOULU, 28/10/2026, KB-PLN-83).
+
+| Ordre | Contrôle (requête de la section citée) | Réf. | Attendu / décision |
+|---|---|---|---|
+| 0 | **Prérequis** : version Flyway courante (V47 déployée ; V48 et V49 en attente), base de copie disponible | § 8, § 34, P8 | **BLOQUANT** : V47 présente avant déploiement ; V48 puis V49 appliquées par le déploiement |
+| 1 | Fuseau des centres absent ou illisible | § 34-7 (= P4-5, P5-4) | 0 ligne ; sinon fixer le fuseau du centre |
+| 2 | Ratio hors 1 à 20 ; patients par poste hors 1 à 10 | P4-1, § 32-4, P6-5 | **BLOQUANT** : traitement manuel avant déploiement |
+| 3 | Jours d'ouverture illisibles ou en minuscules | § 32-3, P6-4 | **BLOQUANT** (sinon 400 sur la semaine) |
+| 4 | Compétences illisibles ; taux d'activité hors 10 à 100 ; réglages hors bornes | § 32-2, § 32-6, § 32-5 | **BLOQUANT** (sinon lecture en erreur) |
+| 5 | Comptes liés à des fiches de plusieurs centres | § 33-5 | **BLOQUANT** : délier, ou créer un compte par centre |
+| 6 | Doublons de matricule selon la casse ; doublons d'`username` | § 33-1, § 33-3 | **BLOQUANT** : régulariser |
+| 7 | Affectations qui se chevauchent ; absences qui se chevauchent | § 34-1, § 34-2 | 0 ligne attendue ; sinon régulariser à l'écran |
+| 8 | **Centres inactifs (ou sans ligne `centers`) qui tiennent des places échues** | P7-1 | **PRÉREQUIS BLOQUANT** : à traiter avant la première nuit, sinon la libération de 04:00 les ignore ou échoue |
+| 9 | Calculs d'optimisation `EN_COURS`, ou plusieurs par centre, **à lancer avant V48** puis après déploiement | P8-2, P8-3 | 0 ligne (sinon la reprise les interrompt) |
+| 10 | Centres sans ligne `planning_parametres` (la ligne par défaut sera créée) | § 32-7, P5-1, P7-8 | Informatif : faire valider les valeurs par défaut |
+| 11 | Patients sains en salle d'isolement ; sérologies hors centre | P5-2, P5-3 | Informatif (refus futur) |
+| 12 | **Patients en sommeil avec une case : nombre, et impact sur le requis et les alertes** ; sortis encore placés | P9-1, P9-3, P9-4, P6-1, P6-7, P7-3, P7-4 | Informatif ; **à annoncer** aux infirmiers (« Mon planning », alertes de 07:15) et à la direction ; mesure SELECT seule à faire en recette avant livraison |
+| 13 | File active de 1 à 4 patients (centres masqués) ; générateurs hors `EN_SERVICE` ; fériés à 60 jours | P6-2, P6-3, P6-6 | Informatif |
+| 14 | Fiche/compte incohérents ; fiche dont le compte est supprimé ; colonnes à la borne | § 33-4, § 33-6, § 33-7 | Informatif |
+| 15 | Remplacements passés, auto-remplacements, sans remplacé ; absences ou affectations d'inactifs ; motifs de 255 caractères ; absences futures sans auteur | § 34-3, § 34-8, P8-10, § 34-4, § 34-5, § 34-6 | Informatif |
+| 16 | Préférences de patients sortis, profils inactifs ; centres sans infirmier actif ; modèles d'impression ; doublons de notifications | § 32-1, P4-2, P4-4, P4-3, P5-5 | Informatif |
+| 17 | Capacité des salles dépassée (RG-PLN-061) | P9-2 | Informatif |
+| 18 | **Après déploiement** : P7-2 à 0 après la première nuit ; P7-5 à P7-7 ; P8-1 à P8-12 ; journaux `[PRESENCE]` et `[PLACES]` ; ordre 02:30, 04:00, 07:15 | P7, P8 | Surveillance |
+
+**À rapporter** : pour chaque ligne, le nombre de lignes renvoyées par centre et, pour les lignes bloquantes, la liste des centres ou
+comptes concernés.

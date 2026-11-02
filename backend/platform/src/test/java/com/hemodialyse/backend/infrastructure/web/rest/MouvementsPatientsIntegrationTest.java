@@ -59,6 +59,9 @@ class MouvementsPatientsIntegrationTest {
     private UUID transfereBientot;
     private UUID permanent;
     private UUID autreCentre;
+    private UUID[] placeTransfere;
+    private UUID[] placePermanent;
+    private UUID placeAutreCentreSalle;
 
     @BeforeEach
     void setup() {
@@ -73,9 +76,13 @@ class MouvementsPatientsIntegrationTest {
         jdbc.update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?,?,?,?)", creneau, C1, "ZT-P1",
                 "Matin");
         decede = patient(C1, "DECEDE", aujourdhui.minusDays(3), true);
-        transfereBientot = patient(C1, "TRANSFERE", aujourdhui.plusDays(5), true);
-        permanent = patient(C1, "PERMANENT", null, true);
-        autreCentre = patient(C2, "DECEDE", aujourdhui.minusDays(3), true);
+        placeTransfere = placePropre(C1, "T");
+        transfereBientot = patient(C1, "TRANSFERE", aujourdhui.plusDays(5), placeTransfere[0], placeTransfere[1]);
+        placePermanent = placePropre(C1, "P");
+        permanent = patient(C1, "PERMANENT", null, placePermanent[0], placePermanent[1]);
+        UUID[] placeAutreCentre = placePropre(C2, "X");
+        placeAutreCentreSalle = placeAutreCentre[0];
+        autreCentre = patient(C2, "DECEDE", aujourdhui.minusDays(3), placeAutreCentre[0], placeAutreCentre[1]);
     }
 
     @AfterEach
@@ -137,11 +144,18 @@ class MouvementsPatientsIntegrationTest {
     void the_planning_keeps_a_future_exit_until_its_last_day_and_drops_a_past_one() {
         List<Occupation> occupations = planning.sur(C1, aujourdhui, aujourdhui).occupations();
 
-        assertEquals(2, occupations.size(), "le transféré et le permanent ; ni le décédé (3 jours), ni l'autre centre");
-        Occupation futur = occupations.stream().filter(o -> o.dernierJour() != null).findFirst().orElseThrow();
+        Occupation futur = occupation(occupations, placeTransfere);
         assertEquals(aujourdhui.plusDays(5), futur.dernierJour(), "le transféré garde sa place jusqu'à son transfert");
         assertEquals(LocalDate.of(2026, 1, 2), futur.premierJour(), "le séjour commence à l'admission");
-        assertTrue(occupations.stream().anyMatch(o -> o.dernierJour() == null), "le permanent garde sa place");
+        assertNull(occupation(occupations, placePermanent).dernierJour(), "le permanent garde sa place");
+        assertTrue(occupations.stream().noneMatch(o -> o.salle().equals(salle)), "le décédé (3 jours) n'occupe plus la place");
+        assertTrue(occupations.stream().noneMatch(o -> o.salle().equals(placeAutreCentreSalle)), "isolation par centre");
+        assertEquals(2, occupations.size(), "le transféré et le permanent, et personne d'autre");
+    }
+
+    /** Le patient est identifié par sa place propre (salle et créneau), l'occupation publiée n'ayant pas d'identité de patient. */
+    private static Occupation occupation(List<Occupation> occupations, UUID[] place) {
+        return occupations.stream().filter(o -> o.salle().equals(place[0]) && o.creneau().equals(place[1])).findFirst().orElseThrow();
     }
 
     private UUID salleDe(UUID patient) {
@@ -158,7 +172,21 @@ class MouvementsPatientsIntegrationTest {
         jdbc.update("INSERT INTO centers (id, code, name, societe_id, actif) VALUES (?,?,?,?,TRUE)", id, code, code, SOC);
     }
 
+    /** Une place (salle et créneau) propre à un patient : le port publié {@code Occupation} n'a pas d'identité de patient. */
+    private UUID[] placePropre(UUID centre, String code) {
+        UUID s = UUID.randomUUID();
+        UUID c = UUID.randomUUID();
+        jdbc.update("INSERT INTO salle (id, center_id, code, nom) VALUES (?,?,?,?)", s, centre, "ZT-S-" + code, "Salle " + code);
+        jdbc.update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?,?,?,?)", c, centre, "ZT-P-" + code,
+                "Creneau " + code);
+        return new UUID[]{s, c};
+    }
+
     private UUID patient(UUID centre, String etat, LocalDate dateEvenement, boolean place) {
+        return patient(centre, etat, dateEvenement, place ? salle : null, place ? creneau : null);
+    }
+
+    private UUID patient(UUID centre, String etat, LocalDate dateEvenement, UUID salleDuPatient, UUID creneauDuPatient) {
         UUID id = UUID.randomUUID();
         jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_naissance, numero_assurance, "
                         + "date_admission, type_patient, etat_patient, date_evenement_etat, qualite_assure, sous_kt, "
@@ -167,7 +195,7 @@ class MouvementsPatientsIntegrationTest {
                 id, centre, "ZT-" + id.toString().substring(0, 8), "NOM", "Prenom", "M", Date.valueOf("1970-05-05"),
                 "ASS-" + id.toString().substring(0, 8), Date.valueOf("2026-01-02"), "NON_VACANCIER", etat,
                 dateEvenement == null ? null : Date.valueOf(dateEvenement), "ASSURE", false,
-                place ? salle : null, place ? creneau : null);
+                salleDuPatient, creneauDuPatient);
         return id;
     }
 }

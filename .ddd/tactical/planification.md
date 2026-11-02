@@ -523,4 +523,4 @@ Gate `tactical` approuvé par l'utilisateur le 2026-10-26 (`/ddd-gate tactical a
 - Matrice invariant → test ajoutée : transitions gardées (`ExecutionDOptimisationTest`), course lancement / reprise / terminaison à deux
   instances (`OptimisationContrat`, H2 + PG16), couverture (`CouvertureDesAbsencesTest`), alertes personnelles
   (`NotificationJournalIntegrationTest`).
-- Reporté au jalon P9 : retrait du double calcul de présence (`roadmap.md`, « Dette de fin de P8 »).
+- Reporté au jalon P9 : retrait du double calcul de présence (`roadmap.md`, « Dette de fin de P8 »). **Fait en P9 (2026-11-02)** : le patient en sommeil est exclu de la présence des infirmiers (nombre de patients, effectif requis, alertes) comme de la semaine du centre ; un seul calcul (`SejourDuPatient`), ADR 0069.

@@ -171,13 +171,16 @@ class ReglesDeGestionDocumentationTest {
     }
 
     /**
-     * Slice P9 (KB-PLN-106) : « Mon planning » suit la présence unique : un patient en sommeil n'y apparaît plus. La règle amendée
-     * (RG-PLN-104) doit rester documentée tant que le golden {@code planning_patient_en_sommeil_base_nouveau_code} existe.
+     * Slice P9 (KB-PLN-50, KB-PLN-106, décision du 2026-11-02) : un seul calcul de présence ; un patient en sommeil n'est plus compté
+     * nulle part (occupants, nombre de patients, effectif requis, alertes, « Mon planning »). La règle amendée (RG-PLN-046 et celle de
+     * « Mon planning ») doit rester documentée tant que le golden {@code planning_patient_en_sommeil_nouveau_code} existe.
      */
     @Test
-    void mon_planning_documente_que_le_sommeil_retire_le_patient_des_occupants() {
+    void la_presence_unique_documente_que_le_sommeil_n_est_plus_compte_nulle_part() {
         assertThat(documentation)
                 .contains("KB-PLN-106")
-                .contains("n'apparaît plus parmi les occupants des cases de « Mon planning »");
+                .contains("n'apparaît plus dans « Mon planning »")
+                .contains("dans l'effectif requis (décision du 2026-11-02, KB-PLN-50 et KB-PLN-106)")
+                .contains("il est aussi celui de la présence des infirmiers");
     }
 }

@@ -230,6 +230,21 @@ au jalon.
 | `MouvementPatientJdbcAdapter` (jointures `salle` / `position_creneau` pour les noms des mouvements)                                                      | tables d'Organisation, pas colonnes de place ; non couvert par `covered.json`                                                                                                                                                                                                                                | P7 (la libÃ©ration Ã©crit `PLACE_LIBEREE`)                                             | **P7 : la libÃ©ration Ã©crit dÃ©sormais `PLACE_LIBEREE` par `MouvementsDesPatientsJdbc` (module) ; l'adapter legacy est CONSERVÃ‰** (Ã©crivains restants : admission et changement d'Ã©tat de Patient et couverture, lecteur `GET /mouvements-patients`) : retrait avec l'extraction de Patient et couverture |
 | `ReferentialRepositoryAdapter`, `ReferentialAdminTables` (liste des salles / crÃ©neaux ; Â« le crÃ©neau / la salle est-il utilisÃ© par un patient ? Â»)  | rÃ©fÃ©rentiel d'Organisation, gÃ©nÃ©rique et table-driven                                                                                                                                                                                                                                                    | contexte Organisation                                                                  | **P9**                                                                                                                                                                                                                                                                                                        |
 
+**Mise à jour de P9, sessions 1 et 2 (2026-11-02) : le tableau « Dette de P9 » ci-dessous est historique.** Les lignes `SemaineDeLInfirmierLegacy`,
+`PresenceDonneesJdbcAdapter`, `PresenceInfirmierService`, `PlanningSemaine*`, `PlanningDonnees*`, `CalendrierDuCentreLegacy`,
+`PlanningDesPlacesLegacy`, `CapaciteDesSallesLegacy`, `SalleVue*`, `SalleGenerateursService` sont **soldées** (supprimées ou remplacées par le module). Dette réelle qui reste
+(code et jalon) : `SeancePlanningJdbcAdapter` et `SeanceRestController` (Séance : règle de présence recopiée, colonnes de place de `patients`) ;
+`ReferentialAdminJdbcAdapter` / `ReferentialAdminTables` (Organisation : « utilisé par un patient ? ») ; `MouvementPatientJdbcAdapter`, `Patient.libererPlacement`, `JourSemaine`,
+`PlanningParametres(+Port)`, `PlanningParametresDuContexte`, `PlacementDeLaFiche`, `PatientRestController` (Patient et couverture) ; `CapaciteTheoriqueCalculator` +
+`DirectionCapaciteQueryService` (Pilotage de la direction). Le fichier `ReferentialRepositoryAdapter` cité plus haut n'existe pas (le fichier réel est
+`ReferentialAdminJdbcAdapter`), et la dette de ces fichiers ne porte sur aucune table de la Planification : la liste blanche de `TableDeLaPlanificationTest` est vide (ADR 0069).
+Les interfaces `SemaineDeLInfirmier`, `PlanningDesPlaces`, `CalendrierDuCentre` n'ont plus de consommateur externe : ports internes à déplacer vers `application`.
+
+**Incohérence d'état à faire trancher par l'utilisateur (revue de P9, M3, NON corrigée par ce fil).** `.ddd/state.json` indique `built` pour
+`organisation-o1..o4`, `patient-couverture-pc1..pc5`, `seance-se1..se7`, `dossier-medical-dm1..dm8` et `pilotage-direction-pd1..pd5` (posé par le commit
+2978e639 « feat(pec) »), alors que ce roadmap les dit `planned` et que leurs fiches sont `characterized`. L'état n'a pas été modifié (hors périmètre,
+et ce serait de l'auto-attestation). Décision attendue : l'état réel, puis `state.ts set slices.<id> characterized` (ou `planned`) pour chaque slice concernée.
+
 **Dette de P9 (inventaire unique, 2026-10-29).** Chaque suppression exige de migrer le consommateur listÃ© ; aucune
 classe ci-dessous
 n'est du code mort (la liste des classes mortes supprimÃ©es est plus bas).

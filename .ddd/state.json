@@ -91,7 +91,7 @@
     "pilotage-direction-pd4-export-synthese": "built",
     "pilotage-direction-pd5-lectures-publiees": "built",
     "organisation-o5-retrait-bc-referential": "characterized",
-    "planification-p9-retrait-du-legacy": "in-progress"
+    "planification-p9-retrait-du-legacy": "built"
   },
   "contexts": {
     "gmao": "architected",

@@ -88,7 +88,7 @@
         "realiseeHorsPlanning" : false,
         "temporaire" : false
       } ],
-      "patients" : 2,
+      "patients" : 1,
       "requis" : 1,
       "salleId" : "<SALLE_1>",
       "salleIsolement" : false
