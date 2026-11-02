@@ -304,6 +304,8 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | PC4   | Attestations de droits                           | faible | planned | slices/patient-couverture-pc4-attestations.md        |
 | PC5   | Lectures publiees et retrait du legacy           | eleve  | planned | slices/patient-couverture-pc5-lectures-publiees.md   |
 
+> **GEL du 2026-11-02 (ADR 0073, `backend/contexts/patient-couverture/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice PC n'est `built`. Etats reels : PC1 `planned`, PC2 `characterized` (7 goldens assure), PC3 `characterized` (10 goldens PEC), PC4 `planned`, PC5 `planned`. Vocabulaire d'etats = celui du LEGACY ; date = `date_evenement_etat`. Reprise : filet legacy PC1 (identite, mouvements) et PC4 (attestations) d'abord, puis slices sur place (memes tables, memes URL). La regle « sortie sans date refusee » est DEJA imposee par le legacy (`FinOccupation.verifierDate`, RG-PAT-031) : le prerequis ci-dessous est satisfait.
+
 ## 1 nonies. Slices Seance (contexte `seance`, module `backend/contexts/seance`, ADR 0062, 0067)
 
 | Ordre | Slice                                             | Risque | Etat    | Fiche                                          |

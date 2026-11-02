@@ -40,7 +40,6 @@
         <module>contexts/planification</module>
         <module>contexts/seance</module>
         <module>contexts/organisation</module>
-        <module>contexts/patient-couverture</module>
         <module>contexts/pilotage-direction</module>
         <module>platform</module>
     </modules>

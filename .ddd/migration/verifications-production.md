@@ -1649,3 +1649,28 @@ SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
 ```
 Aucune route `/api/v1/dossier-medical/*` n'est servie (le module n'est pas dans le jar). Les routes réelles restent `/api/v1/patients/{id}/...` (rôles
 inchangés : `MEDECIN` en écriture, `MEDECIN`/`ADMIN` en lecture). Voir `backend/contexts/dossier-medical/GEL.md` et l'ADR 0072.
+
+## 38. Patient et couverture : gel du module, aucun changement de production (2026-11-02) — SELECT seulement
+Décision : AUCUNE migration et aucun revert. Audit de `2978e639` et des commits suivants : entités JPA patient, assuré, affectation, attestation et PEC inchangées ;
+aucune table ajoutée à `schema.sql` pour ce contexte ; aucune entrée patient-couverture dans `covered.json`. Rejeu PostgreSQL 16 jetable :
+`backend/scripts/patient-couverture-pg16-rejeu.sh` (V1..V52, 5 entités conformes, `patients.date_sortie` absente). Le module gelé n'est pas dans le jar : aucune route
+`/api/v1/patient-couverture/*` n'est servie. Contrôles ordonnés proposés par `verify-patient-couverture.md`, à exécuter AVANT la reprise (constats seuls) :
+```sql
+-- 1. Sortis sans date d'évènement (aussi § 25.2) : le legacy les refuse à l'écriture (RG-PAT-031) mais des lignes anciennes peuvent exister.
+SELECT center_id, etat_patient, count(*) FROM patients
+ WHERE etat_patient IN ('TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI') AND date_evenement_etat IS NULL GROUP BY 1, 2;
+-- 2. Valeurs distinctes des états et des types (vocabulaire réel du legacy).
+SELECT etat_patient, type_patient, count(*) FROM patients GROUP BY 1, 2 ORDER BY 1, 2;
+-- 3. Deux assurés principaux actifs pour un même patient (règle R1 non imposée par la base).
+SELECT patient_id, center_id, count(*) FROM assure_patient
+ WHERE is_primary = true AND date_fin_affectation IS NULL GROUP BY 1, 2 HAVING count(*) > 1;
+-- 4. PEC à période incohérente (début après fin).
+SELECT statut, count(*) FROM prise_en_charge
+ WHERE (date_fin_effectif IS NOT NULL AND date_debut_effectif > date_fin_effectif)
+    OR (date_fin_demande IS NOT NULL AND date_debut_demande > date_fin_demande) GROUP BY 1;
+-- 5. Double source de l'assuré : champs assure_* de patients renseignés alors qu'aucune affectation n'existe.
+SELECT count(*) FROM patients p
+ WHERE p.assure_nom IS NOT NULL AND NOT EXISTS (SELECT 1 FROM assure_patient ap WHERE ap.patient_id = p.id);
+-- 6. Après reprise et câblage (hors périmètre du gel) : relancer les goldens legacy sur le nouveau code et contrôler la garde de centre (`*_cross_centre_adminB`).
+```
+Les noms de colonnes viennent des entités JPA (vérifiées par le rejeu PG16). Voir `backend/contexts/patient-couverture/GEL.md` et l'ADR 0073.

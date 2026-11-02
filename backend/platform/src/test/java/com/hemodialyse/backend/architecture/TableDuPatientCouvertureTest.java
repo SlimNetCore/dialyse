@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.architecture;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -20,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * par le langage publié {@code patientcouverture.v1} et les ports publiés. Garde de non-régression (les entités JPA et les
  * migrations Flyway sont hors périmètre).
  */
+@Disabled("Module patient-couverture GELE le 2026-11-02 (backend/contexts/patient-couverture/GEL.md, ADR 0073) : la garde exclut /persistence/ "
+        + "et platform/src/main, donc elle est aveugle aux 25 fichiers de production hors contexte qui lisent ces tables ; elle n'a aucun sens "
+        + "tant que le refactoring sur place n'a pas etabli la liste blanche datee des lectures. A reecrire au filet PC1.")
 class TableDuPatientCouvertureTest {
 
     private static final Set<String> TABLES_DU_PATIENT_COUVERTURE = Set.of(
