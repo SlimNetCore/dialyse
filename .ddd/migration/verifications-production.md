@@ -1599,12 +1599,14 @@ place échue n'est pas empêchée par le sommeil (VOULU, 28/10/2026, KB-PLN-83).
 **À rapporter** : pour chaque ligne, le nombre de lignes renvoyées par centre et, pour les lignes bloquantes, la liste des centres ou
 comptes concernés.
 
-## 36. Organisation O1 à O5 : schéma et droits (une migration additive V51, 2026-11-02) — SELECT seulement
+## 36. Organisation O1 à O5 : schéma et droits (deux migrations additives V51 et V52, 2026-11-02) — SELECT seulement
 
 Contexte : `SallesJdbc` lit `salle.ouverte`, `MachinesJdbc` et `ProtocolesJdbc` lisent `machine` et `protocole`. Ces trois éléments
 n'existaient que dans `db/schema.sql` (H2), pas dans la chaîne Flyway V1..V50. La migration **V51** (additive, idempotente : `ADD COLUMN
-IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, aucune donnée modifiée) les crée ; elle doit être appliquée AVANT le déploiement du code.
-Rejeu PostgreSQL 16 jetable : `backend/scripts/organisation-pg16-rejeu.sh`.
+IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, aucune donnée modifiée) les crée ; la migration **V52** ajoute `medecin.actif` (suppression
+logique des médecins, `DEFAULT TRUE`). Elles doivent être appliquées AVANT le déploiement du code.
+Rejeu PostgreSQL 16 jetable : `backend/scripts/organisation-pg16-rejeu.sh`. Rejeu du filet contre le legacy réel (preuve que les goldens
+legacy sont exacts) : `backend/scripts/organisation-rejeu-legacy.sh`.
 
 | N° | Requête (SELECT) | Attendu | Si écart |
 |---|---|---|---|
@@ -1616,11 +1618,14 @@ Rejeu PostgreSQL 16 jetable : `backend/scripts/organisation-pg16-rejeu.sh`.
 | ORG-6 | `SELECT s.id, s.center_id FROM salle s LEFT JOIN centers c ON c.id = s.center_id WHERE c.id IS NULL` ; idem `position_creneau` | 0 ligne | Idem |
 | ORG-7 | `SELECT center_id, code, count(*) FROM salle GROUP BY center_id, code HAVING count(*) > 1` ; idem `position_creneau` | 0 ligne (doublons de code) | Informatif |
 | ORG-8 | `SELECT s.id FROM societes s WHERE NOT EXISTS (SELECT 1 FROM centers c WHERE c.societe_id = s.id AND c.actif)` | 0 ligne (société sans centre actif) | Bloquant pour l'invariant « dernier centre actif » |
-| ORG-9 | `SELECT count(*) FROM medecin x JOIN patients p ON p.medecin_traitant_id = x.id` | Informatif : médecins référencés par des patients (décision du 2026-11-03 : suppression LOGIQUE, `medecin.actif`, migration V52) | Informatif |
+| ORG-9 | `SELECT count(*) FROM medecin x JOIN patients p ON p.medecin_traitant_id = x.id` | Informatif : médecins référencés par des patients (décision du 2026-11-02 : suppression LOGIQUE, `medecin.actif`, migration V52) | Informatif |
 | ORG-10 | `SELECT column_name FROM information_schema.columns WHERE table_name = 'medecin' AND column_name = 'actif'` ; `SELECT count(*) FROM medecin WHERE actif = FALSE` | 1 ligne après V52 ; 0 médecin désactivé juste après V52 | Bloquant si la colonne manque : appliquer V52 avant le déploiement |
+| ORG-11 | `SELECT code, count(*) FROM centers GROUP BY code HAVING count(*) > 1` | 0 ligne (doublons de code de centre : `centers.code` n'a PAS de contrainte d'unicité en base ; l'unicité n'est vérifiée que par lecture puis écriture) | À corriger avec le métier. Tant que des doublons existent, ne PAS créer d'index unique (la création échouerait). Une fois ORG-11 vide, proposition (NON livrée comme migration Flyway : un index unique qui échoue bloquerait le démarrage) : `CREATE UNIQUE INDEX IF NOT EXISTS ux_centers_code ON centers (code)` |
+| ORG-12 | `SELECT u.id, u.username FROM app_user u WHERE u.active AND NOT EXISTS (SELECT 1 FROM app_user_center c WHERE c.user_id = u.id)` | Comptes actifs sans centre. Les comptes SUPERADMIN et DIRECTION n'ont pas de centre par conception ; **tout compte ADMIN (ou autre rôle de centre) de cette liste perd l'accès à `GET /api/v1/referentials/*` (200 devient 403, garde de centre)** | À rattacher à un centre avant le déploiement, ou à accepter |
 
 Contrôles de droits après déploiement (avec comptes de test, jamais en production réelle) : `POST /api/v1/organisation/referentiels/medecins`
 et `POST /api/v1/organisation/salles/{id}/ouvrir` avec un SECRETAIRE ou un ADMIN d'un autre centre : **403** ; `GET /api/v1/referentials/salles?centerId=<autre centre>`
-avec un compte de centre : **403** (garde de centre, décision du 2026-11-03 ; le legacy répondait 200) ; sans `centerId` ou avec un identifiant
-illisible : 500 comme le legacy (KB-ORG-01/02, à décider). Un SUPERADMIN atteint `/api/v1/organisation/**` et `/api/v1/societes/**`, pas
-`/api/v1/referentials/**`. Voir `.ddd/safety-net/organisation-retroactif.md`.
+avec un compte de centre : **403** (garde de centre, décision du 2026-11-02 ; le legacy répondait 200) ; un identifiant ou un paramètre UUID
+illisible : **400** (décision du 2026-11-02, KB-ORG-02 ; le legacy répondait 500) ; sans `centerId` : 500 comme le legacy. Un SUPERADMIN
+atteint `/api/v1/societes/**`, `/api/v1/organisation/societes` et `/api/v1/organisation/centres`, et RIEN d'autre sous `/api/v1/organisation`
+(403 `ROLE_SCOPE`, comme `/api/v1/referentials` et `/api/v1/admin/referentials`). Voir `.ddd/safety-net/organisation-retroactif.md`.

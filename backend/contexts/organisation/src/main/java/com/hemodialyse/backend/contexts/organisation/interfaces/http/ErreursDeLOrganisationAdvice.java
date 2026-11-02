@@ -69,16 +69,18 @@ class ErreursDeLOrganisationAdvice {
         return probleme(HttpStatus.NOT_FOUND, "Ressource introuvable", "Logo introuvable", "NOT_FOUND");
     }
 
+    /** Élément du centre inexistant (salle, créneau, médecin, machine, protocole) : 404 (exception typée, plus de sous-chaîne). */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable.class)
+    ProblemDetail elementIntrouvable(com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable ex) {
+        return probleme(HttpStatus.NOT_FOUND, "Ressource introuvable", ex.getMessage(), "NOT_FOUND");
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail handleDomaine(IllegalArgumentException ex) {
         String code = ex.getMessage();
         if (code != null && DETAILS_METIER.containsKey(code)) {
             return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee",
                     DETAILS_METIER.get(code), code);
-        }
-        if (code != null && (code.contains("inconnu") || code.contains("introuvable")
-                || code.contains("Introuvable") || code.contains("absent"))) {
-            return probleme(HttpStatus.NOT_FOUND, "Ressource introuvable", code, "NOT_FOUND");
         }
         if (code != null && code.startsWith("COORDONNEES_")) {
             return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", code, code);

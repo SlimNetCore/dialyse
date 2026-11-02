@@ -27,13 +27,13 @@ Aucune date réelle, aucun jour de mois fixe, aucun minuit : aucune date n'inter
 - Bugs du nouveau code corrigés pour rétablir la parité : codes d'erreur 422 `SOCIETE_INTROUVABLE` / `CENTRE_INTROUVABLE` (le nouveau code
   répondait 404 `NOT_FOUND`), 404 sans corps pour société ou logo absent, suppression d'un logo absent = 204 (le nouveau code répondait 404).
   Exceptions typées `SocieteIntrouvable`, `CentreIntrouvable`, `LogoIntrouvable` (plus de correspondance par sous-chaîne pour ces cas).
-- Écarts DÉCIDÉS par l'utilisateur (2026-11-03), goldens `_nouveau_code`, ancien comportement dans `o3-referentiels/_ecarts-legacy` :
+- Écarts DÉCIDÉS par l'utilisateur (2026-11-02), goldens `_nouveau_code`, ancien comportement dans `o3-referentiels/_ecarts-legacy` :
   garde de centre sur `/referentials/*` (3 goldens + 12 cellules de la matrice : ADMIN sans centre 200 -> 403), tri par code des salles et
   positions (2 goldens).
-- Écarts décidés le 2026-11-03, goldens `_nouveau_code` relus un par un, legacy archivé (`o1-societes`, `o2-administration`,
+- Écarts décidés le 2026-11-02, goldens `_nouveau_code` relus un par un, legacy archivé (`o1-societes`, `o2-administration`,
   `o3-referentiels/_ecarts-legacy`) : KB-ORG-02 (UUID illisible : 400, 3 goldens), KB-ORG-03 (médecins triés par nom, 1 golden) et
   suppression logique des médecins dans l'admin générique (`medecin-lignes-en-base`). Comportement douteux reproduit : KB-ORG-01.
-- Filet étendu le 2026-11-03 (legacy rejoué sur un worktree jetable de `b365a63a^`, puis supprimé) : import CSV de l'admin générique (11
+- Filet étendu le 2026-11-02 (legacy rejoué sur un worktree jetable de `b365a63a^`, puis supprimé) : import CSV de l'admin générique (11
   scénarios, parité complète) et logo et pied de page imprimés dans les documents (`LogoDansLesDocumentsCharacterizationIntegrationTest`,
   parité complète). Au total 22 scénarios, tous actifs et verts.
 
@@ -43,9 +43,17 @@ Aucune date réelle, aucun jour de mois fixe, aucun minuit : aucune date n'inter
 | `/api/v1/societes/**` | SUPERADMIN (classe) | aucune (transverse) | inchangé (82 goldens, matrice identique) |
 | `GET /api/v1/referentials/*` | authentifié (`SecurityConfig`) | aucune | garde de centre du jeton (écart décidé) |
 | `/api/v1/admin/referentials/**` | ADMIN ou SUPERADMIN | `CenterAccessGuard` | non touché |
-| `/api/v1/organisation/**` | n'existait pas | - | centres SUPERADMIN ; écritures de salles, créneaux, médecins, machines, protocoles ADMIN ou SUPERADMIN avec garde de centre ; lectures authentifié avec garde |
+| `/api/v1/organisation/**` | n'existait pas | - | centres SUPERADMIN ; écritures de salles, créneaux, médecins, machines, protocoles ADMIN (l'annotation reste `ADMIN` ou `SUPERADMIN`, mais le SUPERADMIN est arrêté en amont par le `RoleScopeFilter`) avec garde de centre ; lectures authentifié avec garde |
 
-`RoleScopeFilter` ouvre désormais `/api/v1/organisation` au SUPERADMIN (décision de l'utilisateur, seam inscrit dans `seams.md` puis fermé).
+`RoleScopeFilter` : le SUPERADMIN n'atteint que `/api/v1/organisation/societes` et `/api/v1/organisation/centres` ; le reste de
+`/api/v1/organisation` lui répond 403 `ROLE_SCOPE`, comme le legacy (décision du 2026-11-02, revue n° 2 ; deux seams inscrits dans
+`seams.md` puis fermés ; ADR 0071).
+
+## Rejeu reproductible du legacy
+`backend/scripts/organisation-rejeu-legacy.sh` : crée un worktree jetable HORS du dépôt sur `b365a63a^`, y copie le filet et les goldens
+legacy (le golden de chaque écart décidé est remplacé par son archive `_ecarts-legacy`), exécute le filet en mode « vérifier » (jamais
+`-Dcharacterization.approve`) et supprime le worktree. Exécuté le 2026-11-02 : 22 scénarios verts contre le legacy réel (92 goldens tels
+quels + 11 archives d'écarts décidés) : les goldens legacy sont exacts, aucun n'a été inventé.
 
 ## Données et sécurité de production
 Migrations V51 (salle.ouverte, machine, protocole) et V52 (medecin.actif) ; rejeu PostgreSQL 16 jetable

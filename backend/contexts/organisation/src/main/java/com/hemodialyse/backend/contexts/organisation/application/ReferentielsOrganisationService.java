@@ -41,7 +41,7 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     @Override
     public void modifierMedecin(CentreId centreId, MedecinId id, String nom, String prenom, String specialite) {
         Medecin m = medecins.trouver(id).filter(x -> x.centreId().equals(centreId))
-                .orElseThrow(() -> new IllegalArgumentException("Medecin inconnu"));
+                .orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Medecin inconnu"));
         m.modifier(nom, prenom, specialite);
         medecins.sauvegarder(m);
     }
@@ -49,7 +49,7 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     @Override
     public void desactiverMedecin(CentreId centreId, MedecinId id) {
         Medecin m = medecins.trouver(id).filter(x -> x.centreId().equals(centreId))
-                .orElseThrow(() -> new IllegalArgumentException("Medecin inconnu"));
+                .orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Medecin inconnu"));
         m.desactiver();
         medecins.sauvegarder(m);
     }
@@ -70,7 +70,7 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     @Override
     public void modifierMachine(CentreId centreId, MachineId id, String code, String libelle, Boolean actif) {
         Machine m = machines.trouver(id).filter(x -> x.centreId().equals(centreId))
-                .orElseThrow(() -> new IllegalArgumentException("Machine inconnue"));
+                .orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Machine inconnue"));
         m.modifier(code, libelle, actif);
         machines.sauvegarder(m);
     }
@@ -96,7 +96,7 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     @Override
     public void modifierProtocole(CentreId centreId, ProtocoleId id, String code, String libelle) {
         Protocole p = protocoles.trouver(id).filter(x -> x.centreId().equals(centreId))
-                .orElseThrow(() -> new IllegalArgumentException("Protocole inconnu"));
+                .orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Protocole inconnu"));
         p.modifier(code, libelle);
         protocoles.sauvegarder(p);
     }

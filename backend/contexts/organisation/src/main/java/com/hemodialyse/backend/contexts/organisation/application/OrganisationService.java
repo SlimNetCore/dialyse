@@ -111,7 +111,13 @@ public class OrganisationService implements OrganisationUseCases {
     public void transfererCentre(CommandesOrganisation.TransfererCentre commande) {
         unite.executer(() -> {
             Centre lu = centres.trouver(commande.id()).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
-            verrou.prendre(lu.societeId());
+            // Les deux sociétés sont verrouillées, dans l'ordre de leurs identifiants (pas d'interblocage) : la cible ne peut pas
+            // être désactivée ni modifiée en parallèle.
+            SocieteId origine = lu.societeId();
+            SocieteId cibleId = commande.nouvelleSociete();
+            boolean origineDabord = origine.valeur().compareTo(cibleId.valeur()) <= 0;
+            verrou.prendre(origineDabord ? origine : cibleId);
+            if (!origine.equals(cibleId)) verrou.prendre(origineDabord ? cibleId : origine);
             Centre c = centres.trouver(commande.id()).orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.CentreIntrouvable::new);
             Societe cible = societes.trouver(commande.nouvelleSociete())
                     .orElseThrow(com.hemodialyse.backend.contexts.organisation.domain.SocieteIntrouvable::new);
@@ -198,14 +204,14 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public void ouvrirSalle(CommandesOrganisation.OuvrirSalle commande) {
-        Salle s = salles.trouver(commande.centreId(), commande.salleId()).orElseThrow(() -> new IllegalArgumentException("Salle inconnue"));
+        Salle s = salles.trouver(commande.centreId(), commande.salleId()).orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Salle inconnue"));
         s.ouvrir();
         salles.sauvegarder(s);
     }
 
     @Override
     public void fermerSalle(CommandesOrganisation.FermerSalle commande) {
-        Salle s = salles.trouver(commande.centreId(), commande.salleId()).orElseThrow(() -> new IllegalArgumentException("Salle inconnue"));
+        Salle s = salles.trouver(commande.centreId(), commande.salleId()).orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Salle inconnue"));
         s.fermer();
         salles.sauvegarder(s);
     }
@@ -220,7 +226,7 @@ public class OrganisationService implements OrganisationUseCases {
 
     @Override
     public void modifierCreneau(CommandesOrganisation.ModifierCreneau commande) {
-        Creneau c = creneaux.trouver(commande.centreId(), commande.id()).orElseThrow(() -> new IllegalArgumentException("Creneau inconnu"));
+        Creneau c = creneaux.trouver(commande.centreId(), commande.id()).orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Creneau inconnu"));
         c.modifier(commande.code(), commande.libelle());
         creneaux.sauvegarder(c);
     }

@@ -13,8 +13,8 @@ import java.util.function.Supplier;
 /**
  * Adapter du port {@link UniteDeTravail} : une transaction Spring par exécution (rollback sur exception), rejointe si une
  * transaction est déjà ouverte. Sous PostgreSQL, {@code SET LOCAL lock_timeout} borne l'attente d'un verrou de ligne ; il est posé
- * au PREMIER verrou de la transaction, quelle que soit son origine (cette unité ou une transaction rejointe), sinon les verrous
- * pris dans une transaction rejointe attendraient sans limite. Au-delà du délai la base refuse (55P03) : 409.
+ * à l'ENTRÉE de la première unité de travail de la transaction (donc avant tout verrou pris par elle), que la transaction ait été
+ * ouverte par cette unité ou ailleurs puis rejointe. Au-delà du délai la base refuse (55P03) : 409.
  */
 public class UniteDeTravailSpring implements UniteDeTravail {
 

@@ -1,4 +1,4 @@
--- Migration V52 : suppression logique des médecins (décision de l'utilisateur du 2026-11-03).
+-- Migration V52 : suppression logique des médecins (décision de l'utilisateur du 2026-11-02).
 --
 -- Un médecin est référencé par patients.medecin_traitant_id et par les prescriptions : il n'est plus supprimé physiquement mais
 -- désactivé (disparaît des listes de sélection).

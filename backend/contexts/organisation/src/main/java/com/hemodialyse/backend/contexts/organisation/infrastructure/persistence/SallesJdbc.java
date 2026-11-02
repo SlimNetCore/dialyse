@@ -13,9 +13,15 @@ import java.util.UUID;
 
 public class SallesJdbc implements SalleRepository {
     private final JdbcTemplate jdbc;
+    private final EvictionApresCommit eviction;
 
     public SallesJdbc(JdbcTemplate jdbc) {
+        this(jdbc, EvictionApresCommit.AUCUNE);
+    }
+
+    public SallesJdbc(JdbcTemplate jdbc, EvictionApresCommit eviction) {
         this.jdbc = jdbc;
+        this.eviction = eviction;
     }
 
     @Override
@@ -28,8 +34,14 @@ public class SallesJdbc implements SalleRepository {
     }
 
     @Override
-    @org.springframework.cache.annotation.CacheEvict(cacheNames = "ref.salles", key = "#s.centreId().valeur().toString()")
     public void sauvegarder(Salle s) {
+        ecrire(s);
+        // Après l'écriture, et après le commit s'il y a une transaction : salles et générateurs (rattachés aux salles) du centre.
+        eviction.retirer("ref.salles", s.centreId().valeur().toString());
+        eviction.retirer("ref.generateurs", s.centreId().valeur().toString());
+    }
+
+    private void ecrire(Salle s) {
         int n = jdbc.update("UPDATE salle SET code=?, nom=?, ouverte=? WHERE id=? AND center_id=?", s.code(), s.nom(), s.ouverte(), s.id().valeur(), s.centreId().valeur());
         if (n == 0) {
             jdbc.update("INSERT INTO salle (id, center_id, code, nom, ouverte) VALUES (?,?,?,?,?)",

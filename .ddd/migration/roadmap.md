@@ -287,10 +287,11 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 
 | Ordre | Slice                                                        | Risque | Etat    | Fiche                                              |
 |-------|--------------------------------------------------------------|--------|---------|----------------------------------------------------|
-| O1    | Societes et centres (OHS, CentreId)                          | faible | planned | slices/organisation-o1-societes-centres.md         |
-| O2    | Salles et creneaux (positions)                               | moyen  | planned | slices/organisation-o2-salles-creneaux.md          |
-| O3    | Referentiels de parametrage (medecins, machines, protocoles) | faible | planned | slices/organisation-o3-referentiels-parametrage.md |
-| O4    | Lectures publiees et retrait du legacy Organisation          | moyen  | planned | slices/organisation-o4-lectures-publiees.md        |
+| O1    | Societes et centres (OHS, CentreId)                          | faible | in-progress | slices/organisation-o1-societes-centres.md         |
+| O2    | Salles et creneaux (positions)                               | moyen  | in-progress | slices/organisation-o2-salles-creneaux.md          |
+| O3    | Referentiels de parametrage (medecins, machines, protocoles) | faible | in-progress | slices/organisation-o3-referentiels-parametrage.md |
+| O4    | Lectures publiees (organisation.v1, aucun consommateur)      | moyen  | planned | slices/organisation-o4-lectures-publiees.md        |
+| O5    | Retrait de bc-referential (fait sans filet, filet reconstitue) | moyen | in-progress | slices/organisation-o5-retrait-bc-referential.md   |
 
 ## 1 octies. Slices Patient et couverture (contexte `patient-couverture`, module
 `backend/contexts/patient-couverture`, ADR 0064, 0067)

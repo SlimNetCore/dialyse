@@ -1,7 +1,7 @@
 ---
 slice: organisation-o5-retrait-bc-referential
 status: in-progress
-date: 2026-11-03
+date: 2026-11-02
 order: 5
 context: organisation
 sources: [.ddd/tactical/organisation.md, ADR 0063, ADR 0070, .ddd/verify/verify-organisation.md, .ddd/safety-net/organisation-retroactif.md, .ddd/migration/roadmap.md]
@@ -9,7 +9,7 @@ sources: [.ddd/tactical/organisation.md, ADR 0063, ADR 0070, .ddd/verify/verify-
 
 # O5 - Retrait de `bc-referential` (bascule Organisation O1-O4)
 
-Fiche réécrite le 2026-11-03 (l'ancienne version était contradictoire et contenait des caractères corrompus). État réel : le module
+Fiche réécrite le 2026-11-02 (l'ancienne version était contradictoire et contenait des caractères corrompus). État réel : le module
 `bc-referential` et ses adapters ont été retirés (commit b365a63a) AVANT la caractérisation ; le filet a été reconstitué après coup
 (voir `.ddd/safety-net/organisation-retroactif.md`). L'état du pipeline est `in-progress` tant que les écarts listés ci-dessous ne sont pas
 décidés et que O4 n'est pas faite.
@@ -32,20 +32,22 @@ vers le contexte `organisation`. Les URLs historiques restent servies (aucune co
   `platform/.../infrastructure/{referential/admin,migration}` : hébergement documenté par l'ADR 0070 (proposed).
 - Schéma de production : migrations V51 (salle.ouverte, machine, protocole) et V52 (medecin.actif), rejeu PostgreSQL 16 jetable.
 
-## Décisions de l'utilisateur (2026-11-03)
+## Décisions de l'utilisateur (2026-11-02)
 
-1. **Préfixe `/api/v1/organisation/**` ouvert au SUPERADMIN** dans `RoleScopeFilter` (seam inscrit puis fermé). Conséquence : NOUVELLES URLs
-   publiques, écart avec « mêmes URLs » de l'ADR 0024. Les URLs historiques `/api/v1/societes/**` coexistent et renvoient le même contenu
+1. **SUPERADMIN ouvert puis LIMITÉ au legacy** (`RoleScopeFilter`, deux seams inscrits puis fermés) : il garde
+   `/api/v1/organisation/societes` et `/api/v1/organisation/centres` (création, modification, transfert, lecture) ; salles, créneaux, médecins,
+   machines, protocoles et référentiels lui répondent 403 `ROLE_SCOPE` comme le legacy (revue n° 2, ADR 0071). Conséquence : NOUVELLES URLs
+   publiques `/organisation/societes` et `/organisation/centres`, écart avec « mêmes URLs » de l'ADR 0024. Les URLs historiques `/api/v1/societes/**` coexistent et renvoient le même contenu
    (test `AutorisationsDeLOrganisationIntegrationTest`). Restent servies sous les anciennes URLs : `/api/v1/societes/**`,
    `/api/v1/referentials/*`, `/api/v1/admin/referentials/**`, `/api/v1/admin/migration/**`.
    Le frontend `organisation-api.service.ts` ne manipule que `/organisation/societes` : désormais atteignable par un SUPERADMIN.
 2. **Garde de centre sur `GET /api/v1/referentials/*`** : le centre est celui du jeton (403 sinon). Écart décidé, goldens
    `_nouveau_code`, ancien comportement archivé dans `_ecarts-legacy`.
-3. Rôles ADMIN/SUPERADMIN pour machines et protocoles : validés.
+3. Rôle ADMIN pour machines et protocoles : validé (le SUPERADMIN en est exclu, voir 1).
 4. Médecins : suppression LOGIQUE (désactivation, `medecin.actif`, migration V52), car référencés par `patients.medecin_traitant_id`.
 5. Tri par `code` de `/referentials/salles` et `/positions` : accepté (le legacy ne triait pas).
 
-## Écarts décidés le 2026-11-03 (goldens `_nouveau_code` relus un par un, legacy archivé dans `_ecarts-legacy`)
+## Écarts décidés le 2026-11-02 (goldens `_nouveau_code` relus un par un, legacy archivé dans `_ecarts-legacy`)
 
 | N° | Écart | Legacy | Nouveau code |
 |---|---|---|---|
@@ -69,6 +71,12 @@ plus d'approbation.
 - [ ] Cache `ref.*` : invalider à la bascule (clés incluant `centerId`).
 - [x] Filet étendu au logo et au pied de page imprimés dans les documents (`DocumentIdentityProvider`, 4 goldens) et à l'import CSV de
       l'admin générique (vérification, import, rejeu, refus ; à parité avec le legacy).
+- [x] Goldens legacy prouvés exacts : `backend/scripts/organisation-rejeu-legacy.sh` (worktree jetable sur `b365a63a^`, filet en mode
+      « vérifier », exécuté le 2026-11-02 : 22 scénarios verts contre le legacy réel).
+- [x] Revue n° 2 : caches `ref.salles|positions|medecins|generateurs` invalidés APRÈS commit ; société cible d'un transfert verrouillée
+      (ordre des identifiants) ; exceptions typées pour salle, créneau, médecin, machine, protocole (plus de sous-chaîne) ; ADR 0071.
+      Documentés sans changement : KB-ORG-06 (`created_at` NULL), KB-ORG-07 (fermer une salle sans effet), KB-ORG-08 (`centers.code` sans
+      contrainte d'unicité, contrôle ORG-11, index proposé après contrôle).
 - [x] Horloge (`Clock`) et générateur d'identifiants injectés dans `OrganisationService` et `ReferentielsOrganisationService`.
 
 ## Données

@@ -1,6 +1,6 @@
 ---
 status: proposed
-date: 2026-11-03
+date: 2026-11-02
 decision-makers: [utilisateur (à valider), architecte]
 context-scope: organisation
 related: ADR 0024, 0063 ; `.ddd/migration/slices/organisation-o5-retrait-bc-referential.md` ; `.ddd/verify/verify-organisation.md` (constat « ADR manquant »)
@@ -31,7 +31,7 @@ contexte Organisation.
 ## Décision proposée
 
 Option 1 à court terme, avec une dette explicite : l'admin générique contourne les invariants d'Organisation (écrit en SQL dans ses tables
-sans passer par les use cases) (la désactivation logique des médecins, migration V52, y a été appliquée le 2026-11-03 : voir la mise à jour ci-dessous). Chemin de sortie : option 2, par type de référentiel, quand O4 (lectures publiées) sera faite.
+sans passer par les use cases) (la désactivation logique des médecins, migration V52, y a été appliquée le 2026-11-02 : voir la mise à jour ci-dessous). Chemin de sortie : option 2, par type de référentiel, quand O4 (lectures publiées) sera faite.
 
 Garde-fous en attendant : le filet rétroactif caractérise ces routes
 (`AdministrationDesReferentielsCharacterizationIntegrationTest`, matrice de droits et gardes de centre) ; `TableDeLOrganisationTest` liste
@@ -43,7 +43,7 @@ les lecteurs SQL directs.
   propriétaire en écriture »).
 - À valider par l'utilisateur ; non appliqué au-delà de l'existant.
 
-## Mise à jour du 2026-11-03 (décision de l'utilisateur)
+## Mise à jour du 2026-11-02 (décision de l'utilisateur)
 
 - **Question tranchée** : la suppression d'un médecin de l'admin générique est alignée sur la désactivation logique (migration V52,
   `medecin.actif`) : édition minimale de `ReferentialAdminJdbcAdapter` (seam inscrit puis fermé, `seams.md`) : pour le seul référentiel

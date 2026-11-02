@@ -10,7 +10,7 @@ sources: [.ddd/tactical/organisation.md, ADR 0063]
 # O2 — Salles et créneaux (positions de créneau)
 
 > **Vérité au 2026-11-02** (la mention `planned` précédente était fausse). Construit et branché : `SallesControleur` (ouvrir/fermer),
-> `CreneauxControleur`, `SallesJdbc`, `CreneauxJdbc`, droits ADMIN/SUPERADMIN avec garde de centre, DTO. Schéma de production :
+> `CreneauxControleur`, `SallesJdbc`, `CreneauxJdbc`, droits ADMIN avec garde de centre (le SUPERADMIN reçoit 403 `ROLE_SCOPE`, comme le legacy), DTO. Schéma de production :
 > `salle.ouverte` ajouté par la migration V51 (elle manquait au chemin Flyway). Filet : lectures `/api/v1/referentials/salles|positions`
 > (14 goldens `o3-referentiels`) et administration `/api/v1/admin/referentials` (salles, créneaux ; 31 goldens `o2-administration`).
 > Écart décidé : tri par code des salles et positions (le legacy ne triait pas). Les événements `SalleOuverte`, `SalleFermee`,

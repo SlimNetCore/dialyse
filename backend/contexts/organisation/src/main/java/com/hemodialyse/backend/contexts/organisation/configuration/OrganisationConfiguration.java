@@ -49,18 +49,27 @@ public class OrganisationConfiguration {
     }
 
     @Bean
-    public SalleRepository salleRepository(JdbcTemplate jdbc) {
-        return new SallesJdbc(jdbc);
+    public com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.EvictionApresCommit organisationEviction(
+            org.springframework.beans.factory.ObjectProvider<org.springframework.cache.CacheManager> caches) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.EvictionApresCommit(caches.getIfAvailable());
     }
 
     @Bean
-    public CreneauRepository creneauRepository(JdbcTemplate jdbc) {
-        return new CreneauxJdbc(jdbc);
+    public SalleRepository salleRepository(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.EvictionApresCommit eviction) {
+        return new SallesJdbc(jdbc, eviction);
     }
 
     @Bean
-    public MedecinRepository medecinRepository(JdbcTemplate jdbc) {
-        return new MedecinsJdbc(jdbc);
+    public CreneauRepository creneauRepository(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.EvictionApresCommit eviction) {
+        return new CreneauxJdbc(jdbc, eviction);
+    }
+
+    @Bean
+    public MedecinRepository medecinRepository(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.EvictionApresCommit eviction) {
+        return new MedecinsJdbc(jdbc, eviction);
     }
 
     @Bean

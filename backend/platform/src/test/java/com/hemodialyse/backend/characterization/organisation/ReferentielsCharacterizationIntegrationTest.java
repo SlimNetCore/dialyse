@@ -78,7 +78,7 @@ class ReferentielsCharacterizationIntegrationTest extends OrganisationCharacteri
         golden("salles-sans-centre", doGet(R + "/salles", as(CENTRE_A, "ADMIN")));
     }
 
-    /** ÉCART DÉCIDÉ (KB-ORG-02, 2026-11-03) : le legacy répondait 500 à un identifiant illisible ; le nouveau code répond 400. */
+    /** ÉCART DÉCIDÉ (KB-ORG-02, 2026-11-02) : le legacy répondait 500 à un identifiant illisible ; le nouveau code répond 400. */
     @Test
     void identifiants_illisibles_ecart_a_decider() throws Exception {
         amorcer();
@@ -87,7 +87,7 @@ class ReferentielsCharacterizationIntegrationTest extends OrganisationCharacteri
     }
 
     /**
-     * ÉCART DÉCIDÉ (KB-ORG-03, 2026-11-03) : le legacy listait les médecins dans l'ordre physique de la table ; le nouveau code les
+     * ÉCART DÉCIDÉ (KB-ORG-03, 2026-11-02) : le legacy listait les médecins dans l'ordre physique de la table ; le nouveau code les
      * trie par nom. Le tri par code des salles et des positions est aussi un écart décidé et accepté.
      */
     @Test

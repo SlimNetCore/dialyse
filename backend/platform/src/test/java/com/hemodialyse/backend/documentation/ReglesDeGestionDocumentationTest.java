@@ -85,6 +85,27 @@ class ReglesDeGestionDocumentationTest {
         return sources;
     }
 
+    /**
+     * Garde de {@code 03-organisation.md} : les codes de refus de l'Organisation (table de l'advice et codes propres, dont le 409
+     * {@code ORGANISATION_ECRITURE_CONCURRENTE} et le 403 {@code ROLE_SCOPE}) et les règles de droits, de garde de centre, de 400 et de
+     * suppression logique (RG-ORG-060 à 066) sont documentés.
+     */
+    @Test
+    void organisationErrorCodesAndAccessRulesAreDocumented() throws IOException {
+        Path advice = backend.resolve("contexts/organisation/src/main/java/com/hemodialyse/backend/contexts/organisation/"
+                + "interfaces/http/ErreursDeLOrganisationAdvice.java");
+        String source = Files.readString(advice, StandardCharsets.UTF_8);
+        Set<String> codes = new TreeSet<>(Set.of("ORGANISATION_ECRITURE_CONCURRENTE", "ROLE_SCOPE", "REFERENTIAL_IN_USE"));
+        Matcher entries = Pattern.compile("Map\\.entry\\(\"([A-Z][A-Z0-9_]*)\"").matcher(source);
+        while (entries.find()) codes.add(entries.group(1));
+        Set<String> missing = new TreeSet<>();
+        for (String code : codes) if (!documentation.contains("`" + code + "`")) missing.add(code);
+        assertThat(missing).as("codes de l'Organisation absents de 03-organisation.md").isEmpty();
+        for (int n = 60; n <= 66; n++) {
+            assertThat(documentation).as("RG-ORG-0" + n).contains("**RG-ORG-0" + n + "**");
+        }
+    }
+
     @Test
     void everyContextRuleCodeIsDocumented() throws IOException {
         Set<String> missing = new TreeSet<>();

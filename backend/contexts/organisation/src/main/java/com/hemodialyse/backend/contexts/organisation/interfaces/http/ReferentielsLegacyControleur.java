@@ -19,7 +19,7 @@ import java.util.UUID;
  * Organisation. Le frontend continue de fonctionner sans changement pendant la bascule ;
  * les nouveaux écrans utilisent les endpoints canoniques ({@code /api/v1/organisation/*}).
  * <p>
- * Écart décidé (2026-11-03) : garde de centre. Le legacy croyait le {@code centerId} du client (tout utilisateur authentifié
+ * Écart décidé (2026-11-02) : garde de centre. Le legacy croyait le {@code centerId} du client (tout utilisateur authentifié
  * lisait n'importe quel centre) ; le centre est désormais celui du jeton, 403 sinon. Tri par {@code code} des salles et des
  * positions : écart accepté.
  * <p>

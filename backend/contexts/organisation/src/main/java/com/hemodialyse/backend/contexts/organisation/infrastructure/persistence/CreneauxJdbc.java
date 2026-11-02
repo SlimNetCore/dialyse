@@ -13,9 +13,15 @@ import java.util.UUID;
 
 public class CreneauxJdbc implements CreneauRepository {
     private final JdbcTemplate jdbc;
+    private final EvictionApresCommit eviction;
 
     public CreneauxJdbc(JdbcTemplate jdbc) {
+        this(jdbc, EvictionApresCommit.AUCUNE);
+    }
+
+    public CreneauxJdbc(JdbcTemplate jdbc, EvictionApresCommit eviction) {
         this.jdbc = jdbc;
+        this.eviction = eviction;
     }
 
     @Override
@@ -28,8 +34,12 @@ public class CreneauxJdbc implements CreneauRepository {
     }
 
     @Override
-    @org.springframework.cache.annotation.CacheEvict(cacheNames = "ref.positions", key = "#c.centreId().valeur().toString()")
     public void sauvegarder(Creneau c) {
+        ecrire(c);
+        eviction.retirer("ref.positions", c.centreId().valeur().toString());
+    }
+
+    private void ecrire(Creneau c) {
         int n = jdbc.update("UPDATE position_creneau SET code=?, libelle=? WHERE id=? AND center_id=?", c.code(), c.libelle(), c.id().valeur(), c.centreId().valeur());
         if (n == 0) {
             jdbc.update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?,?,?,?)",

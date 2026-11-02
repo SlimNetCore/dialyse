@@ -38,9 +38,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * centre (le centre vient de la session), 403 avant la lecture du corps, suppressions filtrées sur le centre.
  * <p>
  * Droits retenus (routes nouvelles, rapprochées du legacy : sociétés/centres = SUPERADMIN, administration des référentiels =
- * ADMIN de son centre ou SUPERADMIN, lectures = utilisateur authentifié). Le {@code RoleScopeFilter} de la plateforme limite un
- * compte SUPERADMIN à {@code /api/v1/societes|licenses|audit|supervision} : les routes {@code /organisation/centres} (SUPERADMIN)
- * et les écritures {@code /organisation/*} sont donc inatteignables pour lui (fermées, jamais ouvertes) : à décider.
+ * ADMIN de son centre, lectures = utilisateur authentifié). Décision du 2026-11-02 (revue n° 2) : le SUPERADMIN est LIMITÉ au
+ * legacy ; le {@code RoleScopeFilter} ne lui ouvre que {@code /api/v1/organisation/societes} et {@code /api/v1/organisation/centres}
+ * (création, modification, transfert, lecture) ; salles, créneaux, médecins, machines, protocoles et référentiels lui répondent
+ * 403 {@code ROLE_SCOPE}, comme le legacy.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
@@ -93,10 +94,17 @@ class AutorisationsDeLOrganisationIntegrationTest {
     }
 
     private static final Set<String> TOUS_SAUF_FERMES = Set.of("ADMIN", "SECRETAIRE", "MEDECIN seul", "INFIRMIER seul",
+            "MEDECIN + INFIRMIER", "role inconnu (COMPTABLE)", "aucun role");
+    /**
+     * Décision du 2026-11-02 (revue n° 2) : le SUPERADMIN est LIMITÉ au legacy. Le RoleScopeFilter lui ouvre
+     * {@code /api/v1/organisation/societes} et {@code /api/v1/organisation/centres} seulement ; salles, créneaux, médecins, machines,
+     * protocoles et référentiels lui répondent 403 {@code ROLE_SCOPE}, comme le legacy.
+     */
+    private static final Set<String> ADMIN_DU_CENTRE = Set.of("ADMIN");
+    private static final Set<String> SUPERADMIN_SEUL = Set.of("SUPERADMIN", "SUPERADMIN + ADMIN");
+    private static final Set<String> AUCUN = SUPERADMIN_SEUL;
+    private static final Set<String> LECTURE_D_UN_CENTRE_PAR_ID = Set.of("ADMIN", "SECRETAIRE", "MEDECIN seul", "INFIRMIER seul",
             "MEDECIN + INFIRMIER", "role inconnu (COMPTABLE)", "aucun role", "SUPERADMIN", "SUPERADMIN + ADMIN");
-    /** Décision du 2026-11-03 : le RoleScopeFilter ouvre /api/v1/organisation au SUPERADMIN. */
-    private static final Set<String> ADMIN_DU_CENTRE = Set.of("ADMIN", "SUPERADMIN", "SUPERADMIN + ADMIN");
-    private static final Set<String> AUCUN = Set.of("SUPERADMIN", "SUPERADMIN + ADMIN");
 
     @BeforeEach
     void monter() {
@@ -167,6 +175,7 @@ class AutorisationsDeLOrganisationIntegrationTest {
     private static Set<String> autorises(String route) {
         if (route.startsWith("POST /centres") || route.startsWith("PUT /centres") || route.equals("GET /centres")
                 || route.equals("GET /centres/actifs")) return AUCUN;
+        if (route.equals("GET /centres/{id}/parametres")) return LECTURE_D_UN_CENTRE_PAR_ID;
         if (route.startsWith("GET")) return TOUS_SAUF_FERMES;
         return ADMIN_DU_CENTRE;
     }
@@ -236,6 +245,13 @@ class AutorisationsDeLOrganisationIntegrationTest {
                 assertThat(statut(() -> get(base + "/" + societe), as(CENTRE_A, "SUPERADMIN"))).as(base).isEqualTo(200);
                 assertThat(statut(() -> get(base + "/" + societe), as(CENTRE_A, "ADMIN"))).as(base + " ADMIN").isEqualTo(403);
                 assertThat(statut(() -> get(base + "/" + societe), as(CENTRE_A, "SECRETAIRE"))).as(base + " SECRETAIRE").isEqualTo(403);
+            }
+            for (String hors : List.of("/api/v1/organisation/salles?centreId=" + A, "/api/v1/organisation/creneaux?centreId=" + A,
+                    "/api/v1/organisation/referentiels/medecins?centreId=" + A, "/api/v1/organisation/referentiels/machines?centreId=" + A,
+                    "/api/v1/organisation/referentiels/protocoles?centreId=" + A)) {
+                var reponse = mvc.perform(get(hors).with(as(CENTRE_A, "SUPERADMIN"))).andReturn().getResponse();
+                assertThat(reponse.getStatus()).as(hors).isEqualTo(403);
+                assertThat(reponse.getContentAsString()).as(hors).contains("ROLE_SCOPE");
             }
             String legacy = mvc.perform(get("/api/v1/societes/" + societe).with(as(CENTRE_A, "SUPERADMIN"))).andReturn().getResponse().getContentAsString();
             String canonique = mvc.perform(get("/api/v1/organisation/societes/" + societe).with(as(CENTRE_A, "SUPERADMIN"))).andReturn().getResponse().getContentAsString();

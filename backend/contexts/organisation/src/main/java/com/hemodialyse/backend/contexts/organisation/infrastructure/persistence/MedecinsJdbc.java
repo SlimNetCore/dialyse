@@ -19,9 +19,15 @@ public class MedecinsJdbc implements MedecinRepository {
                     rs.getString("nom"), rs.getString("prenom"), rs.getString("specialite"), rs.getBoolean("actif"));
 
     private final JdbcTemplate jdbc;
+    private final EvictionApresCommit eviction;
 
     public MedecinsJdbc(JdbcTemplate jdbc) {
+        this(jdbc, EvictionApresCommit.AUCUNE);
+    }
+
+    public MedecinsJdbc(JdbcTemplate jdbc, EvictionApresCommit eviction) {
         this.jdbc = jdbc;
+        this.eviction = eviction;
     }
 
     @Override
@@ -31,8 +37,13 @@ public class MedecinsJdbc implements MedecinRepository {
     }
 
     @Override
-    @org.springframework.cache.annotation.CacheEvict(cacheNames = "ref.medecins", allEntries = true)
     public void sauvegarder(Medecin m) {
+        ecrire(m);
+        // Les clés de ref.medecins portent la page et la taille : tout le cache est vidé, après le commit.
+        eviction.retirer("ref.medecins", null);
+    }
+
+    private void ecrire(Medecin m) {
         int n = jdbc.update("UPDATE medecin SET center_id=?, nom=?, prenom=?, specialite=?, actif=? WHERE id=?",
                 m.centreId().valeur(), m.nom(), m.prenom(), m.specialite(), m.actif(), m.id().valeur());
         if (n == 0) {

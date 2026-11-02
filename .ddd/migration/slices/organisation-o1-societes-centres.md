@@ -13,7 +13,7 @@ sources: [.ddd/tactical/organisation.md, ADR 0010, 0024, 0063, docs/reference/re
 > `CentresControleur`, `OrganisationService`). Le legacy (`SocieteRestController`) a été supprimé SANS filet (b365a63a) ; le filet a
 > été reconstitué après coup sur `b365a63a^` (`.ddd/safety-net/organisation-retroactif.md`) : parité atteinte sur les 54 goldens
 > `o1-societes` et les 4 goldens `o1-logo-documents` (logo et pied de page lus par les documents), sauf deux écarts DÉCIDÉS le
-> 2026-11-03 : identifiant illisible 400 au lieu de 500 (KB-ORG-02) et ordre des centres non déterministe côté legacy (KB-ORG-04,
+> 2026-11-02 : identifiant illisible 400 au lieu de 500 (KB-ORG-02) et ordre des centres non déterministe côté legacy (KB-ORG-04,
 > tri par code dans le filet). Invariant « dernier centre actif » : verrou de la société + transaction + 409, règle dans le domaine,
 > prouvé sur PostgreSQL 16. Droits : SUPERADMIN (`/api/v1/societes` et `/api/v1/organisation/societes`, nouvelles URLs publiques :
 > écart avec « mêmes URLs » de l'ADR 0024). Reste : `SocieteJpaEntity`/`CenterJpaEntity` (auth, licence), validation métier des termes du

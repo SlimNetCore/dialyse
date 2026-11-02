@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-02<br>585 règles de gestion · 16 domaines · 485 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-02<br>594 règles de gestion · 16 domaines · 486 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>585</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>594</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -554,8 +554,9 @@ lignes ou 10 Go, <code>A_SURVEILLER</code> à la moitié. <em>Sources :</em> <co
 <figure><img src="img/organisation-societes.png" alt="Administration des sociétés et de leurs centres"><figcaption>Administration des sociétés et de leurs centres</figcaption></figure><blockquote>
 <p>Préfixe <code>RG-ORG</code>. Le propriétaire de la plateforme (SUPERADMIN) administre les sociétés, leurs centres, les comptes
 administrateur de centre et les comptes direction. Sources : <code>Societe</code>, <code>Centre</code>, <code>Coordonnees</code>,
-<code>SocieteDomainService</code>,
-<code>SocieteRestController</code>, <code>SocieteAdminAccountService</code>, <code>DirectionAccountService</code>, <code>SocieteLogoService</code>.</p>
+<code>OrganisationService</code>, <code>SocietesControleur</code>, <code>CentresControleur</code>, <code>SallesControleur</code>, <code>CreneauxControleur</code>,
+<code>ReferentielsControleur</code>, <code>ReferentielsLegacyControleur</code> (contexte Organisation), <code>SocieteAdminAccountService</code>,
+<code>DirectionAccountService</code>.</p>
 </blockquote>
 <h2>3.1 Société (agrégat racine)</h2>
 <div class="rule" id="RG-ORG-001"><div class="rid">RG-ORG-001</div><div class="rtxt"><p>Une société chapeaute un ou plusieurs centres. Elle ne peut être créée <strong>qu&#39;avec son premier centre</strong>
@@ -604,6 +605,14 @@ deux sociétés est <strong>atomique</strong> (tous deux enregistrés ou aucun).
 <div class="rule" id="RG-ORG-015"><div class="rid">RG-ORG-015</div><div class="rtxt"><p>Un centre inactif ne peut plus être sélectionné à la connexion (RG-SEC-010/013) mais ses données sont
 conservées.</p>
 </div></div>
+<div class="rule" id="RG-ORG-016"><div class="rid">RG-ORG-016</div><div class="rtxt"><p>Les écritures qui touchent à l&#39;ensemble des centres d&#39;une société (désactiver, transférer) prennent le
+<strong>verrou de la société</strong> (et, pour un transfert, celui de la société cible, dans l&#39;ordre des identifiants) dans une
+transaction, avant de relire les centres actifs : deux désactivations simultanées ne peuvent pas laisser la société sans
+centre actif. Un verrou non obtenu dans les 5 secondes répond <strong>409</strong> <code>ORGANISATION_ECRITURE_CONCURRENTE</code> (à réessayer).</p>
+</div></div>
+<div class="rule" id="RG-ORG-017"><div class="rid">RG-ORG-017</div><div class="rtxt"><p>L&#39;ordre des centres d&#39;une société dans les réponses n&#39;est pas garanti (le legacy ne l&#39;était pas non plus,
+KB-ORG-04).</p>
+</div></div>
 <h2>3.3 Coordonnées (société et centre)</h2>
 <div class="rule" id="RG-ORG-020"><div class="rid">RG-ORG-020</div><div class="rtxt"><p>Tous les champs sont facultatifs et nettoyés (vide = absent) : adresse (250), ville (100), wilaya
 (100),
@@ -627,6 +636,35 @@ avec la liste des violations ; l&#39;envoi accepté est journalisé.</p>
 <div class="rule" id="RG-ORG-031"><div class="rid">RG-ORG-031</div><div class="rtxt"><p>Le logo est servi sans mise en cache (<code>no-store</code>, <code>nosniff</code>, CSP <code>default-src &#39;none&#39;</code>) ; il est
 imprimé dans
 l&#39;en-tête des documents. Sa suppression est possible à tout moment.</p>
+</div></div>
+<h2>3.4 bis Droits d&#39;accès, garde de centre et référentiels du centre (décisions du 2026-11-02)</h2>
+<div class="rule" id="RG-ORG-060"><div class="rid">RG-ORG-060</div><div class="rtxt"><p>Sociétés et centres (<code>/api/v1/societes</code>, <code>/api/v1/organisation/societes</code>, <code>/api/v1/organisation/centres</code>) :
+réservés au SUPERADMIN. Le SUPERADMIN reste <strong>limité au legacy</strong> : sous <code>/api/v1/organisation</code>, il n&#39;atteint que <code>societes</code>
+et <code>centres</code> ; salles, créneaux, médecins, machines, protocoles et référentiels lui répondent 403 <code>ROLE_SCOPE</code>, comme
+<code>/api/v1/referentials</code> et <code>/api/v1/admin/referentials</code>.</p>
+</div></div>
+<div class="rule" id="RG-ORG-061"><div class="rid">RG-ORG-061</div><div class="rtxt"><p>Écritures sur les salles (ouvrir, fermer), les créneaux, les médecins, les machines et les protocoles
+(<code>/api/v1/organisation/*</code>) : administrateur du centre (ADMIN) ; lectures : tout utilisateur authentifié. Le centre est celui
+de la <strong>session</strong> : un centre demandé différent, ou une session sans centre, répond 403. Le refus de droits est donné
+<strong>avant</strong> la lecture du corps (403 avant 400 ou 415). Modifier ou désactiver un élément d&#39;un autre centre répond 404.</p>
+</div></div>
+<div class="rule" id="RG-ORG-062"><div class="rid">RG-ORG-062</div><div class="rtxt"><p><code>GET /api/v1/referentials/*</code> : le centre demandé doit être celui de la session (403 sinon ; un compte
+ADMIN sans centre n&#39;y a plus accès). Le legacy croyait le centre demandé par le client (KB-ORG-05). Les salles et les
+positions sont triées par code, les médecins par nom (le legacy ne triait pas).</p>
+</div></div>
+<div class="rule" id="RG-ORG-063"><div class="rid">RG-ORG-063</div><div class="rtxt"><p>Un identifiant ou un paramètre UUID illisible répond <strong>400</strong> (le legacy répondait 500, KB-ORG-02). Un corps
+absent ou illisible sur la création d&#39;une société répond encore 500 comme le legacy (KB-ORG-01).</p>
+</div></div>
+<div class="rule" id="RG-ORG-064"><div class="rid">RG-ORG-064</div><div class="rtxt"><p>Un médecin n&#39;est <strong>jamais supprimé</strong> : il est désactivé (<code>actif = faux</code>) et disparaît des listes de
+sélection, dans l&#39;API d&#39;Organisation comme dans l&#39;administration générique des référentiels, car il est référencé par les
+patients et les prescriptions. L&#39;administration générique refuse toujours la désactivation d&#39;un médecin encore référencé
+(<code>REFERENTIAL_IN_USE</code>).</p>
+</div></div>
+<div class="rule" id="RG-ORG-065"><div class="rid">RG-ORG-065</div><div class="rtxt"><p>Fermer une salle est un indicateur du contexte Organisation : il n&#39;a <strong>aucun effet</strong> sur la planification,
+qui lit toutes les salles (KB-ORG-07).</p>
+</div></div>
+<div class="rule" id="RG-ORG-066"><div class="rid">RG-ORG-066</div><div class="rtxt"><p>Les modifications de salles, de créneaux et de médecins invalident les caches de référentiels du centre
+(salles, positions, médecins, générateurs) <strong>après</strong> l&#39;enregistrement de la transaction.</p>
 </div></div>
 <h2>3.5 Administrateurs de centre (créés par le propriétaire)</h2>
 <div class="rule" id="RG-ORG-040"><div class="rid">RG-ORG-040</div><div class="rtxt"><p>Seul le SUPERADMIN crée, modifie, active/désactive les comptes <code>ADMIN</code> d&#39;une société et réinitialise

@@ -79,7 +79,7 @@ class AdministrationDesReferentielsCharacterizationIntegrationTest extends Organ
     }
 
     /**
-     * Décision de l'utilisateur (2026-11-03) : un médecin est désactivé, jamais supprimé (référencé par les patients). Le legacy
+     * Décision de l'utilisateur (2026-11-02) : un médecin est désactivé, jamais supprimé (référencé par les patients). Le legacy
      * supprimait la ligne : son comportement est archivé dans {@code _ecarts-legacy}.
      */
     @Test

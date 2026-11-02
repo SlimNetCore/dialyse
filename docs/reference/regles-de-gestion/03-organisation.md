@@ -2,8 +2,9 @@
 
 > Préfixe `RG-ORG`. Le propriétaire de la plateforme (SUPERADMIN) administre les sociétés, leurs centres, les comptes
 > administrateur de centre et les comptes direction. Sources : `Societe`, `Centre`, `Coordonnees`,
-> `SocieteDomainService`,
-> `SocieteRestController`, `SocieteAdminAccountService`, `DirectionAccountService`, `SocieteLogoService`.
+> `OrganisationService`, `SocietesControleur`, `CentresControleur`, `SallesControleur`, `CreneauxControleur`,
+> `ReferentielsControleur`, `ReferentielsLegacyControleur` (contexte Organisation), `SocieteAdminAccountService`,
+> `DirectionAccountService`.
 
 ## 3.1 Société (agrégat racine)
 
@@ -42,6 +43,13 @@
 - **RG-ORG-015** — Un centre inactif ne peut plus être sélectionné à la connexion (RG-SEC-010/013) mais ses données sont
   conservées.
 
+- **RG-ORG-016** — Les écritures qui touchent à l'ensemble des centres d'une société (désactiver, transférer) prennent le
+  **verrou de la société** (et, pour un transfert, celui de la société cible, dans l'ordre des identifiants) dans une
+  transaction, avant de relire les centres actifs : deux désactivations simultanées ne peuvent pas laisser la société sans
+  centre actif. Un verrou non obtenu dans les 5 secondes répond **409** `ORGANISATION_ECRITURE_CONCURRENTE` (à réessayer).
+- **RG-ORG-017** — L'ordre des centres d'une société dans les réponses n'est pas garanti (le legacy ne l'était pas non plus,
+  KB-ORG-04).
+
 ## 3.3 Coordonnées (société et centre)
 
 - **RG-ORG-020** — Tous les champs sont facultatifs et nettoyés (vide = absent) : adresse (250), ville (100), wilaya
@@ -64,6 +72,30 @@
 - **RG-ORG-031** — Le logo est servi sans mise en cache (`no-store`, `nosniff`, CSP `default-src 'none'`) ; il est
   imprimé dans
   l'en-tête des documents. Sa suppression est possible à tout moment.
+
+## 3.4 bis Droits d'accès, garde de centre et référentiels du centre (décisions du 2026-11-02)
+
+- **RG-ORG-060** — Sociétés et centres (`/api/v1/societes`, `/api/v1/organisation/societes`, `/api/v1/organisation/centres`) :
+  réservés au SUPERADMIN. Le SUPERADMIN reste **limité au legacy** : sous `/api/v1/organisation`, il n'atteint que `societes`
+  et `centres` ; salles, créneaux, médecins, machines, protocoles et référentiels lui répondent 403 `ROLE_SCOPE`, comme
+  `/api/v1/referentials` et `/api/v1/admin/referentials`.
+- **RG-ORG-061** — Écritures sur les salles (ouvrir, fermer), les créneaux, les médecins, les machines et les protocoles
+  (`/api/v1/organisation/*`) : administrateur du centre (ADMIN) ; lectures : tout utilisateur authentifié. Le centre est celui
+  de la **session** : un centre demandé différent, ou une session sans centre, répond 403. Le refus de droits est donné
+  **avant** la lecture du corps (403 avant 400 ou 415). Modifier ou désactiver un élément d'un autre centre répond 404.
+- **RG-ORG-062** — `GET /api/v1/referentials/*` : le centre demandé doit être celui de la session (403 sinon ; un compte
+  ADMIN sans centre n'y a plus accès). Le legacy croyait le centre demandé par le client (KB-ORG-05). Les salles et les
+  positions sont triées par code, les médecins par nom (le legacy ne triait pas).
+- **RG-ORG-063** — Un identifiant ou un paramètre UUID illisible répond **400** (le legacy répondait 500, KB-ORG-02). Un corps
+  absent ou illisible sur la création d'une société répond encore 500 comme le legacy (KB-ORG-01).
+- **RG-ORG-064** — Un médecin n'est **jamais supprimé** : il est désactivé (`actif = faux`) et disparaît des listes de
+  sélection, dans l'API d'Organisation comme dans l'administration générique des référentiels, car il est référencé par les
+  patients et les prescriptions. L'administration générique refuse toujours la désactivation d'un médecin encore référencé
+  (`REFERENTIAL_IN_USE`).
+- **RG-ORG-065** — Fermer une salle est un indicateur du contexte Organisation : il n'a **aucun effet** sur la planification,
+  qui lit toutes les salles (KB-ORG-07).
+- **RG-ORG-066** — Les modifications de salles, de créneaux et de médecins invalident les caches de référentiels du centre
+  (salles, positions, médecins, générateurs) **après** l'enregistrement de la transaction.
 
 ## 3.5 Administrateurs de centre (créés par le propriétaire)
 

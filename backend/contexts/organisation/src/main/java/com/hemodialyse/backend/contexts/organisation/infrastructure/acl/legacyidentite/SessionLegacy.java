@@ -15,6 +15,11 @@ import java.util.UUID;
  * {@code CenterAccessGuard}. Le principal authentifié n'est pas visible du module (aucune dépendance Maven vers la
  * plateforme) : seul son accesseur {@code getCenterId()} (chaîne UUID) est lu par réflexion. Le centre vient de la
  * session, jamais seulement du client.
+ * <p>
+ * Le SUPERADMIN est transverse aux centres, comme dans le legacy ; mais le {@code RoleScopeFilter} de la plateforme ne lui ouvre,
+ * sous {@code /api/v1/organisation}, que {@code societes} et {@code centres} (décision du 2026-11-02) : seule la lecture
+ * {@code /centres/{id}/parametres} passe donc par cette branche ; les routes de salles, créneaux et référentiels lui répondent
+ * 403 {@code ROLE_SCOPE} avant d'atteindre ce code.
  */
 public class SessionLegacy implements SessionCourante {
 
