@@ -94,7 +94,7 @@ public class PatientsJdbc implements PatientRepository {
         Object[] communs = {i.civilite(), i.nom(), i.prenom(), i.sexe(), i.groupeSanguin(), i.nombreEnfants(),
                 date(f.dateAdmission()), s.enSommeil(), date(i.dateNaissance()), i.lieuNaissance(), i.situationFamiliale(),
                 k.profession(), k.adresse(), k.telPersonnel(), k.telMobile(), k.telBureau(), k.email(),
-                c.numeroAssurance().valeur(), patient.vacancier() ? "VACANCIER" : "NON_VACANCIER", f.etat().name(),
+                c.numeroAssurance().valeur(), patient.vacancier() ? "VACANCIER" : "NON_VACANCIER", patient.etatBrut(),
                 date(f.dateEvenement()), c.qualiteAssure(), s.observation(), s.sousKt(), s.epoActive(), date(s.epoDate()),
                 s.ferActif(), date(s.ferDate()), s.photoBase64(), c.centrePayeurId(), a.medecinTraitantId(),
                 a.transporteurAllerId(), a.transporteurRetourId(), a.categorieTransportId(), as.nom(), as.prenom(),
@@ -127,7 +127,9 @@ public class PatientsJdbc implements PatientRepository {
     }
 
     private static final RowMapper<Patient> LIGNE = (rs, n) -> {
-        EtatDuPatient etat = etatLu(rs.getString("etat_patient"));
+        String etatEnBase = rs.getString("etat_patient");
+        EtatDuPatient etat = etatLu(etatEnBase);
+        String etatInconnu = etatEnBase != null && etat == null ? etatEnBase : null;
         Identite identite = new Identite(rs.getString("civilite"), rs.getString("nom"), rs.getString("prenom"),
                 rs.getString("sexe"), rs.getString("groupe_sanguin"), entier(rs, "nombre_enfants"), jour(rs, "date_naissance"),
                 rs.getString("lieu_naissance"), rs.getString("situation_familiale"));
@@ -158,14 +160,14 @@ public class PatientsJdbc implements PatientRepository {
         OffsetDateTime cree = rs.getObject("created_at", OffsetDateTime.class);
         return Patient.reconstituer(new PatientId(rs.getObject("id", UUID.class)), rs.getString("code_patient"),
                 new CentreId(rs.getObject("center_id", UUID.class)), "VACANCIER".equals(rs.getString("type_patient")),
-                cree == null ? null : cree.toInstant(), fiche);
+                cree == null ? null : cree.toInstant(), fiche, etatInconnu);
     };
 
-    /** Un état hors de la liste fermée (donnée ancienne) se relit comme nul, donc permanent. */
+    /** Nul pour un état nul ou hors de la liste fermée (la valeur brute est alors conservée par le patient). */
     private static EtatDuPatient etatLu(String brut) {
         if (brut == null) return null;
         try {
-            return EtatDuPatient.valueOf(brut.trim());
+            return EtatDuPatient.valueOf(brut);
         } catch (IllegalArgumentException e) {
             return null;
         }

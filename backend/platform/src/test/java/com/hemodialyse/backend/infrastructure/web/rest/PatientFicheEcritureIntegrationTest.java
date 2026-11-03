@@ -60,14 +60,9 @@ class PatientFicheEcritureIntegrationTest {
     @Test
     void every_other_profile_passes_the_security_check() throws Exception {
         for (String[] roles : new String[][]{{"ADMIN"}, {"SECRETAIRE"}, {"INFIRMIER"}, {"MEDECIN", "SECRETAIRE"},
-                {"MEDECIN", "ADMIN"}}) {
+                {"MEDECIN", "ADMIN"}, {"COMPTABLE"}, {"PHARMACIEN"}}) {
+            // droits du legacy restaurés (revue M1) : tout profil sauf le médecin « seul » passe la sécurité des écritures d'assuré
             assertNotEquals(403, statutAffectation(roles), String.join("+", roles));
         }
-    }
-
-    /** Un rôle inconnu n'écrit plus la fiche (liste blanche de rôles, décision du 02/11, KB-PAT-07). */
-    @Test
-    void an_unknown_profile_is_refused() throws Exception {
-        org.junit.jupiter.api.Assertions.assertEquals(403, statutAffectation("COMPTABLE"));
     }
 }

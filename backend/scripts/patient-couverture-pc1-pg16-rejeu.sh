@@ -2,7 +2,9 @@
 # Rejeu de la slice PC1 (patient-couverture : identite et mouvements) sur un PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en
 # sortie. Chaine Flyway V1..Vn (psql), verification que TOUTES les colonnes que lisent ou ecrivent les adapters JDBC du module existent dans
 # le schema reel (dont patients.date_evenement_etat, pas date_sortie), requetes SELECT-only de verifications-production.md (section Slice PC1)
-# executees sur le schema reel, puis contrat PostgreSQL des patients et des mouvements (memes tests que H2 et que le double en memoire).
+# executees sur le schema reel, puis contrat PostgreSQL des patients et des mouvements (memes tests que H2 et que le double en memoire), dont
+# la CONCURRENCE REELLE : deux admissions simultanees du meme numero (une seule passe, 422 ou 409 pour l'autre) et modification de fiche contre
+# un traitement qui prend le centre puis la fiche (aucun interblocage) ; verrou du centre pris en tete de toute ecriture de fiche.
 # A lancer en arriere-plan avec un log : backend/scripts/patient-couverture-pc1-pg16-rejeu.sh 55463 > rejeu-patient-couverture-pc1.log 2>&1 &
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Code de sortie : 0 si tout est vert, 1 sinon.
 set -uo pipefail

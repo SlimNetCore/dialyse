@@ -20,10 +20,12 @@ public class AdmettreUnPatient {
     private final MouvementsDesPatients mouvements;
     private final CouvertureDeLaFiche couverture;
     private final UniteDeTravail unite;
+    private final VerrouDuCentre verrou;
 
     public AdmettreUnPatient(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                              PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                             CouvertureDeLaFiche couverture, UniteDeTravail unite) {
+                             CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
+        this.verrou = verrou;
         this.session = session;
         this.horloge = horloge;
         this.identifiants = identifiants;
@@ -37,6 +39,8 @@ public class AdmettreUnPatient {
     public PatientEnregistre executer(SaisieDeLaFiche saisie) {
         CentreId centre = session.centre(saisie.centreDemande());
         return unite.executer(() -> {
+            // verrou du centre EN TÊTE (ordre global des verrous, unicité du numéro), même sans place
+            verrou.prendre(centre);
             var fiche = saisie.fiche();
             place.verifier(centre, null, fiche.affectation(), fiche.etat(), fiche.dateEvenement());
             Patient.verifierNumeroLibre(patients.trouverLeDetenteurDuNumero(centre, fiche.couverture().numeroAssurance()),

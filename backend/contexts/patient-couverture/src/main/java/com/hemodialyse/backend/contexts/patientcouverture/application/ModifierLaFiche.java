@@ -25,10 +25,12 @@ public class ModifierLaFiche {
     private final MouvementsDesPatients mouvements;
     private final CouvertureDeLaFiche couverture;
     private final UniteDeTravail unite;
+    private final VerrouDuCentre verrou;
 
     public ModifierLaFiche(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                            PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                           CouvertureDeLaFiche couverture, UniteDeTravail unite) {
+                           CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
+        this.verrou = verrou;
         this.session = session;
         this.horloge = horloge;
         this.identifiants = identifiants;
@@ -43,6 +45,8 @@ public class ModifierLaFiche {
         CentreId centre = session.centre(saisie.centreDemande());
         PatientId id = new PatientId(patientDemande);
         return unite.executer(() -> {
+            // verrou du centre EN TÊTE (avant la ligne de la fiche : ordre global centre, fiches), même sans place
+            verrou.prendre(centre);
             var fiche = saisie.fiche();
             place.verifier(centre, id, fiche.affectation(), fiche.etat(), fiche.dateEvenement());
             Patient patient = patients.trouver(centre, id).orElseThrow(PatientIntrouvable::new);

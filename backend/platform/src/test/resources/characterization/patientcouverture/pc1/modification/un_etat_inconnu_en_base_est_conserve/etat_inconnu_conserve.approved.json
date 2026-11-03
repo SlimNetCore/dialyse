@@ -1,0 +1,10 @@
+{
+  "PUT avec un état valide sur BIDON" : "200",
+  "PUT avec une place sur 'permanent'" : "422 PATIENT_ETAT_INCONNU : L'état enregistré du patient (permanent) est inconnu : corriger l'état avant de lui donner une place",
+  "PUT sans état sur BIDON" : "200",
+  "fiche rendue" : "BIDON",
+  "salle en base après la tentative" : "null",
+  "état en base après" : "BIDON",
+  "état en base après correction" : "GUERRI",
+  "état en base après la tentative" : "permanent"
+}

@@ -83,6 +83,37 @@ class ModificationEtEtatsDeLaFichePatientCharacterizationIntegrationTest extends
 
     // ------------------------------------------------------------------ états et mouvements
 
+    /**
+     * Revue M4, scénario NEUF : un état non nul hors de la liste fermée est rendu tel quel, n'est jamais réécrit par un {@code PUT}
+     * sans état, et le patient n'est pas plaçable (422 {@code PATIENT_ETAT_INCONNU}) tant que l'état n'est pas corrigé.
+     */
+    @Test
+    void un_etat_inconnu_en_base_est_conserve_et_le_patient_n_est_pas_placable() throws Exception {
+        decorDePlacement();
+        joursOuvertsDuCentre(CENTRE_A, TOUS_LES_JOURS);
+        Map<String, Object> m = new LinkedHashMap<>();
+        UUID a = patientSansPlace("U1");
+        etatEnBase(a, "BIDON", null);
+        m.put("PUT sans état sur BIDON", refus(modifier(a, enEtat("U1", null, null), adminA())));
+        m.put("état en base après", jdbc.queryForObject("SELECT etat_patient FROM patients WHERE id = ?", String.class, a));
+        m.put("fiche rendue", corps(lireLaFiche(a, CENTRE_A, adminA())).path("etatPatient").asString());
+        UUID b = patientSansPlace("U2");
+        etatEnBase(b, "permanent", null);
+        Map<String, Object> placee = enEtat("U2", null, null);
+        placee.put("salleId", salle1.toString());
+        placee.put("positionId", matin.toString());
+        placee.put("generateurId", g1a.toString());
+        placee.put("jourLundi", true);
+        m.put("PUT avec une place sur 'permanent'", refus(modifier(b, placee, adminA())));
+        m.put("état en base après la tentative", jdbc.queryForObject("SELECT etat_patient FROM patients WHERE id = ?", String.class, b));
+        m.put("salle en base après la tentative", String.valueOf(jdbc.queryForObject("SELECT salle_id FROM patients WHERE id = ?", UUID.class, b)));
+        UUID c = patientSansPlace("U3");
+        etatEnBase(c, "BIDON", null);
+        m.put("PUT avec un état valide sur BIDON", refus(modifier(c, enEtat("U3", "GUERRI", 2), adminA())));
+        m.put("état en base après correction", jdbc.queryForObject("SELECT etat_patient FROM patients WHERE id = ?", String.class, c));
+        arbre("etat_inconnu_conserve", m);
+    }
+
     @Test
     void chaque_changement_d_etat_ecrit_le_mouvement_de_son_type_avec_l_etat_precedent_et_la_date_d_effet() throws Exception {
         Object[][] cas = {
@@ -175,6 +206,9 @@ class ModificationEtEtatsDeLaFichePatientCharacterizationIntegrationTest extends
 
     @Test
     void deux_modifications_simultanees_de_la_meme_fiche_sont_acceptees_et_la_derniere_ecriture_gagne() throws Exception {
+        // Le verrou du centre est pris en tête de toute écriture (revue M3). La ligne de paramètres du centre existe en production ;
+        // sa toute première création concurrente est une autre règle (la perdante reçoit 409, ADR 0059) : on la pose ici.
+        joursOuvertsDuCentre(CENTRE_A, TOUS_LES_JOURS);
         UUID id = patientSansPlace("C1");
         Map<String, Object> a = ficheDuPatient("C1");
         a.put("adresse", "Adresse A");

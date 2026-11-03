@@ -1,13 +1,16 @@
 {
   "ADMIN" : "200",
   "ADMIN sans centre" : "403 ACCESS_DENIED",
+  "DIRECTEUR_ADMINISTRATIF" : "200",
   "DIRECTION" : "403 ROLE_SCOPE",
   "INFIRMIER seul" : "200",
   "MEDECIN + INFIRMIER" : "200",
   "MEDECIN seul" : "403 ACCESS_DENIED",
+  "PHARMACIEN" : "200",
   "SECRETAIRE" : "200",
   "SUPERADMIN" : "403 ROLE_SCOPE",
   "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE",
-  "aucun role" : "403 ACCESS_DENIED",
-  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED"
+  "aucun role" : "200",
+  "role inconnu (COMPTABLE)" : "200",
+  "role personnalise (CHEF_DE_SERVICE)" : "200"
 }

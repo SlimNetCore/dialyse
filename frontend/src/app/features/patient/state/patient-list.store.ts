@@ -8,6 +8,12 @@ import {createPagedListState, PagedListState} from '../../../core/state/paged-li
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 
+/**
+ * Taille de page maximale acceptée par `POST /api/v1/patients/search` : la recherche refuse une taille hors de 1 à 100 (400, PC1,
+ * RG-PAT-020). Le mode `local` charge donc tous les patients par pages de 100.
+ */
+export const TAILLE_DE_PAGE_MAXIMALE = 100;
+
 /** Shared row mapping between `loadPage` (remote) and `loadAllPatients` (local test mode). */
 function mapPatientRow(p: any): any {
   return {
@@ -159,7 +165,7 @@ export const PatientListStore = signalStore(
           activeUserId: userId
         })),
         switchMap(({centerId, userId}) => {
-          const pageSize = 200;
+          const pageSize = TAILLE_DE_PAGE_MAXIMALE;
           const fetchPage = (page: number) => api.listPatients(centerId, userId, {page, size: pageSize});
 
           return fetchPage(0).pipe(

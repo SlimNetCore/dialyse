@@ -40,9 +40,10 @@ import java.util.UUID;
 
 /**
  * Adapter entrant HTTP de la fiche du patient (slice PC1) : MÊMES URLs que le legacy ({@code /api/v1/patients/**}, noms des
- * variables de chemin compris : le journal d'audit en dépend) et même JSON. Lecture : ADMIN, SECRETAIRE, MEDECIN, INFIRMIER
- * (rôle inconnu ou absent : 403). Écriture : ADMIN, SECRETAIRE, INFIRMIER (le médecin « seul » consulte sans modifier). Le corps
- * est lu APRÈS l'autorisation (403 avant 400). Garde de centre sur toute lecture et toute écriture.
+ * variables de chemin compris : le journal d'audit en dépend) et même JSON. Droits du legacy inchangés : lecture ouverte à tout
+ * utilisateur authentifié ; création et modification de la fiche : ADMIN, SECRETAIRE, INFIRMIER ; écritures d'assuré : tout sauf
+ * le médecin « seul ». Le corps est lu APRÈS l'autorisation (403 avant 400). Garde de centre sur toute lecture et toute écriture
+ * (la seule restriction nouvelle : une session sans centre est refusée).
  * <p>
  * Écarts décidés (02/11/2026) : entrées illisibles ou manquantes 400 {@code BAD_REQUEST} (KB-PAT-01, 02), patient inconnu 404
  * (KB-PAT-18), garde de centre des lectures et des écritures d'assuré (KB-PAT-06, 07), états en liste fermée 422 (KB-PAT-04),
@@ -53,8 +54,14 @@ import java.util.UUID;
 @RequestMapping("/api/v1/patients")
 public class PatientsControleur {
 
-    private static final String LECTURE = "hasAnyRole('ADMIN','SECRETAIRE','MEDECIN','INFIRMIER')";
+    /**
+     * Droits du LEGACY restaurés à l'identique (décision du 2026-11-03, revue M1) : les lectures n'ont aucun
+     * {@code @PreAuthorize} (tout utilisateur authentifié, avec la garde de centre) ; la création et la modification de la fiche
+     * sont en liste blanche de rôles ; les écritures d'assuré refusent le médecin « seul » mais laissent passer les autres
+     * profils, rôles personnalisés compris (PHARMACIEN, DIRECTEUR_ADMINISTRATIF…).
+     */
     private static final String ECRITURE = "hasAnyRole('ADMIN','SECRETAIRE','INFIRMIER')";
+    private static final String ECRITURE_ASSURE = "!hasRole('MEDECIN') or hasAnyRole('ADMIN','SECRETAIRE','INFIRMIER')";
     private static final String CACHES = "patient.list.summary";
 
     private final AdmettreUnPatient admettre;
@@ -117,7 +124,6 @@ public class PatientsControleur {
 
     @SuppressWarnings("unused")
     @GetMapping("/{id}")
-    @PreAuthorize(LECTURE)
     public ResponseEntity<FicheReponse> fiche(@PathVariable UUID id, @RequestParam UUID centerId,
                                               @RequestParam(required = false) String userId) {
         return ResponseEntity.ok(FicheReponse.depuis(consulter.executer(centerId, id)));
@@ -132,7 +138,6 @@ public class PatientsControleur {
     }
 
     @PostMapping("/search")
-    @PreAuthorize(LECTURE)
     public ResponseEntity<PageDePatients> rechercher(@RequestBody(required = false) byte[] corps, HttpServletRequest requete)
             throws HttpMediaTypeNotSupportedException {
         RechercheDemande d = CorpsJson.lire(lecteur, requete, corps, RechercheDemande.class);
@@ -145,14 +150,12 @@ public class PatientsControleur {
     }
 
     @GetMapping("/summary")
-    @PreAuthorize(LECTURE)
     public ResponseEntity<ResumeDesPatients> resume(@RequestParam UUID centerId, @RequestParam(required = false) String month) {
         YearMonth mois = effectif.mois(centerId, lireLeMois(month));
         return ResponseEntity.ok(resumes.resume(centerId, mois));
     }
 
     @GetMapping("/summary/details")
-    @PreAuthorize(LECTURE)
     public ResponseEntity<ResumeDesPatients.Detail> detail(@RequestParam UUID centerId,
                                                            @RequestParam(required = false) String month) {
         YearMonth mois = effectif.mois(centerId, lireLeMois(month));
@@ -198,7 +201,6 @@ public class PatientsControleur {
     }
 
     @GetMapping("/{id}/assures/history")
-    @PreAuthorize(LECTURE)
     public ResponseEntity<List<HistoriqueReponse>> historiqueDesAssures(@PathVariable UUID id, @RequestParam UUID centerId) {
         var lignes = assures.historique(centerId, id).stream().map(l -> {
             var a = l.affectation();
@@ -211,14 +213,13 @@ public class PatientsControleur {
     }
 
     @GetMapping("/assures")
-    @PreAuthorize(LECTURE)
     public ResponseEntity<List<AssureReponse>> listerLesAssures(@RequestParam UUID centerId,
                                                                 @RequestParam(required = false) String q) {
         return ResponseEntity.ok(assures.lister(centerId, q).stream().map(AssureReponse::de).toList());
     }
 
     @PostMapping("/{id}/assures/{numeroAssurance}/affecter")
-    @PreAuthorize(ECRITURE)
+    @PreAuthorize(ECRITURE_ASSURE)
     public ResponseEntity<AffecteReponse> affecter(@PathVariable UUID id, @PathVariable String numeroAssurance,
                                                    @RequestParam UUID centerId) {
         var affecte = assures.affecter(centerId, id, numeroAssurance);
@@ -228,7 +229,7 @@ public class PatientsControleur {
     }
 
     @PutMapping("/{patientId}/assures/assignments/{assignmentId}")
-    @PreAuthorize(ECRITURE)
+    @PreAuthorize(ECRITURE_ASSURE)
     public ResponseEntity<AffectationModifiee> modifierLAffectation(@PathVariable UUID patientId,
                                                                     @PathVariable UUID assignmentId,
                                                                     @RequestParam UUID centerId,
@@ -241,7 +242,7 @@ public class PatientsControleur {
     }
 
     @PutMapping("/assures/{numeroAssurance}")
-    @PreAuthorize(ECRITURE)
+    @PreAuthorize(ECRITURE_ASSURE)
     public ResponseEntity<AssureReponse> modifierUnAssure(@PathVariable String numeroAssurance, @RequestParam UUID centerId,
                                                           @RequestBody(required = false) byte[] corps, HttpServletRequest requete)
             throws HttpMediaTypeNotSupportedException {

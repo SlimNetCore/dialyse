@@ -1711,9 +1711,9 @@ Le module `contexts/patient-couverture` est de nouveau dans le réacteur (mêmes
 ```sql
 -- 1. Doublons de numéro d'assurance par centre (casse et espaces ignorés : l'unicité est désormais contrôlée à la création ET à la modification). Attendu : 0 ligne ; sinon corriger à la main avant la bascule. Index proposé SEULEMENT après nettoyage : CREATE UNIQUE INDEX ... ON patients (center_id, UPPER(TRIM(numero_assurance))) (non créé).
 SELECT center_id, UPPER(TRIM(numero_assurance)), count(*) FROM patients GROUP BY 1, 2 HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
--- 2. États hors de la liste fermée (la lecture les traite comme PERMANENT ; l'écriture les refuse en 422).
+-- 2. États hors de la liste fermée (rendus tels quels et jamais réécrits par un PUT sans état ; le patient n'est pas plaçable, 422 PATIENT_ETAT_INCONNU ; la saisie d'un tel état est refusée en 422). À corriger à la main AVANT la mise en production si le volume n'est pas nul (une sortie mal orthographiée ne libère plus de place).
 SELECT center_id, etat_patient, count(*) FROM patients WHERE etat_patient IS NOT NULL AND etat_patient NOT IN ('PERMANENT','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER','TRANSFERE','DECEDE','GREFFE','GUERRI') GROUP BY 1, 2 ORDER BY 3 DESC;
--- 3. Sorties et séjours limités sans date d'évènement (la saisie exige désormais la date aussi pour un séjour limité).
+-- 3. Sorties et séjours limités sans date d'évènement (la saisie exige désormais la date aussi pour un séjour limité : ces fiches ne peuvent plus être enregistrées, 422 à chaque PUT, tant qu'on ne les corrige pas ; idem pour la requête 4 : annoncer le volume aux secrétaires avant la mise en production).
 SELECT center_id, etat_patient, count(*) FROM patients WHERE etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER') AND date_evenement_etat IS NULL GROUP BY 1, 2 ORDER BY 3 DESC;
 -- 4. Naissance future ou postérieure à l'admission (désormais refusée en 422 à la saisie).
 SELECT center_id, count(*) FROM patients WHERE date_naissance > current_date OR date_naissance > date_admission GROUP BY 1 ORDER BY 2 DESC;

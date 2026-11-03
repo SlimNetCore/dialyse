@@ -53,7 +53,7 @@ record FicheReponse(Valeur id, Valeur centerId, String codePatient, String civil
         var j = a.jours();
         return new FicheReponse(new Valeur(lue.id().valeur()), new Valeur(lue.centre().valeur()), lue.code(), i.civilite(),
                 i.nom(), i.prenom(), i.sexe(), i.groupeSanguin(), i.nombreEnfants(), i.dateNaissance(), i.lieuNaissance(),
-                i.situationFamiliale(), f.dateAdmission(), s.enSommeil(), f.etat().name(), f.dateEvenement(), k.profession(),
+                i.situationFamiliale(), f.dateAdmission(), s.enSommeil(), lue.etatBrut(), f.dateEvenement(), k.profession(),
                 k.adresse(), k.telPersonnel(), k.telMobile(), k.telBureau(), k.email(), s.sousKt(), s.epoActive(), s.epoDate(),
                 s.ferActif(), s.ferDate(), s.observation(), s.photoBase64(), new ValeurTexte(c.numeroAssurance().valeur()),
                 lue.vacancier() ? "VACANCIER" : "NON_VACANCIER", c.qualiteAssure(), c.centrePayeurId(),

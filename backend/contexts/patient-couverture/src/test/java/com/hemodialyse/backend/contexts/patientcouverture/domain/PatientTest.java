@@ -316,6 +316,45 @@ class PatientTest {
         assertThatThrownBy(() -> Courriel.ou("pas-un-courriel")).isInstanceOf(SaisieInvalide.class).hasMessage("Email invalide");
     }
 
+    // ---- état inconnu (donnée ancienne)
+
+    private Patient patientAEtatInconnu(String brut) {
+        return Patient.reconstituer(new PatientId(ids.get()), "PAT-OLD", CENTRE, false, T0, Fiches.nominale("OLD-2", null, null), brut);
+    }
+
+    @Test
+    void should_conserver_la_valeur_brute_d_un_etat_inconnu_sans_la_lire_permanente() {
+        Patient p = patientAEtatInconnu("BIDON");
+
+        assertThat(p.etatBrut()).isEqualTo("BIDON");
+        p.modifier(Fiches.nominale("OLD-2", null, null), AUJOURDHUI, T0, ids);
+
+        assertThat(p.etatBrut()).as("une saisie sans état laisse l'état enregistré intact").isEqualTo("BIDON");
+        assertThat(p.retirerLesMouvements()).as("pas de type de mouvement pour un état inconnu").isEmpty();
+    }
+
+    @Test
+    void should_refuser_de_placer_un_patient_a_l_etat_inconnu_mais_laisser_sa_place_inchangee() {
+        UUID salle = new UUID(2, 1);
+        Fiche f = Fiches.nominale("OLD-2", null, null);
+        Fiche avecPlace = new Fiche(f.identite(), f.coordonnees(), f.suivi(), f.couverture(),
+                new Affectation(null, salle, null, null, null, null, null, null), f.dateAdmission(), null, null);
+        Patient p = patientAEtatInconnu("permanent");
+
+        refus("PATIENT_ETAT_INCONNU", () -> p.modifier(avecPlace, AUJOURDHUI, T0, ids));
+        assertThat(p.etatBrut()).isEqualTo("permanent");
+    }
+
+    @Test
+    void should_remplacer_l_etat_inconnu_quand_la_saisie_porte_un_etat() {
+        Patient p = patientAEtatInconnu("BIDON");
+
+        p.modifier(Fiches.nominale("OLD-2", EtatDuPatient.GUERRI, ADMISSION.plusDays(3)), AUJOURDHUI, T0, ids);
+
+        assertThat(p.etatBrut()).isEqualTo("GUERRI");
+        assertThat(p.retirerLesMouvements()).hasSize(1);
+    }
+
     // ---- occupation de la place
 
     @Test

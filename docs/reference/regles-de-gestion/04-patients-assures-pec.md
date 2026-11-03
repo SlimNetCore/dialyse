@@ -117,16 +117,23 @@
   contrainte en base : le contrôle se fait sous le verrou du centre ; les doublons existants se relèvent par la requête de
   `verifications-production.md` §41.
 - **RG-PAT-039** — **Garde de centre** : toutes les lectures de la fiche (fiche, recherche, synthèse, détail, historique
-  d'assurés, mouvements) et toutes les écritures d'assuré se font dans le centre du jeton (403 pour un autre centre, une
-  session sans centre, un rôle inconnu ou absent). Lecture : `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` ; écriture :
-  `ADMIN`, `SECRETAIRE`, `INFIRMIER`. Un patient inconnu du centre répond 404 `PATIENT_INTROUVABLE`.
+  d'assurés, mouvements) et toutes les écritures d'assuré se font dans le centre du jeton (403 pour un autre centre ou
+  une session sans centre). **Droits de rôles inchangés par rapport à l'existant** : lecture de la fiche, recherche,
+  synthèses, assurés et historique ouverts à tout utilisateur authentifié ; mouvements : `ADMIN`, `SECRETAIRE`,
+  `MEDECIN`, `INFIRMIER` ; création et modification de la fiche : `ADMIN`, `SECRETAIRE`, `INFIRMIER` ; écritures
+  d'assuré : tout profil sauf le médecin « seul » (rôles personnalisés compris). Un patient inconnu du centre répond
+  404 `PATIENT_INTROUVABLE`.
 - **RG-PAT-040** — **Cohérence des dates** : la date de naissance n'est ni dans le futur
   (`PATIENT_DATE_NAISSANCE_FUTURE`) ni postérieure à la date d'admission (`PATIENT_DATE_NAISSANCE_APRES_ADMISSION`),
   422. Une saisie illisible (corps, date, UUID, booléen, `nombreEnfants`, `month`) répond 400 `BAD_REQUEST`. « Aujourd'hui »
   est le jour du **centre** (fuseau du centre, `app.planification.fuseau-par-defaut`), y compris pour l'affectation d'un
   assuré.
 - **RG-PAT-041** — Une ligne héritée aux colonnes nulles (état, jours, sommeil) se lit et se modifie : l'état nul vaut
-  `PERMANENT`, les indicateurs nuls valent faux.
+  `PERMANENT` (sans mouvement `REPRISE` à l'enregistrement), les indicateurs nuls valent faux, la qualité d'assuré nulle
+  reste nulle. Un état **non nul hors de la liste fermée** est rendu tel quel, jamais réécrit par un enregistrement
+  sans état ; le patient n'est pas plaçable (422 `PATIENT_ETAT_INCONNU`) tant que son état n'est pas corrigé. Le
+  **numéro d'assurance** est contrôlé et enregistré sous le verrou du centre, pris en tête de toute écriture de fiche
+  (RG-PAT-038).
 
 ## 4.2 Liste, recherche, synthèse
 

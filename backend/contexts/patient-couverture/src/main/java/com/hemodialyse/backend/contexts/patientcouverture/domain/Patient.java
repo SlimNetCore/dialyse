@@ -26,6 +26,8 @@ public final class Patient {
     private final boolean vacancier;
     private final Instant creeLe;
     private Fiche fiche;
+    /** Valeur brute d'un état non nul hors de la liste fermée (donnée ancienne), conservée telle quelle ; nulle sinon. */
+    private String etatInconnu;
     private final List<MouvementDuPatient> mouvements = new ArrayList<>();
 
     private Patient(PatientId id, String code, CentreId centre, boolean vacancier, Instant creeLe, Fiche fiche) {
@@ -52,8 +54,20 @@ public final class Patient {
     /** Relit un patient enregistré ; un état nul d'une ligne héritée vaut {@code PERMANENT} (décision du 02/11, KB-PAT-09). */
     public static Patient reconstituer(PatientId id, String code, CentreId centre, boolean vacancier, Instant creeLe,
                                        Fiche enregistree) {
+        return reconstituer(id, code, centre, vacancier, creeLe, enregistree, null);
+    }
+
+    /**
+     * @param etatInconnu valeur brute d'un état non nul hors de la liste fermée (ex. {@code BIDON}) : elle n'est jamais lue
+     *                    comme {@code PERMANENT} ni réécrite tant que la saisie ne porte pas d'état ; le patient reste non
+     *                    plaçable (422 {@code PATIENT_ETAT_INCONNU})
+     */
+    public static Patient reconstituer(PatientId id, String code, CentreId centre, boolean vacancier, Instant creeLe,
+                                       Fiche enregistree, String etatInconnu) {
         EtatDuPatient etat = enregistree.etat() == null ? EtatDuPatient.PERMANENT : enregistree.etat();
-        return new Patient(id, code, centre, vacancier, creeLe, enregistree.avecEtat(etat));
+        Patient p = new Patient(id, code, centre, vacancier, creeLe, enregistree.avecEtat(etat));
+        p.etatInconnu = etatInconnu;
+        return p;
     }
 
     /**
@@ -67,11 +81,18 @@ public final class Patient {
         EtatDuPatient apres = saisie.etat() == null ? avant : saisie.etat();
         Fiche nouvelle = saisie.avecEtat(apres);
         verifier(nouvelle, aujourdhui);
+        boolean inconnuConserve = etatInconnu != null && saisie.etat() == null;
+        if (inconnuConserve && !nouvelle.affectation().memePlaceQue(fiche.affectation())) {
+            throw new RegleDePatientViolee("PATIENT_ETAT_INCONNU",
+                    "L'état enregistré du patient (" + etatInconnu + ") est inconnu : corriger l'état avant de lui donner une place");
+        }
         nouvelle = aligner(nouvelle);
         this.fiche = nouvelle;
+        if (saisie.etat() != null) etatInconnu = null;
         boolean etatChange = avant != apres;
         boolean dateChange = !java.util.Objects.equals(dateAvant, nouvelle.dateEvenement());
-        if (etatChange || (dateChange && !apres.sortie())) {
+        // un état inconnu conservé n'a pas de type de mouvement : aucun mouvement tant que l'état n'est pas corrigé
+        if (!inconnuConserve && (etatChange || (dateChange && !apres.sortie()))) {
             LocalDate dateEffet = nouvelle.dateEvenement() != null ? nouvelle.dateEvenement() : aujourdhui;
             tracer(identifiants, apres.mouvement(), dateEffet, avant, maintenant);
         }
@@ -185,6 +206,11 @@ public final class Patient {
 
     public EtatDuPatient etat() {
         return fiche.etat();
+    }
+
+    /** L'état tel qu'enregistré : la valeur brute d'un état inconnu, sinon le nom de l'état. */
+    public String etatBrut() {
+        return etatInconnu != null ? etatInconnu : fiche.etat().name();
     }
 
     /** Dernier jour d'occupation de la place selon l'état et la date d'évènement (voir {@link EtatDuPatient}). */

@@ -46,6 +46,6 @@ public class ConsulterLaFiche {
         UUID generateur = fiche.affectation().generateurId();
         var decrit = generateur == null ? null : generateurs.trouver(centre, generateur).orElse(null);
         return new FicheDuPatient(patient.id(), patient.centre(), patient.code(), patient.vacancier(), patient.creeLe(), fiche,
-                decrit);
+                decrit, patient.etatBrut());
     }
 }

@@ -17,6 +17,9 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.PlaceDeLaF
 import com.hemodialyse.backend.contexts.patientcouverture.application.RechercherLesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.application.SessionCourante;
 import com.hemodialyse.backend.contexts.patientcouverture.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.patientcouverture.application.VerrouDuCentre;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.planification.VerrouDuCentreParLaPlanification;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.MouvementsDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientRepository;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
@@ -115,17 +118,22 @@ public class PatientCouvertureConfiguration {
     }
 
     @Bean
+    VerrouDuCentre verrouDuCentreDeLaFiche(VerrouDesPlacesDuCentre verrou) {
+        return new VerrouDuCentreParLaPlanification(verrou);
+    }
+
+    @Bean
     AdmettreUnPatient admettreUnPatient(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                                         PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                                        CouvertureDeLaFiche couverture, UniteDeTravail unite) {
-        return new AdmettreUnPatient(session, horloge, identifiants, place, patients, mouvements, couverture, unite);
+                                        CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
+        return new AdmettreUnPatient(session, horloge, identifiants, place, patients, mouvements, couverture, unite, verrou);
     }
 
     @Bean
     ModifierLaFiche modifierLaFiche(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                                     PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                                    CouvertureDeLaFiche couverture, UniteDeTravail unite) {
-        return new ModifierLaFiche(session, horloge, identifiants, place, patients, mouvements, couverture, unite);
+                                    CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
+        return new ModifierLaFiche(session, horloge, identifiants, place, patients, mouvements, couverture, unite, verrou);
     }
 
     @Bean

@@ -33,6 +33,10 @@ class AutorisationsEtCentresDeLaFichePatientCharacterizationIntegrationTest exte
         for (Map.Entry<String, RequestPostProcessor> p : profils().entrySet()) {
             m.put(p.getKey(), statutEtCode(appel.apply(p.getValue())));
         }
+        // rôles réels hors des onze profils (revue M1 : leurs droits sont ceux du legacy) et rôle personnalisé
+        m.put("PHARMACIEN", statutEtCode(appel.apply(as(CENTRE_A, "PHARMACIEN"))));
+        m.put("DIRECTEUR_ADMINISTRATIF", statutEtCode(appel.apply(as(CENTRE_A, "DIRECTEUR_ADMINISTRATIF"))));
+        m.put("role personnalise (CHEF_DE_SERVICE)", statutEtCode(appel.apply(as(CENTRE_A, "CHEF_DE_SERVICE"))));
         arbre(name, m);
     }
 

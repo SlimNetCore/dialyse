@@ -13,6 +13,12 @@ public record Affectation(UUID medecinTraitantId, UUID salleId, UUID creneauId, 
         jours = jours == null ? Jours.aucun() : jours;
     }
 
+    /** Même place (salle, créneau, générateur, jours) que l'autre affectation ? */
+    public boolean memePlaceQue(Affectation autre) {
+        return java.util.Objects.equals(salleId, autre.salleId) && java.util.Objects.equals(creneauId, autre.creneauId)
+                && java.util.Objects.equals(generateurId, autre.generateurId) && jours.equals(autre.jours);
+    }
+
     public record Jours(boolean dimanche, boolean lundi, boolean mardi, boolean mercredi, boolean jeudi, boolean vendredi,
                         boolean samedi) {
         public static Jours aucun() {

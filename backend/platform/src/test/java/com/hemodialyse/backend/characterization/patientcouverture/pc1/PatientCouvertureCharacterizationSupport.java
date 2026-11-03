@@ -2,7 +2,6 @@ package com.hemodialyse.backend.characterization.patientcouverture.pc1;
 
 import com.hemodialyse.backend.characterization.planification.LiberationCharacterizationSupport;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
@@ -48,8 +47,8 @@ public abstract class PatientCouvertureCharacterizationSupport extends Liberatio
 
     @BeforeEach
     protected void setUpPc1() {
-        // Les routes d'assuré lisent LocalDate.now() (fuseau de la JVM) alors que les alias sont ceux du fuseau du centre.
-        Assumptions.assumeTrue(LocalDate.now().equals(aujourdhui()), "jour de la JVM différent du jour du centre (bascule de fuseau)");
+        // KB-PAT-17 corrigé : toutes les routes (affecterAssure compris) datent au jour du centre (fuseau du centre), comme les alias
+        // des goldens : plus d'hypothèse « jour de la JVM = jour du centre », plus de scénario ignoré en silence autour de minuit.
         nettoyerPc1();
         nommerLesJours();
     }

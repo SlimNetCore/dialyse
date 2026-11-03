@@ -189,6 +189,34 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
         sql("identifiant_d_attestation", "SELECT id FROM attestation_droit WHERE center_id = '" + CENTRE_A + "' AND id = '" + attestation + "'");
     }
 
+    /**
+     * Revue m3 : depuis que la date de fin d'un séjour limité est obligatoire, les scénarios « vacancier avec attestation » et
+     * « occasionnel sans fin d'attestation » ne parvenaient plus à la règle d'attestation. Ce scénario NEUF (aucun golden existant
+     * modifié) les rejoue avec une date de fin de séjour.
+     */
+    @Test
+    void un_sejour_limite_avec_date_de_fin_exerce_la_regle_d_attestation() throws Exception {
+        Map<String, Object> m = new LinkedHashMap<>();
+        Map<String, Object> vacancierSans = ficheMap("VacancierSans", "PC1-SEJ-1");
+        vacancierSans.put("etatPatient", "VACANCIER_LOCAL");
+        vacancierSans.put("dateEvenementEtat", jour(30).toString());
+        vacancierSans.remove("attestationDebut");
+        vacancierSans.remove("attestationFin");
+        m.put("vacancier avec date de fin, sans attestation", refus(doPost(PATIENTS, corps(vacancierSans), adminA())));
+        Map<String, Object> vacancierAvec = ficheMap("VacancierAvec", "PC1-SEJ-2");
+        vacancierAvec.put("etatPatient", "VACANCIER_ETRANGER");
+        vacancierAvec.put("dateEvenementEtat", jour(30).toString());
+        m.put("vacancier avec date de fin, avec attestation", refus(doPost(PATIENTS, corps(vacancierAvec), adminA())));
+        Map<String, Object> occasionnelSans = ficheMap("OccasionnelSans", "PC1-SEJ-3");
+        occasionnelSans.put("etatPatient", "OCCASIONNEL");
+        occasionnelSans.put("dateEvenementEtat", jour(30).toString());
+        occasionnelSans.remove("attestationFin");
+        m.put("occasionnel avec date de fin, sans fin d'attestation", refus(doPost(PATIENTS, corps(occasionnelSans), adminA())));
+        arbre("sejour_limite_et_attestation", m);
+        etatDeLIdentite("fiches_ecrites");
+        etatDesAttestations("attestations_ecrites");
+    }
+
     @Test
     void un_assure_tiers_exige_son_numero_et_cree_l_assure_et_l_affectation_principale() throws Exception {
         Map<String, Object> m = new LinkedHashMap<>();

@@ -51,8 +51,9 @@ class FicheDuPatientTest {
         unite = new UniteImmediate();
         var horloge = new HorlogeFixe();
         var ids = new IdentifiantsSequentiels();
-        admettre = new AdmettreUnPatient(session, horloge, ids, place, patients, mouvements, couverture, unite);
-        modifier = new ModifierLaFiche(session, horloge, ids, place, patients, mouvements, couverture, unite);
+        VerrouDuCentre verrou = centre -> place.appels.add("verrou");
+        admettre = new AdmettreUnPatient(session, horloge, ids, place, patients, mouvements, couverture, unite, verrou);
+        modifier = new ModifierLaFiche(session, horloge, ids, place, patients, mouvements, couverture, unite, verrou);
         consulter = new ConsulterLaFiche(session, patients, couverture, (centre, id) -> java.util.Optional.empty());
     }
 
@@ -75,7 +76,7 @@ class FicheDuPatientTest {
             assertThat(m.patient()).isEqualTo(r.id());
             assertThat(m.dateEffet()).isEqualTo(ADMISSION);
         });
-        assertThat(place.appels).containsExactly("verifier", "placer");
+        assertThat(place.appels).as("le verrou du centre est pris en tête, même sans place").containsExactly("verrou", "verifier", "placer");
         assertThat(couverture.appels).containsExactly("enregistrer");
         assertThat(unite.appels).isEqualTo(1);
     }
@@ -164,7 +165,7 @@ class FicheDuPatientTest {
         assertThat(patients.lignes.get(r.id()).etat()).isEqualTo(EtatDuPatient.GUERRI);
         assertThat(mouvements.ecrits).hasSize(2);
         assertThat(mouvements.ecrits.get(1).type()).isEqualTo(TypeDeMouvement.GUERISON);
-        assertThat(place.appels).containsExactly("verifier", "placer", "libererSiEchue");
+        assertThat(place.appels).containsExactly("verrou", "verifier", "placer", "libererSiEchue");
     }
 
     @Test

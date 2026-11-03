@@ -1,0 +1,5 @@
+{
+  "occasionnel avec date de fin, sans fin d'attestation" : "400 BAD_REQUEST : Attestation obligatoire pour un patient non-vacancier",
+  "vacancier avec date de fin, avec attestation" : "200",
+  "vacancier avec date de fin, sans attestation" : "200"
+}

@@ -21,9 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * par le langage publié {@code patientcouverture.v1} et les ports publiés. Garde de non-régression (les entités JPA et les
  * migrations Flyway sont hors périmètre).
  */
-@Disabled("Module patient-couverture GELE le 2026-11-02 (backend/contexts/patient-couverture/GEL.md, ADR 0073) : la garde exclut /persistence/ "
-        + "et platform/src/main, donc elle est aveugle aux 25 fichiers de production hors contexte qui lisent ces tables ; elle n'a aucun sens "
-        + "tant que le refactoring sur place n'a pas etabli la liste blanche datee des lectures. A reecrire au filet PC1.")
+@Disabled("PC1 repris sur place le 2026-11-03 (ADR 0076) ; la liste blanche datee des lectures et ecritures SQL hors contexte est etablie dans "
+        + ".ddd/safety-net/patient-couverture-pc1-identite-mouvements.md (25 fichiers de src/main), mais cette garde exclut /persistence/ et "
+        + "platform/src/main, donc elle reste aveugle a ces fichiers et ne peut pas encore etre activee. A reecrire en garde 'aucun NOUVEAU "
+        + "lecteur hors liste blanche' (comme TableDeLOrganisationTest) a la slice PC5 (langage publie, retrait des lecteurs).")
 class TableDuPatientCouvertureTest {
 
     private static final Set<String> TABLES_DU_PATIENT_COUVERTURE = Set.of(

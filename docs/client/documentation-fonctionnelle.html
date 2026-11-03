@@ -841,9 +841,12 @@ contrainte en base : le contrôle se fait sous le verrou du centre ; les doublon
 <code>verifications-production.md</code> §41.</p>
 </div></div>
 <div class="rule" id="RG-PAT-039"><div class="rid">RG-PAT-039</div><div class="rtxt"><p><strong>Garde de centre</strong> : toutes les lectures de la fiche (fiche, recherche, synthèse, détail, historique
-d&#39;assurés, mouvements) et toutes les écritures d&#39;assuré se font dans le centre du jeton (403 pour un autre centre, une
-session sans centre, un rôle inconnu ou absent). Lecture : <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code> ; écriture :
-<code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code>. Un patient inconnu du centre répond 404 <code>PATIENT_INTROUVABLE</code>.</p>
+d&#39;assurés, mouvements) et toutes les écritures d&#39;assuré se font dans le centre du jeton (403 pour un autre centre ou
+une session sans centre). <strong>Droits de rôles inchangés par rapport à l&#39;existant</strong> : lecture de la fiche, recherche,
+synthèses, assurés et historique ouverts à tout utilisateur authentifié ; mouvements : <code>ADMIN</code>, <code>SECRETAIRE</code>,
+<code>MEDECIN</code>, <code>INFIRMIER</code> ; création et modification de la fiche : <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code> ; écritures
+d&#39;assuré : tout profil sauf le médecin « seul » (rôles personnalisés compris). Un patient inconnu du centre répond
+404 <code>PATIENT_INTROUVABLE</code>.</p>
 </div></div>
 <div class="rule" id="RG-PAT-040"><div class="rid">RG-PAT-040</div><div class="rtxt"><p><strong>Cohérence des dates</strong> : la date de naissance n&#39;est ni dans le futur
 (<code>PATIENT_DATE_NAISSANCE_FUTURE</code>) ni postérieure à la date d&#39;admission (<code>PATIENT_DATE_NAISSANCE_APRES_ADMISSION</code>),
@@ -852,7 +855,11 @@ est le jour du <strong>centre</strong> (fuseau du centre, <code>app.planificatio
 assuré.</p>
 </div></div>
 <div class="rule" id="RG-PAT-041"><div class="rid">RG-PAT-041</div><div class="rtxt"><p>Une ligne héritée aux colonnes nulles (état, jours, sommeil) se lit et se modifie : l&#39;état nul vaut
-<code>PERMANENT</code>, les indicateurs nuls valent faux.</p>
+<code>PERMANENT</code> (sans mouvement <code>REPRISE</code> à l&#39;enregistrement), les indicateurs nuls valent faux, la qualité d&#39;assuré nulle
+reste nulle. Un état <strong>non nul hors de la liste fermée</strong> est rendu tel quel, jamais réécrit par un enregistrement
+sans état ; le patient n&#39;est pas plaçable (422 <code>PATIENT_ETAT_INCONNU</code>) tant que son état n&#39;est pas corrigé. Le
+<strong>numéro d&#39;assurance</strong> est contrôlé et enregistré sous le verrou du centre, pris en tête de toute écriture de fiche
+(RG-PAT-038).</p>
 </div></div>
 <h2>4.2 Liste, recherche, synthèse</h2>
 <div class="rule" id="RG-PAT-020"><div class="rid">RG-PAT-020</div><div class="rtxt"><p>La recherche de patients est paginée (taille 1 à 100, 20 par défaut ; 400 sinon), toujours limitée au centre, et
@@ -4517,7 +4524,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <tr>
 <td><code>PatientsControleur</code></td>
 <td><code>/api/v1/patients</code> — contexte <code>patient-couverture</code>, slice PC1</td>
-<td>lecture <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code> ; écriture <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code> ; garde de centre</td>
+<td>lecture tout utilisateur authentifié ; fiche <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code> ; assuré tout sauf médecin « seul » ; garde de centre</td>
 <td>RG-PAT-001 à 024, 030 à 041, RG-ASS-001 à 008</td>
 </tr>
 <tr>
