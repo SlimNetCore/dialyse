@@ -1,0 +1,12 @@
+{
+  "non-vacancier validé avec attestation" : "true",
+  "non-vacancier validé sans attestation" : "false",
+  "non-vacancier validé, attestation échue hier" : "false",
+  "vacancier validé sans aucune date" : "true",
+  "vacancier validé, période effective future" : "true",
+  "vacancier validé, période effective échue" : "true",
+  "vacancier, PEC CLOTUREE" : "200 (accepté) false",
+  "vacancier, PEC CREE" : "200 (accepté) false",
+  "vacancier, PEC REFUSEE" : "400 BAD_REQUEST : No enum constant com.hemodialyse.backend.domain.pec.model.PecStatus.REFUSEE ",
+  "vacancier, PEC VALIDEE" : "200 (accepté) true"
+}

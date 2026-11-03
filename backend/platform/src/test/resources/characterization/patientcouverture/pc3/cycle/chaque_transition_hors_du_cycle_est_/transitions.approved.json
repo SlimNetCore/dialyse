@@ -1,0 +1,14 @@
+{
+  "clôturer depuis CLOTUREE" : "422 BUSINESS_RULE_VIOLATION : Transition invalide vers CLOTUREE",
+  "clôturer depuis CREE" : "422 BUSINESS_RULE_VIOLATION : Transition invalide vers CLOTUREE",
+  "clôturer depuis REFUSEE" : "400 BAD_REQUEST : No enum constant com.hemodialyse.backend.domain.pec.model.PecStatus.REFUSEE",
+  "clôturer depuis VALIDEE" : "200 (accepté)",
+  "valider depuis CLOTUREE" : "422 BUSINESS_RULE_VIOLATION : Transition invalide vers VALIDEE",
+  "valider depuis CREE" : "200 (accepté)",
+  "valider depuis REFUSEE" : "400 BAD_REQUEST : No enum constant com.hemodialyse.backend.domain.pec.model.PecStatus.REFUSEE",
+  "valider depuis VALIDEE" : "422 BUSINESS_RULE_VIOLATION : Transition invalide vers VALIDEE",
+  "état après depuis CLOTUREE" : "CLOTUREE",
+  "état après depuis CREE" : "CREE",
+  "état après depuis REFUSEE" : "REFUSEE",
+  "état après depuis VALIDEE" : "CLOTUREE"
+}

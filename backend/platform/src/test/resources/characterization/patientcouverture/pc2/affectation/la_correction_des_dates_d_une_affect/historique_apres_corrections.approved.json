@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "actif" : true,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : null,
+    "dateFinAffectation" : null,
+    "id" : "<AFF_1>",
+    "isPrimary" : true,
+    "nom" : "Dupont",
+    "numeroAssurance" : "PC2-AS-1",
+    "patientId" : "<ENFANT_1>",
+    "prenom" : "Jean",
+    "sexe" : "M"
+  } ]
+}

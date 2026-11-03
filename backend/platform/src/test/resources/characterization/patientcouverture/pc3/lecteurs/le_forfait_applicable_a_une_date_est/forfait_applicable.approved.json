@@ -1,0 +1,18 @@
+{
+  "PEC clôturée : le statut n'est pas regardé" : "Forfait HD4 (11000.00)",
+  "PEC couvrante sans forfait" : "aucun forfait",
+  "PEC créée, forfait demandé, période demandée couvrante" : "Forfait HD3 (9500.00)",
+  "PEC sans aucune date" : "Forfait HD3 (9500.00)",
+  "PEC validée : le forfait effectif prime sur le demandé" : "Forfait HD4 (11000.00)",
+  "PEC à statut inconnu : le statut n'est pas regardé" : "Forfait HD3 (9500.00)",
+  "aucune PEC" : "aucun forfait",
+  "aucune période ne couvre : celle qui porte un forfait effectif d'abord" : "Forfait HD4 (11000.00)",
+  "aucune période ne couvre : la plus récemment créée (futur)" : "Forfait HD4 (11000.00)",
+  "début le jour même" : "Forfait HD3 (9500.00)",
+  "fin le jour même" : "Forfait HD3 (9500.00)",
+  "forfait d'un autre centre" : "aucun forfait",
+  "forfait inexistant" : "aucun forfait",
+  "période demandée ouverte (sans fin)" : "Forfait HD3 (9500.00)",
+  "période effective ouverte (sans fin)" : "Forfait HD4 (11000.00)",
+  "période effective échue mais demandée couvrante : forfait effectif retenu" : "Forfait HD4 (11000.00)"
+}

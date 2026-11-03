@@ -1,0 +1,25 @@
+[ {
+  "adresse" : "rue de l'assuré",
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : "<J-15000>",
+  "groupe_sanguin" : null,
+  "nom" : "Premier",
+  "numero_assurance" : "PC2-AS-1",
+  "prenom" : "Prenom assuré",
+  "sexe" : "F",
+  "tel_bureau" : null,
+  "tel_mobile" : null,
+  "tel_personnel" : null
+}, {
+  "adresse" : "rue de l'assuré",
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : "<J-15000>",
+  "groupe_sanguin" : null,
+  "nom" : "Second",
+  "numero_assurance" : "PC2-AS-2",
+  "prenom" : "Prenom assuré",
+  "sexe" : "F",
+  "tel_bureau" : null,
+  "tel_mobile" : null,
+  "tel_personnel" : null
+} ]

@@ -1,0 +1,66 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-300>",
+    "dateDebutEffectif" : "<J-300>",
+    "dateFinDemande" : "<J-100>",
+    "dateFinEffectif" : "<J-100>",
+    "forfaitDemandeId" : "<FORFAIT_HD3>",
+    "forfaitEffectifId" : "<FORFAIT_HD3>",
+    "id" : "<PEC_1>",
+    "patientId" : "<DUPONT>",
+    "status" : "VALIDEE"
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-50>",
+    "dateDebutEffectif" : null,
+    "dateFinDemande" : "<J+50>",
+    "dateFinEffectif" : null,
+    "forfaitDemandeId" : "<FORFAIT_HD3>",
+    "forfaitEffectifId" : null,
+    "id" : "<PEC_2>",
+    "patientId" : "<DUPONT>",
+    "status" : "CREE"
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-200>",
+    "dateDebutEffectif" : "<J-190>",
+    "dateFinDemande" : "<J-20>",
+    "dateFinEffectif" : "<J-30>",
+    "forfaitDemandeId" : null,
+    "forfaitEffectifId" : null,
+    "id" : "<PEC_3>",
+    "patientId" : "<MARTIN>",
+    "status" : "CLOTUREE"
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-10>",
+    "dateDebutEffectif" : "<J-5>",
+    "dateFinDemande" : "<J+300>",
+    "dateFinEffectif" : "<J+290>",
+    "forfaitDemandeId" : "<FORFAIT_HD3>",
+    "forfaitEffectifId" : "<FORFAIT_HD3>",
+    "id" : "<PEC_4>",
+    "patientId" : "<DURAND>",
+    "status" : "VALIDEE"
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J+20>",
+    "dateDebutEffectif" : null,
+    "dateFinDemande" : "<J+400>",
+    "dateFinEffectif" : null,
+    "forfaitDemandeId" : null,
+    "forfaitEffectifId" : null,
+    "id" : "<PEC_5>",
+    "patientId" : "<MARTIN>",
+    "status" : "CREE"
+  } ]
+}

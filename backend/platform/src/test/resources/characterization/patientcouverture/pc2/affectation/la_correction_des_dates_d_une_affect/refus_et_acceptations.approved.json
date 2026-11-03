@@ -1,0 +1,13 @@
+{
+  "affectation d'un autre patient" : "403 ACCESS_DENIED : Accès refusé",
+  "affectation inconnue" : "400 BAD_REQUEST : Affectation introuvable: <UUID_GENERE_1>",
+  "corps absent" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps vide" : "200 (accepté)",
+  "date illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "début et fin nuls" : "200 (accepté)",
+  "début futur sans fin" : "200 (accepté)",
+  "fin après le début" : "200 (accepté)",
+  "fin avant le début" : "400 BAD_REQUEST : La date de fin doit être >= à la date de début",
+  "fin le jour du début" : "200 (accepté)",
+  "fin sans début" : "200 (accepté)"
+}

@@ -1,0 +1,12 @@
+{
+  "JSON illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centre absent" : "400 BAD_REQUEST : CenterId cannot be null",
+  "corps absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps vide" : "400 BAD_REQUEST : CenterId cannot be null",
+  "date illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "identifiant de patient illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "patient absent" : "400 BAD_REQUEST : PatientId cannot be null",
+  "patient d'un autre centre" : "400 BAD_REQUEST : Patient introuvable",
+  "patient inconnu" : "400 BAD_REQUEST : Patient introuvable",
+  "type de contenu texte" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

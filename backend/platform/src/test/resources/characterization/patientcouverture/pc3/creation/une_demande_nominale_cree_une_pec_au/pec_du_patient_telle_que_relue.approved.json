@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-5>",
+    "dateDebutEffectif" : null,
+    "dateFinDemande" : "<J+25>",
+    "dateFinEffectif" : null,
+    "forfaitDemandeId" : "<FORFAIT_HD3>",
+    "forfaitEffectifId" : null,
+    "id" : "<PEC_1>",
+    "patientId" : "<VACANCIER>",
+    "status" : "CREE"
+  } ]
+}

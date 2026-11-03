@@ -1,0 +1,12 @@
+{
+  "clôturer avec un centre illisible" : "400 BAD_REQUEST : Invalid UUID string: zzz",
+  "clôturer avec un corps tableau" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "clôturer avec un corps vide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "clôturer sans centre" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "clôturer une PEC inconnue" : "400 BAD_REQUEST : <message du cache Spring : valeur nulle refusée>",
+  "valider avec un corps vide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "valider avec un identifiant illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "valider sans centre" : "400 BAD_REQUEST : CenterId cannot be null",
+  "valider une PEC du centre A avec le centre B" : "400 BAD_REQUEST : <message du cache Spring : valeur nulle refusée>",
+  "valider une PEC inconnue" : "400 BAD_REQUEST : <message du cache Spring : valeur nulle refusée>"
+}

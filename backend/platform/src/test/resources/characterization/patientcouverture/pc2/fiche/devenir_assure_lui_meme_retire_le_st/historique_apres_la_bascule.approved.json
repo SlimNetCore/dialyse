@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "actif" : true,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : null,
+    "dateFinAffectation" : null,
+    "id" : "<UUID_GENERE_1>",
+    "isPrimary" : false,
+    "nom" : "Premier",
+    "numeroAssurance" : "PC2-AS-1",
+    "patientId" : "<ENFANT>",
+    "prenom" : "Prenom assuré",
+    "sexe" : "F"
+  } ]
+}

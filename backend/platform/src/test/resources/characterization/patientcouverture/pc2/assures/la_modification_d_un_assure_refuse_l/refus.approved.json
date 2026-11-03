@@ -1,0 +1,13 @@
+{
+  "assuré inconnu" : "400 BAD_REQUEST : Assuré introuvable: PC2-INCONNU",
+  "centre absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "centre illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "champ inconnu" : "200 (accepté)",
+  "corps JSON invalide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps absent" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps null" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps tableau" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "nom numérique" : "200 (accepté)",
+  "numéro en minuscules" : "400 BAD_REQUEST : Assuré introuvable: pc2-as-1",
+  "type de contenu texte" : "415 UNSUPPORTED_MEDIA_TYPE : Le corps de la requête doit être du JSON"
+}

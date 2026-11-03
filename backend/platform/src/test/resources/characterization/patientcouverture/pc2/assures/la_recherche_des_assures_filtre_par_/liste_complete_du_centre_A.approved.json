@@ -1,0 +1,72 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : null,
+    "numeroAssurance" : "PC2-AS-4",
+    "prenom" : null,
+    "sexe" : "M",
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  }, {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : "100%",
+    "numeroAssurance" : "PC2-AS-6",
+    "prenom" : "a_b",
+    "sexe" : "M",
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  }, {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : "Dupond",
+    "numeroAssurance" : "PC2-AS-2",
+    "prenom" : "Alice",
+    "sexe" : "M",
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  }, {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : "Dupont",
+    "numeroAssurance" : "PC2-AS-3",
+    "prenom" : "Anne",
+    "sexe" : "M",
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  }, {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : "Dupont",
+    "numeroAssurance" : "PC2-AS-1",
+    "prenom" : "Jean",
+    "sexe" : "M",
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  }, {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : "Zola",
+    "numeroAssurance" : "PC2-AS-5",
+    "prenom" : "Émile",
+    "sexe" : "M",
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  } ]
+}

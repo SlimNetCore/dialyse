@@ -1,0 +1,29 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "debut" : "<J-20>",
+  "fin" : null,
+  "is_primary" : "false",
+  "numero_assurance" : "PC2-AS-1",
+  "patient" : "Patient ENFANT_1"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "debut" : "<J-10>",
+  "fin" : "<J>",
+  "is_primary" : "false",
+  "numero_assurance" : "PC2-AS-1",
+  "patient" : "Patient ENFANT_1"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "debut" : "<J-5>",
+  "fin" : "<J>",
+  "is_primary" : "false",
+  "numero_assurance" : "PC2-AS-2",
+  "patient" : "Patient ENFANT_1"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "debut" : "<J>",
+  "fin" : null,
+  "is_primary" : "true",
+  "numero_assurance" : "PC2-AS-2",
+  "patient" : "Patient ENFANT_1"
+} ]

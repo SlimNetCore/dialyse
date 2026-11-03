@@ -1,0 +1,30 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "actif" : true,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : "<J-3>",
+    "dateFinAffectation" : null,
+    "id" : "<AFF_FANTOME>",
+    "isPrimary" : true,
+    "nom" : null,
+    "numeroAssurance" : "PC2-DISPARU",
+    "patientId" : "<ENFANT_1>",
+    "prenom" : null,
+    "sexe" : null
+  }, {
+    "actif" : false,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : "<J-9>",
+    "dateFinAffectation" : "<J-4>",
+    "id" : "<AFF_SECONDAIRE>",
+    "isPrimary" : false,
+    "nom" : null,
+    "numeroAssurance" : "PC2-DISPARU",
+    "patientId" : "<ENFANT_1>",
+    "prenom" : null,
+    "sexe" : null
+  } ]
+}

@@ -1,0 +1,9 @@
+[ {
+  "groupe_sanguin" : null,
+  "longueur_adresse" : "255",
+  "nom_court" : "true",
+  "sexe" : null,
+  "tel_bureau" : null,
+  "tel_mobile" : null,
+  "tel_personnel" : null
+} ]

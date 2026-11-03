@@ -1,0 +1,18 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-3>",
+    "dateDebutEffectif" : "<J>",
+    "dateFinDemande" : "<J+30>",
+    "dateFinEffectif" : "<J+20>",
+    "forfaitDemandeId" : "<FORFAIT_HD4>",
+    "forfaitEffectifId" : "<FORFAIT_HD5>",
+    "id" : "<PEC_FICHE>",
+    "patientId" : "<PATIENT>",
+    "status" : "VALIDEE"
+  } ]
+}

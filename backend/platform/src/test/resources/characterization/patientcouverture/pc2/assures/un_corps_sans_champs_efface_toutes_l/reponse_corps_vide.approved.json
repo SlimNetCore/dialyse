@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "adresse" : null,
+    "dateNaissance" : null,
+    "groupeSanguin" : null,
+    "nom" : null,
+    "numeroAssurance" : "PC2-AS-1",
+    "prenom" : null,
+    "sexe" : null,
+    "telBureau" : null,
+    "telMobile" : null,
+    "telPersonnel" : null
+  }
+}

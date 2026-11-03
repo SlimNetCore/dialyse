@@ -1,0 +1,13 @@
+{
+  "clôture par l'ADMIN du centre B" : "200 (accepté)",
+  "création dans le centre A par l'ADMIN du centre B" : "200 (accepté)",
+  "création par un ADMIN sans centre de session" : "200 (accepté)",
+  "liste des PEC du centre A par l'ADMIN du centre B" : "200 (accepté) 1 PEC",
+  "liste des PEC du patient A par l'ADMIN du centre B" : "1",
+  "liste du centre A sans centre de session" : "200 (accepté)",
+  "recherche du centre A par l'ADMIN du centre B" : "1",
+  "session autorisée par l'ADMIN du centre B" : "200 (accepté)",
+  "suppression par l'ADMIN du centre B" : "200 (accepté)",
+  "validation par l'ADMIN du centre B" : "200 (accepté)",
+  "validation par un ADMIN sans centre de session" : "200 (accepté)"
+}

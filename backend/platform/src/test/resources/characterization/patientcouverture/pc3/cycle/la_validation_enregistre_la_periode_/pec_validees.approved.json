@@ -1,0 +1,31 @@
+[ {
+  "avec_forfait" : "false",
+  "date_debut_effectif" : null,
+  "date_fin_effectif" : null,
+  "patient" : "Patient P1",
+  "statut" : "VALIDEE"
+}, {
+  "avec_forfait" : "false",
+  "date_debut_effectif" : "<J+20>",
+  "date_fin_effectif" : "<J-5>",
+  "patient" : "Patient P2",
+  "statut" : "VALIDEE"
+}, {
+  "avec_forfait" : "false",
+  "date_debut_effectif" : "<J-100>",
+  "date_fin_effectif" : "<J-50>",
+  "patient" : "Patient P3",
+  "statut" : "VALIDEE"
+}, {
+  "avec_forfait" : "true",
+  "date_debut_effectif" : "<J>",
+  "date_fin_effectif" : "<J+20>",
+  "patient" : "Patient P4",
+  "statut" : "VALIDEE"
+}, {
+  "avec_forfait" : "true",
+  "date_debut_effectif" : "<J>",
+  "date_fin_effectif" : "<J+20>",
+  "patient" : "Patient P5",
+  "statut" : "VALIDEE"
+} ]

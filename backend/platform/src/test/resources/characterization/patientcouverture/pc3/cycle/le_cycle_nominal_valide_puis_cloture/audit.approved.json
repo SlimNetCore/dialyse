@@ -1,0 +1,22 @@
+[ {
+  "action_code" : "PEC_CREATION",
+  "entity_id" : null,
+  "entity_type" : "pec",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/pec",
+  "status_code" : "200"
+}, {
+  "action_code" : "PEC_CREATION",
+  "entity_id" : "<PEC_1>",
+  "entity_type" : "pec",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/pec/{pecId}/close",
+  "status_code" : "200"
+}, {
+  "action_code" : "PEC_CREATION",
+  "entity_id" : "<PEC_1>",
+  "entity_type" : "pec",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/pec/{pecId}/validate",
+  "status_code" : "200"
+} ]

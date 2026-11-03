@@ -1,0 +1,30 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-300>",
+    "dateDebutEffectif" : "<J-300>",
+    "dateFinDemande" : "<J-100>",
+    "dateFinEffectif" : "<J-100>",
+    "forfaitDemandeId" : "<FORFAIT_HD3>",
+    "forfaitEffectifId" : "<FORFAIT_HD3>",
+    "id" : "<PEC_1>",
+    "patientId" : "<DUPONT>",
+    "status" : "VALIDEE"
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebutDemande" : "<J-50>",
+    "dateDebutEffectif" : null,
+    "dateFinDemande" : "<J+50>",
+    "dateFinEffectif" : null,
+    "forfaitDemandeId" : "<FORFAIT_HD3>",
+    "forfaitEffectifId" : null,
+    "id" : "<PEC_2>",
+    "patientId" : "<DUPONT>",
+    "status" : "CREE"
+  } ]
+}

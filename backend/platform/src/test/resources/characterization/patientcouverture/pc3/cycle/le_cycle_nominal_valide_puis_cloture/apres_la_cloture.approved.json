@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut_demande" : "<J-5>",
+  "date_debut_effectif" : "<J>",
+  "date_fin_demande" : "<J+25>",
+  "date_fin_effectif" : "<J+20>",
+  "forfait_demande" : "HD3",
+  "forfait_effectif" : "HD4",
+  "patient" : "Patient VACANCIER",
+  "statut" : "CLOTUREE"
+} ]

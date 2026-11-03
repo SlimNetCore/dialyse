@@ -1,0 +1,13 @@
+[ {
+  "adresse" : null,
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : null,
+  "groupe_sanguin" : null,
+  "nom" : null,
+  "numero_assurance" : "PC2-AS-1",
+  "prenom" : null,
+  "sexe" : null,
+  "tel_bureau" : null,
+  "tel_mobile" : null,
+  "tel_personnel" : null
+} ]

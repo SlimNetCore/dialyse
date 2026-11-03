@@ -1,0 +1,71 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "code_patient" : "PC-0002",
+      "date_debut_demande" : "<J+20>",
+      "date_debut_effectif" : null,
+      "date_fin_demande" : "<J+400>",
+      "date_fin_effectif" : null,
+      "id" : "<PEC_5>",
+      "nom" : "Martin",
+      "numero_assurance" : "ASS-2002",
+      "patient_id" : "<MARTIN>",
+      "prenom" : "Paul",
+      "statut" : "CREE"
+    }, {
+      "code_patient" : "PC-0003",
+      "date_debut_demande" : "<J-10>",
+      "date_debut_effectif" : "<J-5>",
+      "date_fin_demande" : "<J+300>",
+      "date_fin_effectif" : "<J+290>",
+      "id" : "<PEC_4>",
+      "nom" : "Durand",
+      "numero_assurance" : "ASS-3003",
+      "patient_id" : "<DURAND>",
+      "prenom" : "Anne",
+      "statut" : "VALIDEE"
+    }, {
+      "code_patient" : "PC-0001",
+      "date_debut_demande" : "<J-50>",
+      "date_debut_effectif" : null,
+      "date_fin_demande" : "<J+50>",
+      "date_fin_effectif" : null,
+      "id" : "<PEC_2>",
+      "nom" : "Dupont",
+      "numero_assurance" : "ASS-1001",
+      "patient_id" : "<DUPONT>",
+      "prenom" : "Jean",
+      "statut" : "CREE"
+    }, {
+      "code_patient" : "PC-0002",
+      "date_debut_demande" : "<J-200>",
+      "date_debut_effectif" : "<J-190>",
+      "date_fin_demande" : "<J-20>",
+      "date_fin_effectif" : "<J-30>",
+      "id" : "<PEC_3>",
+      "nom" : "Martin",
+      "numero_assurance" : "ASS-2002",
+      "patient_id" : "<MARTIN>",
+      "prenom" : "Paul",
+      "statut" : "CLOTUREE"
+    }, {
+      "code_patient" : "PC-0001",
+      "date_debut_demande" : "<J-300>",
+      "date_debut_effectif" : "<J-300>",
+      "date_fin_demande" : "<J-100>",
+      "date_fin_effectif" : "<J-100>",
+      "id" : "<PEC_1>",
+      "nom" : "Dupont",
+      "numero_assurance" : "ASS-1001",
+      "patient_id" : "<DUPONT>",
+      "prenom" : "Jean",
+      "statut" : "VALIDEE"
+    } ],
+    "page" : 0,
+    "size" : 50,
+    "total" : 5
+  }
+}

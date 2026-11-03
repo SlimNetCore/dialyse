@@ -1,0 +1,12 @@
+{
+  "attestation couvrant la période" : "200 (accepté)",
+  "attestation d'un seul jour (aujourd'hui)" : "200 (accepté)",
+  "attestation débutant aujourd'hui" : "200 (accepté)",
+  "attestation débutant demain" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "attestation finissant aujourd'hui" : "200 (accepté)",
+  "attestation inversée (fin avant début) couvrant aujourd'hui" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "attestation posée dans l'autre centre" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "attestation échue hier" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "aucune attestation" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "vacancier sans attestation" : "200 (accepté)"
+}

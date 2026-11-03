@@ -1,0 +1,21 @@
+{
+  "centre B" : "1 assuré(s)",
+  "centre absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "q=' '" : "200 []",
+  "q=' dup '" : "200 []",
+  "q='%'" : "200 [PC2-AS-4, PC2-AS-6, PC2-AS-2, PC2-AS-3, PC2-AS-1, PC2-AS-5]",
+  "q=''" : "200 [PC2-AS-4, PC2-AS-6, PC2-AS-2, PC2-AS-3, PC2-AS-1, PC2-AS-5]",
+  "q='100%'" : "200 [PC2-AS-6]",
+  "q='Autre'" : "200 []",
+  "q='DUPONT'" : "200 [PC2-AS-3, PC2-AS-1]",
+  "q='PC2-AS'" : "200 [PC2-AS-4, PC2-AS-6, PC2-AS-2, PC2-AS-3, PC2-AS-1, PC2-AS-5]",
+  "q='_'" : "200 [PC2-AS-4, PC2-AS-6, PC2-AS-2, PC2-AS-3, PC2-AS-1, PC2-AS-5]",
+  "q='a_b'" : "200 [PC2-AS-6]",
+  "q='dup'" : "200 [PC2-AS-2, PC2-AS-3, PC2-AS-1]",
+  "q='jean'" : "200 [PC2-AS-1]",
+  "q='pc2-as-2'" : "200 [PC2-AS-2]",
+  "q='zzz'" : "200 []",
+  "q='É'" : "200 [PC2-AS-5]",
+  "q='é'" : "200 [PC2-AS-5]",
+  "q=<absent>" : "200 [PC2-AS-4, PC2-AS-6, PC2-AS-2, PC2-AS-3, PC2-AS-1, PC2-AS-5]"
+}

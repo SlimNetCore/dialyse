@@ -1,0 +1,22 @@
+{
+  "1. demande créée" : {
+    "cause de non-facturabilité (Séance)" : "PRISE_EN_CHARGE_NON_VALIDEE",
+    "forfait applicable (Absences)" : "Forfait HD3 (9500.00)",
+    "route session-allowed (PEC)" : "200 false"
+  },
+  "2. validée avec un autre forfait" : {
+    "cause de non-facturabilité (Séance)" : "facturable",
+    "forfait applicable (Absences)" : "Forfait HD4 (11000.00)",
+    "route session-allowed (PEC)" : "200 true"
+  },
+  "3. clôturée" : {
+    "cause de non-facturabilité (Séance)" : "PRISE_EN_CHARGE_NON_VALIDEE",
+    "forfait applicable (Absences)" : "Forfait HD4 (11000.00)",
+    "route session-allowed (PEC)" : "200 false"
+  },
+  "4. supprimée" : {
+    "cause de non-facturabilité (Séance)" : "PRISE_EN_CHARGE",
+    "forfait applicable (Absences)" : "aucun forfait",
+    "route session-allowed (PEC)" : "400 "
+  }
+}

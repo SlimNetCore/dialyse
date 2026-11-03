@@ -1,0 +1,14 @@
+{
+  "assuré inconnu" : "400 BAD_REQUEST : Assuré introuvable",
+  "centre absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "centre illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "identifiant de patient illisible" : "400 BAD_REQUEST : Paramètre illisible : id",
+  "numéro d'un assuré d'un autre centre" : "403 ACCESS_DENIED : Accès refusé",
+  "numéro en minuscules" : "400 BAD_REQUEST : Assuré introuvable",
+  "numéro entouré d'espaces" : "400 BAD_REQUEST : Assuré introuvable",
+  "patient assuré lui-même" : "400 BAD_REQUEST : Impossible d'affecter un assuré si le patient est assuré lui-même",
+  "patient d'un autre centre" : "404 PATIENT_INTROUVABLE : Patient introuvable",
+  "patient inconnu" : "404 PATIENT_INTROUVABLE : Patient introuvable",
+  "qualité d'assuré nulle" : "200 (accepté)",
+  "qualité inconnue (VOISIN)" : "200 (accepté)"
+}

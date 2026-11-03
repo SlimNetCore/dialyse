@@ -1,0 +1,36 @@
+[ {
+  "avec_forfait" : "false",
+  "date_debut_demande" : null,
+  "date_fin_demande" : null,
+  "statut" : "CREE"
+}, {
+  "avec_forfait" : "false",
+  "date_debut_demande" : null,
+  "date_fin_demande" : "<J+25>",
+  "statut" : "CREE"
+}, {
+  "avec_forfait" : "false",
+  "date_debut_demande" : "<J-100>",
+  "date_fin_demande" : "<J-50>",
+  "statut" : "CREE"
+}, {
+  "avec_forfait" : "false",
+  "date_debut_demande" : "<J-5>",
+  "date_fin_demande" : null,
+  "statut" : "CREE"
+}, {
+  "avec_forfait" : "true",
+  "date_debut_demande" : "<J-5>",
+  "date_fin_demande" : "<J+25>",
+  "statut" : "CREE"
+}, {
+  "avec_forfait" : "true",
+  "date_debut_demande" : "<J-5>",
+  "date_fin_demande" : "<J+25>",
+  "statut" : "CREE"
+}, {
+  "avec_forfait" : "false",
+  "date_debut_demande" : "<J+25>",
+  "date_fin_demande" : "<J-5>",
+  "statut" : "CREE"
+} ]

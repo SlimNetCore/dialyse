@@ -1,0 +1,13 @@
+{
+  "PEC créée couvrante" : "PRISE_EN_CHARGE_NON_VALIDEE",
+  "PEC dont la période commence demain" : "PRISE_EN_CHARGE",
+  "PEC validée couvrante sans forfait" : "PRISE_EN_CHARGE",
+  "PEC validée et attestation valide" : "facturable",
+  "PEC validée, aucune attestation (même vacancier)" : "ATTESTATION_DROITS",
+  "attestation d'un seul jour (le jour même)" : "facturable",
+  "attestation échue hier" : "ATTESTATION_DROITS",
+  "aucune PEC" : "PRISE_EN_CHARGE",
+  "début effectif hier, fin effective ouverte, demande échue" : "facturable",
+  "période effective ouverte, demande échue" : "facturable",
+  "une clôturée et une créée, aucune validée" : "PRISE_EN_CHARGE_NON_VALIDEE"
+}

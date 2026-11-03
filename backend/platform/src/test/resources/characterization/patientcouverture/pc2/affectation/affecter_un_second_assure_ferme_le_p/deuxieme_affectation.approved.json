@@ -1,0 +1,12 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "assigned" : true,
+    "dateDebutAffectation" : "<J>",
+    "id" : "<UUID_GENERE_1>",
+    "nom" : "Martin",
+    "numeroAssurance" : "PC2-AS-2",
+    "prenom" : "Paul"
+  }
+}

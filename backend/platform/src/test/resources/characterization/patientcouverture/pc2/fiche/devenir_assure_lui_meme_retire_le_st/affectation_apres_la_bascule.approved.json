@@ -1,0 +1,3 @@
+{
+  "refus" : "400 BAD_REQUEST : Impossible d'affecter un assuré si le patient est assuré lui-même"
+}

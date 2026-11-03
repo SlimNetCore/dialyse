@@ -1,0 +1,9 @@
+{
+  "après une création par l'API : liste de Dupont" : 4,
+  "après une création par l'API : liste du centre" : 7,
+  "après une écriture directe en base : liste de Dupont (périmée)" : 2,
+  "après une écriture directe en base : liste du centre (périmée)" : 5,
+  "la recherche paginée n'est pas en cache" : 7,
+  "liste de Dupont au départ" : 2,
+  "liste du centre au départ" : 5
+}

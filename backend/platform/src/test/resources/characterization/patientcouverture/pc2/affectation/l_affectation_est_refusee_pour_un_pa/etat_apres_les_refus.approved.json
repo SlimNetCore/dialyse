@@ -1,0 +1,15 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "debut" : "<J>",
+  "fin" : null,
+  "is_primary" : "true",
+  "numero_assurance" : "PC2-AS-1",
+  "patient" : "Patient SANS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "debut" : "<J>",
+  "fin" : null,
+  "is_primary" : "true",
+  "numero_assurance" : "PC2-AS-1",
+  "patient" : "Patient VOISIN"
+} ]

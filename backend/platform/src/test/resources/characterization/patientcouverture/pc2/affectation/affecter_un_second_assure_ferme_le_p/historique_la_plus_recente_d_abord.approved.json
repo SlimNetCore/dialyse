@@ -1,0 +1,42 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "actif" : true,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : "<J>",
+    "dateFinAffectation" : null,
+    "id" : "<UUID_GENERE_1>",
+    "isPrimary" : true,
+    "nom" : "Dupont",
+    "numeroAssurance" : "PC2-AS-1",
+    "patientId" : "<ENFANT_1>",
+    "prenom" : "Jean",
+    "sexe" : "M"
+  }, {
+    "actif" : false,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : "<J>",
+    "dateFinAffectation" : "<J>",
+    "id" : "<UUID_GENERE_2>",
+    "isPrimary" : false,
+    "nom" : "Martin",
+    "numeroAssurance" : "PC2-AS-2",
+    "patientId" : "<ENFANT_1>",
+    "prenom" : "Paul",
+    "sexe" : "M"
+  }, {
+    "actif" : false,
+    "dateAffectation" : "<HORODATAGE>",
+    "dateDebutAffectation" : "<J>",
+    "dateFinAffectation" : "<J>",
+    "id" : "<UUID_GENERE_3>",
+    "isPrimary" : false,
+    "nom" : "Dupont",
+    "numeroAssurance" : "PC2-AS-1",
+    "patientId" : "<ENFANT_1>",
+    "prenom" : "Jean",
+    "sexe" : "M"
+  } ]
+}

@@ -1,0 +1,12 @@
+{
+  "centre absent" : [ "400 VALIDATION_ERROR : Invalid request content." ],
+  "corps illisible" : [ "500 INTERNAL_ERROR : <message technique non verrouillé>" ],
+  "corps vide" : [ "500 INTERNAL_ERROR : <message technique non verrouillé>" ],
+  "page absente" : [ "500 INTERNAL_ERROR : <message technique non verrouillé>" ],
+  "page négative" : [ "400 VALIDATION_ERROR : Invalid request content." ],
+  "taille 0" : [ "400 VALIDATION_ERROR : Invalid request content." ],
+  "taille 200" : "5 résultat(s)",
+  "taille 201" : [ "400 VALIDATION_ERROR : Invalid request content." ],
+  "taille absente" : [ "500 INTERNAL_ERROR : <message technique non verrouillé>" ],
+  "taille texte" : [ "500 INTERNAL_ERROR : <message technique non verrouillé>" ]
+}

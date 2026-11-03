@@ -1,0 +1,7 @@
+{
+  "PEC du centre A lue avec le centre B" : "400 BAD_REQUEST : <message du cache Spring : valeur nulle refusée>",
+  "PEC inconnue" : "400 BAD_REQUEST : <message du cache Spring : valeur nulle refusée>",
+  "centre absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "identifiant illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "utilisateur absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

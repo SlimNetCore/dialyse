@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut_demande" : "<J-5>",
+  "date_debut_effectif" : null,
+  "date_fin_demande" : "<J+25>",
+  "date_fin_effectif" : null,
+  "forfait_demande" : null,
+  "forfait_effectif" : null,
+  "patient" : "Patient VACANCIER",
+  "statut" : "CREE"
+} ]

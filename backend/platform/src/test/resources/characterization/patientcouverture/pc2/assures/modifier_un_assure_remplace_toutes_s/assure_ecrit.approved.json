@@ -1,0 +1,13 @@
+[ {
+  "adresse" : "12 rue des Lilas",
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : "<J-9000>",
+  "groupe_sanguin" : "O+",
+  "nom" : "Nouveau",
+  "numero_assurance" : "PC2-AS-1",
+  "prenom" : "Prenom2",
+  "sexe" : "F",
+  "tel_bureau" : "021234567",
+  "tel_mobile" : "0661234567",
+  "tel_personnel" : "0550123456"
+} ]

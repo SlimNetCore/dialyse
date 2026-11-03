@@ -1,0 +1,7 @@
+{
+  "centre absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centre illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centre sans PEC" : "0",
+  "patient illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "patient inconnu" : "200 (accepté) 0"
+}

@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "adresse" : "12 rue des Lilas",
+    "dateNaissance" : "<J-9000>",
+    "groupeSanguin" : "O+",
+    "nom" : "Nouveau",
+    "numeroAssurance" : "PC2-AS-1",
+    "prenom" : "Prenom2",
+    "sexe" : "F",
+    "telBureau" : "021234567",
+    "telMobile" : "0661234567",
+    "telPersonnel" : "0550123456"
+  }
+}

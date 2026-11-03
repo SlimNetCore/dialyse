@@ -1,0 +1,11 @@
+{
+  "date ISO" : "200 (accepté) | stockée=<J-9000>",
+  "date et heure" : "200 (accepté) | stockée=<J-9001>",
+  "date suivie d'un texte" : "200 (accepté) | stockée=<J-9002>",
+  "espaces" : "200 (accepté) | stockée=null",
+  "jour/mois/année" : "400 BAD_REQUEST : Date de naissance illisible | stockée=<J-9002>",
+  "mois 13" : "400 BAD_REQUEST : Date de naissance illisible | stockée=<J-9002>",
+  "texte libre" : "400 BAD_REQUEST : Date de naissance illisible | stockée=null",
+  "trop courte" : "400 BAD_REQUEST : Date de naissance illisible | stockée=<J-9002>",
+  "vide" : "200 (accepté) | stockée=null"
+}

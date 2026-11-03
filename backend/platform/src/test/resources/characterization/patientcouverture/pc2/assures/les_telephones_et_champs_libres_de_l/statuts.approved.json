@@ -1,0 +1,10 @@
+{
+  "adresse de 255 caractères" : "200 (accepté)",
+  "adresse de 256 caractères" : "500 DATA_ACCESS_ERROR : <message technique non verrouillé>",
+  "groupe sanguin hors liste" : "200 (accepté)",
+  "nom de 256 caractères" : "500 DATA_ACCESS_ERROR : <message technique non verrouillé>",
+  "sexe hors liste" : "200 (accepté)",
+  "téléphone bureau de 22 chiffres" : "200 (accepté)",
+  "téléphone mobile de 2 chiffres" : "200 (accepté)",
+  "téléphone personnel avec des lettres" : "200 (accepté)"
+}

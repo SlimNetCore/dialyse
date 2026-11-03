@@ -1,0 +1,5 @@
+{
+  "numéro d'assuré absent" : "400 BAD_REQUEST : N° assurance assuré obligatoire pour cette qualité d'assuré",
+  "numéro d'assuré blanc" : "400 BAD_REQUEST : N° assurance assuré obligatoire pour cette qualité d'assuré",
+  "qualité inconnue" : "200 (accepté)"
+}

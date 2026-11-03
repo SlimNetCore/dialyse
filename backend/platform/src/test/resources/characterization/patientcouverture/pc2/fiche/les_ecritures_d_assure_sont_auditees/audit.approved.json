@@ -1,0 +1,22 @@
+[ {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "PC2-AS-1",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/assures/{numeroAssurance}",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_CREATION",
+  "entity_id" : "<ENFANT_1>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{id}/assures/{numeroAssurance}/affecter",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<AFF_1>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/assures/assignments/{assignmentId}",
+  "status_code" : "200"
+} ]
