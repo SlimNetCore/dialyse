@@ -67,16 +67,19 @@
   `DECEDE`, `GREFFE` et `GUERRI`, c'est la **date de sortie** (transfert, décès, greffe, guérison) ; pour `OCCASIONNEL`,
   `VACANCIER_LOCAL` et `VACANCIER_ETRANGER`, c'est la **date de fin de séjour** (dernier jour inclus), le séjour
   commençant à la date d'admission ; pour `PERMANENT`, elle n'existe pas.
-- **RG-PAT-031** — À la création comme à la modification, un état de sortie **exige une date d'évènement**
-  (`PATIENT_DATE_EVENEMENT_REQUISE`) et aucune date d'évènement ne peut précéder la date d'admission
-  (`PATIENT_DATE_EVENEMENT_AVANT_ADMISSION`). La date de fin d'un séjour limité reste facultative (séjour non borné).
+- **RG-PAT-031** — À la création comme à la modification, un état de sortie **ou de séjour limité exige une date
+  d'évènement** (`PATIENT_DATE_EVENEMENT_REQUISE` ; reprise PC1 du 2026-11-03 : le séjour limité n'est plus non borné) et
+  aucune date d'évènement ne peut précéder la date d'admission (`PATIENT_DATE_EVENEMENT_AVANT_ADMISSION`). L'état doit
+  appartenir à la **liste fermée** `PERMANENT`, `OCCASIONNEL`, `VACANCIER_LOCAL`, `VACANCIER_ETRANGER`, `TRANSFERE`,
+  `DECEDE`, `GREFFE`, `GUERRI` (sinon 422 `PATIENT_ETAT_INCONNU`, casse comprise) ; les transitions restent libres, y
+  compris depuis `DECEDE` (reproduit, **à décider**). Termes du glossaire : `TRANSFERE` = transféré, `GUERRI` = guéri.
 - **RG-PAT-032** — **Dernier jour d'occupation de la place** : `TRANSFERE` et `GUERRI` = la date d'évènement incluse
   (dernière séance) ; `DECEDE` et `GREFFE` = la veille de la date d'évènement (le patient ne dialyse plus ce jour-là) ;
   séjour limité = la date de fin de séjour incluse ; un état de sortie sans date libère la place immédiatement ;
   `PERMANENT` n'a pas de limite. Cette règle unique alimente le planning (RG-PLN-010, 040), la charge des infirmiers
   (RG-INF-040), les séances attendues (RG-SEA-042) et la libération des places (RG-PAT-033). **Exception, absences
   (RG-ABS-041, slice A3)** : la détection des absences exclut le jour de l'évènement pour les quatre états de sortie
-  (`TRANSFERE`, `GUERRI`, `DECEDE`, `GREFFE`) ; un état de sortie sans date n'y est jamais attendu. À venir (Patient et couverture) : une sortie sans date d'évènement sera refusée.
+  (`TRANSFERE`, `GUERRI`, `DECEDE`, `GREFFE`) ; un état de sortie sans date n'y est jamais attendu. Une sortie sans date d'évènement est refusée à l'enregistrement (RG-PAT-031).
 - **RG-PAT-033** — **Libération effective de la place** : lorsque le dernier jour d'occupation est dépassé, la fiche
   perd sa salle, son créneau, son générateur et ses jours de dialyse ; le patient reste dans le centre (consultation,
   facturation, historique). Le traitement s'exécute chaque nuit à 04:00 (après le contrôle des absences de 02:30, qui a
@@ -88,7 +91,9 @@
   libération de place produit un mouvement immuable (`ADMISSION`, `SEJOUR_TEMPORAIRE`, `REPRISE`, `TRANSFERT`,
   `DECES`, `GREFFE`, `GUERISON`, `PLACE_LIBEREE`) portant l'état précédent et nouveau, la date d'effet et
   l' **affectation occupée à cet instant** (salle, créneau, générateur, jours). Un mouvement n'est jamais modifié ni
-  supprimé ; la libération automatique est marquée comme telle.
+  supprimé ; la libération automatique est marquée comme telle. Corriger la **seule date** d'un état de sortie déjà
+  enregistré ne crée pas un second mouvement (le legacy écrivait `TRANSFERT` puis `TRANSFERT`) ; une date de fin de
+  séjour limité modifiée en écrit un.
 - **RG-PAT-036** — **Enregistrer la fiche ne dégrade jamais la prise en charge ni l'attestation** : la demande de prise
   en charge saisie sur la fiche retrouve la PEC existante (par identifiant, à défaut de même demande) et la conserve
   avec
@@ -104,12 +109,28 @@
   patient dans l'effectif, un évènement **antérieur** l'en retire ; un état de sortie sans date n'est jamais compté. La
   file active de la capacité écarte en plus les patients « en sommeil » (RG-PAT-008).
 - **RG-PAT-035** — Le suivi des mouvements est consultable en **liste paginée** (page 0, taille 20 par défaut,
-  100 maximum), du plus récent au plus ancien, filtrable par patient, type et période de date d'effet, **limitée au
-  centre courant**, pour les profils `ADMIN`, `SECRETAIRE`, `MEDECIN` et `INFIRMIER`.
+  100 maximum : une page négative ou une taille hors de 1 à 100 est refusée en 400), du plus récent au plus ancien,
+  filtrable par patient, type et période de date d'effet, **limitée au centre courant**, pour les profils `ADMIN`,
+  `SECRETAIRE`, `MEDECIN` et `INFIRMIER` ; un paramètre illisible répond 400.
+- **RG-PAT-038** — Le **numéro d'assurance** du patient est **unique par centre**, comparé après retrait des espaces de
+  bord et sans tenir compte de la casse, à la création **et à la modification** (422 `BUSINESS_RULE_VIOLATION`). Aucune
+  contrainte en base : le contrôle se fait sous le verrou du centre ; les doublons existants se relèvent par la requête de
+  `verifications-production.md` §41.
+- **RG-PAT-039** — **Garde de centre** : toutes les lectures de la fiche (fiche, recherche, synthèse, détail, historique
+  d'assurés, mouvements) et toutes les écritures d'assuré se font dans le centre du jeton (403 pour un autre centre, une
+  session sans centre, un rôle inconnu ou absent). Lecture : `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` ; écriture :
+  `ADMIN`, `SECRETAIRE`, `INFIRMIER`. Un patient inconnu du centre répond 404 `PATIENT_INTROUVABLE`.
+- **RG-PAT-040** — **Cohérence des dates** : la date de naissance n'est ni dans le futur
+  (`PATIENT_DATE_NAISSANCE_FUTURE`) ni postérieure à la date d'admission (`PATIENT_DATE_NAISSANCE_APRES_ADMISSION`),
+  422. Une saisie illisible (corps, date, UUID, booléen, `nombreEnfants`, `month`) répond 400 `BAD_REQUEST`. « Aujourd'hui »
+  est le jour du **centre** (fuseau du centre, `app.planification.fuseau-par-defaut`), y compris pour l'affectation d'un
+  assuré.
+- **RG-PAT-041** — Une ligne héritée aux colonnes nulles (état, jours, sommeil) se lit et se modifie : l'état nul vaut
+  `PERMANENT`, les indicateurs nuls valent faux.
 
 ## 4.2 Liste, recherche, synthèse
 
-- **RG-PAT-020** — La recherche de patients est paginée (taille 1 à 200, 20 par défaut), toujours limitée au centre, et
+- **RG-PAT-020** — La recherche de patients est paginée (taille 1 à 100, 20 par défaut ; 400 sinon), toujours limitée au centre, et
   filtrable
   par code, nom, prénom, sexe, période d'admission, numéro d'assurance, état, statut « non facturable » et, par texte du
   libellé

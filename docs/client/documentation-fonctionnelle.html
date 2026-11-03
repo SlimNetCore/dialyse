@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-02<br>594 règles de gestion · 16 domaines · 486 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-03<br>598 règles de gestion · 16 domaines · 489 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>594</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>598</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -783,9 +783,12 @@ dépendent du planning ; seul le planificateur les modifie (voir chapitre planif
 <code>VACANCIER_LOCAL</code> et <code>VACANCIER_ETRANGER</code>, c&#39;est la <strong>date de fin de séjour</strong> (dernier jour inclus), le séjour
 commençant à la date d&#39;admission ; pour <code>PERMANENT</code>, elle n&#39;existe pas.</p>
 </div></div>
-<div class="rule" id="RG-PAT-031"><div class="rid">RG-PAT-031</div><div class="rtxt"><p>À la création comme à la modification, un état de sortie <strong>exige une date d&#39;évènement</strong>
-(<code>PATIENT_DATE_EVENEMENT_REQUISE</code>) et aucune date d&#39;évènement ne peut précéder la date d&#39;admission
-(<code>PATIENT_DATE_EVENEMENT_AVANT_ADMISSION</code>). La date de fin d&#39;un séjour limité reste facultative (séjour non borné).</p>
+<div class="rule" id="RG-PAT-031"><div class="rid">RG-PAT-031</div><div class="rtxt"><p>À la création comme à la modification, un état de sortie <strong>ou de séjour limité exige une date
+d&#39;évènement</strong> (<code>PATIENT_DATE_EVENEMENT_REQUISE</code> ; reprise PC1 du 2026-11-03 : le séjour limité n&#39;est plus non borné) et
+aucune date d&#39;évènement ne peut précéder la date d&#39;admission (<code>PATIENT_DATE_EVENEMENT_AVANT_ADMISSION</code>). L&#39;état doit
+appartenir à la <strong>liste fermée</strong> <code>PERMANENT</code>, <code>OCCASIONNEL</code>, <code>VACANCIER_LOCAL</code>, <code>VACANCIER_ETRANGER</code>, <code>TRANSFERE</code>,
+<code>DECEDE</code>, <code>GREFFE</code>, <code>GUERRI</code> (sinon 422 <code>PATIENT_ETAT_INCONNU</code>, casse comprise) ; les transitions restent libres, y
+compris depuis <code>DECEDE</code> (reproduit, <strong>à décider</strong>). Termes du glossaire : <code>TRANSFERE</code> = transféré, <code>GUERRI</code> = guéri.</p>
 </div></div>
 <div class="rule" id="RG-PAT-032"><div class="rid">RG-PAT-032</div><div class="rtxt"><p><strong>Dernier jour d&#39;occupation de la place</strong> : <code>TRANSFERE</code> et <code>GUERRI</code> = la date d&#39;évènement incluse
 (dernière séance) ; <code>DECEDE</code> et <code>GREFFE</code> = la veille de la date d&#39;évènement (le patient ne dialyse plus ce jour-là) ;
@@ -793,7 +796,7 @@ séjour limité = la date de fin de séjour incluse ; un état de sortie sans da
 <code>PERMANENT</code> n&#39;a pas de limite. Cette règle unique alimente le planning (RG-PLN-010, 040), la charge des infirmiers
 (RG-INF-040), les séances attendues (RG-SEA-042) et la libération des places (RG-PAT-033). <strong>Exception, absences
 (RG-ABS-041, slice A3)</strong> : la détection des absences exclut le jour de l&#39;évènement pour les quatre états de sortie
-(<code>TRANSFERE</code>, <code>GUERRI</code>, <code>DECEDE</code>, <code>GREFFE</code>) ; un état de sortie sans date n&#39;y est jamais attendu. À venir (Patient et couverture) : une sortie sans date d&#39;évènement sera refusée.</p>
+(<code>TRANSFERE</code>, <code>GUERRI</code>, <code>DECEDE</code>, <code>GREFFE</code>) ; un état de sortie sans date n&#39;y est jamais attendu. Une sortie sans date d&#39;évènement est refusée à l&#39;enregistrement (RG-PAT-031).</p>
 </div></div>
 <div class="rule" id="RG-PAT-033"><div class="rid">RG-PAT-033</div><div class="rtxt"><p><strong>Libération effective de la place</strong> : lorsque le dernier jour d&#39;occupation est dépassé, la fiche
 perd sa salle, son créneau, son générateur et ses jours de dialyse ; le patient reste dans le centre (consultation,
@@ -807,7 +810,9 @@ Planification, qui possède désormais l&#39;écriture).</p>
 libération de place produit un mouvement immuable (<code>ADMISSION</code>, <code>SEJOUR_TEMPORAIRE</code>, <code>REPRISE</code>, <code>TRANSFERT</code>,
 <code>DECES</code>, <code>GREFFE</code>, <code>GUERISON</code>, <code>PLACE_LIBEREE</code>) portant l&#39;état précédent et nouveau, la date d&#39;effet et
 l&#39; <strong>affectation occupée à cet instant</strong> (salle, créneau, générateur, jours). Un mouvement n&#39;est jamais modifié ni
-supprimé ; la libération automatique est marquée comme telle.</p>
+supprimé ; la libération automatique est marquée comme telle. Corriger la <strong>seule date</strong> d&#39;un état de sortie déjà
+enregistré ne crée pas un second mouvement (le legacy écrivait <code>TRANSFERT</code> puis <code>TRANSFERT</code>) ; une date de fin de
+séjour limité modifiée en écrit un.</p>
 </div></div>
 <div class="rule" id="RG-PAT-036"><div class="rid">RG-PAT-036</div><div class="rtxt"><p><strong>Enregistrer la fiche ne dégrade jamais la prise en charge ni l&#39;attestation</strong> : la demande de prise
 en charge saisie sur la fiche retrouve la PEC existante (par identifiant, à défaut de même demande) et la conserve
@@ -826,11 +831,31 @@ patient dans l&#39;effectif, un évènement <strong>antérieur</strong> l&#39;en
 file active de la capacité écarte en plus les patients « en sommeil » (RG-PAT-008).</p>
 </div></div>
 <div class="rule" id="RG-PAT-035"><div class="rid">RG-PAT-035</div><div class="rtxt"><p>Le suivi des mouvements est consultable en <strong>liste paginée</strong> (page 0, taille 20 par défaut,
-100 maximum), du plus récent au plus ancien, filtrable par patient, type et période de date d&#39;effet, <strong>limitée au
-centre courant</strong>, pour les profils <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code> et <code>INFIRMIER</code>.</p>
+100 maximum : une page négative ou une taille hors de 1 à 100 est refusée en 400), du plus récent au plus ancien,
+filtrable par patient, type et période de date d&#39;effet, <strong>limitée au centre courant</strong>, pour les profils <code>ADMIN</code>,
+<code>SECRETAIRE</code>, <code>MEDECIN</code> et <code>INFIRMIER</code> ; un paramètre illisible répond 400.</p>
+</div></div>
+<div class="rule" id="RG-PAT-038"><div class="rid">RG-PAT-038</div><div class="rtxt"><p>Le <strong>numéro d&#39;assurance</strong> du patient est <strong>unique par centre</strong>, comparé après retrait des espaces de
+bord et sans tenir compte de la casse, à la création <strong>et à la modification</strong> (422 <code>BUSINESS_RULE_VIOLATION</code>). Aucune
+contrainte en base : le contrôle se fait sous le verrou du centre ; les doublons existants se relèvent par la requête de
+<code>verifications-production.md</code> §41.</p>
+</div></div>
+<div class="rule" id="RG-PAT-039"><div class="rid">RG-PAT-039</div><div class="rtxt"><p><strong>Garde de centre</strong> : toutes les lectures de la fiche (fiche, recherche, synthèse, détail, historique
+d&#39;assurés, mouvements) et toutes les écritures d&#39;assuré se font dans le centre du jeton (403 pour un autre centre, une
+session sans centre, un rôle inconnu ou absent). Lecture : <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code> ; écriture :
+<code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code>. Un patient inconnu du centre répond 404 <code>PATIENT_INTROUVABLE</code>.</p>
+</div></div>
+<div class="rule" id="RG-PAT-040"><div class="rid">RG-PAT-040</div><div class="rtxt"><p><strong>Cohérence des dates</strong> : la date de naissance n&#39;est ni dans le futur
+(<code>PATIENT_DATE_NAISSANCE_FUTURE</code>) ni postérieure à la date d&#39;admission (<code>PATIENT_DATE_NAISSANCE_APRES_ADMISSION</code>),
+422. Une saisie illisible (corps, date, UUID, booléen, <code>nombreEnfants</code>, <code>month</code>) répond 400 <code>BAD_REQUEST</code>. « Aujourd&#39;hui »
+est le jour du <strong>centre</strong> (fuseau du centre, <code>app.planification.fuseau-par-defaut</code>), y compris pour l&#39;affectation d&#39;un
+assuré.</p>
+</div></div>
+<div class="rule" id="RG-PAT-041"><div class="rid">RG-PAT-041</div><div class="rtxt"><p>Une ligne héritée aux colonnes nulles (état, jours, sommeil) se lit et se modifie : l&#39;état nul vaut
+<code>PERMANENT</code>, les indicateurs nuls valent faux.</p>
 </div></div>
 <h2>4.2 Liste, recherche, synthèse</h2>
-<div class="rule" id="RG-PAT-020"><div class="rid">RG-PAT-020</div><div class="rtxt"><p>La recherche de patients est paginée (taille 1 à 200, 20 par défaut), toujours limitée au centre, et
+<div class="rule" id="RG-PAT-020"><div class="rid">RG-PAT-020</div><div class="rtxt"><p>La recherche de patients est paginée (taille 1 à 100, 20 par défaut ; 400 sinon), toujours limitée au centre, et
 filtrable
 par code, nom, prénom, sexe, période d&#39;admission, numéro d&#39;assurance, état, statut « non facturable » et, par texte du
 libellé
@@ -4490,10 +4515,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-DOC-003, 004</td>
 </tr>
 <tr>
-<td><code>PatientRestController</code></td>
-<td><code>/api/v1/patients</code></td>
-<td>lecture tous profils de centre, écriture hors médecin « seul »</td>
-<td>RG-PAT-001 à 024, RG-ASS-001 à 008</td>
+<td><code>PatientsControleur</code></td>
+<td><code>/api/v1/patients</code> — contexte <code>patient-couverture</code>, slice PC1</td>
+<td>lecture <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code> ; écriture <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code> ; garde de centre</td>
+<td>RG-PAT-001 à 024, 030 à 041, RG-ASS-001 à 008</td>
 </tr>
 <tr>
 <td><code>PatientStatsRestController</code></td>
@@ -4508,10 +4533,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-SEA-045</td>
 </tr>
 <tr>
-<td><code>MouvementPatientRestController</code></td>
-<td><code>/api/v1/mouvements-patients</code></td>
+<td><code>MouvementsControleur</code></td>
+<td><code>/api/v1/mouvements-patients</code> — contexte <code>patient-couverture</code>, slice PC1</td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code></td>
-<td>RG-PAT-034, 035</td>
+<td>RG-PAT-034, 035, 039</td>
 </tr>
 <tr>
 <td><code>PecRestController</code></td>

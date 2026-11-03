@@ -1705,3 +1705,24 @@ SELECT center_id, code, count(*) FROM direction_alert_history WHERE resolved_at 
 SELECT center_id, first_seen_at::date AS jour, count(DISTINCT code) FROM direction_alert_history GROUP BY 1, 2 HAVING count(DISTINCT code) > 1 LIMIT 20;
 ```
 Voir `backend/contexts/pilotage-direction/GEL.md` et l'ADR 0075.
+
+## 41. Patient et couverture PC1 (identité et mouvements) : reprise sur place, session S2 (2026-11-03) — SELECT seulement
+Le module `contexts/patient-couverture` est de nouveau dans le réacteur (mêmes tables `patients` et `mouvement_patient`, mêmes URLs `/api/v1/patients/**` et `/api/v1/mouvements-patients`). Aucune contrainte SQL ni index n'est créé. Constats à lancer AVANT la bascule (recette), le résultat décide d'un éventuel nettoyage manuel validé par écrit ; rejeu sur schéma PostgreSQL 16 jetable : `backend/scripts/patient-couverture-pc1-pg16-rejeu.sh`.
+```sql
+-- 1. Doublons de numéro d'assurance par centre (casse et espaces ignorés : l'unicité est désormais contrôlée à la création ET à la modification). Attendu : 0 ligne ; sinon corriger à la main avant la bascule. Index proposé SEULEMENT après nettoyage : CREATE UNIQUE INDEX ... ON patients (center_id, UPPER(TRIM(numero_assurance))) (non créé).
+SELECT center_id, UPPER(TRIM(numero_assurance)), count(*) FROM patients GROUP BY 1, 2 HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
+-- 2. États hors de la liste fermée (la lecture les traite comme PERMANENT ; l'écriture les refuse en 422).
+SELECT center_id, etat_patient, count(*) FROM patients WHERE etat_patient IS NOT NULL AND etat_patient NOT IN ('PERMANENT','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER','TRANSFERE','DECEDE','GREFFE','GUERRI') GROUP BY 1, 2 ORDER BY 3 DESC;
+-- 3. Sorties et séjours limités sans date d'évènement (la saisie exige désormais la date aussi pour un séjour limité).
+SELECT center_id, etat_patient, count(*) FROM patients WHERE etat_patient IN ('TRANSFERE','DECEDE','GREFFE','GUERRI','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER') AND date_evenement_etat IS NULL GROUP BY 1, 2 ORDER BY 3 DESC;
+-- 4. Naissance future ou postérieure à l'admission (désormais refusée en 422 à la saisie).
+SELECT center_id, count(*) FROM patients WHERE date_naissance > current_date OR date_naissance > date_admission GROUP BY 1 ORDER BY 2 DESC;
+-- 5. Lignes héritées aux colonnes nulles (lues avec les défauts : permanent, assuré lui-même, jours faux).
+SELECT center_id, count(*) FILTER (WHERE etat_patient IS NULL) AS etat_nul, count(*) FILTER (WHERE qualite_assure IS NULL) AS qualite_nulle, count(*) FILTER (WHERE en_sommeil IS NULL) AS sommeil_nul FROM patients GROUP BY 1;
+-- 6. Assuré lui-même dont le numéro d'assuré diffère du numéro du patient (divergence historique du PUT, KB-PAT-03).
+SELECT center_id, count(*) FROM patients WHERE qualite_assure = 'ASSURE_LUI_MEME' AND assure_numero_assurance IS DISTINCT FROM numero_assurance GROUP BY 1 ORDER BY 2 DESC;
+-- 7. Patients sans mouvement d'admission ; 8. types de mouvement hors liste (une liste complète des mouvements échouait en 400 avant, KB-PAT-13).
+SELECT p.center_id, count(*) FROM patients p WHERE NOT EXISTS (SELECT 1 FROM mouvement_patient m WHERE m.patient_id = p.id AND m.type = 'ADMISSION') GROUP BY 1 ORDER BY 2 DESC;
+SELECT type, count(*) FROM mouvement_patient WHERE type NOT IN ('ADMISSION','SEJOUR_TEMPORAIRE','REPRISE','TRANSFERT','DECES','GREFFE','GUERISON','PLACE_LIBEREE') GROUP BY type;
+```
+Ordre global des verrous des écritures de fiche : centre (Planification, `PlacementDesPatients.verifier`) puis fiche puis app_user ; `lock_timeout` posé à l'entrée de l'unité de travail, refus en 409. Les contrôleurs legacy `PatientRestController` et `MouvementPatientRestController` et les services, adapters et DTO de la fiche devenus morts sont SUPPRIMÉS (liste dans `.ddd/safety-net/seams.md`, seams fermés le 2026-11-03) ; les URL sont servies par `contexts/patient-couverture`. Rollback : revenir au commit précédent (pas de drapeau de routage, refactoring sur place, ADR 0024).

@@ -41,7 +41,8 @@ class PatientFicheEcritureIntegrationTest {
     private int statutAffectation(String... roles) throws Exception {
         return mockMvc.perform(post("/api/v1/patients/{id}/assures/{numero}/affecter", PATIENT, "ASS-X")
                         .param("centerId", CENTRE.toString())
-                        .with(user("u").roles(roles)))
+                        .with(user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(
+                                UUID.randomUUID().toString(), CENTRE.toString(), "u", "", java.util.List.of(roles), true))))
                 .andReturn().getResponse().getStatus();
     }
 
@@ -59,8 +60,14 @@ class PatientFicheEcritureIntegrationTest {
     @Test
     void every_other_profile_passes_the_security_check() throws Exception {
         for (String[] roles : new String[][]{{"ADMIN"}, {"SECRETAIRE"}, {"INFIRMIER"}, {"MEDECIN", "SECRETAIRE"},
-                {"MEDECIN", "ADMIN"}, {"COMPTABLE"}}) {
+                {"MEDECIN", "ADMIN"}}) {
             assertNotEquals(403, statutAffectation(roles), String.join("+", roles));
         }
+    }
+
+    /** Un rôle inconnu n'écrit plus la fiche (liste blanche de rôles, décision du 02/11, KB-PAT-07). */
+    @Test
+    void an_unknown_profile_is_refused() throws Exception {
+        org.junit.jupiter.api.Assertions.assertEquals(403, statutAffectation("COMPTABLE"));
     }
 }

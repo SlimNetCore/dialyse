@@ -14,7 +14,8 @@ public record Couverture(NumeroAssurance numeroAssurance, String qualiteAssure, 
     public static final String ASSURE_LUI_MEME = "ASSURE_LUI_MEME";
 
     public Couverture {
-        qualiteAssure = qualiteAssure == null || qualiteAssure.isBlank() ? ASSURE_LUI_MEME : qualiteAssure;
+        // qualité absente (saisie ou ligne héritée) : n'est pas « assuré lui-même » (numéro de l'assuré exigé à la saisie), comme
+        // le comportement actuel
         assure = assure == null ? AssureSurLaFiche.vide() : assure;
     }
 

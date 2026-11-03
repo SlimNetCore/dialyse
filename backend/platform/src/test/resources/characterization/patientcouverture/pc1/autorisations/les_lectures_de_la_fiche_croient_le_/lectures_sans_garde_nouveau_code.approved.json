@@ -1,0 +1,10 @@
+{
+  "détail du résumé du centre B par l'ADMIN du centre A" : 0,
+  "fiche du centre B lue par l'ADMIN du centre A" : 403,
+  "fiche du centre B lue sans centre de session" : 403,
+  "historique des assurés du patient B demandé avec le centre B" : 403,
+  "recherche du centre B par l'ADMIN du centre A" : "403 total=-1",
+  "recherche du centre B par le médecin du centre A" : 403,
+  "recherche sans centre de session (ADMIN sans centre)" : 403,
+  "résumé du centre B par l'ADMIN du centre A" : 0
+}

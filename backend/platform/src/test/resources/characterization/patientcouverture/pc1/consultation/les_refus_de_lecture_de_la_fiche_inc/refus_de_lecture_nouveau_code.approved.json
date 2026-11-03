@@ -1,0 +1,11 @@
+{
+  "centerId illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "centre A demandé par l'ADMIN du centre B" : 403,
+  "centre B demandé par l'ADMIN du centre B pour un patient du centre A" : "404 PATIENT_INTROUVABLE : Patient introuvable",
+  "centre B demandé pour un patient du centre A (ADMIN du centre A)" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "fiche connue" : 200,
+  "identifiant illisible" : "400 BAD_REQUEST : Paramètre illisible : id",
+  "identifiant inconnu" : "404 PATIENT_INTROUVABLE : Patient introuvable",
+  "sans centerId" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "userId inutilisé accepté" : 200
+}

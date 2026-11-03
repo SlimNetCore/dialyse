@@ -3,7 +3,11 @@ package com.hemodialyse.backend.application.query;
 import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
-import com.hemodialyse.backend.infrastructure.web.dto.request.PatientSearchRequest;
+import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLEffectif;
+import com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDeRecherche;
+import com.hemodialyse.backend.contexts.patientcouverture.application.HorlogeDesCentres;
+import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesPatients;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,10 +42,10 @@ class EffectifIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbc;
+    /** Lecture du module Patient et couverture, sans garde de centre (la garde est éprouvée par le filet PC1). */
     @Autowired
-    private PatientSummaryQueryService summary;
-    @Autowired
-    private PatientListQueryService list;
+    private LectureDesPatients lecture;
+    private ConsulterLEffectif summary;
     @Autowired
     private DirectionDashboardQueryService dashboard;
     @Autowired
@@ -51,6 +55,17 @@ class EffectifIntegrationTest {
 
     @BeforeEach
     void seed() {
+        summary = new ConsulterLEffectif(demande -> new CentreId(C1), lecture, new HorlogeDesCentres() {
+            @Override
+            public LocalDate aujourdhui(CentreId centre) {
+                return FIN;
+            }
+
+            @Override
+            public java.time.Instant maintenant() {
+                return java.time.Instant.parse("2026-09-30T12:00:00Z");
+            }
+        });
         cleanup();
         jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,TRUE,CURRENT_TIMESTAMP)",
                 SOC, "ZT-EF1", "Société EF1");
@@ -81,17 +96,21 @@ class EffectifIntegrationTest {
                 evenement == null ? null : Date.valueOf(evenement), "ASSURE", false, sommeil);
     }
 
-    private PatientSearchRequest recherche(String sexe, String etat) {
-        return new PatientSearchRequest(C1, 0, 100, null, null, null, sexe, null, null, null, etat, null, null, null,
-                null, null, null, null, null);
+    private CriteresDeRecherche recherche(String sexe, String etat) {
+        return new CriteresDeRecherche(0, 100, null, null, null, sexe, null, null, null, etat, null, null, null, null, null, null,
+                null, null);
+    }
+
+    private long total(String sexe, String etat) {
+        return lecture.rechercher(new CentreId(C1), recherche(sexe, etat)).total();
     }
 
     @Test
     void the_monthly_summary_counts_the_patients_present_during_the_month() {
-        assertThat(summary.getSummary(C1, YearMonth.of(2026, 9)).totalPatients()).isEqualTo(7);
-        assertThat(summary.getSummary(C1, YearMonth.of(2026, 3)).totalPatients())
+        assertThat(summary.resume(C1, YearMonth.of(2026, 9)).totalPatients()).isEqualTo(7);
+        assertThat(summary.resume(C1, YearMonth.of(2026, 3)).totalPatients())
                 .as("mars : transféré du 1er mars et décédée de septembre encore présents, admis d'octobre non").isEqualTo(9);
-        assertThat(summary.getSummary(C1, YearMonth.of(2026, 10)).totalPatients())
+        assertThat(summary.resume(C1, YearMonth.of(2026, 10)).totalPatients())
                 .as("octobre : le décès et le transfert de mars sont sortis, l'admis du 5 octobre arrive").isEqualTo(8);
     }
 
@@ -123,15 +142,15 @@ class EffectifIntegrationTest {
 
     @Test
     void the_list_accepts_several_values_for_the_sex_and_state_filters() {
-        assertThat(list.search(C1, recherche("M,F", null)).total()).isEqualTo(10);
-        assertThat(list.search(C1, recherche("M", null)).total()).isEqualTo(6);
-        assertThat(list.search(C1, recherche("F", null)).total()).isEqualTo(4);
-        assertThat(list.search(C1, recherche(null, "PERMANENT,TRANSFERE")).total()).isEqualTo(9);
-        assertThat(list.search(C1, recherche(null, "DECEDE,TRANSFERE")).total()).isEqualTo(3);
-        assertThat(list.search(C1, recherche("m, f", "permanent,decede")).total())
+        assertThat(total("M,F", null)).isEqualTo(10);
+        assertThat(total("M", null)).isEqualTo(6);
+        assertThat(total("F", null)).isEqualTo(4);
+        assertThat(total(null, "PERMANENT,TRANSFERE")).isEqualTo(9);
+        assertThat(total(null, "DECEDE,TRANSFERE")).isEqualTo(3);
+        assertThat(total("m, f", "permanent,decede"))
                 .as("insensible à la casse et aux espaces").isEqualTo(8);
-        List<Object> sexes = list.search(C1, recherche("F", null)).items().stream().map(r -> r.get("sexe"))
-                .collect(Collectors.toList());
+        List<Object> sexes = lecture.rechercher(new CentreId(C1), recherche("F", null)).items().stream()
+                .map(r -> (Object) r.sexe()).collect(Collectors.toList());
         assertThat(sexes).containsOnly("F");
     }
 }

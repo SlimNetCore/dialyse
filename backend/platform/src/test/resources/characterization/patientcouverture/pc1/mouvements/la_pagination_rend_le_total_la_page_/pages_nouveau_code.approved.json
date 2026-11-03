@@ -1,0 +1,56 @@
+{
+  "défauts" : {
+    "lignes" : [ "<J-1> GUERISON Test Patient C", "<J-2> GREFFE Test Patient C", "<J-3> DECES Test Patient C", "<J-5> PLACE_LIBEREE Test Patient B", "<J-10> TRANSFERT Test Patient B", "<J-20> REPRISE Test Patient A", "<J-30> SEJOUR_TEMPORAIRE Test Patient A", "<J-35> ADMISSION Test Patient B", "<J-40> ADMISSION Test Patient A" ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 9
+  },
+  "page=-1&size=4" : "400 BAD_REQUEST : La page ne peut pas être négative",
+  "page=0&size=-1" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 100",
+  "page=0&size=0" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 100",
+  "page=0&size=1" : {
+    "lignes" : [ "<J-1> GUERISON Test Patient C" ],
+    "page" : 0,
+    "size" : 1,
+    "total" : 9
+  },
+  "page=0&size=1000" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 100",
+  "page=0&size=4" : {
+    "lignes" : [ "<J-1> GUERISON Test Patient C", "<J-2> GREFFE Test Patient C", "<J-3> DECES Test Patient C", "<J-5> PLACE_LIBEREE Test Patient B" ],
+    "page" : 0,
+    "size" : 4,
+    "total" : 9
+  },
+  "page=0&size=abc" : "400 BAD_REQUEST : Paramètre illisible : size",
+  "page=1&size=4" : {
+    "lignes" : [ "<J-10> TRANSFERT Test Patient B", "<J-20> REPRISE Test Patient A", "<J-30> SEJOUR_TEMPORAIRE Test Patient A", "<J-35> ADMISSION Test Patient B" ],
+    "page" : 1,
+    "size" : 4,
+    "total" : 9
+  },
+  "page=2&size=4" : {
+    "lignes" : [ "<J-40> ADMISSION Test Patient A" ],
+    "page" : 2,
+    "size" : 4,
+    "total" : 9
+  },
+  "page=3&size=4" : {
+    "lignes" : [ ],
+    "page" : 3,
+    "size" : 4,
+    "total" : 9
+  },
+  "page=8&size=1" : {
+    "lignes" : [ "<J-40> ADMISSION Test Patient A" ],
+    "page" : 8,
+    "size" : 1,
+    "total" : 9
+  },
+  "page=abc" : "400 BAD_REQUEST : Paramètre illisible : page",
+  "size=2" : {
+    "lignes" : [ "<J-1> GUERISON Test Patient C", "<J-2> GREFFE Test Patient C" ],
+    "page" : 0,
+    "size" : 2,
+    "total" : 9
+  }
+}

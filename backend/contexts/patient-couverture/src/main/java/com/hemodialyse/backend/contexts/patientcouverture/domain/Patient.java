@@ -86,11 +86,13 @@ public final class Patient {
         if (c.assureLuiMeme()) {
             Identite i = fiche.identite();
             Coordonnees k = fiche.coordonnees();
+            // l'état civil recopié par la saisie est conservé tel quel (téléphones comme saisis) ; sinon il est déduit de la fiche
+            Couverture.AssureSurLaFiche assure = c.assure().equals(Couverture.AssureSurLaFiche.vide())
+                    ? new Couverture.AssureSurLaFiche(i.sexe(), i.nom(), i.prenom(), i.dateNaissance().toString(),
+                    k.telPersonnel(), k.adresse(), i.groupeSanguin(), k.telMobile(), k.telBureau())
+                    : c.assure();
             return fiche.avecCouverture(new Couverture(c.numeroAssurance(), c.qualiteAssure(), c.centrePayeurId(),
-                    c.numeroAssurance().valeur(),
-                    new Couverture.AssureSurLaFiche(i.sexe(), i.nom(), i.prenom(), i.dateNaissance().toString(),
-                            k.telPersonnel(), k.adresse(), i.groupeSanguin(), k.telMobile(), k.telBureau()),
-                    c.assureHistoriqueJson(), c.piecesJointesJson()));
+                    c.numeroAssurance().valeur(), assure, c.assureHistoriqueJson(), c.piecesJointesJson()));
         }
         String numero = c.assureNumeroAssurance();
         if (numero == null || numero.isBlank()) {
@@ -128,8 +130,8 @@ public final class Patient {
      */
     public static void verifierNumeroLibre(Optional<PatientId> detenteur, Optional<PatientId> candidat) {
         if (detenteur.isPresent() && !detenteur.equals(candidat)) {
-            throw new RegleDePatientViolee("PATIENT_NUMERO_ASSURANCE_DEJA_UTILISE",
-                    "Numero assurance deja utilise pour ce centre");
+            // code stable du legacy conservé (422 BUSINESS_RULE_VIOLATION)
+            throw new RegleDePatientViolee("BUSINESS_RULE_VIOLATION", "Numero assurance deja utilise pour ce centre");
         }
     }
 
@@ -138,7 +140,8 @@ public final class Patient {
      */
     public void verifierAttestation(boolean fournie, boolean dejaEnregistree) {
         if (!fiche.etat().vacancier() && !fournie && !dejaEnregistree) {
-            throw new RegleDePatientViolee("PATIENT_ATTESTATION_REQUISE", "Attestation obligatoire pour un patient non-vacancier");
+            // 400 comme le legacy (saisie incomplète, pas règle de gestion nommée)
+            throw new SaisieInvalide("Attestation obligatoire pour un patient non-vacancier");
         }
     }
 

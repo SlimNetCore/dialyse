@@ -71,7 +71,7 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
             m.put(champ + " nul", refus(doPost(PATIENTS, corps(nul), adminA())));
         }
         m.put("fiches écrites", nombreDeFiches());
-        arbre("champs_primitifs_absents", m);
+        arbre("champs_primitifs_absents_nouveau_code", m);
     }
 
     @Test
@@ -114,9 +114,9 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
         Map<String, Object> autreCentre = ficheMap("Cinquieme", "PC1-DOUBLON");
         autreCentre.put("centerId", CENTRE_B.toString());
         m.put("même numéro, autre centre", refus(doPost(PATIENTS, corps(autreCentre), adminB())));
-        arbre("unicite_du_numero_d_assurance", m);
-        etatDeLIdentite("fiches_ecrites");
-        sql("nombre_de_mouvements_par_patient", "SELECT p.nom, COUNT(*) AS n FROM mouvement_patient m JOIN patients p ON p.id = m.patient_id "
+        arbre("unicite_du_numero_d_assurance_nouveau_code", m);
+        etatDeLIdentite("fiches_ecrites_nouveau_code");
+        sql("nombre_de_mouvements_par_patient_nouveau_code","SELECT p.nom, COUNT(*) AS n FROM mouvement_patient m JOIN patients p ON p.id = m.patient_id "
                 + "WHERE m.center_id IN ('" + CENTRE_A + "','" + CENTRE_B + "') GROUP BY p.nom ORDER BY p.nom");
     }
 
@@ -150,9 +150,9 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
             m.put("état '" + c[0] + "' date " + (c[1] == null ? "absente" : c[1].startsWith("-") ? "J" + c[1] : "J" + c[1]),
                     refus(doPost(PATIENTS, corps(f), adminA())));
         }
-        arbre("etats_a_la_creation", m);
-        etatDeLIdentite("fiches_ecrites");
-        etatDesMouvements("mouvements_d_admission");
+        arbre("etats_a_la_creation_nouveau_code", m);
+        etatDeLIdentite("fiches_ecrites_nouveau_code");
+        etatDesMouvements("mouvements_d_admission_nouveau_code");
     }
 
     @Test
@@ -183,9 +183,9 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
         aliasNommes.put(attestation.toString(), "<ATTESTATION_IMPOSEE>");
         idImposee.put("attestationId", attestation.toString());
         m.put("identifiant d'attestation imposé", refus(doPost(PATIENTS, corps(idImposee), adminA())));
-        arbre("attestation", m);
-        etatDeLIdentite("fiches_ecrites");
-        etatDesAttestations("attestations_ecrites");
+        arbre("attestation_nouveau_code", m);
+        etatDeLIdentite("fiches_ecrites_nouveau_code");
+        etatDesAttestations("attestations_ecrites_nouveau_code");
         sql("identifiant_d_attestation", "SELECT id FROM attestation_droit WHERE center_id = '" + CENTRE_A + "' AND id = '" + attestation + "'");
     }
 
@@ -285,9 +285,9 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
         Map<String, Object> impossible = ficheMap("DateImpossible", "PC1-DATES-5");
         impossible.put("dateAdmission", "2026-02-30");
         m.put("admission le 30 février", refus(doPost(PATIENTS, corps(impossible), adminA())));
-        arbre("dates", m);
-        etatDeLIdentite("fiches_ecrites");
-        etatDesMouvements("mouvements");
+        arbre("dates_nouveau_code", m);
+        etatDeLIdentite("fiches_ecrites_nouveau_code");
+        etatDesMouvements("mouvements_nouveau_code");
     }
 
     @Test
@@ -298,7 +298,7 @@ class CreationDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
             m.put("corps " + (c.isEmpty() ? "vide" : c), refus(doPost(PATIENTS, json(c), adminA())));
         }
         m.put("empreinte inchangée", nombreDeFiches() == 0);
-        arbre("corps_invalides", m);
+        arbre("corps_invalides_nouveau_code", m);
     }
 
     @Test

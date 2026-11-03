@@ -79,6 +79,12 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de la Planification (PlacementDesPatients, LiberationDesPlaces) : seul point d'entrée (ArchUnit) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-planification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!-- Reprise sur place (ADR 0024, GEL.md) : les sources gelées d'avant la reprise (Assure, Pec, Attestation, services,
@@ -108,10 +114,13 @@
                         <exclude>**/application/PatientUseCases.java</exclude>
                         <exclude>**/application/PecService.java</exclude>
                         <exclude>**/application/PecUseCases.java</exclude>
-                        <exclude>**/configuration/PatientCouvertureConfiguration.java</exclude>
-                        <exclude>**/infrastructure/persistence/*Jdbc.java</exclude>
-                        <exclude>**/interfaces/http/*Controleur.java</exclude>
-                        <exclude>**/interfaces/http/dto/*Request.java</exclude>
+                        <exclude>**/infrastructure/persistence/AssurePatientsJdbc.java</exclude>
+                        <exclude>**/infrastructure/persistence/AttestationsJdbc.java</exclude>
+                        <exclude>**/infrastructure/persistence/PecsJdbc.java</exclude>
+                        <exclude>**/interfaces/http/AssuresControleur.java</exclude>
+                        <exclude>**/interfaces/http/AttestationsControleur.java</exclude>
+                        <exclude>**/interfaces/http/PecControleur.java</exclude>
+                        <exclude>**/interfaces/http/dto/*.java</exclude>
                         <exclude>**/publishedlanguage/Assure*.java</exclude>
                         <exclude>**/publishedlanguage/Attestation*.java</exclude>
                         <exclude>**/publishedlanguage/PatientAdmis.java</exclude>
@@ -121,6 +130,33 @@
                         <testExclude>**/domain/AssureTest.java</testExclude>
                         <testExclude>**/domain/PecTest.java</testExclude>
                     </testExcludes>
+                </configuration>
+            </plugin>
+            <!-- Mutation : domaine et cas d'usage. Lancer : bash backend/scripts/pit-pc1-module.sh -->
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.30.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.2.3</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>com.hemodialyse.backend.contexts.patientcouverture.domain.*</param>
+                        <param>com.hemodialyse.backend.contexts.patientcouverture.application.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.hemodialyse.backend.contexts.patientcouverture.domain.*</param>
+                        <param>com.hemodialyse.backend.contexts.patientcouverture.application.*</param>
+                    </targetTests>
+                    <outputFormats>
+                        <param>HTML</param>
+                        <param>XML</param>
+                    </outputFormats>
                 </configuration>
             </plugin>
         </plugins>

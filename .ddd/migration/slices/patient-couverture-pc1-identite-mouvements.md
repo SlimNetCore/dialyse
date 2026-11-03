@@ -1,7 +1,7 @@
 ---
 slice: patient-couverture-pc1-identite-mouvements
-status: planned
-date: 2026-10-29
+status: built
+date: 2026-11-03
 order: 1
 context: patient-couverture
 sources: [.ddd/tactical/patient-couverture.md, ADR 0004, 0024, 0064]
@@ -32,3 +32,16 @@ Bloquer la sortie sans date d'événement (décision utilisateur) ; lister cas e
 ## Données
 
 Tables patient/mouvements ; aucune migration. centerId obligatoire.
+
+## Avancement (reprise sur place, ADR 0024)
+
+| Session | État | Contenu |
+|---|---|---|
+| S1 (b0144e36) | faite | domaine (`Patient`, `Fiche`, `EtatDuPatient` au vocabulaire du legacy), use cases, ports, doubles, 69 tests |
+| S3 (2026-11-03) | faite | parité (écarts décidés archivés, goldens `_nouveau_code`), legacy mort supprimé, seams fermés, PIT du domaine et de l'application (258 mutants, 86 % tués, 98 % des lignes), contrats H2 + PG16 verts, build complet vert, ADR 0076 (proposed), RG-PAT-038 à 041, KB-PAT-19, glossaire (proposed), documentation client régénérée |
+| S2 (2026-11-03) | faite | adapters JDBC sur les vraies colonnes (`date_evenement_etat`), lectures SQL (recherche, résumé, détail, historique d'assurés, mouvements) au même SQL que le legacy, contrôleurs et advice sur les MÊMES URLs, ACL de place (Planification P5/P7), ACL de couverture (attestation, PEC, assuré), 3 routes d'assuré avec garde de centre, jour du centre, contrats double/H2/PG16 (`backend/scripts/patient-couverture-pc1-pg16-rejeu.sh`), module remis au réacteur, contrôleurs legacy désactivés par défaut (seam ouvert) |
+
+### Parité finale (S3) : 56 scénarios PC1 verts ; 24 scénarios en écart décidé (47 goldens `_nouveau_code`, 47 `.legacy.json` archivés octet pour octet depuis 321275cb dans `pc1/_ecarts-legacy/`), 1 PC2 (`list_assures_cross_centre_adminB`) et 1 P5 (`requetes_invalides_nouveau_code`, archive `avant_pc1.legacy.json`) ; les anciens `*.approved.json` des goldens renommés ont été supprimés après archivage (le dossier `received` ignoré par git reste local).
+
+### Écarts de parité constatés en S2 sur le filet PC1 (56 scénarios : 32 identiques, 24 en écart, tous décidés ; hors PC1 : PC2 assuré 1/5 (garde de centre), P5 placement 1/23 (400/404 au lieu de 500/400), 2 tests du legacy retiré à adapter en S3 : `PatientFicheEcritureIntegrationTest`, `PatientGenerateurIntegrationTest`, sessions sans centre ; build `platform` : 2555 tests, 28 en écart, 0 hors liste)
+Décisions du 02/11 (400, 404, 403 de garde, rôles, états fermés, date de séjour limité, naissance, unicité normalisée, ligne héritée, size ≤ 100) et KB-PAT-05 (corriger la seule date d'une sortie ne crée pas de mouvement). Écarts de détail à valider en S3 : `numero_assurance` modifié par le `PUT` (normalisé), message de la liste de mouvements pour un type inconnu en base (nom de classe), `etatPatient`/`qualiteAssure` nuls rendus `PERMANENT`/`ASSURE_LUI_MEME`. Reproduit à l'identique : `piecesJointesJson` toujours nul à la lecture (KB-PAT-19 proposé), téléphones de `assureInfo` tels que saisis, en-têtes de cache de la fiche, 400 « Attestation obligatoire », code `BUSINESS_RULE_VIOLATION` du numéro déjà utilisé.

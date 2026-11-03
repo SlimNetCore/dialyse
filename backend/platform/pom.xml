@@ -78,6 +78,12 @@
             <artifactId>contexts-organisation</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Patient et couverture (slice PC1, refonte sur place, ADR 0024 et 0076) : fiche, mouvements, recherche -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-patient-couverture</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>ai.timefold.solver</groupId>
             <artifactId>timefold-solver-core</artifactId>

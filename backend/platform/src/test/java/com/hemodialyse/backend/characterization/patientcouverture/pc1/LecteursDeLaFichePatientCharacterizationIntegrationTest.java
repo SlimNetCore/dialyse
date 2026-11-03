@@ -81,8 +81,8 @@ class LecteursDeLaFichePatientCharacterizationIntegrationTest extends PatientCou
         }
         m.put("enregistrements", statuts);
         m.put("après les enregistrements", attendusAutourDeAujourdhui());
-        arbre("attendus", m);
-        etatDesMouvements("mouvements");
+        arbre("attendus_nouveau_code", m);
+        etatDesMouvements("mouvements_nouveau_code");
     }
 
     @Test

@@ -65,7 +65,7 @@ class ModificationEtEtatsDeLaFichePatientCharacterizationIntegrationTest extends
         m.put("statut", refus(r));
         m.put("numero_assurance en base", jdbc.queryForObject("SELECT numero_assurance FROM patients WHERE id = ?", String.class, id));
         m.put("assure_numero_assurance en base", jdbc.queryForObject("SELECT assure_numero_assurance FROM patients WHERE id = ?", String.class, id));
-        arbre("numero_d_assurance_ignore", m);
+        arbre("numero_d_assurance_ignore_nouveau_code", m);
         Map<String, Object> pris = ficheDuPatient("P2");
         patientSansPlace("P2");
         pris.put("numeroAssurance", "ASS-P3-P1");
@@ -78,7 +78,7 @@ class ModificationEtEtatsDeLaFichePatientCharacterizationIntegrationTest extends
         m.put("identifiant inconnu", refus(modifier(UUID.nameUUIDFromBytes("inconnu".getBytes()), ficheDuPatient("X"), adminA())));
         m.put("identifiant illisible", refus(doPut(PATIENTS + "/pas-un-uuid", corps(ficheDuPatient("X")), adminA())));
         m.put("fiches écrites", nombreDeFiches());
-        arbre("patient_inconnu", m);
+        arbre("patient_inconnu_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ états et mouvements
@@ -105,9 +105,9 @@ class ModificationEtEtatsDeLaFichePatientCharacterizationIntegrationTest extends
             Resp r = modifier(id, enEtat(alias, (String) c[2], (Integer) c[3]), adminA());
             statuts.put(alias + " " + libelle((String) c[0], (Integer) c[1]) + " -> " + libelle((String) c[2], (Integer) c[3]), refus(r));
         }
-        arbre("statuts", statuts);
-        etatDeLIdentite("fiches_apres");
-        etatDesMouvements("mouvements");
+        arbre("statuts_nouveau_code", statuts);
+        etatDeLIdentite("fiches_apres_nouveau_code");
+        etatDesMouvements("mouvements_nouveau_code");
     }
 
     @Test
@@ -156,9 +156,9 @@ class ModificationEtEtatsDeLaFichePatientCharacterizationIntegrationTest extends
         Map<String, Object> nul = enEtat("K4", null, null);
         nul.put("etatPatient", null);
         m.put("PERMANENT, état explicitement nul", refus(modifier(d, nul, adminA())));
-        arbre("etat_absent_du_corps", m);
-        etatDeLIdentite("fiches_apres");
-        etatDesMouvements("mouvements");
+        arbre("etat_absent_du_corps_nouveau_code", m);
+        etatDeLIdentite("fiches_apres_nouveau_code");
+        etatDesMouvements("mouvements_nouveau_code");
     }
 
     @Test

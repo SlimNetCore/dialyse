@@ -19,3 +19,19 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §2]
 | Attestation de droits | Justificatif de droits du patient | `AttestationDeDroits` | `bc-insurance`, `ATTESTATION_DROITS` | — | absente ⇒ cause de non-facturation | proposed |
 
 Homonymes : *Greffe* (état de sortie, ici) ≠ *Greffe réalisée* (statut de bilan, Dossier médical).
+
+## Termes ajoutés par la reprise PC1 (2026-11-03, statut `proposed`, ADR 0076)
+
+Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le terme métier. Identifiants du code : `EtatDuPatient` (valeurs `PERMANENT`, `OCCASIONNEL`, `VACANCIER_LOCAL`, `VACANCIER_ETRANGER`, `TRANSFERE`, `DECEDE`, `GREFFE`, `GUERRI`), `TypeDeMouvement` (`ADMISSION`, `SEJOUR_TEMPORAIRE`, `REPRISE`, `TRANSFERT`, `DECES`, `GREFFE`, `GUERISON`, `PLACE_LIBEREE`).
+
+| Terme métier | Définition | Identifiant du code | Notes |
+|---|---|---|---|
+| Fiche du patient | Contenu administratif saisi d'un patient (état civil, coordonnées, suivi, couverture, affectation) | `Fiche` | `Patient.admettre`, `Patient.modifier` |
+| Transféré | Patient parti vers un autre centre | `TRANSFERE`, mouvement `TRANSFERT` | état de sortie |
+| Guéri | Patient sorti pour guérison | `GUERRI`, mouvement `GUERISON` | état de sortie |
+| Séjour limité | Occasionnel ou vacancier : l'évènement est la fin de séjour | `OCCASIONNEL`, `VACANCIER_*` | date de fin obligatoire |
+| Reprise | Retour à l'état permanent | `REPRISE` | datée du jour du centre sans date |
+| Date d'évènement | Date de sortie ou de fin de séjour | `dateEvenement` (colonne `date_evenement_etat`) | jamais avant l'admission |
+| Numéro d'assurance | Identifiant d'assurance du patient, unique par centre, normalisé | `NumeroAssurance` | espaces de bord retirés, majuscules |
+| Garde de centre | Toute lecture et toute écriture se font dans le centre du jeton | `SessionCourante` | 403 sinon |
+| Jour du centre | « Aujourd'hui » au fuseau du centre | `HorlogeDesCentres` | clé `app.planification.fuseau-par-defaut` |

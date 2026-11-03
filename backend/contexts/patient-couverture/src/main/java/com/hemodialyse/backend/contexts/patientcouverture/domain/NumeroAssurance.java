@@ -8,7 +8,7 @@ import java.util.Locale;
  */
 public record NumeroAssurance(String valeur) {
     public NumeroAssurance {
-        if (valeur == null || valeur.isBlank()) throw new SaisieInvalide("Numéro d'assurance obligatoire");
+        if (valeur == null || valeur.isBlank()) throw new SaisieInvalide("Numero assurance obligatoire");
         valeur = valeur.trim().toUpperCase(Locale.ROOT);
     }
 }

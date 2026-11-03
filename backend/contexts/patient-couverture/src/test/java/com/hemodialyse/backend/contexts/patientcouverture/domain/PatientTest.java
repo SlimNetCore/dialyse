@@ -91,10 +91,10 @@ class PatientTest {
 
     @Test
     void should_exiger_nom_prenom_sexe_et_dates() {
-        assertThatThrownBy(() -> new Identite(null, " ", "K", "M", null, 0, ADMISSION, null, null)).isInstanceOf(SaisieInvalide.class);
-        assertThatThrownBy(() -> new Identite(null, "B", "", "M", null, 0, ADMISSION, null, null)).isInstanceOf(SaisieInvalide.class);
-        assertThatThrownBy(() -> new Identite(null, "B", "K", null, null, 0, ADMISSION, null, null)).isInstanceOf(SaisieInvalide.class);
-        assertThatThrownBy(() -> new Identite(null, "B", "K", "M", null, 0, null, null, null)).isInstanceOf(SaisieInvalide.class);
+        assertThatThrownBy(() -> Identite.saisie(null, " ", "K", "M", null, 0, ADMISSION, null, null)).isInstanceOf(SaisieInvalide.class);
+        assertThatThrownBy(() -> Identite.saisie(null, "B", "", "M", null, 0, ADMISSION, null, null)).isInstanceOf(SaisieInvalide.class);
+        assertThatThrownBy(() -> Identite.saisie(null, "B", "K", null, null, 0, ADMISSION, null, null)).isInstanceOf(SaisieInvalide.class);
+        assertThatThrownBy(() -> Identite.saisie(null, "B", "K", "M", null, 0, null, null, null)).isInstanceOf(SaisieInvalide.class);
         assertThatThrownBy(() -> Fiches.avec("N", null, null, null, ADMISSION)).isInstanceOf(SaisieInvalide.class);
     }
 
@@ -278,7 +278,7 @@ class PatientTest {
     void should_exiger_l_attestation_d_un_non_vacancier_sauf_si_deja_enregistree() {
         Patient p = admisPermanent();
 
-        refus("PATIENT_ATTESTATION_REQUISE", () -> p.verifierAttestation(false, false));
+        assertThatThrownBy(() -> p.verifierAttestation(false, false)).isInstanceOf(SaisieInvalide.class);
         p.verifierAttestation(true, false);
         p.verifierAttestation(false, true);
     }
@@ -288,8 +288,8 @@ class PatientTest {
         PatientId a = new PatientId(new UUID(0, 1));
         PatientId b = new PatientId(new UUID(0, 2));
 
-        refus("PATIENT_NUMERO_ASSURANCE_DEJA_UTILISE", () -> Patient.verifierNumeroLibre(Optional.of(a), Optional.empty()));
-        refus("PATIENT_NUMERO_ASSURANCE_DEJA_UTILISE", () -> Patient.verifierNumeroLibre(Optional.of(a), Optional.of(b)));
+        refus("BUSINESS_RULE_VIOLATION", () -> Patient.verifierNumeroLibre(Optional.of(a), Optional.empty()));
+        refus("BUSINESS_RULE_VIOLATION", () -> Patient.verifierNumeroLibre(Optional.of(a), Optional.of(b)));
         Patient.verifierNumeroLibre(Optional.of(a), Optional.of(a));
         Patient.verifierNumeroLibre(Optional.empty(), Optional.empty());
     }

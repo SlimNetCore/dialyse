@@ -11,18 +11,21 @@ import java.util.UUID;
 
 /**
  * Consulte la fiche d'un patient du centre de la session (garde de centre sur toute lecture, 404 si inconnu). Pour un patient
- * assuré par un tiers, l'assuré rendu est l'assuré principal actuel.
+ * assuré par un tiers, l'assuré rendu est l'assuré principal actuel ; le générateur affecté est décrit par le GMAO.
  */
 public class ConsulterLaFiche {
 
     private final SessionCourante session;
     private final PatientRepository patients;
     private final CouvertureDeLaFiche couverture;
+    private final GenerateursDuCentre generateurs;
 
-    public ConsulterLaFiche(SessionCourante session, PatientRepository patients, CouvertureDeLaFiche couverture) {
+    public ConsulterLaFiche(SessionCourante session, PatientRepository patients, CouvertureDeLaFiche couverture,
+                            GenerateursDuCentre generateurs) {
         this.session = session;
         this.patients = patients;
         this.couverture = couverture;
+        this.generateurs = generateurs;
     }
 
     public FicheDuPatient executer(UUID centreDemande, UUID patientDemande) {
@@ -40,6 +43,9 @@ public class ConsulterLaFiche {
                         fiche.dateAdmission(), fiche.etat(), fiche.dateEvenement());
             }
         }
-        return new FicheDuPatient(patient.id(), patient.centre(), patient.code(), patient.vacancier(), patient.creeLe(), fiche);
+        UUID generateur = fiche.affectation().generateurId();
+        var decrit = generateur == null ? null : generateurs.trouver(centre, generateur).orElse(null);
+        return new FicheDuPatient(patient.id(), patient.centre(), patient.code(), patient.vacancier(), patient.creeLe(), fiche,
+                decrit);
     }
 }

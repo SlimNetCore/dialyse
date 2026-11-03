@@ -134,7 +134,7 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
         m.put("centerId illisible", refus(doGet(PATIENTS + "/" + id + "?centerId=x", adminA())));
         m.put("identifiant illisible", refus(doGet(PATIENTS + "/pas-un-uuid?centerId=" + CENTRE_A, adminA())));
         m.put("userId inutilisé accepté", doGet(PATIENTS + "/" + id + "?centerId=" + CENTRE_A + "&userId=n-importe-quoi", adminA()).status());
-        arbre("refus_de_lecture", m);
+        arbre("refus_de_lecture_nouveau_code", m);
     }
 
     @Test
@@ -167,8 +167,8 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
         m.put("détail du résumé", refus(doGet(PATIENTS + "/summary/details?centerId=" + CENTRE_A, adminA())));
         Resp mod = modifier(id, ficheMap("Heritee", "PC1-HERITEE"), adminA());
         m.put("modification", refus(mod));
-        arbre("ligne_heritee", m);
-        etatDesMouvements("mouvements");
+        arbre("ligne_heritee_nouveau_code", m);
+        etatDesMouvements("mouvements_nouveau_code");
     }
 
     // ------------------------------------------------------------------ recherche
@@ -201,7 +201,7 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
             m.put("corps " + (b.isEmpty() ? "vide" : b.replace(CENTRE_A.toString(), "<CENTRE_A>")),
                     r.status() == 200 ? "200 total=" + corps(r).path("total").asInt() + " items=" + corps(r).path("items").size() : refus(r));
         }
-        arbre("bornes", m);
+        arbre("bornes_nouveau_code", m);
     }
 
     @Test
@@ -291,7 +291,7 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
                 + YearMonth.now(FUSEAU_DU_CENTRE), adminA()));
         lecture("resume_d_un_mois_avant_toute_admission", doGet(PATIENTS + "/summary?centerId=" + CENTRE_A + "&month=2020-01", adminA()));
         lecture("resume_d_un_mois_lointain", doGet(PATIENTS + "/summary?centerId=" + CENTRE_A + "&month=2099-12", adminA()));
-        lecture("resume_de_l_autre_centre", doGet(PATIENTS + "/summary?centerId=" + CENTRE_B, adminA()));
+        lecture("resume_de_l_autre_centre_nouveau_code",doGet(PATIENTS + "/summary?centerId=" + CENTRE_B, adminA()));
     }
 
     @Test
@@ -311,7 +311,7 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
         m.put("résumé mois 13", refus(doGet(PATIENTS + "/summary?centerId=" + CENTRE_A + "&month=2026-13", adminA())));
         m.put("détail sans centerId", refus(doGet(PATIENTS + "/summary/details", adminA())));
         m.put("détail mois illisible", refus(doGet(PATIENTS + "/summary/details?centerId=" + CENTRE_A + "&month=abc", adminA())));
-        arbre("parametres", m);
+        arbre("parametres_nouveau_code", m);
     }
 
     @Test

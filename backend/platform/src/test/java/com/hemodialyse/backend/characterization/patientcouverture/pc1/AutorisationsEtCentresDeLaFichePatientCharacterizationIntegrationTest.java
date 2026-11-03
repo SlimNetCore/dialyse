@@ -57,7 +57,7 @@ class AutorisationsEtCentresDeLaFichePatientCharacterizationIntegrationTest exte
         routes.put("GET assures", p -> sansExceptionAnonyme(() -> doGet(ASSURES + "?centerId=" + CENTRE_A, p)));
         routes.put("GET historique des assurés", p -> sansExceptionAnonyme(() -> doGet(PATIENTS + "/" + id + "/assures/history?centerId=" + CENTRE_A, p)));
         for (Map.Entry<String, Function<RequestPostProcessor, Resp>> r : routes.entrySet()) {
-            matrice("matrice_" + r.getKey().replace(' ', '_').replace("/", "_").replace("é", "e"), r.getValue());
+            matrice("matrice_" + r.getKey().replace(' ', '_').replace("/", "_").replace("é", "e") + "_nouveau_code", r.getValue());
             arbre("anonyme_" + r.getKey().replace(' ', '_').replace("/", "_").replace("é", "e"),
                     Map.of("anonyme", statutEtCode(r.getKey().equals("POST search")
                             ? doPostAnonyme(PATIENTS + "/search", json(c))
@@ -82,10 +82,10 @@ class AutorisationsEtCentresDeLaFichePatientCharacterizationIntegrationTest exte
         String assure = json("{'nom':'N','prenom':'P','sexe':'M','telPersonnel':null,'adresse':'rue','groupeSanguin':null}");
         String affectation = json("{'dateDebutAffectation':'" + jour(-5) + "','dateFinAffectation':null}");
         UUID inconnue = UUID.nameUUIDFromBytes("affectation-inconnue".getBytes());
-        matrice("matrice_affecter_un_assure", p -> sansExceptionAnonyme(() -> doPost(PATIENTS + "/" + id + "/assures/PC1-AS-1/affecter?centerId=" + CENTRE_A, "", p)));
-        matrice("matrice_modifier_une_affectation", p -> sansExceptionAnonyme(() -> doPut(PATIENTS + "/" + id + "/assures/assignments/" + inconnue
+        matrice("matrice_affecter_un_assure_nouveau_code", p -> sansExceptionAnonyme(() -> doPost(PATIENTS + "/" + id + "/assures/PC1-AS-1/affecter?centerId=" + CENTRE_A, "", p)));
+        matrice("matrice_modifier_une_affectation_nouveau_code", p -> sansExceptionAnonyme(() -> doPut(PATIENTS + "/" + id + "/assures/assignments/" + inconnue
                 + "?centerId=" + CENTRE_A, affectation, p)));
-        matrice("matrice_modifier_un_assure", p -> sansExceptionAnonyme(() -> doPut(ASSURES + "/PC1-AS-1?centerId=" + CENTRE_A, assure, p)));
+        matrice("matrice_modifier_un_assure_nouveau_code", p -> sansExceptionAnonyme(() -> doPut(ASSURES + "/PC1-AS-1?centerId=" + CENTRE_A, assure, p)));
         arbre("anonyme", Map.of(
                 "affecter", statutEtCode(doPostAnonyme(PATIENTS + "/" + id + "/assures/PC1-AS-1/affecter?centerId=" + CENTRE_A, "")),
                 "modifier un assuré", statutEtCode(doPutAnonyme(ASSURES + "/PC1-AS-1?centerId=" + CENTRE_A, assure))));
@@ -110,7 +110,7 @@ class AutorisationsEtCentresDeLaFichePatientCharacterizationIntegrationTest exte
         m.put("résumé du centre B par l'ADMIN du centre A", corps(doGet(PATIENTS + "/summary?centerId=" + CENTRE_B, adminA())).path("totalPatients").asInt());
         m.put("détail du résumé du centre B par l'ADMIN du centre A", corps(doGet(PATIENTS + "/summary/details?centerId=" + CENTRE_B, adminA())).path("total").asInt());
         m.put("historique des assurés du patient B demandé avec le centre B", doGet(PATIENTS + "/" + chezB + "/assures/history?centerId=" + CENTRE_B, adminA()).status());
-        arbre("lectures_sans_garde", m);
+        arbre("lectures_sans_garde_nouveau_code", m);
         Map<String, Object> ecritures = new LinkedHashMap<>();
         assure("PC1-AS-A", CENTRE_A);
         assure("PC1-AS-B", CENTRE_B);
@@ -122,9 +122,9 @@ class AutorisationsEtCentresDeLaFichePatientCharacterizationIntegrationTest exte
         ecritures.put("affecter l'assuré A au patient B avec centerId=B par l'ADMIN du centre A",
                 refus(doPost(PATIENTS + "/" + chezB + "/assures/PC1-AS-A/affecter?centerId=" + CENTRE_B, "", adminA())));
         ecritures.put("affecter l'assuré B au patient A avec centerId=A", refus(doPost(PATIENTS + "/" + chezA + "/assures/PC1-AS-B/affecter?centerId=" + CENTRE_A, "", adminA())));
-        arbre("ecritures_d_assure_sans_garde", ecritures);
-        sql("assures_apres", "SELECT numero_assurance, center_id, nom FROM assure WHERE center_id IN ('" + CENTRE_A + "','" + CENTRE_B + "') ORDER BY numero_assurance");
-        sql("affectations_apres", "SELECT patient_id, numero_assurance, center_id, is_primary FROM assure_patient WHERE center_id IN ('" + CENTRE_A + "','"
+        arbre("ecritures_d_assure_sans_garde_nouveau_code", ecritures);
+        sql("assures_apres_nouveau_code","SELECT numero_assurance, center_id, nom FROM assure WHERE center_id IN ('" + CENTRE_A + "','" + CENTRE_B + "') ORDER BY numero_assurance");
+        sql("affectations_apres_nouveau_code","SELECT patient_id, numero_assurance, center_id, is_primary FROM assure_patient WHERE center_id IN ('" + CENTRE_A + "','"
                 + CENTRE_B + "') ORDER BY patient_id, numero_assurance");
     }
 

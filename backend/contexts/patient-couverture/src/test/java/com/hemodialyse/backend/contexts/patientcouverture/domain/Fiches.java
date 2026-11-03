@@ -21,10 +21,10 @@ public final class Fiches {
 
     public static Fiche avec(String numero, EtatDuPatient etat, LocalDate dateEvenement, LocalDate admission, LocalDate naissance) {
         return new Fiche(
-                new Identite("M", "Benali", "Karim", "M", "O+", 2, naissance, "Alger", "MARIE"),
-                new Coordonnees("Chauffeur", "1 rue des Oliviers", "0555 12 34 56", null, null, "Karim@Example.org"),
+                Identite.saisie("M", "Benali", "Karim", "M", "O+", 2, naissance, "Alger", "MARIE"),
+                Coordonnees.saisies("Chauffeur", "1 rue des Oliviers", "0555 12 34 56", null, null, "Karim@Example.org"),
                 new SuiviMedical(false, false, null, false, null, false, null, null),
-                new Couverture(new NumeroAssurance(numero), null, null, null, null, null, null),
+                new Couverture(new NumeroAssurance(numero), Couverture.ASSURE_LUI_MEME, null, null, null, null, null),
                 new Affectation(null, null, null, null, null, null, null, null),
                 admission, etat, dateEvenement);
     }

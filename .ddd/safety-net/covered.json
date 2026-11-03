@@ -101,7 +101,8 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/UpdateAssignmentRequest.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/UpdateAssureRequest.java",
     "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/Email.java",
-    "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/PhoneNumber.java"
+    "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/PhoneNumber.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/NotificationsDeLaFicheParLaPlateforme.java"
   ],
   "seamAllowed": []
 }

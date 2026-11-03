@@ -64,7 +64,9 @@ class PatientGenerateurIntegrationTest {
         mockMvc.perform(get("/api/v1/patients/{id}", PATIENT_ID)
                         .param("centerId", CENTER_ID.toString())
                         .param("userId", "admin")
-                        .with(user("admin").roles("ADMIN")))
+                        // session de centre : la lecture de la fiche est bornée au centre du jeton (PC1, KB-PAT-06)
+                        .with(user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(),
+                                CENTER_ID.toString(), "admin", "", java.util.List.of("ADMIN"), true))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id.value").value(PATIENT_ID.toString()))
                 .andExpect(jsonPath("$.generateurId").value(GENERATEUR_ID.toString()))

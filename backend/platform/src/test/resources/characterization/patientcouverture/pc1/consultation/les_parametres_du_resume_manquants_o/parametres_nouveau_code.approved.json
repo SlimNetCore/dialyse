@@ -1,0 +1,9 @@
+{
+  "détail mois illisible" : "400 BAD_REQUEST : Paramètre illisible : month",
+  "détail sans centerId" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "résumé centerId illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "résumé mois 13" : "400 BAD_REQUEST : Paramètre illisible : month",
+  "résumé mois illisible" : "400 BAD_REQUEST : Paramètre illisible : month",
+  "résumé mois vide" : 200,
+  "résumé sans centerId" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId"
+}

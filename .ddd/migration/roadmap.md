@@ -298,13 +298,15 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 
 | Ordre | Slice                                            | Risque | Etat    | Fiche                                                |
 |-------|--------------------------------------------------|--------|---------|------------------------------------------------------|
-| PC1   | Identite administrative et mouvements du patient | moyen  | planned | slices/patient-couverture-pc1-identite-mouvements.md |
+| PC1   | Identite administrative et mouvements du patient | moyen  | built   | slices/patient-couverture-pc1-identite-mouvements.md |
 | PC2   | Assure principal                                 | faible | planned | slices/patient-couverture-pc2-assure-principal.md    |
 | PC3   | Prise en charge (PEC)                            | moyen  | planned | slices/patient-couverture-pc3-pec.md                 |
 | PC4   | Attestations de droits                           | faible | planned | slices/patient-couverture-pc4-attestations.md        |
 | PC5   | Lectures publiees et retrait du legacy           | eleve  | planned | slices/patient-couverture-pc5-lectures-publiees.md   |
 
-> **GEL du 2026-11-02 (ADR 0073, `backend/contexts/patient-couverture/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice PC n'est `built`. Etats reels : PC1 `planned`, PC2 `characterized` (7 goldens assure), PC3 `characterized` (10 goldens PEC), PC4 `planned`, PC5 `planned`. Vocabulaire d'etats = celui du LEGACY ; date = `date_evenement_etat`. Reprise : filet legacy PC1 (identite, mouvements) et PC4 (attestations) d'abord, puis slices sur place (memes tables, memes URL). La regle « sortie sans date refusee » est DEJA imposee par le legacy (`FinOccupation.verifierDate`, RG-PAT-031) : le prerequis ci-dessous est satisfait.
+> **PC1 repris sur place et `built` le 2026-11-03 (ADR 0076, proposed)** : module remis au reacteur (mêmes tables, mêmes URL, vocabulaire du legacy), legacy de la fiche supprime, filet PC1 vert avec ecarts decides archives, build complet vert. Dette : sources gelees Assure/Pec/Attestation toujours exclues de la compilation du module (a reprendre par PC2 a PC4), ACL de couverture temporaires. Reste a decider : transitions depuis `DECEDE`, `piecesJointesJson` (KB-PAT-19).
+>
+> **GEL du 2026-11-02 (ADR 0073, `backend/contexts/patient-couverture/GEL.md`, leve pour PC1 le 2026-11-03)** : le module parallele est retire du reacteur ; aucune slice PC n'est `built`. Etats reels : PC1 `planned`, PC2 `characterized` (7 goldens assure), PC3 `characterized` (10 goldens PEC), PC4 `planned`, PC5 `planned`. Vocabulaire d'etats = celui du LEGACY ; date = `date_evenement_etat`. Reprise : filet legacy PC1 (identite, mouvements) et PC4 (attestations) d'abord, puis slices sur place (memes tables, memes URL). La regle « sortie sans date refusee » est DEJA imposee par le legacy (`FinOccupation.verifierDate`, RG-PAT-031) : le prerequis ci-dessous est satisfait.
 
 ## 1 nonies. Slices Seance (contexte `seance`, module `backend/contexts/seance`, ADR 0062, 0067)
 

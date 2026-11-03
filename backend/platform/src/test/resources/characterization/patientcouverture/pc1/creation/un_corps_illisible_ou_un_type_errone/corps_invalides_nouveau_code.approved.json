@@ -1,0 +1,11 @@
+{
+  "corps []" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps null" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps vide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':'pas-un-uuid'}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'nombreEnfants':'beaucoup'}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'sousKt':'peut-etre'}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "empreinte inchangée" : true
+}

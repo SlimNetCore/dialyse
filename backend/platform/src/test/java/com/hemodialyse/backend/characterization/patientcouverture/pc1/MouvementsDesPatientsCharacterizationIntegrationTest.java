@@ -104,7 +104,7 @@ class MouvementsDesPatientsCharacterizationIntegrationTest extends PatientCouver
             for (Map.Entry<String, String> e : datesNommees.entrySet()) cle = cle.replace(e.getKey(), e.getValue());
             m.put(f.isEmpty() ? "aucun filtre" : cle, r.status() == 200 ? lignes(r) : refus(r));
         }
-        arbre("filtres", m);
+        arbre("filtres_nouveau_code", m);
     }
 
     @Test
@@ -123,7 +123,7 @@ class MouvementsDesPatientsCharacterizationIntegrationTest extends PatientCouver
                 m.put(p, refus(r));
             }
         }
-        arbre("pages", m);
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -171,7 +171,7 @@ class MouvementsDesPatientsCharacterizationIntegrationTest extends PatientCouver
         m.put("liste complète", refus(doGet(MOUVEMENTS, adminA())));
         m.put("liste filtrée sur un autre type", doGet(MOUVEMENTS + "?type=GREFFE", adminA()).status());
         m.put("liste filtrée hors de la ligne héritée (dates)", doGet(MOUVEMENTS + "?from=" + jour(-45), adminA()).status());
-        arbre("type_inconnu", m);
+        arbre("type_inconnu_nouveau_code", m);
     }
 
     @Test
@@ -184,6 +184,6 @@ class MouvementsDesPatientsCharacterizationIntegrationTest extends PatientCouver
         m.put("ADMIN du centre B sans centerId", corps(doGet(MOUVEMENTS, adminB())).path("total").asInt());
         m.put("ADMIN sans centre", refus(doGet(MOUVEMENTS, as(null, "ADMIN"))));
         m.put("centerId illisible", refus(doGet(MOUVEMENTS + "?centerId=x", adminA())));
-        arbre("centre", m);
+        arbre("centre_nouveau_code", m);
     }
 }

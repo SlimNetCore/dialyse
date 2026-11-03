@@ -1334,3 +1334,28 @@ Tous **reproduits tels quels** par le filet (aucune décision prise : à tranche
 | KB-PAT-16 | Résumé : le mois `month=` vide est accepté (mois courant), illisible ou `2026-13` donne 500 ; cache `patient.list.summary` par centre et par mois, vidé par `POST`/`PUT` de la fiche seulement (une écriture directe en base reste périmée, y compris les écritures de la Planification P7). | Reproduit | `consultation/le_resume_est_garde…`, `les_parametres_du_resume…` |
 | KB-PAT-17 | Fuseau : `affecterAssure` date l'affectation par `LocalDate.now()` (fuseau de la JVM) alors que la reprise (`REPRISE`) et la libération datent avec le jour du centre (Africa/Algiers) ; la création/reprise sans date prend le jour du centre. Le filet ignore le scénario si les deux jours diffèrent (bascule de fuseau). | Reproduit (non éprouvé à la bascule) | `PatientRestController.java:219`, `MouvementsPatient.changementEtat` |
 | KB-PAT-18 | `PUT` d'un patient inconnu : 400 `Patient introuvable` (et non 404) ; identifiant illisible : 500. `userId` du `GET` ignoré. Le `centerId` du corps absent : 400 `CenterId cannot be null` avant toute garde. | Reproduit | `modification/un_patient_inconnu…`, `consultation/les_refus_de_lecture…` |
+| KB-PAT-19 | Les `pieces_jointes_json` sont écrites par `POST`/`PUT` mais **jamais relues** : `GET /patients/{id}` rend toujours `piecesJointesJson` nul (le mapping de lecture ne le recopie pas) ; le front qui relit puis réécrit la fiche efface donc les pièces. | Reproduit (décision à prendre : relire la colonne) | `consultation/la_fiche_rend_l_entite…` |
+
+### Statuts après la reprise PC1 (S3, 2026-11-03, ADR 0076) : décisions du 2026-11-02, écarts archivés dans `_ecarts-legacy/**/*.legacy.json`, nouveaux goldens `*_nouveau_code`
+
+| Id | Statut | Traitement |
+|---|---|---|
+| KB-PAT-01 | Corrigé | booléens et `nombreEnfants` absents ou nuls : 400 `BAD_REQUEST` (`creation/champs_primitifs_absents_nouveau_code`) |
+| KB-PAT-02 | Corrigé | corps, dates, UUID, `month`, `type`, `centerId` illisibles ou manquants : 400 ; taille de page de 1 à 100 (`bornes`, `parametres`, `refus_de_lecture`, `corps_invalides`, `dates`, mouvements `filtres`, `pages`) |
+| KB-PAT-03 | Corrigé | numéro normalisé et unique par centre à la création ET à la modification (422 `BUSINESS_RULE_VIOLATION`), le `PUT` écrit `numero_assurance` ; pas de contrainte SQL, requête de doublons §41 (`unicite_du_numero_d_assurance`, `numero_d_assurance_ignore`) |
+| KB-PAT-04 | Corrigé en partie | états en liste fermée (422 `PATIENT_ETAT_INCONNU`) ; transitions permissives reproduites, y compris depuis `DECEDE` : **à décider** (`statuts`, `etats_a_la_creation`) |
+| KB-PAT-05 | Corrigé | date de fin de séjour limité obligatoire (422) ; corriger la seule date d'une sortie ne crée plus un second mouvement (`statuts`, `etat_absent_du_corps`, `attendus`) |
+| KB-PAT-06 | Corrigé | garde de centre sur toutes les lectures (403) ; rôles inconnus ou absents 403 (`lectures_sans_garde`, `matrice_GET_*`) |
+| KB-PAT-07 | Corrigé | garde de centre des trois écritures d'assuré et de `affecter` ; rôles inconnus ou absents et ADMIN sans centre 403 (`ecritures_d_assure_sans_garde`, `matrice_*`, PC2 `list_assures_cross_centre_adminB`) |
+| KB-PAT-08 | Corrigé en partie | naissance future ou postérieure à l'admission : 422 ; admission future et attestation échue toujours acceptées (`dates`) |
+| KB-PAT-09 | Corrigé | ligne héritée nulle : lecture et `PUT` possibles, état nul rendu `PERMANENT` (`ligne_heritee`) |
+| KB-PAT-10 | Reproduit | formats de téléphone et courriel inchangés (tests du domaine) |
+| KB-PAT-11 | Reproduit | `%` et `_` non échappés, tri de repli, interclassement de la base |
+| KB-PAT-12 | Corrigé | DTO de réponse, JSON identique champ par champ (`fiche_complete`, `fiche_enfant`, `fiche_placee` verts) |
+| KB-PAT-13 | Corrigé en partie | pagination hors bornes : 400 ; un type de mouvement inconnu en base fait toujours échouer la liste non filtrée, avec un message neutre (`pages`, `type_inconnu`) |
+| KB-PAT-14 | Reproduit | pas de verrou optimiste ; écritures sérialisées par le verrou du centre ; 409 en cas de verrou non obtenu |
+| KB-PAT-15 | Reproduit | assuré tiers inchangé (PC2) |
+| KB-PAT-16 | Corrigé en partie | `month` illisible : 400 ; mois courant au jour du centre ; cache par centre et par mois vidé par `POST`/`PUT` (`parametres`) |
+| KB-PAT-17 | Corrigé | `affecterAssure` date l'affectation au jour du centre (`HorlogeDesCentres`) |
+| KB-PAT-18 | Corrigé | patient inconnu : 404 `PATIENT_INTROUVABLE` ; identifiant illisible : 400 ; `centerId` absent : 400 `CenterId cannot be null` (`patient_inconnu`, `refus_de_lecture`) |
+| KB-PAT-19 | Reproduit | à décider avec les métiers (relire `pieces_jointes_json`) |

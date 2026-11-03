@@ -6,6 +6,11 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.Instant;
 
-/** Lecture d'un patient (DTO de lecture : l'interface la traduit en JSON, jamais l'agrégat). */
-public record FicheDuPatient(PatientId id, CentreId centre, String code, boolean vacancier, Instant creeLe, Fiche fiche) {
+/**
+ * Lecture d'un patient (DTO de lecture : l'interface la traduit en JSON, jamais l'agrégat).
+ *
+ * @param generateur description du générateur affecté, nulle s'il n'y en a pas
+ */
+public record FicheDuPatient(PatientId id, CentreId centre, String code, boolean vacancier, Instant creeLe, Fiche fiche,
+                             GenerateursDuCentre.Generateur generateur) {
 }

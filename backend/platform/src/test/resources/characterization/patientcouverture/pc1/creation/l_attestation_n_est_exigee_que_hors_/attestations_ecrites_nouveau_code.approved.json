@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-400>",
+  "date_fin" : "<J-7>",
+  "nom" : "Echue"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-400>",
+  "date_fin" : "<J+3000>",
+  "nom" : "IdImposee"
+} ]

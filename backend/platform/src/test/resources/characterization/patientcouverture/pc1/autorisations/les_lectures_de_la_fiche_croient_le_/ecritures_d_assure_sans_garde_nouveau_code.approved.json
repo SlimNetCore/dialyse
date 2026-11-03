@@ -1,0 +1,7 @@
+{
+  "affecter l'assuré A au patient B avec centerId=B par l'ADMIN du centre A" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "affecter l'assuré B au patient A avec centerId=A" : "403 ACCESS_DENIED : Accès refusé",
+  "assuré du centre A modifié avec centerId=A par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "assuré du centre B modifié avec centerId=A" : "403 ACCESS_DENIED : Accès refusé",
+  "assuré du centre B modifié avec centerId=B par l'ADMIN du centre A" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session"
+}

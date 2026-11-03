@@ -53,7 +53,7 @@ class FicheDuPatientTest {
         var ids = new IdentifiantsSequentiels();
         admettre = new AdmettreUnPatient(session, horloge, ids, place, patients, mouvements, couverture, unite);
         modifier = new ModifierLaFiche(session, horloge, ids, place, patients, mouvements, couverture, unite);
-        consulter = new ConsulterLaFiche(session, patients, couverture);
+        consulter = new ConsulterLaFiche(session, patients, couverture, (centre, id) -> java.util.Optional.empty());
     }
 
     private PatientEnregistre admis(String numero) {
@@ -100,7 +100,7 @@ class FicheDuPatientTest {
         admis("PC1-DOUBLON");
 
         assertThatThrownBy(() -> admis(" pc1-doublon "))
-                .isInstanceOf(RegleDePatientViolee.class).extracting("code").isEqualTo("PATIENT_NUMERO_ASSURANCE_DEJA_UTILISE");
+                .isInstanceOf(RegleDePatientViolee.class).extracting("code").isEqualTo("BUSINESS_RULE_VIOLATION");
         assertThat(patients.lignes).hasSize(1);
         assertThat(mouvements.ecrits).hasSize(1);
     }
@@ -119,7 +119,7 @@ class FicheDuPatientTest {
         var sansAttestation = new SaisieDeLaFiche(CENTRE.valeur(), Fiches.nominale(), null, null);
 
         assertThatThrownBy(() -> admettre.executer(sansAttestation))
-                .isInstanceOf(RegleDePatientViolee.class).extracting("code").isEqualTo("PATIENT_ATTESTATION_REQUISE");
+                .isInstanceOf(com.hemodialyse.backend.contexts.patientcouverture.domain.SaisieInvalide.class);
         assertThat(patients.lignes).isEmpty();
         assertThat(mouvements.ecrits).isEmpty();
         assertThat(couverture.appels).isEmpty();
@@ -186,7 +186,7 @@ class FicheDuPatientTest {
 
         assertThatThrownBy(() -> modifier.executer(b.id().valeur(),
                 saisie(Fiches.nominale("pc1-a", null, null), CENTRE.valeur())))
-                .isInstanceOf(RegleDePatientViolee.class).extracting("code").isEqualTo("PATIENT_NUMERO_ASSURANCE_DEJA_UTILISE");
+                .isInstanceOf(RegleDePatientViolee.class).extracting("code").isEqualTo("BUSINESS_RULE_VIOLATION");
         assertThat(patients.lignes.get(b.id()).fiche().couverture().numeroAssurance().valeur()).isEqualTo("PC1-B");
     }
 

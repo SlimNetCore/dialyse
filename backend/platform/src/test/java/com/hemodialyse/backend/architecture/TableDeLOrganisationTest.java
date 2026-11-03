@@ -39,6 +39,11 @@ class TableDeLOrganisationTest {
     /** Lecteurs SQL connus hors du contexte Organisation (chemin depuis {@code backend/}) : 2026-11-02, revue O1-O5. */
     private static final Map<String, String> LECTEURS_CONNUS = lecteurs(
             "contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyorganisation/CentresActifsJdbc.java",
+            // 2026-11-03, PC1 : fuseau du centre (centers) et libellés de la recherche et des mouvements (medecin, salle,
+            // position_creneau) : lecture seule, à remplacer par organisation.v1
+            "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
+            "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/LectureDesMouvementsJdbc.java",
+            "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/LectureDesPatientsJdbc.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/CentresActifsLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/CreneauxDuCentreJdbc.java",
@@ -58,9 +63,7 @@ class TableDeLOrganisationTest {
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionSnapshotService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",
-            "platform/src/main/java/com/hemodialyse/backend/application/query/PatientReferenceLookup.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/MouvementPatientJdbcAdapter.java",
             // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-02) ; salle et position_creneau par SQL dynamique.
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",

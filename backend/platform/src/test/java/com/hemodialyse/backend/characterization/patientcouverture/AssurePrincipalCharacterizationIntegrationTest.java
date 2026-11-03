@@ -169,7 +169,7 @@ class AssurePrincipalCharacterizationIntegrationTest {
     @Test
     void cross_centre_refuse() throws Exception {
         Resp r = send(get(BASE + "/assures").param("centerId", CENTRE_A.toString()).with(adminB()));
-        golden("list_assures_cross_centre_adminB", r);
+        golden("list_assures_cross_centre_adminB_nouveau_code", r);
     }
 
     protected record Resp(int status, String contentType, String raw) {

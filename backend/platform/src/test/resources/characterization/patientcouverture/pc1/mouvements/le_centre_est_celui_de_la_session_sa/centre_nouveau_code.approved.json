@@ -1,0 +1,8 @@
+{
+  "ADMIN du centre B sans centerId" : 0,
+  "ADMIN sans centre" : "403 ACCESS_DENIED : Session sans centre de rattachement",
+  "centerId d'un autre centre" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "centerId du centre de la session" : 9,
+  "centerId illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "sans centerId (centre de la session)" : 9
+}

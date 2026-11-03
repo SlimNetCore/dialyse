@@ -1,0 +1,18 @@
+{
+  "corps []" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps vide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':'<CENTRE_A>','page':'a','size':20}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':'<CENTRE_A>','page':-1,'size':20}" : "400 BAD_REQUEST : La page ne peut pas être négative",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':0}" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 100",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':1}" : "200 total=7 items=1",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':20,'dateAdmissionFrom':'pas une date'}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':20,'nonFacturable':'peut-etre'}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':200}" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 100",
+  "corps {'centerId':'<CENTRE_A>','page':0,'size':201}" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 100",
+  "corps {'centerId':'<CENTRE_A>','page':9,'size':20}" : "200 total=7 items=0",
+  "corps {'centerId':'<CENTRE_A>'}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':'x','page':0,'size':20}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps {'centerId':null,'page':0,'size':20}" : "400 BAD_REQUEST : CenterId cannot be null",
+  "corps {'page':0,'size':20}" : "400 BAD_REQUEST : CenterId cannot be null"
+}

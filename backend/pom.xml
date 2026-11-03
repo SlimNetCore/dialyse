@@ -39,6 +39,7 @@
         <module>contexts/stock</module>
         <module>contexts/planification</module>
         <module>contexts/organisation</module>
+        <module>contexts/patient-couverture</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

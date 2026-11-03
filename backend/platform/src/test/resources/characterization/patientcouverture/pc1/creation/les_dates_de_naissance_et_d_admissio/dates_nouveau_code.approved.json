@@ -1,0 +1,7 @@
+{
+  "admission dans le futur" : "200",
+  "admission le 30 février" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "naissance au format jj/mm/aaaa" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "naissance dans le futur" : "422 PATIENT_DATE_NAISSANCE_FUTURE : La date de naissance ne peut pas être future",
+  "naissance postérieure à l'admission" : "422 PATIENT_DATE_NAISSANCE_APRES_ADMISSION : La date de naissance ne peut pas suivre la date d'admission"
+}

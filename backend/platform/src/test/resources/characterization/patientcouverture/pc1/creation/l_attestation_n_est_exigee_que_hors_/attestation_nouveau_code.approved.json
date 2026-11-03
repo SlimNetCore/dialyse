@@ -1,0 +1,8 @@
+{
+  "attestation dont la fin précède le début" : "400 BAD_REQUEST : Date fin avant date debut",
+  "attestation déjà échue" : "200",
+  "identifiant d'attestation imposé" : "200",
+  "occasionnel sans fin d'attestation" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état OCCASIONNEL",
+  "vacancier avec attestation" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état VACANCIER_ETRANGER",
+  "vacancier sans attestation" : "422 PATIENT_DATE_EVENEMENT_REQUISE : La date de l'évènement est obligatoire pour l'état VACANCIER_LOCAL"
+}
