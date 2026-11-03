@@ -1726,3 +1726,35 @@ SELECT p.center_id, count(*) FROM patients p WHERE NOT EXISTS (SELECT 1 FROM mou
 SELECT type, count(*) FROM mouvement_patient WHERE type NOT IN ('ADMISSION','SEJOUR_TEMPORAIRE','REPRISE','TRANSFERT','DECES','GREFFE','GUERISON','PLACE_LIBEREE') GROUP BY type;
 ```
 Ordre global des verrous des écritures de fiche : centre (Planification, `PlacementDesPatients.verifier`) puis fiche puis app_user ; `lock_timeout` posé à l'entrée de l'unité de travail, refus en 409. Les contrôleurs legacy `PatientRestController` et `MouvementPatientRestController` et les services, adapters et DTO de la fiche devenus morts sont SUPPRIMÉS (liste dans `.ddd/safety-net/seams.md`, seams fermés le 2026-11-03) ; les URL sont servies par `contexts/patient-couverture`. Rollback : revenir au commit précédent (pas de drapeau de routage, refactoring sur place, ADR 0024).
+
+## 42. Patient et couverture PC2 (assuré principal) et PC3 (prise en charge) : reprise sur place, session S3 (2026-11-03) — SELECT seulement
+Mêmes tables (`assure`, `assure_patient`, `prise_en_charge`) et mêmes URL ; aucune contrainte SQL ni index créé (ADR 0077). Constats à lancer AVANT la bascule ; aucun ne modifie la base.
+```sql
+-- 1. Patients avec plusieurs assurés principaux actifs (R1, KB-PAT-29). Attendu : 0 ligne ; sinon corriger à la main (la règle est désormais tenue sous le verrou du centre, pas par le SQL).
+SELECT patient_id, center_id, count(*) FROM assure_patient WHERE is_primary AND date_fin_affectation IS NULL GROUP BY 1, 2 HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
+-- 2. Assurés partagés entre centres : numéro d'assuré lié à des patients de plusieurs centres (la capture d'un assuré d'un autre centre est désormais refusée 422, KB-PAT-31) ou ligne d'affectation dans un centre différent de celui de l'assuré.
+SELECT ap.numero_assurance, count(DISTINCT ap.center_id) AS centres FROM assure_patient ap GROUP BY 1 HAVING count(DISTINCT ap.center_id) > 1 ORDER BY 2 DESC LIMIT 50;
+SELECT ap.numero_assurance, ap.center_id AS centre_affectation, a.center_id AS centre_assure FROM assure_patient ap JOIN assure a ON a.numero_assurance = ap.numero_assurance WHERE a.center_id <> ap.center_id LIMIT 50;
+-- 3. Lignes assure_patient dupliquées (même patient, même assuré, KB-PAT-32 : une ligne ajoutée à chaque enregistrement). Informatif ; le nouveau code n'en ajoute plus.
+SELECT patient_id, numero_assurance, count(*) FROM assure_patient GROUP BY 1, 2 HAVING count(*) > 1 ORDER BY 3 DESC LIMIT 50;
+-- 4. Affectations sans date de début ou de durée nulle ou inversée (correction de dates permissive reproduite).
+SELECT center_id, count(*) FILTER (WHERE date_debut_affectation IS NULL) AS sans_debut, count(*) FILTER (WHERE date_fin_affectation < date_debut_affectation) AS inversees, count(*) FILTER (WHERE date_fin_affectation = date_debut_affectation) AS duree_nulle FROM assure_patient GROUP BY 1;
+-- 5. Assurés sans nom (le PUT exige désormais le nom, 400, KB-PAT-33 : ces assurés ne pourront plus être modifiés sans le saisir).
+SELECT center_id, count(*) FROM assure WHERE nom IS NULL OR TRIM(nom) = '' GROUP BY 1 ORDER BY 2 DESC;
+-- 6. PEC sans centre ou sans patient existant, ou patient d'un autre centre (la garde de centre les rendra introuvables ou refusées).
+SELECT count(*) FROM prise_en_charge WHERE center_id IS NULL OR patient_id IS NULL;
+SELECT c.center_id AS centre_pec, p.center_id AS centre_patient, count(*) FROM prise_en_charge c JOIN patients p ON p.id = c.patient_id WHERE c.center_id <> p.center_id GROUP BY 1, 2;
+SELECT count(*) FROM prise_en_charge c WHERE NOT EXISTS (SELECT 1 FROM patients p WHERE p.id = c.patient_id);
+-- 7. Statuts hors du cycle (REFUSEE, minuscules, vide) : la lecture rend 400 « Statut de prise en charge inconnu » pour la validation, la clôture et session-allowed.
+SELECT statut, count(*) FROM prise_en_charge WHERE statut NOT IN ('CREE','VALIDEE','CLOTUREE') GROUP BY 1;
+-- 8. PEC validées simultanément pour un même patient, chevauchements et dates absentes ou inversées (aucun contrôle, KB-PAT-24, ARGENT : à décider avec les métiers).
+SELECT patient_id, count(*) FROM prise_en_charge WHERE statut = 'VALIDEE' GROUP BY 1 HAVING count(*) > 1 ORDER BY 2 DESC LIMIT 50;
+SELECT a.patient_id, a.id, b.id FROM prise_en_charge a JOIN prise_en_charge b ON a.patient_id = b.patient_id AND a.id < b.id AND a.date_debut_demande <= b.date_fin_demande AND b.date_debut_demande <= a.date_fin_demande LIMIT 50;
+SELECT center_id, count(*) FILTER (WHERE date_debut_demande IS NULL OR date_fin_demande IS NULL) AS sans_dates, count(*) FILTER (WHERE date_fin_demande < date_debut_demande) AS inversees FROM prise_en_charge GROUP BY 1;
+-- 9. Forfaits référencés inconnus ou d'un autre centre (aucun contrôle) ; PEC validées sans forfait effectif (valorisation des absences RG-ABS-030 : KB-PAT-26).
+SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = c.forfait_effectif_id WHERE c.forfait_effectif_id IS NOT NULL AND (f.id IS NULL OR f.center_id <> c.center_id) GROUP BY 1;
+SELECT center_id, count(*) FROM prise_en_charge WHERE statut = 'VALIDEE' AND forfait_effectif_id IS NULL GROUP BY 1;
+-- 10. Identifiants de PEC saisis sur la fiche déjà pris (409 PEC_IDENTIFIANT_DEJA_UTILISE) : PEC dont le patient diffère de celui qui la réclamerait ne se détecte qu'à la saisie ; relever le volume de PEC par patient.
+SELECT patient_id, count(*) FROM prise_en_charge GROUP BY 1 HAVING count(*) > 5 ORDER BY 2 DESC LIMIT 20;
+```
+Changements de comportement visibles : garde de centre sur toutes les routes de PEC (un ADMIN d'un autre centre ou sans centre est refusé 403), PEC inconnue 404, formats illisibles 400, `pecId` déjà pris 409 (la fiche est enregistrée), diffusions avec le nom réel, audit `PEC_VALIDATION` et `PEC_CLOTURE`. Les routes d'attestation restent au legacy (PC4) ; `PecValidationJdbc` du module gelé de Séance et `SeanceBillingEligibilityPort` (règle de production de la création de séance) ne sont pas touchés. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

@@ -38,6 +38,10 @@ class PatientsJdbcPostgresContractIT extends PatientsJdbcContrat {
     @AfterEach
     void vider() {
         for (Object centre : new Object[]{CENTRE.valeur(), AUTRE.valeur()}) {
+            jdbc.update("DELETE FROM prise_en_charge WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM attestation_droit WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM assure_patient WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM assure WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM patients WHERE center_id = ?", centre);
         }

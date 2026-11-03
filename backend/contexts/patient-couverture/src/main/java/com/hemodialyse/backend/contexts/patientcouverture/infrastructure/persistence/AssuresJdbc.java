@@ -101,6 +101,41 @@ public class AssuresJdbc implements AssuresDuCentre {
     }
 
     @Override
+    public Optional<Affectation> principalActuel(CentreId centre, PatientId patient) {
+        return jdbc.query(AFFECTATION + " WHERE center_id = ? AND patient_id = ? AND is_primary = true "
+                + "ORDER BY date_affectation DESC", LIGNE_AFFECTATION, centre.valeur(), patient.valeur()).stream().findFirst();
+    }
+
+    @Override
+    public void retirerLePrincipal(CentreId centre, PatientId patient) {
+        jdbc.update("UPDATE assure_patient SET is_primary = false WHERE center_id = ? AND patient_id = ?", centre.valeur(),
+                patient.valeur());
+    }
+
+    @Override
+    public void declarer(Assure a) {
+        Date naissance = a.dateNaissance() == null ? null : Date.valueOf(a.dateNaissance());
+        int mis = jdbc.update("UPDATE assure SET nom = ?, prenom = ?, sexe = ?, date_naissance = COALESCE(?, date_naissance), "
+                        + "tel_personnel = ?, tel_mobile = ?, tel_bureau = ?, adresse = ?, groupe_sanguin = ? "
+                        + "WHERE numero_assurance = ?", a.nom(), a.prenom(), a.sexe(), naissance, a.telPersonnel(), a.telMobile(),
+                a.telBureau(), a.adresse(), a.groupeSanguin(), a.numeroAssurance());
+        if (mis > 0) return;
+        jdbc.update("INSERT INTO assure (numero_assurance, center_id, nom, prenom, sexe, date_naissance, tel_personnel, "
+                        + "tel_mobile, tel_bureau, adresse, groupe_sanguin, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                a.numeroAssurance(), a.centre(), a.nom(), a.prenom(), a.sexe(), naissance, a.telPersonnel(), a.telMobile(),
+                a.telBureau(), a.adresse(), a.groupeSanguin(), OffsetDateTime.now(ZoneOffset.UTC));
+    }
+
+    @Override
+    public UUID lierSansDates(CentreId centre, PatientId patient, String numeroAssurance) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO assure_patient (id, patient_id, numero_assurance, center_id, is_primary, date_affectation) "
+                        + "VALUES (?,?,?,?,true,?)", id, patient.valeur(), numeroAssurance, centre.valeur(),
+                OffsetDateTime.now(ZoneOffset.UTC));
+        return id;
+    }
+
+    @Override
     public void modifierLesDates(UUID affectation, LocalDate debut, LocalDate fin) {
         jdbc.update("UPDATE assure_patient SET date_debut_affectation = ?, date_fin_affectation = ? WHERE id = ?",
                 debut == null ? null : Date.valueOf(debut), fin == null ? null : Date.valueOf(fin), affectation);

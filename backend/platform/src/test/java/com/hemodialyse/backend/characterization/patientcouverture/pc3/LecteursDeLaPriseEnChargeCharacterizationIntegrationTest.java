@@ -206,7 +206,7 @@ class LecteursDeLaPriseEnChargeCharacterizationIntegrationTest extends Couvertur
         m.put("3. clôturée", lecteur.lire(j));
         supprimer(pec, CENTRE_A, patient, adminA());
         m.put("4. supprimée", lecteur.lire(j));
-        arbre("de_la_demande_a_la_suppression", m);
+        arbre("de_la_demande_a_la_suppression_nouveau_code", m);
     }
 
     private final class PecIdEtPatient {

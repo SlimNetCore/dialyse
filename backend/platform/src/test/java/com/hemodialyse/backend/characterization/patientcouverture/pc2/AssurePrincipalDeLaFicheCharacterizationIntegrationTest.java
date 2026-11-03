@@ -43,7 +43,7 @@ class AssurePrincipalDeLaFicheCharacterizationIntegrationTest extends Couverture
         etatDesAffectations("apres_le_retour_au_premier");
         pause();
         ecriture("modification_sans_changement", sansCodeAleatoire(modifierLaFiche(id, ficheAyantDroit("Enfant", "PC2-PAT-1", "PC2-AS-1", "Premier"), adminA())));
-        etatDesAffectations("apres_une_resaisie_identique");
+        etatDesAffectations("apres_une_resaisie_identique_nouveau_code");
     }
 
     @Test
@@ -73,9 +73,9 @@ class AssurePrincipalDeLaFicheCharacterizationIntegrationTest extends Couverture
     void un_numero_d_assure_deja_detenu_par_un_autre_centre_est_repris_par_le_centre_de_la_fiche() throws Exception {
         assure(CENTRE_B, "PC2-AS-B", "Autre", "Centre");
         Resp r = creerLaFiche("ENFANT", ficheAyantDroit("Enfant", "PC2-PAT-1", "PC2-AS-B", "Pris"), adminA());
-        arbre("reponse", Map.of("statut", r.status()));
-        etatDesAssures("assure_du_centre_B_apres_la_fiche_du_centre_A");
-        etatDesAffectations("affectation_creee_dans_le_centre_A");
+        arbre("reponse_nouveau_code", Map.of("statut", r.status()));
+        etatDesAssures("assure_du_centre_B_apres_la_fiche_du_centre_A_nouveau_code");
+        etatDesAffectations("affectation_creee_dans_le_centre_A_nouveau_code");
     }
 
     @Test
@@ -112,6 +112,9 @@ class AssurePrincipalDeLaFicheCharacterizationIntegrationTest extends Couverture
 
     @Test
     void deux_affectations_simultanees_de_deux_assures_au_meme_patient_laissent_un_seul_principal_actif() throws Exception {
+        // R1 (PC2) : l'affectation prend le verrou du centre en tête ; la ligne de paramètres du centre existe en production (sa
+        // toute première création concurrente est une autre règle, 409, ADR 0059) : on la pose ici.
+        joursOuvertsDuCentre(CENTRE_A, TOUS_LES_JOURS);
         UUID patient = patientAyantDroit("ENFANT_1");
         assure(CENTRE_A, "PC2-AS-1", "Dupont", "Jean");
         assure(CENTRE_A, "PC2-AS-2", "Martin", "Paul");

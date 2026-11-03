@@ -74,7 +74,7 @@ class LecturesDesPrisesEnChargeCharacterizationIntegrationTest extends Couvertur
         m.put("centre absent", refus(doGet(PEC, adminA())));
         m.put("centre illisible", refus(doGet(PEC + "?centerId=zzz", adminA())));
         m.put("patient illisible", refus(doGet(PEC + "/patient/zzz?centerId=" + CENTRE_A, adminA())));
-        arbre("cas_limites", m);
+        arbre("cas_limites_nouveau_code", m);
     }
 
     @Test
@@ -121,7 +121,7 @@ class LecturesDesPrisesEnChargeCharacterizationIntegrationTest extends Couvertur
         m.put("corps vide", pecsTrouvees("{}"));
         m.put("corps illisible", pecsTrouvees("{centerId"));
         m.put("taille texte", pecsTrouvees("{'centerId':'" + CENTRE_A + "','page':0,'size':'dix'}"));
-        arbre("bornes", m);
+        arbre("bornes_nouveau_code", m);
     }
 
     @Test

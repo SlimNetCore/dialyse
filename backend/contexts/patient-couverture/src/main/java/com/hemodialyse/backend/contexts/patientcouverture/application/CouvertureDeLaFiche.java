@@ -31,13 +31,9 @@ public interface CouvertureDeLaFiche {
 
     boolean attestationEnregistree(CentreId centre, PatientId patient);
 
-    /** Assuré principal actuel d'un patient assuré par un tiers (sert à rendre la fiche), s'il y en a un. */
-    java.util.Optional<Couverture.AssureSurLaFiche> assurePrincipal(CentreId centre, PatientId patient);
-
     /**
-     * Enregistre l'attestation (jamais dupliquée), la prise en charge (jamais ramenée à « créée ») et l'assuré principal de la
-     * fiche.
+     * Enregistre l'attestation de la fiche (jamais dupliquée) : reste une ACL temporaire jusqu'à PC4. L'assuré principal relève
+     * de {@link PrincipalDeLaFiche} (PC2), la demande de PEC de {@link PecDeLaFiche} (PC3).
      */
-    void enregistrer(CentreId centre, PatientId patient, Couverture couverture, AttestationSaisie attestation,
-                     DemandeDePec demande);
+    void enregistrer(CentreId centre, PatientId patient, Couverture couverture, AttestationSaisie attestation);
 }

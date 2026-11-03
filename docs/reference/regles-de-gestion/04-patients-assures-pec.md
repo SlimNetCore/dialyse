@@ -3,7 +3,9 @@
 > Préfixes `RG-PAT` (patient), `RG-ASS` (assuré), `RG-ATT` (attestation de droits), `RG-PEC` (prise en charge).
 > Sources : `Patient`, `PatientDomainService`, `PatientApplicationService`, `PatientRestController`, `Assure`,
 > `AssurePatientAssignment`, `AttestationDroit`, `AttestationDomainService`, `PriseEnCharge`, `PecDomainService`,
-> `PecRestController`, `PatientListQueryService`.
+> `PecRestController`, `PatientListQueryService` (historiques) ; depuis PC1 à PC3 : `PatientsControleur`, `Patient`,
+> `AssurePrincipal`, `PriseEnCharge`, `PecControleur` du contexte `patient-couverture` (les routes d'attestation de
+> `PecRestController` restent au legacy, PC4).
 
 ## 4.1 Fiche patient
 
@@ -185,6 +187,18 @@
 - **RG-ASS-007** — Modification d'un assuré : l'assuré doit appartenir au centre (sinon 403) ; téléphones validés selon
   RG-TRV-034.
 - **RG-ASS-008** — Une affectation est **active** tant qu'elle n'a pas de date de fin.
+- **RG-ASS-009** — **Un seul assuré principal actif par patient (R1)**, tenu sous le **verrou du centre** pris en tête de
+  l'affectation et de la correction de dates : deux affectations simultanées ne laissent jamais deux principaux actifs
+  (l'une attend, l'autre est refusée 409 si le verrou n'est pas obtenu à temps). Aucune contrainte SQL : les doublons
+  hérités se relèvent par `verifications-production.md` §42-1.
+- **RG-ASS-010** — **Un assuré d'un autre centre ne peut pas être capturé** : déclarer, sur une fiche ou une affectation, un
+  numéro d'assuré détenu par un autre centre est refusé (422 `ASSURE_D_UN_AUTRE_CENTRE`) ; l'ancien comportement reprenait la
+  ligne et écrasait ses coordonnées (KB-PAT-31).
+- **RG-ASS-011** — **Idempotence** : enregistrer la fiche d'un ayant droit sans changer d'assuré n'ajoute pas de ligne
+  d'affectation (KB-PAT-32).
+- **RG-ASS-012** — La modification d'un assuré (`PUT /patients/assures/{numero}`) **exige le nom** (400) ; le prénom reste
+  facultatif ; c'est un **remplacement total** : les autres champs absents du corps sont effacés (KB-PAT-33, remplacement
+  reproduit, à décider avec les métiers).
 
 ## 4.4 Attestation de droits
 
@@ -224,6 +238,19 @@
 - **RG-PEC-008** — La suppression d'une PEC exige qu'elle existe dans le centre ; elle notifie le centre. La recherche
   des PEC du centre
   est paginée.
+- **RG-PEC-011** — **Garde de centre** sur toutes les routes de PEC : le centre de la requête doit être celui du jeton
+  (403 sinon ; une session sans centre est refusée). Droits de rôles inchangés (validation `ADMIN` seul, autres routes ouvertes
+  à tout utilisateur authentifié). PEC inconnue ou d'un autre centre : 404 `PEC_INTROUVABLE` ; formats illisibles ou
+  manquants : 400 ; type de contenu texte : 415 ; un statut stocké hors cycle : 400 « Statut de prise en charge inconnu : X ».
+- **RG-PEC-012** — **Identifiant de PEC déjà pris** (demande saisie sur la fiche, RG-PEC-007) : la fiche est enregistrée, la
+  PEC n'est pas créée, la réponse est un 409 `PEC_IDENTIFIANT_DEJA_UTILISE` portant l'identité de la fiche (l'ancien
+  comportement annulait toute la fiche en 500, KB-PAT-35 ; interprétation à valider).
+- **RG-PEC-013** — **ARGENT, reproduit à l'identique, À DÉCIDER AVEC LES MÉTIERS** : (a) deux règles « PEC valide pour une
+  séance » (`session-allowed` : statut `VALIDEE` plus attestation du non-vacancier au jour du centre ; création de séance :
+  `SeanceBillingEligibilityPort`, qui reste la règle de production) ; (b) le forfait lu par les absences ignore le statut de
+  la PEC ; (c) aucun contrôle de période, de forfait ni de chevauchement, plusieurs PEC validées simultanées possibles ;
+  (d) une PEC validée peut être supprimée. Diffusions `PEC_VALIDATED`/`PEC_CLOSED` avec le nom réel du patient ; audit
+  `PEC_VALIDATION` et `PEC_CLOTURE`.
 - **RG-PEC-010** — **Tableau de bord administratif du centre** (`/api/v1/dashboard/stats`, mois facultatif au format
   `AAAA-MM`, ignoré s'il est invalide) : nombre de PEC créées et validées (du mois
   par date de création, ou au total), d'attestations (idem), de patients, de **PEC validées dont la fin demandée est

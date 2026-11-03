@@ -1,0 +1,11 @@
+{
+  "supprimer avec le patientId d'un autre patient" : "200 (accepté)",
+  "supprimer avec un identifiant illisible" : "400 BAD_REQUEST : Paramètre illisible : pecId",
+  "supprimer sans centre" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "supprimer sans patientId" : "200 (accepté)",
+  "supprimer une PEC CLOTUREE" : "200 (accepté)",
+  "supprimer une PEC CREE" : "200 (accepté)",
+  "supprimer une PEC VALIDEE" : "200 (accepté)",
+  "supprimer une PEC du centre A avec le centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "supprimer une PEC inconnue" : "404 PEC_INTROUVABLE : PEC introuvable"
+}

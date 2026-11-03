@@ -1,0 +1,12 @@
+{
+  "centre absent" : [ "400 BAD_REQUEST : CenterId cannot be null" ],
+  "corps illisible" : [ "400 BAD_REQUEST : Corps de la requête illisible" ],
+  "corps vide" : [ "400 BAD_REQUEST : Corps de la requête illisible" ],
+  "page absente" : [ "400 BAD_REQUEST : Corps de la requête illisible" ],
+  "page négative" : [ "400 BAD_REQUEST : La page ne peut pas être négative" ],
+  "taille 0" : [ "400 BAD_REQUEST : La taille doit être comprise entre 1 et 200" ],
+  "taille 200" : "5 résultat(s)",
+  "taille 201" : [ "400 BAD_REQUEST : La taille doit être comprise entre 1 et 200" ],
+  "taille absente" : [ "400 BAD_REQUEST : Corps de la requête illisible" ],
+  "taille texte" : [ "400 BAD_REQUEST : Corps de la requête illisible" ]
+}

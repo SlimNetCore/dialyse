@@ -137,9 +137,7 @@ final class Doubles {
     static final class CouvertureEnMemoire implements CouvertureDeLaFiche {
         final List<String> appels = new ArrayList<>();
         final List<PatientId> avecAttestation = new ArrayList<>();
-        Optional<Couverture.AssureSurLaFiche> principal = Optional.empty();
         AttestationSaisie derniereAttestation;
-        DemandeDePec derniereDemande;
 
         @Override
         public boolean attestationEnregistree(CentreId centre, PatientId patient) {
@@ -147,17 +145,141 @@ final class Doubles {
         }
 
         @Override
-        public Optional<Couverture.AssureSurLaFiche> assurePrincipal(CentreId centre, PatientId patient) {
-            return principal;
+        public void enregistrer(CentreId centre, PatientId patient, Couverture couverture, AttestationSaisie attestation) {
+            appels.add("enregistrer");
+            derniereAttestation = attestation;
+            if (attestation != null && attestation.complete() && !avecAttestation.contains(patient)) avecAttestation.add(patient);
+        }
+    }
+
+    /** Prises en charge en mémoire. */
+    static final class PrisesEnChargeEnMemoire implements com.hemodialyse.backend.contexts.patientcouverture.domain.PrisesEnCharge {
+        final java.util.Map<UUID, com.hemodialyse.backend.contexts.patientcouverture.domain.PriseEnCharge> lignes =
+                new java.util.LinkedHashMap<>();
+
+        @Override
+        public Optional<com.hemodialyse.backend.contexts.patientcouverture.domain.PriseEnCharge> trouver(CentreId centre, UUID id) {
+            return Optional.ofNullable(lignes.get(id)).filter(p -> p.centre().equals(centre));
         }
 
         @Override
-        public void enregistrer(CentreId centre, PatientId patient, Couverture couverture, AttestationSaisie attestation,
-                                DemandeDePec demande) {
-            appels.add("enregistrer");
-            derniereAttestation = attestation;
-            derniereDemande = demande;
-            if (attestation != null && attestation.complete() && !avecAttestation.contains(patient)) avecAttestation.add(patient);
+        public boolean identifiantPris(UUID id) {
+            return lignes.containsKey(id);
+        }
+
+        @Override
+        public void enregistrer(com.hemodialyse.backend.contexts.patientcouverture.domain.PriseEnCharge pec) {
+            lignes.put(pec.id(), pec);
+        }
+
+        @Override
+        public void supprimer(UUID id) {
+            lignes.remove(id);
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.patientcouverture.domain.PriseEnCharge> duPatient(CentreId centre, PatientId patient) {
+            return lignes.values().stream().filter(p -> p.centre().equals(centre) && p.patient().equals(patient)).toList();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.patientcouverture.domain.PriseEnCharge> duCentre(CentreId centre) {
+            return lignes.values().stream().filter(p -> p.centre().equals(centre)).toList();
+        }
+    }
+
+    /** Assurés et affectations en mémoire (fidèle à la table : le principal est la ligne la plus récente marquée principale). */
+    static final class AssuresEnMemoire implements AssuresDuCentre {
+        final List<Assure> assures = new ArrayList<>();
+        final List<Affectation> affectations = new ArrayList<>();
+
+        @Override
+        public List<Assure> rechercher(CentreId centre, String texte) {
+            return assures.stream().filter(a -> a.centre().equals(centre.valeur())).toList();
+        }
+
+        @Override
+        public Optional<Assure> trouver(String numero) {
+            return assures.stream().filter(a -> a.numeroAssurance().equals(numero)).findFirst();
+        }
+
+        @Override
+        public void mettreAJour(Assure assure) {
+            assures.removeIf(a -> a.numeroAssurance().equals(assure.numeroAssurance()));
+            assures.add(assure);
+        }
+
+        @Override
+        public List<Affectation> historique(CentreId centre, PatientId patient) {
+            return affectations.stream().filter(a -> a.patientId().equals(patient.valeur())).toList();
+        }
+
+        @Override
+        public Optional<Affectation> trouverAffectation(UUID id) {
+            return affectations.stream().filter(a -> a.id().equals(id)).findFirst();
+        }
+
+        @Override
+        public void fermerLAffectationPrincipale(CentreId centre, PatientId patient, LocalDate fin) {
+            for (int i = 0; i < affectations.size(); i++) {
+                Affectation a = affectations.get(i);
+                if (a.patientId().equals(patient.valeur()) && a.principal() && a.dateFin() == null) {
+                    affectations.set(i, new Affectation(a.id(), a.patientId(), a.numeroAssurance(), a.centre(), false,
+                            a.dateAffectation(), a.dateDebut(), fin));
+                }
+            }
+        }
+
+        @Override
+        public UUID ajouterUneAffectationPrincipale(CentreId centre, PatientId patient, String numero, LocalDate debut) {
+            UUID id = UUID.randomUUID();
+            affectations.add(new Affectation(id, patient.valeur(), numero, centre.valeur(), true,
+                    java.time.OffsetDateTime.now().plusNanos(affectations.size()), debut, null));
+            return id;
+        }
+
+        @Override
+        public void modifierLesDates(UUID affectation, LocalDate debut, LocalDate fin) {
+            Affectation a = trouverAffectation(affectation).orElseThrow();
+            affectations.remove(a);
+            affectations.add(new Affectation(a.id(), a.patientId(), a.numeroAssurance(), a.centre(), a.principal(),
+                    a.dateAffectation(), debut, fin));
+        }
+
+        @Override
+        public Optional<Affectation> principalActuel(CentreId centre, PatientId patient) {
+            return affectations.stream().filter(a -> a.patientId().equals(patient.valeur()) && a.principal())
+                    .max(java.util.Comparator.comparing(Affectation::dateAffectation));
+        }
+
+        @Override
+        public void retirerLePrincipal(CentreId centre, PatientId patient) {
+            for (int i = 0; i < affectations.size(); i++) {
+                Affectation a = affectations.get(i);
+                if (a.patientId().equals(patient.valeur()) && a.principal()) {
+                    affectations.set(i, new Affectation(a.id(), a.patientId(), a.numeroAssurance(), a.centre(), false,
+                            a.dateAffectation(), a.dateDebut(), a.dateFin()));
+                }
+            }
+        }
+
+        @Override
+        public void declarer(Assure assure) {
+            Optional<Assure> existant = trouver(assure.numeroAssurance());
+            LocalDate naissance = assure.dateNaissance() != null ? assure.dateNaissance()
+                    : existant.map(Assure::dateNaissance).orElse(null);
+            UUID centre = existant.map(Assure::centre).orElse(assure.centre());
+            assures.removeIf(a -> a.numeroAssurance().equals(assure.numeroAssurance()));
+            assures.add(new Assure(assure.numeroAssurance(), assure.nom(), assure.prenom(), assure.sexe(), naissance,
+                    assure.telPersonnel(), assure.telMobile(), assure.telBureau(), assure.adresse(), assure.groupeSanguin(), centre));
+        }
+
+        @Override
+        public UUID lierSansDates(CentreId centre, PatientId patient, String numero) {
+            UUID id = UUID.randomUUID();
+            affectations.add(new Affectation(id, patient.valeur(), numero, centre.valeur(), true,
+                    java.time.OffsetDateTime.now().plusNanos(affectations.size()), null, null));
+            return id;
         }
     }
 

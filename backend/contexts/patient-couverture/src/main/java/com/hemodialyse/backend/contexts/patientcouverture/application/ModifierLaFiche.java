@@ -26,10 +26,15 @@ public class ModifierLaFiche {
     private final CouvertureDeLaFiche couverture;
     private final UniteDeTravail unite;
     private final VerrouDuCentre verrou;
+    private final PrincipalDeLaFiche principal;
+    private final PecDeLaFiche pecDeLaFiche;
 
     public ModifierLaFiche(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                            PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                           CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
+                           CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou,
+                           PrincipalDeLaFiche principal, PecDeLaFiche pecDeLaFiche) {
+        this.pecDeLaFiche = pecDeLaFiche;
+        this.principal = principal;
         this.verrou = verrou;
         this.session = session;
         this.horloge = horloge;
@@ -57,10 +62,12 @@ public class ModifierLaFiche {
                     couverture.attestationEnregistree(centre, id));
             patients.enregistrer(patient);
             patient.retirerLesMouvements().forEach(mouvements::ajouter);
+            principal.aligner(centre, patient);
             place.placer(centre, id, patient.fiche().affectation(), patient.etat(), patient.fiche().dateEvenement());
             place.libererSiEchue(centre, id);
-            couverture.enregistrer(centre, id, patient.fiche().couverture(), saisie.attestation(), saisie.demande());
-            return new PatientEnregistre(id, centre, patient.vacancier(), patient.code());
+            couverture.enregistrer(centre, id, patient.fiche().couverture(), saisie.attestation());
+            String refus = pecDeLaFiche.enregistrer(centre, id, saisie.demande()).orElse(null);
+            return new PatientEnregistre(id, centre, patient.vacancier(), patient.code(), refus);
         });
     }
 }

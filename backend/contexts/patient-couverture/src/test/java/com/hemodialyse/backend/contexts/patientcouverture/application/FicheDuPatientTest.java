@@ -40,6 +40,8 @@ class FicheDuPatientTest {
     private AdmettreUnPatient admettre;
     private ModifierLaFiche modifier;
     private ConsulterLaFiche consulter;
+    private Doubles.AssuresEnMemoire assures;
+    private Doubles.PrisesEnChargeEnMemoire pecs;
 
     @BeforeEach
     void preparer() {
@@ -52,9 +54,15 @@ class FicheDuPatientTest {
         var horloge = new HorlogeFixe();
         var ids = new IdentifiantsSequentiels();
         VerrouDuCentre verrou = centre -> place.appels.add("verrou");
-        admettre = new AdmettreUnPatient(session, horloge, ids, place, patients, mouvements, couverture, unite, verrou);
-        modifier = new ModifierLaFiche(session, horloge, ids, place, patients, mouvements, couverture, unite, verrou);
-        consulter = new ConsulterLaFiche(session, patients, couverture, (centre, id) -> java.util.Optional.empty());
+        assures = new Doubles.AssuresEnMemoire();
+        var principal = new PrincipalDeLaFiche(assures);
+        pecs = new Doubles.PrisesEnChargeEnMemoire();
+        var pecDeLaFiche = new PecDeLaFiche(pecs, ids, horloge);
+        admettre = new AdmettreUnPatient(session, horloge, ids, place, patients, mouvements, couverture, unite, verrou, principal,
+                pecDeLaFiche);
+        modifier = new ModifierLaFiche(session, horloge, ids, place, patients, mouvements, couverture, unite, verrou, principal,
+                pecDeLaFiche);
+        consulter = new ConsulterLaFiche(session, patients, assures, (centre, id) -> java.util.Optional.empty());
     }
 
     private PatientEnregistre admis(String numero) {
@@ -243,12 +251,77 @@ class FicheDuPatientTest {
         var tiers = new SaisieDeLaFiche(CENTRE.valeur(), Fiches.tiers("PC1-T", "AS-1"),
                 new CouvertureDeLaFiche.AttestationSaisie(null, LocalDate.of(2026, 1, 1), LocalDate.of(2027, 1, 1)), null);
         PatientEnregistre r = admettre.executer(tiers);
-        couverture.principal = java.util.Optional.of(new Couverture.AssureSurLaFiche("M", "Dupont", "Jean", "1950-02-02",
-                null, null, null, null, null));
+        assures.mettreAJour(new AssuresDuCentre.Assure("AS-1", "Dupont", "Jean", "M", LocalDate.of(1950, 2, 2), null, null, null,
+                null, null, CENTRE.valeur()));
 
         FicheDuPatient f = consulter.executer(null, r.id().valeur());
 
         assertThat(f.fiche().couverture().assure().nom()).isEqualTo("Dupont");
+        assertThat(f.fiche().couverture().assure().dateNaissance()).isEqualTo("1950-02-02");
+    }
+
+    // ---- assuré principal de la fiche (PC2)
+
+    private SaisieDeLaFiche tiers(String numero, String numeroAssure) {
+        return new SaisieDeLaFiche(CENTRE.valeur(), Fiches.tiers(numero, numeroAssure),
+                new CouvertureDeLaFiche.AttestationSaisie(null, LocalDate.of(2026, 1, 1), LocalDate.of(2027, 1, 1)), null);
+    }
+
+    @Test
+    void should_creer_l_assure_et_une_seule_affectation_principale_pour_un_ayant_droit() {
+        PatientEnregistre r = admettre.executer(tiers("PC2-1", "AS-1"));
+
+        assertThat(assures.trouver("AS-1")).get().extracting(AssuresDuCentre.Assure::centre).isEqualTo(CENTRE.valeur());
+        assertThat(assures.affectations).singleElement().satisfies(a -> {
+            assertThat(a.principal()).isTrue();
+            assertThat(a.patientId()).isEqualTo(r.id().valeur());
+            assertThat(a.dateDebut()).isNull();
+        });
+    }
+
+    @Test
+    void should_ne_pas_ajouter_de_ligne_a_chaque_enregistrement_de_la_meme_fiche() {
+        PatientEnregistre r = admettre.executer(tiers("PC2-2", "AS-1"));
+
+        modifier.executer(r.id().valeur(), tiers("PC2-2", "AS-1"));
+        modifier.executer(r.id().valeur(), tiers("PC2-2", "AS-1"));
+
+        assertThat(assures.affectations).as("idempotence : une seule ligne").hasSize(1);
+    }
+
+    @Test
+    void should_retirer_l_ancien_principal_quand_l_assure_change_puis_quand_il_revient() {
+        PatientEnregistre r = admettre.executer(tiers("PC2-3", "AS-1"));
+
+        modifier.executer(r.id().valeur(), tiers("PC2-3", "AS-2"));
+        modifier.executer(r.id().valeur(), tiers("PC2-3", "AS-1"));
+
+        assertThat(assures.affectations).hasSize(3);
+        assertThat(assures.affectations.stream().filter(AssuresDuCentre.Affectation::principal)).hasSize(1);
+        assertThat(assures.principalActuel(CENTRE, r.id()).orElseThrow().numeroAssurance()).isEqualTo("AS-1");
+    }
+
+    @Test
+    void should_retirer_le_principal_quand_le_patient_devient_son_propre_assure() {
+        PatientEnregistre r = admettre.executer(tiers("PC2-4", "AS-1"));
+
+        modifier.executer(r.id().valeur(), saisie(Fiches.nominale("PC2-4", null, null), CENTRE.valeur()));
+
+        assertThat(assures.affectations).hasSize(1);
+        assertThat(assures.affectations.get(0).principal()).isFalse();
+    }
+
+    @Test
+    void should_refuser_en_422_de_capturer_un_assure_d_un_autre_centre_sans_toucher_a_sa_ligne() {
+        assures.mettreAJour(new AssuresDuCentre.Assure("AS-X", "Autre", "Centre", "M", null, null, null, null, null, null,
+                AUTRE_CENTRE.valeur()));
+
+        assertThatThrownBy(() -> admettre.executer(tiers("PC2-5", "AS-X")))
+                .isInstanceOf(RegleDePatientViolee.class).extracting("code").isEqualTo("ASSURE_D_UN_AUTRE_CENTRE");
+
+        assertThat(assures.trouver("AS-X").orElseThrow().centre()).isEqualTo(AUTRE_CENTRE.valeur());
+        assertThat(assures.trouver("AS-X").orElseThrow().nom()).isEqualTo("Autre");
+        assertThat(assures.affectations).isEmpty();
     }
 
     @Test

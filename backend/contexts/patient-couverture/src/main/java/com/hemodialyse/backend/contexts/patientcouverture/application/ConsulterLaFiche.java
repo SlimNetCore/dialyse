@@ -17,14 +17,14 @@ public class ConsulterLaFiche {
 
     private final SessionCourante session;
     private final PatientRepository patients;
-    private final CouvertureDeLaFiche couverture;
+    private final AssuresDuCentre assures;
     private final GenerateursDuCentre generateurs;
 
-    public ConsulterLaFiche(SessionCourante session, PatientRepository patients, CouvertureDeLaFiche couverture,
+    public ConsulterLaFiche(SessionCourante session, PatientRepository patients, AssuresDuCentre assures,
                             GenerateursDuCentre generateurs) {
         this.session = session;
         this.patients = patients;
-        this.couverture = couverture;
+        this.assures = assures;
         this.generateurs = generateurs;
     }
 
@@ -35,7 +35,10 @@ public class ConsulterLaFiche {
         Fiche fiche = patient.fiche();
         Couverture c = fiche.couverture();
         if (!c.assureLuiMeme()) {
-            var principal = couverture.assurePrincipal(centre, id);
+            var principal = assures.principalActuel(centre, id).flatMap(a -> assures.trouver(a.numeroAssurance()))
+                    .map(a -> new Couverture.AssureSurLaFiche(a.sexe(), a.nom(), a.prenom(),
+                            a.dateNaissance() == null ? null : a.dateNaissance().toString(), a.telPersonnel(), a.adresse(),
+                            a.groupeSanguin(), a.telMobile(), a.telBureau()));
             if (principal.isPresent()) {
                 c = new Couverture(c.numeroAssurance(), c.qualiteAssure(), c.centrePayeurId(), c.assureNumeroAssurance(),
                         principal.get(), c.assureHistoriqueJson(), c.piecesJointesJson());

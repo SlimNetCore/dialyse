@@ -97,29 +97,49 @@ public class PatientsControleur {
         }
     }
 
+    /**
+     * La fiche est enregistrée mais sa demande de PEC est refusée (identifiant déjà pris) : 409 avec le code stable du refus et
+     * l'identité de la fiche enregistrée (décision du 2026-11-03, KB-PAT-35 : plus de 500 qui annule la fiche).
+     */
+    private static ResponseEntity<?> reponse(PatientEnregistre p) {
+        if (p.refusDeLaPec() == null) return ResponseEntity.ok(Enregistre.de(p));
+        org.springframework.http.ProblemDetail probleme = org.springframework.http.ProblemDetail
+                .forStatus(org.springframework.http.HttpStatus.CONFLICT);
+        probleme.setTitle("Demande de prise en charge refusee");
+        probleme.setDetail("La fiche est enregistrée mais la prise en charge n'a pas été créée : identifiant déjà utilisé");
+        probleme.setProperty("code", p.refusDeLaPec());
+        probleme.setProperty("id", p.id().valeur());
+        probleme.setProperty("centerId", p.centre().valeur());
+        probleme.setProperty("codePatient", p.code());
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CONFLICT)
+                .contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON).body(probleme);
+    }
+
     @PostMapping
-    @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
+    @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details", "patient.pec.byPatient", "patient.pec.byCenter"},
+            allEntries = true)
     @PreAuthorize(ECRITURE)
-    public ResponseEntity<Enregistre> admettre(@RequestBody(required = false) byte[] corps, HttpServletRequest requete)
+    public ResponseEntity<?> admettre(@RequestBody(required = false) byte[] corps, HttpServletRequest requete)
             throws HttpMediaTypeNotSupportedException {
         FicheDemande demande = CorpsJson.lire(lecteur, requete, corps, FicheDemande.class);
         SaisieDeLaFiche saisie = demande.enSaisie();
         PatientEnregistre admis = admettre.executer(saisie);
         notifications.ficheCreee(admis.centre().valeur(), admis.id().valeur(), admis.code(), demande.nom(), demande.prenom());
-        return ResponseEntity.ok(Enregistre.de(admis));
+        return reponse(admis);
     }
 
     @PutMapping("/{id}")
-    @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
+    @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details", "patient.pec.byPatient", "patient.pec.byCenter"},
+            allEntries = true)
     @PreAuthorize(ECRITURE)
-    public ResponseEntity<Enregistre> modifier(@PathVariable UUID id, @RequestBody(required = false) byte[] corps,
+    public ResponseEntity<?> modifier(@PathVariable UUID id, @RequestBody(required = false) byte[] corps,
                                                HttpServletRequest requete) throws HttpMediaTypeNotSupportedException {
         FicheDemande demande = CorpsJson.lire(lecteur, requete, corps, FicheDemande.class);
         SaisieDeLaFiche saisie = demande.enSaisie();
         PatientEnregistre modifie = modifier.executer(id, saisie);
         notifications.ficheModifiee(modifie.centre().valeur(), modifie.id().valeur(), modifie.code(), demande.nom(),
                 demande.prenom());
-        return ResponseEntity.ok(Enregistre.de(modifie));
+        return reponse(modifie);
     }
 
     @SuppressWarnings("unused")

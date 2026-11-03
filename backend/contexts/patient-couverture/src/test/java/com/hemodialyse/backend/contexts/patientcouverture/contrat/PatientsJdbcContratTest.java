@@ -43,10 +43,27 @@ class PatientsJdbcContratTest extends PatientsJdbcContrat {
                 + "automatique BOOLEAN NOT NULL, cree_le TIMESTAMP NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS planning_parametres (center_id UUID NOT NULL PRIMARY KEY, "
                 + "jours_ouverts VARCHAR(100) NOT NULL, updated_at TIMESTAMP WITH TIME ZONE NOT NULL)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS assure (numero_assurance VARCHAR(255) PRIMARY KEY, center_id UUID NOT NULL, "
+                + "nom VARCHAR(255), prenom VARCHAR(255), sexe VARCHAR(10), date_naissance DATE, tel_personnel VARCHAR(50), "
+                + "tel_mobile VARCHAR(50), tel_bureau VARCHAR(50), adresse VARCHAR(500), groupe_sanguin VARCHAR(10), "
+                + "created_at TIMESTAMP WITH TIME ZONE)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS assure_patient (id UUID PRIMARY KEY, patient_id UUID NOT NULL, "
+                + "numero_assurance VARCHAR(255) NOT NULL, center_id UUID NOT NULL, is_primary BOOLEAN NOT NULL, "
+                + "date_affectation TIMESTAMP WITH TIME ZONE NOT NULL, date_debut_affectation DATE, date_fin_affectation DATE)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS prise_en_charge (id UUID PRIMARY KEY, patient_id UUID NOT NULL, "
+                + "center_id UUID NOT NULL, date_debut_demande DATE, date_fin_demande DATE, forfait_demande_id UUID, "
+                + "date_debut_effectif DATE, date_fin_effectif DATE, forfait_effectif_id UUID, statut VARCHAR(20) NOT NULL, "
+                + "created_at TIMESTAMP WITH TIME ZONE)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS attestation_droit (id UUID PRIMARY KEY, patient_id UUID NOT NULL, "
+                + "center_id UUID NOT NULL, date_debut DATE, date_fin DATE, created_at TIMESTAMP WITH TIME ZONE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS salle (id UUID PRIMARY KEY, nom VARCHAR(255))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, libelle VARCHAR(255))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS gmao_equipements (id UUID PRIMARY KEY, code VARCHAR(255))");
         for (Object centre : new Object[]{CENTRE.valeur(), AUTRE.valeur()}) {
+            jdbc.update("DELETE FROM prise_en_charge WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM attestation_droit WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM assure_patient WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM assure WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM patients WHERE center_id = ?", centre);
         }

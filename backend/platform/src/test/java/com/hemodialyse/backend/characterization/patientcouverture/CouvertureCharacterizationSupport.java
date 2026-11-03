@@ -148,7 +148,7 @@ public abstract class CouvertureCharacterizationSupport extends LiberationCharac
     }
 
     /**
-     * La validité d'attestation de {@code PecDomainService} lit {@code LocalDate.now()} (fuseau de la JVM, KB-PAT-20) alors que les
+     * La validité d'attestation de l'ancien {@code PecDomainService} (retiré, PC3) lisait {@code LocalDate.now()} (fuseau de la JVM, KB-PAT-20) alors que les
      * alias de dates sont ceux du jour du centre : un scénario qui touche la borne « aujourd'hui » est ignoré quand les deux jours
      * diffèrent (fenêtre d'une heure par jour si la JVM n'est pas au fuseau du centre).
      */

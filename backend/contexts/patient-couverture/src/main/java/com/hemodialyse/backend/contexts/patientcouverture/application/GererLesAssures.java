@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.patientcouverture.application;
 
 import com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre.Affectation;
 import com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre.Assure;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.AssurePrincipal;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Couverture;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientIntrouvable;
@@ -28,9 +29,11 @@ public class GererLesAssures {
     private final PatientRepository patients;
     private final AssuresDuCentre assures;
     private final UniteDeTravail unite;
+    private final VerrouDuCentre verrou;
 
     public GererLesAssures(SessionCourante session, HorlogeDesCentres horloge, PatientRepository patients,
-                           AssuresDuCentre assures, UniteDeTravail unite) {
+                           AssuresDuCentre assures, UniteDeTravail unite, VerrouDuCentre verrou) {
+        this.verrou = verrou;
         this.session = session;
         this.horloge = horloge;
         this.patients = patients;
@@ -55,6 +58,8 @@ public class GererLesAssures {
     public Affectee affecter(UUID centreDemande, UUID patientDemande, String numeroAssurance) {
         CentreId centre = session.centre(centreDemande);
         return unite.executer(() -> {
+            // R1 : verrou du centre EN TÊTE (deux affectations simultanées ne laissent plus deux principaux actifs, KB-PAT-29)
+            verrou.prendre(centre);
             PatientId id = new PatientId(patientDemande);
             var patient = patients.trouver(centre, id).orElseThrow(PatientIntrouvable::new);
             if (patient.fiche().couverture().assureLuiMeme()) {
@@ -72,6 +77,7 @@ public class GererLesAssures {
     public void modifierLAffectation(UUID centreDemande, UUID patient, UUID affectation, LocalDate debut, LocalDate fin) {
         CentreId centre = session.centre(centreDemande);
         unite.executer(() -> {
+            verrou.prendre(centre);
             Affectation courante = assures.trouverAffectation(affectation)
                     .orElseThrow(() -> new SaisieInvalide("Affectation introuvable: " + affectation));
             if (!courante.patientId().equals(patient) || !courante.centre().equals(centre.valeur())) {
@@ -87,7 +93,9 @@ public class GererLesAssures {
 
     public Assure modifierUnAssure(UUID centreDemande, String numeroAssurance, Assure saisie) {
         CentreId centre = session.centre(centreDemande);
+        AssurePrincipal.verifierPourModification(saisie.nom());
         return unite.executer(() -> {
+            verrou.prendre(centre);
             Assure existant = assures.trouver(numeroAssurance)
                     .orElseThrow(() -> new SaisieInvalide("Assuré introuvable: " + numeroAssurance));
             verifierLeCentre(existant, centre);

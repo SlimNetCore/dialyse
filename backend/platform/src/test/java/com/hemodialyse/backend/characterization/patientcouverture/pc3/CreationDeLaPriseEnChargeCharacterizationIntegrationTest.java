@@ -81,7 +81,7 @@ class CreationDeLaPriseEnChargeCharacterizationIntegrationTest extends Couvertur
         m.put("date illisible", refus(doPost(PEC, json("{'patientId':'" + patient + "','centerId':'" + CENTRE_A + "','dateDebutDemande':'31/12'}"), adminA())));
         m.put("type de contenu texte", refus(send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(java.net.URI.create(PEC))
                 .contentType(org.springframework.http.MediaType.TEXT_PLAIN).content("x").with(adminA()))));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
         etatDesPec("aucune_pec_ecrite");
     }
 

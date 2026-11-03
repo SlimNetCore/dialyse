@@ -52,8 +52,8 @@ class CycleDeLaPriseEnChargeCharacterizationIntegrationTest extends CouvertureCh
         etatDesPec("apres_la_cloture");
         lecture("session_autorisee_apres_la_cloture", sessionAllowed(pec, CENTRE_A, adminA()));
         notifications("notifications_durables");
-        diffusionsCapturees("diffusions");
-        audit("audit");
+        diffusionsCapturees("diffusions_nouveau_code");
+        audit("audit_nouveau_code");
     }
 
     @Test
@@ -69,7 +69,7 @@ class CycleDeLaPriseEnChargeCharacterizationIntegrationTest extends CouvertureCh
             jdbc.update("DELETE FROM patients WHERE center_id = ?", CENTRE_A);
             jdbc.update("DELETE FROM forfait WHERE center_id = ?", CENTRE_A);
         }
-        arbre("transitions", m);
+        arbre("transitions_nouveau_code", m);
     }
 
     @Test
@@ -111,7 +111,7 @@ class CycleDeLaPriseEnChargeCharacterizationIntegrationTest extends CouvertureCh
         m.put("clôturer avec un corps vide", refus(doPost(PEC + "/" + pec + "/close", "", adminA())));
         m.put("clôturer avec un centre illisible", refus(doPost(PEC + "/" + pec + "/close", json("{'centerId':'zzz'}"), adminA())));
         m.put("clôturer avec un corps tableau", refus(doPost(PEC + "/" + pec + "/close", "[]", adminA())));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
         etatDesPec("etat_inchange");
         notifications("aucune_notification");
     }
@@ -141,14 +141,14 @@ class CycleDeLaPriseEnChargeCharacterizationIntegrationTest extends CouvertureCh
         m.put("vacancier validé, période effective future", corps(sessionAllowed(pecEnBase(CENTRE_A, "PEC_F", futur, "VALIDEE", jour(50), jour(100), forfait, jour(50), jour(100), forfait, 14), CENTRE_A, adminA())).path("allowed").toString());
         UUID sansPeriode = patientCouvert(CENTRE_A, "V_SANS_PERIODE", true, null);
         m.put("vacancier validé sans aucune date", corps(sessionAllowed(pecEnBase(CENTRE_A, "PEC_N", sansPeriode, "VALIDEE", null, null, null, null, null, null, 15), CENTRE_A, adminA())).path("allowed").toString());
-        arbre("autorisations_de_session", m);
+        arbre("autorisations_de_session_nouveau_code", m);
         Map<String, Object> refus = new LinkedHashMap<>();
         refus.put("PEC inconnue", refus(sessionAllowed(UUID.nameUUIDFromBytes("inconnue".getBytes()), CENTRE_A, adminA())));
         refus.put("PEC du centre A lue avec le centre B", refus(sessionAllowed(pecEnBase(CENTRE_A, "PEC_Z", patientCouvert(CENTRE_A, "Z", true, null), "VALIDEE", jour(-5), jour(25), forfait, null, null, null, 20), CENTRE_B, adminA())));
         refus.put("utilisateur absent", refus(doGet(PEC + "/" + UUID.nameUUIDFromBytes("x".getBytes()) + "/session-allowed?centerId=" + CENTRE_A, adminA())));
         refus.put("centre absent", refus(doGet(PEC + "/" + UUID.nameUUIDFromBytes("x".getBytes()) + "/session-allowed?userId=u", adminA())));
         refus.put("identifiant illisible", refus(doGet(PEC + "/zzz/session-allowed?centerId=" + CENTRE_A + "&userId=u", adminA())));
-        arbre("refus_de_la_lecture", refus);
+        arbre("refus_de_la_lecture_nouveau_code", refus);
     }
 
     @Test
@@ -173,13 +173,17 @@ class CycleDeLaPriseEnChargeCharacterizationIntegrationTest extends CouvertureCh
         m.put("supprimer une PEC du centre A avec le centre B", refus(supprimer(pecA, CENTRE_B, null, adminA())));
         m.put("supprimer sans centre", refus(doDelete(PEC + "/" + pecA, adminA())));
         m.put("supprimer avec un identifiant illisible", refus(doDelete(PEC + "/zzz?centerId=" + CENTRE_A, adminA())));
-        arbre("suppressions", m);
+        arbre("suppressions_nouveau_code", m);
         etatDesPec("pec_restantes");
         notifications("notifications_durables");
     }
 
     @Test
     void deux_validations_simultanees_de_la_meme_pec_se_terminent_validee_sans_verrou() throws Exception {
+        // PC3 : les écritures de PEC prennent le verrou du centre en tête ; la ligne de paramètres du centre existe en production
+        // (sa toute première création concurrente est une autre règle, 409, ADR 0059) : on la pose ici. Seules les issues possibles
+        // (200 et 200, ou 200 et 422) sont verrouillées : avec le verrou, la seconde voit « VALIDEE » (200 et 422).
+        joursOuvertsDuCentre(CENTRE_A, TOUS_LES_JOURS);
         UUID pec = pecAuStatut("CREE");
         List<Resp> reponses = enParallele(() -> valider(pec, CENTRE_A, jour(0), jour(20), null, adminA()),
                 () -> valider(pec, CENTRE_A, jour(1), jour(21), null, adminA()));

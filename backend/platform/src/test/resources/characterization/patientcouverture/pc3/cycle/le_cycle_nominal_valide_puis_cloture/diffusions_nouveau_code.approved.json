@@ -1,0 +1,25 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "patientId" : "<VACANCIER>",
+      "patientNom" : "Test Patient VACANCIER",
+      "pecId" : "<PEC_1>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "PEC_VALIDATED"
+  }
+}, {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "patientId" : "<VACANCIER>",
+      "patientNom" : "Test Patient VACANCIER",
+      "pecId" : "<PEC_1>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "PEC_CLOSED"
+  }
+} ]

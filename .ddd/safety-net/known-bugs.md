@@ -1362,7 +1362,7 @@ Tous **reproduits tels quels** par le filet (aucune décision prise : à tranche
 
 ## Patient et couverture PC2 (assuré principal) et PC3 (prise en charge) : filet complété le 2026-11-03
 
-Observés sur le code actuel (assuré : routes `/api/v1/patients/assures/**` reprises sur place par PC1 ; PEC : `PecRestController`, `PecDomainService`, jamais repris). Tous **reproduits tels quels** par les goldens `characterization/patientcouverture/pc2/**` et `pc3/**` ; aucune correction. Décisions à prendre par slice (ADR de la slice).
+Observés sur le code actuel (assuré : routes `/api/v1/patients/assures/**` reprises sur place par PC1 ; PEC : `PecRestController`, `PecDomainService`, jamais repris). Au moment du filet, tous **reproduits tels quels** par les goldens `characterization/patientcouverture/pc2/**` et `pc3/**`. **La colonne « Statut » ci-dessous est celle du filet ; les statuts APRÈS la reprise PC2/PC3 (ADR 0077) sont dans le tableau « Statuts après reprise » qui suit.**
 
 | Id | Comportement observé | Statut | Preuve |
 |---|---|---|---|
@@ -1383,3 +1383,27 @@ Observés sur le code actuel (assuré : routes `/api/v1/patients/assures/**` rep
 | KB-PAT-34 | Recherche d'assurés : `q` non rogné (`' '` ou `' dup '` rendent vide), `%` et `_` non échappés (`_` rend tout) ; tri nom puis prénom avec NULL en tête sous H2 (PostgreSQL : NULL en dernier, non verrouillé) ; l'historique rend `nom`/`prenom`/`sexe` nuls pour un assuré disparu. | Reproduit | `pc2/assures/la_recherche…`, `pc2/affectation/l_historique…` |
 | KB-PAT-35 | Demande de PEC saisie sur la fiche (RG-PEC-007) : créée sans contrôle d'attestation, de période ni de forfait ; une demande incomplète (début ou fin absent) est ignorée en silence ; des dates différentes sans `pecId` ajoutent une PEC au lieu de réviser ; un `pecId` déjà pris par un autre patient fait échouer toute la fiche (500 `DATA_ACCESS_ERROR`, patient non créé) ; une PEC validée n'est jamais ramenée à « créée » (comportement voulu, reproduit). | Reproduit | `pc3/fiche/**` |
 | KB-PAT-36 | Listes de PEC : `GET /pec` et `GET /pec/patient/{id}` rendent l'entité de domaine (`createdAt`, ids bruts), non triées, gardées en cache par centre et par patient (une écriture directe en base reste périmée jusqu'à une écriture par l'API) ; la recherche paginée trie par fin de demande décroissante et filtre `debut`/`fin` sur les dates **demandées** seulement ; un filtre de date illisible est ignoré en silence (tout est rendu) ; `LIKE` non échappé. | Reproduit | `pc3/lectures/**` |
+
+### Statuts après reprise PC2/PC3 (2026-11-03, ADR 0077, à valider par les métiers)
+
+Archives du comportement d'avant : `pc2/_ecarts-legacy/**` (6) et `pc3/_ecarts-legacy/**` (24 + `pec_premier_filet`) ; nouveaux goldens suffixés `_nouveau_code`.
+
+| Id | Statut | Décision |
+|---|---|---|
+| KB-PAT-20 | Corrigé | jour du centre pour l'attestation du non-vacancier (création de PEC et `session-allowed`) |
+| KB-PAT-21 | Corrigé | PEC inconnue ou d'un autre centre : 404 `PEC_INTROUVABLE` |
+| KB-PAT-22 | Corrigé | garde de centre sur toutes les routes de PEC (403) ; droits de rôles inchangés |
+| KB-PAT-23 | Corrigé | formats illisibles ou manquants : 400 ; type texte : 415 ; bornes de recherche 400 |
+| KB-PAT-24 | Reproduit | aucun contrôle de période, de forfait ni de chevauchement : À DÉCIDER AVEC LES MÉTIERS (argent) |
+| KB-PAT-25 | Reproduit | deux règles « PEC valide pour une séance » ; `SeanceBillingEligibilityPort` reste la règle de production : À DÉCIDER (argent) |
+| KB-PAT-26 | Reproduit | forfait lu par Absences sans regarder le statut de la PEC : À DÉCIDER (argent) |
+| KB-PAT-27 | Corrigé | nom réel du patient dans les diffusions de PEC |
+| KB-PAT-28 | Corrigé | audit `PEC_VALIDATION`, `PEC_CLOTURE`, `entity_id` à la création (l'audit de l'affectation d'assuré reste `PATIENTS_CREATION`, reproduit) |
+| KB-PAT-29 | Corrigé en partie | R1 sous le verrou du centre (concurrence prouvée H2 et PG16) ; correction de dates permissive reproduite ; pas de contrainte SQL |
+| KB-PAT-30 | Reproduit | qualité nulle ou inconnue acceptée ; ligne de durée nulle |
+| KB-PAT-31 | Corrigé | capture d'un assuré d'un autre centre refusée : 422 `ASSURE_D_UN_AUTRE_CENTRE` |
+| KB-PAT-32 | Corrigé | plus de ligne `assure_patient` ajoutée à chaque enregistrement identique |
+| KB-PAT-33 | Corrigé en partie | `PUT` exige le nom (400) ; remplacement total des autres champs reproduit |
+| KB-PAT-34 | Reproduit | recherche d'assurés inchangée |
+| KB-PAT-35 | Corrigé | `pecId` déjà pris : fiche enregistrée, PEC non créée, 409 `PEC_IDENTIFIANT_DEJA_UTILISE` (interprétation à valider) ; le reste reproduit |
+| KB-PAT-36 | Reproduit | listes de PEC (entité telle quelle, cache, filtres) inchangées |

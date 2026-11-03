@@ -25,9 +25,6 @@ import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceReposito
 import com.hemodialyse.backend.domain.medical.ordonnance.service.OrdonnanceDomainService;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.pec.port.PecRepositoryPort;
-import com.hemodialyse.backend.domain.pec.service.PecDomainService;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
@@ -55,13 +52,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class DomainServiceConfig {
-
-    @Bean
-    public PecDomainService pecDomainService(PecRepositoryPort pecRepo,
-                                             PatientRepositoryPort patientRepo,
-                                             AttestationRepositoryPort attestationRepo) {
-        return new PecDomainService(pecRepo, patientRepo, attestationRepo);
-    }
 
     @Bean
     public AttestationDomainService attestationDomainService(AttestationRepositoryPort attestationRepo) {

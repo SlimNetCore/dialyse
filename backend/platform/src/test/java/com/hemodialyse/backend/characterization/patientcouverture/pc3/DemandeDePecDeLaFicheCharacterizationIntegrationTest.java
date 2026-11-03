@@ -103,12 +103,12 @@ class DemandeDePecDeLaFicheCharacterizationIntegrationTest extends CouvertureCha
     }
 
     @Test
-    void un_identifiant_de_pec_deja_pris_par_un_autre_patient_fait_echouer_la_fiche_en_entier() throws Exception {
+    void un_identifiant_de_pec_deja_pris_par_un_autre_patient_enregistre_la_fiche_et_refuse_la_pec_en_409() throws Exception {
         UUID pec = idPec("PEC_PRISE");
         creerLaFiche("PREMIER", ficheAvecDemande("Premier", "PC3-001", pec, jour(-5), jour(25), null), adminA());
         Resp second = doPost(PATIENTS, corps(ficheAvecDemande("Second", "PC3-002", pec, jour(-5), jour(25), null)), adminA());
-        arbre("refus", Map.of("création de la fiche du second patient avec le même identifiant", refus(second)));
-        sql("patients_ecrits", "SELECT nom FROM patients WHERE center_id = '" + CENTRE_A + "' ORDER BY nom");
+        arbre("refus_nouveau_code", Map.of("création de la fiche du second patient avec le même identifiant", refus(second)));
+        sql("patients_ecrits_nouveau_code", "SELECT nom FROM patients WHERE center_id = '" + CENTRE_A + "' ORDER BY nom");
         etatDesPec("pec_ecrites");
     }
 }

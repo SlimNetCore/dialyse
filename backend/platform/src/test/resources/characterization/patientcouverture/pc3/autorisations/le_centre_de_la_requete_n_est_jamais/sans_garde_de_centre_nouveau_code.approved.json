@@ -1,0 +1,13 @@
+{
+  "clôture par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "création dans le centre A par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "création par un ADMIN sans centre de session" : "403 ACCESS_DENIED : Session sans centre de rattachement",
+  "liste des PEC du centre A par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session 5 PEC",
+  "liste des PEC du patient A par l'ADMIN du centre B" : "5",
+  "liste du centre A sans centre de session" : "403 ACCESS_DENIED : Session sans centre de rattachement",
+  "recherche du centre A par l'ADMIN du centre B" : "",
+  "session autorisée par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "suppression par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "validation par l'ADMIN du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "validation par un ADMIN sans centre de session" : "403 ACCESS_DENIED : Session sans centre de rattachement"
+}

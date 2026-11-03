@@ -73,16 +73,12 @@ class ReglesDeGestionDocumentationTest {
 
     /**
      * Sources d'avant la reprise du module patient-couverture (ADR 0073, GEL.md) : toujours sur disque mais exclues de la
-     * compilation par le pom du module (retrait à PC2 à PC4), leurs routes ne sont pas servies.
+     * compilation par le pom du module (Attestation : retrait à PC4 ; PC1 à PC3 ont retiré le reste), leurs routes ne sont pas servies.
      */
-    private static final Set<String> SOURCES_GELEES_DE_PATIENT_COUVERTURE = Set.of("Assure", "AssureId",
-            "AssurePatientAssignment", "AssurePatientRepository", "AssureRepository", "AssureService", "AssureUseCases",
-            "AssuresControleur", "AssurePatientsJdbc", "AssurePrincipalAffecte", "AttestationDroit", "AttestationDroitId",
+    private static final Set<String> SOURCES_GELEES_DE_PATIENT_COUVERTURE = Set.of("AttestationDroit", "AttestationDroitId",
             "AttestationRepository", "AttestationService", "AttestationUseCases", "AttestationsControleur", "AttestationsJdbc",
             "AttestationEnregistree", "EtatPatient", "MouvementPatient", "MouvementPatientId", "MouvementPatientRepository",
-            "MouvementType", "NumeroDossier", "Pec", "PecId", "PecRepository", "StatutPec", "TypeAssure", "PecService",
-            "PecUseCases", "PecControleur", "PecsJdbc", "PECCloturee", "PECValidee", "PatientAdmis", "PatientService",
-            "PatientUseCases");
+            "MouvementType", "NumeroDossier", "PatientAdmis", "PatientService", "PatientUseCases");
 
     private static boolean estGeleDePatientCouverture(Path source) {
         String chemin = source.toString().replace('\\', '/');

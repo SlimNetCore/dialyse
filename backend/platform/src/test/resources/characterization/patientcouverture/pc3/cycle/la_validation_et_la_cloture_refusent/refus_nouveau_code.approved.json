@@ -1,0 +1,12 @@
+{
+  "clôturer avec un centre illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "clôturer avec un corps tableau" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "clôturer avec un corps vide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "clôturer sans centre" : "400 BAD_REQUEST : CenterId cannot be null",
+  "clôturer une PEC inconnue" : "404 PEC_INTROUVABLE : PEC introuvable",
+  "valider avec un corps vide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "valider avec un identifiant illisible" : "400 BAD_REQUEST : Paramètre illisible : pecId",
+  "valider sans centre" : "400 BAD_REQUEST : CenterId cannot be null",
+  "valider une PEC du centre A avec le centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "valider une PEC inconnue" : "404 PEC_INTROUVABLE : PEC introuvable"
+}

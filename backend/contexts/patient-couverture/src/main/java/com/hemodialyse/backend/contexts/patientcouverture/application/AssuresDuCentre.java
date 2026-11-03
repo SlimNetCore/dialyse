@@ -46,4 +46,21 @@ public interface AssuresDuCentre {
     UUID ajouterUneAffectationPrincipale(CentreId centre, PatientId patient, String numeroAssurance, LocalDate debut);
 
     void modifierLesDates(UUID affectation, LocalDate debut, LocalDate fin);
+
+    // ---- assuré principal de la fiche (PC2) : ce que l'enregistrement de la fiche d'un patient écrit
+
+    /** Assuré principal actuel du patient (la ligne {@code is_primary} la plus récente), s'il y en a un. */
+    Optional<Affectation> principalActuel(CentreId centre, PatientId patient);
+
+    /** Retire le caractère principal de toutes les lignes du patient (aucune date n'est modifiée, comme aujourd'hui). */
+    void retirerLePrincipal(CentreId centre, PatientId patient);
+
+    /**
+     * Crée l'assuré s'il est nouveau, sinon remplace ses coordonnées (jamais son centre : le contrôle d'appartenance est fait
+     * avant par le cas d'usage) ; une date de naissance absente ne modifie pas celle de l'assuré existant.
+     */
+    void declarer(Assure assure);
+
+    /** Ajoute une ligne d'affectation principale SANS dates (fiche) ; renvoie son identifiant. */
+    UUID lierSansDates(CentreId centre, PatientId patient, String numeroAssurance);
 }

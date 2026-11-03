@@ -97,38 +97,22 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/domain/Assure*.java</exclude>
                         <exclude>**/domain/Attestation*.java</exclude>
                         <exclude>**/domain/EtatPatient.java</exclude>
                         <exclude>**/domain/MouvementPatient*.java</exclude>
                         <exclude>**/domain/MouvementType.java</exclude>
                         <exclude>**/domain/NumeroDossier.java</exclude>
-                        <exclude>**/domain/Pec*.java</exclude>
-                        <exclude>**/domain/StatutPec.java</exclude>
-                        <exclude>**/domain/TypeAssure.java</exclude>
-                        <exclude>**/application/AssureService.java</exclude>
-                        <exclude>**/application/AssureUseCases.java</exclude>
                         <exclude>**/application/AttestationService.java</exclude>
                         <exclude>**/application/AttestationUseCases.java</exclude>
                         <exclude>**/application/PatientService.java</exclude>
                         <exclude>**/application/PatientUseCases.java</exclude>
-                        <exclude>**/application/PecService.java</exclude>
-                        <exclude>**/application/PecUseCases.java</exclude>
-                        <exclude>**/infrastructure/persistence/AssurePatientsJdbc.java</exclude>
                         <exclude>**/infrastructure/persistence/AttestationsJdbc.java</exclude>
-                        <exclude>**/infrastructure/persistence/PecsJdbc.java</exclude>
-                        <exclude>**/interfaces/http/AssuresControleur.java</exclude>
                         <exclude>**/interfaces/http/AttestationsControleur.java</exclude>
-                        <exclude>**/interfaces/http/PecControleur.java</exclude>
                         <exclude>**/interfaces/http/dto/*.java</exclude>
-                        <exclude>**/publishedlanguage/Assure*.java</exclude>
                         <exclude>**/publishedlanguage/Attestation*.java</exclude>
                         <exclude>**/publishedlanguage/PatientAdmis.java</exclude>
-                        <exclude>**/publishedlanguage/PEC*.java</exclude>
                     </excludes>
                     <testExcludes>
-                        <testExclude>**/domain/AssureTest.java</testExclude>
-                        <testExclude>**/domain/PecTest.java</testExclude>
                     </testExcludes>
                 </configuration>
             </plugin>

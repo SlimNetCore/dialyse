@@ -55,7 +55,11 @@ public final class AuditActionResolver {
             // P5 (KB-PLN-62) : la sérologie n'est plus auditée sous l'action de la fiche du patient.
             Map.entry("POST /api/v1/patients/{patientId}/serologies", new Resolved("SEROLOGIE_ENREGISTREE", "patients", "Sérologie enregistrée")),
             Map.entry("PUT /api/v1/patients/{patientId}/serologies/{serologieId}", new Resolved("SEROLOGIE_MODIFIEE", "patients", "Sérologie modifiée")),
-            Map.entry("DELETE /api/v1/patients/{patientId}/serologies/{serologieId}", new Resolved("SEROLOGIE_SUPPRIMEE", "patients", "Sérologie supprimée")));
+            Map.entry("DELETE /api/v1/patients/{patientId}/serologies/{serologieId}", new Resolved("SEROLOGIE_SUPPRIMEE", "patients", "Sérologie supprimée")),
+            // Prise en charge (PC3, décision du 2026-11-03, KB-PAT-28) : la validation et la clôture ne sont plus journalisées
+            // « PEC_CREATION » ; l'identifiant tracé est celui de la PEC (variable de chemin).
+            Map.entry("POST /api/v1/pec/{pecId}/validate", new Resolved("PEC_VALIDATION", "pec", "PEC validée")),
+            Map.entry("POST /api/v1/pec/{pecId}/close", new Resolved("PEC_CLOTURE", "pec", "PEC clôturée")));
 
     private AuditActionResolver() {
     }

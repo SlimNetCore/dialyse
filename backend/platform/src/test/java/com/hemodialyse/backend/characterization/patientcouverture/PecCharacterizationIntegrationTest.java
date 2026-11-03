@@ -174,7 +174,7 @@ class PecCharacterizationIntegrationTest {
     @Test
     void cross_centre_refuse() throws Exception {
         Resp r = send(get(BASE).param("centerId", CENTRE_A.toString()).with(adminB()));
-        golden("list_pec_cross_centre_adminB", r);
+        golden("list_pec_cross_centre_adminB_nouveau_code", r);
     }
 
     protected record Resp(int status, String contentType, String raw) {

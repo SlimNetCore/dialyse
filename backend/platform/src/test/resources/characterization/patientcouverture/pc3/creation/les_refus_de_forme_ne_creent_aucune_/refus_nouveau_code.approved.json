@@ -1,0 +1,12 @@
+{
+  "JSON illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "centre absent" : "400 BAD_REQUEST : CenterId cannot be null",
+  "corps absent" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps vide" : "400 BAD_REQUEST : CenterId cannot be null",
+  "date illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "identifiant de patient illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "patient absent" : "400 BAD_REQUEST : PatientId cannot be null",
+  "patient d'un autre centre" : "400 BAD_REQUEST : Patient introuvable",
+  "patient inconnu" : "400 BAD_REQUEST : Patient introuvable",
+  "type de contenu texte" : "415 UNSUPPORTED_MEDIA_TYPE : Le corps de la requête doit être du JSON"
+}

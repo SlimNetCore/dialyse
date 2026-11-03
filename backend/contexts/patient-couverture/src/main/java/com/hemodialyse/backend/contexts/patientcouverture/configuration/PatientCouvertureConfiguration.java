@@ -14,6 +14,17 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDes
 import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.application.ModifierLaFiche;
 import com.hemodialyse.backend.contexts.patientcouverture.application.PlaceDeLaFiche;
+import com.hemodialyse.backend.contexts.patientcouverture.application.AttestationsDuPatient;
+import com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPec;
+import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesPec;
+import com.hemodialyse.backend.contexts.patientcouverture.application.PecDeLaFiche;
+import com.hemodialyse.backend.contexts.patientcouverture.application.RechercherLesPec;
+import com.hemodialyse.backend.contexts.patientcouverture.application.PrincipalDeLaFiche;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.PrisesEnCharge;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyattestation.AttestationsDuPatientJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesPecJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PrisesEnChargeJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDePecEnCache;
 import com.hemodialyse.backend.contexts.patientcouverture.application.RechercherLesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.application.SessionCourante;
 import com.hemodialyse.backend.contexts.patientcouverture.application.UniteDeTravail;
@@ -125,21 +136,67 @@ public class PatientCouvertureConfiguration {
     @Bean
     AdmettreUnPatient admettreUnPatient(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                                         PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                                        CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
-        return new AdmettreUnPatient(session, horloge, identifiants, place, patients, mouvements, couverture, unite, verrou);
+                                        CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou,
+                                        PrincipalDeLaFiche principal, PecDeLaFiche pecDeLaFiche) {
+        return new AdmettreUnPatient(session, horloge, identifiants, place, patients, mouvements, couverture, unite, verrou,
+                principal, pecDeLaFiche);
+    }
+
+    @Bean
+    PrisesEnCharge prisesEnCharge(JdbcTemplate jdbc) {
+        return new PrisesEnChargeJdbc(jdbc);
+    }
+
+    @Bean
+    AttestationsDuPatient attestationsDuPatient(JdbcTemplate jdbc) {
+        return new AttestationsDuPatientJdbc(jdbc);
+    }
+
+    @Bean
+    LectureDesPec lectureDesPec(JdbcTemplate jdbc) {
+        return new LectureDesPecJdbc(jdbc);
+    }
+
+    @Bean
+    PecDeLaFiche pecDeLaFiche(PrisesEnCharge pecs, Identifiants identifiants, HorlogeDesCentres horloge) {
+        return new PecDeLaFiche(pecs, identifiants, horloge);
+    }
+
+    @Bean
+    GererLesPec gererLesPec(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants, PrisesEnCharge pecs,
+                            PatientRepository patients, AttestationsDuPatient attestations, UniteDeTravail unite,
+                            VerrouDuCentre verrou) {
+        return new GererLesPec(session, horloge, identifiants, pecs, patients, attestations, unite, verrou);
+    }
+
+    @Bean
+    RechercherLesPec rechercherLesPec(SessionCourante session, LectureDesPec lecture) {
+        return new RechercherLesPec(session, lecture);
+    }
+
+    @Bean
+    ListesDePecEnCache listesDePecEnCache(GererLesPec gerer) {
+        return new ListesDePecEnCache(gerer);
+    }
+
+    @Bean
+    PrincipalDeLaFiche principalDeLaFiche(AssuresDuCentre assures) {
+        return new PrincipalDeLaFiche(assures);
     }
 
     @Bean
     ModifierLaFiche modifierLaFiche(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                                     PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                                    CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
-        return new ModifierLaFiche(session, horloge, identifiants, place, patients, mouvements, couverture, unite, verrou);
+                                    CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou,
+                                    PrincipalDeLaFiche principal, PecDeLaFiche pecDeLaFiche) {
+        return new ModifierLaFiche(session, horloge, identifiants, place, patients, mouvements, couverture, unite, verrou,
+                principal, pecDeLaFiche);
     }
 
     @Bean
-    ConsulterLaFiche consulterLaFiche(SessionCourante session, PatientRepository patients, CouvertureDeLaFiche couverture,
+    ConsulterLaFiche consulterLaFiche(SessionCourante session, PatientRepository patients, AssuresDuCentre assures,
                                       GenerateursDuCentre generateurs) {
-        return new ConsulterLaFiche(session, patients, couverture, generateurs);
+        return new ConsulterLaFiche(session, patients, assures, generateurs);
     }
 
     @Bean
@@ -164,7 +221,7 @@ public class PatientCouvertureConfiguration {
 
     @Bean
     GererLesAssures gererLesAssures(SessionCourante session, HorlogeDesCentres horloge, PatientRepository patients,
-                                    AssuresDuCentre assures, UniteDeTravail unite) {
-        return new GererLesAssures(session, horloge, patients, assures, unite);
+                                    AssuresDuCentre assures, UniteDeTravail unite, VerrouDuCentre verrou) {
+        return new GererLesAssures(session, horloge, patients, assures, unite, verrou);
     }
 }

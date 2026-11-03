@@ -58,10 +58,10 @@ class AutorisationsEtCentresDeLaPriseEnChargeCharacterizationIntegrationTest ext
 
     @Test
     void les_lectures_de_pec_sont_ouvertes_a_tout_compte_de_centre_et_fermees_a_la_direction_et_au_superadmin() throws Exception {
-        matrice("matrice_liste_du_centre", "VALIDEE", p -> sans(() -> pecsDuCentre(CENTRE_A, p)));
-        matrice("matrice_liste_du_patient", "VALIDEE", p -> sans(() -> pecsDuPatient(patient, CENTRE_A, p)));
-        matrice("matrice_session_autorisee", "VALIDEE", p -> sans(() -> sessionAllowed(pec, CENTRE_A, p)));
-        matrice("matrice_recherche", "VALIDEE", p -> sans(() -> doPost(PEC + "/pec-center/search", json("{'centerId':'" + CENTRE_A + "','page':0,'size':10}"), p)));
+        matrice("matrice_liste_du_centre_nouveau_code", "VALIDEE", p -> sans(() -> pecsDuCentre(CENTRE_A, p)));
+        matrice("matrice_liste_du_patient_nouveau_code", "VALIDEE", p -> sans(() -> pecsDuPatient(patient, CENTRE_A, p)));
+        matrice("matrice_session_autorisee_nouveau_code", "VALIDEE", p -> sans(() -> sessionAllowed(pec, CENTRE_A, p)));
+        matrice("matrice_recherche_nouveau_code", "VALIDEE", p -> sans(() -> doPost(PEC + "/pec-center/search", json("{'centerId':'" + CENTRE_A + "','page':0,'size':10}"), p)));
         decor("VALIDEE");
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("liste du centre", statutEtCode(anonyme("GET", PEC + "?centerId=" + CENTRE_A, null)));
@@ -73,10 +73,10 @@ class AutorisationsEtCentresDeLaPriseEnChargeCharacterizationIntegrationTest ext
 
     @Test
     void la_creation_et_la_cloture_sont_ouvertes_a_tout_compte_de_centre_la_validation_est_reservee_a_l_admin_et_la_suppression_ouverte() throws Exception {
-        matrice("matrice_creation", "VALIDEE", p -> sans(() -> creerLaPec("PEC_X", patient, CENTRE_A, jour(-5), jour(25), null, p)));
-        matrice("matrice_validation", "CREE", p -> sans(() -> valider(pec, CENTRE_A, jour(0), jour(20), null, p)));
-        matrice("matrice_cloture", "VALIDEE", p -> sans(() -> cloturer(pec, CENTRE_A, p)));
-        matrice("matrice_suppression", "CREE", p -> sans(() -> supprimer(pec, CENTRE_A, patient, p)));
+        matrice("matrice_creation_nouveau_code", "VALIDEE", p -> sans(() -> creerLaPec("PEC_X", patient, CENTRE_A, jour(-5), jour(25), null, p)));
+        matrice("matrice_validation_nouveau_code", "CREE", p -> sans(() -> valider(pec, CENTRE_A, jour(0), jour(20), null, p)));
+        matrice("matrice_cloture_nouveau_code", "VALIDEE", p -> sans(() -> cloturer(pec, CENTRE_A, p)));
+        matrice("matrice_suppression_nouveau_code", "CREE", p -> sans(() -> supprimer(pec, CENTRE_A, patient, p)));
         decor("CREE");
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("création", statutEtCode(anonyme("POST", PEC, "{\"patientId\":\"" + patient + "\",\"centerId\":\"" + CENTRE_A + "\"}")));
@@ -104,9 +104,10 @@ class AutorisationsEtCentresDeLaPriseEnChargeCharacterizationIntegrationTest ext
         m.put("création dans le centre A par l'ADMIN du centre B", refus(creee));
         m.put("suppression par l'ADMIN du centre B", refus(supprimer(existante, CENTRE_A, patient, adminB())));
         m.put("création par un ADMIN sans centre de session", refus(creerLaPec("PEC_C", patient, CENTRE_A, jour(-5), jour(25), null, as(null, "ADMIN"))));
-        m.put("validation par un ADMIN sans centre de session", refus(valider(UUID.fromString(corps(creee).path("id").asString()),
+        // la création du centre B étant désormais refusée (garde de centre), la PEC visée est la PEC existante du centre A
+        m.put("validation par un ADMIN sans centre de session", refus(valider(existante,
                 CENTRE_A, jour(0), jour(20), null, as(null, "ADMIN"))));
-        arbre("sans_garde_de_centre", m);
-        etatDesPec("etat_final");
+        arbre("sans_garde_de_centre_nouveau_code", m);
+        etatDesPec("etat_final_nouveau_code");
     }
 }

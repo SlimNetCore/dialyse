@@ -175,68 +175,12 @@ class LecturesEtAssuresTest {
 
     // ---- assurés
 
-    private static final class AssuresEnMemoire implements AssuresDuCentre {
-        final List<Assure> assures = new ArrayList<>();
-        final List<Affectation> affectations = new ArrayList<>();
-
-        @Override
-        public List<Assure> rechercher(CentreId centre, String texte) {
-            return assures.stream().filter(a -> a.centre().equals(centre.valeur())).toList();
-        }
-
-        @Override
-        public Optional<Assure> trouver(String numero) {
-            return assures.stream().filter(a -> a.numeroAssurance().equals(numero)).findFirst();
-        }
-
-        @Override
-        public void mettreAJour(Assure assure) {
-            assures.removeIf(a -> a.numeroAssurance().equals(assure.numeroAssurance()));
-            assures.add(assure);
-        }
-
-        @Override
-        public List<Affectation> historique(CentreId centre, PatientId patient) {
-            return affectations.stream().filter(a -> a.patientId().equals(patient.valeur())).toList();
-        }
-
-        @Override
-        public Optional<Affectation> trouverAffectation(UUID id) {
-            return affectations.stream().filter(a -> a.id().equals(id)).findFirst();
-        }
-
-        @Override
-        public void fermerLAffectationPrincipale(CentreId centre, PatientId patient, LocalDate fin) {
-            for (int i = 0; i < affectations.size(); i++) {
-                Affectation a = affectations.get(i);
-                if (a.patientId().equals(patient.valeur()) && a.principal() && a.dateFin() == null) {
-                    affectations.set(i, new Affectation(a.id(), a.patientId(), a.numeroAssurance(), a.centre(), false,
-                            a.dateAffectation(), a.dateDebut(), fin));
-                }
-            }
-        }
-
-        @Override
-        public UUID ajouterUneAffectationPrincipale(CentreId centre, PatientId patient, String numero, LocalDate debut) {
-            UUID id = UUID.randomUUID();
-            affectations.add(new Affectation(id, patient.valeur(), numero, centre.valeur(), true, OffsetDateTime.now(), debut, null));
-            return id;
-        }
-
-        @Override
-        public void modifierLesDates(UUID affectation, LocalDate debut, LocalDate fin) {
-            Affectation a = trouverAffectation(affectation).orElseThrow();
-            affectations.remove(a);
-            affectations.add(new Affectation(a.id(), a.patientId(), a.numeroAssurance(), a.centre(), a.principal(),
-                    a.dateAffectation(), debut, fin));
-        }
-    }
-
     private final PatientsEnMemoire patients = new PatientsEnMemoire();
-    private final AssuresEnMemoire assures = new AssuresEnMemoire();
+    private final Doubles.AssuresEnMemoire assures = new Doubles.AssuresEnMemoire();
 
     private GererLesAssures gerer() {
-        return new GererLesAssures(session, new HorlogeFixe(), patients, assures, new UniteImmediate());
+        return new GererLesAssures(session, new HorlogeFixe(), patients, assures, new UniteImmediate(), centre -> {
+        });
     }
 
     private PatientId patientTiers() {
@@ -306,6 +250,34 @@ class LecturesEtAssuresTest {
         assertThat(modifie.centre()).isEqualTo(CENTRE.valeur());
         assertThat(assures.trouver("AS-1").orElseThrow().nom()).isEqualTo("Martin");
         assertThatThrownBy(() -> gerer().modifierUnAssure(CENTRE.valeur(), "AS-?", modifie)).isInstanceOf(SaisieInvalide.class);
+    }
+
+    @Test
+    void should_exiger_le_nom_pour_modifier_un_assure_en_gardant_le_remplacement_total() {
+        assure("AS-1", CENTRE);
+        var sansNom = new Assure("AS-1", " ", "P", null, null, null, null, null, null, null, null);
+        var nul = new Assure("AS-1", null, null, null, null, null, null, null, null, null, null);
+
+        assertThatThrownBy(() -> gerer().modifierUnAssure(CENTRE.valeur(), "AS-1", sansNom)).isInstanceOf(SaisieInvalide.class);
+        assertThatThrownBy(() -> gerer().modifierUnAssure(CENTRE.valeur(), "AS-1", nul)).isInstanceOf(SaisieInvalide.class);
+        assertThat(assures.trouver("AS-1").orElseThrow().nom()).as("rien n'est écrit").isEqualTo("Dupont");
+        gerer().modifierUnAssure(CENTRE.valeur(), "AS-1", new Assure("AS-1", "N", null, null, null, null, null, null, null, null, null));
+        assertThat(assures.trouver("AS-1").orElseThrow().sexe()).as("remplacement total : le sexe est effacé").isNull();
+        assertThat(assures.trouver("AS-1").orElseThrow().prenom()).as("remplacement total : le prénom est effacé").isNull();
+    }
+
+    @Test
+    void should_prendre_le_verrou_du_centre_en_tete_de_l_affectation_et_de_la_correction_de_dates() {
+        PatientId patient = patientTiers();
+        assure("AS-1", CENTRE);
+        List<String> ordre = new ArrayList<>();
+        var gerer = new GererLesAssures(session, new HorlogeFixe(), patients, assures, new UniteImmediate(),
+                centre -> ordre.add("verrou"));
+
+        UUID affectation = gerer.affecter(CENTRE.valeur(), patient.valeur(), "AS-1").id();
+        gerer.modifierLAffectation(CENTRE.valeur(), patient.valeur(), affectation, null, null);
+
+        assertThat(ordre).containsExactly("verrou", "verrou");
     }
 
     @Test

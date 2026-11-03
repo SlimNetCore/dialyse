@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Nom de l'assuré obligatoire",
+    "instance" : "/api/v1/patients/assures/PC2-AS-1",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

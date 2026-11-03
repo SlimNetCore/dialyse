@@ -1,0 +1,7 @@
+{
+  "PEC du centre A lue avec le centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "PEC inconnue" : "404 PEC_INTROUVABLE : PEC introuvable",
+  "centre absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "identifiant illisible" : "400 BAD_REQUEST : Paramètre illisible : pecId",
+  "utilisateur absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : userId"
+}

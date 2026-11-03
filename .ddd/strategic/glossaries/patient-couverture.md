@@ -35,3 +35,16 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 | Numéro d'assurance | Identifiant d'assurance du patient, unique par centre, normalisé | `NumeroAssurance` | espaces de bord retirés, majuscules |
 | Garde de centre | Toute lecture et toute écriture se font dans le centre du jeton | `SessionCourante` | 403 sinon |
 | Jour du centre | « Aujourd'hui » au fuseau du centre | `HorlogeDesCentres` | clé `app.planification.fuseau-par-defaut` |
+
+## Termes ajoutés par la reprise PC2 et PC3 (2026-11-03, statut `proposed`, ADR 0077)
+
+| Terme métier | Définition | Identifiant du code | Notes |
+|---|---|---|---|
+| Assuré principal | Assuré actif désigné comme principal du patient ; un seul à la fois (R1) | `AssurePrincipal`, colonne `is_primary` | tenu sous le verrou du centre |
+| Affectation d'assuré | Lien daté entre un patient et un assuré | `Affectation`, table `assure_patient` | active tant que sans date de fin |
+| Assuré d'un autre centre | Assuré détenu par un autre centre : ne peut pas être capturé | code `ASSURE_D_UN_AUTRE_CENTRE` | 422 |
+| Demande de prise en charge | Période et forfait demandés à la création de la PEC | `dateDebutDemande`, `dateFinDemande`, `forfaitDemandeId` | saisie aussi sur la fiche |
+| Prise en charge accordée | Période et forfait effectifs fixés à la validation | `dateDebutEffectif`, `dateFinEffectif`, `forfaitEffectifId` | aucun contrôle de période ni de forfait (à décider) |
+| Statut de prise en charge | `CREE`, `VALIDEE`, `CLOTUREE` | `StatutPec` | tout autre : refusé |
+| Identifiant de PEC déjà utilisé | Demande de la fiche dont l'identifiant de PEC appartient à une autre PEC | code `PEC_IDENTIFIANT_DEJA_UTILISE` | fiche enregistrée, PEC non créée, 409 |
+| PEC valide pour une séance | Deux règles aujourd'hui : `session-allowed` (statut + attestation du non-vacancier) et `SeanceBillingEligibilityPort` | `GererLesPec.autoriseUneSeance` | à décider avec les métiers |

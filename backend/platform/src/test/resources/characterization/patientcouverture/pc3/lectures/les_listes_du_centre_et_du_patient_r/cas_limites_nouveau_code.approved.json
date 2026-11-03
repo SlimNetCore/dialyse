@@ -1,0 +1,7 @@
+{
+  "centre absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "centre illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "centre sans PEC" : "0",
+  "patient illisible" : "400 BAD_REQUEST : Paramètre illisible : patientId",
+  "patient inconnu" : "200 (accepté) 0"
+}

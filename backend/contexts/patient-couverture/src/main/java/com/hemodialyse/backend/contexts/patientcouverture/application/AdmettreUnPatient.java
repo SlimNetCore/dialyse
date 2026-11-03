@@ -21,10 +21,15 @@ public class AdmettreUnPatient {
     private final CouvertureDeLaFiche couverture;
     private final UniteDeTravail unite;
     private final VerrouDuCentre verrou;
+    private final PrincipalDeLaFiche principal;
+    private final PecDeLaFiche pecDeLaFiche;
 
     public AdmettreUnPatient(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
                              PlaceDeLaFiche place, PatientRepository patients, MouvementsDesPatients mouvements,
-                             CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou) {
+                             CouvertureDeLaFiche couverture, UniteDeTravail unite, VerrouDuCentre verrou,
+                             PrincipalDeLaFiche principal, PecDeLaFiche pecDeLaFiche) {
+        this.pecDeLaFiche = pecDeLaFiche;
+        this.principal = principal;
         this.verrou = verrou;
         this.session = session;
         this.horloge = horloge;
@@ -50,9 +55,11 @@ public class AdmettreUnPatient {
             patient.verifierAttestation(saisie.attestation() != null && saisie.attestation().complete(), false);
             patients.enregistrer(patient);
             patient.retirerLesMouvements().forEach(mouvements::ajouter);
+            principal.aligner(centre, patient);
             place.placer(centre, patient.id(), fiche.affectation(), patient.etat(), fiche.dateEvenement());
-            couverture.enregistrer(centre, patient.id(), patient.fiche().couverture(), saisie.attestation(), saisie.demande());
-            return new PatientEnregistre(patient.id(), centre, patient.vacancier(), patient.code());
+            couverture.enregistrer(centre, patient.id(), patient.fiche().couverture(), saisie.attestation());
+            String refus = pecDeLaFiche.enregistrer(centre, patient.id(), saisie.demande()).orElse(null);
+            return new PatientEnregistre(patient.id(), centre, patient.vacancier(), patient.code(), refus);
         });
     }
 }

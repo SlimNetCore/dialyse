@@ -1,0 +1,13 @@
+[ {
+  "adresse" : "ancienne",
+  "center_id" : "<CENTRE_A>",
+  "date_naissance" : "<J-9000>",
+  "groupe_sanguin" : "A+",
+  "nom" : "Dupont",
+  "numero_assurance" : "PC2-AS-1",
+  "prenom" : "Jean",
+  "sexe" : "M",
+  "tel_bureau" : null,
+  "tel_mobile" : null,
+  "tel_personnel" : "0550000000"
+} ]

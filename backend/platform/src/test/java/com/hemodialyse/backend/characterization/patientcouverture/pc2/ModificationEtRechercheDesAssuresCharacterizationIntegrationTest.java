@@ -62,8 +62,8 @@ class ModificationEtRechercheDesAssuresCharacterizationIntegrationTest extends C
         assure(CENTRE_A, "PC2-AS-1", "Dupont", "Jean");
         jdbc.update("UPDATE assure SET adresse = 'ancienne', tel_personnel = '0550000000', groupe_sanguin = 'A+', date_naissance = ? WHERE numero_assurance = 'PC2-AS-1'",
                 sqlDate(jour(-9000)));
-        ecriture("reponse_corps_vide", modifierAssure("PC2-AS-1", json("{}")));
-        etatDesAssures("assure_efface");
+        ecriture("reponse_corps_vide_nouveau_code", modifierAssure("PC2-AS-1", json("{}")));
+        etatDesAssures("assure_efface_nouveau_code");
     }
 
     @Test
