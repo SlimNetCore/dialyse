@@ -1446,3 +1446,9 @@ Archives du comportement d'avant : `pc4/_ecarts-legacy/**/*.legacy.json` (21 fic
 | KB-PAT-46 | Décidé : reproduit à l'identique | l'attestation reste exigée pour facturer un vacancier (`SeanceBillingEligibilityPort` inchangé) ; à confirmer avec les métiers (lié à KB-PAT-25) |
 | KB-PAT-47 | Corrigé en partie | jour du centre pour le tableau de bord et la séance sans date ; compteurs reproduits : « à échéance » compte les attestations déjà échues, `attestationTotal` toutes les lignes (à confirmer avec les métiers) |
 | KB-PAT-48 | Corrigé | squelette du module, `existsValidAt` et son cache, `bc-insurance` et l'adapter JPA retirés ; `bc-assure` reste pour l'import de migration (jalon) |
+
+### Dette après la reprise PC5 (2026-11-04, ADR 0079)
+
+| Id | Statut | Constat |
+|---|---|---|
+| KB-PAT-49 | Constaté (dette, jalons acceptés) | 18 sources hors module lisent ou écrivent encore les tables du patient en SQL : cycle Maven avec la Planification, colonnes de place (ADR 0052), jointures `GROUP BY` de Facturation et de la Direction, `SeanceRestController`, `PecValidationJdbc` (code mort), migration. Gardées par la liste blanche DATÉE de `TableDuPatientCouvertureTest` (raison et échéance par entrée, échec si une entrée est morte). Aucun comportement changé par PC5 (six lecteurs migrés vers `patientcouverture.v1`, parité stricte). |

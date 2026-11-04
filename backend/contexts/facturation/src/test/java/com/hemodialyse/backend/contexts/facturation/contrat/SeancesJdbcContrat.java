@@ -43,7 +43,9 @@ public abstract class SeancesJdbcContrat extends SeancesContrat {
 
     @Override
     protected SeancesFacturables facturables() {
-        return new SeancesFacturablesJdbc(jdbc());
+        // l'ACL de Facturation au-dessus de l'adapter RÉEL du langage publié : la politique de forfait est prouvée de bout en bout
+        return new SeancesFacturablesJdbc(jdbc(),
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc(jdbc()));
     }
 
     @Override

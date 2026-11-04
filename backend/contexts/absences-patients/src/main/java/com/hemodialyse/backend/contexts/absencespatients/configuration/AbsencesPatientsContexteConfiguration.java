@@ -23,10 +23,12 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.AbsencesReposito
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodesFacturees;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.comptabilite.TauxDeTvaComptabilite;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.facturation.PeriodesFactureesDeLaFacturation;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacycouverture.ForfaitsDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyidentite.SessionLegacy;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacypatient.NomsDesPatientsJdbc;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacypatient.PatientsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.ForfaitsDesPatientsDeLaCouverture;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.NomsDesPatientsDeLaFiche;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.PatientsDuCentreDeLaFiche;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.ExclusionsDeSeancesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.SeancesRealiseesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.identifiants.GenerateurDIdentifiantsAleatoires;
@@ -102,8 +104,8 @@ public class AbsencesPatientsContexteConfiguration {
     }
 
     @Bean
-    NomsDesPatients absencesPatientsNomsDesPatients(JdbcTemplate jdbc) {
-        return new NomsDesPatientsJdbc(jdbc);
+    NomsDesPatients absencesPatientsNomsDesPatients(FichesDesPatients fiches) {
+        return new NomsDesPatientsDeLaFiche(fiches);
     }
 
     @Bean
@@ -142,13 +144,13 @@ public class AbsencesPatientsContexteConfiguration {
     }
 
     @Bean
-    PatientsDuCentre absencesPatientsPatientsDuCentre(JdbcTemplate jdbc) {
-        return new PatientsDuCentreJdbc(jdbc);
+    PatientsDuCentre absencesPatientsPatientsDuCentre(FichesDesPatients fiches) {
+        return new PatientsDuCentreDeLaFiche(fiches);
     }
 
     @Bean
-    ForfaitsDesPatients absencesPatientsForfaitsDesPatients(JdbcTemplate jdbc) {
-        return new ForfaitsDesPatientsJdbc(jdbc);
+    ForfaitsDesPatients absencesPatientsForfaitsDesPatients(CouvertureDesPatients couverture) {
+        return new ForfaitsDesPatientsDeLaCouverture(couverture);
     }
 
     @Bean

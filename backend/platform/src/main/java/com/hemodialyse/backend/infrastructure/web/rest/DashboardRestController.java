@@ -1,9 +1,10 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.application.centre.JourDuCentre;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture;
 import com.hemodialyse.backend.infrastructure.web.dto.request.DashboardSearchRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -11,15 +12,20 @@ import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+/**
+ * Tableau de bord administratif du centre. Les compteurs de prises en charge, d'attestations et de patients viennent du langage
+ * publié de Patient et couverture ({@link CompteursDeCouverture}, PC5 : plus de SQL sur leurs tables, comptes inchangés) ; l'échéance
+ * se calcule au jour du centre (PC4, KB-PAT-47).
+ */
 @RestController
 @RequestMapping("/api/v1/dashboard")
 public class DashboardRestController {
 
-    private final JdbcTemplate jdbc;
-    private final com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre;
+    private final CompteursDeCouverture compteurs;
+    private final JourDuCentre jourDuCentre;
 
-    public DashboardRestController(JdbcTemplate jdbc, com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre) {
-        this.jdbc = jdbc;
+    public DashboardRestController(CompteursDeCouverture compteurs, JourDuCentre jourDuCentre) {
+        this.compteurs = compteurs;
         this.jourDuCentre = jourDuCentre;
     }
 
@@ -100,67 +106,29 @@ public class DashboardRestController {
     }
 
     private long countPec(UUID centerId, String status, YearMonth month) {
-        if (month == null) {
-            Long count = jdbc.queryForObject(
-                    "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = ?",
-                    Long.class, centerId, status);
-            return count != null ? count : 0;
-        }
-        LocalDate start = month.atDay(1);
-        LocalDate end = month.atEndOfMonth();
-        Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = ? AND created_at >= ? AND created_at <= ?",
-                Long.class, centerId, status, start, end);
-        return count != null ? count : 0;
+        if (month == null) return compteurs.prisesEnCharge(centerId, status, null, null);
+        return compteurs.prisesEnCharge(centerId, status, month.atDay(1), month.atEndOfMonth());
     }
 
     private long countPecExpiring(UUID centerId, LocalDate threshold) {
-        Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = 'VALIDEE' AND date_fin_demande <= ?",
-                Long.class, centerId, threshold);
-        return count != null ? count : 0;
+        return compteurs.prisesEnChargeValideesAEcheance(centerId, threshold);
     }
 
     private long countAttestations(UUID centerId, YearMonth month) {
-        if (month == null) {
-            Long count = jdbc.queryForObject(
-                    "SELECT COUNT(1) FROM attestation_droit WHERE center_id = ?",
-                    Long.class, centerId);
-            return count != null ? count : 0;
-        }
-        LocalDate start = month.atDay(1);
-        LocalDate end = month.atEndOfMonth();
-        Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM attestation_droit WHERE center_id = ? AND created_at >= ? AND created_at <= ?",
-                Long.class, centerId, start, end);
-        return count != null ? count : 0;
+        if (month == null) return compteurs.attestations(centerId, null, null);
+        return compteurs.attestations(centerId, month.atDay(1), month.atEndOfMonth());
     }
 
     private long countAttestationsExpiring(UUID centerId, LocalDate threshold) {
-        Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM attestation_droit WHERE center_id = ? AND date_fin <= ?",
-                Long.class, centerId, threshold);
-        return count != null ? count : 0;
+        return compteurs.attestationsAEcheance(centerId, threshold);
     }
 
     private long countPatients(UUID centerId, YearMonth month) {
         if (month == null) {
-            // effectif d'aujourd'hui : un patient sorti (transfert, décès, greffe, guérison, fin de séjour) n'est plus compté
-            LocalDate today = LocalDate.now(java.time.ZoneOffset.UTC);
-            var effectif = com.hemodialyse.backend.application.query.EffectifSql.presentSur("p", today, today);
-            java.util.List<Object> args = new java.util.ArrayList<>();
-            args.add(centerId);
-            args.addAll(effectif.args());
-            Long count = jdbc.queryForObject(
-                    "SELECT COUNT(1) FROM patients p WHERE p.center_id = ? AND " + effectif.sql(),
-                    Long.class, args.toArray());
-            return count != null ? count : 0;
+            // effectif d'aujourd'hui (jour d'UTC, comme avant) : un patient sorti (transfert, décès, greffe, guérison, fin de séjour)
+            // n'est plus compté
+            return compteurs.patientsPresentsLe(centerId, LocalDate.now(java.time.ZoneOffset.UTC));
         }
-        LocalDate start = month.atDay(1);
-        LocalDate end = month.atEndOfMonth();
-        Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM patients WHERE center_id = ? AND created_at >= ? AND created_at <= ?",
-                Long.class, centerId, start, end);
-        return count != null ? count : 0;
+        return compteurs.patientsCrees(centerId, month.atDay(1), month.atEndOfMonth());
     }
 }

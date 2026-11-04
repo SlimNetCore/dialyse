@@ -227,6 +227,16 @@ Retrait attaché au jalon : fin de P8 pour les quatre premiers (la vue de la sem
 |------------|--------------|-----------------|--------|
 | 2026-11-02 | seance-se1-se7 | `platform/.../infrastructure/config/CacheConfig.java` (**inscrit dans `seamAllowed` de `covered.json` AVANT l'édition**) : retrait des deux lignes `register(... "ref.seances.du.jour" ...)` et `"ref.seances.validees.non.signees"` ajoutées par 2978e639 ; retour exact à la version de `2978e639^`. | Ces caches n'étaient utilisés que par `SeancesControleur` du module gelé `contexts/seance` ; aucun code déployé ne les référence. Aucun changement fonctionnel. |
 
+## Patient et couverture PC5 (lectures publiées, session S2) : FERMÉ le 2026-11-04 (`seamAllowed` vidé ; entrées mortes retirées de `covered`, nouveaux fichiers inventoriés ; build complet vert, aucun golden modifié)
+
+Autorisé par l'utilisateur (édition minimale des fichiers lecteurs). Tous les fichiers sont inscrits dans `seamAllowed` AVANT l'édition. Les six lecteurs passent par les ports publiés `patientcouverture.v1` (SQL repris à l'identique dans les adapters du module) ; comportement INCHANGÉ, aucun golden modifié.
+
+| Date | Slice | Fichiers | Raison |
+|---|---|---|---|
+| 2026-11-04 | patient-couverture-pc5-lectures-publiees | Absences : **SUPPRESSION** de `acl/legacypatient/PatientsDuCentreJdbc`, `acl/legacypatient/NomsDesPatientsJdbc`, `acl/legacycouverture/ForfaitsDesPatientsJdbc` ; **fichiers NEUFS** `acl/patientcouverture/{PatientsDuCentreDeLaFiche,NomsDesPatientsDeLaFiche,ForfaitsDesPatientsDeLaCouverture}` (traducteurs minces des ports publiés) ; ÉDITION de `AbsencesPatientsContexteConfiguration` (câblage) | Lectures SQL de `patients` et `prise_en_charge` remplacées par `FichesDesPatients` et `CouvertureDesPatients` |
+| 2026-11-04 | patient-couverture-pc5-lectures-publiees | Facturation : ÉDITION de `acl/legacyseance/SeancesFacturablesJdbc` (la lecture des PEC tarifées passe par `CouvertureDesPatients.prisesEnChargeTarifees` ; la jointure séances-patients, son tri et le payeur restent en SQL : jalon) et de `FacturationContexteConfiguration` | Partie PEC seulement |
+| 2026-11-04 | patient-couverture-pc5-lectures-publiees | Plateforme : **SUPPRESSION** de `persistence/adapter/SeanceBillingEligibilityJdbcAdapter` ; **fichier NEUF** `infrastructure/acl/patientcouverture/SeanceBillingEligibilityParLaCouverture` (même `SeanceBillingEligibilityPort`, non modifié) ; ÉDITION de `DashboardRestController` (compteurs via `CompteursDeCouverture`) | Lecture de `prise_en_charge`, `attestation_droit` et `patients` remplacée par les ports publiés |
+
 ## Patient et couverture PC4, revue du 2026-11-04 : OUVERT PUIS FERMÉ le 2026-11-04
 
 | Date | Slice | Fichiers édités | Raison |

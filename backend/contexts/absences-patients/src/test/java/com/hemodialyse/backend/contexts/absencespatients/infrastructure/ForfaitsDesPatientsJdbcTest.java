@@ -2,7 +2,8 @@ package com.hemodialyse.backend.contexts.absencespatients.infrastructure;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacycouverture.ForfaitsDesPatientsJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.ForfaitsDesPatientsDeLaCouverture;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,9 @@ class ForfaitsDesPatientsJdbcTest {
     @Autowired
     private JdbcTemplate jdbc;
 
-    private ForfaitsDesPatientsJdbc forfaits() {
-        return new ForfaitsDesPatientsJdbc(jdbc);
+    /** L'ACL d'Absences au-dessus de l'adapter RÉEL du langage publié : la règle KB-ABS-16 est prouvée de bout en bout. */
+    private ForfaitsDesPatientsDeLaCouverture forfaits() {
+        return new ForfaitsDesPatientsDeLaCouverture(new CouvertureDesPatientsJdbc(jdbc));
     }
 
     @BeforeEach

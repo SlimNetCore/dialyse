@@ -9,10 +9,10 @@ import com.hemodialyse.backend.contexts.facturation.domain.simulation.PriseEnCha
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SeanceFacturable;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SeancesFacturables;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.StatutDeSeance;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,8 +32,11 @@ public class SeancesFacturablesJdbc implements SeancesFacturables {
 
     private final JdbcTemplate jdbc;
 
-    public SeancesFacturablesJdbc(JdbcTemplate jdbc) {
+    private final CouvertureDesPatients couverture;
+
+    public SeancesFacturablesJdbc(JdbcTemplate jdbc, CouvertureDesPatients couverture) {
         this.jdbc = jdbc;
+        this.couverture = couverture;
     }
 
     @Override
@@ -74,29 +77,12 @@ public class SeancesFacturablesJdbc implements SeancesFacturables {
         return seances;
     }
 
+    /** Les prises en charge tarifées du patient : langage publié de Patient et couverture (PC5), requête inchangée. */
     private List<PriseEnChargeTarifee> prisesEnCharge(CentreId centre, UUID patient) {
-        return jdbc.query("""
-                        SELECT p.forfait_effectif_id, f.id AS forfait_id, f.libelle, f.prix,
-                               p.date_debut_effectif, p.date_fin_effectif, p.date_debut_demande, p.date_fin_demande, p.created_at
-                        FROM prise_en_charge p
-                        INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
-                                             AND f.center_id = p.center_id
-                        WHERE p.center_id = ? AND p.patient_id = ?
-                        """,
-                (rs, ligne) -> {
-                    Timestamp creeeLe = rs.getTimestamp("created_at");
-                    return new PriseEnChargeTarifee(
-                            new ForfaitApplique(rs.getObject("forfait_id", UUID.class), rs.getString("libelle"), rs.getBigDecimal("prix")),
-                            rs.getObject("forfait_effectif_id", UUID.class) != null,
-                            jour(rs.getDate("date_debut_effectif")), jour(rs.getDate("date_fin_effectif")),
-                            jour(rs.getDate("date_debut_demande")), jour(rs.getDate("date_fin_demande")),
-                            creeeLe == null ? null : creeeLe.toInstant());
-                },
-                centre.valeur(), patient);
-    }
-
-    private static LocalDate jour(Date date) {
-        return date == null ? null : date.toLocalDate();
+        return couverture.prisesEnChargeTarifees(centre.valeur(), patient).stream()
+                .map(p -> new PriseEnChargeTarifee(new ForfaitApplique(p.forfaitId(), p.libelle(), p.prix()), p.forfaitEffectif(),
+                        p.debutEffectif(), p.finEffectif(), p.debutDemande(), p.finDemande(), p.creeLe()))
+                .toList();
     }
 
     private record LigneDeSeance(UUID id, LocalDate date, String statut, Optional<ForfaitApplique> surcharge,

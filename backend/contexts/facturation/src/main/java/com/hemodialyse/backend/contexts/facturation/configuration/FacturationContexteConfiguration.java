@@ -125,8 +125,9 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    SeancesFacturables facturationSeancesFacturables(JdbcTemplate jdbc) {
-        return new SeancesFacturablesJdbc(jdbc);
+    SeancesFacturables facturationSeancesFacturables(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients couverture) {
+        return new SeancesFacturablesJdbc(jdbc, couverture);
     }
 
     @Bean

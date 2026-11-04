@@ -1790,3 +1790,26 @@ SELECT c.id, c.name FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_para
 SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_id = u.id JOIN app_role r ON r.id = ur.role_id WHERE u.active AND r.code = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM app_user_center uc WHERE uc.user_id = u.id);
 ```
 Changements de comportement visibles : garde de centre 403 sur les 4 routes d'attestation, patient inexistant 422, suppression d'un identifiant inconnu 404 (sans diffusion), formats illisibles 400, recherche à jokers échappés (`%`, `_`) et date de filtre illisible 400, audit `ATTESTATION_*`, jour du centre pour le tableau de bord et la séance sans date. **Écrivain hors verrou** : l'import de migration historique (`HistoricalRecordJdbcAdapter`, plateforme) et le rollback de migration (`MigrationRollbackJdbcAdapter`) écrivent `attestation_droit` SANS le verrou du centre : **lancer l'import et le rollback hors activité du centre**, puis rejouer §42-1, §42-2 et §43-3 et 4. (`bc-assure` reste pour les migrateurs d'assurés et d'affectations ; il ne référence aucune attestation.) Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 44. Patient et couverture PC5 (langage publié `patientcouverture.v1`) : parité des lectures migrées, session S3 (2026-11-04) — SELECT seulement
+Aucune donnée ni comportement ne change : six lecteurs (Absences : existence, noms, forfait applicable ; Facturation : PEC tarifées ; Séance : éligibilité à la facturation ; tableau de bord) passent par des ports publiés dont les adapters reprennent leur SQL À L'IDENTIQUE. Contrôle de parité AVANT / APRÈS la bascule : lancer ces requêtes sur la base de production avant et après, les résultats doivent être identiques. Aucune requête n'écrit.
+```sql
+-- 1. Parité des compteurs du tableau de bord (GET /api/v1/dashboard/stats?centerId=… sans mois, 30 jours) : mêmes comptes avant et après, centre par centre.
+SELECT c.id,
+       (SELECT count(1) FROM prise_en_charge WHERE center_id = c.id AND statut = 'CREE') AS pec_cree,
+       (SELECT count(1) FROM prise_en_charge WHERE center_id = c.id AND statut = 'VALIDEE') AS pec_validee,
+       (SELECT count(1) FROM prise_en_charge WHERE center_id = c.id AND statut = 'VALIDEE' AND date_fin_demande <= current_date + 30) AS pec_a_echeance,
+       (SELECT count(1) FROM attestation_droit WHERE center_id = c.id) AS attestation_total,
+       (SELECT count(1) FROM attestation_droit WHERE center_id = c.id AND date_fin <= current_date + 30) AS attestation_a_echeance
+FROM centers c ORDER BY c.name;
+-- 2. Effectif d'aujourd'hui (patientCount sans mois) : même prédicat qu'avant (admission au plus tard aujourd'hui, pas déjà parti).
+SELECT center_id, count(1) FROM patients p WHERE (p.date_admission IS NULL OR p.date_admission <= current_date) AND (p.etat_patient IS NULL OR p.etat_patient NOT IN ('DECEDE','GREFFE','GUERRI','TRANSFERE','OCCASIONNEL','VACANCIER_ETRANGER','VACANCIER_LOCAL') OR (p.etat_patient IN ('OCCASIONNEL','VACANCIER_ETRANGER','VACANCIER_LOCAL') AND (p.date_evenement_etat IS NULL OR p.date_evenement_etat >= current_date)) OR (p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat IS NOT NULL AND p.date_evenement_etat >= current_date) OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat IS NOT NULL AND p.date_evenement_etat > current_date)) GROUP BY 1 ORDER BY 1;
+-- 3. Éligibilité à la facturation : nombre de patients par étage de refus au jour (PEC porteuse d'un forfait couvrant le jour / validée / attestation couvrant le jour), avant et après identique.
+SELECT c.center_id,
+       count(DISTINCT c.patient_id) FILTER (WHERE c.forfait_effectif_id IS NOT NULL OR c.forfait_demande_id IS NOT NULL) AS avec_forfait,
+       count(DISTINCT c.patient_id) FILTER (WHERE c.statut = 'VALIDEE') AS avec_pec_validee
+FROM prise_en_charge c GROUP BY 1 ORDER BY 1;
+-- 4. Patients dont un forfait de PEC référence un forfait d'un autre centre ou absent (ignoré par le forfait applicable et par les PEC tarifées).
+SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = COALESCE(c.forfait_effectif_id, c.forfait_demande_id) AND f.center_id = c.center_id WHERE COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL AND f.id IS NULL GROUP BY 1;
+```
+Jalons restants (sources qui lisent encore ces tables en SQL, liste blanche gardée par `TableDuPatientCouvertureTest`) : voir l'ADR 0079. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

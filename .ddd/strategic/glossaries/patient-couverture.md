@@ -36,6 +36,17 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 | Garde de centre | Toute lecture et toute écriture se font dans le centre du jeton | `SessionCourante` | 403 sinon |
 | Jour du centre | « Aujourd'hui » au fuseau du centre, y compris pour le tableau de bord et la séance sans date (PC4) ; jamais le jour de la JVM | `HorlogeDesCentres` (module), `JourDuCentre` / `JourDuCentreLegacy` (plateforme, PC4) | clé `app.planification.fuseau-par-defaut`, `centers.fuseau_horaire` |
 
+## Termes ajoutés par la reprise PC5 (2026-11-04, ADR 0079)
+
+| Terme métier | Définition | Identifiant du code | Notes | Statut |
+|---|---|---|---|---|
+| Langage publié de Patient et couverture | Lectures par intention offertes aux autres contextes, bornées au centre, sans règle nouvelle | `patientcouverture.v1` (`publishedlanguage`) | remplace les lectures SQL directes | proposed |
+| Fiches des patients | Existence, noms et situation (inconnu, suivi, parti) des patients d'un centre | `FichesDesPatients` | port publié | proposed |
+| Couverture des patients | Forfait applicable, prises en charge tarifées, cause de non-facturation, PEC validée | `CouvertureDesPatients` | port publié ; argent reproduit, à confirmer avec les métiers | proposed |
+| Compteurs de couverture | Comptes du tableau de bord administratif (PEC, attestations, patients, effectif d'un jour) | `CompteursDeCouverture` | port publié | proposed |
+| Cause de non-facturation | Pourquoi une séance du jour n'est pas facturable : aucune PEC couvrante, PEC non validée, attestation absente | `CauseDeNonFacturation` | trois étages dans cet ordre | proposed |
+| Jalon de lecture | Source hors module qui lit encore les tables du patient en SQL, inscrite à la liste blanche datée | `TableDuPatientCouvertureTest` | raison et échéance par entrée | proposed |
+
 ## Termes ajoutés par la reprise PC4 (2026-11-04, ADR 0078)
 
 Les termes « Attestation de droits » et « Jour du centre » sont définis une seule fois, plus haut. Tous les termes ci-dessous sont `proposed`.

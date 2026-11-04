@@ -93,6 +93,12 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Patient et couverture (PC5) : CouvertureDesPatients (prises en charge tarifées). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-patient-couverture</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 </dependencies>
 
     <build>

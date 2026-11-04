@@ -29,7 +29,8 @@ abstract class LecturesDuSuiviJdbcContrat extends LecturesDuSuiviContrat {
 
     @Override
     protected com.hemodialyse.backend.contexts.absencespatients.application.NomsDesPatients noms() {
-        return new com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacypatient.NomsDesPatientsJdbc(jdbc());
+        return new com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.NomsDesPatientsDeLaFiche(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.FichesPublieesJdbc(jdbc()));
     }
 
     @Override

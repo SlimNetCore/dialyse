@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-pc5-lectures-publiees
-status: in-progress
+status: built
 date: 2026-11-04
 order: 5
 context: patient-couverture
@@ -9,7 +9,7 @@ sources: [.ddd/tactical/patient-couverture.md, ADR 0024, 0064, 0076, 0077, 0078,
 
 # PC5 — Lectures publiées et retrait du legacy Patient & couverture
 
-> Statut vrai au 2026-11-04 : **S1 faite** (inventaire, ports publiés, adapters, contrats double/H2/PG16) ; S2 (migration des lecteurs) et S3 (preuves, docs, état) restent. Refactoring SUR PLACE (ADR 0024) : comportement INCHANGÉ, parité stricte, aucun golden `_nouveau_code` attendu ; les filets PC1–PC4, Planification, Absences, Facturation, Séance, Direction et Stock sont la preuve et restent verts SANS modification de golden.
+> Statut vrai au 2026-11-04 : **`built`** (S1, S2 et S3 faites ; ADR 0079 `accepted`, jalons acceptés par l'utilisateur). Refactoring SUR PLACE (ADR 0024) : comportement INCHANGÉ, parité stricte, aucun golden `_nouveau_code` attendu ; les filets PC1–PC4, Planification, Absences, Facturation, Séance, Direction et Stock sont la preuve et restent verts SANS modification de golden.
 
 ## Langage publié `patientcouverture.v1` (convention : interfaces de `publishedlanguage`, `UUID` et `java.time`, bornées au centre, records imbriqués, comme `PresenceDesPatients` de la Planification)
 
@@ -51,5 +51,5 @@ Références NON SQL aux types historiques (entités JPA `PatientJpaEntity`, `As
 | Session | Contenu | État |
 |---|---|---|
 | S1 (2026-11-04) | inventaire, trois ports publiés, trois adapters, contrats double / H2 / PG16 (14 + 14 + 14) | faite |
-| S2 | migration des lecteurs #1 à #3, #6 (partie PEC), #7 et #9 (seams inscrits avant édition ; ajout des dépendances Maven vers `contexts-patient-couverture` pour Absences, Facturation et la plateforme), `TableDuPatientCouvertureTest` réactivé (liste blanche datée des jalons, test d'entrée morte), retraits sûrs, filets verts | à faire |
-| S3 | preuves (build complet, `check-arch`, ArchUnit, PIT, rejeu PG16), docs (ADR, KB, RG, glossaire, §44, roadmap, `GEL.md`, documentation client), état `built` | à faire |
+| S2 (2026-11-04) | six lecteurs migrés (#1 à #3, #6 partie PEC, #7, #9) : ACL minces `PatientsDuCentreDeLaFiche`, `NomsDesPatientsDeLaFiche`, `ForfaitsDesPatientsDeLaCouverture` (Absences), `SeancesFacturablesJdbc` (partie PEC), `SeanceBillingEligibilityParLaCouverture` (Séance), `DashboardRestController` ; dépendances Maven Absences et Facturation vers le module (sans cycle) ; `TableDuPatientCouvertureTest` RÉACTIVÉ (5 tests, 18 jalons datés avec raison et échéance, échec sur entrée morte) ; seams inscrits avant édition puis fermés ; build complet vert, AUCUN golden modifié ; tests des ACL migrés conservés au-dessus des adapters RÉELS (parité de bout en bout) | faite |
+| S3 (2026-11-04) | preuves : `./mvnw -o test -fae` complet vert, `check-arch` 0 violation, ArchUnit (dans le build), PIT du code nouveau 98 % (`pit-pc5-module.sh`, 53 mutants tués sur 54), rejeu PG16 complet (contrat du langage publié 14 tests + dépôts 27 tests, et PC4) ; docs : ADR 0079, KB-PAT-49 (dette), glossaire, §44 (parité des compteurs, SELECT seuls), roadmap, `GEL.md` (clôture du module), documentation client régénérée ; aucune règle de gestion nouvelle (refactoring à comportement identique), RG et annexe inchangés | faite |
