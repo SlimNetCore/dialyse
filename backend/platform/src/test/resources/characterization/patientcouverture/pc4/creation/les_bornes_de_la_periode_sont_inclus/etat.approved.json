@@ -1,0 +1,36 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-4000>",
+  "date_fin" : "<J+3650>",
+  "patient" : "Patient BORNES"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-1000>",
+  "date_fin" : "<J-900>",
+  "patient" : "Patient BORNES"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-400>",
+  "date_fin" : "<J-300>",
+  "patient" : "Patient BORNES"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-1>",
+  "date_fin" : "<J>",
+  "patient" : "Patient BORNES"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J>",
+  "date_fin" : "<J>",
+  "patient" : "Patient BORNES"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J>",
+  "date_fin" : "<J+1>",
+  "patient" : "Patient BORNES"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J+100>",
+  "date_fin" : "<J+200>",
+  "patient" : "Patient BORNES"
+} ]

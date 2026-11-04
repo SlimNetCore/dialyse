@@ -1,0 +1,21 @@
+{
+  "attestation couvrante" : "facturable",
+  "attestation couvrante (vacancier)" : "facturable",
+  "attestation d'un autre patient" : "ATTESTATION_DROITS",
+  "attestation enregistrée dans l'autre centre" : "ATTESTATION_DROITS",
+  "aucune attestation (non-vacancier)" : "ATTESTATION_DROITS",
+  "aucune attestation (vacancier)" : "ATTESTATION_DROITS",
+  "commence demain" : "ATTESTATION_DROITS",
+  "deux attestations avec un trou sur le jour" : "ATTESTATION_DROITS",
+  "deux attestations contiguës" : "facturable",
+  "début le jour même" : "facturable",
+  "fin le jour même" : "facturable",
+  "séance d'il y a 4 jours, attestation couvrante" : "facturable",
+  "séance d'il y a 6 jours, attestation commençant il y a 5 jours" : "ATTESTATION_DROITS",
+  "séance dans 6 jours, attestation finissant dans 5 jours" : "ATTESTATION_DROITS",
+  "séance exactement au début (il y a 5 jours)" : "facturable",
+  "séance exactement à la fin (dans 5 jours)" : "facturable",
+  "un seul jour, le jour même" : "facturable",
+  "une échue et une valide" : "facturable",
+  "échue hier" : "ATTESTATION_DROITS"
+}

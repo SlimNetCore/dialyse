@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J-50>",
+  "date_fin" : "<J-1>",
+  "patient" : "Patient SEANCE"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut" : "<J+1>",
+  "date_fin" : "<J+50>",
+  "patient" : "Patient SEANCE"
+} ]

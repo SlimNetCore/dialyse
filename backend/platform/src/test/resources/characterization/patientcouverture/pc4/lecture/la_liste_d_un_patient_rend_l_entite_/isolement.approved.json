@@ -1,0 +1,8 @@
+{
+  "attestations du même patient lues avec le centre B" : [ "<J-7> -> <J+7>" ],
+  "autre patient" : [ "<J-5> -> <J+5>" ],
+  "centre inconnu" : [ ],
+  "lue par la secrétaire" : [ "<J-100> -> <J-50>", "<J-5> -> <J+5>", "<J+10> -> <J+20>" ],
+  "patient inconnu" : [ ],
+  "trois attestations du patient dans le centre A (triées par début)" : [ "<J-100> -> <J-50>", "<J-5> -> <J+5>", "<J+10> -> <J+20>" ]
+}

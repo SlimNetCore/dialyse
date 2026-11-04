@@ -1,0 +1,9 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "dateDebut" : "<J-5>",
+    "dateFin" : "<J+360>",
+    "id" : "<UUID_GENERE_1>"
+  }
+}

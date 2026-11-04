@@ -1,0 +1,7 @@
+{
+  "chaque suppression rend 200 ou 500 DATA_ACCESS_ERROR, une au moins réussit" : true,
+  "deux créations" : [ "200 (accepté)", "200 (accepté)" ],
+  "identifiants distincts" : true,
+  "lignes" : 2,
+  "lignes après" : 1
+}

@@ -1,0 +1,10 @@
+{
+  "création dans le centre A par l'ADMIN du centre B" : "200 (accepté)",
+  "création par un ADMIN sans centre de session" : "200 (accepté)",
+  "liste des attestations du patient A par l'ADMIN du centre B" : "200 (accepté) 1 attestation(s)",
+  "liste du patient A sans centre de session" : "200 (accepté) 1 attestation(s)",
+  "recherche du centre A par l'ADMIN du centre B" : "200 (accepté) total 1",
+  "suppression de l'attestation du centre A par l'ADMIN du centre B" : "200 (accepté)",
+  "suppression de l'attestation du centre B par l'ADMIN du centre A (centre A de la requête)" : "200 (accepté)",
+  "suppression par un ADMIN sans centre de session" : "200 (accepté)"
+}

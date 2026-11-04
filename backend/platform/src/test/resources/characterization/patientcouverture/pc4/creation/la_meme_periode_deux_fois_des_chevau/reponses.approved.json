@@ -1,0 +1,8 @@
+{
+  "1. première attestation" : "200 (accepté)",
+  "2. exactement la même période" : "200 (accepté)",
+  "3. chevauchement partiel" : "200 (accepté)",
+  "4. inclusion dans la première" : "200 (accepté)",
+  "5. englobe toutes les autres" : "200 (accepté)",
+  "6. contiguë (début = lendemain de la fin)" : "200 (accepté)"
+}

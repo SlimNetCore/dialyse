@@ -1,0 +1,9 @@
+{
+  "attestation du centre B supprimée avec le centre A de la requête" : "200 (accepté)",
+  "identifiant inconnu" : "200 (accepté)",
+  "lignes restantes" : 0,
+  "nominale : lignes restantes" : 3,
+  "patientId d'un autre patient (ignoré)" : "200 (accepté)",
+  "sans patientId" : "200 (accepté)",
+  "seconde suppression de la même attestation" : "200 (accepté)"
+}

@@ -1,0 +1,7 @@
+{
+  "GET /api/v1/patient-couverture/attestations" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "GET /api/v1/pec/attestations-center/search" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "GET /api/v1/pec/attestations/{id} (consultation d'une attestation par son identifiant)" : "200 (accepté)",
+  "POST /api/v1/patient-couverture/attestations" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "PUT /api/v1/pec/attestations/{id} (modification)" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

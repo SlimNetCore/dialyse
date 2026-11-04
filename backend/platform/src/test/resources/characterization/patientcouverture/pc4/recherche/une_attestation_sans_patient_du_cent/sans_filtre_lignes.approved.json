@@ -1,0 +1,38 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "code_patient" : "PC-ALPHA",
+      "date_debut" : "<J-5>",
+      "date_fin" : "<J+50>",
+      "id" : "<A1>",
+      "nom" : "Patient ALPHA",
+      "numero_assurance" : "ASS-ALPHA",
+      "patient_id" : "<ALPHA>",
+      "prenom" : "Test"
+    }, {
+      "code_patient" : "PC-BETA_B",
+      "date_debut" : "<J-5>",
+      "date_fin" : "<J+40>",
+      "id" : "<A2>",
+      "nom" : "Patient BETA_B",
+      "numero_assurance" : "ASS-BETA_B",
+      "patient_id" : "<BETA_B>",
+      "prenom" : "Test"
+    }, {
+      "code_patient" : null,
+      "date_debut" : "<J-5>",
+      "date_fin" : "<J+30>",
+      "id" : "<A3>",
+      "nom" : null,
+      "numero_assurance" : null,
+      "patient_id" : "<PATIENT_INCONNU>",
+      "prenom" : null
+    } ],
+    "page" : 0,
+    "size" : 50,
+    "total" : 3
+  }
+}

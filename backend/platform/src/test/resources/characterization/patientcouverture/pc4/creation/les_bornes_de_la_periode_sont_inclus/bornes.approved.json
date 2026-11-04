@@ -1,0 +1,11 @@
+{
+  "début = fin (un seul jour)" : "200 (accepté)",
+  "début ancien, fin lointaine (dix ans)" : "200 (accepté)",
+  "début avant l'admission du patient" : "200 (accepté)",
+  "début hier, fin le jour même" : "200 (accepté)",
+  "début le jour même, fin demain" : "200 (accepté)",
+  "fin = veille du début" : "400 BAD_REQUEST : La date de début doit être antérieure à la date de fin",
+  "fin très antérieure au début" : "400 BAD_REQUEST : La date de début doit être antérieure à la date de fin",
+  "période entièrement future" : "200 (accepté)",
+  "période entièrement passée (échue)" : "200 (accepté)"
+}

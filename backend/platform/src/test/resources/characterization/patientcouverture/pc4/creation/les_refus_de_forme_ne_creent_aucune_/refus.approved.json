@@ -1,0 +1,19 @@
+{
+  "JSON invalide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centerId absent" : "400 BAD_REQUEST : CenterId cannot be null",
+  "centerId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "champ inconnu ignoré" : "200 (accepté)",
+  "corps absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps vide {}" : "400 BAD_REQUEST : CenterId cannot be null",
+  "dateDebut absente" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "dateDebut chaîne vide" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "dateDebut illisible (abc)" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "dateDebut numérique" : "400 BAD_REQUEST : La date de début doit être antérieure à la date de fin",
+  "dateFin absente" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "dateFin au format jj/mm/aaaa" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "dateFin avec heure" : "200 (accepté)",
+  "dates nulles" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "patientId absent" : "500 DATA_ACCESS_ERROR : <message technique non verrouillé>",
+  "patientId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "type texte" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

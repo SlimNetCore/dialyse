@@ -1,0 +1,21 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_debut_demande" : "<J-5>",
+  "date_debut_effectif" : "<J-5>",
+  "date_fin_demande" : "<J+25>",
+  "date_fin_effectif" : "<J+25>",
+  "forfait_demande" : "HD3",
+  "forfait_effectif" : "HD3",
+  "patient" : "Patient CYCLE",
+  "statut" : "VALIDEE"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_debut_demande" : "<J-5>",
+  "date_debut_effectif" : null,
+  "date_fin_demande" : "<J+25>",
+  "date_fin_effectif" : null,
+  "forfait_demande" : "HD3",
+  "forfait_effectif" : null,
+  "patient" : "Patient CYCLE",
+  "statut" : "CREE"
+} ]

@@ -1,0 +1,6 @@
+{
+  "attestation commençant demain" : "422 BUSINESS_RULE_VIOLATION : La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <J> : renouvelez l'attestation pour pouvoir le facturer",
+  "attestation échue hier" : "422 BUSINESS_RULE_VIOLATION : La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <J> : renouvelez l'attestation pour pouvoir le facturer",
+  "sans attestation" : "422 BUSINESS_RULE_VIOLATION : La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <J> : renouvelez l'attestation pour pouvoir le facturer",
+  "séance d'il y a trois jours, couverte par l'attestation échue hier" : "200 (accepté)"
+}

@@ -1,0 +1,13 @@
+{
+  "1. création de la fiche" : "200 (accepté)",
+  "10. fiche identique enregistrée de nouveau" : "200 (accepté)",
+  "11. nombre d'attestations (la route a doublé la période de la fiche, la fiche ressaisie n'en ajoute pas)" : 2,
+  "2. liste d'attestations de la fiche" : [ "<J-400> -> <J+3000>" ],
+  "3. recherche du centre (total)" : "1",
+  "4. facturabilité sans PEC" : "PRISE_EN_CHARGE",
+  "5. suppression par la route d'attestation" : "200 (accepté)",
+  "6. modification de la fiche sans attestation après suppression (non-vacancier)" : "400 BAD_REQUEST : Attestation obligatoire pour un patient non-vacancier",
+  "7. modification de la fiche avec une nouvelle période" : "200 (accepté)",
+  "8. liste après la nouvelle période" : [ "<J-10> -> <J+10>" ],
+  "9. même période créée par la route d'attestation (doublon accepté)" : "200 (accepté)"
+}

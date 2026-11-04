@@ -1,0 +1,17 @@
+{
+  "JSON invalide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centerId absent" : "400 VALIDATION_ERROR : Invalid request content.",
+  "centerId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centerId seul (page 0, taille 0)" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "champ inconnu ignoré" : "total 5 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE, PC-DELTA, PC-ECHO]",
+  "corps absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "corps vide {}" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "page absente (0 par défaut)" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "page négative" : "400 VALIDATION_ERROR : Invalid request content.",
+  "page textuelle" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "page très grande" : "total 5 : []",
+  "taille 0" : "400 VALIDATION_ERROR : Invalid request content.",
+  "taille 201" : "400 VALIDATION_ERROR : Invalid request content.",
+  "taille absente" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "taille négative" : "400 VALIDATION_ERROR : Invalid request content."
+}

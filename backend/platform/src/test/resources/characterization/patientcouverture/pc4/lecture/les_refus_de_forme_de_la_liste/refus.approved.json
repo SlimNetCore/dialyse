@@ -1,0 +1,9 @@
+{
+  "centerId absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centerId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centerId vide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "patientId absent de l'URL" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "patientId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "route POST sur la liste" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "route PUT sur la liste" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

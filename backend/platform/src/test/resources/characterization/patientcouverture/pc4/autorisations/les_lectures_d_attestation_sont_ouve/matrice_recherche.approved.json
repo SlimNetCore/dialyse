@@ -1,0 +1,16 @@
+{
+  "ADMIN" : "200 (1 ligne(s))",
+  "ADMIN sans centre" : "200 (1 ligne(s))",
+  "CHEF_DE_SERVICE (rôle personnalisé)" : "200 (1 ligne(s))",
+  "DIRECTEUR_ADMINISTRATIF" : "200 (1 ligne(s))",
+  "DIRECTION" : "403 ROLE_SCOPE (1 ligne(s))",
+  "INFIRMIER seul" : "200 (1 ligne(s))",
+  "MEDECIN + INFIRMIER" : "200 (1 ligne(s))",
+  "MEDECIN seul" : "200 (1 ligne(s))",
+  "PHARMACIEN" : "200 (1 ligne(s))",
+  "SECRETAIRE" : "200 (1 ligne(s))",
+  "SUPERADMIN" : "403 ROLE_SCOPE (1 ligne(s))",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE (1 ligne(s))",
+  "aucun role" : "200 (1 ligne(s))",
+  "role inconnu (COMPTABLE)" : "200 (1 ligne(s))"
+}

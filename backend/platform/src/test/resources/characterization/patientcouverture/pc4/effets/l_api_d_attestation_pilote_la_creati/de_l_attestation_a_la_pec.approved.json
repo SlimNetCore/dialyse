@@ -1,0 +1,18 @@
+{
+  "1. PEC sans attestation" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "10. nouvelle PEC après suppression" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "11. attestation échue créée par l'API" : "200 (accepté)",
+  "12. facturabilité avec une attestation échue" : "ATTESTATION_DROITS",
+  "13. PEC avec une attestation échue" : "422 BUSINESS_RULE_VIOLATION : Attestation valide obligatoire pour PEC non-vacancier",
+  "14. attestation du jour (début = fin = jour)" : "200 (accepté)",
+  "15. facturabilité avec l'attestation du jour" : "facturable",
+  "16. PEC avec l'attestation du jour" : "200 (accepté)",
+  "2. attestation créée par l'API" : "200 (accepté)",
+  "3. PEC avec attestation" : "200 (accepté)",
+  "4. validation" : "200 (accepté)",
+  "5. facturabilité (séance du jour)" : "facturable",
+  "6. session-allowed" : "true",
+  "7. suppression de l'attestation" : "200 (accepté)",
+  "8. facturabilité après suppression" : "ATTESTATION_DROITS",
+  "9. session-allowed après suppression" : "false"
+}

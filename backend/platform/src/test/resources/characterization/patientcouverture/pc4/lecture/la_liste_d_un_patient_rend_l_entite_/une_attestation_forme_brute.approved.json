@@ -1,0 +1,13 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateDebut" : "<J-5>",
+    "dateFin" : "<J+5>",
+    "id" : "<ATT_UNIQUE>",
+    "patientId" : "<LISTE>"
+  } ]
+}

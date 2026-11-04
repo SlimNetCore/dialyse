@@ -1,0 +1,6 @@
+{
+  "assurance vide" : "total 3 : [PC-ALPHA, PC-BETA_B, <sans patient>]",
+  "nom = Patient (présent chez le patient du centre A seulement)" : "total 1 : [PC-ALPHA]",
+  "sans filtre" : "total 3 : [PC-ALPHA, PC-BETA_B, <sans patient>]",
+  "search = test" : "total 1 : [PC-ALPHA]"
+}

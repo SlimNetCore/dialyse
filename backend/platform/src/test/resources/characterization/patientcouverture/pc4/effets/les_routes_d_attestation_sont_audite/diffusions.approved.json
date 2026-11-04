@@ -1,0 +1,23 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "attestationId" : "<ATT_AUDIT>",
+      "patientId" : "<AUDIT>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "ATTESTATION_CREATED"
+  }
+}, {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "attestationId" : "<ATT_AUDIT>",
+      "patientId" : "<AUDIT>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "ATTESTATION_DELETED"
+  }
+} ]

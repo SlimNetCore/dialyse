@@ -1,0 +1,8 @@
+{
+  "centerId absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "centerId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "identifiant absent de l'URL" : "400 BAD_REQUEST : Paramètre illisible : pecId",
+  "identifiant n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "lignes restantes" : 1,
+  "patientId n'est pas un UUID" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

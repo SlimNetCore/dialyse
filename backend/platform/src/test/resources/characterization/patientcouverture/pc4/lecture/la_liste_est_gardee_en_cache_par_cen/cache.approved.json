@@ -1,0 +1,9 @@
+{
+  "1. première lecture" : [ "<J-5> -> <J+5>" ],
+  "2. après une ligne ajoutée en base : liste périmée" : [ "<J-5> -> <J+5>" ],
+  "3. après la création d'une attestation d'un AUTRE patient : toujours périmée" : [ "<J-5> -> <J+5>" ],
+  "4. après la création d'une attestation du même patient : renouvelée" : [ "<J-5> -> <J+5>", "<J+10> -> <J+20>", "<J+30> -> <J+40>" ],
+  "5. nouvelle ligne en base : périmée" : [ "<J-5> -> <J+5>", "<J+10> -> <J+20>", "<J+30> -> <J+40>" ],
+  "6. après une suppression (toute entrée du cache effacée) : renouvelée" : [ "<J-5> -> <J+5>", "<J+10> -> <J+20>", "<J+30> -> <J+40>", "<J+50> -> <J+60>" ],
+  "7. liste de l'autre patient après la suppression" : [ "<J+1> -> <J+2>", "<J+70> -> <J+80>" ]
+}

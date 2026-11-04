@@ -1,0 +1,4 @@
+{
+  "clés d'une ligne" : [ "id", "patient_id", "date_debut", "date_fin", "code_patient", "nom", "prenom", "numero_assurance" ],
+  "clés de la réponse" : [ "items", "page", "size", "total" ]
+}

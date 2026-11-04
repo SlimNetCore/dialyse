@@ -1,0 +1,7 @@
+{
+  "centre sans aucun patient (identifiant inconnu)" : "200 (accepté)",
+  "patient d'un autre centre que celui de la requête" : "200 (accepté)",
+  "patient du centre B, centre B, par l'ADMIN du centre A" : "200 (accepté)",
+  "patient inexistant" : "200 (accepté)",
+  "patient vacancier" : "200 (accepté)"
+}

@@ -1,0 +1,9 @@
+{
+  "centre B (vide)" : "total 0 : []",
+  "page 0 taille 2" : "total 5 : [PC-ALPHA, PC-BRAVO]",
+  "page 1 taille 2" : "total 5 : [PC-CHARLIE, PC-DELTA]",
+  "page 2 taille 2" : "total 5 : [PC-ECHO]",
+  "page 3 taille 2 (au-delà)" : "total 5 : []",
+  "taille 1" : "total 5 : [PC-ECHO]",
+  "taille 200 (maximum)" : "total 5 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE, PC-DELTA, PC-ECHO]"
+}

@@ -1,0 +1,5 @@
+{
+  "champs de la réponse" : [ "dateDebut", "dateFin", "id" ],
+  "identifiants distincts" : true,
+  "type du contenu" : "application/json"
+}

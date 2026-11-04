@@ -95,7 +95,17 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/PecRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/query/PecReadQueryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceBillingEligibilityJdbcAdapter.java",
-    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacycouverture/ForfaitsDesPatientsJdbc.java"
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacycouverture/ForfaitsDesPatientsJdbc.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/AttestationRepositoryAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AttestationJpaEntity.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AttestationJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/spec/AttestationSpecifications.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/AttestationSearchRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/CreateAttestationRequest.java",
+    "backend/bc-insurance/src/main/java/com/hemodialyse/backend/domain/insurance/model/AttestationDroit.java",
+    "backend/bc-insurance/src/main/java/com/hemodialyse/backend/domain/insurance/service/AttestationDomainService.java",
+    "backend/bc-insurance/src/main/java/com/hemodialyse/backend/domain/insurance/port/AttestationUseCase.java",
+    "backend/bc-insurance/src/main/java/com/hemodialyse/backend/domain/insurance/port/AttestationRepositoryPort.java"
   ],
   "seamAllowed": []
 }

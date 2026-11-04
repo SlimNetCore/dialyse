@@ -1,0 +1,12 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "attestationId" : "<UUID_GENERE_1>",
+      "patientId" : "<NOMINALE>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "ATTESTATION_CREATED"
+  }
+} ]
