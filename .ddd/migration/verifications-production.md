@@ -1762,3 +1762,25 @@ SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_
 SELECT patient_id, count(*) FROM prise_en_charge GROUP BY 1 HAVING count(*) > 5 ORDER BY 2 DESC LIMIT 20;
 ```
 Changements de comportement visibles : garde de centre sur toutes les routes de PEC (un ADMIN d'un autre centre ou sans centre est refusé 403), PEC inconnue 404, formats illisibles 400, `pecId` déjà pris 409 (la fiche est enregistrée), diffusions avec le nom réel, audit `PEC_VALIDATION` et `PEC_CLOTURE`. Les routes d'attestation restent au legacy (PC4) ; `PecValidationJdbc` du module gelé de Séance et `SeanceBillingEligibilityPort` (règle de production de la création de séance) ne sont pas touchés. **Import de migration (revue du 2026-11-04, ADR 0077 point 12)** : `AssureMigrator` et `AffectationMigrator` écrivent `assure` et `assure_patient` SANS le verrou du centre. **Lancer l'import hors activité du centre** (aucune saisie de fiche ni d'assuré pendant l'import), puis rejouer §42-1 (R1) et §42-2 (assurés partagés). Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 43. Patient et couverture PC4 (attestations de droits) : reprise sur place, session S3 (2026-11-04) — SELECT seulement
+Même table (`attestation_droit`), mêmes URL (`/api/v1/pec/attestations**`) ; aucune contrainte SQL ni index créé (ADR 0078). Constats à lancer AVANT la bascule ; aucun ne modifie la base.
+```sql
+-- 1. Attestations orphelines : patient absent ou d'un autre centre (la création est désormais refusée 422 ; la recherche les rend avec les champs du patient nuls).
+SELECT a.id, a.center_id, a.patient_id FROM attestation_droit a LEFT JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id WHERE p.id IS NULL LIMIT 50;
+-- 2. Périodes inversées (fin avant début) : refusées à la saisie, possibles en base (migration historique). Attendu : 0 ligne.
+SELECT center_id, count(*) FROM attestation_droit WHERE date_fin < date_debut GROUP BY 1;
+-- 3. Doublons exacts de période pour un patient (aucun contrôle, ARGENT : à décider avec les métiers).
+SELECT patient_id, date_debut, date_fin, count(*) FROM attestation_droit GROUP BY 1, 2, 3 HAVING count(*) > 1 ORDER BY 4 DESC LIMIT 50;
+-- 4. Chevauchements de périodes pour un patient (même remarque).
+SELECT a.patient_id, a.id, b.id FROM attestation_droit a JOIN attestation_droit b ON a.patient_id = b.patient_id AND a.id < b.id AND a.date_debut <= b.date_fin AND b.date_debut <= a.date_fin LIMIT 50;
+-- 5. Attestations DÉJÀ échues comptées « à échéance » par le tableau de bord (date_fin <= aujourd'hui + horizon : reproduit, à confirmer avec les métiers).
+SELECT center_id, count(*) FILTER (WHERE date_fin < current_date) AS deja_echues, count(*) FILTER (WHERE date_fin >= current_date AND date_fin <= current_date + 30) AS a_echeance_non_echues, count(*) AS total FROM attestation_droit GROUP BY 1;
+-- 6. Patients à PEC validée sans attestation couvrant aujourd'hui (séance non facturable, session-allowed faux, y compris pour un vacancier : la facturation exige l'attestation, KB-PAT-46).
+SELECT c.center_id, count(DISTINCT c.patient_id) FROM prise_en_charge c WHERE c.statut = 'VALIDEE' AND NOT EXISTS (SELECT 1 FROM attestation_droit a WHERE a.patient_id = c.patient_id AND a.center_id = c.center_id AND current_date BETWEEN a.date_debut AND a.date_fin) GROUP BY 1;
+-- 7. Centres sans ligne planning_parametres : la première écriture d'attestation la crée (verrou du centre, ADR 0059) ; deux premières écritures simultanées peuvent voir la seconde refusée 409 (KB-PAT-37).
+SELECT c.id, c.name FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id);
+-- 8. Comptes ADMIN actifs sans centre de rattachement : désormais refusés 403 sur les routes d'attestation comme sur celles de PEC (le legacy les laissait passer avec le centre de la requête).
+SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_id = u.id JOIN app_role r ON r.id = ur.role_id WHERE u.active AND r.code = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM app_user_center uc WHERE uc.user_id = u.id);
+```
+Changements de comportement visibles : garde de centre 403 sur les 4 routes d'attestation, patient inexistant 422, suppression d'un identifiant inconnu 404 (sans diffusion), formats illisibles 400, recherche à jokers échappés (`%`, `_`) et date de filtre illisible 400, audit `ATTESTATION_*`, jour du centre pour le tableau de bord et la séance sans date. **Jalon `bc-assure` et import de migration** : `bc-assure` RESTE (l'import `AssureMigrator`, `AffectationMigrator`, `PatientMigrator` le référence) et l'import de migration historique (`HistoricalRecordJdbcAdapter`) écrit `attestation_droit` SANS le verrou du centre : **lancer l'import hors activité du centre**, puis rejouer §42-1, §42-2 et §43-3 et 4. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

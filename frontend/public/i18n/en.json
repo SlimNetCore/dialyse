@@ -2403,7 +2403,10 @@
       "PEC_IDENTIFIANT_DEJA_UTILISE": "The patient record is saved, but the coverage (PEC) was not created: its identifier is already in use. Fix the coverage request and save again (the record will be updated, not created twice).",
       "PATIENT_ECRITURE_CONCURRENTE": "Another change is in progress in the centre. Wait a moment and try again.",
       "ASSURE_D_UN_AUTRE_CENTRE": "This insurance number belongs to an insured person of another centre: it cannot be used here.",
-      "PEC_INTROUVABLE": "Coverage (PEC) not found in this centre (it may have been deleted)."
+      "PEC_INTROUVABLE": "Coverage (PEC) not found in this centre (it may have been deleted).",
+      "ATTESTATION_PATIENT_INTROUVABLE": "Entitlement certificate refused: this patient does not exist in this centre.",
+      "ATTESTATION_INTROUVABLE": "Entitlement certificate not found in this centre (it may already have been deleted).",
+      "ACCESS_DENIED": "Access denied: this operation does not concern the centre of your session."
     },
     "TITLE": "Patient",
     "SUBTITLE": "Create and manage center patients",

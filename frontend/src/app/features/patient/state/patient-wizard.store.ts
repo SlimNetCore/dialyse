@@ -511,7 +511,8 @@ export const PatientWizardStore = signalStore(
             });
           }),
           catchError((err: any) => {
-            const message = err?.error?.detail || err?.message || 'Erreur suppression attestation';
+            const message = cleDeTraductionDeLErreurDeFiche(err?.error?.code) || err?.error?.detail || err?.message
+              || 'Erreur suppression attestation';
             patchState(store, {error: message});
             publishActionError(store, 'DELETE_ATTESTATION', message, {attestationId: params.attestationId});
             return of(null);
@@ -606,7 +607,10 @@ const CODES_DE_FICHE_TRADUITS = new Set([
   CODE_PEC_IDENTIFIANT_DEJA_UTILISE,
   'PATIENT_ECRITURE_CONCURRENTE',
   'ASSURE_D_UN_AUTRE_CENTRE',
-  'PEC_INTROUVABLE'
+  'PEC_INTROUVABLE',
+  'ATTESTATION_PATIENT_INTROUVABLE',
+  'ATTESTATION_INTROUVABLE',
+  'ACCESS_DENIED'
 ]);
 
 /** Clé de traduction d'un refus métier de la fiche, de l'assuré ou de la PEC (409, 422, 404), sinon null. */

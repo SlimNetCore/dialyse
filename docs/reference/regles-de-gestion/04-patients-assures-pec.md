@@ -3,9 +3,9 @@
 > Préfixes `RG-PAT` (patient), `RG-ASS` (assuré), `RG-ATT` (attestation de droits), `RG-PEC` (prise en charge).
 > Sources : `Patient`, `PatientDomainService`, `PatientApplicationService`, `PatientRestController`, `Assure`,
 > `AssurePatientAssignment`, `AttestationDroit`, `AttestationDomainService`, `PriseEnCharge`, `PecDomainService`,
-> `PecRestController`, `PatientListQueryService` (historiques) ; depuis PC1 à PC3 : `PatientsControleur`, `Patient`,
-> `AssurePrincipal`, `PriseEnCharge`, `PecControleur` du contexte `patient-couverture` (les routes d'attestation de
-> `PecRestController` restent au legacy, PC4).
+> `PecRestController`, `PatientListQueryService` (historiques) ; depuis PC1 à PC4 : `PatientsControleur`, `Patient`,
+> `AssurePrincipal`, `PriseEnCharge`, `PecControleur`, `AttestationsControleur`, `AttestationDroit` du contexte
+> `patient-couverture`.
 
 ## 4.1 Fiche patient
 
@@ -213,6 +213,24 @@
 - **RG-ATT-004** — Création et suppression d'une attestation notifient le centre en temps réel. La recherche des
   attestations du
   centre est paginée.
+- **RG-ATT-005** — **Garde de centre** : les quatre routes d'attestation (`/api/v1/pec/attestations**`) n'agissent que dans
+  le centre du jeton (403 sinon ; une session sans centre est refusée). Droits de rôles inchangés : tout compte de centre
+  est admis, DIRECTION et SUPERADMIN sont refusés (403 `ROLE_SCOPE`).
+- **RG-ATT-006** — Une attestation n'est créée que pour un patient du centre : patient inexistant ou d'un autre centre,
+  422 `ATTESTATION_PATIENT_INTROUVABLE`. Des dates absentes ou une fin avant le début sont refusées en 400 ; les formats
+  illisibles (corps, identifiant, date) aussi, un type de contenu texte en 415.
+- **RG-ATT-007** — Suppression : une attestation inconnue du centre, ou d'un autre patient quand le patient est donné, est
+  refusée en 404 `ATTESTATION_INTROUVABLE` et ne diffuse rien ; de deux suppressions simultanées, une réussit et l'autre
+  reçoit 404 (verrou du centre).
+- **RG-ATT-008** — **ARGENT / MÉTIER, reproduit à l'identique, À DÉCIDER AVEC LES MÉTIERS** : aucun contrôle de période
+  entre attestations (début = fin, période échue ou future, doublons, chevauchements, contiguïtés acceptés) ; l'attestation
+  reste exigée pour FACTURER un vacancier (règle de la création de séance) alors que la saisie en dispense le vacancier ;
+  une attestation peut être supprimée sous une PEC validée ; le tableau de bord compte les attestations déjà échues dans
+  « à échéance ». La règle « attestation liée à une PEC active » (R5) n'est pas retenue.
+- **RG-ATT-009** — Recherche : `%`, `_` et `\` des filtres texte sont des caractères ordinaires ; une date de filtre illisible
+  est un 400. Audit : `ATTESTATION_CREATION`, `ATTESTATION_SUPPRESSION`, `ATTESTATION_RECHERCHE`.
+- **RG-ATT-010** — « Aujourd'hui » est le jour du centre pour l'échéance du tableau de bord et pour une séance créée sans
+  date (plus le jour de la JVM).
 
 ## 4.5 Prise en charge (PEC)
 

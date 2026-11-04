@@ -2403,7 +2403,10 @@
       "PEC_IDENTIFIANT_DEJA_UTILISE": "La fiche est enregistrée, mais la prise en charge n'a pas été créée : son identifiant est déjà utilisé. Corrigez la demande de prise en charge puis enregistrez de nouveau (la fiche sera modifiée, pas recréée).",
       "PATIENT_ECRITURE_CONCURRENTE": "Une autre modification est en cours dans le centre. Patientez un instant puis réessayez.",
       "ASSURE_D_UN_AUTRE_CENTRE": "Ce numéro d'assurance appartient à un assuré d'un autre centre : il ne peut pas être utilisé ici.",
-      "PEC_INTROUVABLE": "Prise en charge introuvable dans ce centre (elle a peut-être été supprimée)."
+      "PEC_INTROUVABLE": "Prise en charge introuvable dans ce centre (elle a peut-être été supprimée).",
+      "ATTESTATION_PATIENT_INTROUVABLE": "Attestation refusée : ce patient n'existe pas dans ce centre.",
+      "ATTESTATION_INTROUVABLE": "Attestation introuvable dans ce centre (elle a peut-être déjà été supprimée).",
+      "ACCESS_DENIED": "Accès refusé : cette opération ne concerne pas le centre de votre session."
     },
     "TITLE": "Patient",
     "SUBTITLE": "Créer et gérer les patients du centre",

@@ -18,6 +18,9 @@ describe('PatientWizardStore (refus métier de la fiche)', () => {
     expect(cleDeTraductionDeLErreurDeFiche('PATIENT_ECRITURE_CONCURRENTE')).toBe('PATIENT.ERREUR_API.PATIENT_ECRITURE_CONCURRENTE');
     expect(cleDeTraductionDeLErreurDeFiche('ASSURE_D_UN_AUTRE_CENTRE')).toBe('PATIENT.ERREUR_API.ASSURE_D_UN_AUTRE_CENTRE');
     expect(cleDeTraductionDeLErreurDeFiche('PEC_INTROUVABLE')).toBe('PATIENT.ERREUR_API.PEC_INTROUVABLE');
+    expect(cleDeTraductionDeLErreurDeFiche('ATTESTATION_PATIENT_INTROUVABLE')).toBe('PATIENT.ERREUR_API.ATTESTATION_PATIENT_INTROUVABLE');
+    expect(cleDeTraductionDeLErreurDeFiche('ATTESTATION_INTROUVABLE')).toBe('PATIENT.ERREUR_API.ATTESTATION_INTROUVABLE');
+    expect(cleDeTraductionDeLErreurDeFiche('ACCESS_DENIED')).toBe('PATIENT.ERREUR_API.ACCESS_DENIED');
     expect(cleDeTraductionDeLErreurDeFiche('AUTRE')).toBeNull();
     expect(cleDeTraductionDeLErreurDeFiche(undefined)).toBeNull();
   });
@@ -31,6 +34,17 @@ describe('PatientWizardStore (refus métier de la fiche)', () => {
     expect(store.error()).toBe('PATIENT.ERREUR_API.PEC_IDENTIFIANT_DEJA_UTILISE');
     expect(store.editingPatientId()).toBe('fiche-1');
     expect(store.lastSavedPatientId()).toBe('fiche-1');
+  });
+
+  it('traduit le refus de suppression d\'une attestation (404 inconnue, 403 garde de centre)', () => {
+    const deleteAttestation = vi.fn(() => throwError(() => ({status: 404, error: {code: 'ATTESTATION_INTROUVABLE', detail: 'x'}})));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({providers: [{provide: BackendApiService, useValue: {deleteAttestation}}]});
+    const store = TestBed.inject(PatientWizardStore);
+
+    store.deleteAttestation({attestationId: 'a-1', centerId: 'c-1'});
+
+    expect(store.error()).toBe('PATIENT.ERREUR_API.ATTESTATION_INTROUVABLE');
   });
 
   it('garde le mode création et la clé de traduction pour un assuré d\'un autre centre (422)', () => {

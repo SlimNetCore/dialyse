@@ -101,7 +101,8 @@ export class StepAttestationComponent implements OnChanges {
         this.pendingDeleteId = null;
         if (!success) {
           this.snackBar.open(
-            this.translate.instant('WIZARD.DELETE_ERROR', {detail: effectiveError}),
+            // l'erreur peut être une clé de traduction (404 ATTESTATION_INTROUVABLE, 403 ACCESS_DENIED) : instant la rend telle quelle sinon
+            this.translate.instant('WIZARD.DELETE_ERROR', {detail: this.translate.instant(effectiveError)}),
             'OK',
             {duration: 4000},
           );
