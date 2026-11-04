@@ -215,7 +215,9 @@
   centre est paginée.
 - **RG-ATT-005** — **Garde de centre** : les quatre routes d'attestation (`/api/v1/pec/attestations**`) n'agissent que dans
   le centre du jeton (403 sinon ; une session sans centre est refusée). Droits de rôles inchangés : tout compte de centre
-  est admis, DIRECTION et SUPERADMIN sont refusés (403 `ROLE_SCOPE`).
+  est admis, DIRECTION et SUPERADMIN sont refusés (403 `ROLE_SCOPE`). Pour la création et la recherche, le centre est lu en
+  tête du corps et la garde passe AVANT le reste de la lecture : un appel d'un autre centre reçoit 403 même si le corps est
+  illisible par ailleurs.
 - **RG-ATT-006** — Une attestation n'est créée que pour un patient du centre : patient inexistant ou d'un autre centre,
   422 `ATTESTATION_PATIENT_INTROUVABLE`. Des dates absentes ou une fin avant le début sont refusées en 400 ; les formats
   illisibles (corps, identifiant, date) aussi, un type de contenu texte en 415.

@@ -1,0 +1,11 @@
+{
+  "changement de date explicite" : "200 (accepté)",
+  "création sans date acceptée" : "200 (accepté)",
+  "date de la séance créée sans date = jour du centre" : true,
+  "date de la séance créée sans date ≠ jour de la JVM" : true,
+  "date explicite conservée" : true,
+  "date remise à vide = jour du centre" : true,
+  "date remise à vide ≠ jour de la JVM" : true,
+  "le jour du centre diffère du jour de la JVM" : true,
+  "remise à vide acceptée" : "200 (accepté)"
+}

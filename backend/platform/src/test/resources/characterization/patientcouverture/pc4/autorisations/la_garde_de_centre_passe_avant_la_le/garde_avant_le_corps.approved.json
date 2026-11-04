@@ -1,0 +1,9 @@
+{
+  "création, ADMIN sans centre et dates illisibles" : "403 ACCESS_DENIED : Session sans centre de rattachement",
+  "création, JSON invalide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "création, autre centre (B) et dates illisibles" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "création, centre de la session et dates illisibles" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "recherche, autre centre (B) et page illisible" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "recherche, centre de la session et page illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "recherche, corps absent" : "400 BAD_REQUEST : Corps de la requête illisible"
+}

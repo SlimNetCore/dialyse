@@ -84,11 +84,30 @@ public class AttestationsControleur {
         }
     }
 
+    /**
+     * Garde de centre AVANT la lecture complète du corps (comme les droits de rôle : 403 avant 400) : le centre est lu en tête du
+     * corps, sans valider le reste. Un appel d'un autre centre (ou d'une session sans centre) reçoit 403 même si le corps est
+     * illisible par ailleurs ; un corps dont on ne peut pas lire le centre suit le chemin normal (400 / 415).
+     */
+    private void garderLeCentre(byte[] corps) {
+        UUID demande = null;
+        if (corps != null && corps.length > 0) {
+            try {
+                var centre = lecteur.readTree(corps).path("centerId");
+                if (centre.isString()) demande = UUID.fromString(centre.asString());
+            } catch (RuntimeException illisible) {
+                demande = null;
+            }
+        }
+        gerer.centre(demande);
+    }
+
     // ---- routes
 
     @PostMapping("/attestations")
     public ResponseEntity<Creee> creer(@RequestBody(required = false) byte[] corps, HttpServletRequest requete)
             throws HttpMediaTypeNotSupportedException {
+        garderLeCentre(corps);
         Creation d = CorpsJson.lire(lecteur, requete, corps, Creation.class);
         if (d.centerId() == null) throw new SaisieInvalide("CenterId cannot be null");
         AttestationDroit a = gerer.declarer(d.centerId(), d.patientId(), d.dateDebut(), d.dateFin());
@@ -117,6 +136,7 @@ public class AttestationsControleur {
     public ResponseEntity<LectureDesAttestations.Page> rechercher(@RequestBody(required = false) byte[] corps,
                                                                   HttpServletRequest requete)
             throws HttpMediaTypeNotSupportedException {
+        garderLeCentre(corps);
         Recherche d = CorpsJson.lire(lecteur, requete, corps, Recherche.class);
         if (d.centerId() == null) throw new SaisieInvalide("CenterId cannot be null");
         return ResponseEntity.ok(rechercher.executer(d.centerId(), CriteresDAttestation.de(d.page(), d.size(), d.search(),

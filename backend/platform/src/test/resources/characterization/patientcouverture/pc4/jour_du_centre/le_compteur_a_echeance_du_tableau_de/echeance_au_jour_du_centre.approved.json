@@ -1,0 +1,8 @@
+{
+  "GET stats : compteur à échéance = comptage au jour du centre" : true,
+  "GET stats : le compteur n'est pas celui du jour de la JVM" : true,
+  "POST stats/search : compteur à échéance = comptage au jour du centre" : true,
+  "attestations comptées au total" : true,
+  "le jour du centre diffère du jour de la JVM" : true,
+  "les deux comptes possibles diffèrent (le test discrimine)" : true
+}

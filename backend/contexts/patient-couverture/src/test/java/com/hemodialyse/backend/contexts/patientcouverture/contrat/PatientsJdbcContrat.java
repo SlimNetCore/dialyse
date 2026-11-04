@@ -333,6 +333,50 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
 
     // ---- KB-PAT-31 en course : le même numéro d'assuré déclaré en même temps par deux centres (verrous de centres différents)
 
+    // ---- PC4 : deux suppressions simultanées de la même attestation (vraie course sur PostgreSQL 16 dans le rejeu)
+
+    @Test
+    void should_laisser_une_seule_suppression_reussir_quand_deux_suppressions_de_la_meme_attestation_se_croisent() throws Exception {
+        assurerLaLigneDuCentre();
+        var gerer = new com.hemodialyse.backend.contexts.patientcouverture.application.GererLesAttestations(session(), horloge(),
+                identifiants(), attestations(), depot(), unite(), verrouDuCentre());
+        for (int tour = 0; tour < 6; tour++) {
+            jdbc().update("DELETE FROM attestation_droit WHERE center_id = ?", CENTRE.valeur());
+            jdbc().update("DELETE FROM patients WHERE center_id = ?", CENTRE.valeur());
+            Patient p = admis(CENTRE, Fiches.nominale("SUP-" + tour, null, null));
+            depot().enregistrer(p);
+            var a = gerer.declarer(CENTRE.valeur(), p.id().valeur(), LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31));
+            java.util.concurrent.CountDownLatch depart = new java.util.concurrent.CountDownLatch(1);
+            java.util.List<java.util.concurrent.CompletableFuture<Object>> envois = new java.util.ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                envois.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                    try {
+                        depart.await();
+                        return (Object) gerer.supprimer(CENTRE.valeur(), a.id(), null);
+                    } catch (Exception e) {
+                        return e;
+                    }
+                }));
+            }
+            depart.countDown();
+            int reussies = 0;
+            int introuvables = 0;
+            for (var envoi : envois) {
+                Object r = envoi.get(30, java.util.concurrent.TimeUnit.SECONDS);
+                if (r instanceof com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationIntrouvable) {
+                    introuvables++;
+                } else if (r instanceof Exception e) {
+                    assertThat(e).as("tour " + tour).isInstanceOf(com.hemodialyse.backend.contexts.patientcouverture.domain.EcritureConcurrente.class);
+                } else {
+                    reussies++;
+                }
+            }
+            assertThat(reussies).as("tour " + tour + " : une seule suppression réussit").isEqualTo(1);
+            assertThat(introuvables).as("tour " + tour + " : l'autre reçoit 404 (ou un 409 de verrou)").isLessThanOrEqualTo(1);
+            assertThat(jdbc().queryForObject("SELECT COUNT(*) FROM attestation_droit WHERE id = ?", Integer.class, a.id())).isZero();
+        }
+    }
+
     // ---- PC4 : recherche d'attestations (H2 et PostgreSQL 16 : ESCAPE '\' et jointure du patient)
 
     @Test

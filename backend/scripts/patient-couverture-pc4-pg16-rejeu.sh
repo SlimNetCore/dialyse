@@ -43,6 +43,9 @@ verifier_colonnes planning_parametres center_id jours_ouverts updated_at
 
 echo "=== PC4 : requetes SELECT-only de verifications-production.md, executables sur le schema reel ==="
 req() { "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$2" >/dev/null && echo "requete $1 executable" || { echo "ATTENDU : requete $1 executable"; RC=1; }; }
+req "PC4-0a (fuseau de la session PostgreSQL)" "SHOW timezone"
+req "PC4-0b (fuseaux des centres : NULL, vides, valeurs reconnues par PostgreSQL)" "SELECT id, name, fuseau_horaire, (fuseau_horaire IS NULL OR TRIM(fuseau_horaire) = '') AS sans_fuseau FROM centers ORDER BY name"
+req "PC4-0c (fuseaux des centres reconnus)" "SELECT name FROM pg_timezone_names WHERE name IN (SELECT fuseau_horaire FROM centers) ORDER BY 1"
 req "PC4-1 (attestations orphelines : patient absent ou d'un autre centre)" "SELECT a.id, a.center_id FROM attestation_droit a LEFT JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id WHERE p.id IS NULL LIMIT 50"
 req "PC4-2 (periodes inversees)" "SELECT center_id, count(*) FROM attestation_droit WHERE date_fin < date_debut GROUP BY 1"
 req "PC4-3 (doublons exacts de periode pour un patient)" "SELECT patient_id, date_debut, date_fin, count(*) FROM attestation_droit GROUP BY 1, 2, 3 HAVING count(*) > 1 ORDER BY 4 DESC LIMIT 50"

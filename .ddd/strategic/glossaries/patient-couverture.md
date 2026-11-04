@@ -16,7 +16,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §2]
 | Assuré | Titulaire des droits d'assurance rattaché au patient | `Assure` | `bc-assure` | — | un seul assuré principal à la fois | proposed |
 | Prise en charge (PEC) | Accord d'un payeur couvrant une période et un forfait | `PriseEnCharge` | `PriseEnCharge`, `PecStatus` | — | `CREE → VALIDEE → CLOTUREE` ; période demandée vs effective | proposed |
 | Forfait de PEC | Prix HT de la séance prévu par la PEC | `ForfaitPec` | `forfaitId` | tarif | — | proposed |
-| Attestation de droits | Justificatif de droits du patient | `AttestationDeDroits` | `bc-insurance`, `ATTESTATION_DROITS` | — | absente ⇒ cause de non-facturation | proposed |
+| Attestation de droits | Justificatif de droits du patient : période, début et fin comprises, pendant laquelle les droits sont ouverts | `AttestationDroit` (PC4 ; `bc-insurance` retiré le 2026-11-04) | `ATTESTATION_DROITS` (cause de non-facturation) | — | absente ⇒ cause de non-facturation ; entité simple, aucun contrôle entre attestations (à décider avec les métiers) | proposed |
 
 Homonymes : *Greffe* (état de sortie, ici) ≠ *Greffe réalisée* (statut de bilan, Dossier médical).
 
@@ -34,19 +34,19 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 | Date d'évènement | Date de sortie ou de fin de séjour | `dateEvenement` (colonne `date_evenement_etat`) | jamais avant l'admission |
 | Numéro d'assurance | Identifiant d'assurance du patient, unique par centre, normalisé | `NumeroAssurance` | espaces de bord retirés, majuscules |
 | Garde de centre | Toute lecture et toute écriture se font dans le centre du jeton | `SessionCourante` | 403 sinon |
-| Jour du centre | « Aujourd'hui » au fuseau du centre | `HorlogeDesCentres` | clé `app.planification.fuseau-par-defaut` |
+| Jour du centre | « Aujourd'hui » au fuseau du centre, y compris pour le tableau de bord et la séance sans date (PC4) ; jamais le jour de la JVM | `HorlogeDesCentres` (module), `JourDuCentre` / `JourDuCentreLegacy` (plateforme, PC4) | clé `app.planification.fuseau-par-defaut`, `centers.fuseau_horaire` |
 
-## Termes ajoutés par la reprise PC4 (2026-11-04, statut `proposed`, ADR 0078)
+## Termes ajoutés par la reprise PC4 (2026-11-04, ADR 0078)
 
-| Terme métier | Définition | Identifiant du code | Notes |
-|---|---|---|---|
-| Attestation de droits | Période, début et fin comprises, pendant laquelle les droits du patient sont ouverts | `AttestationDroit`, table `attestation_droit` | entité simple ; aucun contrôle entre attestations (à décider avec les métiers) |
-| Attestation valide un jour | Attestation dont la période couvre ce jour, bornes incluses | `AttestationDroit.couvre`, `Attestations.valideLe` | conditionne PEC et séance du non-vacancier |
-| Attestation de la fiche | Attestation saisie avec la fiche du patient ; jamais dupliquée si la même période existe | `CouvertureDeLaFiche.enregistrer` | message « Date fin avant date debut » |
-| Patient introuvable pour l'attestation | Patient inexistant ou d'un autre centre | code `ATTESTATION_PATIENT_INTROUVABLE` | 422 |
-| Attestation introuvable | Identifiant inconnu du centre (ou d'un autre patient) à la suppression | code `ATTESTATION_INTROUVABLE` | 404, sans diffusion |
-| Jour du centre | « Aujourd'hui » au fuseau du centre, y compris pour le tableau de bord et la séance sans date | `JourDuCentre` (plateforme) | remplace le jour de la JVM |
-| Attestation à échéance | Attestation dont la fin est avant le seuil d'alerte, échues comprises | compteur `attestationExpiring` | reproduit, à confirmer avec les métiers |
+Les termes « Attestation de droits » et « Jour du centre » sont définis une seule fois, plus haut. Tous les termes ci-dessous sont `proposed`.
+
+| Terme métier | Définition | Identifiant du code | Notes | Statut |
+|---|---|---|---|---|
+| Attestation valide un jour | Attestation dont la période couvre ce jour, bornes incluses | `AttestationDroit.couvre`, `Attestations.valideLe` | conditionne PEC et séance du non-vacancier | proposed |
+| Attestation de la fiche | Attestation saisie avec la fiche du patient ; jamais dupliquée si la même période existe | `CouvertureDeLaFiche.enregistrer` | message « Date fin avant date debut » | proposed |
+| Patient introuvable pour l'attestation | Patient inexistant ou d'un autre centre | code `ATTESTATION_PATIENT_INTROUVABLE` | 422 ; à confirmer avec les métiers | proposed |
+| Attestation introuvable | Identifiant inconnu du centre (ou d'un autre patient) à la suppression | code `ATTESTATION_INTROUVABLE` | 404, sans diffusion ; à confirmer avec les métiers | proposed |
+| Attestation à échéance | Attestation dont la fin est avant le seuil d'alerte, échues comprises | compteur `attestationExpiring` | reproduit, à confirmer avec les métiers | proposed |
 
 ## Termes ajoutés par la reprise PC2 et PC3 (2026-11-03, statut `proposed`, ADR 0077)
 

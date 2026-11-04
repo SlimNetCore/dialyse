@@ -109,4 +109,30 @@ class AutorisationsEtCentresDesAttestationsCharacterizationIntegrationTest exten
         arbre("sans_garde_de_centre_nouveau_code", m);
         etatDesAttestations("etat_final_nouveau_code");
     }
+
+    /**
+     * Revue PC4 : la garde de centre passe AVANT la lecture complète du corps, comme les droits de rôle : un appel d'un autre
+     * centre (ou d'une session sans centre) reçoit 403 même si le reste du corps est illisible. Un corps dont le centre ne se
+     * lit pas suit le chemin normal (400 / 415).
+     */
+    @Test
+    void la_garde_de_centre_passe_avant_la_lecture_du_corps_des_routes_de_creation_et_de_recherche() throws Exception {
+        decorDeDroits();
+        Map<String, Object> m = new LinkedHashMap<>();
+        String dateIllisible = "'dateDebut':'abc','dateFin':'def'";
+        m.put("création, autre centre (B) et dates illisibles", refus(doPost(ATTESTATIONS,
+                json("{'patientId':'" + patient + "','centerId':'" + CENTRE_B + "'," + dateIllisible + "}"), adminA())));
+        m.put("création, centre de la session et dates illisibles", refus(doPost(ATTESTATIONS,
+                json("{'patientId':'" + patient + "','centerId':'" + CENTRE_A + "'," + dateIllisible + "}"), adminA())));
+        m.put("création, ADMIN sans centre et dates illisibles", refus(doPost(ATTESTATIONS,
+                json("{'patientId':'" + patient + "','centerId':'" + CENTRE_A + "'," + dateIllisible + "}"), as(null, "ADMIN"))));
+        m.put("création, JSON invalide", refus(doPost(ATTESTATIONS, "{patientId", adminA())));
+        m.put("recherche, autre centre (B) et page illisible", refus(doPost(ATTESTATIONS + "-center/search",
+                json("{'centerId':'" + CENTRE_B + "','page':'x','size':10}"), adminA())));
+        m.put("recherche, centre de la session et page illisible", refus(doPost(ATTESTATIONS + "-center/search",
+                json("{'centerId':'" + CENTRE_A + "','page':'x','size':10}"), adminA())));
+        m.put("recherche, corps absent", refus(doPost(ATTESTATIONS + "-center/search", "", adminA())));
+        arbre("garde_avant_le_corps", m);
+        etatDesAttestations("etat");
+    }
 }
