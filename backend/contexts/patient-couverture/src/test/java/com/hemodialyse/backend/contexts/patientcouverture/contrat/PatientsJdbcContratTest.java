@@ -21,6 +21,19 @@ class PatientsJdbcContratTest extends PatientsJdbcContrat {
 
     @BeforeEach
     void creerLesTablesEtViderLesLignes() {
+        creerLesTables(jdbc);
+        for (Object centre : new Object[]{CENTRE.valeur(), AUTRE.valeur()}) {
+            jdbc.update("DELETE FROM prise_en_charge WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM attestation_droit WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM assure_patient WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM assure WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM patients WHERE center_id = ?", centre);
+        }
+    }
+
+    /** Schéma H2 des tables du contexte (partagé avec le contrat du langage publié). */
+    static void creerLesTables(JdbcTemplate jdbc) {
         jdbc.execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, code_patient VARCHAR(255), "
                 + "civilite VARCHAR(50), nom VARCHAR(255) NOT NULL, prenom VARCHAR(255) NOT NULL, sexe VARCHAR(10) NOT NULL, "
                 + "groupe_sanguin VARCHAR(10), nombre_enfants INTEGER, date_admission DATE NOT NULL, en_sommeil BOOLEAN, "
@@ -59,14 +72,6 @@ class PatientsJdbcContratTest extends PatientsJdbcContrat {
         jdbc.execute("CREATE TABLE IF NOT EXISTS salle (id UUID PRIMARY KEY, nom VARCHAR(255))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, libelle VARCHAR(255))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS gmao_equipements (id UUID PRIMARY KEY, code VARCHAR(255))");
-        for (Object centre : new Object[]{CENTRE.valeur(), AUTRE.valeur()}) {
-            jdbc.update("DELETE FROM prise_en_charge WHERE center_id = ?", centre);
-            jdbc.update("DELETE FROM attestation_droit WHERE center_id = ?", centre);
-            jdbc.update("DELETE FROM assure_patient WHERE center_id = ?", centre);
-            jdbc.update("DELETE FROM assure WHERE center_id = ?", centre);
-            jdbc.update("DELETE FROM mouvement_patient WHERE center_id = ?", centre);
-            jdbc.update("DELETE FROM patients WHERE center_id = ?", centre);
-        }
     }
 
     @Override

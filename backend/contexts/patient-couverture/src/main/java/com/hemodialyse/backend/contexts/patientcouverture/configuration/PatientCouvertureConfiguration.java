@@ -157,6 +157,23 @@ public class PatientCouvertureConfiguration {
         return new AttestationsJdbc(jdbc);
     }
 
+    // ---- langage publié patientcouverture.v1 (PC5) : lectures par intention pour les autres contextes
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients fichesDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.FichesPublieesJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients couvertureDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture compteursDeCouverture(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CompteursDeCouvertureJdbc(jdbc);
+    }
+
     @Bean
     LectureDesAttestations lectureDesAttestations(JdbcTemplate jdbc) {
         return new LectureDesAttestationsJdbc(jdbc);
