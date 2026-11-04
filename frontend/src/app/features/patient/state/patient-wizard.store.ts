@@ -573,10 +573,18 @@ export const PatientWizardStore = signalStore(
             tap(() => publishActionSuccess(store, 'SUBMIT_PATIENT')),
             catchError((err: any) => {
               const code = err?.error?.code;
-              // Placement refusé par la planification : clé de traduction (affichée traduite par le composant)
+              // Placement refusé par la planification ou refus métier de la fiche : clé de traduction (affichée traduite par
+              // le composant)
               const message = typeof code === 'string' && code.startsWith('PLACEMENT_')
                 ? `PLANNING.PLACEMENT_ERR.${code}`
-                : err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde';
+                : cleDeTraductionDeLErreurDeFiche(code)
+                  ?? err?.error?.detail ?? err?.error?.message ?? 'Erreur lors de la sauvegarde';
+              // 409 PEC_IDENTIFIANT_DEJA_UTILISE : la fiche EST enregistrée (seule la PEC est refusée). On bascule en édition de
+              // cette fiche pour qu'un nouvel envoi la modifie au lieu d'en créer une seconde.
+              const ficheEnregistree = code === CODE_PEC_IDENTIFIANT_DEJA_UTILISE ? err?.error?.id : null;
+              if (typeof ficheEnregistree === 'string' && ficheEnregistree) {
+                patchState(store, {editingPatientId: ficheEnregistree, lastSavedPatientId: ficheEnregistree});
+              }
               patchState(store, {
                 saving: false,
                 submitStatus: 'error',
@@ -591,6 +599,20 @@ export const PatientWizardStore = signalStore(
     )
   }))
 );
+
+export const CODE_PEC_IDENTIFIANT_DEJA_UTILISE = 'PEC_IDENTIFIANT_DEJA_UTILISE';
+
+const CODES_DE_FICHE_TRADUITS = new Set([
+  CODE_PEC_IDENTIFIANT_DEJA_UTILISE,
+  'PATIENT_ECRITURE_CONCURRENTE',
+  'ASSURE_D_UN_AUTRE_CENTRE',
+  'PEC_INTROUVABLE'
+]);
+
+/** Clé de traduction d'un refus métier de la fiche, de l'assuré ou de la PEC (409, 422, 404), sinon null. */
+export function cleDeTraductionDeLErreurDeFiche(code: unknown): string | null {
+  return typeof code === 'string' && CODES_DE_FICHE_TRADUITS.has(code) ? `PATIENT.ERREUR_API.${code}` : null;
+}
 
 function mapPatientToWizardData(patient: any): Record<string, any> {
   const assureInfo = patient?.assureInfo ?? patient?.assure_info ?? {};

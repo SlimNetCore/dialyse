@@ -1386,7 +1386,9 @@ Observés sur le code actuel (assuré : routes `/api/v1/patients/assures/**` rep
 
 ### Statuts après reprise PC2/PC3 (2026-11-03, ADR 0077, à valider par les métiers)
 
-Archives du comportement d'avant : `pc2/_ecarts-legacy/**` (6) et `pc3/_ecarts-legacy/**` (24 + `pec_premier_filet`) ; nouveaux goldens suffixés `_nouveau_code`.
+Archives du comportement d'avant : `pc2/_ecarts-legacy/**` (6) et `pc3/_ecarts-legacy/**` (24 fichiers = 23 du filet PC3 + 1 du premier filet PEC `pec_premier_filet/`) ; nouveaux goldens suffixés `_nouveau_code`. Mise à jour 2026-11-04 (revue PC2/PC3) : décisions argent et 409 passées de « à décider » à « décidé » (déléguées par l'utilisateur à l'assistant), **à confirmer avec les métiers**.
+
+Lecture des goldens : dans `pc3/autorisations/le_centre_de_la_requete…/sans_garde_de_centre*.json`, l'archive `.legacy.json` donne « 200 … 1 PEC » (le legacy rendait la PEC du centre A à un ADMIN du centre B : fuite) ; dans le premier `_nouveau_code` approuvé, « 403 … 5 PEC » et « 5 » étaient à tort la taille du ProblemDetail 403 (5 champs), pas un nombre de PEC (aucune fuite). Corrigé le 2026-11-04 : le nombre n'est mesuré que pour une réponse 200.
 
 | Id | Statut | Décision |
 |---|---|---|
@@ -1394,9 +1396,9 @@ Archives du comportement d'avant : `pc2/_ecarts-legacy/**` (6) et `pc3/_ecarts-l
 | KB-PAT-21 | Corrigé | PEC inconnue ou d'un autre centre : 404 `PEC_INTROUVABLE` |
 | KB-PAT-22 | Corrigé | garde de centre sur toutes les routes de PEC (403) ; droits de rôles inchangés |
 | KB-PAT-23 | Corrigé | formats illisibles ou manquants : 400 ; type texte : 415 ; bornes de recherche 400 |
-| KB-PAT-24 | Reproduit | aucun contrôle de période, de forfait ni de chevauchement : À DÉCIDER AVEC LES MÉTIERS (argent) |
-| KB-PAT-25 | Reproduit | deux règles « PEC valide pour une séance » ; `SeanceBillingEligibilityPort` reste la règle de production : À DÉCIDER (argent) |
-| KB-PAT-26 | Reproduit | forfait lu par Absences sans regarder le statut de la PEC : À DÉCIDER (argent) |
+| KB-PAT-24 | Décidé : reproduit à l'identique | aucun contrôle de période, de forfait ni de chevauchement (argent) ; à confirmer avec les métiers |
+| KB-PAT-25 | Décidé : reproduit à l'identique | deux règles « PEC valide pour une séance » ; `SeanceBillingEligibilityPort` reste la règle de production (argent) ; à confirmer avec les métiers |
+| KB-PAT-26 | Décidé : reproduit à l'identique | forfait lu par Absences sans regarder le statut de la PEC (argent) ; à confirmer avec les métiers |
 | KB-PAT-27 | Corrigé | nom réel du patient dans les diffusions de PEC |
 | KB-PAT-28 | Corrigé | audit `PEC_VALIDATION`, `PEC_CLOTURE`, `entity_id` à la création (l'audit de l'affectation d'assuré reste `PATIENTS_CREATION`, reproduit) |
 | KB-PAT-29 | Corrigé en partie | R1 sous le verrou du centre (concurrence prouvée H2 et PG16) ; correction de dates permissive reproduite ; pas de contrainte SQL |
@@ -1405,5 +1407,6 @@ Archives du comportement d'avant : `pc2/_ecarts-legacy/**` (6) et `pc3/_ecarts-l
 | KB-PAT-32 | Corrigé | plus de ligne `assure_patient` ajoutée à chaque enregistrement identique |
 | KB-PAT-33 | Corrigé en partie | `PUT` exige le nom (400) ; remplacement total des autres champs reproduit |
 | KB-PAT-34 | Reproduit | recherche d'assurés inchangée |
-| KB-PAT-35 | Corrigé | `pecId` déjà pris : fiche enregistrée, PEC non créée, 409 `PEC_IDENTIFIANT_DEJA_UTILISE` (interprétation à valider) ; le reste reproduit |
+| KB-PAT-35 | Décidé : corrigé | `pecId` déjà pris : fiche enregistrée, PEC non créée, 409 `PEC_IDENTIFIANT_DEJA_UTILISE` (le front reprend la fiche en édition) ; à confirmer avec les métiers ; le reste reproduit |
+| KB-PAT-37 | Décidé : documenté | centre SANS ligne `planning_parametres` : la ligne est créée par la première écriture d'assuré/PEC (ADR 0059) ; deux premières écritures simultanées peuvent voir la seconde refusée 409 ; test dédié `centre_sans_ligne_de_parametres` ; relevé au §42-11 |
 | KB-PAT-36 | Reproduit | listes de PEC (entité telle quelle, cache, filtres) inchangées |

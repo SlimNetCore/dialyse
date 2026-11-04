@@ -4,7 +4,7 @@
 # (assure, assure_patient, prise_en_charge, attestation_droit en lecture, patients) existent dans le schema reel, requetes SELECT-only de
 # verifications-production.md (sections PC2 et PC3) executees sur le schema reel, puis le contrat PostgreSQL du module (memes tests que
 # H2 et que les doubles en memoire), dont les COURSES REELLES : deux affectations simultanees d'assures au meme patient (un seul principal
-# actif, R1), deux validations simultanees de la meme PEC (une seule passe), plus les courses de la fiche (PC1) ; verrou du centre pris en
+# actif, R1), deux validations simultanees de la meme PEC (une seule passe), DEUX CENTRES declarant le meme numero d'assure en meme temps (un seul le detient, l'autre 422 ASSURE_D_UN_AUTRE_CENTRE, identite non ecrasee : KB-PAT-31), plus les courses de la fiche (PC1) ; verrou du centre pris en
 # tete de toute ecriture.
 # A lancer en arriere-plan avec un log : backend/scripts/patient-couverture-pc2-pc3-pg16-rejeu.sh 55464 > rejeu-pc2-pc3.log 2>&1 &
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Code de sortie : 0 si tout est vert, 1 sinon.
@@ -62,6 +62,8 @@ req "42-5 (assures sans nom)" "SELECT center_id, count(*) FROM assure WHERE nom 
 req "42-6 (PEC d'un autre centre que leur patient)" "SELECT c.center_id AS centre_pec, p.center_id AS centre_patient, count(*) FROM prise_en_charge c JOIN patients p ON p.id = c.patient_id WHERE c.center_id <> p.center_id GROUP BY 1, 2"
 req "42-8 (PEC chevauchantes du meme patient)" "SELECT a.patient_id, a.id, b.id FROM prise_en_charge a JOIN prise_en_charge b ON a.patient_id = b.patient_id AND a.id < b.id AND a.date_debut_demande <= b.date_fin_demande AND b.date_debut_demande <= a.date_fin_demande LIMIT 50"
 req "42-9 (forfaits effectifs inconnus ou d'un autre centre)" "SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = c.forfait_effectif_id WHERE c.forfait_effectif_id IS NOT NULL AND (f.id IS NULL OR f.center_id <> c.center_id) GROUP BY 1"
+req "42-11 (centres sans ligne planning_parametres)" "SELECT c.id, c.name FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id)"
+req "42-12 (comptes ADMIN actifs sans centre de rattachement)" "SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_id = u.id JOIN app_role r ON r.id = ur.role_id WHERE u.active AND r.code = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM app_user_center uc WHERE uc.user_id = u.id)"
 
 cd "$RACINE/backend"
 P=com.hemodialyse.backend.contexts.patientcouverture.contrat

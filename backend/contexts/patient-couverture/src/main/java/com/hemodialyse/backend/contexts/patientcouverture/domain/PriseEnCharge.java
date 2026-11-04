@@ -93,6 +93,15 @@ public final class PriseEnCharge {
         return statut == StatutPec.VALIDEE;
     }
 
+    /**
+     * Règle « session-allowed » complète : un non-vacancier sans attestation valide ce jour (du centre) est refusé ; sinon le
+     * statut seul décide (reproduit, KB-PAT-25).
+     */
+    public boolean autoriseSeance(boolean vacancier, boolean attestationValide) {
+        if (!vacancier && !attestationValide) return false;
+        return autoriseSeance();
+    }
+
     /** Les informations de la demande sont-elles déjà celles-ci ? */
     public boolean demandeIdentique(LocalDate debut, LocalDate fin, UUID forfait) {
         return Objects.equals(demandeDebut, debut) && Objects.equals(demandeFin, fin) && Objects.equals(demandeForfait, forfait);

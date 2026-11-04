@@ -266,6 +266,8 @@ final class Doubles {
         @Override
         public void declarer(Assure assure) {
             Optional<Assure> existant = trouver(assure.numeroAssurance());
+            com.hemodialyse.backend.contexts.patientcouverture.domain.AssurePrincipal.verifierQueLAssureEstDuCentre(
+                    existant.map(Assure::centre).orElse(null), new CentreId(assure.centre()));
             LocalDate naissance = assure.dateNaissance() != null ? assure.dateNaissance()
                     : existant.map(Assure::dateNaissance).orElse(null);
             UUID centre = existant.map(Assure::centre).orElse(assure.centre());

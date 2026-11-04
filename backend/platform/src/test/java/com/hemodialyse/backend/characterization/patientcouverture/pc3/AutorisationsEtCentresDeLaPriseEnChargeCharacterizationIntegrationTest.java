@@ -93,9 +93,13 @@ class AutorisationsEtCentresDeLaPriseEnChargeCharacterizationIntegrationTest ext
         UUID forfait = forfait(CENTRE_A, "HD3", "9500.00");
         UUID existante = pecEnBase(CENTRE_A, "PEC_A", patient, "CREE", jour(-5), jour(25), forfait, null, null, null, 1);
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("liste des PEC du centre A par l'ADMIN du centre B", refus(pecsDuCentre(CENTRE_A, adminB())) + " " + corps(pecsDuCentre(CENTRE_A, adminB())).size() + " PEC");
-        m.put("liste des PEC du patient A par l'ADMIN du centre B", String.valueOf(corps(pecsDuPatient(patient, CENTRE_A, adminB())).size()));
-        m.put("recherche du centre A par l'ADMIN du centre B", String.valueOf(corps(doPost(PEC + "/pec-center/search", json("{'centerId':'" + CENTRE_A + "','page':0,'size':10}"), adminB())).path("total")));
+        // le nombre n'est lu QUE d'une réponse 200 : un refus est un ProblemDetail dont la taille n'est pas un nombre de PEC
+        Resp listeCentre = pecsDuCentre(CENTRE_A, adminB());
+        m.put("liste des PEC du centre A par l'ADMIN du centre B", refus(listeCentre) + (listeCentre.status() == 200 ? " " + corps(listeCentre).size() + " PEC" : ""));
+        Resp listePatient = pecsDuPatient(patient, CENTRE_A, adminB());
+        m.put("liste des PEC du patient A par l'ADMIN du centre B", refus(listePatient) + (listePatient.status() == 200 ? " " + corps(listePatient).size() + " PEC" : ""));
+        Resp recherche = doPost(PEC + "/pec-center/search", json("{'centerId':'" + CENTRE_A + "','page':0,'size':10}"), adminB());
+        m.put("recherche du centre A par l'ADMIN du centre B", refus(recherche) + (recherche.status() == 200 ? " total " + corps(recherche).path("total") : ""));
         m.put("liste du centre A sans centre de session", refus(pecsDuCentre(CENTRE_A, as(null, "ADMIN"))));
         m.put("session autorisée par l'ADMIN du centre B", refus(sessionAllowed(existante, CENTRE_A, adminB())));
         m.put("validation par l'ADMIN du centre B", refus(valider(existante, CENTRE_A, jour(0), jour(20), null, adminB())));

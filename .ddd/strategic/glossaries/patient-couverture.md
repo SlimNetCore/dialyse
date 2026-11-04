@@ -40,7 +40,7 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 
 | Terme métier | Définition | Identifiant du code | Notes |
 |---|---|---|---|
-| Assuré principal | Assuré actif désigné comme principal du patient ; un seul à la fois (R1) | `AssurePrincipal`, colonne `is_primary` | tenu sous le verrou du centre |
+| Assuré principal | Assuré actif désigné comme principal du patient ; un seul à la fois (R1) | règles `AssurePrincipal` (règles sans état, pas un agrégat), colonne `is_primary` | tenu sous le verrou du centre ; agrégat `AffectationsDuPatient` = cible |
 | Affectation d'assuré | Lien daté entre un patient et un assuré | `Affectation`, table `assure_patient` | active tant que sans date de fin |
 | Assuré d'un autre centre | Assuré détenu par un autre centre : ne peut pas être capturé | code `ASSURE_D_UN_AUTRE_CENTRE` | 422 |
 | Demande de prise en charge | Période et forfait demandés à la création de la PEC | `dateDebutDemande`, `dateFinDemande`, `forfaitDemandeId` | saisie aussi sur la fiche |

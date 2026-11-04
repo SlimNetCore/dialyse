@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.AssurePrincipal;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -117,13 +118,28 @@ public class AssuresJdbc implements AssuresDuCentre {
         Date naissance = a.dateNaissance() == null ? null : Date.valueOf(a.dateNaissance());
         int mis = jdbc.update("UPDATE assure SET nom = ?, prenom = ?, sexe = ?, date_naissance = COALESCE(?, date_naissance), "
                         + "tel_personnel = ?, tel_mobile = ?, tel_bureau = ?, adresse = ?, groupe_sanguin = ? "
-                        + "WHERE numero_assurance = ?", a.nom(), a.prenom(), a.sexe(), naissance, a.telPersonnel(), a.telMobile(),
-                a.telBureau(), a.adresse(), a.groupeSanguin(), a.numeroAssurance());
+                        + "WHERE numero_assurance = ? AND center_id = ?", a.nom(), a.prenom(), a.sexe(), naissance, a.telPersonnel(),
+                a.telMobile(), a.telBureau(), a.adresse(), a.groupeSanguin(), a.numeroAssurance(), a.centre());
         if (mis > 0) return;
-        jdbc.update("INSERT INTO assure (numero_assurance, center_id, nom, prenom, sexe, date_naissance, tel_personnel, "
-                        + "tel_mobile, tel_bureau, adresse, groupe_sanguin, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                a.numeroAssurance(), a.centre(), a.nom(), a.prenom(), a.sexe(), naissance, a.telPersonnel(), a.telMobile(),
-                a.telBureau(), a.adresse(), a.groupeSanguin(), OffsetDateTime.now(ZoneOffset.UTC));
+        // Jamais d'écrasement d'un assuré d'un autre centre, même si ce centre l'a inséré entre le contrôle et cette écriture
+        // (verrous de centres différents) : l'insertion ne fait rien si le numéro existe (ou si l'autre centre le crée au même
+        // instant : violation de la clé primaire), le refus 422 suit. Portable H2 et PostgreSQL (pas de ON CONFLICT).
+        int insere;
+        try {
+            insere = jdbc.update("INSERT INTO assure (numero_assurance, center_id, nom, prenom, sexe, date_naissance, "
+                            + "tel_personnel, tel_mobile, tel_bureau, adresse, groupe_sanguin, created_at) "
+                            + "SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM assure WHERE numero_assurance = ?)",
+                    a.numeroAssurance(), a.centre(), a.nom(), a.prenom(), a.sexe(), naissance, a.telPersonnel(), a.telMobile(),
+                    a.telBureau(), a.adresse(), a.groupeSanguin(), OffsetDateTime.now(ZoneOffset.UTC), a.numeroAssurance());
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            // L'autre centre vient de créer ce numéro (le même centre est sérialisé par son verrou) : la transaction est abîmée
+            // sur PostgreSQL, on ne relit pas, le refus suit et annule la fiche.
+            throw AssurePrincipal.captureRefusee();
+        }
+        if (insere > 0) return;
+        UUID centreDeLAssure = jdbc.query("SELECT center_id FROM assure WHERE numero_assurance = ?",
+                (rs, n) -> rs.getObject("center_id", UUID.class), a.numeroAssurance()).stream().findFirst().orElse(null);
+        AssurePrincipal.verifierQueLAssureEstDuCentre(centreDeLAssure, new CentreId(a.centre()));
     }
 
     @Override

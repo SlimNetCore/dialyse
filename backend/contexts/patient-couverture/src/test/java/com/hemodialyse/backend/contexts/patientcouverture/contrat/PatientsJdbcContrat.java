@@ -326,6 +326,59 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
         }
     }
 
+    // ---- KB-PAT-31 en course : le même numéro d'assuré déclaré en même temps par deux centres (verrous de centres différents)
+
+    @Test
+    void should_refuser_la_capture_d_un_assure_d_un_autre_centre_meme_en_course() throws Exception {
+        var assures = new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AssuresJdbc(jdbc());
+        for (int tour = 0; tour < 10; tour++) {
+            String numero = "KB31-" + tour;
+            jdbc().update("DELETE FROM assure WHERE numero_assurance = ?", numero);
+            java.util.concurrent.CountDownLatch depart = new java.util.concurrent.CountDownLatch(1);
+            java.util.List<java.util.concurrent.CompletableFuture<Object>> envois = new java.util.ArrayList<>();
+            for (var centre : new java.util.UUID[]{CENTRE.valeur(), AUTRE.valeur()}) {
+                envois.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                    try {
+                        depart.await();
+                        assures.declarer(new com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre.Assure(
+                                numero, "Nom " + centre, "Prenom", "M", null, null, null, null, null, null, centre));
+                        return (Object) centre;
+                    } catch (Exception e) {
+                        return e;
+                    }
+                }));
+            }
+            depart.countDown();
+            int gagnants = 0;
+            for (var envoi : envois) {
+                Object r = envoi.get(30, java.util.concurrent.TimeUnit.SECONDS);
+                if (r instanceof Exception e) {
+                    assertThat(e).as("tour " + tour).isInstanceOf(com.hemodialyse.backend.contexts.patientcouverture.domain.RegleDePatientViolee.class);
+                    assertThat(((com.hemodialyse.backend.contexts.patientcouverture.domain.RegleDePatientViolee) e).code())
+                            .isEqualTo("ASSURE_D_UN_AUTRE_CENTRE");
+                } else {
+                    gagnants++;
+                }
+            }
+            assertThat(gagnants).as("tour " + tour + " : un seul centre détient l'assuré").isEqualTo(1);
+            var ligne = jdbc().queryForMap("SELECT center_id, nom FROM assure WHERE numero_assurance = ?", numero);
+            assertThat(ligne.get("nom")).as("tour " + tour + " : l'identité n'est pas écrasée par l'autre centre")
+                    .isEqualTo("Nom " + ligne.get("center_id"));
+        }
+    }
+
+    @Test
+    void should_ne_pas_ecraser_un_assure_deja_detenu_par_un_autre_centre() {
+        var assures = new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AssuresJdbc(jdbc());
+        jdbc().update("DELETE FROM assure WHERE numero_assurance = 'KB31-SEQ'");
+        assures.declarer(new com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre.Assure("KB31-SEQ", "Du centre A",
+                "P", "M", null, null, null, null, null, null, CENTRE.valeur()));
+        org.junit.jupiter.api.Assertions.assertThrows(com.hemodialyse.backend.contexts.patientcouverture.domain.RegleDePatientViolee.class,
+                () -> assures.declarer(new com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre.Assure("KB31-SEQ",
+                        "Du centre B", "P", "M", null, null, null, null, null, null, AUTRE.valeur())));
+        assertThat(jdbc().queryForObject("SELECT nom FROM assure WHERE numero_assurance = 'KB31-SEQ'", String.class)).isEqualTo("Du centre A");
+    }
+
     @Test
     void should_ne_pas_ajouter_de_ligne_d_affectation_a_chaque_enregistrement_de_la_fiche_d_un_ayant_droit() {
         assurerLaLigneDuCentre();

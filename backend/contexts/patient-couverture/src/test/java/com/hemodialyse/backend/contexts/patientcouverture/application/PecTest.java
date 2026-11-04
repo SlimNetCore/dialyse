@@ -120,6 +120,22 @@ class PecTest {
     }
 
     @Test
+    void should_rendre_un_nom_de_repli_pour_une_fiche_heritee_sans_nom_ni_prenom() {
+        var f = Fiches.nominale("PEC-3", EtatDuPatient.VACANCIER_LOCAL, LocalDate.of(2026, 12, 1));
+        var sansNom = new com.hemodialyse.backend.contexts.patientcouverture.domain.Fiche(
+                new com.hemodialyse.backend.contexts.patientcouverture.domain.Identite(null, null, null, "M", null, 0,
+                        f.identite().dateNaissance(), null, null),
+                f.coordonnees(), f.suivi(), f.couverture(), f.affectation(), f.dateAdmission(), f.etat(), f.dateEvenement());
+        PatientId heritee = patient(sansNom);
+        PriseEnCharge pec = gerer.creer(CENTRE.valeur(), heritee.valeur(), D, F, null);
+
+        var validee = gerer.valider(CENTRE.valeur(), pec.id(), D, F, null);
+
+        assertThat(validee.nomDuPatient()).isEqualTo("Patient");
+        assertThat(gerer.cloturer(CENTRE.valeur(), pec.id()).nomDuPatient()).isEqualTo("Patient");
+    }
+
+    @Test
     void should_refuser_les_transitions_interdites_et_rien_changer() {
         PriseEnCharge pec = gerer.creer(CENTRE.valeur(), vacancier.valeur(), D, F, null);
 

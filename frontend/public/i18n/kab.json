@@ -2039,6 +2039,12 @@
     }
   },
   "PATIENT": {
+    "ERREUR_API": {
+      "PEC_IDENTIFIANT_DEJA_UTILISE": "[EN, à relire en kabyle] The patient record is saved, but the coverage (PEC) was not created: its identifier is already in use. Fix the coverage request and save again (the record will be updated, not created twice).",
+      "PATIENT_ECRITURE_CONCURRENTE": "[EN, à relire en kabyle] Another change is in progress in the centre. Wait a moment and try again.",
+      "ASSURE_D_UN_AUTRE_CENTRE": "[EN, à relire en kabyle] This insurance number belongs to an insured person of another centre: it cannot be used here.",
+      "PEC_INTROUVABLE": "[EN, à relire en kabyle] Coverage (PEC) not found in this centre (it may have been deleted)."
+    },
     "TITLE": "Amdan",
     "SUBTITLE": "Rnu d sefrek imdanen n tnasiw",
     "EMPTY": "Ulac amdan yettwaḥerzen deg tɣimit-a.",

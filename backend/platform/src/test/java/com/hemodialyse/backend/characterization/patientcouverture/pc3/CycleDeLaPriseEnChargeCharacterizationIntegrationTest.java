@@ -194,4 +194,34 @@ class CycleDeLaPriseEnChargeCharacterizationIntegrationTest extends CouvertureCh
         m.put("statut final", jdbc.queryForObject("SELECT statut FROM prise_en_charge WHERE id = ?", String.class, pec));
         arbre("issue_de_la_course", m);
     }
+
+    /**
+     * Revue PC2/PC3 : les écritures de PEC prennent le verrou du centre, dont la ligne {@code planning_parametres} est créée à la
+     * première prise (ADR 0059). Un centre SANS cette ligne : une écriture seule réussit et crée la ligne ; deux premières
+     * écritures simultanées peuvent voir le second refusé 409 (création concurrente de la ligne), jamais une erreur serveur.
+     * Chemin non pré-posé par les autres scénarios (qui appellent {@code joursOuvertsDuCentre}) ; absent des centres de
+     * production existants, relevé par {@code verifications-production.md} §42-11.
+     */
+    @Test
+    void un_centre_sans_ligne_de_parametres_recoit_sa_ligne_a_la_premiere_ecriture_de_pec_et_une_course_initiale_se_termine_en_200_ou_409() throws Exception {
+        jdbc.update("DELETE FROM planning_parametres WHERE center_id = ?", CENTRE_A);
+        UUID forfait = forfait(CENTRE_A, "HD3", "9500.00");
+        UUID patient = vacancier();
+        UUID seule = pecEnBase(CENTRE_A, "PEC_SEULE", patient, "CREE", jour(-5), jour(25), forfait, null, null, null, 1);
+        jdbc.update("DELETE FROM planning_parametres WHERE center_id = ?", CENTRE_A);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("une écriture seule", refus(valider(seule, CENTRE_A, jour(0), jour(20), null, adminA())));
+        m.put("ligne créée", jdbc.queryForObject("SELECT COUNT(*) FROM planning_parametres WHERE center_id = ?", Integer.class, CENTRE_A));
+
+        jdbc.update("DELETE FROM planning_parametres WHERE center_id = ?", CENTRE_A);
+        UUID a = pecEnBase(CENTRE_A, "PEC_A", patient, "CREE", jour(-5), jour(25), forfait, null, null, null, 2);
+        UUID b = pecEnBase(CENTRE_A, "PEC_B", patient, "CREE", jour(-5), jour(25), forfait, null, null, null, 3);
+        jdbc.update("DELETE FROM planning_parametres WHERE center_id = ?", CENTRE_A);
+        List<Resp> reponses = enParallele(() -> valider(a, CENTRE_A, jour(0), jour(20), null, adminA()),
+                () -> valider(b, CENTRE_A, jour(0), jour(20), null, adminA()));
+        List<Integer> statuts = reponses.stream().map(Resp::status).sorted().toList();
+        m.put("course initiale : 200 et 200, ou 200 et 409 (création concurrente de la ligne)",
+                statuts.equals(List.of(200, 200)) || statuts.equals(List.of(200, 409)));
+        arbre("centre_sans_ligne_de_parametres", m);
+    }
 }

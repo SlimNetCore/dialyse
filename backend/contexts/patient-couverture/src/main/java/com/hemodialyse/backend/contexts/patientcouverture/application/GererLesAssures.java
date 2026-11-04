@@ -83,9 +83,7 @@ public class GererLesAssures {
             if (!courante.patientId().equals(patient) || !courante.centre().equals(centre.valeur())) {
                 throw new AccesRefuse();
             }
-            if (debut != null && fin != null && fin.isBefore(debut)) {
-                throw new SaisieInvalide("La date de fin doit être >= à la date de début");
-            }
+            AssurePrincipal.verifierLesDatesDeLAffectation(debut, fin);
             assures.modifierLesDates(affectation, debut, fin);
             return null;
         });

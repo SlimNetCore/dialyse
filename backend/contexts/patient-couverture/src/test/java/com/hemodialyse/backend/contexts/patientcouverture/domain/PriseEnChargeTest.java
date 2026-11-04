@@ -51,6 +51,27 @@ class PriseEnChargeTest {
         assertThat(p.autoriseSeance()).isFalse();
     }
 
+    @Test
+    void should_refuser_une_seance_a_un_non_vacancier_sans_attestation_valide_meme_si_la_pec_est_validee() {
+        PriseEnCharge p = creee();
+        p.valider(D, F, FORFAIT);
+
+        assertThat(p.autoriseSeance(false, false)).isFalse();
+        assertThat(p.autoriseSeance(false, true)).isTrue();
+        assertThat(p.autoriseSeance(true, false)).isTrue();
+        assertThat(creee().autoriseSeance(true, true)).isFalse();
+    }
+
+    @Test
+    void should_refuser_une_affectation_dont_la_fin_precede_le_debut() {
+        java.time.LocalDate jour = java.time.LocalDate.of(2026, 5, 10);
+        org.junit.jupiter.api.Assertions.assertThrows(SaisieInvalide.class,
+                () -> AssurePrincipal.verifierLesDatesDeLAffectation(jour, jour.minusDays(1)));
+        AssurePrincipal.verifierLesDatesDeLAffectation(jour, jour);
+        AssurePrincipal.verifierLesDatesDeLAffectation(null, jour);
+        AssurePrincipal.verifierLesDatesDeLAffectation(jour, null);
+    }
+
     @ParameterizedTest
     @EnumSource(value = StatutPec.class, names = {"VALIDEE", "CLOTUREE"})
     void should_refuser_de_valider_une_pec_deja_validee_ou_cloturee(StatutPec statut) {

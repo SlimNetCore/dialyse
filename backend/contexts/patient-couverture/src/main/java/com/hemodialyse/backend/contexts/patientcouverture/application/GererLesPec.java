@@ -105,8 +105,7 @@ public class GererLesPec {
         CentreId centre = session.centre(centreDemande);
         PriseEnCharge pec = pecs.trouver(centre, pecId).orElseThrow(PecIntrouvable::new);
         Patient patient = patients.trouver(centre, pec.patient()).orElseThrow(PatientIntrouvable::new);
-        if (!patient.vacancier() && !attestations.valideLe(centre, pec.patient(), horloge.aujourdhui(centre))) return false;
-        return pec.autoriseSeance();
+        return pec.autoriseSeance(patient.vacancier(), attestations.valideLe(centre, pec.patient(), horloge.aujourdhui(centre)));
     }
 
     public List<PriseEnCharge> duCentre(UUID centreDemande) {
@@ -120,7 +119,13 @@ public class GererLesPec {
     private String nomDuPatient(CentreId centre, PriseEnCharge pec) {
         return patients.trouver(centre, pec.patient()).map(p -> {
             var i = p.fiche().identite();
-            return i.prenom() == null || i.prenom().isBlank() ? i.nom() : i.prenom() + " " + i.nom();
-        }).orElse("");
+            String prenom = i.prenom() == null ? "" : i.prenom().trim();
+            String nom = i.nom() == null ? "" : i.nom().trim();
+            String complet = (prenom + " " + nom).trim();
+            return complet.isEmpty() ? NOM_DE_REPLI : complet;
+        }).orElse(NOM_DE_REPLI);
     }
+
+    /** Nom diffusé quand la fiche n'en porte aucun (ligne héritée) : les diffusions n'acceptent pas de valeur nulle. */
+    static final String NOM_DE_REPLI = "Patient";
 }

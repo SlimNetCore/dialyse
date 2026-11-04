@@ -150,6 +150,22 @@ CREATE TABLE IF NOT EXISTS assure_patient (
 CREATE INDEX IF NOT EXISTS idx_assure_patient_primary_active
     ON assure_patient (patient_id, center_id, is_primary, date_fin_affectation);
 
+-- Prise en charge (contexts/patient-couverture, PC3) : mêmes colonnes que Flyway V1 ; en H2 la table n'est plus créée par une entité JPA.
+CREATE TABLE IF NOT EXISTS prise_en_charge (
+    id UUID NOT NULL,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    date_debut_demande DATE,
+    date_debut_effectif DATE,
+    date_fin_demande DATE,
+    date_fin_effectif DATE,
+    forfait_demande_id UUID,
+    forfait_effectif_id UUID,
+    patient_id UUID NOT NULL,
+    statut VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
 -- ═══ User & Role Management ═══
 
 CREATE TABLE IF NOT EXISTS app_role (

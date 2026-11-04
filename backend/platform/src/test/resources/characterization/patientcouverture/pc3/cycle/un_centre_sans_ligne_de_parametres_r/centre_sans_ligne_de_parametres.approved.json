@@ -1,0 +1,5 @@
+{
+  "course initiale : 200 et 200, ou 200 et 409 (création concurrente de la ligne)" : true,
+  "ligne créée" : 1,
+  "une écriture seule" : "200 (accepté)"
+}
