@@ -134,10 +134,15 @@ final class Doubles {
         }
     }
 
-    static final class CouvertureEnMemoire implements CouvertureDeLaFiche {
+    /** Double de la couverture de la fiche (cas d'usage de la fiche testés sans attestations réelles). */
+    static final class CouvertureEnMemoire extends CouvertureDeLaFiche {
         final List<String> appels = new ArrayList<>();
         final List<PatientId> avecAttestation = new ArrayList<>();
         AttestationSaisie derniereAttestation;
+
+        CouvertureEnMemoire() {
+            super(null, null, null);
+        }
 
         @Override
         public boolean attestationEnregistree(CentreId centre, PatientId patient) {
@@ -145,10 +150,47 @@ final class Doubles {
         }
 
         @Override
-        public void enregistrer(CentreId centre, PatientId patient, Couverture couverture, AttestationSaisie attestation) {
+        public void enregistrer(CentreId centre, PatientId patient, AttestationSaisie attestation) {
             appels.add("enregistrer");
             derniereAttestation = attestation;
             if (attestation != null && attestation.complete() && !avecAttestation.contains(patient)) avecAttestation.add(patient);
+        }
+    }
+
+    /** Attestations en mémoire (le contrat PC4 prouve leur fidélité à la table réelle). */
+    static final class AttestationsEnMemoire implements com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations {
+        final java.util.Map<UUID, com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit> lignes =
+                new java.util.LinkedHashMap<>();
+
+        @Override
+        public Optional<com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit> trouver(CentreId centre, UUID id) {
+            return Optional.ofNullable(lignes.get(id)).filter(a -> a.centre().equals(centre));
+        }
+
+        @Override
+        public void enregistrer(com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit a) {
+            lignes.put(a.id(), a);
+        }
+
+        @Override
+        public void supprimer(UUID id) {
+            lignes.remove(id);
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit> duPatient(CentreId centre,
+                                                                                                         PatientId patient) {
+            return lignes.values().stream().filter(a -> a.centre().equals(centre) && a.patient().equals(patient)).toList();
+        }
+
+        @Override
+        public boolean existe(CentreId centre, PatientId patient) {
+            return !duPatient(centre, patient).isEmpty();
+        }
+
+        @Override
+        public boolean valideLe(CentreId centre, PatientId patient, LocalDate jour) {
+            return duPatient(centre, patient).stream().anyMatch(a -> a.couvre(jour));
         }
     }
 

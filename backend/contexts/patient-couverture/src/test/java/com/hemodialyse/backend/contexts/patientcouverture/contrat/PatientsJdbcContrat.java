@@ -34,6 +34,11 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
         return new PatientsJdbc(jdbc());
     }
 
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations attestations() {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AttestationsJdbc(jdbc());
+    }
+
     @Test
     void should_ne_jamais_ecrire_la_place_ni_les_jours_de_dialyse_la_planification_en_est_proprietaire() {
         Patient p = admis(CENTRE, Fiches.nominale("JD-1", null, null));
@@ -141,7 +146,7 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
             };
 
     private static final com.hemodialyse.backend.contexts.patientcouverture.application.CouvertureDeLaFiche COUVERTURE_VIDE =
-            new com.hemodialyse.backend.contexts.patientcouverture.application.CouvertureDeLaFiche() {
+            new com.hemodialyse.backend.contexts.patientcouverture.application.CouvertureDeLaFiche(null, null, null) {
                 @Override
                 public boolean attestationEnregistree(CentreId c, com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId p) {
                     return true;
@@ -149,7 +154,7 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
 
                 @Override
                 public void enregistrer(CentreId c, com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId p,
-                                        com.hemodialyse.backend.contexts.patientcouverture.domain.Couverture couv, AttestationSaisie a) {
+                                        AttestationSaisie a) {
                 }
             };
 
@@ -328,6 +333,39 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
 
     // ---- KB-PAT-31 en course : le même numéro d'assuré déclaré en même temps par deux centres (verrous de centres différents)
 
+    // ---- PC4 : recherche d'attestations (H2 et PostgreSQL 16 : ESCAPE '\' et jointure du patient)
+
+    @Test
+    void should_chercher_les_attestations_par_sous_chaine_sans_que_les_jokers_soient_des_jokers() {
+        var attestations = attestations();
+        var lecture = new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesAttestationsJdbc(jdbc());
+        Patient p = admis(CENTRE, Fiches.nominale("PC4-RECH", null, null));
+        depot().enregistrer(p);
+        attestations.enregistrer(com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit.declarer(UUID.randomUUID(),
+                p.id(), CENTRE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), T0));
+        attestations.enregistrer(com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit.declarer(UUID.randomUUID(),
+                new com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId(UUID.randomUUID()), CENTRE,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 1), T0));
+
+        java.util.function.Function<String[], Long> total = f -> lecture.rechercher(CENTRE,
+                com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDAttestation.de(0, 10, f[0], f[1], f[2], f[3],
+                        null, null)).total();
+
+        assertThat(total.apply(new String[]{null, null, null, null})).as("sans filtre : orpheline comprise").isEqualTo(2);
+        assertThat(total.apply(new String[]{null, null, "benali", null})).isEqualTo(1);
+        assertThat(total.apply(new String[]{null, null, "ben%", null})).as("% n'est pas un joker").isZero();
+        assertThat(total.apply(new String[]{null, null, "b_nali", null})).as("_ n'est pas un joker").isZero();
+        assertThat(total.apply(new String[]{"%", null, null, null})).isZero();
+        assertThat(total.apply(new String[]{null, "\\", null, null})).as("\\ est ordinaire").isZero();
+        assertThat(total.apply(new String[]{null, null, null, "pc4-rech"})).isEqualTo(1);
+        var ligne = lecture.rechercher(CENTRE, com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDAttestation
+                .de(0, 10, null, null, "Benali", null, null, null)).items().get(0);
+        assertThat(ligne.code_patient()).isEqualTo(p.code());
+        assertThat(ligne.nom()).isEqualTo("Benali");
+        assertThat(lecture.rechercher(AUTRE, com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDAttestation
+                .de(0, 10, null, null, null, null, null, null)).total()).isZero();
+    }
+
     @Test
     void should_refuser_la_capture_d_un_assure_d_un_autre_centre_meme_en_course() throws Exception {
         var assures = new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AssuresJdbc(jdbc());
@@ -412,7 +450,7 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
     private com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPec gererLesPec() {
         return new com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPec(session(), horloge(), identifiants(),
                 pecs(), depot(),
-                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyattestation.AttestationsDuPatientJdbc(jdbc()),
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AttestationsJdbc(jdbc()),
                 unite(), verrouDuCentre());
     }
 
@@ -449,7 +487,7 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
         depot().enregistrer(p);
         jdbc().update("INSERT INTO attestation_droit (id, patient_id, center_id, date_debut, date_fin, created_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)",
                 UUID.randomUUID(), p.id().valeur(), CENTRE.valeur(), Date.valueOf(LocalDate.of(2026, 1, 1)), Date.valueOf(LocalDate.of(2026, 12, 31)));
-        var attestations = new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyattestation.AttestationsDuPatientJdbc(jdbc());
+        var attestations = new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AttestationsJdbc(jdbc());
 
         assertThat(attestations.valideLe(CENTRE, p.id(), LocalDate.of(2026, 1, 1))).isTrue();
         assertThat(attestations.valideLe(CENTRE, p.id(), LocalDate.of(2026, 12, 31))).isTrue();

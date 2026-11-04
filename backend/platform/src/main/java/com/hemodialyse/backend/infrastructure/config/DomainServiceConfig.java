@@ -1,7 +1,5 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
-import com.hemodialyse.backend.domain.insurance.service.AttestationDomainService;
 import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
 import com.hemodialyse.backend.domain.medical.anemie.port.AdministrationTraitementRepositoryPort;
@@ -52,11 +50,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class DomainServiceConfig {
-
-    @Bean
-    public AttestationDomainService attestationDomainService(AttestationRepositoryPort attestationRepo) {
-        return new AttestationDomainService(attestationRepo);
-    }
 
     @Bean
     public com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(

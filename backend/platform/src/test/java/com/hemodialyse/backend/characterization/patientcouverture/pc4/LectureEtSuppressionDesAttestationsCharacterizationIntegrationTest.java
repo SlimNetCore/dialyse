@@ -24,6 +24,8 @@ class LectureEtSuppressionDesAttestationsCharacterizationIntegrationTest extends
     /** Projection triée (l'ordre de l'API n'est pas garanti : aucun tri dans la requête) des périodes rendues. */
     private List<String> periodes(Resp r) {
         List<String> l = new ArrayList<>();
+        // un refus est un ProblemDetail dont les champs ne sont pas des attestations : on ne lit les périodes que d'un 200
+        if (r.status() != 200) return List.of(refus(r));
         for (JsonNode a : corps(r)) l.add(a.path("dateDebut").asString() + " -> " + a.path("dateFin").asString());
         l.sort(Comparator.naturalOrder());
         return l;
@@ -48,7 +50,7 @@ class LectureEtSuppressionDesAttestationsCharacterizationIntegrationTest extends
         m.put("patient inconnu", periodes(attestationsDuPatient(UUID.nameUUIDFromBytes("pc4-inconnu".getBytes()), CENTRE_A, adminA())));
         m.put("centre inconnu", periodes(attestationsDuPatient(patient, CENTRE_INCONNU, adminA())));
         m.put("lue par la secrétaire", periodes(attestationsDuPatient(patient, CENTRE_A, as(CENTRE_A, "SECRETAIRE"))));
-        arbre("isolement", m);
+        arbre("isolement_nouveau_code", m);
         lecture("patient_inconnu_liste_vide", attestationsDuPatient(UUID.nameUUIDFromBytes("pc4-inconnu".getBytes()), CENTRE_A, adminA()));
     }
 
@@ -63,7 +65,7 @@ class LectureEtSuppressionDesAttestationsCharacterizationIntegrationTest extends
         m.put("patientId absent de l'URL", refus(doGet(ATTESTATIONS + "/?centerId=" + CENTRE_A, adminA())));
         m.put("route POST sur la liste", refus(doPost(ATTESTATIONS + "/" + patient + "?centerId=" + CENTRE_A, "{}", adminA())));
         m.put("route PUT sur la liste", refus(doPut(ATTESTATIONS + "/" + patient + "?centerId=" + CENTRE_A, "{}", adminA())));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
     }
 
     @Test
@@ -102,15 +104,15 @@ class LectureEtSuppressionDesAttestationsCharacterizationIntegrationTest extends
         ecriture("nominale", supprimerAttestation(a1, CENTRE_A, patient, adminA()));
         m.put("nominale : lignes restantes", nombreDAttestations());
         m.put("sans patientId", refus(supprimerAttestation(a2, CENTRE_A, null, adminA())));
-        m.put("patientId d'un autre patient (ignoré)", refus(supprimerAttestation(a3, CENTRE_A, autre, adminA())));
+        m.put("patientId d'un autre patient",refus(supprimerAttestation(a3, CENTRE_A, autre, adminA())));
         m.put("attestation du centre B supprimée avec le centre A de la requête", refus(supprimerAttestation(aB, CENTRE_A, patient, adminA())));
         m.put("seconde suppression de la même attestation", refus(supprimerAttestation(a1, CENTRE_A, patient, adminA())));
         m.put("identifiant inconnu", refus(supprimerAttestation(UUID.nameUUIDFromBytes("pc4-att-inconnue".getBytes()), CENTRE_A, patient, adminA())));
         m.put("lignes restantes", nombreDAttestations());
-        arbre("reponses", m);
-        etatDesAttestations("etat");
+        arbre("reponses_nouveau_code", m);
+        etatDesAttestations("etat_nouveau_code");
         notifications("notifications");
-        diffusionsCapturees("diffusions");
+        diffusionsCapturees("diffusions_nouveau_code");
     }
 
     @Test
@@ -124,6 +126,6 @@ class LectureEtSuppressionDesAttestationsCharacterizationIntegrationTest extends
         m.put("patientId n'est pas un UUID", refus(doDelete(ATTESTATIONS + "/" + a1 + "?centerId=" + CENTRE_A + "&patientId=abc", adminA())));
         m.put("identifiant absent de l'URL", refus(doDelete(ATTESTATIONS + "?centerId=" + CENTRE_A, adminA())));
         m.put("lignes restantes", nombreDAttestations());
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
     }
 }

@@ -1,0 +1,23 @@
+{
+  "debut au format jj/mm/aaaa" : "total 1 : [PC-BRAVO]",
+  "debut avec heure (T)" : "total 1 : [PC-BRAVO]",
+  "debut avec heure (espace)" : "total 1 : [PC-BRAVO]",
+  "debut blanc" : "total 5 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE, PC-DELTA, PC-ECHO]",
+  "debut et fin combinés" : "total 3 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE]",
+  "debut et fin sans résultat commun" : "total 0 : []",
+  "debut exact J-90" : "total 1 : [PC-BRAVO]",
+  "debut exact sans attestation (J-95)" : "total 0 : []",
+  "debut illisible" : "400 BAD_REQUEST : Date illisible dans le filtre « debut » : abc",
+  "debut intervalle J-90..J-70" : "total 3 : [PC-BRAVO, PC-CHARLIE, PC-DELTA]",
+  "debut intervalle dont une borne est illisible" : "400 BAD_REQUEST : Date illisible dans le filtre « debut » : abc",
+  "debut intervalle inversé J-70..J-90" : "total 3 : [PC-BRAVO, PC-CHARLIE, PC-DELTA]",
+  "debut intervalle ouvert à droite J-80.." : "total 3 : [PC-CHARLIE, PC-DELTA, PC-ECHO]",
+  "debut intervalle ouvert à gauche ..J-90" : "total 2 : [PC-ALPHA, PC-BRAVO]",
+  "debut intervalle vide .." : "total 5 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE, PC-DELTA, PC-ECHO]",
+  "filtres de dates + nom" : "total 1 : [PC-CHARLIE]",
+  "fin exacte J+30" : "total 1 : [PC-CHARLIE]",
+  "fin illisible" : "400 BAD_REQUEST : Date illisible dans le filtre « fin » : 31/31/2030",
+  "fin intervalle ..J+20" : "total 2 : [PC-DELTA, PC-ECHO]",
+  "fin intervalle J+20..J+40" : "total 3 : [PC-BRAVO, PC-CHARLIE, PC-DELTA]",
+  "fin intervalle J+40.." : "total 2 : [PC-ALPHA, PC-BRAVO]"
+}

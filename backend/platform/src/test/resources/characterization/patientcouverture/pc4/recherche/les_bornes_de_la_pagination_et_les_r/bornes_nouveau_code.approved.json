@@ -1,0 +1,17 @@
+{
+  "JSON invalide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "centerId absent" : "400 BAD_REQUEST : CenterId cannot be null",
+  "centerId n'est pas un UUID" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "centerId seul (page 0, taille 0)" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "champ inconnu ignoré" : "total 5 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE, PC-DELTA, PC-ECHO]",
+  "corps absent" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps vide {}" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "page absente (0 par défaut)" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "page négative" : "400 BAD_REQUEST : La page ne peut pas être négative",
+  "page textuelle" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "page très grande" : "total 5 : []",
+  "taille 0" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 200",
+  "taille 201" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 200",
+  "taille absente" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "taille négative" : "400 BAD_REQUEST : La taille doit être comprise entre 1 et 200"
+}

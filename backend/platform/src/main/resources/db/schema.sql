@@ -166,6 +166,17 @@ CREATE TABLE IF NOT EXISTS prise_en_charge (
     PRIMARY KEY (id)
 );
 
+-- Attestation de droits (contexts/patient-couverture, PC4) : mêmes colonnes que Flyway V1 ; en H2 la table n'est plus créée par une entité JPA.
+CREATE TABLE IF NOT EXISTS attestation_droit (
+    id UUID NOT NULL,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    patient_id UUID NOT NULL,
+    PRIMARY KEY (id)
+);
+
 -- ═══ User & Role Management ═══
 
 CREATE TABLE IF NOT EXISTS app_role (

@@ -1,0 +1,29 @@
+[ {
+  "action_code" : "ATTESTATION_CREATION",
+  "entity_id" : "<ATT_AUDIT>",
+  "entity_type" : "attestations",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/pec/attestations",
+  "status_code" : "200"
+}, {
+  "action_code" : "ATTESTATION_CREATION",
+  "entity_id" : null,
+  "entity_type" : "attestations",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/pec/attestations",
+  "status_code" : "400"
+}, {
+  "action_code" : "ATTESTATION_RECHERCHE",
+  "entity_id" : null,
+  "entity_type" : "attestations",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/pec/attestations-center/search",
+  "status_code" : "200"
+}, {
+  "action_code" : "ATTESTATION_SUPPRESSION",
+  "entity_id" : "<ATT_AUDIT>",
+  "entity_type" : "attestations",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/pec/attestations/{attestationId}",
+  "status_code" : "200"
+} ]

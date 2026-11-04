@@ -112,7 +112,7 @@ class RechercheDesAttestationsCharacterizationIntegrationTest extends Attestatio
         m.put("JSON invalide", lignes(rechercher("{", adminA())));
         m.put("corps absent", lignes(rechercher("", adminA())));
         m.put("champ inconnu ignoré", lignes(rechercher(corps(a, "'page':0,'size':10,'inconnu':1"), adminA())));
-        arbre("bornes", m);
+        arbre("bornes_nouveau_code", m);
     }
 
     @Test
@@ -141,7 +141,7 @@ class RechercheDesAttestationsCharacterizationIntegrationTest extends Attestatio
         m.put("joker % non échappé", lignes(chercher("'code':'%'")));
         m.put("joker _ non échappé", lignes(chercher("'code':'_C_'")));
         m.put("filtres null", lignes(chercher("'code':null,'nom':null,'assurance':null,'search':null,'debut':null,'fin':null")));
-        arbre("filtres", m);
+        arbre("filtres_nouveau_code", m);
     }
 
     @Test
@@ -171,7 +171,7 @@ class RechercheDesAttestationsCharacterizationIntegrationTest extends Attestatio
         m.put("debut et fin combinés", lignes(chercher("'debut':'" + jour(-100) + ".." + jour(-80) + "','fin':'" + jour(30) + "..'")));
         m.put("debut et fin sans résultat commun", lignes(chercher("'debut':'" + jour(-100) + "','fin':'" + jour(10) + "'")));
         m.put("filtres de dates + nom", lignes(chercher("'debut':'.." + jour(-70) + "','nom':'charlie'")));
-        arbre("dates", m);
+        arbre("dates_nouveau_code", m);
     }
 
     @Test
@@ -185,6 +185,6 @@ class RechercheDesAttestationsCharacterizationIntegrationTest extends Attestatio
         m.put("centre B par son administrateur", lignes(rechercher(corps(CENTRE_B.toString(), "'page':0,'size':50"), adminB())));
         m.put("centre A par l'administrateur du centre B", lignes(rechercher(corps(CENTRE_A.toString(), "'page':0,'size':50"), adminB())));
         m.put("centre inconnu", lignes(rechercher(corps(CENTRE_INCONNU.toString(), "'page':0,'size':50"), adminA())));
-        arbre("isolement", m);
+        arbre("isolement_nouveau_code", m);
     }
 }

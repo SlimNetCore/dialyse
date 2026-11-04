@@ -13,7 +13,7 @@ M=C:/Users/TS-CONSULT/.m2/repository
 CPFILE=${CPFILE:-/c/Users/TS-CON~1/AppData/Local/Temp/c2-cp.txt}
 DEPS=$(cat "$CPFILE" | tr -d '\r\n' | tr '\\' '/')
 # les jars des modules du projet (.m2) peuvent etre perimes : on prend leurs target/classes
-for MOD in shared-kernel bc-article bc-insurance bc-referential bc-patient bc-assure bc-seance bc-medical \
+for MOD in shared-kernel bc-article bc-referential bc-patient bc-assure bc-seance bc-medical \
            bc-comptabilite bc-migration; do
   DEPS=$(echo "$DEPS" | sed "s|C:/Users/TS-CONSULT/.m2/repository/com/hemodialyse/$MOD/0.0.1-SNAPSHOT/$MOD-0.0.1-SNAPSHOT.jar|$B/$MOD/target/classes|")
 done

@@ -23,7 +23,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * contrôleurs de la fiche.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = {PatientsControleur.class, MouvementsControleur.class, PecControleur.class})
+@RestControllerAdvice(assignableTypes = {PatientsControleur.class, MouvementsControleur.class, PecControleur.class,
+        AttestationsControleur.class})
 class ErreursDeLaFicheAdvice {
 
     static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -74,6 +75,11 @@ class ErreursDeLaFicheAdvice {
     @ExceptionHandler(com.hemodialyse.backend.contexts.patientcouverture.domain.PecIntrouvable.class)
     ProblemDetail pecIntrouvable(com.hemodialyse.backend.contexts.patientcouverture.domain.PecIntrouvable erreur) {
         return probleme(HttpStatus.NOT_FOUND, "PEC introuvable", erreur.getMessage(), "PEC_INTROUVABLE");
+    }
+
+    @ExceptionHandler(com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationIntrouvable.class)
+    ProblemDetail attestationIntrouvable(com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationIntrouvable erreur) {
+        return probleme(HttpStatus.NOT_FOUND, "Attestation introuvable", erreur.getMessage(), "ATTESTATION_INTROUVABLE");
     }
 
     @ExceptionHandler(AccesRefuse.class)

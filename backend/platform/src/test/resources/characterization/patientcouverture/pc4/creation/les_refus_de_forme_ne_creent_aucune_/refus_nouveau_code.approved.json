@@ -1,0 +1,19 @@
+{
+  "JSON invalide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "centerId absent" : "400 BAD_REQUEST : CenterId cannot be null",
+  "centerId n'est pas un UUID" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "champ inconnu ignoré" : "200 (accepté)",
+  "corps absent" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "corps vide {}" : "400 BAD_REQUEST : CenterId cannot be null",
+  "dateDebut absente" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "dateDebut chaîne vide" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "dateDebut illisible (abc)" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "dateDebut numérique" : "400 BAD_REQUEST : La date de début doit être antérieure à la date de fin",
+  "dateFin absente" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "dateFin au format jj/mm/aaaa" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "dateFin avec heure" : "200 (accepté)",
+  "dates nulles" : "400 BAD_REQUEST : Dates attestation obligatoires",
+  "patientId absent" : "400 BAD_REQUEST : PatientId cannot be null",
+  "patientId n'est pas un UUID" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "type texte" : "415 UNSUPPORTED_MEDIA_TYPE : Le corps de la requête doit être du JSON"
+}

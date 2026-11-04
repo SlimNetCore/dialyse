@@ -21,7 +21,13 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.PecDeLaFic
 import com.hemodialyse.backend.contexts.patientcouverture.application.RechercherLesPec;
 import com.hemodialyse.backend.contexts.patientcouverture.application.PrincipalDeLaFiche;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PrisesEnCharge;
-import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyattestation.AttestationsDuPatientJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.application.GererLesAttestations;
+import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesAttestations;
+import com.hemodialyse.backend.contexts.patientcouverture.application.RechercherLesAttestations;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AttestationsJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesAttestationsJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDAttestationsEnCache;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesPecJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PrisesEnChargeJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDePecEnCache;
@@ -34,7 +40,6 @@ import com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDe
 import com.hemodialyse.backend.contexts.patientcouverture.domain.MouvementsDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientRepository;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
-import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacycouverture.CouvertureDeLaFicheJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacygmao.GenerateursDuCentreJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.planification.PlaceDeLaFicheParLaPlanification;
@@ -114,8 +119,8 @@ public class PatientCouvertureConfiguration {
     }
 
     @Bean
-    CouvertureDeLaFiche couvertureDeLaFiche(JdbcTemplate jdbc) {
-        return new CouvertureDeLaFicheJdbc(jdbc);
+    CouvertureDeLaFiche couvertureDeLaFiche(Attestations attestations, Identifiants identifiants, HorlogeDesCentres horloge) {
+        return new CouvertureDeLaFiche(attestations, identifiants, horloge);
     }
 
     @Bean
@@ -148,8 +153,30 @@ public class PatientCouvertureConfiguration {
     }
 
     @Bean
-    AttestationsDuPatient attestationsDuPatient(JdbcTemplate jdbc) {
-        return new AttestationsDuPatientJdbc(jdbc);
+    AttestationsJdbc attestationsDeLaFiche(JdbcTemplate jdbc) {
+        return new AttestationsJdbc(jdbc);
+    }
+
+    @Bean
+    LectureDesAttestations lectureDesAttestations(JdbcTemplate jdbc) {
+        return new LectureDesAttestationsJdbc(jdbc);
+    }
+
+    @Bean
+    GererLesAttestations gererLesAttestations(SessionCourante session, HorlogeDesCentres horloge, Identifiants identifiants,
+                                              Attestations attestations, PatientRepository patients, UniteDeTravail unite,
+                                              VerrouDuCentre verrou) {
+        return new GererLesAttestations(session, horloge, identifiants, attestations, patients, unite, verrou);
+    }
+
+    @Bean
+    RechercherLesAttestations rechercherLesAttestations(SessionCourante session, LectureDesAttestations lecture) {
+        return new RechercherLesAttestations(session, lecture);
+    }
+
+    @Bean
+    ListesDAttestationsEnCache listesDAttestationsEnCache(GererLesAttestations gerer) {
+        return new ListesDAttestationsEnCache(gerer);
     }
 
     @Bean

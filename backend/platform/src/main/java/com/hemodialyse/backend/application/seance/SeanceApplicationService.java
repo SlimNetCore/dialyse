@@ -43,8 +43,10 @@ import java.util.UUID;
 public class SeanceApplicationService implements SeanceUseCase {
 
     private final SeanceDomainService delegate;
+    private final com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre;
 
-    public SeanceApplicationService(SeanceRepositoryPort seanceRepo,
+    public SeanceApplicationService(com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre,
+                                    SeanceRepositoryPort seanceRepo,
                                     PatientRepositoryPort patientRepo,
                                     CatalogueDArticles catalogue,
                                     ConsommationsDeSeance consommations,
@@ -54,6 +56,7 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     SeanceBillingEligibilityPort billingEligibilityPort,
                                     SeancePlanningPort planningPort,
                                     SeancePlacePort placePort) {
+        this.jourDuCentre = jourDuCentre;
         this.delegate = new SeanceDomainService(seanceRepo, patientRepo, catalogue,
                 consommations, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
                 planningPort, placePort);
@@ -61,7 +64,8 @@ public class SeanceApplicationService implements SeanceUseCase {
 
     @Override
     public Seance create(CenterId centerId, UUID patientId, LocalDate dateSeance) {
-        return delegate.create(centerId, patientId, dateSeance);
+        // PC4 (KB-PAT-47) : une séance sans date prend le jour du centre, plus celui de la JVM
+        return delegate.create(centerId, patientId, dateSeance != null ? dateSeance : jourDuCentre.aujourdhui(centerId.value()));
     }
 
     @Override
@@ -103,7 +107,7 @@ public class SeanceApplicationService implements SeanceUseCase {
 
     @Override
     public Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance) {
-        return delegate.updateDate(centerId, seanceId, dateSeance);
+        return delegate.updateDate(centerId, seanceId, dateSeance != null ? dateSeance : jourDuCentre.aujourdhui(centerId.value()));
     }
 
     @Override

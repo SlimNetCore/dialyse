@@ -18,10 +18,6 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>bc-insurance</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-patient</artifactId>
         </dependency>
         <dependency>

@@ -2,112 +2,100 @@ package com.hemodialyse.backend.contexts.patientcouverture.domain;
 
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
-public class AttestationDroit {
-    private final AttestationDroitId id;
-    private final CentreId centreId;
-    private final PatientId patientId;
+/**
+ * Attestation d'ouverture de droits d'un patient (table {@code attestation_droit}, vocabulaire du legacy) : une période, du
+ * début à la fin comprises, pendant laquelle les droits du patient sont ouverts. Sert à autoriser une PEC et une séance d'un
+ * patient non vacancier ({@link #couvre}).
+ * <p>
+ * REPRODUIT À L'IDENTIQUE, À DÉCIDER AVEC LES MÉTIERS (argent, KB-PAT-41, 46) : début = fin accepté, période échue, future ou
+ * antérieure à l'admission acceptée, doublons, chevauchements et contiguïtés acceptés (aucun contrôle entre attestations), la
+ * même période peut exister plusieurs fois ; la règle R5 (attestation liée à une PEC active) n'est pas retenue.
+ */
+public final class AttestationDroit {
 
-    private final LocalDate dateDebut;
-    private final LocalDate dateFin;
-    private final OffsetDateTime createdAt;
+    private final UUID id;
+    private final PatientId patient;
+    private final CentreId centre;
+    private final LocalDate debut;
+    private final LocalDate fin;
+    private final Instant creeLe;
 
-    public AttestationDroit(AttestationDroitId id, CentreId centreId, PatientId patientId,
-                            LocalDate dateDebut, LocalDate dateFin, OffsetDateTime createdAt) {
-        if (id == null) throw new IllegalArgumentException("AttestationDroit requis");
-        if (centreId == null) throw new IllegalArgumentException("Centre requis");
-        if (patientId == null) throw new IllegalArgumentException("Patient requis");
-        if (dateDebut == null || dateFin == null) throw new IllegalArgumentException("Dates attestation obligatoires");
-        if (dateDebut.isAfter(dateFin)) throw new IllegalArgumentException("Date fin avant date debut");
+    private AttestationDroit(UUID id, PatientId patient, CentreId centre, LocalDate debut, LocalDate fin, Instant creeLe) {
         this.id = id;
-        this.centreId = centreId;
-        this.patientId = patientId;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-        this.createdAt = createdAt;
+        this.patient = patient;
+        this.centre = centre;
+        this.debut = debut;
+        this.fin = fin;
+        this.creeLe = creeLe;
     }
 
-    // Compatibility constructor (legacy style)
-    public AttestationDroit(UUID id, UUID patientId, UUID centreId, LocalDate dateDebut, LocalDate dateFin) {
-        this(new AttestationDroitId(id), new CentreId(centreId), new PatientId(patientId), dateDebut, dateFin, null);
+    /**
+     * Déclare une attestation par la route : les deux dates sont obligatoires (« Dates attestation obligatoires ») et la fin ne
+     * précède pas le début (« La date de début doit être antérieure à la date de fin », message du legacy conservé alors que
+     * début = fin est accepté).
+     */
+    public static AttestationDroit declarer(UUID id, PatientId patient, CentreId centre, LocalDate debut, LocalDate fin,
+                                            Instant creeLe) {
+        if (debut != null && fin != null && debut.isAfter(fin)) {
+            throw new SaisieInvalide("La date de début doit être antérieure à la date de fin");
+        }
+        return avecLesDates(id, patient, centre, debut, fin, creeLe);
     }
 
-    public static AttestationDroit creer(AttestationDroitId id, PatientId patientId, CentreId centreId,
-                                         LocalDate dateDebut, LocalDate dateFin, OffsetDateTime createdAt) {
-        return new AttestationDroit(id, centreId, patientId, dateDebut, dateFin, createdAt);
+    /** Attestation saisie sur la fiche du patient : même règle, message de la fiche (« Date fin avant date debut »). */
+    public static AttestationDroit saisieSurLaFiche(UUID id, PatientId patient, CentreId centre, LocalDate debut, LocalDate fin,
+                                                    Instant creeLe) {
+        if (debut != null && fin != null && fin.isBefore(debut)) throw new SaisieInvalide("Date fin avant date debut");
+        return avecLesDates(id, patient, centre, debut, fin, creeLe);
     }
 
-    public static AttestationDroit creer(UUID id, UUID patientId, UUID centreId, LocalDate dateDebut, LocalDate dateFin) {
-        return new AttestationDroit(id, patientId, centreId, dateDebut, dateFin);
+    private static AttestationDroit avecLesDates(UUID id, PatientId patient, CentreId centre, LocalDate debut, LocalDate fin,
+                                                 Instant creeLe) {
+        if (debut == null || fin == null) throw new SaisieInvalide("Dates attestation obligatoires");
+        return new AttestationDroit(id, patient, centre, debut, fin, creeLe);
     }
 
-    public boolean estValideA(LocalDate date) {
-        if (date == null) return false;
-        return !date.isBefore(dateDebut) && !date.isAfter(dateFin);
+    /** Relecture d'une ligne enregistrée, sans revalider (une ligne héritée n'est jamais refusée en lecture). */
+    public static AttestationDroit reconstituer(UUID id, PatientId patient, CentreId centre, LocalDate debut, LocalDate fin,
+                                                Instant creeLe) {
+        return new AttestationDroit(id, patient, centre, debut, fin, creeLe);
     }
 
-    public AttestationDroitId id() {
+    /** Le jour est-il dans la période, bornes incluses ? */
+    public boolean couvre(LocalDate jour) {
+        return !jour.isBefore(debut) && !jour.isAfter(fin);
+    }
+
+    /** Est-ce exactement la même période ? (la fiche ne duplique pas une période identique) */
+    public boolean memePeriode(LocalDate autreDebut, LocalDate autreFin) {
+        return debut.equals(autreDebut) && fin.equals(autreFin);
+    }
+
+    public UUID id() {
         return id;
     }
 
-    public CentreId centreId() {
-        return centreId;
+    public PatientId patient() {
+        return patient;
     }
 
-    public PatientId patientId() {
-        return patientId;
+    public CentreId centre() {
+        return centre;
     }
 
-    public LocalDate dateDebut() {
-        return dateDebut;
+    public LocalDate debut() {
+        return debut;
     }
 
-    public LocalDate dateFin() {
-        return dateFin;
+    public LocalDate fin() {
+        return fin;
     }
 
-    public OffsetDateTime createdAt() {
-        return createdAt;
-    }
-
-    // JavaBean-style accessors for compatibility
-    public UUID getId() {
-        return id.valeur();
-    }
-
-    public UUID getPatientId() {
-        return patientId.valeur();
-    }
-
-    public UUID getCenterId() {
-        return centreId.valeur();
-    }
-
-    public LocalDate getDateDebut() {
-        return dateDebut;
-    }
-
-    public LocalDate getDateFin() {
-        return dateFin;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AttestationDroit)) return false;
-        return Objects.equals(id, ((AttestationDroit) o).id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public Instant creeLe() {
+        return creeLe;
     }
 }

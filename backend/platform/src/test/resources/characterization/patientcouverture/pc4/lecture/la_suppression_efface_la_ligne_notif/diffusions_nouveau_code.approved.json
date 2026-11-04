@@ -1,0 +1,23 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "attestationId" : "<S1>",
+      "patientId" : "<SUPPR>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "ATTESTATION_DELETED"
+  }
+}, {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "attestationId" : "<S2>",
+      "patientId" : "<SUPPR>"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "ATTESTATION_DELETED"
+  }
+} ]

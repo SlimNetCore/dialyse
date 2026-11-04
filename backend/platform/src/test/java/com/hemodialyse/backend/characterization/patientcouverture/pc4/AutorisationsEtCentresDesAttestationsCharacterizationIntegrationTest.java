@@ -53,8 +53,8 @@ class AutorisationsEtCentresDesAttestationsCharacterizationIntegrationTest exten
 
     @Test
     void les_lectures_d_attestation_sont_ouvertes_a_tout_compte_de_centre() throws Exception {
-        matrice("matrice_liste_du_patient", p -> sans(() -> attestationsDuPatient(patient, CENTRE_A, p)));
-        matrice("matrice_recherche", p -> sans(() -> rechercher("{'centerId':'" + CENTRE_A + "','page':0,'size':10}", p)));
+        matrice("matrice_liste_du_patient_nouveau_code",p -> sans(() -> attestationsDuPatient(patient, CENTRE_A, p)));
+        matrice("matrice_recherche_nouveau_code",p -> sans(() -> rechercher("{'centerId':'" + CENTRE_A + "','page':0,'size':10}", p)));
         decorDeDroits();
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("liste du patient", statutEtCode(anonyme("GET", ATTESTATIONS + "/" + patient + "?centerId=" + CENTRE_A, null)));
@@ -64,8 +64,8 @@ class AutorisationsEtCentresDesAttestationsCharacterizationIntegrationTest exten
 
     @Test
     void la_creation_et_la_suppression_d_attestation_sont_ouvertes_a_tout_compte_de_centre() throws Exception {
-        matrice("matrice_creation", p -> sans(() -> creerAttestation(patient, CENTRE_A, jour(10), jour(20), p)));
-        matrice("matrice_suppression", p -> sans(() -> supprimerAttestation(attestation, CENTRE_A, patient, p)));
+        matrice("matrice_creation_nouveau_code",p -> sans(() -> creerAttestation(patient, CENTRE_A, jour(10), jour(20), p)));
+        matrice("matrice_suppression_nouveau_code",p -> sans(() -> supprimerAttestation(attestation, CENTRE_A, patient, p)));
         decorDeDroits();
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("création", statutEtCode(anonyme("POST", ATTESTATIONS, "{\"patientId\":\"" + patient + "\",\"centerId\":\"" + CENTRE_A
@@ -106,7 +106,7 @@ class AutorisationsEtCentresDesAttestationsCharacterizationIntegrationTest exten
         m.put("suppression de l'attestation du centre A par l'ADMIN du centre B", refus(supprimerAttestation(attestation, CENTRE_A, patient, adminB())));
         m.put("suppression de l'attestation du centre B par l'ADMIN du centre A (centre A de la requête)", refus(supprimerAttestation(autre, CENTRE_A, null, adminA())));
         m.put("suppression par un ADMIN sans centre de session", refus(supprimerAttestation(autre, CENTRE_B, null, as(null, "ADMIN"))));
-        arbre("sans_garde_de_centre", m);
-        etatDesAttestations("etat_final");
+        arbre("sans_garde_de_centre_nouveau_code", m);
+        etatDesAttestations("etat_final_nouveau_code");
     }
 }

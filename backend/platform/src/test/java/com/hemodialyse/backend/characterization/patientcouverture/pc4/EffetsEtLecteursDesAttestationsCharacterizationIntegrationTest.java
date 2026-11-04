@@ -218,12 +218,16 @@ class EffetsEtLecteursDesAttestationsCharacterizationIntegrationTest extends Att
         rechercher("{'centerId':'" + CENTRE_A + "','page':0,'size':10}", adminA());
         supprimerAttestation(id, CENTRE_A, patient, adminA());
         supprimerAttestation(id, CENTRE_A, patient, as(CENTRE_A, "DIRECTION"));
-        audit("audit");
+        audit("audit_nouveau_code");
         diffusionsCapturees("diffusions");
     }
 
     @Test
     void deux_creations_simultanees_de_la_meme_periode_creent_deux_lignes_et_une_suppression_simultanee_de_la_meme_ligne_reussit_deux_fois() throws Exception {
+        // PC4 : les écritures d'attestation prennent le verrou du centre en tête ; la ligne de paramètres du centre existe en
+        // production (sa toute première création concurrente est une autre règle, 409, ADR 0059) : on la pose ici, sinon la
+        // seconde création peut être refusée 409 et ne rend pas d'identifiant.
+        joursOuvertsDuCentre(CENTRE_A, TOUS_LES_JOURS);
         UUID patient = patientCouvert(CENTRE_A, "CONCURRENCE", false, "ENFANT");
         List<Resp> creations = enParallele(() -> creerAttestation(patient, CENTRE_A, jour(-5), jour(5), adminA()),
                 () -> creerAttestation(patient, CENTRE_A, jour(-5), jour(5), adminA()));
@@ -234,12 +238,12 @@ class EffetsEtLecteursDesAttestationsCharacterizationIntegrationTest extends Att
         UUID id = UUID.fromString(corps(creations.get(0)).path("id").asString());
         List<Resp> suppressions = enParallele(() -> supprimerAttestation(id, CENTRE_A, patient, adminA()),
                 () -> supprimerAttestation(id, CENTRE_A, patient, adminA()));
-        // l'issue de la seconde dépend de la course (200 si la ligne est déjà partie, 500 DATA_ACCESS_ERROR si elle disparaît entre la lecture
-        // et l'effacement) : seul l'ensemble des issues permises est verrouillé
+        // PC4 (décision du 2026-11-04, KB-PAT-40) : les suppressions sont sérialisées par le verrou du centre ; la seconde ne trouve plus
+        // la ligne : 404 ATTESTATION_INTROUVABLE (avant : 200 ou 500 DATA_ACCESS_ERROR selon la course). Une seule réussit.
         List<String> issues = List.of(refus(suppressions.get(0)), refus(suppressions.get(1)));
-        m.put("chaque suppression rend 200 ou 500 DATA_ACCESS_ERROR, une au moins réussit", issues.stream().allMatch(
-                s -> s.startsWith("200") || s.startsWith("500 DATA_ACCESS_ERROR")) && issues.stream().anyMatch(s -> s.startsWith("200")));
+        m.put("une suppression rend 200 et l'autre 404 ATTESTATION_INTROUVABLE", issues.stream().filter(s -> s.startsWith("200")).count() == 1
+                && issues.stream().filter(s -> s.startsWith("404 ATTESTATION_INTROUVABLE")).count() == 1);
         m.put("lignes après", nombreDAttestations());
-        arbre("concurrence", m);
+        arbre("concurrence_nouveau_code", m);
     }
 }

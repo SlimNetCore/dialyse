@@ -16,9 +16,11 @@ import java.util.*;
 public class DashboardRestController {
 
     private final JdbcTemplate jdbc;
+    private final com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre;
 
-    public DashboardRestController(JdbcTemplate jdbc) {
+    public DashboardRestController(JdbcTemplate jdbc, com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre) {
         this.jdbc = jdbc;
+        this.jourDuCentre = jourDuCentre;
     }
 
     @GetMapping("/stats")
@@ -26,7 +28,8 @@ public class DashboardRestController {
                                    @RequestParam(defaultValue = "30") int expirationDays,
                                    @RequestParam(required = false) String month) {
         YearMonth yearMonth = parseMonth(month);
-        LocalDate threshold = LocalDate.now().plusDays(expirationDays);
+        // PC4 (KB-PAT-47) : l'échéance se calcule au jour du centre, plus à celui de la JVM
+        LocalDate threshold = jourDuCentre.aujourdhui(centerId).plusDays(expirationDays);
 
         long pecCree = countPec(centerId, "CREE", yearMonth);
         long pecValidee = countPec(centerId, "VALIDEE", yearMonth);
@@ -55,7 +58,7 @@ public class DashboardRestController {
     public ResponseEntity<?> searchStats(@RequestBody @Valid DashboardSearchRequest criteria) {
         int expirationDays = criteria.expirationDays() != null ? criteria.expirationDays() : 30;
         YearMonth yearMonth = parseMonth(criteria.month());
-        LocalDate threshold = LocalDate.now().plusDays(expirationDays);
+        LocalDate threshold = jourDuCentre.aujourdhui(criteria.centerId()).plusDays(expirationDays);
 
         long pecCree = countPec(criteria.centerId(), "CREE", yearMonth);
         long pecValidee = countPec(criteria.centerId(), "VALIDEE", yearMonth);

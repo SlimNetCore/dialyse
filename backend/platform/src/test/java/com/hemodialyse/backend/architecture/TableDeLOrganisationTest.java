@@ -44,6 +44,9 @@ class TableDeLOrganisationTest {
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/LectureDesMouvementsJdbc.java",
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/LectureDesPatientsJdbc.java",
+            // 2026-11-04, PC4 : fuseau du centre (centers.fuseau_horaire) pour le tableau de bord et la séance sans date : lecture
+            // seule, à remplacer par organisation.v1
+            "platform/src/main/java/com/hemodialyse/backend/application/centre/JourDuCentre.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/CentresActifsLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/CreneauxDuCentreJdbc.java",

@@ -1,0 +1,9 @@
+{
+  "centerId absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "centerId n'est pas un UUID" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "centerId vide" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "patientId absent de l'URL" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "patientId n'est pas un UUID" : "400 BAD_REQUEST : Paramètre illisible : patientId",
+  "route POST sur la liste" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "route PUT sur la liste" : "500 INTERNAL_ERROR : <message technique non verrouillé>"
+}

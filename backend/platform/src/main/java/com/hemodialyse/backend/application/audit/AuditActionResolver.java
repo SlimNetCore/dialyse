@@ -59,7 +59,14 @@ public final class AuditActionResolver {
             // Prise en charge (PC3, décision du 2026-11-03, KB-PAT-28) : la validation et la clôture ne sont plus journalisées
             // « PEC_CREATION » ; l'identifiant tracé est celui de la PEC (variable de chemin).
             Map.entry("POST /api/v1/pec/{pecId}/validate", new Resolved("PEC_VALIDATION", "pec", "PEC validée")),
-            Map.entry("POST /api/v1/pec/{pecId}/close", new Resolved("PEC_CLOTURE", "pec", "PEC clôturée")));
+            Map.entry("POST /api/v1/pec/{pecId}/close", new Resolved("PEC_CLOTURE", "pec", "PEC clôturée")),
+            // Attestations de droits (PC4, décision du 2026-11-04, KB-PAT-43) : plus journalisées sous les actions de la PEC ;
+            // l'identifiant tracé est celui de l'attestation (créée, ou variable de chemin).
+            Map.entry("POST /api/v1/pec/attestations", new Resolved("ATTESTATION_CREATION", "attestations", "Attestation créée")),
+            Map.entry("DELETE /api/v1/pec/attestations/{attestationId}",
+                    new Resolved("ATTESTATION_SUPPRESSION", "attestations", "Attestation supprimée")),
+            Map.entry("POST /api/v1/pec/attestations-center/search",
+                    new Resolved("ATTESTATION_RECHERCHE", "attestations", "Recherche d'attestations")));
 
     private AuditActionResolver() {
     }

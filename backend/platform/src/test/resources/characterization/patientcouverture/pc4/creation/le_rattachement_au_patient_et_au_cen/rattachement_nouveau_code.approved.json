@@ -1,0 +1,7 @@
+{
+  "centre sans aucun patient (identifiant inconnu)" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "patient d'un autre centre que celui de la requête" : "422 ATTESTATION_PATIENT_INTROUVABLE : Patient introuvable dans ce centre",
+  "patient du centre B, centre B, par l'ADMIN du centre A" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "patient inexistant" : "422 ATTESTATION_PATIENT_INTROUVABLE : Patient introuvable dans ce centre",
+  "patient vacancier" : "200 (accepté)"
+}

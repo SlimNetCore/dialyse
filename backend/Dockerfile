@@ -11,7 +11,6 @@ WORKDIR /workspace
 # Copier uniquement les descripteurs Maven pour maximiser le cache
 COPY pom.xml ./pom.xml
 COPY shared-kernel/pom.xml ./shared-kernel/pom.xml
-COPY bc-insurance/pom.xml ./bc-insurance/pom.xml
 COPY bc-patient/pom.xml ./bc-patient/pom.xml
 COPY bc-assure/pom.xml ./bc-assure/pom.xml
 COPY bc-seance/pom.xml ./bc-seance/pom.xml

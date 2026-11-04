@@ -1,0 +1,7 @@
+{
+  "centre A" : "total 5 : [PC-ALPHA, PC-BRAVO, PC-CHARLIE, PC-DELTA, PC-ECHO]",
+  "centre A par l'administrateur du centre B" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "centre A, filtre sur le code d'un patient du centre B" : "total 0 : []",
+  "centre B par son administrateur" : "total 1 : [PC-ZULU_B]",
+  "centre inconnu" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session"
+}

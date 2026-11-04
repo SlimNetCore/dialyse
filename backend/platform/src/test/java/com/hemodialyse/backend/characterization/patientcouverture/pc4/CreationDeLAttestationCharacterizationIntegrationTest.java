@@ -71,7 +71,7 @@ class CreationDeLAttestationCharacterizationIntegrationTest extends AttestationC
         m.put("patientId n'est pas un UUID", refus(doPost(ATTESTATIONS, json("{'patientId':'pas-un-uuid','centerId':'" + a + "','dateDebut':'" + d + "','dateFin':'" + f + "'}"), adminA())));
         m.put("centerId n'est pas un UUID", refus(doPost(ATTESTATIONS, json("{'patientId':'" + p + "','centerId':'xyz','dateDebut':'" + d + "','dateFin':'" + f + "'}"), adminA())));
         m.put("champ inconnu ignoré", refus(doPost(ATTESTATIONS, json("{'patientId':'" + p + "','centerId':'" + a + "','dateDebut':'" + d + "','dateFin':'" + f + "','inconnu':1}"), adminA())));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
         etatDesAttestations("etat");
     }
 
@@ -90,8 +90,8 @@ class CreationDeLAttestationCharacterizationIntegrationTest extends AttestationC
         m.put("patient vacancier", refus(creerAttestation(vacancier, CENTRE_A, jour(-5), jour(5), adminA())));
         m.put("centre sans aucun patient (identifiant inconnu)", refus(creerAttestation(patientA, centreInconnu, jour(-5), jour(5), adminA())));
         m.put("patient du centre B, centre B, par l'ADMIN du centre A", refus(creerAttestation(patientB, CENTRE_B, jour(-5), jour(5), adminA())));
-        arbre("rattachement", m);
-        sql("etat_brut", "SELECT a.patient_id, a.center_id, a.date_debut, a.date_fin FROM attestation_droit a WHERE a.patient_id IN ('" + patientA + "','"
+        arbre("rattachement_nouveau_code", m);
+        sql("etat_brut_nouveau_code", "SELECT a.patient_id, a.center_id, a.date_debut, a.date_fin FROM attestation_droit a WHERE a.patient_id IN ('" + patientA + "','"
                 + patientB + "','" + vacancier + "','" + inconnu + "') ORDER BY a.patient_id, a.center_id, a.date_debut");
         jdbc.update("DELETE FROM attestation_droit WHERE patient_id IN (?, ?, ?, ?)", patientA, patientB, vacancier, inconnu);
     }

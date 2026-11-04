@@ -57,7 +57,7 @@ public class AdmettreUnPatient {
             patient.retirerLesMouvements().forEach(mouvements::ajouter);
             principal.aligner(centre, patient);
             place.placer(centre, patient.id(), fiche.affectation(), patient.etat(), fiche.dateEvenement());
-            couverture.enregistrer(centre, patient.id(), patient.fiche().couverture(), saisie.attestation());
+            couverture.enregistrer(centre, patient.id(), saisie.attestation());
             String refus = pecDeLaFiche.enregistrer(centre, patient.id(), saisie.demande()).orElse(null);
             return new PatientEnregistre(patient.id(), centre, patient.vacancier(), patient.code(), refus);
         });

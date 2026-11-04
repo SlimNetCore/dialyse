@@ -1,0 +1,8 @@
+{
+  "centerId absent" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "centerId n'est pas un UUID" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "identifiant absent de l'URL" : "400 BAD_REQUEST : Paramètre illisible : pecId",
+  "identifiant n'est pas un UUID" : "400 BAD_REQUEST : Paramètre illisible : attestationId",
+  "lignes restantes" : 1,
+  "patientId n'est pas un UUID" : "400 BAD_REQUEST : Paramètre illisible : patientId"
+}

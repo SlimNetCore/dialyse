@@ -84,6 +84,76 @@ public abstract class PatientsContrat {
         assertThat(depot().trouverLeDetenteurDuNumero(CENTRE, new NumeroAssurance("CT-INCONNU"))).isEmpty();
     }
 
+    // ---- PC4 : attestations de droits (le même jeu passe sur le double, H2 et PostgreSQL 16)
+
+    protected abstract com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations attestations();
+
+    private com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit attestation(CentreId centre, PatientId patient,
+                                                                                                  LocalDate debut, LocalDate fin) {
+        return com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit.declarer(UUID.randomUUID(), patient,
+                centre, debut, fin, T0);
+    }
+
+    @Test
+    void should_relire_une_attestation_champ_par_champ() {
+        PatientId patient = new PatientId(UUID.randomUUID());
+        var a = attestation(CENTRE, patient, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31));
+        attestations().enregistrer(a);
+
+        var relue = attestations().trouver(CENTRE, a.id()).orElseThrow();
+
+        assertThat(relue.id()).isEqualTo(a.id());
+        assertThat(relue.patient()).isEqualTo(patient);
+        assertThat(relue.centre()).isEqualTo(CENTRE);
+        assertThat(relue.debut()).isEqualTo(LocalDate.of(2026, 1, 1));
+        assertThat(relue.fin()).isEqualTo(LocalDate.of(2026, 12, 31));
+        assertThat(relue.creeLe()).isEqualTo(T0);
+    }
+
+    @Test
+    void should_ne_pas_trouver_l_attestation_d_un_autre_centre_ni_la_lister() {
+        PatientId patient = new PatientId(UUID.randomUUID());
+        var a = attestation(CENTRE, patient, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31));
+        attestations().enregistrer(a);
+
+        assertThat(attestations().trouver(AUTRE, a.id())).isEmpty();
+        assertThat(attestations().duPatient(AUTRE, patient)).isEmpty();
+        assertThat(attestations().existe(AUTRE, patient)).isFalse();
+        assertThat(attestations().duPatient(CENTRE, patient)).extracting("id").containsExactly(a.id());
+        assertThat(attestations().existe(CENTRE, patient)).isTrue();
+    }
+
+    @Test
+    void should_dire_si_un_jour_est_couvert_bornes_incluses_sans_aucun_controle_de_doublon() {
+        PatientId patient = new PatientId(UUID.randomUUID());
+        LocalDate debut = LocalDate.of(2026, 3, 1);
+        LocalDate fin = LocalDate.of(2026, 3, 31);
+        attestations().enregistrer(attestation(CENTRE, patient, debut, fin));
+        attestations().enregistrer(attestation(CENTRE, patient, debut, fin));
+        attestations().enregistrer(attestation(CENTRE, patient, fin, fin));
+
+        assertThat(attestations().duPatient(CENTRE, patient)).hasSize(3);
+        assertThat(attestations().valideLe(CENTRE, patient, debut.minusDays(1))).isFalse();
+        assertThat(attestations().valideLe(CENTRE, patient, debut)).isTrue();
+        assertThat(attestations().valideLe(CENTRE, patient, fin)).isTrue();
+        assertThat(attestations().valideLe(CENTRE, patient, fin.plusDays(1))).isFalse();
+        assertThat(attestations().valideLe(AUTRE, patient, debut)).isFalse();
+    }
+
+    @Test
+    void should_supprimer_une_attestation_par_son_identifiant() {
+        PatientId patient = new PatientId(UUID.randomUUID());
+        var a = attestation(CENTRE, patient, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31));
+        var b = attestation(CENTRE, patient, LocalDate.of(2027, 1, 1), LocalDate.of(2027, 12, 31));
+        attestations().enregistrer(a);
+        attestations().enregistrer(b);
+
+        attestations().supprimer(a.id());
+
+        assertThat(attestations().trouver(CENTRE, a.id())).isEmpty();
+        assertThat(attestations().duPatient(CENTRE, patient)).extracting("id").containsExactly(b.id());
+    }
+
     @Test
     void should_relire_un_vacancier_comme_vacancier() {
         Patient p = admis(CENTRE, Fiches.nominale("CT-5", EtatDuPatient.VACANCIER_LOCAL, LocalDate.of(2026, 12, 1)));

@@ -65,7 +65,7 @@ public class ModifierLaFiche {
             principal.aligner(centre, patient);
             place.placer(centre, id, patient.fiche().affectation(), patient.etat(), patient.fiche().dateEvenement());
             place.libererSiEchue(centre, id);
-            couverture.enregistrer(centre, id, patient.fiche().couverture(), saisie.attestation());
+            couverture.enregistrer(centre, id, saisie.attestation());
             String refus = pecDeLaFiche.enregistrer(centre, id, saisie.demande()).orElse(null);
             return new PatientEnregistre(id, centre, patient.vacancier(), patient.code(), refus);
         });

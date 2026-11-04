@@ -75,10 +75,9 @@ class ReglesDeGestionDocumentationTest {
      * Sources d'avant la reprise du module patient-couverture (ADR 0073, GEL.md) : toujours sur disque mais exclues de la
      * compilation par le pom du module (Attestation : retrait à PC4 ; PC1 à PC3 ont retiré le reste), leurs routes ne sont pas servies.
      */
-    private static final Set<String> SOURCES_GELEES_DE_PATIENT_COUVERTURE = Set.of("AttestationDroit", "AttestationDroitId",
-            "AttestationRepository", "AttestationService", "AttestationUseCases", "AttestationsControleur", "AttestationsJdbc",
-            "AttestationEnregistree", "EtatPatient", "MouvementPatient", "MouvementPatientId", "MouvementPatientRepository",
-            "MouvementType", "NumeroDossier", "PatientAdmis", "PatientService", "PatientUseCases");
+    private static final Set<String> SOURCES_GELEES_DE_PATIENT_COUVERTURE = Set.of("EtatPatient", "MouvementPatient",
+            "MouvementPatientId", "MouvementPatientRepository", "MouvementType", "NumeroDossier", "PatientAdmis", "PatientService",
+            "PatientUseCases");
 
     private static boolean estGeleDePatientCouverture(Path source) {
         String chemin = source.toString().replace('\\', '/');

@@ -39,4 +39,48 @@ class PatientsEnMemoireContratTest extends PatientsContrat {
     protected PatientRepository depot() {
         return double_;
     }
+
+    private final Map<java.util.UUID, com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit> attestationsLignes =
+            new HashMap<>();
+
+    private final com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations attestationsDouble =
+            new com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations() {
+                @Override
+                public Optional<com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit> trouver(CentreId centre,
+                                                                                                                  java.util.UUID id) {
+                    return Optional.ofNullable(attestationsLignes.get(id)).filter(a -> a.centre().equals(centre));
+                }
+
+                @Override
+                public void enregistrer(com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit a) {
+                    attestationsLignes.put(a.id(), a);
+                }
+
+                @Override
+                public void supprimer(java.util.UUID id) {
+                    attestationsLignes.remove(id);
+                }
+
+                @Override
+                public java.util.List<com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit> duPatient(
+                        CentreId centre, PatientId patient) {
+                    return attestationsLignes.values().stream().filter(a -> a.centre().equals(centre) && a.patient().equals(patient))
+                            .toList();
+                }
+
+                @Override
+                public boolean existe(CentreId centre, PatientId patient) {
+                    return !duPatient(centre, patient).isEmpty();
+                }
+
+                @Override
+                public boolean valideLe(CentreId centre, PatientId patient, java.time.LocalDate jour) {
+                    return duPatient(centre, patient).stream().anyMatch(a -> a.couvre(jour));
+                }
+            };
+
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations attestations() {
+        return attestationsDouble;
+    }
 }

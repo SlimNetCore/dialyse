@@ -70,7 +70,6 @@ public class CacheConfig {
         register(manager, "patient.assignment.primary", patientDetailTtl);
         register(manager, "patient.assignment.history", patientListTtl);
         register(manager, "patient.attestation.byPatient", patientDetailTtl);
-        register(manager, "patient.attestation.existsValidAt", patientDetailTtl);
         register(manager, "patient.pec.byId", patientDetailTtl);
         register(manager, "patient.pec.byPatient", patientDetailTtl);
         register(manager, "patient.pec.byCenter", patientListTtl);
