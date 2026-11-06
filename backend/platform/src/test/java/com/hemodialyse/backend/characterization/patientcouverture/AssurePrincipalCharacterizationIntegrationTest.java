@@ -109,7 +109,7 @@ class AssurePrincipalCharacterizationIntegrationTest {
         aliases.put(ASSURE_A.toString(), "<ASSURE_A>");
         aliases.put(ASSURE_B.toString(), "<ASSURE_B>");
         // La date de début d'une affectation sans date explicite est la date du jour du serveur : alias nommé, comme <J> ailleurs.
-        raw = raw.replace(LocalDate.now().toString(), "<J>");
+        raw = raw.replace(jourDuCentre().toString(), "<J>");
         int[] unknown = {0};
         java.util.regex.Matcher m = UUID_RE.matcher(raw);
         StringBuilder sb = new StringBuilder();
@@ -120,6 +120,11 @@ class AssurePrincipalCharacterizationIntegrationTest {
         }
         m.appendTail(sb);
         GoldenMaster.verify(GOLDENS, name, sb.toString());
+    }
+
+    /** « Aujourd'hui » du centre : l'affectation sans date explicite est datée au jour du centre (PC2), pas au jour UTC. */
+    private static LocalDate jourDuCentre() {
+        return LocalDate.now(java.time.ZoneId.of("Africa/Algiers"));
     }
 
     @Test
@@ -135,11 +140,11 @@ class AssurePrincipalCharacterizationIntegrationTest {
     @Test
     void affecter_assure_principal() throws Exception {
         String body = "{}";
-        LocalDate avant = LocalDate.now();
+        LocalDate avant = jourDuCentre();
         Resp r = send(post(BASE + "/" + PATIENT_A + "/assures/AS-A/affecter").param("centerId", CENTRE_A.toString()).with(adminA()));
         assertEquals(200, r.status);
-        // Seule la bascule de minuit pendant l'appel rendrait l'alias <J> ambigu : scénario ignoré dans cette fenêtre de quelques ms.
-        org.junit.jupiter.api.Assumptions.assumeTrue(avant.equals(LocalDate.now()), "bascule de minuit pendant l'appel");
+        // Seule la bascule de minuit (du centre) pendant l'appel rendrait l'alias <J> ambigu : scénario ignoré dans cette fenêtre de quelques ms.
+        org.junit.jupiter.api.Assumptions.assumeTrue(avant.equals(jourDuCentre()), "bascule de minuit pendant l'appel");
         golden("affecter_assure", r);
         Resp hist = send(get(BASE + "/" + PATIENT_A + "/assures/history").param("centerId", CENTRE_A.toString()).with(adminA()));
         assertEquals(200, hist.status);
