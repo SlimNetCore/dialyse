@@ -1,0 +1,14 @@
+[ {
+  "anticoagulant" : null,
+  "center_id" : "<CENTRE_A>",
+  "debit_sang_ml_min" : null,
+  "duree_minutes" : null,
+  "incidents" : null,
+  "poids_apres_kg" : null,
+  "poids_avant_kg" : "71.20",
+  "seance_id" : "<SEANCE_1>",
+  "ta_apres" : null,
+  "ta_avant" : null,
+  "type_dialysat" : null,
+  "ultrafiltration_ml" : null
+} ]

@@ -1,0 +1,32 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "dateSeance" : "<J-2>",
+      "patientId" : "<PAT_A>",
+      "patientNom" : "Patient PAT_A",
+      "patientPrenom" : "Test",
+      "seanceId" : "<SEANCE_1>",
+      "targetRoles" : "INFIRMIER,SECRETAIRE"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "SEANCE_PARAMEDICAL_SAVED"
+  }
+}, {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "auteur" : "u-infirmier",
+      "date" : "<J-2>",
+      "patientId" : "<PAT_A>",
+      "patientNom" : "Patient PAT_A",
+      "patientPrenom" : "Test",
+      "saisie" : "PARAMEDICAL",
+      "targetRoles" : "MEDECIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "SAISIE_INFIRMIER"
+  }
+} ]

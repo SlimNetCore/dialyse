@@ -1,0 +1,30 @@
+{
+  "page 0" : {
+    "items" : [ "<J-1> <SEANCE_5>", "<J-3> <SEANCE_4>" ],
+    "page" : 0,
+    "size" : 2,
+    "statut" : 200,
+    "total" : 5
+  },
+  "page 1" : {
+    "items" : [ "<J-3> <SEANCE_3>", "<J-6> <SEANCE_2>" ],
+    "page" : 1,
+    "size" : 2,
+    "statut" : 200,
+    "total" : 5
+  },
+  "page 2" : {
+    "items" : [ "<J-9> <SEANCE_1>" ],
+    "page" : 2,
+    "size" : 2,
+    "statut" : 200,
+    "total" : 5
+  },
+  "page 3" : {
+    "items" : [ ],
+    "page" : 3,
+    "size" : 2,
+    "statut" : 200,
+    "total" : 5
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "dateSeance" : "<J-5>",
+      "debitSangMlMin" : null,
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : null,
+      "seanceId" : "<SEANCE_1>",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

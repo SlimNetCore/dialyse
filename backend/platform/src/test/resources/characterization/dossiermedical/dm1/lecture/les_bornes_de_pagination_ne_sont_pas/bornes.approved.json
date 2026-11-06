@@ -1,0 +1,38 @@
+{
+  "(defauts)" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=-1" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "page=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "size=-1" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "size=0" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "size=1&page=4" : {
+    "items" : 1,
+    "page" : 4,
+    "size" : 1,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=1000" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 1000,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  }
+}

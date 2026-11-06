@@ -1,0 +1,29 @@
+{
+  "ABSENT" : {
+    "statut" : "200",
+    "volets" : 1
+  },
+  "CREE" : {
+    "statut" : "200",
+    "volets" : 1
+  },
+  "FACTUREE" : {
+    "corps" : {
+      "code" : "SEANCE_FACTUREE_NON_MODIFIABLE",
+      "detail" : "La seance facturee ne peut plus etre modifiee",
+      "instance" : "/api/v1/seances/<SEANCE_FACTUREE>/volet-paramedical",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "statut" : "422 SEANCE_FACTUREE_NON_MODIFIABLE",
+    "volets" : 0
+  },
+  "SIGNEE" : {
+    "statut" : "200",
+    "volets" : 1
+  },
+  "VALIDEE" : {
+    "statut" : "200",
+    "volets" : 1
+  }
+}

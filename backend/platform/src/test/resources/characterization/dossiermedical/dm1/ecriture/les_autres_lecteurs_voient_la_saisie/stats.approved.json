@@ -1,0 +1,21 @@
+{
+  "avgPoidsApresKg" : 68.0,
+  "avgPoidsAvantKg" : 70.5,
+  "avgUfReelleMl" : 2000.0,
+  "poidsEvolution" : [ {
+    "DATE_SEANCE" : "<J-2>",
+    "POIDS_APRES_KG" : 68.0,
+    "POIDS_AVANT_KG" : 70.5,
+    "POIDS_SEC_CIBLE_KG" : null,
+    "UF_REELLE_ML" : 2000.0
+  } ],
+  "poidsSecCibleKg" : null,
+  "seanceCount" : 1,
+  "taEvolution" : [ {
+    "date_seance" : "<J-2>",
+    "ta_diastolique_apres" : 70,
+    "ta_diastolique_avant" : 80,
+    "ta_systolique_apres" : 120,
+    "ta_systolique_avant" : 130
+  } ]
+}

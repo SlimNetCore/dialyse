@@ -1,0 +1,98 @@
+{
+  "[   ]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "   "
+  },
+  "[ 120 / 80 ]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "120/80"
+  },
+  "[-120/80]" : {
+    "detail" : "Valeur de tension hors bornes physiologiques: -1200",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[10/0]" : {
+    "detail" : "Valeur de tension hors bornes physiologiques: 0",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[11,5/7]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "115/70"
+  },
+  "[12.5/8.5]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "125/85"
+  },
+  "[12/8]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "120/80"
+  },
+  "[120/130]" : {
+    "detail" : "La systolique doit être supérieure ou égale à la diastolique",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[120/80/60]" : {
+    "detail" : "Format de tension artérielle invalide (attendu: systolique/diastolique)",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[120/xyz]" : {
+    "detail" : "Valeur de tension non numérique: xyz",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[120]" : {
+    "detail" : "Format de tension artérielle invalide (attendu: systolique/diastolique)",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[130/80]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "130/80"
+  },
+  "[19/10]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "190/100"
+  },
+  "[1e2/80]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "100/80"
+  },
+  "[20/20]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "200/200"
+  },
+  "[30,5/20]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "31/20"
+  },
+  "[30/20]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "300/200"
+  },
+  "[31/20]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "31/20"
+  },
+  "[400/200]" : {
+    "statut" : "200",
+    "taAvantEnBase" : "400/200"
+  },
+  "[401/200]" : {
+    "detail" : "Valeur de tension hors bornes physiologiques: 401",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  },
+  "[]" : {
+    "statut" : "200",
+    "taAvantEnBase" : ""
+  },
+  "[abc/80]" : {
+    "detail" : "Valeur de tension non numérique: abc",
+    "statut" : "422 BUSINESS_ERROR",
+    "taAvantEnBase" : "(aucun volet)"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "poidsApresKg=-1" : {
+    "detail" : "Le poids doit être strictement positif",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsApresKg=0" : {
+    "detail" : "Le poids doit être strictement positif",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsApresKg=0.001" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=0.00}]",
+    "statut" : "200"
+  },
+  "poidsApresKg=0.01" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=0.01}]",
+    "statut" : "200"
+  },
+  "poidsApresKg=500" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=500.00}]",
+    "statut" : "200"
+  },
+  "poidsApresKg=500.01" : {
+    "detail" : "Le poids dépasse la borne plausible (500 kg)",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsApresKg=70.554" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=70.55}]",
+    "statut" : "200"
+  },
+  "poidsApresKg=70.555" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=70.56}]",
+    "statut" : "200"
+  },
+  "poidsApresKg=99999999999" : {
+    "detail" : "Le poids dépasse la borne plausible (500 kg)",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsAvantKg=-1" : {
+    "detail" : "Le poids doit être strictement positif",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsAvantKg=0" : {
+    "detail" : "Le poids doit être strictement positif",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsAvantKg=0.001" : {
+    "enBase" : "[{POIDS_AVANT_KG=0.00, POIDS_APRES_KG=null}]",
+    "statut" : "200"
+  },
+  "poidsAvantKg=0.01" : {
+    "enBase" : "[{POIDS_AVANT_KG=0.01, POIDS_APRES_KG=null}]",
+    "statut" : "200"
+  },
+  "poidsAvantKg=500" : {
+    "enBase" : "[{POIDS_AVANT_KG=500.00, POIDS_APRES_KG=null}]",
+    "statut" : "200"
+  },
+  "poidsAvantKg=500.01" : {
+    "detail" : "Le poids dépasse la borne plausible (500 kg)",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  },
+  "poidsAvantKg=70.554" : {
+    "enBase" : "[{POIDS_AVANT_KG=70.55, POIDS_APRES_KG=null}]",
+    "statut" : "200"
+  },
+  "poidsAvantKg=70.555" : {
+    "enBase" : "[{POIDS_AVANT_KG=70.56, POIDS_APRES_KG=null}]",
+    "statut" : "200"
+  },
+  "poidsAvantKg=99999999999" : {
+    "detail" : "Le poids dépasse la borne plausible (500 kg)",
+    "enBase" : "[]",
+    "statut" : "422 BUSINESS_ERROR"
+  }
+}

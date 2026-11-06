@@ -1,0 +1,28 @@
+{
+  "infirmier du centre A, corps centre A, seance B" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Seance introuvable",
+      "instance" : "/api/v1/seances/<SEANCE_B>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "infirmier du centre A, corps centre B, seance B" : {
+    "corps" : {
+      "id" : "<UUID_GENERE_1>",
+      "seanceId" : "<SEANCE_B>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "statut" : "200"
+  },
+  "infirmier du centre B, corps centre A, seance A" : {
+    "corps" : {
+      "id" : "<UUID_GENERE_2>",
+      "seanceId" : "<SEANCE_1>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "statut" : "200"
+  }
+}

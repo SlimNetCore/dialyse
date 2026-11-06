@@ -1,0 +1,12 @@
+{
+  "anticoagulant" : "HEPARINE",
+  "debitSangMlMin" : 300,
+  "dureeMinutes" : 240,
+  "incidents" : "RAS",
+  "poidsApresKg" : 68.0,
+  "poidsAvantKg" : 70.5,
+  "taApres" : "120/70",
+  "taAvant" : "130/80",
+  "typeDialysat" : "STANDARD",
+  "ultrafiltrationMl" : 2000.0
+}

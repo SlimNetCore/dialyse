@@ -1,0 +1,8 @@
+[ {
+  "action_code" : "SEANCES_MODIFICATION",
+  "entity_id" : "<SEANCE_1>",
+  "entity_type" : "seances",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/seances/{seanceId}/volet-paramedical",
+  "status_code" : "200"
+} ]

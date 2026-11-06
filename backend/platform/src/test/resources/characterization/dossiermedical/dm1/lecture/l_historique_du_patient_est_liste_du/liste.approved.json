@@ -1,0 +1,61 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "dateSeance" : "<J-1>",
+      "debitSangMlMin" : 280,
+      "dureeMinutes" : 235,
+      "poidsApresKg" : 67.5,
+      "poidsAvantKg" : 69.99,
+      "seanceId" : "<SEANCE_5>",
+      "taApres" : "11,5/7",
+      "taAvant" : "12/8",
+      "ultrafiltrationMl" : 2500.0
+    }, {
+      "dateSeance" : "<J-3>",
+      "debitSangMlMin" : -5,
+      "dureeMinutes" : 0,
+      "poidsApresKg" : -3.0,
+      "poidsAvantKg" : 0.0,
+      "seanceId" : "<SEANCE_4>",
+      "taApres" : "12/8",
+      "taAvant" : "n/a",
+      "ultrafiltrationMl" : -100.0
+    }, {
+      "dateSeance" : "<J-3>",
+      "debitSangMlMin" : null,
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : null,
+      "seanceId" : "<SEANCE_3>",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    }, {
+      "dateSeance" : "<J-6>",
+      "debitSangMlMin" : null,
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : 71.0,
+      "seanceId" : "<SEANCE_2>",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    }, {
+      "dateSeance" : "<J-9>",
+      "debitSangMlMin" : 300,
+      "dureeMinutes" : 240,
+      "poidsApresKg" : 68.0,
+      "poidsAvantKg" : 70.5,
+      "seanceId" : "<SEANCE_1>",
+      "taApres" : "120/70",
+      "taAvant" : "130/80",
+      "ultrafiltrationMl" : 2000.0
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 5
+  }
+}
