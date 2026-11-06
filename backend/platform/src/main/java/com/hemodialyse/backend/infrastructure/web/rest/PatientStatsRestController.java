@@ -46,8 +46,8 @@ public class PatientStatsRestController {
         if (criteria.dateFrom() != null && criteria.dateTo() != null && criteria.dateFrom().isAfter(criteria.dateTo())) {
             return ResponseEntity.badRequest().body(Map.of("error", "dateFrom doit être <= dateTo", "code", "INVALID_DATE_RANGE"));
         }
-        centerAccessGuard.requireCenter(criteria.centerId()); // KB-MED-02
-        return ResponseEntity.ok(statsQueryService.getParamedicalStats(criteria.centerId(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
+        var centre = centerAccessGuard.requireCenter(criteria.centerId()); // KB-MED-02 : le centre RÉSOLU, jamais le seul corps
+        return ResponseEntity.ok(statsQueryService.getParamedicalStats(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
@@ -59,6 +59,7 @@ public class PatientStatsRestController {
         if (from != null && to != null && from.isAfter(to)) {
             return ResponseEntity.badRequest().body(Map.of("error", "from doit être <= to", "code", "INVALID_DATE_RANGE"));
         }
+        centerAccessGuard.requireCenter(centerId); // revue DM1 : le centre demandé doit être celui du jeton (403 sinon)
         return ResponseEntity.ok(statsQueryService.getMedicalStats(centerId, patientId, from, to));
     }
 
@@ -68,7 +69,8 @@ public class PatientStatsRestController {
         if (criteria.dateFrom() != null && criteria.dateTo() != null && criteria.dateFrom().isAfter(criteria.dateTo())) {
             return ResponseEntity.badRequest().body(Map.of("error", "dateFrom doit être <= dateTo", "code", "INVALID_DATE_RANGE"));
         }
-        return ResponseEntity.ok(statsQueryService.getMedicalStats(criteria.centerId(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
+        var centre = centerAccessGuard.requireCenter(criteria.centerId()); // revue DM1 : le centre RÉSOLU
+        return ResponseEntity.ok(statsQueryService.getMedicalStats(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -82,6 +84,7 @@ public class PatientStatsRestController {
             return ResponseEntity.badRequest().body(Map.of("error", "from doit être <= to", "code", "INVALID_DATE_RANGE"));
         }
 
+        centerAccessGuard.requireCenter(centerId); // revue DM1 : export CSV/PDF de poids et d'Hb, centre du jeton seul (403 sinon)
         String normalized = format == null ? "" : format.trim().toLowerCase();
         if ("csv".equals(normalized)) {
             String csv = statsQueryService.exportCsv(centerId, patientId, from, to);
@@ -109,9 +112,10 @@ public class PatientStatsRestController {
             return ResponseEntity.badRequest().body(Map.of("error", "dateFrom doit être <= dateTo", "code", "INVALID_DATE_RANGE"));
         }
 
+        var centre = centerAccessGuard.requireCenter(criteria.centerId()); // revue DM1 : le centre RÉSOLU
         String normalized = criteria.format() == null ? "" : criteria.format().trim().toLowerCase();
         if ("csv".equals(normalized)) {
-            String csv = statsQueryService.exportCsv(criteria.centerId(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
+            String csv = statsQueryService.exportCsv(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=patient-stats-" + criteria.patientId() + ".csv")
                     .contentType(MediaType.parseMediaType("text/csv"))
@@ -119,7 +123,7 @@ public class PatientStatsRestController {
         }
 
         if ("pdf".equals(normalized)) {
-            byte[] pdf = statsQueryService.exportPdf(criteria.centerId(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
+            byte[] pdf = statsQueryService.exportPdf(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=patient-stats-" + criteria.patientId() + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)

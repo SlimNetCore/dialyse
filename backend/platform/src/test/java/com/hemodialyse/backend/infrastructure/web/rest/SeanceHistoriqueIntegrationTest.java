@@ -76,7 +76,7 @@ class SeanceHistoriqueIntegrationTest {
     }
 
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder list(UUID center) {
-        return get("/api/v1/seances").param("centerId", center.toString()).with(user("inf").roles("INFIRMIER"));
+        return get("/api/v1/seances").param("centerId", center.toString()).with(SessionsDeTest.session(center, "inf", "INFIRMIER"));
     }
 
     @Test

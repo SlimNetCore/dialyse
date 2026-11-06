@@ -3271,10 +3271,13 @@ illisible ou taille de page hors de 1 à 100 : 400 (ADR 0080, à confirmer avec 
 journalisée (question ouverte pour le DPO). Module <code>contexts/dossier-medical</code>, slice DM1.</p>
 </div></div>
 <div class="rule" id="RG-MED-103"><div class="rid">RG-MED-103</div><div class="rtxt"><p><strong>Garde de centre sur les mesures paramédicales</strong> : l&#39;enregistrement du volet paramédical d&#39;une
-séance (<code>PUT /seances/{id}/volet-paramedical</code>), le détail d&#39;une séance (<code>GET /seances/{id}</code>) et les statistiques
-paramédicales du patient (<code>GET /patients/{id}/stats/paramedical</code>, <code>POST /patients/stats/paramedical/search</code>)
-confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon (avant : fuite et écriture
-inter-centres, KB-MED-01 et 02). Droits inchangés (le médecin seul lit les constantes mais n&#39;en saisit pas, KB-MED-08).</p>
+séance (<code>PUT /seances/{id}/volet-paramedical</code>), le détail, la liste, le journal et le calendrier des séances
+(<code>GET /seances/{id}</code>, <code>/seances</code>, <code>/seances/journal</code>, <code>/seances/calendar</code>), la création, le scan et la modification
+d&#39;une séance (<code>POST /seances</code>, <code>POST /seances/scan</code>, <code>PUT /seances/{id}</code>), les statistiques paramédicales et médicales
+du patient et leur export CSV/PDF (<code>GET /patients/{id}/stats/paramedical</code>, <code>stats/medical</code>, <code>stats/export</code> et les
+<code>POST</code> de recherche correspondants) confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon
+(avant : fuite et écriture inter-centres, KB-MED-01 et 02). Les autres actions de la séance (forfait, validation,
+signatures, consommables, calendrier de fermetures) n&#39;ont pas encore cette garde (slices Séance). Droits inchangés (le médecin seul lit les constantes mais n&#39;en saisit pas, KB-MED-08).</p>
 </div></div>
 <div class="rule" id="RG-MED-101"><div class="rid">RG-MED-101</div><div class="rtxt"><p><strong>Statistiques du patient</strong> (<code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>) : moyennes médicales (Hb,
 Kt/V, ferritine…) et paramédicales sur une période ; <strong>UF réelle</strong> = ultrafiltration

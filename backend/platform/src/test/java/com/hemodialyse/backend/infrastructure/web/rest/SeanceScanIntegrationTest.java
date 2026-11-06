@@ -80,7 +80,7 @@ class SeanceScanIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/seances/scan")
-                        .with(user("infirmer-01").roles("INFIRMIER"))
+                        .with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())
@@ -112,9 +112,9 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         String payload = scanPayload();
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                 .contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isOk());
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-02").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-02", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(payload))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("VALIDEE"))
@@ -135,12 +135,12 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         String payload = scanPayload();
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("secretaire-01").roles("SECRETAIRE"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "secretaire-01", "SECRETAIRE"))
                         .contentType(MediaType.APPLICATION_JSON).content(payload))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CREE"))
                 .andExpect(jsonPath("$.validatedNow").value(false));
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(payload))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("VALIDEE"))
@@ -164,7 +164,7 @@ class SeanceScanIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/seances/scan")
-                        .with(user("infirmer-01").roles("INFIRMIER"))
+                        .with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isUnprocessableEntity())
@@ -185,7 +185,7 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         jdbc.update("DELETE FROM attestation_droit WHERE patient_id = ? AND center_id = ?", PATIENT_ID, CENTER_ID);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("attestation de droits")));
@@ -199,7 +199,7 @@ class SeanceScanIntegrationTest {
         jdbc.update("UPDATE prise_en_charge SET date_fin_effectif = NULL, date_fin_demande = DATE '2024-02-01' "
                 + "WHERE patient_id = ? AND center_id = ?", PATIENT_ID, CENTER_ID);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("VALIDEE"));
@@ -212,7 +212,7 @@ class SeanceScanIntegrationTest {
         jdbc.update("UPDATE prise_en_charge SET statut = 'CREE' WHERE patient_id = ? AND center_id = ?",
                 PATIENT_ID, CENTER_ID);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("n'est pas validée")));
@@ -223,7 +223,7 @@ class SeanceScanIntegrationTest {
         cleanup();
         seedBillablePatientWithoutGenerateur();
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
                 .andExpect(status().isOk());
     }
@@ -310,7 +310,7 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         definirJourDeDialyseAujourdhui(false);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("SEANCE_HORS_PLANNING_JOUR"));
@@ -325,7 +325,7 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         definirJourDeDialyseAujourdhui(false);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("RATTRAPAGE", null)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("VALIDEE"))
@@ -343,7 +343,7 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         definirJourDeDialyseAujourdhui(false);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("AUTRE", null)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("SEANCE_DEROGATION_PRECISION_REQUISE"));
@@ -355,7 +355,7 @@ class SeanceScanIntegrationTest {
         seedBillablePatientWithoutGenerateur();
         definirJourDeDialyseAujourdhui(false);
 
-        mockMvc.perform(post("/api/v1/seances/scan").with(user("secretaire-01").roles("SECRETAIRE"))
+        mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "secretaire-01", "SECRETAIRE"))
                         .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("SEANCE_HORS_PLANNING_JOUR"));
@@ -369,12 +369,12 @@ class SeanceScanIntegrationTest {
         jdbc.update("INSERT INTO center_holiday (id, center_id, day_date, label) VALUES (?, ?, CURRENT_DATE, ?)",
                 fermeture, CENTER_ID, "Fermeture test");
         try {
-            mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+            mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                             .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.code").value("SEANCE_CENTRE_FERME"));
 
-            mockMvc.perform(post("/api/v1/seances/scan").with(user("admin-01").roles("ADMIN"))
+            mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "admin-01", "ADMIN"))
                             .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.horsPlanning").value(true));

@@ -18,7 +18,7 @@ Le legacy n'a qu'**une** route « constantes » : `GET /api/v1/patients/{patient
 - **Application** : `ConsulterLesConstantesDuPatient` (garde de centre `SessionCourante` puis lecture).
 - **Adapters** : `HistoriqueDesConstantesJdbc` (un JOIN `seances` + `volet_paramedical`, aucune table ni colonne ajoutée), ACL `SessionLegacy` (centre du jeton), `ConstantesControleur` (même URL, mêmes champs JSON, `@PreAuthorize` MEDECIN et ADMIN comme le legacy), `ErreursDesConstantesAdvice` (400, 403).
 - **Retiré du legacy** : `ConstantesRestController`, `ConstantesQueryService`, `ConstanteSeanceResponse`.
-- **Gardes de sécurité legacy** (seams fermés) : `PUT volet-paramedical` (centre du corps confronté au jeton, KB-MED-01), `GET /seances/{id}`, `GET /patients/{id}/stats/paramedical` et `POST stats/paramedical/search` (KB-MED-02) : 403 hors centre.
+- **Gardes de sécurité legacy** (seams fermés) : `PUT volet-paramedical` (centre du corps confronté au jeton, KB-MED-01) ; KB-MED-02 : `GET /seances/{id}`, `GET /seances`, `/journal`, `/calendar`, `POST /seances`, `POST /seances/scan`, `PUT /seances/{id}`, `stats/paramedical`, `stats/medical`, `stats/export` (GET et search, centre résolu) : 403 hors centre. Reste sans garde (SE2 à SE6) : forfait, valider, déverrouiller, signer-médecin, consommables, jours fériés et fermetures (ADR 0080 §7).
 
 ## Écarts de parité (décidés, goldens `_nouveau_code`, ancien comportement archivé dans `characterization/dossiermedical/dm1/_ecarts-legacy`)
 | Scénario | Avant | Après |

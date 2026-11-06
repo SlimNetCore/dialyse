@@ -79,7 +79,7 @@ class SeanceDeverrouillageIntegrationTest {
         mockMvc.perform(valider(OUBLIEE, "INFIRMIER")).andExpect(status().isUnprocessableEntity());
 
         mockMvc.perform(post("/api/v1/seances/{id}/deverrouiller-regularisation", OUBLIEE)
-                        .param("centerId", CENTER.toString()).with(user("admin").roles("ADMIN")))
+                        .param("centerId", CENTER.toString()).with(SessionsDeTest.session(CENTER, "admin", "ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.regularisationDeverrouilleeAt").isNotEmpty());
 
@@ -100,7 +100,7 @@ class SeanceDeverrouillageIntegrationTest {
     @Test
     void todays_session_cannot_be_unlocked_and_a_nurse_validates_it_freely() throws Exception {
         mockMvc.perform(post("/api/v1/seances/{id}/deverrouiller-regularisation", DU_JOUR)
-                        .param("centerId", CENTER.toString()).with(user("admin").roles("ADMIN")))
+                        .param("centerId", CENTER.toString()).with(SessionsDeTest.session(CENTER, "admin", "ADMIN")))
                 .andExpect(status().isUnprocessableEntity());
 
         mockMvc.perform(valider(DU_JOUR, "INFIRMIER")).andExpect(status().isOk());
@@ -118,20 +118,20 @@ class SeanceDeverrouillageIntegrationTest {
 
         mockMvc.perform(get("/api/v1/seances").param("centerId", CENTER.toString()).param("status", "CREE")
                         .param("from", debut).param("to", fin).param("deverrouillee", "true")
-                        .with(user("inf").roles("INFIRMIER")))
+                        .with(SessionsDeTest.session(CENTER, "inf", "INFIRMIER")))
                 .andExpect(jsonPath("$.items", hasSize(0)));
 
         mockMvc.perform(post("/api/v1/seances/{id}/deverrouiller-regularisation", OUBLIEE)
-                .param("centerId", CENTER.toString()).with(user("admin").roles("ADMIN"))).andExpect(status().isOk());
+                .param("centerId", CENTER.toString()).with(SessionsDeTest.session(CENTER, "admin", "ADMIN"))).andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/seances").param("centerId", CENTER.toString()).param("status", "CREE")
                         .param("from", debut).param("to", fin).param("deverrouillee", "true")
-                        .with(user("inf").roles("INFIRMIER")))
+                        .with(SessionsDeTest.session(CENTER, "inf", "INFIRMIER")))
                 .andExpect(jsonPath("$.items", hasSize(1)))
                 .andExpect(jsonPath("$.items[0].regularisationDeverrouilleeAt").isNotEmpty());
         mockMvc.perform(get("/api/v1/seances").param("centerId", CENTER.toString()).param("status", "CREE")
                         .param("from", debut).param("to", fin).param("deverrouillee", "false")
-                        .with(user("admin").roles("ADMIN")))
+                        .with(SessionsDeTest.session(CENTER, "admin", "ADMIN")))
                 .andExpect(jsonPath("$.items", hasSize(0)));
     }
 }

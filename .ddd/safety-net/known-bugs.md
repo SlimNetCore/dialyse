@@ -1462,7 +1462,7 @@ Filet : `characterization/dossiermedical/dm1/**` (lecture, écriture) et `dossie
 | Id | Statut | Décision |
 |---|---|---|
 | KB-MED-01 | **corrigé** | garde de centre sur `PUT volet-paramedical` (403 hors centre, y compris ADMIN sans centre) |
-| KB-MED-02 | **corrigé** | garde de centre sur `GET /seances/{id}`, `stats/paramedical` (GET et search) ; `stats/medical` et `stats/export` : DM8 |
+| KB-MED-02 | **corrigé** (revue DM1, 2026-11-06) | garde de centre sur `GET /seances/{id}`, `GET /seances`, `/journal`, `/calendar`, `stats/paramedical`, `stats/medical`, `stats/export` (GET et search), et sur `POST /seances`, `POST /seances/scan`, `PUT /seances/{id}`. **Reste sans garde** (SE2 à SE6) : `PUT /seances/{id}/forfait`, `valider`, `deverrouiller-regularisation`, `signer-medecin`, consommables, jours fériés et fermetures du calendrier |
 | KB-MED-03 | reproduit | patient inconnu ou d'un autre centre = liste vide, 200 ; `centerId` hors centre = 403 |
 | KB-MED-04 | ouvert (DPO) | aucune lecture médicale auditée sauf `dossier-medical` ; question RGPD/DPO, rien ajouté |
 | KB-MED-05 | reproduit (à décider) | diffusion du nom/prénom du patient ; minimisation à décider |

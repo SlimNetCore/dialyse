@@ -1,0 +1,14 @@
+{
+  "GET /seances (liste)" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "GET /seances/calendar" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "GET /seances/journal" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  }
+}

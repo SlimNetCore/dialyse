@@ -1,0 +1,14 @@
+{
+  "POST /seances" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/scan" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "PUT /seances/{id}" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  }
+}

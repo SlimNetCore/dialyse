@@ -67,6 +67,7 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
     @PostMapping
     public ResponseEntity<?> create(@RequestBody @Valid CreateSeanceRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // revue DM1 : le centre du corps doit être celui du jeton (403 sinon)
         var seance = seanceUseCase.create(CenterId.of(request.centerId()), request.patientId(), request.dateSeance());
 
         var details = seanceUseCase.getDetails(CenterId.of(request.centerId()), seance.getId());
@@ -125,6 +126,7 @@ public class SeanceRestController {
             @RequestParam(required = false, defaultValue = "desc") String sortDir,
             @RequestParam(required = false) Boolean deverrouillee) {
 
+        centerAccessGuard.requireCenter(centerId); // revue DM1 : le centre demandé doit être celui du jeton (403 sinon)
         Set<SeanceStatus> statuses = new LinkedHashSet<>();
         if (status != null && !status.isBlank()) {
             for (String raw : status.split(",")) {
@@ -170,6 +172,7 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
     @PostMapping("/scan")
     public ResponseEntity<?> scanQr(@RequestBody @Valid ScanSeanceQrRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // revue DM1 : le centre du corps doit être celui du jeton (403 sinon)
         CenterId centre = CenterId.of(request.centerId());
         String auteur = CurrentUser.username();
         boolean created = false;
@@ -464,6 +467,7 @@ public class SeanceRestController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{seanceId}")
     public ResponseEntity<?> update(@PathVariable UUID seanceId, @RequestBody @Valid UpdateSeanceRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // revue DM1 : le centre du corps doit être celui du jeton (403 sinon)
         var seance = seanceUseCase.updateDate(CenterId.of(request.centerId()), seanceId, request.dateSeance());
         return ResponseEntity.ok(Map.of(
                 "id", seance.getId(),
@@ -565,6 +569,7 @@ public class SeanceRestController {
     @GetMapping("/journal")
     public ResponseEntity<?> journalByDate(@RequestParam UUID centerId,
                                            @RequestParam LocalDate dateSeance) {
+        centerAccessGuard.requireCenter(centerId); // revue DM1 : le centre demandé doit être celui du jeton (403 sinon)
         var patients = jdbc.query(
                 """
                         SELECT s.id AS seance_id,
@@ -674,6 +679,7 @@ public class SeanceRestController {
     public ResponseEntity<?> calendar(@RequestParam UUID centerId,
                                       @RequestParam int year,
                                       @RequestParam int month) {
+        centerAccessGuard.requireCenter(centerId); // revue DM1 : le centre demandé doit être celui du jeton (403 sinon)
         YearMonth ym = YearMonth.of(year, month);
         LocalDate from = ym.atDay(1);
         LocalDate to = ym.atEndOfMonth();

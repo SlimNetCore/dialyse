@@ -229,10 +229,13 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   illisible ou taille de page hors de 1 à 100 : 400 (ADR 0080, à confirmer avec les métiers/RGPD). La lecture n'est pas
   journalisée (question ouverte pour le DPO). Module `contexts/dossier-medical`, slice DM1.
 - **RG-MED-103** — **Garde de centre sur les mesures paramédicales** : l'enregistrement du volet paramédical d'une
-  séance (`PUT /seances/{id}/volet-paramedical`), le détail d'une séance (`GET /seances/{id}`) et les statistiques
-  paramédicales du patient (`GET /patients/{id}/stats/paramedical`, `POST /patients/stats/paramedical/search`)
-  confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon (avant : fuite et écriture
-  inter-centres, KB-MED-01 et 02). Droits inchangés (le médecin seul lit les constantes mais n'en saisit pas, KB-MED-08).
+  séance (`PUT /seances/{id}/volet-paramedical`), le détail, la liste, le journal et le calendrier des séances
+  (`GET /seances/{id}`, `/seances`, `/seances/journal`, `/seances/calendar`), la création, le scan et la modification
+  d'une séance (`POST /seances`, `POST /seances/scan`, `PUT /seances/{id}`), les statistiques paramédicales et médicales
+  du patient et leur export CSV/PDF (`GET /patients/{id}/stats/paramedical`, `stats/medical`, `stats/export` et les
+  `POST` de recherche correspondants) confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon
+  (avant : fuite et écriture inter-centres, KB-MED-01 et 02). Les autres actions de la séance (forfait, validation,
+  signatures, consommables, calendrier de fermetures) n'ont pas encore cette garde (slices Séance). Droits inchangés (le médecin seul lit les constantes mais n'en saisit pas, KB-MED-08).
 - **RG-MED-101** — **Statistiques du patient** (`ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE`) : moyennes médicales (Hb,
   Kt/V, ferritine…) et paramédicales sur une période ; **UF réelle** = ultrafiltration
   saisie, sinon perte de poids per-dialytique × 1000 ; tension lue au format « sys/dia » (ou « sys-dia ») ; poids sec

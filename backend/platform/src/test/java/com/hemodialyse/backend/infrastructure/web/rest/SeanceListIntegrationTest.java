@@ -67,7 +67,7 @@ class SeanceListIntegrationTest {
 
         mockMvc.perform(get("/api/v1/seances")
                         .param("centerId", CENTER_ID.toString())
-                        .with(user("secretaire").roles("SECRETAIRE")))
+                        .with(SessionsDeTest.session(CENTER_ID, "secretaire", "SECRETAIRE")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[?(@.id=='%s')]".formatted(VALIDATED_SEANCE_ID)).isNotEmpty())
                 .andExpect(jsonPath("$.items[?(@.id=='%s' && @.status=='FACTUREE')]".formatted(BILLED_SEANCE_ID)).isNotEmpty())

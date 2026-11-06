@@ -1,0 +1,30 @@
+{
+  "GET stats/export (CSV)" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "GET stats/export (PDF)" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "GET stats/medical" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "GET stats/paramedical" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST stats/export/search (CSV)" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST stats/medical/search" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST stats/paramedical/search" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  }
+}
