@@ -1,0 +1,18 @@
+{
+  "identifiant illisible" : "400 BAD_REQUEST",
+  "patient du centre A lu par le centre B" : {
+    "items" : 0,
+    "statut" : 200,
+    "total" : 0
+  },
+  "patient du centre B lu par le centre A" : {
+    "items" : 0,
+    "statut" : 200,
+    "total" : 0
+  },
+  "patient inconnu" : {
+    "items" : 0,
+    "statut" : 200,
+    "total" : 0
+  }
+}

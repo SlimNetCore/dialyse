@@ -222,7 +222,17 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 ## 11.11 Constantes, statistiques et export interopérable
 
 - **RG-MED-100** — Les **constantes** (poids, tension, débit, UF, durée) sont une vue longitudinale **en lecture seule**
-  du volet paramédical saisi en séance (source unique de vérité), paginée (`MEDECIN`, `ADMIN`).
+  du volet paramédical saisi en séance (source unique de vérité), paginée (`MEDECIN`, `ADMIN`). Valeurs restituées
+  telles qu'enregistrées, sans normalisation. Du plus récent au plus ancien (date de séance, puis création), tous statuts
+  de séance ; une séance sans volet figure avec des constantes vides ; un patient inconnu ou d'un autre centre donne une
+  liste vide. **Garde de centre** : un `centerId` qui n'est pas le centre de la session est refusé (403) ; paramètre
+  illisible ou taille de page hors de 1 à 100 : 400 (ADR 0080, à confirmer avec les métiers/RGPD). La lecture n'est pas
+  journalisée (question ouverte pour le DPO). Module `contexts/dossier-medical`, slice DM1.
+- **RG-MED-103** — **Garde de centre sur les mesures paramédicales** : l'enregistrement du volet paramédical d'une
+  séance (`PUT /seances/{id}/volet-paramedical`), le détail d'une séance (`GET /seances/{id}`) et les statistiques
+  paramédicales du patient (`GET /patients/{id}/stats/paramedical`, `POST /patients/stats/paramedical/search`)
+  confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon (avant : fuite et écriture
+  inter-centres, KB-MED-01 et 02). Droits inchangés (le médecin seul lit les constantes mais n'en saisit pas, KB-MED-08).
 - **RG-MED-101** — **Statistiques du patient** (`ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE`) : moyennes médicales (Hb,
   Kt/V, ferritine…) et paramédicales sur une période ; **UF réelle** = ultrafiltration
   saisie, sinon perte de poids per-dialytique × 1000 ; tension lue au format « sys/dia » (ou « sys-dia ») ; poids sec

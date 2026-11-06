@@ -20,19 +20,23 @@ public class VoletParamedicalRestController {
     private final VoletParamedicalUseCase voletParamedicalUseCase;
     private final SeanceUseCase seanceUseCase;
     private final NotificationService notificationService;
+    private final com.hemodialyse.backend.infrastructure.security.CenterAccessGuard centerAccessGuard;
 
     public VoletParamedicalRestController(VoletParamedicalUseCase voletParamedicalUseCase,
                                           SeanceUseCase seanceUseCase,
-                                          NotificationService notificationService) {
+                                          NotificationService notificationService,
+                                          com.hemodialyse.backend.infrastructure.security.CenterAccessGuard centerAccessGuard) {
         this.voletParamedicalUseCase = voletParamedicalUseCase;
         this.seanceUseCase = seanceUseCase;
         this.notificationService = notificationService;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
     @PutMapping("/{seanceId}/volet-paramedical")
     public ResponseEntity<?> upsert(@PathVariable UUID seanceId,
                                     @RequestBody @Valid UpsertVoletParamedicalRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-01 : le centre du corps doit être celui du jeton (403 sinon)
         var volet = voletParamedicalUseCase.save(
                 CenterId.of(request.centerId()),
                 seanceId,

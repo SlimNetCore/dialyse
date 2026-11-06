@@ -1,0 +1,32 @@
+{
+  "infirmier du centre A, corps centre A, seance B" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Seance introuvable",
+      "instance" : "/api/v1/seances/<SEANCE_B>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "infirmier du centre A, corps centre B, seance B" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/seances/<SEANCE_B>/volet-paramedical",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "statut" : "403 ACCESS_DENIED"
+  },
+  "infirmier du centre B, corps centre A, seance A" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/seances/<SEANCE_1>/volet-paramedical",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "statut" : "403 ACCESS_DENIED"
+  }
+}

@@ -19,8 +19,12 @@ public class PatientStatsRestController {
 
     private final PatientStatsQueryService statsQueryService;
 
-    public PatientStatsRestController(PatientStatsQueryService statsQueryService) {
+    private final com.hemodialyse.backend.infrastructure.security.CenterAccessGuard centerAccessGuard;
+
+    public PatientStatsRestController(PatientStatsQueryService statsQueryService,
+                                      com.hemodialyse.backend.infrastructure.security.CenterAccessGuard centerAccessGuard) {
         this.statsQueryService = statsQueryService;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
@@ -32,6 +36,7 @@ public class PatientStatsRestController {
         if (from != null && to != null && from.isAfter(to)) {
             return ResponseEntity.badRequest().body(Map.of("error", "from doit être <= to", "code", "INVALID_DATE_RANGE"));
         }
+        centerAccessGuard.requireCenter(centerId); // KB-MED-02 : le centre demandé doit être celui du jeton (403 sinon)
         return ResponseEntity.ok(statsQueryService.getParamedicalStats(centerId, patientId, from, to));
     }
 
@@ -41,6 +46,7 @@ public class PatientStatsRestController {
         if (criteria.dateFrom() != null && criteria.dateTo() != null && criteria.dateFrom().isAfter(criteria.dateTo())) {
             return ResponseEntity.badRequest().body(Map.of("error", "dateFrom doit être <= dateTo", "code", "INVALID_DATE_RANGE"));
         }
+        centerAccessGuard.requireCenter(criteria.centerId()); // KB-MED-02
         return ResponseEntity.ok(statsQueryService.getParamedicalStats(criteria.centerId(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
     }
 

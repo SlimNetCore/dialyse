@@ -1455,7 +1455,26 @@ Archives du comportement d'avant : `pc4/_ecarts-legacy/**/*.legacy.json` (21 fic
 
 ## Dossier médical DM1 (constantes) : filet complété le 2026-11-06 : KB-MED-01 à KB-MED-14
 
-Filet : `characterization/dossiermedical/dm1/**` (lecture, écriture) et `dossiermedical/constantes` (4 goldens historiques). Tous reproduits tels quels (aucune correction). Données de santé : décisions à prendre par l'utilisateur, voir la note de la slice.
+Filet : `characterization/dossiermedical/dm1/**` (lecture, écriture) et `dossiermedical/constantes` (4 goldens historiques). Tous reproduits tels quels au moment du filet. Données de santé : décisions de l'utilisateur déléguées à l'assistant le 2026-11-06 (ADR 0080, `accepted`, à confirmer métiers/RGPD).
+
+**Statuts après DM1 (2026-11-06)** :
+
+| Id | Statut | Décision |
+|---|---|---|
+| KB-MED-01 | **corrigé** | garde de centre sur `PUT volet-paramedical` (403 hors centre, y compris ADMIN sans centre) |
+| KB-MED-02 | **corrigé** | garde de centre sur `GET /seances/{id}`, `stats/paramedical` (GET et search) ; `stats/medical` et `stats/export` : DM8 |
+| KB-MED-03 | reproduit | patient inconnu ou d'un autre centre = liste vide, 200 ; `centerId` hors centre = 403 |
+| KB-MED-04 | ouvert (DPO) | aucune lecture médicale auditée sauf `dossier-medical` ; question RGPD/DPO, rien ajouté |
+| KB-MED-05 | reproduit (à décider) | diffusion du nom/prénom du patient ; minimisation à décider |
+| KB-MED-06 | **corrigé** | 400 pour page/size illisibles ; taille de 1 à 100 (400 au-delà) |
+| KB-MED-07 | **corrigé** pour la lecture (400 `centerId` illisible) ; écriture du volet (corps/`centerId` illisible) : reste 500, à traiter avec SE2 |
+| KB-MED-08 | reproduit (à décider) | droits asymétriques MEDECIN/INFIRMIER |
+| KB-MED-09 | reproduit (à décider) | bornes physiologiques partielles |
+| KB-MED-10 | reproduit (à décider) | ambiguïté cmHg |
+| KB-MED-11 | reproduit | valeurs brutes |
+| KB-MED-12 | reproduit, renvoyé à SE2 | `anticoagulant`/`typeDialysat` > 100, `duree` hors entier |
+| KB-MED-13 | reproduit, renvoyé à SE2/SE6 | séance facturée seule non modifiable |
+| KB-MED-14 | reproduit | fuseau JVM des statistiques |
 
 | Id | Comportement actuel (verrouillé par) | Décision proposée |
 |---|---|---|

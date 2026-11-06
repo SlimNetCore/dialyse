@@ -1829,3 +1829,18 @@ FROM prise_en_charge c GROUP BY 1 ORDER BY 1;
 SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = COALESCE(c.forfait_effectif_id, c.forfait_demande_id) AND f.center_id = c.center_id WHERE COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL AND f.id IS NULL GROUP BY 1;
 ```
 Jalons restants (sources qui lisent encore ces tables en SQL, liste blanche gardée par `TableDuPatientCouvertureTest`) : voir l'ADR 0079. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 45. Dossier médical DM1 (lecture des constantes) : parité et gardes de centre (2026-11-06) — SELECT seulement
+Aucune migration, aucune table ni colonne ajoutée. À exécuter sur une COPIE ou en lecture seule (données de santé : ne rien exporter hors du poste de vérification).
+```sql
+-- 1. Séances et volets par centre (le JOIN de l'adapter : seance_id ET center_id).
+SELECT s.center_id, count(*) AS seances, count(v.id) AS avec_volet FROM seances s LEFT JOIN volet_paramedical v ON v.seance_id = s.id AND v.center_id = s.center_id GROUP BY s.center_id;
+-- 2. Volets rattachés à un autre centre que celui de leur séance (ignorés par la vue des constantes ; à expliquer).
+SELECT count(*) FROM volet_paramedical v JOIN seances s ON s.id = v.seance_id WHERE v.center_id <> s.center_id;
+-- 3. Volets sans séance (orphelins).
+SELECT count(*) FROM volet_paramedical v LEFT JOIN seances s ON s.id = v.seance_id WHERE s.id IS NULL;
+-- 4. Fuite inter-centres déjà survenue (KB-MED-01) : volets écrits sous un centre différent de celui de la séance = requête 2.
+-- 5. Séances sans date de création (ordre d'égalité de date indéterminé).
+SELECT count(*) FROM seances WHERE created_at IS NULL;
+```
+Surveillance après déploiement : hausse attendue des 403 sur `PUT /seances/{id}/volet-paramedical`, `GET /seances/{id}`, `GET /patients/{id}/stats/paramedical` et des 400 sur `GET /patients/{id}/constantes` (taille > 100) : tout 403 d'un utilisateur légitime signale une session ou un front qui envoie le mauvais `centerId`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

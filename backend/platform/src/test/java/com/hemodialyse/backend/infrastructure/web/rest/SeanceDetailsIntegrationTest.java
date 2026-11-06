@@ -43,6 +43,14 @@ class SeanceDetailsIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    /** Session réelle du centre de test : la garde de centre (KB-MED-02) exige un principal qui porte son centre. */
+    private static org.springframework.test.web.servlet.request.RequestPostProcessor avecCentre(String role) {
+        var principal = new com.hemodialyse.backend.infrastructure.security.UserPrincipal(UUID.randomUUID().toString(),
+                CENTER_ID.toString(), "u-" + role.toLowerCase(), "",
+                java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role)), true);
+        return user(principal);
+    }
+
     @BeforeEach
     void setupMockMvc() {
         ensureForfaitTable();
@@ -72,7 +80,7 @@ class SeanceDetailsIntegrationTest {
 
         mockMvc.perform(get("/api/v1/seances/{seanceId}", SEANCE_ID)
                         .param("centerId", CENTER_ID.toString())
-                        .with(user("admin").roles("ADMIN")))
+                        .with(avecCentre("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.seance.id").value(SEANCE_ID.toString()))
                 .andExpect(jsonPath("$.patient.id").value(PATIENT_ID.toString()))
@@ -104,14 +112,14 @@ class SeanceDetailsIntegrationTest {
                                   "userId": "inf-01"
                                 }
                                 """.formatted(CENTER_ID, FORFAIT_OVERRIDE_ID))
-                        .with(user("admin").roles("ADMIN")))
+                        .with(avecCentre("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_OVERRIDE_ID.toString()))
                 .andExpect(jsonPath("$.forfait.nom").value("Forfait modifié séance"));
 
         mockMvc.perform(get("/api/v1/seances/{seanceId}", SEANCE_ID)
                         .param("centerId", CENTER_ID.toString())
-                        .with(user("admin").roles("ADMIN")))
+                        .with(avecCentre("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_OVERRIDE_ID.toString()))
                 .andExpect(jsonPath("$.forfait.nom").value("Forfait modifié séance"))
@@ -144,7 +152,7 @@ class SeanceDetailsIntegrationTest {
 
         mockMvc.perform(get("/api/v1/seances/{seanceId}", SEANCE_ID)
                         .param("centerId", CENTER_ID.toString())
-                        .with(user("inf").roles("INFIRMIER")))
+                        .with(avecCentre("INFIRMIER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_ID.toString()));
     }

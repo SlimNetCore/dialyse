@@ -333,7 +333,7 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 
 | Ordre | Slice                                  | Risque | Etat    | Fiche                                               |
 |-------|----------------------------------------|--------|---------|-----------------------------------------------------|
-| DM1   | Constantes                             | faible | planned | slices/dossier-medical-dm1-constantes.md            |
+| DM1   | Constantes                             | faible | built (2026-11-06, ADR 0080) | slices/dossier-medical-dm1-constantes.md            |
 | DM2   | Prescriptions (ordonnances)            | moyen  | planned | slices/dossier-medical-dm2-prescriptions.md         |
 | DM3   | Demandes d'examen et resultats         | moyen  | planned | slices/dossier-medical-dm3-examens.md               |
 | DM4   | Serologie (detection positive)         | moyen  | planned | slices/dossier-medical-dm4-serologie.md             |
@@ -342,6 +342,8 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | DM7   | Bilan pre-greffe                       | moyen  | planned | slices/dossier-medical-dm7-bilan-pregreffe.md       |
 | DM8   | Lectures publiees et retrait du legacy | eleve  | planned | slices/dossier-medical-dm8-lectures-publiees.md     |
 
+> **Levee partielle du 2026-11-06 (ADR 0080)** : DM1 (lecture des constantes) est repris SUR PLACE et `built` ; le module est de nouveau au reacteur. Decoupage reel : DM2 = ordonnances/prescriptions + anemie/observance/alertes/administrations + planificateur 06:30 ; DM3 = examens ; DM4 = serologie ; DM5 = antecedents/allergies + abords vasculaires ; DM6 = biologie ; DM7 = bilan pre-greffe + donneurs vivants ; DM8 = DossierMedicalPatient/FHIR/stats-medical + lecteurs Direction et Planification. DM2 a DM8 `planned`, sans filet.
+>
 > **GEL du 2026-11-02 (ADR 0072, `backend/contexts/dossier-medical/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice DM n'est `built`. Etats reels : DM1 `characterized` (4 goldens constantes), DM2 a DM8 `planned`. Reprise : filet de caracterisation du legacy medical d'abord, puis slices SUR PLACE (memes tables, memes URL). Le tableau ci-dessus donne l'etat `planned` des slices, pas la realite de DM1 (`characterized`).
 
 ## 1 undecies. Slices Pilotage direction (contexte `pilotage-direction`, module

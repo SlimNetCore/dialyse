@@ -1,0 +1,9 @@
+{
+  "ADMIN, centerId d'un autre centre" : "403 ACCESS_DENIED",
+  "MEDECIN sans centre" : "403 ACCESS_DENIED",
+  "MEDECIN, centerId absent" : "200",
+  "MEDECIN, centerId d'un autre centre" : "403 ACCESS_DENIED",
+  "MEDECIN, centerId du centre" : "200",
+  "MEDECIN, centerId illisible" : "400 BAD_REQUEST",
+  "SUPERADMIN avec centerId" : "403 ROLE_SCOPE"
+}

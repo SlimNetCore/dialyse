@@ -9,6 +9,8 @@ sources: [.ddd/tactical/dossier-medical.md, ADR 0065]
 
 > Statut vrai au 2026-11-02 : `planned` (module gelé, `backend/contexts/dossier-medical/GEL.md`, ADR 0072). Le nom `observations_biologiques` est une collision avec la table réelle sans garantie de colonnes ; aucun filet. Reprise : sur place.
 
+> **Statut vrai au 2026-11-06 (ADR 0080)** : `planned`, aucun filet DM6. Tables réelles : `observations_biologiques`, `resultats_analyses` (routes `observations`, `analyses`, `analyses/search`). Reprise sur place.
+
 # DM6 — Observations biologiques
 
 Agrégat `ObservationBiologique`.

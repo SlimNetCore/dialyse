@@ -77,8 +77,6 @@ class ReglesDeGestionDocumentationTest {
         try (Stream<Path> mains = Files.walk(backend, 5)) {
             for (Path main : mains.filter(p -> p.endsWith(Path.of("src", "main", "java")) && Files.isDirectory(p)
                     && !p.toString().contains("node_modules") && !p.toString().contains("target")
-                    // module GELE le 2026-11-02 (ADR 0072, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies
-                    && !p.toString().replace('\\', '/').contains("/contexts/dossier-medical/")
                     // module GELE le 2026-11-02 (ADR 0074, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies
                     && !p.toString().replace('\\', '/').contains("/contexts/seance/")
                     // module GELE le 2026-11-02 (ADR 0075, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies

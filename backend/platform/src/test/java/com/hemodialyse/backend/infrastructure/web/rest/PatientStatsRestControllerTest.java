@@ -16,7 +16,7 @@ class PatientStatsRestControllerTest {
     @Test
     void paramedical_should_return_payload() {
         FakeStatsQueryService query = new FakeStatsQueryService();
-        PatientStatsRestController controller = new PatientStatsRestController(query);
+        PatientStatsRestController controller = new PatientStatsRestController(query, org.mockito.Mockito.mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class));
 
         UUID centerId = UUID.randomUUID();
         UUID patientId = UUID.randomUUID();
@@ -32,7 +32,7 @@ class PatientStatsRestControllerTest {
     @Test
     void medical_should_return_400_on_invalid_range() {
         FakeStatsQueryService query = new FakeStatsQueryService();
-        PatientStatsRestController controller = new PatientStatsRestController(query);
+        PatientStatsRestController controller = new PatientStatsRestController(query, org.mockito.Mockito.mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class));
 
         ResponseEntity<?> response = controller.medical(
                 UUID.randomUUID(),
@@ -47,7 +47,7 @@ class PatientStatsRestControllerTest {
     @Test
     void export_should_return_csv() {
         FakeStatsQueryService query = new FakeStatsQueryService();
-        PatientStatsRestController controller = new PatientStatsRestController(query);
+        PatientStatsRestController controller = new PatientStatsRestController(query, org.mockito.Mockito.mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class));
 
         ResponseEntity<?> response = controller.export(UUID.randomUUID(), UUID.randomUUID(), "csv", null, null);
 
@@ -58,7 +58,7 @@ class PatientStatsRestControllerTest {
     @Test
     void export_should_return_pdf() {
         FakeStatsQueryService query = new FakeStatsQueryService();
-        PatientStatsRestController controller = new PatientStatsRestController(query);
+        PatientStatsRestController controller = new PatientStatsRestController(query, org.mockito.Mockito.mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class));
 
         ResponseEntity<?> response = controller.export(UUID.randomUUID(), UUID.randomUUID(), "pdf", null, null);
 
@@ -71,7 +71,7 @@ class PatientStatsRestControllerTest {
     @Test
     void export_should_return_400_on_unknown_format() {
         FakeStatsQueryService query = new FakeStatsQueryService();
-        PatientStatsRestController controller = new PatientStatsRestController(query);
+        PatientStatsRestController controller = new PatientStatsRestController(query, org.mockito.Mockito.mock(com.hemodialyse.backend.infrastructure.security.CenterAccessGuard.class));
 
         ResponseEntity<?> response = controller.export(UUID.randomUUID(), UUID.randomUUID(), "xml", null, null);
 

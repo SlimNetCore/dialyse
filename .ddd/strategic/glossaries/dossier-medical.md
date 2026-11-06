@@ -8,6 +8,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §9]
 
 | Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
 |---|---|---|---|---|---|---|
+| Constantes | Mesures relevées par l'infirmier pendant une séance (poids avant/après, tension avant/après, débit de sang, ultrafiltration, durée), saisies dans le volet paramédical de la Séance ; le Dossier médical en offre l'historique en lecture | `Constantes`, `ConstantesDeSeance` | `volet_paramedical`, `ConstanteSeanceResponse` | « constante enregistrée » (il n'existe pas d'enregistrement de constante autonome) | lecture seule ; valeurs restituées brutes ; patient inconnu = historique vide (DM1, ADR 0080) | proposed |
 | Ordonnance | Document médical signé listant des médicaments | `Ordonnance` | `Ordonnance` | — | `BROUILLON → SIGNEE → IMPRIMEE / ANNULEE` ; signée = verrouillée | proposed |
 | Prescription médicale | Prescription de traitement (EPO/fer, dose × fréquence) suivie en observance | `Prescription` | `prescriptions_medicales` | — | même document qu'ordonnance ? (H8) | proposed |
 | Observance | Respect de la prescription d'anémie sur une période | `AlerteObservance` | `AlerteObservance` | — | alerte « retard constaté » (06:30) | proposed |

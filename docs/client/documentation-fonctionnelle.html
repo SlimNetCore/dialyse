@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-04<br>611 règles de gestion · 16 domaines · 499 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-06<br>612 règles de gestion · 16 domaines · 499 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>611</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>612</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -3263,7 +3263,18 @@ transplantation (<code>MEDECIN</code>).</p>
 </div></div>
 <h2>11.11 Constantes, statistiques et export interopérable</h2>
 <div class="rule" id="RG-MED-100"><div class="rid">RG-MED-100</div><div class="rtxt"><p>Les <strong>constantes</strong> (poids, tension, débit, UF, durée) sont une vue longitudinale <strong>en lecture seule</strong>
-du volet paramédical saisi en séance (source unique de vérité), paginée (<code>MEDECIN</code>, <code>ADMIN</code>).</p>
+du volet paramédical saisi en séance (source unique de vérité), paginée (<code>MEDECIN</code>, <code>ADMIN</code>). Valeurs restituées
+telles qu&#39;enregistrées, sans normalisation. Du plus récent au plus ancien (date de séance, puis création), tous statuts
+de séance ; une séance sans volet figure avec des constantes vides ; un patient inconnu ou d&#39;un autre centre donne une
+liste vide. <strong>Garde de centre</strong> : un <code>centerId</code> qui n&#39;est pas le centre de la session est refusé (403) ; paramètre
+illisible ou taille de page hors de 1 à 100 : 400 (ADR 0080, à confirmer avec les métiers/RGPD). La lecture n&#39;est pas
+journalisée (question ouverte pour le DPO). Module <code>contexts/dossier-medical</code>, slice DM1.</p>
+</div></div>
+<div class="rule" id="RG-MED-103"><div class="rid">RG-MED-103</div><div class="rtxt"><p><strong>Garde de centre sur les mesures paramédicales</strong> : l&#39;enregistrement du volet paramédical d&#39;une
+séance (<code>PUT /seances/{id}/volet-paramedical</code>), le détail d&#39;une séance (<code>GET /seances/{id}</code>) et les statistiques
+paramédicales du patient (<code>GET /patients/{id}/stats/paramedical</code>, <code>POST /patients/stats/paramedical/search</code>)
+confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon (avant : fuite et écriture
+inter-centres, KB-MED-01 et 02). Droits inchangés (le médecin seul lit les constantes mais n&#39;en saisit pas, KB-MED-08).</p>
 </div></div>
 <div class="rule" id="RG-MED-101"><div class="rid">RG-MED-101</div><div class="rtxt"><p><strong>Statistiques du patient</strong> (<code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>) : moyennes médicales (Hb,
 Kt/V, ferritine…) et paramédicales sur une période ; <strong>UF réelle</strong> = ultrafiltration
@@ -4816,10 +4827,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-062</td>
 </tr>
 <tr>
-<td><code>ConstantesRestController</code></td>
-<td><code>/api/v1/patients/{id}/constantes</code></td>
-<td><code>MEDECIN</code>, <code>ADMIN</code></td>
-<td>RG-MED-100</td>
+<td><code>ConstantesControleur</code></td>
+<td><code>/api/v1/patients/{id}/constantes</code> — contexte <code>dossier-medical</code>, slice DM1</td>
+<td><code>MEDECIN</code>, <code>ADMIN</code> ; garde de centre</td>
+<td>RG-MED-100, 103</td>
 </tr>
 <tr>
 <td><code>AdministrationTraitementRestController</code></td>

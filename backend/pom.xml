@@ -38,6 +38,7 @@
         <module>contexts/planification</module>
         <module>contexts/organisation</module>
         <module>contexts/patient-couverture</module>
+        <module>contexts/dossier-medical</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

@@ -234,6 +234,7 @@ public class SeanceRestController {
     @GetMapping("/{seanceId}")
     public ResponseEntity<?> details(@PathVariable UUID seanceId,
                                      @RequestParam UUID centerId) {
+        centerAccessGuard.requireCenter(centerId); // KB-MED-02 : le centre demandé doit être celui du jeton (403 sinon)
         var details = seanceUseCase.getDetails(CenterId.of(centerId), seanceId);
         var seance = details.seance();
         var patient = details.patient();

@@ -1,4 +1,8 @@
-# GEL du module dossier-medical (2026-11-02)
+# GEL du module dossier-medical (2026-11-02) — LEVÉE PARTIELLE le 2026-11-06 : DM1 repris, DM2 à DM8 à venir
+
+> **Levée partielle (ADR 0080)** : DM1 (lecture des constantes) est repris SUR PLACE et le module est de nouveau au réacteur (`backend/pom.xml`, `platform/pom.xml`, `Dockerfile`). Le contenu gelé décrit ci-dessous (modèle parallèle DM2 à DM8 : sérologies, antécédents, allergies, demandes d'examen, observations, bilans pré-greffe, leurs adapters JDBC, contrôleurs et tests) a été RETIRÉ du module : il est conservé dans l'historique git au commit **542c7571** (`git show 542c7571:backend/contexts/dossier-medical/...`). DM2 à DM8 seront repris slice par slice, sur place, après leur filet de caractérisation ; rien de l'ancien contenu n'est acquis. Le tactique `.ddd/tactical/dossier-medical.md` reste périmé pour DM1 (lecture pure, sans agrégat `Constante`) : à réviser par slice. Le script `dossier-medical-pg16-rejeu.sh` est remplacé par `dossier-medical-dm1-pg16-rejeu.sh`.
+
+Le reste de ce fichier est l'état du gel au 2026-11-02, à titre historique.
 
 Statut : **gelé, non branché, hors réacteur Maven** (`backend/pom.xml` ne le liste plus, `backend/Dockerfile` ne copie plus son `pom.xml`, `platform/pom.xml` ne l'a jamais référencé). Le dossier, ses sources, ses tests, ses ADR (0007, 0065, 0067), ses fiches (`.ddd/migration/slices/dossier-medical-*.md`), le tactique (`.ddd/tactical/dossier-medical.md`, `proposed`) et le glossaire sont conservés intacts pour la reprise. Décision de l'utilisateur du 2026-11-02. ADR : 0072.
 
