@@ -1706,6 +1706,15 @@ SELECT center_id, first_seen_at::date AS jour, count(DISTINCT code) FROM directi
 ```
 Voir `backend/contexts/pilotage-direction/GEL.md` et l'ADR 0075.
 
+## Patient et couverture PC1 à PC5 : ORDRE D'EXÉCUTION des contrôles (revue du 2026-11-05)
+Les §41 à §44 ci-dessous sont des listes de requêtes par slice ; l'ordre à suivre avant la mise en production est celui-ci :
+1. **Fuseaux** : §43-0 (`SHOW timezone`, `centers.fuseau_horaire` nul / vide / illisible, fuseau de la JVM `TZ` / `-Duser.timezone`). Lire tous les contrôles en `current_date` (§43-5, §43-6, §44-1 à §44-3) avec ce fuseau.
+2. Données bloquantes : §41-1 (doublons de numéro d'assurance), §41-2 à §41-4 (états, dates), §42-1 (doubles assurés principaux), §42-6 et §42-7 (PEC orphelines, statuts hors cycle), §42-9 et §44-4 (forfaits absents ou d'un autre centre), §43-1 et §43-2 (attestations orphelines, périodes inversées).
+3. Centres et comptes : §42-11 (centres sans `planning_parametres`), §42-12 (comptes ADMIN sans centre), à lancer UNE fois (valables pour PC2, PC3 et PC4).
+4. Procédure : import et rollback de migration hors activité du centre, puis rejouer §42-1, §42-2, §43-3 et §43-4.
+5. Volumétrie à annoncer (non bloquant) : §41-5 à §41-8, §42-2 à §42-5, §42-8, §42-10, §43-3 à §43-6.
+6. Parité avant ET après déploiement, même fuseau de session : §44-1 à §44-4 (§44-2 : le code prend désormais le jour du CENTRE, la requête `current_date` : session au fuseau du centre).
+
 ## 41. Patient et couverture PC1 (identité et mouvements) : reprise sur place, session S2 (2026-11-03) — SELECT seulement
 Le module `contexts/patient-couverture` est de nouveau dans le réacteur (mêmes tables `patients` et `mouvement_patient`, mêmes URLs `/api/v1/patients/**` et `/api/v1/mouvements-patients`). Aucune contrainte SQL ni index n'est créé. Constats à lancer AVANT la bascule (recette), le résultat décide d'un éventuel nettoyage manuel validé par écrit ; rejeu sur schéma PostgreSQL 16 jetable : `backend/scripts/patient-couverture-pc1-pg16-rejeu.sh`.
 ```sql
@@ -1754,12 +1763,12 @@ SELECT center_id, count(*) FILTER (WHERE date_debut_demande IS NULL OR date_fin_
 -- 9. Forfaits référencés inconnus ou d'un autre centre (aucun contrôle) ; PEC validées sans forfait effectif (valorisation des absences RG-ABS-030 : KB-PAT-26).
 SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = c.forfait_effectif_id WHERE c.forfait_effectif_id IS NOT NULL AND (f.id IS NULL OR f.center_id <> c.center_id) GROUP BY 1;
 SELECT center_id, count(*) FROM prise_en_charge WHERE statut = 'VALIDEE' AND forfait_effectif_id IS NULL GROUP BY 1;
--- 11. (revue 2026-11-04) Centres SANS ligne planning_parametres : la première écriture d'assuré ou de PEC la crée (ADR 0059) ; deux premières écritures simultanées peuvent voir la seconde refusée 409 (KB-PAT-37). Attendu : 0 ligne, sinon laisser un seul utilisateur écrire en premier.
-SELECT c.id, c.name FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id);
--- 12. (revue 2026-11-04) Comptes ADMIN actifs SANS centre de rattachement : désormais refusés 403 sur toutes les routes de /api/v1/pec (le legacy les laissait passer avec le centre du corps). Prévenir ces utilisateurs avant la bascule.
-SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_id = u.id JOIN app_role r ON r.id = ur.role_id WHERE u.active AND r.code = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM app_user_center uc WHERE uc.user_id = u.id);
 -- 10. Identifiants de PEC saisis sur la fiche déjà pris (409 PEC_IDENTIFIANT_DEJA_UTILISE) : PEC dont le patient diffère de celui qui la réclamerait ne se détecte qu'à la saisie ; relever le volume de PEC par patient.
 SELECT patient_id, count(*) FROM prise_en_charge GROUP BY 1 HAVING count(*) > 5 ORDER BY 2 DESC LIMIT 20;
+-- 11. (revue 2026-11-04) Centres SANS ligne planning_parametres : la première écriture d'assuré, de PEC ou d'attestation la crée (ADR 0059) ; deux premières écritures simultanées peuvent voir la seconde refusée 409 (KB-PAT-37). Attendu : 0 ligne, sinon laisser un seul utilisateur écrire en premier. (Requête unique pour PC2, PC3 et PC4.)
+SELECT c.id, c.name FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id);
+-- 12. (revue 2026-11-04) Comptes ADMIN actifs SANS centre de rattachement : désormais refusés 403 sur les routes de PEC ET d'attestation (le legacy les laissait passer avec le centre de la requête). Prévenir ces utilisateurs avant la bascule. (Requête unique pour PC3 et PC4.)
+SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_id = u.id JOIN app_role r ON r.id = ur.role_id WHERE u.active AND r.code = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM app_user_center uc WHERE uc.user_id = u.id);
 ```
 Changements de comportement visibles : garde de centre sur toutes les routes de PEC (un ADMIN d'un autre centre ou sans centre est refusé 403), PEC inconnue 404, formats illisibles 400, `pecId` déjà pris 409 (la fiche est enregistrée), diffusions avec le nom réel, audit `PEC_VALIDATION` et `PEC_CLOTURE`. Les routes d'attestation restent au legacy (PC4) ; `PecValidationJdbc` du module gelé de Séance et `SeanceBillingEligibilityPort` (règle de production de la création de séance) ne sont pas touchés. **Import de migration (revue du 2026-11-04, ADR 0077 point 12)** : `AssureMigrator` et `AffectationMigrator` écrivent `assure` et `assure_patient` SANS le verrou du centre. **Lancer l'import hors activité du centre** (aucune saisie de fiche ni d'assuré pendant l'import), puis rejouer §42-1 (R1) et §42-2 (assurés partagés). Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
 
@@ -1784,10 +1793,7 @@ SELECT a.patient_id, a.id, b.id FROM attestation_droit a JOIN attestation_droit 
 SELECT center_id, count(*) FILTER (WHERE date_fin < current_date) AS deja_echues, count(*) FILTER (WHERE date_fin >= current_date AND date_fin <= current_date + 30) AS a_echeance_non_echues, count(*) AS total FROM attestation_droit GROUP BY 1;
 -- 6. Patients à PEC validée sans attestation couvrant aujourd'hui (séance non facturable, session-allowed faux, y compris pour un vacancier : la facturation exige l'attestation, KB-PAT-46).
 SELECT c.center_id, count(DISTINCT c.patient_id) FROM prise_en_charge c WHERE c.statut = 'VALIDEE' AND NOT EXISTS (SELECT 1 FROM attestation_droit a WHERE a.patient_id = c.patient_id AND a.center_id = c.center_id AND current_date BETWEEN a.date_debut AND a.date_fin) GROUP BY 1;
--- 7. Centres sans ligne planning_parametres : la première écriture d'attestation la crée (verrou du centre, ADR 0059) ; deux premières écritures simultanées peuvent voir la seconde refusée 409 (KB-PAT-37).
-SELECT c.id, c.name FROM centers c WHERE NOT EXISTS (SELECT 1 FROM planning_parametres p WHERE p.center_id = c.id);
--- 8. Comptes ADMIN actifs sans centre de rattachement : désormais refusés 403 sur les routes d'attestation comme sur celles de PEC (le legacy les laissait passer avec le centre de la requête).
-SELECT u.username, u.full_name FROM app_user u JOIN app_user_role ur ON ur.user_id = u.id JOIN app_role r ON r.id = ur.role_id WHERE u.active AND r.code = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM app_user_center uc WHERE uc.user_id = u.id);
+-- 7 et 8 : centres sans ligne planning_parametres et comptes ADMIN sans centre : voir §42-11 et §42-12 (mêmes requêtes, valables pour les attestations ; supprimées ici pour éviter les doublons).
 ```
 Changements de comportement visibles : garde de centre 403 sur les 4 routes d'attestation, patient inexistant 422, suppression d'un identifiant inconnu 404 (sans diffusion), formats illisibles 400, recherche à jokers échappés (`%`, `_`) et date de filtre illisible 400, audit `ATTESTATION_*`, jour du centre pour le tableau de bord et la séance sans date. **Écrivain hors verrou** : l'import de migration historique (`HistoricalRecordJdbcAdapter`, plateforme) et le rollback de migration (`MigrationRollbackJdbcAdapter`) écrivent `attestation_droit` SANS le verrou du centre : **lancer l'import et le rollback hors activité du centre**, puis rejouer §42-1, §42-2 et §43-3 et 4. (`bc-assure` reste pour les migrateurs d'assurés et d'affectations ; il ne référence aucune attestation.) Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
 
@@ -1804,10 +1810,20 @@ SELECT c.id,
 FROM centers c ORDER BY c.name;
 -- 2. Effectif d'aujourd'hui (patientCount sans mois) : même prédicat qu'avant (admission au plus tard aujourd'hui, pas déjà parti).
 SELECT center_id, count(1) FROM patients p WHERE (p.date_admission IS NULL OR p.date_admission <= current_date) AND (p.etat_patient IS NULL OR p.etat_patient NOT IN ('DECEDE','GREFFE','GUERRI','TRANSFERE','OCCASIONNEL','VACANCIER_ETRANGER','VACANCIER_LOCAL') OR (p.etat_patient IN ('OCCASIONNEL','VACANCIER_ETRANGER','VACANCIER_LOCAL') AND (p.date_evenement_etat IS NULL OR p.date_evenement_etat >= current_date)) OR (p.etat_patient IN ('TRANSFERE','GUERRI') AND p.date_evenement_etat IS NOT NULL AND p.date_evenement_etat >= current_date) OR (p.etat_patient IN ('DECEDE','GREFFE') AND p.date_evenement_etat IS NOT NULL AND p.date_evenement_etat > current_date)) GROUP BY 1 ORDER BY 1;
--- 3. Éligibilité à la facturation : nombre de patients par étage de refus au jour (PEC porteuse d'un forfait couvrant le jour / validée / attestation couvrant le jour), avant et après identique.
+-- 3. Éligibilité à la facturation AU JOUR (filtre de date : current_date, jour du fuseau de la SESSION PostgreSQL, à lire avec §43-0) : nombre de patients par étage, dans l'ordre du code : (1) PEC porteuse d'un forfait dont la période (effective, sinon demandée) couvre le jour ; (2) dont une est validée ; (3) dont une attestation couvre aussi le jour. Avant et après le déploiement, les trois nombres doivent être identiques centre par centre.
 SELECT c.center_id,
-       count(DISTINCT c.patient_id) FILTER (WHERE c.forfait_effectif_id IS NOT NULL OR c.forfait_demande_id IS NOT NULL) AS avec_forfait,
-       count(DISTINCT c.patient_id) FILTER (WHERE c.statut = 'VALIDEE') AS avec_pec_validee
+       count(DISTINCT c.patient_id) FILTER (WHERE COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL
+             AND ((c.date_debut_effectif IS NOT NULL AND current_date >= c.date_debut_effectif AND (current_date <= c.date_fin_effectif OR c.date_fin_effectif IS NULL))
+               OR (c.date_debut_demande IS NOT NULL AND current_date >= c.date_debut_demande AND (current_date <= c.date_fin_demande OR c.date_fin_demande IS NULL)))) AS etage_1_pec_couvrante,
+       count(DISTINCT c.patient_id) FILTER (WHERE c.statut = 'VALIDEE' AND COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL
+             AND ((c.date_debut_effectif IS NOT NULL AND current_date >= c.date_debut_effectif AND (current_date <= c.date_fin_effectif OR c.date_fin_effectif IS NULL))
+               OR (c.date_debut_demande IS NOT NULL AND current_date >= c.date_debut_demande AND (current_date <= c.date_fin_demande OR c.date_fin_demande IS NULL)))
+             ) AS etage_2_validee,
+       count(DISTINCT c.patient_id) FILTER (WHERE c.statut = 'VALIDEE' AND COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL
+             AND ((c.date_debut_effectif IS NOT NULL AND current_date >= c.date_debut_effectif AND (current_date <= c.date_fin_effectif OR c.date_fin_effectif IS NULL))
+               OR (c.date_debut_demande IS NOT NULL AND current_date >= c.date_debut_demande AND (current_date <= c.date_fin_demande OR c.date_fin_demande IS NULL)))
+             AND EXISTS (SELECT 1 FROM attestation_droit a WHERE a.center_id = c.center_id AND a.patient_id = c.patient_id
+                         AND current_date >= a.date_debut AND (current_date <= a.date_fin OR a.date_fin IS NULL))) AS etage_3_facturable
 FROM prise_en_charge c GROUP BY 1 ORDER BY 1;
 -- 4. Patients dont un forfait de PEC référence un forfait d'un autre centre ou absent (ignoré par le forfait applicable et par les PEC tarifées).
 SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = COALESCE(c.forfait_effectif_id, c.forfait_demande_id) AND f.center_id = c.center_id WHERE COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL AND f.id IS NULL GROUP BY 1;

@@ -1,5 +1,5 @@
 ---
-status: characterized (filet vert sur le LEGACY, rien de commité)
+status: characterized (filet vert sur le LEGACY, commité en 321275cb ; PC1 repris sur place ensuite, voir la fiche)
 date: 2026-11-02
 sources: .ddd/migration/slices/patient-couverture-pc1-identite-mouvements.md, backend/contexts/patient-couverture/GEL.md (ADR 0073), ADR 0005/0024/0052/0061, docs/reference/regles-de-gestion/04-patients-assures-pec.md, known-bugs.md KB-PAT-01 à 18
 ---

@@ -1,0 +1,6 @@
+{
+  "le jour du centre diffère du jour d'UTC" : true,
+  "les deux effectifs possibles diffèrent (le test discrimine)" : true,
+  "patientCount = effectif au jour du centre" : true,
+  "patientCount n'est pas l'effectif au jour d'UTC" : true
+}

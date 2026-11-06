@@ -142,8 +142,8 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
     }
 
     @Override
-    public long prisesEnCharge(UUID centre, String statut, LocalDate du, LocalDate au) {
-        return pecs.get().stream().filter(p -> p.centre().valeur().equals(centre) && p.statut().name().equals(statut))
+    public long prisesEnCharge(UUID centre, StatutDePec statut, LocalDate du, LocalDate au) {
+        return pecs.get().stream().filter(p -> p.centre().valeur().equals(centre) && p.statut().name().equals(statut.name()))
                 .filter(p -> creeDans(p.creeLe(), du, au)).count();
     }
 

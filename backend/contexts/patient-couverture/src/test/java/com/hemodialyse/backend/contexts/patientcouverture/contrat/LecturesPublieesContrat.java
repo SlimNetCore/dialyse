@@ -270,11 +270,13 @@ public abstract class LecturesPublieesContrat {
         pec(CENTRE, p, StatutPec.VALIDEE, null, null, null, null, null, null, T0);
         pec(AUTRE, patient(AUTRE), StatutPec.CREE, null, null, null, null, null, null, T0);
 
-        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), "CREE", null, null)).isEqualTo(2);
-        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), "VALIDEE", null, null)).isEqualTo(1);
-        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), "CREE", LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30)))
+        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), CompteursDeCouverture.StatutDePec.CREE, null, null)).isEqualTo(2);
+        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), CompteursDeCouverture.StatutDePec.VALIDEE, null, null)).isEqualTo(1);
+        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), CompteursDeCouverture.StatutDePec.CREE, LocalDate.of(2026, 11, 1),
+                LocalDate.of(2026, 11, 30)))
                 .isEqualTo(2);
-        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), "CREE", LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 31)))
+        assertThat(compteurs().prisesEnCharge(CENTRE.valeur(), CompteursDeCouverture.StatutDePec.CREE, LocalDate.of(2026, 12, 1),
+                LocalDate.of(2026, 12, 31)))
                 .isZero();
     }
 

@@ -1,5 +1,5 @@
 ---
-status: characterized (filet vert sur le code actuel, rien de commité)
+status: characterized (filet vert sur le legacy, commité en 853fd67b ; PC3 repris sur place ensuite, voir la fiche)
 date: 2026-11-03
 sources: .ddd/migration/slices/patient-couverture-pc3-pec.md, .ddd/tactical/patient-couverture.md, ADR 0024/0064/0073/0076, docs/reference/regles-de-gestion/04-patients-assures-pec.md (RG-PEC-*), known-bugs.md KB-PAT-20 à 28, 35, 36
 ---

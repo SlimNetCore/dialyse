@@ -227,6 +227,12 @@ Retrait attaché au jalon : fin de P8 pour les quatre premiers (la vue de la sem
 |------------|--------------|-----------------|--------|
 | 2026-11-02 | seance-se1-se7 | `platform/.../infrastructure/config/CacheConfig.java` (**inscrit dans `seamAllowed` de `covered.json` AVANT l'édition**) : retrait des deux lignes `register(... "ref.seances.du.jour" ...)` et `"ref.seances.validees.non.signees"` ajoutées par 2978e639 ; retour exact à la version de `2978e639^`. | Ces caches n'étaient utilisés que par `SeancesControleur` du module gelé `contexts/seance` ; aucun code déployé ne les référence. Aucun changement fonctionnel. |
 
+## Patient et couverture PC5, revue `verify-patient-couverture-2` (2026-11-05) : FERMÉ le 2026-11-06 (`seamAllowed` vidé ; build complet vert, aucun golden existant modifié)
+
+| Date | Slice | Fichiers édités | Raison |
+|---|---|---|---|
+| 2026-11-05 | patient-couverture-pc5-lectures-publiees | `platform/.../web/rest/DashboardRestController.java` (**inscrit dans `seamAllowed` AVANT**) : le statut des PEC passe par l'énumération du langage publié `CompteursDeCouverture.StatutDePec` (JSON inchangé) ; l'effectif d'aujourd'hui est compté au jour DU CENTRE (`JourDuCentre`) et non plus au jour d'UTC (un seul « aujourd'hui » dans la réponse) ; `FacturationContexteConfiguration.java` et `AbsencesPatientsContexteConfiguration.java` (**inscrits AVANT**) : imports seuls (nom qualifié, ordre) | Revue : primitive obsession du statut, deux « aujourd'hui » dans le tableau de bord, hygiène. Aucun golden modifié ; scénario dédié neuf pour l'effectif au jour du centre. |
+
 ## Patient et couverture PC5 (lectures publiées, session S2) : FERMÉ le 2026-11-04 (`seamAllowed` vidé ; entrées mortes retirées de `covered`, nouveaux fichiers inventoriés ; build complet vert, aucun golden modifié)
 
 Autorisé par l'utilisateur (édition minimale des fichiers lecteurs). Tous les fichiers sont inscrits dans `seamAllowed` AVANT l'édition. Les six lecteurs passent par les ports publiés `patientcouverture.v1` (SQL repris à l'identique dans les adapters du module) ; comportement INCHANGÉ, aucun golden modifié.

@@ -1,12 +1,15 @@
 ---
-status: proposed
-date: 2026-11-03
-decision-makers: [utilisateur (décisions du 2026-11-02, déléguées à l'assistant), architecte]
+status: accepted
+date: 2026-11-06
+decision-makers: [utilisateur (décisions du 2026-11-02, déléguées à l'assistant ; acceptée le 2026-11-06 après les revues PC1 à PC5), architecte]
 context-scope: patient-couverture
 related: ADR 0024 (refactoring sur place), 0052 (la place est écrite par Planification), 0061 (ordre global des verrous), 0064, 0073 (gel du module, levé pour PC1) ; `.ddd/migration/slices/patient-couverture-pc1-identite-mouvements.md` ; `.ddd/safety-net/patient-couverture-pc1-identite-mouvements.md` ; `.ddd/safety-net/known-bugs.md` KB-PAT-01 à 19
 ---
 
 # 0076 - Patient et couverture, PC1 : reprise sur place de la fiche et des mouvements
+
+## À confirmer avec les métiers (NON validé par eux à ce jour)
+Cet ADR est `accepted` au titre de la décision DÉLÉGUÉE par l'utilisateur à l'assistant. Les points métier suivants restent à présenter aux experts : les transitions d'état permises depuis `DECEDE`, `GREFFE` et `GUERRI` (reproduites, point 2) ; la date d'évènement obligatoire y compris pour un séjour limité (point 3) ; le refus d'une naissance future ou postérieure à l'admission (point 3) ; la normalisation du numéro d'assurance et son unicité par centre, qui peut réécrire des numéros existants au premier `PUT` (point 5) ; `piecesJointesJson` jamais relu (point 9, KB-PAT-19) ; la garde de centre sur les lectures (point 6).
 
 ## Contexte
 Le gel du module parallèle (ADR 0073) prévoyait la reprise sur place : mêmes tables, mêmes URL, vocabulaire du legacy. Le filet de caractérisation PC1 (56 scénarios, 128 goldens, commité vert sur le legacy en 321275cb) a verrouillé le comportement de `PatientRestController`, `PatientApplicationService`, `MouvementPatientRestController` et de leurs lecteurs. Les décisions du 2026-11-02 (déléguées) fixent les écarts de comportement acceptés.

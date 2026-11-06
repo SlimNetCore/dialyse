@@ -71,21 +71,6 @@ class ReglesDeGestionDocumentationTest {
     private static final Pattern CONTEXT_RULE_CODE = Pattern.compile(
             "(?:super|regle|new ReglePiece|new RegleDePlanificationViolee)\\(\"([A-Z][A-Z0-9]*_[A-Z0-9_]*[A-Z0-9])\"");
 
-    /**
-     * Sources d'avant la reprise du module patient-couverture (ADR 0073, GEL.md) : toujours sur disque mais exclues de la
-     * compilation par le pom du module (Attestation : retrait à PC4 ; PC1 à PC3 ont retiré le reste), leurs routes ne sont pas servies.
-     */
-    private static final Set<String> SOURCES_GELEES_DE_PATIENT_COUVERTURE = Set.of("EtatPatient", "MouvementPatient",
-            "MouvementPatientId", "MouvementPatientRepository", "MouvementType", "NumeroDossier", "PatientAdmis", "PatientService",
-            "PatientUseCases");
-
-    private static boolean estGeleDePatientCouverture(Path source) {
-        String chemin = source.toString().replace('\\', '/');
-        if (!chemin.contains("/contexts/patient-couverture/")) return false;
-        String nom = source.getFileName().toString().replace(".java", "");
-        return chemin.contains("/interfaces/http/dto/") || SOURCES_GELEES_DE_PATIENT_COUVERTURE.contains(nom);
-    }
-
     private static List<Path> mainSources() throws IOException {
         List<Path> sources = new ArrayList<>();
         // modules legacy (backend/<module>) et contextes refaits sur place (backend/contexts/<contexte>)
@@ -99,8 +84,7 @@ class ReglesDeGestionDocumentationTest {
                     // module GELE le 2026-11-02 (ADR 0075, GEL.md) : non branché, hors réacteur, ses routes ne sont pas servies
                     && !p.toString().replace('\\', '/').contains("/contexts/pilotage-direction/")).toList()) {
                 try (Stream<Path> files = Files.walk(main)) {
-                    files.filter(p -> p.toString().endsWith(".java")).filter(p -> !estGeleDePatientCouverture(p))
-                            .forEach(sources::add);
+                    files.filter(p -> p.toString().endsWith(".java")).forEach(sources::add);
                 }
             }
         }

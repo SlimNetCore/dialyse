@@ -273,13 +273,17 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
 
     // ------------------------------------------------------------------ résumés
 
-    /** Le mois courant dépend de l'exécution : masqué ; le statut et le corps restent verrouillés. */
+    /**
+     * Le mois courant dépend de l'exécution : masqué ; le statut et le corps restent verrouillés. Seul le mois SEUL est masqué
+     * (« 2026-11 »), jamais le début d'une DATE du mois (« 2026-11-01 ») : les cinq premiers jours du mois, « J-5 » tombe dans le
+     * mois courant et sa date est nommée par l'alias de jour (correction du 2026-11-06, le golden est inchangé).
+     */
     private void lectureSansMois(String name, Resp r) {
         String mois = YearMonth.now(FUSEAU_DU_CENTRE).toString();
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("status", r.status());
         m.put("cacheControl", r.cacheControl());
-        m.put("body", mapper.readTree(r.raw().replace(mois, "<MOIS_COURANT>")));
+        m.put("body", mapper.readTree(r.raw().replaceAll(java.util.regex.Pattern.quote(mois) + "(?!-\\d)", "<MOIS_COURANT>")));
         arbre(name, m);
     }
 

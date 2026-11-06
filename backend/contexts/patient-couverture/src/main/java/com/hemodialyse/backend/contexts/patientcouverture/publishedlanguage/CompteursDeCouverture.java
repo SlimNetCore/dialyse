@@ -11,8 +11,15 @@ import java.util.UUID;
  */
 public interface CompteursDeCouverture {
 
-    /** Prises en charge au statut donné ({@code CREE}, {@code VALIDEE}…), créées dans la période si elle est donnée. */
-    long prisesEnCharge(UUID centre, String statut, LocalDate du, LocalDate au);
+    /** Les statuts d'une prise en charge (valeurs du JSON et de la colonne {@code statut}, inchangées). */
+    enum StatutDePec {
+        CREE,
+        VALIDEE,
+        CLOTUREE
+    }
+
+    /** Prises en charge au statut donné, créées dans la période si elle est donnée. */
+    long prisesEnCharge(UUID centre, StatutDePec statut, LocalDate du, LocalDate au);
 
     /** Prises en charge VALIDÉES dont la fin demandée est avant le seuil, bornes incluses, échues comprises. */
     long prisesEnChargeValideesAEcheance(UUID centre, LocalDate seuil);

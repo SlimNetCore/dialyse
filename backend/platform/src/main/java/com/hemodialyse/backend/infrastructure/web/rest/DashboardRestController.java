@@ -106,8 +106,9 @@ public class DashboardRestController {
     }
 
     private long countPec(UUID centerId, String status, YearMonth month) {
-        if (month == null) return compteurs.prisesEnCharge(centerId, status, null, null);
-        return compteurs.prisesEnCharge(centerId, status, month.atDay(1), month.atEndOfMonth());
+        CompteursDeCouverture.StatutDePec statut = CompteursDeCouverture.StatutDePec.valueOf(status);
+        if (month == null) return compteurs.prisesEnCharge(centerId, statut, null, null);
+        return compteurs.prisesEnCharge(centerId, statut, month.atDay(1), month.atEndOfMonth());
     }
 
     private long countPecExpiring(UUID centerId, LocalDate threshold) {
@@ -125,9 +126,9 @@ public class DashboardRestController {
 
     private long countPatients(UUID centerId, YearMonth month) {
         if (month == null) {
-            // effectif d'aujourd'hui (jour d'UTC, comme avant) : un patient sorti (transfert, décès, greffe, guérison, fin de séjour)
-            // n'est plus compté
-            return compteurs.patientsPresentsLe(centerId, LocalDate.now(java.time.ZoneOffset.UTC));
+            // effectif d'aujourd'hui, AU JOUR DU CENTRE comme l'échéance (revue du 2026-11-05 : un seul « aujourd'hui » dans la réponse ;
+            // avant, le jour d'UTC) : un patient sorti (transfert, décès, greffe, guérison, fin de séjour) n'est plus compté
+            return compteurs.patientsPresentsLe(centerId, jourDuCentre.aujourdhui(centerId));
         }
         return compteurs.patientsCrees(centerId, month.atDay(1), month.atEndOfMonth());
     }

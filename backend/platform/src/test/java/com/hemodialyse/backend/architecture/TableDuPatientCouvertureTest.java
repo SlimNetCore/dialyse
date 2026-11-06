@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Slice PC5 : les tables de Patient &amp; couverture ({@code patients}, {@code mouvement_patient}, {@code assure},
- * {@code assure_patient}, {@code prise_en_charge}, {@code attestation_droit}) appartiennent au contexte patient-couverture. Plus aucun
+ * {@code assure_patient}, {@code prise_en_charge}, {@code attestation_droit}) appartiennent au contexte patient-couverture. Aucun NOUVEAU
  * source hors de ce contexte ne doit les lire ou les écrire en SQL direct : les autres contextes passent par le langage publié
  * {@code patientcouverture.v1} ({@code FichesDesPatients}, {@code CouvertureDesPatients}, {@code CompteursDeCouverture}).
  * <p>
@@ -35,11 +35,27 @@ class TableDuPatientCouvertureTest {
     private static final Pattern LECTURE_SQL = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
 
-    private static final String PLACE = "2026-11-04 : colonnes de PLACE de patients, propriété de la Planification (ADR 0052) ; "
+    /**
+     * Deuxième détection (revue du 2026-11-05) : le SQL CONSTRUIT n'a pas de littéral {@code FROM patients}. On repère donc les noms
+     * de tables passés à un descripteur ({@code new Table("attestation_droit", …)}, {@code new Usage("prise_en_charge", …)}) ou
+     * déclarés par {@code @Table(name = "patients")} sur une entité JPA.
+     */
+    private static final Pattern LITTERAL_DE_TABLE = Pattern.compile(
+            "(?:new\\s+(?:Table|Usage)\\s*\\(|@Table\\s*\\(\\s*name\\s*=\\s*)\"([A-Za-z_][A-Za-z0-9_]*)\"");
+
+    /** Troisième détection : l'accès par JPA aux entités historiques du patient et de l'assuré (aucun SQL dans le source). */
+    private static final Pattern ENTITE_JPA = Pattern.compile(
+            "\\b(PatientJpaEntity|AssureJpaEntity|AssurePatientJpaEntity|PatientJpaRepository|AssureJpaRepository|AssurePatientJpaRepository)\\b");
+
+    private static final String PLACE ="2026-11-04 : colonnes de PLACE de patients, propriété de la Planification (ADR 0052) ; "
             + "échéance : inversion de la propriété de la place, hors périmètre (aucune échéance)";
     private static final String CYCLE = "2026-11-04 : dépendance Maven CIRCULAIRE (contexts-patient-couverture dépend de "
             + "contexts-planification) ; échéance : extraction des interfaces publiées dans un module d'API partagé (le port est prêt)";
-    private static final String JOINTURE = "2026-11-04 : jointure avec les tables du contexte consommateur dans un GROUP BY / un tri "
+    private static final String HORS_VERROU = "2026-11-05 : écrivain hors module et hors verrou du centre, à lancer hors activité du centre "
+            + "(ADR 0077 point 12, ADR 0078 point 10) ; échéance : reprise de la migration par le module";
+    private static final String JPA = "2026-11-05 : entité ou dépôt JPA historique du patient / de l'assuré, modèle de lecture de la Séance, "
+            + "de FHIR, du cahier de dialyse, de KDIGO et des migrateurs ; échéance : reprise de ces contextes (retrait de bc-patient et bc-assure)";
+    private static final String JOINTURE ="2026-11-04 : jointure avec les tables du contexte consommateur dans un GROUP BY / un tri "
             + "(la découper changerait le résultat) ; échéance : reprise du contexte consommateur";
 
     /** Lecteurs et écrivains restants hors du contexte (chemin depuis {@code backend/}) : jalons acceptés le 2026-11-04. */
@@ -65,7 +81,26 @@ class TableDuPatientCouvertureTest {
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
             "2026-11-04 : outil de migration, écrit/supprime en bloc (patients, assure, assure_patient) ; à lancer hors activité du centre (ADR 0077 point 12, ADR 0078 point 10) ; échéance : reprise de la migration par le module",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceRestController.java",
-            "2026-11-04 : contrôleur de 1300 lignes de la Séance (tableau de bord, journal), hors ports ; échéance : reprise du contexte Séance");
+            "2026-11-04 : contrôleur de 1300 lignes de la Séance (tableau de bord, journal), hors ports ; échéance : reprise du contexte Séance",
+            // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java", HORS_VERROU
+                    + " : INSERT construit (« INSERT INTO » + nom de table) sur attestation_droit et prise_en_charge, import de la migration historique",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminTables.java",
+            "2026-11-05 : descripteurs des référentiels (forfait, créneau, salle, médecin…) dont les « usages » nomment prise_en_charge et patients ; "
+                    + "ReferentialAdminJdbcAdapter les lit en COUNT dynamique (« SELECT COUNT(*) FROM » + table) pour refuser la suppression d'un "
+                    + "référentiel utilisé ; échéance : reprise du référentiel d'administration (organisation.v1) ou port d'usage publié",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceRepositoryAdapter.java",
+            "2026-11-05 : recherche des séances en JPA Criteria sur PatientJpaEntity (jointure séances-patients) ; échéance : reprise du contexte Séance",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java", JPA,
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssureJpaEntity.java", JPA + " (migrateurs d'assurés)",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssurePatientJpaEntity.java", JPA + " (migrateurs d'affectations)",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PatientJpaRepository.java", JPA,
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AssureJpaRepository.java", JPA + " (migrateurs d'assurés)",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AssurePatientJpaRepository.java", JPA + " (migrateurs d'affectations)",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/PatientRepositoryAdapter.java", JPA + " : PatientRepositoryPort de la Séance, de FHIR, du cahier de dialyse et de KDIGO",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/AssureRepositoryAdapter.java", JPA + " (migrateurs d'assurés)",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/AssurePatientRepositoryAdapter.java", JPA + " (migrateurs d'affectations)",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/mapper/PatientMapper.java", JPA + " (modèle patient historique de bc-patient)");
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();
@@ -110,11 +145,16 @@ class TableDuPatientCouvertureTest {
 
     private static boolean mentionneUneTable(Path source) {
         try {
-            Matcher m = LECTURE_SQL.matcher(Files.readString(source));
+            String contenu = Files.readString(source);
+            Matcher m = LECTURE_SQL.matcher(contenu);
             while (m.find()) {
                 if (TABLES_DU_PATIENT_COUVERTURE.contains(m.group(2).toLowerCase())) return true;
             }
-            return false;
+            Matcher litteral = LITTERAL_DE_TABLE.matcher(contenu);
+            while (litteral.find()) {
+                if (TABLES_DU_PATIENT_COUVERTURE.contains(litteral.group(1).toLowerCase())) return true;
+            }
+            return ENTITE_JPA.matcher(contenu).find();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -154,7 +194,7 @@ class TableDuPatientCouvertureTest {
     @Test
     void chaque_jalon_porte_une_date_et_une_echeance() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            assertThat(raison).startsWith("2026-11-04");
+            assertThat(raison).matches("(?s)2026-11-0[45].*");
             assertThat(raison).contains("échéance");
         });
     }
@@ -191,6 +231,50 @@ class TableDuPatientCouvertureTest {
                 """);
 
         assertThat(sourcesFautives(bacPropre, List.of(bacPropre))).as("une table d'un autre contexte n'est pas signalée").isEmpty();
+    }
+
+    /** Test négatif (revue du 2026-11-05) : un lecteur à SQL CONSTRUIT ou en JPA doit faire échouer la garde. */
+    @Test
+    void la_garde_detecte_un_acces_construit_un_descripteur_de_table_et_un_acces_jpa() throws IOException {
+        Path bac = Files.createTempDirectory("garde-patient-couverture-dynamique");
+        Files.writeString(bac.resolve("SqlConstruit.java"), """
+                class SqlConstruit {
+                    static final Table T = new Table("attestation_droit", java.util.Set.of("patientId"), true, false);
+                    void ecrit(String table) { jdbc.update("INSERT INTO " + table + " (id) VALUES (?)"); }
+                }
+                """);
+        Files.writeString(bac.resolve("Usages.java"), """
+                class Usages {
+                    java.util.List<Usage> usages = java.util.List.of(new Usage("prise_en_charge", "forfait_demande_id"));
+                }
+                """);
+        Files.writeString(bac.resolve("EntiteJpa.java"), """
+                @Table(name = "patients")
+                class EntiteJpa {
+                }
+                """);
+        Files.writeString(bac.resolve("RechercheJpa.java"), """
+                class RechercheJpa {
+                    Root<PatientJpaEntity> patient = query.from(PatientJpaEntity.class);
+                }
+                """);
+
+        assertThat(sourcesFautives(bac, List.of(bac)))
+                .containsExactlyInAnyOrder("SqlConstruit.java", "Usages.java", "EntiteJpa.java", "RechercheJpa.java");
+
+        Path bacPropre = Files.createTempDirectory("garde-patient-couverture-dynamique-propre");
+        Files.writeString(bacPropre.resolve("Etiquettes.java"), """
+                class Etiquettes {
+                    Resolved r = new Resolved("SEROLOGIE_ENREGISTREE", "patients", "Sérologie enregistrée");
+                    java.util.Map<String, Object> m = java.util.Map.of("patients", 3);
+                    Table autre = new Table("forfait", java.util.List.of(), java.util.List.of(), java.util.List.of(), "t.code", java.util.List.of(), java.util.List.of());
+                    Root<SeanceJpaEntity> seance = query.from(SeanceJpaEntity.class);
+                    Object dossier = DossierMedicalPatientJpaEntity.class;
+                }
+                """);
+
+        assertThat(sourcesFautives(bacPropre, List.of(bacPropre))).as("libellés, autres tables et entités voisines ne sont pas signalés")
+                .isEmpty();
     }
 
     @Test

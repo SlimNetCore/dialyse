@@ -28,14 +28,14 @@ public class CompteursDeCouvertureJdbc implements CompteursDeCouverture {
     }
 
     @Override
-    public long prisesEnCharge(UUID centre, String statut, LocalDate du, LocalDate au) {
+    public long prisesEnCharge(UUID centre, StatutDePec statut, LocalDate du, LocalDate au) {
         if (du == null || au == null) {
             return compte(jdbc.queryForObject("SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = ?", Long.class,
-                    centre, statut));
+                    centre, statut.name()));
         }
         return compte(jdbc.queryForObject(
                 "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = ? AND created_at >= ? AND created_at <= ?",
-                Long.class, centre, statut, du, au));
+                Long.class, centre, statut.name(), du, au));
     }
 
     @Override

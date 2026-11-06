@@ -27,11 +27,11 @@ import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.lega
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.ForfaitsDesPatientsDeLaCouverture;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.NomsDesPatientsDeLaFiche;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.PatientsDuCentreDeLaFiche;
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.ExclusionsDeSeancesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.SeancesRealiseesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.identifiants.GenerateurDIdentifiantsAleatoires;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.LectureDesAbsencesJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.transaction.UniteDeTravailSpring;

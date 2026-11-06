@@ -80,6 +80,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -125,8 +126,7 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    SeancesFacturables facturationSeancesFacturables(JdbcTemplate jdbc,
-            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients couverture) {
+    SeancesFacturables facturationSeancesFacturables(JdbcTemplate jdbc, CouvertureDesPatients couverture) {
         return new SeancesFacturablesJdbc(jdbc, couverture);
     }
 

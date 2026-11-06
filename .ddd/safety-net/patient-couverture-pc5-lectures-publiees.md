@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-pc5-lectures-publiees
-status: characterized
+status: obsolete (note du 2026-11-01 ; PC5 est `built`, voir la fiche, l'ADR 0079 et la liste blanche datée de TableDuPatientCouvertureTest)
 date: 2026-11-01
 sources: [.ddd/migration/slices/patient-couverture-pc5-lectures-publiees.md, .ddd/tactical/patient-couverture.md, ADR 0064]
 ---

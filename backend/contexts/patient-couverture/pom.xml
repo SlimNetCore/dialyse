@@ -95,20 +95,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/domain/EtatPatient.java</exclude>
-                        <exclude>**/domain/MouvementPatient*.java</exclude>
-                        <exclude>**/domain/MouvementType.java</exclude>
-                        <exclude>**/domain/NumeroDossier.java</exclude>
-                        <exclude>**/application/PatientService.java</exclude>
-                        <exclude>**/application/PatientUseCases.java</exclude>
-                        <exclude>**/interfaces/http/dto/*.java</exclude>
-                        <exclude>**/publishedlanguage/PatientAdmis.java</exclude>
-                    </excludes>
-                    <testExcludes>
-                    </testExcludes>
-                </configuration>
             </plugin>
             <!-- Mutation : domaine et cas d'usage. Lancer : bash backend/scripts/pit-pc1-module.sh -->
             <plugin>

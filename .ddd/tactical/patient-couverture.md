@@ -1,6 +1,7 @@
 ---
 status: proposed
 date: 2026-10-28
+revision: 2026-11-06 : le contexte est REPRIS SUR PLACE (PC1 à PC5, ADR 0076 à 0079) avec le vocabulaire du LEGACY (états, types de mouvement, routes) ; ce modèle reste la cible conceptuelle et garde le statut `proposed` (à valider par les experts métier, aucun terme validé par l'assistant)
 context: Patient & couverture (`patient-couverture`) -- SD4, Supporting
 sources: [.ddd/strategic/bounded-contexts.md Patient & couverture, .ddd/strategic/context-map.md R10, .ddd/strategic/glossaries/patient-couverture.md, .ddd/discovery/event-storming.md timeline #25-36, docs/reference/regles-de-gestion/04-patient.md (RG-PAT-0xx), backend/bc-patient + bc-assure + bc-pec + bc-insurance (lecture cibl�e), ADR 0004/0012/0017]
 ---

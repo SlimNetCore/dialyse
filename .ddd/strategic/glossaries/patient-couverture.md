@@ -1,6 +1,7 @@
 ---
-status: validated
-date: 2026-10-09
+status: proposed
+date: 2026-11-06
+historique: glossaire initial daté du 2026-10-09 (statut `validated` à l'époque) ; depuis la reprise sur place PC1 à PC5 (ADR 0076 à 0079) TOUS les termes du contexte portent le statut `proposed` dans le tableau : l'en-tête est aligné ; la validation de chaque terme relève des experts métier (l'assistant n'en valide aucun)
 context: Patient & couverture (supporting)
 sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §2]
 ---

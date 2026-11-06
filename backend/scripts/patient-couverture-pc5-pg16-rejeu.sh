@@ -41,6 +41,12 @@ verifier_colonnes prise_en_charge id patient_id center_id statut date_debut_dema
 verifier_colonnes attestation_droit id patient_id center_id date_debut date_fin created_at
 verifier_colonnes forfait id center_id libelle prix
 
+echo "=== PC5 : requetes de parite de verifications-production.md section 44, SELECT seulement, executables sur le schema reel ==="
+req() { "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$2" >/dev/null && echo "requete $1 executable" || { echo "ATTENDU : requete $1 executable"; RC=1; }; }
+req "44-1 (compteurs du tableau de bord par centre)" "SELECT c.id, (SELECT count(1) FROM prise_en_charge WHERE center_id = c.id AND statut = 'CREE') AS pec_cree, (SELECT count(1) FROM prise_en_charge WHERE center_id = c.id AND statut = 'VALIDEE' AND date_fin_demande <= current_date + 30) AS pec_a_echeance, (SELECT count(1) FROM attestation_droit WHERE center_id = c.id AND date_fin <= current_date + 30) AS attestation_a_echeance FROM centers c ORDER BY c.name"
+req "44-3 (eligibilite a la facturation au jour, trois etages)" "SELECT c.center_id, count(DISTINCT c.patient_id) FILTER (WHERE COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL AND ((c.date_debut_effectif IS NOT NULL AND current_date >= c.date_debut_effectif AND (current_date <= c.date_fin_effectif OR c.date_fin_effectif IS NULL)) OR (c.date_debut_demande IS NOT NULL AND current_date >= c.date_debut_demande AND (current_date <= c.date_fin_demande OR c.date_fin_demande IS NULL)))) AS etage_1, count(DISTINCT c.patient_id) FILTER (WHERE c.statut = 'VALIDEE' AND EXISTS (SELECT 1 FROM attestation_droit a WHERE a.center_id = c.center_id AND a.patient_id = c.patient_id AND current_date >= a.date_debut AND (current_date <= a.date_fin OR a.date_fin IS NULL))) AS etage_3 FROM prise_en_charge c GROUP BY 1 ORDER BY 1"
+req "44-4 (forfaits de PEC absents ou d'un autre centre)" "SELECT c.center_id, count(*) FROM prise_en_charge c LEFT JOIN forfait f ON f.id = COALESCE(c.forfait_effectif_id, c.forfait_demande_id) AND f.center_id = c.center_id WHERE COALESCE(c.forfait_effectif_id, c.forfait_demande_id) IS NOT NULL AND f.id IS NULL GROUP BY 1"
+
 cd "$RACINE/backend"
 P=com.hemodialyse.backend.contexts.patientcouverture.contrat
 echo "=== Contrat PostgreSQL du langage publie et des depots du module ==="

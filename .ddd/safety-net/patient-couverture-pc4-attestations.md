@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-pc4-attestations
-status: characterized (filet vert sur le code actuel, rien de commité)
+status: characterized (filet vert sur le legacy, commité en 945b872c ; PC4 repris sur place ensuite, voir la fiche)
 date: 2026-11-04
 sources: .ddd/migration/slices/patient-couverture-pc4-attestations.md, .ddd/tactical/patient-couverture.md, ADR 0024/0064/0073/0076/0077, docs/reference/regles-de-gestion/04-patients-assures-pec.md, known-bugs.md KB-PAT-38 à 48
 ---
