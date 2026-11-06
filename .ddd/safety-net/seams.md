@@ -295,6 +295,13 @@ Autorisé par l'utilisateur (2/11 : édition minimale des fichiers legacy strict
 | 2026-11-06 | dossier-medical-dm1-constantes | `platform/.../web/rest/SeanceRestController.java` : `requireCenter` sur `POST /seances`, `POST /seances/scan`, `GET /seances` (liste), `PUT /seances/{id}`, `GET /seances/journal`, `GET /seances/calendar` | Revue DM1, major 2 : données de séance (patients, poids) d'un autre centre ; centre demandé/ciblé comparé à celui du jeton, 403 sinon. Les autres routes de la Séance sans garde (forfait, valider, déverrouiller, signatures, consommables, jours fériés/fermetures) restent à SE* (ADR 0080). |
 | 2026-11-06 | dossier-medical-dm1-constantes | `covered.json` : retrait des 3 entrées mortes (`ConstantesRestController`, `ConstantesQueryService`, `ConstanteSeanceResponse`) ; inscription de `PatientStatsRestController` dans `covered` | Revue DM1, mineurs. |
 
+## Dossier médical DM1 (gardes de centre sur les écritures de séance restantes) : OUVERT puis FERMÉ le 2026-11-07
+
+| Date | Slice | Fichiers édités (inscrits dans `seamAllowed` AVANT l'édition) | Raison |
+|---|---|---|---|
+| 2026-11-07 | dossier-medical-dm1-constantes | `platform/.../web/rest/SeanceRestController.java` : `requireCenter(<centre demandé : corps ou paramètre>)` en tête de `PUT /seances/{id}/forfait`, `POST .../valider`, `POST .../deverrouiller-regularisation`, `POST .../signer-medecin`, `POST/PUT/DELETE .../consommables`, `POST/DELETE /calendar/holiday` et `/calendar/closure` | Suite de la revue DM1 (KB-MED-02) : toutes ces routes agissent sur le centre fourni par le client (les cas d'usage filtrent par ce centre) ; il doit être celui du jeton, 403 sinon. Bon centre inchangé. |
+| 2026-11-07 | dossier-medical-dm1-constantes | `platform/.../web/rest/VoletMedicalRestController.java` (ajouté aussi à `covered`) : `CenterAccessGuard` injecté, `requireCenter(request.centerId())` sur `PUT /seances/{id}/volet-medical` | Même fuite d'écriture que le volet paramédical (centre du corps cru). DM8 reprendra la lecture/écriture du volet médical. |
+
 ## Dossier médical DM1 (constantes, sessions S2 et S3) : FERMÉ le 2026-11-06 (`seamAllowed` vidé)
 
 Décision déléguée de l'utilisateur (message du coordinateur du 2026-11-06) : fuites de santé inter-centres KB-MED-01 et KB-MED-02, corrigées par des gardes de centre MINIMALES (aucune autre modification). Les filets Séance, Stock, Facturation et DM1 ne doivent changer QUE pour le 403 d'un centre hors session.

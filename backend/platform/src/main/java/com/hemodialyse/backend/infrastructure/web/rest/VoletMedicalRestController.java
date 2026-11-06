@@ -20,15 +20,19 @@ import java.util.UUID;
 public class VoletMedicalRestController {
 
     private final VoletMedicalUseCase voletMedicalUseCase;
+    private final com.hemodialyse.backend.infrastructure.security.CenterAccessGuard centerAccessGuard;
 
-    public VoletMedicalRestController(VoletMedicalUseCase voletMedicalUseCase) {
+    public VoletMedicalRestController(VoletMedicalUseCase voletMedicalUseCase,
+                                      com.hemodialyse.backend.infrastructure.security.CenterAccessGuard centerAccessGuard) {
         this.voletMedicalUseCase = voletMedicalUseCase;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
     @PutMapping("/{seanceId}/volet-medical")
     public ResponseEntity<?> upsert(@PathVariable UUID seanceId,
                                     @RequestBody @Valid UpsertVoletMedicalRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
         var volet = voletMedicalUseCase.save(
                 CenterId.of(request.centerId()),
                 seanceId,

@@ -117,6 +117,76 @@ class GardeDeCentreDesRoutesDeMesuresCharacterizationIntegrationTest extends Con
         arbre("statistiques_et_exports", cas);
     }
 
+    private Resp supprime(String chemin, RequestPostProcessor qui) throws Exception {
+        return send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete(java.net.URI.create(chemin)).with(qui));
+    }
+
+    @Test
+    void les_autres_actions_de_seance_sont_gardees_et_n_ecrivent_rien_hors_centre() throws Exception {
+        UUID patientB = patientDm1(CENTRE_B, "PAT_B");
+        UUID sb = seanceDm1(CENTRE_B, "SEANCE_B", patientB, jour(-3), "VALIDEE", 1);
+        voletDm1(CENTRE_B, "VOLET_B", sb, "80.00", "78.00", "140/90", "130/80", 250, "1500.00", 180);
+        UUID patientA = patientDm1(CENTRE_A, "PAT_A");
+        UUID sa = seanceDm1(CENTRE_A, "SEANCE_A", patientA, jour(-3), "VALIDEE", 1);
+        UUID autre = UUID.nameUUIDFromBytes("article".getBytes());
+        String statutAvant = jdbc.queryForObject("SELECT statut FROM seances WHERE id = ?", String.class, sb);
+        Map<String, Object> cas = new LinkedHashMap<>();
+        try {
+            String forfaitB = "{\"centerId\":\"" + CENTRE_B + "\",\"forfaitId\":\"" + autre + "\",\"userId\":\"u\"}";
+            String forfaitA = "{\"centerId\":\"" + CENTRE_A + "\",\"forfaitId\":\"" + autre + "\",\"userId\":\"u\"}";
+            paire(cas, "PUT /seances/{id}/forfait",
+                    doPut(SEANCES_API + "/" + sb + "/forfait", forfaitB, adminDuCentreA()),
+                    doPut(SEANCES_API + "/" + sa + "/forfait", forfaitA, adminDuCentreA()));
+            paire(cas, "POST /seances/{id}/valider",
+                    doPost(SEANCES_API + "/" + sb + "/valider", "{\"centerId\":\"" + CENTRE_B + "\",\"userId\":\"u\"}", infirmierDuCentreA()),
+                    doPost(SEANCES_API + "/" + sa + "/valider", "{\"centerId\":\"" + CENTRE_A + "\",\"userId\":\"u\"}", infirmierDuCentreA()));
+            paire(cas, "POST /seances/{id}/deverrouiller-regularisation",
+                    doPost(SEANCES_API + "/" + sb + "/deverrouiller-regularisation?centerId=" + CENTRE_B, "", adminDuCentreA()),
+                    doPost(SEANCES_API + "/" + sa + "/deverrouiller-regularisation?centerId=" + CENTRE_A, "", adminDuCentreA()));
+            paire(cas, "POST /seances/{id}/signer-medecin",
+                    doPost(SEANCES_API + "/" + sb + "/signer-medecin", "{\"centerId\":\"" + CENTRE_B + "\",\"userId\":\"u\"}", as(CENTRE_A, "MEDECIN")),
+                    doPost(SEANCES_API + "/" + sa + "/signer-medecin", "{\"centerId\":\"" + CENTRE_A + "\",\"userId\":\"u\"}", as(CENTRE_A, "MEDECIN")));
+            paire(cas, "POST /seances/{id}/consommables",
+                    doPost(SEANCES_API + "/" + sb + "/consommables", "{\"centerId\":\"" + CENTRE_B + "\",\"articleId\":\"" + autre + "\",\"quantite\":1}", infirmierDuCentreA()),
+                    doPost(SEANCES_API + "/" + sa + "/consommables", "{\"centerId\":\"" + CENTRE_A + "\",\"articleId\":\"" + autre + "\",\"quantite\":1}", infirmierDuCentreA()));
+            paire(cas, "PUT /seances/{id}/consommables/{articleId}",
+                    doPut(SEANCES_API + "/" + sb + "/consommables/" + autre, "{\"centerId\":\"" + CENTRE_B + "\",\"userId\":\"u\",\"quantite\":2}", infirmierDuCentreA()),
+                    doPut(SEANCES_API + "/" + sa + "/consommables/" + autre, "{\"centerId\":\"" + CENTRE_A + "\",\"userId\":\"u\",\"quantite\":2}", infirmierDuCentreA()));
+            paire(cas, "DELETE /seances/{id}/consommables/{articleId}",
+                    supprime(SEANCES_API + "/" + sb + "/consommables/" + autre + "?centerId=" + CENTRE_B, infirmierDuCentreA()),
+                    supprime(SEANCES_API + "/" + sa + "/consommables/" + autre + "?centerId=" + CENTRE_A, infirmierDuCentreA()));
+            paire(cas, "POST /seances/calendar/holiday",
+                    doPost(SEANCES_API + "/calendar/holiday", "{\"centerId\":\"" + CENTRE_B + "\",\"dayDate\":\"2030-01-15\",\"labelOrReason\":\"x\"}", adminDuCentreA()),
+                    doPost(SEANCES_API + "/calendar/holiday", "{\"centerId\":\"" + CENTRE_A + "\",\"dayDate\":\"2030-01-15\",\"labelOrReason\":\"x\"}", adminDuCentreA()));
+            paire(cas, "DELETE /seances/calendar/holiday/{id}",
+                    supprime(SEANCES_API + "/calendar/holiday/" + autre + "?centerId=" + CENTRE_B, adminDuCentreA()),
+                    supprime(SEANCES_API + "/calendar/holiday/" + autre + "?centerId=" + CENTRE_A, adminDuCentreA()));
+            paire(cas, "POST /seances/calendar/closure",
+                    doPost(SEANCES_API + "/calendar/closure", "{\"centerId\":\"" + CENTRE_B + "\",\"dayDate\":\"2030-01-16\",\"labelOrReason\":\"x\"}", adminDuCentreA()),
+                    doPost(SEANCES_API + "/calendar/closure", "{\"centerId\":\"" + CENTRE_A + "\",\"dayDate\":\"2030-01-16\",\"labelOrReason\":\"x\"}", adminDuCentreA()));
+            paire(cas, "DELETE /seances/calendar/closure/{id}",
+                    supprime(SEANCES_API + "/calendar/closure/" + autre + "?centerId=" + CENTRE_B, adminDuCentreA()),
+                    supprime(SEANCES_API + "/calendar/closure/" + autre + "?centerId=" + CENTRE_A, adminDuCentreA()));
+            paire(cas, "PUT /seances/{id}/volet-medical",
+                    doPut(SEANCES_API + "/" + sb + "/volet-medical", "{\"centerId\":\"" + CENTRE_B + "\",\"prescription\":\"x\"}", as(CENTRE_A, "MEDECIN")),
+                    doPut(SEANCES_API + "/" + sa + "/volet-medical", "{\"centerId\":\"" + CENTRE_A + "\",\"prescription\":\"x\"}", as(CENTRE_A, "MEDECIN")));
+            arbre("autres_actions_de_seance", cas);
+            org.assertj.core.api.Assertions.assertThat(jdbc.queryForObject("SELECT statut FROM seances WHERE id = ?", String.class, sb))
+                    .as("statut de la séance du centre B inchangé").isEqualTo(statutAvant);
+            org.assertj.core.api.Assertions.assertThat(jdbc.queryForObject(
+                            "SELECT COUNT(*) FROM center_holiday WHERE center_id = ?", Integer.class, CENTRE_B))
+                    .as("aucun jour férié écrit dans le centre B").isZero();
+            org.assertj.core.api.Assertions.assertThat(jdbc.queryForObject(
+                            "SELECT COUNT(*) FROM center_closure_day WHERE center_id = ?", Integer.class, CENTRE_B))
+                    .as("aucune fermeture écrite dans le centre B").isZero();
+        } finally {
+            for (UUID centre : java.util.List.of(CENTRE_A, CENTRE_B)) {
+                jdbc.update("DELETE FROM center_holiday WHERE center_id = ?", centre);
+                jdbc.update("DELETE FROM center_closure_day WHERE center_id = ?", centre);
+            }
+        }
+    }
+
     private String recherche(UUID centre, UUID patient, String format) {
         return "{\"centerId\":\"" + centre + "\",\"patientId\":\"" + patient + "\""
                 + (format == null ? "" : ",\"format\":\"" + format + "\"") + "}";

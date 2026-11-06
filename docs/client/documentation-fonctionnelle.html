@@ -3276,8 +3276,9 @@ séance (<code>PUT /seances/{id}/volet-paramedical</code>), le détail, la liste
 d&#39;une séance (<code>POST /seances</code>, <code>POST /seances/scan</code>, <code>PUT /seances/{id}</code>), les statistiques paramédicales et médicales
 du patient et leur export CSV/PDF (<code>GET /patients/{id}/stats/paramedical</code>, <code>stats/medical</code>, <code>stats/export</code> et les
 <code>POST</code> de recherche correspondants) confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon
-(avant : fuite et écriture inter-centres, KB-MED-01 et 02). Les autres actions de la séance (forfait, validation,
-signatures, consommables, calendrier de fermetures) n&#39;ont pas encore cette garde (slices Séance). Droits inchangés (le médecin seul lit les constantes mais n&#39;en saisit pas, KB-MED-08).</p>
+(avant : fuite et écriture inter-centres, KB-MED-01 et 02). Il en va de même pour les autres actions de la séance :
+forfait, validation, déverrouillage de régularisation, signature du médecin, consommables, jours fériés et fermetures
+du calendrier, volet médical : toute route de <code>/api/v1/seances</code> est confrontée au centre de la session. Droits inchangés (le médecin seul lit les constantes mais n&#39;en saisit pas, KB-MED-08).</p>
 </div></div>
 <div class="rule" id="RG-MED-101"><div class="rid">RG-MED-101</div><div class="rtxt"><p><strong>Statistiques du patient</strong> (<code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>) : moyennes médicales (Hb,
 Kt/V, ferritine…) et paramédicales sur une période ; <strong>UF réelle</strong> = ultrafiltration

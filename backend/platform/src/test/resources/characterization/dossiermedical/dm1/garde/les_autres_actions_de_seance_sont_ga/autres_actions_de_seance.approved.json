@@ -1,0 +1,50 @@
+{
+  "DELETE /seances/calendar/closure/{id}" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "DELETE /seances/calendar/holiday/{id}" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "DELETE /seances/{id}/consommables/{articleId}" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/calendar/closure" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/calendar/holiday" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/{id}/consommables" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/{id}/deverrouiller-regularisation" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/{id}/signer-medecin" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "POST /seances/{id}/valider" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "PUT /seances/{id}/consommables/{articleId}" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "PUT /seances/{id}/forfait" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  },
+  "PUT /seances/{id}/volet-medical" : {
+    "centre A demandé par la session A" : "non refusé",
+    "centre B demandé par la session A" : "403 ACCESS_DENIED"
+  }
+}

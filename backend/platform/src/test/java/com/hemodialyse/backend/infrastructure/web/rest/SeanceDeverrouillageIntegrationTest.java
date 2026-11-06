@@ -69,7 +69,7 @@ class SeanceDeverrouillageIntegrationTest {
     }
 
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder valider(UUID id, String role) {
-        return post("/api/v1/seances/{id}/valider", id).with(user("u").roles(role))
+        return post("/api/v1/seances/{id}/valider", id).with(SessionsDeTest.session(CENTER, "u", role))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"centerId\":\"%s\",\"userId\":\"u\"}".formatted(CENTER));
     }
@@ -92,7 +92,7 @@ class SeanceDeverrouillageIntegrationTest {
     void only_the_admin_can_unlock() throws Exception {
         for (String role : new String[]{"INFIRMIER", "SECRETAIRE", "MEDECIN"}) {
             mockMvc.perform(post("/api/v1/seances/{id}/deverrouiller-regularisation", OUBLIEE)
-                            .param("centerId", CENTER.toString()).with(user("u").roles(role)))
+                            .param("centerId", CENTER.toString()).with(SessionsDeTest.session(CENTER, "u", role)))
                     .andExpect(status().isForbidden());
         }
     }

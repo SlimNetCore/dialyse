@@ -109,6 +109,7 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/VoletParamedicalRepositoryAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/VoletParamedicalJpaEntity.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/VoletParamedicalJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/VoletMedicalRestController.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/vo/TensionArterielle.java",
     "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/vo/Poids.java"
   ],

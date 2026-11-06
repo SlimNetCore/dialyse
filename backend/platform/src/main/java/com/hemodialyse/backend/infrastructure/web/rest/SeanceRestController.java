@@ -483,6 +483,7 @@ public class SeanceRestController {
     @PutMapping("/{seanceId}/forfait")
     public ResponseEntity<?> updateForfait(@PathVariable UUID seanceId,
                                            @RequestBody @Valid UpdateSeanceForfaitRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
         var seance = seanceUseCase.updateForfait(CenterId.of(request.centerId()), seanceId, request.forfaitId(), request.userId());
         var forfait = loadCurrentForfait(
                 seance.getId(),
@@ -501,6 +502,7 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
     @PostMapping("/{seanceId}/valider")
     public ResponseEntity<?> validate(@PathVariable UUID seanceId, @RequestBody @Valid ValidateSeanceRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
         exigerDeverrouillagePourSeancePassee(CenterId.of(request.centerId()), seanceId);
         var consommations = request.consommations() == null
                 ? java.util.List.<SeanceArticleConsumption>of()
@@ -538,6 +540,7 @@ public class SeanceRestController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{seanceId}/deverrouiller-regularisation")
     public ResponseEntity<?> unlockForRegularisation(@PathVariable UUID seanceId, @RequestParam UUID centerId) {
+        centerAccessGuard.requireCenter(centerId); // KB-MED-02 : le centre demandé doit être celui du jeton (403 sinon)
         var centre = CenterId.of(centerId);
         var seance = seanceUseCase.unlockForRegularisation(centre, seanceId, CurrentUser.username());
         var patient = seanceUseCase.getDetails(centre, seanceId).patient();
@@ -723,6 +726,7 @@ public class SeanceRestController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/calendar/holiday")
     public ResponseEntity<?> addHoliday(@RequestBody @Valid SeanceCalendarDayRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
         UUID id = UUID.randomUUID();
         jdbc.update(
                 "MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id) VALUES (?, ?, ?, ?)",
@@ -738,6 +742,7 @@ public class SeanceRestController {
     @DeleteMapping("/calendar/holiday/{id}")
     public ResponseEntity<?> deleteHoliday(@PathVariable UUID id,
                                            @RequestParam UUID centerId) {
+        centerAccessGuard.requireCenter(centerId); // KB-MED-02
         jdbc.update("DELETE FROM center_holiday WHERE id = ? AND center_id = ?", id, centerId);
         return ResponseEntity.ok(Map.of("deleted", true));
     }
@@ -745,6 +750,7 @@ public class SeanceRestController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/calendar/closure")
     public ResponseEntity<?> addClosure(@RequestBody @Valid SeanceCalendarDayRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02
         UUID id = UUID.randomUUID();
         jdbc.update(
                 "MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id) VALUES (?, ?, ?, ?)",
@@ -760,6 +766,7 @@ public class SeanceRestController {
     @DeleteMapping("/calendar/closure/{id}")
     public ResponseEntity<?> deleteClosure(@PathVariable UUID id,
                                            @RequestParam UUID centerId) {
+        centerAccessGuard.requireCenter(centerId); // KB-MED-02
         jdbc.update("DELETE FROM center_closure_day WHERE id = ? AND center_id = ?", id, centerId);
         return ResponseEntity.ok(Map.of("deleted", true));
     }
@@ -1243,6 +1250,7 @@ public class SeanceRestController {
     @PostMapping("/{seanceId}/signer-medecin")
     public ResponseEntity<?> signByMedecin(@PathVariable UUID seanceId,
                                            @RequestBody @Valid SignSeanceMedecinRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
         var seance = seanceUseCase.signByMedecin(CenterId.of(request.centerId()), seanceId, request.userId());
         return ResponseEntity.ok(Map.of(
                 "id", seance.getId(),
@@ -1260,6 +1268,7 @@ public class SeanceRestController {
                                                @PathVariable UUID articleId,
                                                @RequestParam UUID centerId,
                                                @RequestParam(defaultValue = "system") String userId) {
+        centerAccessGuard.requireCenter(centerId); // KB-MED-02
         seanceUseCase.removeConsommableSeance(CenterId.of(centerId), seanceId, articleId, userId);
         notificationService.notifySeanceUpdated(centerId, seanceId);
         notifierSaisieConsommable(centerId, seanceId, "CONSOMMABLE_RETRAIT");
@@ -1274,6 +1283,7 @@ public class SeanceRestController {
     @PostMapping("/{seanceId}/consommables")
     public ResponseEntity<?> addConsommable(@PathVariable UUID seanceId,
                                             @RequestBody @Valid AddConsommableRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02
         seanceUseCase.addConsommableSeance(CenterId.of(request.centerId()), seanceId, request.articleId(),
                 request.quantite(), CurrentUser.username());
         notificationService.notifySeanceUpdated(request.centerId(), seanceId);
@@ -1300,6 +1310,7 @@ public class SeanceRestController {
     public ResponseEntity<?> updateConsommableQuantite(@PathVariable UUID seanceId,
                                                        @PathVariable UUID articleId,
                                                        @RequestBody @Valid UpdateConsommableRequest request) {
+        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02
         seanceUseCase.updateConsommableSeance(
                 CenterId.of(request.centerId()), seanceId, articleId,
                 request.quantite(), request.userId());

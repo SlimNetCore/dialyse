@@ -234,8 +234,9 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   d'une séance (`POST /seances`, `POST /seances/scan`, `PUT /seances/{id}`), les statistiques paramédicales et médicales
   du patient et leur export CSV/PDF (`GET /patients/{id}/stats/paramedical`, `stats/medical`, `stats/export` et les
   `POST` de recherche correspondants) confrontent le centre demandé (ou celui du corps) au centre du jeton : 403 sinon
-  (avant : fuite et écriture inter-centres, KB-MED-01 et 02). Les autres actions de la séance (forfait, validation,
-  signatures, consommables, calendrier de fermetures) n'ont pas encore cette garde (slices Séance). Droits inchangés (le médecin seul lit les constantes mais n'en saisit pas, KB-MED-08).
+  (avant : fuite et écriture inter-centres, KB-MED-01 et 02). Il en va de même pour les autres actions de la séance :
+  forfait, validation, déverrouillage de régularisation, signature du médecin, consommables, jours fériés et fermetures
+  du calendrier, volet médical : toute route de `/api/v1/seances` est confrontée au centre de la session. Droits inchangés (le médecin seul lit les constantes mais n'en saisit pas, KB-MED-08).
 - **RG-MED-101** — **Statistiques du patient** (`ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE`) : moyennes médicales (Hb,
   Kt/V, ferritine…) et paramédicales sur une période ; **UF réelle** = ultrafiltration
   saisie, sinon perte de poids per-dialytique × 1000 ; tension lue au format « sys/dia » (ou « sys-dia ») ; poids sec
