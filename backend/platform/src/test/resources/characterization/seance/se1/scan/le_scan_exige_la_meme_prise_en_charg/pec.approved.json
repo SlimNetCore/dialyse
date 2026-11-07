@@ -1,0 +1,12 @@
+{
+  "01 refus" : {
+    "NON_VALIDEE : INFIRMIER" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient couvre le <J> mais n'est pas validée : validez-la pour pouvoir le facturer",
+    "NON_VALIDEE : SECRETAIRE" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient couvre le <J> mais n'est pas validée : validez-la pour pouvoir le facturer",
+    "SANS_ATTESTATION : INFIRMIER" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <J> : renouvelez l'attestation pour pouvoir le facturer",
+    "SANS_ATTESTATION : SECRETAIRE" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <J> : renouvelez l'attestation pour pouvoir le facturer",
+    "SANS_PEC : INFIRMIER" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé",
+    "SANS_PEC : SECRETAIRE" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé"
+  },
+  "02 aucune ecriture (la creation et la validation sont dans une seule transaction)" : true,
+  "03 aucune diffusion" : [ ]
+}

@@ -1,0 +1,30 @@
+{
+  "01 liste par defaut (page 0, taille 20, date decroissante, departage par creation puis identifiant)" : "200 total=6 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE, SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+1> CREE]",
+  "02 premiere ligne en entier (forfait, dates, drapeaux)" : {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateSeance" : "<D+3>",
+    "forfait" : {
+      "code" : "FORFAIT_SE1",
+      "id" : "<UUID_GENERE_1>",
+      "nom" : "Forfait fictif",
+      "nombreSeances" : 0,
+      "prix" : 100.0
+    },
+    "horsPlanning" : false,
+    "id" : "<A3>",
+    "motifHorsPlanning" : null,
+    "patientCode" : "SE1-ALPHA",
+    "patientId" : "<ALPHA>",
+    "patientNom" : "Patient ALPHA",
+    "patientPrenom" : "Test",
+    "regularisationDeverrouilleeAt" : null,
+    "signedByInfirmierAt" : null,
+    "signedByMedecinAt" : null,
+    "status" : "SIGNEE",
+    "validatedAt" : null
+  },
+  "03 centre B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 centre B par sa propre session" : "200 total=1 page=0 size=20 [SE1-ALPHA <D+1> CREE]",
+  "05 sans centerId" : "500 INTERNAL_ERROR"
+}

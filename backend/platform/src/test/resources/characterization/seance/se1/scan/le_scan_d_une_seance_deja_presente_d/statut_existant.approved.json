@@ -1,0 +1,126 @@
+{
+  "ABSENT" : {
+    "etat apres" : [ "ABSENT/null" ],
+    "infirmier" : {
+      "corps" : {
+        "code" : "BUSINESS_RULE_VIOLATION",
+        "detail" : "La séance du jour de ce patient est marquée absente : elle ne peut pas être validée",
+        "instance" : "/api/v1/seances/scan",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "status" : 422
+    },
+    "secretaire" : "200 ok"
+  },
+  "CREE" : {
+    "etat apres" : [ "VALIDEE/renseigne" ],
+    "infirmier" : {
+      "corps" : {
+        "alreadyValidated" : false,
+        "created" : false,
+        "dateSeance" : "<J>",
+        "generateurEtat" : null,
+        "generateurId" : null,
+        "generateurMarque" : null,
+        "generateurNom" : null,
+        "horsPlanning" : false,
+        "id" : "<SEANCE_CREE>",
+        "motifHorsPlanning" : null,
+        "patientCode" : "SE1-PAT_A",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "status" : "VALIDEE",
+        "validatedNow" : true
+      },
+      "status" : 200
+    },
+    "secretaire" : "200 ok"
+  },
+  "EN_COURS" : {
+    "etat apres" : [ "EN_COURS/null" ],
+    "infirmier" : {
+      "corps" : {
+        "code" : "BAD_REQUEST",
+        "detail" : "No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS",
+        "instance" : "/api/v1/seances/scan",
+        "status" : 400,
+        "title" : "Requete invalide"
+      },
+      "status" : 400
+    },
+    "secretaire" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS"
+  },
+  "FACTUREE" : {
+    "etat apres" : [ "FACTUREE/null" ],
+    "infirmier" : {
+      "corps" : {
+        "alreadyValidated" : true,
+        "created" : false,
+        "dateSeance" : "<J>",
+        "generateurEtat" : null,
+        "generateurId" : null,
+        "generateurMarque" : null,
+        "generateurNom" : null,
+        "horsPlanning" : false,
+        "id" : "<SEANCE_FACTUREE>",
+        "motifHorsPlanning" : null,
+        "patientCode" : "SE1-PAT_A",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "status" : "FACTUREE",
+        "validatedNow" : false
+      },
+      "status" : 200
+    },
+    "secretaire" : "200 ok"
+  },
+  "SIGNEE" : {
+    "etat apres" : [ "SIGNEE/null" ],
+    "infirmier" : {
+      "corps" : {
+        "alreadyValidated" : true,
+        "created" : false,
+        "dateSeance" : "<J>",
+        "generateurEtat" : null,
+        "generateurId" : null,
+        "generateurMarque" : null,
+        "generateurNom" : null,
+        "horsPlanning" : false,
+        "id" : "<SEANCE_SIGNEE>",
+        "motifHorsPlanning" : null,
+        "patientCode" : "SE1-PAT_A",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "status" : "SIGNEE",
+        "validatedNow" : false
+      },
+      "status" : 200
+    },
+    "secretaire" : "200 ok"
+  },
+  "VALIDEE" : {
+    "etat apres" : [ "VALIDEE/null" ],
+    "infirmier" : {
+      "corps" : {
+        "alreadyValidated" : true,
+        "created" : false,
+        "dateSeance" : "<J>",
+        "generateurEtat" : null,
+        "generateurId" : null,
+        "generateurMarque" : null,
+        "generateurNom" : null,
+        "horsPlanning" : false,
+        "id" : "<SEANCE_VALIDEE>",
+        "motifHorsPlanning" : null,
+        "patientCode" : "SE1-PAT_A",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "status" : "VALIDEE",
+        "validatedNow" : false
+      },
+      "status" : 200
+    },
+    "secretaire" : "200 ok"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "01 PEC effective du <D+31> au <D+58> (jours <D+30> a <D+59>), periode demandee plus large" : {
+    "30 jour <D+30>" : "200 ok",
+    "31 jour <D+31>" : "200 ok",
+    "58 jour <D+58>" : "200 ok",
+    "59 jour <D+59>" : "200 ok"
+  },
+  "02 PEC effective ouverte sans fin, attestation du <D+31> au <D+40>" : {
+    "030 jour <D+30>" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé",
+    "031 jour <D+31>" : "200 ok",
+    "040 jour <D+40>" : "200 ok",
+    "041 jour <D+41>" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <D+41> : renouvelez l'attestation pour pouvoir le facturer",
+    "400 jour <D+400>" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <D+400> : renouvelez l'attestation pour pouvoir le facturer"
+  },
+  "03 seule la periode demandee (<D+59> au <D+89>)" : {
+    "58 jour <D+58>" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé",
+    "59 jour <D+59>" : "200 ok",
+    "89 jour <D+89>" : "200 ok",
+    "90 jour <D+90>" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé"
+  }
+}

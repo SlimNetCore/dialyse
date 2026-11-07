@@ -1,0 +1,102 @@
+{
+  "01 POST ADMIN date <D+10>" : {
+    "corps" : {
+      "dateSeance" : "<D+10>",
+      "generateurEtat" : null,
+      "generateurId" : null,
+      "generateurMarque" : null,
+      "generateurNom" : null,
+      "horsPlanning" : false,
+      "id" : "<SEANCE_1>",
+      "motifHorsPlanning" : null,
+      "status" : "CREE"
+    },
+    "status" : 200
+  },
+  "02 POST ADMIN date <D-30>" : {
+    "corps" : {
+      "dateSeance" : "<D-30>",
+      "generateurEtat" : null,
+      "generateurId" : null,
+      "generateurMarque" : null,
+      "generateurNom" : null,
+      "horsPlanning" : false,
+      "id" : "<SEANCE_2>",
+      "motifHorsPlanning" : null,
+      "status" : "CREE"
+    },
+    "status" : 200
+  },
+  "03 POST ADMIN date <FIN_PEC>" : {
+    "corps" : {
+      "dateSeance" : "<FIN_PEC>",
+      "generateurEtat" : null,
+      "generateurId" : null,
+      "generateurMarque" : null,
+      "generateurNom" : null,
+      "horsPlanning" : false,
+      "id" : "<SEANCE_3>",
+      "motifHorsPlanning" : null,
+      "status" : "CREE"
+    },
+    "status" : 200
+  },
+  "04 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "creation par l application",
+    "creneau_id" : null,
+    "date_seance" : "<D-30>",
+    "facture_id" : null,
+    "forfait_override_id" : null,
+    "generateur_id" : null,
+    "hors_planning" : "false",
+    "motif_hors_planning" : null,
+    "patient_id" : "<PAT_A>",
+    "precision_hors_planning" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "creation par l application",
+    "creneau_id" : null,
+    "date_seance" : "<D+10>",
+    "facture_id" : null,
+    "forfait_override_id" : null,
+    "generateur_id" : null,
+    "hors_planning" : "false",
+    "motif_hors_planning" : null,
+    "patient_id" : "<PAT_A>",
+    "precision_hors_planning" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "creation par l application",
+    "creneau_id" : null,
+    "date_seance" : "<FIN_PEC>",
+    "facture_id" : null,
+    "forfait_override_id" : null,
+    "generateur_id" : null,
+    "hors_planning" : "false",
+    "motif_hors_planning" : null,
+    "patient_id" : "<PAT_A>",
+    "precision_hors_planning" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ]
+}

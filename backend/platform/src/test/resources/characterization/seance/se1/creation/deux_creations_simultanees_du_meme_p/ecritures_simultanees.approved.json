@@ -1,0 +1,5 @@
+{
+  "01 chaque requete rend 200" : true,
+  "02 deux identifiants distincts" : true,
+  "03 deux lignes pour le meme patient et le meme jour (aucune unicite)" : true
+}

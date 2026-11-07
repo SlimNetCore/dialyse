@@ -195,7 +195,20 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/AnonymityPolicy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertPolicy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/DossierMedicalPatientJpaEntity.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/PatientStatsSearchRequest.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/PatientStatsSearchRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceRepositoryAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/SeanceJpaEntity.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/SeanceJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlanningJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/CreateSeanceRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/ScanSeanceQrRequest.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceSearch.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceStatus.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/DerogationPlanning.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/MotifHorsPlanning.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SituationPlanning.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceListItem.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceDetails.java"
   ],
   "seamAllowed": []
 }

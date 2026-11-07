@@ -1,0 +1,12 @@
+{
+  "01 refus" : {
+    "01 aucune PEC" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé",
+    "02 PEC non validee" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient couvre le <D+20> mais n'est pas validée : validez-la pour pouvoir le facturer",
+    "03 PEC validee sans attestation" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <D+20> : renouvelez l'attestation pour pouvoir le facturer",
+    "04 attestation expiree avant la date" : "422 BUSINESS_RULE_VIOLATION | La prise en charge du patient est valide mais aucune attestation de droits ne couvre le <D+20> : renouvelez l'attestation pour pouvoir le facturer",
+    "05 PEC sans forfait" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé",
+    "06 PEC enregistree dans un autre centre" : "422 BUSINESS_RULE_VIOLATION | Le patient doit avoir une prise en charge valide pour être facturé"
+  },
+  "02 aucune ecriture" : true,
+  "03 patient couvert (temoin)" : "200 ok"
+}

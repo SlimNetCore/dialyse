@@ -1,0 +1,53 @@
+{
+  "01 patient sans jour de dialyse" : {
+    "01 INFIRMIER sans motif" : "422 SEANCE_HORS_PLANNING_JOUR | Ce patient n'est pas programmé aujourd'hui (ce n'est pas un de ses jours de dialyse)",
+    "02 SECRETAIRE (jamais de motif)" : "422 SEANCE_HORS_PLANNING_JOUR | Ce patient n'est pas programmé aujourd'hui (ce n'est pas un de ses jours de dialyse)",
+    "03 INFIRMIER motif vide" : "422 SEANCE_HORS_PLANNING_JOUR | Ce patient n'est pas programmé aujourd'hui (ce n'est pas un de ses jours de dialyse)",
+    "04 INFIRMIER motif inconnu" : "422 SEANCE_DEROGATION_MOTIF_REQUIS | Motif de séance hors planning inconnu : VACANCES",
+    "05 aucune ecriture" : "0",
+    "06 SECRETAIRE avec motif (ignore : createFromQr ne lit pas la confirmation)" : "422 SEANCE_HORS_PLANNING_JOUR | Ce patient n'est pas programmé aujourd'hui (ce n'est pas un de ses jours de dialyse)"
+  },
+  "02 etat apres le refus de la secretaire avec motif" : 0,
+  "03 INFIRMIER avec motif en minuscules et precision" : {
+    "corps" : {
+      "alreadyValidated" : false,
+      "created" : true,
+      "dateSeance" : "<J>",
+      "generateurEtat" : null,
+      "generateurId" : null,
+      "generateurMarque" : null,
+      "generateurNom" : null,
+      "horsPlanning" : true,
+      "id" : "<SEANCE_HORS_PLANNING>",
+      "motifHorsPlanning" : "RATTRAPAGE",
+      "patientCode" : "SE1-SANS_JOURS",
+      "patientNom" : "Patient SANS_JOURS",
+      "patientPrenom" : "Test",
+      "status" : "VALIDEE",
+      "validatedNow" : true
+    },
+    "status" : 200
+  },
+  "04 etat (hors planning, motif RATTRAPAGE, precision enregistree sans les espaces de bord)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "creation par l application",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "forfait_override_id" : null,
+    "generateur_id" : null,
+    "hors_planning" : "true",
+    "motif_hors_planning" : "RATTRAPAGE",
+    "patient_id" : "<SANS_JOURS>",
+    "precision_hors_planning" : "Rattrapage apres un voyage",
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "u-infirmier",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ],
+  "05 precision de 255 caracteres" : "200 ok",
+  "06 precision de 256 caracteres" : "400 VALIDATION_ERROR | Invalid request content."
+}

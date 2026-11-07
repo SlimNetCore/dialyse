@@ -1,0 +1,52 @@
+{
+  "01 detail ADMIN" : {
+    "corps" : {
+      "consommables" : [ ],
+      "consommablesTotalValorise" : 0,
+      "forfait" : {
+        "code" : "FORFAIT_SE1",
+        "id" : "<UUID_GENERE_1>",
+        "nom" : "Forfait fictif",
+        "nombreSeances" : 0,
+        "prix" : 100.0
+      },
+      "medical" : null,
+      "paramedical" : null,
+      "patient" : {
+        "codePatient" : "SE1-PAT_A",
+        "dateNaissance" : null,
+        "generateurEtat" : null,
+        "generateurId" : null,
+        "generateurMarque" : null,
+        "generateurNom" : null,
+        "groupeSanguin" : null,
+        "id" : "<PAT_A>",
+        "medecinTraitantId" : null,
+        "nom" : "Patient PAT_A",
+        "numeroAssurance" : "ASS-SE1-PAT_A",
+        "positionId" : null,
+        "prenom" : "Test",
+        "salleId" : null,
+        "sexe" : "M",
+        "telMobile" : null
+      },
+      "seance" : {
+        "centerId" : "<CENTRE_A>",
+        "createdAt" : "<HORODATAGE>",
+        "dateSeance" : "<D+10>",
+        "horsPlanning" : false,
+        "id" : "<SEANCE>",
+        "motifHorsPlanning" : null,
+        "patientId" : "<PAT_A>",
+        "precisionHorsPlanning" : null,
+        "signedByInfirmierAt" : null,
+        "signedByMedecinAt" : null,
+        "status" : "CREE",
+        "validatedAt" : null
+      }
+    },
+    "status" : 200
+  },
+  "02 en-tete Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+  "03 meme corps pour le MEDECIN, la SECRETAIRE et l'INFIRMIER" : [ true, true, true ]
+}

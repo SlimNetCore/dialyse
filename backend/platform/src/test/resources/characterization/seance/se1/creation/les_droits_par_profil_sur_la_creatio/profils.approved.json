@@ -1,0 +1,50 @@
+{
+  "ADMIN" : {
+    "200" : "01 02 03"
+  },
+  "ADMIN sans centre" : {
+    "403 ACCESS_DENIED" : "01 02 03"
+  },
+  "DIRECTION" : {
+    "403 ROLE_SCOPE" : "01 02 03"
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "200" : "01 02 03"
+  },
+  "INFIRMIER seul" : {
+    "200" : "01 02 03"
+  },
+  "MEDECIN + ADMIN" : {
+    "200" : "01 02 03"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "200" : "01 02 03"
+  },
+  "MEDECIN seul" : {
+    "200" : "02 03",
+    "403 ACCESS_DENIED" : "01"
+  },
+  "SECRETAIRE" : {
+    "200" : "02 03",
+    "403 ACCESS_DENIED" : "01"
+  },
+  "SUPERADMIN" : {
+    "403 ROLE_SCOPE" : "01 02 03"
+  },
+  "SUPERADMIN + ADMIN" : {
+    "403 ROLE_SCOPE" : "01 02 03"
+  },
+  "anonyme" : {
+    "GET liste" : "403",
+    "POST" : "403"
+  },
+  "aucun role" : {
+    "403 ACCESS_DENIED" : "01 02 03"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "403 ACCESS_DENIED" : "01 02 03"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "403 ACCESS_DENIED" : "01 02 03"
+  }
+}

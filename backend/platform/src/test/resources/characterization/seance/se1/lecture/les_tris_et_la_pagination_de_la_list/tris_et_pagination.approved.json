@@ -1,0 +1,15 @@
+{
+  "01 sortBy=patient asc" : "200 total=6 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-ALPHA <D+1> CREE, SE1-ALPHA <D+2> VALIDEE, SE1-BRAVO <D+1> FACTUREE, SE1-BRAVO <D+2> ABSENT, SE1-BRAVO <D+3> CREE]",
+  "02 sortBy=code desc" : "200 total=6 page=0 size=20 [SE1-BRAVO <D+1> FACTUREE, SE1-BRAVO <D+2> ABSENT, SE1-BRAVO <D+3> CREE, SE1-ALPHA <D+3> SIGNEE, SE1-ALPHA <D+1> CREE, SE1-ALPHA <D+2> VALIDEE]",
+  "03 sortBy=status asc" : "200 total=6 page=0 size=20 [SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+1> CREE, SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+3> SIGNEE, SE1-ALPHA <D+2> VALIDEE]",
+  "04 sortBy=createdAt (egalite, departage par identifiant)" : "200 total=6 page=0 size=20 [SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+1> CREE, SE1-BRAVO <D+3> CREE, SE1-ALPHA <D+2> VALIDEE]",
+  "05 sortBy inconnu (date)" : "200 total=6 page=0 size=20 [SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+1> CREE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE, SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE]",
+  "06 sortDir inconnu (decroissant)" : "200 total=6 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE, SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+1> CREE]",
+  "07 page=1 size=2" : "200 total=6 page=1 size=2 [SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE]",
+  "08 page au-dela du total" : "200 total=6 page=9 size=2 []",
+  "09 size=0 (ramene a 1)" : "200 total=6 page=0 size=1 [SE1-ALPHA <D+3> SIGNEE]",
+  "10 size negatif (ramene a 1)" : "200 total=6 page=0 size=1 [SE1-ALPHA <D+3> SIGNEE]",
+  "11 size=100000 (plafonne)" : "200 total=6 page=0 size=500 [..]",
+  "12 page negative (ramenee a 0)" : "200 total=6 page=0 size=2 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE]",
+  "13 size illisible" : "500 INTERNAL_ERROR"
+}

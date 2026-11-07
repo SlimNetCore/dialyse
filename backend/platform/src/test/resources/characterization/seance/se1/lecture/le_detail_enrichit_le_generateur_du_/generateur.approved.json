@@ -1,0 +1,44 @@
+{
+  "01 detail du patient place (generateur en service)" : {
+    "codePatient" : "SE1-PAT_A",
+    "dateNaissance" : null,
+    "generateurEtat" : "EN_SERVICE",
+    "generateurId" : "<G1A>",
+    "generateurMarque" : null,
+    "generateurNom" : "G1A",
+    "groupeSanguin" : null,
+    "id" : "<PAT_A>",
+    "medecinTraitantId" : null,
+    "nom" : "Patient PAT_A",
+    "numeroAssurance" : "ASS-SE1-PAT_A",
+    "positionId" : "<CRENEAU_MATIN>",
+    "prenom" : "Test",
+    "salleId" : "<SALLE_1>",
+    "sexe" : "M",
+    "telMobile" : null
+  },
+  "02 detail du patient dont le generateur est inconnu de la maintenance" : {
+    "codePatient" : "SE1-PAT_GEN_INCONNU",
+    "dateNaissance" : null,
+    "generateurEtat" : null,
+    "generateurId" : "<UUID_GENERE_1>",
+    "generateurMarque" : null,
+    "generateurNom" : null,
+    "groupeSanguin" : null,
+    "id" : "<PAT_GEN_INCONNU>",
+    "medecinTraitantId" : null,
+    "nom" : "Patient PAT_GEN_INCONNU",
+    "numeroAssurance" : "ASS-SE1-PAT_GEN_INCONNU",
+    "positionId" : null,
+    "prenom" : "Test",
+    "salleId" : null,
+    "sexe" : "M",
+    "telMobile" : null
+  },
+  "03 la creation renvoie aussi les champs du generateur" : {
+    "generateurEtat" : "EN_SERVICE",
+    "generateurId" : "<G1A>",
+    "generateurMarque" : null,
+    "generateurNom" : "G1A"
+  }
+}

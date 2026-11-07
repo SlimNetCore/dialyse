@@ -1,0 +1,42 @@
+{
+  "01 scan ADMIN" : {
+    "corps" : {
+      "alreadyValidated" : false,
+      "created" : true,
+      "dateSeance" : "<J>",
+      "generateurEtat" : null,
+      "generateurId" : null,
+      "generateurMarque" : null,
+      "generateurNom" : null,
+      "horsPlanning" : false,
+      "id" : "<SEANCE>",
+      "motifHorsPlanning" : null,
+      "patientCode" : "SE1-PAT_A",
+      "patientNom" : "Patient PAT_A",
+      "patientPrenom" : "Test",
+      "status" : "VALIDEE",
+      "validatedNow" : true
+    },
+    "status" : 200
+  },
+  "02 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "creation par l application",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "forfait_override_id" : null,
+    "generateur_id" : null,
+    "hors_planning" : "false",
+    "motif_hors_planning" : null,
+    "patient_id" : "<PAT_A>",
+    "precision_hors_planning" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "u-admin",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ]
+}

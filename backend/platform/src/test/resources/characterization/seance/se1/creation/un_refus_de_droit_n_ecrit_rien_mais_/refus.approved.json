@@ -1,0 +1,10 @@
+{
+  "aucune ecriture" : true,
+  "cas" : {
+    "DIRECTION : POST valide" : "403 ROLE_SCOPE",
+    "INFIRMIER du centre B : POST du centre A" : "403 ACCESS_DENIED",
+    "MEDECIN : POST valide" : "403 ACCESS_DENIED",
+    "SECRETAIRE : POST avec un corps illisible" : "500 INTERNAL_ERROR",
+    "SECRETAIRE : POST valide" : "403 ACCESS_DENIED"
+  }
+}
