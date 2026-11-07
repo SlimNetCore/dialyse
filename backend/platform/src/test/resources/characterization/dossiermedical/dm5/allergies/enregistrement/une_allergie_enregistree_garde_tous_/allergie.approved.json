@@ -1,0 +1,71 @@
+{
+  "etat" : [ {
+    "categorie" : "MEDICAMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "criticite" : "HAUTE",
+    "date_constatation" : "<D-100>",
+    "id" : "<ALG_COMPLETE>",
+    "manifestations" : "Reaction fictive",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "statut_verification" : "CONFIRMEE",
+    "substance_code" : "J01CA04",
+    "substance_code_display" : "Substance fictive",
+    "substance_code_system" : "ATC",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "criticite" : "BASSE",
+    "date_constatation" : "<J>",
+    "id" : "<ALG_MINIMALE>",
+    "manifestations" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "ARACHIDE",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "INTOLERANCE"
+  } ],
+  "reponse complete" : {
+    "corps" : {
+      "categorie" : "MEDICAMENT",
+      "centerId" : "<CENTRE_A>",
+      "code" : "J01CA04",
+      "codeDisplay" : "Substance fictive",
+      "codeSystem" : "ATC",
+      "createdAt" : "<HORODATAGE>",
+      "criticite" : "HAUTE",
+      "dateConstatation" : "<D-100>",
+      "id" : "<ALG_COMPLETE>",
+      "manifestations" : "Reaction fictive",
+      "patientId" : "<PAT_A>",
+      "statutVerification" : "CONFIRMEE",
+      "typeReaction" : "ALLERGIE",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "reponse minimale (date et statut par defaut)" : {
+    "corps" : {
+      "categorie" : "ALIMENT",
+      "centerId" : "<CENTRE_A>",
+      "code" : "ARACHIDE",
+      "codeDisplay" : null,
+      "codeSystem" : "LOCAL",
+      "createdAt" : "<HORODATAGE>",
+      "criticite" : "BASSE",
+      "dateConstatation" : "<J>",
+      "id" : "<ALG_MINIMALE>",
+      "manifestations" : null,
+      "patientId" : "<PAT_A>",
+      "statutVerification" : "SUSPECTEE",
+      "typeReaction" : "INTOLERANCE",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  }
+}

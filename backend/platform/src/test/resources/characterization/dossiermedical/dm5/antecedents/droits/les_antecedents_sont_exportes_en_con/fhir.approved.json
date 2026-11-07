@@ -1,0 +1,88 @@
+{
+  "conditions" : [ {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "active",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "text" : "Antecedent A"
+    },
+    "id" : "<ANT_A>",
+    "onsetDateTime" : "<D+10>",
+    "resourceType" : "Condition",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }, {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "resolved",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "coding" : [ {
+        "code" : "F1",
+        "system" : "urn:hemodialyse:local-code"
+      } ]
+    },
+    "id" : "<ANT_INACTIF>",
+    "onsetDateTime" : "<D-30>",
+    "resourceType" : "Condition",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }, {
+    "abatementDateTime" : "<D-40>",
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "resolved",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "text" : "Resolu libre"
+    },
+    "id" : "<ANT_RESOLU>",
+    "onsetDateTime" : "<D-50>",
+    "resourceType" : "Condition",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }, {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "active",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "coding" : [ {
+        "code" : "N18",
+        "display" : "Maladie fictive",
+        "system" : "http://hl7.org/fhir/sid/icd-10"
+      } ],
+      "text" : "Maladie fictive"
+    },
+    "id" : "<ANT_COMPLET>",
+    "note" : [ {
+      "text" : "Note fictive"
+    } ],
+    "onsetDateTime" : "<D-60>",
+    "resourceType" : "Condition",
+    "severity" : {
+      "text" : "FORTE"
+    },
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  } ],
+  "diffusions" : [ ],
+  "export ADMIN" : "403 ACCESS_DENIED",
+  "export INFIRMIER" : "403 ACCESS_DENIED",
+  "export MEDECIN" : 200,
+  "notifications" : [ ],
+  "types des ressources" : [ "Patient", "Condition", "Condition", "Condition", "Condition" ]
+}

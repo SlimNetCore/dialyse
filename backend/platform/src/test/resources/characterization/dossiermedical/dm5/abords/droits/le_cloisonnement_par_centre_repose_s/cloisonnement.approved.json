@@ -1,0 +1,65 @@
+{
+  "cas" : {
+    "01 liste avec centerId du centre B (session A)" : "403 ACCESS_DENIED",
+    "02 creation avec le centre B dans le corps (session A)" : "403 ACCESS_DENIED",
+    "03 creation sans centre dans le corps (centre de la session)" : "200",
+    "04 correction avec le centre B (session A)" : "403 ACCESS_DENIED",
+    "05 suppression avec centerId B (session A)" : "403 ACCESS_DENIED",
+    "06 MEDECIN sans centre de session : liste" : "403 ACCESS_DENIED",
+    "07 MEDECIN sans centre de session : creation" : "403 ACCESS_DENIED",
+    "08 INFIRMIER sans centre de session : liste" : "403 ACCESS_DENIED",
+    "09 SUPERADMIN + MEDECIN lit le centre B depuis la session A" : "403 ROLE_SCOPE",
+    "10 session B lit le patient du centre A (liste vide)" : "200",
+    "11 session B ecrit pour le patient du centre A" : "200",
+    "12 session B remplace l'abord du centre A (la ligne change de centre)" : "200"
+  },
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D+20>",
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_1>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "SANS_CENTRE"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_B>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D+20>",
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_2>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "B_SUR_A"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_B>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D+20>",
+    "date_fin" : null,
+    "id" : "<ABORD_A>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "PRIS_PAR_B"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_B>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "fixe",
+    "date_creation" : "<D+11>",
+    "date_fin" : null,
+    "id" : "<ABORD_B>",
+    "localisation" : null,
+    "patient_id" : "<PAT_B>",
+    "type_abord" : "KT_AIGU"
+  } ]
+}

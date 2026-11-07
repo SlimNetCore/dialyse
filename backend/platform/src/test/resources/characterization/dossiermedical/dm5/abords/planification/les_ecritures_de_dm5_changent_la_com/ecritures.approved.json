@@ -1,0 +1,17 @@
+{
+  "01 aucun abord" : { },
+  "02 apres POST d'un KT_AIGU sans actif (actif par defaut)" : {
+    "<PATIENT>" : "[CATHETER] transporteurs=0"
+  },
+  "03 apres PUT actif=false" : { },
+  "04 apres PUT sans actif (reactive)" : {
+    "<PATIENT>" : "[CATHETER] transporteurs=0"
+  },
+  "05 apres PUT avec une fin anterieure au jour" : { },
+  "06 apres PUT en FAV" : { },
+  "07 apres PUT en KT_TUNNELISE" : {
+    "<PATIENT>" : "[CATHETER] transporteurs=0"
+  },
+  "08 apres DELETE" : { },
+  "09 apres POST d'un KT_AIGU pour un patient sans fiche" : { }
+}

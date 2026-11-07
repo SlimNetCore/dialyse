@@ -1,0 +1,69 @@
+{
+  "diffusions" : [ ],
+  "export MEDECIN" : 200,
+  "notifications" : [ ],
+  "procedures (triees par type)" : [ {
+    "bodySite" : [ {
+      "text" : "GAUCHE"
+    } ],
+    "code" : {
+      "text" : "FAV"
+    },
+    "id" : "<ABORD_A>",
+    "performedPeriod" : {
+      "start" : "<D+10>"
+    },
+    "resourceType" : "Procedure",
+    "status" : "in-progress",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }, {
+    "bodySite" : [ {
+      "text" : "GAUCHE Avant-bras fictif"
+    } ],
+    "code" : {
+      "text" : "FAV"
+    },
+    "id" : "<ABORD_COMPLET>",
+    "note" : [ {
+      "text" : "Complication fictive"
+    } ],
+    "performedPeriod" : {
+      "end" : "<D-30>",
+      "start" : "<D-60>"
+    },
+    "resourceType" : "Procedure",
+    "status" : "completed",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }, {
+    "bodySite" : [ {
+      "text" : "Jugulaire fictive"
+    } ],
+    "code" : {
+      "text" : "KT_AIGU"
+    },
+    "id" : "<ABORD_SANS_COTE>",
+    "performedPeriod" : {
+      "start" : "<D-10>"
+    },
+    "resourceType" : "Procedure",
+    "status" : "in-progress",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }, {
+    "code" : {
+      "text" : "PTFE"
+    },
+    "id" : "<ABORD_NU>",
+    "resourceType" : "Procedure",
+    "status" : "in-progress",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  } ],
+  "types des ressources (triees)" : [ "Patient", "Procedure", "Procedure", "Procedure", "Procedure" ]
+}

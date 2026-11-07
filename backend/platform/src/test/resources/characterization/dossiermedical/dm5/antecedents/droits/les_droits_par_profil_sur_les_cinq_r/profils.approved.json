@@ -1,0 +1,107 @@
+{
+  "ADMIN" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "200",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "ADMIN sans centre" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "DIRECTION" : {
+    "correction" : "403 ROLE_SCOPE",
+    "creation" : "403 ROLE_SCOPE",
+    "liste" : "403 ROLE_SCOPE",
+    "resolution" : "403 ROLE_SCOPE",
+    "suppression" : "403 ROLE_SCOPE"
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "INFIRMIER seul" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "MEDECIN + ADMIN" : {
+    "correction" : "200 ",
+    "creation" : "200 ",
+    "liste" : "200",
+    "resolution" : "200 ",
+    "suppression" : "204"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "correction" : "200 ",
+    "creation" : "200 ",
+    "liste" : "200",
+    "resolution" : "200 ",
+    "suppression" : "204"
+  },
+  "MEDECIN seul" : {
+    "correction" : "200 ",
+    "creation" : "200 ",
+    "liste" : "200",
+    "resolution" : "200 ",
+    "suppression" : "204"
+  },
+  "SECRETAIRE" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "SUPERADMIN" : {
+    "correction" : "403 ROLE_SCOPE",
+    "creation" : "403 ROLE_SCOPE",
+    "liste" : "403 ROLE_SCOPE",
+    "resolution" : "403 ROLE_SCOPE",
+    "suppression" : "403 ROLE_SCOPE"
+  },
+  "SUPERADMIN + ADMIN" : {
+    "correction" : "403 ROLE_SCOPE",
+    "creation" : "403 ROLE_SCOPE",
+    "liste" : "403 ROLE_SCOPE",
+    "resolution" : "403 ROLE_SCOPE",
+    "suppression" : "403 ROLE_SCOPE"
+  },
+  "anonyme" : {
+    "correction" : "403",
+    "creation" : "403",
+    "liste" : "403",
+    "resolution" : "403",
+    "suppression" : "403"
+  },
+  "aucun role" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "correction" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED",
+    "suppression" : "403 ACCESS_DENIED"
+  }
+}

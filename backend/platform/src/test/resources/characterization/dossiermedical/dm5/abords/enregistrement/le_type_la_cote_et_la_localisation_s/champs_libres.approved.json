@@ -1,0 +1,88 @@
+{
+  "cas" : {
+    "actif illisible" : "500 INTERNAL_ERROR",
+    "complications de 500 caracteres" : "200 ok",
+    "complications de 501 caracteres" : "500 DATA_ACCESS_ERROR",
+    "cote de 10 caracteres" : "200 ok",
+    "cote de 11 caracteres" : "500 DATA_ACCESS_ERROR",
+    "localisation de 255 caracteres" : "200 ok",
+    "localisation de 256 caracteres" : "500 DATA_ACCESS_ERROR",
+    "type ''" : "200 ok",
+    "type 'FAV'" : "200 ok",
+    "type 'KT_AIGU'" : "200 ok",
+    "type 'KT_TUNNELISE'" : "200 ok",
+    "type 'N'IMPORTE QUOI'" : "200 ok",
+    "type 'PTFE'" : "200 ok",
+    "type 'kt_aigu'" : "200 ok",
+    "type absent" : "500 DATA_ACCESS_ERROR",
+    "type de 20 caracteres" : "200 ok",
+    "type de 21 caracteres" : "500 DATA_ACCESS_ERROR"
+  },
+  "lignes" : [ {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : ""
+  }, {
+    "actif" : "true",
+    "complications" : "500",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "COM500"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "10",
+    "localisation" : "0",
+    "type_abord" : "COTE10"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "FAV"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "KT_AIGU"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "KT_TUNNELISE"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "255",
+    "type_abord" : "LOC255"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "N'IMPORTE QUOI"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "PTFE"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "kt_aigu"
+  }, {
+    "actif" : "true",
+    "complications" : "0",
+    "cote" : "0",
+    "localisation" : "0",
+    "type_abord" : "tttttttttttttttttttt"
+  } ]
+}

@@ -1,0 +1,43 @@
+{
+  "cas" : {
+    "ATC j01ca04 (minuscules)" : "200 ok",
+    "CIM10 T88.7" : "200 ok",
+    "CIM10 invalide" : "422 CONCEPT_CODE_INVALID_CIM10 | Code CIM-10 invalide : T8",
+    "LOCAL latex" : "200 ok",
+    "LOINC 718-7" : "200 ok",
+    "LOINC invalide" : "422 CONCEPT_CODE_INVALID_LOINC | Code LOINC invalide : ZZ",
+    "affichage de 255 caracteres" : "200 ok",
+    "affichage de 256 caracteres" : "500 DATA_ACCESS_ERROR",
+    "code absent" : "422 CONCEPT_CODE_REQUIRED | Le code est obligatoire",
+    "code blanc" : "422 CONCEPT_CODE_REQUIRED | Le code est obligatoire",
+    "code de 20 caracteres" : "200 ok",
+    "code de 21 caracteres" : "500 DATA_ACCESS_ERROR",
+    "systeme absent" : "500 INTERNAL_ERROR",
+    "systeme inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.shared.valueobject.CodingSystem.SNOMED"
+  },
+  "lignes" : [ {
+    "categorie" : "BIOLOGIQUE",
+    "substance_code" : "718-7",
+    "substance_code_system" : "LOINC"
+  }, {
+    "categorie" : "ALIMENT",
+    "substance_code" : "AFF255",
+    "substance_code_system" : "LOCAL"
+  }, {
+    "categorie" : "ENVIRONNEMENT",
+    "substance_code" : "CCCCCCCCCCCCCCCCCCCC",
+    "substance_code_system" : "LOCAL"
+  }, {
+    "categorie" : "MEDICAMENT",
+    "substance_code" : "J01CA04",
+    "substance_code_system" : "ATC"
+  }, {
+    "categorie" : "ENVIRONNEMENT",
+    "substance_code" : "LATEX",
+    "substance_code_system" : "LOCAL"
+  }, {
+    "categorie" : "MEDICAMENT",
+    "substance_code" : "T88.7",
+    "substance_code_system" : "CIM10"
+  } ]
+}

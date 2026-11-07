@@ -1,0 +1,58 @@
+{
+  "cas" : {
+    "1 E11 prend le code de N18 (actif)" : "422 BUSINESS_RULE_VIOLATION | Un antécédent actif avec ce diagnostic existe déjà pour ce patient",
+    "2 E11 garde son propre code" : "200 MEDICAL | CIM10 | E11 | - | <D+20> | - | ACTIF | - | corrigee",
+    "3 E11 prend le code de I10 (resolu)" : "200 MEDICAL | CIM10 | I10 | - | <D+20> | - | ACTIF | - | -",
+    "4 I10 resolu rouvert alors que E11 porte deja I10" : "422 BUSINESS_RULE_VIOLATION | Un antécédent actif avec ce diagnostic existe déjà pour ce patient",
+    "5 N18 en LOCAL N18 (autre systeme)" : "200 MEDICAL | LOCAL | N18 | - | <D+10> | - | ACTIF | - | -"
+  },
+  "etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_debut" : "<D+10>",
+    "date_fin" : null,
+    "diagnostic_code" : "N18",
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : "LOCAL",
+    "id" : "<ANT_N18>",
+    "libelle_libre" : null,
+    "modification" : "modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_A>",
+    "severite" : null,
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "MEDICAL"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_debut" : "<D+20>",
+    "date_fin" : null,
+    "diagnostic_code" : "I10",
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : "CIM10",
+    "id" : "<ANT_E11>",
+    "libelle_libre" : null,
+    "modification" : "modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_A>",
+    "severite" : null,
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "MEDICAL"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_debut" : "<D+30>",
+    "date_fin" : "<D+35>",
+    "diagnostic_code" : "I10",
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : "CIM10",
+    "id" : "<ANT_I10>",
+    "libelle_libre" : null,
+    "modification" : "jamais modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_A>",
+    "severite" : null,
+    "statut_clinique" : "RESOLU",
+    "type_antecedent" : "MEDICAL"
+  } ]
+}

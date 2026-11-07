@@ -1,0 +1,37 @@
+{
+  "cas" : {
+    "centre illisible" : "500 INTERNAL_ERROR",
+    "corps absent" : "500 INTERNAL_ERROR",
+    "corps illisible" : "500 INTERNAL_ERROR",
+    "corps tableau []" : "500 INTERNAL_ERROR",
+    "corps vide {}" : "500 DATA_ACCESS_ERROR",
+    "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+    "patient d'un autre centre (session A)" : "200 ok",
+    "patient inconnu" : "200 ok"
+  },
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : null,
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_1>",
+    "localisation" : null,
+    "patient_id" : "<PAT_INCONNU>",
+    "type_abord" : "X2"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : null,
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_2>",
+    "localisation" : null,
+    "patient_id" : "<PAT_B>",
+    "type_abord" : "X3"
+  } ]
+}

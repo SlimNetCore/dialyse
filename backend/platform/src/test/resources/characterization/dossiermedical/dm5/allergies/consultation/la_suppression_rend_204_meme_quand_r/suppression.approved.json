@@ -1,0 +1,56 @@
+{
+  "cas" : {
+    "1 suppression d'une allergie" : "204",
+    "2 meme suppression rejouee" : "204",
+    "3 identifiant inconnu" : "204",
+    "4 allergie d'un autre patient du centre" : "204",
+    "5 allergie d'un autre centre (centre B demande)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "6 identifiant illisible" : "500 INTERNAL_ERROR"
+  },
+  "etat" : [ {
+    "categorie" : "ALIMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "criticite" : "HAUTE",
+    "date_constatation" : "<D+20>",
+    "id" : "<ALG_2>",
+    "manifestations" : "Manifestation",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "statut_verification" : "CONFIRMEE",
+    "substance_code" : "A2",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "criticite" : "BASSE",
+    "date_constatation" : "<D+30>",
+    "id" : "<ALG_AUTRE_PATIENT>",
+    "manifestations" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "A3",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "center_id" : "<CENTRE_B>",
+    "creation" : "fixe",
+    "criticite" : "BASSE",
+    "date_constatation" : "<D+40>",
+    "id" : "<ALG_AUTRE_CENTRE>",
+    "manifestations" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "A4",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "ALLERGIE"
+  } ]
+}

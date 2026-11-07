@@ -1,0 +1,28 @@
+{
+  "cas" : {
+    "BASSE avec manifestations" : "200 ok",
+    "BASSE sans manifestations" : "200 ok",
+    "HAUTE avec manifestations" : "200 ok",
+    "HAUTE avec manifestations blanches" : "422 ALLERGIE_MANIFESTATIONS_REQUISES | Une allergie de criticité haute doit décrire ses manifestations",
+    "HAUTE avec manifestations de 10000 caracteres (TEXT)" : "200 ok",
+    "HAUTE avec manifestations vides" : "422 ALLERGIE_MANIFESTATIONS_REQUISES | Une allergie de criticité haute doit décrire ses manifestations",
+    "HAUTE sans manifestations" : "422 ALLERGIE_MANIFESTATIONS_REQUISES | Une allergie de criticité haute doit décrire ses manifestations"
+  },
+  "lignes" : [ {
+    "criticite" : "BASSE",
+    "longueur" : null,
+    "substance_code" : "B1"
+  }, {
+    "criticite" : "BASSE",
+    "longueur" : "15",
+    "substance_code" : "B2"
+  }, {
+    "criticite" : "HAUTE",
+    "longueur" : "11",
+    "substance_code" : "H4"
+  }, {
+    "criticite" : "HAUTE",
+    "longueur" : "10000",
+    "substance_code" : "H5"
+  } ]
+}

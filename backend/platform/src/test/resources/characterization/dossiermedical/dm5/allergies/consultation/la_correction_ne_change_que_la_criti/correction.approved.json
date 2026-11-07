@@ -1,0 +1,48 @@
+{
+  "cas" : {
+    "01 HAUTE avec manifestations" : "200 ATC | J01CA04 | MEDICAMENT | HAUTE | ALLERGIE | Choc fictif | <D-100> | SUSPECTEE",
+    "02 HAUTE sans manifestations" : "422 ALLERGIE_MANIFESTATIONS_REQUISES | Une allergie de criticité haute doit décrire ses manifestations",
+    "03 HAUTE avec manifestations blanches" : "422 ALLERGIE_MANIFESTATIONS_REQUISES | Une allergie de criticité haute doit décrire ses manifestations",
+    "04 HAUTE reste HAUTE, manifestations changees, statut CONFIRMEE" : "200 ATC | J01CA04 | MEDICAMENT | HAUTE | ALLERGIE | Autre choc fictif | <D-100> | CONFIRMEE",
+    "05 BASSE sans manifestations : les manifestations sont effacees, le statut est conserve" : "200 ATC | J01CA04 | MEDICAMENT | BASSE | ALLERGIE | - | <D-100> | CONFIRMEE",
+    "06 statut REFUTEE" : "200 ATC | J01CA04 | MEDICAMENT | BASSE | ALLERGIE | - | <D-100> | REFUTEE",
+    "07 statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.allergie.valueobject.StatutVerificationAllergie.PROBABLE",
+    "08 criticite absente" : "500 INTERNAL_ERROR",
+    "09 criticite inconnue" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.allergie.valueobject.CriticiteAllergie.MOYENNE",
+    "10 les autres champs du corps sont ignores" : "200 ATC | J01CA04 | MEDICAMENT | BASSE | ALLERGIE | - | <D-100> | REFUTEE",
+    "11 allergie inconnue" : "400 BAD_REQUEST | Allergie introuvable",
+    "12 allergie d'un autre patient" : "400 BAD_REQUEST | Allergie introuvable",
+    "13 corps absent" : "500 INTERNAL_ERROR"
+  },
+  "etat" : [ {
+    "categorie" : "MEDICAMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "criticite" : "BASSE",
+    "date_constatation" : "<D-100>",
+    "id" : "<ALG_1>",
+    "manifestations" : null,
+    "modification" : "modifiee",
+    "patient_id" : "<PAT_A>",
+    "statut_verification" : "REFUTEE",
+    "substance_code" : "J01CA04",
+    "substance_code_display" : null,
+    "substance_code_system" : "ATC",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "criticite" : "BASSE",
+    "date_constatation" : "<D+1>",
+    "id" : "<ALG_AUTRE_PATIENT>",
+    "manifestations" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "AUTRE",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "ALLERGIE"
+  } ]
+}

@@ -1,0 +1,59 @@
+{
+  "journal" : [ {
+    "action_code" : "PATIENTS_CREATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "patients",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/allergies",
+    "status_code" : "200"
+  }, {
+    "action_code" : "PATIENTS_CREATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "patients",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/allergies",
+    "status_code" : "403"
+  }, {
+    "action_code" : "PATIENTS_CREATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "patients",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/allergies",
+    "status_code" : "422"
+  }, {
+    "action_code" : "PATIENTS_SUPPRESSION",
+    "entity_id" : "<ALG>",
+    "entity_type" : "patients",
+    "http_method" : "DELETE",
+    "nombre" : "2",
+    "route_template" : "/api/v1/patients/{patientId}/allergies/{allergieId}",
+    "status_code" : "204"
+  }, {
+    "action_code" : "PATIENTS_SUPPRESSION",
+    "entity_id" : "<ALG>",
+    "entity_type" : "patients",
+    "http_method" : "DELETE",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/allergies/{allergieId}",
+    "status_code" : "403"
+  }, {
+    "action_code" : "PATIENTS_MODIFICATION",
+    "entity_id" : "<ALG>",
+    "entity_type" : "patients",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/allergies/{allergieId}",
+    "status_code" : "200"
+  }, {
+    "action_code" : "PATIENTS_MODIFICATION",
+    "entity_id" : "<ALG_INCONNUE>",
+    "entity_type" : "patients",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/allergies/{allergieId}",
+    "status_code" : "400"
+  } ]
+}

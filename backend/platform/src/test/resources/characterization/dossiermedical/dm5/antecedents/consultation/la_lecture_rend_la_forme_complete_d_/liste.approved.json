@@ -1,0 +1,43 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "centerId" : "<CENTRE_A>",
+      "code" : null,
+      "codeDisplay" : null,
+      "codeSystem" : null,
+      "createdAt" : "<HORODATAGE>",
+      "dateDebut" : "<D-10>",
+      "dateFin" : null,
+      "id" : "<ANT_2>",
+      "libelleLibre" : "Antecedent minimal",
+      "note" : null,
+      "patientId" : "<PAT_A>",
+      "severite" : null,
+      "statutClinique" : "INACTIF",
+      "type" : "FAMILIAL",
+      "updatedAt" : "<HORODATAGE>"
+    }, {
+      "centerId" : "<CENTRE_A>",
+      "code" : "Z94.0",
+      "codeDisplay" : "Greffe fictive",
+      "codeSystem" : "CIM10",
+      "createdAt" : "<HORODATAGE>",
+      "dateDebut" : "<D-60>",
+      "dateFin" : "<D-30>",
+      "id" : "<ANT_1>",
+      "libelleLibre" : "Libelle",
+      "note" : "Note fictive",
+      "patientId" : "<PAT_A>",
+      "severite" : "FORTE",
+      "statutClinique" : "ACTIF",
+      "type" : "CHIRURGICAL",
+      "updatedAt" : "<HORODATAGE>"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

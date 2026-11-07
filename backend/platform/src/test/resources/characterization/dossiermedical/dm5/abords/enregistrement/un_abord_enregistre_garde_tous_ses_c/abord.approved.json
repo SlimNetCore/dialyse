@@ -1,0 +1,43 @@
+{
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : null,
+    "date_fin" : null,
+    "id" : "<ABORD_MINIMAL>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "KT_AIGU"
+  }, {
+    "actif" : "false",
+    "center_id" : "<CENTRE_A>",
+    "complications" : "Complication fictive",
+    "cote" : "GAUCHE",
+    "creation" : "recent",
+    "date_creation" : "<D-200>",
+    "date_fin" : "<D-100>",
+    "id" : "<ABORD_COMPLET>",
+    "localisation" : "Avant-bras fictif",
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "FAV"
+  } ],
+  "reponse complete" : {
+    "corps" : {
+      "id" : "<ABORD_COMPLET>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "reponse minimale (actif par defaut)" : {
+    "corps" : {
+      "id" : "<ABORD_MINIMAL>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  }
+}

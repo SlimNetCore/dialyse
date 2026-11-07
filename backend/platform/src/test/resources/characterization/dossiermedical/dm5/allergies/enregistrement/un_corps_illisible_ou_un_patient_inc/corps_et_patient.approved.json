@@ -1,0 +1,43 @@
+{
+  "cas" : {
+    "centre illisible" : "500 INTERNAL_ERROR",
+    "corps absent" : "500 INTERNAL_ERROR",
+    "corps illisible" : "500 INTERNAL_ERROR",
+    "corps tableau []" : "500 INTERNAL_ERROR",
+    "corps vide {}" : "500 INTERNAL_ERROR",
+    "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+    "patient d'un autre centre (session A)" : "200 ok",
+    "patient inconnu" : "200 ok"
+  },
+  "etat" : [ {
+    "categorie" : "MEDICAMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "criticite" : "BASSE",
+    "date_constatation" : "<D-30>",
+    "id" : "<UUID_GENERE_1>",
+    "manifestations" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_INCONNU>",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "X2",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "MEDICAMENT",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "criticite" : "BASSE",
+    "date_constatation" : "<D-30>",
+    "id" : "<UUID_GENERE_2>",
+    "manifestations" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "X3",
+    "substance_code_display" : null,
+    "substance_code_system" : "LOCAL",
+    "type_reaction" : "ALLERGIE"
+  } ]
+}

@@ -1,0 +1,14 @@
+{
+  "cas" : {
+    "affichage du code 255 caracteres" : "200 ok",
+    "affichage du code 256 caracteres" : "500 DATA_ACCESS_ERROR",
+    "code LOCAL 20 caracteres" : "200 ok",
+    "code LOCAL 21 caracteres" : "500 DATA_ACCESS_ERROR",
+    "libelle 255 caracteres" : "200 ok",
+    "libelle 256 caracteres" : "500 DATA_ACCESS_ERROR",
+    "note de 10000 caracteres (TEXT)" : "200 ok",
+    "severite 50 caracteres" : "200 ok",
+    "severite 51 caracteres" : "500 DATA_ACCESS_ERROR"
+  },
+  "lignes enregistrees" : 5
+}

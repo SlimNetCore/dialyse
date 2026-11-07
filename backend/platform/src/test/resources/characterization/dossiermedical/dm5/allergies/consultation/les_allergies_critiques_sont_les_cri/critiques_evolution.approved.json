@@ -1,0 +1,10 @@
+{
+  "1 etat initial" : [ "C30 | HAUTE | SUSPECTEE | <D+30>", "C20 | HAUTE | REFUTEE | <D+20>", "C10 | HAUTE | CONFIRMEE | <D+10>" ],
+  "2 apres abaissement de C10 a BASSE" : [ "C30 | HAUTE | SUSPECTEE | <D+30>", "C20 | HAUTE | REFUTEE | <D+20>" ],
+  "3 apres declaration de C70 HAUTE" : [ "C70 | HAUTE | SUSPECTEE | <D+70>", "C30 | HAUTE | SUSPECTEE | <D+30>", "C20 | HAUTE | REFUTEE | <D+20>" ],
+  "4 autre patient du centre (sa propre allergie critique)" : [ "C50 | HAUTE | CONFIRMEE | <D+50>" ],
+  "5 patient inconnu" : [ ],
+  "6 lecture par l'ADMIN" : "200",
+  "7 lecture par l'INFIRMIER" : "403 ACCESS_DENIED",
+  "8 centre B demande depuis la session A" : "403 ACCESS_DENIED"
+}

@@ -1,0 +1,51 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : [ {
+    "categorie" : "ALIMENT",
+    "centerId" : "<CENTRE_A>",
+    "code" : "C30",
+    "codeDisplay" : null,
+    "codeSystem" : "LOCAL",
+    "createdAt" : "<HORODATAGE>",
+    "criticite" : "HAUTE",
+    "dateConstatation" : "<D+30>",
+    "id" : "<ALG_SUSPECTEE>",
+    "manifestations" : "Manifestation",
+    "patientId" : "<PAT_A>",
+    "statutVerification" : "SUSPECTEE",
+    "typeReaction" : "INTOLERANCE",
+    "updatedAt" : "<HORODATAGE>"
+  }, {
+    "categorie" : "ALIMENT",
+    "centerId" : "<CENTRE_A>",
+    "code" : "C20",
+    "codeDisplay" : null,
+    "codeSystem" : "LOCAL",
+    "createdAt" : "<HORODATAGE>",
+    "criticite" : "HAUTE",
+    "dateConstatation" : "<D+20>",
+    "id" : "<ALG_REFUTEE>",
+    "manifestations" : "Manifestation",
+    "patientId" : "<PAT_A>",
+    "statutVerification" : "REFUTEE",
+    "typeReaction" : "ALLERGIE",
+    "updatedAt" : "<HORODATAGE>"
+  }, {
+    "categorie" : "ALIMENT",
+    "centerId" : "<CENTRE_A>",
+    "code" : "C10",
+    "codeDisplay" : null,
+    "codeSystem" : "LOCAL",
+    "createdAt" : "<HORODATAGE>",
+    "criticite" : "HAUTE",
+    "dateConstatation" : "<D+10>",
+    "id" : "<ALG_CONFIRMEE>",
+    "manifestations" : "Manifestation",
+    "patientId" : "<PAT_A>",
+    "statutVerification" : "CONFIRMEE",
+    "typeReaction" : "ALLERGIE",
+    "updatedAt" : "<HORODATAGE>"
+  } ]
+}

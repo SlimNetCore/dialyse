@@ -1,0 +1,73 @@
+{
+  "defaut" : {
+    "items" : [ "TYPE_5 | <D+50> | true", "TYPE_4 | <D+40> | false", "TYPE_3 | <D+30> | true", "TYPE_2 | <D+20> | false", "TYPE_1 | <D+10> | true" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "liste d'un patient inconnu" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "liste pour l'ADMIN" : {
+    "items" : [ "TYPE_5" ],
+    "page" : 0,
+    "size" : 1,
+    "status" : 200,
+    "total" : 5
+  },
+  "liste pour l'INFIRMIER" : {
+    "items" : [ "TYPE_5" ],
+    "page" : 0,
+    "size" : 1,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 0" : {
+    "items" : [ "TYPE_5", "TYPE_4", "TYPE_3", "TYPE_2", "TYPE_1" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 1000" : {
+    "items" : [ "TYPE_5", "TYPE_4", "TYPE_3", "TYPE_2", "TYPE_1" ],
+    "page" : 0,
+    "size" : 200,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page -1" : {
+    "items" : [ "TYPE_5", "TYPE_4" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 0" : {
+    "items" : [ "TYPE_5", "TYPE_4" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 2" : {
+    "items" : [ "TYPE_1" ],
+    "page" : 2,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 9" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille illisible" : "500 INTERNAL_ERROR"
+}

@@ -1,0 +1,39 @@
+{
+  "etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_debut" : "<D-100>",
+    "date_fin" : "<D-50>",
+    "diagnostic_code" : "N18.5",
+    "diagnostic_code_display" : "Maladie fictive de test",
+    "diagnostic_code_system" : "CIM10",
+    "id" : "<ANT>",
+    "libelle_libre" : "precision libre",
+    "modification" : "jamais modifiee",
+    "note" : "Note fictive",
+    "patient_id" : "<PAT_A>",
+    "severite" : "MODEREE",
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "COMORBIDITE"
+  } ],
+  "reponse" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "code" : "N18.5",
+      "codeDisplay" : "Maladie fictive de test",
+      "codeSystem" : "CIM10",
+      "createdAt" : "<HORODATAGE>",
+      "dateDebut" : "<D-100>",
+      "dateFin" : "<D-50>",
+      "id" : "<ANT>",
+      "libelleLibre" : "precision libre",
+      "note" : "Note fictive",
+      "patientId" : "<PAT_A>",
+      "severite" : "MODEREE",
+      "statutClinique" : "ACTIF",
+      "type" : "COMORBIDITE",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  }
+}

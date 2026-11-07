@@ -1,0 +1,47 @@
+{
+  "cas" : {
+    "1 suppression d'un abord" : "204",
+    "2 meme suppression rejouee" : "204",
+    "3 identifiant inconnu" : "204",
+    "4 abord d'un autre patient du centre" : "204",
+    "5 abord d'un autre centre (centre B demande)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "6 identifiant illisible" : "500 INTERNAL_ERROR"
+  },
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "fixe",
+    "date_creation" : "<D+20>",
+    "date_fin" : null,
+    "id" : "<ABORD_2>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "PTFE"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "fixe",
+    "date_creation" : "<D+30>",
+    "date_fin" : null,
+    "id" : "<ABORD_AUTRE_PATIENT>",
+    "localisation" : null,
+    "patient_id" : "<PAT_B>",
+    "type_abord" : "FAV"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_B>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "fixe",
+    "date_creation" : "<D+40>",
+    "date_fin" : null,
+    "id" : "<ABORD_AUTRE_CENTRE>",
+    "localisation" : null,
+    "patient_id" : "<PAT_B>",
+    "type_abord" : "FAV"
+  } ]
+}

@@ -1,0 +1,74 @@
+{
+  "allergies" : [ {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "suspectee",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "coding" : [ {
+        "code" : "SUBSTANCE_A",
+        "system" : "urn:hemodialyse:local-code"
+      } ]
+    },
+    "criticality" : "basse",
+    "id" : "<ALG_A>",
+    "patient" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "recordedDate" : "<D+10>",
+    "resourceType" : "AllergyIntolerance"
+  }, {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "refutee",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "coding" : [ {
+        "code" : "ARACHIDE",
+        "system" : "urn:hemodialyse:local-code"
+      } ]
+    },
+    "criticality" : "basse",
+    "id" : "<ALG_REFUTEE>",
+    "patient" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "recordedDate" : "<D-10>",
+    "resourceType" : "AllergyIntolerance"
+  }, {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "confirmee",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "coding" : [ {
+        "code" : "J01CA04",
+        "display" : "Substance fictive",
+        "system" : "http://www.whocc.no/atc"
+      } ],
+      "text" : "Substance fictive"
+    },
+    "criticality" : "haute",
+    "id" : "<ALG_COMPLETE>",
+    "patient" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "reaction" : [ {
+      "manifestation" : [ {
+        "text" : "Reaction fictive"
+      } ]
+    } ],
+    "recordedDate" : "<D-60>",
+    "resourceType" : "AllergyIntolerance"
+  } ],
+  "diffusions" : [ ],
+  "export MEDECIN" : 200,
+  "notifications" : [ ],
+  "types des ressources" : [ "Patient", "AllergyIntolerance", "AllergyIntolerance", "AllergyIntolerance" ]
+}

@@ -1,0 +1,29 @@
+{
+  "1 au jour fixe(100)" : {
+    "<FAV_ACTIVE_ET_KT_AIGU_ACTIF>" : "[CATHETER] transporteurs=0",
+    "<KT_AIGU_ACTIF>" : "[CATHETER] transporteurs=0",
+    "<KT_CREE_APRES_LE_JOUR>" : "[CATHETER] transporteurs=0",
+    "<KT_FIN_APRES_LE_JOUR>" : "[CATHETER] transporteurs=0",
+    "<KT_FIN_LE_JOUR_MEME>" : "[CATHETER] transporteurs=0",
+    "<KT_SANS_DATE_DE_CREATION>" : "[CATHETER] transporteurs=0",
+    "<KT_TUNNELISE_ACTIF>" : "[CATHETER] transporteurs=0"
+  },
+  "2 au jour fixe(98) : la fin du 99 n'est pas encore passee" : {
+    "<FAV_ACTIVE_ET_KT_AIGU_ACTIF>" : "[CATHETER] transporteurs=0",
+    "<KT_AIGU_ACTIF>" : "[CATHETER] transporteurs=0",
+    "<KT_CREE_APRES_LE_JOUR>" : "[CATHETER] transporteurs=0",
+    "<KT_FIN_APRES_LE_JOUR>" : "[CATHETER] transporteurs=0",
+    "<KT_FIN_LA_VEILLE>" : "[CATHETER] transporteurs=0",
+    "<KT_FIN_LE_JOUR_MEME>" : "[CATHETER] transporteurs=0",
+    "<KT_SANS_DATE_DE_CREATION>" : "[CATHETER] transporteurs=0",
+    "<KT_TUNNELISE_ACTIF>" : "[CATHETER] transporteurs=0"
+  },
+  "3 au jour fixe(101)" : {
+    "<FAV_ACTIVE_ET_KT_AIGU_ACTIF>" : "[CATHETER] transporteurs=0",
+    "<KT_AIGU_ACTIF>" : "[CATHETER] transporteurs=0",
+    "<KT_CREE_APRES_LE_JOUR>" : "[CATHETER] transporteurs=0",
+    "<KT_FIN_APRES_LE_JOUR>" : "[CATHETER] transporteurs=0",
+    "<KT_SANS_DATE_DE_CREATION>" : "[CATHETER] transporteurs=0",
+    "<KT_TUNNELISE_ACTIF>" : "[CATHETER] transporteurs=0"
+  }
+}

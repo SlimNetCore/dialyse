@@ -1,0 +1,35 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "actif" : true,
+      "centerId" : "<CENTRE_A>",
+      "complications" : null,
+      "cote" : null,
+      "createdAt" : "<HORODATAGE>",
+      "dateCreation" : "<D-10>",
+      "dateFin" : null,
+      "id" : "<ABORD_2>",
+      "localisation" : null,
+      "patientId" : "<PAT_A>",
+      "typeAbord" : "KT_AIGU"
+    }, {
+      "actif" : false,
+      "centerId" : "<CENTRE_A>",
+      "complications" : "Complication fictive",
+      "cote" : "GAUCHE",
+      "createdAt" : "<HORODATAGE>",
+      "dateCreation" : "<D-60>",
+      "dateFin" : "<D-30>",
+      "id" : "<ABORD_1>",
+      "localisation" : "Avant-bras fictif",
+      "patientId" : "<PAT_A>",
+      "typeAbord" : "FAV"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

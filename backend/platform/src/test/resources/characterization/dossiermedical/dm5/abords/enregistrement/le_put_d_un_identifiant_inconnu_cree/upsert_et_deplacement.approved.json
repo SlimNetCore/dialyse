@@ -1,0 +1,44 @@
+{
+  "cas" : {
+    "1 PUT d'un identifiant inconnu : l'abord est cree avec cet identifiant" : "200 <ABORD_INCONNU> | <PAT_A>",
+    "2 PUT de l'abord d'un AUTRE PATIENT du centre : la ligne change de patient" : "200 <ABORD_AUTRE_PATIENT> | <PAT_A>",
+    "3 PUT de l'abord d'un AUTRE CENTRE : la ligne change de centre" : "200 <ABORD_AUTRE_CENTRE> | <PAT_A>"
+  },
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-10>",
+    "date_fin" : null,
+    "id" : "<ABORD_INCONNU>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "PTFE"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-9>",
+    "date_fin" : null,
+    "id" : "<ABORD_AUTRE_PATIENT>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "PTFE"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-8>",
+    "date_fin" : null,
+    "id" : "<ABORD_AUTRE_CENTRE>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "PTFE"
+  } ]
+}

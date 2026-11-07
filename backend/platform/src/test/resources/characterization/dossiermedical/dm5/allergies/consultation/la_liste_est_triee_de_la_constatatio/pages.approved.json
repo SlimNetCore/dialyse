@@ -1,0 +1,59 @@
+{
+  "defaut" : {
+    "items" : [ "SUBSTANCE_5 | BASSE | <D+50>", "SUBSTANCE_4 | HAUTE | <D+40>", "SUBSTANCE_3 | BASSE | <D+30>", "SUBSTANCE_2 | HAUTE | <D+20>", "SUBSTANCE_1 | BASSE | <D+10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "liste pour l'ADMIN" : {
+    "items" : [ "SUBSTANCE_5" ],
+    "page" : 0,
+    "size" : 1,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 0" : {
+    "items" : [ "SUBSTANCE_5", "SUBSTANCE_4", "SUBSTANCE_3", "SUBSTANCE_2", "SUBSTANCE_1" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 1000" : {
+    "items" : [ "SUBSTANCE_5", "SUBSTANCE_4", "SUBSTANCE_3", "SUBSTANCE_2", "SUBSTANCE_1" ],
+    "page" : 0,
+    "size" : 200,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page -1" : {
+    "items" : [ "SUBSTANCE_5", "SUBSTANCE_4" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 0" : {
+    "items" : [ "SUBSTANCE_5", "SUBSTANCE_4" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 2" : {
+    "items" : [ "SUBSTANCE_1" ],
+    "page" : 2,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 9" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille illisible" : "500 INTERNAL_ERROR"
+}

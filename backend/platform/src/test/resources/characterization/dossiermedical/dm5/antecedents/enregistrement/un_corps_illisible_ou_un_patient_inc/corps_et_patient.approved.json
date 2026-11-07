@@ -1,0 +1,45 @@
+{
+  "cas" : {
+    "centre illisible" : "500 INTERNAL_ERROR",
+    "corps absent" : "500 INTERNAL_ERROR",
+    "corps illisible" : "500 INTERNAL_ERROR",
+    "corps tableau []" : "500 INTERNAL_ERROR",
+    "corps vide {}" : "500 INTERNAL_ERROR",
+    "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+    "patient d'un autre centre (session A)" : "200 ok",
+    "patient inconnu" : "200 ok"
+  },
+  "etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_debut" : "<D-5>",
+    "date_fin" : null,
+    "diagnostic_code" : null,
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : null,
+    "id" : "<UUID_GENERE_1>",
+    "libelle_libre" : "Patient inconnu",
+    "modification" : "jamais modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_INCONNU>",
+    "severite" : null,
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "MEDICAL"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_debut" : "<D-5>",
+    "date_fin" : null,
+    "diagnostic_code" : null,
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : null,
+    "id" : "<UUID_GENERE_2>",
+    "libelle_libre" : "Patient du centre B",
+    "modification" : "jamais modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_B>",
+    "severite" : null,
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "MEDICAL"
+  } ]
+}

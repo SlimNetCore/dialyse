@@ -1,0 +1,41 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "categorie" : "ALIMENT",
+      "centerId" : "<CENTRE_A>",
+      "code" : "ARACHIDE",
+      "codeDisplay" : null,
+      "codeSystem" : "LOCAL",
+      "createdAt" : "<HORODATAGE>",
+      "criticite" : "BASSE",
+      "dateConstatation" : "<D-10>",
+      "id" : "<ALG_2>",
+      "manifestations" : null,
+      "patientId" : "<PAT_A>",
+      "statutVerification" : "REFUTEE",
+      "typeReaction" : "INTOLERANCE",
+      "updatedAt" : "<HORODATAGE>"
+    }, {
+      "categorie" : "MEDICAMENT",
+      "centerId" : "<CENTRE_A>",
+      "code" : "J01CA04",
+      "codeDisplay" : "Substance fictive",
+      "codeSystem" : "ATC",
+      "createdAt" : "<HORODATAGE>",
+      "criticite" : "HAUTE",
+      "dateConstatation" : "<D-60>",
+      "id" : "<ALG_1>",
+      "manifestations" : "Reaction fictive",
+      "patientId" : "<PAT_A>",
+      "statutVerification" : "CONFIRMEE",
+      "typeReaction" : "ALLERGIE",
+      "updatedAt" : "<HORODATAGE>"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}
