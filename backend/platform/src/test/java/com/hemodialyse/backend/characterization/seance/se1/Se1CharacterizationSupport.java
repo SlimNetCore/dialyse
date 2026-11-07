@@ -45,9 +45,14 @@ public abstract class Se1CharacterizationSupport extends SemaineCharacterization
     /** Sous-dossier de goldens de la classe de test (ex. {@code creation}). */
     protected abstract String dossier();
 
+    /** Tranche de goldens (SE1 ici ; SE2 la redéfinit : même harnais, autre dossier de goldens). */
+    protected String tranche() {
+        return "se1";
+    }
+
     @Override
     protected final String theme() {
-        return "../seance/se1/" + dossier() + "/" + scenario;
+        return "../seance/" + tranche() + "/" + dossier() + "/" + scenario;
     }
 
     @BeforeEach

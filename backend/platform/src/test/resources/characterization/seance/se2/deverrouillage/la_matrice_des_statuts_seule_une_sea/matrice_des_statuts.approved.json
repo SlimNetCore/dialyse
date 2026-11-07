@@ -1,0 +1,26 @@
+{
+  "ABSENT" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance restée « créée » peut être déverrouillée pour régularisation ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=ABSENT, validation=renseigne} ; diffusions=0",
+  "CREE" : "200 ok ; {regularisation_deverrouillee_by=u-admin, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null} ; diffusions=1",
+  "CREE deja deverrouillee (idempotent)" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "EN_COURS" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=EN_COURS, validation=renseigne} ; diffusions=0",
+  "FACTUREE" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=FACTUREE, validation=renseigne} ; diffusions=0",
+  "SIGNEE" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance restée « créée » peut être déverrouillée pour régularisation ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-initial, statut=SIGNEE, validation=renseigne} ; diffusions=0",
+  "VALIDEE" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance restée « créée » peut être déverrouillée pour régularisation ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=VALIDEE, validation=renseigne} ; diffusions=0",
+  "etat de la seance deja deverrouillee" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "pose par le harnais",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "admin-initial",
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ]
+}

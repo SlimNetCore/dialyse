@@ -207,7 +207,12 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SituationPlanning.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceListItem.java",
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceDetails.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/*.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/*.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/ValidateSeanceRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/ValidateSeanceArticleRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/SignSeanceMedecinRequest.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/SeanceArticleConsumption.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/SeanceUseCase.java"
   ],
   "seamAllowed": []
 }

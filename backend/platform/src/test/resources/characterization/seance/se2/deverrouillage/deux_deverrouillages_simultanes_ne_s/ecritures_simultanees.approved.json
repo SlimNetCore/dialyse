@@ -1,0 +1,20 @@
+{
+  "01 toutes les reponses sont 200" : true,
+  "02 une seule ligne, CREE et deverrouillee" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ]
+}

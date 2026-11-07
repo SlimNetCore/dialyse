@@ -1,0 +1,51 @@
+{
+  "journal" : [ {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : "<SEANCE_VALIDEE>",
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/signer-medecin",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : "<SEANCE_INCONNUE>",
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/signer-medecin",
+    "status_code" : "400"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : "<SEANCE_VALIDEE>",
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "2",
+    "route_template" : "/api/v1/seances/{seanceId}/signer-medecin",
+    "status_code" : "403"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : "<SEANCE_CREE>",
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/signer-medecin",
+    "status_code" : "422"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : "<SEANCE_VALIDEE>",
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/signer-medecin",
+    "status_code" : "422"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : "<SEANCE_VALIDEE>",
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/signer-medecin",
+    "status_code" : "500"
+  } ]
+}

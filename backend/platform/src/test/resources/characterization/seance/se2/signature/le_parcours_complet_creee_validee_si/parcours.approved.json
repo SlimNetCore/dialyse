@@ -1,0 +1,28 @@
+{
+  "01 la secretaire ne signe pas" : "403 ACCESS_DENIED | Access Denied",
+  "02 le medecin ne signe pas une seance creee" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere",
+  "03 l'infirmier ne valide pas sans deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur",
+  "04 deverrouillage par l'administrateur" : "200 ok",
+  "05 validation par l'infirmier" : "200 ok",
+  "06 l'infirmier ne signe pas" : "403 ACCESS_DENIED | Access Denied",
+  "07 signature par le medecin" : "200 ok",
+  "08 deverrouillage d'une seance signee" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance restée « créée » peut être déverrouillée pour régularisation",
+  "09 validation d'une seance signee (idempotente)" : "200 ok",
+  "10 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "renseigne",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : "med-01",
+    "statut" : "SIGNEE",
+    "validation" : "renseigne"
+  } ]
+}

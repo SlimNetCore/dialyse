@@ -1,0 +1,17 @@
+{
+  "ADMIN" : "200 ; [{statut=SIGNEE}]",
+  "ADMIN sans centre" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]",
+  "DIRECTION" : "403 ROLE_SCOPE ; [{statut=VALIDEE}]",
+  "INFIRMIER + SECRETAIRE" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]",
+  "INFIRMIER seul" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]",
+  "MEDECIN + ADMIN" : "200 ; [{statut=SIGNEE}]",
+  "MEDECIN + INFIRMIER" : "200 ; [{statut=SIGNEE}]",
+  "MEDECIN seul" : "200 ; [{statut=SIGNEE}]",
+  "SECRETAIRE" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]",
+  "SUPERADMIN" : "403 ROLE_SCOPE ; [{statut=VALIDEE}]",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE ; [{statut=VALIDEE}]",
+  "anonyme" : "403 ; [{statut=VALIDEE}]",
+  "aucun role" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]",
+  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]",
+  "role personnalise (CHEF_DE_SALLE)" : "403 ACCESS_DENIED ; [{statut=VALIDEE}]"
+}

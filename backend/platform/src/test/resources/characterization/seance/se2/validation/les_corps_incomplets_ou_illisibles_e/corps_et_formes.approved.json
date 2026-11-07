@@ -1,0 +1,30 @@
+{
+  "01 corps sans centerId" : "400 BAD_REQUEST | CenterId cannot be null",
+  "02 aucune ecriture" : true,
+  "03 centerId null" : "400 BAD_REQUEST | CenterId cannot be null",
+  "04 centerId illisible" : "500 INTERNAL_ERROR",
+  "05 corps vide {}" : "400 BAD_REQUEST | CenterId cannot be null",
+  "06 corps illisible" : "500 INTERNAL_ERROR",
+  "07 corps absent" : "500 INTERNAL_ERROR",
+  "08 corps null" : "500 INTERNAL_ERROR",
+  "09 corps tableau" : "500 INTERNAL_ERROR",
+  "10 identifiant de seance mal forme" : "500 INTERNAL_ERROR",
+  "11 propriete inconnue ignoree" : "200 ok",
+  "12 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "u",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ]
+}

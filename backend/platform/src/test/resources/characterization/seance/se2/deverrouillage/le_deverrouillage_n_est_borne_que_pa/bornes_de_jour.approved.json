@@ -1,0 +1,10 @@
+{
+  "+000 jours" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance d'un jour passé peut être déverrouillée pour régularisation ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "+001 jours" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance d'un jour passé peut être déverrouillée pour régularisation ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "+030 jours" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance d'un jour passé peut être déverrouillée pour régularisation ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "-001 jours" : "200 ok ; {regularisation_deverrouillee_by=u-admin, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "-007 jours" : "200 ok ; {regularisation_deverrouillee_by=u-admin, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "-008 jours" : "200 ok ; {regularisation_deverrouillee_by=u-admin, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "-030 jours" : "200 ok ; {regularisation_deverrouillee_by=u-admin, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+  "-400 jours" : "200 ok ; {regularisation_deverrouillee_by=u-admin, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+}

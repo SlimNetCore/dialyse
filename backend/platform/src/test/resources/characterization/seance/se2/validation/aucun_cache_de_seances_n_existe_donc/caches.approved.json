@@ -1,0 +1,5 @@
+{
+  "01 caches dont le nom evoque les seances (le plan annonce ref.seances.du.jour et ref.seances.validees.non.signees)" : [ "seance.raccourcis" ],
+  "02 validation puis signature" : "200 ok ; 200 ok",
+  "03 liste des caches inchangee" : true
+}

@@ -1,0 +1,46 @@
+{
+  "01 deverrouillage" : "200 ok",
+  "02 etat (statut CREE, aucune place, aucune validation)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ],
+  "03 consommations (aucune)" : [ ],
+  "04 l'infirmier valide avec une consommation" : "200 ok",
+  "05 etat (place figee a la validation)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : "<CRENEAU_MATIN>",
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : "<G1A>",
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : "<SALLE_1>",
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ],
+  "06 consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ]
+}

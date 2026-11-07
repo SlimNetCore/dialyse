@@ -1,0 +1,7 @@
+{
+  "01 au moins une signature reussit" : true,
+  "02 les autres reponses sont des refus 422 ou 500" : true,
+  "03 une seule ligne, SIGNEE" : [ {
+    "statut" : "SIGNEE"
+  } ]
+}

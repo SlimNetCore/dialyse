@@ -1,0 +1,111 @@
+{
+  "01 validation par l'INFIRMIER" : {
+    "corps" : {
+      "id" : "<SEANCE>",
+      "signedByInfirmierAt" : "<HORODATAGE>",
+      "status" : "VALIDEE",
+      "validatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "02 etat (VALIDEE, signee par le compte du corps, validee ce jour)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ],
+  "03 diffusions (validation puis saisie pour le medecin)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "dateSeance" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_VALIDATED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "SEANCE_VALIDEE",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "04 seconde validation (retour anticipe du domaine)" : {
+    "corps" : {
+      "id" : "<SEANCE>",
+      "signedByInfirmierAt" : "<HORODATAGE>",
+      "status" : "VALIDEE",
+      "validatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "05 horodatage de validation inchange" : true,
+  "06 diffusions de la seconde validation (rediffusees malgre l'absence de changement)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "dateSeance" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_VALIDATED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "SEANCE_VALIDEE",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "07 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ]
+}

@@ -1,0 +1,81 @@
+{
+  "01 validation de l'infirmier avant le deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur",
+  "02 deverrouillage par l'ADMIN" : {
+    "corps" : {
+      "id" : "<SEANCE>",
+      "regularisationDeverrouilleeAt" : "<HORODATAGE>",
+      "status" : "CREE"
+    },
+    "status" : 200
+  },
+  "03 etat (statut CREE, deverrouillee par le compte de la session)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ],
+  "04 diffusions (destinataire : les infirmiers)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "dateSeance" : "<J-2>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER"
+      },
+      "type" : "SEANCE_DEVERROUILLEE"
+    }
+  } ],
+  "05 second deverrouillage (retour anticipe du domaine)" : {
+    "corps" : {
+      "id" : "<SEANCE>",
+      "regularisationDeverrouilleeAt" : "<HORODATAGE>",
+      "status" : "CREE"
+    },
+    "status" : 200
+  },
+  "06 horodatage de deverrouillage inchange" : true,
+  "07 diffusions du second deverrouillage (rediffusees)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "dateSeance" : "<J-2>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER"
+      },
+      "type" : "SEANCE_DEVERROUILLEE"
+    }
+  } ],
+  "08 validation de l'infirmier apres le deverrouillage" : "200 ok",
+  "09 etat final (le deverrouillage est conserve apres la validation)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J-2>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ]
+}

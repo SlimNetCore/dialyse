@@ -1,0 +1,18 @@
+{
+  "ABSENT d'un jour passe" : {
+    "administrateur" : "422 BUSINESS_RULE_VIOLATION | La seance n'est pas en statut CREE ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=ABSENT, validation=renseigne}",
+    "infirmier" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=ABSENT, validation=renseigne}"
+  },
+  "FACTUREE d'un jour passe" : {
+    "administrateur" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=FACTUREE, validation=renseigne}",
+    "infirmier" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=FACTUREE, validation=renseigne}"
+  },
+  "SIGNEE d'un jour passe" : {
+    "administrateur" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-initial, statut=SIGNEE, validation=renseigne}",
+    "infirmier" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-initial, statut=SIGNEE, validation=renseigne}"
+  },
+  "VALIDEE d'un jour passe" : {
+    "administrateur" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "01 corps sans userId" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_infirmier_by" : "system",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "02 userId vide" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_infirmier_by" : "",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "03 userId d'un autre compte" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_infirmier_by" : "autre-compte",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "04 userId de 100 caracteres" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_infirmier_by" : "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "05 userId de 101 caracteres" : {
+    "reponse" : "500 DATA_ACCESS_ERROR",
+    "signataire en base" : [ {
+      "signed_infirmier_by" : null,
+      "statut" : "CREE"
+    } ]
+  }
+}

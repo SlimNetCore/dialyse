@@ -1,0 +1,20 @@
+{
+  "+000 jours" : {
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  },
+  "+001 jours" : {
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  },
+  "+030 jours" : {
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  },
+  "-001 jours" : {
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  },
+  "-008 jours" : {
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  },
+  "-400 jours" : {
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  }
+}

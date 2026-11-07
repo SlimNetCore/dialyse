@@ -1,0 +1,43 @@
+{
+  "01 session A vise le centre B pour la seance B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "02 session B vise le centre A pour la seance A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 session B et centre B, seance du centre A" : "400 BAD_REQUEST | Seance introuvable",
+  "04 session A et centre A, seance du centre B" : "400 BAD_REQUEST | Seance introuvable",
+  "05 session sans centre" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+  "06 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "07 aucune ecriture jusqu'ici" : true,
+  "08 SUPERADMIN + ADMIN de la session A vise le centre B (transverse)" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "09 etat apres le superadmin" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  }, {
+    "center_id" : "<CENTRE_B>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_B>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ]
+}

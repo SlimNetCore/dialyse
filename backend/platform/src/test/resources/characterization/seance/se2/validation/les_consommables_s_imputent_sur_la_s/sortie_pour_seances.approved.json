@@ -1,0 +1,78 @@
+{
+  "01 creation de la piece du lendemain" : 200,
+  "02 premiere validation de 5 sur la piece de 8" : {
+    "corps" : {
+      "id" : "<SEANCE_1>",
+      "signedByInfirmierAt" : "<HORODATAGE>",
+      "status" : "VALIDEE",
+      "validatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "03 seconde validation de 5 (depassement : 3 restants)" : {
+    "corps" : {
+      "id" : "<SEANCE_2>",
+      "signedByInfirmierAt" : "<HORODATAGE>",
+      "status" : "VALIDEE",
+      "validatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "04 consommations imputees (sur la piece, par lot)" : [ {
+    "alerte" : "DEPASSEMENT_DE_LA_SORTIE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "true"
+  }, {
+    "alerte" : null,
+    "article" : "SE2-ART_1",
+    "lot_id" : "<LOT_1>",
+    "quantite" : "3.00",
+    "sur_une_piece" : "true"
+  }, {
+    "alerte" : null,
+    "article" : "SE2-ART_1",
+    "lot_id" : "<LOT_1>",
+    "quantite" : "5.00",
+    "sur_une_piece" : "true"
+  } ],
+  "05 mouvements de stock inchanges depuis la piece" : true,
+  "06 lot inchange (la sortie a eu lieu a la piece)" : [ {
+    "numero_lot" : "LOT_1",
+    "quantite_restante" : "2.00"
+  } ],
+  "07 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J+1>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_B>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J+1>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ]
+}

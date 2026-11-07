@@ -1,0 +1,81 @@
+{
+  "01 signature par le MEDECIN" : {
+    "corps" : {
+      "id" : "<SEANCE>",
+      "signedByMedecinAt" : "<HORODATAGE>",
+      "status" : "SIGNEE"
+    },
+    "status" : 200
+  },
+  "02 etat (SIGNEE, signee par le compte du corps ; place non memorisee)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "pose par le harnais",
+    "signature_medecin" : "renseigne",
+    "signed_infirmier_by" : "inf-initiale",
+    "signed_medecin_by" : "med-01",
+    "statut" : "SIGNEE",
+    "validation" : "pose par le harnais"
+  } ],
+  "03 diffusions (aucune)" : [ ],
+  "04 seconde signature (le statut n'est plus VALIDEE)" : {
+    "corps" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "La signature medecin est autorisee uniquement apres validation infirmiere",
+      "instance" : "/api/v1/seances/<SEANCE>/signer-medecin",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "status" : 422
+  },
+  "05 etat inchange" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "pose par le harnais",
+    "signature_medecin" : "renseigne",
+    "signed_infirmier_by" : "inf-initiale",
+    "signed_medecin_by" : "med-01",
+    "statut" : "SIGNEE",
+    "validation" : "pose par le harnais"
+  } ],
+  "06 validation d'une seance signee (retour anticipe, rediffusion)" : {
+    "corps" : {
+      "id" : "<SEANCE>",
+      "signedByInfirmierAt" : "<HORODATAGE>",
+      "status" : "SIGNEE",
+      "validatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "07 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "pose par le harnais",
+    "signature_medecin" : "renseigne",
+    "signed_infirmier_by" : "inf-initiale",
+    "signed_medecin_by" : "med-01",
+    "statut" : "SIGNEE",
+    "validation" : "pose par le harnais"
+  } ]
+}

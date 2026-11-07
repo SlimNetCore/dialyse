@@ -1,0 +1,42 @@
+{
+  "+000 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}"
+  },
+  "+001 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}"
+  },
+  "+030 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}"
+  },
+  "-001 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "-007 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "-008 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "-030 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "-400 jours" : {
+    "administrateur sans deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier apres deverrouillage" : "200 ok ; {regularisation_deverrouillee_by=admin-initial, signature_medecin=null, signed_infirmier_by=inf-01, signed_medecin_by=null, statut=VALIDEE, validation=renseigne}",
+    "infirmier sans deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  }
+}

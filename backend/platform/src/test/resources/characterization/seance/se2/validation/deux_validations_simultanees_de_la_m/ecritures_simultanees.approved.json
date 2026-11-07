@@ -1,0 +1,7 @@
+{
+  "01 au moins une validation reussit" : true,
+  "02 une seule ligne de seance, VALIDEE" : [ {
+    "statut" : "VALIDEE"
+  } ],
+  "03 la quantite imputee n'excede jamais le nombre de validations reussies" : true
+}
