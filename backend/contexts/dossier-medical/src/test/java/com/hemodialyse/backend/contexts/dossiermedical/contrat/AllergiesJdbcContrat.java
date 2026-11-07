@@ -87,6 +87,22 @@ abstract class AllergiesJdbcContrat extends AllergiesContrat {
     }
 
     @Test
+    void sans_ligne_illisible_aucun_avertissement_n_est_emis() {
+        poser("ALIMENT", "HAUTE", "ALLERGIE", "SUSPECTEE", "LOCAL", LocalDate.of(2026, 1, 1));
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(AllergiesJdbc.class);
+        var capture = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        capture.start();
+        logger.addAppender(capture);
+        try {
+            assertThat(allergies().duPatient(CENTRE_A, PATIENT, 0, 10).total()).isEqualTo(1);
+            assertThat(allergies().critiquesDuPatient(CENTRE_A, PATIENT)).hasSize(1);
+        } finally {
+            logger.detachAppender(capture);
+        }
+        assertThat(capture.list).isEmpty();
+    }
+
+    @Test
     void la_table_garde_ses_colonnes_et_aucune_colonne_n_est_ajoutee() {
         List<String> colonnes = jdbc().queryForList("SELECT LOWER(COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS "
                 + "WHERE LOWER(TABLE_NAME) = 'allergies_patient'", String.class);

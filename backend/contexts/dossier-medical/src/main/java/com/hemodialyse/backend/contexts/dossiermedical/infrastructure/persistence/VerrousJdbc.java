@@ -24,7 +24,11 @@ final class VerrousJdbc {
         this.jdbc = jdbc;
     }
 
-    /** Pose un verrou consultatif de transaction sur la clé (PostgreSQL seulement ; H2 ne l'a pas). */
+    /**
+     * Pose un verrou consultatif de transaction sur la clé (PostgreSQL seulement ; H2 ne l'a pas). L'espace de clés
+     * ({@code hashtextextended}) est partagé avec les autres adapters : chaque clé porte un préfixe littéral propre
+     * ({@code antecedent|…}, {@code serologie|…}) ; tout nouveau verrou consultatif doit avoir le sien.
+     */
     void consultatif(String cle) {
         if (estPostgreSql()) {
             jdbc.query("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", rs -> {

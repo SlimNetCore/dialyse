@@ -90,19 +90,25 @@ public class AllergiesJdbc implements Allergies {
 
     @Override
     public PageDeFiches<Allergie> duPatient(CentreId centre, PatientId patient, int page, int taille) {
-        Long total = jdbc.queryForObject("SELECT count(*) FROM allergies_patient WHERE center_id = ? AND patient_id = ?" + LISIBLES, Long.class,
-                centre.valeur(), patient.valeur());
+        long[] comptes = comptes(centre, patient);
         List<Allergie> items = jdbc.query("SELECT " + COLONNES + " FROM allergies_patient WHERE center_id = ? AND patient_id = ?" + LISIBLES
                         + ORDRE + " LIMIT ? OFFSET ?", (rs, i) -> allergie(rs), centre.valeur(), patient.valeur(), taille, (long) page * taille);
-        signalerLesIllisibles("", centre, patient);
-        return new PageDeFiches<>(items, total == null ? 0 : total, page, taille);
+        if (comptes[1] > comptes[0]) signalerLesIllisibles("", centre, patient);
+        return new PageDeFiches<>(items, comptes[0], page, taille);
+    }
+
+    /** Une seule requête : lignes lisibles et toutes les lignes du patient (le repérage des illisibles n'a lieu que s'il y en a). */
+    private long[] comptes(CentreId centre, PatientId patient) {
+        return jdbc.queryForObject("SELECT count(CASE WHEN 1 = 1" + LISIBLES + " THEN 1 END), count(*) FROM allergies_patient "
+                + "WHERE center_id = ? AND patient_id = ?", (rs, i) -> new long[]{rs.getLong(1), rs.getLong(2)}, centre.valeur(), patient.valeur());
     }
 
     @Override
     public List<Allergie> critiquesDuPatient(CentreId centre, PatientId patient) {
         List<Allergie> lues = jdbc.query("SELECT " + COLONNES + " FROM allergies_patient WHERE center_id = ? AND patient_id = ? "
                 + "AND criticite = 'HAUTE'" + LISIBLES + ORDRE, (rs, i) -> allergie(rs), centre.valeur(), patient.valeur());
-        signalerLesIllisibles("", centre, patient);
+        long[] comptes = comptes(centre, patient);
+        if (comptes[1] > comptes[0]) signalerLesIllisibles("", centre, patient);
         return lues;
     }
 

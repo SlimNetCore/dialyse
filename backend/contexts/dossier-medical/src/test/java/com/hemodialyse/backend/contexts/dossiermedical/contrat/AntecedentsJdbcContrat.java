@@ -77,6 +77,21 @@ abstract class AntecedentsJdbcContrat extends AntecedentsContrat {
     }
 
     @Test
+    void sans_ligne_illisible_aucun_avertissement_n_est_emis() {
+        poser("MEDICAL", "ACTIF", "CIM10", "N18", LocalDate.of(2026, 1, 1));
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(AntecedentsJdbc.class);
+        var capture = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        capture.start();
+        logger.addAppender(capture);
+        try {
+            assertThat(antecedents().duPatient(CENTRE_A, PATIENT, 0, 10).total()).isEqualTo(1);
+        } finally {
+            logger.detachAppender(capture);
+        }
+        assertThat(capture.list).isEmpty();
+    }
+
+    @Test
     void la_table_garde_ses_colonnes_et_aucune_colonne_n_est_ajoutee() {
         List<String> colonnes = jdbc().queryForList("SELECT LOWER(COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS "
                 + "WHERE LOWER(TABLE_NAME) = 'antecedents_medicaux'", String.class);

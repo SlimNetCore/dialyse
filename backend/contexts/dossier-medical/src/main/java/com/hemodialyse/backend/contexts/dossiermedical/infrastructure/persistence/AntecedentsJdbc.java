@@ -107,13 +107,14 @@ public class AntecedentsJdbc implements Antecedents {
 
     @Override
     public PageDeFiches<Antecedent> duPatient(CentreId centre, PatientId patient, int page, int taille) {
-        Long total = jdbc.queryForObject("SELECT count(*) FROM antecedents_medicaux WHERE center_id = ? AND patient_id = ?" + LISIBLES,
-                Long.class, centre.valeur(), patient.valeur());
+        // Une seule requête de comptage donne les lignes lisibles ET toutes les lignes : le repérage des illisibles n'a lieu que s'il y en a.
+        long[] comptes = jdbc.queryForObject("SELECT count(CASE WHEN 1 = 1" + LISIBLES + " THEN 1 END), count(*) FROM antecedents_medicaux "
+                + "WHERE center_id = ? AND patient_id = ?", (rs, i) -> new long[]{rs.getLong(1), rs.getLong(2)}, centre.valeur(), patient.valeur());
         List<Antecedent> items = jdbc.query("SELECT " + COLONNES + " FROM antecedents_medicaux WHERE center_id = ? AND patient_id = ?" + LISIBLES
                         + " ORDER BY date_debut DESC, created_at DESC, id DESC LIMIT ? OFFSET ?", (rs, i) -> antecedent(rs),
                 centre.valeur(), patient.valeur(), taille, (long) page * taille);
-        signalerLesIllisibles("", centre, patient);
-        return new PageDeFiches<>(items, total == null ? 0 : total, page, taille);
+        if (comptes[1] > comptes[0]) signalerLesIllisibles("", centre, patient);
+        return new PageDeFiches<>(items, comptes[0], page, taille);
     }
 
     /** Journalise en WARN l'identifiant SEUL (aucune donnée de santé ni de patient) des lignes illisibles du patient. */
