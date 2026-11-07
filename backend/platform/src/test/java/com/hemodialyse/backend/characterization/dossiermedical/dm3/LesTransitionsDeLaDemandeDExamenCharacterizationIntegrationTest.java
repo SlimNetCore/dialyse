@@ -55,10 +55,9 @@ class LesTransitionsDeLaDemandeDExamenCharacterizationIntegrationTest extends Ex
                     jdbc.queryForList("SELECT id FROM lignes_demande_examen WHERE demande_id = ? ORDER BY id", demande).toString().equals(lignesAvant));
             e.put("created_at conserve", creeLe.equals(jdbc.queryForObject("SELECT created_at FROM demandes_examen WHERE id = ?",
                     Object.class, demande).toString()));
-            // Marge : created_at et updated_at peuvent tomber dans la meme microseconde sur une machine rapide (test instable avec ">").
-            // La cle du golden est conservee ; l'invariant observe est « jamais anterieur ».
+            // Comparaison stricte, rendue deterministe par l'ecart minimal entre requetes du harnais de base.
             e.put("updated_at posterieur a created_at", Boolean.TRUE.equals(jdbc.queryForObject(
-                    "SELECT updated_at >= created_at FROM demandes_examen WHERE id = ?", Boolean.class, demande)));
+                    "SELECT updated_at > created_at FROM demandes_examen WHERE id = ?", Boolean.class, demande)));
             etapes.put(action, e);
         }
         arbre("etapes", etapes);

@@ -132,12 +132,39 @@ public abstract class PlanificationCharacterizationSupport {
 
     @BeforeEach
     protected void setUpPlanification() {
-        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).addFilters(roleScopeFilter).build();
+        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity())
+                .addFilters(ecartMinimalEntreRequetes(), roleScopeFilter).build();
         cleanupPlanification();
         aliasNommes.clear();
         sequence = 0;
         caches.getCacheNames().forEach(nom -> java.util.Optional.ofNullable(caches.getCache(nom))
                 .ifPresent(org.springframework.cache.Cache::clear));
+    }
+
+    private static final java.time.Duration ECART_MINIMAL = java.time.Duration.ofMillis(2);
+    private static volatile java.time.OffsetDateTime finDeLaDerniereRequete = java.time.OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, java.time.ZoneOffset.UTC);
+
+    /**
+     * Garantit un écart d'horloge minimal (2 ms) entre la fin d'une requête et le début de la suivante : les indicateurs
+     * des goldens « modifiée » ({@code updated_at > created_at}) ne dépendent ainsi plus de la résolution de l'horloge
+     * (instabilité vue quand les deux horodatages tombaient dans la même microseconde). Aucun golden ni sémantique modifiés.
+     */
+    private static jakarta.servlet.Filter ecartMinimalEntreRequetes() {
+        return (request, response, chain) -> {
+            try {
+                while (java.time.Duration.between(finDeLaDerniereRequete, java.time.OffsetDateTime.now())
+                        .compareTo(ECART_MINIMAL) < 0) {
+                    Thread.sleep(1);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            try {
+                chain.doFilter(request, response);
+            } finally {
+                finDeLaDerniereRequete = java.time.OffsetDateTime.now();
+            }
+        };
     }
 
     @AfterEach

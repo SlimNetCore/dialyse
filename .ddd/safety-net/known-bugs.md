@@ -1763,3 +1763,19 @@ Comportements ACTUELS du legacy Séance (création `POST /api/v1/seances`, scan 
 | KB-SEA-08 | **Audit incomplet** : seuls `POST /seances` et `POST /seances/scan` sont tracés (`SEANCES_CREATION`, y compris les refus 403, 422 et 500) ; `entity_id` jamais renseigné (même en succès) ; un scan qui crée ET valide, ou qui valide seulement, est tracé « création » sans trace de la validation ; le détail et la liste (données de santé de la séance) ne sont pas tracés | `creation/audit`, `scan/audit` ; à confirmer avec le DPO (voir KB-MED-100) |
 | KB-SEA-09 | **Auteur de la création non conservé** : aucune colonne d'auteur à la création (`signed_infirmier_by` nul jusqu'à la validation) ; la seule trace est la notification temps réel `SAISIE_INFIRMIER`, non durable ; à la validation par scan, l'auteur est le nom d'utilisateur de la session (`u-infirmier`, `u-admin`) | `creation/nominal`, `scan/infirmier`, `scan/administrateur` ; à décider (colonne `cree_par`) |
 | KB-SEA-10 | **Éligibilité PEC cumulative** : la période effective et la période demandée de la PEC s'additionnent (une PEC dont la période effective est échue reste couvrante par sa période demandée) ; une attestation expirée refuse la création avec la même cause qu'une attestation absente ; erreur 422 `BUSINESS_RULE_VIOLATION` (code générique, pas de code propre à la cause) ; `attestation_droit.date_fin` est NOT NULL dans le schéma de test alors que la lecture de la couverture traite une fin nulle | `creation/bornes_de_periode`, `creation/pec_et_attestation`, `scan/pec` ; ARGENT, voir KB-PAT-25 et KB-PAT-46 ; à décider avec les métiers |
+
+### Décisions SE1 (2026-11-07, déléguées, toutes « à confirmer métiers/DPO », ADR 0088 à rédiger à l'implémentation)
+
+| Id | Décision | Nature |
+|---|---|---|
+| KB-SEA-01 | `HorlogeDuCentre` là où les goldens restent stables, sinon reproduire et documenter (comme DM2/DM3) | corriger si stable |
+| KB-SEA-02 | CORRIGER le 500 du scan : 409 `SEANCE_DU_JOUR_AMBIGUE`. Pas de règle d'unicité (centre, patient, jour) inventée : la création de plusieurs séances reste REPRODUITE ; question ouverte métier | corriger (intégrité) + reproduire |
+| KB-SEA-03 | REPRODUIRE (le POST ne contrôle pas le planning) ; question métier prioritaire en tête de l'ADR | reproduire |
+| KB-SEA-04 | CORRIGER : erreurs de forme 500 vers 400, 403 avant 400 ; bornes de colonnes 400 ; verrous 409 `…_ECRITURE_CONCURRENTE` | corriger |
+| KB-SEA-06 | CORRIGER : QR sans caractère alphanumérique refusé en 400 ; patient inconnu ou autre centre : 404 `PATIENT_INTROUVABLE` ; garde patient/centre | corriger (sécurité) |
+| KB-SEA-08 | REPRODUIRE l'audit incomplet | reproduire |
+| KB-SEA-05, 07, 09, 10 | Politique commune : corriger sécurité, intégrité, 400-vs-500, verrous ; reproduire règles métier et droits (détail à l'implémentation) | à détailler |
+
+## Outillage de tests (2026-11-07)
+
+- **Horodatages `updated_at > created_at` des goldens « modification » (DM3 à DM8, SE1 hérite du harnais)** : instable quand les deux valeurs tombaient dans la même microseconde. Corrigé sans toucher aux goldens : `PlanificationCharacterizationSupport` (harnais racine de tous ces filets) intercale un filtre MockMvc garantissant 2 ms d'horloge entre la fin d'une requête et le début de la suivante ; la comparaison stricte est rétablie dans DM3 (`>=` retiré). Prouvé par 3 exécutions des classes `dossiermedical/dm*` (319 tests : ordre par défaut, aléatoire, système de fichiers).
