@@ -161,13 +161,13 @@ class ErreursDesAnalysesTest {
     void une_suppression_sans_effet_repond_204_et_demande_de_ne_rien_inscrire_au_journal_d_audit() throws Exception {
         profil("ROLE_MEDECIN");
         var sansEffet = controleurSur(new AnalysesEnMemoire()).perform(delete(URL + "/" + ANALYSE)).andExpect(status().isNoContent()).andReturn();
-        assertThat(sansEffet.getRequest().getAttribute(AnalysesControleur.ATTRIBUT_SANS_TRACE)).isEqualTo(Boolean.TRUE);
+        assertThat(sansEffet.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isEqualTo(Boolean.TRUE);
         var analyses = new AnalysesEnMemoire();
         analyses.ajouter(Analyse.enregistrer(ANALYSE, new PatientId(PATIENT), new CentreId(CENTRE), LocalDate.of(2026, 1, 5),
                 new MesuresDuBilan(BigDecimal.ONE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
                 LocalDate.of(2026, 1, 10), Instant.parse("2026-01-05T10:00:00Z")));
         var effectif = controleurSur(analyses).perform(delete(URL + "/" + ANALYSE)).andExpect(status().isNoContent()).andReturn();
-        assertThat(effectif.getRequest().getAttribute(AnalysesControleur.ATTRIBUT_SANS_TRACE)).isNull();
+        assertThat(effectif.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isNull();
         assertThat(analyses.duPatient(new CentreId(CENTRE), new PatientId(PATIENT), Periode.ILLIMITEE, 0, 10).total()).isZero();
     }
 }

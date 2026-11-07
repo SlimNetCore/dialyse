@@ -13,8 +13,8 @@ class AttributSansTraceDeLAuditTest {
 
     @Test
     void le_controleur_des_serologies_et_le_filtre_d_audit_partagent_le_meme_attribut() throws Exception {
-        Object duControleur = Class.forName("com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.SerologiesControleur")
-                .getField("ATTRIBUT_SANS_TRACE").get(null);
+        Object duControleur = Class.forName("com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.AuditSansTrace")
+                .getField("ATTRIBUT").get(null);
         assertThat(duControleur).isEqualTo(AuditRequestFilter.ATTRIBUT_SANS_TRACE).isEqualTo("hemodialyse.audit.sansTrace");
     }
 }

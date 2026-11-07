@@ -39,6 +39,11 @@ Aucun écran, texte, URL, champ ni rôle ne change (aucun frontend modifié). Le
 ## Questions ouvertes
 Contrôle de la demande d'examen à l'écriture d'une observation (aujourd'hui souple) ; règles de plausibilité du bilan (valeurs négatives, démesurées, date future) ; projection du bilan vers les observations (`DERIVEE_BILAN`) ; audit des lectures et de la recherche (DPO) ; jour du centre au lieu du jour UTC ; 404 pour une observation introuvable à la correction ; nettoyage des observations illisibles en base (métiers et DBA avant DM7) ; interprétation normal / anormal (aujourd'hui chez les lecteurs).
 
+Reproduits en attente de confirmation (métiers et DPO, **avant le 2026-12-15**, échéance du retrait des résidus lus par FHIR et KDIGO) :
+- **KB-MED-78** (droits) : lecture MEDECIN et ADMIN, écriture MEDECIN seul, infirmier refusé, DIRECTION et SUPERADMIN en `ROLE_SCOPE`. Confirmer que l'infirmier n'a pas à lire les résultats biologiques et que la direction n'écrit pas.
+- **KB-MED-79** (valeurs) : aucune règle de plausibilité sur le bilan (négatif, nul, démesuré, date future, plusieurs bilans le même jour) ; arrondi à 2 décimales par la base. Confirmer les bornes cliniques à imposer, le cas échéant.
+- **KB-MED-81** (audit) : audit pauvre `PATIENTS_*`, `POST /analyses/search` journalisé comme une création, lectures non tracées. Confirmer avec le DPO le besoin de tracer les lectures et la recherche.
+
 ## Conséquences
 - Preuves : filet DM6 37/37 vert sur le nouveau code (14 inchangés, 23 `_nouveau_code`), 91 tests nouveaux du module (domaine 17 dont `ObservationBiologiqueTest` et `AnalyseTest`, application avec fakes 17, contrats par port sur double 18, H2 26 et PostgreSQL 16 jetable `backend/scripts/dossier-medical-dm6-pg16-rejeu.sh` avec verrou de ligne à deux connexions, contrat `DemandesDuPatient` 1, advice 409/400/403/404 12), `check-arch.ts` 0 violation, ArchUnit du module, `FrontieresDesContextesTest`.
 - Transaction : chaque cas d'usage n'écrit qu'UNE fiche (un agrégat, une transaction) : pas de test de transaction multi-écritures.

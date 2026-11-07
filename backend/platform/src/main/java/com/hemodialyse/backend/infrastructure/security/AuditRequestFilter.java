@@ -64,7 +64,7 @@ public class AuditRequestFilter extends OncePerRequestFilter {
     /**
      * Attribut de requête qu'un contrôleur pose quand la requête n'a RIEN écrit (ex. suppression d'une sérologie inexistante, qui
      * répond 204 sans rien supprimer) : aucune ligne d'audit n'est inscrite (KB-MED-49). Même valeur que
-     * {@code SerologiesControleur.ATTRIBUT_SANS_TRACE} (le contexte ne dépend pas de la plateforme).
+     * {@code AuditSansTrace.ATTRIBUT} du contexte dossier-medical (le contexte ne dépend pas de la plateforme).
      */
     public static final String ATTRIBUT_SANS_TRACE = "hemodialyse.audit.sansTrace";
 

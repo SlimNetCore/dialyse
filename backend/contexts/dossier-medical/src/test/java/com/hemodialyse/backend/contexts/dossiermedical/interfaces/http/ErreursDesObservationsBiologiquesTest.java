@@ -170,13 +170,13 @@ class ErreursDesObservationsBiologiquesTest {
         profil("ROLE_MEDECIN");
         var sansEffet = controleurSur(new ObservationsBiologiquesEnMemoire()).perform(delete(URL + "/" + OBSERVATION))
                 .andExpect(status().isNoContent()).andReturn();
-        assertThat(sansEffet.getRequest().getAttribute(ObservationsBiologiquesControleur.ATTRIBUT_SANS_TRACE)).isEqualTo(Boolean.TRUE);
+        assertThat(sansEffet.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isEqualTo(Boolean.TRUE);
         var observations = new ObservationsBiologiquesEnMemoire();
         observations.ajouter(ObservationBiologique.enregistrer(OBSERVATION, new PatientId(PATIENT), new CentreId(CENTRE), null,
                 CodeClinique.saisir(SystemeDeCodage.LOINC, "718-7", null), new ValeurMesuree(BigDecimal.ONE, "u"), null, LocalDate.of(2026, 1, 5), null,
                 LocalDate.of(2026, 1, 10), Instant.parse("2026-01-05T10:00:00Z")));
         var effectif = controleurSur(observations).perform(delete(URL + "/" + OBSERVATION)).andExpect(status().isNoContent()).andReturn();
-        assertThat(effectif.getRequest().getAttribute(ObservationsBiologiquesControleur.ATTRIBUT_SANS_TRACE)).isNull();
+        assertThat(effectif.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isNull();
         assertThat(observations.duPatient(new CentreId(CENTRE), new PatientId(PATIENT), null, null, null, 0, 10).total()).isZero();
     }
 }

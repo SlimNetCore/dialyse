@@ -184,12 +184,12 @@ class ErreursDesAntecedentsTest {
         profil("ROLE_MEDECIN");
         var sansEffet = controleurSur(new AntecedentsEnMemoire()).perform(delete(URL + "/" + ANTECEDENT)).andExpect(status().isNoContent())
                 .andReturn();
-        assertThat(sansEffet.getRequest().getAttribute(AntecedentsControleur.ATTRIBUT_SANS_TRACE)).isEqualTo(Boolean.TRUE);
+        assertThat(sansEffet.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isEqualTo(Boolean.TRUE);
         var antecedents = new AntecedentsEnMemoire();
         antecedents.ajouter(Antecedent.enregistrer(ANTECEDENT, new PatientId(PATIENT), new CentreId(CENTRE), TypeDAntecedent.MEDICAL, null, "Libre",
                 LocalDate.of(2026, 1, 5), null, null, null, LocalDate.of(2026, 1, 10), Instant.parse("2026-01-05T10:00:00Z")));
         var effectif = controleurSur(antecedents).perform(delete(URL + "/" + ANTECEDENT)).andExpect(status().isNoContent()).andReturn();
-        assertThat(effectif.getRequest().getAttribute(AntecedentsControleur.ATTRIBUT_SANS_TRACE)).isNull();
+        assertThat(effectif.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isNull();
         assertThat(antecedents.duPatient(new CentreId(CENTRE), new PatientId(PATIENT), 0, 10).total()).isZero();
     }
 }

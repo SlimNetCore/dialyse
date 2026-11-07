@@ -37,8 +37,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1/patients")
 public class SerologiesControleur {
 
-    /** Attribut de requête lu par le filtre d'audit de la plateforme : la requête n'a rien écrit, aucune ligne d'audit. */
-    public static final String ATTRIBUT_SANS_TRACE = "hemodialyse.audit.sansTrace";
 
     private final ConsulterLesSerologiesDuPatient consulter;
     private final EnregistrerUneSerologie enregistrer;
@@ -88,7 +86,7 @@ public class SerologiesControleur {
     @DeleteMapping("/{patientId}/serologies/{serologieId}")
     public ResponseEntity<Void> supprimer(@PathVariable UUID patientId, @PathVariable UUID serologieId,
                                           @RequestParam(required = false) UUID centerId, HttpServletRequest requete) {
-        if (!supprimer.executer(centerId, patientId, serologieId)) requete.setAttribute(ATTRIBUT_SANS_TRACE, Boolean.TRUE);
+        if (!supprimer.executer(centerId, patientId, serologieId)) requete.setAttribute(AuditSansTrace.ATTRIBUT, Boolean.TRUE);
         return ResponseEntity.noContent().build();
     }
 }

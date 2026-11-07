@@ -151,12 +151,12 @@ class ErreursDesAbordsVasculairesTest {
     void une_suppression_sans_effet_repond_204_et_demande_de_ne_rien_inscrire_au_journal_d_audit() throws Exception {
         profil("ROLE_MEDECIN");
         var sansEffet = controleurSur(new AbordsVasculairesEnMemoire()).perform(delete(URL + "/" + ABORD)).andExpect(status().isNoContent()).andReturn();
-        assertThat(sansEffet.getRequest().getAttribute(AbordsVasculairesControleur.ATTRIBUT_SANS_TRACE)).isEqualTo(Boolean.TRUE);
+        assertThat(sansEffet.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isEqualTo(Boolean.TRUE);
         var abords = new AbordsVasculairesEnMemoire();
         abords.ajouter(AbordVasculaire.enregistrer(ABORD, new PatientId(PATIENT), new CentreId(CENTRE), "FAV", null, null, LocalDate.of(2026, 1, 5), null,
                 null, null, Instant.parse("2026-01-05T10:00:00Z")));
         var effectif = controleurSur(abords).perform(delete(URL + "/" + ABORD)).andExpect(status().isNoContent()).andReturn();
-        assertThat(effectif.getRequest().getAttribute(AbordsVasculairesControleur.ATTRIBUT_SANS_TRACE)).isNull();
+        assertThat(effectif.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isNull();
         assertThat(abords.duPatient(new CentreId(CENTRE), new PatientId(PATIENT), 0, 10).total()).isZero();
     }
 }

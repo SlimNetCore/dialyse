@@ -187,7 +187,7 @@ class ErreursDesSerologiesTest {
     void une_suppression_sans_effet_repond_204_et_demande_de_ne_rien_inscrire_au_journal_d_audit() throws Exception {
         profil("ROLE_MEDECIN");
         var sansEffet = controleurSur(new SerologiesEnMemoire()).perform(delete(URL + "/" + SEROLOGIE)).andExpect(status().isNoContent()).andReturn();
-        assertThat(sansEffet.getRequest().getAttribute(SerologiesControleur.ATTRIBUT_SANS_TRACE)).isEqualTo(Boolean.TRUE);
+        assertThat(sansEffet.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isEqualTo(Boolean.TRUE);
 
         var serologies = new SerologiesEnMemoire();
         var existante = Serologie.enregistrer(SEROLOGIE, new PatientId(PATIENT), new CentreId(CENTRE), MarqueurSerologique.TPHA,
@@ -195,7 +195,7 @@ class ErreursDesSerologiesTest {
                 LocalDate.of(2026, 1, 10), null, null, null, Instant.parse("2026-01-05T10:00:00Z"));
         serologies.ajouter(existante);
         var effectif = controleurSur(serologies).perform(delete(URL + "/" + SEROLOGIE)).andExpect(status().isNoContent()).andReturn();
-        assertThat(effectif.getRequest().getAttribute(SerologiesControleur.ATTRIBUT_SANS_TRACE)).isNull();
+        assertThat(effectif.getRequest().getAttribute(AuditSansTrace.ATTRIBUT)).isNull();
         assertThat(serologies.toutesDuPatient(new CentreId(CENTRE), new PatientId(PATIENT))).isEmpty();
     }
 }
