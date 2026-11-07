@@ -73,7 +73,8 @@ class LesDroitsEtLesEffetsDesSerologiesCharacterizationIntegrationTest extends S
         cas.put("ADMIN : suppression", statutEtCode(doDelete(serologieApi(patientA, serologieA), as(CENTRE_A, "ADMIN"))));
         cas.put("ADMIN : liste avec une pagination illisible", statutEtCode(doGet(serologiesApi(patientA) + "?size=abc", as(CENTRE_A, "ADMIN"))));
         cas.put("INFIRMIER : liste avec une pagination illisible", statutEtCode(doGet(serologiesApi(patientA) + "?size=abc", as(CENTRE_A, "INFIRMIER"))));
-        arbre("refus_code", cas);
+        // KB-MED-47 corrigé : 403 AVANT 400 (un profil sans droit n'apprend plus rien, avant : 500) ; ADMIN (droit de lecture) : 400. Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("refus_code_nouveau_code", cas);
         assertThat(empreinte()).isEqualTo(avant);
     }
 
@@ -127,8 +128,9 @@ class LesDroitsEtLesEffetsDesSerologiesCharacterizationIntegrationTest extends S
         doDelete(serologieApi(patientA, s), as(CENTRE_A, "ADMIN"));
         doDelete(serologieApi(patientA, s), medecinA());
         doDelete(serologieApi(patientA, s), medecinA());
-        audit("audit");
-        sql("audit_detail", "SELECT action_code, status_code, COUNT(*) AS nombre FROM audit_log WHERE center_id IN ('" + CENTRE_A + "','"
+        // KB-MED-49 partiel : un DELETE qui n'a rien supprimé (204) n'est plus audité SEROLOGIE_SUPPRIMEE. Legacy archivé dans dm4/_ecarts-legacy.
+        audit("audit_nouveau_code");
+        sql("audit_detail_nouveau_code", "SELECT action_code, status_code, COUNT(*) AS nombre FROM audit_log WHERE center_id IN ('" + CENTRE_A + "','"
                 + CENTRE_B + "') GROUP BY action_code, status_code ORDER BY action_code, status_code");
     }
 

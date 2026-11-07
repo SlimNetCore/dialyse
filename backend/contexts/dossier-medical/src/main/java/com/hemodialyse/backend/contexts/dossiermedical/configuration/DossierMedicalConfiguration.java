@@ -1,6 +1,17 @@
 package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AnnulerUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesSerologiesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.CorrigerUneSerologie;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUneSerologie;
+import com.hemodialyse.backend.contexts.dossiermedical.application.IsolementDesPatients;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUneSerologie;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.Serologies;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.planification.IsolementDesPatientsParLaPlanification;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.SerologiesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.SerologiesControleur;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.ReaffectationEnIsolement;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesDemandesDExamenDuPatient;
 import com.hemodialyse.backend.contexts.dossiermedical.application.DemanderUnExamen;
 import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerLePrelevement;
@@ -359,6 +370,58 @@ public class DossierMedicalConfiguration {
                                                         EnregistrerLePrelevement prelever, RendreLeResultatDisponible rendreDisponible,
                                                         ValiderUneDemandeDExamen valider, AnnulerUneDemandeDExamen annuler) {
         return new DemandesDExamenControleur(consulter, demander, prelever, rendreDisponible, valider, annuler);
+    }
+
+    // ------------------------------------------------------------------ DM4 : sérologies
+
+    /**
+     * Horloge des sérologies : le jour UTC, qui est celui de la JVM du serveur (forcée en UTC) et donc celui du legacy (KB-MED-45), pour
+     * la date par défaut ET pour la limite « pas dans le futur ». Passer au jour du centre en remplaçant ce seul bean quand les métiers
+     * l'auront décidé (même réserve que les demandes d'examen).
+     */
+    @Bean
+    HorlogeDuCentre horlogeDesSerologies() {
+        return new HorlogeDuCentre(Clock.systemUTC(), ZoneOffset.UTC);
+    }
+
+    @Bean
+    Serologies serologiesDuDossierMedical(JdbcTemplate jdbc) {
+        return new SerologiesJdbc(jdbc);
+    }
+
+    @Bean
+    IsolementDesPatients isolementDesPatientsDuDossierMedical(FichesDesPatients fiches, VerrouDesPlacesDuCentre verrou,
+                                                              ReaffectationEnIsolement reaffectation) {
+        return new IsolementDesPatientsParLaPlanification(fiches, verrou, reaffectation);
+    }
+
+    @Bean
+    ConsulterLesSerologiesDuPatient consulterLesSerologiesDuPatient(SessionCourante session, Serologies serologies) {
+        return new ConsulterLesSerologiesDuPatient(session, serologies);
+    }
+
+    @Bean
+    EnregistrerUneSerologie enregistrerUneSerologie(SessionCourante session, Serologies serologies, IsolementDesPatients isolement,
+                                                    UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                    @Qualifier("horlogeDesSerologies") HorlogeDuCentre horloge) {
+        return new EnregistrerUneSerologie(session, serologies, isolement, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    CorrigerUneSerologie corrigerUneSerologie(SessionCourante session, Serologies serologies, IsolementDesPatients isolement,
+                                              UniteDeTravail uniteDeTravail, @Qualifier("horlogeDesSerologies") HorlogeDuCentre horloge) {
+        return new CorrigerUneSerologie(session, serologies, isolement, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUneSerologie supprimerUneSerologie(SessionCourante session, Serologies serologies, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUneSerologie(session, serologies, uniteDeTravail);
+    }
+
+    @Bean
+    SerologiesControleur serologiesControleur(ConsulterLesSerologiesDuPatient consulter, EnregistrerUneSerologie enregistrer,
+                                              CorrigerUneSerologie corriger, SupprimerUneSerologie supprimer) {
+        return new SerologiesControleur(consulter, enregistrer, corriger, supprimer);
     }
 
     @Bean

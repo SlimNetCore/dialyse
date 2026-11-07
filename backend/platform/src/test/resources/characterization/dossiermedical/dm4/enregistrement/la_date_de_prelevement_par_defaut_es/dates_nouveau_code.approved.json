@@ -1,0 +1,11 @@
+{
+  "1900" : "200",
+  "2056" : "422 SEROLOGIE_DATE_FUTURE | La date de prélèvement ne peut pas être dans le futur",
+  "aujourd'hui (doublon avec le defaut)" : "422 BUSINESS_RULE_VIOLATION | Un résultat existe déjà pour ce marqueur à cette date de prélèvement",
+  "aujourd'hui, autre marqueur" : "200",
+  "date illisible" : "400 BAD_REQUEST",
+  "date impossible (30 fevrier)" : "400 BAD_REQUEST",
+  "demain" : "422 SEROLOGIE_DATE_FUTURE | La date de prélèvement ne peut pas être dans le futur",
+  "hier" : "200",
+  "sans date" : "200 -> <J>"
+}

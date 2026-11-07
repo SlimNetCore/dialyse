@@ -1,0 +1,10 @@
+{
+  "centerId illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "champ inconnu ignore" : "200",
+  "corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "corps tableau" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "corps vide {}" : "400 BAD_REQUEST | Le marqueur de la sérologie est requis",
+  "patient illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "titre texte" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+}

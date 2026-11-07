@@ -1906,3 +1906,32 @@ SELECT d.center_id, d.id, d.statut, l.id AS ligne, l.analyte_code_system FROM de
 Limite de pagination (consignée, ADR 0082) : `total` compte les demandes aux statut et catégorie lisibles ; il peut donc dépasser le nombre d'éléments listés du nombre de demandes de la requête 8.
 Recette obligatoire AVANT bascule : (a) demander un examen avec un compte MEDECIN, le prélever, déclarer le résultat disponible, le valider (avec et sans conclusion), puis annuler une autre demande avant et après le résultat (422 après) ; (b) avec un compte d'un AUTRE centre : demande pour un patient inconnu = 404 `PATIENT_INTROUVABLE`, transition d'une demande du premier centre = 400 (jamais 200), `centerId` d'un autre centre dans le corps = 403 ; (c) un compte INFIRMIER ou SECRETAIRE reçoit 403 même avec un corps illisible ; (d) ADMIN : lit mais ne peut pas écrire (à confirmer avec les métiers). La requête 4 liste les demandes à expliquer avant toute correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
 Surveillance après déploiement : hausse attendue des 400 (corps, date, `urgent`, catégorie ou paramètre illisible, texte trop long, avant 500), des 404 (patient inconnu) et des 403 (corps illisible d'un profil sans droit). Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 48. Dossier médical DM4 (sérologies) : parité et gardes (2026-11-07) — SELECT seulement
+
+Aucune migration, même table (`serologies_patient`, sans contrainte d'unicité ni clé étrangère ; le schéma parallèle gelé `serologies` n'est ni lu ni écrit, ADR 0072). Données de santé très sensibles (VIH, hépatites) : exécuter sur une COPIE ou en lecture seule, ne jamais exporter les lignes ; préférer les comptages. Rejouées sur PostgreSQL 16 jetable par `backend/scripts/dossier-medical-dm4-pg16-rejeu.sh`.
+```sql
+-- 1. Sérologies par centre, marqueur et résultat (avant/après : identiques, la reprise ne change aucune ligne).
+SELECT center_id, marqueur, resultat, count(*) AS serologies FROM serologies_patient GROUP BY center_id, marqueur, resultat;
+-- 2. DOUBLONS (KB-MED-56) : plusieurs résultats pour le même patient, marqueur et date de prélèvement (l'unicité n'était qu'applicative, sans verrou ni contrainte).
+--    Attendu : aucune ligne ; sinon la synthèse du patient départage par date de création puis identifiant : à expliquer avec les métiers (aucune correction automatique).
+SELECT center_id, patient_id, marqueur, date_prelevement, count(*) AS exemplaires FROM serologies_patient GROUP BY center_id, patient_id, marqueur, date_prelevement HAVING count(*) > 1;
+-- 3. Données incohérentes (marqueur ou résultat illisible) : IGNORÉES par les lectures du module (avant : 500 pour toute la liste du patient). Attendu : aucune.
+SELECT center_id, id, marqueur, resultat FROM serologies_patient
+ WHERE marqueur NOT IN ('VIH_AC','AG_HBS','AC_HBS','AC_HBC','AC_VHC','ARN_VHC','TPHA','CMV_IGG','CMV_IGM','TOXO_IGG','TOXO_IGM','EBV_IGG','EBV_IGM')
+    OR resultat NOT IN ('POSITIF','NEGATIF','DOUTEUX','EN_COURS');
+-- 4. Valeurs hors bornes du module (KB-MED-52 : refusées en 400 à la saisie, mais peuvent exister en base, importées) : titre négatif ou de plus de 7 chiffres entiers, unité de plus de 20 caractères (impossible en base : colonne 20), laboratoire de plus de 255 (impossible : colonne 255).
+SELECT center_id, count(*) FILTER (WHERE titre < 0) AS titres_negatifs, count(*) FILTER (WHERE abs(titre) >= 10000000) AS titres_hors_borne,
+       count(*) FILTER (WHERE length(unite) > 20) AS unites_trop_longues, count(*) FILTER (WHERE length(laboratoire) > 255) AS laboratoires_trop_longs
+  FROM serologies_patient GROUP BY center_id;
+-- 5. Positifs sans conduite à tenir (règle de positivité : impossible par l'API, possible par import ou SQL).
+SELECT center_id, count(*) AS positifs_sans_conduite FROM serologies_patient WHERE resultat = 'POSITIF' AND (conduite_a_tenir IS NULL OR btrim(conduite_a_tenir) = '') GROUP BY center_id;
+-- 6. Sérologies d'un patient inexistant dans le centre de la sérologie (cloisonnement : patient absent ou d'un autre centre).
+SELECT s.center_id, count(*) AS patient_absent FROM serologies_patient s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id WHERE p.id IS NULL GROUP BY s.center_id;
+-- 7. Dates de prélèvement hors du raisonnable (futur impossible par l'API ; avant 1990 : à expliquer) et prochain contrôle antérieur au prélèvement (accepté, reproduit).
+SELECT center_id, count(*) FILTER (WHERE date_prelevement > current_date) AS futures, count(*) FILTER (WHERE date_prelevement < DATE '1990-01-01') AS tres_anciennes,
+       count(*) FILTER (WHERE date_prochain_controle < date_prelevement) AS controle_avant_prelevement FROM serologies_patient GROUP BY center_id;
+-- 8. Patients à risque infectieux au sens de la Planification (derniers AG_HBS, AC_VHC, ARN_VHC, VIH_AC positifs, KB-MED-53) hors salle d'isolement : voir la requête de contrôle de la Planification (P5) ; non rejouée ici.
+```
+Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, enregistrer un résultat négatif puis un positif avec conduite, corriger l'un vers l'autre, supprimer ; vérifier le déplacement en isolement d'un patient positif (VIH_AC, AG_HBS, AC_VHC, ARN_VHC) et son absence pour TPHA ou CMV ; (b) un résultat positif sans conduite : 422 ; un doublon marqueur et date : 422 ; (c) avec un compte d'un AUTRE centre : écriture refusée (403 avec `centerId` du centre voisin, 422 `PLACEMENT_PATIENT_INTROUVABLE` pour un patient voisin, la sérologie n'est pas créée) ; (d) INFIRMIER ou SECRETAIRE reçoit 403 même avec un corps illisible, ADMIN lit mais ne peut pas écrire (à confirmer avec les métiers) ; (e) deux enregistrements simultanés du même triplet : le second attend puis 409 `SEROLOGIE_ECRITURE_CONCURRENTE` ou 422 doublon ; (f) supprimer deux fois la même sérologie : 204 les deux fois, une seule ligne `SEROLOGIE_SUPPRIMEE` au journal d'audit. La requête 2 liste les doublons à expliquer avant toute correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
+Surveillance après déploiement : hausse attendue des 400 (corps, marqueur, résultat, date, `titre`, paramètre illisible, unité ou laboratoire trop long, avant 500), des 403 (corps illisible d'un profil sans droit) et disparition des lignes d'audit `SEROLOGIE_SUPPRIMEE` 204 sans suppression ; surveiller les 409 `SEROLOGIE_ECRITURE_CONCURRENTE`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

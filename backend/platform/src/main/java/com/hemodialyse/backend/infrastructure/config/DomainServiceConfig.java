@@ -12,8 +12,6 @@ import com.hemodialyse.backend.domain.medical.greffe.service.DonneurVivantDomain
 import com.hemodialyse.backend.domain.medical.greffe.service.EtapeBilanPreGreffeDomainService;
 import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
 import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
-import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
-import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
@@ -81,11 +79,6 @@ public class DomainServiceConfig {
     @Bean
     public AllergieDomainService allergieDomainService(AllergieRepositoryPort repo) {
         return new AllergieDomainService(repo);
-    }
-
-    @Bean
-    public SerologieDomainService serologieDomainService(SerologieRepositoryPort repo) {
-        return new SerologieDomainService(repo);
     }
 
     @Bean

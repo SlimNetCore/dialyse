@@ -341,9 +341,16 @@ Décision déléguée de l'utilisateur (message du coordinateur du 2026-11-06) :
 |---|---|---|---|
 | 2026-11-07 | dossier-medical-dm2-prescriptions | **SUPPRESSION** de `platform/.../web/rest/OrdonnanceRestController.java`, des DTO `CreateOrdonnanceRequest`, `LigneOrdonnanceRequest`, `TransitionOrdonnanceRequest`, `OrdonnanceResponse`, `LigneOrdonnanceResponse`, de `OrdonnanceNumeroGeneratorAdapter` (tous déjà dans `covered`) ; de `bc-medical/.../ordonnance/service/OrdonnanceDomainService`, `port/OrdonnanceUseCase`, `port/OrdonnanceNumeroGeneratorPort` (les deux ports **inscrits dans `seamAllowed`**) et de leur test ; ÉDITION de `platform/.../infrastructure/config/DomainServiceConfig.java` (retrait du bean `ordonnanceDomainService`, déjà dans `covered`) | Les routes `/api/v1/patients/{id}/ordonnances` sont servies par `contexts/dossier-medical` (`OrdonnancesControleur`) : deux contrôleurs sur la même route empêchent le démarrage. **Restent** `Ordonnance`, `LigneOrdonnance`, `OrdonnanceRepositoryPort`, `OrdonnanceRepositoryAdapter`, entités et dépôts JPA : lus par `FhirExportService` (DM8). |
 
-## Dossier médical DM4 (sérologies) : AUCUN seam demandé ni appliqué (2026-11-07)
+## Dossier médical DM4 (sérologies) : filet sans seam (2026-11-07) ; slice de reprise : OUVERT puis FERMÉ le 2026-11-07 (`seamAllowed` vide)
 
 Le filet DM4 n'a modifié aucun code de production (`seamAllowed` reste vide). L'horloge système (KB-MED-45) est contournée par des dates nommées et une garde de minuit dans le harnais.
+
+| Date | Slice | Fichiers édités ou supprimés (tous déjà dans `covered.json` AVANT l'action ; aucune création hors `newCodeRoot`) | Raison |
+|---|---|---|---|
+| 2026-11-07 | dossier-medical-dm4-serologie | **SUPPRESSION** de `platform/.../web/rest/SerologieRestController.java`, des DTO `CreateSerologieRequest`, `UpdateSerologieRequest`, `SerologieResponse`, de `acl/planification/ReaffectationEnIsolementDeLaSerologie.java`, de `bc-medical/.../serologie/port/SerologieUseCase.java` et `service/SerologieDomainService.java`, de leurs tests (`SerologieRestControllerTest`, `SerologiePlacementHookTest`, `SerologieDomainServiceTest`) | Remplacés par `contexts/dossier-medical` (`SerologiesControleur`, cas d'usage, `IsolementDesPatientsParLaPlanification`) ; plus aucun consommateur (vérifié par recherche) |
+| 2026-11-07 | dossier-medical-dm4-serologie | **ÉDITION** de `platform/.../config/DomainServiceConfig.java` (retrait du bean `SerologieDomainService`) | Le service est supprimé |
+| 2026-11-07 | dossier-medical-dm4-serologie | **ÉDITION** de `platform/.../security/AuditRequestFilter.java` (constante `ATTRIBUT_SANS_TRACE` et 3 lignes : aucune trace si le contrôleur pose l'attribut) | KB-MED-49 : une suppression qui n'a rien supprimé ne produit plus de ligne d'audit `SEROLOGIE_SUPPRIMEE` mensongère (la route répond toujours 204) |
+| 2026-11-07 | dossier-medical-dm4-serologie | **CONSERVÉS** (lecteurs restants) : `Serologie`, `SerologieEvent`, `SerologieRepositoryPort`, `MarqueurSerologique`, `ResultatSerologique` (bc-medical), `SerologieRepositoryAdapter`, `SerologieJpaEntity`, `SerologieJpaRepository` (platform) : lus par KDIGO (`KdigoGreffeQueryService`) et `GreffePdfService` (DM7), jalon de retrait = DM7 ; `DirectionIndicatorsQueryService`, `HistoricalRecordJdbcAdapter`, `MigrationRollbackJdbcAdapter` (SQL, DM8) | KB-MED-57 |
 
 ## Dossier médical DM3 (demandes d'examen) : OUVERT le 2026-11-07, FERMÉ à la fin de la slice (`seamAllowed` vidé)
 

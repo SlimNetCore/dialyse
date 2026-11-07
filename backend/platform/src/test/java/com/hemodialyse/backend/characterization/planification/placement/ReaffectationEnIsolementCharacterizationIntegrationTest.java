@@ -193,6 +193,8 @@ class ReaffectationEnIsolementCharacterizationIntegrationTest extends PlacementC
         m.put("patient d'un autre centre (centerId A)", positive(deB, "AG_HBS"));
         m.put("marqueur inconnu", statutEtCode(doPost(PATIENTS + "/" + p + "/serologies", corpsSerologie(CENTRE_A, "XYZ", "POSITIF"), medecin())));
         m.put("resultat inconnu", statutEtCode(doPost(PATIENTS + "/" + p + "/serologies", corpsSerologie(CENTRE_A, "AG_HBS", "PEUT_ETRE"), medecin())));
+        // DM4 (KB-MED-47 corrigé, ADR 0083) : le corps vide de la sérologie répond 400 (avant : 500) ; le reste du comportement de P5 est inchangé.
+        // Version précédente archivée dans p5-placement/_ecarts-legacy/isolement/requetes_et_perimetre_avant_dm4.legacy.json.
         m.put("corps vide", statutEtCode(doPost(PATIENTS + "/" + p + "/serologies", "{}", medecin())));
         m.put("centre de la session different", statutEtCode(doPost(PATIENTS + "/" + p + "/serologies",
                 corpsSerologie(CENTRE_B, "AG_HBS", "POSITIF"), medecin())));

@@ -67,7 +67,38 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 - **RG-MED-033** — **Conséquence automatique** : après enregistrement ou correction d'une sérologie, le patient est
   évalué « à risque infectieux » (dernier résultat positif pour AgHBs, anti-VHC,
   ARN VHC ou VIH, RG-PLN-012) et, si besoin, **replacé en salle d'isolement** ou signalé à l'administration
-  (RG-PLN-053). Un positif émet l'événement « sérologie positive détectée ».
+  (RG-PLN-053), dans la **même transaction** que la sérologie (un patient inconnu du centre ou un verrou non obtenu annule
+  aussi la sérologie). Aucun événement « sérologie positive détectée » n'est publié : le legacy le levait sans jamais le
+  diffuser et la reprise n'en invente pas (RG-MED-034 e).
+- **RG-MED-034** — *Sérologies, reprise sur place DM4 (contexte `dossier-medical`, `SerologiesControleur`, ADR 0083 ;
+  décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN et ADMIN lisent (liste, synthèse), le MEDECIN seul écrit (enregistrer, corriger, supprimer) ;
+  l'ADMIN ne peut pas écrire ; l'INFIRMIER n'a aucun accès au statut sérologique (reproduit, à confirmer) ; DIRECTION et
+  SUPERADMIN 403 `ROLE_SCOPE` ; garde de centre sur les 5 routes ;
+  (b) **entrées illisibles** : corps absent ou mal formé, marqueur ou résultat absent ou inconnu, `titre` non numérique,
+  date illisible ou impossible, identifiant, `centerId`, `page`/`size` illisibles : 400 stable `BAD_REQUEST` sans nom de
+  classe interne (avant : 500, ou le nom d'une classe interne dans le détail), et 403 avant 400 pour un profil sans
+  droit ;
+  (c) **bornes de colonne** : unité au plus 20 caractères, laboratoire 255, titre arrondi à 3 décimales et d'au plus
+  7 chiffres entiers : 400 stable (avant : 500) ; reproduit : titre négatif, prochain contrôle antérieur au prélèvement,
+  date très ancienne et conduite sans limite acceptés ;
+  (d) **règle de positivité** : seul POSITIF impose une conduite à tenir non blanche (`SEROLOGIE_CONDUITE_REQUISE`) ;
+  DOUTEUX et EN_COURS passent sans conduite (reproduit, à confirmer) ; la règle de risque infectieux de la Planification
+  (derniers résultats de AgHBs, anti-VHC, ARN VHC, VIH) et celle de la Direction restent séparées (non unifiées ici) ;
+  (e) **événement** : `SerologiePositiveDetectee` n'est pas publié (reproduit, rien inventé) ;
+  (f) **correction** : seuls le résultat et la conduite à tenir se corrigent ; la conduite du corps remplace l'ancienne,
+  même absente (reproduit, à confirmer) ; sérologie introuvable (inconnue, d'un autre patient ou d'un autre centre) : 400
+  `BAD_REQUEST` (reproduit) ;
+  (g) **suppression** : une sérologie inexistante répond toujours 204 (reproduit) mais n'est plus inscrite au journal
+  d'audit `SEROLOGIE_SUPPRIMEE` ; la suppression ne réévalue pas la place du patient (reproduit) ;
+  (h) **lectures** : patient inconnu ou d'un autre centre = page ou liste vide en 200 (reproduit) ; les lectures ne sont
+  pas tracées dans le journal d'audit et l'audit des écritures désigne le patient (reproduit, à décider avec le DPO) ;
+  (i) **concurrence** : l'unicité (patient, marqueur, date) est protégée par un verrou consultatif de transaction posé
+  pendant l'enregistrement, sans contrainte en base (aucune migration) ; une écriture qui n'obtient pas le verrou de la
+  sérologie ou du couple en 5 s répond 409 `SEROLOGIE_ECRITURE_CONCURRENTE` ; ordre global des verrous : centre,
+  fiches, `app_user`, verrous consultatifs ; les doublons déjà en base sont à relever (`verifications-production.md` §48) ;
+  (j) **jour** : la date de prélèvement par défaut et la limite « pas dans le futur » lisent le jour UTC de la JVM, comme
+  les demandes d'examen (reproduit, à confirmer : jour du centre).
 
 ## 11.5 Demandes d'examen et observations biologiques
 

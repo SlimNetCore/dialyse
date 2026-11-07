@@ -1,0 +1,7 @@
+{
+  "identifiant illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "identifiant inconnu" : "400 BAD_REQUEST | Sérologie introuvable",
+  "serologie d'un autre patient" : "400 BAD_REQUEST | Sérologie introuvable",
+  "serologie du centre B (session A)" : "400 BAD_REQUEST | Sérologie introuvable",
+  "serologie du centre B, centerId B (session A)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+}

@@ -66,7 +66,8 @@ class LaConsultationEtLaCorrectionDesSerologiesCharacterizationIntegrationTest e
         m.put("page=-1", page(patientA, "page=-1"));
         m.put("size=abc", page(patientA, "size=abc"));
         m.put("page=abc", page(patientA, "page=abc"));
-        arbre("pages", m);
+        // KB-MED-47 corrigé : pagination illisible = 400 (avant : 500). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -125,7 +126,8 @@ class LaConsultationEtLaCorrectionDesSerologiesCharacterizationIntegrationTest e
         m.put("corps vide", statutEtCode(doPut(serologieApi(patientA, s), "{}", medecinA())));
         m.put("EN_COURS puis DOUTEUX", refus(doPut(serologieApi(patientA, s), corpsMaj(CENTRE_A, "EN_COURS", null), medecinA()))
                 + " / " + refus(doPut(serologieApi(patientA, s), corpsMaj(CENTRE_A, "DOUTEUX", "A recontroler"), medecinA())));
-        arbre("correction", m);
+        // KB-MED-47 et 48 corrigés : corps vide ou résultat absent = 400 (avant : 500), résultat inconnu sans nom de classe interne. Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("correction_nouveau_code", m);
         etatDesSerologies("apres_corrections");
     }
 
@@ -145,7 +147,8 @@ class LaConsultationEtLaCorrectionDesSerologiesCharacterizationIntegrationTest e
         m.put("serologie du centre B, centerId B (session A)", refus(doPut(serologieApi(patientB, sb), corpsMaj(CENTRE_B, "DOUTEUX", null),
                 medecinA())));
         m.put("identifiant illisible", refus(doPut(serologiesApi(patientA) + "/pas-un-uuid", corpsMaj(CENTRE_A, "DOUTEUX", null), medecinA())));
-        arbre("introuvable", m);
+        // KB-MED-47 corrigé : identifiant illisible = 400 (avant : 500). « Introuvable » reste 400 (reproduit). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("introuvable_nouveau_code", m);
         assertThat(empreinte()).isEqualTo(avant);
     }
 
@@ -166,7 +169,8 @@ class LaConsultationEtLaCorrectionDesSerologiesCharacterizationIntegrationTest e
         m.put("rien n'a ete supprime", nombreDeSerologies());
         m.put("la sienne", refus(doDelete(serologieApi(patientA, s1), medecinA())));
         m.put("la meme une seconde fois", refus(doDelete(serologieApi(patientA, s1), medecinA())));
-        arbre("suppression", m);
+        // KB-MED-47 corrigé : identifiant illisible = 400 (avant : 500). Le DELETE d'une sérologie inexistante reste 204 (reproduit). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("suppression_nouveau_code", m);
         etatDesSerologies("serologies");
         assertThat(resultatEnBase(s2)).isEqualTo("NEGATIF");
     }
@@ -180,7 +184,8 @@ class LaConsultationEtLaCorrectionDesSerologiesCharacterizationIntegrationTest e
         m.put("patient du centre B vu par le centre A", page(patientB, ""));
         m.put("patient du centre B vu par le centre B", Map.of("session B", corpsLongueur(doGet(serologiesApi(patientB), as(CENTRE_B, "MEDECIN")))));
         m.put("patient illisible", refus(doGet(PATIENTS_API + "/pas-un-uuid/serologies", medecinA())));
-        arbre("lectures_non_verifiees", m);
+        // KB-MED-47 corrigé : patient illisible = 400 (avant : 500). Les lectures restent sans garde de patient (200 vide, reproduit). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("lectures_non_verifiees_nouveau_code", m);
     }
 
     private int corpsLongueur(Resp r) {

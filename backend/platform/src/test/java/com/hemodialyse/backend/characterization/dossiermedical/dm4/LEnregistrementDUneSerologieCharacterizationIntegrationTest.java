@@ -67,7 +67,8 @@ class LEnregistrementDUneSerologieCharacterizationIntegrationTest extends Serolo
                     medecinA())));
         }
         cas.put("resultat absent", statutEtCode(doPost(serologiesApi(patientA), corps(CENTRE_A, "TPHA", null, fixe(2), null), medecinA())));
-        arbre("valeurs", cas);
+        // KB-MED-47 et 48 corrigés : marqueur ou résultat absent = 400 (avant : 500), détail sans nom de classe interne. Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("valeurs_nouveau_code", cas);
         etatDesSerologies("serologies");
     }
 
@@ -95,7 +96,8 @@ class LEnregistrementDUneSerologieCharacterizationIntegrationTest extends Serolo
         cas.put("date impossible (30 fevrier)", statutEtCode(doPost(serologiesApi(patientA),
                 "{\"centerId\":\"" + CENTRE_A + "\",\"marqueur\":\"TPHA\",\"resultat\":\"NEGATIF\",\"datePrelevement\":\"2026-02-30\"}", medecinA())));
         alias(java.time.LocalDate.of(1900, 1, 1), "<1900>");
-        arbre("dates", cas);
+        // KB-MED-47 corrigé : date illisible ou impossible = 400 (avant : 500). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("dates_nouveau_code", cas);
         etatDesSerologies("serologies");
     }
 
@@ -139,7 +141,8 @@ class LEnregistrementDUneSerologieCharacterizationIntegrationTest extends Serolo
                 corpsComplet(CENTRE_A, "EBV_IGG", "NEGATIF", null, null, fixe(20), null, fixe(2), null), medecinA())));
         cas.put("conduite tres longue (5000 caracteres)", refus(doPost(serologiesApi(patientA),
                 corpsComplet(CENTRE_A, "EBV_IGM", "POSITIF", null, null, fixe(1), null, null, "c".repeat(5000)), medecinA())));
-        arbre("bornes", cas);
+        // KB-MED-52 corrigé : unité, laboratoire ou titre hors borne de colonne = 400 stable (avant : 500). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("bornes_nouveau_code", cas);
         sql("serologies", "SELECT s.marqueur, s.titre, LENGTH(s.unite) AS longueur_unite, LENGTH(s.laboratoire) AS longueur_labo, "
                 + "LENGTH(s.conduite_a_tenir) AS longueur_conduite, s.date_prochain_controle FROM serologies_patient s "
                 + "WHERE s.center_id = '" + CENTRE_A + "' ORDER BY s.marqueur");
@@ -162,7 +165,8 @@ class LEnregistrementDUneSerologieCharacterizationIntegrationTest extends Serolo
         cas.put("champ inconnu ignore", refus(doPost(serologiesApi(patientA),
                 "{\"centerId\":\"" + CENTRE_A + "\",\"marqueur\":\"TPHA\",\"resultat\":\"NEGATIF\",\"datePrelevement\":\"" + fixe(1)
                         + "\",\"inconnu\":1}", medecinA())));
-        arbre("corps", cas);
+        // KB-MED-47 corrigé : corps absent, illisible, tableau, {} ou identifiants illisibles = 400 (avant : 500). Legacy archivé dans dm4/_ecarts-legacy.
+        arbre("corps_nouveau_code", cas);
         assertThat(nombreDeSerologies()).isEqualTo(1);
     }
 

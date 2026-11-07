@@ -1,0 +1,57 @@
+[ {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/serologies",
+  "status_code" : "200"
+}, {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/serologies",
+  "status_code" : "403"
+}, {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/serologies",
+  "status_code" : "422"
+}, {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/serologies",
+  "status_code" : "422"
+}, {
+  "action_code" : "SEROLOGIE_SUPPRIMEE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/patients/{patientId}/serologies/{serologieId}",
+  "status_code" : "204"
+}, {
+  "action_code" : "SEROLOGIE_SUPPRIMEE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/patients/{patientId}/serologies/{serologieId}",
+  "status_code" : "403"
+}, {
+  "action_code" : "SEROLOGIE_MODIFIEE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/serologies/{serologieId}",
+  "status_code" : "200"
+}, {
+  "action_code" : "SEROLOGIE_MODIFIEE",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/serologies/{serologieId}",
+  "status_code" : "400"
+} ]

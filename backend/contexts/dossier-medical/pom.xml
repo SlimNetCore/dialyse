@@ -85,6 +85,12 @@
             <artifactId>contexts-patient-couverture</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publie de la Planification : ReaffectationEnIsolement (P5) et VerrouDesPlacesDuCentre, DM4 sérologies, ADR 0083. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-planification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publie du Stock : CatalogueDArticles (code, libelle, conversion de dose), DM2 prescriptions, ADR 0081. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

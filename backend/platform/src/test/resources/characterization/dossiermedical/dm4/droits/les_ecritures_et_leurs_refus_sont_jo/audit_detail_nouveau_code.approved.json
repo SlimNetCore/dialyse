@@ -1,0 +1,29 @@
+[ {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "nombre" : "1",
+  "status_code" : "200"
+}, {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "nombre" : "1",
+  "status_code" : "403"
+}, {
+  "action_code" : "SEROLOGIE_ENREGISTREE",
+  "nombre" : "2",
+  "status_code" : "422"
+}, {
+  "action_code" : "SEROLOGIE_MODIFIEE",
+  "nombre" : "1",
+  "status_code" : "200"
+}, {
+  "action_code" : "SEROLOGIE_MODIFIEE",
+  "nombre" : "1",
+  "status_code" : "400"
+}, {
+  "action_code" : "SEROLOGIE_SUPPRIMEE",
+  "nombre" : "1",
+  "status_code" : "204"
+}, {
+  "action_code" : "SEROLOGIE_SUPPRIMEE",
+  "nombre" : "1",
+  "status_code" : "403"
+} ]

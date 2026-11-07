@@ -4,6 +4,8 @@ import com.hemodialyse.backend.contexts.dossiermedical.application.AccesRefuse;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamenIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneSerologie;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.SerologieIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.OrdonnanceIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.PatientIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.PrescriptionIntrouvable;
@@ -31,7 +33,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
- * Les refus des ordonnances et des prescriptions, au format commun de la plateforme ({@code ProblemDetail} + {@code code} stable) :
+ * Les refus des ordonnances, prescriptions, demandes d'examen et sérologies (sérologie introuvable : 400 reproduit ; écriture
+ * concurrente : 409 {@code SEROLOGIE_ECRITURE_CONCURRENTE}), au format commun de la plateforme ({@code ProblemDetail} + {@code code} stable) :
  * 400 {@code BAD_REQUEST} (corps, date, identifiant ou paramètre illisible, ordonnance introuvable : reproduit) ou
  * {@code VALIDATION_ERROR} (valeur hors borne : reproduit), 403 {@code ACCESS_DENIED}, 404 {@code PATIENT_INTROUVABLE} /
  * {@code PRESCRIPTION_INTROUVABLE}, 409 {@code ECRITURE_CONCURRENTE}, 422 (règle de gestion, code de la règle). Aucun message ne
@@ -39,7 +42,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class,
-        DemandesDExamenControleur.class})
+        DemandesDExamenControleur.class, SerologiesControleur.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -115,6 +118,16 @@ class ErreursDuDossierMedicalAdvice {
     @ExceptionHandler(EcritureConcurrenteSurUneDemandeDExamen.class)
     ProblemDetail ecritureConcurrenteSurUneDemandeDExamen(EcritureConcurrenteSurUneDemandeDExamen erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "DEMANDE_EXAMEN_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUneSerologie.class)
+    ProblemDetail ecritureConcurrenteSurUneSerologie(EcritureConcurrenteSurUneSerologie erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "SEROLOGIE_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(SerologieIntrouvable.class)
+    ProblemDetail serologieIntrouvable(SerologieIntrouvable erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
     }
 
     @ExceptionHandler(DemandeExamenIntrouvable.class)

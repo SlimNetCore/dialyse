@@ -1,27 +1,44 @@
 ---
 slice: dossier-medical-dm4-serologie
-status: planned
-date: 2026-10-29
+status: built
+date: 2026-11-07
 order: 4
 context: dossier-medical
-sources: [.ddd/tactical/dossier-medical.md, ADR 0065]
+sources: [.ddd/tactical/dossier-medical.md, ADR 0065, ADR 0083, .ddd/safety-net/dossier-medical-dm4-serologie.md, known-bugs.md KB-MED-45 à 57]
 ---
 
-> **Statut vrai au 2026-11-06 (ADR 0080)** : `planned`, aucun filet DM4. Table réelle : `serologies_patient`. Les lecteurs SQL hors module (`RisquesInfectieuxJdbc` et `ContraintesDesPatientsJdbc` de la Planification, `DirectionIndicatorsQueryService`) restent en place : jalon DM4/DM8, non touchés par DM1. Audit `SEROLOGIE_*` existant à préserver.
+> **Refactoring SUR PLACE** (ADR 0024, 0072, 0083) : pas de façade, de routage ni de flag. Mêmes tables (`serologies_patient`, schéma gelé `serologies` ni lu ni écrit), mêmes URL, mêmes rôles. Bascule = déploiement du commit ; rollback = retour au commit précédent. Décisions déléguées, **à confirmer avec les métiers et le DPO**.
 
-# DM4 — Sérologie (détection positive)
+# DM4 — Sérologies du patient
 
-Agrégat `Serologie`. Invariant : détection sérologique positive. Événement `SerologiePositiveDetectee`. Port publié
-`RisquesInfectieux` pour Planification.
+## Fait
+| Couche | Contenu |
+|---|---|
+| Domaine | `Serologie` (racine, règle de positivité, date future, bornes de colonne), `MarqueurSerologique` (13), `ResultatSerologique` (`exigeUneConduiteATenir`), `StatutSerologique` (dernier résultat par marqueur), `SerologieIntrouvable`, `EcritureConcurrenteSurUneSerologie`, port `Serologies`, `PageDeSerologies` |
+| Application | `EnregistrerUneSerologie`, `CorrigerUneSerologie`, `SupprimerUneSerologie`, `ConsulterLesSerologiesDuPatient` ; port sortant `IsolementDesPatients` ; réutilise `SessionCourante`, `UniteDeTravail` (lock_timeout 5 s), `HorlogeDuCentre`, `GenerateurDIdentifiants` |
+| Infrastructure | `SerologiesJdbc` (verrou de ligne `FOR UPDATE`, verrou consultatif du triplet sur PostgreSQL, 55P03 vers 409), ACL `IsolementDesPatientsParLaPlanification` (port publié `ReaffectationEnIsolement` P5 et `VerrouDesPlacesDuCentre`, inchangés) |
+| Interface | `SerologiesControleur` (mêmes 5 routes), DTO, `ErreursDuDossierMedicalAdvice` étendu (403 avant 400, 409, 400 introuvable) |
+| Composition | `DossierMedicalConfiguration` (horloge UTC dédiée `horlogeDesSerologies`) ; dépendance Maven vers `contexts-planification` (langage publié seulement) |
 
-## Cas d'usage
+## Parité
+Filet `characterization/dossiermedical/dm4` : **26/26 scénarios verts sur le nouveau code**. 41 goldens : 29 identiques au legacy, **12 écarts décidés** en goldens `*_nouveau_code`, legacy archivé octet pour octet depuis 863ff37d dans `dm4/_ecarts-legacy/{consultation,droits,enregistrement}/<scénario>__<nom>.legacy.json`.
 
-`EnregistrerSerologie`, `ConsulterSerologies`.
+| Écart | Décision |
+|---|---|
+| KB-MED-47 (500 vers 400 ; 403 avant 400) | corrigé |
+| KB-MED-48 (nom de classe interne dans le détail) | corrigé |
+| KB-MED-52 (bornes de colonne 500 vers 400) | corrigé |
+| KB-MED-49 partiel (DELETE sans effet : 204 reproduit, plus d'audit mensonger ; introuvable 400 reproduit) | corrigé en partie |
+| KB-MED-56 (unicité) | verrou consultatif, aucune migration ; doublons existants : `verifications-production.md` §48 requête 2 |
+| KB-MED-45, 46, 50, 51, 53, 54, 55, 57 | reproduits et consignés (ADR 0083) |
 
-## Entrées legacy
+## Reste à faire
+- Confirmation métiers et DPO des décisions reproduites (liste dans l'ADR 0083) ; contrainte d'unicité en base (migration non décidée).
+- DM7 : KDIGO et `GreffePdfService` lisent encore `SerologieRepositoryPort` (adapter JPA et entité conservés, jalon de retrait DM7) ; DM8 : `DirectionIndicatorsQueryService`, import et rollback d'historique lisent la table en SQL.
+- Prédicat unique de risque infectieux publié par le dossier médical (KB-MED-53) : hors DM4 (Planification et Direction non modifiées).
 
-`bc-medical` (sérologie).
+## Preuves
+Domaine (30), application avec fakes (15), contrat fake / H2 / PostgreSQL 16 (8 + 11 + 14, dont verrou de ligne et verrou du triplet à deux connexions), transaction H2 (4), ACL (3), advice (8), ArchUnit du module ; script `backend/scripts/dossier-medical-dm4-pg16-rejeu.sh` ; `check-arch.ts` 0 violation.
 
-## Consommateurs
-
-Planification (risques infectieux).
+## Plan de bascule (refactoring sur place, pas de flag)
+Recette de `verifications-production.md` §48 avant déploiement ; surveiller 400 / 403 / 409 ; rollback = commit précédent.
