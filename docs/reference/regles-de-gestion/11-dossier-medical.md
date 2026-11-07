@@ -462,8 +462,9 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   égalité par horodatage de création puis identifiant (ordre déterministe, prouvé sur PostgreSQL 16) ;
   (c) **RISQUE CLINIQUE reproduit (KB-MED-101, à confirmer par les médecins et le DPO)** : seules les 500 observations et les
   500 ordonnances les plus récentes sont exportées, sans aucune indication de troncature ;
-  (d) **ligne illisible** : une ordonnance ou une ligne dont la lecture échoue est ignorée (journalisée avec son seul
-  identifiant) au lieu de rendre tout l'export impossible (avant : 400 ou 422 pour tout l'export) ; un antécédent au code
+  (d) **ligne illisible, RISQUE CLINIQUE à trancher par les médecins (KB-MED-102)** : une allergie, une observation, un
+  antécédent ou une ordonnance dont la lecture échoue est ignorée EN SILENCE pour le destinataire (journalisée côté serveur
+  avec son seul identifiant) au lieu de rendre tout l'export impossible (avant : 400 ou 422 pour tout l'export) ; un antécédent au code
   CIM-10 mal formé est exporté tel quel (le module ne valide pas le code à la lecture).
 - **RG-MED-049d** — *Statistiques médicales du patient et leur export, garde DM8 (`stats/medical`, `stats/export`, y compris
   les POST de recherche, ADR 0087 ; complète RG-MED-101)* : calculs, clés de tendance en MAJUSCULES, moyennes à 0.0, formats

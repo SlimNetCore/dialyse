@@ -71,8 +71,8 @@ class FrontieresDesContextesTest {
 
     /**
      * Slice DM8 (ADR 0087) : les trois ports legacy qui restent lus par KDIGO et le PDF de greffe (antécédents, sérologies, résultats
-     * d'analyse) n'ont plus d'appelant d'écriture, de lecture unitaire ni de lecture paginée ; seule {@code findByPatientId} reste
-     * permise. Aucun nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15).
+     * d'analyse) n'ont plus d'appelant d'écriture, de lecture unitaire ni de lecture paginée, que ce soit par le port ou par le type de ses
+     * adapters ; seule {@code findByPatientId} reste permise. Aucun nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15).
      */
     @ArchTest
     static final ArchRule plus_aucun_appelant_des_ecritures_legacy_du_dossier_medical = noClasses()
@@ -80,7 +80,8 @@ class FrontieresDesContextesTest {
                     "cible une méthode résiduelle des ports legacy du dossier médical") {
                 @Override
                 public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return PORTS_RESIDUELS_DU_DOSSIER_MEDICAL.contains(appel.getTargetOwner().getName())
+                    // Le port ET ses adapters : un appel par le type de l'adapter ou d'une sous-classe est aussi refusé.
+                    return PORTS_RESIDUELS_DU_DOSSIER_MEDICAL.stream().anyMatch(port -> appel.getTargetOwner().isAssignableTo(port))
                             && METHODES_RESIDUELLES_DU_DOSSIER_MEDICAL.contains(appel.getName());
                 }
             })

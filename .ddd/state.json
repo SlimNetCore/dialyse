@@ -83,7 +83,7 @@
     "dossier-medical-dm4-serologie": "built",
     "dossier-medical-dm5-antecedents-allergies": "built",
     "dossier-medical-dm6-biologie": "built",
-    "dossier-medical-dm7-bilan-pregreffe": "planned",
+    "dossier-medical-dm7-bilan-pregreffe": "built",
     "dossier-medical-dm8-lectures-publiees": "built",
     "pilotage-direction-pd1-tableau-bord": "planned",
     "pilotage-direction-pd2-instantanes-mensuels": "planned",
@@ -92,7 +92,8 @@
     "pilotage-direction-pd5-lectures-publiees": "planned",
     "organisation-o5-retrait-bc-referential": "in-progress",
     "planification-p9-retrait-du-legacy": "built",
-    "dossier-medical-dm7-pre-greffe": "built"
+    "dossier-medical-dm7-pre-greffe": "built",
+    "dossier-medical-dm9-statistiques-et-lectures-sql": "planned"
   },
   "contexts": {
     "gmao": "architected",

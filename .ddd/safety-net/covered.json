@@ -149,7 +149,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/ObservationBiologiqueJpaEntity.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/ResultatAnalyseJpaEntity.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/ResultatAnalyseJpaRepository.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/spec/ObservationBiologiqueSpecifications.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/spec/ResultatAnalyseSpecifications.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/KdigoGreffeRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/GreffeExportRestController.java",

@@ -2057,11 +2057,27 @@ SELECT center_id, count(*) FROM dossier_medical_patient GROUP BY center_id;
 SELECT patient_id, count(*) AS dossiers FROM dossier_medical_patient GROUP BY patient_id HAVING count(*) > 1;
 -- 3. ORPHELINS (KB-MED-98 : avant la reprise, l'écriture pour un patient inconnu ou d'un autre centre était acceptée) : dossiers dont le patient est absent du centre du dossier. À expliquer avec les métiers et le DPO.
 SELECT t.center_id, count(*) AS patient_absent_ou_autre_centre FROM dossier_medical_patient t LEFT JOIN patients p ON p.id = t.patient_id AND p.center_id = t.center_id WHERE p.id IS NULL GROUP BY t.center_id;
--- 4. ORDONNANCES AU STATUT ILLISIBLE (KB-MED-102 : ignorées par les lectures, dont l'export FHIR, avec un WARN portant l'identifiant seul).
+-- 4. ORDONNANCES AU STATUT ILLISIBLE (KB-MED-102, RISQUE CLINIQUE : ignorées en silence par les lectures, dont l'export FHIR, avec un WARN serveur portant l'identifiant seul ; le destinataire du bundle n'en est pas informé).
 SELECT center_id, id FROM ordonnances WHERE statut NOT IN ('BROUILLON','SIGNEE','IMPRIMEE','ANNULEE');
--- 5. PATIENTS DONT L'EXPORT FHIR EST TRONQUÉ (KB-MED-101, RISQUE CLINIQUE reproduit : seules les 500 observations et les 500 ordonnances les plus récentes sont exportées, sans avertissement).
+-- 5. ALLERGIES, OBSERVATIONS ET ANTÉCÉDENTS ILLISIBLES (KB-MED-102, RISQUE CLINIQUE : ignorés en silence par l'export FHIR, comme par leurs propres routes). Les abords vasculaires n'ont pas de valeur énumérée : aucune ligne illisible possible. Un NULL dans une colonne énumérée rend aussi la ligne illisible.
+SELECT 'allergies' AS famille, center_id, id FROM allergies_patient
+ WHERE categorie IS NULL OR categorie NOT IN ('MEDICAMENT','ALIMENT','ENVIRONNEMENT','BIOLOGIQUE')
+    OR criticite IS NULL OR criticite NOT IN ('BASSE','HAUTE')
+    OR type_reaction IS NULL OR type_reaction NOT IN ('ALLERGIE','INTOLERANCE')
+    OR statut_verification IS NULL OR statut_verification NOT IN ('SUSPECTEE','CONFIRMEE','REFUTEE')
+    OR substance_code_system IS NULL OR substance_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL')
+UNION ALL SELECT 'observations', center_id, id FROM observations_biologiques
+ WHERE analyte_code_system IS NULL OR analyte_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL')
+    OR statut IS NULL OR statut NOT IN ('PRELIMINAIRE','FINAL','CORRIGE')
+    OR source IS NULL OR source NOT IN ('SAISIE_DIRECTE','DERIVEE_BILAN','IMPORT')
+    OR (valeur_num IS NOT NULL AND (unite IS NULL OR TRIM(unite) = ''))
+UNION ALL SELECT 'antecedents', center_id, id FROM antecedents_medicaux
+ WHERE type_antecedent IS NULL OR type_antecedent NOT IN ('MEDICAL','CHIRURGICAL','FAMILIAL','OBSTETRICAL','COMORBIDITE')
+    OR statut_clinique IS NULL OR statut_clinique NOT IN ('ACTIF','RESOLU','INACTIF')
+    OR (diagnostic_code IS NOT NULL AND (diagnostic_code_system IS NULL OR diagnostic_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL')));
+-- 6. PATIENTS DONT L'EXPORT FHIR EST TRONQUÉ (KB-MED-101, RISQUE CLINIQUE reproduit : seules les 500 observations et les 500 ordonnances les plus récentes sont exportées, sans avertissement).
 SELECT 'observations' AS source, center_id, patient_id, count(*) AS nombre FROM observations_biologiques GROUP BY center_id, patient_id HAVING count(*) > 500
 UNION ALL SELECT 'ordonnances', center_id, patient_id, count(*) FROM ordonnances GROUP BY center_id, patient_id HAVING count(*) > 500;
 ```
-Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, créer puis remplacer le dossier d'un patient valide ; (b) avec un patient inconnu ou d'un AUTRE centre : 404 `PATIENT_INTROUVABLE` à l'écriture et à l'export FHIR ; (c) INFIRMIER : lecture seule du dossier, export FHIR refusé (403) ; (d) un champ trop long, une date illisible ou un corps illisible : 400 (avant 500) ; (e) lire les statistiques médicales, leur export CSV et PDF et les indicateurs Direction : mêmes valeurs qu'avant ; une période illisible : 400 ; (f) rappel des deux risques REPRODUITS à faire arbitrer : KB-MED-104 (les totaux Direction incluent les effectifs masqués < 5 : fuite par différence, PRIORITAIRE pour le DPO) et KB-MED-101 (export FHIR tronqué en silence).
+Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, créer puis remplacer le dossier d'un patient valide ; (b) avec un patient inconnu ou d'un AUTRE centre : 404 `PATIENT_INTROUVABLE` à l'écriture et à l'export FHIR ; (c) INFIRMIER : lecture seule du dossier, export FHIR refusé (403) ; (d) un champ trop long, une date illisible ou un corps illisible : 400 (avant 500) ; (e) lire les statistiques médicales, leur export CSV et PDF et les indicateurs Direction : mêmes valeurs qu'avant ; une période illisible : 400 ; (f) rappel des trois risques à faire arbitrer AVANT bascule : KB-MED-104 (les totaux Direction incluent les effectifs masqués < 5 : fuite par différence, PRIORITAIRE pour le DPO), KB-MED-101 (export FHIR tronqué en silence : requête 6) et KB-MED-102 (lignes illisibles omises en silence de l'export FHIR : requêtes 4 et 5 ; décision médicale : corriger les lignes, signaler l'omission dans le bundle ou refuser l'export) ; (g) les requêtes 4 et 5 doivent ramener 0 ligne, ou chaque ligne ramenée doit être expliquée avec les médecins avant la bascule.
 Surveillance après déploiement : hausse attendue des 400 (avant 500), des 404 (patient inconnu ou d'un autre centre) ; surveiller les 409 `DOSSIER_MEDICAL_ECRITURE_CONCURRENTE` et les WARN « … ignorée : statut illisible en base » ou « doublon ». Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

@@ -67,7 +67,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
     }
 
     private ProblemDetail reponse(Exception erreur, HttpServletRequest requete, String detail) {
-        if (estUneRouteDesStatistiques(requete) && !droitsSuffisants(requete)) {
+        if (estUneRouteAvecDroitsAVerifier(requete) && !droitsSuffisants(requete)) {
             ProblemDetail refus = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
             refus.setTitle("Acces refuse");
             refus.setDetail("Accès refusé");
@@ -86,6 +86,11 @@ class DatesIllisiblesDeLaDirectionAdvice {
         return uri.contains("/api/v1/patients/") && FRAGMENTS_DES_STATISTIQUES.stream().anyMatch(uri::contains);
     }
 
+    /** Les statistiques médicales et les indicateurs médicaux de la Direction : le 403 passe avant le 400 (les autres routes gardent leur 400). */
+    private static boolean estUneRouteAvecDroitsAVerifier(HttpServletRequest requete) {
+        return estUneRouteDesStatistiques(requete) || requete.getRequestURI().endsWith("/api/v1/direction/indicators");
+    }
+
     private static boolean estUneRouteReprise(HttpServletRequest requete) {
         return ROUTES.stream().anyMatch(requete.getRequestURI()::endsWith) || estUneRouteDesStatistiques(requete);
     }
@@ -94,6 +99,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
     private static boolean droitsSuffisants(HttpServletRequest requete) {
         if (!(requete.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE) instanceof HandlerMethod methode)) return true;
         PreAuthorize garde = methode.getMethodAnnotation(PreAuthorize.class);
+        if (garde == null) garde = org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation(methode.getBeanType(), PreAuthorize.class);
         if (garde == null) return true;
         Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
         if (authentification == null) return false;
