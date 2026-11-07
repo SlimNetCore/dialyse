@@ -74,7 +74,10 @@ class LesLecteursDesDemandesDExamenCharacterizationIntegrationTest extends Exame
                 as(CENTRE_B, "MEDECIN"))).size());
         m.put("statut de la demande du centre B", statutEnBase(db));
         aliasNommes.put(idStable("demande", "INCONNUE").toString(), "<DEM_INCONNUE>");
-        arbre("references_souples", m);
+        // DM6 (ADR 0085, KB-MED-44 et KB-MED-77 corriges) : la lecture par demande exige la demande du patient de l'URL et du centre de
+        // la session, sinon liste vide ; le legacy (1 observation lue par la session A) est archive dans _ecarts-legacy. La reference de
+        // demande reste non controlee a l'ecriture (200 pour une demande inconnue ou d'un autre centre, reproduit).
+        arbre("references_souples_nouveau_code", m);
     }
 
     @Test

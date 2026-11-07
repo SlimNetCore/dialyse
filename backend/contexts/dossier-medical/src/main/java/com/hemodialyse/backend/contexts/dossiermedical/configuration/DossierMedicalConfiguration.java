@@ -1,6 +1,22 @@
 package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AnnulerUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesAnalysesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesObservationsBiologiquesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.CorrigerUneObservationBiologique;
+import com.hemodialyse.backend.contexts.dossiermedical.application.DemandesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUneAnalyse;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUneObservationBiologique;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ModifierUneAnalyse;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUneAnalyse;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUneObservationBiologique;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.Analyses;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.ObservationsBiologiques;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.AnalysesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.DemandesDuPatientJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.ObservationsBiologiquesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.AnalysesControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.ObservationsBiologiquesControleur;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesAbordsVasculairesDuPatient;
 import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUnAbordVasculaire;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ModifierUnAbordVasculaire;
@@ -565,6 +581,98 @@ public class DossierMedicalConfiguration {
                                                             EnregistrerUnAbordVasculaire enregistrer, ModifierUnAbordVasculaire modifier,
                                                             SupprimerUnAbordVasculaire supprimer) {
         return new AbordsVasculairesControleur(consulter, enregistrer, modifier, supprimer);
+    }
+
+    // ------------------------------------------------------------------ DM6 : observations biologiques et analyses
+
+    /**
+     * Horloge de la biologie : le jour UTC, qui est celui de la JVM du serveur (forcée en UTC) et donc celui du legacy (KB-MED-80), pour la
+     * date par défaut d'une analyse ET pour la limite « pas dans le futur » d'une observation. Passer au jour du centre en remplaçant ce
+     * seul bean quand les métiers l'auront décidé (même réserve que les demandes d'examen, les sérologies et les fiches cliniques).
+     */
+    @Bean
+    HorlogeDuCentre horlogeDeLaBiologie() {
+        return new HorlogeDuCentre(Clock.systemUTC(), ZoneOffset.UTC);
+    }
+
+    @Bean
+    DemandesDuPatient demandesDuPatientDuDossierMedical(JdbcTemplate jdbc) {
+        return new DemandesDuPatientJdbc(jdbc);
+    }
+
+    @Bean
+    ObservationsBiologiques observationsBiologiquesDuDossierMedical(JdbcTemplate jdbc) {
+        return new ObservationsBiologiquesJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLesObservationsBiologiquesDuPatient consulterLesObservationsBiologiquesDuPatient(SessionCourante session,
+                                                                                              ObservationsBiologiques observations,
+                                                                                              DemandesDuPatient demandes) {
+        return new ConsulterLesObservationsBiologiquesDuPatient(session, observations, demandes);
+    }
+
+    @Bean
+    EnregistrerUneObservationBiologique enregistrerUneObservationBiologique(SessionCourante session, PatientsDuCentre patients,
+                                                                            ObservationsBiologiques observations, UniteDeTravail uniteDeTravail,
+                                                                            GenerateurDIdentifiants identifiants,
+                                                                            @Qualifier("horlogeDeLaBiologie") HorlogeDuCentre horloge) {
+        return new EnregistrerUneObservationBiologique(session, patients, observations, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    CorrigerUneObservationBiologique corrigerUneObservationBiologique(SessionCourante session, ObservationsBiologiques observations,
+                                                                       UniteDeTravail uniteDeTravail,
+                                                                       @Qualifier("horlogeDeLaBiologie") HorlogeDuCentre horloge) {
+        return new CorrigerUneObservationBiologique(session, observations, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUneObservationBiologique supprimerUneObservationBiologique(SessionCourante session, ObservationsBiologiques observations,
+                                                                        UniteDeTravail uniteDeTravail) {
+        return new SupprimerUneObservationBiologique(session, observations, uniteDeTravail);
+    }
+
+    @Bean
+    ObservationsBiologiquesControleur observationsBiologiquesControleur(ConsulterLesObservationsBiologiquesDuPatient consulter,
+                                                                        EnregistrerUneObservationBiologique enregistrer,
+                                                                        CorrigerUneObservationBiologique corriger,
+                                                                        SupprimerUneObservationBiologique supprimer) {
+        return new ObservationsBiologiquesControleur(consulter, enregistrer, corriger, supprimer);
+    }
+
+    @Bean
+    Analyses analysesDuDossierMedical(JdbcTemplate jdbc) {
+        return new AnalysesJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLesAnalysesDuPatient consulterLesAnalysesDuPatient(SessionCourante session, Analyses analyses) {
+        return new ConsulterLesAnalysesDuPatient(session, analyses);
+    }
+
+    @Bean
+    EnregistrerUneAnalyse enregistrerUneAnalyse(SessionCourante session, PatientsDuCentre patients, Analyses analyses,
+                                                UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                @Qualifier("horlogeDeLaBiologie") HorlogeDuCentre horloge) {
+        return new EnregistrerUneAnalyse(session, patients, analyses, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    ModifierUneAnalyse modifierUneAnalyse(SessionCourante session, Analyses analyses, UniteDeTravail uniteDeTravail,
+                                          @Qualifier("horlogeDeLaBiologie") HorlogeDuCentre horloge) {
+        return new ModifierUneAnalyse(session, analyses, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUneAnalyse supprimerUneAnalyse(SessionCourante session, Analyses analyses, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUneAnalyse(session, analyses, uniteDeTravail);
+    }
+
+    @Bean
+    AnalysesControleur analysesControleur(ConsulterLesAnalysesDuPatient consulter, EnregistrerUneAnalyse enregistrer, ModifierUneAnalyse modifier,
+                                          SupprimerUneAnalyse supprimer) {
+        return new AnalysesControleur(consulter, enregistrer, modifier, supprimer);
     }
 
     @Bean

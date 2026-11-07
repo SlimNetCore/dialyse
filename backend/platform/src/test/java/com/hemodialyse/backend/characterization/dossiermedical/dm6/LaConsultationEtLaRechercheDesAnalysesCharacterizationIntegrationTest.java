@@ -54,7 +54,8 @@ class LaConsultationEtLaRechercheDesAnalysesCharacterizationIntegrationTest exte
         m.put("liste pour l'ADMIN", page(doGet(url + "?size=1", as(CENTRE_A, "ADMIN")), "hbGDl"));
         m.put("liste d'un patient inconnu", page(doGet(analysesApi(idStable("patient", "inconnu")), medecinA()), "hbGDl"));
         m.put("liste du patient du centre B (session A)", page(doGet(analysesApi(patientB), medecinA()), "hbGDl"));
-        arbre("pages", m);
+        // KB-MED-72 corrigé : pagination illisible en 400 stable (legacy archivé dans dm6/analyses/_ecarts-legacy)
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -69,7 +70,8 @@ class LaConsultationEtLaRechercheDesAnalysesCharacterizationIntegrationTest exte
         m.put("from egal a to", page(doGet(url + "?from=" + fixe(20) + "&to=" + fixe(20), medecinA()), "datePrelevement"));
         m.put("from apres to", refus(doGet(url + "?from=" + fixe(40) + "&to=" + fixe(20), medecinA())));
         m.put("from illisible", refus(doGet(url + "?from=hier", medecinA())));
-        arbre("periode", m);
+        // KB-MED-72 corrigé : date illisible en 400 stable (legacy archivé dans _ecarts-legacy)
+        arbre("periode_nouveau_code", m);
     }
 
     @Test
@@ -112,7 +114,8 @@ class LaConsultationEtLaRechercheDesAnalysesCharacterizationIntegrationTest exte
                 "hbGDl"));
         m.put("17 corps illisible", refus(doPost(RECHERCHE_ANALYSES, "{pas du json", medecinA())));
         m.put("18 ADMIN", page(doPost(RECHERCHE_ANALYSES, recherche(CENTRE_A, patientA, 0, 1, null, null), as(CENTRE_A, "ADMIN")), "hbGDl"));
-        arbre("recherche", m);
+        // KB-MED-72 corrigé : page et taille absentes ou corps illisible en 400 stable (KB-MED-83 reproduit : pagination, tri, recherche) ; legacy archivé dans _ecarts-legacy
+        arbre("recherche_nouveau_code", m);
     }
 
     @Test
@@ -135,6 +138,7 @@ class LaConsultationEtLaRechercheDesAnalysesCharacterizationIntegrationTest exte
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAnalyses());
-        arbre("suppression", m);
+        // KB-MED-75 corrigé : identifiant illisible en 400 ; la suppression sans effet reste 204 (legacy archivé dans _ecarts-legacy)
+        arbre("suppression_nouveau_code", m);
     }
 }

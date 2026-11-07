@@ -345,6 +345,16 @@ Décision déléguée de l'utilisateur (message du coordinateur du 2026-11-06) :
 
 Le filet DM6 n'a modifié aucun code de production (`seamAllowed` reste vide, aucun accord utilisateur requis). L'horloge système (KB-MED-80) est contournée par des dates nommées et une garde de minuit dans le harnais.
 
+### Slice de reprise DM6 : OUVERT puis FERMÉ le 2026-11-07 (`seamAllowed` vide)
+
+Inscrit AVANT toute action : tous les fichiers ci-dessous étaient déjà dans `covered.json` (aucune création hors `newCodeRoot`, aucune entrée à ajouter à `seamAllowed`).
+
+| Date | Slice | Fichiers édités ou supprimés (tous déjà dans `covered.json` AVANT l'action) | Raison |
+|---|---|---|---|
+| 2026-11-07 | dossier-medical-dm6-biologie | **SUPPRESSION** de `platform/.../web/rest/{ObservationBiologiqueRestController, ResultatAnalyseRestController}.java`, des DTO `CreateObservationRequest`, `CorrigerObservationRequest`, `ResultatAnalyseSearchRequest`, `UpsertResultatAnalyseRequest`, `ObservationBiologiqueResponse`, `ResultatAnalyseResponse`, de `bc-medical/.../observation/{port/ObservationBiologiqueUseCase, service/ObservationBiologiqueDomainService}`, de `bc-seance/.../{port/ResultatAnalyseUseCase, service/ResultatAnalyseDomainService}` et de leurs tests (`ObservationBiologiqueDomainServiceTest`, `ResultatAnalyseDomainServiceTest`, `ResultatAnalyseRestControllerTest`) | Remplacés par `contexts/dossier-medical` (`ObservationsBiologiquesControleur`, `AnalysesControleur`, cas d'usage, adapters JDBC) ; deux contrôleurs sur la même route empêchent le démarrage ; plus aucun consommateur (vérifié par recherche) |
+| 2026-11-07 | dossier-medical-dm6-biologie | **ÉDITION** de `platform/.../config/DomainServiceConfig.java` (retrait des beans `ResultatAnalyseDomainService`, `ObservationBiologiqueDomainService`) | Les services sont supprimés |
+| 2026-11-07 | dossier-medical-dm6-biologie | **CONSERVÉS** (lecteurs restants, jalon de retrait 2026-12-15 comme DM3 à DM5, ou DM7 / DM8) : `ObservationBiologique`, `ObservationEvent`, `ObservationBiologiqueRepositoryPort`, `SourceObservation`, `StatutObservation`, `ConceptCode`, `CodingSystem` (bc-medical), `ResultatAnalyse`, `ResultatAnalyseRepositoryPort` (bc-seance), `ObservationBiologiqueRepositoryAdapter`, `ResultatAnalyseRepositoryAdapter`, leurs entités, dépôts JPA et `*Specifications` (platform) : lus par `FhirExportService` (`findPagedByPatientId`, `findByPatientId`, DM8) et `KdigoGreffeQueryService` (`findByPatientId`, DM7) ; `PatientStatsQueryService`, `DirectionIndicatorsQueryService`, import / rollback d'historique en SQL, inchangés | KB-MED-82 |
+
 ## Dossier médical DM5 (antécédents, allergies, abords vasculaires) : filet sans seam (2026-11-07) ; slice de reprise : OUVERT puis FERMÉ le 2026-11-07 (`seamAllowed` vide)
 
 Le filet DM5 n'a modifié aucun code de production (`seamAllowed` reste vide). La reprise n'a édité que des fichiers déjà inscrits dans `covered.json` AVANT l'action, aucune création hors `newCodeRoot`.

@@ -59,7 +59,8 @@ class LaConsultationEtLaCorrectionDesObservationsBiologiquesCharacterizationInte
         m.put("liste pour l'ADMIN", page(doGet(url + "?size=1", as(CENTRE_A, "ADMIN")), "code"));
         m.put("liste d'un patient inconnu", page(doGet(observationsApi(idStable("patient", "inconnu")), medecinA()), "code"));
         m.put("liste du patient du centre B (session A)", page(doGet(observationsApi(patientB), medecinA()), "code"));
-        arbre("pages", m);
+        // KB-MED-72 corrigé : pagination illisible en 400 stable (legacy archivé dans dm6/observations/_ecarts-legacy)
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -83,7 +84,8 @@ class LaConsultationEtLaCorrectionDesObservationsBiologiquesCharacterizationInte
         m.put("from apres to (aucun controle)", page(doGet(url + "?from=" + fixe(40) + "&to=" + fixe(20), medecinA()), champs));
         m.put("from illisible", refus(doGet(url + "?from=hier", medecinA())));
         m.put("code et periode combines", page(doGet(url + "?code=718-7&from=" + fixe(15) + "&to=" + fixe(45), medecinA()), champs));
-        arbre("filtres", m);
+        // KB-MED-72 corrigé : date illisible en 400 stable (legacy archivé dans dm6/observations/_ecarts-legacy)
+        arbre("filtres_nouveau_code", m);
     }
 
     @Test
@@ -128,7 +130,8 @@ class LaConsultationEtLaCorrectionDesObservationsBiologiquesCharacterizationInte
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesObservations());
-        arbre("correction", m);
+        // KB-MED-72 corrigé : texte trop long, corps illisible ou absent en 400 stable (KB-MED-76 reproduit : introuvable = 400) ; legacy archivé dans _ecarts-legacy
+        arbre("correction_nouveau_code", m);
     }
 
     @Test
@@ -203,7 +206,8 @@ class LaConsultationEtLaCorrectionDesObservationsBiologiquesCharacterizationInte
         cas.put("08 lecture ADMIN", lues(doGet(observationsDeLaDemandeApi(patientA, demandeA), as(CENTRE_A, "ADMIN"))));
         cas.put("09 identifiant de demande illisible", refus(doGet(PATIENTS_API + "/" + patientA + "/demandes-examen/pas-un-uuid/observations", medecinA())));
         cas.put("10 statut de la demande A inchange", statutDeLaDemande(demandeA));
-        arbre("par_demande", cas);
+        // KB-MED-77 et KB-MED-44 corrigés : la demande doit appartenir au centre ET au patient de l'URL, sinon liste vide (legacy archivé dans _ecarts-legacy)
+        arbre("par_demande_nouveau_code", cas);
     }
 
     private Object lues(Resp r) {

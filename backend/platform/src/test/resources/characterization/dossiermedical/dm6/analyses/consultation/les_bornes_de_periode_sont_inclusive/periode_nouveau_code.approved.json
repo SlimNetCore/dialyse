@@ -1,0 +1,32 @@
+{
+  "from = date exacte" : {
+    "items" : [ "<D+50>", "<D+40>", "<D+30>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  },
+  "from apres to" : "400 BAD_REQUEST | La date from doit être <= à la date to",
+  "from egal a to" : {
+    "items" : [ "<D+20>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "from et to bornes incluses" : {
+    "items" : [ "<D+40>", "<D+30>", "<D+20>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  },
+  "from illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "to = date exacte" : {
+    "items" : [ "<D+30>", "<D+20>", "<D+10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  }
+}

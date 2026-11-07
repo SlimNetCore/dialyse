@@ -75,7 +75,8 @@ class LEnregistrementEtLaModificationDesAnalysesCharacterizationIntegrationTest 
         m.put("cas", cas);
         m.put("lignes", lignes("SELECT date_prelevement, hb_g_dl, ht_pct, kt_v_mensuel, plaquettes FROM resultats_analyses WHERE center_id = ? "
                 + "ORDER BY date_prelevement, hb_g_dl", CENTRE_A));
-        arbre("valeurs", m);
+        // KB-MED-72 corrigé : date illisible, plaquettes hors entier ou en texte, valeur en texte en 400 stable (KB-MED-79 reproduit : aucune règle de valeur) ; legacy archivé dans dm6/analyses/_ecarts-legacy
+        arbre("valeurs_nouveau_code", m);
     }
 
     @Test
@@ -91,7 +92,8 @@ class LEnregistrementEtLaModificationDesAnalysesCharacterizationIntegrationTest 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAnalyses());
-        arbre("corps_et_patients", m);
+        // KB-MED-72 et KB-MED-73 corrigés : corps illisible en 400, patient inconnu ou d'un autre centre en 404 PATIENT_INTROUVABLE (legacy archivé dans _ecarts-legacy)
+        arbre("corps_et_patients_nouveau_code", m);
     }
 
     @Test
@@ -126,7 +128,8 @@ class LEnregistrementEtLaModificationDesAnalysesCharacterizationIntegrationTest 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAnalyses());
-        arbre("upsert_et_deplacement", m);
+        // KB-MED-74 corrigé : la modification ne crée plus et n'écrase plus le bilan d'un autre patient ou centre, 404 ANALYSE_INTROUVABLE (legacy archivé dans _ecarts-legacy)
+        arbre("upsert_et_deplacement_nouveau_code", m);
         org.assertj.core.api.Assertions.assertThat(duPatientA).isNotNull();
     }
 
@@ -145,6 +148,7 @@ class LEnregistrementEtLaModificationDesAnalysesCharacterizationIntegrationTest 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAnalyses());
-        arbre("refus_et_deplacement_de_centre", m);
+        // KB-MED-74 et KB-MED-72 corrigés : un bilan d'un autre centre n'est ni modifié ni déplacé (404 ANALYSE_INTROUVABLE), corps illisible en 400 (legacy archivé dans _ecarts-legacy)
+        arbre("refus_et_deplacement_de_centre_nouveau_code", m);
     }
 }

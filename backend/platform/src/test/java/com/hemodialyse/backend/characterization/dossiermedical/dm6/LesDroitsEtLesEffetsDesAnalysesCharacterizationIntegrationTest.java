@@ -84,7 +84,8 @@ class LesDroitsEtLesEffetsDesAnalysesCharacterizationIntegrationTest extends Dm6
         cas.put("INFIRMIER : recherche avec un corps illisible", statutEtCode(doPost(RECHERCHE_ANALYSES, "{pas du json", as(CENTRE_A, "INFIRMIER"))));
         cas.put("INFIRMIER : liste avec une pagination illisible", statutEtCode(doGet(analysesApi(patientA) + "?size=abc", as(CENTRE_A, "INFIRMIER"))));
         cas.put("DIRECTION : creation", statutEtCode(doPost(analysesApi(patientA), nouveau(CENTRE_A, 6), direction())));
-        arbre("refus", cas);
+        // 403 avant 400 (rôle évalué avant le corps) et corps illisibles en 400 stable (KB-MED-72) ; legacy archivé dans dm6/analyses/_ecarts-legacy
+        arbre("refus_nouveau_code", cas);
         assertThat(empreinte("resultats_analyses")).isEqualTo(avant);
     }
 
@@ -115,7 +116,8 @@ class LesDroitsEtLesEffetsDesAnalysesCharacterizationIntegrationTest extends Dm6
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAnalyses());
-        arbre("cloisonnement", m);
+        // KB-MED-73 corrigé : écriture pour un patient inconnu ou d'un autre centre en 404 PATIENT_INTROUVABLE (legacy archivé dans _ecarts-legacy)
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test
@@ -138,7 +140,8 @@ class LesDroitsEtLesEffetsDesAnalysesCharacterizationIntegrationTest extends Dm6
         doDelete(analyseApi(patientA, s), medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        // KB-MED-75 corrigé : suppression sans effet non journalisée ; KB-MED-74 : modification d'un bilan inconnu en 404 ; legacy archivé dans _ecarts-legacy
+        arbre("audit_nouveau_code", m);
     }
 
     @Test

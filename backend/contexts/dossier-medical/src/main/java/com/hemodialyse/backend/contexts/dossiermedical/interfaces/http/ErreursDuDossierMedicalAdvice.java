@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.contexts.dossiermedical.interfaces.http;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AccesRefuse;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.AnalyseIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneAnalyse;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneObservation;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.ObservationIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamenIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.AbordVasculaireIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.AllergieIntrouvable;
@@ -49,7 +53,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class,
         DemandesDExamenControleur.class, SerologiesControleur.class, AntecedentsControleur.class,
-        AllergiesControleur.class, AbordsVasculairesControleur.class})
+        AllergiesControleur.class, AbordsVasculairesControleur.class, ObservationsBiologiquesControleur.class, AnalysesControleur.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -145,6 +149,28 @@ class ErreursDuDossierMedicalAdvice {
     @ExceptionHandler(EcritureConcurrenteSurUnAbordVasculaire.class)
     ProblemDetail ecritureConcurrenteSurUnAbordVasculaire(EcritureConcurrenteSurUnAbordVasculaire erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ABORD_VASCULAIRE_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUneObservation.class)
+    ProblemDetail ecritureConcurrenteSurUneObservation(EcritureConcurrenteSurUneObservation erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "OBSERVATION_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUneAnalyse.class)
+    ProblemDetail ecritureConcurrenteSurUneAnalyse(EcritureConcurrenteSurUneAnalyse erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ANALYSE_ECRITURE_CONCURRENTE");
+    }
+
+    /** Reproduit du legacy (KB-MED-76) : une observation introuvable est une requête invalide (400), pas un 404. */
+    @ExceptionHandler(ObservationIntrouvable.class)
+    ProblemDetail observationIntrouvable(ObservationIntrouvable erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
+    }
+
+    /** Écart décidé (KB-MED-74) : le PUT d'une analyse inconnue, d'un autre patient ou d'un autre centre est refusé en 404 (avant : upsert). */
+    @ExceptionHandler(AnalyseIntrouvable.class)
+    ProblemDetail analyseIntrouvable(AnalyseIntrouvable erreur) {
+        return probleme(HttpStatus.NOT_FOUND, "Analyse introuvable", erreur.getMessage(), "ANALYSE_INTROUVABLE");
     }
 
     /** Écart décidé (KB-MED-62) : le PUT d'un abord inconnu, d'un autre patient ou d'un autre centre est refusé en 404 (avant : upsert). */

@@ -1,0 +1,12 @@
+{
+  "ADMIN : correction" : "403 ACCESS_DENIED",
+  "ADMIN : creation" : "403 ACCESS_DENIED",
+  "ADMIN : creation avec un corps illisible" : "403 ACCESS_DENIED",
+  "ADMIN : liste avec une pagination illisible" : "400 BAD_REQUEST",
+  "ADMIN : suppression" : "403 ACCESS_DENIED",
+  "DIRECTION : creation" : "403 ROLE_SCOPE",
+  "INFIRMIER : correction avec un corps absent" : "403 ACCESS_DENIED",
+  "INFIRMIER : creation" : "403 ACCESS_DENIED",
+  "INFIRMIER : creation avec un corps illisible" : "403 ACCESS_DENIED",
+  "INFIRMIER : liste avec une pagination illisible" : "403 ACCESS_DENIED"
+}

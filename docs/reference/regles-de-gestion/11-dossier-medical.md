@@ -7,7 +7,7 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 > Sources : agrégats de `bc-medical` (`Allergie`, `Antecedent`, `Serologie`, `DemandeExamen`, `ObservationBiologique`,
 > `Ordonnance`, `AdministrationTraitement`,
 > `AlerteObservance`, `BilanPreGreffe`, `EtapeBilanPreGreffe`, `DonneurVivant`, `DecisionRcp`), `Kdigo*Policy`,
-> `PrescrireUnTraitement` (DM2), `ResultatAnalyseDomainService`,
+> `PrescrireUnTraitement` (DM2), `Analyse` et `ObservationBiologique` (DM6, contexte `dossier-medical`),
 > `DossierMedicalPatientDomainService`, `AbordVasculaireDomainService`, `ControleDeNuitDeLObservance`,
 > `PeriodeDObservance`, `ConsulterLeSuiviDeLAnemie`,
 > `KdigoGreffeQueryService`, `FhirExportService`, contrôleurs du dossier.
@@ -187,10 +187,52 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   dérivée d'un bilan.
 - **RG-MED-043** — Corriger une observation passe son statut à « corrigé » ; une observation **dérivée automatiquement
   d'un bilan est immuable** (`OBSERVATION_DERIVEE_IMMUABLE`).
+- **RG-MED-038** — *Observations biologiques, reprise sur place DM6 (contexte `dossier-medical`,
+  `ObservationsBiologiquesControleur`, ADR 0085 ; décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN et ADMIN lisent, le MEDECIN seul écrit (reproduit) ; garde de centre sur les 5 routes ;
+  (b) **patient** : enregistrer pour un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE`
+  (avant : observation orpheline) ; la liste d'un patient inconnu reste une page vide en 200 ;
+  (c) **entrées illisibles et bornes** : corps absent ou mal formé, date, identifiant, pagination, statut ou système de
+  codage inconnu ou absent, valeur au-delà de 10 chiffres entiers et 4 décimales, unité au-delà de 20 caractères, texte
+  au-delà de 500, libellé du code au-delà de 255 : 400 stable sans nom de classe interne (avant : 500), et 403 avant 400
+  pour un profil sans droit ;
+  (d) **correction** : seule la valeur change (code, date, statut et demande du corps sont ignorés) ; une observation
+  inconnue, d'un autre patient ou d'un autre centre reste un 400 `BAD_REQUEST` « Observation introuvable » (contrat
+  conservé, à confirmer) ; deux écritures sur la même observation se suivent (délai de 5 s sur PostgreSQL, au-delà 409
+  `OBSERVATION_ECRITURE_CONCURRENTE`) ;
+  (e) **suppression** : toujours 204, même sans effet (reproduit), mais une suppression qui n'a rien supprimé n'est plus
+  inscrite au journal d'audit ; une observation dérivée d'un bilan reste supprimable (reproduit) ;
+  (f) **lecture par demande d'examen** : la demande doit appartenir au centre ET au patient de l'URL, sinon la réponse est
+  une liste vide en 200 (avant : les observations de n'importe quel patient de la demande, KB-MED-44) ;
+  (g) **reproduit, à confirmer** : aucune règle de plausibilité de valeur, deux envois identiques créent deux
+  observations, la référence de demande n'est pas contrôlée à l'écriture et la saisie ne change jamais le statut de la
+  demande, aucun événement, jour de la JVM (UTC) pour la limite « pas dans le futur », liste triée du prélèvement le plus
+  récent au plus ancien, filtre de code par égalité stricte, page négative = 0, taille nulle ou négative = 20, plafond
+  200, lectures non tracées ; une ligne dont le statut, la source ou le système est illisible en base, ou dont la valeur
+  numérique n'a pas d'unité, est ignorée par les lectures (avertissement dans le journal avec son seul identifiant).
 - **RG-MED-044** — Les **résultats d'analyse** (bilan biologique à colonnes fixes : Hb, Ht, plaquettes, ferritine, CST,
   EPO endogène, urée pré/post, créatinine, Kt/V mensuel, phosphore, calcium,
   PTH, albumine, protéines, CRP) portent une date de prélèvement (aujourd'hui par défaut) ; ils alimentent le suivi de
   l'anémie, l'évaluation KDIGO et les statistiques. La recherche est paginée.
+- **RG-MED-039** — *Analyses, reprise sur place DM6 (contexte `dossier-medical`, `AnalysesControleur`, ADR 0085 ;
+  décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN et ADMIN lisent et recherchent, le MEDECIN seul écrit (reproduit) ; garde de centre ;
+  (b) **patient** : enregistrer pour un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE` ;
+  (c) **modifier n'est plus créer** : une analyse inconnue, d'un autre patient ou d'un autre centre est refusée en 404
+  `ANALYSE_INTROUVABLE` ; elle n'est jamais créée par la modification ni réaffectée à un autre patient ou centre
+  (avant : trou de sécurité) ; la modification remplace le bilan en entier (une mesure absente est effacée, la date
+  absente redevient le jour) et réinitialise la date de création (reproduit, à confirmer) ;
+  (d) **entrées illisibles et bornes** : corps, date, identifiant, pagination, plaquettes hors entier ou en texte, mesure
+  au-delà de 36 chiffres entiers et 2 décimales : 400 stable (avant : 500), 403 avant 400 ; la recherche (`POST
+  /analyses/search`) sans page ni taille : 400 « La page et la taille sont obligatoires », page négative, taille hors de
+  1 à 200, patient ou centre absent : 400 `VALIDATION_ERROR` « Invalid request content. » (reproduit) ;
+  (e) **suppression** : toujours 204, même sans effet (reproduit), sans ligne d'audit quand rien n'est supprimé ;
+  écriture concurrente : 409 `ANALYSE_ECRITURE_CONCURRENTE` ;
+  (f) **reproduit, à confirmer** : aucune règle de valeur (négative, nulle, démesurée, date dans le futur acceptées),
+  plusieurs bilans le même jour, aucun événement, aucune interprétation normal / anormal (elle vit chez les lecteurs :
+  suivi de l'anémie, KDIGO, statistiques, export CSV et FHIR, inchangés) ; la recherche est une lecture que le journal
+  d'audit inscrit comme une création ; les observations (RG-MED-038) et les analyses sont deux modèles qui coexistent
+  sans projection de l'un vers l'autre.
 
 ## 11.6 Ordonnances
 

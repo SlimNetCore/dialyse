@@ -86,7 +86,8 @@ class LesDroitsEtLesEffetsDesObservationsBiologiquesCharacterizationIntegrationT
         cas.put("ADMIN : liste avec une pagination illisible", statutEtCode(doGet(observationsApi(patientA) + "?size=abc", as(CENTRE_A, "ADMIN"))));
         cas.put("INFIRMIER : liste avec une pagination illisible", statutEtCode(doGet(observationsApi(patientA) + "?size=abc", as(CENTRE_A, "INFIRMIER"))));
         cas.put("DIRECTION : creation", statutEtCode(doPost(observationsApi(patientA), nouvelle(CENTRE_A, 4), direction())));
-        arbre("refus", cas);
+        // 403 avant 400 (rôle évalué avant le corps) et corps illisibles en 400 stable (KB-MED-72) ; legacy archivé dans _ecarts-legacy
+        arbre("refus_nouveau_code", cas);
         assertThat(empreinte("observations_biologiques")).isEqualTo(avant);
     }
 
@@ -122,7 +123,8 @@ class LesDroitsEtLesEffetsDesObservationsBiologiquesCharacterizationIntegrationT
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesObservations());
-        arbre("cloisonnement", m);
+        // KB-MED-73 corrigé : écriture pour un patient inconnu ou d'un autre centre en 404 PATIENT_INTROUVABLE (legacy archivé dans _ecarts-legacy)
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test
@@ -145,7 +147,8 @@ class LesDroitsEtLesEffetsDesObservationsBiologiquesCharacterizationIntegrationT
         doDelete(observationApi(patientA, s), medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        // KB-MED-75 corrigé : une suppression sans effet reste 204 mais n'est plus journalisée (sansTrace) ; legacy archivé dans _ecarts-legacy
+        arbre("audit_nouveau_code", m);
     }
 
     @Test

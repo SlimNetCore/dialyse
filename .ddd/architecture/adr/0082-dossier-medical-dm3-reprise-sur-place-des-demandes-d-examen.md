@@ -49,3 +49,6 @@ ADMIN en écriture ? ; publication de `ResultatExamenRecu` et passage automatiqu
 ## Conséquences
 - Preuves : contrat du port sur le double, H2 et **PostgreSQL 16 jetable** (`backend/scripts/dossier-medical-dm3-pg16-rejeu.sh`, port 55473), tests de domaine (toutes les transitions), d'application (fakes) et de transaction, ArchUnit du module, `check-arch.ts` (0 violation), filet DM3 33/33 vert sur le nouveau code.
 - Le tactique `.ddd/tactical/dossier-medical.md` est périmé pour DM3 : `DemandeExamen` n'émet aucun événement.
+
+## Note du 2026-11-07 (ADR 0085, DM6)
+KB-MED-44 (lecture des observations d'une demande sans contrôle du patient) est FERMÉE par DM6 : la lecture par demande exige que la demande appartienne au centre ET au patient de l'URL, sinon liste vide en 200. La saisie d'une observation liée à une demande ne change toujours pas le statut de la demande (décision (f) ci-dessus inchangée).

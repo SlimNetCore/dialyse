@@ -1,0 +1,36 @@
+{
+  "cas" : {
+    "date 1900" : "200 ok",
+    "date absente" : "422 OBSERVATION_CHAMPS_REQUIS | Patient, centre, analyte et date de prélèvement sont obligatoires",
+    "date de demain" : "422 OBSERVATION_DATE_FUTURE | La date de prélèvement ne peut pas être dans le futur",
+    "date du jour" : "200 ok",
+    "date illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "statut ''" : "400 BAD_REQUEST | Statut d'observation inconnu",
+    "statut 'ANNULE'" : "400 BAD_REQUEST | Statut d'observation inconnu",
+    "statut 'CORRIGE'" : "200 ok",
+    "statut 'FINAL'" : "200 ok",
+    "statut 'PRELIMINAIRE'" : "200 ok",
+    "statut 'final'" : "400 BAD_REQUEST | Statut d'observation inconnu"
+  },
+  "lignes" : [ {
+    "date_prelevement" : "<D+5>",
+    "statut" : "CORRIGE",
+    "valeur_num" : "1.0000"
+  }, {
+    "date_prelevement" : "<D+5>",
+    "statut" : "FINAL",
+    "valeur_num" : "1.0000"
+  }, {
+    "date_prelevement" : "<D+5>",
+    "statut" : "PRELIMINAIRE",
+    "valeur_num" : "1.0000"
+  }, {
+    "date_prelevement" : "<1900>",
+    "statut" : "FINAL",
+    "valeur_num" : "3.0000"
+  }, {
+    "date_prelevement" : "<J>",
+    "statut" : "FINAL",
+    "valeur_num" : "4.0000"
+  } ]
+}

@@ -1,0 +1,34 @@
+{
+  "cas" : {
+    "champ inconnu ignore" : "200 ok",
+    "corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "identifiant de patient illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "patient du centre B (session A)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "patient inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre"
+  },
+  "etat" : [ {
+    "albumine_g_dl" : null,
+    "calcium_mg_dl" : null,
+    "center_id" : "<CENTRE_A>",
+    "creatinine_mg_dl" : null,
+    "creation" : "recent",
+    "crp_mg_l" : null,
+    "cstf_pct" : null,
+    "date_prelevement" : "<D+1>",
+    "epo_endogene_mui_ml" : null,
+    "ferritine_ng_ml" : null,
+    "hb_g_dl" : null,
+    "ht_pct" : null,
+    "id" : "<UUID_GENERE_1>",
+    "kt_v_mensuel" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "phosphore_mg_dl" : null,
+    "plaquettes" : null,
+    "proteines_g_dl" : null,
+    "pth_pg_ml" : null,
+    "uree_post_mg_dl" : null,
+    "uree_pre_mg_dl" : null
+  } ]
+}

@@ -1,0 +1,26 @@
+{
+  "cas" : {
+    "10 chiffres entiers + 4 decimales" : "200 ok",
+    "11 chiffres entiers + 4 decimales" : "400 BAD_REQUEST | La valeur est limitée à 10 chiffres entiers et 4 décimales",
+    "4 decimales" : "200 ok",
+    "5 decimales (arrondi par la base)" : "200 ok",
+    "affichage de 255 caracteres" : "200 ok",
+    "affichage de 256 caracteres" : "400 BAD_REQUEST | Le libellé du code est limité à 255 caractères",
+    "texte de 500 caracteres" : "200 ok",
+    "texte de 501 caracteres" : "400 BAD_REQUEST | Le texte est limité à 500 caractères",
+    "unite de 20 caracteres" : "200 ok",
+    "unite de 21 caracteres" : "400 BAD_REQUEST | L'unité est limitée à 20 caractères"
+  },
+  "nombre de lignes" : 6,
+  "valeurs" : [ {
+    "valeur_num" : "1.0000"
+  }, {
+    "valeur_num" : "1.2345"
+  }, {
+    "valeur_num" : "1.2346"
+  }, {
+    "valeur_num" : "3.0000"
+  }, {
+    "valeur_num" : "9999999999.9999"
+  } ]
+}

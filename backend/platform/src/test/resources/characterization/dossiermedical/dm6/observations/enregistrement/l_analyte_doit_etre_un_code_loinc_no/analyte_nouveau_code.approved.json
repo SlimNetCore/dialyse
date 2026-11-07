@@ -1,0 +1,29 @@
+{
+  "cas" : {
+    "ATC" : "422 OBSERVATION_ANALYTE_NON_LOINC | Une observation biologique doit être codée LOINC",
+    "CIM10 valide" : "422 OBSERVATION_ANALYTE_NON_LOINC | Une observation biologique doit être codée LOINC",
+    "LOCAL" : "422 OBSERVATION_ANALYTE_NON_LOINC | Une observation biologique doit être codée LOINC",
+    "LOINC 1-0 (forme minimale)" : "200 ok",
+    "LOINC 12345-6 (5 chiffres)" : "200 ok",
+    "LOINC 123456-7 (6 chiffres)" : "422 CONCEPT_CODE_INVALID_LOINC | Code LOINC invalide : 123456-7",
+    "LOINC 718-7" : "200 ok",
+    "LOINC avec controle a 2 chiffres" : "422 CONCEPT_CODE_INVALID_LOINC | Code LOINC invalide : 718-77",
+    "LOINC en minuscules et espaces" : "400 BAD_REQUEST | Système de codage inconnu",
+    "LOINC sans tiret" : "422 CONCEPT_CODE_INVALID_LOINC | Code LOINC invalide : 7187",
+    "code absent" : "422 CONCEPT_CODE_REQUIRED | Le code est obligatoire",
+    "code blanc" : "422 CONCEPT_CODE_REQUIRED | Le code est obligatoire",
+    "systeme absent" : "400 BAD_REQUEST | Le système de codage est requis avec un code",
+    "systeme inconnu" : "400 BAD_REQUEST | Système de codage inconnu",
+    "systeme vide" : "400 BAD_REQUEST | Système de codage inconnu"
+  },
+  "lignes" : [ {
+    "analyte_code" : "1-0",
+    "analyte_code_system" : "LOINC"
+  }, {
+    "analyte_code" : "12345-6",
+    "analyte_code_system" : "LOINC"
+  }, {
+    "analyte_code" : "718-7",
+    "analyte_code_system" : "LOINC"
+  } ]
+}

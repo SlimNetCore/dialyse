@@ -1,0 +1,29 @@
+{
+  "cas" : {
+    "champ inconnu ignore" : "200 ok",
+    "corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps vide {}" : "400 BAD_REQUEST | Le système de codage est requis avec un code",
+    "identifiant de patient illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "patient du centre B (session A)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "patient inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "valeur numerique en texte" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "etat" : [ {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : null,
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_prelevement" : "<D+5>",
+    "demande_examen_id" : null,
+    "id" : "<UUID_GENERE_1>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "u",
+    "valeur_num" : "1.0000",
+    "valeur_texte" : null
+  } ]
+}

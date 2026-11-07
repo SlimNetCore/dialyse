@@ -1972,3 +1972,39 @@ SELECT max(length(severite)) AS severite_max, max(length(libelle_libre)) AS libe
 ```
 Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, enregistrer un antécédent codé puis le même code (422), le résoudre (puis 422 au rejeu), le corriger, le supprimer ; déclarer une allergie HAUTE sans manifestations (422) puis avec, la corriger, vérifier le bandeau `critiques` (une allergie réfutée y reste) ; enregistrer un abord KT_AIGU, vérifier la compétence CATHETER exigée dans la Planification du jour, le remplacer, le supprimer ; (b) avec un compte INFIRMIER, vérifier le refus (403) sur antécédents, allergies et `critiques` et la lecture des abords ; (c) PUT d'un abord inconnu ou d'un autre patient : 404, rien créé ni déplacé (requête 4) ; (d) écriture pour un patient d'un autre centre : 404.
 Surveillance après déploiement : hausse attendue des 400 (corps, énumération, date, `actif`, paramètre illisible, valeur hors borne de colonne, avant 500), des 403 (corps illisible d'un profil sans droit), des 404 (patient inconnu ou d'un autre centre à l'écriture, PUT d'abord introuvable) et disparition des lignes d'audit `PATIENTS_SUPPRESSION` 204 sans suppression ; surveiller les 409 `ANTECEDENT_ECRITURE_CONCURRENTE`, `ALLERGIE_ECRITURE_CONCURRENTE`, `ABORD_VASCULAIRE_ECRITURE_CONCURRENTE` et les WARN « ignoré(e) : … illisible en base ». Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 50. Dossier médical DM6 (observations biologiques et analyses) : parité et gardes (2026-11-07) — SELECT seulement
+
+Aucune migration, mêmes tables (`observations_biologiques`, `resultats_analyses`, sans contrainte d'unicité ni clé étrangère ; `lignes_demande_examen` n'a PAS de `center_id` et n'en reçoit pas ; les tables du module gelé ne sont ni lues ni écrites, ADR 0072). Données de santé sensibles. À exécuter sur une COPIE ou en lecture seule, avant et après le déploiement (ADR 0085). Aucune correction automatique : toute ligne ramenée est expliquée avec les métiers et le DPO.
+```sql
+-- 1. Fiches par centre (avant/après : identiques, la reprise ne change aucune ligne).
+SELECT 'observations' AS table_, center_id, count(*) FROM observations_biologiques GROUP BY center_id
+UNION ALL SELECT 'analyses', center_id, count(*) FROM resultats_analyses GROUP BY center_id;
+-- 2. ORPHELINS (KB-MED-73 : avant la reprise, l'écriture pour un patient inconnu ou d'un autre centre était acceptée) : bilans et observations dont le patient est absent du centre de la fiche.
+SELECT 'observations' AS table_, o.center_id, count(*) AS patient_absent FROM observations_biologiques o LEFT JOIN patients p ON p.id = o.patient_id AND p.center_id = o.center_id WHERE p.id IS NULL GROUP BY o.center_id
+UNION ALL SELECT 'analyses', a.center_id, count(*) FROM resultats_analyses a LEFT JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id WHERE p.id IS NULL GROUP BY a.center_id;
+-- 3. ANALYSES DONT LE PATIENT DIFFÈRE (KB-MED-74 : le PUT d'un bilan le réaffectait à un autre patient ou à un autre centre) : bilans d'un patient dont le centre n'est pas celui du bilan.
+SELECT a.center_id AS centre_du_bilan, p.center_id AS centre_du_patient, count(*) FROM resultats_analyses a JOIN patients p ON p.id = a.patient_id AND p.center_id <> a.center_id GROUP BY a.center_id, p.center_id;
+-- 4. DOUBLONS (deux envois identiques créent deux lignes, reproduit ; plusieurs bilans le même jour sont permis) : à expliquer, pas à corriger.
+SELECT center_id, patient_id, analyte_code, date_prelevement, valeur_num, unite, valeur_texte, count(*) AS exemplaires FROM observations_biologiques
+ GROUP BY center_id, patient_id, analyte_code, date_prelevement, valeur_num, unite, valeur_texte HAVING count(*) > 1;
+SELECT center_id, patient_id, date_prelevement, count(*) AS bilans FROM resultats_analyses GROUP BY center_id, patient_id, date_prelevement HAVING count(*) > 1;
+-- 5. OBSERVATIONS RATTACHÉES À UNE DEMANDE d'un AUTRE patient ou d'un AUTRE centre, ou inconnue (KB-MED-77 : référence souple, aucune clé étrangère ; ces lignes ne sont plus rendues par la lecture par demande).
+SELECT o.center_id, count(*) AS demande_inconnue_ou_etrangere FROM observations_biologiques o
+ LEFT JOIN demandes_examen d ON d.id = o.demande_examen_id AND d.patient_id = o.patient_id AND d.center_id = o.center_id
+ WHERE o.demande_examen_id IS NOT NULL AND d.id IS NULL GROUP BY o.center_id;
+-- 6. LIGNES D'OBSERVATION ILLISIBLES : IGNORÉES par les lectures du module (comptage compris), journal WARN « Observation <id> ignorée » (identifiant seul), et ni corrigeables ni supprimables par le module.
+SELECT center_id, id FROM observations_biologiques
+ WHERE analyte_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL') OR statut NOT IN ('PRELIMINAIRE','FINAL','CORRIGE') OR source NOT IN ('SAISIE_DIRECTE','DERIVEE_BILAN','IMPORT')
+    OR (valeur_num IS NOT NULL AND (unite IS NULL OR btrim(unite) = ''));
+-- 7. Règles de gestion violables par import ou SQL (impossibles par l'API) : valeur numérique ET texte, ni l'une ni l'autre, code d'analyte non LOINC, prélèvement dans le futur.
+SELECT 'valeur_et_texte' AS controle, center_id, count(*) FROM observations_biologiques WHERE valeur_num IS NOT NULL AND valeur_texte IS NOT NULL AND btrim(valeur_texte) <> '' GROUP BY center_id
+UNION ALL SELECT 'ni_valeur_ni_texte', center_id, count(*) FROM observations_biologiques WHERE valeur_num IS NULL AND (valeur_texte IS NULL OR btrim(valeur_texte) = '') GROUP BY center_id
+UNION ALL SELECT 'analyte_non_loinc', center_id, count(*) FROM observations_biologiques WHERE analyte_code_system <> 'LOINC' GROUP BY center_id
+UNION ALL SELECT 'observations_dans_le_futur', center_id, count(*) FROM observations_biologiques WHERE date_prelevement > current_date GROUP BY center_id
+UNION ALL SELECT 'bilans_dans_le_futur', center_id, count(*) FROM resultats_analyses WHERE date_prelevement > current_date GROUP BY center_id;
+-- 8. Lecteurs inchangés (suivi de l'anémie, KDIGO, statistiques, CSV, FHIR) : dernier bilan par patient, avant et après, identique.
+SELECT patient_id, max(date_prelevement) AS dernier_bilan, count(*) FROM resultats_analyses GROUP BY patient_id ORDER BY 1 LIMIT 50;
+```
+Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, enregistrer une observation numérique avec unité puis textuelle, la corriger (statut `CORRIGE`), la supprimer ; lire les observations d'une demande du patient puis d'une demande d'un autre patient (liste vide) ; enregistrer un bilan, le modifier (les mesures absentes sont effacées), modifier un bilan inconnu (404 `ANALYSE_INTROUVABLE`), le supprimer ; rechercher des analyses (page 0, taille 20) ; (b) avec un compte INFIRMIER, vérifier le refus (403) ; avec un compte ADMIN, la lecture et le refus d'écriture (403) ; (c) vérifier que le suivi de l'anémie, l'évaluation KDIGO, les statistiques médicales, les exports CSV et FHIR rendent les mêmes valeurs qu'avant la reprise.
+Surveillance après déploiement : hausse attendue des 400 (corps, système de codage, statut, date, paramètre illisible, valeur hors borne de colonne, avant 500), des 403 (corps illisible d'un profil sans droit), des 404 (patient inconnu ou d'un autre centre à l'écriture, PUT d'analyse introuvable) et disparition des lignes d'audit `PATIENTS_SUPPRESSION` 204 sans suppression ; surveiller les 409 `OBSERVATION_ECRITURE_CONCURRENTE`, `ANALYSE_ECRITURE_CONCURRENTE` et les WARN « Observation … ignorée : … illisible en base ». Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

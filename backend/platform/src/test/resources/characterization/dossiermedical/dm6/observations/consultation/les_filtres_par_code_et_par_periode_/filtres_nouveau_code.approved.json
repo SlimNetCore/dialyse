@@ -1,0 +1,94 @@
+{
+  "code 2160-0" : {
+    "items" : [ "2160-0 | <D+30>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "code 5195-3" : {
+    "items" : [ "5195-3 | <D+40>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "code 718-7" : {
+    "items" : [ "718-7 | <D+50>", "718-7 | <D+20>", "718-7 | <D+10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  },
+  "code avec joker %" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "code avec motif SQL (egalite stricte)" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "code blanc (ignore)" : {
+    "items" : [ "718-7 | <D+50>", "5195-3 | <D+40>", "2160-0 | <D+30>", "718-7 | <D+20>", "718-7 | <D+10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "code et periode combines" : {
+    "items" : [ "718-7 | <D+20>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "code inconnu" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "code vide (ignore)" : {
+    "items" : [ "718-7 | <D+50>", "5195-3 | <D+40>", "2160-0 | <D+30>", "718-7 | <D+20>", "718-7 | <D+10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "from = date exacte" : {
+    "items" : [ "718-7 | <D+50>", "5195-3 | <D+40>", "2160-0 | <D+30>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  },
+  "from apres to (aucun controle)" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "from et to bornes incluses" : {
+    "items" : [ "5195-3 | <D+40>", "2160-0 | <D+30>", "718-7 | <D+20>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  },
+  "from illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "to = date exacte" : {
+    "items" : [ "2160-0 | <D+30>", "718-7 | <D+20>", "718-7 | <D+10>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  }
+}

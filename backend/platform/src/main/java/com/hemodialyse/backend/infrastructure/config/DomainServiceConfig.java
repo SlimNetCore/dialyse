@@ -6,15 +6,11 @@ import com.hemodialyse.backend.domain.medical.greffe.port.EtapeBilanPreGreffeRep
 import com.hemodialyse.backend.domain.medical.greffe.service.BilanPreGreffeDomainService;
 import com.hemodialyse.backend.domain.medical.greffe.service.DonneurVivantDomainService;
 import com.hemodialyse.backend.domain.medical.greffe.service.EtapeBilanPreGreffeDomainService;
-import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
-import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
-import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.service.DossierMedicalPatientDomainService;
-import com.hemodialyse.backend.domain.seance.service.ResultatAnalyseDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletMedicalDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletParamedicalDomainService;
 import org.springframework.context.annotation.Bean;
@@ -51,18 +47,8 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public ResultatAnalyseDomainService resultatAnalyseDomainService(ResultatAnalyseRepositoryPort repo) {
-        return new ResultatAnalyseDomainService(repo);
-    }
-
-    @Bean
     public DossierMedicalPatientDomainService dossierMedicalPatientDomainService(DossierMedicalPatientRepositoryPort repo) {
         return new DossierMedicalPatientDomainService(repo);
-    }
-
-    @Bean
-    public ObservationBiologiqueDomainService observationBiologiqueDomainService(ObservationBiologiqueRepositoryPort repo) {
-        return new ObservationBiologiqueDomainService(repo);
     }
 
     @Bean

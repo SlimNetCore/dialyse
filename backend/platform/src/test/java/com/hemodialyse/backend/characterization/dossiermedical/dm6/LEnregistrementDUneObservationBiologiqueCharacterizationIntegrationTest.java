@@ -95,7 +95,8 @@ class LEnregistrementDUneObservationBiologiqueCharacterizationIntegrationTest ex
         m.put("nombre de lignes", nombreDe("observations_biologiques", CENTRE_A));
         m.put("valeurs", lignes("SELECT valeur_num FROM observations_biologiques WHERE center_id = ? AND valeur_num IS NOT NULL ORDER BY valeur_num",
                 CENTRE_A));
-        arbre("bornes", m);
+        // KB-MED-72 corrigé : bornes de colonnes en 400 stable (golden _nouveau_code ; legacy archivé dans dm6/observations/_ecarts-legacy)
+        arbre("bornes_nouveau_code", m);
     }
 
     @Test
@@ -121,7 +122,8 @@ class LEnregistrementDUneObservationBiologiqueCharacterizationIntegrationTest ex
         m.put("cas", cas);
         m.put("lignes", lignes("SELECT analyte_code_system, analyte_code FROM observations_biologiques WHERE center_id = ? "
                 + "ORDER BY analyte_code, analyte_code_system", CENTRE_A));
-        arbre("analyte", m);
+        // KB-MED-72 corrigé : système de codage inconnu ou absent en 400 stable, sans nom de classe interne (legacy archivé dans _ecarts-legacy)
+        arbre("analyte_nouveau_code", m);
     }
 
     @Test
@@ -141,7 +143,8 @@ class LEnregistrementDUneObservationBiologiqueCharacterizationIntegrationTest ex
         m.put("cas", cas);
         m.put("lignes", lignes("SELECT statut, date_prelevement, valeur_num FROM observations_biologiques WHERE center_id = ? "
                 + "ORDER BY valeur_num, statut", CENTRE_A));
-        arbre("statut_et_date", m);
+        // KB-MED-72 corrigé : statut inconnu et date illisible en 400 stable (legacy archivé dans _ecarts-legacy)
+        arbre("statut_et_date_nouveau_code", m);
     }
 
     @Test
@@ -166,7 +169,8 @@ class LEnregistrementDUneObservationBiologiqueCharacterizationIntegrationTest ex
         m.put("cas", cas);
         m.put("etat", etatDesObservations());
         m.put("statut de la demande A apres la saisie", statutDeLaDemande(demandeA));
-        arbre("doublons_et_demande", m);
+        // KB-MED-72 corrigé : identifiant de demande illisible en 400 ; la référence de demande reste souple en écriture (legacy archivé dans _ecarts-legacy)
+        arbre("doublons_et_demande_nouveau_code", m);
     }
 
     @Test
@@ -186,6 +190,7 @@ class LEnregistrementDUneObservationBiologiqueCharacterizationIntegrationTest ex
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesObservations());
-        arbre("corps_et_patients", m);
+        // KB-MED-72 et KB-MED-73 corrigés : corps illisible en 400, patient inconnu ou d'un autre centre en 404 PATIENT_INTROUVABLE sans écriture (legacy archivé dans _ecarts-legacy)
+        arbre("corps_et_patients_nouveau_code", m);
     }
 }
