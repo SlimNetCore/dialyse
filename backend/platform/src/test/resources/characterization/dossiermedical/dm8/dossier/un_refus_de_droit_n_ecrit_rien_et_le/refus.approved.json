@@ -1,0 +1,13 @@
+{
+  "aucune ecriture" : true,
+  "cas" : {
+    "ADMIN : POST valide" : "403 ACCESS_DENIED",
+    "ADMIN : PUT avec un corps illisible" : "500 INTERNAL_ERROR",
+    "DIRECTION : lecture" : "403 ROLE_SCOPE",
+    "INFIRMIER : POST avec un corps illisible" : "500 INTERNAL_ERROR",
+    "INFIRMIER : POST valide" : "403 ACCESS_DENIED",
+    "INFIRMIER : PUT avec un corps absent" : "500 INTERNAL_ERROR",
+    "INFIRMIER : lecture (autorisee : isolation machine)" : "200",
+    "SECRETAIRE : lecture" : "403 ACCESS_DENIED"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "01 session A vise le centre B" : {
+    "01 GET centerId=B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "02 POST centerId=B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "03 PUT centerId=B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "04 GET centerId inconnu" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "05 POST sans centerId (le centre de la session est retenu)" : "200 ok"
+  },
+  "02 sessions particulieres" : {
+    "01 MEDECIN sans centre de session : lecture" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "02 MEDECIN sans centre de session avec centerId A : lecture" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "03 MEDECIN sans centre de session : ecriture" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "04 SUPERADMIN + MEDECIN (session A) lit le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "05 SUPERADMIN + MEDECIN (session A) ecrit dans le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "03 le dossier du centre B est intact" : [ {
+    "center_id" : "<CENTRE_B>",
+    "conclusion_medicale" : null,
+    "creation" : "fixe",
+    "date_mise_en_dialyse" : null,
+    "hepatite_b_statut" : null,
+    "hepatite_c_statut" : null,
+    "id" : "<DOS_B>",
+    "modification" : "jamais modifiee",
+    "nephropathie_initiale" : "Dossier B",
+    "observation_globale" : null,
+    "patient_id" : "<PAT_B>"
+  } ],
+  "04 le seul changement est celui de la requete 05 (centre de la session)" : true
+}

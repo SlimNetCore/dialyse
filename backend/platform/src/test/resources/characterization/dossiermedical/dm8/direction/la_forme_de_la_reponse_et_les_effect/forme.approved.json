@@ -1,0 +1,46 @@
+{
+  "01 statut" : 200,
+  "02 en-tete Cache-Control" : "no-store",
+  "03 cles de la reponse" : [ "societeId", "from", "to", "generatedAt", "seuilAnonymat", "centres", "totaux", "alertes" ],
+  "04 enveloppe" : "<SOCIETE> | <D+0> | <D+200> | <HORODATAGE> | 5",
+  "05 centres (identifiant | nom | actif)" : [ "<CENTRE_A> | Centre A | true", "<CENTRE_B> | Centre B | true" ],
+  "06 centre A : 4 patients sous le seuil (masques)" : {
+    "albumine" : "0 | - | - | -",
+    "greffe attente | bilan | greffes de la periode" : "0 | 0 | 0",
+    "hemoglobine" : "- | - | - | -",
+    "ktV (evalues | dans | sous | au dessus)" : "0 | - | - | -",
+    "observance en retard" : "0",
+    "phosphore" : "0 | - | - | -",
+    "pth" : "0 | - | - | -",
+    "vhb | vhc | vih" : "- | 0 | 0"
+  },
+  "07 centre B : aucun patient (zero)" : {
+    "albumine" : "0 | - | - | -",
+    "greffe attente | bilan | greffes de la periode" : "0 | 0 | 0",
+    "hemoglobine" : "0 | - | - | -",
+    "ktV (evalues | dans | sous | au dessus)" : "0 | - | - | -",
+    "observance en retard" : "0",
+    "phosphore" : "0 | - | - | -",
+    "pth" : "0 | - | - | -",
+    "vhb | vhc | vih" : "0 | 0 | 0"
+  },
+  "08 totaux : 4 patients sous le seuil" : {
+    "albumine" : "0 | - | - | -",
+    "greffe attente | bilan | greffes de la periode" : "0 | 0 | 0",
+    "hemoglobine" : "- | - | - | -",
+    "ktV (evalues | dans | sous | au dessus)" : "0 | - | - | -",
+    "observance en retard" : "0",
+    "phosphore" : "0 | - | - | -",
+    "pth" : "0 | - | - | -",
+    "vhb | vhc | vih" : "- | 0 | 0"
+  },
+  "09 stock des totaux" : {
+    "articlesActifs" : 0,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  },
+  "10 alertes" : "[]",
+  "11 aucune ecriture" : true
+}

@@ -1,0 +1,24 @@
+{
+  "01 statut" : 200,
+  "02 centre A : cinq patients" : {
+    "albumine" : "5 | 60.0 | 40.0 | 0.0",
+    "greffe attente | bilan | greffes de la periode" : "0 | 0 | 0",
+    "hemoglobine" : "5 | 40.0 | 20.0 | 40.0",
+    "ktV (evalues | dans | sous | au dessus)" : "5 | 80.0 | 20.0 | 0.0",
+    "observance en retard" : "0",
+    "phosphore" : "5 | 40.0 | 0.0 | 60.0",
+    "pth" : "5 | 60.0 | 20.0 | 20.0",
+    "vhb | vhc | vih" : "5 | 5 | 0"
+  },
+  "03 totaux (centre B vide)" : {
+    "albumine" : "5 | 60.0 | 40.0 | 0.0",
+    "greffe attente | bilan | greffes de la periode" : "0 | 0 | 0",
+    "hemoglobine" : "5 | 40.0 | 20.0 | 40.0",
+    "ktV (evalues | dans | sous | au dessus)" : "5 | 80.0 | 20.0 | 0.0",
+    "observance en retard" : "0",
+    "phosphore" : "5 | 40.0 | 0.0 | 60.0",
+    "pth" : "5 | 60.0 | 20.0 | 20.0",
+    "vhb | vhc | vih" : "5 | 5 | 0"
+  },
+  "04 alertes" : "[{\"centerId\":\"<CENTRE_A>\",\"centre\":\"Centre A\",\"code\":\"HB_HORS_CIBLE\",\"severity\":\"WARNING\",\"valeur\":40.0}]"
+}

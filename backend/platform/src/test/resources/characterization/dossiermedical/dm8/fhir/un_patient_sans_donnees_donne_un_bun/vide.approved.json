@@ -1,0 +1,28 @@
+{
+  "01 bundle d'un patient sans naissance ni donnees" : {
+    "corps" : {
+      "entry" : [ {
+        "resource" : {
+          "gender" : "male",
+          "id" : "<PAT_A>",
+          "identifier" : [ {
+            "system" : "urn:hemodialyse:numero-assurance",
+            "value" : "ASS-DM8-PAT_A"
+          } ],
+          "name" : [ {
+            "family" : "Patient PAT_A",
+            "given" : [ "Test" ]
+          } ],
+          "resourceType" : "Patient"
+        }
+      } ],
+      "resourceType" : "Bundle",
+      "timestamp" : "<HORODATAGE>",
+      "total" : 1,
+      "type" : "collection"
+    },
+    "status" : 200
+  },
+  "02 bundle d'un patient avec sexe et naissance mais sans donnees" : [ "Patient : <PAT_B> | Patient PAT_B | Test | female | <D-9000> | urn:hemodialyse:numero-assurance | ASS-DM8-PAT_B" ],
+  "03 total" : 1
+}

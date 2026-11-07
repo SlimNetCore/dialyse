@@ -1,0 +1,21 @@
+{
+  "01 periode 0 a 100 (hemoglobine 12 retenue, Kt/V dernier non nul)" : {
+    "hemoglobine" : "5 | 0.0 | 0.0 | 100.0",
+    "ktV (evalues | dans | sous | au dessus)" : "5 | 100.0 | 0.0 | 0.0"
+  },
+  "02 periode 0 a 30 (seul le resultat ancien)" : {
+    "hemoglobine" : "5 | 0.0 | 100.0 | 0.0",
+    "ktV (evalues | dans | sous | au dessus)" : "0 | - | - | -"
+  },
+  "03 periode 0 a 200 (le resultat apres 100 est le dernier)" : {
+    "hemoglobine" : "5 | 0.0 | 100.0 | 0.0",
+    "ktV (evalues | dans | sous | au dessus)" : "5 | 100.0 | 0.0 | 0.0"
+  },
+  "04 periode 20 a 40 (aucun resultat)" : {
+    "hemoglobine" : "0 | - | - | -",
+    "ktV (evalues | dans | sous | au dessus)" : "0 | - | - | -"
+  },
+  "05 borne incluse : du jour du resultat ancien au meme jour" : {
+    "hemoglobine" : "5 | 0.0 | 100.0 | 0.0"
+  }
+}

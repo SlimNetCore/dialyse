@@ -1,0 +1,40 @@
+{
+  "01 csv" : {
+    "disposition" : "attachment; filename=patient-stats-<PAT_A>.csv",
+    "lignes" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "\"<D+40>\",\"12.00\",,\"500.00\",,", "" ],
+    "status" : 200,
+    "type" : "text/csv"
+  },
+  "02 meme contenu que l'export par lecture" : true,
+  "03 pdf (format en majuscules et espaces)" : [ 200, "application/pdf" ],
+  "04 format absent" : {
+    "corps" : "400 INVALID_EXPORT_FORMAT",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/json"
+  },
+  "05 format inconnu" : {
+    "corps" : "400 INVALID_EXPORT_FORMAT",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/json"
+  },
+  "06 dateFrom posterieure a dateTo" : {
+    "corps" : "400 INVALID_DATE_RANGE",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/json"
+  },
+  "07 centre d'une autre session" : {
+    "corps" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "disposition" : null,
+    "status" : 403,
+    "type" : "application/problem+json"
+  },
+  "08 patientId absent" : {
+    "corps" : "400 VALIDATION_ERROR | Invalid request content.",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/problem+json"
+  }
+}

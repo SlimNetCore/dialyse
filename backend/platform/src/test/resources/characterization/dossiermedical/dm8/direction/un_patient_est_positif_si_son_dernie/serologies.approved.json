@@ -1,0 +1,10 @@
+{
+  "040 periode 0 a 40 : centre A (vhb | vhc | vih)" : "5 | 5 | 0",
+  "040 periode 0 a 40 : centre B" : "0 | 0 | 0",
+  "060 periode 0 a 60 : centre A (vhb | vhc | vih)" : "0 | 5 | 0",
+  "060 periode 0 a 60 : centre B" : "0 | 0 | 0",
+  "100 periode 0 a 100 : centre A (vhb | vhc | vih)" : "0 | 5 | 0",
+  "100 periode 0 a 100 : centre B" : "0 | 0 | 0",
+  "200 periode 0 a 200 : centre A (vhb | vhc | vih)" : "0 | 5 | 5",
+  "200 periode 0 a 200 : centre B" : "0 | 0 | 0"
+}

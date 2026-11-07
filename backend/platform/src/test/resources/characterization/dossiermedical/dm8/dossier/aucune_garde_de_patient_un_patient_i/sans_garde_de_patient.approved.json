@@ -1,0 +1,85 @@
+{
+  "01 POST pour un patient inconnu" : {
+    "corps" : {
+      "id" : "<DOSSIER_ORPHELIN>",
+      "patientId" : "<PATIENT_INCONNU>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "02 la session B ecrit pour un patient du centre A qui a deja un dossier" : "500 DATA_ACCESS_ERROR",
+  "03 etat apres l'ecriture croisee" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Conclusion fictive",
+    "creation" : "recent",
+    "date_mise_en_dialyse" : "<D+10>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "POSITIF",
+    "id" : "<DOSSIER_ORPHELIN>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Glomerulonephrite fictive",
+    "observation_globale" : "Observation fictive",
+    "patient_id" : "<PATIENT_INCONNU>"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : null,
+    "creation" : "fixe",
+    "date_mise_en_dialyse" : null,
+    "hepatite_b_statut" : null,
+    "hepatite_c_statut" : null,
+    "id" : "<DOS_A>",
+    "modification" : "jamais modifiee",
+    "nephropathie_initiale" : "Dossier du centre A",
+    "observation_globale" : null,
+    "patient_id" : "<PAT_A>"
+  } ],
+  "04 la session B ecrit pour un patient du centre A sans dossier" : {
+    "corps" : {
+      "id" : "<DOSSIER_CROISE>",
+      "patientId" : "<PAT_A2>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "05 la session A relit ce patient (le dossier est dans B : 404)" : 404,
+  "06 la session B relit ce patient du centre A (200)" : 200,
+  "07 la session A ecrit ensuite pour ce patient (second dossier, meme patient)" : "500 DATA_ACCESS_ERROR",
+  "08 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Conclusion fictive",
+    "creation" : "recent",
+    "date_mise_en_dialyse" : "<D+10>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "POSITIF",
+    "id" : "<DOSSIER_ORPHELIN>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Glomerulonephrite fictive",
+    "observation_globale" : "Observation fictive",
+    "patient_id" : "<PATIENT_INCONNU>"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : null,
+    "creation" : "fixe",
+    "date_mise_en_dialyse" : null,
+    "hepatite_b_statut" : null,
+    "hepatite_c_statut" : null,
+    "id" : "<DOS_A>",
+    "modification" : "jamais modifiee",
+    "nephropathie_initiale" : "Dossier du centre A",
+    "observation_globale" : null,
+    "patient_id" : "<PAT_A>"
+  }, {
+    "center_id" : "<CENTRE_B>",
+    "conclusion_medicale" : "Conclusion fictive",
+    "creation" : "recent",
+    "date_mise_en_dialyse" : "<D+10>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "POSITIF",
+    "id" : "<DOSSIER_CROISE>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Glomerulonephrite fictive",
+    "observation_globale" : "Observation fictive",
+    "patient_id" : "<PAT_A2>"
+  } ],
+  "09 patient du centre B inchange" : 1
+}

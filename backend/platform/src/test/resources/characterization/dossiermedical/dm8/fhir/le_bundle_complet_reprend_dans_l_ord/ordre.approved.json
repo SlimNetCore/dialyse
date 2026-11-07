@@ -1,0 +1,9 @@
+{
+  "01 statut et type" : "200 application/json",
+  "02 en-tete Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+  "03 enveloppe" : "Bundle | collection | 13 | <HORODATAGE>",
+  "04 le nombre d'entrees est le total" : true,
+  "05 cles de l'enveloppe" : [ "resourceType", "type", "timestamp", "total", "entry" ],
+  "06 entrees dans l'ordre" : [ "Patient <PAT_A>", "Condition <ANT_RECENT>", "Condition <ANT_ANCIEN>", "AllergyIntolerance <ALG_RECENTE>", "AllergyIntolerance <ALG_ANCIENNE>", "Observation <ANALYSE_1>-hbGDl", "Observation <ANALYSE_1>-ferritineNgMl", "Observation <ANALYSE_1>-ktVMensuel", "Observation <OBS_1>", "MedicationRequest <ORD_1_L1>", "MedicationRequest <ORD_1_L2>", "Procedure <ABORD_2>", "Procedure <ABORD_1>" ],
+  "07 aucune ecriture" : true
+}

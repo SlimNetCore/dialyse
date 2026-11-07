@@ -1,0 +1,36 @@
+{
+  "01 etat avant" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Conclusion avant",
+    "creation" : "fixe",
+    "date_mise_en_dialyse" : "<D+5>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "NEGATIF",
+    "id" : "<DOS_A>",
+    "modification" : "jamais modifiee",
+    "nephropathie_initiale" : "Avant",
+    "observation_globale" : "Observation avant",
+    "patient_id" : "<PAT_A>"
+  } ],
+  "02 POST de remplacement" : {
+    "corps" : {
+      "id" : "<DOS_A>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "03 etat apres (creation inchangee, ligne modifiee)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : null,
+    "creation" : "fixe",
+    "date_mise_en_dialyse" : null,
+    "hepatite_b_statut" : null,
+    "hepatite_c_statut" : null,
+    "id" : "<DOS_A>",
+    "modification" : "modifiee",
+    "nephropathie_initiale" : "Apres",
+    "observation_globale" : null,
+    "patient_id" : "<PAT_A>"
+  } ]
+}

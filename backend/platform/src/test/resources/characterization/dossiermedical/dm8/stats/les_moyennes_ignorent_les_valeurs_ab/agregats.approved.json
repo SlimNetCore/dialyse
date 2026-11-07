@@ -1,0 +1,51 @@
+{
+  "01 reponse complete" : {
+    "corps" : {
+      "avgFerritineNgMl" : 400.0,
+      "avgHbGDl" : 11.0,
+      "avgKtV" : 1.25,
+      "epoTrend" : [ {
+        "DATE_PRESCRIPTION" : "<HORODATAGE>",
+        "EPO_ARTICLE_ID" : null,
+        "EPO_DOSE_UI" : 4000,
+        "EPO_FREQUENCE_UNITE" : "SEMAINE",
+        "EPO_FREQUENCE_VALEUR" : 1,
+        "EPO_VOIE" : "SC"
+      }, {
+        "DATE_PRESCRIPTION" : "<HORODATAGE>",
+        "EPO_ARTICLE_ID" : null,
+        "EPO_DOSE_UI" : 6000,
+        "EPO_FREQUENCE_UNITE" : "SEMAINE",
+        "EPO_FREQUENCE_VALEUR" : 3,
+        "EPO_VOIE" : "IV"
+      }, {
+        "DATE_PRESCRIPTION" : "<HORODATAGE>",
+        "EPO_ARTICLE_ID" : null,
+        "EPO_DOSE_UI" : null,
+        "EPO_FREQUENCE_UNITE" : null,
+        "EPO_FREQUENCE_VALEUR" : null,
+        "EPO_VOIE" : null
+      } ],
+      "hbTrend" : [ {
+        "DATE_PRELEVEMENT" : "<HORODATAGE>",
+        "FERRITINE_NG_ML" : 300.0,
+        "HB_G_DL" : 10.0,
+        "KT_V_MENSUEL" : 1.0
+      }, {
+        "DATE_PRELEVEMENT" : "<HORODATAGE>",
+        "FERRITINE_NG_ML" : 500.0,
+        "HB_G_DL" : 12.0,
+        "KT_V_MENSUEL" : null
+      }, {
+        "DATE_PRELEVEMENT" : "<HORODATAGE>",
+        "FERRITINE_NG_ML" : null,
+        "HB_G_DL" : null,
+        "KT_V_MENSUEL" : 1.5
+      } ]
+    },
+    "status" : 200
+  },
+  "02 en-tete Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+  "03 lecture synthetique" : "avgHb=11.0 avgKtV=1.25 avgFerritine=400.0 ; hbTrend=[<D+10>:10.0/1.0/300.0, <D+40>:12.0//500.0, <D+70>:/1.5/] ; epoTrend=[<D+5>:4000 SC 1/SEMAINE, <D+35>:6000 IV 3/SEMAINE, <D+65>:  /]",
+  "04 aucune ecriture" : true
+}

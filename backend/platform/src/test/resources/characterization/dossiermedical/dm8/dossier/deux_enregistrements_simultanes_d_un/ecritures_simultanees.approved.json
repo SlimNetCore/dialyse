@@ -1,0 +1,8 @@
+{
+  "01 chaque requete rend 200 ou une erreur 5xx (aucun controle de version)" : true,
+  "02 au moins un enregistrement a reussi" : true,
+  "03 une seule ligne par patient" : true,
+  "04 premiere ecriture" : "200 <PAT_B>",
+  "05 seconde ecriture sans lecture prealable : la derniere gagne, les champs absents sont effaces" : "200 <PAT_B>",
+  "06 relecture" : "200 Seconde | -"
+}

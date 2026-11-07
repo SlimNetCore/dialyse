@@ -1,0 +1,8 @@
+{
+  "01 centres de la reponse" : [ "<CENTRE_A> | Centre A | true", "<CENTRE_B> | Centre B | true" ],
+  "02 centre A" : "5 | 100.0 | 0.0 | 0.0",
+  "03 centre B" : "5 | 100.0 | 0.0 | 0.0",
+  "04 totaux (10 patients, le centre d'une autre societe est ignore)" : "10 | 100.0 | 0.0 | 0.0",
+  "05 le centre d'une autre societe n'est pas liste" : true,
+  "06 centre B desactive : liste" : [ "<CENTRE_A> | Centre A | true", "<CENTRE_B> | Centre B | false" ]
+}

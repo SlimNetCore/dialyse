@@ -1,0 +1,13 @@
+{
+  "01 sexe 'M'" : "male",
+  "02 sexe 'F'" : "female",
+  "03 sexe 'MASCULIN'" : "male",
+  "04 sexe 'FEMININ'" : "female",
+  "05 sexe 'm'" : "male",
+  "06 sexe ' f '" : "female",
+  "07 sexe 'X'" : "unknown",
+  "08 sexe 'AUTRE'" : "unknown",
+  "09 sexe ''" : "unknown",
+  "10 statut" : 200,
+  "11 ressources" : [ "Patient : <PAT_B> | Patient PAT_B | Test | male | <D-9000> | urn:hemodialyse:numero-assurance | ASS-DM8-PAT_B", "Observation : <OBS_CORRIGE> | corrected | urn:hemodialyse:local-code | TEXTE | Resultat textuel | - | - | Positif fictif | <D+42>", "Observation : <OBS_PRELIMINAIRE> | preliminary | http://loinc.org | 2160-0 | - | 8.0 | mg/dL | - | <D+41>", "Observation : <OBS_FINAL> | final | http://loinc.org | 718-7 | Hemoglobine fictive | 12.1 | g/dL | - | <D+40>", "MedicationRequest : <ORD_ATC_L1> | active | order | http://www.whocc.no/atc | B03XA01 | Erythropoietine | <D+55> | medecin-fictif | 1 comprime par jour | orale | 30 | 2", "MedicationRequest : <ORD_ANNULEE_L1> | cancelled | order | - | - | Medicament fictif ORD_ANNULEE 1 | <D+53> | medecin-fictif | 1 comprime par jour | orale | 30 | 2", "MedicationRequest : <ORD_IMPRIMEE_L1> | active | order | - | - | Medicament fictif ORD_IMPRIMEE 1 | <D+52> | medecin-fictif | 1 comprime par jour | orale | 30 | 2", "MedicationRequest : <ORD_SIGNEE_L1> | active | order | - | - | Medicament fictif ORD_SIGNEE 1 | <D+51> | medecin-fictif | 1 comprime par jour | orale | 30 | 2", "MedicationRequest : <ORD_SIGNEE_L2> | active | order | - | - | Medicament fictif ORD_SIGNEE 2 | <D+51> | medecin-fictif | A la demande | - | - | -", "MedicationRequest : <ORD_BROUILLON_L1> | draft | order | - | - | Medicament fictif ORD_BROUILLON 1 | <D+50> | - | 1 comprime par jour | orale | 30 | 2", "Procedure : <ABORD_LOCALISATION_SEULE> | in-progress | KT_TUNNELISE | Jugulaire | <D-30> | - | -", "Procedure : <ABORD_SANS_LIEU> | in-progress | KT_AIGU | - | <D-40> | - | -", "Procedure : <ABORD_TERMINE> | completed | PTFE | DROIT | <D-50> | <D-20> | -", "Procedure : <ABORD_ACTIF> | in-progress | FAV | GAUCHE Avant-bras | <D-60> | - | Complication fictive" ]
+}

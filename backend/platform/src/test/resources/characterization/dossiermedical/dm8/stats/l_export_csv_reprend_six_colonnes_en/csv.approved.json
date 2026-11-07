@@ -1,0 +1,46 @@
+{
+  "01 export complet (ADMIN)" : {
+    "disposition" : "attachment; filename=patient-stats-<PAT_A>.csv",
+    "lignes" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "\"<D+10>\",\"10.00\",\"1.00\",\"300.00\",\"5.50\",\"9.00\"", "\"<D+40>\",\"12.00\",,\"500.00\",,", "\"<D+70>\",,\"1.50\",,\"6.00\",", "" ],
+    "status" : 200,
+    "type" : "text/csv"
+  },
+  "02 sur une periode" : {
+    "disposition" : "attachment; filename=patient-stats-<PAT_A>.csv",
+    "lignes" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "\"<D+40>\",\"12.00\",,\"500.00\",,", "" ],
+    "status" : 200,
+    "type" : "text/csv"
+  },
+  "03 patient sans donnee (en-tete seul)" : {
+    "disposition" : "attachment; filename=patient-stats-<PAT_SANS>.csv",
+    "lignes" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "" ],
+    "status" : 200,
+    "type" : "text/csv"
+  },
+  "04 format en majuscules" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "\"<D+70>\",,\"1.50\",,\"6.00\",", "" ],
+  "05 format entoure d'espaces" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "\"<D+70>\",,\"1.50\",,\"6.00\",", "" ],
+  "06 format inconnu" : {
+    "corps" : "400 INVALID_EXPORT_FORMAT",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/json"
+  },
+  "07 format absent" : {
+    "corps" : "500 INTERNAL_ERROR",
+    "disposition" : null,
+    "status" : 500,
+    "type" : "application/problem+json"
+  },
+  "08 format vide" : {
+    "corps" : "400 INVALID_EXPORT_FORMAT",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/json"
+  },
+  "09 from posterieur a to" : {
+    "corps" : "400 INVALID_DATE_RANGE",
+    "disposition" : null,
+    "status" : 400,
+    "type" : "application/json"
+  }
+}

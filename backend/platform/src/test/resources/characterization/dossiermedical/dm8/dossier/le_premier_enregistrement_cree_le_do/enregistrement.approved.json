@@ -1,0 +1,121 @@
+{
+  "01 premier POST (cree)" : {
+    "corps" : {
+      "id" : "<DOSSIER>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "02 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Conclusion fictive",
+    "creation" : "recent",
+    "date_mise_en_dialyse" : "<D+10>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "POSITIF",
+    "id" : "<DOSSIER>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Glomerulonephrite fictive",
+    "observation_globale" : "Observation fictive",
+    "patient_id" : "<PAT_A>"
+  } ],
+  "03 second POST avec un seul champ (les autres sont effaces, l'identifiant est conserve)" : {
+    "corps" : {
+      "id" : "<DOSSIER>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "04 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : null,
+    "creation" : "recent",
+    "date_mise_en_dialyse" : null,
+    "hepatite_b_statut" : null,
+    "hepatite_c_statut" : null,
+    "id" : "<DOSSIER>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Seul champ",
+    "observation_globale" : null,
+    "patient_id" : "<PAT_A>"
+  } ],
+  "05 PUT complet (meme effet que POST)" : {
+    "corps" : {
+      "id" : "<DOSSIER>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "06 relecture" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "conclusionMedicale" : "Conclusion fictive",
+      "createdAt" : "<HORODATAGE>",
+      "dateMiseEnDialyse" : "<D+10>",
+      "hepatiteBStatut" : "NEGATIF",
+      "hepatiteCStatut" : "POSITIF",
+      "id" : "<DOSSIER>",
+      "nephropathieInitiale" : "Glomerulonephrite fictive",
+      "observationGlobale" : "Observation fictive",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "07 PUT sur un patient sans dossier (cree aussi)" : {
+    "corps" : {
+      "id" : "<DOSSIER_PUT>",
+      "patientId" : "<PAT_PUT>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "08 POST d'un objet vide (cree un dossier sans aucune valeur)" : {
+    "corps" : {
+      "id" : "<DOSSIER_VIDE>",
+      "patientId" : "<PAT_VIDE>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "09 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Conclusion fictive",
+    "creation" : "recent",
+    "date_mise_en_dialyse" : "<D+10>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "POSITIF",
+    "id" : "<DOSSIER_PUT>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Glomerulonephrite fictive",
+    "observation_globale" : "Observation fictive",
+    "patient_id" : "<PAT_PUT>"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Conclusion fictive",
+    "creation" : "recent",
+    "date_mise_en_dialyse" : "<D+10>",
+    "hepatite_b_statut" : "NEGATIF",
+    "hepatite_c_statut" : "POSITIF",
+    "id" : "<DOSSIER>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : "Glomerulonephrite fictive",
+    "observation_globale" : "Observation fictive",
+    "patient_id" : "<PAT_A>"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : null,
+    "creation" : "recent",
+    "date_mise_en_dialyse" : null,
+    "hepatite_b_statut" : null,
+    "hepatite_c_statut" : null,
+    "id" : "<DOSSIER_VIDE>",
+    "modification" : "ligne creee par l application",
+    "nephropathie_initiale" : null,
+    "observation_globale" : null,
+    "patient_id" : "<PAT_VIDE>"
+  } ]
+}

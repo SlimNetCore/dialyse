@@ -1,0 +1,46 @@
+{
+  "01 reponse MEDECIN" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "conclusionMedicale" : "Conclusion fictive",
+      "createdAt" : "<HORODATAGE>",
+      "dateMiseEnDialyse" : "<D+30>",
+      "hepatiteBStatut" : "NEGATIF",
+      "hepatiteCStatut" : "POSITIF",
+      "id" : "<DOS_A>",
+      "nephropathieInitiale" : "Nephropathie diabetique fictive",
+      "observationGlobale" : "Observation fictive",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "02 en-tete Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+  "04 avec le centerId de la session" : 200,
+  "05 patient sans dossier" : {
+    "status" : 404
+  },
+  "06 patient inconnu" : {
+    "status" : 404
+  },
+  "07 dossier du centre B lu par la session A" : {
+    "status" : 404
+  },
+  "08 dossier du centre B lu par la session B (colonnes absentes : nulles)" : {
+    "corps" : {
+      "centerId" : "<CENTRE_B>",
+      "conclusionMedicale" : null,
+      "createdAt" : "<HORODATAGE>",
+      "dateMiseEnDialyse" : null,
+      "hepatiteBStatut" : null,
+      "hepatiteCStatut" : null,
+      "id" : "<DOS_B>",
+      "nephropathieInitiale" : "Nephropathie du centre B",
+      "observationGlobale" : null,
+      "patientId" : "<PAT_B>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "09 aucune ecriture" : true
+}

@@ -1,0 +1,6 @@
+{
+  "01 la base accepte un second dossier pour le meme patient" : false,
+  "02 lecture" : 200,
+  "03 lignes" : 1,
+  "04 ligne sans aucune date ni valeur (creation et modification nulles)" : [ "{status=200, corps={\"id\":\"<UUID_GENERE_1>\",\"patientId\":\"<PAT_B>\",\"centerId\":\"<CENTRE_A>\",\"nephropathieInitiale\":null,\"dateMiseEnDialyse\":null,\"hepatiteBStatut\":null,\"hepatiteCStatut\":null,\"observationGlobale\":null,\"conclusionMedicale\":null,\"createdAt\":null,\"updatedAt\":null}}" ]
+}

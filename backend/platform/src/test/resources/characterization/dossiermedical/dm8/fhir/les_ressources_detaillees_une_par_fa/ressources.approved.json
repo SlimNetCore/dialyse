@@ -1,0 +1,167 @@
+{
+  "01 Patient (premiere du bundle)" : {
+    "birthDate" : "<D-9000>",
+    "gender" : "female",
+    "id" : "<PAT_A>",
+    "identifier" : [ {
+      "system" : "urn:hemodialyse:numero-assurance",
+      "value" : "ASS-DM8-PAT_A"
+    } ],
+    "name" : [ {
+      "family" : "Patient PAT_A",
+      "given" : [ "Test" ]
+    } ],
+    "resourceType" : "Patient"
+  },
+  "02 Condition (premiere du bundle)" : {
+    "abatementDateTime" : "<D+80>",
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "resolved",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "text" : "Hypertension arterielle fictive"
+    },
+    "id" : "<ANT_RECENT>",
+    "onsetDateTime" : "<D+50>",
+    "resourceType" : "Condition",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  },
+  "03 AllergyIntolerance (premiere du bundle)" : {
+    "clinicalStatus" : {
+      "coding" : [ {
+        "code" : "suspectee",
+        "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical"
+      } ]
+    },
+    "code" : {
+      "coding" : [ {
+        "code" : "ARACHIDE",
+        "system" : "urn:hemodialyse:local-code"
+      } ]
+    },
+    "criticality" : "basse",
+    "id" : "<ALG_RECENTE>",
+    "patient" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "recordedDate" : "<D+60>",
+    "resourceType" : "AllergyIntolerance"
+  },
+  "04 Observation (premiere du bundle)" : {
+    "code" : {
+      "coding" : [ {
+        "code" : "HBGDL",
+        "display" : "Hémoglobine",
+        "system" : "urn:hemodialyse:local-code"
+      } ],
+      "text" : "Hémoglobine"
+    },
+    "effectiveDateTime" : "<D+30>",
+    "id" : "<ANALYSE_1>-hbGDl",
+    "resourceType" : "Observation",
+    "status" : "final",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "valueQuantity" : {
+      "unit" : "g/dL",
+      "value" : 11.5
+    }
+  },
+  "05 MedicationRequest (premiere du bundle)" : {
+    "authoredOn" : "<D+45>",
+    "dispenseRequest" : {
+      "quantity" : {
+        "value" : 2
+      }
+    },
+    "dosageInstruction" : [ {
+      "route" : {
+        "text" : "orale"
+      },
+      "text" : "1 comprime par jour",
+      "timing" : {
+        "repeat" : {
+          "duration" : 30,
+          "durationUnit" : "d"
+        }
+      }
+    } ],
+    "id" : "<ORD_1_L1>",
+    "intent" : "order",
+    "medicationCodeableConcept" : {
+      "text" : "Medicament fictif ORD_1 1"
+    },
+    "requester" : {
+      "display" : "medecin-fictif"
+    },
+    "resourceType" : "MedicationRequest",
+    "status" : "active",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  },
+  "06 Procedure (premiere du bundle)" : {
+    "bodySite" : [ {
+      "text" : "Jugulaire"
+    } ],
+    "code" : {
+      "text" : "KT_TUNNELISE"
+    },
+    "id" : "<ABORD_2>",
+    "performedPeriod" : {
+      "end" : "<D+5>",
+      "start" : "<D-10>"
+    },
+    "resourceType" : "Procedure",
+    "status" : "completed",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  },
+  "90 Observation issue d'un bilan d'analyses (ferritine) : cle d'identifiant composite" : {
+    "code" : {
+      "coding" : [ {
+        "code" : "FERRITINENGML",
+        "display" : "Ferritine",
+        "system" : "urn:hemodialyse:local-code"
+      } ],
+      "text" : "Ferritine"
+    },
+    "effectiveDateTime" : "<D+30>",
+    "id" : "<ANALYSE_1>-ferritineNgMl",
+    "resourceType" : "Observation",
+    "status" : "final",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "valueQuantity" : {
+      "unit" : "ng/mL",
+      "value" : 300.0
+    }
+  },
+  "91 MedicationRequest de la seconde ligne de l'ordonnance (sans posologie, voie, duree ni quantite)" : {
+    "authoredOn" : "<D+45>",
+    "dosageInstruction" : [ {
+      "text" : "A la demande"
+    } ],
+    "id" : "<ORD_1_L2>",
+    "intent" : "order",
+    "medicationCodeableConcept" : {
+      "text" : "Medicament fictif ORD_1 2"
+    },
+    "requester" : {
+      "display" : "medecin-fictif"
+    },
+    "resourceType" : "MedicationRequest",
+    "status" : "active",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    }
+  }
+}

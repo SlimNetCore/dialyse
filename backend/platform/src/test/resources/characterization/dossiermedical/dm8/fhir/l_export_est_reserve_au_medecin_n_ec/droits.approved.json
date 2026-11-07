@@ -1,0 +1,21 @@
+{
+  "01 profils" : {
+    "ADMIN" : "403 ACCESS_DENIED",
+    "ADMIN sans centre" : "403 ACCESS_DENIED",
+    "DIRECTION" : "403 ROLE_SCOPE",
+    "INFIRMIER + SECRETAIRE" : "403 ACCESS_DENIED",
+    "INFIRMIER seul" : "403 ACCESS_DENIED",
+    "MEDECIN + ADMIN" : "200",
+    "MEDECIN + INFIRMIER" : "200",
+    "MEDECIN seul" : "200",
+    "SECRETAIRE" : "403 ACCESS_DENIED",
+    "SUPERADMIN" : "403 ROLE_SCOPE",
+    "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE",
+    "anonyme" : "403",
+    "aucun role" : "403 ACCESS_DENIED",
+    "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED",
+    "role personnalise (CHEF_DE_SALLE)" : "403 ACCESS_DENIED"
+  },
+  "02 aucune ecriture" : true,
+  "03 journal d'audit (ni l'export, ni ses refus ne sont traces)" : [ ]
+}

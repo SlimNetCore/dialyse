@@ -1,0 +1,17 @@
+{
+  "01 session A vise le centre B" : {
+    "01 GET stats/medical centerId=B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "02 POST stats/medical/search centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "03 GET stats/export centerId=B (ADMIN)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "04 POST stats/export/search centre B (ADMIN)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "05 centerId inconnu" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "02 sessions particulieres" : {
+    "01 MEDECIN sans centre de session" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "02 ADMIN sans centre de session : export" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "03 SUPERADMIN + ADMIN (session A) : export du centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "04 session B lit le patient du centre A avec son propre centre : aucune donnee" : "avgHb=0.0 avgKtV=0.0 avgFerritine=0.0 ; hbTrend=[] ; epoTrend=[]",
+    "05 session B exporte le patient du centre A avec son propre centre (ADMIN B) : en-tete seul" : [ "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl", "" ]
+  },
+  "03 aucune ecriture" : true
+}

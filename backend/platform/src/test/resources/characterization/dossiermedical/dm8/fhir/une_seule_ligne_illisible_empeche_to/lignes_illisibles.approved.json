@@ -1,0 +1,11 @@
+{
+  "01 observation numerique sans unite" : "422 VALEUR_MESUREE_UNITE_REQUISE | L'unité est obligatoire pour une valeur numérique",
+  "02 observation de statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.observation.valueobject.StatutObservation.PERIME",
+  "03 antecedent de statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.antecedent.valueobject.StatutClinique.BIZARRE",
+  "04 antecedent CIM-10 de code mal forme" : "422 CONCEPT_CODE_INVALID_CIM10 | Code CIM-10 invalide : ZZZ",
+  "05 allergie de criticite inconnue" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.allergie.valueobject.CriticiteAllergie.MOYENNE",
+  "06 allergie de statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.allergie.valueobject.StatutVerificationAllergie.BIZARRE",
+  "07 allergie de systeme de codage inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.shared.valueobject.CodingSystem.XXX",
+  "08 ordonnance de statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.ordonnance.valueobject.StatutOrdonnance.BIZARRE",
+  "09 ordonnance sans ligne de statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.ordonnance.valueobject.StatutOrdonnance.BIZARRE"
+}

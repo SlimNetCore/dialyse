@@ -218,7 +218,24 @@
     "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/AlerteSerologieKdigo.java",
     "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/NiveauRisqueKdigo.java",
     "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/EvaluationEgfr.java",
-    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/StadeCkd.java"
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/StadeCkd.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/DossierMedicalPatient.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/DossierMedicalPatientRepositoryPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/DossierMedicalPatientUseCase.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/service/DossierMedicalPatientDomainService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/fhir/FhirExportService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/query/PatientStatsQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionIndicatorsQueryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/AnonymityPolicy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertPolicy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/DossierMedicalPatientRepositoryAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/DossierMedicalPatientJpaEntity.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/DossierMedicalPatientJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/PatientStatsSearchRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/UpsertDossierMedicalPatientRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/DossierMedicalPatientResponse.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DossierMedicalPatientRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/FhirExportRestController.java"
   ],
   "seamAllowed": []
 }

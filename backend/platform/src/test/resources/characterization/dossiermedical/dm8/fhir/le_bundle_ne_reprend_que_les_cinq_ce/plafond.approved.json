@@ -1,0 +1,9 @@
+{
+  "01 total du bundle" : 1001,
+  "02 observations exportees (501 en base)" : 500,
+  "03 la plus ancienne observation est ecartee" : true,
+  "04 la plus recente est conservee" : true,
+  "05 ordonnances exportees (501 en base)" : 500,
+  "06 la plus ancienne ordonnance est ecartee" : true,
+  "07 la plus recente est conservee" : true
+}
