@@ -1895,6 +1895,14 @@ SELECT center_id, id FROM demandes_examen WHERE statut = 'VALIDE' AND conclusion
 -- 7. Références souples de DM6 (KB-MED-44, NON corrigées ici) : observations liées à une demande inconnue ou d'un autre centre.
 SELECT o.center_id, count(*) AS observations_vers_demande_inconnue FROM observations_biologiques o WHERE o.demande_examen_id IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM demandes_examen d WHERE d.id = o.demande_examen_id AND d.center_id = o.center_id) GROUP BY o.center_id;
+-- 8. Demandes dont UNE LIGNE est illisible (nomenclature inconnue, code CIM10 / LOINC mal formé, code de plus de 20 caractères) : IGNORÉES par la liste
+--    (journal WARN « Demande d'examen <id> ignorée », identifiant seul) et introuvables (400) pour toute transition. Attendu : aucune ; sinon à expliquer avec les métiers.
+SELECT d.center_id, d.id, d.statut, l.id AS ligne, l.analyte_code_system FROM demandes_examen d JOIN lignes_demande_examen l ON l.demande_id = d.id
+ WHERE l.analyte_code IS NOT NULL AND l.analyte_code_system IS NOT NULL AND (l.analyte_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL')
+   OR length(trim(l.analyte_code)) > 20
+   OR (upper(l.analyte_code_system) = 'LOINC' AND upper(trim(l.analyte_code)) !~ '^[0-9]{1,5}-[0-9]$')
+   OR (upper(l.analyte_code_system) = 'CIM10' AND upper(trim(l.analyte_code)) !~ '^[A-Z][0-9]{2}(\.[0-9A-Z]{1,4})?$'));
 ```
+Limite de pagination (consignée, ADR 0082) : `total` compte les demandes aux statut et catégorie lisibles ; il peut donc dépasser le nombre d'éléments listés du nombre de demandes de la requête 8.
 Recette obligatoire AVANT bascule : (a) demander un examen avec un compte MEDECIN, le prélever, déclarer le résultat disponible, le valider (avec et sans conclusion), puis annuler une autre demande avant et après le résultat (422 après) ; (b) avec un compte d'un AUTRE centre : demande pour un patient inconnu = 404 `PATIENT_INTROUVABLE`, transition d'une demande du premier centre = 400 (jamais 200), `centerId` d'un autre centre dans le corps = 403 ; (c) un compte INFIRMIER ou SECRETAIRE reçoit 403 même avec un corps illisible ; (d) ADMIN : lit mais ne peut pas écrire (à confirmer avec les métiers). La requête 4 liste les demandes à expliquer avant toute correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
 Surveillance après déploiement : hausse attendue des 400 (corps, date, `urgent`, catégorie ou paramètre illisible, texte trop long, avant 500), des 404 (patient inconnu) et des 403 (corps illisible d'un profil sans droit). Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

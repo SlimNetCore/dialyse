@@ -59,6 +59,7 @@ for q in \
   "SELECT center_id, id, statut, categorie FROM demandes_examen WHERE statut NOT IN ('DEMANDE','PRELEVE','RESULTAT_DISPONIBLE','VALIDE','ANNULE') OR categorie NOT IN ('BIOLOGIE','IMAGERIE','FONCTIONNEL','ANAPATH')" \
   "SELECT d.center_id, count(*) AS patient_absent FROM demandes_examen d LEFT JOIN patients p ON p.id = d.patient_id AND p.center_id = d.center_id WHERE p.id IS NULL GROUP BY d.center_id" \
   "SELECT center_id, id FROM demandes_examen WHERE statut = 'VALIDE' AND conclusion IS NULL" \
+  "SELECT d.center_id, d.id, d.statut, l.id AS ligne, l.analyte_code_system FROM demandes_examen d JOIN lignes_demande_examen l ON l.demande_id = d.id WHERE l.analyte_code IS NOT NULL AND l.analyte_code_system IS NOT NULL AND (l.analyte_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL') OR length(trim(l.analyte_code)) > 20 OR (upper(l.analyte_code_system) = 'LOINC' AND upper(trim(l.analyte_code)) !~ '^[0-9]{1,5}-[0-9]\$') OR (upper(l.analyte_code_system) = 'CIM10' AND upper(trim(l.analyte_code)) !~ '^[A-Z][0-9]{2}(\\.[0-9A-Z]{1,4})?\$'))" \
   "SELECT o.center_id, count(*) AS observations_vers_demande_inconnue FROM observations_biologiques o WHERE o.demande_examen_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM demandes_examen d WHERE d.id = o.demande_examen_id AND d.center_id = o.center_id) GROUP BY o.center_id"; do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done

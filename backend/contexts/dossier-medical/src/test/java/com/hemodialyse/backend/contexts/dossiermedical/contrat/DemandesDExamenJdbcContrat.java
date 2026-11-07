@@ -65,6 +65,26 @@ abstract class DemandesDExamenJdbcContrat extends DemandesDExamenContrat {
     }
 
     @Test
+    void une_demande_dont_une_ligne_est_illisible_est_ignoree_a_chaque_lecture_sans_casser_les_autres() {
+        UUID bonne = poser("DEMANDE", "BIOLOGIE", LocalDate.of(2026, 1, 1));
+        UUID nomenclatureInconnue = poser("DEMANDE", "BIOLOGIE", LocalDate.of(2026, 1, 2));
+        jdbc().update("INSERT INTO lignes_demande_examen (id, demande_id, analyte_code_system, analyte_code) VALUES (?,?,?,?)", UUID.randomUUID(),
+                nomenclatureInconnue, "INCONNU", "X1");
+        UUID loincInvalide = poser("PRELEVE", "IMAGERIE", LocalDate.of(2026, 1, 3));
+        jdbc().update("INSERT INTO lignes_demande_examen (id, demande_id, analyte_code_system, analyte_code) VALUES (?,?,?,?)", UUID.randomUUID(),
+                loincInvalide, "LOINC", "pas-un-loinc");
+        for (int lecture = 0; lecture < 2; lecture++) {
+            var page = demandes().duPatient(CENTRE_A, PATIENT, 0, 10);
+            assertThat(page.items()).extracting(d -> d.id()).containsExactly(bonne);
+            // Limite consignée (ADR 0082) : le total compte les demandes aux statut et catégorie lisibles, donc aussi les deux ignorées.
+            assertThat(page.total()).isEqualTo(3);
+        }
+        assertThat(demandes().trouverEnVerrouillant(CENTRE_A, PATIENT, nomenclatureInconnue)).isEmpty();
+        assertThat(demandes().trouverEnVerrouillant(CENTRE_A, PATIENT, loincInvalide)).isEmpty();
+        assertThat(demandes().trouverEnVerrouillant(CENTRE_A, PATIENT, bonne)).isPresent();
+    }
+
+    @Test
     void une_demande_sans_ligne_en_base_est_listee_avec_une_liste_de_lignes_vide() {
         UUID id = UUID.randomUUID();
         jdbc().update("INSERT INTO demandes_examen (id, patient_id, center_id, prescripteur_id, date_demande, categorie, urgent, motif, statut, "

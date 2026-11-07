@@ -75,8 +75,8 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   éventuel, un motif et **au moins une ligne** (`DEMANDE_EXAMEN_LIGNE_REQUISE`) ;
   patient, centre et catégorie obligatoires (`DEMANDE_EXAMEN_CHAMPS_REQUIS`) ; date non future
   (`DEMANDE_EXAMEN_DATE_FUTURE`).
-- **RG-MED-040b** — Chaque ligne d'une demande d'examen exige un code LOINC ou, à défaut, un libellé
-  (`LIGNE_DEMANDE_EXAMEN_REQUISE`).
+- **RG-MED-040b** — Chaque ligne d'une demande d'examen exige un code d'examen (nomenclature LOINC, CIM10, ATC ou LOCAL) ou,
+  à défaut, un libellé (`LIGNE_DEMANDE_EXAMEN_REQUISE`).
 - **RG-MED-041** — **Machine à états** : `DEMANDE → PRELEVE → RESULTAT_DISPONIBLE → VALIDE` ; `ANNULE` possible
   **uniquement avant** que le résultat soit disponible ; `VALIDE` et `ANNULE` sont
   terminaux. Toute autre transition : `DEMANDE_EXAMEN_TRANSITION_INVALIDE`. La validation enregistre la conclusion du
@@ -89,8 +89,10 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   (b) **patient** : demander un examen pour un patient inconnu ou d'un autre centre est refusé en 404
   `PATIENT_INTROUVABLE` (avant : demande orpheline) ; la liste d'un patient inconnu reste une page vide en 200 ;
   (c) **introuvable** : une demande inconnue, d'un autre patient ou d'un autre centre reste un 400 `BAD_REQUEST` (contrat
-  conservé, à confirmer) ; une demande dont le statut ou la catégorie est illisible en base est ignorée par la liste
-  (elle ne la casse plus) ;
+  conservé, à confirmer) ; une demande dont le statut, la catégorie ou une ligne (nomenclature inconnue, code mal formé)
+  est illisible en base est ignorée par la liste (elle ne la casse plus ; avertissement dans le journal avec son seul
+  identifiant ; sa transition reste 400 « introuvable ») ; le total de la page compte les demandes aux statut et
+  catégorie lisibles, il peut donc dépasser le nombre d'éléments listés (limite consignée) ;
   (d) **entrées illisibles** : corps absent ou mal formé, date illisible, identifiant, `centerId`, `page`/`size`,
   catégorie ou `urgent` absents, nomenclature inconnue ou absente, texte plus long que sa colonne : 400 stable (avant :
   500), et 403 avant 400 pour un profil sans droit ;

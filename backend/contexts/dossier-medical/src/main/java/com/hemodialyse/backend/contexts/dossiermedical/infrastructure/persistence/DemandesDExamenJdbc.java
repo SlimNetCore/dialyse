@@ -12,6 +12,8 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.RegleDeGestionViol
 import com.hemodialyse.backend.contexts.dossiermedical.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.StatutDeDemandeDExamen;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.jdbc.UncategorizedSQLException;
@@ -25,7 +27,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +42,10 @@ import java.util.stream.Collectors;
  * commentaire, identifiant : KB-MED-36 corrigé ; un rang exigerait une migration, non décidée) ; la réponse à la création rend les
  * lignes dans l'ordre saisi. Une transition ne touche QUE l'en-tête (le legacy supprimait et recréait les lignes). Une demande dont
  * le statut ou la catégorie est illisible en base (donnée incohérente) est ignorée par toutes les lectures, comptage compris
- * (KB-MED-39 corrigé : elle ne casse plus la liste). Verrou : {@code SELECT ... FOR UPDATE} de la demande, gardé jusqu'à la fin de la
+ * (KB-MED-39 corrigé : elle ne casse plus la liste). Une demande dont UNE LIGNE est illisible (nomenclature inconnue, code invalide) est
+ * aussi ignorée (journal WARN avec son seul identifiant, à chaque lecture) ; LIMITE reproduite et consignée : le {@code total} compte les
+ * demandes aux statut et catégorie lisibles, donc peut dépasser le nombre d'éléments listés d'autant de demandes ignorées pour une ligne
+ * (le détecter en SQL exigerait de recopier les formats des nomenclatures). Verrou : {@code SELECT ... FOR UPDATE} de la demande, gardé jusqu'à la fin de la
  * transaction ; ordre global des verrous : centre, fiches (cette table), puis {@code app_user}, puis verrous consultatifs.
  */
 public class DemandesDExamenJdbc implements DemandesDExamen {
@@ -52,6 +59,8 @@ public class DemandesDExamenJdbc implements DemandesDExamen {
     private static final String LIGNES = "SELECT id, demande_id, analyte_code_system, analyte_code, analyte_code_display, libelle, commentaire "
             + "FROM lignes_demande_examen WHERE demande_id IN (%s) ORDER BY libelle NULLS LAST, analyte_code NULLS FIRST, "
             + "commentaire NULLS FIRST, id";
+
+    private static final Logger JOURNAL = LoggerFactory.getLogger(DemandesDExamenJdbc.class);
 
     private final JdbcTemplate jdbc;
 
@@ -110,7 +119,7 @@ public class DemandesDExamenJdbc implements DemandesDExamen {
         if (entetes.isEmpty()) return List.of();
         String marques = String.join(",", entetes.stream().map(e -> "?").toList());
         Map<UUID, List<LigneDeDemandeDExamen>> parDemande = new LinkedHashMap<>();
-        List<UUID> incoherentes = new ArrayList<>();
+        Set<UUID> incoherentes = new HashSet<>();
         jdbc.query(String.format(LIGNES, marques), rs -> {
             UUID demande = rs.getObject("demande_id", UUID.class);
             try {
@@ -120,7 +129,10 @@ public class DemandesDExamenJdbc implements DemandesDExamen {
                 parDemande.computeIfAbsent(demande, k -> new ArrayList<>()).add(new LigneDeDemandeDExamen(rs.getObject("id", UUID.class), code,
                         rs.getString("libelle"), rs.getString("commentaire")));
             } catch (SaisieInvalide | RegleDeGestionViolee illisible) {
-                incoherentes.add(demande);
+                // Ignorée À CHAQUE LECTURE, journalisée : identifiant de la demande SEULEMENT (aucune donnée de santé ni de patient).
+                if (incoherentes.add(demande)) {
+                    JOURNAL.warn("Demande d'examen {} ignorée : une de ses lignes est illisible en base (donnée incohérente)", demande);
+                }
             }
         }, entetes.stream().map(Entete::id).toArray());
         List<DemandeExamen> resultat = new ArrayList<>();

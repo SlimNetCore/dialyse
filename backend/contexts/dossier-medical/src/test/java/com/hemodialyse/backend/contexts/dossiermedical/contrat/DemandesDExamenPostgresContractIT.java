@@ -1,6 +1,24 @@
 package com.hemodialyse.backend.contexts.dossiermedical.contrat;
 
+import com.hemodialyse.backend.contexts.dossiermedical.domain.CategorieDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.LigneDeDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.StatutDeDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.transaction.UniteDeTravailSpring;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +48,44 @@ class DemandesDExamenPostgresContractIT extends DemandesDExamenJdbcContrat {
 
     @Autowired
     private JdbcTemplate jdbc;
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private PlatformTransactionManager transactions;
+
+    /**
+     * KB-MED-41 : deux connexions concurrentes. Une première connexion tient le verrou de la demande (SELECT ... FOR UPDATE, transaction
+     * ouverte) ; une transition par une seconde connexion attend {@code lock_timeout} puis lève l'écriture concurrente (SQLSTATE 55P03 vu
+     * par l'adapter réel) ; une fois le verrou libéré, la même transition réussit.
+     */
+    @Test
+    void une_seconde_ecriture_sur_une_demande_verrouillee_attend_le_delai_puis_leve_l_ecriture_concurrente() throws Exception {
+        var demande = DemandeExamen.demander(UUID.randomUUID(), PATIENT, CENTRE_A, "dr", LocalDate.of(2026, 1, 3), LocalDate.of(2026, 1, 3),
+                CategorieDExamen.BIOLOGIE, false, null,
+                List.of(LigneDeDemandeDExamen.nouvelle(UUID.randomUUID(), null, "Examen", null)), T0);
+        demandes().ajouter(demande);
+        var unite = new UniteDeTravailSpring(new TransactionTemplate(transactions), jdbc, Duration.ofMillis(500));
+        try (Connection verrou = dataSource.getConnection()) {
+            verrou.setAutoCommit(false);
+            try (PreparedStatement tient = verrou.prepareStatement("SELECT id FROM demandes_examen WHERE id = ? FOR UPDATE")) {
+                tient.setObject(1, demande.id());
+                tient.executeQuery();
+                long debut = System.nanoTime();
+                assertThatThrownBy(() -> unite.executer(() -> demandes().trouverEnVerrouillant(CENTRE_A, PATIENT, demande.id())))
+                        .isInstanceOf(EcritureConcurrenteSurUneDemandeDExamen.class);
+                assertThat(Duration.ofNanos(System.nanoTime() - debut)).isGreaterThanOrEqualTo(Duration.ofMillis(400));
+            } finally {
+                verrou.rollback();
+            }
+        }
+        var libre = unite.executer(() -> {
+            var chargee = demandes().trouverEnVerrouillant(CENTRE_A, PATIENT, demande.id()).orElseThrow();
+            chargee.enregistrerLePrelevement(T0.plusSeconds(60));
+            demandes().enregistrerLaTransition(chargee);
+            return chargee;
+        });
+        assertThat(libre.statut()).isEqualTo(StatutDeDemandeDExamen.PRELEVE);
+    }
 
     @BeforeEach
     void avant() {
