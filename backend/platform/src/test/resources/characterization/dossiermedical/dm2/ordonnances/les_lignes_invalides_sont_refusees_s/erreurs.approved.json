@@ -1,0 +1,21 @@
+{
+  "code ATC mal forme" : "200",
+  "code blanc avec libelle (le code est ignore)" : "200",
+  "code sans systeme" : "500 INTERNAL_ERROR",
+  "corps mal forme" : "500 INTERNAL_ERROR",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "date illisible" : "500 INTERNAL_ERROR",
+  "duree negative" : "422 LIGNE_ORDONNANCE_DUREE_INVALIDE",
+  "duree nulle" : "422 LIGNE_ORDONNANCE_DUREE_INVALIDE",
+  "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+  "libelle blanc sans code" : "422 LIGNE_ORDONNANCE_MEDICAMENT_REQUIS",
+  "ligne nulle" : "500 INTERNAL_ERROR",
+  "lignes absentes" : "500 INTERNAL_ERROR",
+  "liste de lignes vide" : "422 ORDONNANCE_LIGNE_REQUISE",
+  "ni code ni libelle" : "422 LIGNE_ORDONNANCE_MEDICAMENT_REQUIS",
+  "posologie absente" : "422 LIGNE_ORDONNANCE_POSOLOGIE_REQUISE",
+  "posologie blanche" : "422 LIGNE_ORDONNANCE_POSOLOGIE_REQUISE",
+  "quantite negative" : "422 LIGNE_ORDONNANCE_QUANTITE_INVALIDE",
+  "quantite nulle" : "422 LIGNE_ORDONNANCE_QUANTITE_INVALIDE",
+  "systeme inconnu" : "400 BAD_REQUEST"
+}

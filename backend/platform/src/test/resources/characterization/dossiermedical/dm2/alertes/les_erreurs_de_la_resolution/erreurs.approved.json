@@ -1,0 +1,8 @@
+{
+  "alerte d'un autre patient du meme centre" : "422 ALERTE_OBSERVANCE_INTROUVABLE",
+  "alerte du centre B depuis le centre A" : "422 ALERTE_OBSERVANCE_INTROUVABLE",
+  "alerte inconnue" : "422 ALERTE_OBSERVANCE_INTROUVABLE",
+  "centerId B demande (session A)" : "403 ACCESS_DENIED",
+  "centerId illisible" : "500 INTERNAL_ERROR",
+  "identifiant d'alerte illisible" : "500 INTERNAL_ERROR"
+}

@@ -1,0 +1,32 @@
+{
+  "1 - dernier jour de la periode, rien d'administre" : [ {
+    "alerte" : "RAPPEL_ECHEANCE",
+    "attendu / administre" : "8000 / 0 UI",
+    "centre" : "A",
+    "etat" : "ouverte",
+    "message" : "Il reste à administrer 8000 UI de EPO avant la fin de la période, le <J> (1 jour(s) restant(s)). Prescription : administré : 0 ui (0 administration(s)).",
+    "periode" : "<J-6> -> <J>",
+    "prescription" : "8000 x 1 par SEMAINE",
+    "traitement" : "EPO"
+  } ],
+  "2 - 4000 UI administrees, le rappel reste ouvert (message non mis a jour)" : [ {
+    "alerte" : "RAPPEL_ECHEANCE",
+    "attendu / administre" : "8000 / 0 UI",
+    "centre" : "A",
+    "etat" : "ouverte",
+    "message" : "Il reste à administrer 8000 UI de EPO avant la fin de la période, le <J> (1 jour(s) restant(s)). Prescription : administré : 0 ui (0 administration(s)).",
+    "periode" : "<J-6> -> <J>",
+    "prescription" : "8000 x 1 par SEMAINE",
+    "traitement" : "EPO"
+  } ],
+  "3 - dose soldee : le rappel est resolu automatiquement" : [ {
+    "alerte" : "RAPPEL_ECHEANCE",
+    "attendu / administre" : "8000 / 0 UI",
+    "centre" : "A",
+    "etat" : "resolue",
+    "message" : "Il reste à administrer 8000 UI de EPO avant la fin de la période, le <J> (1 jour(s) restant(s)). Prescription : administré : 0 ui (0 administration(s)).",
+    "periode" : "<J-6> -> <J>",
+    "prescription" : "8000 x 1 par SEMAINE",
+    "traitement" : "EPO"
+  } ]
+}

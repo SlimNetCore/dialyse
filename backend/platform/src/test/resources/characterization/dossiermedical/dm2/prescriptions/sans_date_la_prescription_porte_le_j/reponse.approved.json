@@ -1,0 +1,5 @@
+{
+  "corps" : [ "id", "patientId", "updatedAt" ],
+  "date par defaut" : "<DATE_DU_JOUR>",
+  "statut" : 200
+}

@@ -1,0 +1,12 @@
+[ {
+  "destination" : "/topic/center/<CENTRE_A>/events",
+  "message" : {
+    "centerId" : "<CENTRE_A>",
+    "payload" : {
+      "patientId" : "<PAT_A>",
+      "targetRoles" : "INFIRMIER,MEDECIN,ADMIN"
+    },
+    "timestamp" : "<HORODATAGE>",
+    "type" : "PRESCRIPTION_CHANGED"
+  }
+} ]

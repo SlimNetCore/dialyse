@@ -1,0 +1,28 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "datePrescription" : "<D+1>",
+    "id" : "<ORD_A1>",
+    "lignes" : [ {
+      "code" : null,
+      "codeDisplay" : null,
+      "codeSystem" : null,
+      "dureeJours" : null,
+      "id" : "<UUID_GENERE_1>",
+      "instructions" : null,
+      "libelle" : "Medicament fictif",
+      "posologie" : "1 par jour",
+      "quantite" : null,
+      "voie" : null
+    } ],
+    "medecinId" : "m",
+    "numero" : "ORD-00002",
+    "patientId" : "<PAT_A>",
+    "signedAt" : "<HORODATAGE>",
+    "statut" : "SIGNEE",
+    "updatedAt" : "<HORODATAGE>"
+  }
+}

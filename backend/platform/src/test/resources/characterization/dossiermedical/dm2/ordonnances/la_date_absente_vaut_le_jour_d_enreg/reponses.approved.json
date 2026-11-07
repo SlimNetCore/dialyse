@@ -1,0 +1,12 @@
+{
+  "medecinId quelconque (pas le compte connecte)" : {
+    "medecinId" : "n-importe-quel-texte",
+    "statut" : 200
+  },
+  "sans date ni medecin" : {
+    "datePrescription" : "<DATE_DU_JOUR>",
+    "etat" : "BROUILLON",
+    "medecinId" : null,
+    "statut" : 200
+  }
+}

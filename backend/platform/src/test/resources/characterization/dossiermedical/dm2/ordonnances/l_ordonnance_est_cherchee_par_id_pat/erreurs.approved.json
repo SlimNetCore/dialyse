@@ -1,0 +1,13 @@
+{
+  "DELETE (route inexistante)" : "500 INTERNAL_ERROR",
+  "GET d'une ordonnance seule (route inexistante)" : "500 INTERNAL_ERROR",
+  "PUT de modification du contenu (route inexistante)" : "500 INTERNAL_ERROR",
+  "corps de transition absent" : "500 INTERNAL_ERROR",
+  "corps de transition avec le centre B (session A)" : "403 ACCESS_DENIED",
+  "corps de transition sans centre (centre de la session)" : "200",
+  "identifiant d'ordonnance illisible" : "500 INTERNAL_ERROR",
+  "ordonnance du centre B signee par le centre A" : "400 BAD_REQUEST",
+  "ordonnance du patient A lue sous le patient A2" : "400 BAD_REQUEST",
+  "ordonnance inconnue" : "400 BAD_REQUEST",
+  "temoin : ordonnance du patient A signee sous le patient A" : "200"
+}

@@ -1,0 +1,33 @@
+[ {
+  "administre_par" : null,
+  "administree" : "true",
+  "article_id" : null,
+  "center_id" : "<CENTRE_A>",
+  "date_administration" : "<D+3>",
+  "dose" : "4000.000",
+  "molecule" : "Epoetine fictive",
+  "motif_non_administration" : null,
+  "patient_id" : "<PAT_A>",
+  "prescription_medicale_id" : null,
+  "quantite_article" : null,
+  "seance_id" : null,
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI",
+  "voie" : "SC"
+}, {
+  "administre_par" : null,
+  "administree" : "true",
+  "article_id" : null,
+  "center_id" : "<CENTRE_A>",
+  "date_administration" : "<D+4>",
+  "dose" : "4000.000",
+  "molecule" : "Epoetine fictive",
+  "motif_non_administration" : null,
+  "patient_id" : "<PAT_B>",
+  "prescription_medicale_id" : null,
+  "quantite_article" : null,
+  "seance_id" : null,
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI",
+  "voie" : "SC"
+} ]

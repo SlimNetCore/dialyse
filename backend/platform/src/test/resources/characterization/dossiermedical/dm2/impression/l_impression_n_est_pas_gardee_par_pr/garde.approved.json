@@ -1,0 +1,30 @@
+{
+  "profils (ordonnance du centre A, centre A dans le corps)" : {
+    "ADMIN" : "200 (true)",
+    "ADMIN sans centre" : "200 (true)",
+    "DIRECTION" : "403 {\"code\":\"ROLE_SCOPE\",\"title\":\"Accès refusé\",\"detail\":\"Ce profil n'a pas accès à cette ressource.\"}",
+    "INFIRMIER + SECRETAIRE" : "200 (true)",
+    "INFIRMIER seul" : "200 (true)",
+    "MEDECIN + ADMIN" : "200 (true)",
+    "MEDECIN + INFIRMIER" : "200 (true)",
+    "MEDECIN seul" : "200 (true)",
+    "SECRETAIRE" : "200 (true)",
+    "SUPERADMIN" : "403 {\"code\":\"ROLE_SCOPE\",\"title\":\"Accès refusé\",\"detail\":\"Ce profil n'a pas accès à cette ressource.\"}",
+    "SUPERADMIN + ADMIN" : "403 {\"code\":\"ROLE_SCOPE\",\"title\":\"Accès refusé\",\"detail\":\"Ce profil n'a pas accès à cette ressource.\"}",
+    "aucun role" : "200 (true)",
+    "role inconnu (COMPTABLE)" : "200 (true)",
+    "role personnalise (CHEF_DE_SALLE)" : "200 (true)"
+  },
+  "session A, centre A dans le corps, ordonnance du centre B" : {
+    "chaines du classeur" : [ ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  },
+  "session A, centre B dans le corps, ordonnance du centre B" : {
+    "chaines du classeur" : [ "Centre P2 B", "ORDONNANCE", "N° ORD-00004", "Patient :", "Patient PAT_B Test", "Né(e) le :", "N° Assurance :", "ASS-DM2-PAT_B", "Date :", "  Médicament", "Medicament fictif ORD_B", "1 comprime par jour — orale — 30 jours — Qté : 1", "Imprimé le <HORODATAGE_IMPRESSION>", "Prescripteur : medecin-fictif" ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  }
+}

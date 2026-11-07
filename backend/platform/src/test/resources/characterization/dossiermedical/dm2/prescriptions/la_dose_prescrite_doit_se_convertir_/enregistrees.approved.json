@@ -1,0 +1,26 @@
+[ {
+  "epo_article" : "oui",
+  "epo_dose_ui" : null,
+  "fer_article" : "non",
+  "fer_dose_mg" : null
+}, {
+  "epo_article" : "non",
+  "epo_dose_ui" : null,
+  "fer_article" : "oui",
+  "fer_dose_mg" : "200"
+}, {
+  "epo_article" : "oui",
+  "epo_dose_ui" : "0",
+  "fer_article" : "non",
+  "fer_dose_mg" : null
+}, {
+  "epo_article" : "oui",
+  "epo_dose_ui" : "8000",
+  "fer_article" : "non",
+  "fer_dose_mg" : null
+}, {
+  "epo_article" : "non",
+  "epo_dose_ui" : "8000",
+  "fer_article" : "non",
+  "fer_dose_mg" : "100"
+} ]

@@ -1,0 +1,20 @@
+{
+  "ANNULEE" : {
+    "chaines du classeur" : [ "Centre P2 A", "ORDONNANCE", "N° ORD-00017", "Patient :", "Patient PAT_A Test", "Né(e) le :", "N° Assurance :", "ASS-DM2-PAT_A", "Date :", "  Médicament", "Medicament fictif ORD_ANNULEE", "1 comprime par jour — orale — 30 jours — Qté : 1", "Imprimé le <HORODATAGE_IMPRESSION>", "Prescripteur : medecin-fictif" ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  },
+  "BROUILLON" : {
+    "chaines du classeur" : [ "Centre P2 A", "ORDONNANCE", "N° null", "Patient :", "Patient PAT_A Test", "Né(e) le :", "N° Assurance :", "ASS-DM2-PAT_A", "Date :", "  Médicament", "Medicament fictif ORD_BROUILLON", "1 comprime par jour — orale — 30 jours — Qté : 1", "Imprimé le <HORODATAGE_IMPRESSION>", "Prescripteur : medecin-fictif" ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  },
+  "IMPRIMEE" : {
+    "chaines du classeur" : [ "Centre P2 A", "ORDONNANCE", "N° ORD-00018", "Patient :", "Patient PAT_A Test", "Né(e) le :", "N° Assurance :", "ASS-DM2-PAT_A", "Date :", "  Médicament", "Medicament fictif ORD_IMPRIMEE", "1 comprime par jour — orale — 30 jours — Qté : 1", "Imprimé le <HORODATAGE_IMPRESSION>", "Prescripteur : medecin-fictif" ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  }
+}

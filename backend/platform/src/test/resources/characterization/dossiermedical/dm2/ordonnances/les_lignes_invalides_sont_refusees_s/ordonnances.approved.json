@@ -1,0 +1,19 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+1>",
+  "id" : "<UUID_GENERE_1>",
+  "medecin_id" : "m",
+  "numero" : null,
+  "patient_id" : "<PAT_A>",
+  "signee" : "non",
+  "statut" : "BROUILLON"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+1>",
+  "id" : "<UUID_GENERE_2>",
+  "medecin_id" : "m",
+  "numero" : null,
+  "patient_id" : "<PAT_A>",
+  "signee" : "non",
+  "statut" : "BROUILLON"
+} ]

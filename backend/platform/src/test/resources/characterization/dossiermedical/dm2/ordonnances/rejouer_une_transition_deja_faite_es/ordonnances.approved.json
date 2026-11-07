@@ -1,0 +1,10 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+1>",
+  "id" : "<ORD>",
+  "medecin_id" : "m",
+  "numero" : "ORD-00001",
+  "patient_id" : "<PAT_A>",
+  "signee" : "oui",
+  "statut" : "ANNULEE"
+} ]

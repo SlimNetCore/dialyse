@@ -1,0 +1,29 @@
+[ {
+  "action_code" : "PATIENTS_SUPPRESSION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/patients/{patientId}/prescriptions/{prescriptionId}",
+  "status_code" : "204"
+}, {
+  "action_code" : "PATIENTS_SUPPRESSION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/patients/{patientId}/prescriptions/{prescriptionId}",
+  "status_code" : "204"
+}, {
+  "action_code" : "PATIENTS_SUPPRESSION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/patients/{patientId}/prescriptions/{prescriptionId}",
+  "status_code" : "204"
+}, {
+  "action_code" : "PATIENTS_SUPPRESSION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/patients/{patientId}/prescriptions/{prescriptionId}",
+  "status_code" : "500"
+} ]

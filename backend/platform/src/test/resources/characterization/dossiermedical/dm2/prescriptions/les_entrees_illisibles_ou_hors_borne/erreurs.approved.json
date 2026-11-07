@@ -1,0 +1,14 @@
+{
+  "anticoagulant long (> 20)" : "500 DATA_ACCESS_ERROR",
+  "centerId illisible" : "500 INTERNAL_ERROR",
+  "corps mal forme" : "500 INTERNAL_ERROR",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "date future acceptee" : "200",
+  "date illisible" : "500 INTERNAL_ERROR",
+  "doses et cibles negatives acceptees" : "200",
+  "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+  "medecinId illisible" : "500 INTERNAL_ERROR",
+  "patient inconnu accepte" : "200",
+  "type de dialyseur long (> 100)" : "500 DATA_ACCESS_ERROR",
+  "unite de frequence inconnue" : "500 INTERNAL_ERROR"
+}

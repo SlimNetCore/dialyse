@@ -1,0 +1,73 @@
+{
+  "depuis ANNULEE" : {
+    "annuler" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULEE"
+    },
+    "imprimer" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULEE"
+    },
+    "signer" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULEE"
+    }
+  },
+  "depuis BROUILLON" : {
+    "annuler" : {
+      "numero" : null,
+      "reponse" : "200",
+      "signee" : false,
+      "statut" : "ANNULEE",
+      "statut en base" : "ANNULEE"
+    },
+    "imprimer" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "BROUILLON"
+    },
+    "signer" : {
+      "numero" : "ORD-00001",
+      "reponse" : "200",
+      "signee" : true,
+      "statut" : "SIGNEE",
+      "statut en base" : "SIGNEE"
+    }
+  },
+  "depuis IMPRIMEE" : {
+    "annuler" : {
+      "numero" : "ORD-00042",
+      "reponse" : "200",
+      "signee" : true,
+      "statut" : "ANNULEE",
+      "statut en base" : "ANNULEE"
+    },
+    "imprimer" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "IMPRIMEE"
+    },
+    "signer" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "IMPRIMEE"
+    }
+  },
+  "depuis SIGNEE" : {
+    "annuler" : {
+      "numero" : "ORD-00042",
+      "reponse" : "200",
+      "signee" : true,
+      "statut" : "ANNULEE",
+      "statut en base" : "ANNULEE"
+    },
+    "imprimer" : {
+      "numero" : "ORD-00042",
+      "reponse" : "200",
+      "signee" : true,
+      "statut" : "IMPRIMEE",
+      "statut en base" : "IMPRIMEE"
+    },
+    "signer" : {
+      "reponse" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+      "statut en base" : "SIGNEE"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "EPO 0 UI (ignoree)" : "200",
+  "EPO 8000 UI sur article dose 4000 UI" : "200",
+  "EPO sans dose" : "200",
+  "EPO sur article sans dosage (1:1 impossible)" : "422 ARTICLE_DOSAGE_NON_DEFINI",
+  "article EPO (UI) prescrit comme fer (mg) : unite incompatible" : "422 ARTICLE_UNITE_DOSE_INCOMPATIBLE",
+  "dose sans article" : "200",
+  "fer 200 mg sur article dosage 100 mg" : "200"
+}

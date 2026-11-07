@@ -1,0 +1,23 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "administrePar" : null,
+    "administree" : false,
+    "articleId" : null,
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateAdministration" : "<D+3>",
+    "dose" : null,
+    "id" : "<UUID_GENERE_1>",
+    "molecule" : "Fer fictif",
+    "motifNonAdministration" : "Patient absent",
+    "patientId" : "<PAT_A>",
+    "prescriptionMedicaleId" : null,
+    "quantiteArticle" : null,
+    "seanceId" : null,
+    "typeTraitement" : "FER_INJECTABLE",
+    "uniteDose" : null,
+    "voie" : null
+  }
+}

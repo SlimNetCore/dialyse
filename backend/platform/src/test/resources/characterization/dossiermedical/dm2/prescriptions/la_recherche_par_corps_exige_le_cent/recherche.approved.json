@@ -1,0 +1,36 @@
+{
+  "centre B (session A)" : "403 ACCESS_DENIED",
+  "centre absent" : "400 VALIDATION_ERROR",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "dates inversees" : "400 BAD_REQUEST",
+  "filtre de dates" : {
+    "items" : [ "<D+2> qb=302" ],
+    "size" : 2,
+    "statut" : 200,
+    "total" : 1
+  },
+  "page 0 taille 2" : {
+    "items" : [ "<D+3> qb=303", "<D+2> qb=302" ],
+    "size" : 2,
+    "statut" : 200,
+    "total" : 3
+  },
+  "page et taille absentes" : "500 INTERNAL_ERROR",
+  "page negative" : "400 VALIDATION_ERROR",
+  "patient B, centre A" : {
+    "items" : [ ],
+    "size" : 2,
+    "statut" : 200,
+    "total" : 0
+  },
+  "patient absent" : "400 VALIDATION_ERROR",
+  "taille 0" : "400 VALIDATION_ERROR",
+  "taille 200" : {
+    "items" : [ "<D+3> qb=303", "<D+2> qb=302", "<D+1> qb=301" ],
+    "size" : 200,
+    "statut" : 200,
+    "total" : 3
+  },
+  "taille 201" : "400 VALIDATION_ERROR",
+  "taille absente" : "500 INTERNAL_ERROR"
+}

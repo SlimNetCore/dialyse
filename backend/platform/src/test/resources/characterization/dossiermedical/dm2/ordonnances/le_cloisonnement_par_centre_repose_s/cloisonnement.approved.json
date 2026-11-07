@@ -1,0 +1,22 @@
+{
+  "MEDECIN sans centre de session" : "403 ACCESS_DENIED",
+  "SUPERADMIN + MEDECIN lit le centre B depuis la session A" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN signe au centre B une ordonnance du centre A" : "403 ROLE_SCOPE",
+  "creation avec le centre B dans le corps (session A)" : "403 ACCESS_DENIED",
+  "creation sans centre dans le corps (centre de la session)" : "200",
+  "liste avec centerId du centre B (session A)" : "403 ACCESS_DENIED",
+  "liste du patient A par le centre B (centre de la session)" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 5,
+    "statut" : 200,
+    "total" : 0
+  },
+  "liste du patient B par le centre A (centre de la session)" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 5,
+    "statut" : 200,
+    "total" : 0
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "3 par semaine avec 1 administration de 8000 UI : le reste est une quantite, en nombre d'administrations arrondi au-dessus" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 8000,
+        "doseAttendue" : 24000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 16000,
+        "dosesAdministrees" : 1,
+        "dosesAttendues" : 3,
+        "dosesRestantes" : 2,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "EPO 8000 UI par semaine, ancree a J-2, rien d'administre" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 8000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "aucune prescription" : {
+    "observance" : {
+      "epo" : null,
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "dose soldee (2 x 4000 UI) : plus rien a administrer" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 8000,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 0,
+        "dosesAdministrees" : 2,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 0,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "prescription sans dose : on compte les administrations (1 par semaine)" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : null,
+        "doseAttendue" : null,
+        "dosePrescrite" : null,
+        "doseRestante" : null,
+        "dosesAdministrees" : 1,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 0,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : null
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "une administration de 4000 UI sur 8000 attendues" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 4000,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 1,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  }
+}

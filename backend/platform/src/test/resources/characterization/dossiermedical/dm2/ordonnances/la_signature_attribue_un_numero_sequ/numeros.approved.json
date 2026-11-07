@@ -1,0 +1,7 @@
+[ {
+  "ORD_A2 signee en premier" : "ORD-00001 / SIGNEE"
+}, {
+  "ORD_A1 signee en second" : "ORD-00002"
+}, {
+  "ORD_B1 (autre centre : sa propre sequence)" : "ORD-00001"
+} ]

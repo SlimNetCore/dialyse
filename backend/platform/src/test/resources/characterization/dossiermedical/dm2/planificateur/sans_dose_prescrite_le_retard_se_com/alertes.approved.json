@@ -1,0 +1,10 @@
+[ {
+  "alerte" : "RETARD_CONSTATE",
+  "attendu / administre" : "2 / 1 null",
+  "centre" : "A",
+  "etat" : "ouverte",
+  "message" : "Retard constaté sur le traitement EPO : la période du <J-10> au <J-4> est terminée et la prescription n'a pas été entièrement administrée. Prescription : 2 administration(s) par semaine. Administré : 1 administration(s). Il manque 1 administration(s). La période est close : l'acquitter une fois le constat pris en compte.",
+  "periode" : "<J-10> -> <J-4>",
+  "prescription" : "null x 2 par SEMAINE",
+  "traitement" : "EPO"
+} ]

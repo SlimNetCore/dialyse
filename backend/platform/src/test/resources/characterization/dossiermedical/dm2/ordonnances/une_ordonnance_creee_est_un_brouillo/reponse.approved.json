@@ -1,0 +1,39 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "datePrescription" : "<D+3>",
+    "id" : "<UUID_GENERE_1>",
+    "lignes" : [ {
+      "code" : "B03XA02",
+      "codeDisplay" : "Darbepoetine fictive",
+      "codeSystem" : "ATC",
+      "dureeJours" : 28,
+      "id" : "<UUID_GENERE_2>",
+      "instructions" : "A conserver au froid",
+      "libelle" : "Epoetine fictive",
+      "posologie" : "1 injection par semaine",
+      "quantite" : 4,
+      "voie" : "SC"
+    }, {
+      "code" : null,
+      "codeDisplay" : null,
+      "codeSystem" : null,
+      "dureeJours" : null,
+      "id" : "<UUID_GENERE_3>",
+      "instructions" : null,
+      "libelle" : "Paracetamol fictif",
+      "posologie" : "1 comprime si douleur",
+      "quantite" : null,
+      "voie" : null
+    } ],
+    "medecinId" : "medecin-fictif",
+    "numero" : null,
+    "patientId" : "<PAT_A>",
+    "signedAt" : null,
+    "statut" : "BROUILLON",
+    "updatedAt" : "<HORODATAGE>"
+  }
+}

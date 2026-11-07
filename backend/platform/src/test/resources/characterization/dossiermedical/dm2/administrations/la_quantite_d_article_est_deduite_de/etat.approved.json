@@ -1,0 +1,17 @@
+[ {
+  "administre_par" : null,
+  "administree" : "true",
+  "article_id" : "<EPO>",
+  "center_id" : "<CENTRE_A>",
+  "date_administration" : "<D+3>",
+  "dose" : "8000.000",
+  "molecule" : null,
+  "motif_non_administration" : null,
+  "patient_id" : "<PAT_A>",
+  "prescription_medicale_id" : null,
+  "quantite_article" : "2.000",
+  "seance_id" : null,
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI",
+  "voie" : null
+} ]

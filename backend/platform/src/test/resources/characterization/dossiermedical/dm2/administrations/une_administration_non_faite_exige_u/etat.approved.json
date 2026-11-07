@@ -1,0 +1,17 @@
+[ {
+  "administre_par" : null,
+  "administree" : "false",
+  "article_id" : null,
+  "center_id" : "<CENTRE_A>",
+  "date_administration" : "<D+3>",
+  "dose" : null,
+  "molecule" : "Fer fictif",
+  "motif_non_administration" : "Patient absent",
+  "patient_id" : "<PAT_A>",
+  "prescription_medicale_id" : null,
+  "quantite_article" : null,
+  "seance_id" : null,
+  "type_traitement" : "FER_INJECTABLE",
+  "unite_dose" : null,
+  "voie" : null
+} ]

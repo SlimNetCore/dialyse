@@ -1,0 +1,36 @@
+[ {
+  "action_code" : "PATIENTS_CREATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/ordonnances",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/ordonnances/{ordonnanceId}/annuler",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/ordonnances/{ordonnanceId}/annuler",
+  "status_code" : "422"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/ordonnances/{ordonnanceId}/imprimer",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/ordonnances/{ordonnanceId}/signer",
+  "status_code" : "200"
+} ]

@@ -1,0 +1,7 @@
+{
+  "annuler" : "200",
+  "annuler une seconde fois" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+  "imprimer" : "200",
+  "imprimer une seconde fois (la reimpression n'est pas une transition)" : "422 ORDONNANCE_TRANSITION_INVALIDE",
+  "signer une seconde fois" : "422 ORDONNANCE_TRANSITION_INVALIDE"
+}

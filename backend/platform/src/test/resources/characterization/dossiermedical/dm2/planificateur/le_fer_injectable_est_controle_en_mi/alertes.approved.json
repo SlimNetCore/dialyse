@@ -1,0 +1,10 @@
+[ {
+  "alerte" : "RETARD_CONSTATE",
+  "attendu / administre" : "200 / 100 mg",
+  "centre" : "A",
+  "etat" : "ouverte",
+  "message" : "Retard constaté sur le traitement fer injectable : la période du <J-10> au <J-4> est terminée et la prescription n'a pas été entièrement administrée. Prescription : 200 mg x 1 par semaine, soit 200 mg attendus sur la période. Administré : 100 mg (1 administration(s)). Il manque 100 mg. La période est close : l'acquitter une fois le constat pris en compte.",
+  "periode" : "<J-10> -> <J-4>",
+  "prescription" : "200 x 1 par SEMAINE",
+  "traitement" : "FER_INJECTABLE"
+} ]

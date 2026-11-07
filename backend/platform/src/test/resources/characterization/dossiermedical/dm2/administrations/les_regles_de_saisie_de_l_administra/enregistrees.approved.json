@@ -1,0 +1,37 @@
+[ {
+  "administree" : "false",
+  "dose" : null,
+  "jour" : "date nommee",
+  "motif_non_administration" : "Refus du patient",
+  "prescription" : "non",
+  "seance" : "non",
+  "type_traitement" : "EPO",
+  "unite_dose" : null
+}, {
+  "administree" : "true",
+  "dose" : "100.000",
+  "jour" : "date nommee",
+  "motif_non_administration" : null,
+  "prescription" : "non",
+  "seance" : "non",
+  "type_traitement" : "EPO",
+  "unite_dose" : "mg"
+}, {
+  "administree" : "true",
+  "dose" : "4000.000",
+  "jour" : "date future",
+  "motif_non_administration" : null,
+  "prescription" : "non",
+  "seance" : "non",
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI"
+}, {
+  "administree" : "true",
+  "dose" : "4000.000",
+  "jour" : "date nommee",
+  "motif_non_administration" : null,
+  "prescription" : "oui",
+  "seance" : "oui",
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI"
+} ]

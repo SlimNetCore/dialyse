@@ -1,0 +1,8 @@
+[ {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<ALERTE_A>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/alertes-observance/{alerteId}/resoudre",
+  "status_code" : "200"
+} ]

@@ -1,0 +1,41 @@
+{
+  "articles d'un autre centre et inconnu" : 200,
+  "creation" : 200,
+  "lecture" : {
+    "items" : [ "<D+2> <UUID_GENERE_1>" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 1
+  },
+  "lecture des articles etrangers" : {
+    "centerId" : "<CENTRE_A>",
+    "datePrescription" : "<D+3>",
+    "epoDoseUi" : "4000",
+    "epoFrequenceUnite" : "SEMAINE",
+    "epoFrequenceValeur" : "1",
+    "ferDoseMg" : "50",
+    "id" : "<UUID_GENERE_2>",
+    "patientId" : "<PAT_A>",
+    "qbCible" : "300"
+  },
+  "prescription lue" : {
+    "centerId" : "<CENTRE_A>",
+    "datePrescription" : "<D+2>",
+    "epoArticleCode" : "EPO-FICT",
+    "epoArticleLibelle" : "Article fictif EPO-FICT",
+    "epoDoseUi" : "8000",
+    "epoFrequenceUnite" : "SEMAINE",
+    "epoFrequenceValeur" : "1",
+    "epoVoie" : "SC",
+    "ferArticleCode" : "FER-FICT",
+    "ferArticleLibelle" : "Article fictif FER-FICT",
+    "ferDoseMg" : "100",
+    "ferFrequenceUnite" : "MOIS",
+    "ferFrequenceValeur" : "2",
+    "ferVoie" : "IV",
+    "id" : "<UUID_GENERE_1>",
+    "patientId" : "<PAT_A>",
+    "qbCible" : "300"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "MEDECIN sans centre de session" : "403 ACCESS_DENIED",
+  "SUPERADMIN + MEDECIN" : "403 ROLE_SCOPE",
+  "creation avec centerId B (session A)" : "403 ACCESS_DENIED",
+  "creation sans centre : centre de la session" : "200",
+  "liste avec centerId B (session A)" : {
+    "statut" : "403 ACCESS_DENIED"
+  },
+  "liste du patient A par le centre B" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  },
+  "liste du patient B par le centre A" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  }
+}

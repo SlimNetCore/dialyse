@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "cle" : "SEQ_ORD",
+  "dernier_compteur" : "2",
+  "prefixe" : "ORD-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "cle" : "SEQ_ORD",
+  "dernier_compteur" : "1",
+  "prefixe" : "ORD-"
+} ]

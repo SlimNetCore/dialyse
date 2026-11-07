@@ -1,0 +1,63 @@
+{
+  "centerId B (session A)" : {
+    "statut" : "403 ACCESS_DENIED"
+  },
+  "defauts" : {
+    "items" : [ "<D+10> FER_INJECTABLE 5000.0UI", "<D+8> EPO non administree", "<D+6> FER_INJECTABLE 3000.0UI", "<D+4> EPO 2000.0UI", "<D+2> FER_INJECTABLE 1000.0UI" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page 1 taille 2" : {
+    "items" : [ "<D+6> FER_INJECTABLE 3000.0UI", "<D+4> EPO 2000.0UI" ],
+    "page" : 1,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page 9 hors limite" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=-1" : {
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "patient B par le centre A" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  },
+  "size=-1" : {
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=0" : {
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=1000" : {
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  }
+}

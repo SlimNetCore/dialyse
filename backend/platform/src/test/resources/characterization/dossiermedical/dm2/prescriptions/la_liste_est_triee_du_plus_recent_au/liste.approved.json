@@ -1,0 +1,61 @@
+{
+  "de D+4 a D+8 (bornes incluses)" : {
+    "items" : [ "<D+8> <P4>", "<D+6> <P3>", "<D+4> <P2>" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "depuis D+5 (inclus)" : {
+    "items" : [ "<D+10> <P5>", "<D+8> <P4>", "<D+6> <P3>" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "from = to" : {
+    "items" : [ "<D+6> <P3>" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 1
+  },
+  "from apres to" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "jusqu'a D+6 (inclus)" : {
+    "items" : [ "<D+6> <P3>", "<D+4> <P2>", "<D+2> <P1>" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "page 0 taille 2" : {
+    "items" : [ "<D+10> <P5>", "<D+8> <P4>" ],
+    "page" : 0,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page 2 taille 2" : {
+    "items" : [ "<D+2> <P1>" ],
+    "page" : 2,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page 9 hors limite" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "toutes (defauts)" : {
+    "items" : [ "<D+10> <P5>", "<D+8> <P4>", "<D+6> <P3>", "<D+4> <P2>", "<D+2> <P1>" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  }
+}

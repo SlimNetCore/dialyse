@@ -1,0 +1,7 @@
+[ {
+  "longueur du message <= 500" : true,
+  "periodeDebut" : "<J-10>",
+  "periodeFin" : "<J-4>",
+  "traitement" : "EPO",
+  "type" : "RETARD_CONSTATE"
+} ]

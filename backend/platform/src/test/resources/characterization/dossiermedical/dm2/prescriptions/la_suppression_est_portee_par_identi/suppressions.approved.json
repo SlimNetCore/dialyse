@@ -1,0 +1,10 @@
+{
+  "avec centerId du centre B (session A)" : "403 ACCESS_DENIED",
+  "identifiant illisible" : "500 INTERNAL_ERROR",
+  "identifiant inconnu" : "204",
+  "lignes restantes avant suppression valide" : 3,
+  "meme suppression rejouee" : "204",
+  "prescription du centre B depuis le centre A" : "204",
+  "sous le mauvais patient" : "204",
+  "suppression valide" : "204"
+}

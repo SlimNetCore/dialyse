@@ -1,0 +1,8 @@
+[ {
+  "action_code" : "PATIENTS_CREATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/administrations-anemie",
+  "status_code" : "200"
+} ]

@@ -1,0 +1,83 @@
+{
+  "a la date D+1" : "204",
+  "a la date D+10" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+10>",
+      "id" : "<P2>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "71.0",
+      "qbCible" : "302"
+    },
+    "statut" : 200
+  },
+  "a la date D+15" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+10>",
+      "id" : "<P2>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "71.0",
+      "qbCible" : "302"
+    },
+    "statut" : 200
+  },
+  "a la date D+2" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+2>",
+      "id" : "<P1>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "70.0",
+      "qbCible" : "301"
+    },
+    "statut" : 200
+  },
+  "a la date D+20" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+20>",
+      "id" : "<P3>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "72.0",
+      "qbCible" : "303"
+    },
+    "statut" : 200
+  },
+  "a la date D+400" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+20>",
+      "id" : "<P3>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "72.0",
+      "qbCible" : "303"
+    },
+    "statut" : 200
+  },
+  "a la date D+9" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+2>",
+      "id" : "<P1>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "70.0",
+      "qbCible" : "301"
+    },
+    "statut" : 200
+  },
+  "centre B demande par la session A" : "403 ACCESS_DENIED",
+  "date illisible" : "500 INTERNAL_ERROR",
+  "patient du centre B vu par le centre A" : "204",
+  "sans date" : {
+    "prescription" : {
+      "centerId" : "<CENTRE_A>",
+      "datePrescription" : "<D+20>",
+      "id" : "<P3>",
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : "72.0",
+      "qbCible" : "303"
+    },
+    "statut" : 200
+  }
+}

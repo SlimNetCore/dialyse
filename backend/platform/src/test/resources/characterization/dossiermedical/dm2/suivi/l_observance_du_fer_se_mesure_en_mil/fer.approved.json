@@ -1,0 +1,33 @@
+{
+  "fer 200 mg par mois, 100 mg administres ; EPO 4000 UI par semaine, rien d'administre" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 2,
+        "periodeDebut" : "<J-5>",
+        "periodeFin" : "<J+1>",
+        "uniteDose" : "UI"
+      },
+      "fer" : {
+        "doseAdministree" : 100,
+        "doseAttendue" : 200,
+        "dosePrescrite" : 200,
+        "doseRestante" : 100,
+        "dosesAdministrees" : 1,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 25,
+        "periodeDebut" : "<J-5>",
+        "periodeFin" : "<J+24>",
+        "uniteDose" : "mg"
+      }
+    },
+    "statut" : 200
+  }
+}

@@ -1,0 +1,28 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+1>",
+  "id" : "<ORD_A1>",
+  "medecin_id" : "m",
+  "numero" : "ORD-00002",
+  "patient_id" : "<PAT_A>",
+  "signee" : "oui",
+  "statut" : "SIGNEE"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+2>",
+  "id" : "<ORD_A2>",
+  "medecin_id" : "m",
+  "numero" : "ORD-00001",
+  "patient_id" : "<PAT_A>",
+  "signee" : "oui",
+  "statut" : "SIGNEE"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "date_prescription" : "<D+1>",
+  "id" : "<ORD_B1>",
+  "medecin_id" : "m",
+  "numero" : "ORD-00001",
+  "patient_id" : "<PAT_B>",
+  "signee" : "oui",
+  "statut" : "SIGNEE"
+} ]

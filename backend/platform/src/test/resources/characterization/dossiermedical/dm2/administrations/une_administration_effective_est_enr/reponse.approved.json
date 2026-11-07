@@ -1,0 +1,23 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "administrePar" : "infirmier-fictif",
+    "administree" : true,
+    "articleId" : null,
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dateAdministration" : "<D+3>",
+    "dose" : 4000,
+    "id" : "<UUID_GENERE_1>",
+    "molecule" : "Epoetine fictive",
+    "motifNonAdministration" : null,
+    "patientId" : "<PAT_A>",
+    "prescriptionMedicaleId" : null,
+    "quantiteArticle" : null,
+    "seanceId" : null,
+    "typeTraitement" : "EPO",
+    "uniteDose" : "UI",
+    "voie" : "SC"
+  }
+}

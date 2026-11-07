@@ -1,0 +1,62 @@
+{
+  "ADMIN" : {
+    "observance-anemie" : "200",
+    "suivi-anemie" : "200"
+  },
+  "ADMIN sans centre" : {
+    "observance-anemie" : "403 ACCESS_DENIED",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  },
+  "DIRECTION" : {
+    "observance-anemie" : "403 ROLE_SCOPE",
+    "suivi-anemie" : "403 ROLE_SCOPE"
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "observance-anemie" : "200",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  },
+  "INFIRMIER seul" : {
+    "observance-anemie" : "200",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  },
+  "MEDECIN + ADMIN" : {
+    "observance-anemie" : "200",
+    "suivi-anemie" : "200"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "observance-anemie" : "200",
+    "suivi-anemie" : "200"
+  },
+  "MEDECIN seul" : {
+    "observance-anemie" : "200",
+    "suivi-anemie" : "200"
+  },
+  "SECRETAIRE" : {
+    "observance-anemie" : "403 ACCESS_DENIED",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  },
+  "SUPERADMIN" : {
+    "observance-anemie" : "403 ROLE_SCOPE",
+    "suivi-anemie" : "403 ROLE_SCOPE"
+  },
+  "SUPERADMIN + ADMIN" : {
+    "observance-anemie" : "403 ROLE_SCOPE",
+    "suivi-anemie" : "403 ROLE_SCOPE"
+  },
+  "anonyme" : {
+    "observance-anemie" : "403",
+    "suivi-anemie" : "403"
+  },
+  "aucun role" : {
+    "observance-anemie" : "403 ACCESS_DENIED",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "observance-anemie" : "403 ACCESS_DENIED",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "observance-anemie" : "403 ACCESS_DENIED",
+    "suivi-anemie" : "403 ACCESS_DENIED"
+  }
+}

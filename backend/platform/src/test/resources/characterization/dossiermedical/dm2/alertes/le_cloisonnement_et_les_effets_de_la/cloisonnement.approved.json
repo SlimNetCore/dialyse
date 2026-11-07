@@ -1,0 +1,12 @@
+{
+  "MEDECIN sans centre de session" : "403 ACCESS_DENIED",
+  "liste avec centerId B (session A)" : "403 ACCESS_DENIED",
+  "liste du patient A par le centre B" : {
+    "alertes" : [ ],
+    "statut" : 200
+  },
+  "liste du patient B par le centre A" : {
+    "alertes" : [ ],
+    "statut" : 200
+  }
+}

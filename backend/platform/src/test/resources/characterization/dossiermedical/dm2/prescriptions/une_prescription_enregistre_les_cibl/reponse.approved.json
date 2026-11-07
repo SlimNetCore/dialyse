@@ -1,0 +1,9 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "patientId" : "<PAT_A>",
+    "updatedAt" : "<HORODATAGE>"
+  }
+}

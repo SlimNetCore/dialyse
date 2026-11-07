@@ -1,0 +1,32 @@
+{
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "lignes detaillees (triees)" : [ {
+    "code" : "B03XA02",
+    "codeDisplay" : "Darbepoetine fictive",
+    "codeSystem" : "ATC",
+    "dureeJours" : 28,
+    "instructions" : "A conserver au froid",
+    "libelle" : "Epoetine fictive",
+    "quantite" : 4
+  }, {
+    "code" : null,
+    "codeDisplay" : null,
+    "codeSystem" : null,
+    "dureeJours" : null,
+    "instructions" : null,
+    "libelle" : "Paracetamol fictif",
+    "quantite" : null
+  } ],
+  "ordonnance" : {
+    "centerId" : "<CENTRE_A>",
+    "datePrescription" : "<D+1>",
+    "id" : "<ORD>",
+    "lignes" : [ "Epoetine fictive | 1 injection par semaine", "Paracetamol fictif | 1 comprime si douleur" ],
+    "medecinId" : "m",
+    "numero" : "ORD-00001",
+    "patientId" : "<PAT_A>",
+    "signee" : true,
+    "statut" : "SIGNEE"
+  },
+  "statut" : 200
+}

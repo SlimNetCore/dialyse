@@ -1,0 +1,62 @@
+{
+  "ADMIN" : {
+    "liste" : "200",
+    "resolution" : "200"
+  },
+  "ADMIN sans centre" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  },
+  "DIRECTION" : {
+    "liste" : "403 ROLE_SCOPE",
+    "resolution" : "403 ROLE_SCOPE"
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  },
+  "INFIRMIER seul" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  },
+  "MEDECIN + ADMIN" : {
+    "liste" : "200",
+    "resolution" : "200"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "liste" : "200",
+    "resolution" : "200"
+  },
+  "MEDECIN seul" : {
+    "liste" : "200",
+    "resolution" : "200"
+  },
+  "SECRETAIRE" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  },
+  "SUPERADMIN" : {
+    "liste" : "403 ROLE_SCOPE",
+    "resolution" : "403 ROLE_SCOPE"
+  },
+  "SUPERADMIN + ADMIN" : {
+    "liste" : "403 ROLE_SCOPE",
+    "resolution" : "403 ROLE_SCOPE"
+  },
+  "anonyme" : {
+    "liste" : "403",
+    "resolution" : "403"
+  },
+  "aucun role" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "liste" : "403 ACCESS_DENIED",
+    "resolution" : "403 ACCESS_DENIED"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "createdAt" : "<HORODATAGE>",
+    "dosePrescrite" : 4000,
+    "dosesAdministrees" : 4000,
+    "dosesAttendues" : 8000,
+    "frequenceUnite" : "SEMAINE",
+    "frequenceValeur" : 2,
+    "id" : "<ALERTE>",
+    "message" : "Retard.",
+    "patientId" : "<PAT_A>",
+    "periodeDebut" : "<D+1>",
+    "periodeFin" : "<D+7>",
+    "resolvedAt" : "<HORODATAGE>",
+    "type" : "RETARD_CONSTATE",
+    "typeTraitement" : "EPO",
+    "uniteDose" : "UI"
+  }
+}

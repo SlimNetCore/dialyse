@@ -1,0 +1,33 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "dose_prescrite" : "4000",
+  "doses_administrees" : "4000",
+  "doses_attendues" : "8000",
+  "etat" : "ouverte",
+  "frequence_unite" : "SEMAINE",
+  "frequence_valeur" : "2",
+  "id" : "<ALERTE_A>",
+  "message" : "Retard.",
+  "patient_id" : "<PAT_A>",
+  "periode_debut" : "<D+1>",
+  "periode_fin" : "<D+7>",
+  "type_alerte" : "RETARD_CONSTATE",
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "dose_prescrite" : "4000",
+  "doses_administrees" : "4000",
+  "doses_attendues" : "8000",
+  "etat" : "ouverte",
+  "frequence_unite" : "SEMAINE",
+  "frequence_valeur" : "2",
+  "id" : "<ALERTE_B>",
+  "message" : "Retard.",
+  "patient_id" : "<PAT_B>",
+  "periode_debut" : "<D+1>",
+  "periode_fin" : "<D+7>",
+  "type_alerte" : "RETARD_CONSTATE",
+  "type_traitement" : "EPO",
+  "unite_dose" : "UI"
+} ]

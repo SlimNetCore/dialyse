@@ -1,0 +1,149 @@
+{
+  "EPO tous les 1 ANNEE, ancree a J-40" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 325,
+        "periodeDebut" : "<J-40>",
+        "periodeFin" : "<J+324>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "EPO tous les 1 HEURE, ancree a J-40" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 1,
+        "periodeDebut" : "<J>",
+        "periodeFin" : "<J>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "EPO tous les 1 JOUR, ancree a J-40" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 1,
+        "periodeDebut" : "<J>",
+        "periodeFin" : "<J>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "EPO tous les 1 MOIS, ancree a J-40" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 20,
+        "periodeDebut" : "<J-10>",
+        "periodeFin" : "<J+19>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "EPO tous les 1 SEMAINE, ancree a J-40" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 2,
+        "periodeDebut" : "<J-5>",
+        "periodeFin" : "<J+1>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "frequence nulle ou inconnue : pas d'observance" : {
+    "observance" : {
+      "epo" : null,
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "la derniere prescription sans article EPO : plus d'observance EPO" : {
+    "observance" : {
+      "epo" : null,
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "prescription ancree dans le futur (J+3) : la periode commence a la date de prescription" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 4000,
+        "dosePrescrite" : 4000,
+        "doseRestante" : 4000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 10,
+        "periodeDebut" : "<J+3>",
+        "periodeFin" : "<J+9>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "seule la derniere prescription compte (l'ancienne dose 4000 est ignoree)" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 8000,
+        "dosesAdministrees" : 0,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  }
+}

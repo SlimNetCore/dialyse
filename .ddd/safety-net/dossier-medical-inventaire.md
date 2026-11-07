@@ -13,7 +13,7 @@ Le legacy médical est dans `platform` (contrôleurs `infrastructure/web/rest`, 
 | Slice | Contrôleurs et routes (`/api/v1/patients/{id}/...` sauf mention) | Rôles (`@PreAuthorize`) | Tables |
 |---|---|---|---|
 | **DM1 Constantes** | `GET constantes` (`ConstantesRestController`, lecture seule) ; écrivain = `PUT /seances/{id}/volet-paramedical` (`VoletParamedicalRestController`, propriété Séance) ; effacement = `DELETE /seances/{id}` (`SeanceSuppressionRestController`) | lecture MEDECIN, ADMIN ; écriture ADMIN, INFIRMIER, SECRETAIRE | `volet_paramedical`, `seances` |
-| **DM2 Prescriptions** | `ordonnances` (GET, POST, signer, imprimer, annuler) ; `prescriptions` (GET, active, search, POST, PUT, DELETE) | lecture MEDECIN, ADMIN (+ INFIRMIER pour `prescriptions/active`) ; écriture MEDECIN | `ordonnances`, `lignes_ordonnance`, `prescriptions_medicales`, état `ordonnance.jrxml` |
+| **DM2 Prescriptions** (+ anémie / observance, filet 2026-11-07) | `ordonnances` (GET, POST, signer, imprimer, annuler) ; `prescriptions` (GET, active, search, POST, PUT, DELETE) ; `suivi-anemie`, `observance-anemie`, `alertes-observance` (+ `resoudre`), `administrations-anemie` (GET, POST), planificateur `ObservancePrescriptionScheduler` | lecture MEDECIN, ADMIN (+ INFIRMIER pour `prescriptions/active`) ; écriture MEDECIN | `ordonnances`, `lignes_ordonnance`, `prescriptions_medicales`, état `ordonnance.jrxml` |
 | **DM3 Examens** | `demandes-examen` (GET, POST, preleve, resultat-disponible, valider, annuler) | lecture MEDECIN, ADMIN ; écriture MEDECIN | `demandes_examen`, `lignes_demande_examen` |
 | **DM4 Sérologie** | `serologies` (GET, synthese, POST, PUT, DELETE) ; audit `SEROLOGIE_*` ; consommée par Planification P5 | lecture MEDECIN, ADMIN ; écriture MEDECIN | `serologies_patient` |
 | **DM5 Antécédents et allergies** | `antecedents` (GET, POST, PUT, resoudre, DELETE) ; `allergies` (GET, critiques, POST, PUT, DELETE) | lecture MEDECIN, ADMIN ; écriture MEDECIN | `antecedents_medicaux`, `allergies_patient` |
@@ -22,7 +22,7 @@ Le legacy médical est dans `platform` (contrôleurs `infrastructure/web/rest`, 
 | **DM8 Lectures publiées / transverse** | `dossier-medical` (GET, POST, PUT ; seule lecture auditée) ; `dossier-medical/export-fhir` ; `stats/medical`, `stats/export` ; lecteurs Direction et Planification | voir plus bas | `dossier_medical_patient`, `volet_medical` |
 
 ### Corrections proposées au découpage (trous du plan)
-1. **Anémie et observance, absents de DM1..DM8** : `suivi-anemie`, `observance-anemie`, `alertes-observance` (+ `resoudre`), `administrations-anemie` (GET, POST), planificateur `ObservancePrescriptionScheduler` (cron 06:30), tables `administrations_anemie`, `alertes_observance`. Proposition : les rattacher à **DM2** (ils dérivent des prescriptions) ; à décider.
+1. **Anémie et observance, absents de DM1..DM8** : `suivi-anemie`, `observance-anemie`, `alertes-observance` (+ `resoudre`), `administrations-anemie` (GET, POST), planificateur `ObservancePrescriptionScheduler` (cron 06:30), tables `administrations_anemie`, `alertes_observance`. **Tranché par délégation le 2026-11-07 (à confirmer avec les métiers) : rattachés à DM2** (ils dérivent des prescriptions). Filet DM2 en deux lots : (1) prescriptions et ordonnances, (2) anémie, observance et planificateur ; voir `.ddd/safety-net/dossier-medical-dm2-prescriptions.md` et KB-MED-15 à 32.
 2. **Abords vasculaires** (`abords-vasculaires` GET, POST, PUT, DELETE, table `abords_vasculaires`) : non affectés ; exportés en FHIR (`Procedure`). Proposition : **DM5**.
 3. **Volet médical de la séance** (`PUT /seances/{id}/volet-medical`, table `volet_medical`) : écrit dans la Séance ; proposition : reste Séance (SE2), lu par DM8.
 4. **DM1 est plus petit que décrit** : le tactique prévoit `EnregistrerConstante`/`ConsulterConstantesDuPatient` ; le legacy n'a que la consultation. Il n'existe ni création, ni modification, ni suppression de « constante ». Le filet couvre donc la lecture et ses écrivains (volet paramédical, suppression de séance), sans en prendre la propriété.
@@ -54,5 +54,5 @@ Le legacy médical est dans `platform` (contrôleurs `infrastructure/web/rest`, 
 Toute écriture `/api/v1/**` est tracée (`<RESSOURCE>_<VERBE>`) ; seule lecture tracée : `GET /patients/{id}/dossier-medical`. Les lectures de constantes, ordonnances, sérologie, antécédents, allergies, biologie, FHIR et KDIGO ne le sont pas.
 
 ## Questions ouvertes
-- Rattachement de l'anémie/observance, des abords vasculaires, des donneurs vivants (DM7 proposé) et du volet médical.
+- Rattachement de l'anémie/observance à DM2 : décidé par délégation (2026-11-07), à confirmer avec les métiers. Reste ouvert : abords vasculaires, des donneurs vivants (DM7 proposé) et du volet médical.
 - Propriété du `PUT volet-paramedical` entre DM1 et SE2 : ce filet observe l'effet sur les constantes ; SE2 devra y ajouter ses règles (signature, facturation).

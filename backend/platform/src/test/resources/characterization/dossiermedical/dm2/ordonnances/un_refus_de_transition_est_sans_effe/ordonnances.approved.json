@@ -1,0 +1,19 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+1>",
+  "id" : "<ANNULEE>",
+  "medecin_id" : "medecin-fictif",
+  "numero" : null,
+  "patient_id" : "<PAT_A>",
+  "signee" : "non",
+  "statut" : "ANNULEE"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+2>",
+  "id" : "<BROUILLON>",
+  "medecin_id" : "medecin-fictif",
+  "numero" : "ORD-00002",
+  "patient_id" : "<PAT_A>",
+  "signee" : "oui",
+  "statut" : "SIGNEE"
+} ]

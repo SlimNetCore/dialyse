@@ -1,0 +1,46 @@
+{
+  "(defauts)" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "centerId=pas-un-uuid" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "page=-1" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "size=-1" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=0" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=1000" : {
+    "items" : 5,
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  }
+}

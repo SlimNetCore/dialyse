@@ -1,0 +1,59 @@
+{
+  "bornes de la periode incluses (premier et dernier jour)" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 8000,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 0,
+        "dosesAdministrees" : 2,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 0,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "hors periode, non administree, autre unite, autre traitement, autre patient, autre centre : rien ne compte" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 0,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 8000,
+        "dosesAdministrees" : 1,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 1,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  },
+  "unite d'administration en minuscules acceptee (comparaison sans casse)" : {
+    "observance" : {
+      "epo" : {
+        "doseAdministree" : 8000,
+        "doseAttendue" : 8000,
+        "dosePrescrite" : 8000,
+        "doseRestante" : 0,
+        "dosesAdministrees" : 1,
+        "dosesAttendues" : 1,
+        "dosesRestantes" : 0,
+        "joursRestants" : 5,
+        "periodeDebut" : "<J-2>",
+        "periodeFin" : "<J+4>",
+        "uniteDose" : "UI"
+      },
+      "fer" : null
+    },
+    "statut" : 200
+  }
+}

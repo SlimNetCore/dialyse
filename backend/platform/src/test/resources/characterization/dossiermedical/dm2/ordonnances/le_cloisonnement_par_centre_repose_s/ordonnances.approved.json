@@ -1,0 +1,28 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+1>",
+  "id" : "<UUID_GENERE_1>",
+  "medecin_id" : "m",
+  "numero" : null,
+  "patient_id" : "<PAT_A>",
+  "signee" : "non",
+  "statut" : "BROUILLON"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "date_prescription" : "<D+2>",
+  "id" : "<ORD_A>",
+  "medecin_id" : "medecin-fictif",
+  "numero" : null,
+  "patient_id" : "<PAT_A>",
+  "signee" : "non",
+  "statut" : "BROUILLON"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "date_prescription" : "<D+1>",
+  "id" : "<ORD_B>",
+  "medecin_id" : "medecin-fictif",
+  "numero" : "ORD-00007",
+  "patient_id" : "<PAT_B>",
+  "signee" : "oui",
+  "statut" : "SIGNEE"
+} ]

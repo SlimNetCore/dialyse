@@ -1,0 +1,23 @@
+[ {
+  "duree_jours" : "28",
+  "instructions" : "A conserver au froid",
+  "libelle" : "Epoetine fictive",
+  "medicament_code" : "B03XA02",
+  "medicament_code_display" : "Darbepoetine fictive",
+  "medicament_code_system" : "ATC",
+  "ordonnance_id" : "<UUID_GENERE_1>",
+  "posologie" : "1 injection par semaine",
+  "quantite" : "4",
+  "voie" : "SC"
+}, {
+  "duree_jours" : null,
+  "instructions" : null,
+  "libelle" : "Paracetamol fictif",
+  "medicament_code" : null,
+  "medicament_code_display" : null,
+  "medicament_code_system" : null,
+  "ordonnance_id" : "<UUID_GENERE_1>",
+  "posologie" : "1 comprime si douleur",
+  "quantite" : null,
+  "voie" : null
+} ]

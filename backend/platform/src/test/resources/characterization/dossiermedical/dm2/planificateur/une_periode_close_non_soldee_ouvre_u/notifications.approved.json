@@ -1,0 +1,6 @@
+[ {
+  "centre" : "A",
+  "payload" : "{\"debut\":\"<J-10>\",\"unite\":\"UI\",\"patientId\":\"<PAT_A>\",\"typeAlerte\":\"RETARD_CONSTATE\",\"typeTraitement\":\"EPO\",\"fin\":\"<J-4>\",\"targetRoles\":\"MEDECIN\",\"attendu\":\"8000\",\"message\":\"Retard constaté sur le traitement EPO : la période du <J-10> au <J-4> est terminée et la prescription n'a pas été entièrement administrée. Prescription : 8000 UI x 1 par semaine, soit 8000 UI attendus sur la période. Administré : 4000 UI (1 administration(s)). Il manque 4000 UI. La période est close : l'acquitter une fois le constat pris en compte.\",\"administre\":\"4000\"}",
+  "roles" : ",MEDECIN,",
+  "type" : "OBSERVANCE_NON_RESPECTEE"
+} ]

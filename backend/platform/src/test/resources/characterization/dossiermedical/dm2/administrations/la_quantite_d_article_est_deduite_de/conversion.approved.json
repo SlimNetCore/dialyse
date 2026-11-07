@@ -1,0 +1,8 @@
+{
+  "8000 UI sur article dose 4000 UI, quantite client 99 ignoree" : "200",
+  "article d'un autre centre" : "422 ARTICLE_INTROUVABLE",
+  "article inconnu" : "422 ARTICLE_INTROUVABLE",
+  "article sans dosage" : "422 ARTICLE_DOSAGE_NON_DEFINI",
+  "quantite client conservee sans dose ? (administree exige une dose : refus)" : "422 ADMINISTRATION_DOSE_REQUISE",
+  "unite de dose incompatible" : "422 ARTICLE_UNITE_DOSE_INCOMPATIBLE"
+}
