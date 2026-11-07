@@ -23,7 +23,16 @@ public interface FichesDesPatients {
     /** Où en est le patient dans le centre : inconnu, suivi, ou parti (RG-PAT-032 : transféré, décédé, greffé, guéri). */
     Situation situation(UUID centre, UUID patient);
 
+    /**
+     * État civil et numéro d'assurance du patient du centre, tels que saisis (peuvent être nuls ou vides) : lu par l'export FHIR du
+     * Dossier médical (DM8). Un patient inconnu ou d'un autre centre : vide.
+     */
+    java.util.Optional<IdentiteDuPatient> identite(UUID centre, UUID patient);
+
     record NomDuPatient(String prenom, String nom) {
+    }
+
+    record IdentiteDuPatient(String nom, String prenom, String sexe, java.time.LocalDate dateNaissance, String numeroAssurance) {
     }
 
     enum Situation {

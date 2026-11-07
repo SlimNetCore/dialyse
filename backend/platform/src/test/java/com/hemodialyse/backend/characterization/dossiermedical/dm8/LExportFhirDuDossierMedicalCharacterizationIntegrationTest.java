@@ -153,7 +153,7 @@ class LExportFhirDuDossierMedicalCharacterizationIntegrationTest extends Dm8Char
         m.put("06 MEDECIN sans centre de session", reponse(doGet(fhirApi(patientA), as(null, "MEDECIN"))));
         m.put("07 SUPERADMIN + MEDECIN (session A) vise le patient du centre B", reponse(doGet(fhirApi(patientB) + "?centerId=" + CENTRE_B,
                 as(CENTRE_A, "SUPERADMIN", "MEDECIN"))));
-        arbre("patient_inconnu_ou_autre_centre", m);
+        arbre("patient_inconnu_ou_autre_centre_nouveau_code", m);
     }
 
     @Test
@@ -233,9 +233,13 @@ class LExportFhirDuDossierMedicalCharacterizationIntegrationTest extends Dm8Char
                 case "ordonnance de statut inconnu" -> ordonnanceEnBase(CENTRE_A, p, "ORD", fixe(2), "BIZARRE", "medecin-fictif", 1);
                 default -> ordonnanceEnBase(CENTRE_A, p, "ORD", fixe(2), "BIZARRE", "medecin-fictif", 0);
             }
-            m.put(String.format("%02d %s", ++i, cas1), refus(doGet(fhirApi(p), medecinA())));
+            // Nouveau code (KB-MED-102) : la ligne illisible est ignoree, l'export reussit avec les autres ressources.
+            Resp export = doGet(fhirApi(p), medecinA());
+            List<String> types = new ArrayList<>();
+            if (export.status() == 200) corps(export).path("entry").forEach(e -> types.add(e.path("resource").path("resourceType").asString()));
+            m.put(String.format("%02d %s", ++i, cas1), export.status() == 200 ? "200 ressources=" + types : refus(export));
         }
-        arbre("lignes_illisibles", m);
+        arbre("lignes_illisibles_nouveau_code", m);
     }
 
     @Test

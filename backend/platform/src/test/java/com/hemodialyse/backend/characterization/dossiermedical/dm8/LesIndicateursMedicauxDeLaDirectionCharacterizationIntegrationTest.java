@@ -268,7 +268,7 @@ class LesIndicateursMedicauxDeLaDirectionCharacterizationIntegrationTest extends
         m.put("07 from seul", doGet(INDICATEURS + "?from=" + fixe(0), direction()).status());
         m.put("08 to seul posterieur au 1er janvier de son annee", doGet(INDICATEURS + "?to=" + fixe(200), direction()).status());
         m.put("09 to seul sur l'annee precedente", statutEtCode(doGet(INDICATEURS + "?to=" + fixe(-10), direction())));
-        arbre("periodes", m);
+        arbre("periodes_nouveau_code", m);
     }
 
     @Test

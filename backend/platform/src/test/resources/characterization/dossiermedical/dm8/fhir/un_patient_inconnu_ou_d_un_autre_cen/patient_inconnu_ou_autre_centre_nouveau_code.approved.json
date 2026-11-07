@@ -1,0 +1,61 @@
+{
+  "01 patient inconnu" : {
+    "corps" : {
+      "code" : "PATIENT_INTROUVABLE",
+      "detail" : "Patient introuvable dans ce centre",
+      "instance" : "/api/v1/patients/<UUID_GENERE_1>/dossier-medical/export-fhir",
+      "status" : 404,
+      "title" : "Patient introuvable"
+    },
+    "status" : 404
+  },
+  "02 patient du centre B exporte par la session A" : {
+    "corps" : {
+      "code" : "PATIENT_INTROUVABLE",
+      "detail" : "Patient introuvable dans ce centre",
+      "instance" : "/api/v1/patients/<PAT_B>/dossier-medical/export-fhir",
+      "status" : 404,
+      "title" : "Patient introuvable"
+    },
+    "status" : 404
+  },
+  "03 patient du centre A exporte par la session B" : {
+    "corps" : {
+      "code" : "PATIENT_INTROUVABLE",
+      "detail" : "Patient introuvable dans ce centre",
+      "instance" : "/api/v1/patients/<PAT_A>/dossier-medical/export-fhir",
+      "status" : 404,
+      "title" : "Patient introuvable"
+    },
+    "status" : 404
+  },
+  "04 session A avec centerId=B" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/patients/<PAT_B>/dossier-medical/export-fhir",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "status" : 403
+  },
+  "05 session A avec son centerId" : 200,
+  "06 MEDECIN sans centre de session" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Session sans centre de rattachement",
+      "instance" : "/api/v1/patients/<PAT_A>/dossier-medical/export-fhir",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "status" : 403
+  },
+  "07 SUPERADMIN + MEDECIN (session A) vise le patient du centre B" : {
+    "corps" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "status" : 403
+  }
+}

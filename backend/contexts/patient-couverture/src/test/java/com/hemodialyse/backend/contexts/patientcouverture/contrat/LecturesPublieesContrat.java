@@ -108,6 +108,21 @@ public abstract class LecturesPublieesContrat {
     }
 
     @Test
+    void should_rendre_l_identite_du_patient_du_centre_seulement() {
+        Patient p = patient(CENTRE);
+        Patient autreCentre = patient(AUTRE);
+
+        var identite = fiches().identite(CENTRE.valeur(), p.id().valeur());
+
+        assertThat(identite).isPresent();
+        assertThat(identite.get().prenom()).isEqualTo("Karim");
+        assertThat(identite.get().nom()).isEqualTo("Benali");
+        assertThat(identite.get().dateNaissance()).isEqualTo(LocalDate.of(1970, 5, 17));
+        assertThat(fiches().identite(CENTRE.valeur(), autreCentre.id().valeur())).isEmpty();
+        assertThat(fiches().identite(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
     void should_situer_le_patient_inconnu_suivi_ou_parti() {
         Patient permanent = patient(CENTRE);
         Patient vacancier = patient(CENTRE, EtatDuPatient.VACANCIER_LOCAL, LocalDate.of(2026, 12, 1), Fiches.ADMISSION);

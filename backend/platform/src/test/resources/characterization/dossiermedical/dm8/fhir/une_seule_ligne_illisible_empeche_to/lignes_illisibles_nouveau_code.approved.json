@@ -1,0 +1,11 @@
+{
+  "01 observation numerique sans unite" : "200 ressources=[Patient, Condition]",
+  "02 observation de statut inconnu" : "200 ressources=[Patient, Condition]",
+  "03 antecedent de statut inconnu" : "200 ressources=[Patient, Condition]",
+  "04 antecedent CIM-10 de code mal forme" : "200 ressources=[Patient, Condition, Condition]",
+  "05 allergie de criticite inconnue" : "200 ressources=[Patient, Condition]",
+  "06 allergie de statut inconnu" : "200 ressources=[Patient, Condition]",
+  "07 allergie de systeme de codage inconnu" : "200 ressources=[Patient, Condition]",
+  "08 ordonnance de statut inconnu" : "200 ressources=[Patient, Condition]",
+  "09 ordonnance sans ligne de statut inconnu" : "200 ressources=[Patient, Condition]"
+}

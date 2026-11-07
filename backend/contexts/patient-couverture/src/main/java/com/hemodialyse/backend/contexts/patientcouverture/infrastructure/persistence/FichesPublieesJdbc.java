@@ -47,6 +47,14 @@ public class FichesPublieesJdbc implements FichesDesPatients {
     }
 
     @Override
+    public java.util.Optional<IdentiteDuPatient> identite(UUID centre, UUID patient) {
+        return jdbc.query("SELECT nom, prenom, sexe, date_naissance, numero_assurance FROM patients WHERE center_id = ? AND id = ?",
+                (rs, i) -> new IdentiteDuPatient(rs.getString("nom"), rs.getString("prenom"), rs.getString("sexe"),
+                        rs.getObject("date_naissance", java.time.LocalDate.class), rs.getString("numero_assurance")),
+                centre, patient).stream().findFirst();
+    }
+
+    @Override
     public Situation situation(UUID centre, UUID patient) {
         List<String> etats = jdbc.query("SELECT COALESCE(etat_patient, '') AS etat FROM patients WHERE center_id = ? AND id = ?",
                 (rs, i) -> rs.getString("etat"), centre, patient);

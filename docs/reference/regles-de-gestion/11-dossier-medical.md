@@ -8,9 +8,9 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 > `Ordonnance`, `AdministrationTraitement`,
 > `AlerteObservance`, `BilanPreGreffe`, `EtapeBilanPreGreffe`, `DonneurVivant`, `DecisionRcp`), `Kdigo*Policy`,
 > `PrescrireUnTraitement` (DM2), `Analyse` et `ObservationBiologique` (DM6, contexte `dossier-medical`),
-> `DossierMedicalPatientDomainService`, `AbordVasculaireDomainService`, `ControleDeNuitDeLObservance`,
+> `EnregistrerLeDossierMedicalDeBase` et `ExporterLeDossierMedical` (DM8), `ControleDeNuitDeLObservance`,
 > `PeriodeDObservance`, `ConsulterLeSuiviDeLAnemie`,
-> `KdigoGreffeQueryService`, `FhirExportService`, contrôleurs du dossier.
+> `KdigoGreffeQueryService`, contrôleurs du dossier.
 
 ## 11.1 Principes d'accès
 
@@ -442,6 +442,39 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   et signalé comme risque clinique prioritaire (KB-MED-94, à confirmer par les médecins et le DPO)** : pour un même
   marqueur sérologique, le résultat le plus ANCIEN l'emporte dans l'évaluation KDIGO ; le calcul de la fonction rénale, du
   risque immunologique et le contenu du PDF sont inchangés ; le PDF reste réservé au MEDECIN.
+- **RG-MED-049b** — *Dossier médical de base, reprise sur place DM8 (contexte `dossier-medical`,
+  `DossierMedicalDeBaseControleur`, ADR 0087 ; complète RG-MED-063)* :
+  (a) **droits** : lecture MEDECIN, ADMIN, INFIRMIER ; écriture (POST et PUT, mêmes effets : remplacement complet) MEDECIN
+  seul (reproduit) ; garde de centre inchangée ; 403 avant 400 ;
+  (b) **patient** : un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE` à l'écriture (avant :
+  dossier orphelin ou écrit pour un patient d'un autre centre) ; la lecture d'un patient sans dossier reste un 404 sans corps ;
+  (c) **un seul dossier par patient** (unicité globale de la base) : un conflit sur l'unicité ou un verrou non obtenu en 5 s
+  répond 409 `DOSSIER_MEDICAL_ECRITURE_CONCURRENTE` (avant : 500) ; un doublon déjà en base est lu sans erreur (le plus ancien) ;
+  (d) **bornes** : néphropathie initiale au-delà de 255 caractères, statut d'hépatite B ou C au-delà de 20 : 400
+  `VALIDATION_ERROR` ; date illisible ou inexistante, corps absent ou illisible : 400 `BAD_REQUEST` (avant : 500) ;
+  (e) **reproduit, à confirmer** : les statuts d'hépatite restent libres (aucune énumération) ; audit inégal (seule la lecture
+  du dossier est tracée, KB-MED-100).
+- **RG-MED-049c** — *Export FHIR du dossier, reprise sur place DM8 (`ExportFhirControleur`, ADR 0087 ; complète RG-MED-102)* :
+  (a) **patient** : inconnu ou d'un autre centre : 404 `PATIENT_INTROUVABLE` ; droit MEDECIN seul ; aucune trace d'audit
+  (reproduit, KB-MED-100, à confirmer avec le DPO) ;
+  (b) **contenu inchangé** : mêmes ressources, mêmes codes, même ordre (Patient, Condition, AllergyIntolerance, Observation,
+  MedicationRequest, Procedure) ; abords vasculaires triés de la création la plus récente, ceux sans date en dernier, à
+  égalité par horodatage de création puis identifiant (ordre déterministe, prouvé sur PostgreSQL 16) ;
+  (c) **RISQUE CLINIQUE reproduit (KB-MED-101, à confirmer par les médecins et le DPO)** : seules les 500 observations et les
+  500 ordonnances les plus récentes sont exportées, sans aucune indication de troncature ;
+  (d) **ligne illisible** : une ordonnance ou une ligne dont la lecture échoue est ignorée (journalisée avec son seul
+  identifiant) au lieu de rendre tout l'export impossible (avant : 400 ou 422 pour tout l'export) ; un antécédent au code
+  CIM-10 mal formé est exporté tel quel (le module ne valide pas le code à la lecture).
+- **RG-MED-049d** — *Statistiques médicales du patient et leur export, garde DM8 (`stats/medical`, `stats/export`, y compris
+  les POST de recherche, ADR 0087 ; complète RG-MED-101)* : calculs, clés de tendance en MAJUSCULES, moyennes à 0.0, formats
+  CSV et PDF et droits **inchangés** (reproduit) ; date illisible, paramètre `format` absent ou corps de recherche illisible :
+  400 (avant : 500) ; 403 avant 400 ; les POST de recherche restent journalisés `PATIENTS_CREATION` (libellé trompeur
+  reproduit, KB-MED-100, à confirmer avec le DPO).
+- **RG-MED-049e** — *Indicateurs Direction, période et totaux (`/api/v1/direction/indicators`, ADR 0087)* : `from` ou `to`
+  illisible : 400 (avant : 500) ; 403 avant 400. **RISQUE DE CONFIDENTIALITÉ PRIORITAIRE reproduit (KB-MED-104, à confirmer par
+  le DPO)** : les effectifs inférieurs à 5 sont masqués par centre mais les totaux additionnent les valeurs non masquées ; la
+  différence entre le total et les centres visibles révèle l'effectif masqué. Seuil, formes, règles de comptage des sérologies et
+  droits inchangés.
 
 ## 11.11 Constantes, statistiques et export interopérable
 

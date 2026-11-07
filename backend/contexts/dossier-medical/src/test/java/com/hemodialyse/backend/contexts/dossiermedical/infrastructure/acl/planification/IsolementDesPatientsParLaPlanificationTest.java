@@ -38,6 +38,11 @@ class IsolementDesPatientsParLaPlanificationTest {
         }
 
         @Override
+        public java.util.Optional<IdentiteDuPatient> identite(UUID centre, UUID patient) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public Situation situation(UUID centre, UUID patient) {
             throw new UnsupportedOperationException();
         }

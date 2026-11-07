@@ -145,7 +145,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         for (String[] c : cas) {
             m.put(String.format("%02d %s", ++i, c[0]), synthese(doGet(medical(patientA, CENTRE_A, c[1]), medecinA())));
         }
-        arbre("periodes", m);
+        arbre("periodes_nouveau_code", m);
     }
 
     @Test
@@ -162,7 +162,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         m.put("05 bilan sans aucune des trois valeurs moyennees", synthese(doGet(medical(valeursNulles, CENTRE_A, ""), medecinA())));
         m.put("06 centerId absent", refus(doGet(statsApi(patientA, "medical"), medecinA())));
         m.put("07 centerId illisible", refus(doGet(statsApi(patientA, "medical") + "?centerId=abc", medecinA())));
-        arbre("sans_donnees", m);
+        arbre("sans_donnees_nouveau_code", m);
     }
 
     @Test
@@ -181,7 +181,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         m.put("07 centre d'une autre session", refus(doPost(PATIENTS_API + "/stats/medical/search", recherche(CENTRE_B, patientB, null, null, null), medecinA())));
         m.put("08 corps illisible", refus(doPost(PATIENTS_API + "/stats/medical/search", "{pas du json", medecinA())));
         m.put("09 corps absent", refus(doPost(PATIENTS_API + "/stats/medical/search", "", medecinA())));
-        arbre("recherche", m);
+        arbre("recherche_nouveau_code", m);
     }
 
     @Test
@@ -198,7 +198,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         m.put("07 format absent", telechargement(binaire(exportApi(patientA, CENTRE_A, null, ""), adminA2())));
         m.put("08 format vide", telechargement(binaire(exportApi(patientA, CENTRE_A, "", ""), adminA2())));
         m.put("09 from posterieur a to", telechargement(binaire(exportApi(patientA, CENTRE_A, "csv", "&from=" + fixe(40) + "&to=" + fixe(10)), adminA2())));
-        arbre("csv", m);
+        arbre("csv_nouveau_code", m);
     }
 
     @Test

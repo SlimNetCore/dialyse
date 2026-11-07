@@ -1,0 +1,75 @@
+{
+  "journal" : [ {
+    "action_code" : "DOSSIER_MEDICAL_CONSULTATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "GET",
+    "nombre" : "2",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "200"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_CONSULTATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "GET",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "403"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_CONSULTATION",
+    "entity_id" : "<UUID_GENERE_1>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "GET",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "404"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_CONSULTATION",
+    "entity_id" : "<PAT_SANS>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "GET",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "404"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_CREATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "200"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_CREATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "403"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_MODIFICATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "200"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_MODIFICATION",
+    "entity_id" : "<PAT_SANS>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "200"
+  }, {
+    "action_code" : "DOSSIER_MEDICAL_MODIFICATION",
+    "entity_id" : "<PAT_A>",
+    "entity_type" : "dossier-medical",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/{patientId}/dossier-medical",
+    "status_code" : "400"
+  } ]
+}

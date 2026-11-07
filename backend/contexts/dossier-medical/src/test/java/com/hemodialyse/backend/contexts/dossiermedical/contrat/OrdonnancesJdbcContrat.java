@@ -42,6 +42,29 @@ abstract class OrdonnancesJdbcContrat extends OrdonnancesContrat {
     }
 
     @Test
+    void une_ordonnance_au_statut_illisible_est_ignoree_par_la_lecture_et_journalisee_avec_son_seul_identifiant() {
+        java.util.UUID illisible = java.util.UUID.randomUUID();
+        java.sql.Timestamp t0 = java.sql.Timestamp.from(java.time.Instant.parse("2026-11-07T10:00:00Z"));
+        jdbc().update("INSERT INTO ordonnances (id, center_id, created_at, date_prescription, medecin_id, patient_id, statut, updated_at) "
+                + "VALUES (?,?,?,?,?,?,?,?)", illisible, CENTRE_A.valeur(), t0, java.sql.Date.valueOf("2026-11-07"), "medecin-fictif",
+                java.util.UUID.fromString("00000000-0000-0000-0000-0000000d7001"), "STATUT_DISPARU", t0);
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(OrdonnancesJdbc.class);
+        var capture = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        capture.start();
+        logger.addAppender(capture);
+        try {
+            var page = ordonnances().duPatient(CENTRE_A, new com.hemodialyse.backend.contexts.dossiermedical.domain.PatientId(
+                    java.util.UUID.fromString("00000000-0000-0000-0000-0000000d7001")), 0, 10);
+            assertThat(page.items()).isEmpty();
+        } finally {
+            logger.detachAppender(capture);
+        }
+        assertThat(capture.list).hasSize(1);
+        assertThat(capture.list.getFirst().getFormattedMessage()).contains(illisible.toString()).doesNotContain("STATUT_DISPARU")
+                .doesNotContain("medecin-fictif");
+    }
+
+    @Test
     void la_numerotation_est_sequentielle_par_centre_sur_la_ligne_seq_ord() {
         NumerotationDesOrdonnances numerotation = new NumerotationDesOrdonnancesJdbc(jdbc());
         assertThat(numerotation.suivant(CENTRE_A)).isEqualTo("ORD-00001");

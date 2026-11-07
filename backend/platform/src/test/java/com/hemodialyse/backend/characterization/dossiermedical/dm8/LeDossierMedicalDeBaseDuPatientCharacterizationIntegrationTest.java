@@ -113,7 +113,7 @@ class LeDossierMedicalDeBaseDuPatientCharacterizationIntegrationTest extends Dm8
             Resp r = doPost(dossierApi(patient), c[1], medecinA());
             m.put(String.format("%02d %s", ++i, c[0]), refus(r) + " ; lignes=" + nombreDe("dossier_medical_patient", CENTRE_A));
         }
-        arbre("valeurs_et_bornes", m);
+        arbre("valeurs_et_bornes_nouveau_code", m);
     }
 
     @Test
@@ -138,7 +138,7 @@ class LeDossierMedicalDeBaseDuPatientCharacterizationIntegrationTest extends Dm8
         m.put("07 la session A ecrit ensuite pour ce patient (second dossier, meme patient)", refus(doPost(dossierApi(patientA2), complet(CENTRE_A), medecinA())));
         m.put("08 etat final", etatDesDossiers());
         m.put("09 patient du centre B inchange", nombreDe("dossier_medical_patient", CENTRE_B));
-        arbre("sans_garde_de_patient", m);
+        arbre("sans_garde_de_patient_nouveau_code", m);
     }
 
     @Test
@@ -181,7 +181,7 @@ class LeDossierMedicalDeBaseDuPatientCharacterizationIntegrationTest extends Dm8
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("aucune ecriture", empreinteLecteurs().equals(avant));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
     }
 
     @Test
@@ -233,7 +233,7 @@ class LeDossierMedicalDeBaseDuPatientCharacterizationIntegrationTest extends Dm8
         doGet(fhirApi(patient), medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 
     @Test
@@ -245,7 +245,8 @@ class LeDossierMedicalDeBaseDuPatientCharacterizationIntegrationTest extends Dm8
         int lignes = nombreDe("dossier_medical_patient", CENTRE_A);
         Map<String, Object> m = new LinkedHashMap<>();
         // Invariants seulement : H2 n'est pas le SGBD de production ; l'ordre d'arrivee des deux requetes n'est pas deterministe.
-        m.put("01 chaque requete rend 200 ou une erreur 5xx (aucun controle de version)", statuts.stream().allMatch(s -> s == 200 || s >= 500));
+        // Nouveau code (KB-MED-98) : la requete qui perd la course est un 409, jamais un 500.
+        m.put("01 chaque requete rend 200 ou 409 (verrou et unicite)", statuts.stream().allMatch(s -> s == 200 || s == 409));
         m.put("02 au moins un enregistrement a reussi", statuts.stream().anyMatch(s -> s == 200));
         m.put("03 une seule ligne par patient", lignes == 1);
         UUID autre = patientDm8(CENTRE_A, "PAT_B");
@@ -254,7 +255,7 @@ class LeDossierMedicalDeBaseDuPatientCharacterizationIntegrationTest extends Dm8
         m.put("05 seconde ecriture sans lecture prealable : la derniere gagne, les champs absents sont effaces", resume(doPost(dossierApi(autre),
                 corps("centerId", CENTRE_A, "nephropathieInitiale", "Seconde"), medecinA()), "patientId"));
         m.put("06 relecture", resume(doGet(dossierApi(autre), medecinA()), "nephropathieInitiale", "observationGlobale"));
-        arbre("ecritures_simultanees", m);
+        arbre("ecritures_simultanees_nouveau_code", m);
     }
 
     @Test

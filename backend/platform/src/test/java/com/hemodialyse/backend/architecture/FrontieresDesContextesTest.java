@@ -62,6 +62,30 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("la machine à états du bilan vit dans contexts/dossier-medical (ADR 0086)");
 
+    private static final java.util.Set<String> PORTS_RESIDUELS_DU_DOSSIER_MEDICAL = java.util.Set.of(
+            "com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort",
+            "com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort",
+            "com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort");
+    private static final java.util.Set<String> METHODES_RESIDUELLES_DU_DOSSIER_MEDICAL = java.util.Set.of(
+            "save", "deleteById", "findById", "findPagedByPatientId");
+
+    /**
+     * Slice DM8 (ADR 0087) : les trois ports legacy qui restent lus par KDIGO et le PDF de greffe (antécédents, sérologies, résultats
+     * d'analyse) n'ont plus d'appelant d'écriture, de lecture unitaire ni de lecture paginée ; seule {@code findByPatientId} reste
+     * permise. Aucun nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15).
+     */
+    @ArchTest
+    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_du_dossier_medical = noClasses()
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "cible une méthode résiduelle des ports legacy du dossier médical") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return PORTS_RESIDUELS_DU_DOSSIER_MEDICAL.contains(appel.getTargetOwner().getName())
+                            && METHODES_RESIDUELLES_DU_DOSSIER_MEDICAL.contains(appel.getName());
+                }
+            })
+            .because("l'écriture et la lecture du dossier médical vivent dans contexts/dossier-medical (ADR 0087) ; ces méthodes seront retirées");
+
     private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
 
     /**

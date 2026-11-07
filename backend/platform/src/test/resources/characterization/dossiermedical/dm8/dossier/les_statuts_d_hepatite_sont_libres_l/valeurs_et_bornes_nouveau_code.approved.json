@@ -1,0 +1,20 @@
+{
+  "01 hepatiteBStatut libre (valeur quelconque)" : "200 ok ; lignes=1",
+  "02 hepatiteBStatut de 20 caracteres" : "200 ok ; lignes=1",
+  "03 hepatiteBStatut de 21 caracteres" : "400 VALIDATION_ERROR | Le champ hepatiteBStatut dépasse 20 caractères ; lignes=0",
+  "04 hepatiteCStatut de 21 caracteres" : "400 VALIDATION_ERROR | Le champ hepatiteCStatut dépasse 20 caractères ; lignes=0",
+  "05 nephropathieInitiale de 255 caracteres" : "200 ok ; lignes=1",
+  "06 nephropathieInitiale de 256 caracteres" : "400 VALIDATION_ERROR | Le champ nephropathieInitiale dépasse 255 caractères ; lignes=0",
+  "07 observationGlobale de 20 000 caracteres (TEXT)" : "200 ok ; lignes=1",
+  "08 conclusionMedicale vide (chaine vide conservee)" : "200 ok ; lignes=1",
+  "09 dateMiseEnDialyse tres lointaine dans le futur" : "200 ok ; lignes=1",
+  "10 dateMiseEnDialyse illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "11 dateMiseEnDialyse inexistante (30 fevrier)" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "12 champ inconnu ignore" : "200 ok ; lignes=1",
+  "13 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "14 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "15 corps null" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "16 corps tableau" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "17 centerId illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0",
+  "18 nephropathieInitiale de type nombre" : "200 ok ; lignes=1"
+}

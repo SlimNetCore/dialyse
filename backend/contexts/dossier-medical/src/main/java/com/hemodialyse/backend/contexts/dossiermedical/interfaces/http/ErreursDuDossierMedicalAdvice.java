@@ -7,6 +7,7 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.BilanPreGreffeIlli
 import com.hemodialyse.backend.contexts.dossiermedical.domain.DonneurVivantIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnBilanPreGreffe;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnDonneurVivant;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnDossierMedical;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneEtapeDeBilan;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EtapeDeBilanIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneAnalyse;
@@ -55,7 +56,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class,
         DemandesDExamenControleur.class, SerologiesControleur.class, AntecedentsControleur.class,
         AllergiesControleur.class, AbordsVasculairesControleur.class, ObservationsBiologiquesControleur.class, AnalysesControleur.class,
-        BilanPreGreffeControleur.class, EtapesDeBilanControleur.class, DonneursVivantsControleur.class, SousLaGardeDuDossierMedical.class})
+        BilanPreGreffeControleur.class, EtapesDeBilanControleur.class, DonneursVivantsControleur.class, DossierMedicalDeBaseControleur.class,
+        ExportFhirControleur.class, SousLaGardeDuDossierMedical.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -169,6 +171,12 @@ class ErreursDuDossierMedicalAdvice {
     @ExceptionHandler(EcritureConcurrenteSurUnDonneurVivant.class)
     ProblemDetail ecritureConcurrenteSurUnDonneurVivant(EcritureConcurrenteSurUnDonneurVivant erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "DONNEUR_VIVANT_ECRITURE_CONCURRENTE");
+    }
+
+    /** Écart décidé (KB-MED-98) : écriture simultanée ou dossier déjà tenu pour ce patient dans un autre centre : 409 (avant : 500). */
+    @ExceptionHandler(EcritureConcurrenteSurUnDossierMedical.class)
+    ProblemDetail ecritureConcurrenteSurUnDossierMedical(EcritureConcurrenteSurUnDossierMedical erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "DOSSIER_MEDICAL_ECRITURE_CONCURRENTE");
     }
 
     /** Écart décidé (KB-MED-88) : l'étape inconnue, d'un autre patient ou d'un autre centre est refusée en 404 (avant : 400). */

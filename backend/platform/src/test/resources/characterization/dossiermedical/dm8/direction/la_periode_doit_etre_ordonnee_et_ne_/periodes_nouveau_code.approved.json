@@ -1,0 +1,11 @@
+{
+  "01 from posterieur a to" : "422 PERIODE_INVALIDE",
+  "02 plus de cinq ans" : "422 PERIODE_TROP_LONGUE",
+  "03 exactement cinq ans" : "200",
+  "04 cinq ans et un jour" : "422 PERIODE_TROP_LONGUE",
+  "05 date illisible" : "400 BAD_REQUEST",
+  "06 sans periode (jour courant : seul le statut est verrouille)" : 200,
+  "07 from seul" : 200,
+  "08 to seul posterieur au 1er janvier de son annee" : 200,
+  "09 to seul sur l'annee precedente" : "200"
+}

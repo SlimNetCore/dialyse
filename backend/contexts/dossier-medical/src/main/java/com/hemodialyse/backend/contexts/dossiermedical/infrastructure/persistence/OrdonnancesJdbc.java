@@ -35,6 +35,7 @@ import java.util.UUID;
  * compteur ({@code app_settings}).
  */
 public class OrdonnancesJdbc implements Ordonnances {
+    private static final org.slf4j.Logger JOURNAL = org.slf4j.LoggerFactory.getLogger(OrdonnancesJdbc.class);
 
     private static final String ENTETE = "SELECT id, center_id, patient_id, medecin_id, date_prescription, statut, numero, created_at, "
             + "updated_at, signed_at FROM ordonnances WHERE id = ? AND patient_id = ? AND center_id = ?";
@@ -118,8 +119,16 @@ public class OrdonnancesJdbc implements Ordonnances {
         }, entetes.stream().map(Entete::id).toArray());
         List<Ordonnance> resultat = new ArrayList<>();
         for (Entete e : entetes) {
+            StatutOrdonnance statut;
+            try {
+                statut = StatutOrdonnance.valueOf(e.statut());
+            } catch (IllegalArgumentException | NullPointerException illisible) {
+                // KB-MED-102 (DM8) : une ordonnance au statut illisible n'échoue plus toute la lecture, son identifiant SEUL est journalisé.
+                JOURNAL.warn("Ordonnance {} ignorée : statut illisible en base (donnée incohérente)", e.id());
+                continue;
+            }
             resultat.add(Ordonnance.reconstituer(e.id(), new PatientId(e.patient()), new CentreId(e.centre()), e.medecin(), e.date(),
-                    StatutOrdonnance.valueOf(e.statut()), e.numero(), parOrdonnance.getOrDefault(e.id(), List.of()), e.creeeLe(),
+                    statut, e.numero(), parOrdonnance.getOrDefault(e.id(), List.of()), e.creeeLe(),
                     e.modifieeLe(), e.signeeLe()));
         }
         return resultat;
