@@ -62,8 +62,12 @@ Non routé : `SeancesControleur` et `ErreursDeSeanceAdvice` sont conditionnés p
 - **Verrou ArchUnit** `plus_aucun_appelant_des_ecritures_legacy_de_la_creation_de_seance` (`FrontieresDesContextesTest`, revue 2026-12-15).
 - **Résidus** : méthodes mortes de `SeanceUseCase`, du service applicatif et du service de domaine conservées (liste nominative : ADR 0088 point 11) ; leur retrait demande de réécrire `SeanceDomainServiceTest`.
 
-### Reste à faire : B3 (docs et clôture)
-- **B3** : RG-SEA et annexe de traçabilité, glossaire `proposed`, `verifications-production.md`, ADR 0088, bilan nominatif des résidus (revue 2026-12-15), `state.ts set slices.seance-se1-creation built`.
+### Fait en session B3 (2026-11-07 ; état pipeline `built`)
+- Docs : RG-SEA-052 (`07-seances.md`), annexe `16-annexe-tracabilite.md` (`SeancesControleur` + résidu `SeanceRestController` SE2 à SE7), glossaire (4 termes `proposed`), `verifications-production.md` section 53 (SELECT seulement : doublons KB-SEA-02, statuts illisibles KB-SEA-07, hors planning incohérent, orphelines), ADR 0088 point 12 (acceptation de `Banc`, justification de l'absence de doc fonctionnelle/maquette, bilan nominatif des résidus, revue 2026-12-15).
+- Parité finale : 31/31 (18 identiques, 13 écarts voulus tracés). Aucun flag, aucune façade (ADR 0024) ; rollback = commit précédent.
+
+### Reste à faire
+- `/ddd-verify`. Décisions métier ouvertes : KB-SEA-03 (planning à la création manuelle), unicité (centre, patient, jour), KB-SEA-08 (audit, DPO), KB-SEA-10 (éligibilité). Retrait des résidus legacy à la revue du 2026-12-15 (ADR 0088 points 11 et 12).
 
 ### Plan initial de la session B (historique)
 1. **Adapters de la plateforme pour les ports restants** (ACL temporaires, `infrastructure/acl/seance/`, retrait avec SE2/SE7) : `PlanningDesPatients` (enveloppe `SeancePlanningJdbcAdapter`, traduire `SituationPlanning` vers `SituationDuPlanning`), `PatientsDeLaSeance` et `PatientsScannables` (sur `PatientRepositoryPort` : `findById`, `findByCodePatient`, `findByNumeroAssurance`, `findAllByCenter`, avec le numéro d'assurance de l'assuré), `GenerateursDesPatients` (`gmao_equipements`, `deleted_at IS NULL`), `VoletsDeLaSeance` (volets paramédical et médical), `ForfaitsDeSeance` (surcharge de `seances` puis PEC couvrant le jour puis repli, SQL de `loadCurrentForfait`), `HistoriqueDesSeances` (JPA Criteria de `SeanceRepositoryAdapter.search` ou jointure SQL ; ignorer et journaliser une ligne de statut illisible, KB-SEA-07), `ValidationDeSeance` (appelle `SeanceUseCase.validate(..., List.of())` et relit), `DiffusionsDeSeance` (`notifySeanceCreated`, `notifySaisieInfirmier`, `notifySeanceValidated`). Contrat de port identique mémoire/H2/PG16 pour `HistoriqueDesSeances` et `ForfaitsDeSeance` (le fake et l'adapter réel).

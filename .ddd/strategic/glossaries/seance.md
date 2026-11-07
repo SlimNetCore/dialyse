@@ -19,5 +19,9 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §4]
 | Volet paramédical / médical | Données cliniques saisies pendant la séance | `VoletParamedical`, `VoletMedical` | `VoletParamedical` (434 l.) | — | à redécouper au tactique | proposed |
 | Forfait surchargé | Forfait imposé sur une séance, prioritaire sur la PEC | `Seance.surchargerForfait()` | `updateForfait` | tarif | RG-FAC-021 | proposed |
 | Verrou de facturation | Interdiction de modifier une séance prise dans une facturation validée | `Seance.verrouillerPourFacturation()` | statut `FACTUREE` | statut « facturée » comme étape de soin | posé sur `FacturationValidee` (ADR 0002) | proposed |
+| Jour du centre | Date du jour dans le fuseau du centre ; « aujourd'hui » pour la création et le scan d'une séance | `JourDuCentre`, `HorlogeDuCentre` | `LocalDate.now()` (fuseau serveur) | date du jour serveur | KB-SEA-01 (RG-SEA-052) | proposed |
+| Séance du jour ambiguë | Plusieurs séances du patient le même jour : le scan ne peut pas choisir | `SEANCE_DU_JOUR_AMBIGUE` | 500 | doublon | KB-SEA-02, 409 | proposed |
+| Scan de séance | Lecture du QR du patient qui crée ou valide la séance du jour | `ScannerUnPatient` | `createFromQr`, `scanAndValidate` | pointage | RG-SEA-012 | proposed |
+| Statut illisible | Statut en base hors des valeurs connues ; la ligne est ignorée de la liste | — | — | statut cassé | KB-SEA-07, requête 53.2 | proposed |
 
 Homonymes : *Séance* (ici) ≠ *Séance facturable* (Facturation) ≠ *Séance, motif de sortie* (Stock). `ABSENT` n'existe pas dans ce contexte (→ Exclusion de facturation, Facturation).
