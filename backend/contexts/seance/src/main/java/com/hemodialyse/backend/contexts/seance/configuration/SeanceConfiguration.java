@@ -2,12 +2,42 @@ package com.hemodialyse.backend.contexts.seance.configuration;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import com.hemodialyse.backend.contexts.seance.application.ConsommationsDeLaSeance;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.DiffusionsDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.EligibiliteALaFacturation;
+import com.hemodialyse.backend.contexts.seance.application.ForfaitsDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.GenerateurDIdentifiants;
+import com.hemodialyse.backend.contexts.seance.application.GenerateursDesPatients;
+import com.hemodialyse.backend.contexts.seance.application.HistoriqueDesSeances;
 import com.hemodialyse.backend.contexts.seance.application.HorlogeDuCentre;
+import com.hemodialyse.backend.contexts.seance.application.ListerLesSeances;
+import com.hemodialyse.backend.contexts.seance.application.PatientsDeLaSeance;
+import com.hemodialyse.backend.contexts.seance.application.PlanningDesPatients;
+import com.hemodialyse.backend.contexts.seance.application.ResoudreLePatientScanne;
+import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
 import com.hemodialyse.backend.contexts.seance.application.SessionCourante;
 import com.hemodialyse.backend.contexts.seance.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.seance.application.ValidationDeSeance;
+import com.hemodialyse.backend.contexts.seance.application.VoletsDeLaSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seances;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ForfaitsParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.GenerateursParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.HistoriqueParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlanningDesPatientsParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ValidationParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.VoletsParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.GenerateursFournis;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ValidationFournie;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.VoletsFournis;
+import org.springframework.beans.factory.annotation.Qualifier;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.EligibiliteParLaCouverture;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsDeLaSeanceDuStock;
@@ -72,5 +102,98 @@ public class SeanceConfiguration {
     @Bean
     ConsommationsDeLaSeance consommationsDeLaSeanceDuStock(ConsommationsDeSeance stock) {
         return new ConsommationsDeLaSeanceDuStock(stock);
+    }
+
+    // ---- ACL du legacy : traduisent les langages publiés fournis par la plateforme (ADR 0088)
+
+    @Bean
+    PlanningDesPatients planningDesPatientsDeLaSeance(PlanningFourni planning) {
+        return new PlanningDesPatientsParLeLegacy(planning);
+    }
+
+    @Bean
+    PatientsParLeLegacy patientsDeLaSeance(FichesFournies fiches) {
+        return new PatientsParLeLegacy(fiches);
+    }
+
+    @Bean
+    GenerateursDesPatients generateursDesPatientsDeLaSeance(GenerateursFournis generateurs) {
+        return new GenerateursParLeLegacy(generateurs);
+    }
+
+    @Bean
+    VoletsDeLaSeance voletsDeLaSeance(VoletsFournis volets) {
+        return new VoletsParLeLegacy(volets);
+    }
+
+    @Bean
+    ForfaitsDeSeance forfaitsDeLaSeance(ForfaitsFournis forfaits) {
+        return new ForfaitsParLeLegacy(forfaits);
+    }
+
+    @Bean
+    HistoriqueDesSeances historiqueDesSeances(HistoriqueFourni historique) {
+        return new HistoriqueParLeLegacy(historique);
+    }
+
+    @Bean
+    ValidationDeSeance validationDeLaSeance(ValidationFournie validation,
+                                            @Qualifier("seancesDuContexteSeance") Seances seances) {
+        return new ValidationParLeLegacy(validation, seances);
+    }
+
+    @Bean
+    DiffusionsDeSeance diffusionsDeLaSeance(DiffusionsFournies diffusions) {
+        return new DiffusionsParLeLegacy(diffusions);
+    }
+
+    // ---- Cas d'usage (appelés par le contrôleur de l'interface)
+
+    @Bean
+    CreerUneSeance creerUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                  @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                  @Qualifier("generateursDesPatientsDeLaSeance") GenerateursDesPatients generateurs,
+                                  @Qualifier("eligibiliteALaFacturationDeLaSeance") EligibiliteALaFacturation eligibilite,
+                                  @Qualifier("seancesDuContexteSeance") Seances seances,
+                                  @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                  @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants,
+                                  @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                  @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new CreerUneSeance(session, patients, generateurs, eligibilite, seances, uniteDeTravail, identifiants, horloge,
+                diffusions);
+    }
+
+    @Bean
+    ScannerUnPatient scannerUnPatient(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                      @Qualifier("patientsDeLaSeance") PatientsParLeLegacy patients,
+                                      @Qualifier("generateursDesPatientsDeLaSeance") GenerateursDesPatients generateurs,
+                                      @Qualifier("planningDesPatientsDeLaSeance") PlanningDesPatients planning,
+                                      @Qualifier("eligibiliteALaFacturationDeLaSeance") EligibiliteALaFacturation eligibilite,
+                                      @Qualifier("seancesDuContexteSeance") Seances seances,
+                                      @Qualifier("validationDeLaSeance") ValidationDeSeance validation,
+                                      @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                      @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants,
+                                      @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                      @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new ScannerUnPatient(session, new ResoudreLePatientScanne(patients), patients, generateurs, planning, eligibilite,
+                seances, validation, uniteDeTravail, identifiants, horloge, diffusions);
+    }
+
+    @Bean
+    ConsulterUneSeance consulterUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                          @Qualifier("seancesDuContexteSeance") Seances seances,
+                                          @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                          @Qualifier("generateursDesPatientsDeLaSeance") GenerateursDesPatients generateurs,
+                                          @Qualifier("voletsDeLaSeance") VoletsDeLaSeance volets,
+                                          @Qualifier("consommationsDeLaSeanceDuStock") ConsommationsDeLaSeance consommations,
+                                          @Qualifier("forfaitsDeLaSeance") ForfaitsDeSeance forfaits) {
+        return new ConsulterUneSeance(session, seances, patients, generateurs, volets, consommations, forfaits);
+    }
+
+    @Bean
+    ListerLesSeances listerLesSeances(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                      @Qualifier("historiqueDesSeances") HistoriqueDesSeances historique,
+                                      @Qualifier("forfaitsDeLaSeance") ForfaitsDeSeance forfaits) {
+        return new ListerLesSeances(session, historique, forfaits);
     }
 }

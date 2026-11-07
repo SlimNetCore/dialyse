@@ -87,6 +87,12 @@ class TableDuPatientCouvertureTest {
             "2026-11-05 : descripteurs des référentiels (forfait, créneau, salle, médecin…) dont les « usages » nomment prise_en_charge et patients ; "
                     + "ReferentialAdminJdbcAdapter les lit en COUNT dynamique (« SELECT COUNT(*) FROM » + table) pour refuser la suppression d'un "
                     + "référentiel utilisé ; échéance : reprise du référentiel d'administration (organisation.v1) ou port d'usage publié",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/HistoriqueFourniLegacy.java",
+            "2026-11-07 : historique des séances (SE1, ADR 0088) : jointure séances-patients avec filtre, tri et pagination en SQL (la découper changerait "
+                    + "le résultat) ; reprend la lecture de SeanceRepositoryAdapter ; échéance : reprise de Patient et couverture ou lecture publiée jointe, revue au plus tard le 2026-12-15",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/ForfaitsFournisLegacy.java",
+            "2026-11-07 : forfait courant d'une séance (SE1, ADR 0088) : prise en charge couvrant le jour, repris à l'identique de SeanceRestController "
+                    + "(parité) ; échéance : lecture publiée de la couverture (CouvertureDesPatients), revue au plus tard le 2026-12-15",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceRepositoryAdapter.java",
             "2026-11-05 : recherche des séances en JPA Criteria sur PatientJpaEntity (jointure séances-patients) ; échéance : reprise du contexte Séance",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java", JPA,
@@ -192,7 +198,7 @@ class TableDuPatientCouvertureTest {
     @Test
     void chaque_jalon_porte_une_date_et_une_echeance() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            assertThat(raison).matches("(?s)2026-11-0[45].*");
+            assertThat(raison).matches("(?s)2026-11-0[457].*");
             assertThat(raison).contains("échéance");
         });
     }
