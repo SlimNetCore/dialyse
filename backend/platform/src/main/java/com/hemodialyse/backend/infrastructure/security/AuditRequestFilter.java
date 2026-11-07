@@ -120,7 +120,7 @@ public class AuditRequestFilter extends OncePerRequestFilter {
     private void record(HttpServletRequest request, HttpServletResponse response, long durationMs) {
         String method = request.getMethod();
         String routeTemplate = routeTemplate(request);
-        if (!AuditActionResolver.isTracked(method, routeTemplate) || request.getAttribute(ATTRIBUT_SANS_TRACE) != null) {
+        if (!AuditActionResolver.isTracked(method, routeTemplate) || Boolean.TRUE.equals(request.getAttribute(ATTRIBUT_SANS_TRACE))) {
             return;
         }
         AuditActionResolver.Resolved resolved = AuditActionResolver.resolve(method, routeTemplate);

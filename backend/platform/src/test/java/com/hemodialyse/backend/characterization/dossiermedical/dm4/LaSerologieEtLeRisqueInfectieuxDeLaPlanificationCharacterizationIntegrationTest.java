@@ -12,7 +12,7 @@ import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
 /**
  * DM4, lot 4 : effet d'une sérologie sur la Planification (P5), observé par le placement du patient après l'écriture. Lecteur
  * observé : {@code RisquesInfectieuxJdbc} (SQL sur {@code serologies_patient}, marqueurs AG_HBS, AC_VHC, ARN_VHC, VIH_AC, dernière
- * sérologie de chaque marqueur) et l'ACL d'écriture {@code ReaffectationEnIsolementDeLaSerologie} (une seule transaction). Le détail
+ * sérologie de chaque marqueur) et l'ACL d'écriture {@code IsolementDesPatientsParLaPlanification} du module dossier-medical (une seule transaction ; avant DM4 : {@code ReaffectationEnIsolementDeLaSerologie}). Le détail
  * du déplacement (jours, créneaux, générateur, alertes) est déjà verrouillé par le filet P5 ({@code p5-placement/isolement}) ; ce lot
  * verrouille la RÈGLE DE POSITIVITÉ côté sérologie.
  */

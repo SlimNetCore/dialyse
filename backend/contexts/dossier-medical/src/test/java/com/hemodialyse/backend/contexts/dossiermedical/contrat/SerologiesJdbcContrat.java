@@ -58,6 +58,32 @@ abstract class SerologiesJdbcContrat extends SerologiesContrat {
         assertThat(serologies().trouverEnVerrouillant(CENTRE_A, PATIENT, bonne)).isPresent();
     }
 
+    /**
+     * Limite consignée (KB-MED-49, ADR 0083, verifications-production.md section 48 requete 3) : une ligne illisible en base ne peut être
+     * ni corrigée ni supprimée par le module (le port ne la retrouve pas, donc le cas d'usage répond « introuvable » ou 204 sans effet) ;
+     * chaque lecture journalise en WARN son identifiant SEUL, sans marqueur, résultat, patient ni donnée de santé.
+     */
+    @Test
+    void une_ligne_illisible_est_introuvable_pour_la_correction_et_la_suppression_et_journalisee_avec_son_seul_identifiant() {
+        UUID illisible = poser("HIV", "INDETERMINE", LocalDate.of(2026, 1, 2));
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(SerologiesJdbc.class);
+        var capture = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        capture.start();
+        logger.addAppender(capture);
+        try {
+            assertThat(serologies().trouverEnVerrouillant(CENTRE_A, PATIENT, illisible)).isEmpty();
+            serologies().duPatient(CENTRE_A, PATIENT, 0, 10);
+            serologies().toutesDuPatient(CENTRE_A, PATIENT);
+        } finally {
+            logger.detachAppender(capture);
+        }
+        assertThat(capture.list).hasSize(3).allSatisfy(e -> {
+            assertThat(e.getLevel()).isEqualTo(ch.qos.logback.classic.Level.WARN);
+            assertThat(e.getFormattedMessage()).contains(illisible.toString()).doesNotContain("HIV").doesNotContain("INDETERMINE")
+                    .doesNotContain(PATIENT.valeur().toString());
+        });
+    }
+
     @Test
     void la_table_garde_ses_colonnes_et_aucune_colonne_n_est_ajoutee() {
         List<String> colonnes = jdbc().queryForList("SELECT LOWER(COLUMN_NAME) FROM INFORMATION_SCHEMA.COLUMNS "

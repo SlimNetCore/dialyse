@@ -1916,7 +1916,7 @@ SELECT center_id, marqueur, resultat, count(*) AS serologies FROM serologies_pat
 -- 2. DOUBLONS (KB-MED-56) : plusieurs résultats pour le même patient, marqueur et date de prélèvement (l'unicité n'était qu'applicative, sans verrou ni contrainte).
 --    Attendu : aucune ligne ; sinon la synthèse du patient départage par date de création puis identifiant : à expliquer avec les métiers (aucune correction automatique).
 SELECT center_id, patient_id, marqueur, date_prelevement, count(*) AS exemplaires FROM serologies_patient GROUP BY center_id, patient_id, marqueur, date_prelevement HAVING count(*) > 1;
--- 3. Données incohérentes (marqueur ou résultat illisible) : IGNORÉES par les lectures du module (avant : 500 pour toute la liste du patient). Attendu : aucune.
+-- 3. Données incohérentes (marqueur ou résultat illisible) : IGNORÉES par les lectures du module (avant : 500 pour toute la liste du patient), journal WARN « Sérologie <id> ignorée » (identifiant seul), et ni corrigeables (400) ni supprimables (204 sans effet, sans audit) par le module (limite consignée, ADR 0083). Attendu : aucune ; sinon à expliquer avec les métiers (aucune correction automatique).
 SELECT center_id, id, marqueur, resultat FROM serologies_patient
  WHERE marqueur NOT IN ('VIH_AC','AG_HBS','AC_HBS','AC_HBC','AC_VHC','ARN_VHC','TPHA','CMV_IGG','CMV_IGM','TOXO_IGG','TOXO_IGM','EBV_IGG','EBV_IGM')
     OR resultat NOT IN ('POSITIF','NEGATIF','DOUTEUX','EN_COURS');

@@ -8,6 +8,8 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.ResultatSerologiqu
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Serologie;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Serologies;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.jdbc.UncategorizedSQLException;
@@ -42,6 +44,8 @@ public class SerologiesJdbc implements Serologies {
             + liste(ResultatSerologique.values()) + ")";
     private static final String COLONNES = "id, center_id, patient_id, marqueur, resultat, titre, unite, date_prelevement, laboratoire, "
             + "date_prochain_controle, conduite_a_tenir, created_at, updated_at";
+
+    private static final Logger JOURNAL = LoggerFactory.getLogger(SerologiesJdbc.class);
 
     private final JdbcTemplate jdbc;
     private volatile Boolean postgreSql;
@@ -84,8 +88,14 @@ public class SerologiesJdbc implements Serologies {
 
     @Override
     public Optional<Serologie> trouverEnVerrouillant(CentreId centre, PatientId patient, UUID id) {
-        return verrouille(() -> jdbc.query("SELECT " + COLONNES + " FROM serologies_patient WHERE id = ? AND patient_id = ? AND center_id = ?"
-                + LISIBLES + " FOR UPDATE", (rs, i) -> serologie(rs), id, patient.valeur(), centre.valeur()).stream().findFirst());
+        Optional<Serologie> trouvee = verrouille(() -> jdbc.query("SELECT " + COLONNES
+                + " FROM serologies_patient WHERE id = ? AND patient_id = ? AND center_id = ?" + LISIBLES + " FOR UPDATE",
+                (rs, i) -> serologie(rs), id, patient.valeur(), centre.valeur()).stream().findFirst());
+        if (trouvee.isEmpty()) {
+            // Limite consignée (KB-MED-49, ADR 0083) : une ligne illisible ne peut être ni corrigée ni supprimée par le module.
+            signalerLesIllisibles(" AND id = ?", centre, patient, id);
+        }
+        return trouvee;
     }
 
     @Override
@@ -101,13 +111,32 @@ public class SerologiesJdbc implements Serologies {
         List<Serologie> items = jdbc.query("SELECT " + COLONNES + " FROM serologies_patient WHERE center_id = ? AND patient_id = ?" + LISIBLES
                         + " ORDER BY date_prelevement DESC, created_at DESC, id DESC LIMIT ? OFFSET ?", (rs, i) -> serologie(rs),
                 centre.valeur(), patient.valeur(), taille, (long) page * taille);
+        signalerLesIllisibles("", centre, patient);
         return new PageDeSerologies(items, total == null ? 0 : total, page, taille);
     }
 
     @Override
     public List<Serologie> toutesDuPatient(CentreId centre, PatientId patient) {
-        return jdbc.query("SELECT " + COLONNES + " FROM serologies_patient WHERE center_id = ? AND patient_id = ?" + LISIBLES
+        List<Serologie> lues = jdbc.query("SELECT " + COLONNES + " FROM serologies_patient WHERE center_id = ? AND patient_id = ?" + LISIBLES
                 + " ORDER BY date_prelevement DESC, created_at DESC, id DESC", (rs, i) -> serologie(rs), centre.valeur(), patient.valeur());
+        signalerLesIllisibles("", centre, patient);
+        return lues;
+    }
+
+    /**
+     * Journalise en WARN, à chaque lecture, l'identifiant (SEUL : aucune donnée de santé ni de patient) des lignes du patient dont le
+     * marqueur ou le résultat est illisible en base. Repérage en SQL : verifications-production.md section 48, requête 3.
+     */
+    private void signalerLesIllisibles(String filtre, CentreId centre, PatientId patient, Object... id) {
+        Object[] parametres = new Object[2 + id.length];
+        parametres[0] = centre.valeur();
+        parametres[1] = patient.valeur();
+        System.arraycopy(id, 0, parametres, 2, id.length);
+        for (UUID illisible : jdbc.queryForList("SELECT id FROM serologies_patient WHERE center_id = ? AND patient_id = ?" + filtre
+                + " AND NOT (marqueur IN (" + liste(MarqueurSerologique.values()) + ") AND resultat IN (" + liste(ResultatSerologique.values())
+                + "))", UUID.class, parametres)) {
+            JOURNAL.warn("Sérologie {} ignorée : marqueur ou résultat illisible en base (donnée incohérente)", illisible);
+        }
     }
 
     /** Un verrou non obtenu dans le délai de la transaction (SQLSTATE 55P03) devient l'écriture concurrente du contexte. */

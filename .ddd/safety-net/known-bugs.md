@@ -1555,7 +1555,7 @@ Filet : `backend/platform/src/test/java/.../characterization/dossiermedical/dm3/
 
 ## Slice DM4 : sérologies (2026-11-07, périmètre « à confirmer avec les métiers »)
 
-Filet : `backend/platform/src/test/java/.../characterization/dossiermedical/dm4/` (26 scénarios, 41 goldens, table réelle `serologies_patient`, pas le schéma parallèle gelé `serologies`). Aucune décision (reproduire / corriger) n'est prise ici ; les trous sont verrouillés tels quels.
+Filet : `backend/platform/src/test/java/.../characterization/dossiermedical/dm4/` (26 scénarios, 41 goldens, table réelle `serologies_patient`, pas le schéma parallèle gelé `serologies`). Le filet verrouille les trous tels quels ; les décisions (reproduire / corriger) ont été prises à la reprise, voir « Décisions DM4 » plus bas (ADR 0083, déléguées, à confirmer avec les métiers et le DPO). La colonne « Décision proposée » ci-dessous est l'état du filet.
 
 | Id | Comportement actuel (verrouillé par) | Décision proposée |
 |---|---|---|
@@ -1572,3 +1572,21 @@ Filet : `backend/platform/src/test/java/.../characterization/dossiermedical/dm4/
 | KB-MED-55 | **Droits** : lecture MEDECIN et ADMIN ; écriture (POST, PUT, DELETE) MEDECIN seul, l'ADMIN lit sans écrire (403) ; INFIRMIER, SECRETAIRE, rôles inconnus, sans rôle : 403 `ACCESS_DENIED` ; DIRECTION et SUPERADMIN (même cumulé avec ADMIN ou MEDECIN) : 403 `ROLE_SCOPE` (filtre) ; anonyme 403 ; centre de la session différent de `centerId` = 403 (`profils`, `cloisonnement`). L'INFIRMIER ne voit pas le statut sérologique, alors que l'isolement le concerne | À confirmer avec les métiers (consultation infirmière du statut) |
 | KB-MED-56 | **Doublons** : unicité applicative seulement (marqueur + patient + centre + date de prélèvement, 422 `BUSINESS_RULE_VIOLATION` « Un résultat existe déjà »), vérifiée par lecture puis écriture sans verrou ni contrainte unique : deux POST simultanés peuvent doubler (non reproduit ici, limite) ; la synthèse suppose l'unicité pour son départage (`doublons`) | Contrainte unique en base |
 | KB-MED-57 | **Lecteurs hors module** (non observés en détail, hors périmètre HTTP de DM4) : KDIGO (`KdigoGreffeQueryService` via `SerologieRepositoryPort`, DM7), `DirectionIndicatorsQueryService` (SQL, DM8), `HistoricalRecordJdbcAdapter` et `MigrationRollbackJdbcAdapter` (import et rollback de l'historique, SQL) : ils dépendent de `serologies_patient` | Le module doit publier la lecture ou conserver la table |
+
+### Décisions DM4 (2026-11-07, déléguées, ADR 0083, « à confirmer avec les métiers et le DPO »)
+
+| Id | Décision | Preuve |
+|---|---|---|
+| KB-MED-45 | **REPRODUIT** : jour UTC de la JVM via le bean `horlogeDesSerologies` (comme DM3) ; à confirmer : jour du centre | `SerologiesTest`, golden `dates_nouveau_code` |
+| KB-MED-46 | **REPRODUIT, rien inventé** : `SerologiePositiveDetectee` n'est pas repris ni publié | golden `evenements` inchangé |
+| KB-MED-47 | **CORRIGÉ** : 400 stable pour toute entrée illisible ; 403 AVANT 400 | `ErreursDesSerologiesTest`, goldens `corps`, `correction`, `pages`, `introuvable`, `suppression`, `lectures_non_verifiees`, `refus_code`, `dates` (`*_nouveau_code`, legacy dans `dm4/_ecarts-legacy`) ; golden P5 `requetes_et_perimetre_nouveau_code` (corps vide 500 vers 400, archive `p5-placement/_ecarts-legacy/isolement/requetes_et_perimetre_avant_dm4.legacy.json`) |
+| KB-MED-48 | **CORRIGÉ** : plus de nom de classe interne dans le détail | golden `valeurs_nouveau_code` |
+| KB-MED-49 | **CORRIGÉ en partie** : « introuvable » reste 400 (reproduit) ; DELETE sans effet reste 204 (reproduit) mais n'est plus audité `SEROLOGIE_SUPPRIMEE` | goldens `audit_nouveau_code`, `audit_detail_nouveau_code`, `ErreursDesSerologiesTest`. **Limite** : une ligne dont le marqueur ou le résultat est illisible en base est ignorée par toutes les lectures du module, donc ne peut plus être corrigée (400) ni supprimée (204 sans effet) ; elle est journalisée en WARN (identifiant seul) à chaque ignorance ; repérage : `verifications-production.md` §48 requête 3 ; à traiter avec les métiers (aucune correction automatique) |
+| KB-MED-50 | **REPRODUIT** : lectures sans garde de patient (200 vide), écriture gardée par la Planification (422) | goldens `lectures_non_verifiees_nouveau_code`, `transaction` |
+| KB-MED-51 | **REPRODUIT** : la conduite du corps remplace l'ancienne, même absente | golden `correction_nouveau_code`, `SerologiesTest` |
+| KB-MED-52 | **CORRIGÉ** : unité, laboratoire, titre hors borne en 400 ; titre arrondi à 3 décimales ; le reste reproduit | golden `bornes_nouveau_code`, `SerologieTest` |
+| KB-MED-53 | **REPRODUIT** : positivité POSITIF seul ; Planification et Direction non touchées ; prédicat unique à décider | `SerologieTest`, filet P5 |
+| KB-MED-54 | **REPRODUIT** : audit pauvre, lectures non tracées, aucun audit nouveau | golden `audit_nouveau_code` |
+| KB-MED-55 | **REPRODUIT** : droits inchangés (l'infirmier sans accès) | golden `profils` |
+| KB-MED-56 | **PROTÉGÉ** : verrou consultatif du triplet + 409 `SEROLOGIE_ECRITURE_CONCURRENTE`, ordre global centre, fiches, `app_user`, verrous consultatifs ; AUCUNE contrainte en base (consigné) ; doublons existants : §48 requête 2 | `SerologiesPostgresContractIT` (deux connexions), `ErreursDesSerologiesTest` |
+| KB-MED-57 | **LAISSÉ** : lecteurs hors module inchangés ; résidus Java (`Serologie`, port, adapter, entité JPA) : retrait à la fin de DM7, revue au plus tard le **2026-12-15** (même jalon que les entités JPA de DM3, ADR 0082 et 0083) | ADR 0083 |

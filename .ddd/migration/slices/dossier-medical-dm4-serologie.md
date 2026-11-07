@@ -30,7 +30,9 @@ Filet `characterization/dossiermedical/dm4` : **26/26 scénarios verts sur le no
 | KB-MED-52 (bornes de colonne 500 vers 400) | corrigé |
 | KB-MED-49 partiel (DELETE sans effet : 204 reproduit, plus d'audit mensonger ; introuvable 400 reproduit) | corrigé en partie |
 | KB-MED-56 (unicité) | verrou consultatif, aucune migration ; doublons existants : `verifications-production.md` §48 requête 2 |
-| KB-MED-45, 46, 50, 51, 53, 54, 55, 57 | reproduits et consignés (ADR 0083) |
+| KB-MED-45, 46, 50, 51, 53, 54, 55, 57 | reproduits et consignés (ADR 0083, `known-bugs.md` « Décisions DM4 ») |
+| Golden P5 `requetes_et_perimetre_nouveau_code` | modifié sur une ligne (corps vide 500 vers 400, conséquence de KB-MED-47) ; ancienne version archivée dans `p5-placement/_ecarts-legacy/isolement/requetes_et_perimetre_avant_dm4.legacy.json` ; le reste du comportement P5 est inchangé |
+| Lignes illisibles en base | ignorées par les lectures, donc ni corrigées ni supprimées par le module ; WARN avec identifiant seul ; repérage §48 requête 3 (limite consignée, ADR 0083) |
 
 ## Reste à faire
 - Confirmation métiers et DPO des décisions reproduites (liste dans l'ADR 0083) ; contrainte d'unicité en base (migration non décidée).
