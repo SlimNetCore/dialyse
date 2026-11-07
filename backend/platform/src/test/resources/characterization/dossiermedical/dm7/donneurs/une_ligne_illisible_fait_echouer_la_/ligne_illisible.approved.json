@@ -1,0 +1,6 @@
+{
+  "01 liste" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.LienParenteDonneur.LIEN_DISPARU",
+  "02 mise a jour de la ligne illisible" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.LienParenteDonneur.LIEN_DISPARU",
+  "03 suppression de la ligne illisible" : 204,
+  "04 liste apres la suppression" : [ "Donneur Sain" ]
+}

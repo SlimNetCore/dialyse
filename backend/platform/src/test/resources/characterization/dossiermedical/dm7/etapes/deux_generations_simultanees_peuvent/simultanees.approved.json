@@ -1,0 +1,5 @@
+{
+  "01 statuts des deux appels" : [ 200, 200 ],
+  "02 le total est compris entre 23 et 46" : true,
+  "03 une generation ulterieure ne cree rien de plus" : true
+}

@@ -1,0 +1,62 @@
+{
+  "01 premiere decision sur un patient sans bilan (ouvre le bilan)" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "conclusionNephrologue" : null,
+      "contreIndications" : null,
+      "createdAt" : "<HORODATAGE>",
+      "dateDebutBilan" : null,
+      "dateGreffe" : null,
+      "dateInscriptionListeAttente" : null,
+      "decisionsRcp" : [ {
+        "avis" : "AJOURNE",
+        "compteRendu" : "Complements demandes",
+        "dateReunion" : "<D+10>",
+        "id" : "<UUID_GENERE_1>",
+        "prochaineDateRevue" : "<D+40>"
+      } ],
+      "groupeSanguinConfirme" : null,
+      "id" : "<UUID_GENERE_2>",
+      "patientId" : "<PAT_A>",
+      "praClasseI" : null,
+      "praClasseII" : null,
+      "statut" : "NON_DEBUTE",
+      "typageHla" : null,
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "02 reponse du dernier POST : decisions chargees (recentes d'abord) puis la nouvelle en dernier" : [ "<D+30> | FAVORABLE | Avis favorable | -", "<D+20> | DEFAVORABLE | - | <D+25>", "<D+10> | AJOURNE | Complements demandes | <D+40>", "<J> | FAVORABLE | Reunion du jour | -" ],
+  "03 la premiere decision garde son identifiant apres les reecritures" : true,
+  "04 etat des decisions en base" : [ {
+    "avis" : "AJOURNE",
+    "bilan_id" : "<UUID_GENERE_2>",
+    "compte_rendu" : "Complements demandes",
+    "date_reunion" : "<D+10>",
+    "id" : "<UUID_GENERE_1>",
+    "prochaine_date_revue" : "<D+40>"
+  }, {
+    "avis" : "DEFAVORABLE",
+    "bilan_id" : "<UUID_GENERE_2>",
+    "compte_rendu" : null,
+    "date_reunion" : "<D+20>",
+    "id" : "<UUID_GENERE_3>",
+    "prochaine_date_revue" : "<D+25>"
+  }, {
+    "avis" : "FAVORABLE",
+    "bilan_id" : "<UUID_GENERE_2>",
+    "compte_rendu" : "Avis favorable",
+    "date_reunion" : "<D+30>",
+    "id" : "<UUID_GENERE_4>",
+    "prochaine_date_revue" : null
+  }, {
+    "avis" : "FAVORABLE",
+    "bilan_id" : "<UUID_GENERE_2>",
+    "compte_rendu" : "Reunion du jour",
+    "date_reunion" : "<J>",
+    "id" : "<UUID_GENERE_5>",
+    "prochaine_date_revue" : null
+  } ],
+  "05 relecture du bilan (GET : date de reunion decroissante)" : [ "<J> | FAVORABLE | Reunion du jour | -", "<D+30> | FAVORABLE | Avis favorable | -", "<D+20> | DEFAVORABLE | - | <D+25>", "<D+10> | AJOURNE | Complements demandes | <D+40>" ],
+  "06 le statut du bilan n'est pas touche par une decision" : "200 NON_DEBUTE"
+}

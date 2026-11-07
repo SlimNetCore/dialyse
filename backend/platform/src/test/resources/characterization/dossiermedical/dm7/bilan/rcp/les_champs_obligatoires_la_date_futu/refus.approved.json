@@ -1,0 +1,15 @@
+{
+  "aucune ecriture par les refus" : true,
+  "cas" : {
+    "01 date de reunion demain" : "422 DECISION_RCP_DATE_FUTURE | La date de réunion ne peut pas être dans le futur",
+    "02 date de reunion absente" : "422 DECISION_RCP_CHAMPS_REQUIS | La date de réunion et l'avis sont obligatoires pour une décision de RCP",
+    "03 avis absent" : "500 INTERNAL_ERROR",
+    "04 avis inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.AvisRcp.PEUT_ETRE",
+    "05 avis en minuscules" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.AvisRcp.favorable",
+    "06 date illisible" : "500 INTERNAL_ERROR",
+    "07 date inexistante" : "500 INTERNAL_ERROR",
+    "08 corps vide" : "500 INTERNAL_ERROR",
+    "09 corps illisible" : "500 INTERNAL_ERROR"
+  },
+  "revue dans le futur lointain (acceptee)" : "200 ok"
+}

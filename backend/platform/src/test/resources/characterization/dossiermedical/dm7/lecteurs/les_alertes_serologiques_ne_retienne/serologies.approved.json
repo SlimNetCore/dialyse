@@ -1,0 +1,21 @@
+{
+  "VIH_AC DOUTEUX seul" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "VIH_AC EN_COURS seul" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "VIH_AC NEGATIF seul" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "VIH_AC negatif ancien puis positif recent : pas d'alerte (KB)" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "VIH_AC positif ancien puis negatif recent : l'alerte demeure (KB)" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [VIH_AC=POSITIF]",
+  "plusieurs alertes (triees pour la lecture) ; la serologie ARN_VHC du centre B pour le meme patient est ignoree" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [AC_VHC=POSITIF, AG_HBS=POSITIF, TPHA=POSITIF]",
+  "positif AC_HBC" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif AC_HBS" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif AC_VHC" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [AC_VHC=POSITIF]",
+  "positif AG_HBS" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [AG_HBS=POSITIF]",
+  "positif ARN_VHC" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [ARN_VHC=POSITIF]",
+  "positif CMV_IGG" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif CMV_IGM" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif EBV_IGG" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif EBV_IGM" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif TOXO_IGG" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif TOXO_IGM" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "positif TPHA" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [TPHA=POSITIF]",
+  "positif VIH_AC" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes [VIH_AC=POSITIF]"
+}

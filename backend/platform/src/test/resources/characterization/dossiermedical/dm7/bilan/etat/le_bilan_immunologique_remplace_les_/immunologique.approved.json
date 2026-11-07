@@ -1,0 +1,40 @@
+{
+  "01 saisie complete sur un patient sans bilan (ouvre le bilan)" : "200 A+ | A1 A2 B7 B8 DR1 DR4 | 12.5 | 80",
+  "02 etat apres la saisie" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_nephrologue" : null,
+    "contre_indications" : null,
+    "creation" : "recent",
+    "date_debut_bilan" : null,
+    "date_greffe" : null,
+    "date_inscription_liste_attente" : null,
+    "groupe_sanguin_confirme" : "A+",
+    "id" : "<UUID_GENERE_1>",
+    "modification" : "ligne creee par l application",
+    "patient_id" : "<PAT_A>",
+    "pra_classe_i" : "12.50",
+    "pra_classe_ii" : "80.00",
+    "statut" : "NON_DEBUTE",
+    "typage_hla" : "A1 A2 B7 B8 DR1 DR4"
+  } ],
+  "03 saisie partielle : les champs absents sont effaces" : "200 O- | - | - | -",
+  "04 bornes" : {
+    "corps illisible" : "500 INTERNAL_ERROR",
+    "corps vide" : "500 INTERNAL_ERROR",
+    "groupe sanguin 5 caracteres" : "200 ABCDE | - | - | -",
+    "groupe sanguin 6 caracteres" : "500 DATA_ACCESS_ERROR",
+    "groupe sanguin libre (aucune liste de valeurs)" : "200 Z9 | - | - | -",
+    "pra -5 (reponse | colonne relue)" : "200 -5 | colonne -5.00",
+    "pra 0 (reponse | colonne relue)" : "200 0 | colonne 0.00",
+    "pra 100 (reponse | colonne relue)" : "200 100 | colonne 100.00",
+    "pra 100.01 (reponse | colonne relue)" : "200 100.01 | colonne 100.01",
+    "pra 1000 (reponse | colonne relue)" : "500 DATA_ACCESS_ERROR | colonne 999.99",
+    "pra 12.345 (reponse | colonne relue)" : "200 12.345 | colonne 12.35",
+    "pra 12.355 (reponse | colonne relue)" : "200 12.355 | colonne 12.36",
+    "pra 999.99 (reponse | colonne relue)" : "200 999.99 | colonne 999.99",
+    "pra texte" : "500 INTERNAL_ERROR",
+    "typage 500 caracteres" : "200 ok",
+    "typage 501 caracteres" : "500 DATA_ACCESS_ERROR"
+  },
+  "05 lignes apres les refus" : 1
+}

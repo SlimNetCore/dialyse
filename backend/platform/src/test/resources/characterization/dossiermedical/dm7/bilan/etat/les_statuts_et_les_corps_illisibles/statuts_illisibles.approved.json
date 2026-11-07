@@ -1,0 +1,14 @@
+{
+  "cas" : {
+    "01 statut inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanGreffe.BIDON",
+    "02 statut en minuscules" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanGreffe.bilan_en_cours",
+    "03 statut vide" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanGreffe.",
+    "04 statut absent" : "500 INTERNAL_ERROR",
+    "05 corps vide" : "500 INTERNAL_ERROR",
+    "06 corps illisible" : "500 INTERNAL_ERROR",
+    "07 statut de type nombre" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanGreffe.3",
+    "08 identifiant de patient illisible" : "500 INTERNAL_ERROR",
+    "09 lecture avec centerId illisible" : "500 INTERNAL_ERROR"
+  },
+  "ecriture" : "aucune ligne modifiee"
+}

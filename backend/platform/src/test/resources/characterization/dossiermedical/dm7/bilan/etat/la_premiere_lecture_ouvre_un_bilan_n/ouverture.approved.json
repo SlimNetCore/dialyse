@@ -1,0 +1,47 @@
+{
+  "01 premiere lecture MEDECIN" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "conclusionNephrologue" : null,
+      "contreIndications" : null,
+      "createdAt" : "<HORODATAGE>",
+      "dateDebutBilan" : null,
+      "dateGreffe" : null,
+      "dateInscriptionListeAttente" : null,
+      "decisionsRcp" : [ ],
+      "groupeSanguinConfirme" : null,
+      "id" : "<UUID_GENERE_1>",
+      "patientId" : "<PAT_A>",
+      "praClasseI" : null,
+      "praClasseII" : null,
+      "statut" : "NON_DEBUTE",
+      "typageHla" : null,
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "02 etat apres la premiere lecture" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_nephrologue" : null,
+    "contre_indications" : null,
+    "creation" : "recent",
+    "date_debut_bilan" : null,
+    "date_greffe" : null,
+    "date_inscription_liste_attente" : null,
+    "groupe_sanguin_confirme" : null,
+    "id" : "<UUID_GENERE_1>",
+    "modification" : "ligne creee par l application",
+    "patient_id" : "<PAT_A>",
+    "pra_classe_i" : null,
+    "pra_classe_ii" : null,
+    "statut" : "NON_DEBUTE",
+    "typage_hla" : null
+  } ],
+  "03 meme identifiant a la deuxieme lecture" : true,
+  "04 une seule ligne" : 1,
+  "05 lecture ADMIN d'un autre patient" : "200 ok",
+  "06 lecture d'un patient inconnu (aucune garde de patient)" : "200 ok",
+  "07 lignes apres les trois ouvertures" : 3,
+  "08 lecture refusee INFIRMIER n'ouvre rien" : "403 ACCESS_DENIED | Access Denied",
+  "09 lignes apres le refus" : 3
+}

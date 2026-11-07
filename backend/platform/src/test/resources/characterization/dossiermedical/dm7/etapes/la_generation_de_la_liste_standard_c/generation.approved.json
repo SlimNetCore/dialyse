@@ -1,0 +1,10 @@
+{
+  "01 premiere generation (INFIRMIER), tri categorie puis libelle" : [ "CARDIOLOGIQUE | ECG | A_FAIRE", "CARDIOLOGIQUE | Échographie cardiaque | A_FAIRE", "CARDIOLOGIQUE | Épreuve d'effort / scintigraphie myocardique | A_FAIRE", "DENTAIRE | Panoramique dentaire et consultation dentaire | A_FAIRE", "DIGESTIF | Échographie abdominale | A_FAIRE", "GYNECOLOGIQUE | Frottis cervico-vaginal / mammographie | A_FAIRE", "IMMUNOLOGIQUE | Groupe sanguin et phénotype érythrocytaire | A_FAIRE", "IMMUNOLOGIQUE | Recherche d'anticorps anti-HLA (PRA) | A_FAIRE", "IMMUNOLOGIQUE | Typage HLA | A_FAIRE", "NUTRITIONNEL | Évaluation nutritionnelle | A_FAIRE", "ONCOLOGIQUE | Coloscopie (si indiquée selon l'âge) | A_FAIRE", "ORL | Consultation ORL | A_FAIRE", "PNEUMOLOGIQUE | Explorations fonctionnelles respiratoires | A_FAIRE", "PNEUMOLOGIQUE | Radiographie thoracique | A_FAIRE", "PSYCHIATRIQUE | Évaluation psychiatrique / psychologique | A_FAIRE", "UROLOGIQUE | PSA / bilan urologique | A_FAIRE", "VACCINATION | Statut vaccinal hépatite B | A_FAIRE", "VACCINATION | Statut vaccinal pneumocoque / grippe | A_FAIRE", "VIROLOGIQUE | Sérologie CMV | A_FAIRE", "VIROLOGIQUE | Sérologie EBV | A_FAIRE", "VIROLOGIQUE | Sérologie VIH | A_FAIRE", "VIROLOGIQUE | Sérologie toxoplasmose | A_FAIRE", "VIROLOGIQUE | Sérologies hépatite B et C | A_FAIRE" ],
+  "02 nombre apres la premiere generation" : 23,
+  "03 seconde generation : meme nombre" : 23,
+  "04 aucun doublon en base" : 0,
+  "05 etat des statuts" : [ {
+    "N" : 23,
+    "STATUT" : "A_FAIRE"
+  } ]
+}

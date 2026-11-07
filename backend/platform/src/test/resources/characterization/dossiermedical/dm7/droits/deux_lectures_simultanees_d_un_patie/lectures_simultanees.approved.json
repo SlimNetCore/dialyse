@@ -1,0 +1,5 @@
+{
+  "01 statuts des deux lectures simultanees" : [ 200, 200 ],
+  "02 une ou deux lignes (aucune unicite en base)" : true,
+  "03 la lecture suivante reussit si et seulement si une seule ligne" : true
+}

@@ -1,0 +1,12 @@
+{
+  "01 PRA I=null II=null" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "02 PRA I=0 II=0" : "risque PRA | 0.0 | % | FAIBLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "03 PRA I=19.99 II=null" : "risque PRA | 19.99 | % | FAIBLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "04 PRA I=20 II=null" : "risque PRA | 20.0 | % | INTERMEDIAIRE ; egfr - | NON_EVALUABLE ; alertes []",
+  "05 PRA I=80 II=null" : "risque PRA | 80.0 | % | INTERMEDIAIRE ; egfr - | NON_EVALUABLE ; alertes []",
+  "06 PRA I=80.01 II=null" : "risque PRA | 80.01 | % | ELEVE ; egfr - | NON_EVALUABLE ; alertes []",
+  "07 PRA I=10 II=90" : "risque PRA | 90.0 | % | ELEVE ; egfr - | NON_EVALUABLE ; alertes []",
+  "08 PRA I=null II=50" : "risque PRA | 50.0 | % | INTERMEDIAIRE ; egfr - | NON_EVALUABLE ; alertes []",
+  "09 PRA I=100 II=5" : "risque PRA | 100.0 | % | ELEVE ; egfr - | NON_EVALUABLE ; alertes []",
+  "10 PRA I=20 II=19.99" : "risque PRA | 20.0 | % | INTERMEDIAIRE ; egfr - | NON_EVALUABLE ; alertes []"
+}

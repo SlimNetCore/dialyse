@@ -1,0 +1,26 @@
+{
+  "etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_nephrologue" : null,
+    "contre_indications" : null,
+    "creation" : "recent",
+    "date_debut_bilan" : "<J>",
+    "date_greffe" : "<J>",
+    "date_inscription_liste_attente" : "<J>",
+    "groupe_sanguin_confirme" : null,
+    "id" : "<UUID_GENERE_1>",
+    "modification" : "ligne creee par l application",
+    "patient_id" : "<PAT_A>",
+    "pra_classe_i" : null,
+    "pra_classe_ii" : null,
+    "statut" : "GREFFE_REALISEE",
+    "typage_hla" : null
+  } ],
+  "inscrit -> inscrit : la date d'inscription est ecrasee" : "200 INSCRIT_LISTE_ATTENTE | <J>",
+  "nominal -> BILAN_EN_COURS" : "200 BILAN_EN_COURS | <J> | - | -",
+  "nominal -> ELIGIBLE" : "200 ELIGIBLE | <J> | - | -",
+  "nominal -> GREFFE_REALISEE" : "200 GREFFE_REALISEE | <J> | <J> | <J>",
+  "nominal -> INSCRIT_LISTE_ATTENTE" : "200 INSCRIT_LISTE_ATTENTE | <J> | <J> | -",
+  "reprise : la date de debut existante est conservee" : "200 BILAN_EN_COURS | <D+3>",
+  "reprise sans date de debut : date du jour" : "200 BILAN_EN_COURS | <J>"
+}

@@ -1,0 +1,8 @@
+{
+  "01 statut" : 200,
+  "02 type" : "application/pdf",
+  "03 en-tete de telechargement" : "attachment; filename=dossier-greffe-<PAT_A>.pdf",
+  "04 signature du fichier" : "%PDF-",
+  "05 texte" : [ "Centre P2 A", "Dossier de préparation à la greffe rénale", "Patient : Patient PAT_A Test (DM7-PAT_A) — Groupe sanguin déclaré : A+", "Éligibilité", "Statut : ELIGIBLE", "Groupe sanguin confirmé : A+", "Typage HLA : A1 B8 DR3", "PRA classe I / II : 12.50 % / 85.00 %", "Contre-indications : Aucune connue", "Conclusion néphrologue : Candidat favorable", "Décisions de RCP", "Date Avis Compte-rendu Prochaine revue", "31/01/2026 FAVORABLE - -", "11/01/2026 AJOURNE Complements demandes 10/02/2026", "Checklist du bilan pré-greffe", "Catégorie Étape Statut", "Date", "réalisation", "Résultat", "AUTRE", "Etape <b>speciale</b> &", "\"guillemets\"", "NON_APPLICABLE -", "Resultat <i>libre<", "/i>", "CARDIOLOGIQUE ECG A_FAIRE - -", "VIROLOGIQUE Serologie CMV FAIT 13/01/2026 Negatif", "VIROLOGIQUE Serologie VIH PLANIFIE - -", "Sérologies", "Marqueur Résultat Date prélèvement", "AG_HBS POSITIF 21/01/2026", "VIH_AC NEGATIF 12/01/2026", "Antécédents actifs", "Diagnostic", "Hypertension arterielle", "Donneurs vivants candidats", "Nom Lien de parenté Groupe sanguin Statut Crossmatch", "Donneur <Deux> & Cie Test NON_APPARENTE - CANDIDAT NON_FAIT", "Donneur Un Test PARENT - COMPATIBLE NEGATIF", "Centre P2 A" ],
+  "06 aucune ecriture" : true
+}

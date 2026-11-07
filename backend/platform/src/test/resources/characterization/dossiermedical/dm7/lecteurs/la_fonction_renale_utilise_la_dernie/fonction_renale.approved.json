@@ -1,0 +1,15 @@
+{
+  "01 homme 50 ans, creatinine 1.0" : "risque PRA | - | % | NON_EVALUABLE ; egfr 91.7 | G1 ; alertes []",
+  "02 femme 50 ans, creatinine 1.0" : "risque PRA | - | % | NON_EVALUABLE ; egfr 68.6 | G2 ; alertes []",
+  "03 femme (FEMININ) 50 ans, creatinine 1.0" : "risque PRA | - | % | NON_EVALUABLE ; egfr 68.6 | G2 ; alertes []",
+  "04 sexe inconnu (X) : formule masculine" : "risque PRA | - | % | NON_EVALUABLE ; egfr 91.7 | G1 ; alertes []",
+  "05 homme 50 ans, creatinine 12 (dialyse)" : "risque PRA | - | % | NON_EVALUABLE ; egfr 4.6 | G5 ; alertes []",
+  "06 homme 50 ans, creatinine 0.5" : "risque PRA | - | % | NON_EVALUABLE ; egfr 124.3 | G1 ; alertes []",
+  "07 homme 50 ans, creatinine 2.0" : "risque PRA | - | % | NON_EVALUABLE ; egfr 39.9 | G3B ; alertes []",
+  "08 homme 50 ans, creatinine 0 : non evaluable" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "09 homme 50 ans, creatinine negative : non evaluable" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "10 homme 50 ans, aucune creatinine" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "11 homme sans date de naissance" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "12 la plus recente par date gagne, pas par saisie" : "risque PRA | - | % | NON_EVALUABLE ; egfr 91.7 | G1 ; alertes []",
+  "13 une analyse recente sans creatinine est ignoree" : "risque PRA | - | % | NON_EVALUABLE ; egfr 39.9 | G3B ; alertes []"
+}

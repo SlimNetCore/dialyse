@@ -1,0 +1,15 @@
+{
+  "aucune ecriture" : true,
+  "cas" : {
+    "01 nom absent" : "422 DONNEUR_VIVANT_CHAMPS_REQUIS | Nom, lien de parenté et statut de bilan sont obligatoires",
+    "02 lien absent" : "500 INTERNAL_ERROR",
+    "03 statut de bilan absent" : "500 INTERNAL_ERROR",
+    "04 statut de bilan inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanDonneur.ACCEPTE",
+    "05 crossmatch inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.ResultatCrossmatch.INDETERMINE",
+    "06 donneur inconnu" : "400 BAD_REQUEST | Donneur vivant introuvable",
+    "07 donneur d'un autre patient" : "400 BAD_REQUEST | Donneur vivant introuvable",
+    "08 corps vide" : "500 INTERNAL_ERROR",
+    "09 identifiant illisible" : "500 INTERNAL_ERROR",
+    "10 crossmatch absent" : "500 INTERNAL_ERROR"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "aucune ecriture" : true,
+  "cas" : {
+    "ADMIN : creation d'etape" : "403 ACCESS_DENIED",
+    "ADMIN : export pdf" : "403 ACCESS_DENIED",
+    "ADMIN : mise a jour d'etape avec un corps illisible" : "500 INTERNAL_ERROR",
+    "ADMIN : statut" : "403 ACCESS_DENIED",
+    "ADMIN : suppression de donneur" : "403 ACCESS_DENIED",
+    "DIRECTION : lecture des etapes" : "403 ROLE_SCOPE",
+    "INFIRMIER : creation de donneur" : "403 ACCESS_DENIED",
+    "INFIRMIER : decision de RCP avec un corps absent" : "500 INTERNAL_ERROR",
+    "INFIRMIER : lecture KDIGO" : "403 ACCESS_DENIED",
+    "INFIRMIER : lecture des donneurs" : "403 ACCESS_DENIED",
+    "INFIRMIER : lecture du bilan" : "403 ACCESS_DENIED",
+    "INFIRMIER : statut" : "403 ACCESS_DENIED",
+    "INFIRMIER : statut avec un corps illisible" : "500 INTERNAL_ERROR",
+    "INFIRMIER : suppression d'etape" : "403 ACCESS_DENIED",
+    "SECRETAIRE : lecture du bilan" : "403 ACCESS_DENIED"
+  }
+}

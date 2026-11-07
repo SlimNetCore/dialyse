@@ -1,0 +1,5 @@
+{
+  "01 etape illisible" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.CategorieEtapeGreffe.CATEGORIE_DISPARUE",
+  "02 bilan illisible" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanGreffe.STATUT_DISPARU",
+  "03 KDIGO du bilan illisible" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutBilanGreffe.STATUT_DISPARU"
+}

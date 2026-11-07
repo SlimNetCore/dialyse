@@ -1,0 +1,18 @@
+{
+  "01 total apres generation" : 26,
+  "02 etapes de depart conservees telles quelles" : [ {
+    "LIBELLE" : "Consultation libre",
+    "RESULTAT" : null,
+    "STATUT" : "PLANIFIE"
+  }, {
+    "LIBELLE" : "ECG",
+    "RESULTAT" : null,
+    "STATUT" : "A_FAIRE"
+  }, {
+    "LIBELLE" : "ECG",
+    "RESULTAT" : "Normal",
+    "STATUT" : "FAIT"
+  } ],
+  "03 un libelle de casse differente n'est pas reconnu : les deux coexistent" : 2,
+  "04 les etapes d'un patient ne comptent pas pour l'autre" : 23
+}

@@ -1,0 +1,25 @@
+{
+  "01 notes sur un patient sans bilan" : "200 Aucune connue | Candidat favorable",
+  "02 un seul texte : l'autre est efface" : "200 - | A revoir",
+  "03 deux textes absents" : "200 - | -",
+  "04 texte de 5000 caracteres (colonne TEXT)" : 200,
+  "05 longueur relue" : 5000,
+  "06 texte vide conserve tel quel" : "200  | -",
+  "07 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "conclusion_nephrologue" : null,
+    "contre_indications" : "",
+    "creation" : "recent",
+    "date_debut_bilan" : null,
+    "date_greffe" : null,
+    "date_inscription_liste_attente" : null,
+    "groupe_sanguin_confirme" : null,
+    "id" : "<UUID_GENERE_1>",
+    "modification" : "ligne creee par l application",
+    "patient_id" : "<PAT_A>",
+    "pra_classe_i" : null,
+    "pra_classe_ii" : null,
+    "statut" : "NON_DEBUTE",
+    "typage_hla" : null
+  } ]
+}

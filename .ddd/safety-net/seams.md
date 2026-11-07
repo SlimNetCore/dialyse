@@ -341,6 +341,10 @@ Décision déléguée de l'utilisateur (message du coordinateur du 2026-11-06) :
 |---|---|---|---|
 | 2026-11-07 | dossier-medical-dm2-prescriptions | **SUPPRESSION** de `platform/.../web/rest/OrdonnanceRestController.java`, des DTO `CreateOrdonnanceRequest`, `LigneOrdonnanceRequest`, `TransitionOrdonnanceRequest`, `OrdonnanceResponse`, `LigneOrdonnanceResponse`, de `OrdonnanceNumeroGeneratorAdapter` (tous déjà dans `covered`) ; de `bc-medical/.../ordonnance/service/OrdonnanceDomainService`, `port/OrdonnanceUseCase`, `port/OrdonnanceNumeroGeneratorPort` (les deux ports **inscrits dans `seamAllowed`**) et de leur test ; ÉDITION de `platform/.../infrastructure/config/DomainServiceConfig.java` (retrait du bean `ordonnanceDomainService`, déjà dans `covered`) | Les routes `/api/v1/patients/{id}/ordonnances` sont servies par `contexts/dossier-medical` (`OrdonnancesControleur`) : deux contrôleurs sur la même route empêchent le démarrage. **Restent** `Ordonnance`, `LigneOrdonnance`, `OrdonnanceRepositoryPort`, `OrdonnanceRepositoryAdapter`, entités et dépôts JPA : lus par `FhirExportService` (DM8). |
 
+## Dossier médical DM7 (bilan pré-greffe) : filet sans seam (2026-11-07)
+
+Le filet DM7 n'a modifié aucun code de production (`seamAllowed` resté vide, aucun accord utilisateur requis, aucun refactoring). Non-déterminisme contrôlé dans le harnais : dates fixes nommées `<D+n>`, jour de la JVM `<J>` (le domaine lit `LocalDate.now()`, KB-MED-92) avec garde de minuit, identifiants et horodatages masqués, caches de patients vidés à chaque fixture (lecture de patient mise en cache par identifiant, KB-MED-94), écart `created_at` / `updated_at` des lignes créées par l'application non verrouillé (microsecondes).
+
 ## Dossier médical DM6 (biologie : observations et analyses) : filet sans seam (2026-11-07)
 
 Le filet DM6 n'a modifié aucun code de production (`seamAllowed` reste vide, aucun accord utilisateur requis). L'horloge système (KB-MED-80) est contournée par des dates nommées et une garde de minuit dans le harnais.

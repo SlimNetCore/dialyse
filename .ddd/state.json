@@ -91,7 +91,8 @@
     "pilotage-direction-pd4-export-synthese": "planned",
     "pilotage-direction-pd5-lectures-publiees": "planned",
     "organisation-o5-retrait-bc-referential": "in-progress",
-    "planification-p9-retrait-du-legacy": "built"
+    "planification-p9-retrait-du-legacy": "built",
+    "dossier-medical-dm7-pre-greffe": "characterized"
   },
   "contexts": {
     "gmao": "architected",

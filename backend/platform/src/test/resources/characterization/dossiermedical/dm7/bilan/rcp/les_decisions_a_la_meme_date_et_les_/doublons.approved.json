@@ -1,0 +1,5 @@
+{
+  "01 trois decisions du meme jour (aucune unicite, aucun ordre de depart garanti : comptage)" : 3,
+  "02 avis du meme jour" : [ "DEFAVORABLE", "FAVORABLE", "FAVORABLE" ],
+  "03 revue anterieure a la reunion acceptee" : "<D+10> | -"
+}

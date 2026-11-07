@@ -1,0 +1,13 @@
+{
+  "01 liste du patient" : [ "AUTRE | Zzz | A_FAIRE", "CARDIOLOGIQUE | z | FAIT", "ORL | A libelle | A_FAIRE", "ORL | b libelle | A_FAIRE" ],
+  "02 liste du patient sans etape" : [ ],
+  "03 liste d'un patient inconnu" : [ ],
+  "04 suppression" : 204,
+  "05 apres la suppression" : [ "Zzz", "z", "A libelle" ],
+  "06 meme suppression rejouee (204 silencieux)" : 204,
+  "07 suppression d'une etape inconnue (204 silencieux)" : 204,
+  "08 suppression d'une etape d'un autre patient (204 silencieux, rien supprime)" : 204,
+  "09 etapes de l'autre patient" : [ "Zzz" ],
+  "10 suppression INFIRMIER (refusee)" : "403 ACCESS_DENIED | Access Denied",
+  "11 etapes restantes" : 4
+}

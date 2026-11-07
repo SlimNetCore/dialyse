@@ -1,0 +1,14 @@
+{
+  "01 liste MEDECIN" : [ "Donneur Recent | ENFANT | BILAN_EN_COURS | NEGATIF", "Donneur Milieu | CONJOINT | COMPATIBLE | NEGATIF", "Donneur Ancien | PARENT | CANDIDAT | NON_FAIT" ],
+  "02 liste ADMIN" : [ "Donneur Recent", "Donneur Milieu", "Donneur Ancien" ],
+  "03 liste d'un patient sans donneur" : [ ],
+  "04 suppression" : 204,
+  "05 suppression rejouee (204 silencieux)" : 204,
+  "06 suppression d'un donneur inconnu (204 silencieux)" : 204,
+  "07 suppression d'un donneur d'un autre patient (204 silencieux, rien supprime)" : 204,
+  "08 apres les suppressions" : [ "Donneur Recent", "Donneur Milieu" ],
+  "09 donneurs de l'autre patient" : [ "Donneur Autre" ],
+  "10 suppression ADMIN (refusee)" : "403 ACCESS_DENIED | Access Denied",
+  "11 liste INFIRMIER (refusee)" : "403 ACCESS_DENIED | Access Denied",
+  "12 restants" : 3
+}

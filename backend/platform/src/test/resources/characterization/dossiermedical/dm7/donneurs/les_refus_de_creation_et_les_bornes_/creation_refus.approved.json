@@ -1,0 +1,18 @@
+{
+  "cas" : {
+    "01 nom absent" : "422 DONNEUR_VIVANT_CHAMPS_REQUIS | Patient, centre, nom et lien de parenté sont obligatoires",
+    "02 nom blanc" : "422 DONNEUR_VIVANT_CHAMPS_REQUIS | Patient, centre, nom et lien de parenté sont obligatoires",
+    "03 lien absent" : "500 INTERNAL_ERROR",
+    "04 lien inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.LienParenteDonneur.VOISIN",
+    "05 nom de 100 caracteres" : "200 ok",
+    "06 nom de 101 caracteres" : "500 DATA_ACCESS_ERROR",
+    "07 telephone de 30 caracteres" : "200 ok",
+    "08 telephone de 31 caracteres" : "500 DATA_ACCESS_ERROR",
+    "09 groupe sanguin de 6 caracteres" : "500 DATA_ACCESS_ERROR",
+    "10 typage de 501 caracteres" : "500 DATA_ACCESS_ERROR",
+    "11 date de naissance dans le futur (aucun controle)" : "200 ok",
+    "12 corps vide" : "500 INTERNAL_ERROR",
+    "13 corps illisible" : "500 INTERNAL_ERROR"
+  },
+  "noms enregistres" : [ "Futur", "T30", "100 caracteres" ]
+}

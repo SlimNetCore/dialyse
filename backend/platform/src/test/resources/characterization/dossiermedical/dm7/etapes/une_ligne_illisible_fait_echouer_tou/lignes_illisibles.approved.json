@@ -1,0 +1,9 @@
+{
+  "01 liste, categorie disparue" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.CategorieEtapeGreffe.CATEGORIE_DISPARUE",
+  "02 generation, categorie disparue" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.CategorieEtapeGreffe.CATEGORIE_DISPARUE",
+  "03 liste, statut disparu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.greffe.valueobject.StatutEtapeGreffe.STATUT_DISPARU",
+  "04 creation sur un patient aux lignes illisibles (acceptee : aucune relecture)" : "200 ok",
+  "05 mise a jour d'une etape saine voisine d'une ligne illisible" : "200 ok",
+  "06 suppression de la ligne illisible" : 204,
+  "07 lignes restantes du patient" : 3
+}
