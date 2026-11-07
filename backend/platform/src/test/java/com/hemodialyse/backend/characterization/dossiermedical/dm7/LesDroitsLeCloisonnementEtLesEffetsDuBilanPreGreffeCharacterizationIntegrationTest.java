@@ -207,7 +207,10 @@ class LesDroitsLeCloisonnementEtLesEffetsDuBilanPreGreffeCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("01 statuts des deux lectures simultanees", reponses.stream().map(Resp::status).toList());
         m.put("02 une ou deux lignes (aucune unicite en base)", bilans == 1 || bilans == 2);
-        // KB-MED-90 : un doublon éventuel (H2 n'a pas de verrou consultatif) est lu sans erreur, le plus ancien est retenu ; legacy archivé dans droits/_ecarts-legacy
+        // KB-MED-90 : un doublon éventuel (H2 n'a pas de verrou consultatif) est lu sans erreur, le plus ancien est retenu ; legacy archivé dans droits/_ecarts-legacy.
+        // ASSERTION VOLONTAIREMENT AFFAIBLIE : H2 ne prouve PAS l'unicité (« une seule ligne »). Cette preuve est portée par le contrat
+        // PostgreSQL 16 (BilansPreGreffePostgresContractIT, verrou consultatif réel) via backend/scripts/dossier-medical-dm7-pg16-rejeu.sh,
+        // pré-requis de mise en production (ADR 0086, section « Unicité du bilan »).
         m.put("03 la lecture suivante reussit toujours (un doublon est lu sans erreur)", suivante.status() == 200);
         arbre("lectures_simultanees_nouveau_code", m);
     }

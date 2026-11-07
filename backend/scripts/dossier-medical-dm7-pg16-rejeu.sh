@@ -20,6 +20,9 @@ trap '"$PGBIN/pg_ctl" -D "$TMP/data" stop -m fast >/dev/null 2>&1 || true; rm -r
 "$PGBIN/initdb" -D "$TMP/data" -U dossier_medical_test --pwfile="$TMP/pw" -A scram-sha-256 -E UTF8 --locale=C >/dev/null 2>&1 || exit 3
 "$PGBIN/pg_ctl" -D "$TMP/data" -o "-p $PORT -c listen_addresses=127.0.0.1" -l "$TMP/pg.log" -w -t 60 start >/dev/null || exit 3
 export PGPASSWORD="$PW"
+# Mot de passe du cluster jetable transmis aux tests par l'environnement (placeholder Spring dossiermedical.pg16.password), jamais en -D
+# sur la ligne de commande Maven (visible dans la liste des processus).
+export DOSSIERMEDICAL_PG16_PASSWORD="$PW"
 PSQL=("$PGBIN/psql" -h 127.0.0.1 -p "$PORT" -U dossier_medical_test)
 "${PSQL[@]}" -d postgres -qc "create database hemo_test" || exit 3
 MIG="$RACINE/backend/platform/src/main/resources/db/migration"
@@ -76,6 +79,6 @@ echo "=== Contrats PostgreSQL des ports BilansPreGreffe, EtapesDeBilan et Donneu
 ./mvnw -o -pl contexts/dossier-medical -am test \
   -Dtest="com.hemodialyse.backend.contexts.dossiermedical.contrat.BilansPreGreffePostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.EtapesDeBilanPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.DonneursVivantsPostgresContractIT" \
   -Dsurefire.failIfNoSpecifiedTests=false \
-  -Ddossiermedical.pg16.url="jdbc:postgresql://127.0.0.1:$PORT/hemo_test" -Ddossiermedical.pg16.user=dossier_medical_test -Ddossiermedical.pg16.password="$PW" || RC=1
+  -Ddossiermedical.pg16.url="jdbc:postgresql://127.0.0.1:$PORT/hemo_test" -Ddossiermedical.pg16.user=dossier_medical_test || RC=1
 echo "=== Code de sortie : $RC ==="
 exit $RC

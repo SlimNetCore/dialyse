@@ -5,6 +5,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 /**
@@ -24,6 +25,42 @@ class FrontieresDesContextesTest {
                     COMPTABILITE + ".domain..", COMPTABILITE + ".application..", COMPTABILITE + ".infrastructure..",
                     COMPTABILITE + ".interfaces..", COMPTABILITE + ".configuration..")
             .because("la Comptabilité ne s'utilise que par son langage publié (ADR 0025)");
+
+    private static final String PORTS_LEGACY_GREFFE = "com.hemodialyse.backend.domain.medical.greffe.port.";
+    private static final java.util.Set<String> PORTS_RESIDUELS_DU_BILAN_PRE_GREFFE = java.util.Set.of(
+            PORTS_LEGACY_GREFFE + "BilanPreGreffeRepositoryPort", PORTS_LEGACY_GREFFE + "EtapeBilanPreGreffeRepositoryPort",
+            PORTS_LEGACY_GREFFE + "DonneurVivantRepositoryPort");
+    private static final java.util.Set<String> ECRITURES_RESIDUELLES = java.util.Set.of("save", "deleteById", "findById");
+
+    /**
+     * Slice DM7 (ADR 0086) : les écritures résiduelles des ports legacy du bilan pré-greffe ({@code save}, {@code deleteById},
+     * {@code findById}) n'ont plus d'appelant ; le module {@code contexts/dossier-medical} est seul propriétaire de l'écriture. Aucun
+     * nouvel appelant ne doit apparaître avant leur retrait (revue au plus tard le 2026-12-15) ; seules les lectures
+     * ({@code findByPatientId}) restent permises pour KDIGO, le PDF et les statistiques.
+     */
+    @ArchTest
+    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_du_bilan_pre_greffe = noClasses()
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "cible une écriture résiduelle des ports legacy du bilan pré-greffe") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return PORTS_RESIDUELS_DU_BILAN_PRE_GREFFE.contains(appel.getTargetOwner().getName())
+                            && ECRITURES_RESIDUELLES.contains(appel.getName());
+                }
+            })
+            .because("l'écriture du bilan pré-greffe vit dans contexts/dossier-medical (ADR 0086) ; ces méthodes seront retirées");
+
+    /**
+     * Slice DM7 (ADR 0086) : la matrice de transition legacy n'est plus utilisée que par l'agrégat legacy lui-même (écriture
+     * morte) ; aucune autre classe ne doit la réutiliser, la machine à états vit dans {@code StatutDuBilanPreGreffe}.
+     */
+    @ArchTest
+    static final ArchRule la_transition_legacy_du_bilan_n_a_pas_d_autre_utilisateur = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.domain.medical.greffe.specification.TransitionStatutBilanGreffeSpecification")
+            .should().onlyHaveDependentClassesThat().haveFullyQualifiedName(
+                    "com.hemodialyse.backend.domain.medical.greffe.aggregate.BilanPreGreffe")
+            .allowEmptyShould(true)
+            .because("la machine à états du bilan vit dans contexts/dossier-medical (ADR 0086)");
 
     private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
 

@@ -42,6 +42,11 @@ Filet `characterization/dossiermedical/dm7` : **38/38 scénarios verts sur le no
 - Reprise de KDIGO et du PDF dans le module (bibliothèque PDF et port de lecture des sérologies) : hors DM7.
 - Nettoyage des doublons et des lignes illisibles en base : décision métiers et DBA (`verifications-production.md` §51).
 
+## Conditions de mise en production (revue DM7)
+1. KB-MED-94 : décision médicale écrite OU acceptation écrite du risque (direction médicale + DPO) avant la mise en production, au plus tard avant la revue du 2026-12-15 (ADR 0086).
+2. Rejeu vert de `dossier-medical-dm7-pg16-rejeu.sh` (unicité du bilan, que H2 ne prouve pas) : dernier rejeu 2026-11-07, 33 tests verts, mot de passe par `DOSSIERMEDICAL_PG16_PASSWORD`.
+3. Verrou ArchUnit `FrontieresDesContextesTest` : aucun appelant des écritures legacy résiduelles.
+
 ## Preuves
 Domaine (21), application avec fakes (8), contrat par port sur double (20), H2 (28), PostgreSQL 16 jetable (33 tests dont 6 verrous à deux connexions ou consultatifs, tous verts) via `backend/scripts/dossier-medical-dm7-pg16-rejeu.sh` (port 55486, jamais 5432 : chaîne Flyway, colonnes exactes, absence de contrainte d'unicité, requêtes du §51), advice (7), ArchUnit du module. Les cas d'usage n'écrivent qu'un agrégat par transaction : pas de test de transaction multi-écritures. `check-arch.ts` 0 violation, `FrontieresDesContextesTest`, `./mvnw -o test -fae` vert.
 

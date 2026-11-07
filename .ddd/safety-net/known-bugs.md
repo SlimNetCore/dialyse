@@ -1695,7 +1695,7 @@ Filet : `backend/platform/src/test/java/.../characterization/dossiermedical/dm7/
 
 ### Décisions DM7 (2026-11-07, déléguées, ADR 0086, « à confirmer avec les métiers et le DPO »)
 
-**RISQUE CLINIQUE PRIORITAIRE : KB-MED-94 est REPRODUIT** (le résultat sérologique le plus ancien l'emporte pour KDIGO : une alerte « positif récent derrière un négatif ancien » peut manquer). À trancher par les médecins et le DPO avant tout autre point.
+**RISQUE CLINIQUE PRIORITAIRE : KB-MED-94 est REPRODUIT** (le résultat sérologique le plus ancien l'emporte pour KDIGO : une alerte « positif récent derrière un négatif ancien » peut manquer). À trancher par les médecins et le DPO avant tout autre point. **CONDITION EXPLICITE DE MISE EN PRODUCTION de DM7** : décision médicale écrite OU acceptation écrite du risque, avant la mise en production et au plus tard avant la revue du 2026-12-15 (ADR 0086, questions ouvertes).
 
 Legacy archivé octet pour octet (`git show 9e60ec9f:`) dans `characterization/dossiermedical/dm7/<famille>/_ecarts-legacy/<scénario>__<nom>.legacy.json` (19 fichiers) ; 19 goldens `*_nouveau_code` approuvés un par un, 19 inchangés (38 scénarios, 38/38 verts sur le nouveau code).
 
