@@ -1,0 +1,267 @@
+[ {
+  "00 avant toute saisie" : {
+    "anemie" : {
+      "corps" : {
+        "administrationsRecentes" : [ ],
+        "courbe" : [ ],
+        "dateDernierBilan" : null,
+        "evaluations" : [ ],
+        "prescriptionActive" : null
+      },
+      "status" : 200
+    },
+    "kdigo" : {
+      "corps" : {
+        "alertesSerologiques" : [ ],
+        "fonctionRenale" : {
+          "egfrMlMin173m2" : null,
+          "referenceKdigo" : "KDIGO-CKD-EPI-2021",
+          "stade" : "NON_EVALUABLE"
+        },
+        "risqueImmunologique" : {
+          "code" : "PRA",
+          "niveau" : "NON_EVALUABLE",
+          "referenceKdigo" : "KDIGO-2020-candidat-greffe",
+          "unite" : "%",
+          "valeur" : null
+        }
+      },
+      "status" : 200
+    },
+    "statistiques" : {
+      "corps" : {
+        "avgFerritineNgMl" : 0.0,
+        "avgHbGDl" : 0.0,
+        "avgKtV" : 0.0,
+        "epoTrend" : [ ],
+        "hbTrend" : [ ]
+      },
+      "status" : 200
+    }
+  }
+}, {
+  "01 apres la creation (creatinine 8)" : {
+    "anemie" : {
+      "corps" : {
+        "administrationsRecentes" : [ ],
+        "courbe" : [ {
+          "albumineGDl" : null,
+          "cstfPct" : null,
+          "date" : "<D+10>",
+          "ferritineNgMl" : 300.0,
+          "hbGDl" : 10.0
+        } ],
+        "dateDernierBilan" : "<D+10>",
+        "evaluations" : [ {
+          "borneMax" : 11.5,
+          "borneMin" : 10,
+          "code" : "HEMOGLOBINE",
+          "referenceKdigo" : "KDIGO-2012-anemia",
+          "statut" : "DANS_CIBLE",
+          "unite" : "g/dL",
+          "valeur" : 10.0
+        }, {
+          "borneMax" : null,
+          "borneMin" : 200,
+          "code" : "FERRITINE",
+          "referenceKdigo" : "KDIGO-2012-anemia",
+          "statut" : "DANS_CIBLE",
+          "unite" : "ng/mL",
+          "valeur" : 300.0
+        }, {
+          "borneMax" : null,
+          "borneMin" : 20,
+          "code" : "CST",
+          "referenceKdigo" : "KDIGO-2012-anemia",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "%",
+          "valeur" : null
+        }, {
+          "borneMax" : null,
+          "borneMin" : 4.0,
+          "code" : "ALBUMINE",
+          "referenceKdigo" : "KDIGO-nutrition",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "g/dL",
+          "valeur" : null
+        }, {
+          "borneMax" : null,
+          "borneMin" : 1.2,
+          "code" : "KT_V",
+          "referenceKdigo" : "KDIGO-adequacy",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "",
+          "valeur" : null
+        } ],
+        "prescriptionActive" : null
+      },
+      "status" : 200
+    },
+    "kdigo" : {
+      "corps" : {
+        "alertesSerologiques" : [ ],
+        "fonctionRenale" : {
+          "egfrMlMin173m2" : 7.6,
+          "referenceKdigo" : "KDIGO-CKD-EPI-2021",
+          "stade" : "G5"
+        },
+        "risqueImmunologique" : {
+          "code" : "PRA",
+          "niveau" : "NON_EVALUABLE",
+          "referenceKdigo" : "KDIGO-2020-candidat-greffe",
+          "unite" : "%",
+          "valeur" : null
+        }
+      },
+      "status" : 200
+    },
+    "statistiques" : {
+      "corps" : {
+        "avgFerritineNgMl" : 300.0,
+        "avgHbGDl" : 10.0,
+        "avgKtV" : 0.0,
+        "epoTrend" : [ ],
+        "hbTrend" : [ {
+          "DATE_PRELEVEMENT" : "<HORODATAGE>",
+          "FERRITINE_NG_ML" : 300.0,
+          "HB_G_DL" : 10.0,
+          "KT_V_MENSUEL" : null
+        } ]
+      },
+      "status" : 200
+    }
+  }
+}, {
+  "02 apres la modification (hemoglobine seule : creatinine et ferritine effacees)" : {
+    "anemie" : {
+      "corps" : {
+        "administrationsRecentes" : [ ],
+        "courbe" : [ {
+          "albumineGDl" : null,
+          "cstfPct" : null,
+          "date" : "<D+10>",
+          "ferritineNgMl" : null,
+          "hbGDl" : 12.0
+        } ],
+        "dateDernierBilan" : "<D+10>",
+        "evaluations" : [ {
+          "borneMax" : 11.5,
+          "borneMin" : 10,
+          "code" : "HEMOGLOBINE",
+          "referenceKdigo" : "KDIGO-2012-anemia",
+          "statut" : "AU_DESSUS_CIBLE",
+          "unite" : "g/dL",
+          "valeur" : 12.0
+        }, {
+          "borneMax" : null,
+          "borneMin" : 200,
+          "code" : "FERRITINE",
+          "referenceKdigo" : "KDIGO-2012-anemia",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "ng/mL",
+          "valeur" : null
+        }, {
+          "borneMax" : null,
+          "borneMin" : 20,
+          "code" : "CST",
+          "referenceKdigo" : "KDIGO-2012-anemia",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "%",
+          "valeur" : null
+        }, {
+          "borneMax" : null,
+          "borneMin" : 4.0,
+          "code" : "ALBUMINE",
+          "referenceKdigo" : "KDIGO-nutrition",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "g/dL",
+          "valeur" : null
+        }, {
+          "borneMax" : null,
+          "borneMin" : 1.2,
+          "code" : "KT_V",
+          "referenceKdigo" : "KDIGO-adequacy",
+          "statut" : "NON_EVALUABLE",
+          "unite" : "",
+          "valeur" : null
+        } ],
+        "prescriptionActive" : null
+      },
+      "status" : 200
+    },
+    "kdigo" : {
+      "corps" : {
+        "alertesSerologiques" : [ ],
+        "fonctionRenale" : {
+          "egfrMlMin173m2" : null,
+          "referenceKdigo" : "KDIGO-CKD-EPI-2021",
+          "stade" : "NON_EVALUABLE"
+        },
+        "risqueImmunologique" : {
+          "code" : "PRA",
+          "niveau" : "NON_EVALUABLE",
+          "referenceKdigo" : "KDIGO-2020-candidat-greffe",
+          "unite" : "%",
+          "valeur" : null
+        }
+      },
+      "status" : 200
+    },
+    "statistiques" : {
+      "corps" : {
+        "avgFerritineNgMl" : 0.0,
+        "avgHbGDl" : 12.0,
+        "avgKtV" : 0.0,
+        "epoTrend" : [ ],
+        "hbTrend" : [ {
+          "DATE_PRELEVEMENT" : "<HORODATAGE>",
+          "FERRITINE_NG_ML" : null,
+          "HB_G_DL" : 12.0,
+          "KT_V_MENSUEL" : null
+        } ]
+      },
+      "status" : 200
+    }
+  }
+}, {
+  "03 apres la suppression" : {
+    "anemie" : {
+      "corps" : {
+        "administrationsRecentes" : [ ],
+        "courbe" : [ ],
+        "dateDernierBilan" : null,
+        "evaluations" : [ ],
+        "prescriptionActive" : null
+      },
+      "status" : 200
+    },
+    "kdigo" : {
+      "corps" : {
+        "alertesSerologiques" : [ ],
+        "fonctionRenale" : {
+          "egfrMlMin173m2" : null,
+          "referenceKdigo" : "KDIGO-CKD-EPI-2021",
+          "stade" : "NON_EVALUABLE"
+        },
+        "risqueImmunologique" : {
+          "code" : "PRA",
+          "niveau" : "NON_EVALUABLE",
+          "referenceKdigo" : "KDIGO-2020-candidat-greffe",
+          "unite" : "%",
+          "valeur" : null
+        }
+      },
+      "status" : 200
+    },
+    "statistiques" : {
+      "corps" : {
+        "avgFerritineNgMl" : 0.0,
+        "avgHbGDl" : 0.0,
+        "avgKtV" : 0.0,
+        "epoTrend" : [ ],
+        "hbTrend" : [ ]
+      },
+      "status" : 200
+    }
+  }
+} ]

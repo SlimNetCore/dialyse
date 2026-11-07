@@ -1,0 +1,73 @@
+{
+  "defaut" : {
+    "items" : [ "<D+50> | 14.0", "<D+40> | 13.0", "<D+30> | 12.0", "<D+20> | 11.0", "<D+10> | 10.0" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "liste d'un patient inconnu" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 0
+  },
+  "liste du patient du centre B (session A)" : {
+    "items" : [ "99.0" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  },
+  "liste pour l'ADMIN" : {
+    "items" : [ "14.0" ],
+    "page" : 0,
+    "size" : 1,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 0" : {
+    "items" : [ "14.0", "13.0", "12.0", "11.0", "10.0" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 1000" : {
+    "items" : [ "14.0", "13.0", "12.0", "11.0", "10.0" ],
+    "page" : 0,
+    "size" : 200,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page -1" : {
+    "items" : [ "14.0", "13.0" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 0" : {
+    "items" : [ "14.0", "13.0" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 2" : {
+    "items" : [ "10.0" ],
+    "page" : 2,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 9" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille illisible" : "500 INTERNAL_ERROR"
+}

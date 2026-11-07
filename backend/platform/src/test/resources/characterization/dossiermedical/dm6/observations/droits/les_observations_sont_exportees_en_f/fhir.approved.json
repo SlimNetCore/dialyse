@@ -1,0 +1,85 @@
+{
+  "diffusions" : [ ],
+  "export MEDECIN" : 200,
+  "notifications" : [ ],
+  "observations" : [ {
+    "code" : {
+      "coding" : [ {
+        "code" : "718-7",
+        "display" : "Hemoglobine fictive",
+        "system" : "http://loinc.org"
+      } ],
+      "text" : "Hemoglobine fictive"
+    },
+    "effectiveDateTime" : "<D+10>",
+    "id" : "<OBS_A>",
+    "resourceType" : "Observation",
+    "status" : "final",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "valueQuantity" : {
+      "unit" : "g/dL",
+      "value" : 11.5
+    }
+  }, {
+    "code" : {
+      "coding" : [ {
+        "code" : "5195-3",
+        "display" : "Antigene fictif",
+        "system" : "http://loinc.org"
+      } ],
+      "text" : "Antigene fictif"
+    },
+    "effectiveDateTime" : "<D-10>",
+    "id" : "<OBS_TEXTE>",
+    "resourceType" : "Observation",
+    "status" : "corrected",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "valueString" : "Negatif"
+  }, {
+    "code" : {
+      "coding" : [ {
+        "code" : "718-7",
+        "display" : "Hb derivee",
+        "system" : "http://loinc.org"
+      } ],
+      "text" : "Hb derivee"
+    },
+    "effectiveDateTime" : "<D-20>",
+    "id" : "<OBS_DERIVEE>",
+    "resourceType" : "Observation",
+    "status" : "final",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "valueQuantity" : {
+      "unit" : "g/dL",
+      "value" : 9.0
+    }
+  }, {
+    "code" : {
+      "coding" : [ {
+        "code" : "2160-0",
+        "display" : "Creatinine fictive",
+        "system" : "http://loinc.org"
+      } ],
+      "text" : "Creatinine fictive"
+    },
+    "effectiveDateTime" : "<D-60>",
+    "id" : "<OBS_COMPLETE>",
+    "resourceType" : "Observation",
+    "status" : "preliminary",
+    "subject" : {
+      "reference" : "Patient/<PAT_A>"
+    },
+    "valueQuantity" : {
+      "unit" : "mg/dL",
+      "value" : 7.25
+    }
+  } ],
+  "statut de la demande apres les saisies (KB-MED-37)" : "PRELEVE",
+  "types des ressources" : [ "Patient", "Observation", "Observation", "Observation", "Observation" ]
+}

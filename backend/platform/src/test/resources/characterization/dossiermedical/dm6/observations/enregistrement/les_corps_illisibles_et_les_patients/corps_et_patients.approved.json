@@ -1,0 +1,61 @@
+{
+  "cas" : {
+    "champ inconnu ignore" : "200 ok",
+    "corps absent" : "500 INTERNAL_ERROR",
+    "corps illisible" : "500 INTERNAL_ERROR",
+    "corps vide {}" : "500 INTERNAL_ERROR",
+    "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+    "patient du centre B (session A)" : "200 ok",
+    "patient inconnu" : "200 ok",
+    "valeur numerique en texte" : "500 INTERNAL_ERROR"
+  },
+  "etat" : [ {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : "Analyte fictif",
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_prelevement" : "<D+5>",
+    "demande_examen_id" : null,
+    "id" : "<UUID_GENERE_1>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<UUID_GENERE_2>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "u",
+    "valeur_num" : "1.0000",
+    "valeur_texte" : null
+  }, {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : "Analyte fictif",
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_prelevement" : "<D+5>",
+    "demande_examen_id" : null,
+    "id" : "<UUID_GENERE_3>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "u",
+    "valeur_num" : "2.0000",
+    "valeur_texte" : null
+  }, {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : null,
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_prelevement" : "<D+5>",
+    "demande_examen_id" : null,
+    "id" : "<UUID_GENERE_4>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "u",
+    "valeur_num" : "1.0000",
+    "valeur_texte" : null
+  } ]
+}

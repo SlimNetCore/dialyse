@@ -1,0 +1,105 @@
+{
+  "01 suivi de l'anemie" : {
+    "corps" : {
+      "administrationsRecentes" : [ ],
+      "courbe" : [ {
+        "albumineGDl" : null,
+        "cstfPct" : null,
+        "date" : "<D+40>",
+        "ferritineNgMl" : 500.0,
+        "hbGDl" : 12.0
+      }, {
+        "albumineGDl" : 3.5,
+        "cstfPct" : 20.0,
+        "date" : "<D+10>",
+        "ferritineNgMl" : 300.0,
+        "hbGDl" : 10.0
+      } ],
+      "dateDernierBilan" : "<D+40>",
+      "evaluations" : [ {
+        "borneMax" : 11.5,
+        "borneMin" : 10,
+        "code" : "HEMOGLOBINE",
+        "referenceKdigo" : "KDIGO-2012-anemia",
+        "statut" : "AU_DESSUS_CIBLE",
+        "unite" : "g/dL",
+        "valeur" : 12.0
+      }, {
+        "borneMax" : null,
+        "borneMin" : 200,
+        "code" : "FERRITINE",
+        "referenceKdigo" : "KDIGO-2012-anemia",
+        "statut" : "DANS_CIBLE",
+        "unite" : "ng/mL",
+        "valeur" : 500.0
+      }, {
+        "borneMax" : null,
+        "borneMin" : 20,
+        "code" : "CST",
+        "referenceKdigo" : "KDIGO-2012-anemia",
+        "statut" : "NON_EVALUABLE",
+        "unite" : "%",
+        "valeur" : null
+      }, {
+        "borneMax" : null,
+        "borneMin" : 4.0,
+        "code" : "ALBUMINE",
+        "referenceKdigo" : "KDIGO-nutrition",
+        "statut" : "NON_EVALUABLE",
+        "unite" : "g/dL",
+        "valeur" : null
+      }, {
+        "borneMax" : null,
+        "borneMin" : 1.2,
+        "code" : "KT_V",
+        "referenceKdigo" : "KDIGO-adequacy",
+        "statut" : "DANS_CIBLE",
+        "unite" : "",
+        "valeur" : 1.5
+      } ],
+      "prescriptionActive" : null
+    },
+    "status" : 200
+  },
+  "02 statistiques medicales" : {
+    "corps" : {
+      "avgFerritineNgMl" : 400.0,
+      "avgHbGDl" : 11.0,
+      "avgKtV" : 1.3,
+      "epoTrend" : [ ],
+      "hbTrend" : [ {
+        "DATE_PRELEVEMENT" : "<HORODATAGE>",
+        "FERRITINE_NG_ML" : 300.0,
+        "HB_G_DL" : 10.0,
+        "KT_V_MENSUEL" : 1.1
+      }, {
+        "DATE_PRELEVEMENT" : "<HORODATAGE>",
+        "FERRITINE_NG_ML" : 500.0,
+        "HB_G_DL" : 12.0,
+        "KT_V_MENSUEL" : 1.5
+      } ]
+    },
+    "status" : 200
+  },
+  "03 statistiques medicales sur une periode" : {
+    "corps" : {
+      "avgFerritineNgMl" : 500.0,
+      "avgHbGDl" : 12.0,
+      "avgKtV" : 1.5,
+      "epoTrend" : [ ],
+      "hbTrend" : [ {
+        "DATE_PRELEVEMENT" : "<HORODATAGE>",
+        "FERRITINE_NG_ML" : 500.0,
+        "HB_G_DL" : 12.0,
+        "KT_V_MENSUEL" : 1.5
+      } ]
+    },
+    "status" : 200
+  },
+  "04 export csv (ADMIN)" : {
+    "status" : 200,
+    "texte" : "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl\n\"<D+10>\",\"10.00\",\"1.10\",\"300.00\",\"5.50\",\"9.00\"\n\"<D+40>\",\"12.00\",\"1.50\",\"500.00\",,\n",
+    "type" : "text/csv"
+  },
+  "05 export csv pour le MEDECIN" : "403 ACCESS_DENIED | Access Denied"
+}

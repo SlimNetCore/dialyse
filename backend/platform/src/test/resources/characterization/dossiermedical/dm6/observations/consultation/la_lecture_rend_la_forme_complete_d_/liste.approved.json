@@ -1,0 +1,43 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "centerId" : "<CENTRE_A>",
+      "code" : "5195-3",
+      "codeDisplay" : "Antigene fictif",
+      "codeSystem" : "LOINC",
+      "createdAt" : "<HORODATAGE>",
+      "datePrelevement" : "<D-10>",
+      "demandeExamenId" : null,
+      "id" : "<OBS_2>",
+      "patientId" : "<PAT_A>",
+      "source" : "IMPORT",
+      "statut" : "FINAL",
+      "unite" : null,
+      "updatedAt" : "<HORODATAGE>",
+      "valeurNum" : null,
+      "valeurTexte" : "Negatif"
+    }, {
+      "centerId" : "<CENTRE_A>",
+      "code" : "2160-0",
+      "codeDisplay" : "Creatinine fictive",
+      "codeSystem" : "LOINC",
+      "createdAt" : "<HORODATAGE>",
+      "datePrelevement" : "<D-60>",
+      "demandeExamenId" : null,
+      "id" : "<OBS_1>",
+      "patientId" : "<PAT_A>",
+      "source" : "SAISIE_DIRECTE",
+      "statut" : "PRELIMINAIRE",
+      "unite" : "mg/dL",
+      "updatedAt" : "<HORODATAGE>",
+      "valeurNum" : 7.25,
+      "valeurTexte" : null
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

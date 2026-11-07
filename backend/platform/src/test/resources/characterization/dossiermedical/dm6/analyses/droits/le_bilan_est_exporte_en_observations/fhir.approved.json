@@ -1,0 +1,6 @@
+{
+  "diffusions" : [ ],
+  "export MEDECIN" : 200,
+  "notifications" : [ ],
+  "observations issues du bilan (creatinine, uree, plaquettes, proteines et EPO non exportees)" : [ "<ANALYSE>-hbGDl | urn:hemodialyse:local-code | HBGDL | 11.5 g/dL | <D-60>", "<ANALYSE>-htPct | urn:hemodialyse:local-code | HTPCT | 34.0 % | <D-60>", "<ANALYSE>-ferritineNgMl | urn:hemodialyse:local-code | FERRITINENGML | 450.0 ng/mL | <D-60>", "<ANALYSE>-cstfPct | urn:hemodialyse:local-code | CSTFPCT | 30.0 % | <D-60>", "<ANALYSE>-ktVMensuel | urn:hemodialyse:local-code | KTVMENSUEL | 1.4  | <D-60>", "<ANALYSE>-phosphoreMgDl | urn:hemodialyse:local-code | PHOSPHOREMGDL | 5.2 mg/dL | <D-60>", "<ANALYSE>-calciumMgDl | urn:hemodialyse:local-code | CALCIUMMGDL | 9.1 mg/dL | <D-60>", "<ANALYSE>-pthPgMl | urn:hemodialyse:local-code | PTHPGML | 300.0 pg/mL | <D-60>", "<ANALYSE>-albumineGDl | urn:hemodialyse:local-code | ALBUMINEGDL | 3.8 g/dL | <D-60>", "<ANALYSE>-crpMgL | urn:hemodialyse:local-code | CRPMGL | 4.0 mg/L | <D-60>" ]
+}

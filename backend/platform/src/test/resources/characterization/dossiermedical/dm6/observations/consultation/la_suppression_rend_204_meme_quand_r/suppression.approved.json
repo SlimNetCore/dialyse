@@ -1,0 +1,45 @@
+{
+  "cas" : {
+    "01 observation d'un autre patient du meme centre" : "204",
+    "02 observation d'un autre centre" : "204",
+    "03 observation inconnue" : "204",
+    "04 nombre de lignes apres les trois suppressions sans effet" : "4",
+    "05 observation du patient" : "204",
+    "06 meme suppression rejouee" : "204",
+    "07 observation derivee d'un bilan (supprimable)" : "204",
+    "08 centerId du centre B dans la requete" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "etat" : [ {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : "Hb",
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_prelevement" : "<D+10>",
+    "demande_examen_id" : null,
+    "id" : "<OBS_AUTRE_PATIENT>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "g/dL",
+    "valeur_num" : "20.0000",
+    "valeur_texte" : null
+  }, {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : "Hb",
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_B>",
+    "creation" : "fixe",
+    "date_prelevement" : "<D+10>",
+    "demande_examen_id" : null,
+    "id" : "<OBS_AUTRE_CENTRE>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_B>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "g/dL",
+    "valeur_num" : "30.0000",
+    "valeur_texte" : null
+  } ]
+}

@@ -1,0 +1,65 @@
+{
+  "etat" : [ {
+    "albumine_g_dl" : "3.80",
+    "calcium_mg_dl" : "9.10",
+    "center_id" : "<CENTRE_A>",
+    "creatinine_mg_dl" : "8.50",
+    "creation" : "recent",
+    "crp_mg_l" : "4.00",
+    "cstf_pct" : "30.00",
+    "date_prelevement" : "<D+5>",
+    "epo_endogene_mui_ml" : "12.00",
+    "ferritine_ng_ml" : "450.00",
+    "hb_g_dl" : "11.50",
+    "ht_pct" : "34.00",
+    "id" : "<ANALYSE_COMPLETE>",
+    "kt_v_mensuel" : "1.40",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "phosphore_mg_dl" : "5.20",
+    "plaquettes" : "220",
+    "proteines_g_dl" : "6.90",
+    "pth_pg_ml" : "300.00",
+    "uree_post_mg_dl" : "40.00",
+    "uree_pre_mg_dl" : "120.00"
+  }, {
+    "albumine_g_dl" : null,
+    "calcium_mg_dl" : null,
+    "center_id" : "<CENTRE_A>",
+    "creatinine_mg_dl" : null,
+    "creation" : "recent",
+    "crp_mg_l" : null,
+    "cstf_pct" : null,
+    "date_prelevement" : "<J>",
+    "epo_endogene_mui_ml" : null,
+    "ferritine_ng_ml" : null,
+    "hb_g_dl" : null,
+    "ht_pct" : null,
+    "id" : "<ANALYSE_VIDE>",
+    "kt_v_mensuel" : null,
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "phosphore_mg_dl" : null,
+    "plaquettes" : null,
+    "proteines_g_dl" : null,
+    "pth_pg_ml" : null,
+    "uree_post_mg_dl" : null,
+    "uree_pre_mg_dl" : null
+  } ],
+  "reponse complete (seulement id, patient, modification)" : {
+    "corps" : {
+      "id" : "<ANALYSE_COMPLETE>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "reponse du corps vide" : {
+    "corps" : {
+      "id" : "<ANALYSE_VIDE>",
+      "patientId" : "<PAT_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  }
+}

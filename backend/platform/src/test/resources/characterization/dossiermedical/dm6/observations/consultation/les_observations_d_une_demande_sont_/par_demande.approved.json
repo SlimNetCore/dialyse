@@ -1,0 +1,36 @@
+{
+  "01 demande du patient" : {
+    "observations" : [ "<PAT_B> | 718-7 | 20.0 | <DEM_A>", "<PAT_A> | 2160-0 | 7.0 | <DEM_A>", "<PAT_A> | 718-7 | 10.0 | <DEM_A>" ],
+    "status" : 200
+  },
+  "02 meme demande lue via le patient B (aucun controle du patient, KB-MED-44)" : {
+    "observations" : [ "<PAT_B> | 718-7 | 20.0 | <DEM_A>", "<PAT_A> | 2160-0 | 7.0 | <DEM_A>", "<PAT_A> | 718-7 | 10.0 | <DEM_A>" ],
+    "status" : 200
+  },
+  "03 meme demande lue via un patient inconnu" : {
+    "observations" : [ "<PAT_B> | 718-7 | 20.0 | <DEM_A>", "<PAT_A> | 2160-0 | 7.0 | <DEM_A>", "<PAT_A> | 718-7 | 10.0 | <DEM_A>" ],
+    "status" : 200
+  },
+  "04 demande inconnue" : {
+    "observations" : [ ],
+    "status" : 200
+  },
+  "05 demande du centre B, session A" : {
+    "observations" : [ ],
+    "status" : 200
+  },
+  "06 demande du centre B, session B" : {
+    "observations" : [ "<PAT_B> | 718-7 | 40.0 | <DEM_B>" ],
+    "status" : 200
+  },
+  "07 demande du centre A, session B" : {
+    "observations" : [ ],
+    "status" : 200
+  },
+  "08 lecture ADMIN" : {
+    "observations" : [ "<PAT_B> | 718-7 | 20.0 | <DEM_A>", "<PAT_A> | 2160-0 | 7.0 | <DEM_A>", "<PAT_A> | 718-7 | 10.0 | <DEM_A>" ],
+    "status" : 200
+  },
+  "09 identifiant de demande illisible" : "500 INTERNAL_ERROR",
+  "10 statut de la demande A inchange" : "PRELEVE"
+}

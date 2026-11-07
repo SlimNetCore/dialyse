@@ -1,0 +1,74 @@
+{
+  "01 patient seul, taille 2" : {
+    "items" : [ "<D+50>", "<D+40>" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "02 page 2 de taille 2" : {
+    "items" : [ "<D+10>" ],
+    "page" : 2,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "03 page au dela" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "04 periode" : {
+    "items" : [ "<D+40>", "<D+30>", "<D+20>" ],
+    "page" : 0,
+    "size" : 10,
+    "status" : 200,
+    "total" : 3
+  },
+  "05 taille 200 (maximum)" : {
+    "items" : [ "<D+50>", "<D+40>", "<D+30>", "<D+20>", "<D+10>" ],
+    "page" : 0,
+    "size" : 200,
+    "status" : 200,
+    "total" : 5
+  },
+  "06 taille 201" : "400 VALIDATION_ERROR | Invalid request content.",
+  "07 taille 0" : "400 VALIDATION_ERROR | Invalid request content.",
+  "08 page negative" : "400 VALIDATION_ERROR | Invalid request content.",
+  "09 page et taille absentes (entiers obligatoires du corps)" : "500 INTERNAL_ERROR",
+  "10 patient absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "11 centre absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "12 periode inversee" : "400 BAD_REQUEST | La date from doit être <= à la date to",
+  "13 critere inconnu (motif de recherche) ignore" : {
+    "items" : [ "14.0", "13.0", "12.0", "11.0", "10.0" ],
+    "page" : 0,
+    "size" : 10,
+    "status" : 200,
+    "total" : 5
+  },
+  "14 patient du centre B (session A, centre A dans le corps)" : {
+    "items" : [ "99.0" ],
+    "page" : 0,
+    "size" : 10,
+    "status" : 200,
+    "total" : 1
+  },
+  "15 centre B dans le corps (session A)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "16 patient inconnu" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 10,
+    "status" : 200,
+    "total" : 0
+  },
+  "17 corps illisible" : "500 INTERNAL_ERROR",
+  "18 ADMIN" : {
+    "items" : [ "14.0" ],
+    "page" : 0,
+    "size" : 1,
+    "status" : 200,
+    "total" : 5
+  }
+}

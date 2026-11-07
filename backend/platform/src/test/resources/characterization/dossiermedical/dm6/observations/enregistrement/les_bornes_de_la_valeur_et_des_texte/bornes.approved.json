@@ -1,0 +1,26 @@
+{
+  "cas" : {
+    "10 chiffres entiers + 4 decimales" : "200 ok",
+    "11 chiffres entiers + 4 decimales" : "500 DATA_ACCESS_ERROR",
+    "4 decimales" : "200 ok",
+    "5 decimales (arrondi par la base)" : "200 ok",
+    "affichage de 255 caracteres" : "200 ok",
+    "affichage de 256 caracteres" : "500 DATA_ACCESS_ERROR",
+    "texte de 500 caracteres" : "200 ok",
+    "texte de 501 caracteres" : "500 DATA_ACCESS_ERROR",
+    "unite de 20 caracteres" : "200 ok",
+    "unite de 21 caracteres" : "500 DATA_ACCESS_ERROR"
+  },
+  "nombre de lignes" : 6,
+  "valeurs" : [ {
+    "valeur_num" : "1.0000"
+  }, {
+    "valeur_num" : "1.2345"
+  }, {
+    "valeur_num" : "1.2346"
+  }, {
+    "valeur_num" : "3.0000"
+  }, {
+    "valeur_num" : "9999999999.9999"
+  } ]
+}

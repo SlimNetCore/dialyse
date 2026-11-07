@@ -1,0 +1,41 @@
+{
+  "cas" : {
+    "ni l'une ni l'autre" : "422 OBSERVATION_VALEUR_INVALIDE | Une observation porte soit une valeur numérique, soit une valeur textuelle, jamais les deux ni aucune",
+    "numerique ET textuelle" : "422 OBSERVATION_VALEUR_INVALIDE | Une observation porte soit une valeur numérique, soit une valeur textuelle, jamais les deux ni aucune",
+    "numerique avec texte blanc" : "200 ok",
+    "numerique avec unite" : "200 ok",
+    "numerique avec unite blanche" : "422 VALEUR_MESUREE_UNITE_REQUISE | L'unité est obligatoire pour une valeur numérique",
+    "numerique negative" : "200 ok",
+    "numerique sans unite" : "422 VALEUR_MESUREE_UNITE_REQUISE | L'unité est obligatoire pour une valeur numérique",
+    "numerique zero" : "200 ok",
+    "textuelle blanche seule" : "422 OBSERVATION_VALEUR_INVALIDE | Une observation porte soit une valeur numérique, soit une valeur textuelle, jamais les deux ni aucune",
+    "textuelle seule" : "200 ok",
+    "unite avec texte (unite ignoree)" : "200 ok",
+    "unite sans valeur numerique ni texte" : "422 OBSERVATION_VALEUR_INVALIDE | Une observation porte soit une valeur numérique, soit une valeur textuelle, jamais les deux ni aucune"
+  },
+  "lignes" : [ {
+    "unite" : null,
+    "valeur_num" : null,
+    "valeur_texte" : "Trace"
+  }, {
+    "unite" : null,
+    "valeur_num" : null,
+    "valeur_texte" : "Trace"
+  }, {
+    "unite" : "g/dL",
+    "valeur_num" : "-3.0000",
+    "valeur_texte" : null
+  }, {
+    "unite" : "g/dL",
+    "valeur_num" : "0.0000",
+    "valeur_texte" : null
+  }, {
+    "unite" : "g/dL",
+    "valeur_num" : "12.0000",
+    "valeur_texte" : null
+  }, {
+    "unite" : "g/dL",
+    "valeur_num" : "12.0000",
+    "valeur_texte" : "   "
+  } ]
+}

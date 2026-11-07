@@ -1,0 +1,93 @@
+{
+  "cas" : {
+    "date dans le futur (2200)" : "200 ok",
+    "date illisible" : "500 INTERNAL_ERROR",
+    "deux bilans le meme jour" : "200 ok",
+    "hematocrite au dessus de 100 %" : "200 ok",
+    "hemoglobine absurde (999)" : "200 ok",
+    "hemoglobine negative" : "200 ok",
+    "hemoglobine zero" : "200 ok",
+    "plaquettes 2147483647" : "200 ok",
+    "plaquettes 2147483648" : "500 INTERNAL_ERROR",
+    "plaquettes decimales (1.5)" : "200 ok",
+    "plaquettes en texte" : "500 INTERNAL_ERROR",
+    "plaquettes negatives" : "200 ok",
+    "quatre decimales" : "200 ok",
+    "trois decimales" : "200 ok",
+    "valeur numerique en texte" : "500 INTERNAL_ERROR",
+    "valeur tres grande (1e30)" : "200 ok"
+  },
+  "lignes" : [ {
+    "date_prelevement" : "<D+1>",
+    "hb_g_dl" : "-5.00",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+1>",
+    "hb_g_dl" : "7.00",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+2>",
+    "hb_g_dl" : "0.00",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+3>",
+    "hb_g_dl" : "999.00",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+4>",
+    "hb_g_dl" : null,
+    "ht_pct" : "250.00",
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+5>",
+    "hb_g_dl" : "11.56",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+6>",
+    "hb_g_dl" : null,
+    "ht_pct" : null,
+    "kt_v_mensuel" : "1.23",
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<D+7>",
+    "hb_g_dl" : null,
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : "-1"
+  }, {
+    "date_prelevement" : "<D+8>",
+    "hb_g_dl" : null,
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : "1"
+  }, {
+    "date_prelevement" : "<D+10>",
+    "hb_g_dl" : null,
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : "2147483647"
+  }, {
+    "date_prelevement" : "<D+13>",
+    "hb_g_dl" : "1000000000000000000000000000000.00",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  }, {
+    "date_prelevement" : "<2200>",
+    "hb_g_dl" : "1.00",
+    "ht_pct" : null,
+    "kt_v_mensuel" : null,
+    "plaquettes" : null
+  } ]
+}

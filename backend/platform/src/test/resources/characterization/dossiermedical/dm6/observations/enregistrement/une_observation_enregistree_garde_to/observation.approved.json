@@ -1,0 +1,75 @@
+{
+  "etat" : [ {
+    "analyte_code" : "718-7",
+    "analyte_code_display" : "Analyte fictif",
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_prelevement" : "<D+5>",
+    "demande_examen_id" : null,
+    "id" : "<OBS_NUM>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "FINAL",
+    "unite" : "g/dL",
+    "valeur_num" : "11.5000",
+    "valeur_texte" : null
+  }, {
+    "analyte_code" : "5195-3",
+    "analyte_code_display" : "Analyte fictif",
+    "analyte_code_system" : "LOINC",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "recent",
+    "date_prelevement" : "<D+6>",
+    "demande_examen_id" : null,
+    "id" : "<OBS_TXT>",
+    "modification" : "jamais modifiee",
+    "patient_id" : "<PAT_A>",
+    "source" : "SAISIE_DIRECTE",
+    "statut" : "PRELIMINAIRE",
+    "unite" : null,
+    "valeur_num" : null,
+    "valeur_texte" : "Negatif"
+  } ],
+  "reponse numerique" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "code" : "718-7",
+      "codeDisplay" : "Analyte fictif",
+      "codeSystem" : "LOINC",
+      "createdAt" : "<HORODATAGE>",
+      "datePrelevement" : "<D+5>",
+      "demandeExamenId" : null,
+      "id" : "<OBS_NUM>",
+      "patientId" : "<PAT_A>",
+      "source" : "SAISIE_DIRECTE",
+      "statut" : "FINAL",
+      "unite" : "g/dL",
+      "updatedAt" : "<HORODATAGE>",
+      "valeurNum" : 11.5,
+      "valeurTexte" : null
+    },
+    "status" : 200
+  },
+  "reponse textuelle (statut PRELIMINAIRE demande)" : {
+    "corps" : {
+      "centerId" : "<CENTRE_A>",
+      "code" : "5195-3",
+      "codeDisplay" : "Analyte fictif",
+      "codeSystem" : "LOINC",
+      "createdAt" : "<HORODATAGE>",
+      "datePrelevement" : "<D+6>",
+      "demandeExamenId" : null,
+      "id" : "<OBS_TXT>",
+      "patientId" : "<PAT_A>",
+      "source" : "SAISIE_DIRECTE",
+      "statut" : "PRELIMINAIRE",
+      "unite" : null,
+      "updatedAt" : "<HORODATAGE>",
+      "valeurNum" : null,
+      "valeurTexte" : "Negatif"
+    },
+    "status" : 200
+  }
+}
