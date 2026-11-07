@@ -1,0 +1,5 @@
+{
+  "dates de la courbe (dix plus recentes, de la plus recente a la plus ancienne)" : [ "<D+12>", "<D+11>", "<D+10>", "<D+9>", "<D+8>", "<D+7>", "<D+6>", "<D+5>", "<D+4>", "<D+3>" ],
+  "dates des administrations rendues (triees ici pour la lecture ; l'API ne les trie pas)" : [ "<D+3>", "<D+4>", "<D+5>", "<D+6>", "<D+7>", "<D+8>", "<D+9>", "<D+10>", "<D+11>", "<D+12>" ],
+  "nombre d'administrations rendues" : 10
+}

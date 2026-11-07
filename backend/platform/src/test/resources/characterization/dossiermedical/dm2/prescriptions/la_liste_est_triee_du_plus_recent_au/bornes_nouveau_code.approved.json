@@ -1,0 +1,38 @@
+{
+  "centerId=xx" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "from=demain" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "page=-1" : {
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=abc" : {
+    "statut" : "400 BAD_REQUEST"
+  },
+  "size=-1" : {
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=0" : {
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=1000" : {
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=abc" : {
+    "statut" : "400 BAD_REQUEST"
+  }
+}

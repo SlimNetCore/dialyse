@@ -1,0 +1,23 @@
+{
+  "identifiant de patient illisible" : "400 BAD_REQUEST",
+  "observance avec centerId B (session A)" : "403 ACCESS_DENIED",
+  "observance du patient B par le centre A" : {
+    "a une courbe" : null,
+    "a une prescription" : null,
+    "epo" : "absente",
+    "statut" : 200
+  },
+  "suivi avec centerId B (session A)" : "403 ACCESS_DENIED",
+  "suivi du patient B par le centre A" : {
+    "a une courbe" : 0,
+    "a une prescription" : false,
+    "epo" : null,
+    "statut" : 200
+  },
+  "suivi du patient B par le centre B (temoin)" : {
+    "a une courbe" : 1,
+    "a une prescription" : true,
+    "epo" : null,
+    "statut" : 200
+  }
+}

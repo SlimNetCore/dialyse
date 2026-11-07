@@ -1845,3 +1845,24 @@ SELECT count(*) FROM seances WHERE created_at IS NULL;
 ```
 Recette obligatoire AVANT bascule (revue DM1) : (a) le front envoie bien le `centerId` de la SESSION sur toutes les routes gardées (`GET /seances`, `/seances/journal`, `/seances/calendar`, `/seances/{id}`, `POST /seances`, `POST /seances/scan`, `PUT /seances/{id}`, `PUT /seances/{id}/volet-paramedical`, `stats/paramedical`, `stats/medical`, `stats/export` et les `search`) : parcourir chaque écran avec un compte du centre ; (b) avec un compte d'un AUTRE centre, chaque route doit rendre 403. Aucun appel du front n'envoie un `centerId` nul sur les `search` (`@NotNull` côté API). Ajout du 2026-11-07, même recette (front : `centerId` de la session ; autre centre : 403) pour `PUT /seances/{id}/forfait`, `POST .../valider`, `POST .../deverrouiller-regularisation`, `POST .../signer-medecin`, `POST/PUT/DELETE .../consommables`, `POST/DELETE /seances/calendar/holiday` et `/closure`, `PUT /seances/{id}/volet-medical` : parcourir validation, signature, consommables, calendrier (jours fériés et fermetures) et volet médical avec un compte du centre ; tout 403 légitime signale un front qui envoie un autre `centerId`.
 Surveillance après déploiement : hausse attendue des 403 sur `PUT /seances/{id}/volet-paramedical`, `GET /seances/{id}`, `GET /seances`, `/seances/journal`, `/seances/calendar`, `POST/PUT /seances`, `stats/*` et des 400 sur `GET /patients/{id}/constantes` (taille > 100) : tout 403 d'un utilisateur légitime signale une session ou un front qui envoie le mauvais `centerId`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 46. Dossier médical DM2 (ordonnances, prescriptions, impression de l'ordonnance) : parité et gardes (2026-11-07) — SELECT seulement
+
+Aucune migration, mêmes tables (`ordonnances`, `lignes_ordonnance`, `prescriptions_medicales`, `app_settings` `SEQ_ORD`). À exécuter sur une COPIE ou en lecture seule ; rejouées sur PostgreSQL 16 jetable par `backend/scripts/dossier-medical-dm2-pg16-rejeu.sh`.
+```sql
+-- 1. Ordonnances par centre et statut (avant/après : identiques, la reprise ne change aucune ligne).
+SELECT center_id, statut, count(*) AS ordonnances FROM ordonnances GROUP BY center_id, statut;
+-- 2. Numéros d'ordonnance en double dans un centre (attendu : aucun).
+SELECT center_id, numero, count(*) FROM ordonnances WHERE numero IS NOT NULL GROUP BY center_id, numero HAVING count(*) > 1;
+-- 3. Trous de la séquence légale ORD (KB-MED-20, reproduit : un refus de signature consomme un numéro) : compteur contre ordonnances numérotées.
+SELECT a.center_id, a.dernier_compteur, (SELECT count(*) FROM ordonnances o WHERE o.center_id = a.center_id AND o.numero IS NOT NULL) AS numerotees FROM app_settings a WHERE a.cle = 'SEQ_ORD';
+-- 4. Ordonnances sans ligne (invariant : au moins une).
+SELECT o.center_id, count(*) FROM ordonnances o WHERE NOT EXISTS (SELECT 1 FROM lignes_ordonnance l WHERE l.ordonnance_id = o.id) GROUP BY o.center_id;
+-- 5. Fiches orphelines (KB-MED-19, créées avant la garde) : ordonnances et prescriptions dont le patient n'existe pas dans le centre.
+SELECT 'ordonnances' AS fiche, o.center_id, count(*) FROM ordonnances o LEFT JOIN patients p ON p.id = o.patient_id AND p.center_id = o.center_id WHERE p.id IS NULL GROUP BY o.center_id
+UNION ALL SELECT 'prescriptions', m.center_id, count(*) FROM prescriptions_medicales m LEFT JOIN patients p ON p.id = m.patient_id AND p.center_id = m.center_id WHERE p.id IS NULL GROUP BY m.center_id;
+-- 6. Prescriptions réaffectées d'un centre à l'autre (KB-MED-17, avant la correction) : patient de la prescription d'un autre centre que le sien.
+SELECT m.center_id AS centre_prescription, p.center_id AS centre_patient, count(*) FROM prescriptions_medicales m JOIN patients p ON p.id = m.patient_id WHERE p.center_id <> m.center_id GROUP BY m.center_id, p.center_id;
+```
+Recette obligatoire AVANT bascule : (a) créer, signer, imprimer et annuler une ordonnance, puis créer, modifier et supprimer une prescription, avec un compte MEDECIN du centre ; (b) avec un compte d'un AUTRE centre : création d'ordonnance ou de prescription pour un patient inconnu = 404, modification d'une prescription du premier centre = 404 (jamais 200), impression d'une ordonnance avec le `centerId` du premier centre = 403 ; (c) imprimer une ordonnance avec un compte INFIRMIER ou SECRETAIRE = 403 (le front doit réserver le bouton d'impression au médecin et à l'administrateur). Les requêtes 5 et 6 listent les fiches à expliquer avec les métiers avant correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
+Surveillance après déploiement : hausse attendue des 400 (corps ou paramètre illisible, avant 500), des 404 (patient inconnu, prescription introuvable) et des 403 sur `POST /documents/print` type `ORDONNANCE`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

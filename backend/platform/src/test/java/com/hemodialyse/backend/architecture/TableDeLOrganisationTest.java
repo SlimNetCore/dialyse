@@ -39,6 +39,9 @@ class TableDeLOrganisationTest {
     /** Lecteurs SQL connus hors du contexte Organisation (chemin depuis {@code backend/}) : 2026-11-02, revue O1-O5. */
     private static final Map<String, String> LECTEURS_CONNUS = lecteurs(
             "contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyorganisation/CentresActifsJdbc.java",
+            // 2026-11-07, DM2 : liste des centres du contrôle de nuit de l'observance (centers), lecture seule ; remplace l'entrée du
+            // planificateur legacy retirée dans le même lot. RETRAIT : à l'échéance de organisation.v1 (jalon O4).
+            "contexts/dossier-medical/src/main/java/com/hemodialyse/backend/contexts/dossiermedical/infrastructure/acl/legacyorganisation/CentresActifsJdbc.java",
             // 2026-11-03, PC1 : fuseau du centre (centers) et libellés de la recherche et des mouvements (medecin, salle,
             // position_creneau) : lecture seule, à remplacer par organisation.v1
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
@@ -71,7 +74,6 @@ class TableDeLOrganisationTest {
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentProvisioner.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/ObservancePrescriptionScheduler.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/SeanceRegularisationScheduler.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/UserRestController.java");

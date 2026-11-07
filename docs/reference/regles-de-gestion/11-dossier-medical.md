@@ -8,8 +8,8 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 > `Ordonnance`, `AdministrationTraitement`,
 > `AlerteObservance`, `BilanPreGreffe`, `EtapeBilanPreGreffe`, `DonneurVivant`, `DecisionRcp`), `Kdigo*Policy`,
 > `PrescriptionMedicaleDomainService`, `ResultatAnalyseDomainService`,
-> `DossierMedicalPatientDomainService`, `AbordVasculaireDomainService`, `ObservancePrescriptionScheduler`,
-> `ObservancePeriodMath`, `SuiviAnemieQueryService`,
+> `DossierMedicalPatientDomainService`, `AbordVasculaireDomainService`, `ControleDeNuitDeLObservance`,
+> `PeriodeDObservance`, `ConsulterLeSuiviDeLAnemie`,
 > `KdigoGreffeQueryService`, `FhirExportService`, contrôleurs du dossier.
 
 ## 11.1 Principes d'accès
@@ -104,6 +104,20 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   (`ORDONNANCE_TRANSITION_INVALIDE` sinon). La **signature** attribue le numéro définitif (`ORDONNANCE_NUMERO_REQUIS`)
   et **verrouille le contenu** : corriger une ordonnance signée impose de l'annuler et d'en créer une nouvelle. La
   réimpression ne change pas le statut.
+- **RG-MED-052** — Le numéro `ORD-nnnnn` est une séquence par centre, attribuée **dans l'ordre des signatures**. Un refus de
+  signature (ordonnance annulée, déjà signée…) **consomme un numéro** : la séquence peut avoir des trous (reproduit du legacy,
+  ADR 0081, KB-MED-20, à confirmer avec les métiers). Une ordonnance introuvable n'en consomme pas. La date de prescription par
+  défaut est le **jour du centre** (fuseau Africa/Algiers), pas celui du serveur.
+- **RG-MED-053** — Une ordonnance ou une prescription ne se rédige que pour un patient **du centre de la session** : patient
+  inconnu ou d'un autre centre = refus 404 `PATIENT_INTROUVABLE` (ADR 0081, KB-MED-19). Une saisie illisible (corps, date,
+  identifiant, code sans nomenclature, ligne vide, texte trop long) est refusée en 400 `BAD_REQUEST`. Les lignes d'ordonnance sont
+  rendues à la lecture dans un ordre déterministe (libellé, posologie, identifiant) ; la réponse à la création les rend dans
+  l'ordre saisi.
+- **RG-MED-054** — **Modifier une prescription** exige qu'elle existe pour CE patient dans CE centre (404 `PRESCRIPTION_INTROUVABLE`
+  sinon) : elle n'est ni créée sous un identifiant inconnu ni réaffectée à un autre centre ou patient (ADR 0081, KB-MED-17). La
+  modification remplace tout le contenu. La suppression d'une prescription sans correspondance répond 204 sans rien supprimer.
+- **RG-MED-055** — **Imprimer une ordonnance** (`POST /documents/print`, type `ORDONNANCE`) exige le profil MEDECIN ou ADMIN et le
+  centre de la session (403 sinon, avant tout accès aux données ; ADR 0081, KB-MED-18, à confirmer avec les métiers).
 
 ## 11.7 Prescription médicale de séance, abords vasculaires, dossier médical
 
@@ -141,7 +155,7 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   codes (`ARTICLE_UNITE_DOSE_INCOMPATIBLE`, `ARTICLE_DOSAGE_NON_DEFINI`). Le formulaire de prescription affiche la
   sortie
   de stock correspondant à la dose saisie. Ainsi unité prescrite et unité de sortie restent conformes. *Source :*
-  `PrescriptionMedicaleRestController`.
+  `PrescriptionsControleur` (contexte `dossier-medical`, DM2).
 - **RG-MED-072** — **Périodes d'observance** : la prescription la plus récente découpe le temps en périodes successives
   ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
   année = 365 jours). Quand la prescription porte une **dose** (UI pour l'EPO, mg pour le fer), le calcul est en
@@ -155,7 +169,7 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   poste de l'infirmier qui a ce patient à l'écran se met à jour **en temps réel**, sans rechargement (évènement
   `PRESCRIPTION_CHANGED` limité au centre et au patient, absent de la cloche). Il en va de même, pour un médecin qui a
   ouvert le même dossier, de la liste des prescriptions et de l'onglet Anémie (périodes d'observance et alertes).
-- **RG-MED-073** — **Contrôle quotidien à 06:30** (`ObservancePrescriptionScheduler.controlerObservance`), pour chaque
+- **RG-MED-073** — **Contrôle quotidien à 06:30** (`ControleDeNuitDeLObservance.controlerObservance`, cas d'usage `ControlerLObservance`, contexte `dossier-medical` DM2), pour chaque
   patient ayant une prescription EPO/fer avec article et fréquence : (1) **retard
   constaté** — la période close compte moins (en quantité, ou en nombre d'administrations sans dose) que prescrit :
   alerte `RETARD_CONSTATE`, qui **explique** le constat (traitement, période, prescription « dose × fréquence »,
@@ -173,7 +187,9 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 
 - **RG-MED-080** — Le **suivi de l'anémie** assemble, pour un patient : les 10 derniers bilans (courbe Hb, ferritine,
   CST, albumine), l' **évaluation du dernier bilan face aux cibles**, la
-  prescription active et les 10 dernières administrations.
+  prescription active et les 10 dernières administrations (les 10 **plus récentes**, de la plus récente à la plus ancienne : le
+  legacy rendait les 10 premières lues sans tri, corrigé par l'ADR 0081, KB-MED-26). Une administration saisie pour un patient
+  inconnu ou d'un autre centre est refusée en 404 (KB-MED-19).
 - **RG-MED-081** — **Cibles** (versionnées avec le code, aucune alerte persistée, tout recalculé) : hémoglobine 10 –
   11,5 g/dL (KDIGO 2012) ; ferritine ≥ 200 ng/mL ; CST ≥ 20 % ; Kt/V ≥ 1,2 ;
   phosphore 2,5 – 4,5 mg/dL, calcium 8,4 – 10,2 mg/dL, PTH 130 – 600 pg/mL (KDIGO 2017 CKD-MBD) ; albumine ≥ 4,0 g/dL.

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.dossiermedical.dm2;
 
-import com.hemodialyse.backend.infrastructure.scheduling.ObservancePrescriptionScheduler;
-import com.hemodialyse.backend.infrastructure.scheduling.ObservanceSchedulerPontDeCaracterisation;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.jobs.ControleDeNuitDeLObservance;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,15 +15,16 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * DM2, lot 2 : le planificateur {@code ObservancePrescriptionScheduler} (cron 06:30), appelé directement pour un centre. Il lit
- * {@code LocalDate.now()} (jour de la JVM, aucune horloge injectable : KB-MED-15, aucun seam n'est ajouté) : toutes les dates des fixtures
- * sont donc relatives à ce jour et nommées {@code <J-3>} ; une garde attend le passage de minuit si l'on en est à moins de deux minutes.
+ * DM2, lot 2 : le planificateur (cron 06:30), appelé directement pour un centre. Écrit contre le legacy {@code ObservancePrescriptionScheduler}
+ * (pont de test), il appelle désormais {@code ControleDeNuitDeLObservance.controlerLeCentre} du module (même comportement observable). L'horloge
+ * reste le jour de la JVM (KB-MED-15, décision : reproduit, l'horloge est injectée et remplaçable) : toutes les dates des fixtures sont donc
+ * relatives à ce jour et nommées {@code <J-3>} ; une garde attend le passage de minuit si l'on en est à moins de deux minutes.
  * Observation : alertes ({@code alertes_observance}) et notifications durables. Données fictives.
  */
 class PlanificateurDObservanceCharacterizationIntegrationTest extends PrescriptionsCharacterizationSupport {
 
     @Autowired
-    private ObservancePrescriptionScheduler planificateur;
+    private ControleDeNuitDeLObservance planificateur;
 
     @Override
     protected String dossier() {
@@ -44,7 +45,7 @@ class PlanificateurDObservanceCharacterizationIntegrationTest extends Prescripti
     }
 
     private void nuit(UUID centre) {
-        ObservanceSchedulerPontDeCaracterisation.controlerCentre(planificateur, centre);
+        planificateur.controlerLeCentre(new CentreId(centre));
     }
 
     /** Alertes lisibles : dates en alias, message avec ses dates en toutes lettres nommées. */
@@ -233,7 +234,7 @@ class PlanificateurDObservanceCharacterizationIntegrationTest extends Prescripti
         decorPlanificateur();
         prescriptionAnemie(CENTRE_A, patientA, "PA", relatif(-10), epo, 8000, 1, "SEMAINE", null, null, null, null);
         prescriptionAnemie(CENTRE_B, patientB, "PB", relatif(-10), epo, 8000, 1, "SEMAINE", null, null, null, null);
-        String cron = ObservancePrescriptionScheduler.class.getMethod("controlerObservance").getAnnotation(Scheduled.class).cron();
+        String cron = ControleDeNuitDeLObservance.class.getMethod("controlerObservance").getAnnotation(Scheduled.class).cron();
         assertThat(cron).isEqualTo("0 30 6 * * *");
         planificateur.controlerObservance();
         // Les autres centres de la base de test ne sont pas observes : seuls les deux centres du filet le sont.

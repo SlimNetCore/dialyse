@@ -90,5 +90,8 @@ class ArchitectureHexagonaleTest {
                     "com.hemodialyse.backend.contexts.organisation.application..",
                     "com.hemodialyse.backend.contexts.organisation.infrastructure..",
                     "com.hemodialyse.backend.contexts.organisation.interfaces..",
-                    "com.hemodialyse.backend.contexts.organisation.configuration..");
+                    "com.hemodialyse.backend.contexts.organisation.configuration..",
+                    "com.hemodialyse.backend.contexts.stock.domain..", "com.hemodialyse.backend.contexts.stock.application..",
+                    "com.hemodialyse.backend.contexts.stock.infrastructure..", "com.hemodialyse.backend.contexts.stock.interfaces..",
+                    "com.hemodialyse.backend.contexts.stock.configuration..");
 }

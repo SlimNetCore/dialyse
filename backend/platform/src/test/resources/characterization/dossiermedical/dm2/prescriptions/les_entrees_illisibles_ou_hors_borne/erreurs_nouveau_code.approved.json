@@ -1,0 +1,14 @@
+{
+  "anticoagulant long (> 20)" : "400 BAD_REQUEST",
+  "centerId illisible" : "400 BAD_REQUEST",
+  "corps mal forme" : "400 BAD_REQUEST",
+  "corps vide" : "400 BAD_REQUEST",
+  "date future acceptee" : "200",
+  "date illisible" : "400 BAD_REQUEST",
+  "doses et cibles negatives acceptees" : "200",
+  "identifiant de patient illisible" : "400 BAD_REQUEST",
+  "medecinId illisible" : "400 BAD_REQUEST",
+  "patient inconnu accepte" : "404 PATIENT_INTROUVABLE",
+  "type de dialyseur long (> 100)" : "400 BAD_REQUEST",
+  "unite de frequence inconnue" : "400 BAD_REQUEST"
+}

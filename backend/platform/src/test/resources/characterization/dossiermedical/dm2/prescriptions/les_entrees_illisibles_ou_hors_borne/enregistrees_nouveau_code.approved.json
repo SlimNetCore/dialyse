@@ -1,0 +1,15 @@
+[ {
+  "duree_cible_min" : null,
+  "epo_dose_ui" : null,
+  "jour" : "date future",
+  "qb_cible" : null,
+  "qd_cible" : null,
+  "uf_max_ml" : null
+}, {
+  "duree_cible_min" : "-60",
+  "epo_dose_ui" : "-4000",
+  "jour" : "jour par defaut",
+  "qb_cible" : "-1",
+  "qd_cible" : "-5",
+  "uf_max_ml" : "-100"
+} ]

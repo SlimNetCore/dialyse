@@ -2,10 +2,6 @@ package com.hemodialyse.backend.infrastructure.config;
 
 import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
-import com.hemodialyse.backend.domain.medical.anemie.port.AdministrationTraitementRepositoryPort;
-import com.hemodialyse.backend.domain.medical.anemie.port.AlerteObservanceRepositoryPort;
-import com.hemodialyse.backend.domain.medical.anemie.service.AdministrationTraitementDomainService;
-import com.hemodialyse.backend.domain.medical.anemie.service.AlerteObservanceDomainService;
 import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
 import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
 import com.hemodialyse.backend.domain.medical.examen.port.DemandeExamenRepositoryPort;
@@ -18,9 +14,6 @@ import com.hemodialyse.backend.domain.medical.greffe.service.DonneurVivantDomain
 import com.hemodialyse.backend.domain.medical.greffe.service.EtapeBilanPreGreffeDomainService;
 import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
 import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
-import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceNumeroGeneratorPort;
-import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceRepositoryPort;
-import com.hemodialyse.backend.domain.medical.ordonnance.service.OrdonnanceDomainService;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
@@ -115,17 +108,6 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public AdministrationTraitementDomainService administrationTraitementDomainService(
-            AdministrationTraitementRepositoryPort repo) {
-        return new AdministrationTraitementDomainService(repo);
-    }
-
-    @Bean
-    public AlerteObservanceDomainService alerteObservanceDomainService(AlerteObservanceRepositoryPort repo) {
-        return new AlerteObservanceDomainService(repo);
-    }
-
-    @Bean
     public BilanPreGreffeDomainService bilanPreGreffeDomainService(BilanPreGreffeRepositoryPort repo) {
         return new BilanPreGreffeDomainService(repo);
     }
@@ -138,12 +120,6 @@ public class DomainServiceConfig {
     @Bean
     public DonneurVivantDomainService donneurVivantDomainService(DonneurVivantRepositoryPort repo) {
         return new DonneurVivantDomainService(repo);
-    }
-
-    @Bean
-    public OrdonnanceDomainService ordonnanceDomainService(OrdonnanceRepositoryPort repo,
-                                                           OrdonnanceNumeroGeneratorPort numeroGenerator) {
-        return new OrdonnanceDomainService(repo, numeroGenerator);
     }
 
 

@@ -125,7 +125,7 @@
 | `LicenseOnlineCheckJob.checkAll`               | 03:15 chaque jour    | contrôle en ligne des licences                              | RG-SEC-032        |
 | `ControleDeNuitDesAbsences.controlerAbsences`  | 02:30 chaque jour    | détecte les absences de patients                            | RG-ABS-040        |
 | `DirectionSnapshotScheduler`                   | 02:30 le 1er du mois | fige le mois écoulé                                         | RG-DIR-090        |
-| `ObservancePrescriptionScheduler`              | 06:30 chaque jour    | contrôle l'observance des prescriptions                     | RG-MED-073        |
+| `ControleDeNuitDeLObservance`                  | 06:30 chaque jour    | contrôle l'observance des prescriptions                     | RG-MED-073        |
 | `ControleDesPeremptionsPlanifie.controlerLesPeremptions` | 07:00 chaque jour (fuseau du serveur, Africa/Algiers) | notifie les lots proches de la péremption (centres actifs) | RG-STK-061 |
 | `ReplanificationAutomatiqueScheduler.replanifier` | 02:30 chaque nuit | replanification automatique (centres volontaires)        | RG-PLN-100        |
 | `ControleDeLaPresenceDe0715.controlerLaPresence` | 07:15 chaque jour (Africa/Algiers) | alerte de sous-effectif infirmiers                          | RG-INF-046        |

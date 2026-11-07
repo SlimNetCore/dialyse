@@ -1,0 +1,135 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "administrationsRecentes" : [ {
+      "administrePar" : null,
+      "administree" : false,
+      "articleId" : null,
+      "centerId" : "<CENTRE_A>",
+      "createdAt" : "<HORODATAGE>",
+      "dateAdministration" : "<D+17>",
+      "dose" : null,
+      "id" : "<ADM2>",
+      "molecule" : "Fer fictif",
+      "motifNonAdministration" : "Patient absent",
+      "patientId" : "<PAT_A>",
+      "prescriptionMedicaleId" : null,
+      "quantiteArticle" : null,
+      "seanceId" : null,
+      "typeTraitement" : "FER_INJECTABLE",
+      "uniteDose" : null,
+      "voie" : null
+    }, {
+      "administrePar" : null,
+      "administree" : true,
+      "articleId" : null,
+      "centerId" : "<CENTRE_A>",
+      "createdAt" : "<HORODATAGE>",
+      "dateAdministration" : "<D+16>",
+      "dose" : 8000.0,
+      "id" : "<ADM1>",
+      "molecule" : "Epoetine fictive",
+      "motifNonAdministration" : null,
+      "patientId" : "<PAT_A>",
+      "prescriptionMedicaleId" : null,
+      "quantiteArticle" : null,
+      "seanceId" : null,
+      "typeTraitement" : "EPO",
+      "uniteDose" : "UI",
+      "voie" : null
+    } ],
+    "courbe" : [ {
+      "albumineGDl" : 3.8,
+      "cstfPct" : 28.0,
+      "date" : "<D+20>",
+      "ferritineNgMl" : 420.0,
+      "hbGDl" : 10.8
+    }, {
+      "albumineGDl" : 4.2,
+      "cstfPct" : 35.0,
+      "date" : "<D+10>",
+      "ferritineNgMl" : 800.0,
+      "hbGDl" : 11.5
+    }, {
+      "albumineGDl" : 3.0,
+      "cstfPct" : 12.0,
+      "date" : "<D+1>",
+      "ferritineNgMl" : 150.0,
+      "hbGDl" : 9.0
+    } ],
+    "dateDernierBilan" : "<D+20>",
+    "evaluations" : [ {
+      "borneMax" : 11.5,
+      "borneMin" : 10,
+      "code" : "HEMOGLOBINE",
+      "referenceKdigo" : "KDIGO-2012-anemia",
+      "statut" : "DANS_CIBLE",
+      "unite" : "g/dL",
+      "valeur" : 10.8
+    }, {
+      "borneMax" : null,
+      "borneMin" : 200,
+      "code" : "FERRITINE",
+      "referenceKdigo" : "KDIGO-2012-anemia",
+      "statut" : "DANS_CIBLE",
+      "unite" : "ng/mL",
+      "valeur" : 420.0
+    }, {
+      "borneMax" : null,
+      "borneMin" : 20,
+      "code" : "CST",
+      "referenceKdigo" : "KDIGO-2012-anemia",
+      "statut" : "DANS_CIBLE",
+      "unite" : "%",
+      "valeur" : 28.0
+    }, {
+      "borneMax" : null,
+      "borneMin" : 4.0,
+      "code" : "ALBUMINE",
+      "referenceKdigo" : "KDIGO-nutrition",
+      "statut" : "SOUS_CIBLE",
+      "unite" : "g/dL",
+      "valeur" : 3.8
+    }, {
+      "borneMax" : null,
+      "borneMin" : 1.2,
+      "code" : "KT_V",
+      "referenceKdigo" : "KDIGO-adequacy",
+      "statut" : "DANS_CIBLE",
+      "unite" : "",
+      "valeur" : 1.5
+    } ],
+    "prescriptionActive" : {
+      "anticoagTypePrescrit" : null,
+      "centerId" : "<CENTRE_A>",
+      "createdAt" : "<HORODATAGE>",
+      "datePrescription" : "<D+15>",
+      "dureeCibleMin" : null,
+      "epoArticleCode" : "EPO-FICT",
+      "epoArticleId" : "<EPO>",
+      "epoArticleLibelle" : "Article fictif EPO-FICT",
+      "epoDoseUi" : 8000,
+      "epoFrequenceUnite" : "SEMAINE",
+      "epoFrequenceValeur" : 2,
+      "epoVoie" : "SC",
+      "ferArticleCode" : "FER-FICT",
+      "ferArticleId" : "<FER>",
+      "ferArticleLibelle" : "Article fictif FER-FICT",
+      "ferDoseMg" : 100,
+      "ferFrequenceUnite" : "MOIS",
+      "ferFrequenceValeur" : 1,
+      "ferVoie" : "IV",
+      "id" : "<RECENTE>",
+      "medecinId" : null,
+      "patientId" : "<PAT_A>",
+      "poidsSecCibleKg" : null,
+      "qbCible" : null,
+      "qdCible" : null,
+      "typeDialyseurPrescrit" : null,
+      "ufMaxMl" : null,
+      "updatedAt" : "<HORODATAGE>"
+    }
+  }
+}

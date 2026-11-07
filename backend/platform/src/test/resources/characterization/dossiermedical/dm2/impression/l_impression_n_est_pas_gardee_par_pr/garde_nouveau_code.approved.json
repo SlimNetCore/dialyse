@@ -1,0 +1,29 @@
+{
+  "profils (ordonnance du centre A, centre A dans le corps)" : {
+    "ADMIN" : "200 (true)",
+    "ADMIN sans centre" : "403 {\"detail\":\"Session sans centre de rattachement\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}",
+    "DIRECTION" : "403 {\"code\":\"ROLE_SCOPE\",\"title\":\"Accès refusé\",\"detail\":\"Ce profil n'a pas accès à cette ressource.\"}",
+    "INFIRMIER + SECRETAIRE" : "403 {\"detail\":\"Profil insuffisant pour imprimer une ordonnance\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}",
+    "INFIRMIER seul" : "403 {\"detail\":\"Profil insuffisant pour imprimer une ordonnance\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}",
+    "MEDECIN + ADMIN" : "200 (true)",
+    "MEDECIN + INFIRMIER" : "200 (true)",
+    "MEDECIN seul" : "200 (true)",
+    "SECRETAIRE" : "403 {\"detail\":\"Profil insuffisant pour imprimer une ordonnance\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}",
+    "SUPERADMIN" : "403 {\"code\":\"ROLE_SCOPE\",\"title\":\"Accès refusé\",\"detail\":\"Ce profil n'a pas accès à cette ressource.\"}",
+    "SUPERADMIN + ADMIN" : "403 {\"code\":\"ROLE_SCOPE\",\"title\":\"Accès refusé\",\"detail\":\"Ce profil n'a pas accès à cette ressource.\"}",
+    "aucun role" : "403 {\"detail\":\"Profil insuffisant pour imprimer une ordonnance\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}",
+    "role inconnu (COMPTABLE)" : "403 {\"detail\":\"Profil insuffisant pour imprimer une ordonnance\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}",
+    "role personnalise (CHEF_DE_SALLE)" : "403 {\"detail\":\"Profil insuffisant pour imprimer une ordonnance\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}"
+  },
+  "session A, centre A dans le corps, ordonnance du centre B" : {
+    "chaines du classeur" : [ ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  },
+  "session A, centre B dans le corps, ordonnance du centre B" : {
+    "contentType" : "application/problem+json",
+    "disposition" : null,
+    "statut" : 403
+  }
+}

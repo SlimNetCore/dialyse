@@ -79,6 +79,18 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publie de Patient et couverture : FichesDesPatients (un patient existe-t-il dans le centre ?), DM2, ADR 0081. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-patient-couverture</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!-- Langage publie du Stock : CatalogueDArticles (code, libelle, conversion de dose), DM2 prescriptions, ADR 0081. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-stock</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!-- Reprise sur place (ADR 0024, GEL.md, ADR 0080) : le module ne porte que DM1 (constantes) ; DM2 a DM8 seront repris slice par slice. -->

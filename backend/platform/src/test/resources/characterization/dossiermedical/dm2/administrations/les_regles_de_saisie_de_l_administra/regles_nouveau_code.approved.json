@@ -1,0 +1,22 @@
+{
+  "administree sans dose" : "422 ADMINISTRATION_DOSE_REQUISE",
+  "champ administree absent (booleen primitif)" : "400 BAD_REQUEST",
+  "corps vide" : "400 BAD_REQUEST",
+  "date absente" : "422 ADMINISTRATION_CHAMPS_REQUIS",
+  "date future acceptee" : "200",
+  "date illisible" : "400 BAD_REQUEST",
+  "dose avec unite blanche" : "422 DOSE_ADMINISTREE_UNITE_REQUISE",
+  "dose en unite de fer pour de l'EPO (acceptee : aucune coherence verifiee)" : "200",
+  "dose negative" : "422 DOSE_ADMINISTREE_INVALIDE",
+  "dose nulle" : "422 DOSE_ADMINISTREE_INVALIDE",
+  "dose sans unite" : "422 DOSE_ADMINISTREE_UNITE_REQUISE",
+  "identifiant de patient illisible" : "400 BAD_REQUEST",
+  "molecule trop longue (> 100)" : "400 BAD_REQUEST",
+  "non administree avec motif" : "200",
+  "non administree avec motif blanc" : "422 ADMINISTRATION_MOTIF_REQUIS",
+  "non administree sans motif" : "422 ADMINISTRATION_MOTIF_REQUIS",
+  "prescription et seance quelconques acceptees (sans article)" : "200",
+  "type absent" : "400 BAD_REQUEST",
+  "type en minuscules" : "400 BAD_REQUEST",
+  "type inconnu" : "400 BAD_REQUEST"
+}

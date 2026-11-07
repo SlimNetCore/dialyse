@@ -200,6 +200,9 @@ public class DocumentRestController {
         if (estLaSyntheseDeFacturation(req)) {
             garderLaSyntheseDeFacturation(req);
         }
+        if (estUneOrdonnance(req)) {
+            garderLOrdonnance(req);
+        }
         try {
             validatePrintRequest(req, true);
             String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
@@ -343,6 +346,24 @@ public class DocumentRestController {
     private static boolean estLaSyntheseDeFacturation(PrintRequest req) {
         return req != null && req.typeDocument() != null
                 && SYNTHESE_FACTURATION.equals(req.typeDocument().trim().toUpperCase(Locale.ROOT));
+    }
+
+    private static boolean estUneOrdonnance(PrintRequest req) {
+        return req != null && req.typeDocument() != null
+                && "ORDONNANCE".equals(req.typeDocument().trim().toUpperCase(Locale.ROOT));
+    }
+
+    /**
+     * L'impression d'une ordonnance (nom du patient, n° d'assurance, prescripteur) exige les droits de LECTURE des ordonnances
+     * (MEDECIN ou ADMIN) et le contrôle du centre du corps : 403 sinon, avant tout accès aux données (KB-MED-18 corrigé, ADR 0081,
+     * à confirmer avec les métiers). Les autres types de document ne changent pas.
+     */
+    private void garderLOrdonnance(PrintRequest req) {
+        var roles = centerAccessGuard.currentScope().roles();
+        if (!roles.contains("ROLE_MEDECIN") && !roles.contains("ROLE_ADMIN")) {
+            throw new AccessDeniedException("Profil insuffisant pour imprimer une ordonnance");
+        }
+        centerAccessGuard.requireCenter(req.centerId());
     }
 
     private boolean estUnModeleDeSynthese(UUID modeleId) {

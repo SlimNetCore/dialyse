@@ -1,0 +1,6 @@
+{
+  "INFIRMIER sans centre de session" : "403 ACCESS_DENIED",
+  "saisie avec le centre B (session A)" : "403 ACCESS_DENIED",
+  "saisie pour le patient du centre B, session A (aucun controle du patient)" : "404 PATIENT_INTROUVABLE",
+  "saisie sans centre : centre de la session" : "200"
+}

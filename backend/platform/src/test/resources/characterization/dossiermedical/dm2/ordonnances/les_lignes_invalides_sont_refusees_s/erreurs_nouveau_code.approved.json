@@ -1,0 +1,21 @@
+{
+  "code ATC mal forme" : "200",
+  "code blanc avec libelle (le code est ignore)" : "200",
+  "code sans systeme" : "400 BAD_REQUEST",
+  "corps mal forme" : "400 BAD_REQUEST",
+  "corps vide" : "400 BAD_REQUEST",
+  "date illisible" : "400 BAD_REQUEST",
+  "duree negative" : "422 LIGNE_ORDONNANCE_DUREE_INVALIDE",
+  "duree nulle" : "422 LIGNE_ORDONNANCE_DUREE_INVALIDE",
+  "identifiant de patient illisible" : "400 BAD_REQUEST",
+  "libelle blanc sans code" : "422 LIGNE_ORDONNANCE_MEDICAMENT_REQUIS",
+  "ligne nulle" : "400 BAD_REQUEST",
+  "lignes absentes" : "400 BAD_REQUEST",
+  "liste de lignes vide" : "422 ORDONNANCE_LIGNE_REQUISE",
+  "ni code ni libelle" : "422 LIGNE_ORDONNANCE_MEDICAMENT_REQUIS",
+  "posologie absente" : "422 LIGNE_ORDONNANCE_POSOLOGIE_REQUISE",
+  "posologie blanche" : "422 LIGNE_ORDONNANCE_POSOLOGIE_REQUISE",
+  "quantite negative" : "422 LIGNE_ORDONNANCE_QUANTITE_INVALIDE",
+  "quantite nulle" : "422 LIGNE_ORDONNANCE_QUANTITE_INVALIDE",
+  "systeme inconnu" : "400 BAD_REQUEST"
+}

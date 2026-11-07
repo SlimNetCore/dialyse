@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-06<br>612 règles de gestion · 16 domaines · 499 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-07<br>616 règles de gestion · 16 domaines · 500 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>612</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>616</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -206,7 +206,7 @@ canaux de société exigent une session de direction valide. <em>Source :</em> <
 <td>RG-DIR-090</td>
 </tr>
 <tr>
-<td><code>ObservancePrescriptionScheduler</code></td>
+<td><code>ControleDeNuitDeLObservance</code></td>
 <td>06:30 chaque jour</td>
 <td>contrôle l&#39;observance des prescriptions</td>
 <td>RG-MED-073</td>
@@ -3030,8 +3030,8 @@ Sources : agrégats de <code>bc-medical</code> (<code>Allergie</code>, <code>Ant
 <code>Ordonnance</code>, <code>AdministrationTraitement</code>,
 <code>AlerteObservance</code>, <code>BilanPreGreffe</code>, <code>EtapeBilanPreGreffe</code>, <code>DonneurVivant</code>, <code>DecisionRcp</code>), <code>Kdigo*Policy</code>,
 <code>PrescriptionMedicaleDomainService</code>, <code>ResultatAnalyseDomainService</code>,
-<code>DossierMedicalPatientDomainService</code>, <code>AbordVasculaireDomainService</code>, <code>ObservancePrescriptionScheduler</code>,
-<code>ObservancePeriodMath</code>, <code>SuiviAnemieQueryService</code>,
+<code>DossierMedicalPatientDomainService</code>, <code>AbordVasculaireDomainService</code>, <code>ControleDeNuitDeLObservance</code>,
+<code>PeriodeDObservance</code>, <code>ConsulterLeSuiviDeLAnemie</code>,
 <code>KdigoGreffeQueryService</code>, <code>FhirExportService</code>, contrôleurs du dossier.</p>
 </blockquote>
 <h2>11.1 Principes d&#39;accès</h2>
@@ -3137,6 +3137,24 @@ l&#39;anémie, l&#39;évaluation KDIGO et les statistiques. La recherche est pag
 et <strong>verrouille le contenu</strong> : corriger une ordonnance signée impose de l&#39;annuler et d&#39;en créer une nouvelle. La
 réimpression ne change pas le statut.</p>
 </div></div>
+<div class="rule" id="RG-MED-052"><div class="rid">RG-MED-052</div><div class="rtxt"><p>Le numéro <code>ORD-nnnnn</code> est une séquence par centre, attribuée <strong>dans l&#39;ordre des signatures</strong>. Un refus de
+signature (ordonnance annulée, déjà signée…) <strong>consomme un numéro</strong> : la séquence peut avoir des trous (reproduit du legacy,
+ADR 0081, KB-MED-20, à confirmer avec les métiers). Une ordonnance introuvable n&#39;en consomme pas. La date de prescription par
+défaut est le <strong>jour du centre</strong> (fuseau Africa/Algiers), pas celui du serveur.</p>
+</div></div>
+<div class="rule" id="RG-MED-053"><div class="rid">RG-MED-053</div><div class="rtxt"><p>Une ordonnance ou une prescription ne se rédige que pour un patient <strong>du centre de la session</strong> : patient
+inconnu ou d&#39;un autre centre = refus 404 <code>PATIENT_INTROUVABLE</code> (ADR 0081, KB-MED-19). Une saisie illisible (corps, date,
+identifiant, code sans nomenclature, ligne vide, texte trop long) est refusée en 400 <code>BAD_REQUEST</code>. Les lignes d&#39;ordonnance sont
+rendues à la lecture dans un ordre déterministe (libellé, posologie, identifiant) ; la réponse à la création les rend dans
+l&#39;ordre saisi.</p>
+</div></div>
+<div class="rule" id="RG-MED-054"><div class="rid">RG-MED-054</div><div class="rtxt"><p><strong>Modifier une prescription</strong> exige qu&#39;elle existe pour CE patient dans CE centre (404 <code>PRESCRIPTION_INTROUVABLE</code>
+sinon) : elle n&#39;est ni créée sous un identifiant inconnu ni réaffectée à un autre centre ou patient (ADR 0081, KB-MED-17). La
+modification remplace tout le contenu. La suppression d&#39;une prescription sans correspondance répond 204 sans rien supprimer.</p>
+</div></div>
+<div class="rule" id="RG-MED-055"><div class="rid">RG-MED-055</div><div class="rtxt"><p><strong>Imprimer une ordonnance</strong> (<code>POST /documents/print</code>, type <code>ORDONNANCE</code>) exige le profil MEDECIN ou ADMIN et le
+centre de la session (403 sinon, avant tout accès aux données ; ADR 0081, KB-MED-18, à confirmer avec les métiers).</p>
+</div></div>
 <h2>11.7 Prescription médicale de séance, abords vasculaires, dossier médical</h2>
 <div class="rule" id="RG-MED-060"><div class="rid">RG-MED-060</div><div class="rtxt"><p>La <strong>prescription médicale</strong> fixe les cibles de séance (débit sang Qb, débit dialysat Qd, UF max,
 durée cible), le type de dialyseur et d&#39;anticoagulant, le <strong>poids sec cible</strong>
@@ -3176,7 +3194,7 @@ se convertir dans l&#39;unité de stock de l&#39;article choisi (RG-STK-006) : s
 codes (<code>ARTICLE_UNITE_DOSE_INCOMPATIBLE</code>, <code>ARTICLE_DOSAGE_NON_DEFINI</code>). Le formulaire de prescription affiche la
 sortie
 de stock correspondant à la dose saisie. Ainsi unité prescrite et unité de sortie restent conformes. <em>Source :</em>
-<code>PrescriptionMedicaleRestController</code>.</p>
+<code>PrescriptionsControleur</code> (contexte <code>dossier-medical</code>, DM2).</p>
 </div></div>
 <div class="rule" id="RG-MED-072"><div class="rid">RG-MED-072</div><div class="rtxt"><p><strong>Périodes d&#39;observance</strong> : la prescription la plus récente découpe le temps en périodes successives
 ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
@@ -3192,7 +3210,7 @@ poste de l&#39;infirmier qui a ce patient à l&#39;écran se met à jour <strong
 <code>PRESCRIPTION_CHANGED</code> limité au centre et au patient, absent de la cloche). Il en va de même, pour un médecin qui a
 ouvert le même dossier, de la liste des prescriptions et de l&#39;onglet Anémie (périodes d&#39;observance et alertes).</p>
 </div></div>
-<div class="rule" id="RG-MED-073"><div class="rid">RG-MED-073</div><div class="rtxt"><p><strong>Contrôle quotidien à 06:30</strong> (<code>ObservancePrescriptionScheduler.controlerObservance</code>), pour chaque
+<div class="rule" id="RG-MED-073"><div class="rid">RG-MED-073</div><div class="rtxt"><p><strong>Contrôle quotidien à 06:30</strong> (<code>ControleDeNuitDeLObservance.controlerObservance</code>, cas d&#39;usage <code>ControlerLObservance</code>, contexte <code>dossier-medical</code> DM2), pour chaque
 patient ayant une prescription EPO/fer avec article et fréquence : (1) <strong>retard
 constaté</strong> — la période close compte moins (en quantité, ou en nombre d&#39;administrations sans dose) que prescrit :
 alerte <code>RETARD_CONSTATE</code>, qui <strong>explique</strong> le constat (traitement, période, prescription « dose × fréquence »,
@@ -3210,7 +3228,9 @@ l&#39;onglet Anémie du patient.</p>
 <h2>11.9 Suivi et cibles KDIGO (aide à la décision)</h2>
 <div class="rule" id="RG-MED-080"><div class="rid">RG-MED-080</div><div class="rtxt"><p>Le <strong>suivi de l&#39;anémie</strong> assemble, pour un patient : les 10 derniers bilans (courbe Hb, ferritine,
 CST, albumine), l&#39; <strong>évaluation du dernier bilan face aux cibles</strong>, la
-prescription active et les 10 dernières administrations.</p>
+prescription active et les 10 dernières administrations (les 10 <strong>plus récentes</strong>, de la plus récente à la plus ancienne : le
+legacy rendait les 10 premières lues sans tri, corrigé par l&#39;ADR 0081, KB-MED-26). Une administration saisie pour un patient
+inconnu ou d&#39;un autre centre est refusée en 404 (KB-MED-19).</p>
 </div></div>
 <div class="rule" id="RG-MED-081"><div class="rid">RG-MED-081</div><div class="rtxt"><p><strong>Cibles</strong> (versionnées avec le code, aucune alerte persistée, tout recalculé) : hémoglobine 10 –
 11,5 g/dL (KDIGO 2012) ; ferritine ≥ 200 ng/mL ; CST ≥ 20 % ; Kt/V ≥ 1,2 ;
@@ -4813,16 +4833,16 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-044</td>
 </tr>
 <tr>
-<td><code>OrdonnanceRestController</code></td>
-<td><code>/api/v1/patients/{id}/ordonnances</code></td>
-<td>idem</td>
-<td>RG-MED-050, 051</td>
+<td><code>OrdonnancesControleur</code></td>
+<td><code>/api/v1/patients/{id}/ordonnances</code> — contexte <code>dossier-medical</code>, slice DM2</td>
+<td>idem ; garde de centre</td>
+<td>RG-MED-050, 051, 052, 053, 055</td>
 </tr>
 <tr>
-<td><code>PrescriptionMedicaleRestController</code></td>
-<td><code>/api/v1/patients/{id}/prescriptions</code></td>
-<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code>/<code>INFIRMIER</code> (lecture)</td>
-<td>RG-MED-060, 061</td>
+<td><code>PrescriptionsControleur</code></td>
+<td><code>/api/v1/patients/{id}/prescriptions</code> — contexte <code>dossier-medical</code>, slice DM2</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code>/<code>INFIRMIER</code> (lecture) ; garde de centre</td>
+<td>RG-MED-060, 061, 053, 054</td>
 </tr>
 <tr>
 <td><code>AbordVasculaireRestController</code></td>
@@ -4837,25 +4857,25 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-100, 103</td>
 </tr>
 <tr>
-<td><code>AdministrationTraitementRestController</code></td>
+<td><code>AnemieControleur</code> (DM2)</td>
 <td><code>/api/v1/patients/{id}/administrations-anemie</code></td>
 <td><code>INFIRMIER</code>, <code>MEDECIN</code> (écriture)</td>
 <td>RG-MED-070, 071</td>
 </tr>
 <tr>
-<td><code>ObservanceAnemieRestController</code></td>
+<td><code>AnemieControleur</code> (DM2)</td>
 <td><code>/api/v1/patients/{id}/observance-anemie</code></td>
 <td><code>MEDECIN</code>, <code>ADMIN</code>, <code>INFIRMIER</code></td>
 <td>RG-MED-072</td>
 </tr>
 <tr>
-<td><code>AlerteObservanceRestController</code></td>
+<td><code>AnemieControleur</code> (DM2)</td>
 <td><code>/api/v1/patients/{id}/alertes-observance</code></td>
 <td><code>MEDECIN</code>, <code>ADMIN</code></td>
 <td>RG-MED-073, 074</td>
 </tr>
 <tr>
-<td><code>SuiviAnemieRestController</code></td>
+<td><code>AnemieControleur</code> (DM2)</td>
 <td><code>/api/v1/patients/{id}/suivi-anemie</code></td>
 <td><code>MEDECIN</code>, <code>ADMIN</code></td>
 <td>RG-MED-080, 081</td>
@@ -5181,7 +5201,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-PAT-033, RG-PLN-108 à 111</td>
 </tr>
 <tr>
-<td><code>ObservancePrescriptionScheduler</code></td>
+<td><code>ControleDeNuitDeLObservance</code></td>
 <td>06:30 chaque jour</td>
 <td>RG-MED-073</td>
 </tr>
