@@ -1,0 +1,29 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "conduite_a_tenir" : null,
+  "creation" : "fixe",
+  "date_prelevement" : "<D+6>",
+  "date_prochain_controle" : null,
+  "id" : "<S2>",
+  "laboratoire" : "Laboratoire fictif",
+  "marqueur" : "VIH_AC",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_A>",
+  "resultat" : "NEGATIF",
+  "titre" : null,
+  "unite" : null
+}, {
+  "center_id" : "<CENTRE_B>",
+  "conduite_a_tenir" : null,
+  "creation" : "fixe",
+  "date_prelevement" : "<D+5>",
+  "date_prochain_controle" : null,
+  "id" : "<SB>",
+  "laboratoire" : "Laboratoire fictif",
+  "marqueur" : "AG_HBS",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_B>",
+  "resultat" : "NEGATIF",
+  "titre" : null,
+  "unite" : null
+} ]

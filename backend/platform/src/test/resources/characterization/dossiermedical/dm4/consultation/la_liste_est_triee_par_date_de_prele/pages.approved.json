@@ -1,0 +1,71 @@
+{
+  "defaut" : {
+    "items" : [ "TPHA <D+60> EN_COURS", "CMV_IGG <D+45> DOUTEUX", "AG_HBS <D+30> POSITIF", "VIH_AC <D+15> NEGATIF", "AG_HBS <D+1> NEGATIF" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=-1" : {
+    "items" : [ "TPHA <D+60> EN_COURS", "CMV_IGG <D+45> DOUTEUX", "AG_HBS <D+30> POSITIF", "VIH_AC <D+15> NEGATIF", "AG_HBS <D+1> NEGATIF" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "page=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "size=-5" : {
+    "items" : [ "TPHA <D+60> EN_COURS", "CMV_IGG <D+45> DOUTEUX", "AG_HBS <D+30> POSITIF", "VIH_AC <D+15> NEGATIF", "AG_HBS <D+1> NEGATIF" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=0" : {
+    "items" : [ "TPHA <D+60> EN_COURS", "CMV_IGG <D+45> DOUTEUX", "AG_HBS <D+30> POSITIF", "VIH_AC <D+15> NEGATIF", "AG_HBS <D+1> NEGATIF" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=1000" : {
+    "items" : [ "TPHA <D+60> EN_COURS", "CMV_IGG <D+45> DOUTEUX", "AG_HBS <D+30> POSITIF", "VIH_AC <D+15> NEGATIF", "AG_HBS <D+1> NEGATIF" ],
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=2" : {
+    "items" : [ "TPHA <D+60> EN_COURS", "CMV_IGG <D+45> DOUTEUX" ],
+    "page" : 0,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=2&page=1" : {
+    "items" : [ "AG_HBS <D+30> POSITIF", "VIH_AC <D+15> NEGATIF" ],
+    "page" : 1,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=2&page=2" : {
+    "items" : [ "AG_HBS <D+1> NEGATIF" ],
+    "page" : 2,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=2&page=9" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 5
+  },
+  "size=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  }
+}

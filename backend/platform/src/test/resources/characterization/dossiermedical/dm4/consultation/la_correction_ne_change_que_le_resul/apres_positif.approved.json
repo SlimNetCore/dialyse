@@ -1,0 +1,15 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "conduite_a_tenir" : "Isoler le patient (fictif)",
+  "creation" : "fixe",
+  "date_prelevement" : "<D+5>",
+  "date_prochain_controle" : "<D+95>",
+  "id" : "<S1>",
+  "laboratoire" : "Laboratoire fictif",
+  "marqueur" : "AG_HBS",
+  "modification" : "modifiee",
+  "patient_id" : "<PAT_A>",
+  "resultat" : "POSITIF",
+  "titre" : "1.500",
+  "unite" : "UI/mL"
+} ]

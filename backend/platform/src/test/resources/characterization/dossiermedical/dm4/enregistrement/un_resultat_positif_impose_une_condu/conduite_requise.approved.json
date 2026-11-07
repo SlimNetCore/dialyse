@@ -1,0 +1,18 @@
+{
+  "DOUTEUX / conduite '   '" : "200",
+  "DOUTEUX / conduite ''" : "200",
+  "DOUTEUX / conduite 'Isoler le patient (fictif)'" : "200",
+  "DOUTEUX / conduite absente" : "200",
+  "EN_COURS / conduite '   '" : "200",
+  "EN_COURS / conduite ''" : "200",
+  "EN_COURS / conduite 'Isoler le patient (fictif)'" : "200",
+  "EN_COURS / conduite absente" : "200",
+  "NEGATIF / conduite '   '" : "200",
+  "NEGATIF / conduite ''" : "200",
+  "NEGATIF / conduite 'Isoler le patient (fictif)'" : "200",
+  "NEGATIF / conduite absente" : "200",
+  "POSITIF / conduite '   '" : "422 SEROLOGIE_CONDUITE_REQUISE | Un résultat positif impose de documenter la conduite à tenir",
+  "POSITIF / conduite ''" : "422 SEROLOGIE_CONDUITE_REQUISE | Un résultat positif impose de documenter la conduite à tenir",
+  "POSITIF / conduite 'Isoler le patient (fictif)'" : "200",
+  "POSITIF / conduite absente" : "422 SEROLOGIE_CONDUITE_REQUISE | Un résultat positif impose de documenter la conduite à tenir"
+}

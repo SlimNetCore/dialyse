@@ -1,0 +1,43 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "conduite_a_tenir" : null,
+  "creation" : "recent",
+  "date_prelevement" : "<D+3>",
+  "date_prochain_controle" : null,
+  "id" : "<UUID_GENERE_1>",
+  "laboratoire" : null,
+  "marqueur" : "AG_HBS",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_A>",
+  "resultat" : "NEGATIF",
+  "titre" : null,
+  "unite" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "conduite_a_tenir" : null,
+  "creation" : "fixe",
+  "date_prelevement" : "<D+2>",
+  "date_prochain_controle" : null,
+  "id" : "<SERO_A>",
+  "laboratoire" : "Laboratoire fictif",
+  "marqueur" : "TPHA",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_A>",
+  "resultat" : "NEGATIF",
+  "titre" : null,
+  "unite" : null
+}, {
+  "center_id" : "<CENTRE_B>",
+  "conduite_a_tenir" : null,
+  "creation" : "fixe",
+  "date_prelevement" : "<D+2>",
+  "date_prochain_controle" : null,
+  "id" : "<SERO_B>",
+  "laboratoire" : "Laboratoire fictif",
+  "marqueur" : "TPHA",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_B>",
+  "resultat" : "NEGATIF",
+  "titre" : null,
+  "unite" : null
+} ]

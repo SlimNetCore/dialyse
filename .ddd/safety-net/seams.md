@@ -341,6 +341,10 @@ Décision déléguée de l'utilisateur (message du coordinateur du 2026-11-06) :
 |---|---|---|---|
 | 2026-11-07 | dossier-medical-dm2-prescriptions | **SUPPRESSION** de `platform/.../web/rest/OrdonnanceRestController.java`, des DTO `CreateOrdonnanceRequest`, `LigneOrdonnanceRequest`, `TransitionOrdonnanceRequest`, `OrdonnanceResponse`, `LigneOrdonnanceResponse`, de `OrdonnanceNumeroGeneratorAdapter` (tous déjà dans `covered`) ; de `bc-medical/.../ordonnance/service/OrdonnanceDomainService`, `port/OrdonnanceUseCase`, `port/OrdonnanceNumeroGeneratorPort` (les deux ports **inscrits dans `seamAllowed`**) et de leur test ; ÉDITION de `platform/.../infrastructure/config/DomainServiceConfig.java` (retrait du bean `ordonnanceDomainService`, déjà dans `covered`) | Les routes `/api/v1/patients/{id}/ordonnances` sont servies par `contexts/dossier-medical` (`OrdonnancesControleur`) : deux contrôleurs sur la même route empêchent le démarrage. **Restent** `Ordonnance`, `LigneOrdonnance`, `OrdonnanceRepositoryPort`, `OrdonnanceRepositoryAdapter`, entités et dépôts JPA : lus par `FhirExportService` (DM8). |
 
+## Dossier médical DM4 (sérologies) : AUCUN seam demandé ni appliqué (2026-11-07)
+
+Le filet DM4 n'a modifié aucun code de production (`seamAllowed` reste vide). L'horloge système (KB-MED-45) est contournée par des dates nommées et une garde de minuit dans le harnais.
+
 ## Dossier médical DM3 (demandes d'examen) : OUVERT le 2026-11-07, FERMÉ à la fin de la slice (`seamAllowed` vidé)
 
 | Date | Slice | Fichiers supprimés ou édités (inscrits dans `seamAllowed` ou `covered` AVANT l'action) | Raison |

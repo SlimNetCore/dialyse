@@ -1,0 +1,5 @@
+{
+  "douteuse, patient du centre B (session A)" : "422 PLACEMENT_PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "negative, patient du centre B (session A)" : "422 PLACEMENT_PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "negative, patient inconnu" : "422 PLACEMENT_PATIENT_INTROUVABLE | Patient introuvable dans ce centre"
+}

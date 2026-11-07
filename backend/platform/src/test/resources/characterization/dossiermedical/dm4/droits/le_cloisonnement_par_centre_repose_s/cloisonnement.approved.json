@@ -1,0 +1,15 @@
+{
+  "MEDECIN sans centre de session : creation" : "403 ACCESS_DENIED",
+  "MEDECIN sans centre de session : liste" : "403 ACCESS_DENIED",
+  "SUPERADMIN + MEDECIN corrige la sérologie du centre B" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN cree dans le centre B pour un patient du centre A" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN cree dans le centre B pour un patient du centre B" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN lit le centre B depuis la session A" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN supprime dans le centre B" : "403 ROLE_SCOPE",
+  "correction avec le centre B (session A)" : "403 ACCESS_DENIED",
+  "creation avec le centre B dans le corps (session A)" : "403 ACCESS_DENIED",
+  "creation sans centre dans le corps (centre de la session)" : "200",
+  "liste avec centerId du centre B (session A)" : "403 ACCESS_DENIED",
+  "suppression avec centerId B (session A)" : "403 ACCESS_DENIED",
+  "synthese avec centerId du centre B (session A)" : "403 ACCESS_DENIED"
+}

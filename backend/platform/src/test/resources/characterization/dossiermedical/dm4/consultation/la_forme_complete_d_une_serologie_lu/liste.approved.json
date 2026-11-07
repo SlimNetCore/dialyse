@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "centerId" : "<CENTRE_A>",
+      "conduiteATenir" : "Isoler le patient (fictif)",
+      "createdAt" : "<HORODATAGE>",
+      "datePrelevement" : "<D+5>",
+      "dateProchainControle" : "<D+95>",
+      "id" : "<S1>",
+      "laboratoire" : "Laboratoire fictif",
+      "marqueur" : "AC_VHC",
+      "patientId" : "<PAT_A>",
+      "resultat" : "POSITIF",
+      "titre" : 4.5,
+      "unite" : "S/CO",
+      "updatedAt" : "<HORODATAGE>"
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

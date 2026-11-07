@@ -1,0 +1,15 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "conduite_a_tenir" : "Isoler le patient (fictif)",
+  "creation" : "recent",
+  "date_prelevement" : "<D+3>",
+  "date_prochain_controle" : null,
+  "id" : "<UUID_GENERE_1>",
+  "laboratoire" : null,
+  "marqueur" : "VIH_AC",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_1>",
+  "resultat" : "POSITIF",
+  "titre" : null,
+  "unite" : null
+} ]

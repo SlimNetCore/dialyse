@@ -1,0 +1,7 @@
+{
+  "patient du centre B vu par le centre A" : 0,
+  "patient inconnu" : "200",
+  "statut" : 200,
+  "synthese" : [ "VIH_AC <D+10> POSITIF", "AG_HBS <D+20> NEGATIF", "AC_HBS <D+3> NEGATIF", "TPHA <D+30> EN_COURS", "EBV_IGM <D+40> DOUTEUX" ],
+  "synthese du patient B (session B, une serologie)" : 1
+}

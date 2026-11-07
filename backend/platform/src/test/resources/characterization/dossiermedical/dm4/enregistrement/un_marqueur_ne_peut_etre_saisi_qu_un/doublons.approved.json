@@ -1,0 +1,8 @@
+{
+  "autre marqueur, meme date" : "200",
+  "autre patient du centre, meme marqueur et meme date" : "200",
+  "meme marqueur, autre date" : "200",
+  "meme marqueur, meme date, autre resultat" : "422 BUSINESS_RULE_VIOLATION | Un résultat existe déjà pour ce marqueur à cette date de prélèvement",
+  "meme marqueur, meme date, meme resultat" : "422 BUSINESS_RULE_VIOLATION | Un résultat existe déjà pour ce marqueur à cette date de prélèvement",
+  "premiere saisie" : "200"
+}

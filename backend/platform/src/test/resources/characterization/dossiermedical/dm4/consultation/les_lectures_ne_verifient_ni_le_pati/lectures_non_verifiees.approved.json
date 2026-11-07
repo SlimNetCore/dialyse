@@ -1,0 +1,20 @@
+{
+  "patient du centre B vu par le centre A" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  },
+  "patient du centre B vu par le centre B" : {
+    "session B" : 1
+  },
+  "patient illisible" : "500 INTERNAL_ERROR",
+  "patient inconnu" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  }
+}

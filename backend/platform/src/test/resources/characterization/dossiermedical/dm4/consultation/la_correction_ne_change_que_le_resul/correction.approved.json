@@ -1,0 +1,10 @@
+{
+  "EN_COURS puis DOUTEUX" : "200 / 200",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "positif conduite blanche" : "422 SEROLOGIE_CONDUITE_REQUISE | Un résultat positif impose de documenter la conduite à tenir",
+  "positif sans conduite" : "422 SEROLOGIE_CONDUITE_REQUISE | Un résultat positif impose de documenter la conduite à tenir",
+  "resultat absent" : "500 INTERNAL_ERROR",
+  "resultat inconnu" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.medical.serologie.valueobject.ResultatSerologique.PEUT_ETRE",
+  "retour negatif sans conduite" : "200 -> conduite null",
+  "vers positif" : "200 -> {id=<S1>, patientId=<PAT_A>, centerId=<CENTRE_A>, marqueur=AG_HBS, resultat=POSITIF, titre=1.5, unite=UI/mL, datePrelevement=<D+5>, laboratoire=Laboratoire fictif, dateProchainControle=<D+95>, conduiteATenir=Isoler le patient (fictif)}"
+}

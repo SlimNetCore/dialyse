@@ -1,0 +1,11 @@
+{
+  "conduite tres longue (5000 caracteres)" : "200",
+  "laboratoire de 256 caracteres" : "500 INTERNAL_ERROR",
+  "prochain controle avant le prelevement" : "200",
+  "titre a quatre decimales" : "200",
+  "titre a trois decimales" : "200",
+  "titre negatif" : "200",
+  "titre trop grand (8 chiffres entiers)" : "500 INTERNAL_ERROR",
+  "unite de 20 caracteres" : "200",
+  "unite de 21 caracteres" : "500 INTERNAL_ERROR"
+}

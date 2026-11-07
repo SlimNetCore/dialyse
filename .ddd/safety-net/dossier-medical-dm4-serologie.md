@@ -1,54 +1,31 @@
 ---
 slice: dossier-medical-dm4-serologie
 status: characterized
-date: 2026-11-01
-sources: [.ddd/migration/slices/dossier-medical-dm4-serologie.md, .ddd/tactical/dossier-medical.md, ADR 0065]
+date: 2026-11-07
+sources: [.ddd/safety-net/dossier-medical-inventaire.md, ADR 0024, 0072, 0081, 0082, known-bugs.md KB-MED-45 à 57]
 ---
 
-# Filet de caractérisation — DM4 Sérologie (détection positive)
+# Filet DM4 : sérologies du patient (legacy, refactoring sur place)
+
+## Périmètre vérifié par lecture du code
+`SerologieRestController` est la seule route de sérologie (GET liste, GET synthese, POST, PUT, DELETE). Table réelle : `serologies_patient` (entité `SerologieJpaEntity`) ; le schéma parallèle gelé `serologies` du module `contexts/dossier-medical` (GEL.md, ADR 0072) n'est ni lu ni écrit. L'inventaire n'omettait aucune route (mise à jour : lecteurs hors module). Lecteurs : Planification (`RisquesInfectieuxJdbc`, SQL), écriture couplée `ReaffectationEnIsolementDeLaSerologie` (une seule transaction), KDIGO, Direction, import et rollback d'historique (non observés : limites).
 
 ## Point d'observation
+HTTP (MockMvc, contexte Spring complet, sécurité réelle + `RoleScopeFilter` + `CenterAccessGuard`, H2 `test`), état SQL de `serologies_patient`, audit (`AuditRequestFilter`), diffusions, notifications durables, placement du patient (Planification P5, observé sans la modifier). Aucun mock du code caractérisé. **Aucun seam, aucun code de production modifié** (`seamAllowed` reste vide).
 
-Tests unitaires HTTP sur `SerologieRestController` (dépendances mockées, pas de Spring Context complet) + test unitaire
-`SerologieDomainService` existant (logique domaine, statuts, transitions). Isolation multi-centre par `center_id` sur
-toutes les lectures/écritures. Aucun mock du code caractérisé.
+## Scénarios (26 tests, 41 goldens `src/test/resources/characterization/dossiermedical/dm4/<dossier>/<scénario>/*.approved.json`)
+| Classe | Tests | Contenu |
+|---|---|---|
+| `LEnregistrementDUneSerologieCharacterizationIntegrationTest` | 8 | forme de la réponse et de la ligne, matrice 4 résultats x 4 conduites (positif sans conduite = 422), 13 marqueurs + valeurs refusées, dates (défaut, futur, 1900, illisible), doublons marqueur+date, bornes de colonnes (titre, unité, laboratoire), corps invalides, patient inconnu / autre centre (422 Planification) |
+| `LaConsultationEtLaCorrectionDesSerologiesCharacterizationIntegrationTest` | 7 | tri et pagination (11 bornes), forme complète avec `Cache-Control`, synthèse (dernier résultat par marqueur), correction (champs ignorés, conduite effacée), introuvable, suppression silencieuse, lectures sans garde de patient |
+| `LesDroitsEtLesEffetsDesSerologiesCharacterizationIntegrationTest` | 5 | droits 14 profils + anonyme x 5 routes, refus sans écriture (500 avant 403 pour un corps illisible), cloisonnement par centre (13 cas dont SUPERADMIN), audit `SEROLOGIE_*`, événement `SerologiePositiveDetectee` non publié |
+| `LaSerologieEtLeRisqueInfectieuxDeLaPlanificationCharacterizationIntegrationTest` | 6 | 13 marqueurs positifs (4 déplacent en isolement), négatif / douteux / en cours, dernière sérologie par marqueur (positive antidatée), patient déjà positif, correction et suppression, atomicité sérologie + réaffectation |
 
-Tests :
+## Déterminisme
+Dates explicites fixes `<D+n>` ; seules la date par défaut et la limite « futur » lisent le jour de la JVM (`<J>`, `<J+1>`), avec garde de minuit (attente si moins de 2 min) ; aucune dépendance au jour UTC ni à Africa/Algiers. Identifiants et horodatages masqués. Données fictives (« Patient <alias> », conduites inventées). 3 exécutions consécutives (dont une en ordre aléatoire) : 0 flaky.
 
-- `backend/platform/src/test/java/.../infrastructure/web/rest/SerologieRestControllerTest` (REST, multi-centre,
-  pagination) ;
-- `backend/bc-medical/src/test/java/.../domain/medical/serologie/service/SerologieDomainServiceTest` (logique domaine,
-  invariants) ;
-- `backend/platform/src/test/java/.../infrastructure/web/rest/SerologiePlacementHookTest` (hook Planification, isolement
-  machine).
+## Limites (non verrouillé)
+Concurrence (doublons simultanés, KB-MED-56), KDIGO / Direction / import d'historique (lecteurs SQL ou port, hors HTTP de DM4), diffusion réelle de `SerologiePositiveDetectee` (jamais publié), schéma PostgreSQL (H2 seul : arrondi du titre et bornes de colonnes à rejouer), détail du déplacement en isolement (verrouillé par `p5-placement/isolement`), pas de mutation testing (aucun outil installé pour la stack, non lancé).
 
-## Scénarios verrouillés (multi-centre)
-
-- Création d'une sérologie (`POST`) rattachée à un `center_id` et à un patient valide ; le `centerId` provient du corps
-  de
-  requête et est confronté au centre de session par `CenterAccessGuard` (refus `AccessDeniedException` si mismatch).
-- Résultat `POSITIF` sans `conduiteATenir` rejeté par l'agrégat (`SEROLOGIE_CONDUITE_REQUISE`) — invariant de sécurité
-  pour l'isolement machine en centre d'hémodialyse.
-- Doublon même marqueur + même date de prélèvement rejeté (`existsByPatientIdAndMarqueurAndDatePrelevement`).
-- Bandeau synthèse : dernier résultat connu par marqueur (`listDerniersResultatsByPatient`).
-- Transitions : `corrigerResultat` émet un `SerologiePositiveDetectee` quand le résultat devient positif.
-- Isolation inter-centres : une sérologie du centre A n'apparaît pas pour le centre B ; `centerId` systématiquement
-  propagé dans `SerologieUseCase`/`SerologieRepositoryPort`.
-- Pagination `page`/`size` avec enveloppe `{items,total,page,size}` ; `size` bornée (MAX 200), `page` plancher à 0.
-- Fallback : si `centerId` n'est pas fourni, le centre de session est utilisé ; sinon refus inter-centres.
-- Suppression (`DELETE`) filtrée par `center_id` via `deleteByIdAndPatientIdAndCenterId`.
-
-## Stabilité
-
-Suite exécutée sans Spring Context (contrôleurs avec fakes) + JUnit 5 sur le domaine pur. Isolation centre vérifiée par
-les tests REST et domaine. Aucun mock du code caractérisé.
-
-## Points d'attention
-
-- Statuts : `POSITIF`, `NEGATIF`, `DOUTEUX`, `EN_COURS` ; un résultat positif impose une conduite à tenir documentée.
-- Marqueurs : `VIH_AC`, `AG_HBS`, `AC_HBS`, `AC_HBC`, `AC_VHC`, `ARN_VHC`, `TPHA`, `CMV_IGG`, `CMV_IGM`, `TOXO_IGG`,
-  `TOXO_IGM`, `EBV_IGG`, `EBV_IGM`.
-- Événement publié : `SerologiePositiveDetectee` (consommé par Planification — isolement machine, hors périmètre DM4).
-- Compatibilité H2 (dev) / PostgreSQL (prod) : aucun SQL spécifique à un moteur.
-- Les règles de gestion associées : RG-DM-0xx (voir `docs/reference/regles-de-gestion/`).
-- Couverture `centerId` obligatoire sur toute lecture/écriture (règle multi-centre §2).
+## Questions ouvertes (à confirmer avec les métiers et le DPO)
+Reproduire ou corriger KB-MED-45 à 57, en particulier : DELETE silencieux, audit des lectures (VIH), consultation infirmière du statut, conduite effacée à la correction, unicité en base.

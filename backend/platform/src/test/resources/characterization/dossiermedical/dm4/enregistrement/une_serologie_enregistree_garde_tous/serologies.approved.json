@@ -1,0 +1,15 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "conduite_a_tenir" : null,
+  "creation" : "recent",
+  "date_prelevement" : "<D+3>",
+  "date_prochain_controle" : "<D+93>",
+  "id" : "<SERO>",
+  "laboratoire" : "Laboratoire fictif",
+  "marqueur" : "AG_HBS",
+  "modification" : "jamais modifiee",
+  "patient_id" : "<PAT_A>",
+  "resultat" : "NEGATIF",
+  "titre" : "0.125",
+  "unite" : "UI/mL"
+} ]

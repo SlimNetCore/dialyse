@@ -1,0 +1,10 @@
+{
+  "d'un autre patient du centre" : "204",
+  "du centre B (session A)" : "204",
+  "du centre B avec centerId B (session A)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "identifiant illisible" : "500 INTERNAL_ERROR",
+  "inconnue" : "204",
+  "la meme une seconde fois" : "204",
+  "la sienne" : "204",
+  "rien n'a ete supprime" : 3
+}

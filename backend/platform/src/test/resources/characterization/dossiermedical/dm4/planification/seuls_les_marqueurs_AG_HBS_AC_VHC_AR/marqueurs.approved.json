@@ -1,0 +1,15 @@
+{
+  "AC_HBC POSITIF" : "200 -> salle ordinaire",
+  "AC_HBS POSITIF" : "200 -> salle ordinaire",
+  "AC_VHC POSITIF" : "200 -> salle d'isolement",
+  "AG_HBS POSITIF" : "200 -> salle d'isolement",
+  "ARN_VHC POSITIF" : "200 -> salle d'isolement",
+  "CMV_IGG POSITIF" : "200 -> salle ordinaire",
+  "CMV_IGM POSITIF" : "200 -> salle ordinaire",
+  "EBV_IGG POSITIF" : "200 -> salle ordinaire",
+  "EBV_IGM POSITIF" : "200 -> salle ordinaire",
+  "TOXO_IGG POSITIF" : "200 -> salle ordinaire",
+  "TOXO_IGM POSITIF" : "200 -> salle ordinaire",
+  "TPHA POSITIF" : "200 -> salle ordinaire",
+  "VIH_AC POSITIF" : "200 -> salle d'isolement"
+}

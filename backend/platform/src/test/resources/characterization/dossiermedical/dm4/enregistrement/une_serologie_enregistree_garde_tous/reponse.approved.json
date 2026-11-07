@@ -1,0 +1,19 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "conduiteATenir" : null,
+    "createdAt" : "<HORODATAGE>",
+    "datePrelevement" : "<D+3>",
+    "dateProchainControle" : "<D+93>",
+    "id" : "<SERO>",
+    "laboratoire" : "Laboratoire fictif",
+    "marqueur" : "AG_HBS",
+    "patientId" : "<PAT_A>",
+    "resultat" : "NEGATIF",
+    "titre" : 0.125,
+    "unite" : "UI/mL",
+    "updatedAt" : "<HORODATAGE>"
+  }
+}

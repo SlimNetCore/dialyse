@@ -1,0 +1,10 @@
+{
+  "centerId illisible" : "500 INTERNAL_ERROR",
+  "champ inconnu ignore" : "200",
+  "corps absent" : "500 INTERNAL_ERROR",
+  "corps illisible" : "500 INTERNAL_ERROR",
+  "corps tableau" : "500 INTERNAL_ERROR",
+  "corps vide {}" : "500 INTERNAL_ERROR",
+  "patient illisible" : "500 INTERNAL_ERROR",
+  "titre texte" : "500 INTERNAL_ERROR"
+}

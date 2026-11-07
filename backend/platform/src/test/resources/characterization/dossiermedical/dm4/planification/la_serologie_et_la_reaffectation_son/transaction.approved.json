@@ -1,0 +1,7 @@
+{
+  "positive hors risque, patient du centre B" : "422 PLACEMENT_PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "positive, patient du centre" : "200 -> salle d'isolement",
+  "positive, patient du centre B" : "422 PLACEMENT_PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "positive, patient inconnu" : "422 PLACEMENT_PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "serologies ecrites apres ces trois refus ou acceptations" : 0
+}

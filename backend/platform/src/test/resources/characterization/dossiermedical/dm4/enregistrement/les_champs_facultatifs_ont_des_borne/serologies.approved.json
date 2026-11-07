@@ -1,0 +1,43 @@
+[ {
+  "date_prochain_controle" : null,
+  "longueur_conduite" : null,
+  "longueur_labo" : null,
+  "longueur_unite" : null,
+  "marqueur" : "AC_HBC",
+  "titre" : "12.346"
+}, {
+  "date_prochain_controle" : null,
+  "longueur_conduite" : "26",
+  "longueur_labo" : null,
+  "longueur_unite" : "6",
+  "marqueur" : "AC_HBS",
+  "titre" : "12.345"
+}, {
+  "date_prochain_controle" : "<D+2>",
+  "longueur_conduite" : null,
+  "longueur_labo" : null,
+  "longueur_unite" : null,
+  "marqueur" : "EBV_IGG",
+  "titre" : null
+}, {
+  "date_prochain_controle" : null,
+  "longueur_conduite" : "5000",
+  "longueur_labo" : null,
+  "longueur_unite" : null,
+  "marqueur" : "EBV_IGM",
+  "titre" : null
+}, {
+  "date_prochain_controle" : null,
+  "longueur_conduite" : null,
+  "longueur_labo" : null,
+  "longueur_unite" : "20",
+  "marqueur" : "TOXO_IGG",
+  "titre" : null
+}, {
+  "date_prochain_controle" : null,
+  "longueur_conduite" : null,
+  "longueur_labo" : null,
+  "longueur_unite" : null,
+  "marqueur" : "TPHA",
+  "titre" : "-1.000"
+} ]
