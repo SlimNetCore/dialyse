@@ -1,0 +1,80 @@
+package com.hemodialyse.backend.contexts.seance.contrat;
+
+import com.hemodialyse.backend.contexts.seance.domain.PatientId;
+import com.hemodialyse.backend.contexts.seance.domain.Seance;
+import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
+import com.hemodialyse.backend.contexts.seance.domain.SeanceIllisible;
+import com.hemodialyse.backend.contexts.seance.domain.Seances;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/** Double en mémoire du port {@link Seances} : le même contrat que la base (H2, PostgreSQL 16) lui est appliqué. */
+public class SeancesEnMemoire implements Seances {
+
+    private final Map<SeanceId, Seance> lignes = new LinkedHashMap<>();
+    private final Map<SeanceId, CentreId> illisibles = new HashMap<>();
+
+    @Override
+    public void ajouter(Seance seance) {
+        if (lignes.containsKey(seance.id())) throw new IllegalStateException("Séance déjà enregistrée");
+        lignes.put(seance.id(), seance);
+    }
+
+    /** Nombre de verrous du jour demandés (le double n'a pas de concurrence : il garde seulement la trace de l'appel). */
+    public int verrousDuJourDemandes;
+
+    @Override
+    public void verrouillerLeJour(CentreId centre, PatientId patient, LocalDate jour) {
+        verrousDuJourDemandes++;
+    }
+
+    @Override
+    public List<Seance> duJour(CentreId centre, PatientId patient, LocalDate jour) {
+        List<Seance> trouvees = new ArrayList<>();
+        for (Seance s : lignes.values()) {
+            if (s.centre().equals(centre) && s.patient().equals(patient) && s.jour().equals(jour)) trouvees.add(s);
+        }
+        trouvees.sort(Comparator.comparing(Seance::creeLe, Comparator.nullsLast(Comparator.<Instant>naturalOrder()))
+                .thenComparing(s -> s.id().valeur()));
+        return trouvees;
+    }
+
+    @Override
+    public Optional<Seance> trouver(CentreId centre, SeanceId id) {
+        if (centre.equals(illisibles.get(id))) throw new SeanceIllisible(id, "statut inconnu");
+        return Optional.ofNullable(lignes.get(id)).filter(s -> s.centre().equals(centre));
+    }
+
+    /** Sème une ligne telle qu'elle existe déjà en base (hors règles de création). */
+    public void semer(Seance seance) {
+        lignes.put(seance.id(), seance);
+    }
+
+    /** Sème une ligne dont le statut n'est pas lisible. */
+    public void semerUneLigneIllisible(CentreId centre, SeanceId id) {
+        illisibles.put(id, centre);
+    }
+
+    public List<Seance> toutes() {
+        return List.copyOf(lignes.values());
+    }
+
+    /** Instantané et retour arrière : sert à prouver qu'un échec défait tout dans la même unité de travail. */
+    public Map<SeanceId, Seance> instantane() {
+        return new LinkedHashMap<>(lignes);
+    }
+
+    public void restaurer(Map<SeanceId, Seance> instantane) {
+        lignes.clear();
+        lignes.putAll(instantane);
+    }
+}

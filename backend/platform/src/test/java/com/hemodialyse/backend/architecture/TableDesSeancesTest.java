@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled("Module seance GELE le 2026-11-02 (backend/contexts/seance/GEL.md, ADR 0074) : la garde ne scanne pas platform/src/main et exclut /acl/ "
+@Disabled("Gel du module seance LEVE le 2026-11-07 (ADR 0088, module reconstruit) mais garde toujours a reecrire (liste blanche SE7) : la garde ne scanne pas platform/src/main et exclut /acl/ "
         + "et /persistence/, donc elle est aveugle aux 18 lecteurs SQL de `seances` hors contexte ; elle n'a aucun sens tant que le refactoring "
         + "sur place n'a pas etabli la liste blanche nominative datee des lectures. A reecrire au filet SE1.")
 class TableDesSeancesTest {

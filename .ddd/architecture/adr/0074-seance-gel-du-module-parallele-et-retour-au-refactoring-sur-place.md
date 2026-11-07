@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded par 0088 (le gel est levé le 2026-11-07 : le module `contexts/seance` est reconstruit sur place, contenu mort retiré, voir ADR 0088)
 date: 2026-11-02
 decision-makers: [utilisateur (décision du 2026-11-02, décision déléguée à l'assistant pour l'acceptation formelle), architecte]
 context-scope: seance

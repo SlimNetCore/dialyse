@@ -39,6 +39,7 @@
         <module>contexts/organisation</module>
         <module>contexts/patient-couverture</module>
         <module>contexts/dossier-medical</module>
+        <module>contexts/seance</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

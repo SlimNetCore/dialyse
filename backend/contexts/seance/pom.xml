@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Contexte Seance (ADR 0002, 0062) : domaine medical central, refonte sur place, memes tables (seances, seance_consommables,
-     derogation_regularisation) et memes URLs (/api/v1/seances/**). Module consomme par platform. Squelette sans logique :
-     les dependances propres aux slices s'ajoutent avec elles (modulith-events-api pour FacturationValidtee, published
-     language de Patient & couverture / Planification / Stock). -->
+<!-- Contexte Séance (acte de dialyse d'un patient, un jour, dans un centre). ADR 0002, 0062, 0088. Module gelé par l'ADR 0074 puis
+     reconstruit sur place (ADR 0024, 0088) : mêmes tables (seances) et mêmes URL (/api/v1/seances) que le legacy. SE1 d'abord
+     (création, scan, consultation, liste) ; SE2 à SE7 seront reprises slice par slice. -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -14,51 +13,15 @@
     </parent>
     <artifactId>contexts-seance</artifactId>
     <name>contexts-seance</name>
-    <description>Bounded context Seance (hexagonal : domain, application, infrastructure, interfaces,
+    <description>Bounded context Séance (hexagonal : domain, application, infrastructure, interfaces,
         publishedlanguage, configuration)
     </description>
 
     <properties>
         <archunit.version>1.5.1</archunit.version>
-        <spring-modulith.version>2.0.8</spring-modulith.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.modulith</groupId>
-                <artifactId>spring-modulith-bom</artifactId>
-                <version>${spring-modulith.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-        <!-- Langage publie de Stock (OHS) : lecture article pour motif de sortie, ADR 0045/0046. -->
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
-            <artifactId>contexts-stock</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <!-- Langage publie de Planification : PatientPlace / SeancesProgrammees (lecture), ADR 0053. -->
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
-            <artifactId>contexts-planification</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <!-- Langage publie de Facturation : FacturationValideeEvent (verrou FACTUREE), ADR 0002. -->
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
-            <artifactId>contexts-facturation</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <!-- Registre d'evenements : ecouteur FacturationValidtee (pose du verrou FACTUREE), ADR 0002. -->
-        <dependency>
-            <groupId>org.springframework.modulith</groupId>
-            <artifactId>spring-modulith-events-api</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
@@ -117,35 +80,25 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Patient et couverture : CouvertureDesPatients (éligibilité à la facturation), SE1, ADR 0088. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-patient-couverture</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!-- Langage publié du Stock : ConsommationsDeSeance (consommables de la séance), SE1, ADR 0088. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-stock</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-maven</artifactId>
-                <version>1.30.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.pitest</groupId>
-                        <artifactId>pitest-junit5-plugin</artifactId>
-                        <version>1.2.3</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <targetClasses>
-                        <param>com.hemodialyse.backend.contexts.seance.domain.*</param>
-                        <param>com.hemodialyse.backend.contexts.seance.application.*</param>
-                    </targetClasses>
-                    <targetTests>
-                        <param>com.hemodialyse.backend.contexts.seance.domain.*</param>
-                        <param>com.hemodialyse.backend.contexts.seance.application.*</param>
-                    </targetTests>
-                    <outputFormats>
-                        <param>HTML</param>
-                        <param>XML</param>
-                    </outputFormats>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

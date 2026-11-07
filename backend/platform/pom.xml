@@ -81,6 +81,12 @@
             <artifactId>contexts-dossier-medical</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Séance (SE1, ADR 0088) : module reconstruit sur place ; aucun contrôleur ni cas d'usage routé tant que la session B n'a pas câblé la parité -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-seance</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>ai.timefold.solver</groupId>
             <artifactId>timefold-solver-core</artifactId>

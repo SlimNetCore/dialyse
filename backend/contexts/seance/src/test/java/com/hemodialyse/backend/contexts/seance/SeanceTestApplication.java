@@ -1,0 +1,11 @@
+package com.hemodialyse.backend.contexts.seance;
+
+import org.springframework.boot.SpringBootConfiguration;
+
+/**
+ * Racine de test du module : les tests de contrat s'exécutent sans l'application legacy. Volontairement sans balayage ni
+ * auto-configuration : seuls les adapters JDBC sont instanciés à la main par les tests.
+ */
+@SpringBootConfiguration
+public class SeanceTestApplication {
+}

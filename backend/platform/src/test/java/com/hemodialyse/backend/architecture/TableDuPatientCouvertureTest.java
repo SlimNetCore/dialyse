@@ -73,8 +73,6 @@ class TableDuPatientCouvertureTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)",
             "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/legacyseance/SeancesFacturablesJdbc.java", JOINTURE + " : séances x patients, tri nom/prénom, payeur (la partie PEC passe par le langage publié)",
             "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE + " : six tables de Facturation, KB-FAC-49",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/PecValidationJdbc.java",
-            "2026-11-04 : code MORT, contexts/seance est gelé et HORS réacteur (ADR 0074) ; échéance : reprise ou suppression du module Séance (le port CouvertureDesPatients.pecValidee est prêt)",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlanningJdbcAdapter.java", PLACE + " (jours de dialyse)",

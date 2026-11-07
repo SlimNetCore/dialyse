@@ -1,97 +1,127 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
+import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
+import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
-import com.hemodialyse.backend.contexts.seance.domain.SeanceRepository;
-import com.hemodialyse.backend.contexts.seance.domain.StatutSeance;
+import com.hemodialyse.backend.contexts.seance.domain.SeanceIllisible;
+import com.hemodialyse.backend.contexts.seance.domain.Seances;
+import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.dao.QueryTimeoutException;
+import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SeancesJdbc implements SeanceRepository {
+/**
+ * Les séances sur la table RÉELLE {@code seances} (ADR 0024 et 0088 : aucune colonne ni contrainte ajoutée, aucune autre table lue). La
+ * création écrit neuf colonnes (identité, centre, patient, jour, statut, création, hors planning, motif, précision) ; les autres colonnes
+ * (validation, signatures, forfait surchargé, place, régularisation, facture, exclusion) appartiennent aux slices SE2 à SE6 et restent
+ * NULL à la création, comme le legacy. Toute lecture est bornée au centre. Une ligne dont le statut ou le motif ne se lit pas lève
+ * {@link SeanceIllisible} (KB-SEA-07) ; l'identifiant sert au journal, jamais un nom de classe.
+ * <p>
+ * Verrou du jour : {@code pg_advisory_xact_lock} sur (centre, patient, jour) sur PostgreSQL, gardé jusqu'à la fin de la transaction ; un
+ * verrou non obtenu dans le délai (SQLSTATE 55P03) devient {@link EcritureConcurrente}. Clé littérale préfixée {@code seance-du-jour|} :
+ * tout autre verrou consultatif du dépôt doit avoir son propre préfixe.
+ */
+public class SeancesJdbc implements Seances {
+
+    private static final String COLONNES = "id, center_id, patient_id, date_seance, statut, created_at, hors_planning, motif_hors_planning, "
+            + "precision_hors_planning, validated_at, signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at";
+
     private final JdbcTemplate jdbc;
+    private volatile Boolean postgreSql;
 
     public SeancesJdbc(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
-    private Seance mapRow(java.sql.ResultSet rs) throws java.sql.SQLException {
-        UUID id = rs.getObject("id", UUID.class);
-        UUID centreId = rs.getObject("center_id", UUID.class);
-        UUID patientId = rs.getObject("patient_id", UUID.class);
-        UUID pecId = rs.getObject("pec_id", UUID.class);
-        LocalDate dateSeance = rs.getDate("date_seance") == null ? null : rs.getDate("date_seance").toLocalDate();
-        String type = rs.getString("type_seance");
-        StatutSeance statut = StatutSeance.valueOf(rs.getString("statut"));
-        boolean verrouille = false;
+    @Override
+    public void ajouter(Seance s) {
+        var derogation = s.derogation();
+        jdbc.update("INSERT INTO seances (id, center_id, patient_id, date_seance, statut, created_at, hors_planning, motif_hors_planning, "
+                        + "precision_hors_planning) VALUES (?,?,?,?,?,?,?,?,?)", s.id().valeur(), s.centre().valeur(), s.patient().valeur(),
+                java.sql.Date.valueOf(s.jour()), s.statut().name(), horodatage(s.creeLe()), s.horsPlanning(),
+                derogation.map(d -> d.motif().name()).orElse(null), derogation.map(DerogationHorsPlanning::precision).orElse(null));
+    }
+
+    @Override
+    public void verrouillerLeJour(CentreId centre, PatientId patient, LocalDate jour) {
+        if (!estPostgreSql()) return;
         try {
-            verrouille = rs.getBoolean("verrouille_facturation");
-        } catch (java.sql.SQLException ignored) {
-        }
-        OffsetDateTime createdAt = rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toInstant().atOffset(java.time.ZoneOffset.UTC);
-        return new Seance(new SeanceId(id), new CentreId(centreId), new com.hemodialyse.backend.contexts.seance.domain.PatientId(patientId),
-                new com.hemodialyse.backend.contexts.seance.domain.PecId(pecId), dateSeance, type, statut, verrouille, createdAt);
-    }
-
-    @Override
-    public Optional<Seance> trouver(SeanceId id, CentreId centreId) {
-        List<Seance> r = jdbc.query("SELECT id, center_id, patient_id, pec_id, date_seance, type_seance, statut, created_at FROM seances WHERE id = ? AND center_id = ?",
-                (rs, i) -> mapRow(rs), id.valeur(), centreId.valeur());
-        return r.stream().findFirst();
-    }
-
-    @Override
-    public void sauvegarder(Seance s) {
-        int n = jdbc.update("UPDATE seances SET patient_id=?, pec_id=?, date_seance=?, type_seance=?, statut=?, verrouille_facturation=? WHERE id=? AND center_id=?",
-                s.patientId().valeur(), s.pecId().valeur(),
-                s.dateSeance() == null ? null : Date.valueOf(s.dateSeance()),
-                s.typeSeance(), s.statut().name(), s.verrouilleFacturation(), s.id().valeur(), s.centreId().valeur());
-        if (n == 0) {
-            jdbc.update("INSERT INTO seances (id, center_id, patient_id, pec_id, date_seance, type_seance, statut, verrouille_facturation, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
-                    s.id().valeur(), s.centreId().valeur(), s.patientId().valeur(), s.pecId().valeur(),
-                    s.dateSeance() == null ? null : Date.valueOf(s.dateSeance()),
-                    s.typeSeance(), s.statut().name(), s.verrouilleFacturation(),
-                    java.sql.Timestamp.from(s.createdAt().toInstant()));
+            jdbc.query("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", rs -> {
+            }, "seance-du-jour|" + centre.valeur() + "|" + patient.valeur() + "|" + jour);
+        } catch (PessimisticLockingFailureException | QueryTimeoutException | UncategorizedSQLException e) {
+            if (e instanceof UncategorizedSQLException technique && !"55P03".equals(technique.getSQLException().getSQLState())) throw e;
+            throw new EcritureConcurrente();
         }
     }
 
     @Override
-    public void supprimer(SeanceId id, CentreId centreId) {
-        jdbc.update("DELETE FROM seances WHERE id = ? AND center_id = ?", id.valeur(), centreId.valeur());
+    public List<Seance> duJour(CentreId centre, PatientId patient, LocalDate jour) {
+        return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE center_id = ? AND patient_id = ? AND date_seance = ? "
+                        + "ORDER BY created_at ASC NULLS LAST, id ASC", (rs, i) -> seance(rs), centre.valeur(), patient.valeur(),
+                java.sql.Date.valueOf(jour));
     }
 
     @Override
-    public PagedResult<Seance> lister(CentreId centreId, int page, int size) {
-        long total = jdbc.queryForObject("SELECT COUNT(*) FROM seances WHERE center_id = ?", Long.class, centreId.valeur());
-        List<Seance> items = jdbc.query("SELECT id, center_id, patient_id, pec_id, date_seance, type_seance, statut, created_at FROM seances WHERE center_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
-                (rs, i) -> mapRow(rs), centreId.valeur(), size, page * size);
-        return PagedResult.of(items, total, page, size);
+    public Optional<Seance> trouver(CentreId centre, SeanceId id) {
+        return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE id = ? AND center_id = ?", (rs, i) -> seance(rs), id.valeur(),
+                centre.valeur()).stream().findFirst();
     }
 
-    @Override
-    public PagedResult<Seance> listerDuJour(CentreId centreId, LocalDate date, int page, int size) {
-        long total = jdbc.queryForObject("SELECT COUNT(*) FROM seances WHERE center_id = ? AND date_seance = ?", Long.class, centreId.valeur(), Date.valueOf(date));
-        List<Seance> items = jdbc.query("SELECT id, center_id, patient_id, pec_id, date_seance, type_seance, statut, created_at FROM seances WHERE center_id = ? AND date_seance = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
-                (rs, i) -> mapRow(rs), centreId.valeur(), Date.valueOf(date), size, page * size);
-        return PagedResult.of(items, total, page, size);
+    private static Seance seance(ResultSet rs) throws SQLException {
+        SeanceId id = new SeanceId(rs.getObject("id", UUID.class));
+        StatutDeSeance statut;
+        try {
+            statut = StatutDeSeance.valueOf(rs.getString("statut"));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new SeanceIllisible(id, "statut inconnu");
+        }
+        DerogationHorsPlanning derogation = null;
+        if (rs.getBoolean("hors_planning")) {
+            try {
+                derogation = new DerogationHorsPlanning(MotifHorsPlanning.valueOf(rs.getString("motif_hors_planning")),
+                        rs.getString("precision_hors_planning"), false);
+            } catch (RuntimeException e) {
+                throw new SeanceIllisible(id, "motif de hors planning illisible");
+            }
+        }
+        return Seance.restituer(id, new CentreId(rs.getObject("center_id", UUID.class)),
+                new PatientId(rs.getObject("patient_id", UUID.class)), rs.getObject("date_seance", LocalDate.class), statut,
+                instant(rs, "created_at"), derogation, new Seance.Jalons(instant(rs, "validated_at"), instant(rs, "signed_infirmier_at"),
+                        instant(rs, "signed_medecin_at"), instant(rs, "regularisation_deverrouillee_at")));
     }
 
-    @Override
-    public List<Seance> listerParPatient(com.hemodialyse.backend.contexts.seance.domain.PatientId patientId, CentreId centreId) {
-        return jdbc.query("SELECT id, center_id, patient_id, pec_id, date_seance, type_seance, statut, created_at, verrouille_facturation FROM seances WHERE patient_id = ? AND center_id = ? ORDER BY created_at DESC",
-                (rs, i) -> mapRow(rs), patientId.valeur(), centreId.valeur());
+    private boolean estPostgreSql() {
+        Boolean lu = postgreSql;
+        if (lu == null) {
+            lu = Boolean.TRUE.equals(jdbc.execute((ConnectionCallback<Boolean>) connection ->
+                    "PostgreSQL".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())));
+            postgreSql = lu;
+        }
+        return lu;
     }
 
-    @Override
-    public void verrouillerPourFacturation(CentreId centreId, java.time.LocalDate debut, java.time.LocalDate fin) {
-        jdbc.update("UPDATE seances SET verrouille_facturation = TRUE WHERE center_id = ? AND date_seance >= ? AND date_seance <= ?",
-                centreId.valeur(), Date.valueOf(debut), Date.valueOf(fin));
+    private static OffsetDateTime horodatage(Instant instant) {
+        return instant == null ? null : OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
+    }
+
+    private static Instant instant(ResultSet rs, String colonne) throws SQLException {
+        OffsetDateTime lu = rs.getObject(colonne, OffsetDateTime.class);
+        return lu == null ? null : lu.toInstant();
     }
 }

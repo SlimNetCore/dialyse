@@ -2,174 +2,111 @@ package com.hemodialyse.backend.contexts.seance.domain;
 
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.Optional;
 
-public class Seance {
+/**
+ * Séance : acte de dialyse d'un patient, un jour donné, dans un centre (racine d'agrégat, une seule entité). SE1 porte la CRÉATION
+ * (statut {@code CREE}, éventuellement confirmée hors planning) et la restitution des lignes existantes ; la validation, la signature,
+ * le forfait et le verrou de facturation (SE2 à SE6) restent au legacy tant que leurs slices ne sont pas reprises.
+ * <p>
+ * Aucune règle d'unicité par patient et par jour : plusieurs séances le même jour restent permises (KB-SEA-02, reproduit).
+ */
+public final class Seance {
+
     private final SeanceId id;
-    private final CentreId centreId;
-    private final PatientId patientId;
-    private final PecId pecId;
-    private final LocalDate dateSeance;
-    private final String typeSeance;
-    private StatutSeance statut;
-    private boolean verrouilleFacturation;
-    private final OffsetDateTime createdAt;
-    private OffsetDateTime regularisationDeverrouilleeAt;
-    private String regularisationDeverrouilleeBy;
-    private ForfaitApplique forfaitSurcharge;
+    private final CentreId centre;
+    private final PatientId patient;
+    private final LocalDate jour;
+    private final StatutDeSeance statut;
+    private final Instant creeLe;
+    private final DerogationHorsPlanning derogation;
+    private final Jalons jalons;
 
-    public Seance(SeanceId id, CentreId centreId, PatientId patientId, PecId pecId,
-                  LocalDate dateSeance, String typeSeance, StatutSeance statut,
-                  boolean verrouilleFacturation, OffsetDateTime createdAt) {
-        this(id, centreId, patientId, pecId, dateSeance, typeSeance, statut, verrouilleFacturation, createdAt, null, null);
+    private Seance(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut, Instant creeLe,
+                   DerogationHorsPlanning derogation, Jalons jalons) {
+        this.id = exiger(id, "Séance requise");
+        this.centre = exiger(centre, "Centre requis");
+        this.patient = exiger(patient, "Patient requis");
+        this.jour = exiger(jour, "Jour de la séance requis");
+        this.statut = exiger(statut, "Statut requis");
+        this.creeLe = creeLe;
+        this.derogation = derogation;
+        this.jalons = jalons == null ? Jalons.AUCUN : jalons;
     }
 
-    public Seance(SeanceId id, CentreId centreId, PatientId patientId, PecId pecId,
-                  LocalDate dateSeance, String typeSeance, StatutSeance statut,
-                  boolean verrouilleFacturation, OffsetDateTime createdAt,
-                  OffsetDateTime regularisationDeverrouilleeAt, String regularisationDeverrouilleeBy) {
-        this(id, centreId, patientId, pecId, dateSeance, typeSeance, statut, verrouilleFacturation, createdAt,
-                regularisationDeverrouilleeAt, regularisationDeverrouilleeBy, null);
+    /** Crée une séance programmée (patient attendu) : statut {@code CREE}, sans dérogation. */
+    public static Seance creer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, Instant creeLe) {
+        return new Seance(id, centre, patient, jour, StatutDeSeance.CREE, exiger(creeLe, "Heure de création requise"), null, null);
     }
 
-    public Seance(SeanceId id, CentreId centreId, PatientId patientId, PecId pecId,
-                  LocalDate dateSeance, String typeSeance, StatutSeance statut,
-                  boolean verrouilleFacturation, OffsetDateTime createdAt,
-                  OffsetDateTime regularisationDeverrouilleeAt, String regularisationDeverrouilleeBy,
-                  ForfaitApplique forfaitSurcharge) {
-        if (id == null) throw new IllegalArgumentException("SeanceId requis");
-        if (centreId == null) throw new IllegalArgumentException("Centre requis");
-        if (patientId == null) throw new IllegalArgumentException("Patient requis");
-        if (pecId == null) throw new IllegalArgumentException("Pec requis");
-        if (dateSeance == null) throw new IllegalArgumentException("DateSeance requise");
-        if (createdAt == null) throw new IllegalArgumentException("CreatedAt requis");
-        this.id = id;
-        this.centreId = centreId;
-        this.patientId = patientId;
-        this.pecId = pecId;
-        this.dateSeance = dateSeance;
-        this.typeSeance = typeSeance;
-        this.statut = statut == null ? StatutSeance.CREE : statut;
-        this.verrouilleFacturation = verrouilleFacturation;
-        this.createdAt = createdAt;
-        this.regularisationDeverrouilleeAt = regularisationDeverrouilleeAt;
-        this.regularisationDeverrouilleeBy = regularisationDeverrouilleeBy;
-        this.forfaitSurcharge = forfaitSurcharge;
+    /** Crée une séance confirmée hors planning : le motif (et sa précision) est inscrit sur la séance. */
+    public static Seance creerHorsPlanning(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, Instant creeLe,
+                                           DerogationHorsPlanning derogation) {
+        return new Seance(id, centre, patient, jour, StatutDeSeance.CREE, exiger(creeLe, "Heure de création requise"),
+                exiger(derogation, "Dérogation requise"), null);
     }
 
-    public static Seance creer(SeanceId id, CentreId centreId, PatientId patientId, PecId pecId,
-                               LocalDate dateSeance, String typeSeance, OffsetDateTime createdAt) {
-        return new Seance(id, centreId, patientId, pecId, dateSeance, typeSeance, StatutSeance.CREE, false, createdAt);
-    }
-
-    public void valider() {
-        if (verrouilleFacturation) throw new IllegalStateException("SeanceVerrouilleeFacturation");
-        if (statut != StatutSeance.CREE) throw new IllegalStateException("SeanceDejaValidee");
-        this.statut = StatutSeance.VALIDEE;
-    }
-
-    public void signer() {
-        if (verrouilleFacturation) throw new IllegalStateException("SeanceVerrouilleeFacturation");
-        if (statut != StatutSeance.VALIDEE) throw new IllegalStateException("SeanceDejaSignee");
-        this.statut = StatutSeance.SIGNEE;
-    }
-
-    public void verrouillerFacturation() {
-        this.verrouilleFacturation = true;
-    }
-
-    public void declarerForfaitSurcharge(ForfaitApplique forfait, String auteur, OffsetDateTime instant) {
-        if (verrouilleFacturation) throw new IllegalStateException("SeanceVerrouilleeFacturation");
-        if (forfait == null) throw new IllegalArgumentException("Forfait requis");
-        if (instant == null) throw new IllegalArgumentException("Instant requis");
-        if (auteur == null || auteur.isBlank()) throw new IllegalArgumentException("Auteur requis");
-        // premier auteur/instant conservés si déjà surchargé
-        if (this.forfaitSurcharge != null) return;
-        this.forfaitSurcharge = new ForfaitApplique(forfait.id(), forfait.code(), forfait.libelle(),
-                forfait.prixHt(), auteur, instant);
-    }
-
-    public void deverrouillerPourRegularisation(String utilisateurId, LocalDate aujourdhui) {
-        if (aujourdhui == null) throw new IllegalArgumentException("aujourdhui requis");
-        deverrouillerPourRegularisation(utilisateurId, aujourdhui,
-                OffsetDateTime.of(aujourdhui, java.time.LocalTime.NOON, java.time.ZoneOffset.UTC));
-    }
-
-    public void deverrouillerPourRegularisation(String utilisateurId, LocalDate aujourdhui, OffsetDateTime maintenant) {
-        if (verrouilleFacturation) throw new IllegalStateException("SeanceVerrouilleeFacturation");
-        if (statut != StatutSeance.CREE) throw new IllegalStateException("SeanceDejaValidee");
-        if (dateSeance == null || aujourdhui == null || !dateSeance.isBefore(aujourdhui)) {
-            throw new IllegalArgumentException("ValidationHorsJour");
-        }
-        if (regularisationDeverrouilleeAt != null) return;
-        this.regularisationDeverrouilleeAt = maintenant == null ? OffsetDateTime.of(aujourdhui, java.time.LocalTime.NOON, java.time.ZoneOffset.UTC) : maintenant;
-        this.regularisationDeverrouilleeBy = utilisateurId;
-    }
-
-    public boolean estDeverrouilleePourRegularisation() {
-        return regularisationDeverrouilleeAt != null;
+    /** Restitue une ligne existante (adapter de persistance) : aucune règle de création n'est rejouée. */
+    public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
+                                   Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons) {
+        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons);
     }
 
     public SeanceId id() {
         return id;
     }
 
-    public CentreId centreId() {
-        return centreId;
+    public CentreId centre() {
+        return centre;
     }
 
-    public PatientId patientId() {
-        return patientId;
+    public PatientId patient() {
+        return patient;
     }
 
-    public PecId pecId() {
-        return pecId;
+    public LocalDate jour() {
+        return jour;
     }
 
-    public LocalDate dateSeance() {
-        return dateSeance;
-    }
-
-    public String typeSeance() {
-        return typeSeance;
-    }
-
-    public StatutSeance statut() {
+    public StatutDeSeance statut() {
         return statut;
     }
 
-    public boolean verrouilleFacturation() {
-        return verrouilleFacturation;
+    /** Heure de création ; peut être nulle sur une ligne historique (colonne sans contrainte). */
+    public Instant creeLe() {
+        return creeLe;
     }
 
-    public OffsetDateTime createdAt() {
-        return createdAt;
+    public boolean horsPlanning() {
+        return derogation != null;
     }
 
-    public OffsetDateTime regularisationDeverrouilleeAt() {
-        return regularisationDeverrouilleeAt;
+    public Optional<DerogationHorsPlanning> derogation() {
+        return Optional.ofNullable(derogation);
     }
 
-    public String regularisationDeverrouilleeBy() {
-        return regularisationDeverrouilleeBy;
+    public Jalons jalons() {
+        return jalons;
     }
 
-    public ForfaitApplique forfaitSurcharge() {
-        return forfaitSurcharge;
+    /** Vrai tant que la séance n'a pas été validée par l'infirmier (le scan la valide alors, la secrétaire la laisse). */
+    public boolean attendLaValidation() {
+        return statut == StatutDeSeance.CREE;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Seance s)) return false;
-        return Objects.equals(id, s.id);
+    private static <T> T exiger(T valeur, String message) {
+        if (valeur == null) throw new SaisieInvalide(message);
+        return valeur;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    /**
+     * Jalons de la vie de la séance après sa création (lecture seule pour SE1 ; écrits par le legacy jusqu'à SE2) : validation,
+     * signature de l'infirmier, signature du médecin, déverrouillage pour régularisation. Tous peuvent être nuls.
+     */
+    public record Jalons(Instant valideeLe, Instant signeeParLInfirmierLe, Instant signeeParLeMedecinLe,
+                         Instant deverrouilleePourRegularisationLe) {
+        public static final Jalons AUCUN = new Jalons(null, null, null, null);
     }
 }

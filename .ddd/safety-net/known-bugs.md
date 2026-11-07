@@ -1774,7 +1774,7 @@ Comportements ACTUELS du legacy Séance (création `POST /api/v1/seances`, scan 
 | KB-SEA-04 | CORRIGER : erreurs de forme 500 vers 400, 403 avant 400 ; bornes de colonnes 400 ; verrous 409 `…_ECRITURE_CONCURRENTE` | corriger |
 | KB-SEA-06 | CORRIGER : QR sans caractère alphanumérique refusé en 400 ; patient inconnu ou autre centre : 404 `PATIENT_INTROUVABLE` ; garde patient/centre | corriger (sécurité) |
 | KB-SEA-08 | REPRODUIRE l'audit incomplet | reproduire |
-| KB-SEA-05, 07, 09, 10 | Politique commune : corriger sécurité, intégrité, 400-vs-500, verrous ; reproduire règles métier et droits (détail à l'implémentation) | à détailler |
+| KB-SEA-05, 07, 09, 10 | Politique commune : corriger sécurité, intégrité, 400-vs-500, verrous ; reproduire règles métier et droits. **Fixé le 2026-11-07 (ADR 0088, session A)** : 05 REPRODUIT (drapeau `created` de la secrétaire faux, rediffusion tant que `CREE`) ; 07 CORRIGÉ (ligne illisible ignorée et journalisée dans la liste, détail sans nom de classe) ; 09 REPRODUIT (aucune colonne d'auteur) ; 10 REPRODUIT (éligibilité cumulative, code `BUSINESS_RULE_VIOLATION`) | fixé |
 
 ## Outillage de tests (2026-11-07)
 
