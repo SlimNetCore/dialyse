@@ -34,6 +34,7 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.GenerateursFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.JourDuCentreFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ValidationFournie;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.VoletsFournis;
@@ -53,7 +54,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.time.ZoneId;
 
 /**
  * Câblage du contexte Séance (ADR 0088). SESSION A : seuls les adapters qui ne dépendent d'aucun port de la plateforme sont câblés
@@ -65,8 +65,6 @@ import java.time.ZoneId;
 @Configuration(proxyBeanMethods = false)
 public class SeanceConfiguration {
 
-    /** Jour du centre : la table des centres n'a pas de fuseau ; Africa/Algiers par défaut (KB-SEA-01). */
-    private static final ZoneId FUSEAU_DU_CENTRE = ZoneId.of("Africa/Algiers");
     private static final Duration DELAI_DE_VERROU = Duration.ofSeconds(5);
 
     @Bean
@@ -80,8 +78,8 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    HorlogeDuCentre horlogeDeLaSeance() {
-        return new HorlogeDuCentre(Clock.systemUTC(), FUSEAU_DU_CENTRE);
+    HorlogeDuCentre horlogeDeLaSeance(JourDuCentreFourni jourDuCentre) {
+        return new HorlogeDuCentre(Clock.systemUTC(), jourDuCentre::aujourdhui);
     }
 
     @Bean

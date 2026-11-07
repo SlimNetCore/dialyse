@@ -1,0 +1,8 @@
+{
+  "01 detail de la ligne saine" : 200,
+  "02 detail du statut inconnu" : "400 BAD_REQUEST | La séance <STATUT_INCONNU> porte une valeur illisible : statut inconnu",
+  "03 detail du statut ABSENT (statut historique)" : 200,
+  "04 detail d'une seance dont le patient n'existe plus" : "400 BAD_REQUEST | Patient introuvable",
+  "05 liste avec une ligne de statut inconnu" : "200 ok",
+  "06 liste sans la ligne de statut inconnu (la seance orpheline est exclue par la jointure)" : "200 total=2 items=2"
+}

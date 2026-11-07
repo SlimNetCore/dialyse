@@ -1,0 +1,15 @@
+{
+  "01 session A vise le centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "02 session B vise le centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 session B scanne un patient du centre A dans son centre" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "04 session sans centre" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+  "05 lignes" : 0,
+  "06 corps sans centerId" : "400 VALIDATION_ERROR | Invalid request content.",
+  "07 corps sans qrCode" : "400 VALIDATION_ERROR | Invalid request content.",
+  "08 qrCode vide" : "400 VALIDATION_ERROR | Invalid request content.",
+  "09 qrCode null" : "400 VALIDATION_ERROR | Invalid request content.",
+  "10 precision de 300 caracteres" : "400 VALIDATION_ERROR | Invalid request content.",
+  "11 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "12 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "13 lignes apres les refus" : 0
+}

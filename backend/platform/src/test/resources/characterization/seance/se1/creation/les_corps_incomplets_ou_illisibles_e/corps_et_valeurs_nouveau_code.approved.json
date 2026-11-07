@@ -1,0 +1,14 @@
+{
+  "01 corps sans patientId" : "400 BAD_REQUEST | Patient requis ; lignes=0 ; statuts=[]",
+  "02 corps sans centerId (le centre de la session est retenu par la garde, pas par la suite)" : "400 BAD_REQUEST | Centre requis ; lignes=0 ; statuts=[]",
+  "03 objet vide" : "400 BAD_REQUEST | Centre requis ; lignes=0 ; statuts=[]",
+  "04 patientId illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]",
+  "05 dateSeance illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]",
+  "06 dateSeance inexistante (30 fevrier)" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]",
+  "07 dateSeance nulle explicite (jour du centre)" : "200 ok ; lignes=1 ; statuts=[{S=CREE/FALSE}]",
+  "08 champ inconnu ignore" : "200 ok ; lignes=1 ; statuts=[{S=CREE/FALSE}]",
+  "09 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]",
+  "10 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]",
+  "11 corps null" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]",
+  "12 corps tableau" : "400 BAD_REQUEST | Corps ou paramètre illisible ; lignes=0 ; statuts=[]"
+}

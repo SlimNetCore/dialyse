@@ -1,0 +1,30 @@
+{
+  "01 patient inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "02 patient du centre B, session A, corps centre A" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "03 patient du centre A, corps centre B, session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 patient du centre B, corps centre B, session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "05 patient du centre B, corps centre B, session B (nominal du centre B)" : "200 ok",
+  "06 patient du centre A, corps centre A, session B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "07 SUPERADMIN + INFIRMIER (session A) cree dans le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "08 INFIRMIER sans centre de session" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+  "09 etat" : [ {
+    "center_id" : "<CENTRE_B>",
+    "creation" : "creation par l application",
+    "creneau_id" : null,
+    "date_seance" : "<D+1>",
+    "facture_id" : null,
+    "forfait_override_id" : null,
+    "generateur_id" : null,
+    "hors_planning" : "false",
+    "motif_hors_planning" : null,
+    "patient_id" : "<PAT_B>",
+    "precision_hors_planning" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ]
+}

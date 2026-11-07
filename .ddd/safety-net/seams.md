@@ -419,3 +419,16 @@ Inscrit AVANT toute action : tous les fichiers ci-dessous étaient déjà dans `
 ## Séance SE1 session B1 (ACL de la plateforme) : OUVERT le 2026-11-07
 
 Aucune ligne de legacy existante n'est modifiée en B1 (`seamAllowed` reste vide). SEULE entrée : le glob `backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/*.java` ajouté à `covered.json` pour CRÉER les adapters `*Legacy` qui fournissent au module `contexts/seance` ses langages publiés (même précédent que `acl/gmao/CapaciteDesSallesDePlanification.java`, ADR 0088). Ces fichiers sont nouveaux : ils n'ont aucun comportement legacy à caractériser. Les retraits (B2) seront inscrits ici AVANT l'action.
+
+### Séance SE1 session B2 (routage par retrait des handlers) : OUVERT puis FERMÉ le 2026-11-07 (`seamAllowed` vide, entrées mortes retirées de `covered.json`)
+
+Réalisé : retrait des 4 handlers et des aides `derogation`, `buildSeanceCreationPayload`, `enrichGenerateur` de `SeanceRestController` ; **SUPPRESSION** (`git rm`) des DTO `CreateSeanceRequest` et `ScanSeanceQrRequest` (entrées retirées de `covered.json`) ; cas des 4 handlers retirés de `SeanceRestControllerTest` et `SeanceScanValidationControllerTest` ; condition `seance.se1.controleur-actif` supprimée.
+
+Inscrit AVANT toute action. Tous les fichiers édités ou supprimés sont déjà dans `covered.json` (aucune entrée à ajouter à `seamAllowed`).
+
+| Date | Slice | Fichiers édités ou supprimés | Raison |
+|---|---|---|---|
+| 2026-11-07 | seance-se1-creation | **ÉDITION** de `platform/.../web/rest/SeanceRestController.java` : retrait des handlers `create`, `list`, `scanQr`, `details` et des aides `derogation`, `buildSeanceCreationPayload`, `enrichGenerateur` (`loadCurrentForfait` et ses aides RESTENT : `updateForfait`, SE5) | Les 4 routes sont servies par `contexts/seance` (`SeancesControleur`) ; deux contrôleurs sur la même route empêchent le démarrage |
+| 2026-11-07 | seance-se1-creation | **ÉDITION** des tests legacy `SeanceRestControllerTest`, `SeanceScanValidationControllerTest` (retrait des cas des 4 handlers retirés) | Ces cas décrivent des handlers supprimés ; le comportement est tenu par les goldens SE1 et les tests du module |
+| 2026-11-07 | seance-se1-creation | **ÉDITION** de `contexts/seance/.../SeancesControleur.java`, `ErreursDeSeanceAdvice.java` (retrait de la condition `seance.se1.controleur-actif`) | Le routage est effectif |
+| 2026-11-07 | seance-se1-creation | **CONSERVÉS** (résidus nommés, revue 2026-12-15, verrou ArchUnit contre de nouveaux appelants) : `SeanceUseCase.create/createFromQr/scanAndValidate`, `SeanceDomainService`, `SeanceApplicationService` (mêmes méthodes) | Retrait des méthodes mortes reporté (tests du domaine legacy à réécrire) |

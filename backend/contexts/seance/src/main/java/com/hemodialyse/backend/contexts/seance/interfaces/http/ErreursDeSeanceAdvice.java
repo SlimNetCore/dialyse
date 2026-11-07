@@ -9,7 +9,6 @@ import com.hemodialyse.backend.contexts.seance.domain.SeanceIllisible;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceIntrouvable;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceRefusee;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,6 @@ import org.springframework.web.servlet.HandlerMapping;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = SeancesControleur.class)
-@ConditionalOnProperty(name = SeancesControleur.PROPRIETE_D_ACTIVATION, havingValue = "true")
 class ErreursDeSeanceAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {

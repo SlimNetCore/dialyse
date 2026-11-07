@@ -7,9 +7,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
-import com.hemodialyse.backend.domain.seance.port.SeanceUseCase.ScanResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.infrastructure.web.dto.request.ScanSeanceQrRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -81,111 +79,7 @@ class SeanceScanValidationControllerTest {
         when(useCase.getDetails(CenterId.of(CENTER_ID), SEANCE_ID)).thenReturn(new SeanceDetails(seance, patient, null, null));
     }
 
-    @Test
-    void a_nurse_scan_validates_the_session_directly_and_notifies_the_doctor() {
-        connectedAs("inf-01", "INFIRMIER");
-        Seance validee = seance(SeanceStatus.VALIDEE);
-        when(useCase.scanAndValidate(CenterId.of(CENTER_ID), "PAT-ROU00008", "inf-01", null))
-                .thenReturn(new ScanResult(validee, true, true, false));
-        stubDetails(validee);
-
-        var response = controller.scanQr(new ScanSeanceQrRequest(CENTER_ID, "PAT-ROU00008", null, null));
-
-        Map<String, Object> body = body(response);
-        assertEquals(SeanceStatus.VALIDEE, body.get("status"));
-        assertEquals(true, body.get("created"));
-        assertEquals(true, body.get("validatedNow"));
-        assertEquals(false, body.get("alreadyValidated"));
-        assertEquals("Dupont", body.get("patientNom"));
-        assertEquals("PAT-ROU00008", body.get("patientCode"));
-        verify(useCase, never()).createFromQr(any(), anyString());
-        verify(notif).notifySeanceValidated(eq(CENTER_ID), eq(SEANCE_ID), eq(PATIENT_ID), eq("Dupont"), eq("Jean"), anyString());
-        verify(notif).notifySaisieInfirmier(eq(CENTER_ID), eq("SEANCE_VALIDEE"), eq(PATIENT_ID), eq("Dupont"), eq("Jean"),
-                eq("inf-01"), anyString());
-    }
-
-    @Test
-    void a_second_scan_of_a_validated_session_changes_and_notifies_nothing() {
-        connectedAs("inf-01", "INFIRMIER");
-        Seance deja = seance(SeanceStatus.VALIDEE);
-        when(useCase.scanAndValidate(any(), anyString(), anyString(), any())).thenReturn(new ScanResult(deja, false, false, true));
-        stubDetails(deja);
-
-        Map<String, Object> body = body(controller.scanQr(new ScanSeanceQrRequest(CENTER_ID, "PAT-ROU00008", null, null)));
-
-        assertEquals(true, body.get("alreadyValidated"));
-        assertEquals(false, body.get("validatedNow"));
-        verify(notif, never()).notifySaisieInfirmier(any(), anyString(), any(), any(), any(), any(), any());
-        verify(notif, never()).notifySeanceCreated(any(), any(), any(), any(), any(), any());
-    }
-
-    @Test
-    void an_administrator_scan_also_validates() {
-        connectedAs("admin", "ADMIN");
-        Seance validee = seance(SeanceStatus.VALIDEE);
-        when(useCase.scanAndValidate(CenterId.of(CENTER_ID), "X", "admin", null)).thenReturn(new ScanResult(validee, false, true, false));
-        stubDetails(validee);
-
-        assertEquals(SeanceStatus.VALIDEE, body(controller.scanQr(new ScanSeanceQrRequest(CENTER_ID, "X", null, null))).get("status"));
-    }
-
-    @Test
-    void the_nurse_confirmation_of_an_out_of_planning_scan_is_forwarded_as_a_derogation() {
-        connectedAs("inf-01", "INFIRMIER");
-        Seance validee = seance(SeanceStatus.VALIDEE);
-        var attendue = new com.hemodialyse.backend.domain.seance.model.DerogationPlanning(
-                com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning.AUTRE, "transfert exceptionnel", false);
-        when(useCase.scanAndValidate(CenterId.of(CENTER_ID), "PAT-1", "inf-01", attendue))
-                .thenReturn(new ScanResult(validee, true, true, false));
-        stubDetails(validee);
-
-        var body = body(controller.scanQr(
-                new ScanSeanceQrRequest(CENTER_ID, "PAT-1", "autre", "transfert exceptionnel")));
-
-        assertEquals(true, body.get("created"));
-        verify(useCase).scanAndValidate(CenterId.of(CENTER_ID), "PAT-1", "inf-01", attendue);
-    }
-
-    @Test
-    void only_an_administrator_derogation_carries_the_right_to_force_a_closed_day() {
-        connectedAs("admin", "ADMIN");
-        Seance validee = seance(SeanceStatus.VALIDEE);
-        var attendue = new com.hemodialyse.backend.domain.seance.model.DerogationPlanning(
-                com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning.URGENCE, null, true);
-        when(useCase.scanAndValidate(CenterId.of(CENTER_ID), "PAT-1", "admin", attendue))
-                .thenReturn(new ScanResult(validee, true, true, false));
-        stubDetails(validee);
-
-        body(controller.scanQr(new ScanSeanceQrRequest(CENTER_ID, "PAT-1", "URGENCE", null)));
-
-        verify(useCase).scanAndValidate(CenterId.of(CENTER_ID), "PAT-1", "admin", attendue);
-    }
-
-    @Test
-    void an_unknown_out_of_planning_motive_is_refused() {
-        connectedAs("inf-01", "INFIRMIER");
-
-        org.junit.jupiter.api.Assertions.assertThrows(
-                com.hemodialyse.backend.domain.shared.exception.BusinessException.class,
-                () -> controller.scanQr(new ScanSeanceQrRequest(CENTER_ID, "PAT-1", "VACANCES", null)));
-    }
-
-    @Test
-    void a_secretary_scan_only_creates_the_session_for_the_nurse_to_validate() {
-        connectedAs("secretaire", "SECRETAIRE");
-        Seance creee = seance(SeanceStatus.CREE);
-        when(useCase.createFromQr(CenterId.of(CENTER_ID), "PAT-ROU00008")).thenReturn(creee);
-        stubDetails(creee);
-
-        Map<String, Object> body = body(controller.scanQr(new ScanSeanceQrRequest(CENTER_ID, "PAT-ROU00008", null, null)));
-
-        assertEquals(SeanceStatus.CREE, body.get("status"));
-        assertEquals(false, body.get("validatedNow"));
-        assertEquals(false, body.get("alreadyValidated"));
-        verify(useCase, never()).scanAndValidate(any(), anyString(), anyString(), any());
-        verify(notif).notifySaisieInfirmier(eq(CENTER_ID), eq("SEANCE_CREEE"), eq(PATIENT_ID), any(), any(),
-                eq("secretaire"), anyString());
-    }
+    // Le scan (SE1) est servi par `contexts/seance` : ses cas sont dans `ScannerUnPatientTest` et les goldens SE1.
 
     @Test
     void adding_a_consommable_to_a_validated_session_issues_only_that_line_and_notifies_the_doctor() {

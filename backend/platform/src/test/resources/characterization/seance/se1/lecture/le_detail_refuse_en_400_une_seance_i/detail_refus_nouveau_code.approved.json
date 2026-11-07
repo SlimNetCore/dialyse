@@ -1,0 +1,11 @@
+{
+  "01 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "02 seance du centre B lue avec centerId A" : "400 BAD_REQUEST | Seance introuvable",
+  "03 seance du centre B lue avec centerId B par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 seance du centre A lue avec centerId B par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "05 seance du centre B lue par la session B" : 200,
+  "06 sans centerId" : "500 INTERNAL_ERROR",
+  "07 centerId illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "08 identifiant de seance illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "09 session sans centre" : "403 ACCESS_DENIED | Session sans centre de rattachement"
+}

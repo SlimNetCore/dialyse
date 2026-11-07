@@ -1,0 +1,20 @@
+{
+  "01 code patient exact" : "200 ok ; lignes=1",
+  "02 code patient en minuscules" : "200 ok ; lignes=1",
+  "03 code patient avec espaces autour" : "200 ok ; lignes=1",
+  "04 numero d'assurance exact" : "200 ok ; lignes=1",
+  "05 identifiant du patient" : "200 ok ; lignes=1",
+  "06 identifiant du patient en majuscules" : "200 ok ; lignes=1",
+  "07 prefixe puis code (tout avant le premier deux-points est ignore)" : "200 ok ; lignes=1",
+  "08 prefixe puis identifiant" : "200 ok ; lignes=1",
+  "09 deux-points en tete (aucun prefixe)" : "200 ok ; lignes=1",
+  "10 deux-points final (aucune valeur apres)" : "200 ok ; lignes=1",
+  "11 comparaison tolerante sans ponctuation" : "200 ok ; lignes=1",
+  "12 comparaison tolerante sur le numero d'assurance" : "200 ok ; lignes=1",
+  "13 code inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre ; lignes=0",
+  "14 identifiant inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre ; lignes=0",
+  "15 espaces seuls" : "400 VALIDATION_ERROR | Invalid request content. ; lignes=0",
+  "16 un seul caractere de ponctuation (KB-SEA-06 : rapproche un patient sans numero d'assure, par comparaison de chaines vides)" : "400 BAD_REQUEST | QR invalide : aucun caractère alphanumérique ; lignes=0",
+  "17 code du centre B scanne par la session A" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre ; lignes A=0",
+  "18 identifiant du patient du centre B scanne par la session A" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre"
+}

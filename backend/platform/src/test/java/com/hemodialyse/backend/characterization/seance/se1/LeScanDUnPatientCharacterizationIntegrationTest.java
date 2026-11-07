@@ -99,7 +99,7 @@ class LeScanDUnPatientCharacterizationIntegrationTest extends Se1Characterizatio
             cas.put("secretaire", refus(scanner("SE1-PAT_A", secretaireA())));
             m.put(statut, cas);
         }
-        arbre("statut_existant", m);
+        arbre("statut_existant_nouveau_code", m);
     }
 
     @Test
@@ -137,7 +137,7 @@ class LeScanDUnPatientCharacterizationIntegrationTest extends Se1Characterizatio
         UUID autreCentre = patientCouvert(CENTRE_B, "PAT_A");
         m.put(String.format("%02d code du centre B scanne par la session A", ++i), refus(scanner("SE1-PAT_A", secretaireA())) + " ; lignes A=" + nombreDeSeances(CENTRE_A));
         m.put(String.format("%02d identifiant du patient du centre B scanne par la session A", ++i), refus(scanner(autreCentre.toString(), secretaireA())));
-        arbre("formes_de_qr", m);
+        arbre("formes_de_qr_nouveau_code", m);
     }
 
     @Test
@@ -265,7 +265,7 @@ class LeScanDUnPatientCharacterizationIntegrationTest extends Se1Characterizatio
         m.put("11 corps illisible", refus(doPost(SCAN, "{pas du json", infirmierA())));
         m.put("12 corps absent", refus(doPost(SCAN, "", infirmierA())));
         m.put("13 lignes apres les refus", nombreDeSeances(CENTRE_A) + nombreDeSeances(CENTRE_B));
-        arbre("cloisonnement_et_corps", m);
+        arbre("cloisonnement_et_corps_nouveau_code", m);
     }
 
     @Test
@@ -282,7 +282,7 @@ class LeScanDUnPatientCharacterizationIntegrationTest extends Se1Characterizatio
         doPost(SCAN, "{pas du json", infirmierA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 
     @Test

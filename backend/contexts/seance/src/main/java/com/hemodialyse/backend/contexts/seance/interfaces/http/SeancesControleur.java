@@ -6,11 +6,11 @@ import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.ForfaitsDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.ListerLesSeances;
 import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
+import com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.CreationDeSeanceDemande;
 import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ScanDeSeanceDemande;
 import jakarta.validation.Valid;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,17 +35,12 @@ import java.util.UUID;
  * champs JSON et MÊMES droits que le legacy (création ADMIN et INFIRMIER ; scan ADMIN, INFIRMIER et SECRETAIRE ; détail et liste tous les
  * profils cliniques et administratifs). Les écarts décidés (KB-SEA-01, 02, 04, 06, 07) sont ceux de l'ADR 0088.
  * <p>
- * SESSION B1 : le contrôleur n'est instancié que si {@value #PROPRIETE_D_ACTIVATION} vaut {@code true} (absente : NON routé). Tant que
- * les quatre handlers du legacy répondent sur ces URL, l'activer ferait échouer le démarrage (mapping ambigu) : le routage (B2) retire
- * les handlers du legacy ET cette condition dans le même changement.
+ * Routé depuis B2 : les quatre handlers du legacy sont retirés de {@code SeanceRestController} (refactoring sur place, ADR 0024 :
+ * aucune façade ni drapeau, la bascule est réversible par retour git).
  */
 @RestController
 @RequestMapping("/api/v1/seances")
-@ConditionalOnProperty(name = SeancesControleur.PROPRIETE_D_ACTIVATION, havingValue = "true")
 public class SeancesControleur {
-
-    /** Propriété d'activation transitoire du contrôleur (retirée au routage, B2). */
-    public static final String PROPRIETE_D_ACTIVATION = "seance.se1.controleur-actif";
 
     private final CreerUneSeance creer;
     private final ScannerUnPatient scanner;
@@ -62,6 +57,8 @@ public class SeancesControleur {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
     @PostMapping
     public ResponseEntity<Map<String, Object>> creer(@RequestBody CreationDeSeanceDemande demande) {
+        // Le corps doit nommer le centre (legacy : 400 « CenterId cannot be null », reproduit sans nom de classe)
+        if (demande.centerId() == null) throw new SaisieInvalide("Centre requis");
         var enregistree = creer.executer(demande.centerId(), demande.patientId(), demande.dateSeance());
         return ResponseEntity.ok(reponseDeCreation(enregistree.seance(), enregistree.patient()));
     }

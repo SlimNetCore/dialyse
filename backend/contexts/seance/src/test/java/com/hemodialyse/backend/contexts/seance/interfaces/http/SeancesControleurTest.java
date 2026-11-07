@@ -192,6 +192,14 @@ class SeancesControleurTest {
     }
 
     @Test
+    void une_creation_sans_centre_dans_le_corps_est_un_400_sans_appeler_le_cas_d_usage() throws Exception {
+        mvc.perform(post("/api/v1/seances").contentType(MediaType.APPLICATION_JSON).content("{\"patientId\":\"" + PATIENT + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        Mockito.verify(creer, Mockito.never()).executer(any(), any(), any());
+    }
+
+    @Test
     void un_corps_illisible_est_un_403_pour_un_profil_sans_droit_sur_la_route() throws Exception {
         avecLeRole("SECRETAIRE");
         mvc.perform(post("/api/v1/seances").contentType(MediaType.APPLICATION_JSON).content("{pas du json"))

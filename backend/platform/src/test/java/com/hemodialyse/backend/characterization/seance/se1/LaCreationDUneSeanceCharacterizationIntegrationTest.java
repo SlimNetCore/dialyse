@@ -165,7 +165,7 @@ class LaCreationDUneSeanceCharacterizationIntegrationTest extends Se1Characteriz
         m.put("08 INFIRMIER sans centre de session", refus(doPost(SEANCES_API, corps("centerId", CENTRE_A, "patientId", patientA,
                 "dateSeance", fixe(1)), as(null, "INFIRMIER"))));
         m.put("09 etat", etatDesSeances());
-        arbre("patient_et_centre", m);
+        arbre("patient_et_centre_nouveau_code", m);
     }
 
     @Test
@@ -195,7 +195,7 @@ class LaCreationDUneSeanceCharacterizationIntegrationTest extends Se1Characteriz
             Resp r = doPost(SEANCES_API, c[1], infirmierA());
             m.put(String.format("%02d %s", ++i, c[0]), refus(r) + " ; lignes=" + nombreDeSeances(CENTRE_A) + " ; statuts=" + statuts());
         }
-        arbre("corps_et_valeurs", m);
+        arbre("corps_et_valeurs_nouveau_code", m);
     }
 
     private String statuts() {
@@ -218,7 +218,7 @@ class LaCreationDUneSeanceCharacterizationIntegrationTest extends Se1Characteriz
                 secretaireA())));
         m.put("08 liste du jour (les trois seances)", resumeListe(doGet(SEANCES_API + "?centerId=" + CENTRE_A, infirmierA())));
         m.put("09 etat apres les scans", etatDesSeances().size());
-        arbre("sans_unicite", m);
+        arbre("sans_unicite_nouveau_code", m);
     }
 
     private String resumeListe(Resp r) {
@@ -262,7 +262,7 @@ class LaCreationDUneSeanceCharacterizationIntegrationTest extends Se1Characteriz
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("aucune ecriture", empreinteDesSeances().equals(avant));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
     }
 
     @Test
@@ -280,7 +280,7 @@ class LaCreationDUneSeanceCharacterizationIntegrationTest extends Se1Characteriz
         doPost(SEANCES_API, "{pas du json", infirmierA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 
     @Test
@@ -311,6 +311,6 @@ class LaCreationDUneSeanceCharacterizationIntegrationTest extends Se1Characteriz
         jdbc.update("DELETE FROM seances WHERE id = ?", statutInconnu);
         m.put("06 liste sans la ligne de statut inconnu (la seance orpheline est exclue par la jointure)", resumeListe(doGet(SEANCES_API
                 + "?centerId=" + CENTRE_A, infirmierA())));
-        arbre("lignes_illisibles", m);
+        arbre("lignes_illisibles_nouveau_code", m);
     }
 }

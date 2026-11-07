@@ -1,0 +1,20 @@
+{
+  "01 from=<D+2>" : "200 total=4 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE]",
+  "02 to=<D+2>" : "200 total=4 page=0 size=20 [SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE, SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+1> CREE]",
+  "03 from et to egaux" : "200 total=2 page=0 size=20 [SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE]",
+  "04 from apres to" : "400 BAD_REQUEST | La date de debut doit preceder la date de fin",
+  "05 from illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "06 status=CREE" : "200 total=2 page=0 size=20 [SE1-BRAVO <D+3> CREE, SE1-ALPHA <D+1> CREE]",
+  "07 status=cree,signee (casse et liste)" : "200 total=3 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE, SE1-ALPHA <D+1> CREE]",
+  "08 status=FACTUREE,ABSENT" : "200 total=2 page=0 size=20 [SE1-BRAVO <D+2> ABSENT, SE1-BRAVO <D+1> FACTUREE]",
+  "09 status inconnu" : "400 BAD_REQUEST | Invalid status: EN_COURS",
+  "10 status vide" : "200 total=6 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE, SE1-BRAVO <D+1> FACTUREE, SE1-ALPHA <D+1> CREE]",
+  "11 q=alpha" : "200 total=3 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-ALPHA <D+2> VALIDEE, SE1-ALPHA <D+1> CREE]",
+  "12 q=ALPHA test (deux mots)" : "200 total=3 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-ALPHA <D+2> VALIDEE, SE1-ALPHA <D+1> CREE]",
+  "13 q=SE1-BRAVO (code)" : "200 total=3 page=0 size=20 [SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+2> ABSENT, SE1-BRAVO <D+1> FACTUREE]",
+  "14 q=% (joker echappe)" : "200 total=0 page=0 size=20 []",
+  "15 q=inconnu" : "200 total=0 page=0 size=20 []",
+  "16 deverrouillee=true" : "200 total=1 page=0 size=20 [SE1-ALPHA <D+1> CREE]",
+  "17 deverrouillee=false" : "200 total=5 page=0 size=20 [SE1-ALPHA <D+3> SIGNEE, SE1-BRAVO <D+3> CREE, SE1-BRAVO <D+2> ABSENT, SE1-ALPHA <D+2> VALIDEE, SE1-BRAVO <D+1> FACTUREE]",
+  "18 deverrouillee illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+}

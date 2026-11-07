@@ -55,8 +55,14 @@ Table `seances` ; aucune migration. centerId obligatoire. Statut `ABSENT` suppri
 
 Non routé : `SeancesControleur` et `ErreursDeSeanceAdvice` sont conditionnés par `seance.se1.controleur-actif=true` (absent par défaut). Les 4 handlers legacy répondent encore ; activer la propriété ferait échouer le démarrage (mapping ambigu). B2 retire les handlers ET la condition dans le même changement. `AuditSansTrace` n'est pas créé : le legacy audite toujours le POST et le scan (KB-SEA-08), le mécanisme actuel (`AuditActionResolver` par chemin) reste valable.
 
-### Reste à faire : B2 (parité et routage) puis B3 (docs et clôture)
-- **B2** : contrat HTTP complet contre les goldens (rejouer les 31 scénarios avec le nouveau contrôleur, `*_nouveau_code` pour KB-SEA-01/02/04/06/07, legacy archivé octet pour octet dans `_ecarts-legacy`) ; contrat de port `HistoriqueDesSeances` et `ForfaitsDeSeance` mémoire/H2/PG16 ; retrait des 4 handlers et des résidus (seam AVANT l'édition) ; suppression de la condition `seance.se1.controleur-actif` ; verrou ArchUnit contre de nouveaux appelants des écritures legacy résiduelles ; `SeancePlanningJdbcAdapter` et `SeancePlanningPort` RESTENT (utilisés par `PlanningFourniLegacy`) : l'ADR 0088 est à corriger sur ce point.
+### Fait en session B2 (2026-11-07 ; ROUTÉ, état pipeline toujours `characterized`)
+- **Routage** : les 4 handlers (+ `derogation`, `buildSeanceCreationPayload`, `enrichGenerateur`) retirés de `SeanceRestController`, DTO `CreateSeanceRequest` et `ScanSeanceQrRequest` supprimés, condition `seance.se1.controleur-actif` supprimée ; cas des handlers retirés enlevés de `SeanceRestControllerTest` et `SeanceScanValidationControllerTest` ; seam inscrit avant et refermé (`seams.md`), `covered.json` nettoyé. La validation du scan passe par `ValidationFournie` (SE2 reste legacy ; flush JPA avant la relecture JDBC).
+- **Parité 31/31** : 18 goldens identiques, 13 goldens `*_nouveau_code` (écarts voulus KB-SEA-02, 04, 06, 07 et audit, détail dans l'ADR 0088 point 10) ; legacy archivé octet pour octet (renames R100) sous `characterization/seance/se1/_ecarts-legacy/`. Aucun écart non voulu.
+- **Contrat des lectures de la plateforme** : `LecturesDeLaSeanceContrat` (11 cas : historique et forfait courant) sur H2 (`LecturesDeLaSeanceH2ContratTest`) et sur PostgreSQL 16 jetable (`LecturesDeLaSeancePostgresContractIT`, schéma dédié `se1_lectures`, script `seance-se1-pg16-rejeu.sh` étendu : colonnes lues contrôlées contre le schéma Flyway). Le double en mémoire de ces deux ports est celui de l'application (`Banc`), il n'y a pas de variante mémoire de ce contrat SQL.
+- **Verrou ArchUnit** `plus_aucun_appelant_des_ecritures_legacy_de_la_creation_de_seance` (`FrontieresDesContextesTest`, revue 2026-12-15).
+- **Résidus** : méthodes mortes de `SeanceUseCase`, du service applicatif et du service de domaine conservées (liste nominative : ADR 0088 point 11) ; leur retrait demande de réécrire `SeanceDomainServiceTest`.
+
+### Reste à faire : B3 (docs et clôture)
 - **B3** : RG-SEA et annexe de traçabilité, glossaire `proposed`, `verifications-production.md`, ADR 0088, bilan nominatif des résidus (revue 2026-12-15), `state.ts set slices.seance-se1-creation built`.
 
 ### Plan initial de la session B (historique)

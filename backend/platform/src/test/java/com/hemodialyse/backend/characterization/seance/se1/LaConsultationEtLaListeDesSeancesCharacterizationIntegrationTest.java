@@ -109,7 +109,7 @@ class LaConsultationEtLaListeDesSeancesCharacterizationIntegrationTest extends S
         m.put("07 centerId illisible", refus(doGet(SEANCES_API + "/" + seanceA + "?centerId=abc", adminA())));
         m.put("08 identifiant de seance illisible", refus(doGet(SEANCES_API + "/abc?centerId=" + CENTRE_A, adminA())));
         m.put("09 session sans centre", refus(doGet(detailApi(seanceA, CENTRE_A), as(null, "ADMIN"))));
-        arbre("detail_refus", m);
+        arbre("detail_refus_nouveau_code", m);
     }
 
     @Test
@@ -148,7 +148,7 @@ class LaConsultationEtLaListeDesSeancesCharacterizationIntegrationTest extends S
         m.put("16 deverrouillee=true", liste("&deverrouillee=true"));
         m.put("17 deverrouillee=false", liste("&deverrouillee=false"));
         m.put("18 deverrouillee illisible", liste("&deverrouillee=peut-etre"));
-        arbre("filtres", m);
+        arbre("filtres_nouveau_code", m);
     }
 
     @Test
@@ -168,6 +168,6 @@ class LaConsultationEtLaListeDesSeancesCharacterizationIntegrationTest extends S
         m.put("11 size=100000 (plafonne)", liste("&size=100000").replaceAll(" \\[.*", " [..]"));
         m.put("12 page negative (ramenee a 0)", liste("&page=-3&size=2"));
         m.put("13 size illisible", liste("&size=abc"));
-        arbre("tris_et_pagination", m);
+        arbre("tris_et_pagination_nouveau_code", m);
     }
 }

@@ -65,7 +65,26 @@ for q in \
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done
 
+echo "=== Colonnes lues par les lectures SQL de la plateforme (historique et forfait courant, schema reel) ==="
+colonnes() {
+  local t="$1"; shift
+  for c in "$@"; do
+    [ "$(scalaire "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='$t' AND column_name='$c'")" = "1" ] \
+      || { echo "COLONNE ABSENTE : $t.$c"; RC=1; }
+  done
+}
+colonnes seances forfait_override_id forfait_override_code forfait_override_nom forfait_override_prix forfait_override_updated_at forfait_override_updated_by
+colonnes patients id center_id nom prenom code_patient
+colonnes forfait id center_id code libelle prix
+colonnes prise_en_charge center_id patient_id forfait_effectif_id forfait_demande_id date_debut_effectif date_fin_effectif date_debut_demande date_fin_demande created_at
+echo "colonnes des lectures de la plateforme controlees"
+
 cd "$RACINE/backend"
+echo "=== Contrat PostgreSQL des lectures de la plateforme (historique et forfait courant : meme jeu que H2, schema dedie se1_lectures) ==="
+./mvnw -o -pl platform -am test \
+  -Dtest="com.hemodialyse.backend.infrastructure.acl.seance.LecturesDeLaSeancePostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dseance.pg16.url="jdbc:postgresql://127.0.0.1:$PORT/hemo_test" -Dseance.pg16.user=seance_test || RC=1
 echo "=== Contrat PostgreSQL du port Seances (meme jeu que le double en memoire et H2, plus le verrou a deux connexions) ==="
 ./mvnw -o -pl contexts/seance -am test \
   -Dtest="com.hemodialyse.backend.contexts.seance.contrat.SeancesPostgresContractIT" \

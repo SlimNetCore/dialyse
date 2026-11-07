@@ -87,6 +87,31 @@ class FrontieresDesContextesTest {
             })
             .because("l'écriture et la lecture du dossier médical vivent dans contexts/dossier-medical (ADR 0087) ; ces méthodes seront retirées");
 
+    private static final java.util.Set<String> METHODES_RESIDUELLES_DE_LA_CREATION_DE_SEANCE = java.util.Set.of(
+            "create", "createFromQr", "scanAndValidate");
+    private static final java.util.Set<String> CLASSES_PORTEUSES_DE_LA_CREATION_DE_SEANCE = java.util.Set.of(
+            "com.hemodialyse.backend.application.seance.SeanceApplicationService",
+            "com.hemodialyse.backend.domain.seance.service.SeanceDomainService");
+
+    /**
+     * Slice SE1 (ADR 0088) : la création, le scan et la consultation des séances vivent dans {@code contexts/seance}. Les méthodes
+     * résiduelles {@code create}, {@code createFromQr} et {@code scanAndValidate} de {@code SeanceUseCase} n'ont plus d'autre appelant
+     * que leur propre chaîne de délégation (service applicatif et service de domaine) ; aucun nouvel appelant avant leur retrait
+     * (revue au plus tard le 2026-12-15).
+     */
+    @ArchTest
+    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_de_la_creation_de_seance = noClasses()
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "cible une méthode résiduelle de SeanceUseCase depuis hors de sa chaîne de délégation") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.port.SeanceUseCase")
+                            && METHODES_RESIDUELLES_DE_LA_CREATION_DE_SEANCE.contains(appel.getName())
+                            && !CLASSES_PORTEUSES_DE_LA_CREATION_DE_SEANCE.contains(appel.getOriginOwner().getName());
+                }
+            })
+            .because("la création, le scan et la consultation des séances vivent dans contexts/seance (ADR 0088) ; ces méthodes seront retirées");
+
     private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
 
     /**
