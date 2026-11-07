@@ -1,6 +1,6 @@
 ---
 slice: seance-se1-creation
-status: planned
+status: built
 date: 2026-10-29
 order: 1
 context: seance
@@ -9,7 +9,7 @@ sources: [.ddd/tactical/seance.md, ADR 0002, 0006, 0062, 0074]
 
 # SE1 — Création de séance (conditionnée par PEC valide)
 
-> Statut vrai au 2026-11-02 : `planned` (la mention `built` posée par 2978e639 était fausse). Module gelé (`backend/contexts/seance/GEL.md`, ADR 0074) : persistance sur colonnes inexistantes (`pec_id`, `type_seance`), statuts sans `FACTUREE`/`ABSENT`, aucune parité. Reprise sur place : mêmes tables, mêmes URL, statuts du LEGACY ; filet de création et d'unicité à écrire d'abord. Ordre de reprise de la Séance : dernier.
+> Historique (au 2026-11-02, `planned` ; `built` depuis le 2026-11-07, voir Avancement). Module gelé (`backend/contexts/seance/GEL.md`, ADR 0074) : persistance sur colonnes inexistantes (`pec_id`, `type_seance`), statuts sans `FACTUREE`/`ABSENT`, aucune parité. Reprise sur place : mêmes tables, mêmes URL, statuts du LEGACY ; filet de création et d'unicité à écrire d'abord. Ordre de reprise de la Séance : dernier.
 
 Agrégat `Seance` (root). Cycle `CREE -> VALIDEE -> SIGNEE`. Création conditionnée par une PEC valide (port
 `PECRepository` Patient & couverture).
@@ -30,9 +30,9 @@ Patient & couverture doit exposer `PECRepository` (ADR 0062). Organisation dispo
 
 Table `seances` ; aucune migration. centerId obligatoire. Statut `ABSENT` supprimé (ADR 0002).
 
-> Mise à jour 2026-11-07 : le statut `ABSENT` reste LISIBLE (reliquat, ADR 0024 : statuts du legacy), le module ancien est retiré et `contexts/seance` reconstruit (ADR 0088). Décisions, résidus et plan de retrait : `.ddd/architecture/adr/0088-seance-se1-reprise-sur-place-de-la-creation-du-scan-et-de-la-consultation.md`. État pipeline : `characterized` (jamais `built` avant la session B).
+> Mise à jour 2026-11-07 : le statut `ABSENT` reste LISIBLE (reliquat, ADR 0024 : statuts du legacy), le module ancien est retiré et `contexts/seance` reconstruit (ADR 0088). Décisions, résidus et plan de retrait : `.ddd/architecture/adr/0088-seance-se1-reprise-sur-place-de-la-creation-du-scan-et-de-la-consultation.md`. État pipeline : `built` (sessions A, B1, B2 et B3 faites, corrections de la revue incluses).
 
-## Avancement (session A faite le 2026-11-07 ; session B restante)
+## Avancement (sessions A, B1, B2, B3 faites le 2026-11-07 ; routé, état `built`)
 
 ### Fait en session A (étapes 1 à 3, rien de routé, aucun contrôleur ni golden touché)
 | Couche | Contenu (`backend/contexts/seance`) | Tests |
@@ -57,14 +57,15 @@ Non routé : `SeancesControleur` et `ErreursDeSeanceAdvice` sont conditionnés p
 
 ### Fait en session B2 (2026-11-07 ; ROUTÉ, état pipeline toujours `characterized`)
 - **Routage** : les 4 handlers (+ `derogation`, `buildSeanceCreationPayload`, `enrichGenerateur`) retirés de `SeanceRestController`, DTO `CreateSeanceRequest` et `ScanSeanceQrRequest` supprimés, condition `seance.se1.controleur-actif` supprimée ; cas des handlers retirés enlevés de `SeanceRestControllerTest` et `SeanceScanValidationControllerTest` ; seam inscrit avant et refermé (`seams.md`), `covered.json` nettoyé. La validation du scan passe par `ValidationFournie` (SE2 reste legacy ; flush JPA avant la relecture JDBC).
-- **Parité 31/31** : 18 goldens identiques, 13 goldens `*_nouveau_code` (écarts voulus KB-SEA-02, 04, 06, 07 et audit, détail dans l'ADR 0088 point 10) ; legacy archivé octet pour octet (renames R100) sous `characterization/seance/se1/_ecarts-legacy/`. Aucun écart non voulu.
+- **Parité 31/31** : 18 goldens identiques, 13 goldens `*_nouveau_code` (puis 17 et 14 après la correction de la revue : `liste_nouveau_code`, `centerId` absent en 400 ; écarts voulus KB-SEA-02, 04, 06, 07 et audit, détail dans l'ADR 0088 point 10) ; legacy archivé octet pour octet (renames R100) sous `characterization/seance/se1/_ecarts-legacy/`. Aucun écart non voulu.
 - **Contrat des lectures de la plateforme** : `LecturesDeLaSeanceContrat` (11 cas : historique et forfait courant) sur H2 (`LecturesDeLaSeanceH2ContratTest`) et sur PostgreSQL 16 jetable (`LecturesDeLaSeancePostgresContractIT`, schéma dédié `se1_lectures`, script `seance-se1-pg16-rejeu.sh` étendu : colonnes lues contrôlées contre le schéma Flyway). Le double en mémoire de ces deux ports est celui de l'application (`Banc`), il n'y a pas de variante mémoire de ce contrat SQL.
 - **Verrou ArchUnit** `plus_aucun_appelant_des_ecritures_legacy_de_la_creation_de_seance` (`FrontieresDesContextesTest`, revue 2026-12-15).
 - **Résidus** : méthodes mortes de `SeanceUseCase`, du service applicatif et du service de domaine conservées (liste nominative : ADR 0088 point 11) ; leur retrait demande de réécrire `SeanceDomainServiceTest`.
 
 ### Fait en session B3 (2026-11-07 ; état pipeline `built`)
 - Docs : RG-SEA-052 (`07-seances.md`), annexe `16-annexe-tracabilite.md` (`SeancesControleur` + résidu `SeanceRestController` SE2 à SE7), glossaire (4 termes `proposed`), `verifications-production.md` section 53 (SELECT seulement : doublons KB-SEA-02, statuts illisibles KB-SEA-07, hors planning incohérent, orphelines), ADR 0088 point 12 (acceptation de `Banc`, justification de l'absence de doc fonctionnelle/maquette, bilan nominatif des résidus, revue 2026-12-15).
-- Parité finale : 31/31 (18 identiques, 13 écarts voulus tracés). Aucun flag, aucune façade (ADR 0024) ; rollback = commit précédent.
+- Revue SE1 (2026-11-07) : handler `MissingServletRequestParameterException` (400, 403 avant 400) ; goldens `liste_nouveau_code` et `detail_refus_nouveau_code` ; résidus complétés (`findByPatientIdAndDate`, `Seance.marquerHorsPlanning`, horloges SE2/SE4/SE7) ; garde `TableDesEquipementsDeLaGmaoTest` ; diffusions en échec (à confirmer métiers) ; doc fonctionnelle non régénérée (À CONFIRMER PAR L'UTILISATEUR, ADR 0088 point 12).
+- Parité finale : 31/31 (17 identiques, 14 écarts voulus tracés). Aucun flag, aucune façade (ADR 0024) ; rollback = commit précédent.
 
 ### Reste à faire
 - `/ddd-verify`. Décisions métier ouvertes : KB-SEA-03 (planning à la création manuelle), unicité (centre, patient, jour), KB-SEA-08 (audit, DPO), KB-SEA-10 (éligibilité). Retrait des résidus legacy à la revue du 2026-12-15 (ADR 0088 points 11 et 12).

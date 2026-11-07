@@ -122,7 +122,7 @@ class LaConsultationEtLaListeDesSeancesCharacterizationIntegrationTest extends S
         m.put("03 centre B demande par la session A", refus(doGet(SEANCES_API + "?centerId=" + CENTRE_B, adminA())));
         m.put("04 centre B par sa propre session", refusOuListe(doGet(SEANCES_API + "?centerId=" + CENTRE_B, adminB())));
         m.put("05 sans centerId", refus(doGet(SEANCES_API, adminA())));
-        arbre("liste", m);
+        arbre("liste_nouveau_code", m);
     }
 
     @Test

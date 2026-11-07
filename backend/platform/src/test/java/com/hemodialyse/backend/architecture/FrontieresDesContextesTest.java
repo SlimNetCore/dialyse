@@ -234,9 +234,8 @@ class FrontieresDesContextesTest {
             .because("domain.planning est en voie de retrait (P9) : liste fermée des consommateurs restants");
 
     /**
-     * Contexte Seance (ADR 0062, 0088) : le legacy ne l'utilise que par son langage publie. Le module est reconstruit (SE1, session A)
-     * mais rien ne l'appelle encore ; la session B devra soit loger les ports fournis par la plateforme dans son langage publie, soit
-     * ouvrir ici une exception NOMMEE et DATEE (revue 2026-12-15) pour les adapters de la plateforme qui implementent ses ports.
+     * Contexte Seance (ADR 0062, 0088) : le legacy ne l'utilise que par son langage publie. Les ports fournis par la plateforme
+     * sont loges dans son langage publie (ADR 0088 point 9) : AUCUNE exception n'est ouverte ici.
      */
     @ArchTest
     static final ArchRule le_legacy_n_utilise_la_seance_que_par_son_langage_publie = noClasses()

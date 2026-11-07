@@ -24,4 +24,4 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §4]
 | Scan de séance | Lecture du QR du patient qui crée ou valide la séance du jour | `ScannerUnPatient` | `createFromQr`, `scanAndValidate` | pointage | RG-SEA-012 | proposed |
 | Statut illisible | Statut en base hors des valeurs connues ; la ligne est ignorée de la liste | — | — | statut cassé | KB-SEA-07, requête 53.2 | proposed |
 
-Homonymes : *Séance* (ici) ≠ *Séance facturable* (Facturation) ≠ *Séance, motif de sortie* (Stock). `ABSENT` n'existe pas dans ce contexte (→ Exclusion de facturation, Facturation).
+Homonymes : *Séance* (ici) ≠ *Séance facturable* (Facturation) ≠ *Séance, motif de sortie* (Stock). `ABSENT` n'est plus un statut de cycle de vie de ce contexte : c'est un reliquat LISIBLE du legacy (ADR 0024, `StatutDeSeance.ABSENT`), jamais produit ni validable ici (le scan le refuse en 422) ; l'exclusion de facturation relève de Facturation.

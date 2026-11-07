@@ -17,6 +17,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.HandlerMethod;
@@ -89,6 +90,13 @@ class ErreursDeSeanceAdvice {
     ProblemDetail illisible(Exception erreur, HttpServletRequest requete) {
         if (!droitsSuffisants(requete)) return refus();
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", "Corps ou paramètre illisible", "BAD_REQUEST");
+    }
+
+    /** Paramètre de requête obligatoire absent (par exemple {@code centerId} du détail et de la liste) : 400, 403 avant 400 (KB-SEA-04). */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    ProblemDetail parametreAbsent(MissingServletRequestParameterException erreur, HttpServletRequest requete) {
+        if (!droitsSuffisants(requete)) return refus();
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", "Parametre requis absent : " + erreur.getParameterName(), "BAD_REQUEST");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

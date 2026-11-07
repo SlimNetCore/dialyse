@@ -63,9 +63,11 @@
 - **RG-SEA-052** — **Création, scan et consultation reprises dans le module `seance`** (slice SE1, ADR 0088 ;
   `POST /api/v1/seances`, `POST /api/v1/seances/scan`, `GET /api/v1/seances/{id}`, `GET /api/v1/seances`, mêmes URLs, mêmes
   rôles que RG-SEA-010, 012 et 029, mêmes tables). Décisions de la reprise : **corrigés** — (KB-SEA-01) « aujourd'hui »
-  est le **jour du centre** (fuseau du centre, `Africa/Algiers` par défaut), pour la création sans date et pour le scan ;
+  est le **jour du centre** (fuseau du centre, `Africa/Algiers` par défaut), pour la création sans date et pour le scan seulement (la liste des séances récentes d'un patient du poste infirmier, la modification de date et le
+  déverrouillage de régularisation lisent encore la date du serveur : à corriger avec SE2, SE4 et SE7) ;
   (KB-SEA-02) plusieurs séances ce jour-là pour le patient lors d'un scan : 409 `SEANCE_DU_JOUR_AMBIGUE` au lieu d'un
-  500 ; (KB-SEA-04) une requête mal formée répond 400 et non 500 (`BAD_REQUEST`, `VALIDATION_ERROR`, précision de motif
+  500 ; (KB-SEA-04) une requête mal formée répond 400 et non 500 (`BAD_REQUEST`, `VALIDATION_ERROR`, `centerId` absent du détail
+  et de la liste, précision de motif
   au-delà de 255 caractères), un refus de droits 403 `ACCESS_DENIED` passe avant le 400, une écriture concurrente répond
   409 `ECRITURE_CONCURRENTE` ; une création sans centre répond 400 « Centre requis » ; (KB-SEA-06) un QR sans caractère
   alphanumérique est refusé en 400 ; un patient inconnu ou d'un autre centre répond 404 `PATIENT_INTROUVABLE` ; (KB-SEA-07)
@@ -76,6 +78,8 @@
   l'audit ne couvre que la création et le scan, sans identifiant d'entité ; (KB-SEA-09) l'auteur de la création n'est pas
   conservé ; (KB-SEA-10) l'éligibilité de prise en charge reste cumulative (RG-SEA-011, code générique
   `BUSINESS_RULE_VIOLATION`). Plusieurs séances par patient et par jour restent créables à la main (unicité à décider).
+  **Diffusions** : un échec de diffusion en temps réel après l'enregistrement est journalisé et n'annule ni ne fait échouer la
+  séance (le legacy répondait 500 après l'écriture) ; à confirmer avec les métiers.
   *Source :* `SeancesControleur`, `ErreursDeSeanceAdvice`, `HorlogeDuCentre`.
 
 ## 7.3 Validation infirmière et consommables
