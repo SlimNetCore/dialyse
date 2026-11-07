@@ -73,7 +73,8 @@ class LaListeDesDemandesDExamenCharacterizationIntegrationTest extends ExamensCh
                 "page=1000", "size=abc", "page=abc", "centerId=pas-un-uuid", "size=2147483647", "size=99999999999"}) {
             bornes.put(parametres.isEmpty() ? "(defauts)" : parametres, resume(patientA, parametres));
         }
-        arbre("bornes", bornes);
+        // KB-MED-35 corrigé : page ou taille non numérique ou hors entier, centerId illisible = 400 (avant : 500). Bornes numériques reproduites.
+        arbre("bornes_nouveau_code", bornes);
     }
 
     private Map<String, Object> resume(UUID patient, String parametres) throws Exception {
@@ -141,7 +142,8 @@ class LaListeDesDemandesDExamenCharacterizationIntegrationTest extends ExamensCh
         cas.put("patient du centre B, session A", page(patientB, "", as(CENTRE_A, "MEDECIN")));
         cas.put("temoin : patient du centre B, session B", page(patientB, "", as(CENTRE_B, "MEDECIN")));
         cas.put("identifiant de patient illisible", statutEtCode(doGet(PATIENTS_API + "/pas-un-uuid/demandes-examen", as(CENTRE_A, "MEDECIN"))));
-        arbre("listes_vides", cas);
+        // KB-MED-35 corrigé : identifiant de patient illisible = 400 (avant : 500). Les listes vides en 200 sont reproduites.
+        arbre("listes_vides_nouveau_code", cas);
     }
 
     @Test

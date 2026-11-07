@@ -1,0 +1,15 @@
+{
+  "prescripteur quelconque (pas le compte connecte)" : {
+    "prescripteurId" : "n-importe-quel-texte",
+    "statut" : 200
+  },
+  "sans motif ni prescripteur" : {
+    "motif" : "null",
+    "prescripteurId" : "null",
+    "statut" : "200",
+    "urgent" : false
+  },
+  "sans urgent (booleen primitif requis)" : "400 BAD_REQUEST",
+  "urgent nul" : "400 BAD_REQUEST",
+  "urgent texte" : "400 BAD_REQUEST"
+}

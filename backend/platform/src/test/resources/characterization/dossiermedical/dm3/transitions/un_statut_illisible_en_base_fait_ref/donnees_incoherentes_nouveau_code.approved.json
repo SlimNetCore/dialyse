@@ -1,0 +1,6 @@
+{
+  "liste avec une categorie inconnue" : "200",
+  "liste du patient" : "200",
+  "transition de la bonne demande (temoin)" : "200",
+  "transition de la demande au statut inconnu" : "400 BAD_REQUEST"
+}

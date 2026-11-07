@@ -15,7 +15,8 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §9]
 | Prescription médicale | Prescription de traitement (EPO/fer, dose × fréquence) suivie en observance | `Prescription` | `prescriptions_medicales` | — | même document qu'ordonnance ? (H8) | proposed |
 | Observance | Respect de la prescription d'anémie sur une période | `AlerteObservance` | `AlerteObservance` | — | alerte « retard constaté » (06:30) | proposed |
 | Administration de traitement | Injection EPO/fer réalisée par l'infirmier | `AdministrationTraitement` | idem | — | — | proposed |
-| Demande d'examen | Demande d'analyses suivie jusqu'à validation | `DemandeExamen` | idem | — | `DEMANDE → PRELEVE → RESULTAT_DISPONIBLE → VALIDE / ANNULE` | proposed |
+| Demande d'examen | Demande d'analyses suivie jusqu'à validation | `DemandeExamen` | idem | — | `DEMANDE → PRELEVE → RESULTAT_DISPONIBLE → VALIDE / ANNULE` ; « résultat disponible » est déclaré à la main par le médecin (la saisie d'une observation ne le fait pas) ; `StatutDeDemandeDExamen`, `CategorieDExamen` (biologie, imagerie, fonctionnel, anapath) | proposed |
+| Ligne de demande d'examen | Un examen demandé (code, libellé ou les deux, commentaire) ; immuable dans la demande | `LigneDeDemandeDExamen`, `CodeDExamen` | `LigneDemandeExamen`, `lignes_demande_examen` | — | au moins une par demande ; code mis en majuscules, nomenclature CIM10 / LOINC / ATC / LOCAL ; pas de `center_id` (ADR 0072) | proposed |
 | Observation biologique | Résultat mesuré d'une analyse | `ObservationBiologique` | idem, `resultats_analyses` | — | correction tracée | proposed |
 | Sérologie | Résultat d'un marqueur sérologique | `Serologie` | `serologies_patient` | — | — | proposed |
 | Allergie / Antécédent | Éléments du dossier clinique | `Allergie`, `Antecedent` | idem | — | antécédent résolu | proposed |

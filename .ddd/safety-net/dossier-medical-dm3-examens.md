@@ -7,6 +7,8 @@ sources: [.ddd/safety-net/dossier-medical-inventaire.md, .ddd/migration/slices/d
 
 # Filet DM3 : demandes d'examen (legacy, refactoring sur place)
 
+> **Mise à jour 2026-11-07 (slice `built`, ADR 0082)** : le filet est exécuté contre le NOUVEAU code (`contexts/dossier-medical`) : 33/33 verts, 13 goldens à écart décidé (`*_nouveau_code`, legacy archivé dans `dm3/_ecarts-legacy`). Le legacy remplacé est supprimé : les 15 entrées de `covered.json` mortes sont retirées (restent les deux entités JPA et `ConceptCode` / `CodingSystem`). Le texte ci-dessous décrit le filet tel que posé sur le legacy.
+
 > Le texte précédent de ce fichier (2026-11-01) décrivait des scénarios non écrits ; il est remplacé. Périmètre vérifié par lecture du code : `DemandeExamenRestController` est la seule route d'examen du legacy (GET liste, POST, 4 PUT de transition). Il n'existe ni catalogue / nomenclature d'examens, ni impression, ni route de résultats propre à DM3 : les résultats sont des observations biologiques (DM6, `observations`, `demandes-examen/{id}/observations`). L'inventaire n'omet donc aucune route ; la route `demandes-examen/{id}/observations` reste attribuée à DM6 (observée seulement pour le couplage).
 
 ## Point d'observation

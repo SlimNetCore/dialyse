@@ -1,0 +1,8 @@
+{
+  "centre illisible" : "400 BAD_REQUEST",
+  "corps mal forme" : "400 BAD_REQUEST",
+  "corps objet vide" : "400 BAD_REQUEST",
+  "corps tableau" : "400 BAD_REQUEST",
+  "corps vide" : "400 BAD_REQUEST",
+  "identifiant de patient illisible" : "400 BAD_REQUEST"
+}

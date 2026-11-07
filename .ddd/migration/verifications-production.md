@@ -1875,3 +1875,26 @@ SELECT center_id, count(*) AS alertes, count(unite_dose) AS avec_detail FROM ale
 KB-MED-33 (décision déléguée, À CONFIRMER avec le DBA et les métiers) : la migration `V53__alertes_observance_detail.sql` est ADDITIVE et IDEMPOTENTE (quatre colonnes nullables, aucune donnée lue ni modifiée). À exécuter AVANT la bascule de l'anémie sur le module : exécuter la requête 7 sur la copie de production, appliquer Flyway, puis les requêtes 7 et 8. Aucune sauvegarde des données n'est nécessaire pour la migration elle-même ; sauvegarde habituelle avant tout déploiement. Rollback : revenir au commit précédent ne retire pas les colonnes (inoffensives : nullables, ignorées par le code précédent).
 Recette obligatoire AVANT bascule : (a) créer, signer, imprimer et annuler une ordonnance, puis créer, modifier et supprimer une prescription, avec un compte MEDECIN du centre ; (b) avec un compte d'un AUTRE centre : création d'ordonnance ou de prescription pour un patient inconnu = 404, modification d'une prescription du premier centre = 404 (jamais 200), impression d'une ordonnance avec le `centerId` du premier centre = 403 ; (c) imprimer une ordonnance avec un compte INFIRMIER ou SECRETAIRE = 403 (le front doit réserver le bouton d'impression au médecin et à l'administrateur). Les requêtes 5 et 6 listent les fiches à expliquer avec les métiers avant correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
 Surveillance après déploiement : hausse attendue des 400 (corps ou paramètre illisible, avant 500), des 404 (patient inconnu, prescription introuvable) et des 403 sur `POST /documents/print` type `ORDONNANCE`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 47. Dossier médical DM3 (demandes d'examen) : parité et gardes (2026-11-07) — SELECT seulement
+
+Aucune migration, mêmes tables (`demandes_examen`, `lignes_demande_examen` SANS `center_id`, ADR 0072). À exécuter sur une COPIE ou en lecture seule ; rejouées sur PostgreSQL 16 jetable par `backend/scripts/dossier-medical-dm3-pg16-rejeu.sh`.
+```sql
+-- 1. Demandes par centre et statut (avant/après : identiques, la reprise ne change aucune ligne).
+SELECT center_id, statut, count(*) AS demandes FROM demandes_examen GROUP BY center_id, statut;
+-- 2. Demandes sans ligne (invariant : au moins une).
+SELECT d.center_id, count(*) AS sans_ligne FROM demandes_examen d WHERE NOT EXISTS (SELECT 1 FROM lignes_demande_examen l WHERE l.demande_id = d.id) GROUP BY d.center_id;
+-- 3. Lignes orphelines (aucune clé étrangère).
+SELECT l.demande_id FROM lignes_demande_examen l WHERE NOT EXISTS (SELECT 1 FROM demandes_examen d WHERE d.id = l.demande_id);
+-- 4. Données incohérentes (KB-MED-39) : statut ou catégorie illisibles. Elles ne cassent plus la liste mais en sont ABSENTES (et refusent toute transition) : à expliquer avec les métiers.
+SELECT center_id, id, statut, categorie FROM demandes_examen WHERE statut NOT IN ('DEMANDE','PRELEVE','RESULTAT_DISPONIBLE','VALIDE','ANNULE') OR categorie NOT IN ('BIOLOGIE','IMAGERIE','FONCTIONNEL','ANAPATH');
+-- 5. Demandes orphelines (KB-MED-38, créées avant la garde) : patient inexistant dans le centre de la demande.
+SELECT d.center_id, count(*) AS patient_absent FROM demandes_examen d LEFT JOIN patients p ON p.id = d.patient_id AND p.center_id = d.center_id WHERE p.id IS NULL GROUP BY d.center_id;
+-- 6. Demandes validées sans conclusion (KB-MED-42, reproduit : la conclusion n'est pas obligatoire).
+SELECT center_id, id FROM demandes_examen WHERE statut = 'VALIDE' AND conclusion IS NULL;
+-- 7. Références souples de DM6 (KB-MED-44, NON corrigées ici) : observations liées à une demande inconnue ou d'un autre centre.
+SELECT o.center_id, count(*) AS observations_vers_demande_inconnue FROM observations_biologiques o WHERE o.demande_examen_id IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM demandes_examen d WHERE d.id = o.demande_examen_id AND d.center_id = o.center_id) GROUP BY o.center_id;
+```
+Recette obligatoire AVANT bascule : (a) demander un examen avec un compte MEDECIN, le prélever, déclarer le résultat disponible, le valider (avec et sans conclusion), puis annuler une autre demande avant et après le résultat (422 après) ; (b) avec un compte d'un AUTRE centre : demande pour un patient inconnu = 404 `PATIENT_INTROUVABLE`, transition d'une demande du premier centre = 400 (jamais 200), `centerId` d'un autre centre dans le corps = 403 ; (c) un compte INFIRMIER ou SECRETAIRE reçoit 403 même avec un corps illisible ; (d) ADMIN : lit mais ne peut pas écrire (à confirmer avec les métiers). La requête 4 liste les demandes à expliquer avant toute correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
+Surveillance après déploiement : hausse attendue des 400 (corps, date, `urgent`, catégorie ou paramètre illisible, texte trop long, avant 500), des 404 (patient inconnu) et des 403 (corps illisible d'un profil sans droit). Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

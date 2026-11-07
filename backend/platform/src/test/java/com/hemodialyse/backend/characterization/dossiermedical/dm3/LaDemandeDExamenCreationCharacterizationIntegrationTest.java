@@ -57,7 +57,8 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
                 corpsDemande(CENTRE_A, MEDECIN_FICTIF, fixe(1), null, false, null, ligneSimple()), as(CENTRE_A, "MEDECIN"))));
         cas.put("categorie nulle", statutEtCode(doPost(demandesApi(patientA),
                 "{\"centerId\":\"" + CENTRE_A + "\",\"categorie\":null,\"lignes\":" + ligneSimple() + "}", as(CENTRE_A, "MEDECIN"))));
-        arbre("categories", cas);
+        // KB-MED-35 corrigé : categorie absente ou nulle = 400 (avant : 500). Legacy archive dans dm3/_ecarts-legacy.
+        arbre("categories_nouveau_code", cas);
         etatDesDemandes("demandes");
     }
 
@@ -88,7 +89,8 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
         cas.put("date impossible (30 fevrier)", statutEtCode(doPost(demandesApi(patientA),
                 "{\"centerId\":\"" + CENTRE_A + "\",\"dateDemande\":\"2026-02-30\",\"categorie\":\"BIOLOGIE\",\"lignes\":" + ligneSimple() + "}",
                 as(CENTRE_A, "MEDECIN"))));
-        arbre("dates", cas);
+        // KB-MED-35 corrigé : date illisible ou impossible = 400 (avant : 500). Legacy archive dans dm3/_ecarts-legacy.
+        arbre("dates_nouveau_code", cas);
         // Les lignes d'etat sont triees par date : seules les dates nommees y figurent (la date du jour par defaut est masquee ci-dessus).
         assertThat(nombreDeDemandes()).isEqualTo(4);
     }
@@ -118,7 +120,8 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
             cas.put(l[0], statutEtCode(doPost(demandesApi(patientA), corpsDemande(CENTRE_A, "m", fixe(1), "BIOLOGIE", false, null, l[1]),
                     as(CENTRE_A, "MEDECIN"))));
         }
-        arbre("erreurs", cas);
+        // KB-MED-35 corrigé : code sans systeme, ligne nulle, lignes absentes ou nulles = 400 (avant : 500).
+        arbre("erreurs_nouveau_code", cas);
         // Seules les deux lignes acceptees ("code blanc avec libelle", "code vide avec systeme et libelle") ecrivent quelque chose.
         etatDesDemandes("demandes");
         etatDesLignes("lignes");
@@ -159,7 +162,8 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
         cas.put("code LOCAL de 21 caracteres", statutEtCode(doPost(demandesApi(patientA),
                 corpsDemande(CENTRE_A, "m", fixe(5), "BIOLOGIE", false, null, "[{\"codeSystem\":\"LOCAL\",\"code\":\"" + "k".repeat(21) + "\"}]"),
                 as(CENTRE_A, "MEDECIN"))));
-        arbre("erreurs", cas);
+        // KB-MED-35 corrigé : un texte plus long que sa colonne est refusé en 400 stable par le domaine (avant : 500 DATA_ACCESS_ERROR).
+        arbre("erreurs_nouveau_code", cas);
         // La transaction est annulee : la demande dont une ligne depasse n'est pas enregistree (seuls les cas a 200 le sont).
         assertThat(nombreDeDemandes()).isEqualTo(2);
         assertThat(nombreDeLignes()).isEqualTo(2);
@@ -187,7 +191,8 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
                 as(CENTRE_A, "MEDECIN"));
         cas.put("prescripteur quelconque (pas le compte connecte)", Map.of("statut", autre.status(), "prescripteurId",
                 corps(autre).path("prescripteurId").asString()));
-        arbre("reponses", cas);
+        // KB-MED-35 corrigé : urgent absent, nul ou texte = 400 (avant : 500).
+        arbre("reponses_nouveau_code", cas);
         etatDesDemandes("demandes");
     }
 
@@ -203,7 +208,8 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
         cas.put("identifiant de patient illisible", statutEtCode(doPost(PATIENTS_API + "/pas-un-uuid/demandes-examen",
                 demandeOrdinaire(CENTRE_A, fixe(1)), as(CENTRE_A, "MEDECIN"))));
         cas.put("corps tableau", statutEtCode(doPost(demandesApi(patientA), "[]", as(CENTRE_A, "MEDECIN"))));
-        arbre("erreurs", cas);
+        // KB-MED-35 corrigé : corps ou identifiant illisible = 400 (avant : 500).
+        arbre("erreurs_nouveau_code", cas);
         assertThat(nombreDeDemandes()).isZero();
     }
 
@@ -215,9 +221,10 @@ class LaDemandeDExamenCreationCharacterizationIntegrationTest extends ExamensCha
         cas.put("patient inconnu", inconnu.status());
         Resp dautre = doPost(demandesApi(patientB), demandeOrdinaire(CENTRE_A, fixe(2)), as(CENTRE_A, "MEDECIN"));
         cas.put("patient du centre B, session du centre A", dautre.status());
-        arbre("reponses", cas);
+        // KB-MED-38 corrigé : patient inconnu ou d'un autre centre = 404 PATIENT_INTROUVABLE, rien n'est enregistré (avant : 200, demande orpheline).
+        arbre("reponses_nouveau_code", cas);
         aliasNommes.put(idStable("patient", "INCONNU").toString(), "<PAT_INCONNU>");
-        etatDesDemandes("demandes");
+        etatDesDemandes("demandes_nouveau_code");
     }
 
     @Test

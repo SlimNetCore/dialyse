@@ -1,0 +1,11 @@
+{
+  "categorie ''" : "400 BAD_REQUEST",
+  "categorie 'ANAPATH'" : "200",
+  "categorie 'BIOLOGIE'" : "200",
+  "categorie 'FONCTIONNEL'" : "200",
+  "categorie 'IMAGERIE'" : "200",
+  "categorie 'RADIO'" : "400 BAD_REQUEST",
+  "categorie 'biologie'" : "400 BAD_REQUEST",
+  "categorie absente" : "400 BAD_REQUEST",
+  "categorie nulle" : "400 BAD_REQUEST"
+}

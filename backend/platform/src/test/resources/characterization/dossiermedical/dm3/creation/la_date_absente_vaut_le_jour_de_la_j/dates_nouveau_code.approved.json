@@ -1,0 +1,15 @@
+{
+  "aujourd'hui (jour de la JVM)" : "200",
+  "dans trente ans" : "422 DEMANDE_EXAMEN_DATE_FUTURE",
+  "date illisible" : "400 BAD_REQUEST",
+  "date impossible (30 fevrier)" : "400 BAD_REQUEST",
+  "demain (jour de la JVM + 1)" : "422 DEMANDE_EXAMEN_DATE_FUTURE",
+  "hier" : "200",
+  "sans date" : {
+    "dateDemande" : "<DATE_DU_JOUR>",
+    "etat" : "DEMANDE",
+    "prescripteurId" : "null",
+    "statut" : 200
+  },
+  "tres ancienne (1900)" : "200"
+}

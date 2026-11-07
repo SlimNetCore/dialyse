@@ -81,6 +81,29 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   **uniquement avant** que le résultat soit disponible ; `VALIDE` et `ANNULE` sont
   terminaux. Toute autre transition : `DEMANDE_EXAMEN_TRANSITION_INVALIDE`. La validation enregistre la conclusion du
   médecin.
+- **RG-MED-045** — *Demandes d'examen, reprise sur place DM3 (contexte `dossier-medical`, `DemandesDExamenControleur`,
+  ADR 0082 ; décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : le MEDECIN écrit (demander, prélever, résultat disponible, valider, annuler), MEDECIN et ADMIN
+  lisent ; l'ADMIN ne peut pas écrire (reproduit, à confirmer) ; tout autre profil 403 ; garde de centre sur les
+  6 routes ;
+  (b) **patient** : demander un examen pour un patient inconnu ou d'un autre centre est refusé en 404
+  `PATIENT_INTROUVABLE` (avant : demande orpheline) ; la liste d'un patient inconnu reste une page vide en 200 ;
+  (c) **introuvable** : une demande inconnue, d'un autre patient ou d'un autre centre reste un 400 `BAD_REQUEST` (contrat
+  conservé, à confirmer) ; une demande dont le statut ou la catégorie est illisible en base est ignorée par la liste
+  (elle ne la casse plus) ;
+  (d) **entrées illisibles** : corps absent ou mal formé, date illisible, identifiant, `centerId`, `page`/`size`,
+  catégorie ou `urgent` absents, nomenclature inconnue ou absente, texte plus long que sa colonne : 400 stable (avant :
+  500), et 403 avant 400 pour un profil sans droit ;
+  (e) **codes d'examen** : la nomenclature n'est pas limitée à LOINC (CIM10, ATC, LOCAL acceptés), le code est mis en
+  majuscules, seuls CIM10 et LOINC ont un format (422 `CONCEPT_CODE_INVALID_*`) ; un code blanc est ignoré ; conclusion
+  non obligatoire ni contrôlée, prescripteur libre, aucune date minimale, aucune idempotence (reproduit, à confirmer) ;
+  (f) **statut** : « résultat disponible » est une action manuelle du médecin ; la saisie d'une observation liée à la
+  demande ne change jamais le statut et aucun événement n'est publié (reproduit, à confirmer) ;
+  (g) **concurrence** : deux écritures sur la même demande se suivent (verrou de la demande, délai de 5 s sur
+  PostgreSQL, au-delà 409 `DEMANDE_EXAMEN_ECRITURE_CONCURRENTE`) ; une transition ne réécrit plus les lignes ;
+  lignes lues dans un ordre déterministe (libellé, code, commentaire, identifiant) ;
+  (h) **jour** : date par défaut et limite « pas dans le futur » = jour de la JVM (UTC), reproduit ; audit sous
+  `PATIENTS_*`, lectures non tracées (reproduit, à confirmer DPO).
 - **RG-MED-042** — Une **observation biologique** est codée **LOINC** (`OBSERVATION_ANALYTE_NON_LOINC`), porte une
   valeur **numérique avec unité** (`VALEUR_MESUREE_REQUISE`,
   `VALEUR_MESUREE_UNITE_REQUISE`) **ou** textuelle, jamais les deux ni aucune (`OBSERVATION_VALEUR_INVALIDE`) ; patient,

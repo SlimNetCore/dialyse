@@ -192,7 +192,9 @@ class LesTransitionsDeLaDemandeDExamenCharacterizationIntegrationTest extends Ex
         cas.put("GET d'une demande seule (route inexistante)", statutEtCode(doGet(demandesApi(patientA) + "/" + da, as(CENTRE_A, "MEDECIN"))));
         cas.put("POST sur une action (mauvaise methode)", statutEtCode(doPost(actionApi(patientA, da, "preleve"), corpsCentre(CENTRE_A),
                 as(CENTRE_A, "MEDECIN"))));
-        arbre("erreurs", cas);
+        // KB-MED-35 corrigé : corps de transition absent ou mal formé, identifiants illisibles = 400 (avant : 500). Les routes inexistantes
+        // (action inconnue, GET, PUT de contenu, DELETE, POST sur une action) relèvent du gestionnaire global de la plateforme : 500 reproduit.
+        arbre("erreurs_nouveau_code", cas);
         etatDesDemandes("demandes");
     }
 
@@ -206,7 +208,9 @@ class LesTransitionsDeLaDemandeDExamenCharacterizationIntegrationTest extends Ex
         cas.put("transition de la bonne demande (temoin)", statutEtCode(agir(patientA, bon, "preleve")));
         cas.put("liste du patient", statutEtCode(doGet(demandesApi(patientA), as(CENTRE_A, "MEDECIN"))));
         cas.put("liste avec une categorie inconnue", statutEtCode(listeAvecCategorieInconnue()));
-        arbre("donnees_incoherentes", cas);
+        // KB-MED-39 corrigé : une demande au statut ou à la catégorie illisible est ignorée par la liste (200, avant : 400 pour toute la liste).
+        // La transition de cette demande reste 400 (introuvable, reproduit).
+        arbre("donnees_incoherentes_nouveau_code", cas);
         etatDesDemandes("demandes");
     }
 

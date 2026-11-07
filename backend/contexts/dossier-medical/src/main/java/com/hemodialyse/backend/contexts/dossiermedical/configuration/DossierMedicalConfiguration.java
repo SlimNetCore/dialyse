@@ -1,5 +1,14 @@
 package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
+import com.hemodialyse.backend.contexts.dossiermedical.application.AnnulerUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesDemandesDExamenDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.DemanderUnExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerLePrelevement;
+import com.hemodialyse.backend.contexts.dossiermedical.application.RendreLeResultatDisponible;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ValiderUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandesDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.DemandesDExamenJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.DemandesDExamenControleur;
 import com.hemodialyse.backend.contexts.dossiermedical.application.AnnulerUneOrdonnance;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesConstantesDuPatient;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesOrdonnancesDuPatient;
@@ -289,6 +298,67 @@ public class DossierMedicalConfiguration {
     AnemieControleur anemieControleur(ConsulterLeSuiviDeLAnemie suivi, ConsulterLObservance observance, GererLesAlertesDObservance alertes,
                                       ConsulterLesAdministrationsDuPatient administrations, SaisirUneAdministration saisir) {
         return new AnemieControleur(suivi, observance, alertes, administrations, saisir);
+    }
+
+    // ------------------------------------------------------------------ DM3 : demandes d'examen
+
+    /**
+     * Horloge des demandes d'examen : le jour UTC, qui est celui de la JVM du serveur (forcée en UTC, y compris par les tests) et donc
+     * celui du legacy (KB-MED-34), pour la date par défaut ET pour la limite « pas dans le futur ». Passer au jour du centre
+     * (Africa/Algiers) en remplaçant ce seul bean, quand les métiers l'auront décidé : le test « demain est refusé » deviendrait alors
+     * instable entre 23:00 et 24:00 UTC (le jour d'Alger a déjà changé).
+     */
+    @Bean
+    HorlogeDuCentre horlogeDesDemandesDExamen() {
+        return new HorlogeDuCentre(Clock.systemUTC(), ZoneOffset.UTC);
+    }
+
+    @Bean
+    DemandesDExamen demandesDExamenDuDossierMedical(JdbcTemplate jdbc) {
+        return new DemandesDExamenJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLesDemandesDExamenDuPatient consulterLesDemandesDExamenDuPatient(SessionCourante session, DemandesDExamen demandes) {
+        return new ConsulterLesDemandesDExamenDuPatient(session, demandes);
+    }
+
+    @Bean
+    DemanderUnExamen demanderUnExamen(SessionCourante session, PatientsDuCentre patients, DemandesDExamen demandes,
+                                      UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                      @Qualifier("horlogeDesDemandesDExamen") HorlogeDuCentre horloge) {
+        return new DemanderUnExamen(session, patients, demandes, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    EnregistrerLePrelevement enregistrerLePrelevement(SessionCourante session, DemandesDExamen demandes, UniteDeTravail uniteDeTravail,
+                                                      HorlogeDuCentre horloge) {
+        return new EnregistrerLePrelevement(session, demandes, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    RendreLeResultatDisponible rendreLeResultatDisponible(SessionCourante session, DemandesDExamen demandes, UniteDeTravail uniteDeTravail,
+                                                          HorlogeDuCentre horloge) {
+        return new RendreLeResultatDisponible(session, demandes, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    ValiderUneDemandeDExamen validerUneDemandeDExamen(SessionCourante session, DemandesDExamen demandes, UniteDeTravail uniteDeTravail,
+                                                      HorlogeDuCentre horloge) {
+        return new ValiderUneDemandeDExamen(session, demandes, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    AnnulerUneDemandeDExamen annulerUneDemandeDExamen(SessionCourante session, DemandesDExamen demandes, UniteDeTravail uniteDeTravail,
+                                                      HorlogeDuCentre horloge) {
+        return new AnnulerUneDemandeDExamen(session, demandes, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    DemandesDExamenControleur demandesDExamenControleur(ConsulterLesDemandesDExamenDuPatient consulter, DemanderUnExamen demander,
+                                                        EnregistrerLePrelevement prelever, RendreLeResultatDisponible rendreDisponible,
+                                                        ValiderUneDemandeDExamen valider, AnnulerUneDemandeDExamen annuler) {
+        return new DemandesDExamenControleur(consulter, demander, prelever, rendreDisponible, valider, annuler);
     }
 
     @Bean

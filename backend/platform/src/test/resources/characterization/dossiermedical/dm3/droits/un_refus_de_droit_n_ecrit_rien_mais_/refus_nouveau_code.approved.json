@@ -1,0 +1,8 @@
+{
+  "ADMIN : liste avec une pagination illisible" : "400 BAD_REQUEST",
+  "ADMIN : transition" : "403 ACCESS_DENIED",
+  "INFIRMIER : creation" : "403 ACCESS_DENIED",
+  "INFIRMIER : creation avec un corps illisible" : "403 ACCESS_DENIED",
+  "INFIRMIER : liste avec une pagination illisible" : "403 ACCESS_DENIED",
+  "INFIRMIER : transition avec un corps absent" : "403 ACCESS_DENIED"
+}

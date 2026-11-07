@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.contexts.dossiermedical.interfaces.http;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AccesRefuse;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamenIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneDemandeDExamen;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.OrdonnanceIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.PatientIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.PrescriptionIntrouvable;
@@ -36,7 +38,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * reprend de donnée de santé.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class})
+@RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class,
+        DemandesDExamenControleur.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -107,6 +110,16 @@ class ErreursDuDossierMedicalAdvice {
     @ExceptionHandler(EcritureConcurrente.class)
     ProblemDetail ecritureConcurrente(EcritureConcurrente erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUneDemandeDExamen.class)
+    ProblemDetail ecritureConcurrenteSurUneDemandeDExamen(EcritureConcurrenteSurUneDemandeDExamen erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "DEMANDE_EXAMEN_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(DemandeExamenIntrouvable.class)
+    ProblemDetail demandeExamenIntrouvable(DemandeExamenIntrouvable erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
     }
 
     @ExceptionHandler(RegleDeGestionViolee.class)

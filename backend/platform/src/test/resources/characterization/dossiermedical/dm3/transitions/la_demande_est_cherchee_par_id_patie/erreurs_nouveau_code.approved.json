@@ -1,0 +1,17 @@
+{
+  "DELETE (route inexistante)" : "500 INTERNAL_ERROR",
+  "GET d'une demande seule (route inexistante)" : "500 INTERNAL_ERROR",
+  "POST sur une action (mauvaise methode)" : "500 INTERNAL_ERROR",
+  "PUT de modification du contenu (route inexistante)" : "500 INTERNAL_ERROR",
+  "action inconnue" : "500 INTERNAL_ERROR",
+  "corps de transition absent" : "400 BAD_REQUEST",
+  "corps de transition mal forme" : "400 BAD_REQUEST",
+  "corps de transition sans centre (centre de la session)" : "200",
+  "demande du centre B par le centre A" : "400 BAD_REQUEST",
+  "demande du centre B, corps du centre B (session A)" : "403 ACCESS_DENIED",
+  "demande du patient A sous le patient A2" : "400 BAD_REQUEST",
+  "demande du patient A sous un patient inconnu" : "400 BAD_REQUEST",
+  "demande inconnue" : "400 BAD_REQUEST",
+  "identifiant de demande illisible" : "400 BAD_REQUEST",
+  "identifiant de patient illisible" : "400 BAD_REQUEST"
+}

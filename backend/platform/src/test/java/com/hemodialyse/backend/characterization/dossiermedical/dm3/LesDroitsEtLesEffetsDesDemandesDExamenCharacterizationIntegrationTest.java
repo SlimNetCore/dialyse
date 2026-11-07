@@ -78,7 +78,8 @@ class LesDroitsEtLesEffetsDesDemandesDExamenCharacterizationIntegrationTest exte
         cas.put("ADMIN : transition", statutEtCode(doPut(actionApi(patientA, d, "annuler"), corpsCentre(CENTRE_A), as(CENTRE_A, "ADMIN"))));
         cas.put("ADMIN : liste avec une pagination illisible", statutEtCode(doGet(demandesApi(patientA) + "?size=abc", as(CENTRE_A, "ADMIN"))));
         cas.put("INFIRMIER : liste avec une pagination illisible", statutEtCode(doGet(demandesApi(patientA) + "?size=abc", as(CENTRE_A, "INFIRMIER"))));
-        arbre("refus", cas);
+        // KB-MED-35 corrigé : un profil sans droit reçoit 403 AVANT toute lecture du corps ou de la pagination (avant : 500) ; ADMIN : pagination illisible = 400.
+        arbre("refus_nouveau_code", cas);
         assertThat(empreinte(d)).isEqualTo(avant);
         assertThat(nombreDeDemandes()).isEqualTo(1);
     }

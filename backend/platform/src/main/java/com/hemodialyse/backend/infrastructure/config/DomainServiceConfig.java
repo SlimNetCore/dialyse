@@ -4,8 +4,6 @@ import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPo
 import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
 import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
 import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
-import com.hemodialyse.backend.domain.medical.examen.port.DemandeExamenRepositoryPort;
-import com.hemodialyse.backend.domain.medical.examen.service.DemandeExamenDomainService;
 import com.hemodialyse.backend.domain.medical.greffe.port.BilanPreGreffeRepositoryPort;
 import com.hemodialyse.backend.domain.medical.greffe.port.DonneurVivantRepositoryPort;
 import com.hemodialyse.backend.domain.medical.greffe.port.EtapeBilanPreGreffeRepositoryPort;
@@ -88,11 +86,6 @@ public class DomainServiceConfig {
     @Bean
     public SerologieDomainService serologieDomainService(SerologieRepositoryPort repo) {
         return new SerologieDomainService(repo);
-    }
-
-    @Bean
-    public DemandeExamenDomainService demandeExamenDomainService(DemandeExamenRepositoryPort repo) {
-        return new DemandeExamenDomainService(repo);
     }
 
     @Bean
