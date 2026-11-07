@@ -45,12 +45,17 @@ verifier_colonnes app_settings center_id cle prefixe dernier_compteur
 verifier_colonnes patients id center_id
 verifier_colonnes administrations_anemie id patient_id center_id prescription_medicale_id type_traitement molecule dose unite_dose voie date_administration seance_id administre_par administree motif_non_administration article_id quantite_article created_at
 verifier_colonnes alertes_observance id patient_id center_id type_traitement type_alerte periode_debut periode_fin doses_attendues doses_administrees message created_at resolved_at
-# CONSTAT NON BLOQUANT (KB-MED-33) : l'entite JPA legacy AlerteObservanceJpaEntity ecrit 4 colonnes de detail que la chaine Flyway V1..Vn ne cree pas
-# (elles n'existent qu'avec ddl-auto: update). Le legacy a le meme ecart ; aucune migration n'est decidee ici.
+# KB-MED-33 (corrige par V53) : les 4 colonnes de detail ecrites par l'entite JPA legacy et par AlertesJdbc doivent venir de la chaine Flyway
+# complete (V1..V53), avec les types de l'entite (varchar(10), integer) et SANS contrainte NOT NULL.
+verifier_colonnes alertes_observance unite_dose dose_prescrite frequence_valeur frequence_unite
 for c in unite_dose dose_prescrite frequence_valeur frequence_unite; do
-  [ "$(scalaire "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='alertes_observance' AND column_name='$c'")" = "1" ] \
-    && echo "ok : alertes_observance.$c" || echo "CONSTAT KB-MED-33 : alertes_observance.$c absente de la chaine Flyway (non bloquant)"
+  [ "$(scalaire "SELECT is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='alertes_observance' AND column_name='$c'")" = "YES" ] \
+    || { echo "COLONNE NON NULLABLE : alertes_observance.$c"; RC=1; }
 done
+[ "$(scalaire "SELECT string_agg(column_name || ':' || data_type || COALESCE('(' || character_maximum_length || ')', ''), ',' ORDER BY column_name) FROM information_schema.columns WHERE table_schema='public' AND table_name='alertes_observance' AND column_name IN ('unite_dose','dose_prescrite','frequence_valeur','frequence_unite')")" = "dose_prescrite:integer,frequence_unite:character varying(10),frequence_valeur:integer,unite_dose:character varying(10)" ] \
+  && echo "types conformes a l'entite" || { echo "TYPES NON CONFORMES : alertes_observance (4 colonnes de detail)"; RC=1; }
+# La migration est idempotente : la rejouer ne change rien.
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V53__alertes_observance_detail.sql" >/dev/null && echo "V53 rejouable" || { echo "V53 NON IDEMPOTENTE"; RC=1; }
 verifier_colonnes resultats_analyses id patient_id center_id date_prelevement hb_g_dl ferritine_ng_ml cstf_pct albumine_g_dl kt_v_mensuel created_at
 verifier_colonnes centers id
 
@@ -73,7 +78,7 @@ done
 cd "$RACINE/backend"
 echo "=== Contrats PostgreSQL des ports Ordonnances et Prescriptions ==="
 ./mvnw -o -pl contexts/dossier-medical -am test \
-  -Dtest="com.hemodialyse.backend.contexts.dossiermedical.contrat.OrdonnancesPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.PrescriptionsPostgresContractIT" \
+  -Dtest="com.hemodialyse.backend.contexts.dossiermedical.contrat.OrdonnancesPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.PrescriptionsPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.AdministrationsPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.AlertesPostgresContractIT" \
   -Dsurefire.failIfNoSpecifiedTests=false \
   -Ddossiermedical.pg16.url="jdbc:postgresql://127.0.0.1:$PORT/hemo_test" -Ddossiermedical.pg16.user=dossier_medical_test -Ddossiermedical.pg16.password="$PW" || RC=1
 echo "=== Code de sortie : $RC ==="

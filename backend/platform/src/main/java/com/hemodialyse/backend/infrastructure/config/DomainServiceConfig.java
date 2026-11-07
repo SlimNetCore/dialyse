@@ -18,14 +18,12 @@ import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepository
 import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
-import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.service.AbordVasculaireDomainService;
 import com.hemodialyse.backend.domain.seance.service.DossierMedicalPatientDomainService;
-import com.hemodialyse.backend.domain.seance.service.PrescriptionMedicaleDomainService;
 import com.hemodialyse.backend.domain.seance.service.ResultatAnalyseDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletMedicalDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletParamedicalDomainService;
@@ -70,11 +68,6 @@ public class DomainServiceConfig {
     @Bean
     public ResultatAnalyseDomainService resultatAnalyseDomainService(ResultatAnalyseRepositoryPort repo) {
         return new ResultatAnalyseDomainService(repo);
-    }
-
-    @Bean
-    public PrescriptionMedicaleDomainService prescriptionMedicaleDomainService(PrescriptionMedicaleRepositoryPort repo) {
-        return new PrescriptionMedicaleDomainService(repo);
     }
 
     @Bean

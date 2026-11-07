@@ -15,8 +15,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * DM2, lot 2 : le planificateur (cron 06:30), appelé directement pour un centre. Écrit contre le legacy {@code ObservancePrescriptionScheduler}
- * (pont de test), il appelle désormais {@code ControleDeNuitDeLObservance.controlerLeCentre} du module (même comportement observable). L'horloge
+ * DM2, lot 2 : le planificateur (cron 06:30), appelé directement pour un centre. Écrit contre l'ancien planificateur du legacy (retiré), il
+ * appelle {@code ControleDeNuitDeLObservance.controlerLeCentre} du module (même comportement observable, 12/12 inchangés). L'horloge
  * reste le jour de la JVM (KB-MED-15, décision : reproduit, l'horloge est injectée et remplaçable) : toutes les dates des fixtures sont donc
  * relatives à ce jour et nommées {@code <J-3>} ; une garde attend le passage de minuit si l'on en est à moins de deux minutes.
  * Observation : alertes ({@code alertes_observance}) et notifications durables. Données fictives.

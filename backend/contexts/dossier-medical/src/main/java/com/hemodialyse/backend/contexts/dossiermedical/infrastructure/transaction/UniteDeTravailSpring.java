@@ -37,6 +37,13 @@ public class UniteDeTravailSpring implements UniteDeTravail {
         });
     }
 
+    /**
+     * Action dans sa PROPRE transaction ({@code REQUIRES_NEW}) : sert uniquement à réserver un numéro d'ordonnance dont la
+     * réservation doit survivre au refus de la signature (trou de séquence REPRODUIT du legacy, KB-MED-20). Coût : une seconde
+     * connexion du pool pendant la signature (la fiche de l'ordonnance reste verrouillée par la première) ; la ligne du compteur
+     * est la seule verrouillée par la seconde, aucun interblocage possible (ordre global des verrous : fiche, puis compteur). Si les
+     * métiers choisissent une séquence sans trou, supprimer cette méthode et réserver le numéro dans la transaction de la signature.
+     */
     @Override
     public <T> T independante(Supplier<T> action) {
         TransactionTemplate propre = new TransactionTemplate(transaction.getTransactionManager());

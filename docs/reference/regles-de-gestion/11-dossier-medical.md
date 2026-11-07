@@ -7,7 +7,7 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 > Sources : agrégats de `bc-medical` (`Allergie`, `Antecedent`, `Serologie`, `DemandeExamen`, `ObservationBiologique`,
 > `Ordonnance`, `AdministrationTraitement`,
 > `AlerteObservance`, `BilanPreGreffe`, `EtapeBilanPreGreffe`, `DonneurVivant`, `DecisionRcp`), `Kdigo*Policy`,
-> `PrescriptionMedicaleDomainService`, `ResultatAnalyseDomainService`,
+> `PrescrireUnTraitement` (DM2), `ResultatAnalyseDomainService`,
 > `DossierMedicalPatientDomainService`, `AbordVasculaireDomainService`, `ControleDeNuitDeLObservance`,
 > `PeriodeDObservance`, `ConsulterLeSuiviDeLAnemie`,
 > `KdigoGreffeQueryService`, `FhirExportService`, contrôleurs du dossier.

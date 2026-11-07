@@ -8,6 +8,17 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.PrescriptionIntrou
 import com.hemodialyse.backend.contexts.dossiermedical.domain.RegleDeGestionViolee;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.ValeurHorsBorne;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerMapping;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -46,9 +57,31 @@ class ErreursDuDossierMedicalAdvice {
         return probleme(HttpStatus.BAD_REQUEST, "Validation", erreur.getMessage(), "VALIDATION_ERROR");
     }
 
+    /**
+     * Corps ou paramètre illisible : 400, SAUF si le profil n'a pas le droit d'appeler la route. La lecture du corps précède le contrôle
+     * {@code @PreAuthorize} de la méthode ; sans cette garde, un profil refusé recevrait 400 (et non 403) et apprendrait la forme de la
+     * route. Les rôles sont ceux de l'annotation {@code @PreAuthorize} du contrôleur ciblé.
+     */
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
-    ProblemDetail illisible(Exception erreur) {
+    ProblemDetail illisible(Exception erreur, HttpServletRequest requete) {
+        if (!droitsSuffisants(requete)) {
+            return probleme(HttpStatus.FORBIDDEN, "Acces refuse", "Accès refusé", "ACCESS_DENIED");
+        }
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", "Corps ou paramètre illisible", "BAD_REQUEST");
+    }
+
+    private static boolean droitsSuffisants(HttpServletRequest requete) {
+        if (!(requete.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE) instanceof HandlerMethod methode)) return true;
+        PreAuthorize garde = methode.getMethodAnnotation(PreAuthorize.class);
+        if (garde == null) return true;
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification == null) return false;
+        Set<String> possedes = authentification.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        Matcher roles = Pattern.compile("'([A-Z_]+)'").matcher(garde.value());
+        while (roles.find()) {
+            if (possedes.contains("ROLE_" + roles.group(1))) return true;
+        }
+        return false;
     }
 
     @ExceptionHandler(OrdonnanceIntrouvable.class)

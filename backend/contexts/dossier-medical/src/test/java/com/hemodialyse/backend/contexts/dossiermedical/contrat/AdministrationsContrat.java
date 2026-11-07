@@ -1,0 +1,91 @@
+package com.hemodialyse.backend.contexts.dossiermedical.contrat;
+
+import com.hemodialyse.backend.contexts.dossiermedical.domain.AdministrationDeTraitement;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.Administrations;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.DoseAdministree;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.PatientId;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.TypeDeTraitement;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/** Contrat du port {@link Administrations} : le double en mémoire, H2 et PostgreSQL 16 passent le MÊME jeu de tests. */
+abstract class AdministrationsContrat {
+
+    static final CentreId CENTRE_A = new CentreId(UUID.fromString("00000000-0000-0000-0000-00000000d2a1"));
+    static final CentreId CENTRE_B = new CentreId(UUID.fromString("00000000-0000-0000-0000-00000000d2b2"));
+    static final PatientId PATIENT = new PatientId(UUID.fromString("00000000-0000-0000-0000-0000000d2001"));
+    static final Instant T0 = Instant.parse("2026-01-01T10:00:00Z");
+
+    protected abstract Administrations administrations();
+
+    private AdministrationDeTraitement ajoutee(CentreId centre, PatientId patient, TypeDeTraitement type, LocalDate jour, boolean administree,
+                                               String dose, String unite) {
+        var a = AdministrationDeTraitement.enregistrer(UUID.randomUUID(), patient, centre, null, type, "Molecule fictive",
+                dose == null ? null : new DoseAdministree(new BigDecimal(dose), unite), "SC", jour, null, "inf", administree,
+                administree ? null : "Patient absent", null, null, T0);
+        administrations().ajouter(a);
+        return a;
+    }
+
+    @Test
+    void une_administration_ajoutee_est_relue_champ_par_champ() {
+        var a = ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 5), true, "4000", "UI");
+        var relue = administrations().lesPlusRecentes(CENTRE_A, PATIENT, 1).get(0);
+        assertThat(relue.id()).isEqualTo(a.id());
+        assertThat(relue.traitement()).isEqualTo(TypeDeTraitement.EPO);
+        assertThat(relue.dose().valeur()).isEqualByComparingTo("4000");
+        assertThat(relue.dose().unite()).isEqualTo("UI");
+        assertThat(relue.voie()).isEqualTo("SC");
+        assertThat(relue.administree()).isTrue();
+        assertThat(relue.creeeLe()).isEqualTo(T0);
+        var nonFaite = ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.FER_INJECTABLE, LocalDate.of(2026, 1, 6), false, null, null);
+        var lue = administrations().lesPlusRecentes(CENTRE_A, PATIENT, 1).get(0);
+        assertThat(lue.id()).isEqualTo(nonFaite.id());
+        assertThat(lue.dose()).isNull();
+        assertThat(lue.motif()).isEqualTo("Patient absent");
+    }
+
+    @Test
+    void les_plus_recentes_et_la_page_sont_triees_de_la_plus_recente_a_la_plus_ancienne_dans_le_centre_du_patient() {
+        var d2 = ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 2), true, "1", "UI");
+        var d9 = ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 9), true, "1", "UI");
+        var d5 = ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 5), true, "1", "UI");
+        ajoutee(CENTRE_B, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 20), true, "1", "UI");
+        assertThat(ids(administrations().lesPlusRecentes(CENTRE_A, PATIENT, 2))).containsExactly(d9.id(), d5.id());
+        var page1 = administrations().duPatient(CENTRE_A, PATIENT, 1, 2);
+        assertThat(page1.total()).isEqualTo(3);
+        assertThat(ids(page1.items())).containsExactly(d2.id());
+        assertThat(administrations().duPatient(CENTRE_A, PATIENT, 9, 2).items()).isEmpty();
+        assertThat(administrations().duPatient(CENTRE_A, new PatientId(UUID.randomUUID()), 0, 5).total()).isZero();
+    }
+
+    @Test
+    void l_administre_de_la_periode_compte_les_effectives_et_la_dose_dans_l_unite_du_traitement_sans_casse() {
+        ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 1), true, "4000", "UI");
+        ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 7), true, "2000", "ui");
+        ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 3), true, "100", "mg");
+        ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 4), false, null, null);
+        ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 8), true, "9000", "UI");
+        ajoutee(CENTRE_A, PATIENT, TypeDeTraitement.FER_INJECTABLE, LocalDate.of(2026, 1, 2), true, "100", "mg");
+        ajoutee(CENTRE_B, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 2), true, "7000", "UI");
+        var epo = administrations().administreSur(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 7));
+        assertThat(epo.nombre()).isEqualTo(3);
+        assertThat(epo.dose()).isEqualTo(6000);
+        var fer = administrations().administreSur(CENTRE_A, PATIENT, TypeDeTraitement.FER_INJECTABLE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 7));
+        assertThat(fer.nombre()).isEqualTo(1);
+        assertThat(fer.dose()).isEqualTo(100);
+        assertThat(administrations().administreSur(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 7)).nombre()).isZero();
+    }
+
+    private static List<UUID> ids(List<AdministrationDeTraitement> l) {
+        return l.stream().map(AdministrationDeTraitement::id).toList();
+    }
+}

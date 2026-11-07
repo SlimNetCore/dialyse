@@ -1,0 +1,14 @@
+{
+  "POST /api/v1/patients/<id>/administrations-anemie / INFIRMIER / corps illisible" : "400 BAD_REQUEST",
+  "POST /api/v1/patients/<id>/administrations-anemie / SECRETAIRE / corps illisible" : "403 ACCESS_DENIED",
+  "POST /api/v1/patients/<id>/ordonnances / MEDECIN / corps illisible" : "400 BAD_REQUEST",
+  "POST /api/v1/patients/<id>/ordonnances / SECRETAIRE / corps illisible" : "403 ACCESS_DENIED",
+  "POST /api/v1/patients/<id>/prescriptions / MEDECIN / corps illisible" : "400 BAD_REQUEST",
+  "POST /api/v1/patients/<id>/prescriptions / SECRETAIRE / corps illisible" : "403 ACCESS_DENIED",
+  "POST /api/v1/patients/prescriptions/search / MEDECIN / corps illisible" : "400 BAD_REQUEST",
+  "POST /api/v1/patients/prescriptions/search / SECRETAIRE / corps illisible" : "403 ACCESS_DENIED",
+  "PUT /api/v1/patients/<id>/ordonnances/<id>/signer / MEDECIN / corps illisible" : "400 BAD_REQUEST",
+  "PUT /api/v1/patients/<id>/ordonnances/<id>/signer / SECRETAIRE / corps illisible" : "403 ACCESS_DENIED",
+  "PUT /api/v1/patients/<id>/prescriptions/<id> / MEDECIN / corps illisible" : "400 BAD_REQUEST",
+  "PUT /api/v1/patients/<id>/prescriptions/<id> / SECRETAIRE / corps illisible" : "403 ACCESS_DENIED"
+}

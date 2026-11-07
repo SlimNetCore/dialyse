@@ -25,8 +25,9 @@ import java.util.UUID;
 /**
  * Adapter entrant HTTP des ordonnances : MÊMES URL, MÊMES noms de champs JSON et MÊMES droits que le legacy (le MEDECIN écrit,
  * l'ADMIN consulte : KB-MED-23, à confirmer avec les métiers). Écarts décidés (ADR 0081) : patient inconnu ou d'un autre centre
- * 404 à la création (KB-MED-19) ; corps, date, identifiant ou paramètre illisible 400 (avant : 500, KB-MED-22) ; un refus de
- * signature ne consomme plus de numéro (KB-MED-20). Reproduit : réponses 200 (pas 201), ordonnance introuvable = 400.
+ * 404 à la création (KB-MED-19) ; corps, date, identifiant ou paramètre illisible 400 (avant : 500, KB-MED-22). Reproduit :
+ * un refus de signature CONSOMME un numéro, trou de la séquence légale conservé (KB-MED-20, à confirmer avec les métiers) ; réponses
+ * 200 (pas 201) ; ordonnance introuvable = 400.
  */
 @RestController
 @RequestMapping("/api/v1/patients")

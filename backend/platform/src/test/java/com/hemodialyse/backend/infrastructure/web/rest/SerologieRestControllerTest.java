@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 /**
  * Tests unitaires du SerologieRestController (mock des dépendances, pas de Spring Context).
  * Verrouille l'isolation multi-centre (centerId) sur toutes les opérations : list, create, synthese, update, delete.
- * Suit le pattern de {@link PrescriptionMedicaleRestControllerTest} et {@link DossierMedicalPatientRestControllerTest}.
+ * Suit le pattern de {@link DossierMedicalPatientRestControllerTest}.
  */
 class SerologieRestControllerTest {
 
