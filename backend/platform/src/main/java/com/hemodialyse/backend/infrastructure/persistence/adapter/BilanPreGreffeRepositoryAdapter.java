@@ -35,7 +35,9 @@ public class BilanPreGreffeRepositoryAdapter implements BilanPreGreffeRepository
 
     @Override
     public Optional<BilanPreGreffe> findByPatientId(UUID patientId, CenterId centerId) {
-        return bilanJpa.findByPatientIdAndCenterId(patientId, centerId.value()).map(this::toDomain);
+        // DM7 (KB-MED-90) : un doublon existant en base est lu sans erreur, le plus ancien est retenu.
+        return bilanJpa.findByPatientIdAndCenterIdOrderByCreatedAtAscIdAsc(patientId, centerId.value()).stream().findFirst()
+                .map(this::toDomain);
     }
 
     @Override

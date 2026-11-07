@@ -2008,3 +2008,41 @@ SELECT patient_id, max(date_prelevement) AS dernier_bilan, count(*) FROM resulta
 ```
 Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, enregistrer une observation numérique avec unité puis textuelle, la corriger (statut `CORRIGE`), la supprimer ; lire les observations d'une demande du patient puis d'une demande d'un autre patient (liste vide) ; enregistrer un bilan, le modifier (les mesures absentes sont effacées), modifier un bilan inconnu (404 `ANALYSE_INTROUVABLE`), le supprimer ; rechercher des analyses (page 0, taille 20) ; (b) avec un compte INFIRMIER, vérifier le refus (403) ; avec un compte ADMIN, la lecture et le refus d'écriture (403) ; (c) vérifier que le suivi de l'anémie, l'évaluation KDIGO, les statistiques médicales, les exports CSV et FHIR rendent les mêmes valeurs qu'avant la reprise.
 Surveillance après déploiement : hausse attendue des 400 (corps, système de codage, statut, date, paramètre illisible, valeur hors borne de colonne, avant 500), des 403 (corps illisible d'un profil sans droit), des 404 (patient inconnu ou d'un autre centre à l'écriture, PUT d'analyse introuvable) et disparition des lignes d'audit `PATIENTS_SUPPRESSION` 204 sans suppression ; surveiller les 409 `OBSERVATION_ECRITURE_CONCURRENTE`, `ANALYSE_ECRITURE_CONCURRENTE` et les WARN « Observation … ignorée : … illisible en base ». Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 51. Dossier médical DM7 (bilan pré-greffe, RCP, étapes, donneurs vivants, KDIGO, export PDF) : parité et gardes (2026-11-07) — SELECT seulement
+
+Aucune migration, mêmes tables (`bilans_pre_greffe`, `decisions_rcp`, `etapes_bilan_pre_greffe`, `donneurs_vivants`, sans contrainte d'unicité ni clé étrangère ; les tables du module gelé ne sont ni lues ni écrites, ADR 0072). Données de santé sensibles (bilan immunologique, identité de donneurs). À exécuter sur une COPIE ou en lecture seule, avant et après le déploiement (ADR 0086). Aucune correction automatique : toute ligne ramenée est expliquée avec les métiers et le DPO.
+```sql
+-- 1. Fiches par centre (avant/après : identiques, la reprise ne change aucune ligne).
+SELECT 'bilans' AS table_, center_id, count(*) FROM bilans_pre_greffe GROUP BY center_id
+UNION ALL SELECT 'decisions_rcp', b.center_id, count(*) FROM decisions_rcp d JOIN bilans_pre_greffe b ON b.id = d.bilan_id GROUP BY b.center_id
+UNION ALL SELECT 'etapes', center_id, count(*) FROM etapes_bilan_pre_greffe GROUP BY center_id
+UNION ALL SELECT 'donneurs', center_id, count(*) FROM donneurs_vivants GROUP BY center_id;
+-- 2. DOUBLONS DE BILAN (KB-MED-90 : deux lectures simultanées pouvaient créer deux bilans pour un patient). Le module lit le PLUS ANCIEN et journalise un WARN « Bilan pré-greffe <id> ignoré : doublon ». À expliquer avec les métiers, pas à corriger automatiquement.
+SELECT center_id, patient_id, count(*) AS bilans, min(created_at) AS le_plus_ancien FROM bilans_pre_greffe GROUP BY center_id, patient_id HAVING count(*) > 1;
+-- 3. ORPHELINS (KB-MED-86 : avant la reprise, l'écriture pour un patient inconnu ou d'un autre centre était acceptée) : lignes dont le patient est absent du centre de la ligne.
+SELECT 'bilans' AS table_, t.center_id, count(*) AS patient_absent FROM bilans_pre_greffe t LEFT JOIN patients p ON p.id = t.patient_id AND p.center_id = t.center_id WHERE p.id IS NULL GROUP BY t.center_id
+UNION ALL SELECT 'etapes', t.center_id, count(*) FROM etapes_bilan_pre_greffe t LEFT JOIN patients p ON p.id = t.patient_id AND p.center_id = t.center_id WHERE p.id IS NULL GROUP BY t.center_id
+UNION ALL SELECT 'donneurs', t.center_id, count(*) FROM donneurs_vivants t LEFT JOIN patients p ON p.id = t.patient_id AND p.center_id = t.center_id WHERE p.id IS NULL GROUP BY t.center_id;
+-- 4. ÉTAPES EN DOUBLE (KB-MED-90 : deux générations simultanées pouvaient doubler la liste standard ; l'unicité n'existe pas en base, reproduit pour les étapes libres).
+SELECT center_id, patient_id, categorie, libelle, count(*) AS exemplaires FROM etapes_bilan_pre_greffe GROUP BY center_id, patient_id, categorie, libelle HAVING count(*) > 1;
+-- 5. LIGNES ILLISIBLES : IGNORÉES par les lectures du module (WARN avec l'identifiant seul), supprimables mais non modifiables ; un statut de bilan ou d'avis illisible répond 422 `BILAN_PRE_GREFFE_ILLISIBLE`.
+SELECT 'bilans' AS table_, center_id, id FROM bilans_pre_greffe
+ WHERE statut NOT IN ('NON_DEBUTE','BILAN_EN_COURS','ELIGIBLE','INSCRIT_LISTE_ATTENTE','CONTRE_INDICATION_TEMPORAIRE','CONTRE_INDICATION_DEFINITIVE','GREFFE_REALISEE')
+UNION ALL SELECT 'decisions_rcp', b.center_id, d.id FROM decisions_rcp d JOIN bilans_pre_greffe b ON b.id = d.bilan_id WHERE d.avis NOT IN ('FAVORABLE','DEFAVORABLE','AJOURNE')
+UNION ALL SELECT 'etapes', center_id, id FROM etapes_bilan_pre_greffe
+ WHERE categorie NOT IN ('CARDIOLOGIQUE','PNEUMOLOGIQUE','DENTAIRE','ORL','GYNECOLOGIQUE','UROLOGIQUE','DIGESTIF','ONCOLOGIQUE','PSYCHIATRIQUE','VIROLOGIQUE','IMMUNOLOGIQUE','VACCINATION','NUTRITIONNEL','AUTRE','DERMATOLOGIQUE')
+    OR statut NOT IN ('A_FAIRE','PLANIFIE','FAIT','NON_APPLICABLE')
+UNION ALL SELECT 'donneurs', center_id, id FROM donneurs_vivants
+ WHERE lien_parente NOT IN ('CONJOINT','PARENT','ENFANT','FRERE_SOEUR','AUTRE_FAMILLE','NON_APPARENTE')
+    OR statut_bilan NOT IN ('CANDIDAT','BILAN_EN_COURS','COMPATIBLE','INCOMPATIBLE','EXCLU','RETENU')
+    OR crossmatch_resultat NOT IN ('NON_FAIT','NEGATIF','POSITIF');
+-- 6. Règles violables par import ou SQL (impossibles par l'API) : étape faite sans date, décision de RCP dans le futur.
+SELECT 'etape_faite_sans_date' AS controle, center_id, count(*) FROM etapes_bilan_pre_greffe WHERE statut = 'FAIT' AND date_realisation IS NULL GROUP BY center_id
+UNION ALL SELECT 'rcp_dans_le_futur', b.center_id, count(*) FROM decisions_rcp d JOIN bilans_pre_greffe b ON b.id = d.bilan_id WHERE d.date_reunion > current_date GROUP BY b.center_id;
+-- 7. Lecteurs inchangés (KDIGO, export PDF, statistiques, direction) : statut des bilans, avant et après, identique.
+SELECT statut, count(*) FROM bilans_pre_greffe GROUP BY statut ORDER BY 1;
+```
+Les valeurs d'énumération de la requête 5 sont celles du code : à comparer avec `CategorieDEtape`, `LienDeParente` et `StatutDuBilanDuDonneur` du module avant exécution (une valeur oubliée ramènerait une ligne lisible à tort).
+Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, lire le bilan d'un patient (ouverture d'un bilan « non débuté » si absent), passer le statut à « bilan en cours » puis « éligible » puis « inscrit », refuser « greffé » depuis « non débuté » (422), saisir le bilan immunologique et les notes, ajouter une décision de RCP, générer la liste standard deux fois (23 étapes, jamais 46), mettre à jour puis supprimer une étape, enregistrer, mettre à jour et supprimer un donneur ; lire l'évaluation KDIGO et télécharger le PDF ; (b) avec un patient d'un AUTRE centre ou inconnu : 404 sur le bilan, les étapes, les donneurs, KDIGO et le PDF ; (c) avec un compte INFIRMIER : étapes en lecture et écriture (suppression refusée), tout le reste refusé en 403 ; avec un compte ADMIN : lecture du bilan et des donneurs, écriture refusée (403), PDF refusé ; (d) vérifier que KDIGO et le PDF rendent les mêmes valeurs qu'avant la reprise (le risque KB-MED-94 reste présent : ne pas le « corriger » sans décision médicale).
+Surveillance après déploiement : hausse attendue des 400 (corps, énumération, date, identifiant, borne de colonne, avant 500), des 403 (corps illisible d'un profil sans droit), des 404 (patient inconnu ou d'un autre centre, étape ou donneur introuvable, avant 400 ou 200) et disparition des lignes d'audit `PATIENTS_SUPPRESSION` 204 sans suppression ; surveiller les 409 `BILAN_PRE_GREFFE_ECRITURE_CONCURRENTE`, `ETAPE_BILAN_ECRITURE_CONCURRENTE`, `DONNEUR_VIVANT_ECRITURE_CONCURRENTE`, les 422 `BILAN_PRE_GREFFE_ILLISIBLE` et les WARN « … ignoré : … illisible en base » ou « doublon ». Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

@@ -1,0 +1,14 @@
+{
+  "cas" : {
+    "01 statut inconnu" : "400 BAD_REQUEST | Valeur inconnue pour le champ statut",
+    "02 statut en minuscules" : "400 BAD_REQUEST | Valeur inconnue pour le champ statut",
+    "03 statut vide" : "400 BAD_REQUEST | Valeur inconnue pour le champ statut",
+    "04 statut absent" : "400 BAD_REQUEST | Le champ statut est obligatoire",
+    "05 corps vide" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "06 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "07 statut de type nombre" : "400 BAD_REQUEST | Valeur inconnue pour le champ statut",
+    "08 identifiant de patient illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "09 lecture avec centerId illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "ecriture" : "aucune ligne modifiee"
+}

@@ -115,7 +115,8 @@ class LesDroitsLeCloisonnementEtLesEffetsDuBilanPreGreffeCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("aucune ecriture", empreinteGreffe().equals(avant));
-        arbre("refus", m);
+        // KB-MED-89 : 403 AVANT la lecture du corps (avant : 500) ; legacy archivé dans droits/_ecarts-legacy
+        arbre("refus_nouveau_code", m);
     }
 
     @Test
@@ -151,7 +152,8 @@ class LesDroitsLeCloisonnementEtLesEffetsDuBilanPreGreffeCharacterizationIntegra
         m.put("04 bilans", etatDesBilans());
         m.put("05 etapes", etatDesEtapes());
         m.put("06 donneurs", etatDesDonneurs());
-        arbre("cloisonnement", m);
+        // KB-MED-86 : plus de lecture ni d'écriture croisée entre centres (404 PATIENT_INTROUVABLE), étape d'un autre centre 404 (KB-MED-88) ; legacy archivé dans droits/_ecarts-legacy
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test
@@ -188,7 +190,8 @@ class LesDroitsLeCloisonnementEtLesEffetsDuBilanPreGreffeCharacterizationIntegra
         m.put("decision creee", rcp.status());
         m.put("journal", journalDAudit());
         m.put("notifications durables", notificationsVides());
-        arbre("audit", m);
+        // KB-MED-88 : une suppression sans effet n'est plus journalisée, une étape introuvable est un 404 ; legacy archivé dans droits/_ecarts-legacy
+        arbre("audit_nouveau_code", m);
     }
 
     private int notificationsVides() {
@@ -204,8 +207,9 @@ class LesDroitsLeCloisonnementEtLesEffetsDuBilanPreGreffeCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("01 statuts des deux lectures simultanees", reponses.stream().map(Resp::status).toList());
         m.put("02 une ou deux lignes (aucune unicite en base)", bilans == 1 || bilans == 2);
-        m.put("03 la lecture suivante reussit si et seulement si une seule ligne", (suivante.status() == 200) == (bilans == 1));
-        arbre("lectures_simultanees", m);
+        // KB-MED-90 : un doublon éventuel (H2 n'a pas de verrou consultatif) est lu sans erreur, le plus ancien est retenu ; legacy archivé dans droits/_ecarts-legacy
+        m.put("03 la lecture suivante reussit toujours (un doublon est lu sans erreur)", suivante.status() == 200);
+        arbre("lectures_simultanees_nouveau_code", m);
     }
 
     @Test

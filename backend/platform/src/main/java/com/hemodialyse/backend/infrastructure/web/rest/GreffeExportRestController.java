@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.query.GreffePdfService;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.GardeDePatient;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SousLaGardeDuDossierMedical;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import org.springframework.http.HttpHeaders;
@@ -21,21 +23,25 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v1/patients")
-public class GreffeExportRestController {
+public class GreffeExportRestController implements SousLaGardeDuDossierMedical {
 
     private final GreffePdfService pdfService;
     private final CenterAccessGuard centerAccessGuard;
+    private final GardeDePatient patients;
 
-    public GreffeExportRestController(GreffePdfService pdfService, CenterAccessGuard centerAccessGuard) {
+    public GreffeExportRestController(GreffePdfService pdfService, CenterAccessGuard centerAccessGuard, GardeDePatient patients) {
         this.pdfService = pdfService;
         this.centerAccessGuard = centerAccessGuard;
+        this.patients = patients;
     }
 
+    /** DM7 (KB-MED-86 / 97) : un patient inconnu ou d'un autre centre est refusé en 404 {@code PATIENT_INTROUVABLE} ; contenu inchangé. */
     @PreAuthorize("hasRole('MEDECIN')")
     @GetMapping("/{patientId}/greffe/export-pdf")
     public ResponseEntity<byte[]> exportPdf(@PathVariable UUID patientId,
                                             @RequestParam(required = false) UUID centerId) {
         CenterId center = centerAccessGuard.requireCenter(centerId);
+        patients.exiger(center.value(), patientId);
         byte[] pdf = pdfService.exportPdf(center, patientId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dossier-greffe-" + patientId + ".pdf")

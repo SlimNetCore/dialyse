@@ -1,7 +1,14 @@
 package com.hemodialyse.backend.contexts.dossiermedical.interfaces.http;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AccesRefuse;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SousLaGardeDuDossierMedical;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.AnalyseIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.BilanPreGreffeIllisible;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.DonneurVivantIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnBilanPreGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnDonneurVivant;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneEtapeDeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EtapeDeBilanIntrouvable;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneAnalyse;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneObservation;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.ObservationIntrouvable;
@@ -47,7 +54,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class,
         DemandesDExamenControleur.class, SerologiesControleur.class, AntecedentsControleur.class,
-        AllergiesControleur.class, AbordsVasculairesControleur.class, ObservationsBiologiquesControleur.class, AnalysesControleur.class})
+        AllergiesControleur.class, AbordsVasculairesControleur.class, ObservationsBiologiquesControleur.class, AnalysesControleur.class,
+        BilanPreGreffeControleur.class, EtapesDeBilanControleur.class, DonneursVivantsControleur.class, SousLaGardeDuDossierMedical.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -146,6 +154,39 @@ class ErreursDuDossierMedicalAdvice {
     @ExceptionHandler(EcritureConcurrenteSurUneAnalyse.class)
     ProblemDetail ecritureConcurrenteSurUneAnalyse(EcritureConcurrenteSurUneAnalyse erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ANALYSE_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUnBilanPreGreffe.class)
+    ProblemDetail ecritureConcurrenteSurUnBilanPreGreffe(EcritureConcurrenteSurUnBilanPreGreffe erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "BILAN_PRE_GREFFE_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUneEtapeDeBilan.class)
+    ProblemDetail ecritureConcurrenteSurUneEtapeDeBilan(EcritureConcurrenteSurUneEtapeDeBilan erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ETAPE_BILAN_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUnDonneurVivant.class)
+    ProblemDetail ecritureConcurrenteSurUnDonneurVivant(EcritureConcurrenteSurUnDonneurVivant erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "DONNEUR_VIVANT_ECRITURE_CONCURRENTE");
+    }
+
+    /** Écart décidé (KB-MED-88) : l'étape inconnue, d'un autre patient ou d'un autre centre est refusée en 404 (avant : 400). */
+    @ExceptionHandler(EtapeDeBilanIntrouvable.class)
+    ProblemDetail etapeDeBilanIntrouvable(EtapeDeBilanIntrouvable erreur) {
+        return probleme(HttpStatus.NOT_FOUND, "Etape introuvable", erreur.getMessage(), "ETAPE_BILAN_INTROUVABLE");
+    }
+
+    /** Écart décidé (KB-MED-88) : le donneur inconnu, d'un autre patient ou d'un autre centre est refusé en 404 (avant : 400). */
+    @ExceptionHandler(DonneurVivantIntrouvable.class)
+    ProblemDetail donneurVivantIntrouvable(DonneurVivantIntrouvable erreur) {
+        return probleme(HttpStatus.NOT_FOUND, "Donneur introuvable", erreur.getMessage(), "DONNEUR_VIVANT_INTROUVABLE");
+    }
+
+    /** Statut du bilan illisible en base (KB-MED-90) : 422, sans donnée de santé ni nom de classe dans le message. */
+    @ExceptionHandler(BilanPreGreffeIllisible.class)
+    ProblemDetail bilanPreGreffeIllisible(BilanPreGreffeIllisible erreur) {
+        return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Bilan illisible", erreur.getMessage(), "BILAN_PRE_GREFFE_ILLISIBLE");
     }
 
     /** Reproduit du legacy (KB-MED-76) : une observation introuvable est une requête invalide (400), pas un 404. */

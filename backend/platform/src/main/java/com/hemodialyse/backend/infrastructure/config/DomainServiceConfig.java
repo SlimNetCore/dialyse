@@ -1,11 +1,5 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.medical.greffe.port.BilanPreGreffeRepositoryPort;
-import com.hemodialyse.backend.domain.medical.greffe.port.DonneurVivantRepositoryPort;
-import com.hemodialyse.backend.domain.medical.greffe.port.EtapeBilanPreGreffeRepositoryPort;
-import com.hemodialyse.backend.domain.medical.greffe.service.BilanPreGreffeDomainService;
-import com.hemodialyse.backend.domain.medical.greffe.service.DonneurVivantDomainService;
-import com.hemodialyse.backend.domain.medical.greffe.service.EtapeBilanPreGreffeDomainService;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -49,21 +43,6 @@ public class DomainServiceConfig {
     @Bean
     public DossierMedicalPatientDomainService dossierMedicalPatientDomainService(DossierMedicalPatientRepositoryPort repo) {
         return new DossierMedicalPatientDomainService(repo);
-    }
-
-    @Bean
-    public BilanPreGreffeDomainService bilanPreGreffeDomainService(BilanPreGreffeRepositoryPort repo) {
-        return new BilanPreGreffeDomainService(repo);
-    }
-
-    @Bean
-    public EtapeBilanPreGreffeDomainService etapeBilanPreGreffeDomainService(EtapeBilanPreGreffeRepositoryPort repo) {
-        return new EtapeBilanPreGreffeDomainService(repo);
-    }
-
-    @Bean
-    public DonneurVivantDomainService donneurVivantDomainService(DonneurVivantRepositoryPort repo) {
-        return new DonneurVivantDomainService(repo);
     }
 
 

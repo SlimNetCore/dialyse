@@ -1,0 +1,52 @@
+{
+  "01 creation complete" : "200 Donneur Un | Fictif | <D-9000> | FRERE_SOEUR | 0000000001 | A+ | A1 B8 DR3 | CANDIDAT | NON_FAIT | - | - | - | - | -",
+  "02 reponse complete" : {
+    "corps" : {
+      "bilanRealise" : null,
+      "centerId" : "<CENTRE_A>",
+      "contreIndications" : null,
+      "createdAt" : "<HORODATAGE>",
+      "crossmatchResultat" : "NON_FAIT",
+      "dateCrossmatch" : null,
+      "dateDecision" : null,
+      "dateNaissance" : "<D-9000>",
+      "decisionFinale" : null,
+      "groupeSanguin" : "A+",
+      "id" : "<UUID_GENERE_1>",
+      "lienParente" : "FRERE_SOEUR",
+      "nom" : "Donneur Un",
+      "patientId" : "<PAT_A>",
+      "prenom" : "Fictif",
+      "statutBilan" : "CANDIDAT",
+      "telephone" : "0000000001",
+      "typageHla" : "A1 B8 DR3",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "03 etat en base" : [ {
+    "bilan_realise" : null,
+    "center_id" : "<CENTRE_A>",
+    "contre_indications" : null,
+    "creation" : "recent",
+    "crossmatch_resultat" : "NON_FAIT",
+    "date_crossmatch" : null,
+    "date_decision" : null,
+    "date_naissance" : "<D-9000>",
+    "decision_finale" : null,
+    "groupe_sanguin" : "A+",
+    "id" : "<UUID_GENERE_1>",
+    "lien_parente" : "FRERE_SOEUR",
+    "modification" : "ligne creee par l application",
+    "nom" : "Donneur Un",
+    "patient_id" : "<PAT_A>",
+    "prenom" : "Fictif",
+    "statut_bilan" : "CANDIDAT",
+    "telephone" : "0000000001",
+    "typage_hla" : "A1 B8 DR3"
+  } ],
+  "04 creation minimale (nom et lien)" : "200 Donneur Deux | - | - | NON_APPARENTE | - | - | - | CANDIDAT | NON_FAIT | - | - | - | - | -",
+  "05 patient inconnu (aucune garde de patient)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "06 meme donneur deux fois (aucune unicite)" : "200 Donneur Deux | CANDIDAT",
+  "07 compte pour le patient" : 3
+}

@@ -1,0 +1,15 @@
+{
+  "aucune ecriture par les refus" : true,
+  "cas" : {
+    "01 date de reunion demain" : "422 DECISION_RCP_DATE_FUTURE | La date de réunion ne peut pas être dans le futur",
+    "02 date de reunion absente" : "422 DECISION_RCP_CHAMPS_REQUIS | La date de réunion et l'avis sont obligatoires pour une décision de RCP",
+    "03 avis absent" : "400 BAD_REQUEST | Le champ avis est obligatoire",
+    "04 avis inconnu" : "400 BAD_REQUEST | Valeur inconnue pour le champ avis",
+    "05 avis en minuscules" : "400 BAD_REQUEST | Valeur inconnue pour le champ avis",
+    "06 date illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "07 date inexistante" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "08 corps vide" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "09 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "revue dans le futur lointain (acceptee)" : "200 ok"
+}

@@ -53,7 +53,8 @@ class LesEvaluationsKdigoEtLExportPdfDuDossierDeGreffeCharacterizationIntegratio
         m.put("04 patient sans bilan ni donnees", kdigo(sansBilan));
         m.put("05 la lecture n'ouvre pas de bilan", nombreDe("bilans_pre_greffe", CENTRE_A));
         m.put("06 patient inconnu", kdigo(idStable("patient", "inconnu")));
-        arbre("forme", m);
+        // KB-MED-86 : patient inconnu 404 PATIENT_INTROUVABLE ; calculs inchangés ; legacy archivé dans lecteurs/_ecarts-legacy
+        arbre("forme_nouveau_code", m);
     }
 
     @Test
@@ -175,9 +176,10 @@ class LesEvaluationsKdigoEtLExportPdfDuDossierDeGreffeCharacterizationIntegratio
         m.put("02 patient sans donnees : texte", texte(r.getContentAsByteArray()));
         MockHttpServletResponse inconnu = binaire(greffe(idStable("patient", "inconnu"), "export-pdf"), medecinA());
         m.put("03 patient inconnu : statut", inconnu.getStatus());
-        m.put("04 patient inconnu : texte", texte(inconnu.getContentAsByteArray()));
+        // KB-MED-86 / 97 : patient inconnu 404 PATIENT_INTROUVABLE sans PDF ; legacy archivé dans lecteurs/_ecarts-legacy
+        m.put("04 patient inconnu : corps", inconnu.getContentAsString());
         m.put("05 aucun bilan ouvert par l'export", nombreDe("bilans_pre_greffe", CENTRE_A));
-        arbre("pdf_vide", m);
+        arbre("pdf_vide_nouveau_code", m);
     }
 
     @Test

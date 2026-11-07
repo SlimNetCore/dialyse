@@ -1,5 +1,28 @@
 package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
+import com.hemodialyse.backend.contexts.dossiermedical.application.AjouterUneDecisionDeRcp;
+import com.hemodialyse.backend.contexts.dossiermedical.application.AjouterUneEtapeDeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ChangerLeStatutDuBilanPreGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLeBilanPreGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesDonneursVivants;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesEtapesDeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUnDonneurVivant;
+import com.hemodialyse.backend.contexts.dossiermedical.application.GenererLesEtapesStandard;
+import com.hemodialyse.backend.contexts.dossiermedical.application.MettreAJourLeBilanImmunologique;
+import com.hemodialyse.backend.contexts.dossiermedical.application.MettreAJourLesNotesDuBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.application.MettreAJourUnDonneurVivant;
+import com.hemodialyse.backend.contexts.dossiermedical.application.MettreAJourUneEtapeDeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUnDonneurVivant;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUneEtapeDeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.BilansPreGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.DonneursVivants;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EtapesDeBilan;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.BilansPreGreffeJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.DonneursVivantsJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.EtapesDeBilanJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.BilanPreGreffeControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.DonneursVivantsControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.EtapesDeBilanControleur;
 import com.hemodialyse.backend.contexts.dossiermedical.application.AnnulerUneDemandeDExamen;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesAnalysesDuPatient;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesObservationsBiologiquesDuPatient;
@@ -160,6 +183,12 @@ public class DossierMedicalConfiguration {
     @Bean
     PatientsDuCentre patientsDuCentreDuDossierMedical(FichesDesPatients fiches) {
         return new PatientsDuCentreDeLaFiche(fiches);
+    }
+
+    /** Langage publié DM7 : la garde de patient des routes KDIGO et export PDF encore servies par la plateforme. */
+    @Bean
+    com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.GardeDePatient gardeDePatientDuDossierMedical(PatientsDuCentre patients) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.application.GardeDePatientDuCentre(patients);
     }
 
     @Bean
@@ -673,6 +702,141 @@ public class DossierMedicalConfiguration {
     AnalysesControleur analysesControleur(ConsulterLesAnalysesDuPatient consulter, EnregistrerUneAnalyse enregistrer, ModifierUneAnalyse modifier,
                                           SupprimerUneAnalyse supprimer) {
         return new AnalysesControleur(consulter, enregistrer, modifier, supprimer);
+    }
+
+    // ------------------------------------------------------------------ DM7 : bilan pré-greffe, étapes, donneurs vivants
+
+    /**
+     * Horloge du bilan pré-greffe : le jour UTC, qui est celui de la JVM du serveur (forcée en UTC) et donc celui du legacy (KB-MED-92),
+     * pour les dates de début, d'inscription et de greffe ET pour la limite « pas dans le futur » d'une décision de RCP. Passer au jour du
+     * centre en remplaçant ce seul bean quand les métiers l'auront décidé.
+     */
+    @Bean
+    HorlogeDuCentre horlogeDuBilanPreGreffe() {
+        return new HorlogeDuCentre(Clock.systemUTC(), ZoneOffset.UTC);
+    }
+
+    @Bean
+    BilansPreGreffe bilansPreGreffeDuDossierMedical(JdbcTemplate jdbc) {
+        return new BilansPreGreffeJdbc(jdbc);
+    }
+
+    @Bean
+    EtapesDeBilan etapesDeBilanDuDossierMedical(JdbcTemplate jdbc) {
+        return new EtapesDeBilanJdbc(jdbc);
+    }
+
+    @Bean
+    DonneursVivants donneursVivantsDuDossierMedical(JdbcTemplate jdbc) {
+        return new DonneursVivantsJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLeBilanPreGreffe consulterLeBilanPreGreffe(SessionCourante session, PatientsDuCentre patients, BilansPreGreffe bilans,
+                                                        UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                        @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new ConsulterLeBilanPreGreffe(session, patients, bilans, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    ChangerLeStatutDuBilanPreGreffe changerLeStatutDuBilanPreGreffe(SessionCourante session, PatientsDuCentre patients, BilansPreGreffe bilans,
+                                                                    UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                                    @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new ChangerLeStatutDuBilanPreGreffe(session, patients, bilans, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    MettreAJourLeBilanImmunologique mettreAJourLeBilanImmunologique(SessionCourante session, PatientsDuCentre patients, BilansPreGreffe bilans,
+                                                                    UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                                    @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new MettreAJourLeBilanImmunologique(session, patients, bilans, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    MettreAJourLesNotesDuBilan mettreAJourLesNotesDuBilan(SessionCourante session, PatientsDuCentre patients, BilansPreGreffe bilans,
+                                                          UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                          @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new MettreAJourLesNotesDuBilan(session, patients, bilans, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    AjouterUneDecisionDeRcp ajouterUneDecisionDeRcp(SessionCourante session, PatientsDuCentre patients, BilansPreGreffe bilans,
+                                                    UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                    @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new AjouterUneDecisionDeRcp(session, patients, bilans, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    BilanPreGreffeControleur bilanPreGreffeControleur(ConsulterLeBilanPreGreffe consulter, ChangerLeStatutDuBilanPreGreffe changerLeStatut,
+                                                      MettreAJourLeBilanImmunologique immunologique, MettreAJourLesNotesDuBilan notes,
+                                                      AjouterUneDecisionDeRcp decision) {
+        return new BilanPreGreffeControleur(consulter, changerLeStatut, immunologique, notes, decision);
+    }
+
+    @Bean
+    ConsulterLesEtapesDeBilan consulterLesEtapesDeBilan(SessionCourante session, EtapesDeBilan etapes) {
+        return new ConsulterLesEtapesDeBilan(session, etapes);
+    }
+
+    @Bean
+    AjouterUneEtapeDeBilan ajouterUneEtapeDeBilan(SessionCourante session, PatientsDuCentre patients, EtapesDeBilan etapes,
+                                                  UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                  @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new AjouterUneEtapeDeBilan(session, patients, etapes, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    GenererLesEtapesStandard genererLesEtapesStandard(SessionCourante session, PatientsDuCentre patients, EtapesDeBilan etapes,
+                                                      UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                      @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new GenererLesEtapesStandard(session, patients, etapes, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    MettreAJourUneEtapeDeBilan mettreAJourUneEtapeDeBilan(SessionCourante session, EtapesDeBilan etapes, UniteDeTravail uniteDeTravail,
+                                                          @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new MettreAJourUneEtapeDeBilan(session, etapes, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUneEtapeDeBilan supprimerUneEtapeDeBilan(SessionCourante session, EtapesDeBilan etapes, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUneEtapeDeBilan(session, etapes, uniteDeTravail);
+    }
+
+    @Bean
+    EtapesDeBilanControleur etapesDeBilanControleur(ConsulterLesEtapesDeBilan consulter, AjouterUneEtapeDeBilan ajouter,
+                                                    GenererLesEtapesStandard generer, MettreAJourUneEtapeDeBilan mettreAJour,
+                                                    SupprimerUneEtapeDeBilan supprimer) {
+        return new EtapesDeBilanControleur(consulter, ajouter, generer, mettreAJour, supprimer);
+    }
+
+    @Bean
+    ConsulterLesDonneursVivants consulterLesDonneursVivants(SessionCourante session, DonneursVivants donneurs) {
+        return new ConsulterLesDonneursVivants(session, donneurs);
+    }
+
+    @Bean
+    EnregistrerUnDonneurVivant enregistrerUnDonneurVivant(SessionCourante session, PatientsDuCentre patients, DonneursVivants donneurs,
+                                                          UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                          @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new EnregistrerUnDonneurVivant(session, patients, donneurs, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    MettreAJourUnDonneurVivant mettreAJourUnDonneurVivant(SessionCourante session, DonneursVivants donneurs, UniteDeTravail uniteDeTravail,
+                                                          @Qualifier("horlogeDuBilanPreGreffe") HorlogeDuCentre horloge) {
+        return new MettreAJourUnDonneurVivant(session, donneurs, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUnDonneurVivant supprimerUnDonneurVivant(SessionCourante session, DonneursVivants donneurs, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUnDonneurVivant(session, donneurs, uniteDeTravail);
+    }
+
+    @Bean
+    DonneursVivantsControleur donneursVivantsControleur(ConsulterLesDonneursVivants consulter, EnregistrerUnDonneurVivant enregistrer,
+                                                        MettreAJourUnDonneurVivant mettreAJour, SupprimerUnDonneurVivant supprimer) {
+        return new DonneursVivantsControleur(consulter, enregistrer, mettreAJour, supprimer);
     }
 
     @Bean

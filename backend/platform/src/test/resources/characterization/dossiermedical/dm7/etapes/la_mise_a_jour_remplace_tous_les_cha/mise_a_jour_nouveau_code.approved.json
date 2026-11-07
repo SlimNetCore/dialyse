@@ -1,0 +1,31 @@
+{
+  "01 etape faite avec date, resultat et references libres (aucun controle d'existence)" : "200 VIROLOGIQUE | Serologie CMV | FAIT | <D+8> | Negatif | <D+400> | <DEMANDE_QUELCONQUE> | <SEROLOGIE_QUELCONQUE>",
+  "02 mise a jour INFIRMIER : planifiee, tout le reste efface" : "200 VIROLOGIQUE | Serologie CMV | PLANIFIE | - | - | - | - | -",
+  "03 non applicable avec une date" : "200 VIROLOGIQUE | Serologie CMV | NON_APPLICABLE | <D+9> | - | - | - | -",
+  "04 a faire avec une date de realisation (acceptee)" : "200 VIROLOGIQUE | Serologie CMV | A_FAIRE | <D+9> | - | - | - | -",
+  "05 etat apres les mises a jour" : [ {
+    "categorie" : "VIROLOGIQUE",
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_expiration" : null,
+    "date_realisation" : "<D+9>",
+    "demande_examen_id" : null,
+    "id" : "<ETAPE>",
+    "libelle" : "Serologie CMV",
+    "modification" : "modifiee",
+    "patient_id" : "<PAT_A>",
+    "resultat" : null,
+    "serologie_id" : null,
+    "statut" : "A_FAIRE"
+  } ],
+  "06 refus" : {
+    "corps vide" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "etape d'un autre patient" : "404 ETAPE_BILAN_INTROUVABLE | Étape de bilan pré-greffe introuvable",
+    "etape inconnue" : "404 ETAPE_BILAN_INTROUVABLE | Étape de bilan pré-greffe introuvable",
+    "faite sans date" : "422 ETAPE_GREFFE_DATE_REALISATION_REQUISE | Une étape marquée comme faite doit porter une date de réalisation",
+    "identifiant d'etape illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "statut absent" : "400 BAD_REQUEST | Le champ statut est obligatoire",
+    "statut inconnu" : "400 BAD_REQUEST | Valeur inconnue pour le champ statut"
+  },
+  "07 aucune ecriture par les refus" : true
+}

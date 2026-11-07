@@ -1,0 +1,6 @@
+{
+  "01 liste" : "200 ok",
+  "02 mise a jour de la ligne illisible" : "404 DONNEUR_VIVANT_INTROUVABLE | Donneur vivant introuvable",
+  "03 suppression de la ligne illisible" : 204,
+  "04 liste apres la suppression" : [ "Donneur Sain" ]
+}

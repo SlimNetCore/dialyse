@@ -45,7 +45,8 @@ class LeBilanDuReceveurEtLaMachineAEtatsCharacterizationIntegrationTest extends 
         m.put("07 lignes apres les trois ouvertures", nombreDe("bilans_pre_greffe", CENTRE_A));
         m.put("08 lecture refusee INFIRMIER n'ouvre rien", refus(doGet(bilanApi(idStable("patient", "refuse")), infirmierA())));
         m.put("09 lignes apres le refus", nombreDe("bilans_pre_greffe", CENTRE_A));
-        arbre("ouverture", m);
+        // KB-MED-85 / 86 : la lecture d'un patient inconnu est un 404 et n'ouvre plus rien (l'ouverture paresseuse d'un patient valide est reproduite) ; legacy archivé dans bilan/etat/_ecarts-legacy
+        arbre("ouverture_nouveau_code", m);
     }
 
     @Test
@@ -114,7 +115,8 @@ class LeBilanDuReceveurEtLaMachineAEtatsCharacterizationIntegrationTest extends 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("ecriture", empreinteGreffe().equals(avant) ? "aucune ligne modifiee" : "le bilan a ete modifie");
-        arbre("statuts_illisibles", m);
+        // KB-MED-87 / 89 : 400 stable sans nom de classe interne (avant : 500 ou nom de classe) ; legacy archivé dans bilan/etat/_ecarts-legacy
+        arbre("statuts_illisibles_nouveau_code", m);
     }
 
     @Test
@@ -150,7 +152,8 @@ class LeBilanDuReceveurEtLaMachineAEtatsCharacterizationIntegrationTest extends 
         bornes.put("corps illisible", refus(doPut(bilanApi(patient) + "/immunologique", "[1,2", medecinA())));
         m.put("04 bornes", bornes);
         m.put("05 lignes apres les refus", nombreDe("bilans_pre_greffe", CENTRE_A));
-        arbre("immunologique", m);
+        // KB-MED-87 : bornes de colonne et corps illisibles en 400 (avant : 500) ; legacy archivé dans bilan/etat/_ecarts-legacy
+        arbre("immunologique_nouveau_code", m);
     }
 
     @Test
@@ -193,7 +196,8 @@ class LeBilanDuReceveurEtLaMachineAEtatsCharacterizationIntegrationTest extends 
                 medecinA())));
         m.put("06 le bilan sain voisin reste lisible", refus(doGet(bilanApi(patientSain), medecinA())));
         m.put("07 etat des bilans (rien de modifie par les refus)", etatDesBilans());
-        arbre("lignes_illisibles", m);
+        // KB-MED-90 : un doublon de bilan est lu sans erreur (le plus ancien), un statut illisible est un 422 stable, une décision d'avis illisible est ignorée ; legacy archivé dans bilan/etat/_ecarts-legacy
+        arbre("lignes_illisibles_nouveau_code", m);
     }
 
     private void nettoyerLesBilans() {

@@ -1,0 +1,15 @@
+{
+  "aucune ecriture" : true,
+  "cas" : {
+    "01 nom absent" : "422 DONNEUR_VIVANT_CHAMPS_REQUIS | Patient, centre, nom et lien de parenté sont obligatoires",
+    "02 lien absent" : "400 BAD_REQUEST | Le champ lienParente est obligatoire",
+    "03 statut de bilan absent" : "400 BAD_REQUEST | Le champ statutBilan est obligatoire",
+    "04 statut de bilan inconnu" : "400 BAD_REQUEST | Valeur inconnue pour le champ statutBilan",
+    "05 crossmatch inconnu" : "400 BAD_REQUEST | Valeur inconnue pour le champ crossmatchResultat",
+    "06 donneur inconnu" : "404 DONNEUR_VIVANT_INTROUVABLE | Donneur vivant introuvable",
+    "07 donneur d'un autre patient" : "404 DONNEUR_VIVANT_INTROUVABLE | Donneur vivant introuvable",
+    "08 corps vide" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "09 identifiant illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "10 crossmatch absent" : "400 BAD_REQUEST | Le champ crossmatchResultat est obligatoire"
+  }
+}

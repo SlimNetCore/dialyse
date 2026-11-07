@@ -91,7 +91,8 @@ class LesDecisionsDeRcpDuBilanCharacterizationIntegrationTest extends Dm7Charact
         m.put("aucune ecriture par les refus", empreinteGreffe().equals(avant));
         m.put("revue dans le futur lointain (acceptee)", refus(doPost(bilanApi(patient) + "/decisions-rcp", decision(fixe(10), "AJOURNE", null,
                 alias(java.time.LocalDate.of(2099, 1, 1), "<2099>")), medecinA())));
-        arbre("refus", m);
+        // KB-MED-87 : avis absent ou inconnu, date et corps illisibles en 400 (avant : 500 ou nom de classe) ; legacy archivé dans bilan/rcp/_ecarts-legacy
+        arbre("refus_nouveau_code", m);
     }
 
     @Test

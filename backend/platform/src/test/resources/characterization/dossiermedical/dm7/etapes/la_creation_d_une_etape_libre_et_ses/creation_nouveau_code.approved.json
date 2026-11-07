@@ -1,0 +1,17 @@
+{
+  "01 creation MEDECIN" : "200 DERMATOLOGIQUE | Examen cutane | A_FAIRE | - | - | - | - | -",
+  "02 creation INFIRMIER" : "200 AUTRE | Autre examen | A_FAIRE | - | - | - | - | -",
+  "03 meme etape deux fois (aucune unicite)" : "200 AUTRE | Autre examen | A_FAIRE | - | - | - | - | -",
+  "04 compte apres trois creations" : 3,
+  "05 patient inconnu (aucune garde de patient)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "06 refus" : {
+    "categorie absente" : "400 BAD_REQUEST | Le champ categorie est obligatoire",
+    "categorie inconnue" : "400 BAD_REQUEST | Valeur inconnue pour le champ categorie",
+    "corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps vide" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "libelle absent" : "422 ETAPE_GREFFE_CHAMPS_REQUIS | Patient, centre, catégorie et libellé sont obligatoires",
+    "libelle blanc" : "422 ETAPE_GREFFE_CHAMPS_REQUIS | Patient, centre, catégorie et libellé sont obligatoires",
+    "libelle de 255 caracteres" : "200 ok",
+    "libelle de 256 caracteres" : "400 BAD_REQUEST | Le libellé dépasse 255 caractères"
+  }
+}

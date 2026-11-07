@@ -1,0 +1,30 @@
+{
+  "01 reponse" : {
+    "corps" : {
+      "alertesSerologiques" : [ {
+        "marqueur" : "VIH_AC",
+        "message" : "Infection VIH connue : ne contre-indique pas la greffe mais impose un protocole dédié et un avis infectiologue (KDIGO 2020).",
+        "referenceKdigo" : "KDIGO-2020-candidat-greffe",
+        "resultat" : "POSITIF"
+      } ],
+      "fonctionRenale" : {
+        "egfrMlMin173m2" : 73.7,
+        "referenceKdigo" : "KDIGO-CKD-EPI-2021",
+        "stade" : "G2"
+      },
+      "risqueImmunologique" : {
+        "code" : "PRA",
+        "niveau" : "ELEVE",
+        "referenceKdigo" : "KDIGO-2020-candidat-greffe",
+        "unite" : "%",
+        "valeur" : 85.0
+      }
+    },
+    "status" : 200
+  },
+  "02 en-tete Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+  "03 aucune ecriture" : true,
+  "04 patient sans bilan ni donnees" : "risque PRA | - | % | NON_EVALUABLE ; egfr - | NON_EVALUABLE ; alertes []",
+  "05 la lecture n'ouvre pas de bilan" : 1,
+  "06 patient inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre"
+}

@@ -47,7 +47,8 @@ class LesDonneursVivantsCandidatsCharacterizationIntegrationTest extends Dm7Char
         m.put("06 meme donneur deux fois (aucune unicite)", resume(doPost(donneursApi(patient), corps("centerId", CENTRE_A, "nom", "Donneur Deux",
                 "lienParente", "NON_APPARENTE"), medecinA()), "nom", "statutBilan"));
         m.put("07 compte pour le patient", jdbc.queryForObject("SELECT COUNT(*) FROM donneurs_vivants WHERE patient_id = ?", Integer.class, patient));
-        arbre("creation", m);
+        // KB-MED-86 : patient inconnu 404 (avant : donneur orphelin) ; legacy archivé dans donneurs/_ecarts-legacy
+        arbre("creation_nouveau_code", m);
     }
 
     @Test
@@ -78,7 +79,8 @@ class LesDonneursVivantsCandidatsCharacterizationIntegrationTest extends Dm7Char
         m.put("cas", cas);
         m.put("noms enregistres", jdbc.queryForList("SELECT nom FROM donneurs_vivants WHERE patient_id = ? ORDER BY nom", String.class, patient)
                 .stream().map(n -> n.length() > 20 ? n.length() + " caracteres" : n).toList());
-        arbre("creation_refus", m);
+        // KB-MED-87 : bornes de colonne et entrées illisibles en 400 (avant : 500) ; legacy archivé dans donneurs/_ecarts-legacy
+        arbre("creation_refus_nouveau_code", m);
     }
 
     @Test
@@ -99,7 +101,8 @@ class LesDonneursVivantsCandidatsCharacterizationIntegrationTest extends Dm7Char
         m.put("04 crossmatch positif sans date (aucune regle croisee statut / crossmatch)", resume(doPut(donneurApi(patient, donneur),
                 miseAJour("nom", "Donneur Un", "lienParente", "ENFANT", "statutBilan", "RETENU", "crossmatchResultat", "POSITIF"), medecinA()),
                 "statutBilan", "crossmatchResultat", "dateCrossmatch"));
-        arbre("mise_a_jour", m);
+        // KB-MED-87 : crossmatch absent 400 (avant : 500) ; legacy archivé dans donneurs/_ecarts-legacy
+        arbre("mise_a_jour_nouveau_code", m);
     }
 
     @Test
@@ -127,7 +130,8 @@ class LesDonneursVivantsCandidatsCharacterizationIntegrationTest extends Dm7Char
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("aucune ecriture", empreinteGreffe().equals(avant));
-        arbre("mise_a_jour_refus", m);
+        // KB-MED-88 : donneur introuvable 404 (avant : 400) ; KB-MED-87 : entrées illisibles en 400 ; legacy archivé dans donneurs/_ecarts-legacy
+        arbre("mise_a_jour_refus_nouveau_code", m);
     }
 
     @Test
@@ -165,6 +169,7 @@ class LesDonneursVivantsCandidatsCharacterizationIntegrationTest extends Dm7Char
                 "statutBilan", "CANDIDAT"), medecinA())));
         m.put("03 suppression de la ligne illisible", doDelete(donneurApi(patient, illisible), medecinA()).status());
         m.put("04 liste apres la suppression", liste(doGet(donneursApi(patient), medecinA()), "nom"));
-        arbre("ligne_illisible", m);
+        // KB-MED-90 : une ligne illisible est ignorée et journalisée (plus de 400 pour toute la liste) ; legacy archivé dans donneurs/_ecarts-legacy
+        arbre("ligne_illisible_nouveau_code", m);
     }
 }

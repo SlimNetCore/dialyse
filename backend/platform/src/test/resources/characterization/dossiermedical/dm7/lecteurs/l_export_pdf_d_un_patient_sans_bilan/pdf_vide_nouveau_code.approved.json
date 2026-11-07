@@ -1,0 +1,7 @@
+{
+  "01 patient sans donnees : statut" : 200,
+  "02 patient sans donnees : texte" : [ "Centre P2 A", "Dossier de préparation à la greffe rénale", "Patient : Patient PAT_VIDE Test (DM7-PAT_VIDE) — Groupe sanguin déclaré : -", "Éligibilité", "Bilan non débuté.", "Checklist du bilan pré-greffe", "Aucune étape enregistrée.", "Sérologies", "Aucune sérologie enregistrée.", "Antécédents actifs", "Aucun antécédent actif.", "Donneurs vivants candidats", "Aucun donneur candidat enregistré.", "Centre P2 A" ],
+  "03 patient inconnu : statut" : 404,
+  "04 patient inconnu : corps" : "{\"detail\":\"Patient introuvable dans ce centre\",\"instance\":\"/api/v1/patients/<UUID_GENERE_1>/greffe/export-pdf\",\"status\":404,\"title\":\"Patient introuvable\",\"code\":\"PATIENT_INTROUVABLE\"}",
+  "05 aucun bilan ouvert par l'export" : 0
+}

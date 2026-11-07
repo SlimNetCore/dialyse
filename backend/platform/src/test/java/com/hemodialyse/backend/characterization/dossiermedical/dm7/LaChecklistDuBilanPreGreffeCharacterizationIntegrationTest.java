@@ -81,7 +81,8 @@ class LaChecklistDuBilanPreGreffeCharacterizationIntegrationTest extends Dm7Char
         refus.put("corps vide", refus(doPost(etapesApi(patient), "", medecinA())));
         refus.put("corps illisible", refus(doPost(etapesApi(patient), "[", medecinA())));
         m.put("06 refus", refus);
-        arbre("creation", m);
+        // KB-MED-86 : patient inconnu 404 ; KB-MED-87 : entrées illisibles et libellé de 256 caractères en 400 ; legacy archivé dans etapes/_ecarts-legacy
+        arbre("creation_nouveau_code", m);
     }
 
     @Test
@@ -115,7 +116,8 @@ class LaChecklistDuBilanPreGreffeCharacterizationIntegrationTest extends Dm7Char
         refus.put("corps vide", refus(doPut(etapeApi(patient, etape), "", medecinA())));
         m.put("06 refus", refus);
         m.put("07 aucune ecriture par les refus", empreinteGreffe().equals(avant));
-        arbre("mise_a_jour", m);
+        // KB-MED-88 : étape introuvable 404 (avant : 400) ; KB-MED-87 : entrées illisibles en 400 ; legacy archivé dans etapes/_ecarts-legacy
+        arbre("mise_a_jour_nouveau_code", m);
     }
 
     @Test
@@ -159,7 +161,8 @@ class LaChecklistDuBilanPreGreffeCharacterizationIntegrationTest extends Dm7Char
                 corps("centerId", CENTRE_A, "statut", "PLANIFIE"), medecinA())));
         m.put("06 suppression de la ligne illisible", doDelete(etapeApi(patient, idStable("etape", "ILLISIBLE-" + CENTRE_A)), medecinA()).status());
         m.put("07 lignes restantes du patient", nombreDe("etapes_bilan_pre_greffe", CENTRE_A));
-        arbre("lignes_illisibles", m);
+        // KB-MED-90 : une ligne illisible est ignorée et journalisée (plus de 400 pour toute la liste) mais compte pour la génération ; legacy archivé dans etapes/_ecarts-legacy
+        arbre("lignes_illisibles_nouveau_code", m);
     }
 
     @Test

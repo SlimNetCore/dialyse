@@ -391,6 +391,57 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   (défaut), négatif, positif ; décision finale datée.
 - **RG-MED-095** — **Dossier de synthèse greffe** exportable en PDF (receveur + donneurs candidats) pour le centre de
   transplantation (`MEDECIN`).
+- **RG-MED-046** — *Bilan pré-greffe, reprise sur place DM7 (contexte `dossier-medical`, `BilanPreGreffeControleur`, ADR 0086 ;
+  décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN et ADMIN lisent, le MEDECIN seul écrit (reproduit) ; garde de centre ;
+  (b) **patient** : un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE` sur toutes les routes du
+  bilan, et la lecture n'ouvre alors AUCUN bilan (avant : la lecture écrivait une ligne orpheline) ; pour un patient valide,
+  la première lecture ouvre un bilan `NON_DEBUTE` (la lecture écrit, reproduit, à confirmer) ;
+  (c) **un seul bilan par patient** : l'ouverture est sérialisée par un verrou consultatif (aucun changement de schéma) ; un
+  doublon déjà présent en base est lu sans erreur (le plus ancien l'emporte, avertissement avec son seul identifiant) ;
+  (d) **concurrence** : les écritures du bilan se suivent (délai de 5 s sur PostgreSQL, au-delà 409
+  `BILAN_PRE_GREFFE_ECRITURE_CONCURRENTE`) ; les décisions de RCP ne sont plus perdues ; un statut illisible en base répond
+  422 `BILAN_PRE_GREFFE_ILLISIBLE` ;
+  (e) **entrées illisibles et bornes** : corps, statut, avis, date, identifiant absents ou inconnus, groupe sanguin
+  au-delà de 5 caractères, typage au-delà de 500, PRA au-delà de 3 chiffres entiers et 2 décimales : 400 stable sans nom de
+  classe interne (avant : 500) ; 403 avant 400 pour un profil sans droit ;
+  (f) **reproduit, à confirmer** : machine à états (RG-MED-090), dates d'inscription et de greffe réécrites à chaque appel du
+  même statut, jour de la JVM (UTC), PUT immunologique et notes qui remplacent tout (champ absent effacé), aucune règle de
+  valeur sur le PRA (négatif, supérieur à 100 acceptés), décisions de RCP en doublon et revue antérieure acceptées, audit
+  pauvre `PATIENTS_*`, lectures non tracées, aucun événement ni notification.
+- **RG-MED-047** — *Étapes du bilan, reprise sur place DM7 (`EtapesDeBilanControleur`, ADR 0086)* :
+  (a) **droits** : lecture MEDECIN, ADMIN et INFIRMIER ; création, génération et mise à jour MEDECIN et INFIRMIER ;
+  suppression MEDECIN seul (reproduit) ;
+  (b) **patient** : 404 `PATIENT_INTROUVABLE` à la création et à la génération ; **une étape inconnue, d'un autre patient ou
+  d'un autre centre est refusée en 404 `ETAPE_BILAN_INTROUVABLE`** (avant : 400) ;
+  (c) **suppression** : toujours 204, même sans effet (reproduit), sans ligne d'audit quand rien n'est supprimé ;
+  (d) **génération** : deux générations simultanées ne doublent plus les étapes (verrou consultatif du patient) ; une ligne
+  existante, lisible ou non, n'est jamais recréée ; une écriture qui n'obtient pas le verrou répond 409
+  `ETAPE_BILAN_ECRITURE_CONCURRENTE` ;
+  (e) **lecture robuste** : une ligne dont la catégorie ou le statut est illisible en base est ignorée par les lectures
+  (avertissement avec son seul identifiant) au lieu de faire échouer toute la liste (avant : 400) ; elle reste supprimable ;
+  (f) **entrées et bornes** : catégorie, statut, corps, identifiants illisibles ou absents, libellé au-delà de 255
+  caractères : 400 stable (avant : 500) ; 403 avant 400 ;
+  (g) **reproduit, à confirmer** : la mise à jour remplace tous les champs, une date de réalisation est acceptée pour tout
+  statut, les références d'examen et de sérologie ne sont pas contrôlées, deux étapes identiques sont permises.
+- **RG-MED-048** — *Donneurs vivants, reprise sur place DM7 (`DonneursVivantsControleur`, ADR 0086)* :
+  (a) **droits** : MEDECIN et ADMIN lisent, MEDECIN seul écrit (reproduit) ;
+  (b) **patient** : 404 `PATIENT_INTROUVABLE` à l'enregistrement (avant : donneur orphelin ou croisé entre centres) ; **un
+  donneur inconnu, d'un autre patient ou d'un autre centre est refusé en 404 `DONNEUR_VIVANT_INTROUVABLE`** (avant : 400) ;
+  (c) **suppression** : 204 même sans effet, sans ligne d'audit quand rien n'est supprimé ;
+  (d) **concurrence** : 409 `DONNEUR_VIVANT_ECRITURE_CONCURRENTE` après le délai de 5 s ;
+  (e) **entrées et bornes** : lien de parenté, statut de bilan ou crossmatch absents ou inconnus (y compris le crossmatch
+  absent à la mise à jour, avant : 500), nom et prénom au-delà de 100 caractères, téléphone de 30, groupe sanguin de 5,
+  typage de 500 : 400 stable ; 403 avant 400 ; une ligne illisible en base est ignorée par la liste, reste supprimable et ne
+  peut plus être mise à jour (404) ;
+  (f) **reproduit, à confirmer** : la mise à jour remplace tout, aucune règle croisée (statut retenu avec crossmatch positif,
+  naissance dans le futur, crossmatch positif sans date acceptés).
+- **RG-MED-049** — *Évaluation KDIGO et dossier de synthèse PDF, garde DM7 (`KdigoGreffeRestController`,
+  `GreffeExportRestController`, ADR 0086)* : un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE`
+  (avant : 200 avec une évaluation « non évaluable » ou un PDF sans en-tête) ; aucune lecture n'ouvre de bilan. **Reproduit
+  et signalé comme risque clinique prioritaire (KB-MED-94, à confirmer par les médecins et le DPO)** : pour un même
+  marqueur sérologique, le résultat le plus ANCIEN l'emporte dans l'évaluation KDIGO ; le calcul de la fonction rénale, du
+  risque immunologique et le contenu du PDF sont inchangés ; le PDF reste réservé au MEDECIN.
 
 ## 11.11 Constantes, statistiques et export interopérable
 

@@ -1,0 +1,27 @@
+{
+  "01 bilan complet : compatible, crossmatch negatif, decision" : "200 Donneur Un | Fictif | <D-9000> | PARENT | 0000000002 | O+ | A2 B7 | RETENU | NEGATIF | <D+20> | Bilan cardiologique fait | Aucune | Retenu pour la greffe | <D+30>",
+  "02 etat en base" : [ {
+    "bilan_realise" : "Bilan cardiologique fait",
+    "center_id" : "<CENTRE_A>",
+    "contre_indications" : "Aucune",
+    "creation" : "fixe",
+    "crossmatch_resultat" : "NEGATIF",
+    "date_crossmatch" : "<D+20>",
+    "date_decision" : "<D+30>",
+    "date_naissance" : "<D-9000>",
+    "decision_finale" : "Retenu pour la greffe",
+    "groupe_sanguin" : "O+",
+    "id" : "<D1>",
+    "lien_parente" : "PARENT",
+    "modification" : "modifiee",
+    "nom" : "Donneur Un",
+    "patient_id" : "<PAT_A>",
+    "prenom" : "Fictif",
+    "statut_bilan" : "RETENU",
+    "telephone" : "0000000002",
+    "typage_hla" : "A2 B7"
+  } ],
+  "03 mise a jour minimale : tout le reste est efface" : "200 Donneur Un | - | - | ENFANT | - | - | - | EXCLU | NON_FAIT | - | - | - | - | -",
+  "03b crossmatch absent : 500 (le defaut NON_FAIT du domaine est inatteignable par HTTP)" : "400 BAD_REQUEST | Le champ crossmatchResultat est obligatoire",
+  "04 crossmatch positif sans date (aucune regle croisee statut / crossmatch)" : "200 RETENU | POSITIF | -"
+}

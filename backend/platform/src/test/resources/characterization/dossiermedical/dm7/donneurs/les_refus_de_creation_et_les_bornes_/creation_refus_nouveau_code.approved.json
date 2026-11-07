@@ -1,0 +1,18 @@
+{
+  "cas" : {
+    "01 nom absent" : "422 DONNEUR_VIVANT_CHAMPS_REQUIS | Patient, centre, nom et lien de parenté sont obligatoires",
+    "02 nom blanc" : "422 DONNEUR_VIVANT_CHAMPS_REQUIS | Patient, centre, nom et lien de parenté sont obligatoires",
+    "03 lien absent" : "400 BAD_REQUEST | Le champ lienParente est obligatoire",
+    "04 lien inconnu" : "400 BAD_REQUEST | Valeur inconnue pour le champ lienParente",
+    "05 nom de 100 caracteres" : "200 ok",
+    "06 nom de 101 caracteres" : "400 BAD_REQUEST | Le nom dépasse 100 caractères",
+    "07 telephone de 30 caracteres" : "200 ok",
+    "08 telephone de 31 caracteres" : "400 BAD_REQUEST | Le téléphone dépasse 30 caractères",
+    "09 groupe sanguin de 6 caracteres" : "400 BAD_REQUEST | Le groupe sanguin dépasse 5 caractères",
+    "10 typage de 501 caracteres" : "400 BAD_REQUEST | Le typage HLA dépasse 500 caractères",
+    "11 date de naissance dans le futur (aucun controle)" : "200 ok",
+    "12 corps vide" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "13 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "noms enregistres" : [ "Futur", "T30", "100 caracteres" ]
+}
