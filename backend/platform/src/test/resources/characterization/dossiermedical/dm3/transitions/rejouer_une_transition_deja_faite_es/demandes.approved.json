@@ -1,0 +1,14 @@
+[ {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : "Conclusion fictive",
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<DEM>",
+  "modification" : "modifiee",
+  "motif" : "Bilan fictif",
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "VALIDE",
+  "urgent" : "false"
+} ]

@@ -1,0 +1,8 @@
+{
+  "centre illisible" : "500 INTERNAL_ERROR",
+  "corps mal forme" : "500 INTERNAL_ERROR",
+  "corps objet vide" : "500 INTERNAL_ERROR",
+  "corps tableau" : "500 INTERNAL_ERROR",
+  "corps vide" : "500 INTERNAL_ERROR",
+  "identifiant de patient illisible" : "500 INTERNAL_ERROR"
+}

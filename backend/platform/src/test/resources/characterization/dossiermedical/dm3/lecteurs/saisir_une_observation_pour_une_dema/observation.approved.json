@@ -1,0 +1,10 @@
+{
+  "demande liee" : true,
+  "observation saisie" : 200,
+  "observations de la demande (route DM6)" : {
+    "lues" : [ "718-7 11.5" ],
+    "statut" : 200
+  },
+  "statut de la demande apres la saisie" : "PRELEVE",
+  "statut vu par la liste" : "PRELEVE"
+}

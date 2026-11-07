@@ -1,0 +1,29 @@
+[ {
+  "analyte_code" : "718-7",
+  "analyte_code_display" : null,
+  "analyte_code_system" : "LOINC",
+  "commentaire" : null,
+  "demande_id" : "<UUID_GENERE_1>",
+  "libelle" : null
+}, {
+  "analyte_code" : "N18.5",
+  "analyte_code_display" : "Maladie renale fictive",
+  "analyte_code_system" : "CIM10",
+  "commentaire" : null,
+  "demande_id" : "<UUID_GENERE_1>",
+  "libelle" : null
+}, {
+  "analyte_code" : "CR-1",
+  "analyte_code_display" : null,
+  "analyte_code_system" : "LOCAL",
+  "commentaire" : null,
+  "demande_id" : "<UUID_GENERE_1>",
+  "libelle" : "Code local"
+}, {
+  "analyte_code" : "B03XA02",
+  "analyte_code_display" : null,
+  "analyte_code_system" : "ATC",
+  "commentaire" : null,
+  "demande_id" : "<UUID_GENERE_1>",
+  "libelle" : "Medicament en examen"
+} ]

@@ -1,0 +1,40 @@
+[ {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "fixe",
+  "date_demande" : "<D+1>",
+  "id" : "<DEM_DEMANDE>",
+  "modification" : "modifiee",
+  "motif" : "Bilan fictif DEM_DEMANDE",
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "ANNULE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "fixe",
+  "date_demande" : "<D+2>",
+  "id" : "<DEM_PRELEVE>",
+  "modification" : "modifiee",
+  "motif" : "Bilan fictif DEM_PRELEVE",
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "ANNULE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "fixe",
+  "date_demande" : "<D+3>",
+  "id" : "<DEM_RESULTAT>",
+  "modification" : "jamais modifiee",
+  "motif" : "Bilan fictif DEM_RESULTAT",
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "RESULTAT_DISPONIBLE",
+  "urgent" : "false"
+} ]

@@ -1,0 +1,7 @@
+{
+  "demande du centre B, session A" : 200,
+  "demande inconnue" : 200,
+  "observations lues pour la demande du centre B par la session A" : 1,
+  "observations lues pour la demande du centre B par la session B" : 0,
+  "statut de la demande du centre B" : "DEMANDE"
+}

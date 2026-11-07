@@ -1,0 +1,23 @@
+{
+  "MEDECIN sans centre de session : creation" : "403 ACCESS_DENIED",
+  "MEDECIN sans centre de session : liste" : "403 ACCESS_DENIED",
+  "SUPERADMIN + MEDECIN cree dans le centre B pour un patient du centre B" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN lit le centre B depuis la session A" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN prelevement au centre B d'une demande du centre A" : "403 ROLE_SCOPE",
+  "SUPERADMIN + MEDECIN prelevement au centre B d'une demande du centre B" : "403 ROLE_SCOPE",
+  "creation avec le centre B dans le corps (session A)" : "403 ACCESS_DENIED",
+  "creation sans centre dans le corps (centre de la session)" : "200",
+  "liste avec centerId du centre B (session A)" : "403 ACCESS_DENIED",
+  "liste du patient A par le centre B (centre de la session)" : {
+    "items" : [ ],
+    "statut" : "200",
+    "total" : 0
+  },
+  "liste du patient B par le centre A (centre de la session)" : {
+    "items" : [ ],
+    "statut" : "200",
+    "total" : 0
+  },
+  "transition du centre B avec le corps du centre A (session A)" : "400 BAD_REQUEST",
+  "transition du centre B avec le corps du centre B (session A)" : "403 ACCESS_DENIED"
+}

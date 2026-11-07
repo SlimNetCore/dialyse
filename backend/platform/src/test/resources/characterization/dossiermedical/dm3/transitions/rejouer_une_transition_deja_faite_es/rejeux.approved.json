@@ -1,0 +1,8 @@
+{
+  "annuler une validee" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "preleve une seconde fois" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "preleve une validee" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "resultat-disponible une seconde fois" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "retour en arriere : preleve apres resultat" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "valider une seconde fois" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE"
+}

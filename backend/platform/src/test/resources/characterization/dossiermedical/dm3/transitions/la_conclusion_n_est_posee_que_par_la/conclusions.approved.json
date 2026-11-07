@@ -1,0 +1,42 @@
+{
+  "conclusion absente" : {
+    "conclusion (tronquee a 60)" : null,
+    "identique en base" : true,
+    "longueur rendue" : null,
+    "reponse" : "200"
+  },
+  "conclusion avec accents et guillemets echappes" : {
+    "conclusion (tronquee a 60)" : "Hemoglobine a 11,5 g/dL \"stable\" - controle à 1 mois",
+    "identique en base" : true,
+    "longueur rendue" : 52,
+    "reponse" : "200"
+  },
+  "conclusion blanche" : {
+    "conclusion (tronquee a 60)" : "   ",
+    "identique en base" : true,
+    "longueur rendue" : 3,
+    "reponse" : "200"
+  },
+  "conclusion envoyee avec preleve" : {
+    "conclusion" : "null",
+    "reponse" : "200"
+  },
+  "conclusion renseignee" : {
+    "conclusion (tronquee a 60)" : "Resultats normaux fictifs",
+    "identique en base" : true,
+    "longueur rendue" : 25,
+    "reponse" : "200"
+  },
+  "conclusion tres longue (20000 caracteres)" : {
+    "conclusion (tronquee a 60)" : "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "identique en base" : true,
+    "longueur rendue" : 20000,
+    "reponse" : "200"
+  },
+  "conclusion vide" : {
+    "conclusion (tronquee a 60)" : "",
+    "identique en base" : true,
+    "longueur rendue" : 0,
+    "reponse" : "200"
+  }
+}

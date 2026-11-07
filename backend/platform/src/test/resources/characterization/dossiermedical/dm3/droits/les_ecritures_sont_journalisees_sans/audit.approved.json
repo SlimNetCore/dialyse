@@ -1,0 +1,50 @@
+[ {
+  "action_code" : "PATIENTS_CREATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_CREATION",
+  "entity_id" : "<PAT_A>",
+  "entity_type" : "patients",
+  "http_method" : "POST",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen",
+  "status_code" : "403"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<DEM>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen/{demandeId}/annuler",
+  "status_code" : "422"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<DEM>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen/{demandeId}/preleve",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<DEM>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen/{demandeId}/preleve",
+  "status_code" : "422"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<DEM>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen/{demandeId}/resultat-disponible",
+  "status_code" : "200"
+}, {
+  "action_code" : "PATIENTS_MODIFICATION",
+  "entity_id" : "<DEM>",
+  "entity_type" : "patients",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/patients/{patientId}/demandes-examen/{demandeId}/valider",
+  "status_code" : "200"
+} ]

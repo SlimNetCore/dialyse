@@ -1,0 +1,84 @@
+{
+  "(defauts)" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "centerId=pas-un-uuid" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "page=-1" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "page=-5&size=2" : {
+    "items" : 2,
+    "page" : 0,
+    "size" : 2,
+    "statut" : "200",
+    "total" : 3
+  },
+  "page=1000" : {
+    "items" : 0,
+    "page" : 1000,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "page=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "size=-1" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "size=0" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 3
+  },
+  "size=1" : {
+    "items" : 1,
+    "page" : 0,
+    "size" : 1,
+    "statut" : "200",
+    "total" : 3
+  },
+  "size=1000" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 3
+  },
+  "size=200" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 3
+  },
+  "size=2147483647" : {
+    "items" : 3,
+    "page" : 0,
+    "size" : 200,
+    "statut" : "200",
+    "total" : 3
+  },
+  "size=99999999999" : {
+    "statut" : "500 INTERNAL_ERROR"
+  },
+  "size=abc" : {
+    "statut" : "500 INTERNAL_ERROR"
+  }
+}

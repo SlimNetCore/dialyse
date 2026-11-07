@@ -1,0 +1,102 @@
+{
+  "depuis ANNULE" : {
+    "annuler" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULE"
+    },
+    "preleve" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULE"
+    },
+    "resultat-disponible" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULE"
+    },
+    "valider" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "ANNULE"
+    }
+  },
+  "depuis DEMANDE" : {
+    "annuler" : {
+      "conclusion" : null,
+      "reponse" : "200",
+      "statut" : "ANNULE",
+      "statut en base" : "ANNULE"
+    },
+    "preleve" : {
+      "conclusion" : null,
+      "reponse" : "200",
+      "statut" : "PRELEVE",
+      "statut en base" : "PRELEVE"
+    },
+    "resultat-disponible" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "DEMANDE"
+    },
+    "valider" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "DEMANDE"
+    }
+  },
+  "depuis PRELEVE" : {
+    "annuler" : {
+      "conclusion" : null,
+      "reponse" : "200",
+      "statut" : "ANNULE",
+      "statut en base" : "ANNULE"
+    },
+    "preleve" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "PRELEVE"
+    },
+    "resultat-disponible" : {
+      "conclusion" : null,
+      "reponse" : "200",
+      "statut" : "RESULTAT_DISPONIBLE",
+      "statut en base" : "RESULTAT_DISPONIBLE"
+    },
+    "valider" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "PRELEVE"
+    }
+  },
+  "depuis RESULTAT_DISPONIBLE" : {
+    "annuler" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "RESULTAT_DISPONIBLE"
+    },
+    "preleve" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "RESULTAT_DISPONIBLE"
+    },
+    "resultat-disponible" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "RESULTAT_DISPONIBLE"
+    },
+    "valider" : {
+      "conclusion" : "Conclusion fictive",
+      "reponse" : "200",
+      "statut" : "VALIDE",
+      "statut en base" : "VALIDE"
+    }
+  },
+  "depuis VALIDE" : {
+    "annuler" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "VALIDE"
+    },
+    "preleve" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "VALIDE"
+    },
+    "resultat-disponible" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "VALIDE"
+    },
+    "valider" : {
+      "reponse" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+      "statut en base" : "VALIDE"
+    }
+  }
+}

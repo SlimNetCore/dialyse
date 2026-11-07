@@ -1,0 +1,40 @@
+[ {
+  "categorie" : "SCANNER",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "fixe",
+  "date_demande" : "<D+1>",
+  "id" : "<DEM_CAT>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_CAT>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "fixe",
+  "date_demande" : "<D+1>",
+  "id" : "<DEM_BONNE>",
+  "modification" : "modifiee",
+  "motif" : "Bilan fictif DEM_BONNE",
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "PRELEVE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "fixe",
+  "date_demande" : "<D+2>",
+  "id" : "<DEM_MAUVAISE>",
+  "modification" : "jamais modifiee",
+  "motif" : "Bilan fictif DEM_MAUVAISE",
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "EN_COURS",
+  "urgent" : "false"
+} ]

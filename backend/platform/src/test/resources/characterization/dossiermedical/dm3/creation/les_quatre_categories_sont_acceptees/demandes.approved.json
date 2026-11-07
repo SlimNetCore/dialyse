@@ -1,0 +1,53 @@
+[ {
+  "categorie" : "ANAPATH",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<UUID_GENERE_1>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<UUID_GENERE_2>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+}, {
+  "categorie" : "FONCTIONNEL",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<UUID_GENERE_3>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+}, {
+  "categorie" : "IMAGERIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<UUID_GENERE_4>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+} ]

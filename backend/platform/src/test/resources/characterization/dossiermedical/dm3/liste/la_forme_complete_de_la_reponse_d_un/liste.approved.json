@@ -1,0 +1,32 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "items" : [ {
+      "categorie" : "ANAPATH",
+      "centerId" : "<CENTRE_A>",
+      "conclusion" : null,
+      "createdAt" : "<HORODATAGE>",
+      "dateDemande" : "<D+2>",
+      "id" : "<DEM>",
+      "lignes" : [ {
+        "code" : "718-7",
+        "codeDisplay" : "Hemoglobine fictive",
+        "codeSystem" : "LOINC",
+        "commentaire" : "A jeun",
+        "id" : "<UUID_GENERE_1>",
+        "libelle" : "Hemoglobine"
+      } ],
+      "motif" : "Biopsie fictive",
+      "patientId" : "<PAT_A>",
+      "prescripteurId" : "medecin-fictif",
+      "statut" : "PRELEVE",
+      "updatedAt" : "<HORODATAGE>",
+      "urgent" : true
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

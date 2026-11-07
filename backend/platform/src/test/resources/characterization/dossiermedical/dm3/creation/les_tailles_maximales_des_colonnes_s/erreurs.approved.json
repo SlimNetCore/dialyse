@@ -1,0 +1,9 @@
+{
+  "code LOCAL de 21 caracteres" : "500 DATA_ACCESS_ERROR",
+  "commentaire de ligne de 501 caracteres" : "500 DATA_ACCESS_ERROR",
+  "libelle de ligne de 256 caracteres" : "500 DATA_ACCESS_ERROR",
+  "motif de 500 caracteres" : "200",
+  "motif de 501 caracteres" : "500 DATA_ACCESS_ERROR",
+  "prescripteur de 100 caracteres" : "200",
+  "prescripteur de 101 caracteres" : "500 DATA_ACCESS_ERROR"
+}

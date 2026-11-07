@@ -128,7 +128,26 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AdministrationTraitementJpaRepository.java",
     "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/anemie/aggregate/AdministrationTraitement.java",
     "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/anemie/valueobject/TypeTraitementAnemie.java",
-    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/anemie/valueobject/DoseAdministree.java"
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/anemie/valueobject/DoseAdministree.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DemandeExamenRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/CreateDemandeExamenRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/LigneDemandeExamenRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/request/TransitionDemandeExamenRequest.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/DemandeExamenResponse.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/LigneDemandeExamenResponse.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/DemandeExamenRepositoryAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/DemandeExamenJpaEntity.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/LigneDemandeExamenJpaEntity.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/DemandeExamenJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/LigneDemandeExamenJpaRepository.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/examen/aggregate/DemandeExamen.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/examen/entity/LigneDemandeExamen.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/examen/service/DemandeExamenDomainService.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/examen/specification/TransitionStatutDemandeSpecification.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/examen/valueobject/StatutDemandeExamen.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/examen/valueobject/CategorieExamen.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/shared/valueobject/ConceptCode.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/shared/valueobject/CodingSystem.java"
   ],
   "seamAllowed": []
 }

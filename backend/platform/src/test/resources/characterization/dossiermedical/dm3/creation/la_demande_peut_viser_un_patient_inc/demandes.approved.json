@@ -1,0 +1,27 @@
+[ {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+2>",
+  "id" : "<UUID_GENERE_1>",
+  "modification" : "jamais modifiee",
+  "motif" : "Bilan fictif",
+  "patient_id" : "<PAT_B>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<UUID_GENERE_2>",
+  "modification" : "jamais modifiee",
+  "motif" : "Bilan fictif",
+  "patient_id" : "<PAT_INCONNU>",
+  "prescripteur_id" : "medecin-fictif",
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+} ]

@@ -1,0 +1,31 @@
+{
+  "identifiant de patient illisible" : "500 INTERNAL_ERROR",
+  "patient du centre B, session A" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  },
+  "patient inconnu" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  },
+  "patient sans demande" : {
+    "items" : [ ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 0
+  },
+  "temoin : patient du centre B, session B" : {
+    "items" : [ "<D+1> motif B DEMANDE" ],
+    "page" : 0,
+    "size" : 20,
+    "statut" : "200",
+    "total" : 1
+  }
+}

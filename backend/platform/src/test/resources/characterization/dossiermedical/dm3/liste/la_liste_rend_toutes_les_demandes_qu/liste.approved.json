@@ -1,0 +1,30 @@
+{
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "demandes" : [ {
+    "categorie" : "BIOLOGIE",
+    "centerId" : "<CENTRE_A>",
+    "conclusion" : "Conclusion fictive",
+    "dateDemande" : "<D+2>",
+    "id" : "<DEM_VALIDE>",
+    "lignes" : [ "LOCAL:CR-1 | null | code local seul", "LOINC:718-7 | Hemoglobine | A jeun", "null:null | Examen sans code | null" ],
+    "motif" : "Suivi fictif",
+    "patientId" : "<PAT_A>",
+    "prescripteurId" : "medecin-fictif",
+    "statut" : "VALIDE",
+    "urgent" : true
+  }, {
+    "categorie" : "IMAGERIE",
+    "centerId" : "<CENTRE_A>",
+    "conclusion" : null,
+    "dateDemande" : "<D+1>",
+    "id" : "<DEM_ANNULEE>",
+    "lignes" : [ ],
+    "motif" : null,
+    "patientId" : "<PAT_A>",
+    "prescripteurId" : "medecin-fictif",
+    "statut" : "ANNULE",
+    "urgent" : false
+  } ],
+  "statut" : 200,
+  "total" : 2
+}

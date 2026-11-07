@@ -1,0 +1,8 @@
+{
+  "ADMIN : liste avec une pagination illisible" : "500 INTERNAL_ERROR",
+  "ADMIN : transition" : "403 ACCESS_DENIED",
+  "INFIRMIER : creation" : "403 ACCESS_DENIED",
+  "INFIRMIER : creation avec un corps illisible" : "500 INTERNAL_ERROR",
+  "INFIRMIER : liste avec une pagination illisible" : "500 INTERNAL_ERROR",
+  "INFIRMIER : transition avec un corps absent" : "500 INTERNAL_ERROR"
+}

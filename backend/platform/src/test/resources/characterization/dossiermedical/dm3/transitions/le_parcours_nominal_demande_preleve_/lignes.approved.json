@@ -1,0 +1,15 @@
+[ {
+  "analyte_code" : null,
+  "analyte_code_display" : null,
+  "analyte_code_system" : null,
+  "commentaire" : null,
+  "demande_id" : "<DEM>",
+  "libelle" : "Autre examen"
+}, {
+  "analyte_code" : "718-7",
+  "analyte_code_display" : null,
+  "analyte_code_system" : "LOINC",
+  "commentaire" : null,
+  "demande_id" : "<DEM>",
+  "libelle" : "Hemoglobine"
+} ]

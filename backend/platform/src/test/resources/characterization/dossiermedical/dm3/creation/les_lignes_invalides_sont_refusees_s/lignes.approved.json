@@ -1,0 +1,15 @@
+[ {
+  "analyte_code" : null,
+  "analyte_code_display" : null,
+  "analyte_code_system" : null,
+  "commentaire" : null,
+  "demande_id" : "<UUID_GENERE_1>",
+  "libelle" : "X"
+}, {
+  "analyte_code" : null,
+  "analyte_code_display" : null,
+  "analyte_code_system" : null,
+  "commentaire" : null,
+  "demande_id" : "<UUID_GENERE_2>",
+  "libelle" : "X"
+} ]

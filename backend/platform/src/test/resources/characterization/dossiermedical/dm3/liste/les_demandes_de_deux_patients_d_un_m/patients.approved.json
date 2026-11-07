@@ -1,0 +1,28 @@
+{
+  "PAT_A" : [ {
+    "categorie" : "BIOLOGIE",
+    "centerId" : "<CENTRE_A>",
+    "conclusion" : null,
+    "dateDemande" : "<D+1>",
+    "id" : "<DEM_A>",
+    "lignes" : [ "LOINC:718-7 | Ligne de A | null" ],
+    "motif" : "motif A",
+    "patientId" : "<PAT_A>",
+    "prescripteurId" : "medecin-fictif",
+    "statut" : "DEMANDE",
+    "urgent" : false
+  } ],
+  "PAT_A2" : [ {
+    "categorie" : "BIOLOGIE",
+    "centerId" : "<CENTRE_A>",
+    "conclusion" : null,
+    "dateDemande" : "<D+1>",
+    "id" : "<DEM_A2>",
+    "lignes" : [ "LOINC:2160-0 | Ligne de A2 | null" ],
+    "motif" : "motif A2",
+    "patientId" : "<PAT_A2>",
+    "prescripteurId" : "medecin-fictif",
+    "statut" : "DEMANDE",
+    "urgent" : false
+  } ]
+}

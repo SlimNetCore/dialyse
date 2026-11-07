@@ -1,0 +1,119 @@
+{
+  "ADMIN" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "200",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "ADMIN sans centre" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "DIRECTION" : {
+    "annuler" : "403 ROLE_SCOPE",
+    "creation" : "403 ROLE_SCOPE",
+    "liste" : "403 ROLE_SCOPE",
+    "preleve" : "403 ROLE_SCOPE",
+    "resultat-disponible" : "403 ROLE_SCOPE",
+    "valider" : "403 ROLE_SCOPE"
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "INFIRMIER seul" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "MEDECIN + ADMIN" : {
+    "annuler" : "200",
+    "creation" : "200",
+    "liste" : "200",
+    "preleve" : "200",
+    "resultat-disponible" : "200",
+    "valider" : "200"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "annuler" : "200",
+    "creation" : "200",
+    "liste" : "200",
+    "preleve" : "200",
+    "resultat-disponible" : "200",
+    "valider" : "200"
+  },
+  "MEDECIN seul" : {
+    "annuler" : "200",
+    "creation" : "200",
+    "liste" : "200",
+    "preleve" : "200",
+    "resultat-disponible" : "200",
+    "valider" : "200"
+  },
+  "SECRETAIRE" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "SUPERADMIN" : {
+    "annuler" : "403 ROLE_SCOPE",
+    "creation" : "403 ROLE_SCOPE",
+    "liste" : "403 ROLE_SCOPE",
+    "preleve" : "403 ROLE_SCOPE",
+    "resultat-disponible" : "403 ROLE_SCOPE",
+    "valider" : "403 ROLE_SCOPE"
+  },
+  "SUPERADMIN + ADMIN" : {
+    "annuler" : "403 ROLE_SCOPE",
+    "creation" : "403 ROLE_SCOPE",
+    "liste" : "403 ROLE_SCOPE",
+    "preleve" : "403 ROLE_SCOPE",
+    "resultat-disponible" : "403 ROLE_SCOPE",
+    "valider" : "403 ROLE_SCOPE"
+  },
+  "anonyme" : {
+    "creation" : "403",
+    "liste" : "403",
+    "preleve" : "403"
+  },
+  "aucun role" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "annuler" : "403 ACCESS_DENIED",
+    "creation" : "403 ACCESS_DENIED",
+    "liste" : "403 ACCESS_DENIED",
+    "preleve" : "403 ACCESS_DENIED",
+    "resultat-disponible" : "403 ACCESS_DENIED",
+    "valider" : "403 ACCESS_DENIED"
+  }
+}

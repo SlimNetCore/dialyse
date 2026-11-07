@@ -1,0 +1,27 @@
+[ {
+  "categorie" : "ANAPATH",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+1>",
+  "id" : "<UUID_GENERE_1>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : null,
+  "statut" : "DEMANDE",
+  "urgent" : "false"
+}, {
+  "categorie" : "BIOLOGIE",
+  "center_id" : "<CENTRE_A>",
+  "conclusion" : null,
+  "creation" : "recent",
+  "date_demande" : "<D+2>",
+  "id" : "<UUID_GENERE_2>",
+  "modification" : "jamais modifiee",
+  "motif" : null,
+  "patient_id" : "<PAT_A>",
+  "prescripteur_id" : "n-importe-quel-texte",
+  "statut" : "DEMANDE",
+  "urgent" : "true"
+} ]

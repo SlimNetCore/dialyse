@@ -1,0 +1,59 @@
+{
+  "preleve" : {
+    "created_at conserve" : true,
+    "demande" : {
+      "categorie" : "BIOLOGIE",
+      "centerId" : "<CENTRE_A>",
+      "conclusion" : null,
+      "dateDemande" : "<D+2>",
+      "id" : "<DEM>",
+      "lignes" : [ "LOINC:718-7 | Hemoglobine | null", "null:null | Autre examen | null" ],
+      "motif" : "Bilan fictif",
+      "patientId" : "<PAT_A>",
+      "prescripteurId" : "medecin-fictif",
+      "statut" : "PRELEVE",
+      "urgent" : true
+    },
+    "lignes conservees (memes identifiants)" : true,
+    "reponse" : "200",
+    "updated_at posterieur a created_at" : true
+  },
+  "resultat-disponible" : {
+    "created_at conserve" : true,
+    "demande" : {
+      "categorie" : "BIOLOGIE",
+      "centerId" : "<CENTRE_A>",
+      "conclusion" : null,
+      "dateDemande" : "<D+2>",
+      "id" : "<DEM>",
+      "lignes" : [ "LOINC:718-7 | Hemoglobine | null", "null:null | Autre examen | null" ],
+      "motif" : "Bilan fictif",
+      "patientId" : "<PAT_A>",
+      "prescripteurId" : "medecin-fictif",
+      "statut" : "RESULTAT_DISPONIBLE",
+      "urgent" : true
+    },
+    "lignes conservees (memes identifiants)" : true,
+    "reponse" : "200",
+    "updated_at posterieur a created_at" : true
+  },
+  "valider" : {
+    "created_at conserve" : true,
+    "demande" : {
+      "categorie" : "BIOLOGIE",
+      "centerId" : "<CENTRE_A>",
+      "conclusion" : "Conclusion fictive",
+      "dateDemande" : "<D+2>",
+      "id" : "<DEM>",
+      "lignes" : [ "LOINC:718-7 | Hemoglobine | null", "null:null | Autre examen | null" ],
+      "motif" : "Bilan fictif",
+      "patientId" : "<PAT_A>",
+      "prescripteurId" : "medecin-fictif",
+      "statut" : "VALIDE",
+      "urgent" : true
+    },
+    "lignes conservees (memes identifiants)" : true,
+    "reponse" : "200",
+    "updated_at posterieur a created_at" : true
+  }
+}

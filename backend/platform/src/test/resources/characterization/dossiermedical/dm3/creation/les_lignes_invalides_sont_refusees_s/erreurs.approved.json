@@ -1,0 +1,17 @@
+{
+  "CIM10 mal forme" : "422 CONCEPT_CODE_INVALID_CIM10",
+  "LOINC mal forme" : "422 CONCEPT_CODE_INVALID_LOINC",
+  "LOINC sans tiret" : "422 CONCEPT_CODE_INVALID_LOINC",
+  "code blanc avec libelle (le code est ignore)" : "200",
+  "code sans systeme" : "500 INTERNAL_ERROR",
+  "code vide avec systeme et libelle (le systeme est ignore)" : "200",
+  "libelle blanc sans code" : "422 LIGNE_DEMANDE_EXAMEN_REQUISE",
+  "ligne nulle" : "500 INTERNAL_ERROR",
+  "lignes absentes" : "500 INTERNAL_ERROR",
+  "lignes nulles" : "500 INTERNAL_ERROR",
+  "liste de lignes vide" : "422 DEMANDE_EXAMEN_LIGNE_REQUISE",
+  "ni code ni libelle" : "422 LIGNE_DEMANDE_EXAMEN_REQUISE",
+  "systeme en minuscules" : "400 BAD_REQUEST",
+  "systeme inconnu" : "400 BAD_REQUEST",
+  "une ligne valide puis une invalide" : "422 LIGNE_DEMANDE_EXAMEN_REQUISE"
+}

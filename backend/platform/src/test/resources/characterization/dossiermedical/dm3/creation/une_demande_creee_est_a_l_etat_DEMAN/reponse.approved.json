@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "categorie" : "BIOLOGIE",
+    "centerId" : "<CENTRE_A>",
+    "conclusion" : null,
+    "createdAt" : "<HORODATAGE>",
+    "dateDemande" : "<D+3>",
+    "id" : "<DEM>",
+    "lignes" : [ {
+      "code" : "718-7",
+      "codeDisplay" : "Hemoglobine fictive",
+      "codeSystem" : "LOINC",
+      "commentaire" : "A jeun",
+      "id" : "<UUID_GENERE_1>",
+      "libelle" : "Hemoglobine"
+    }, {
+      "code" : null,
+      "codeDisplay" : null,
+      "codeSystem" : null,
+      "commentaire" : null,
+      "id" : "<UUID_GENERE_2>",
+      "libelle" : "Examen sans code"
+    } ],
+    "motif" : "Controle fictif",
+    "patientId" : "<PAT_A>",
+    "prescripteurId" : "medecin-fictif",
+    "statut" : "DEMANDE",
+    "updatedAt" : "<HORODATAGE>",
+    "urgent" : true
+  }
+}

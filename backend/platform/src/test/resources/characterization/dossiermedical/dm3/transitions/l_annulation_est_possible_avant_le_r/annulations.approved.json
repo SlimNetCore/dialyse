@@ -1,0 +1,9 @@
+{
+  "annuler sur l'annulee" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "annuler une DEMANDE" : "200",
+  "annuler une PRELEVE" : "200",
+  "annuler une RESULTAT_DISPONIBLE" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "preleve sur l'annulee" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "resultat-disponible sur l'annulee" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE",
+  "valider sur l'annulee" : "422 DEMANDE_EXAMEN_TRANSITION_INVALIDE"
+}
