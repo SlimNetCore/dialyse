@@ -46,7 +46,8 @@ class LaConsultationEtLaSuppressionDesAbordsVasculairesCharacterizationIntegrati
         m.put("liste pour l'ADMIN", page(doGet(url + "?size=1", as(CENTRE_A, "ADMIN")), "typeAbord"));
         m.put("liste pour l'INFIRMIER", page(doGet(url + "?size=1", as(CENTRE_A, "INFIRMIER")), "typeAbord"));
         m.put("liste d'un patient inconnu", page(doGet(abordsApi(idStable("patient", "inconnu")), medecinA()), "typeAbord"));
-        arbre("pages", m);
+        // KB-MED-58 corrigé : pagination illisible = 400 (avant : 500). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -76,6 +77,7 @@ class LaConsultationEtLaSuppressionDesAbordsVasculairesCharacterizationIntegrati
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAbords());
-        arbre("suppression", m);
+        // KB-MED-58 corrigé : identifiant illisible = 400 (avant : 500). Le DELETE d'un abord inexistant reste 204 (reproduit). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("suppression_nouveau_code", m);
     }
 }

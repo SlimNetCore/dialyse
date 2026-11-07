@@ -80,7 +80,8 @@ class LesDroitsEtLesEffetsDesAbordsVasculairesCharacterizationIntegrationTest ex
         cas.put("INFIRMIER : liste avec une pagination illisible", statutEtCode(doGet(abordsApi(patientA) + "?size=abc", as(CENTRE_A, "INFIRMIER"))));
         cas.put("SECRETAIRE : liste", statutEtCode(doGet(abordsApi(patientA), as(CENTRE_A, "SECRETAIRE"))));
         cas.put("DIRECTION : creation", statutEtCode(doPost(abordsApi(patientA), nouveau(CENTRE_A, "X"), direction())));
-        arbre("refus", cas);
+        // KB-MED-58 corrigé : 403 AVANT 400 (un profil sans droit n'apprend plus rien, avant : 500) ; ADMIN et INFIRMIER (droit de lecture) : 400. Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("refus_nouveau_code", cas);
         assertThat(empreinte("abords_vasculaires")).isEqualTo(avant);
     }
 
@@ -109,7 +110,8 @@ class LesDroitsEtLesEffetsDesAbordsVasculairesCharacterizationIntegrationTest ex
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAbords());
-        arbre("cloisonnement", m);
+        // KB-MED-61 et 62 corrigés : la session B n'écrit plus pour un patient du centre A (404) et ne remplace plus l'abord du centre A (404, avant : 200 et la ligne changeait de centre). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test
@@ -131,7 +133,8 @@ class LesDroitsEtLesEffetsDesAbordsVasculairesCharacterizationIntegrationTest ex
         doDelete(abordApi(patientA, s), medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        // KB-MED-60 partiel et KB-MED-62 : un DELETE qui n'a rien supprimé (204) n'est plus audité ; un PUT corps illisible = 400 (avant : 500) et un PUT d'abord introuvable = 404. Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("audit_nouveau_code", m);
     }
 
     @Test

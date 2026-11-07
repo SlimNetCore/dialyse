@@ -59,7 +59,8 @@ class LaConsultationEtLaCorrectionDesAllergiesCharacterizationIntegrationTest ex
         m.put("taille 1000", page(doGet(url + "?size=1000", medecinA()), "code"));
         m.put("taille illisible", refus(doGet(url + "?size=abc", medecinA())));
         m.put("liste pour l'ADMIN", page(doGet(url + "?size=1", as(CENTRE_A, "ADMIN")), "code"));
-        arbre("pages", m);
+        // KB-MED-58 corrigé : pagination illisible = 400 (avant : 500). Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -130,7 +131,8 @@ class LaConsultationEtLaCorrectionDesAllergiesCharacterizationIntegrationTest ex
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAllergies());
-        arbre("correction", m);
+        // KB-MED-58 et 59 corrigés : criticité absente et corps absent = 400 (avant : 500), valeurs inconnues sans nom de classe interne. Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("correction_nouveau_code", m);
     }
 
     @Test
@@ -153,6 +155,7 @@ class LaConsultationEtLaCorrectionDesAllergiesCharacterizationIntegrationTest ex
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAllergies());
-        arbre("suppression", m);
+        // KB-MED-58 corrigé : identifiant illisible = 400 (avant : 500). Le DELETE d'une allergie inexistante reste 204 (reproduit). Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("suppression_nouveau_code", m);
     }
 }

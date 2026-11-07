@@ -1,0 +1,13 @@
+{
+  "cas" : {
+    "centre illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps tableau []" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "corps vide {}" : "400 BAD_REQUEST | Le système de codage est requis avec un code",
+    "identifiant de patient illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "patient d'un autre centre (session A)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "patient inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre"
+  },
+  "etat" : [ ]
+}

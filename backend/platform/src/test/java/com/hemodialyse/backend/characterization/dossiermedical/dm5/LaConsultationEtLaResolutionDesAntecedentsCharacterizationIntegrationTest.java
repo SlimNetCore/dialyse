@@ -52,7 +52,8 @@ class LaConsultationEtLaResolutionDesAntecedentsCharacterizationIntegrationTest 
         m.put("taille 1000", page(doGet(url + "?size=1000", medecinA()), CHAMPS));
         m.put("taille illisible", refus(doGet(url + "?size=abc", medecinA())));
         m.put("liste pour l'ADMIN", page(doGet(url + "?size=1", as(CENTRE_A, "ADMIN")), CHAMPS));
-        arbre("pages", m);
+        // KB-MED-58 corrigé : pagination illisible = 400 (avant : 500). Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("pages_nouveau_code", m);
     }
 
     @Test
@@ -109,7 +110,8 @@ class LaConsultationEtLaResolutionDesAntecedentsCharacterizationIntegrationTest 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("correction", m);
+        // KB-MED-58 et 59 corrigés : code sans système et corps absent = 400 (avant : 500), statut inconnu sans nom de classe interne. Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("correction_nouveau_code", m);
     }
 
     @Test
@@ -173,7 +175,8 @@ class LaConsultationEtLaResolutionDesAntecedentsCharacterizationIntegrationTest 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("resolution", m);
+        // KB-MED-58 corrigé : corps absent ou date illisible = 400 (avant : 500). Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("resolution_nouveau_code", m);
     }
 
     @Test
@@ -194,6 +197,7 @@ class LaConsultationEtLaResolutionDesAntecedentsCharacterizationIntegrationTest 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("suppression", m);
+        // KB-MED-58 corrigé : identifiant illisible = 400 (avant : 500). Le DELETE d'un antécédent inexistant reste 204 (reproduit). Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("suppression_nouveau_code", m);
     }
 }

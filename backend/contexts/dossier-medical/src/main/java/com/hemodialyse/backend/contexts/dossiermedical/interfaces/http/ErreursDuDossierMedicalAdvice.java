@@ -2,7 +2,13 @@ package com.hemodialyse.backend.contexts.dossiermedical.interfaces.http;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AccesRefuse;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.DemandeExamenIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.AbordVasculaireIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.AllergieIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnAbordVasculaire;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.AntecedentIntrouvable;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneAllergie;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUnAntecedent;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneDemandeDExamen;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.EcritureConcurrenteSurUneSerologie;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.SerologieIntrouvable;
@@ -42,7 +48,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {OrdonnancesControleur.class, PrescriptionsControleur.class, AnemieControleur.class,
-        DemandesDExamenControleur.class, SerologiesControleur.class})
+        DemandesDExamenControleur.class, SerologiesControleur.class, AntecedentsControleur.class,
+        AllergiesControleur.class, AbordsVasculairesControleur.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -123,6 +130,39 @@ class ErreursDuDossierMedicalAdvice {
     @ExceptionHandler(EcritureConcurrenteSurUneSerologie.class)
     ProblemDetail ecritureConcurrenteSurUneSerologie(EcritureConcurrenteSurUneSerologie erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "SEROLOGIE_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUnAntecedent.class)
+    ProblemDetail ecritureConcurrenteSurUnAntecedent(EcritureConcurrenteSurUnAntecedent erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ANTECEDENT_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUneAllergie.class)
+    ProblemDetail ecritureConcurrenteSurUneAllergie(EcritureConcurrenteSurUneAllergie erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ALLERGIE_ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(EcritureConcurrenteSurUnAbordVasculaire.class)
+    ProblemDetail ecritureConcurrenteSurUnAbordVasculaire(EcritureConcurrenteSurUnAbordVasculaire erreur) {
+        return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ABORD_VASCULAIRE_ECRITURE_CONCURRENTE");
+    }
+
+    /** Écart décidé (KB-MED-62) : le PUT d'un abord inconnu, d'un autre patient ou d'un autre centre est refusé en 404 (avant : upsert). */
+    @ExceptionHandler(AbordVasculaireIntrouvable.class)
+    ProblemDetail abordVasculaireIntrouvable(AbordVasculaireIntrouvable erreur) {
+        return probleme(HttpStatus.NOT_FOUND, "Abord vasculaire introuvable", erreur.getMessage(), "ABORD_VASCULAIRE_INTROUVABLE");
+    }
+
+    /** Reproduit du legacy (KB-MED-60) : une allergie introuvable est une requête invalide (400), pas un 404. */
+    @ExceptionHandler(AllergieIntrouvable.class)
+    ProblemDetail allergieIntrouvable(AllergieIntrouvable erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
+    }
+
+    /** Reproduit du legacy (KB-MED-60) : un antécédent introuvable est une requête invalide (400), pas un 404. */
+    @ExceptionHandler(AntecedentIntrouvable.class)
+    ProblemDetail antecedentIntrouvable(AntecedentIntrouvable erreur) {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
     }
 
     @ExceptionHandler(SerologieIntrouvable.class)

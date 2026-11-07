@@ -1,0 +1,22 @@
+{
+  "cas" : {
+    "1 PUT sans actif : l'abord redevient actif et les champs absents sont effaces" : "200 <ABORD_1> | <PAT_A>",
+    "2 PUT avec actif=false et des complications" : "200 <ABORD_1> | <PAT_A>",
+    "3 PUT sans type" : "400 BAD_REQUEST | Le type d'abord est requis",
+    "4 PUT avec fin avant creation" : "422 ABORD_DATE_FIN_ANTERIEURE | La date de fin de l'abord vasculaire ne peut pas précéder sa date de création",
+    "5 PUT corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "etat" : [ {
+    "actif" : "false",
+    "center_id" : "<CENTRE_A>",
+    "complications" : "Complication fictive",
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : null,
+    "date_fin" : null,
+    "id" : "<ABORD_1>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "PTFE"
+  } ]
+}

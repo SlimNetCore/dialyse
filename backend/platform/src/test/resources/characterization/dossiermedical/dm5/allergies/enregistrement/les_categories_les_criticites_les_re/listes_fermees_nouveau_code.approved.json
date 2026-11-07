@@ -1,0 +1,93 @@
+{
+  "cas" : {
+    "categorie ''" : "400 BAD_REQUEST | Catégorie d'allergie inconnue",
+    "categorie 'ALIMENT'" : "200 ok",
+    "categorie 'AUTRE'" : "400 BAD_REQUEST | Catégorie d'allergie inconnue",
+    "categorie 'BIOLOGIQUE'" : "200 ok",
+    "categorie 'ENVIRONNEMENT'" : "200 ok",
+    "categorie 'MEDICAMENT'" : "200 ok",
+    "categorie 'medicament'" : "400 BAD_REQUEST | Catégorie d'allergie inconnue",
+    "categorie absente" : "400 BAD_REQUEST | La catégorie de l'allergie est requise",
+    "criticite 'BASSE'" : "200 ok",
+    "criticite 'HAUTE'" : "200 ok",
+    "criticite 'MOYENNE'" : "400 BAD_REQUEST | Criticité d'allergie inconnue",
+    "criticite 'haute'" : "400 BAD_REQUEST | Criticité d'allergie inconnue",
+    "criticite absente" : "400 BAD_REQUEST | La criticité de l'allergie est requise",
+    "statut ''" : "400 BAD_REQUEST | Statut de vérification inconnu",
+    "statut 'CONFIRMEE'" : "200 ok",
+    "statut 'PROBABLE'" : "400 BAD_REQUEST | Statut de vérification inconnu",
+    "statut 'REFUTEE'" : "200 ok",
+    "statut 'SUSPECTEE'" : "200 ok",
+    "type de reaction 'ALLERGIE'" : "200 ok",
+    "type de reaction 'ANAPHYLAXIE'" : "400 BAD_REQUEST | Type de réaction inconnu",
+    "type de reaction 'INTOLERANCE'" : "200 ok",
+    "type de reaction absent" : "400 BAD_REQUEST | Le type de réaction est requis"
+  },
+  "lignes" : [ {
+    "categorie" : "MEDICAMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "CAT0",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "CAT1",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ENVIRONNEMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "CAT2",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "BIOLOGIQUE",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "CAT3",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "CRI7",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "HAUTE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "CRI8",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "REA11",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "REA12",
+    "type_reaction" : "INTOLERANCE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "SUSPECTEE",
+    "substance_code" : "STA14",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "CONFIRMEE",
+    "substance_code" : "STA15",
+    "type_reaction" : "ALLERGIE"
+  }, {
+    "categorie" : "ALIMENT",
+    "criticite" : "BASSE",
+    "statut_verification" : "REFUTEE",
+    "substance_code" : "STA16",
+    "type_reaction" : "ALLERGIE"
+  } ]
+}

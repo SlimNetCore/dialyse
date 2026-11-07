@@ -1,0 +1,32 @@
+{
+  "cas" : {
+    "1 PUT d'un identifiant inconnu : l'abord est cree avec cet identifiant" : "404 ABORD_VASCULAIRE_INTROUVABLE | Abord vasculaire introuvable",
+    "2 PUT de l'abord d'un AUTRE PATIENT du centre : la ligne change de patient" : "404 ABORD_VASCULAIRE_INTROUVABLE | Abord vasculaire introuvable",
+    "3 PUT de l'abord d'un AUTRE CENTRE : la ligne change de centre" : "404 ABORD_VASCULAIRE_INTROUVABLE | Abord vasculaire introuvable"
+  },
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : "DROIT",
+    "creation" : "fixe",
+    "date_creation" : "<D-50>",
+    "date_fin" : null,
+    "id" : "<ABORD_AUTRE_PATIENT>",
+    "localisation" : null,
+    "patient_id" : "<PAT_B>",
+    "type_abord" : "FAV"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_B>",
+    "complications" : null,
+    "cote" : "GAUCHE",
+    "creation" : "fixe",
+    "date_creation" : "<D-40>",
+    "date_fin" : null,
+    "id" : "<ABORD_AUTRE_CENTRE>",
+    "localisation" : null,
+    "patient_id" : "<PAT_B>",
+    "type_abord" : "KT_AIGU"
+  } ]
+}

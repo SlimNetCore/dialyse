@@ -1,0 +1,24 @@
+{
+  "cas" : {
+    "aujourd'hui" : "200 ok",
+    "date absente" : "200 ok",
+    "date fixe passee" : "200 ok",
+    "demain" : "422 ALLERGIE_DATE_FUTURE | La date de constatation ne peut pas être dans le futur",
+    "en 1900" : "200 ok",
+    "en 2200" : "422 ALLERGIE_DATE_FUTURE | La date de constatation ne peut pas être dans le futur",
+    "illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "lignes" : [ {
+    "date_constatation" : "<1900>",
+    "substance_code" : "D5"
+  }, {
+    "date_constatation" : "<D-30>",
+    "substance_code" : "D2"
+  }, {
+    "date_constatation" : "<J>",
+    "substance_code" : "D1"
+  }, {
+    "date_constatation" : "<J>",
+    "substance_code" : "D3"
+  } ]
+}

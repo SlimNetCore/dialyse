@@ -86,7 +86,8 @@ class LesDroitsEtLesEffetsDesAllergiesCharacterizationIntegrationTest extends Dm
         cas.put("INFIRMIER : liste avec une pagination illisible", statutEtCode(doGet(allergiesApi(patientA) + "?size=abc", as(CENTRE_A, "INFIRMIER"))));
         cas.put("INFIRMIER : critiques", statutEtCode(doGet(allergiesApi(patientA) + "/critiques", as(CENTRE_A, "INFIRMIER"))));
         cas.put("DIRECTION : creation", statutEtCode(doPost(allergiesApi(patientA), nouvelle(CENTRE_A, "X"), direction())));
-        arbre("refus", cas);
+        // KB-MED-58 corrigé : 403 AVANT 400 (un profil sans droit n'apprend plus rien, avant : 500) ; ADMIN (droit de lecture) : 400. Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("refus_nouveau_code", cas);
         assertThat(empreinte("allergies_patient")).isEqualTo(avant);
     }
 
@@ -121,7 +122,8 @@ class LesDroitsEtLesEffetsDesAllergiesCharacterizationIntegrationTest extends Dm
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAllergies());
-        arbre("cloisonnement", m);
+        // KB-MED-61 corrigé : la session B n'écrit plus pour un patient du centre A (404, avant : 200 et ligne du centre B). Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test
@@ -144,7 +146,8 @@ class LesDroitsEtLesEffetsDesAllergiesCharacterizationIntegrationTest extends Dm
         doDelete(allergieApi(patientA, s), medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        // KB-MED-60 partiel : un DELETE qui n'a rien supprimé (204) n'est plus audité. Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("audit_nouveau_code", m);
     }
 
     @Test

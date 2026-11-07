@@ -1,9 +1,5 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPort;
-import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
-import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
-import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
 import com.hemodialyse.backend.domain.medical.greffe.port.BilanPreGreffeRepositoryPort;
 import com.hemodialyse.backend.domain.medical.greffe.port.DonneurVivantRepositoryPort;
 import com.hemodialyse.backend.domain.medical.greffe.port.EtapeBilanPreGreffeRepositoryPort;
@@ -12,13 +8,11 @@ import com.hemodialyse.backend.domain.medical.greffe.service.DonneurVivantDomain
 import com.hemodialyse.backend.domain.medical.greffe.service.EtapeBilanPreGreffeDomainService;
 import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
 import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
-import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
-import com.hemodialyse.backend.domain.seance.service.AbordVasculaireDomainService;
 import com.hemodialyse.backend.domain.seance.service.DossierMedicalPatientDomainService;
 import com.hemodialyse.backend.domain.seance.service.ResultatAnalyseDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletMedicalDomainService;
@@ -57,11 +51,6 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public AbordVasculaireDomainService abordVasculaireDomainService(AbordVasculaireRepositoryPort repo) {
-        return new AbordVasculaireDomainService(repo);
-    }
-
-    @Bean
     public ResultatAnalyseDomainService resultatAnalyseDomainService(ResultatAnalyseRepositoryPort repo) {
         return new ResultatAnalyseDomainService(repo);
     }
@@ -69,16 +58,6 @@ public class DomainServiceConfig {
     @Bean
     public DossierMedicalPatientDomainService dossierMedicalPatientDomainService(DossierMedicalPatientRepositoryPort repo) {
         return new DossierMedicalPatientDomainService(repo);
-    }
-
-    @Bean
-    public AntecedentDomainService antecedentDomainService(AntecedentRepositoryPort repo) {
-        return new AntecedentDomainService(repo);
-    }
-
-    @Bean
-    public AllergieDomainService allergieDomainService(AllergieRepositoryPort repo) {
-        return new AllergieDomainService(repo);
     }
 
     @Bean

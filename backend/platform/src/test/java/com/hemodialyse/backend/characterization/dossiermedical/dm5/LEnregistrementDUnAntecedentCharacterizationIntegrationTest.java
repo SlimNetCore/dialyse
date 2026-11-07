@@ -74,7 +74,8 @@ class LEnregistrementDUnAntecedentCharacterizationIntegrationTest extends Dm5Cha
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("diagnostic", m);
+        // KB-MED-58 et 59 corrigés (ADR 0084) : code sans système = 400 (avant : 500), systèmes inconnus sans nom de classe interne. Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("diagnostic_nouveau_code", m);
     }
 
     @Test
@@ -89,7 +90,8 @@ class LEnregistrementDUnAntecedentCharacterizationIntegrationTest extends Dm5Cha
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("types", m);
+        // KB-MED-58 et 59 corrigés : type absent = 400 (avant : 500), types inconnus sans nom de classe interne. Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("types_nouveau_code", m);
     }
 
     @Test
@@ -118,7 +120,8 @@ class LEnregistrementDUnAntecedentCharacterizationIntegrationTest extends Dm5Cha
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("dates", m);
+        // KB-MED-58 corrigé : date illisible = 400 (avant : 500). Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("dates_nouveau_code", m);
     }
 
     @Test
@@ -179,7 +182,8 @@ class LEnregistrementDUnAntecedentCharacterizationIntegrationTest extends Dm5Cha
         m.put("cas", cas);
         m.put("lignes enregistrees", jdbc.queryForObject("SELECT COUNT(*) FROM antecedents_medicaux WHERE center_id = ?", Integer.class,
                 CENTRE_A));
-        arbre("bornes", m);
+        // KB-MED-64 corrigé : sévérité, libellé, affichage ou code hors borne de colonne = 400 (avant : 500). Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("bornes_nouveau_code", m);
     }
 
     @Test
@@ -201,7 +205,8 @@ class LEnregistrementDUnAntecedentCharacterizationIntegrationTest extends Dm5Cha
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAntecedents());
-        arbre("corps_et_patient", m);
+        // KB-MED-58 et 61 corrigés : corps et identifiants illisibles = 400 (avant : 500) ; patient inconnu ou d'un autre centre = 404 sans ligne orpheline (avant : 200). Legacy archivé dans dm5/antecedents/_ecarts-legacy.
+        arbre("corps_et_patient_nouveau_code", m);
         assertThat(nombreDe("antecedents_medicaux", CENTRE_B)).isZero();
     }
 }

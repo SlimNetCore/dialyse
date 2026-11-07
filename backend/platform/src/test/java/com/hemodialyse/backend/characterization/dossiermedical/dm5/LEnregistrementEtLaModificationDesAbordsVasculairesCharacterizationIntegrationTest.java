@@ -76,7 +76,8 @@ class LEnregistrementEtLaModificationDesAbordsVasculairesCharacterizationIntegra
         m.put("lignes", lignes("SELECT type_abord, LENGTH(COALESCE(cote, '')) AS cote, LENGTH(COALESCE(localisation, '')) AS localisation, "
                 + "LENGTH(COALESCE(complications, '')) AS complications, actif FROM abords_vasculaires WHERE center_id = ? ORDER BY type_abord, actif",
                 CENTRE_A));
-        arbre("champs_libres", m);
+        // KB-MED-58 et 63 corrigés (ADR 0084) : type absent, actif illisible et valeurs hors borne de colonne = 400 (avant : 500). Le type reste libre (reproduit). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("champs_libres_nouveau_code", m);
     }
 
     @Test
@@ -96,7 +97,8 @@ class LEnregistrementEtLaModificationDesAbordsVasculairesCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAbords());
-        arbre("dates", m);
+        // KB-MED-58 corrigé : date illisible = 400 (avant : 500). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("dates_nouveau_code", m);
     }
 
     @Test
@@ -115,7 +117,8 @@ class LEnregistrementEtLaModificationDesAbordsVasculairesCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAbords());
-        arbre("remplacement", m);
+        // KB-MED-58 corrigé : PUT sans type et corps absent = 400 (avant : 500). Le remplacement complet est reproduit. Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("remplacement_nouveau_code", m);
     }
 
     @Test
@@ -135,8 +138,10 @@ class LEnregistrementEtLaModificationDesAbordsVasculairesCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAbords());
-        arbre("upsert_et_deplacement", m);
-        assertThat(nombreDe("abords_vasculaires", CENTRE_B)).isZero();
+        // KB-MED-62 corrigé (trou de sécurité) : le PUT d'un identifiant inconnu, d'un abord d'un autre patient ou d'un autre centre = 404 ABORD_VASCULAIRE_INTROUVABLE ; plus de création ni de réaffectation (avant : 200, la ligne changeait de patient et de centre). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("upsert_et_deplacement_nouveau_code", m);
+        // KB-MED-62 corrigé : l'abord du centre B n'est plus réaffecté au centre A par le PUT de la session A (avant : 0 ligne du centre B).
+        assertThat(nombreDe("abords_vasculaires", CENTRE_B)).isEqualTo(1);
     }
 
     @Test
@@ -157,7 +162,8 @@ class LEnregistrementEtLaModificationDesAbordsVasculairesCharacterizationIntegra
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAbords());
-        arbre("corps_et_patient", m);
+        // KB-MED-58 et 61 corrigés : corps et identifiants illisibles = 400 (avant : 500) ; patient inconnu ou d'un autre centre = 404 sans ligne orpheline (avant : 200). Legacy archivé dans dm5/abords/_ecarts-legacy.
+        arbre("corps_et_patient_nouveau_code", m);
         assertThat(nombreDe("abords_vasculaires", CENTRE_B)).isZero();
     }
 

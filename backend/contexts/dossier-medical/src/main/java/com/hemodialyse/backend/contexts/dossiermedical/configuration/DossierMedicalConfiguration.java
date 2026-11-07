@@ -1,6 +1,28 @@
 package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.AnnulerUneDemandeDExamen;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesAbordsVasculairesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUnAbordVasculaire;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ModifierUnAbordVasculaire;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUnAbordVasculaire;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.AbordsVasculaires;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.AbordsVasculairesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.AbordsVasculairesControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesAllergiesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.CorrigerUneAllergie;
+import com.hemodialyse.backend.contexts.dossiermedical.application.DeclarerUneAllergie;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUneAllergie;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.Allergies;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.AllergiesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.AllergiesControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesAntecedentsDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.CorrigerUnAntecedent;
+import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUnAntecedent;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ResoudreUnAntecedent;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SupprimerUnAntecedent;
+import com.hemodialyse.backend.contexts.dossiermedical.domain.Antecedents;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.AntecedentsJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.AntecedentsControleur;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesSerologiesDuPatient;
 import com.hemodialyse.backend.contexts.dossiermedical.application.CorrigerUneSerologie;
 import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerUneSerologie;
@@ -422,6 +444,127 @@ public class DossierMedicalConfiguration {
     SerologiesControleur serologiesControleur(ConsulterLesSerologiesDuPatient consulter, EnregistrerUneSerologie enregistrer,
                                               CorrigerUneSerologie corriger, SupprimerUneSerologie supprimer) {
         return new SerologiesControleur(consulter, enregistrer, corriger, supprimer);
+    }
+
+    // ------------------------------------------------------------------ DM5 : antécédents, allergies, abords vasculaires
+    /**
+     * Horloge des fiches cliniques (antécédents, allergies, abords) : le jour UTC, qui est celui de la JVM du serveur (forcée en UTC) et
+     * donc celui du legacy (date par défaut d'une allergie et limite « pas dans le futur »). Passer au jour du centre en remplaçant ce
+     * seul bean quand les métiers l'auront décidé (même réserve que les demandes d'examen et les sérologies).
+     */
+    @Bean
+    HorlogeDuCentre horlogeDesFichesCliniques() {
+        return new HorlogeDuCentre(Clock.systemUTC(), ZoneOffset.UTC);
+    }
+
+    @Bean
+    Antecedents antecedentsDuDossierMedical(JdbcTemplate jdbc) {
+        return new AntecedentsJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLesAntecedentsDuPatient consulterLesAntecedentsDuPatient(SessionCourante session, Antecedents antecedents) {
+        return new ConsulterLesAntecedentsDuPatient(session, antecedents);
+    }
+
+    @Bean
+    EnregistrerUnAntecedent enregistrerUnAntecedent(SessionCourante session, PatientsDuCentre patients, Antecedents antecedents,
+                                                    UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                    @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new EnregistrerUnAntecedent(session, patients, antecedents, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    CorrigerUnAntecedent corrigerUnAntecedent(SessionCourante session, Antecedents antecedents, UniteDeTravail uniteDeTravail,
+                                              @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new CorrigerUnAntecedent(session, antecedents, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    ResoudreUnAntecedent resoudreUnAntecedent(SessionCourante session, Antecedents antecedents, UniteDeTravail uniteDeTravail,
+                                              @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new ResoudreUnAntecedent(session, antecedents, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUnAntecedent supprimerUnAntecedent(SessionCourante session, Antecedents antecedents, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUnAntecedent(session, antecedents, uniteDeTravail);
+    }
+
+    @Bean
+    AntecedentsControleur antecedentsControleur(ConsulterLesAntecedentsDuPatient consulter, EnregistrerUnAntecedent enregistrer,
+                                                CorrigerUnAntecedent corriger, ResoudreUnAntecedent resoudre,
+                                                SupprimerUnAntecedent supprimer) {
+        return new AntecedentsControleur(consulter, enregistrer, corriger, resoudre, supprimer);
+    }
+
+    @Bean
+    Allergies allergiesDuDossierMedical(JdbcTemplate jdbc) {
+        return new AllergiesJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLesAllergiesDuPatient consulterLesAllergiesDuPatient(SessionCourante session, Allergies allergies) {
+        return new ConsulterLesAllergiesDuPatient(session, allergies);
+    }
+
+    @Bean
+    DeclarerUneAllergie declarerUneAllergie(SessionCourante session, PatientsDuCentre patients, Allergies allergies,
+                                            UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                            @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new DeclarerUneAllergie(session, patients, allergies, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    CorrigerUneAllergie corrigerUneAllergie(SessionCourante session, Allergies allergies, UniteDeTravail uniteDeTravail,
+                                            @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new CorrigerUneAllergie(session, allergies, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUneAllergie supprimerUneAllergie(SessionCourante session, Allergies allergies, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUneAllergie(session, allergies, uniteDeTravail);
+    }
+
+    @Bean
+    AllergiesControleur allergiesControleur(ConsulterLesAllergiesDuPatient consulter, DeclarerUneAllergie declarer, CorrigerUneAllergie corriger,
+                                            SupprimerUneAllergie supprimer) {
+        return new AllergiesControleur(consulter, declarer, corriger, supprimer);
+    }
+
+    @Bean
+    AbordsVasculaires abordsVasculairesDuDossierMedical(JdbcTemplate jdbc) {
+        return new AbordsVasculairesJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLesAbordsVasculairesDuPatient consulterLesAbordsVasculairesDuPatient(SessionCourante session, AbordsVasculaires abords) {
+        return new ConsulterLesAbordsVasculairesDuPatient(session, abords);
+    }
+
+    @Bean
+    EnregistrerUnAbordVasculaire enregistrerUnAbordVasculaire(SessionCourante session, PatientsDuCentre patients, AbordsVasculaires abords,
+                                                              UniteDeTravail uniteDeTravail, GenerateurDIdentifiants identifiants,
+                                                              @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new EnregistrerUnAbordVasculaire(session, patients, abords, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    ModifierUnAbordVasculaire modifierUnAbordVasculaire(SessionCourante session, AbordsVasculaires abords, UniteDeTravail uniteDeTravail,
+                                                        @Qualifier("horlogeDesFichesCliniques") HorlogeDuCentre horloge) {
+        return new ModifierUnAbordVasculaire(session, abords, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUnAbordVasculaire supprimerUnAbordVasculaire(SessionCourante session, AbordsVasculaires abords, UniteDeTravail uniteDeTravail) {
+        return new SupprimerUnAbordVasculaire(session, abords, uniteDeTravail);
+    }
+
+    @Bean
+    AbordsVasculairesControleur abordsVasculairesControleur(ConsulterLesAbordsVasculairesDuPatient consulter,
+                                                            EnregistrerUnAbordVasculaire enregistrer, ModifierUnAbordVasculaire modifier,
+                                                            SupprimerUnAbordVasculaire supprimer) {
+        return new AbordsVasculairesControleur(consulter, enregistrer, modifier, supprimer);
     }
 
     @Bean

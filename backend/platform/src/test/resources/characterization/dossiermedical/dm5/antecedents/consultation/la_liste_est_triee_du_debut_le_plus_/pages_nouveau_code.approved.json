@@ -1,0 +1,66 @@
+{
+  "defaut" : {
+    "items" : [ "Antecedent 5 | <D+50> | ACTIF", "Antecedent 4 | <D+40> | RESOLU", "Antecedent 3 | <D+30> | ACTIF", "Antecedent 2 | <D+20> | RESOLU", "Antecedent 1 | <D+10> | ACTIF" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "liste pour l'ADMIN" : {
+    "items" : [ "Antecedent 5" ],
+    "page" : 0,
+    "size" : 1,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille -3" : {
+    "items" : [ "Antecedent 5", "Antecedent 4", "Antecedent 3", "Antecedent 2", "Antecedent 1" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 0" : {
+    "items" : [ "Antecedent 5", "Antecedent 4", "Antecedent 3", "Antecedent 2", "Antecedent 1" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 1000" : {
+    "items" : [ "Antecedent 5", "Antecedent 4", "Antecedent 3", "Antecedent 2", "Antecedent 1" ],
+    "page" : 0,
+    "size" : 200,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page -1" : {
+    "items" : [ "Antecedent 5", "Antecedent 4" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 0" : {
+    "items" : [ "Antecedent 5", "Antecedent 4" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 2" : {
+    "items" : [ "Antecedent 1" ],
+    "page" : 2,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille 2, page 9" : {
+    "items" : [ ],
+    "page" : 9,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "taille illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+}

@@ -1,0 +1,59 @@
+{
+  "cas" : {
+    "1 suppression d'un antecedent" : "204",
+    "2 meme suppression rejouee" : "204",
+    "3 identifiant inconnu" : "204",
+    "4 antecedent d'un autre patient du centre" : "204",
+    "5 antecedent d'un autre centre (centre B demande)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+    "6 identifiant illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible"
+  },
+  "etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_debut" : "<D+20>",
+    "date_fin" : "<D+25>",
+    "diagnostic_code" : null,
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : null,
+    "id" : "<ANT_2>",
+    "libelle_libre" : "Resolu",
+    "modification" : "jamais modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_A>",
+    "severite" : null,
+    "statut_clinique" : "RESOLU",
+    "type_antecedent" : "MEDICAL"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creation" : "fixe",
+    "date_debut" : "<D+30>",
+    "date_fin" : null,
+    "diagnostic_code" : null,
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : null,
+    "id" : "<ANT_AUTRE_PATIENT>",
+    "libelle_libre" : "Autre patient",
+    "modification" : "jamais modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_B>",
+    "severite" : null,
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "MEDICAL"
+  }, {
+    "center_id" : "<CENTRE_B>",
+    "creation" : "fixe",
+    "date_debut" : "<D+40>",
+    "date_fin" : null,
+    "diagnostic_code" : null,
+    "diagnostic_code_display" : null,
+    "diagnostic_code_system" : null,
+    "id" : "<ANT_AUTRE_CENTRE>",
+    "libelle_libre" : "Autre centre",
+    "modification" : "jamais modifiee",
+    "note" : null,
+    "patient_id" : "<PAT_B>",
+    "severite" : null,
+    "statut_clinique" : "ACTIF",
+    "type_antecedent" : "MEDICAL"
+  } ]
+}

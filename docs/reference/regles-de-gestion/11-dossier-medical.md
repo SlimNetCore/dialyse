@@ -42,6 +42,29 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   existe déjà pour ce patient »).
 - **RG-MED-012** — « Résoudre » fixe la date de fin et le statut `RESOLU` ; un antécédent déjà résolu ne se résout pas
   deux fois (`ANTECEDENT_DEJA_RESOLU`).
+- **RG-MED-035** — *Antécédents, reprise sur place DM5 (contexte `dossier-medical`, `AntecedentsControleur`, ADR 0084 ;
+  décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN et ADMIN lisent, le MEDECIN seul écrit ; l'INFIRMIER n'a aucun accès (reproduit, à confirmer) ;
+  DIRECTION et SUPERADMIN 403 `ROLE_SCOPE` ; garde de centre sur les 5 routes ;
+  (b) **patient** : un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE` à l'enregistrement
+  (avant : une fiche orpheline était créée) ; les lectures d'un tel patient restent une page vide en 200 (reproduit) ;
+  (c) **entrées illisibles** : corps, type, système de codage, statut, date, identifiant, `centerId`, `page`/`size`
+  absents ou illisibles : 400 stable `BAD_REQUEST` sans nom de classe interne (avant : 500), et 403 avant 400 pour un profil
+  sans droit ; code sans système : 400 ;
+  (d) **bornes de colonne** : sévérité 50 caractères, libellé libre et affichage du code 255, code 20 : 400 stable
+  (avant : 500) ;
+  (e) **diagnostic** : tous les systèmes CIM10, LOINC, ATC et LOCAL sont acceptés avec un simple contrôle de forme (CIM-10
+  et LOINC), code mis en majuscules (reproduit) ; l'unicité du diagnostic actif est protégée par un verrou de transaction
+  pendant l'enregistrement et la correction, sans contrainte en base ; une écriture qui n'obtient pas le verrou en 5 s
+  répond 409 `ANTECEDENT_ECRITURE_CONCURRENTE` ; jamais d'unicité pour un libellé libre (reproduit) ;
+  (f) **correction** : elle remplace diagnostic, libellé, dates, sévérité et note (absents = effacés), ignore le type,
+  conserve le statut s'il est absent, ne contrôle pas le futur et peut poser `RESOLU` sans fin ou rouvrir un antécédent
+  (reproduit, à confirmer) ; antécédent introuvable : 400 `BAD_REQUEST` (reproduit) ;
+  (g) **résolution** : la date peut être absente ou future (reproduit) ;
+  (h) **suppression** : un antécédent inexistant répond toujours 204 (reproduit) mais n'est plus inscrit au journal
+  d'audit ; aucun événement « antécédent ajouté / résolu » n'est publié (reproduit, rien inventé) ; les lectures ne sont
+  pas tracées (à décider avec le DPO) ;
+  (i) **jour** : la limite « pas dans le futur » lit le jour UTC de la JVM (reproduit, à confirmer : jour du centre).
 
 ## 11.3 Allergies
 
@@ -51,7 +74,26 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   de constatation par défaut aujourd'hui, jamais future (`ALLERGIE_DATE_FUTURE`).
 - **RG-MED-021** — Une allergie de criticité **haute** doit décrire ses manifestations
   (`ALLERGIE_MANIFESTATIONS_REQUISES`) ; déclarer ou passer une allergie en criticité haute émet l'événement
-  « allergie critique déclarée ». Une consultation dédiée liste les allergies critiques du patient.
+  « allergie critique déclarée ». Une consultation dédiée liste les allergies critiques du patient. (Reprise DM5 :
+  l'événement n'est plus levé, le legacy ne le publiait jamais, voir RG-MED-036 g.)
+- **RG-MED-036** — *Allergies, reprise sur place DM5 (contexte `dossier-medical`, `AllergiesControleur`, ADR 0084 ;
+  décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN et ADMIN lisent (liste et `critiques`), le MEDECIN seul écrit ; l'INFIRMIER est refusé partout,
+  y compris sur `critiques` (reproduit, à confirmer : bandeau d'allergie pour l'infirmier ?) ; garde de centre ;
+  (b) **patient** : inconnu ou d'un autre centre : 404 `PATIENT_INTROUVABLE` à la déclaration (avant : fiche orpheline) ;
+  lectures : page ou liste vide en 200 (reproduit) ;
+  (c) **entrées illisibles** : corps, système de codage, catégorie, criticité, type de réaction, statut, date, identifiant
+  absents ou illisibles : 400 stable sans nom de classe interne (avant : 500), 403 avant 400 pour un profil sans droit ;
+  code absent : 422 `CONCEPT_CODE_REQUIRED` (reproduit) ;
+  (d) **bornes de colonne** : code de la substance 20 caractères, affichage 255 : 400 (avant : 500) ;
+  (e) **déclaration** : aucune unicité, la même substance peut être déclarée plusieurs fois (reproduit, à décider) ;
+  (f) **correction** : seuls la criticité (obligatoire), les manifestations (remplacées, même absentes : une criticité basse
+  les efface) et le statut (conservé s'il est absent) se corrigent ; substance, catégorie, type et date sont immuables ;
+  allergie introuvable : 400 (reproduit) ; écriture concurrente : 409 `ALLERGIE_ECRITURE_CONCURRENTE` ;
+  (g) **bandeau « critiques »** : toute criticité haute, y compris une allergie réfutée (reproduit, à confirmer) ; aucun
+  événement « allergie déclarée » ni « allergie critique déclarée » n'est publié (reproduit, rien inventé) ;
+  (h) **suppression** : une allergie inexistante répond toujours 204 (reproduit) sans ligne d'audit ; lectures non tracées ;
+  codes FHIR d'allergie inchangés (DM8).
 
 ## 11.4 Sérologies
 
@@ -188,6 +230,23 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 - **RG-MED-062** — Un **abord vasculaire** (type, côté, localisation, dates, actif, complications) ne peut être retiré
   avant d'avoir été créé (`ABORD_DATE_FIN_ANTERIEURE`) ; actif par défaut ; la
   liste est paginée (taille par défaut 20, plafond 200).
+- **RG-MED-037** — *Abords vasculaires, reprise sur place DM5 (contexte `dossier-medical`, `AbordsVasculairesControleur`,
+  ADR 0084 ; décisions déléguées, à confirmer avec les métiers et le DPO)* :
+  (a) **droits** : MEDECIN, ADMIN et INFIRMIER lisent (c'est l'infirmier qui ponctionne l'abord), le MEDECIN seul écrit
+  (reproduit) ; garde de centre ;
+  (b) **patient** : inconnu ou d'un autre centre : 404 `PATIENT_INTROUVABLE` à l'enregistrement (avant : ligne orpheline) ;
+  (c) **le PUT n'est plus un « enregistrer »** : un identifiant inconnu, ou l'abord d'un autre patient ou d'un autre centre,
+  est refusé en 404 `ABORD_VASCULAIRE_INTROUVABLE` ; l'abord n'est jamais créé par un PUT ni réaffecté à un autre patient
+  ou centre (avant : trou de sécurité) ;
+  (d) **remplacement** : tous les champs sont remplacés (absents = effacés), `actif` absent = actif (réactive un abord
+  terminé), la date d'enregistrement (rendue comme `updatedAt`) est réécrite (reproduit, à confirmer) ;
+  (e) **type libre** : le type est un texte libre obligatoire (vide accepté) ; la Planification n'exige la compétence
+  `CATHETER` que pour `KT_AIGU` et `KT_TUNNELISE` en majuscules, abord actif et non terminé (RG-PLN-097, inchangée) ; aucune
+  cohérence entre « actif » et la date de fin, aucune limite de date (reproduit, à confirmer : liste fermée partagée) ;
+  (f) **entrées illisibles et bornes** : corps, `actif`, dates, identifiants, pagination illisibles, type absent, type
+  au-delà de 20 caractères, côté 10, localisation 255, complications 500 : 400 stable (avant : 500), 403 avant 400 ;
+  (g) **suppression** : un abord inexistant répond toujours 204 (reproduit) sans ligne d'audit ; écriture concurrente : 409
+  `ABORD_VASCULAIRE_ECRITURE_CONCURRENTE` ; liste triée de la création la plus récente, les abords sans date en dernier.
 - **RG-MED-063** — Le **dossier médical** du patient (néphropathie initiale, date de mise en dialyse, statuts hépatite
   B/C, observation globale, conclusion) est unique par patient (création puis mise
   à jour du même dossier).

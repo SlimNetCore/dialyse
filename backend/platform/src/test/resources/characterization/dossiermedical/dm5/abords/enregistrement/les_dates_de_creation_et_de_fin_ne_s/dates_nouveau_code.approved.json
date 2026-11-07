@@ -1,0 +1,111 @@
+{
+  "cas" : {
+    "creation dans le futur (pas de limite)" : "200 ok",
+    "creation en 1900" : "200 ok",
+    "creation illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+    "creation sans fin" : "200 ok",
+    "fin avant la creation" : "422 ABORD_DATE_FIN_ANTERIEURE | La date de fin de l'abord vasculaire ne peut pas précéder sa date de création",
+    "fin dans le futur" : "200 ok",
+    "fin le meme jour que la creation" : "200 ok",
+    "fin posee mais abord actif (aucune coherence imposee)" : "200 ok",
+    "fin sans creation" : "200 ok",
+    "ni creation ni fin" : "200 ok"
+  },
+  "etat" : [ {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : null,
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_1>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A2"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : null,
+    "date_fin" : "<D-20>",
+    "id" : "<UUID_GENERE_2>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A5"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<1900>",
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_3>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A8"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-10>",
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_4>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A1"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-10>",
+    "date_fin" : "<D-5>",
+    "id" : "<UUID_GENERE_5>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A10"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-10>",
+    "date_fin" : "<D-10>",
+    "id" : "<UUID_GENERE_6>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A4"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<D-10>",
+    "date_fin" : "<J+60>",
+    "id" : "<UUID_GENERE_7>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A7"
+  }, {
+    "actif" : "true",
+    "center_id" : "<CENTRE_A>",
+    "complications" : null,
+    "cote" : null,
+    "creation" : "recent",
+    "date_creation" : "<J+30>",
+    "date_fin" : null,
+    "id" : "<UUID_GENERE_8>",
+    "localisation" : null,
+    "patient_id" : "<PAT_A>",
+    "type_abord" : "A6"
+  } ]
+}

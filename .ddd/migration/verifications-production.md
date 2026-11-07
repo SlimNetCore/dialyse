@@ -1935,3 +1935,40 @@ SELECT center_id, count(*) FILTER (WHERE date_prelevement > current_date) AS fut
 ```
 Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, enregistrer un résultat négatif puis un positif avec conduite, corriger l'un vers l'autre, supprimer ; vérifier le déplacement en isolement d'un patient positif (VIH_AC, AG_HBS, AC_VHC, ARN_VHC) et son absence pour TPHA ou CMV ; (b) un résultat positif sans conduite : 422 ; un doublon marqueur et date : 422 ; (c) avec un compte d'un AUTRE centre : écriture refusée (403 avec `centerId` du centre voisin, 422 `PLACEMENT_PATIENT_INTROUVABLE` pour un patient voisin, la sérologie n'est pas créée) ; (d) INFIRMIER ou SECRETAIRE reçoit 403 même avec un corps illisible, ADMIN lit mais ne peut pas écrire (à confirmer avec les métiers) ; (e) deux enregistrements simultanés du même triplet : le second attend puis 409 `SEROLOGIE_ECRITURE_CONCURRENTE` ou 422 doublon ; (f) supprimer deux fois la même sérologie : 204 les deux fois, une seule ligne `SEROLOGIE_SUPPRIMEE` au journal d'audit. La requête 2 liste les doublons à expliquer avant toute correction de données (aucune correction automatique, DELETE interdit sans validation écrite).
 Surveillance après déploiement : hausse attendue des 400 (corps, marqueur, résultat, date, `titre`, paramètre illisible, unité ou laboratoire trop long, avant 500), des 403 (corps illisible d'un profil sans droit) et disparition des lignes d'audit `SEROLOGIE_SUPPRIMEE` 204 sans suppression ; surveiller les 409 `SEROLOGIE_ECRITURE_CONCURRENTE`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 49. Dossier médical DM5 (antécédents, allergies, abords vasculaires) : parité et gardes (2026-11-07) — SELECT seulement
+
+Aucune migration, mêmes tables (`antecedents_medicaux`, `allergies_patient`, `abords_vasculaires`, sans contrainte d'unicité ni clé étrangère ; les schémas parallèles gelés `antecedents` / `allergies` ne sont ni lus ni écrits, ADR 0072). Données de santé sensibles. À exécuter sur une COPIE ou en lecture seule, avant et après le déploiement (ADR 0084).
+```sql
+-- 1. Fiches par centre (avant/après : identiques, la reprise ne change aucune ligne).
+SELECT 'antecedents' AS table_, center_id, count(*) FROM antecedents_medicaux GROUP BY center_id
+UNION ALL SELECT 'allergies', center_id, count(*) FROM allergies_patient GROUP BY center_id
+UNION ALL SELECT 'abords', center_id, count(*) FROM abords_vasculaires GROUP BY center_id;
+-- 2. DOUBLONS de diagnostic actif (KB-MED-64 : unicité applicative sans contrainte, course possible avant la reprise). Attendu : aucune ligne ; sinon expliquer avec les métiers (aucune correction automatique).
+SELECT center_id, patient_id, diagnostic_code_system, diagnostic_code, count(*) AS exemplaires FROM antecedents_medicaux
+ WHERE statut_clinique = 'ACTIF' AND diagnostic_code IS NOT NULL GROUP BY center_id, patient_id, diagnostic_code_system, diagnostic_code HAVING count(*) > 1;
+-- 3. ORPHELINS (KB-MED-61 : avant la reprise, l'écriture pour un patient inconnu ou d'un autre centre était acceptée) : fiches dont le patient est absent du centre de la fiche.
+SELECT 'antecedents' AS table_, a.center_id, count(*) AS patient_absent FROM antecedents_medicaux a LEFT JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id WHERE p.id IS NULL GROUP BY a.center_id
+UNION ALL SELECT 'allergies', a.center_id, count(*) FROM allergies_patient a LEFT JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id WHERE p.id IS NULL GROUP BY a.center_id
+UNION ALL SELECT 'abords', a.center_id, count(*) FROM abords_vasculaires a LEFT JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id WHERE p.id IS NULL GROUP BY a.center_id;
+-- 4. ABORDS DONT LE PATIENT DIFFÈRE (KB-MED-62 : le PUT d'un abord le réaffectait à un autre patient ou à un autre centre) : abords d'un patient dont le centre n'est pas celui de l'abord.
+SELECT a.center_id AS centre_de_l_abord, p.center_id AS centre_du_patient, count(*) FROM abords_vasculaires a JOIN patients p ON p.id = a.patient_id AND p.center_id <> a.center_id GROUP BY a.center_id, p.center_id;
+-- 5. TYPES D'ABORD hors de ceux que la Planification reconnaît (KB-MED-63 : texte libre ; seuls KT_AIGU et KT_TUNNELISE exigent la compétence CATHETER, RG-PLN-097) : à expliquer, pas à corriger.
+SELECT center_id, type_abord, count(*) FROM abords_vasculaires WHERE type_abord NOT IN ('KT_AIGU','KT_TUNNELISE') GROUP BY center_id, type_abord ORDER BY 3 DESC;
+-- 6. LIGNES ILLISIBLES : IGNORÉES par les lectures du module (avant : 500 pour toute la liste du patient), journal WARN « Antécédent / Allergie <id> ignoré(e) » (identifiant seul), et ni corrigeables ni supprimables par le module.
+SELECT 'antecedents' AS table_, center_id, id FROM antecedents_medicaux
+ WHERE type_antecedent NOT IN ('MEDICAL','CHIRURGICAL','FAMILIAL','OBSTETRICAL','COMORBIDITE') OR statut_clinique NOT IN ('ACTIF','RESOLU','INACTIF')
+    OR (diagnostic_code IS NOT NULL AND (diagnostic_code_system IS NULL OR diagnostic_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL')))
+UNION ALL SELECT 'allergies', center_id, id FROM allergies_patient
+ WHERE categorie NOT IN ('MEDICAMENT','ALIMENT','ENVIRONNEMENT','BIOLOGIQUE') OR criticite NOT IN ('BASSE','HAUTE') OR type_reaction NOT IN ('ALLERGIE','INTOLERANCE')
+    OR statut_verification NOT IN ('SUSPECTEE','CONFIRMEE','REFUTEE') OR substance_code_system IS NULL OR substance_code_system NOT IN ('CIM10','LOINC','ATC','LOCAL');
+-- 7. Règles de gestion violables par import ou SQL (impossibles par l'API) : allergie HAUTE sans manifestations, abord dont la fin précède la création, antécédent dont la fin précède le début, allergie constatée dans le futur.
+SELECT 'allergies_hautes_sans_manifestations' AS controle, center_id, count(*) FROM allergies_patient WHERE criticite = 'HAUTE' AND (manifestations IS NULL OR btrim(manifestations) = '') GROUP BY center_id
+UNION ALL SELECT 'abords_fin_avant_creation', center_id, count(*) FROM abords_vasculaires WHERE date_fin < date_creation GROUP BY center_id
+UNION ALL SELECT 'antecedents_fin_avant_debut', center_id, count(*) FROM antecedents_medicaux WHERE date_fin < date_debut GROUP BY center_id
+UNION ALL SELECT 'allergies_dans_le_futur', center_id, count(*) FROM allergies_patient WHERE date_constatation > current_date GROUP BY center_id;
+-- 8. Valeurs hors bornes de colonne du module (400 à la saisie ; impossibles en base car les colonnes sont bornées) : contrôle de non-régression du schéma.
+SELECT max(length(severite)) AS severite_max, max(length(libelle_libre)) AS libelle_max, max(length(diagnostic_code)) AS code_max FROM antecedents_medicaux;
+```
+Recette obligatoire AVANT bascule : (a) avec un compte MEDECIN, enregistrer un antécédent codé puis le même code (422), le résoudre (puis 422 au rejeu), le corriger, le supprimer ; déclarer une allergie HAUTE sans manifestations (422) puis avec, la corriger, vérifier le bandeau `critiques` (une allergie réfutée y reste) ; enregistrer un abord KT_AIGU, vérifier la compétence CATHETER exigée dans la Planification du jour, le remplacer, le supprimer ; (b) avec un compte INFIRMIER, vérifier le refus (403) sur antécédents, allergies et `critiques` et la lecture des abords ; (c) PUT d'un abord inconnu ou d'un autre patient : 404, rien créé ni déplacé (requête 4) ; (d) écriture pour un patient d'un autre centre : 404.
+Surveillance après déploiement : hausse attendue des 400 (corps, énumération, date, `actif`, paramètre illisible, valeur hors borne de colonne, avant 500), des 403 (corps illisible d'un profil sans droit), des 404 (patient inconnu ou d'un autre centre à l'écriture, PUT d'abord introuvable) et disparition des lignes d'audit `PATIENTS_SUPPRESSION` 204 sans suppression ; surveiller les 409 `ANTECEDENT_ECRITURE_CONCURRENTE`, `ALLERGIE_ECRITURE_CONCURRENTE`, `ABORD_VASCULAIRE_ECRITURE_CONCURRENTE` et les WARN « ignoré(e) : … illisible en base ». Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

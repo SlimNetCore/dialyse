@@ -81,7 +81,8 @@ class LEnregistrementDUneAllergieCharacterizationIntegrationTest extends Dm5Char
         m.put("cas", cas);
         m.put("lignes", lignes("SELECT substance_code_system, substance_code, categorie FROM allergies_patient WHERE center_id = ? "
                 + "ORDER BY substance_code, substance_code_system", CENTRE_A));
-        arbre("substance", m);
+        // KB-MED-58 et 59 corrigés (ADR 0084) : système absent = 400 (avant : 500), système inconnu sans nom de classe interne ; bornes de colonne = 400 (avant : 500). Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("substance_nouveau_code", m);
     }
 
     @Test
@@ -109,7 +110,8 @@ class LEnregistrementDUneAllergieCharacterizationIntegrationTest extends Dm5Char
         m.put("cas", cas);
         m.put("lignes", lignes("SELECT substance_code, categorie, criticite, type_reaction, statut_verification FROM allergies_patient "
                 + "WHERE center_id = ? ORDER BY substance_code", CENTRE_A));
-        arbre("listes_fermees", m);
+        // KB-MED-58 et 59 corrigés : énumération absente = 400 (avant : 500), valeurs inconnues sans nom de classe interne. Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("listes_fermees_nouveau_code", m);
     }
 
     @Test
@@ -146,7 +148,8 @@ class LEnregistrementDUneAllergieCharacterizationIntegrationTest extends Dm5Char
         m.put("cas", cas);
         m.put("lignes", lignes("SELECT substance_code, date_constatation FROM allergies_patient WHERE center_id = ? ORDER BY date_constatation, "
                 + "substance_code", CENTRE_A));
-        arbre("dates", m);
+        // KB-MED-58 corrigé : date illisible = 400 (avant : 500). Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("dates_nouveau_code", m);
     }
 
     @Test
@@ -186,7 +189,8 @@ class LEnregistrementDUneAllergieCharacterizationIntegrationTest extends Dm5Char
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("etat", etatDesAllergies());
-        arbre("corps_et_patient", m);
+        // KB-MED-58 et 61 corrigés : corps et identifiants illisibles = 400 (avant : 500) ; patient inconnu ou d'un autre centre = 404 sans ligne orpheline (avant : 200). Legacy archivé dans dm5/allergies/_ecarts-legacy.
+        arbre("corps_et_patient_nouveau_code", m);
         assertThat(nombreDe("allergies_patient", CENTRE_B)).isZero();
     }
 }
