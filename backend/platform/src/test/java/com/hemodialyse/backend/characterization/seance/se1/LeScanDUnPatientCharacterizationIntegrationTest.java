@@ -13,7 +13,7 @@ import java.util.UUID;
  * SE1, lot 2 : création de la séance du jour par le scan d'un patient ({@code POST /api/v1/seances/scan}) : infirmier et administrateur
  * créent puis valident, la secrétaire crée seulement ; séance déjà présente selon son statut ; formes de QR ; patient non programmé
  * (motif de séance hors planning, centre fermé) ; prise en charge ; droits, cloisonnement, corps, audit, écritures simultanées.
- * Le jour est celui de la JVM ({@code LocalDate.now()}), nommé {@code <J>} (KB-SEA-01).
+ * Le jour est celui du centre, nommé {@code <J>} (KB-SEA-01).
  */
 class LeScanDUnPatientCharacterizationIntegrationTest extends Se1CharacterizationSupport {
 

@@ -13,7 +13,7 @@ import java.util.UUID;
  * SE2, lot 3 : déverrouillage d'une séance d'un jour passé restée « créée » par l'administrateur (RG-SEA-046,
  * {@code POST /api/v1/seances/{id}/deverrouiller-regularisation?centerId=}) : effet, idempotence, diffusion, bornes de jour (la fenêtre de
  * sept jours ne borne que le rappel, pas le déverrouillage), matrice des statuts, droits par profil, cloisonnement par centre,
- * paramètres invalides, audit, écritures simultanées. Le jour de comparaison est celui de la JVM ({@code LocalDate.now()}, KB-SEA-01).
+ * paramètres invalides, audit, écritures simultanées. Le jour de comparaison est celui du centre (13e écart décidé de SE2, ADR 0089 ; le legacy lisait le jour de la JVM, KB-SEA-01).
  */
 class LeDeverrouillagePourRegularisationCharacterizationIntegrationTest extends Se2CharacterizationSupport {
 

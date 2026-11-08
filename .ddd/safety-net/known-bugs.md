@@ -1797,6 +1797,18 @@ Comportement ACTUEL (non corrigé). Goldens : `backend/platform/src/test/resourc
 ### Décisions SE2 (2026-11-08, ADR 0089, par délégation, à confirmer métiers/DPO)
 CORRIGER : KB-SEA-16 (400 au lieu de 500, 403 avant 400, plus de message technique), KB-SEA-18 (ligne verrouillée, 409 `ECRITURE_CONCURRENTE`), bornes de colonnes (signataire 100 caractères : 400), garde séance/patient/centre. REPRODUIRE avec risque en tête de l'ADR : KB-SEA-11 (signataire du corps, médico-légal), KB-SEA-12 (validation d'une séance à venir), KB-SEA-13 (7 jours ne bornent pas le déverrouillage), KB-SEA-15 (consommables cumulés). REPRODUIRE sans alerte : KB-SEA-14, 17, 20, 21 (droits, place figée = place courante). KB-SEA-19 : rien à reproduire (plan de slice corrigé). KB-SEA-01 : le jour du verrou et du déverrouillage est celui du centre.
 
+**13e écart décidé de SE2 (CORRIGER, à confirmer métiers)** : le legacy comparait le jour de la séance au jour de la JVM (`LocalDate.now()`) pour le verrou des jours passés (validation) et pour le déverrouillage ; le module lit le **jour du centre** (`Africa/Algiers` par défaut). Effet : entre minuit du centre et minuit de la JVM (JVM de production hors fuseau du centre), une séance d'« hier » au sens du centre est verrouillée pour l'infirmier. Aucun golden n'est touché : les scénarios posent leurs séances au jour du centre et le nomment `<J>` comme le jour de la JVM ; aucun scénario enregistré ne distingue les deux jours (les échecs observés entre 00:00 et 01:00 venaient des tests, plus du code). À vérifier avant la mise en production : le fuseau de la JVM.
+
+#### JALONS DATÉS ROUGES (SE2, revue au plus tard le 2026-12-15, ADR 0089 « Lot C »)
+| Jalon | État | Condition ou échéance |
+|---|---|---|
+| **ROUGE : KB-SEA-11** (signataire lu dans le corps, imputation d'une signature médicale) | OUVERT | MISE EN PRODUCTION CONDITIONNÉE à la décision écrite du juridique et du DPO (signataire = session, ou acceptation écrite, ou journal dédié) ; revue au plus tard le 2026-12-15 |
+| ROUGE : KB-SEA-12, 13, 15 (validation à venir, déverrouillage sans borne, consommables cumulés) | OUVERT | décision métier avant mise en production ; revue au plus tard le 2026-12-15 |
+| Résidu `PlaceFournieLegacy` + `SeancePlacePort` | OUVERT | retrait avec SE7 ; date butoir 2027-01-31, point d'étape à la revue du 2026-12-15 |
+| Résidu `DiffusionsFournieesLegacy` | OUVERT | retrait avec la reprise des notifications ; date butoir 2027-01-31, point d'étape à la revue du 2026-12-15 |
+| Résidu lectures `LocalDate.now()` de SE3 à SE7 | OUVERT | corrigé par slice : SE4 et SE7 au plus tard le 2027-01-31, point d'étape à la revue du 2026-12-15 |
+| Résidus `validerParLeScanResiduel`, `scanAndValidate`, `createFromQr`, 4 méthodes de `Seance` | OUVERT | retrait à la revue du 2026-12-15 (verrous ArchUnit) |
+
 ## Outillage de tests (2026-11-07)
 
 - **Horodatages `updated_at > created_at` des goldens « modification » (DM3 à DM8, SE1 hérite du harnais)** : instable quand les deux valeurs tombaient dans la même microseconde. Corrigé sans toucher aux goldens : `PlanificationCharacterizationSupport` (harnais racine de tous ces filets) intercale un filtre MockMvc garantissant 2 ms d'horloge entre la fin d'une requête et le début de la suivante ; la comparaison stricte est rétablie dans DM3 (`>=` retiré). Prouvé par 3 exécutions des classes `dossiermedical/dm*` (319 tests : ordre par défaut, aléatoire, système de fichiers).

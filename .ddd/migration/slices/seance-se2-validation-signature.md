@@ -29,6 +29,11 @@ sources: [.ddd/tactical/seance.md, ADR 0062, 0074, 0088, 0089, .ddd/safety-net/s
 ## Écarts de parité (12, tous décidés, ADR 0089 lot B)
 Corps ou paramètre illisible, absent, mal formé : 500 vers 400 · `centerId` absent : message « Centre requis » · signataire de plus de 100 caractères : 500 vers 400 · statut illisible : plus de nom de classe · patient disparu : 404 `PATIENT_INTROUVABLE` · article de consommation invalide : 500 vers 400 · audit : refus 500 vers 400. Aucun écart non voulu.
 
+**13e écart décidé (CORRIGER, à confirmer métiers, sans golden)** : le verrou des jours passés et le déverrouillage lisent le jour du centre (`Africa/Algiers`), plus le jour de la JVM (KB-SEA-01). Aucun golden n'est touché : aucun scénario ne distingue les deux jours (séances posées au jour du centre, nommé `<J>`). À vérifier avant la mise en production : le fuseau de la JVM. Détail : ADR 0089 (tableau et en-tête), RG-SEA-053, `known-bugs.md`.
+
+## Jalons rouges datés (known-bugs.md, « Décisions SE2 »)
+KB-SEA-11 : mise en production conditionnée à la décision juridique et DPO, revue au plus tard le 2026-12-15. `PlaceFournieLegacy`, `DiffusionsFournieesLegacy`, lectures `LocalDate.now()` de SE3 à SE7 : date butoir 2027-01-31, point d'étape le 2026-12-15. Résidu mineur : les cas d'usage retournent l'entité `Seance` au contrôleur (comme SE1), DTO de lecture au plus tard le 2026-12-15.
+
 ## Bilan des résidus (revue au plus tard le 2026-12-15)
 `SeanceDomainService.validerParLeScanResiduel` (avec `scanAndValidate`, `createFromQr`, `SeanceUseCase.create`) ; `Seance.validerParInfirmier`, `signerParMedecin`, `deverrouillerPourRegularisation`, `memoriserPlace` ; `PlaceFournieLegacy` et `SeancePlacePort` (avec SE7) ; `DiffusionsFournieesLegacy` ; date serveur des lectures de SE3 à SE7 (SE4, SE7). Table nominative : ADR 0089, section « Lot C ».
 

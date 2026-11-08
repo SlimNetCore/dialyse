@@ -14,6 +14,8 @@ related: ADR 0002, 0024 (refactoring sur place), 0045 (sortie pour séances), 00
 3. **KB-SEA-13 : la fenêtre de 7 jours de RG-SEA-046 ne borne pas le déverrouillage** : une séance « créée » d'il y a 400 jours se déverrouille. REPRODUIT. Condition : les métiers confirment l'absence de borne (la fenêtre ne concerne que le rappel quotidien).
 4. **KB-SEA-15 : les consommables relevés sont CUMULÉS à chaque validation répétée** d'une même séance (3 puis 2 donne 5), statut inchangé, avec risque d'inflation des imputations de stock. REPRODUIT. Condition : décision entre rejeter les lignes sur une séance déjà validée ou fixer au lieu d'ajouter. Le stock des lots n'est jamais décrémenté à la validation (imputation par le Stock sur la sortie pour séances du jour, ADR 0045) : constaté, inchangé.
 
+5. **13e écart décidé (CORRIGER, à confirmer métiers) : le jour du verrou des jours passés et du déverrouillage est celui du centre, plus celui de la JVM (KB-SEA-01).** Entre minuit du centre et minuit de la JVM, une séance d'« hier » au sens du centre est verrouillée pour l'infirmier. Condition de mise en production : vérifier le fuseau de la JVM de production et faire confirmer l'écart par les métiers.
+
 ## À confirmer avec les métiers et le DPO
 Toutes les décisions ci-dessous sont prises par délégation, EN VIGUEUR, à confirmer (données de santé, signature, audit). Détail : `known-bugs.md`, section « Décisions SE2 ».
 
@@ -29,8 +31,9 @@ SE2 est caractérisée (net 95ab8291, 33 scénarios, 33 goldens) : `POST /api/v1
 | KB | Décision | Raison |
 |---|---|---|
 | KB-SEA-11 | REPRODUIRE (risque en tête) ; corps trop long : 400 | médico-légal, décision juridique et DPO |
-| KB-SEA-12 | REPRODUIRE ; le jour est celui du CENTRE (`HorlogeDuCentre`) | une horloge de moins ; les goldens nomment `<J>` pour la JVM et le centre |
-| KB-SEA-13 | REPRODUIRE ; le jour passé du déverrouillage est celui du CENTRE | idem |
+| KB-SEA-12 | REPRODUIRE la règle (séance à venir validable sans limite) ; CORRIGER l'horloge : le jour est celui du CENTRE (`HorlogeDuCentre`), 13e écart décidé, voir ci-dessous | une horloge de moins ; les goldens nomment `<J>` pour le centre |
+| KB-SEA-13 | REPRODUIRE la règle (aucune borne) ; CORRIGER l'horloge : le jour passé du déverrouillage est celui du CENTRE (13e écart) | idem |
+| KB-SEA-01 (13e écart décidé) | **CORRIGER** : le verrou des jours passés et le déverrouillage lisent le jour du centre, plus le jour de la JVM ; à confirmer métiers | cohérence avec SE1 (RG-SEA-052) ; aucun golden touché (voir Lot B) |
 | KB-SEA-14 | REPRODUIRE (rediffusion à chaque appel, place figée à la seconde validation) | diffusions reproduites, sans risque d'intégrité |
 | KB-SEA-15 | REPRODUIRE (risque en tête) | règle de stock à décider |
 | KB-SEA-16 | CORRIGER : corps illisible, absent, `null`, tableau, `centerId` ou identifiant illisible ou absent, ligne `null` : 400 `BAD_REQUEST` (403 avant 400, y compris `MissingServletRequestParameterException`), plus aucun message technique ni nom de classe | 400 contre 500 |
@@ -45,7 +48,7 @@ SE2 est caractérisée (net 95ab8291, 33 scénarios, 33 goldens) : `POST /api/v1
 LOT A : domaine, application, ports publiés et ACL, dépôt JDBC, contrats (mémoire, H2, PostgreSQL 16 par `seance-se1-pg16-rejeu.sh`), câblage des trois cas d'usage ; AUCUNE route changée. LOT B : contrôleur, advice, droits, routage, parité 33/33, retrait des handlers et de `SeanceUseCase.validate` legacy (le scan de SE1 passe au cas d'usage du module), verrou ArchUnit. LOT C : documentation, `built`.
 
 ## Lot B (livré 2026-11-08) : routage et parité 33/33
-Routes servies par `SeancesControleur` (mêmes droits : `valider` ADMIN/INFIRMIER, `signer-medecin` ADMIN/MEDECIN, `deverrouiller-regularisation` ADMIN) ; handlers legacy, trois méthodes de `SeanceUseCase` et trois DTO retirés ; scan de SE1 : `ScannerUnPatient` valide par l'agrégat du module (goldens SE1 31/31 inchangés) ; verrou ArchUnit sur les quatre méthodes résiduelles de l'entité legacy. Parité : 33 scénarios exécutés, 21 identiques au legacy, 12 écarts DÉCIDÉS, archivés octet pour octet dans `_ecarts-legacy/<volet>/*_avant_se2.legacy.json` (R100) et remplacés par des goldens `*_nouveau_code` approuvés un par un :
+Routes servies par `SeancesControleur` (mêmes droits : `valider` ADMIN/INFIRMIER, `signer-medecin` ADMIN/MEDECIN, `deverrouiller-regularisation` ADMIN) ; handlers legacy, trois méthodes de `SeanceUseCase` et trois DTO retirés ; scan de SE1 : `ScannerUnPatient` valide par l'agrégat du module (goldens SE1 31/31 inchangés) ; verrou ArchUnit sur les quatre méthodes résiduelles de l'entité legacy. Parité : 33 scénarios exécutés, 21 identiques au legacy, 12 écarts DÉCIDÉS sur les goldens (plus le 13e écart, l'horloge du centre, sans golden : aucun scénario ne distingue le jour du centre du jour de la JVM, les séances étant posées au jour du centre nommé `<J>` ; aucun golden n'est touché), archivés octet pour octet dans `_ecarts-legacy/<volet>/*_avant_se2.legacy.json` (R100) et remplacés par des goldens `*_nouveau_code` approuvés un par un :
 | Écart | Décision |
 |---|---|
 | Corps ou paramètre illisible, absent, mal formé (`500` ; `centerId` absent ou illisible, `500`) | CORRIGER : 400 « Corps ou paramètre illisible » / « Parametre requis absent », 403 avant 400 |
@@ -64,8 +67,8 @@ Documentation : RG-SEA-053 (`07-seances.md`), annexe 16 (entrée `SeancesControl
 |---|---|---|---|
 | `SeanceDomainService.validerParLeScanResiduel` (aide privée née de SE2, appelée par `scanAndValidate` et `createFromQr`) | `scanAndValidate` et `createFromQr` sont les résidus de SE1 sans appelant de production ; ils ne compilaient plus sans `validate` | règle ArchUnit de SE1 (aucun appelant hors chaîne) | avec `scanAndValidate`, `createFromQr`, `SeanceUseCase.create` et leurs tests de `SeanceDomainServiceTest`, à la revue du 2026-12-15 |
 | `Seance.validerParInfirmier`, `signerParMedecin`, `deverrouillerPourRegularisation`, `memoriserPlace` (entité legacy de `bc-seance`) | encore utilisées comme préparation d'état par des tests de SE3 à SE7 et par `validerParLeScanResiduel` | `plus_aucun_appelant_des_ecritures_legacy_de_la_validation_de_seance` (seuls `Seance` et `SeanceDomainService` appellent) | avec les tests de SE3 à SE7 qui les emploient, au plus tard le 2026-12-15 |
-| `PlaceFournieLegacy` et le port `SeancePlacePort` (enveloppe de `SeancePlaceJdbcAdapter`) | la place du jour vient encore du Planning par son adapter legacy (RG-SEA-049) | précédent des `*Legacy` de `acl/seance/` | avec SE7 (relecture de la place par la semaine) |
-| `DiffusionsFournieesLegacy` (dont `seanceDeverrouillee`) | les diffusions temps réel passent par `NotificationService` legacy | idem | avec la reprise des notifications |
-| Date serveur dans les lectures de SE3 à SE7 (`LocalDate.now()`) | hors périmètre SE2 ; seul le jour du centre est lu par SE1 et SE2 | RG-SEA-052 | SE4 et SE7 |
+| `PlaceFournieLegacy` et le port `SeancePlacePort` (enveloppe de `SeancePlaceJdbcAdapter`) | la place du jour vient encore du Planning par son adapter legacy (RG-SEA-049) | précédent des `*Legacy` de `acl/seance/` | avec SE7 (relecture de la place par la semaine) ; date butoir 2027-01-31, point d'étape le 2026-12-15 |
+| `DiffusionsFournieesLegacy` (dont `seanceDeverrouillee`) | les diffusions temps réel passent par `NotificationService` legacy | idem | avec la reprise des notifications ; date butoir 2027-01-31, point d'étape le 2026-12-15 |
+| Date serveur dans les lectures de SE3 à SE7 (`LocalDate.now()`) | hors périmètre SE2 ; seul le jour du centre est lu par SE1 et SE2 | RG-SEA-052 | SE4 et SE7, date butoir 2027-01-31, point d'étape le 2026-12-15 |
 | Décisions REPRODUITES à confirmer (KB-SEA-11, 12, 13, 15) | arbitrage métier, juridique et DPO | en tête de l'ADR, §54, RG-SEA-053 | avant la mise en production |
-Le retrait des résidus à la revue du 2026-12-15 est nominatif : si le bilan n'est pas fait à cette date, un jalon rouge est ouvert dans `known-bugs.md`.
+Le retrait des résidus à la revue du 2026-12-15 est nominatif : les jalons rouges datés sont posés dans `known-bugs.md` (section « Décisions SE2 », KB-SEA-11 : mise en production conditionnée à la décision juridique et DPO). Résidu mineur SE2 (revue de SE2) : les cas d'usage retournent l'entité `Seance` au contrôleur (comme SE1), sans DTO de lecture ; à nettoyer avec les DTO de lecture au plus tard le 2026-12-15.

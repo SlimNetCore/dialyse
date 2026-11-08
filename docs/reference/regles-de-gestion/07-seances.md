@@ -94,7 +94,8 @@
   avant le 400) ; un signataire de plus de 100 caractères répond 400 (et non 500) sans rien écrire ; une séance inconnue ou d'un autre
   centre répond 400 « Seance introuvable », un patient disparu 404 `PATIENT_INTROUVABLE`, un article inconnu ou inactif 400, un statut
   illisible en base 400 sans nom de classe interne ; le « jour passé » du verrou de validation (RG-SEA-046) et du déverrouillage est le
-  **jour du centre** (KB-SEA-01). **Reproduits, à confirmer avant la mise en production** — (KB-SEA-11) le signataire est lu dans le corps
+  **jour du centre** et non plus celui du serveur (KB-SEA-01, 13e écart décidé de SE2 à confirmer avec les métiers : entre minuit du
+  centre et minuit du serveur, une séance d'« hier » au sens du centre est verrouillée pour l'infirmier). **Reproduits, à confirmer avant la mise en production** — (KB-SEA-11) le signataire est lu dans le corps
   de la requête et non dans la session : un compte peut valider ou signer au nom d'un autre, **risque d'imputation d'une signature
   médicale (décision juridique et DPO)** ; (KB-SEA-12) une séance à venir se valide sans limite ; (KB-SEA-13) la fenêtre de 7 jours de
   RG-SEA-046 ne borne pas le déverrouillage (elle ne concerne que le rappel) ; (KB-SEA-15) les consommables relevés se **cumulent** à

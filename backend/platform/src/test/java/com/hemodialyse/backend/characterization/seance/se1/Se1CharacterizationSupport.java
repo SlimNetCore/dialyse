@@ -91,7 +91,7 @@ public abstract class Se1CharacterizationSupport extends SemaineCharacterization
         return alias(REPERE.plusDays(n), "<D" + (n < 0 ? n : "+" + n) + ">");
     }
 
-    /** Le jour du centre ({@code <J>}) ; le jour de la JVM porte le même nom (voir KB-SEA-01). */
+    /** Le jour du centre ({@code <J>}) : seul jour lu par le module, la JVM n'intervient plus (voir KB-SEA-01). */
     protected LocalDate aujourdhuiNomme() {
         return jour(0);
     }

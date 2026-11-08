@@ -13,8 +13,8 @@ import java.util.UUID;
  * SE2, lot 1 : validation d'une séance par l'infirmier ou l'administrateur ({@code POST /api/v1/seances/{id}/valider}) : transition
  * {@code CREE -> VALIDEE}, matrice des statuts, verrou des séances d'un jour passé (déverrouillage de l'administrateur), compte
  * enregistré, droits par profil, cloisonnement par centre, corps invalides, consommables imputés par le Stock (et retour arrière),
- * place mémorisée, diffusions, audit, écritures simultanées, lignes illisibles. Le jour de comparaison est celui de la JVM
- * ({@code LocalDate.now()}), nommé {@code <J>} comme le jour du centre (KB-SEA-01).
+ * place mémorisée, diffusions, audit, écritures simultanées, lignes illisibles. Le jour de comparaison est celui du centre,
+ * nommé {@code <J>} (13e écart décidé de SE2, ADR 0089 ; le legacy lisait le jour de la JVM, KB-SEA-01).
  */
 class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2CharacterizationSupport {
 
