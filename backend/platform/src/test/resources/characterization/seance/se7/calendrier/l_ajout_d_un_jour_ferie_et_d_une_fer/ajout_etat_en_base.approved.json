@@ -1,0 +1,21 @@
+{
+  "fermetures du centre A" : [ {
+    "day_date" : "<D+19>",
+    "reason" : "Travaux"
+  }, {
+    "day_date" : "<D+20>",
+    "reason" : null
+  } ],
+  "fermetures du centre B" : [ ],
+  "jours feries du centre A" : [ {
+    "day_date" : "<1900>",
+    "label" : "Ancien"
+  }, {
+    "day_date" : "<D+14>",
+    "label" : "Fete"
+  }, {
+    "day_date" : "<D+15>",
+    "label" : null
+  } ],
+  "jours feries du centre B" : [ ]
+}

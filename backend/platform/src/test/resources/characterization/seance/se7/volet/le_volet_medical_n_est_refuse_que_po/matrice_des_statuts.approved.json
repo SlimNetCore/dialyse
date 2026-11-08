@@ -1,0 +1,8 @@
+{
+  "ABSENT" : "422 BUSINESS_RULE_VIOLATION | La seance exclue de la facturation (patient absent) n'a pas de volet medical ; volets=0",
+  "CREE" : "422 BUSINESS_RULE_VIOLATION | Le volet medical n'est accessible qu'apres validation infirmiere ; volets=0",
+  "EN_COURS" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS ; volets=0",
+  "FACTUREE" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; volets=0",
+  "SIGNEE" : "200 ok ; volets=1",
+  "VALIDEE" : "200 ok ; volets=1"
+}

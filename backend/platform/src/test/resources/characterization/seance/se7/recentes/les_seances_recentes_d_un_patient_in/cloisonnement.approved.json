@@ -1,0 +1,47 @@
+{
+  "01 patient inconnu" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "02 patient du centre B lu par la session A" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "03 patient du centre B avec centerId = B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 patient du centre A avec centerId = B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "05 identifiant de patient illisible" : "500 INTERNAL_ERROR",
+  "06 patient du centre B lu par la session B" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_B>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    }, {
+      "dateSeance" : "<J-4>",
+      "dureeMinutes" : 202,
+      "poidsApresKg" : 68.2,
+      "poidsAvantKg" : 70.2,
+      "seanceId" : "<S_2_B>",
+      "status" : "SIGNEE",
+      "taApres" : "122/70",
+      "taAvant" : "132/80",
+      "ultrafiltrationMl" : 1002.0
+    }, {
+      "dateSeance" : "<J-5>",
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : null,
+      "seanceId" : "<S_3_B>",
+      "status" : "SIGNEE",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    } ],
+    "status" : 200
+  }
+}

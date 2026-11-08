@@ -1,0 +1,63 @@
+{
+  "01 avant" : [ ],
+  "02 creation par le medecin" : {
+    "corps" : {
+      "id" : "<UUID_GENERE_1>",
+      "seanceId" : "<SEANCE>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "03 apres la creation" : [ {
+    "ajustements_therapeutiques" : "Aucun",
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Stable",
+    "created_at" : "renseigne",
+    "examen_clinique" : "RAS",
+    "prescription" : "Prescription fictive",
+    "resultats_biologiques" : "Normaux",
+    "tolerance_seance" : "Bonne",
+    "updated_at" : "renseigne"
+  } ],
+  "04 remplacement partiel (une seule observation)" : {
+    "corps" : {
+      "id" : "<UUID_GENERE_1>",
+      "seanceId" : "<SEANCE>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "05 apres le remplacement : les autres champs sont effaces" : [ {
+    "ajustements_therapeutiques" : null,
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : "Revue",
+    "created_at" : "renseigne",
+    "examen_clinique" : null,
+    "prescription" : null,
+    "resultats_biologiques" : null,
+    "tolerance_seance" : null,
+    "updated_at" : "renseigne"
+  } ],
+  "06 le volet est le meme enregistrement" : true,
+  "07 nombre de volets pour la seance" : 1,
+  "08 corps sans aucun champ" : {
+    "corps" : {
+      "id" : "<UUID_GENERE_1>",
+      "seanceId" : "<SEANCE>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "09 apres le corps vide : tout est efface" : [ {
+    "ajustements_therapeutiques" : null,
+    "center_id" : "<CENTRE_A>",
+    "conclusion_medicale" : null,
+    "created_at" : "renseigne",
+    "examen_clinique" : null,
+    "prescription" : null,
+    "resultats_biologiques" : null,
+    "tolerance_seance" : null,
+    "updated_at" : "renseigne"
+  } ],
+  "10 diffusions" : [ ]
+}

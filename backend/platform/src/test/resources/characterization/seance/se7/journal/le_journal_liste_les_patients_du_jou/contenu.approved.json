@@ -1,0 +1,127 @@
+{
+  "01 journal sans aucun bon de sortie : liste d'articles vide" : {
+    "corps" : {
+      "dateSeance" : "<J>",
+      "patients" : [ {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-ALPHA",
+        "patientId" : "<ALPHA>",
+        "patientNom" : "Patient ALPHA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_ALPHA>",
+        "status" : "SIGNEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-BETA",
+        "patientId" : "<BETA>",
+        "patientNom" : "Patient BETA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_BETA>",
+        "status" : "VALIDEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-GAMMA",
+        "patientId" : "<GAMMA>",
+        "patientNom" : "Patient GAMMA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_GAMMA>",
+        "status" : "CREE"
+      } ],
+      "sortiesArticles" : [ ]
+    },
+    "status" : 200
+  },
+  "02 consommable declare sur BETA : n'alimente pas les sorties" : "200 ok",
+  "03 journal du jour avec trois bons (cumul par article, tri par code)" : {
+    "corps" : {
+      "dateSeance" : "<J>",
+      "patients" : [ {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-ALPHA",
+        "patientId" : "<ALPHA>",
+        "patientNom" : "Patient ALPHA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_ALPHA>",
+        "status" : "SIGNEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-BETA",
+        "patientId" : "<BETA>",
+        "patientNom" : "Patient BETA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_BETA>",
+        "status" : "VALIDEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-GAMMA",
+        "patientId" : "<GAMMA>",
+        "patientNom" : "Patient GAMMA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_GAMMA>",
+        "status" : "CREE"
+      } ],
+      "sortiesArticles" : [ {
+        "articleCode" : "SE2-ART_1",
+        "articleId" : "<ART_1>",
+        "articleLibelle" : "Article ART_1",
+        "quantiteTotale" : 3.0
+      }, {
+        "articleCode" : "SE2-ART_2",
+        "articleId" : "<ART_2>",
+        "articleLibelle" : "Article ART_2",
+        "quantiteTotale" : 4.0
+      } ]
+    },
+    "status" : 200
+  },
+  "04 journal de la veille" : {
+    "corps" : {
+      "dateSeance" : "<J-1>",
+      "patients" : [ {
+        "dateSeance" : "<J-1>",
+        "patientCode" : "SE1-GAMMA",
+        "patientId" : "<GAMMA>",
+        "patientNom" : "Patient GAMMA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_GAMMA_HIER>",
+        "status" : "SIGNEE"
+      } ],
+      "sortiesArticles" : [ {
+        "articleCode" : "SE2-ART_1",
+        "articleId" : "<ART_1>",
+        "articleLibelle" : "Article ART_1",
+        "quantiteTotale" : 7.0
+      } ]
+    },
+    "status" : 200
+  },
+  "05 journal d'un jour sans seance" : {
+    "corps" : {
+      "dateSeance" : "<J+5>",
+      "patients" : [ ],
+      "sortiesArticles" : [ ]
+    },
+    "status" : 200
+  },
+  "06 journal du centre B lu par la session B" : {
+    "corps" : {
+      "dateSeance" : "<J>",
+      "patients" : [ {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-DELTA",
+        "patientId" : "<DELTA>",
+        "patientNom" : "Patient DELTA",
+        "patientPrenom" : "Test",
+        "seanceId" : "<S_DELTA>",
+        "status" : "VALIDEE"
+      } ],
+      "sortiesArticles" : [ {
+        "articleCode" : "SE2-ART_B",
+        "articleId" : "<ART_B>",
+        "articleLibelle" : "Article ART_B",
+        "quantiteTotale" : 9.0
+      } ]
+    },
+    "status" : 200
+  }
+}

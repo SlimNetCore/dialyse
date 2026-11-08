@@ -1,0 +1,9 @@
+{
+  "01 date absente" : "500 INTERNAL_ERROR",
+  "02 date illisible" : "500 INTERNAL_ERROR",
+  "03 date au format jour/mois/annee" : "500 INTERNAL_ERROR",
+  "04 date vide" : "500 INTERNAL_ERROR",
+  "05 centre absent" : "500 INTERNAL_ERROR",
+  "06 centre illisible" : "500 INTERNAL_ERROR",
+  "07 date lointaine (an 9999)" : "200 ok"
+}

@@ -1,0 +1,17 @@
+{
+  "ADMIN" : "200 ok",
+  "ADMIN sans centre" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+  "DIRECTION" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "INFIRMIER + SECRETAIRE" : "200 ok",
+  "INFIRMIER seul" : "200 ok",
+  "MEDECIN + ADMIN" : "200 ok",
+  "MEDECIN + INFIRMIER" : "200 ok",
+  "MEDECIN seul" : "200 ok",
+  "SECRETAIRE" : "403 ACCESS_DENIED | Access Denied",
+  "SUPERADMIN" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "anonyme" : "403",
+  "aucun role" : "403 ACCESS_DENIED | Access Denied",
+  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED | Access Denied",
+  "role personnalise (CHEF_DE_SALLE)" : "403 ACCESS_DENIED | Access Denied"
+}

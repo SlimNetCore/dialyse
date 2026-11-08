@@ -1,0 +1,5 @@
+{
+  "01 seance du centre B avec le centre A de la session" : "400 BAD_REQUEST | Seance introuvable",
+  "02 seance du centre B avec le centre B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 volets du centre B" : 0
+}

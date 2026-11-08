@@ -1,0 +1,66 @@
+{
+  "01 janvier 2026" : {
+    "corps" : {
+      "closures" : [ {
+        "dayDate" : "<D+9>",
+        "id" : "<UUID_GENERE_1>",
+        "reason" : "Travaux"
+      } ],
+      "holidays" : [ {
+        "dayDate" : "<D+0>",
+        "id" : "<UUID_GENERE_2>",
+        "label" : "Premier du mois"
+      }, {
+        "dayDate" : "<D+14>",
+        "id" : "<UUID_GENERE_3>",
+        "label" : null
+      }, {
+        "dayDate" : "<D+30>",
+        "id" : "<UUID_GENERE_4>",
+        "label" : "Dernier du mois"
+      } ],
+      "month" : 1,
+      "year" : 2026
+    },
+    "status" : 200
+  },
+  "02 decembre 2025 (un seul jour, la veille)" : {
+    "corps" : {
+      "closures" : [ ],
+      "holidays" : [ {
+        "dayDate" : "<D-1>",
+        "id" : "<UUID_GENERE_5>",
+        "label" : "Veille du mois"
+      } ],
+      "month" : 12,
+      "year" : 2025
+    },
+    "status" : 200
+  },
+  "03 mois sans jour" : {
+    "corps" : {
+      "closures" : [ ],
+      "holidays" : [ ],
+      "month" : 3,
+      "year" : 2026
+    },
+    "status" : 200
+  },
+  "04 centre B" : {
+    "corps" : {
+      "closures" : [ {
+        "dayDate" : "<D+9>",
+        "id" : "<UUID_GENERE_6>",
+        "reason" : "Autre centre"
+      } ],
+      "holidays" : [ {
+        "dayDate" : "<D+3>",
+        "id" : "<UUID_GENERE_7>",
+        "label" : "Autre centre"
+      } ],
+      "month" : 1,
+      "year" : 2026
+    },
+    "status" : 200
+  }
+}

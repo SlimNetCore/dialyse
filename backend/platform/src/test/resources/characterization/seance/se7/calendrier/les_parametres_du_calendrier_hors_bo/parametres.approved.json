@@ -1,0 +1,12 @@
+{
+  "01 mois 0" : "500 INTERNAL_ERROR",
+  "02 mois 13" : "500 INTERNAL_ERROR",
+  "03 mois negatif" : "500 INTERNAL_ERROR",
+  "04 annee 0" : "200 ok",
+  "05 annee 1000000000 (hors bornes)" : "500 INTERNAL_ERROR",
+  "06 annee absente" : "500 INTERNAL_ERROR",
+  "07 mois absent" : "500 INTERNAL_ERROR",
+  "08 annee texte" : "500 INTERNAL_ERROR",
+  "09 annee 1900" : "200 ok",
+  "10 centre absent" : "500 INTERNAL_ERROR"
+}

@@ -1,0 +1,34 @@
+{
+  "01 ferie le 15/01" : {
+    "corps" : {
+      "dayDate" : "<D+14>",
+      "id" : "<UUID_GENERE_1>"
+    },
+    "status" : 200
+  },
+  "02 meme ferie une seconde fois" : {
+    "code" : "DATA_ACCESS_ERROR",
+    "status" : 500
+  },
+  "03 ferie sans libelle" : "200 ok",
+  "04 ferie sans date" : "500 INTERNAL_ERROR",
+  "05 ferie dans le passe lointain (an 1900)" : "200 ok",
+  "06 ferie avec un libelle de 2000 caracteres" : "500 DATA_ACCESS_ERROR",
+  "07 fermeture le 20/01" : {
+    "corps" : {
+      "dayDate" : "<D+19>",
+      "id" : "<UUID_GENERE_2>"
+    },
+    "status" : 200
+  },
+  "08 fermeture en double" : {
+    "code" : "DATA_ACCESS_ERROR",
+    "status" : 500
+  },
+  "09 fermeture sans motif" : "200 ok",
+  "10 fermeture sans date" : "500 INTERNAL_ERROR",
+  "11 corps vide" : "500 INTERNAL_ERROR",
+  "12 corps absent" : "500 INTERNAL_ERROR",
+  "13 date illisible" : "500 INTERNAL_ERROR",
+  "14 centre B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+}

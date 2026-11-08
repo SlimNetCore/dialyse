@@ -1,0 +1,16 @@
+{
+  "feries" : [ {
+    "day_date" : "<D+1>",
+    "label" : "Droits"
+  }, {
+    "day_date" : "<D+14>",
+    "label" : "Droits"
+  } ],
+  "fermetures" : [ {
+    "day_date" : "<D+1>",
+    "reason" : "Droits"
+  }, {
+    "day_date" : "<D+14>",
+    "reason" : "Droits"
+  } ]
+}

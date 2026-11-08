@@ -1,0 +1,104 @@
+{
+  "ADMIN" : {
+    "DELETE closure" : "200 ok",
+    "DELETE holiday" : "200 ok",
+    "GET calendar" : "200 ok",
+    "POST closure" : "200 ok",
+    "POST holiday" : "200 ok"
+  },
+  "ADMIN sans centre" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "DELETE holiday" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "GET calendar" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "POST closure" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "POST holiday" : "403 ACCESS_DENIED | Session sans centre de rattachement"
+  },
+  "DIRECTION" : {
+    "DELETE closure" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "DELETE holiday" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET calendar" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "POST closure" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "POST holiday" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "200 ok",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "INFIRMIER seul" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "200 ok",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "MEDECIN + ADMIN" : {
+    "DELETE closure" : "200 ok",
+    "DELETE holiday" : "200 ok",
+    "GET calendar" : "200 ok",
+    "POST closure" : "200 ok",
+    "POST holiday" : "200 ok"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "200 ok",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "MEDECIN seul" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "200 ok",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "SECRETAIRE" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "200 ok",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "SUPERADMIN" : {
+    "DELETE closure" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "DELETE holiday" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET calendar" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "POST closure" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "POST holiday" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "SUPERADMIN + ADMIN" : {
+    "DELETE closure" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "DELETE holiday" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET calendar" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "POST closure" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "POST holiday" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "anonyme" : {
+    "GET calendar" : "403",
+    "POST holiday" : "403"
+  },
+  "aucun role" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "403 ACCESS_DENIED | Access Denied",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "403 ACCESS_DENIED | Access Denied",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "DELETE closure" : "403 ACCESS_DENIED | Access Denied",
+    "DELETE holiday" : "403 ACCESS_DENIED | Access Denied",
+    "GET calendar" : "403 ACCESS_DENIED | Access Denied",
+    "POST closure" : "403 ACCESS_DENIED | Access Denied",
+    "POST holiday" : "403 ACCESS_DENIED | Access Denied"
+  }
+}
