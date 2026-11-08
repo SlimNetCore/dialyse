@@ -74,6 +74,15 @@ Renvoi (2026-11-08, revue SE7c2) : côté Facturation, ces quatre ports publiés
 
 Renvoi (2026-11-08, SE7d, ADR 0098) : côté Absences de patients, `SeancesRealiseesPubliees` et `LiensDExclusionPublies` sont consommés au travers de `SeancesRealiseesFournies` et `LiensDExclusionFournis` (langage publié des Absences) ; côté Planification, `SeancesRealiseesAvecLeurPlacePubliees` au travers de `SeancesRealiseesAvecLeurPlaceFournies` (langage publié de la Planification) ; traducteurs `platform/…/infrastructure/acl/{absences,planification}/*ParLaSeance` (cycle Maven). Le Dossier médical importe directement `ConstantesDesSeancesPubliees` (aucun cycle). Ce ne sont pas des termes de la Séance.
 
+Note (2026-11-08, revue SE7d n4) : trois types portent le même nom simple `SeancesRealiseesPubliees` ; on les distingue par leur paquet (aucun renommage, décision utilisateur) :
+| Paquet | Nature | Contexte |
+|---|---|---|
+| `contexts.seance.publishedlanguage.SeancesRealiseesPubliees` | Port publié (interface) de la Séance : le seul terme de ce glossaire | Séance (fournisseur) |
+| `contexts.absencespatients.infrastructure.acl.seance.SeancesRealiseesPubliees` | ACL interne des Absences (classe) : implémente le port des Absences au-dessus de `SeancesRealiseesFournies` | Absences de patients (consommateur) |
+| `contexts.planification.infrastructure.acl.seance.SeancesRealiseesPubliees` | ACL interne de la Planification (classe) : implémente le port de la Planification au-dessus de `SeancesRealiseesAvecLeurPlaceFournies` (nom composé, risque) | Planification (consommateur) |
+
+Dans les deux ACL, « Publiees » désigne la source (les séances publiées par la Séance), pas un port publié par le consommateur. ArchUnit empêche de confondre les types à la compilation ; à la lecture, se fier au paquet.
+
 Questions ouvertes (SE7d) : ordre stable entre patients d'un même jour (KB-SEA-77) et entre deux séances du même jour (KB-SEA-78) ? Ordre voulu d'une création nulle (KB-SEA-79) ? Une séance réalisée doit-elle rester visible quand la fiche change de centre (KB-SEA-80) ? Le lien d'exclusion doit-il tenir compte du statut (KB-SEA-81) ?
 
 Questions ouvertes (SE7c2) : écrire le code du forfait imposé ou ne plus le lire (KB-SEA-47) ? Une seule définition de « séance facturée » (KB-SEA-75) ? Clé étrangère sur `seances.facture_id` (KB-SEA-74) ?

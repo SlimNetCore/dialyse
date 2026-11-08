@@ -62,17 +62,20 @@ SELECT center_id, patient_id, date_seance, count(*) FROM seances WHERE statut IN
 ```
 
 ## Résidus nominatifs (revue ≤ 2026-12-15 ET butoir propre pour chacun)
+Liste identique à celle de la fiche (`.ddd/migration/slices/seance-se7d-lectures-absences-planification-dossier.md`, section « Résidus nominatifs »), qui fait foi.
+
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
-| D-R1 | KB-SEA-77, 78 : ordre non défini (semaine des absences, deux séances le même jour au planning) : décision métier d'un départage | 2026-12-15 | 2027-03-31 |
-| D-R2 | KB-SEA-79 : création nulle ordonnée différemment par H2 et PG16 ; le golden fige H2, la production n'est verrouillée que par le rejeu | 2026-12-15 | 2027-03-31 |
-| D-R3 | KB-SEA-80 : jointure au centre du patient (transfert) ; `SeancesRealiseesAvecLeurPlacePubliees` lit `patients` (entrée de `TableDuPatientCouvertureTest`) : à remplacer par un langage publié du Patient | 2026-12-15 | 2027-03-31 |
-| D-R4 | KB-SEA-81, 82 : lien d'exclusion sans statut, casse et blancs du statut (avec C2-R3) | 2026-12-15 | 2027-03-31 |
-| D-R5 | 3 langages `*Fournies` et 3 traducteurs `*ParLaSeance` logés dans la plateforme (cycle Maven Séance -> Absences / Patient-couverture -> Planification) | 2026-12-15 | 2027-06-30 |
-| D-R6 | P1 vu par l'optimisation (empreinte, KB-PLN-95) : seul le statut PLANIFIEE est rejoué en HTTP (P8) ; une séance RÉALISÉE ajoutée après le calcul n'est observée que par le test de domaine (couverture PARTIELLE de l'appelant optimisation) | 2026-12-15 | 2027-03-31 |
-| D-R7 | Concurrence (lecture pendant une validation ou une exclusion) non rejouée ; couverture de branches et mutation non mesurées | 2026-12-15 | 2027-03-31 |
+| D-R1 | KB-SEA-77, 78 : ordre non défini (semaine des absences ; deux séances réalisées le même jour au planning) | 2026-12-15 | 2027-03-31 |
+| D-R2 | KB-SEA-79 : création nulle ordonnée différemment par H2 (golden) et PG16 (production, rejeu seulement) | 2026-12-15 | 2027-03-31 |
+| D-R3 | KB-SEA-80 : jointure au centre de la fiche ; `LecturesDesSeancesRealiseesJdbc` lit `patients` (entrée de `TableDuPatientCouvertureTest`) : à remplacer par un langage publié du Patient | 2026-12-15 | 2027-03-31 |
+| D-R4 | KB-SEA-81, 82 : lien d'exclusion sans statut ; casse et blancs du statut (avec C2-R3) | 2026-12-15 | 2027-03-31 |
+| D-R5 | 3 langages `*Fournies` et 3 traducteurs `*ParLaSeance` dans la plateforme (cycle Maven) ; tests des Absences joués au-dessus du double `SeancesRealiseesSurLaTable` | 2026-12-15 | 2027-06-30 |
+| D-R6 | **PARTIEL : P1 vu par l'optimisation** (`POST /api/v1/planning/optimisations`, `/{id}/application`, empreinte KB-PLN-95) : en HTTP, seul le statut PLANIFIEE est rejoué (P8) ; une séance RÉALISÉE ajoutée après le calcul n'est observée que par le test de domaine `EmpreinteEtIndicateursDOptimisationTest`. Le port de la semaine est le même (`planificationSeancesRealisees`), la requête est prouvée par le contrat, mais l'appelant optimisation n'a pas de golden de bout en bout | 2026-12-15 | 2027-03-31 |
+| D-R7 | Concurrence (lecture pendant une validation, une exclusion) non rejouée ; couverture de branches et mutation non mesurées (PIT non lancé) | 2026-12-15 | 2027-03-31 |
+| D-R8 | **SOLDÉ (décision utilisateur, 2026-11-08, revue m1)**. Le HTML `docs/client/documentation-fonctionnelle.html:1889` cite la même source que `06-absences-patients.md:193-194` : l'ACL `ExclusionsDeSeancesPubliees` (`absencespatients/infrastructure/acl/seance`, câblée par `AbsencesPatientsContexteConfiguration:170`), et non plus `LiensDExclusionFournis`. Le PDF et le DOCX, ainsi que RG-SEA-062 à 064, suivront la prochaine régénération ordinaire (`docs/client/tools`), sans résidu ouvert | — | — |
 
-## Bilan (lots A à D, 2026-11-08, non commités)
+## Bilan (lots A à D, 2026-11-08, commits `e662b0d9` filet et `f812dff0` lots A à D)
 - Ports publiés et adapters livrés tels que décidés ; contrat `SeancesRealiseesEtConstantesContrat` 14 cas (mémoire 14/14, H2 14/14, PG16 15/15 avec la vérification de version) ; rejeu `seance-se7d-pg16-rejeu.sh` code 0.
 - Supprimés : Absences `legacyseance/SeancesRealiseesJdbc`, `legacyseance/ExclusionsDeSeancesJdbc` ; Planification `legacyseance/SeancesRealiseesJdbc` ; Dossier médical `persistence/HistoriqueDesConstantesJdbc`. Édité : `legacyplanning/PatientsAttendusJdbc` (sa requête `seances` passe par `SeancesRealiseesFournies` ; ses trois autres requêtes, sur d'autres tables, restent). `TableDesSeancesTest` : 12 lecteurs, 0 hors plateforme.
 - Parité : les 12 goldens SE7d et tous les goldens des modules inchangés (aucun fichier `.approved.json` modifié), aucun écart. Détail, correspondance des tests retirés et résidus nominatifs : `.ddd/migration/slices/seance-se7d-lectures-absences-planification-dossier.md`.

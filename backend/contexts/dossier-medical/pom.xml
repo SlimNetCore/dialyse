@@ -98,8 +98,11 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- Langage publie de la Seance : ConstantesDesSeancesPubliees (historique des constantes), SE7d, ADR 0098. Aucun cycle : aucun
-             module dont depend la Seance ne depend du Dossier medical (verifie le 2026-11-08). Seul le paquet publishedlanguage est utilise
-             (ArchitectureHexagonaleTest, FrontieresDesContextesTest). -->
+             module dont depend la Seance ne depend du Dossier medical (verifie le 2026-11-08). Le code de PRODUCTION n'importe que le
+             paquet publishedlanguage (ArchitectureHexagonaleTest, FrontieresDesContextesTest). Le contrat de TEST
+             HistoriqueDesConstantesJdbcContrat importe en plus l'adapter seance.infrastructure.persistence.ConstantesDesSeancesJdbc
+             (il joue le vrai adapter de la Seance ; les regles ArchUnit excluent les tests). Par transitivite, les classes des
+             Absences, de la Facturation et de la Comptabilite sont sur le classpath : ArchitectureHexagonaleTest les interdit. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>
             <artifactId>contexts-seance</artifactId>

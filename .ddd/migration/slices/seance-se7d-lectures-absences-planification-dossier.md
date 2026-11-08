@@ -22,7 +22,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 | `contexts/planification/.../acl/legacyseance/SeancesRealiseesJdbc.java` (supprimé) | P1 (jointure `patients`) | séances réalisées de la semaine |
 | `contexts/dossier-medical/.../persistence/HistoriqueDesConstantesJdbc.java` (supprimé) | D1, D2 (jointure `volet_paramedical`) | historique des constantes |
 
-## Lots livrés (non commités)
+## Lots livrés (commits `e662b0d9` filet, `f812dff0` lots A à D)
 | Lot | Contenu |
 |---|---|
 | Filet | `e662b0d9` : 12 goldens SE7d, rejeu PG16, KB-SEA-77 à 82 ; vert sur le legacy avant tout code |
@@ -60,6 +60,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 - Tests ciblés des modules (absences-patients, planification, dossier-medical, seance, platform : verrous, traducteurs) : verts.
 - Suite complète `./mvnw -o test -fae` (depuis `backend/`, un build à la fois) : DEUX exécutions, toutes deux BUILD SUCCESS. La 1re a été relancée une fois parce que le filtre de sortie avait écarté les lignes de résumé « Tests run » ; la 2e donne, d'après les résumés Maven des 15 modules testés, **7 667 tests, 0 échec, 0 erreur, 10 ignorés** (shared-kernel 22, bc-patient 18, stock 154, bc-seance 51, bc-medical 32, gmao 751, comptabilité 310, planification 743, patient-couverture 203, facturation 479 dont 1 ignoré, absences-patients 395, organisation 77, seance 698, dossier-medical 595, platform 3 139 dont 9 ignorés). Avant SE7d : 7 609. Les XML Surefire des `target/` ne sont pas sommés (rapports périmés).
 - `check-arch` : 0 violation.
+- Suites de la revue (`.ddd/verify/verify-seance-se7d.md`, section « Suites données ») : une règle ArchUnit est ajoutée au Dossier médical (m4) et la documentation est corrigée. Suite complète : **7 668 tests, 0 échec, 0 erreur, 10 ignorés** (lancée deux fois, la 1re ayant perdu ses lignes de résumé au filtrage) ; `check-arch` : 0.
 
 ## Résidus nominatifs (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
@@ -71,7 +72,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 | D-R5 | 3 langages `*Fournies` et 3 traducteurs `*ParLaSeance` dans la plateforme (cycle Maven) ; tests des Absences joués au-dessus du double `SeancesRealiseesSurLaTable` | 2026-12-15 | 2027-06-30 |
 | D-R6 | **PARTIEL : P1 vu par l'optimisation** (`POST /api/v1/planning/optimisations`, `/{id}/application`, empreinte KB-PLN-95) : en HTTP, seul le statut PLANIFIEE est rejoué (P8) ; une séance RÉALISÉE ajoutée après le calcul n'est observée que par le test de domaine `EmpreinteEtIndicateursDOptimisationTest`. Le port de la semaine est le même (`planificationSeancesRealisees`), la requête est prouvée par le contrat, mais l'appelant optimisation n'a pas de golden de bout en bout | 2026-12-15 | 2027-03-31 |
 | D-R7 | Concurrence (lecture pendant une validation, une exclusion) non rejouée ; couverture de branches et mutation non mesurées (PIT non lancé) | 2026-12-15 | 2027-03-31 |
-| D-R8 | Documentation fonctionnelle `docs/client/documentation-fonctionnelle.{html,pdf,docx}` NON régénérée (le générateur rend le PDF par playwright-core, que l'assistant ne lance pas) : elle cite encore `ExclusionsDeSeancesJdbc` et n'a pas RG-SEA-062 à 064. À régénérer par l'utilisateur (`docs/client/tools`) | 2026-12-15 | 2026-12-31 |
+| D-R8 | **SOLDÉ (décision utilisateur, 2026-11-08, revue m1)**. Le HTML `docs/client/documentation-fonctionnelle.html:1889` cite la même source que `06-absences-patients.md:193-194` : l'ACL `ExclusionsDeSeancesPubliees` (`absencespatients/infrastructure/acl/seance`, câblée par `AbsencesPatientsContexteConfiguration:170`), et non plus `LiensDExclusionFournis`. Le PDF et le DOCX, ainsi que RG-SEA-062 à 064, suivront la prochaine régénération ordinaire (`docs/client/tools`), sans résidu ouvert | — | — |
 
 ## Reste à faire
 Confirmation métiers / DPO de l'ADR 0098 (au plus tard 2026-12-15) ; exécuter les requêtes §63 sur une copie de production ; résidus D-R1 à D-R8 ; `/ddd-verify seance-se7d-lectures-absences-planification-dossier`.

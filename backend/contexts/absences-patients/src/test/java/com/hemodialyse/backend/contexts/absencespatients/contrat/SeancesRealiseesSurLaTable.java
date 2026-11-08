@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * ATTENTION, SQL COPIÉ : les requêtes de ce double recopient celles de {@code seance/.../persistence/LecturesDesSeancesRealiseesJdbc}
+ * (A1 à A3, A5, sans l'alias {@code s.}) ; elles ne font pas référence. La référence est le contrat de la Séance
+ * {@code SeancesRealiseesEtConstantesContrat} (mémoire, H2, PG16) plus les goldens SE7d de la plateforme : une modification du vrai
+ * adapter n'est vue que par eux, pas par les tests des Absences (revue SE7d m2, résidu D-R5).
+ *
  * Double de TEST du langage fourni {@link SeancesRealiseesFournies} : il lit la table des séances que les tests des Absences sèment eux-mêmes
  * (le module ne peut pas dépendre de la Séance, ADR 0098). Il n'existe que pour garder ces tests sur les tables réelles (H2, PostgreSQL 16)
  * des Absences ; le vrai adapter de la Séance et sa sémantique (casse, bornes, centre, doublons) sont prouvés par

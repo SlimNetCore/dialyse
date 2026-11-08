@@ -5,6 +5,9 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "com.hemodialyse.backend.contexts.dossiermedical", importOptions = ImportOption.DoNotIncludeTests.class)
@@ -94,4 +97,21 @@ class ArchitectureHexagonaleTest {
                     "com.hemodialyse.backend.contexts.stock.domain..", "com.hemodialyse.backend.contexts.stock.application..",
                     "com.hemodialyse.backend.contexts.stock.infrastructure..", "com.hemodialyse.backend.contexts.stock.interfaces..",
                     "com.hemodialyse.backend.contexts.stock.configuration..");
+
+    /**
+     * Revue SE7d m4 : la dépendance Maven {@code contexts-seance} met sur le classpath, par transitivité, les Absences, la Facturation et la
+     * Comptabilité. Le code de production du Dossier médical ne lit de la Séance que son langage publié (tout autre paquet, y compris un
+     * paquet futur, est refusé) et ne dépend d'aucun paquet de ces trois contextes. Les tests sont exclus (le contrat
+     * {@code HistoriqueDesConstantesJdbcContrat} joue le vrai adapter de la Séance).
+     */
+    @ArchTest
+    static final ArchRule la_seance_seulement_par_son_langage_publie_ni_absences_ni_facturation_ni_comptabilite = noClasses()
+            .that().resideInAPackage(RACINE + "..")
+            .should().dependOnClassesThat(
+                    resideInAPackage("com.hemodialyse.backend.contexts.seance..")
+                            .and(not(resideInAPackage("com.hemodialyse.backend.contexts.seance.publishedlanguage..")))
+                            .or(resideInAnyPackage(
+                                    "com.hemodialyse.backend.contexts.absencespatients..",
+                                    "com.hemodialyse.backend.contexts.facturation..",
+                                    "com.hemodialyse.backend.contexts.comptabilite..")));
 }

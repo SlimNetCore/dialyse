@@ -35,7 +35,7 @@ Correction de la fiche de slice : 8 requêtes et non 8 « occurrences » au sens
 | `LesSeancesLuesParLaPlanificationCharacterizationIntegrationTest` | fiche du patient dans un autre centre ; nom recomposé (prénom vide, blanc, espaces) ; deux séances réalisées le même jour ; chaque centre ses séances | HTTP `GET /planning/semaine` (+ port pour le nom et le compte) | P1 |
 | `LesSeancesLuesParLeDossierMedicalCharacterizationIntegrationTest` | égalité complète (identifiant décroissant, pages coupant l'égalité) ; création nulle (H2) ; total tous statuts et centre B | HTTP `GET /patients/{id}/constantes` | D1, D2 |
 
-PostgreSQL 16 : `backend/scripts/seance-se7d-pg16-rejeu.sh` (cluster jetable, port 55548 par défaut, 5432 refusé, mot de passe `SEANCE_PG16_PASSWORD`) rejoue les 8 requêtes à l'identique sur le schéma Flyway : 15 vérifications, code 0. Confirmé : création nulle en PREMIER sur PG16 (H2 : en dernier) ; blancs de fin significatifs ; UUID comparés en octets non signés (même ordre que H2) ; `prenom` NOT NULL.
+PostgreSQL 16 : `backend/scripts/seance-se7d-pg16-rejeu.sh` (cluster jetable, port 55548 par défaut, 5432 refusé, mot de passe `SEANCE_PG16_PASSWORD`) rejoue les 8 requêtes à l'identique sur le schéma Flyway : 14 vérifications, code 0. Confirmé : création nulle en PREMIER sur PG16 (H2 : en dernier) ; blancs de fin significatifs ; UUID comparés en octets non signés (même ordre que H2) ; `prenom` NOT NULL.
 
 ## 3. Seams
 Aucun demandé, aucun appliqué (`seamAllowed` inchangé).
