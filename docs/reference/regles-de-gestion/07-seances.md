@@ -222,6 +222,22 @@
   `RenseignerLeVoletMedical`, `ConsulterLesSeancesRecentes`, `JourDuCalendrier`, `MoisDuCalendrier`, `VoletMedical`, `ObservationsMedicales`,
   `CalendrierDuCentreJdbc`, `VoletsMedicauxJdbc`, `PatientsDuJourJdbc`, `RoutesResiduellesControleur`, `ErreursDeSeanceAdvice`.
 
+- **RG-SEA-059** — **Tableau de bord mensuel des séances, détail nominatif et exports repris dans le module `seance`** (slice SE7b,
+  ADR 0095 ; mêmes URL `/seances/dashboard`, `/dashboard/details`, `/dashboard/export`, mêmes champs JSON, mêmes droits `ADMIN`,
+  `INFIRMIER`, `MEDECIN`, `SECRETAIRE`, mêmes tables `seances`, `patients` (lecture), `center_holiday`, `center_closure_day`, aucune
+  migration ; suite de RG-SEA-043 et 051, la garde de centre reste celle de RG-SEA-051). Le jour du centre vient de `HorlogeDuCentre`.
+  Aucun montant n'est exposé. Les exports CSV, PDF et XLSX gardent les mêmes octets (CSV `text/plain` sans charset). **Corrigés, à
+  confirmer avec les métiers** — (KB-SEA-63) année ou mois absent ou illisible, centre illisible, `kind` absent : 400 `BAD_REQUEST` au
+  lieu de 500, 403 avant 400. **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers et DPO)** — (KB-SEA-66) le détail
+  nominatif sert nom, prénom et date de naissance à tous les profils autorisés ; (KB-SEA-64) un patient présent et absent le même jour
+  compte deux fois ; (KB-SEA-65) l'effectif du mois est contaminé entre centres ; (KB-SEA-62) les séances attendues ne reconnaissent que
+  les 7 clés françaises (les clés anglaises sont comptées, les françaises à 0). **Reproduits sans alerte** — (KB-SEA-67) tri du détail
+  sensible à la casse, droits, libellés. Un échec de lecture du calendrier est avalé avec un WARN portant le seul identifiant du centre.
+  *Source :* `ConsulterLeTableauDeBord`, `ConsulterLeDetailDuTableauDeBord`, `ExporterLeTableauDeBord`, `MoisDuTableauDeBord`,
+  `SeancesAttendues`, `EffectifDuMois`, `FinDeLaPriseEnCharge`, `TrancheDAge`, `LigneDuDetail`, `FormatDExport`, `SeancesRealiseesJdbc`,
+  `PatientsDuTableauDeBordJdbc`, `AbsencesDuCentreParLePilotage`, `ExportsDuTableauDeBordCsvPdfXlsx`, `TableauDeBordDesSeancesControleur`,
+  `ErreursDeSeanceAdvice`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
