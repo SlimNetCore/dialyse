@@ -194,20 +194,7 @@ public class Seance {
         this.status = SeanceStatus.SIGNEE;
     }
 
-    public void modifierForfait(UUID forfaitId, String forfaitCode, String forfaitNom, BigDecimal forfaitPrix, String userId) {
-        if (status == SeanceStatus.FACTUREE) {
-            throw new SeanceFactureeNonModifiableException();
-        }
-        if (forfaitId == null) {
-            throw new IllegalArgumentException("Le forfait est obligatoire");
-        }
-        this.forfaitOverrideId = forfaitId;
-        this.forfaitOverrideCode = forfaitCode;
-        this.forfaitOverrideNom = forfaitNom;
-        this.forfaitOverridePrix = forfaitPrix;
-        this.forfaitOverrideUpdatedAt = OffsetDateTime.now();
-        this.forfaitOverrideUpdatedBy = userId == null || userId.isBlank() ? "system" : userId.trim();
-    }
+    // SE5 (ADR 0092) : l'imposition d'un forfait (ancienne modifierForfait) vit dans contexts/seance (Seance.imposerUnForfait).
 
     public UUID getId() {
         return id;

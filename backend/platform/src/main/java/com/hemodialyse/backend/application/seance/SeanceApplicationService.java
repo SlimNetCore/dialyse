@@ -9,7 +9,6 @@ import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
-import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlacePort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlanningPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
@@ -47,12 +46,11 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     PatientRepositoryPort patientRepo,
                                     VoletParamedicalRepositoryPort voletParamedicalRepo,
                                     VoletMedicalRepositoryPort voletMedicalRepo,
-                                    SeanceForfaitCatalogPort forfaitCatalogPort,
                                     SeanceBillingEligibilityPort billingEligibilityPort,
                                     SeancePlanningPort planningPort,
                                     SeancePlacePort placePort) {
         this.jourDuCentre = jourDuCentre;
-        this.delegate = new SeanceDomainService(seanceRepo, patientRepo, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
+        this.delegate = new SeanceDomainService(seanceRepo, patientRepo, voletParamedicalRepo, voletMedicalRepo, billingEligibilityPort,
                 planningPort, placePort);
     }
 
@@ -97,11 +95,6 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Override
     public Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance) {
         return delegate.updateDate(centerId, seanceId, dateSeance != null ? dateSeance : jourDuCentre.aujourdhui(centerId.value()));
-    }
-
-    @Override
-    public Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId) {
-        return delegate.updateForfait(centerId, seanceId, forfaitId, userId);
     }
 }
 

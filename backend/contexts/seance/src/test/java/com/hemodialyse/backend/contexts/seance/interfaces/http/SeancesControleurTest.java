@@ -11,6 +11,7 @@ import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.ForfaitsDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.HistoriqueDesSeances;
+import com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait;
 import com.hemodialyse.backend.contexts.seance.application.ListerLesSeances;
 import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
 import com.hemodialyse.backend.contexts.seance.application.SeanceEnregistree;
@@ -84,10 +85,83 @@ class SeancesControleurTest {
         retirer = Mockito.mock(RetirerUnConsommable.class);
         consulterRaccourcis = Mockito.mock(ConsulterLesRaccourcis.class);
         remplacerRaccourcis = Mockito.mock(RemplacerLesRaccourcis.class);
+        imposer = Mockito.mock(ImposerUnForfait.class);
         mvc = MockMvcBuilders.standaloneSetup(new SeancesControleur(creer, scanner, consulter, lister, valider, signer, deverrouiller,
-                        ajouter, modifier, retirer, consulterRaccourcis, remplacerRaccourcis))
+                        ajouter, modifier, retirer, consulterRaccourcis, remplacerRaccourcis, imposer))
                 .setControllerAdvice(new ErreursDeSeanceAdvice()).build();
         avecLeRole("INFIRMIER");
+    }
+
+    private ImposerUnForfait imposer;
+    private static final UUID FORFAIT = new UUID(6, 7);
+
+    private String corpsDImposition() {
+        return "{\"centerId\":\"" + CENTRE + "\",\"forfaitId\":\"" + FORFAIT + "\",\"userId\":\"compta-01\"}";
+    }
+
+    @Test
+    void l_imposition_d_un_forfait_repond_avec_les_champs_du_legacy_et_le_forfait_courant_a_sept_cles() throws Exception {
+        avecLeRole("ADMIN");
+        Seance seance = Seance.restituer(new SeanceId(SEANCE), new CentreId(CENTRE), new PatientId(PATIENT), JOUR,
+                com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance.VALIDEE, Instant.parse("2026-06-15T08:00:00Z"), null, null);
+        var courant = new ForfaitsDeSeance.ForfaitCourant(FORFAIT, "F1", "Forfait 1", new BigDecimal("250.50"), null,
+                java.time.OffsetDateTime.parse("2026-06-15T10:00:00Z"), "compta-01", true);
+        Mockito.when(imposer.executer(CENTRE, SEANCE, FORFAIT, "compta-01")).thenReturn(new ImposerUnForfait.Resultat(seance, Optional.of(courant)));
+
+        mvc.perform(put("/api/v1/seances/" + SEANCE + "/forfait").contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(SEANCE.toString()))
+                .andExpect(jsonPath("$.status").value("VALIDEE")).andExpect(jsonPath("$.dateSeance").value("2026-06-15"))
+                .andExpect(jsonPath("$.forfait.id").value(FORFAIT.toString())).andExpect(jsonPath("$.forfait.code").value("F1"))
+                .andExpect(jsonPath("$.forfait.nom").value("Forfait 1")).andExpect(jsonPath("$.forfait.prix").value(250.50))
+                .andExpect(jsonPath("$.forfait.nombreSeances").doesNotExist()).andExpect(jsonPath("$.forfait.updatedBy").value("compta-01"))
+                .andExpect(jsonPath("$.forfait.updatedAt").exists());
+    }
+
+    @Test
+    void les_erreurs_de_forme_de_l_imposition_sont_400_et_jamais_500_avec_403_avant_400() throws Exception {
+        String route = "/api/v1/seances/" + SEANCE + "/forfait";
+        avecLeRole("ADMIN");
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"forfaitId\":\"" + FORFAIT + "\",\"userId\":\"   \"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"abc\",\"forfaitId\":\"" + FORFAIT + "\",\"userId\":\"c\"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content("pas du json")).andExpect(status().isBadRequest());
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+        mvc.perform(put("/api/v1/seances/abc/forfait").contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+
+        avecLeRole("INFIRMIER");
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content("pas du json")).andExpect(status().isForbidden());
+        Mockito.verifyNoInteractions(imposer);
+    }
+
+    @Test
+    void les_refus_de_l_imposition_gardent_leur_statut_et_leur_code() throws Exception {
+        avecLeRole("ADMIN");
+        String route = "/api/v1/seances/" + SEANCE + "/forfait";
+        Mockito.doThrow(new SeanceRefusee(MotifDeRefus.SEANCE_FACTUREE, "La seance facturee ne peut plus etre modifiee"))
+                .when(imposer).executer(any(), any(), any(), any());
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().is(422)).andExpect(jsonPath("$.code").value("SEANCE_FACTUREE_NON_MODIFIABLE"));
+        Mockito.doThrow(new SeanceIntrouvable()).when(imposer).executer(any(), any(), any(), any());
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("Seance introuvable"));
+        Mockito.doThrow(new SaisieInvalide("Forfait introuvable pour le centre actif")).when(imposer).executer(any(), any(), any(), any());
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("Forfait introuvable pour le centre actif"));
+        Mockito.doThrow(new EcritureConcurrente()).when(imposer).executer(any(), any(), any(), any());
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("ECRITURE_CONCURRENTE"));
+        Mockito.doThrow(new AccesRefuse("Accès refusé : le centre demandé ne correspond pas à la session"))
+                .when(imposer).executer(any(), any(), any(), any());
+        mvc.perform(put(route).contentType(MediaType.APPLICATION_JSON).content(corpsDImposition()))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
     }
 
     private AjouterUnConsommable ajouter;

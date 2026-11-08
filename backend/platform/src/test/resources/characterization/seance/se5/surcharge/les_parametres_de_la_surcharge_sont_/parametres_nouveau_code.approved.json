@@ -1,0 +1,42 @@
+{
+  "01 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "02 forfait inconnu" : "400 BAD_REQUEST | Forfait introuvable pour le centre actif",
+  "03 forfait d'un autre centre" : "400 BAD_REQUEST | Forfait introuvable pour le centre actif",
+  "04 centre absent du corps" : "400 VALIDATION_ERROR | Invalid request content.",
+  "05 forfait absent du corps" : "400 VALIDATION_ERROR | Invalid request content.",
+  "06 forfait mal forme" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "07 centre mal forme" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "08 corps vide" : "400 VALIDATION_ERROR | Invalid request content.",
+  "09 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "10 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "11 identifiant de seance illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "12 colonnes inchangees par tous ces refus" : [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ],
+  "13 centre du corps B avec la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "14 seance du centre A dont le corps vise le centre B (session B)" : "400 BAD_REQUEST | Seance introuvable",
+  "15 colonnes encore inchangees" : [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ],
+  "16 une seance du centre B n'a pas bouge" : [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ]
+}

@@ -65,111 +65,8 @@ public class SeanceRestController {
     }
 
     // Création, scan, consultation et liste des séances : servies par `contexts/seance` (SeancesControleur, SE1, ADR 0088).
-    // Le forfait courant ci-dessous reste utilisé par la mise à jour du forfait d'une séance (SE5).
-
-    private Map<String, Object> loadCurrentForfait(UUID seanceId, UUID centerId, UUID patientId, LocalDate referenceDate) {
-        Map<String, Object> overridden = loadSeanceForfaitOverride(seanceId, centerId);
-        if (overridden != null) {
-            return overridden;
-        }
-
-        var activeRows = Optional.ofNullable(jdbc.query(
-                """
-                        SELECT f.id AS forfait_id,
-                               f.code AS forfait_code,
-                               f.libelle AS forfait_nom,
-                               f.prix AS forfait_prix,
-                               CAST(NULL AS INTEGER) AS forfait_nb_seances
-                        FROM prise_en_charge p
-                        INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
-                                             AND f.center_id = p.center_id
-                        WHERE p.center_id = ?
-                          AND p.patient_id = ?
-                          AND (
-                                (p.date_debut_effectif IS NOT NULL AND ? >= p.date_debut_effectif AND (? <= p.date_fin_effectif OR p.date_fin_effectif IS NULL))
-                             OR (p.date_debut_demande IS NOT NULL AND ? >= p.date_debut_demande AND (? <= p.date_fin_demande OR p.date_fin_demande IS NULL))
-                          )
-                        ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
-                                 p.created_at DESC
-                        """,
-                this::mapForfaitRow,
-                centerId,
-                patientId,
-                Date.valueOf(referenceDate),
-                Date.valueOf(referenceDate),
-                Date.valueOf(referenceDate),
-                Date.valueOf(referenceDate)
-        )).orElseGet(List::of);
-
-        if (!activeRows.isEmpty()) {
-            return activeRows.getFirst();
-        }
-
-        var fallbackRows = Optional.ofNullable(jdbc.query(
-                """
-                        SELECT f.id AS forfait_id,
-                               f.code AS forfait_code,
-                               f.libelle AS forfait_nom,
-                               f.prix AS forfait_prix,
-                               CAST(NULL AS INTEGER) AS forfait_nb_seances
-                        FROM prise_en_charge p
-                        INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
-                                             AND f.center_id = p.center_id
-                        WHERE p.center_id = ?
-                          AND p.patient_id = ?
-                          AND COALESCE(p.forfait_effectif_id, p.forfait_demande_id) IS NOT NULL
-                        ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
-                                 p.created_at DESC
-                        """,
-                this::mapForfaitRow,
-                centerId,
-                patientId
-        )).orElseGet(List::of);
-
-        return fallbackRows.isEmpty() ? null : fallbackRows.getFirst();
-    }
-
-    private Map<String, Object> loadSeanceForfaitOverride(UUID seanceId, UUID centerId) {
-        return jdbc.query(
-                """
-                        SELECT forfait_override_id,
-                               forfait_override_code,
-                               forfait_override_nom,
-                               forfait_override_prix,
-                               forfait_override_updated_at,
-                               forfait_override_updated_by
-                        FROM seances
-                        WHERE id = ?
-                          AND center_id = ?
-                          AND forfait_override_id IS NOT NULL
-                        """,
-                rs -> rs.next() ? mapSeanceForfaitOverrideRow(rs) : null,
-                seanceId,
-                centerId
-        );
-    }
-
-    private Map<String, Object> mapSeanceForfaitOverrideRow(java.sql.ResultSet rs) throws java.sql.SQLException {
-        Map<String, Object> row = new LinkedHashMap<>();
-        row.put("id", rs.getObject("forfait_override_id", UUID.class));
-        row.put("code", rs.getString("forfait_override_code"));
-        row.put("nom", rs.getString("forfait_override_nom"));
-        row.put("prix", rs.getBigDecimal("forfait_override_prix"));
-        row.put("nombreSeances", null);
-        row.put("updatedAt", rs.getObject("forfait_override_updated_at", java.time.OffsetDateTime.class));
-        row.put("updatedBy", rs.getString("forfait_override_updated_by"));
-        return row;
-    }
-
-    private Map<String, Object> mapForfaitRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
-        Map<String, Object> row = new LinkedHashMap<>();
-        row.put("id", rs.getObject("forfait_id", UUID.class));
-        row.put("code", rs.getString("forfait_code"));
-        row.put("nom", rs.getString("forfait_nom"));
-        row.put("prix", rs.getBigDecimal("forfait_prix"));
-        row.put("nombreSeances", rs.getInt("forfait_nb_seances"));
-        return row;
-    }
+    // SE5 (ADR 0092) : la surcharge du forfait d'une séance (PUT /{id}/forfait) est servie par `contexts/seance` (ImposerUnForfait) ;
+    // le forfait courant se lit par le langage publié ForfaitsFournis.
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{seanceId}")
@@ -180,29 +77,6 @@ public class SeanceRestController {
                 "id", seance.getId(),
                 "status", seance.getStatus(),
                 "dateSeance", seance.getDateSeance()
-        ));
-    }
-
-    /**
-     * Le forfait d'une séance relève de l'administration (facturation) : l'infirmier ne peut pas le modifier.
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{seanceId}/forfait")
-    public ResponseEntity<?> updateForfait(@PathVariable UUID seanceId,
-                                           @RequestBody @Valid UpdateSeanceForfaitRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
-        var seance = seanceUseCase.updateForfait(CenterId.of(request.centerId()), seanceId, request.forfaitId(), request.userId());
-        var forfait = loadCurrentForfait(
-                seance.getId(),
-                request.centerId(),
-                seance.getPatientId(),
-                seance.getDateSeance() != null ? seance.getDateSeance() : LocalDate.now()
-        );
-        return ResponseEntity.ok(Map.of(
-                "id", seance.getId(),
-                "status", seance.getStatus(),
-                "dateSeance", seance.getDateSeance(),
-                "forfait", forfait
         ));
     }
 

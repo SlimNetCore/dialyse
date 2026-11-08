@@ -186,6 +186,36 @@ class FrontieresDesContextesTest {
             .because("un seul planificateur actif : celui du module (cron 07:00), pas de double déclenchement (ADR 0091)");
 
     /**
+     * SE5 (ADR 0092) : l'imposition d'un forfait à une séance vit dans {@code contexts/seance} (cas d'usage {@code ImposerUnForfait}, route
+     * PUT {@code /api/v1/seances/{id}/forfait}). Le handler, {@code SeanceUseCase.updateForfait}, {@code Seance.modifierForfait} et le
+     * catalogue legacy sont supprimés (le compilateur interdit tout retour) ; aucune classe hors du contexte ne dépend du cas d'usage.
+     * Les écrivants restants de {@code forfait_override_*} sont la Facturation ({@code poserLeForfait}, KB-SEA-47, hors périmètre) et
+     * l'adaptateur de persistance legacy de la séance (réécriture de la ligne par {@code updateDate}).
+     */
+    @ArchTest
+    static final ArchRule seul_contexts_seance_impose_un_forfait_a_une_seance = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait")
+            .because("une seule entrée pour la surcharge du forfait d'une séance : le contrôleur du module (ADR 0092)");
+
+    private static final java.util.Set<String> CLASSES_AUTORISEES_A_ECRIRE_LE_FORFAIT_SURCHARGE_LEGACY = java.util.Set.of(
+            "com.hemodialyse.backend.domain.seance.model.Seance",
+            "com.hemodialyse.backend.infrastructure.persistence.adapter.SeanceRepositoryAdapter");
+
+    @ArchTest
+    static final ArchRule plus_aucun_appelant_des_setters_legacy_du_forfait_surcharge = noClasses()
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "écrit un champ forfaitOverride de l'entité Seance legacy depuis hors de son adaptateur de persistance") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.model.Seance")
+                            && appel.getName().startsWith("setForfaitOverride")
+                            && !CLASSES_AUTORISEES_A_ECRIRE_LE_FORFAIT_SURCHARGE_LEGACY.contains(appel.getOriginOwner().getName());
+                }
+            })
+            .because("l'imposition d'un forfait vit dans contexts/seance (Seance.imposerUnForfait, ADR 0092) ; ces setters seront retirés");
+
+    /**
      * Revue SE3 : les deux autres écritures de la même consommation ont chacune un seul appelant légitime. {@code enregistrerALaValidation}
      * appartient à {@code contexts/seance} (validation, SE2) ; {@code administrer} (EPO, fer) appartient à {@code contexts/dossier-medical}.
      * Aucune autre classe, legacy comprise, ne les appelle ; le Stock les implémente.

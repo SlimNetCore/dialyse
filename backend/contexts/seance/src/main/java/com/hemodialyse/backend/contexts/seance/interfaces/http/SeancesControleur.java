@@ -13,6 +13,8 @@ import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.ForfaitsDeSeance;
+import com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ImpositionDeForfaitDemande;
 import com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.ListerLesSeances;
 import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
@@ -57,6 +59,9 @@ import java.util.UUID;
  * SE3 (ADR 0090) : l'ajout, la modification et le retrait d'un consommable (ADMIN et INFIRMIER) et les raccourcis de consommables (lecture
  * ADMIN, INFIRMIER et SECRETAIRE ; remplacement ADMIN seul), mêmes URL, mêmes champs JSON et mêmes droits que le legacy. Aucune
  * contrainte de bean sur les corps : toute valeur absente ou illisible est un 400 {@code BAD_REQUEST}, 403 avant 400 (KB-SEA-26).
+ * <p>
+ * SE5 (ADR 0092) : l'imposition d'un forfait à une séance (ADMIN seul), mêmes URL, mêmes champs JSON et mêmes droits que le legacy ; les
+ * contraintes de bean du corps (champs absents ou vides : 400 {@code VALIDATION_ERROR}) sont conservées.
  */
 @RestController
 @RequestMapping("/api/v1/seances")
@@ -74,12 +79,14 @@ public class SeancesControleur {
     private final RetirerUnConsommable retirerUnConsommable;
     private final ConsulterLesRaccourcis consulterLesRaccourcis;
     private final RemplacerLesRaccourcis remplacerLesRaccourcis;
+    private final ImposerUnForfait imposerUnForfait;
 
     public SeancesControleur(CreerUneSeance creer, ScannerUnPatient scanner, ConsulterUneSeance consulter, ListerLesSeances lister,
                              ValiderUneSeance valider, SignerUneSeance signer, DeverrouillerUneSeance deverrouiller,
                              AjouterUnConsommable ajouterUnConsommable, ModifierLaQuantiteDUnConsommable modifierUnConsommable,
                              RetirerUnConsommable retirerUnConsommable, ConsulterLesRaccourcis consulterLesRaccourcis,
-                             RemplacerLesRaccourcis remplacerLesRaccourcis) {
+                             RemplacerLesRaccourcis remplacerLesRaccourcis, ImposerUnForfait imposerUnForfait) {
+        this.imposerUnForfait = imposerUnForfait;
         this.creer = creer;
         this.scanner = scanner;
         this.consulter = consulter;
@@ -140,6 +147,23 @@ public class SeancesControleur {
     @PutMapping("/raccourcis-consommables")
     public List<UUID> remplacerLesRaccourcis(@RequestParam(required = false) UUID centerId, @RequestBody RaccourcisDemande demande) {
         return remplacerLesRaccourcis.executer(centerId, demande.articleIds()).articles().stream().map(ArticleId::valeur).toList();
+    }
+
+    /**
+     * SE5 (ADR 0092) : impose un forfait du référentiel à une séance (administrateur seul, KB-SEA-48 reproduit). Réponse du legacy :
+     * identifiant, statut, jour et forfait courant (celui qui vient d'être imposé, sept clés).
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{seanceId}/forfait")
+    public ResponseEntity<Map<String, Object>> imposerUnForfait(@PathVariable UUID seanceId,
+                                                                @RequestBody @Valid ImpositionDeForfaitDemande demande) {
+        var resultat = imposerUnForfait.executer(demande.centerId(), seanceId, demande.forfaitId(), demande.userId());
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("id", resultat.seance().id().valeur());
+        reponse.put("status", resultat.seance().statut());
+        reponse.put("dateSeance", resultat.seance().jour());
+        reponse.put("forfait", forfaitEnJson(resultat.forfait()));
+        return ResponseEntity.ok(reponse);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")

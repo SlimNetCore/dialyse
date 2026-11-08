@@ -12,7 +12,6 @@ import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
-import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlacePort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlanningPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
@@ -44,7 +43,6 @@ public class SeanceDomainService implements SeanceUseCase {
     private final PatientRepositoryPort patientRepo;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
-    private final SeanceForfaitCatalogPort forfaitCatalogPort;
     private final SeanceBillingEligibilityPort billingEligibilityPort;
     private final SeancePlanningPort planningPort;
     private final SeancePlacePort placePort;
@@ -53,7 +51,6 @@ public class SeanceDomainService implements SeanceUseCase {
                                PatientRepositoryPort patientRepo,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
-                               SeanceForfaitCatalogPort forfaitCatalogPort,
                                SeanceBillingEligibilityPort billingEligibilityPort,
                                SeancePlanningPort planningPort,
                                SeancePlacePort placePort) {
@@ -61,7 +58,6 @@ public class SeanceDomainService implements SeanceUseCase {
         this.patientRepo = patientRepo;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
-        this.forfaitCatalogPort = forfaitCatalogPort;
         this.billingEligibilityPort = billingEligibilityPort;
         this.planningPort = planningPort;
         this.placePort = placePort;
@@ -198,16 +194,6 @@ public class SeanceDomainService implements SeanceUseCase {
             throw new SeanceFactureeNonModifiableException();
         }
         seance.setDateSeance(dateSeance != null ? dateSeance : LocalDate.now());
-        return seanceRepo.save(seance);
-    }
-
-    @Override
-    public Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId) {
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        var forfait = forfaitCatalogPort.findById(centerId, forfaitId)
-                .orElseThrow(() -> new IllegalArgumentException("Forfait introuvable pour le centre actif"));
-        seance.modifierForfait(forfait.id(), forfait.code(), forfait.nom(), forfait.prix(), userId);
         return seanceRepo.save(seance);
     }
 
