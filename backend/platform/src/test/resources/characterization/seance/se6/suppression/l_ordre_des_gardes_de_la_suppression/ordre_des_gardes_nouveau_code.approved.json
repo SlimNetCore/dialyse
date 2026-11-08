@@ -1,0 +1,13 @@
+{
+  "01 facturee + motif valide" : "422 SEANCE_FACTUREE_NON_SUPPRIMABLE | Une séance facturée ne peut pas être supprimée : annulez d'abord la facture",
+  "02 facturee + motif vide (le motif passe avant le statut)" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères",
+  "03 inconnue + motif vide (la recherche passe avant le motif)" : "422 SEANCE_INTROUVABLE | Séance introuvable",
+  "04 inconnue + motif valide" : "422 SEANCE_INTROUVABLE | Séance introuvable",
+  "05 seance du centre B + motif vide (centre de la session A)" : "422 SEANCE_INTROUVABLE | Séance introuvable",
+  "06 seance facturee du centre B + motif valide" : "422 SEANCE_INTROUVABLE | Séance introuvable",
+  "07 centerId du centre B pour un administrateur A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "08 centerId absent + motif vide" : "400 BAD_REQUEST | Centre requis",
+  "09 non facturee + motif vide" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères",
+  "10 etat des seances" : [ "FACTUREE@<CENTRE_A>", "CREE@<CENTRE_A>", "CREE@<CENTRE_B>", "FACTUREE@<CENTRE_B>" ],
+  "11 journal vide" : 0
+}

@@ -186,17 +186,6 @@ public class SeanceDomainService implements SeanceUseCase {
         return seanceRepo.search(centerId, effective, safePage, safeSize);
     }
 
-    @Override
-    public Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance) {
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new SeanceFactureeNonModifiableException();
-        }
-        seance.setDateSeance(dateSeance != null ? dateSeance : LocalDate.now());
-        return seanceRepo.save(seance);
-    }
-
     /**
      * RÉSIDU (SE2, ADR 0089, revue au plus tard le 2026-12-15) : la validation sans consommable que {@code scanAndValidate} (lui-même
      * résidu de SE1, sans appelant de production) employait via {@code validate}, retirée avec la reprise de SE2. Retiré avec lui.

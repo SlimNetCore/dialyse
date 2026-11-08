@@ -119,10 +119,6 @@ class VoletMedicalDomainServiceTest {
     }
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {
-        @Override
-        public void delete(CenterId centerId, UUID seanceId) {
-            throw new UnsupportedOperationException();
-        }
 
         private final Map<UUID, Seance> data = new HashMap<>();
 

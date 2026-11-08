@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -86,14 +88,119 @@ class SeancesControleurTest {
         consulterRaccourcis = Mockito.mock(ConsulterLesRaccourcis.class);
         remplacerRaccourcis = Mockito.mock(RemplacerLesRaccourcis.class);
         imposer = Mockito.mock(ImposerUnForfait.class);
+        changerLeJour = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.ChangerLeJourDUneSeance.class);
+        supprimerUneSeance = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.SupprimerUneSeance.class);
         mvc = MockMvcBuilders.standaloneSetup(new SeancesControleur(creer, scanner, consulter, lister, valider, signer, deverrouiller,
-                        ajouter, modifier, retirer, consulterRaccourcis, remplacerRaccourcis, imposer))
+                        ajouter, modifier, retirer, consulterRaccourcis, remplacerRaccourcis, imposer, changerLeJour, supprimerUneSeance))
                 .setControllerAdvice(new ErreursDeSeanceAdvice()).build();
         avecLeRole("INFIRMIER");
     }
 
     private ImposerUnForfait imposer;
+    private com.hemodialyse.backend.contexts.seance.application.ChangerLeJourDUneSeance changerLeJour;
+    private com.hemodialyse.backend.contexts.seance.application.SupprimerUneSeance supprimerUneSeance;
     private static final UUID FORFAIT = new UUID(6, 7);
+
+    // ---- SE6 : changement de jour et suppression
+
+    private Seance uneSeance() {
+        return Seance.restituer(new SeanceId(SEANCE), new CentreId(CENTRE), new PatientId(PATIENT), JOUR.plusDays(2),
+                com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance.SIGNEE, Instant.parse("2026-06-15T08:00:00Z"), null, null);
+    }
+
+    @Test
+    void le_changement_de_jour_repond_avec_l_identifiant_le_statut_et_le_nouveau_jour() throws Exception {
+        avecLeRole("ADMIN");
+        Mockito.when(changerLeJour.executer(Mockito.eq(CENTRE), Mockito.eq(SEANCE), Mockito.any())).thenReturn(uneSeance());
+
+        mvc.perform(put("/api/v1/seances/" + SEANCE).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"dateSeance\":\"2026-06-17\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(SEANCE.toString()))
+                .andExpect(jsonPath("$.status").value("SIGNEE")).andExpect(jsonPath("$.dateSeance").value("2026-06-17"));
+    }
+
+    @Test
+    void le_jour_est_lu_apres_le_centre_et_chaque_forme_illisible_est_une_saisie_invalide() {
+        for (Object illisible : new Object[]{20261231, "31/12/2026", "demain", true, java.util.Map.of("a", 1)}) {
+            assertThatThrownBy(() -> new com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ChangementDeJourDemande(CENTRE, illisible).jour())
+                    .isInstanceOf(com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide.class);
+        }
+    }
+
+    @Test
+    void les_formes_lisibles_du_jour_sont_celles_du_legacy() {
+        var lire = (java.util.function.Function<Object, LocalDate>) o ->
+                new com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ChangementDeJourDemande(CENTRE, o).jour();
+        org.assertj.core.api.Assertions.assertThat(lire.apply(null)).isNull();
+        org.assertj.core.api.Assertions.assertThat(lire.apply("")).isNull();
+        org.assertj.core.api.Assertions.assertThat(lire.apply("2026-06-17")).isEqualTo(LocalDate.of(2026, 6, 17));
+        org.assertj.core.api.Assertions.assertThat(lire.apply("2026-06-17T10:00:00")).isEqualTo(LocalDate.of(2026, 6, 17));
+        org.assertj.core.api.Assertions.assertThat(lire.apply("9999-12-31")).isEqualTo(LocalDate.of(9999, 12, 31));
+    }
+
+    @Test
+    void le_changement_de_jour_sans_centre_est_une_erreur_de_validation_et_un_corps_illisible_un_400() throws Exception {
+        avecLeRole("ADMIN");
+        mvc.perform(put("/api/v1/seances/" + SEANCE).contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        mvc.perform(put("/api/v1/seances/" + SEANCE).contentType(MediaType.APPLICATION_JSON).content("{pas du json"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        mvc.perform(put("/api/v1/seances/pas-un-identifiant").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void un_profil_sans_droit_recoit_403_avant_tout_400_sur_les_deux_routes() throws Exception {
+        avecLeRole("INFIRMIER");
+        mvc.perform(put("/api/v1/seances/" + SEANCE).contentType(MediaType.APPLICATION_JSON).content("{pas du json"))
+                .andExpect(status().isForbidden());
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE).contentType(MediaType.APPLICATION_JSON).content("{pas du json"))
+                .andExpect(status().isForbidden());
+        Mockito.verifyNoInteractions(changerLeJour, supprimerUneSeance);
+    }
+
+    @Test
+    void la_suppression_repond_204_sans_corps_et_transmet_le_motif_tel_quel() throws Exception {
+        avecLeRole("ADMIN");
+
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motif\":\"  Doublon  \"}"))
+                .andExpect(status().isNoContent()).andExpect(content().string(""));
+
+        Mockito.verify(supprimerUneSeance).executer(CENTRE, SEANCE, "  Doublon  ");
+    }
+
+    @Test
+    void la_suppression_refuse_un_centre_absent_un_corps_absent_ou_illisible_et_un_motif_en_tableau_par_un_400() throws Exception {
+        avecLeRole("ADMIN");
+        mvc.perform(delete("/api/v1/seances/" + SEANCE).contentType(MediaType.APPLICATION_JSON).content("{\"motif\":\"Doublon\"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE).contentType(MediaType.APPLICATION_JSON).content("null"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE).contentType(MediaType.APPLICATION_JSON).content("{pas du json"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motif\":[\"a\"]}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=pas-un-identifiant").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motif\":\"Doublon\"}"))
+                .andExpect(status().isBadRequest());
+        Mockito.verifyNoInteractions(supprimerUneSeance);
+    }
+
+    @Test
+    void un_motif_numerique_est_lu_comme_du_texte_et_un_champ_inconnu_est_ignore() throws Exception {
+        avecLeRole("ADMIN");
+
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "?centerId=" + CENTRE).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motif\":12345,\"autre\":true}"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(supprimerUneSeance).executer(CENTRE, SEANCE, "12345");
+    }
 
     private String corpsDImposition() {
         return "{\"centerId\":\"" + CENTRE + "\",\"forfaitId\":\"" + FORFAIT + "\",\"userId\":\"compta-01\"}";

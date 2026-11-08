@@ -487,68 +487,13 @@ class SeanceDomainServiceTest {
 
     // SE3 (ADR 0090) : les consommables déclarés (ajout, modification, retrait) sont tenus par les tests de contexts/seance.
 
-    @Test
-    void updateDate_should_allow_edit_when_seance_is_signee() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.validerParInfirmier("inf-01");
-        seance.signerParMedecin("med-01");
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(
-                seanceRepo,
-                patientRepo,
-                new InMemoryArticleRepository(),
-                new InMemoryLotRepository(),
-                new SpyBonSortieUseCase()
-        );
-
-        LocalDate newDate = LocalDate.now().plusDays(1);
-        Seance updated = service.updateDate(centerId, seanceId, newDate);
-        assertEquals(newDate, updated.getDateSeance());
-    }
-
-    @Test
-    void updateDate_should_fail_when_seance_is_facturee() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.setStatus(SeanceStatus.FACTUREE);
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(
-                seanceRepo,
-                patientRepo,
-                new InMemoryArticleRepository(),
-                new InMemoryLotRepository(),
-                new SpyBonSortieUseCase()
-        );
-
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.updateDate(centerId, seanceId, LocalDate.now().plusDays(1))
-        );
-        assertTrue(ex.getMessage().contains("facturee"));
-    }
+    // SE6 (ADR 0093) : le changement de jour est testé dans contexts/seance (JourEtSuppressionDeLaSeanceTest, ChangerLeJourDUneSeanceTest).
 
     // SE5 (ADR 0092) : l'imposition d'un forfait est testée dans contexts/seance (ForfaitImposeALaSeanceTest, ImposerUnForfaitTest).
 
     // ── In-memory stubs ──────────────────────────────────────────────
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {
-        @Override
-        public void delete(CenterId centerId, UUID seanceId) {
-            throw new UnsupportedOperationException();
-        }
 
         private final Map<UUID, Seance> data = new HashMap<>();
         @Override

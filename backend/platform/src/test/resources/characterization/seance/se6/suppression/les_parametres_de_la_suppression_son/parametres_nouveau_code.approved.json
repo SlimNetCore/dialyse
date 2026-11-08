@@ -1,0 +1,12 @@
+{
+  "01 centerId absent" : "400 BAD_REQUEST | Centre requis ; seance restante=1 ; suppressions=0",
+  "02 centerId illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; seance restante=1 ; suppressions=0",
+  "03 identifiant de seance illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; seance restante=1 ; suppressions=0",
+  "04 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible ; seance restante=1 ; suppressions=0",
+  "05 corps JSON illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible ; seance restante=1 ; suppressions=0",
+  "06 corps null" : "400 BAD_REQUEST | Corps ou paramètre illisible ; seance restante=1 ; suppressions=0",
+  "07 motif numerique" : "204 ; seance restante=0 ; suppressions=1",
+  "08 motif en tableau" : "400 BAD_REQUEST | Corps ou paramètre illisible ; seance restante=1 ; suppressions=0",
+  "09 champ inconnu dans le corps" : "204 ; seance restante=0 ; suppressions=1",
+  "10 centerId du jeton explicite" : "204 ; seance restante=0 ; suppressions=1"
+}

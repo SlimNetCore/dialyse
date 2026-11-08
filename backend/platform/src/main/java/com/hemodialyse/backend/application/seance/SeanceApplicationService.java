@@ -92,9 +92,5 @@ public class SeanceApplicationService implements SeanceUseCase {
         return delegate.search(centerId, criteria, page, size);
     }
 
-    @Override
-    public Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance) {
-        return delegate.updateDate(centerId, seanceId, dateSeance != null ? dateSeance : jourDuCentre.aujourdhui(centerId.value()));
-    }
 }
 

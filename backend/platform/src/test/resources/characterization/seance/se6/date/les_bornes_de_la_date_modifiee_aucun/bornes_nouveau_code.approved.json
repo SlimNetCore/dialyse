@@ -1,0 +1,16 @@
+{
+  "01 date absente du corps (jour du centre)" : "200 ok ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "02 date nulle (jour du centre)" : "200 ok ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "03 meme date que l'actuelle (J+3)" : "200 ok ; [{date_seance=<J+3>, facture_id=null, statut=CREE}]",
+  "04 veille" : "200 ok ; [{date_seance=<J-1>, facture_id=null, statut=CREE}]",
+  "05 un an avant" : "200 ok ; [{date_seance=<J-365>, facture_id=null, statut=CREE}]",
+  "06 lendemain" : "200 ok ; [{date_seance=<J+1>, facture_id=null, statut=CREE}]",
+  "07 plus d'un an apres" : "200 ok ; [{date_seance=<J+400>, facture_id=null, statut=CREE}]",
+  "08 an 1900" : "200 ok ; [{date_seance=<1900>, facture_id=null, statut=CREE}]",
+  "09 an 9999" : "200 ok ; [{date_seance=<9999>, facture_id=null, statut=CREE}]",
+  "10 format jour/mois/annee" : "400 BAD_REQUEST | Date de séance illisible ; [{date_seance=<J+3>, facture_id=null, statut=CREE}]",
+  "11 chaine vide" : "200 ok ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "12 texte" : "400 BAD_REQUEST | Date de séance illisible ; [{date_seance=<J+3>, facture_id=null, statut=CREE}]",
+  "13 nombre 20261231 (accepte, lu comme une date lointaine)" : "400 BAD_REQUEST | Date de séance illisible ; annee en base=2026",
+  "14 date avec heure" : "200 ok ; [{date_seance=<J+2>, facture_id=null, statut=CREE}]"
+}

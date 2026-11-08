@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.contexts.seance.interfaces.http;
 
 import com.hemodialyse.backend.contexts.seance.application.AjouterUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.ChangerLeJourDUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.SupprimerUneSeance;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ChangementDeJourDemande;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.SuppressionDeSeanceDemande;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterLesRaccourcis;
 import com.hemodialyse.backend.contexts.seance.application.ModifierLaQuantiteDUnConsommable;
 import com.hemodialyse.backend.contexts.seance.application.RemplacerLesRaccourcis;
@@ -62,6 +66,9 @@ import java.util.UUID;
  * <p>
  * SE5 (ADR 0092) : l'imposition d'un forfait à une séance (ADMIN seul), mêmes URL, mêmes champs JSON et mêmes droits que le legacy ; les
  * contraintes de bean du corps (champs absents ou vides : 400 {@code VALIDATION_ERROR}) sont conservées.
+ * <p>
+ * SE6 (ADR 0093) : le changement de jour (PUT {@code /{id}}) et la suppression (DELETE {@code /{id}}), ADMIN seul, mêmes URL, mêmes champs
+ * JSON et mêmes droits que le legacy.
  */
 @RestController
 @RequestMapping("/api/v1/seances")
@@ -80,12 +87,17 @@ public class SeancesControleur {
     private final ConsulterLesRaccourcis consulterLesRaccourcis;
     private final RemplacerLesRaccourcis remplacerLesRaccourcis;
     private final ImposerUnForfait imposerUnForfait;
+    private final ChangerLeJourDUneSeance changerLeJour;
+    private final SupprimerUneSeance supprimer;
 
     public SeancesControleur(CreerUneSeance creer, ScannerUnPatient scanner, ConsulterUneSeance consulter, ListerLesSeances lister,
                              ValiderUneSeance valider, SignerUneSeance signer, DeverrouillerUneSeance deverrouiller,
                              AjouterUnConsommable ajouterUnConsommable, ModifierLaQuantiteDUnConsommable modifierUnConsommable,
                              RetirerUnConsommable retirerUnConsommable, ConsulterLesRaccourcis consulterLesRaccourcis,
-                             RemplacerLesRaccourcis remplacerLesRaccourcis, ImposerUnForfait imposerUnForfait) {
+                             RemplacerLesRaccourcis remplacerLesRaccourcis, ImposerUnForfait imposerUnForfait,
+                             ChangerLeJourDUneSeance changerLeJour, SupprimerUneSeance supprimer) {
+        this.changerLeJour = changerLeJour;
+        this.supprimer = supprimer;
         this.imposerUnForfait = imposerUnForfait;
         this.creer = creer;
         this.scanner = scanner;
@@ -164,6 +176,36 @@ public class SeancesControleur {
         reponse.put("dateSeance", resultat.seance().jour());
         reponse.put("forfait", forfaitEnJson(resultat.forfait()));
         return ResponseEntity.ok(reponse);
+    }
+
+    /**
+     * SE6 (ADR 0093) : change le jour d'une séance (administrateur seul). Réponse du legacy : identifiant, statut et jour. N'écrit que le
+     * jour (KB-SEA-49, corrigé : la facture rattachée n'est plus effacée) ; aucune règle de calendrier ni de verrou des jours passés
+     * (KB-SEA-54 à 56, reproduits : alertes de l'ADR).
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{seanceId}")
+    public ResponseEntity<Map<String, Object>> changerLeJour(@PathVariable UUID seanceId,
+                                                             @RequestBody @Valid ChangementDeJourDemande demande) {
+        Seance seance = changerLeJour.executer(demande.centerId(), seanceId, demande::jour);
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("id", seance.id().valeur());
+        reponse.put("status", seance.statut());
+        reponse.put("dateSeance", seance.jour());
+        return ResponseEntity.ok(reponse);
+    }
+
+    /**
+     * SE6 (ADR 0093) : supprime une séance (administrateur seul), corps {@code {"motif"}}, 204 sans corps. Le centre est obligatoire
+     * (KB-SEA-52, corrigé : le legacy prenait celui de la session s'il manquait).
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{seanceId}")
+    public ResponseEntity<Void> supprimer(@RequestParam(required = false) UUID centerId, @PathVariable UUID seanceId,
+                                          @RequestBody SuppressionDeSeanceDemande demande) {
+        if (centerId == null) throw new SaisieInvalide("Centre requis");
+        supprimer.executer(centerId, seanceId, demande.motif());
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")

@@ -1,0 +1,34 @@
+{
+  "SIGNEE 01 avant" : [ {
+    "facture_id" : "<FACTURE>",
+    "statut" : "SIGNEE"
+  } ],
+  "SIGNEE 02 suppression" : "422 SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE | Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture",
+  "SIGNEE 03 apres : traces" : {
+    "administrations" : 1,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 1,
+    "volets medicaux" : 1,
+    "volets paramedicaux" : 1
+  },
+  "SIGNEE 04 le journal ne garde ni la facture ni son lien" : [ ],
+  "SIGNEE 05 seances encore rattachees a la facture" : 1,
+  "VALIDEE 01 avant" : [ {
+    "facture_id" : "<FACTURE>",
+    "statut" : "VALIDEE"
+  } ],
+  "VALIDEE 02 suppression" : "422 SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE | Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture",
+  "VALIDEE 03 apres : traces" : {
+    "administrations" : 1,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 1,
+    "volets medicaux" : 1,
+    "volets paramedicaux" : 1
+  },
+  "VALIDEE 04 le journal ne garde ni la facture ni son lien" : [ ],
+  "VALIDEE 05 seances encore rattachees a la facture" : 1
+}

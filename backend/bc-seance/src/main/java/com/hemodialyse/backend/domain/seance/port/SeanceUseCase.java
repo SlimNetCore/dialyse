@@ -59,8 +59,7 @@ public interface SeanceUseCase {
      */
     PagedResult<SeanceListItem> search(CenterId centerId, SeanceSearch criteria, int page, int size);
 
-    Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance);
-
+    // SE6 (ADR 0093) : le changement de jour vit dans contexts/seance (ChangerLeJourDUneSeance).
     // SE5 (ADR 0092) : l'imposition d'un forfait vit dans contexts/seance (ImposerUnForfait).
     // SE2 (ADR 0089) : validate, signByMedecin et unlockForRegularisation vivent dans contexts/seance (ValiderUneSeance,
     // SignerUneSeance, DeverrouillerUneSeance). SE3 (ADR 0090) : l'ajout, la modification et le retrait d'un consommable vivent

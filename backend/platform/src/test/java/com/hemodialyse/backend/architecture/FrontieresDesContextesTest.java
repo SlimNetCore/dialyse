@@ -190,13 +190,45 @@ class FrontieresDesContextesTest {
      * PUT {@code /api/v1/seances/{id}/forfait}). Le handler, {@code SeanceUseCase.updateForfait}, {@code Seance.modifierForfait} et le
      * catalogue legacy sont supprimés (le compilateur interdit tout retour) ; aucune classe hors du contexte ne dépend du cas d'usage.
      * Les écrivants restants de {@code forfait_override_*} sont la Facturation ({@code poserLeForfait}, KB-SEA-47, hors périmètre) et
-     * l'adaptateur de persistance legacy de la séance (réécriture de la ligne par {@code updateDate}).
+     * l'adaptateur de persistance legacy de la séance (mapping de la ligne ; {@code updateDate}, qui la réécrivait, est retiré avec SE6).
      */
     @ArchTest
     static final ArchRule seul_contexts_seance_impose_un_forfait_a_une_seance = noClasses()
             .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait")
             .because("une seule entrée pour la surcharge du forfait d'une séance : le contrôleur du module (ADR 0092)");
+
+    /**
+     * SE6 (ADR 0093) : le changement de jour et la suppression d'une séance vivent dans {@code contexts/seance} (PUT et DELETE
+     * {@code /api/v1/seances/{id}}). Les handlers, {@code SeanceUseCase.updateDate}, {@code Seance.verifierSuppressible},
+     * {@code SuppressionSeanceService}, son journal et {@code SeanceRepositoryPort.delete} sont supprimés (le compilateur interdit tout
+     * retour) ; aucune classe hors du contexte ne dépend de ces cas d'usage.
+     */
+    @ArchTest
+    static final ArchRule seul_contexts_seance_change_le_jour_et_supprime_une_seance = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ChangerLeJourDUneSeance")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.SupprimerUneSeance")
+            .because("une seule entrée pour le changement de jour et pour la suppression : le contrôleur du module (ADR 0093)");
+
+    /**
+     * SE6 (KB-SEA-49) : le legacy réécrivait TOUTE la ligne de la séance au changement de jour et effaçait {@code facture_id}. L'écriture
+     * de la ligne entière ({@code SeanceRepositoryPort.save}) n'a plus qu'un appelant : {@code SeanceDomainService} (création et validation
+     * par scan, résidus SE1/SE2 sans appelant de production hors création legacy) ; plus aucun contrôleur, service d'application ou
+     * adaptateur ne la rappelle.
+     */
+    @ArchTest
+    static final ArchRule seul_le_service_de_domaine_legacy_ecrit_la_ligne_entiere_de_la_seance = noClasses()
+            .that().doNotHaveFullyQualifiedName("com.hemodialyse.backend.domain.seance.service.SeanceDomainService")
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "réécrit la ligne entière d'une séance (SeanceRepositoryPort.save)") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort")
+                            && appel.getName().equals("save");
+                }
+            })
+            .because("la réécriture de la ligne entière effaçait facture_id (KB-SEA-49) ; les écritures ciblées vivent dans contexts/seance");
 
     private static final java.util.Set<String> CLASSES_AUTORISEES_A_ECRIRE_LE_FORFAIT_SURCHARGE_LEGACY = java.util.Set.of(
             "com.hemodialyse.backend.domain.seance.model.Seance",

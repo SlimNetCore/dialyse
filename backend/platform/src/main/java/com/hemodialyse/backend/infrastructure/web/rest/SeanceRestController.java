@@ -68,17 +68,8 @@ public class SeanceRestController {
     // SE5 (ADR 0092) : la surcharge du forfait d'une séance (PUT /{id}/forfait) est servie par `contexts/seance` (ImposerUnForfait) ;
     // le forfait courant se lit par le langage publié ForfaitsFournis.
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{seanceId}")
-    public ResponseEntity<?> update(@PathVariable UUID seanceId, @RequestBody @Valid UpdateSeanceRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // revue DM1 : le centre du corps doit être celui du jeton (403 sinon)
-        var seance = seanceUseCase.updateDate(CenterId.of(request.centerId()), seanceId, request.dateSeance());
-        return ResponseEntity.ok(Map.of(
-                "id", seance.getId(),
-                "status", seance.getStatus(),
-                "dateSeance", seance.getDateSeance()
-        ));
-    }
+    // SE6 (ADR 0093) : le changement de jour (PUT /{id}) et la suppression (DELETE /{id}) sont servis par `contexts/seance`
+    // (SeancesControleur, ChangerLeJourDUneSeance, SupprimerUneSeance).
 
     // SE2 : valider, signer-medecin et deverrouiller-regularisation sont servis par contexts/seance (SeancesControleur, ADR 0089).
 

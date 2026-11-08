@@ -1,0 +1,14 @@
+{
+  "avec facture_id : ABSENT" : "422 SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE | Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : CREE" : "422 SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE | Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : EN_COURS" : "400 BAD_REQUEST | La séance <SEANCE> porte une valeur illisible : statut inconnu ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : FACTUREE" : "422 SEANCE_FACTUREE_NON_SUPPRIMABLE | Une séance facturée ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : SIGNEE" : "422 SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE | Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : VALIDEE" : "422 SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE | Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "sans facture_id : ABSENT" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : CREE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : EN_COURS" : "400 BAD_REQUEST | La séance <SEANCE> porte une valeur illisible : statut inconnu ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "sans facture_id : FACTUREE" : "422 SEANCE_FACTUREE_NON_SUPPRIMABLE | Une séance facturée ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "sans facture_id : SIGNEE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : VALIDEE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1"
+}

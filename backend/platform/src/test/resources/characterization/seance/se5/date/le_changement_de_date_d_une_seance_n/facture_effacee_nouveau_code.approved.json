@@ -1,0 +1,21 @@
+{
+  "01 imposition du forfait" : "200 ok",
+  "02 avant : facture et forfait imposé" : [ {
+    "date_seance" : "<D+1>",
+    "facture_id" : "<FACTURE>",
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "compta-01",
+    "statut" : "SIGNEE"
+  } ],
+  "03 changement de date" : "200 ok",
+  "04 après : facture et forfait imposé" : [ {
+    "date_seance" : "<D+2>",
+    "facture_id" : "<FACTURE>",
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "compta-01",
+    "statut" : "SIGNEE"
+  } ],
+  "05 forfait imposé intact" : true
+}

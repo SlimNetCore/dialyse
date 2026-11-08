@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface SeanceRepositoryPort {
     Seance save(Seance seance);
 
-    void delete(CenterId centerId, UUID seanceId);
+    // SE6 (ADR 0093) : la suppression vit dans contexts/seance (Seances.supprimer).
     Optional<Seance> findById(UUID seanceId, CenterId centerId);
 
     Optional<Seance> findByPatientIdAndDate(CenterId centerId, UUID patientId, LocalDate dateSeance);
