@@ -1,0 +1,14 @@
+{
+  "PUT /annulation ADMIN du centre A" : {
+    "LIEN_SEANCE_ABSENT" : "422 ABSENCE_D_EXCLUSION | Cette absence vient de l'exclusion d'une séance de la facturation : réincluez la séance pour la retirer -> statut en base A_QUALIFIER",
+    "LIEN_SEANCE_CENTRE_B" : "200 ok -> statut en base ANNULEE",
+    "LIEN_SEANCE_VALIDEE" : "422 ABSENCE_D_EXCLUSION | Cette absence vient de l'exclusion d'une séance de la facturation : réincluez la séance pour la retirer -> statut en base A_QUALIFIER",
+    "SANS_LIEN" : "200 ok -> statut en base ANNULEE"
+  },
+  "port ExclusionsDeSeances (centre A)" : {
+    "LIEN_SEANCE_ABSENT" : true,
+    "LIEN_SEANCE_CENTRE_B" : false,
+    "LIEN_SEANCE_VALIDEE" : true,
+    "SANS_LIEN" : false
+  }
+}

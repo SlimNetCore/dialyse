@@ -1,0 +1,100 @@
+{
+  "[ VALIDEE]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[ABSENT]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[ANNULEE]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[BROUILLON]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[CREE]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[EN_COURS]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[FACTUREE]" : {
+    "absences.duCentre" : true,
+    "absences.joursDuPatient" : true,
+    "absences.realisee" : true,
+    "detection : patient encore attendu" : false,
+    "planification.duCentre" : true
+  },
+  "[PLANIFIEE]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[SIGNEE]" : {
+    "absences.duCentre" : true,
+    "absences.joursDuPatient" : true,
+    "absences.realisee" : true,
+    "detection : patient encore attendu" : false,
+    "planification.duCentre" : true
+  },
+  "[Signee]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[VALIDEE ]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[VALIDEE]" : {
+    "absences.duCentre" : true,
+    "absences.joursDuPatient" : true,
+    "absences.realisee" : true,
+    "detection : patient encore attendu" : false,
+    "planification.duCentre" : true
+  },
+  "[facturee]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  },
+  "[validee]" : {
+    "absences.duCentre" : false,
+    "absences.joursDuPatient" : false,
+    "absences.realisee" : false,
+    "detection : patient encore attendu" : true,
+    "planification.duCentre" : false
+  }
+}

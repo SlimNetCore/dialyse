@@ -1,0 +1,7 @@
+{
+  "duCentre borne unique" : 1,
+  "duCentre bornes inversees" : 0,
+  "joursDuPatient du patient du centre B lu par le centre A" : 0,
+  "planification bornes inversees" : 0,
+  "realisee du patient du centre B lue par le centre A" : false
+}

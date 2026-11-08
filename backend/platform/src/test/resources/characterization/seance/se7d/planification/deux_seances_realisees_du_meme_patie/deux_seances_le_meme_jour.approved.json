@@ -1,0 +1,8 @@
+{
+  "case retenue (Salle 2 / Matin ou Salle 2 / Apres-midi) NON verrouillee : ORDER BY date seule, KB-SEA-78" : "voir KB",
+  "cases du lundi occupees par le patient" : 1,
+  "cases hors lundi" : [ "Salle 1 / Matin / MERCREDI cap=2 [Test Patient PAT_DOUBLE (G1A, deja realisee le <D+60>)]" ],
+  "conflits" : [ ],
+  "lignes rendues par le port" : 2,
+  "seancesSansCase" : [ ]
+}

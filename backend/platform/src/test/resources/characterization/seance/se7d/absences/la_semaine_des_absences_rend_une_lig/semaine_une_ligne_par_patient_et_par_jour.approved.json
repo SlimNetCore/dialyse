@@ -1,0 +1,6 @@
+{
+  "dates dans l'ordre servi (ordre entre patients d'un meme jour NON verrouille : KB-SEA-77)" : [ "<D+60>", "<D+61>", "<D+61>", "<D+61>", "<D+65>" ],
+  "lignes (date puis patient, triees par le test)" : [ "<D+60> <P2>", "<D+61> <P1>", "<D+61> <P2>", "<D+61> <P3>", "<D+65> <P1>" ],
+  "semaine demandee le mercredi, debut" : "<D+59>",
+  "status" : 200
+}

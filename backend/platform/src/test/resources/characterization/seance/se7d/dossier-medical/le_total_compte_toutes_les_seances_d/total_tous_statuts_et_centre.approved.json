@@ -1,0 +1,16 @@
+{
+  "centre A, taille 3" : {
+    "ordre" : [ "<S5>", "<S4>", "<S3>" ],
+    "page" : 0,
+    "size" : 3,
+    "status" : 200,
+    "total" : 6
+  },
+  "centre B (le patient n'y a pas de fiche)" : {
+    "ordre" : [ "<S_CENTRE_B>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 1
+  }
+}

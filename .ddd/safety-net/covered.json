@@ -220,7 +220,12 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation/SeancesDeFacturationParLaSeance.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation/LiaisonDesSeancesParLaSeance.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation/SeancesFacturablesParLaSeance.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation/SeancesDesFacturesParLaSeance.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation/SeancesDesFacturesParLaSeance.java",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/ExclusionsDeSeancesJdbc.java",
+    "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyplanning/PatientsAttendusJdbc.java",
+    "backend/contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
+    "backend/contexts/dossier-medical/src/main/java/com/hemodialyse/backend/contexts/dossiermedical/infrastructure/persistence/HistoriqueDesConstantesJdbc.java"
   ],
   "seamAllowed": []
 }

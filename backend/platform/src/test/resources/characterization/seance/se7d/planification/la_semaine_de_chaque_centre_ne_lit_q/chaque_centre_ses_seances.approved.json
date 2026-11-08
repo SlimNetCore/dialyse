@@ -1,0 +1,60 @@
+{
+  "centre A" : {
+    "capaciteParSalleEtJour" : {
+      "Salle 1 / DIMANCHE" : 2,
+      "Salle 1 / JEUDI" : 2,
+      "Salle 1 / LUNDI" : 2,
+      "Salle 1 / MARDI" : 2,
+      "Salle 1 / MERCREDI" : 2,
+      "Salle 1 / SAMEDI" : 2,
+      "Salle 1 / VENDREDI" : 2,
+      "Salle 2 / DIMANCHE" : 1,
+      "Salle 2 / JEUDI" : 1,
+      "Salle 2 / LUNDI" : 1,
+      "Salle 2 / MARDI" : 1,
+      "Salle 2 / MERCREDI" : 1,
+      "Salle 2 / SAMEDI" : 1,
+      "Salle 2 / VENDREDI" : 1,
+      "Salle isolement / DIMANCHE" : 1,
+      "Salle isolement / JEUDI" : 1,
+      "Salle isolement / LUNDI" : 1,
+      "Salle isolement / MARDI" : 1,
+      "Salle isolement / MERCREDI" : 1,
+      "Salle isolement / SAMEDI" : 1,
+      "Salle isolement / VENDREDI" : 1
+    },
+    "cases" : [ "Salle 1 / Matin / MERCREDI cap=2 [Test Patient PAT_CENTRE_A (G1A, deja realisee le <D+60>)]", "Salle 2 / Apres-midi / LUNDI cap=1 [Test Patient PAT_CENTRE_A (G2A, realisee hors planning)]" ],
+    "conflits" : [ ],
+    "creneaux" : [ "Apres-midi", "Matin" ],
+    "debut" : "<D+59>",
+    "fin" : "<D+65>",
+    "jours" : [ "DIMANCHE <D+59>", "LUNDI <D+60>", "MARDI <D+61>", "MERCREDI <D+62>", "JEUDI <D+63>", "VENDREDI <D+64>", "SAMEDI <D+65>" ],
+    "nbCellules" : 42,
+    "patientsAReplanifier" : 0,
+    "salles" : [ "Salle 1", "Salle 2", "Salle isolement" ],
+    "seancesSansCase" : [ ],
+    "statut" : 200
+  },
+  "centre B" : {
+    "capaciteParSalleEtJour" : {
+      "Salle B / DIMANCHE" : 0,
+      "Salle B / JEUDI" : 0,
+      "Salle B / LUNDI" : 0,
+      "Salle B / MARDI" : 0,
+      "Salle B / MERCREDI" : 0,
+      "Salle B / SAMEDI" : 0,
+      "Salle B / VENDREDI" : 0
+    },
+    "cases" : [ "Salle B / Creneau B / LUNDI cap=0 [Test Patient PAT_CENTRE_B (sans generateur, realisee hors planning)]", "Salle B / Creneau B / MERCREDI cap=0 [Test Patient PAT_CENTRE_B (sans generateur, deja realisee le <D+60>)]" ],
+    "conflits" : [ "SANS_GENERATEUR Salle B / Creneau B / MERCREDI [Test Patient PAT_CENTRE_B]", "SALLE_SURCHARGEE Salle B / Creneau B / MERCREDI [Test Patient PAT_CENTRE_B]" ],
+    "creneaux" : [ "Creneau B" ],
+    "debut" : "<D+59>",
+    "fin" : "<D+65>",
+    "jours" : [ "DIMANCHE <D+59>", "LUNDI <D+60>", "MARDI <D+61>", "MERCREDI <D+62>", "JEUDI <D+63>", "VENDREDI <D+64>", "SAMEDI <D+65>" ],
+    "nbCellules" : 7,
+    "patientsAReplanifier" : 0,
+    "salles" : [ "Salle B" ],
+    "seancesSansCase" : [ ],
+    "statut" : 200
+  }
+}

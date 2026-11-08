@@ -1,0 +1,39 @@
+{
+  "noms lus par le port (tries par le test)" : [ "[Ana   Espaces] <D+61>", "[Blanc] <D+60>", "[Vide] <D+60>" ],
+  "semaine" : {
+    "capaciteParSalleEtJour" : {
+      "Salle 1 / DIMANCHE" : 2,
+      "Salle 1 / JEUDI" : 2,
+      "Salle 1 / LUNDI" : 2,
+      "Salle 1 / MARDI" : 2,
+      "Salle 1 / MERCREDI" : 2,
+      "Salle 1 / SAMEDI" : 2,
+      "Salle 1 / VENDREDI" : 2,
+      "Salle 2 / DIMANCHE" : 1,
+      "Salle 2 / JEUDI" : 1,
+      "Salle 2 / LUNDI" : 1,
+      "Salle 2 / MARDI" : 1,
+      "Salle 2 / MERCREDI" : 1,
+      "Salle 2 / SAMEDI" : 1,
+      "Salle 2 / VENDREDI" : 1,
+      "Salle isolement / DIMANCHE" : 1,
+      "Salle isolement / JEUDI" : 1,
+      "Salle isolement / LUNDI" : 1,
+      "Salle isolement / MARDI" : 1,
+      "Salle isolement / MERCREDI" : 1,
+      "Salle isolement / SAMEDI" : 1,
+      "Salle isolement / VENDREDI" : 1
+    },
+    "cases" : [ "Salle 1 / Apres-midi / LUNDI cap=2 [Vide (G1A, realisee hors planning)]", "Salle 1 / Matin / LUNDI cap=2 [Blanc (G1A, realisee hors planning)]", "Salle 1 / Matin / MERCREDI cap=2 [Blanc (G1A, deja realisee le <D+60>), Vide (G1B, deja realisee le <D+60>)]", "Salle 2 / Apres-midi / MARDI cap=1 [Ana   Espaces (sans generateur, realisee hors planning)]", "Salle 2 / Matin / MERCREDI cap=1 [Ana   Espaces (G2A, deja realisee le <D+61>)]" ],
+    "conflits" : [ ],
+    "creneaux" : [ "Apres-midi", "Matin" ],
+    "debut" : "<D+59>",
+    "fin" : "<D+65>",
+    "jours" : [ "DIMANCHE <D+59>", "LUNDI <D+60>", "MARDI <D+61>", "MERCREDI <D+62>", "JEUDI <D+63>", "VENDREDI <D+64>", "SAMEDI <D+65>" ],
+    "nbCellules" : 42,
+    "patientsAReplanifier" : 0,
+    "salles" : [ "Salle 1", "Salle 2", "Salle isolement" ],
+    "seancesSansCase" : [ ],
+    "statut" : 200
+  }
+}

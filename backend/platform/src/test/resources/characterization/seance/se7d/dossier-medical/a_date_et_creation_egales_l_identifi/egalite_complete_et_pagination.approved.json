@@ -1,0 +1,31 @@
+{
+  "identifiants poses (8 premiers caracteres, l'ordre attendu est decroissant)" : [ "EGAL_A=ceada716", "EGAL_B=e34516e5", "EGAL_C=403174a9" ],
+  "page 0 taille 2" : {
+    "ordre" : [ "<PLUS_RECENTE>", "<EGAL_B>" ],
+    "page" : 0,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "page 0 taille 20" : {
+    "ordre" : [ "<PLUS_RECENTE>", "<EGAL_B>", "<EGAL_A>", "<EGAL_C>", "<PLUS_ANCIENNE>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 5
+  },
+  "page 1 taille 2" : {
+    "ordre" : [ "<EGAL_A>", "<EGAL_C>" ],
+    "page" : 1,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  },
+  "page 2 taille 2" : {
+    "ordre" : [ "<PLUS_ANCIENNE>" ],
+    "page" : 2,
+    "size" : 2,
+    "status" : 200,
+    "total" : 5
+  }
+}

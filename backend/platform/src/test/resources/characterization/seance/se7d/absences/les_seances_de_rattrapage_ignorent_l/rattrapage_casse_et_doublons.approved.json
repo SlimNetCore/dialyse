@@ -1,0 +1,16 @@
+{
+  "absence lue depuis le centre B" : {
+    "corps" : {
+      "code" : "ABSENCE_INTROUVABLE",
+      "detail" : "Absence introuvable",
+      "instance" : "/api/v1/absences-patients/<ABSENCE_1>/seances-rattrapage",
+      "status" : 404,
+      "title" : "Absence introuvable"
+    },
+    "status" : 404
+  },
+  "centre A" : {
+    "corps" : [ "<D+11>", "<D+14>" ],
+    "status" : 200
+  }
+}
