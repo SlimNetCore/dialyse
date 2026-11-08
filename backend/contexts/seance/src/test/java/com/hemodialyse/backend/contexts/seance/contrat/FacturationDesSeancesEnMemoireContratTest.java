@@ -29,6 +29,16 @@ class FacturationDesSeancesEnMemoireContratTest extends FacturationDesSeancesCon
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.seance.publishedlanguage.LiaisonDesSeancesAUneFacturePubliee liaison() {
+        return seances;
+    }
+
+    @Override
+    protected UUID factureDe(UUID seance) {
+        return seances.factureDe(seance);
+    }
+
+    @Override
     protected void patient(UUID id, UUID centre, String code, String nom, String prenom, String etat) {
         seances.patient(id, centre, code, nom, prenom, etat);
     }

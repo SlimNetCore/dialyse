@@ -471,6 +471,18 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("le Stock ne lit plus la table seances : l'ACL de la plateforme appelle seance.v1 (ADR 0096)");
 
+    /**
+     * SE7c2 (ADR 0097, ARGENT) : la Facturation lit et écrit les séances par le langage publié de la Séance, dans l'ACL de la plateforme
+     * (cycle Maven Séance - Absences-patients - Facturation). Elle ne dépend d'AUCUNE classe de la Séance, sans exception, et ne contient plus
+     * de SQL sur la table des séances ({@code TableDesSeancesTest}).
+     */
+    @ArchTest
+    static final ArchRule la_facturation_ne_depend_pas_de_la_seance = noClasses()
+            .that().resideInAPackage(FACTURATION + "..")
+            .should().dependOnClassesThat().resideInAPackage(SEANCE + "..")
+            .allowEmptyShould(true)
+            .because("la Facturation ne lit plus la table seances : l'ACL de la plateforme appelle seance.v1 (ADR 0097)");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

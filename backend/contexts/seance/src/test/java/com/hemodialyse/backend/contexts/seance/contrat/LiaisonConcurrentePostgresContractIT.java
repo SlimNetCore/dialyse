@@ -1,7 +1,6 @@
-package com.hemodialyse.backend.contexts.facturation.contrat;
+package com.hemodialyse.backend.contexts.seance.contrat;
 
-import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.LiaisonDesSeancesJdbc;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LiaisonDesSeancesJdbc;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Slice seance-se7c2-ecritures-facturation, filet COMPLÉMENTAIRE (ARGENT, OBSERVE sans corriger) : deux émissions simultanées de
+ * Slice seance-se7c2-ecritures-facturation (ARGENT) : le filet de course d'origine (module Facturation, ancienne ACL), REJOUÉ contre l'adapter
+ * de la Séance (ADR 0097, lot c2b), assertions inchangées : deux émissions simultanées de
  * facture sur les mêmes séances ({@code LiaisonDesSeancesJdbc.lier}) sur un PostgreSQL 16 RÉEL (H2 n'est pas fiable pour la
  * concurrence). Seul le garde {@code facture_id IS NULL AND statut IN ('VALIDEE', 'SIGNEE')} de l'UPDATE protège : en lecture
  * validée, la seconde transaction attend le verrou de ligne de la première, relit la ligne validée, ne trouve plus rien à
@@ -39,24 +39,24 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>
  * Déterminisme : la première transaction garde son verrou ouvert tant que la seconde n'est pas observée EN ATTENTE DE VERROU dans
  * {@code pg_stat_activity} ; aucune temporisation fixe. Aucune horloge. Base JETABLE uniquement :
- * {@code -Dfacturation.pg16.url=jdbc:postgresql://…} ; le mot de passe vient de la variable d'environnement
- * {@code FACTURATION_PG16_PASSWORD} (jamais sur la ligne de commande).
+ * {@code -Dseance.pg16.url=jdbc:postgresql://…} ; le mot de passe vient de la variable d'environnement
+ * {@code SEANCE_PG16_PASSWORD} (jamais sur la ligne de commande).
  */
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = {
-        "spring.datasource.url=${facturation.pg16.url}",
-        "spring.datasource.username=${facturation.pg16.user:facturation_test}",
-        "spring.datasource.password=${facturation.pg16.password:}",
+        "spring.datasource.url=${seance.pg16.url}",
+        "spring.datasource.username=${seance.pg16.user:seance_test}",
+        "spring.datasource.password=${seance.pg16.password:}",
         "spring.datasource.driver-class-name=org.postgresql.Driver",
         "spring.sql.init.mode=never"
 })
-@EnabledIfSystemProperty(named = "facturation.pg16.url", matches = ".+")
+@EnabledIfSystemProperty(named = "seance.pg16.url", matches = ".+")
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class LiaisonConcurrentePostgresContractIT {
 
     private static final UUID CENTRE_ID = UUID.fromString("99997c20-0000-0000-0000-00000000000a");
-    private static final CentreId CENTRE = new CentreId(CENTRE_ID);
+    private static final UUID CENTRE = CENTRE_ID;
     private static final UUID PATIENT = UUID.fromString("99997c20-0000-0000-0000-00000000a001");
     private static final String MESSAGE = "Une ou plusieurs seances ne sont plus eligibles a la validation";
 

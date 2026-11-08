@@ -66,9 +66,13 @@ import com.hemodialyse.backend.contexts.facturation.domain.simulation.SequenceDe
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.TauxDeTvaComptabilite;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.ForfaitsDuCentreJdbc;
-import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.LiaisonDesSeancesJdbc;
-import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.SeancesDeFacturationJdbc;
-import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.SeancesFacturablesJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.LiaisonDesSeancesPubliee;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.SeancesDeFacturationPubliees;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.SeancesFacturablesPubliees;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ExclusionsDeSeancesFournies;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.LiaisonDesSeancesFournie;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesAFacturerFournies;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesDesFacturesFournies;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.messaging.PublicationDeLaValidationSpring;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.FacturesJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ParametresDeFacturationJdbc;
@@ -125,14 +129,21 @@ public class FacturationContexteConfiguration {
         return new ConfigurerLaFacturation(parametres, uniteDeTravail, Clock.systemUTC());
     }
 
+    // Les séances (ARGENT) viennent du langage publié FOURNI par la plateforme à partir de seance.v1 (ADR 0097) : Facturation ne peut pas
+    // dépendre du module Séance (cycle Maven Séance - Absences-patients - Facturation).
     @Bean
-    SeancesFacturables facturationSeancesFacturables(JdbcTemplate jdbc, CouvertureDesPatients couverture) {
-        return new SeancesFacturablesJdbc(jdbc, couverture);
+    SeancesFacturables facturationSeancesFacturables(SeancesAFacturerFournies seances, CouvertureDesPatients couverture) {
+        return new SeancesFacturablesPubliees(seances, couverture);
     }
 
     @Bean
-    SeancesDeFacturation facturationSeancesDeFacturation(JdbcTemplate jdbc) {
-        return new SeancesDeFacturationJdbc(jdbc);
+    SeancesDeFacturation facturationSeancesDeFacturation(ExclusionsDeSeancesFournies seances) {
+        return new SeancesDeFacturationPubliees(seances);
+    }
+
+    @Bean
+    LiaisonDesSeances facturationLiaisonDesSeances(LiaisonDesSeancesFournie liaison) {
+        return new LiaisonDesSeancesPubliee(liaison);
     }
 
     @Bean
@@ -181,11 +192,6 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    LiaisonDesSeances facturationLiaisonDesSeances(JdbcTemplate jdbc) {
-        return new LiaisonDesSeancesJdbc(jdbc);
-    }
-
-    @Bean
     PublicationDeLaValidation facturationPublicationDeLaValidation(ApplicationEventPublisher publisher) {
         return new PublicationDeLaValidationSpring(publisher);
     }
@@ -218,8 +224,8 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    LectureDuTableauDeBord facturationLectureDuTableauDeBord(JdbcTemplate jdbc) {
-        return new LectureDuTableauDeBordJdbc(jdbc);
+    LectureDuTableauDeBord facturationLectureDuTableauDeBord(JdbcTemplate jdbc, SeancesDesFacturesFournies seances) {
+        return new LectureDuTableauDeBordJdbc(jdbc, seances);
     }
 
     @Bean
@@ -228,8 +234,8 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    LectureDeLaSynthese facturationLectureDeLaSynthese(JdbcTemplate jdbc) {
-        return new LectureDeLaSyntheseJdbc(jdbc);
+    LectureDeLaSynthese facturationLectureDeLaSynthese(JdbcTemplate jdbc, SeancesDesFacturesFournies seances) {
+        return new LectureDeLaSyntheseJdbc(jdbc, seances);
     }
 
     /** {@code impression} est l'adaptateur de la plateforme (moteur Jasper, gabarits). */

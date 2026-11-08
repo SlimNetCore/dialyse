@@ -34,12 +34,12 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
 
     @Override
     protected LectureDuTableauDeBord tableau() {
-        return new LectureDuTableauDeBordJdbc(jdbc());
+        return new LectureDuTableauDeBordJdbc(jdbc(), new SeancesDesFacturesSurLaTable(jdbc()));
     }
 
     @Override
     protected LectureDeLaSynthese synthese() {
-        return new LectureDeLaSyntheseJdbc(jdbc());
+        return new LectureDeLaSyntheseJdbc(jdbc(), new SeancesDesFacturesSurLaTable(jdbc()));
     }
 
     @Override

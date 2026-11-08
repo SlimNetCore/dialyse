@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.LectureDeLaSynthese;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesDesFacturesFournies;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle.Caisse;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle.Repartition;
@@ -10,20 +11,32 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Lecture JDBC des données de la synthèse de facturation : caisses, répartitions et indicateurs des factures de la période,
  * totaux enregistrés (HT, TVA, TTC). Contrairement au tableau de bord, les jointures du référentiel filtrent par centre
- * (KB-FAC-65 reproduit). Valeurs vides ou blanches de caisse et de situation : « INCONNU ».
+ * (KB-FAC-65 reproduit). Valeurs vides ou blanches de caisse et de situation : « INCONNU ». Le nombre de séances de chaque facture vient de
+ * la Séance ({@link SeancesDesFacturesFournies}, ADR 0097) : la requête ne touche plus la table des séances ; une séance n'ayant qu'une facture, le
+ * nombre de séances d'un groupe de factures est la somme des nombres de ses factures, et le tri (patients, séances, code) est celui d'avant :
+ * les lignes arrivent triées par code selon la base, puis un tri STABLE applique patients et séances décroissants.
  */
 public class LectureDeLaSyntheseJdbc implements LectureDeLaSynthese {
 
     private final JdbcTemplate jdbc;
 
-    public LectureDeLaSyntheseJdbc(JdbcTemplate jdbc) {
+    private final SeancesDesFacturesFournies seancesDesFactures;
+
+    public LectureDeLaSyntheseJdbc(JdbcTemplate jdbc, SeancesDesFacturesFournies seancesDesFactures) {
         this.jdbc = jdbc;
+        this.seancesDesFactures = seancesDesFactures;
     }
 
     @Override
@@ -45,51 +58,43 @@ public class LectureDeLaSyntheseJdbc implements LectureDeLaSynthese {
                 """,
                 (rs, i) -> new Caisse(rs.getString("caisse_code"), rs.getString("caisse_label")), id, du, au);
 
-        List<Repartition> parCaisse = jdbc.query("""
-                SELECT COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS bucket_code,
-                       COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu') AS bucket_label,
-                       COUNT(DISTINCT f.patient_id) AS patients_count,
-                       COUNT(DISTINCT s.id) AS seances_count
+        List<LigneDeFacture> parCaisseBrut = jdbc.query("""
+                SELECT f.id AS facture_id, f.patient_id,
+                       COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS bucket_code,
+                       COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu') AS bucket_label
                 FROM factures f
                 LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id
                 LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id AND ca.center_id = f.center_id
-                LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
                 WHERE f.center_id = ?
                   AND f.date_facturation BETWEEN ? AND ?
-                GROUP BY COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU'),
-                         COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu')
-                ORDER BY patients_count DESC, seances_count DESC, bucket_code ASC
+                ORDER BY bucket_code ASC
                 """,
-                (rs, i) -> repartition(rs.getString("bucket_code"), rs.getString("bucket_label"), rs.getLong("patients_count"),
-                        rs.getLong("seances_count")), id, du, au);
+                (rs, i) -> new LigneDeFacture(rs.getObject("facture_id", UUID.class), rs.getObject("patient_id", UUID.class),
+                        rs.getString("bucket_code"), rs.getString("bucket_label")), id, du, au);
 
-        List<Repartition> parSituation = jdbc.query("""
-                SELECT COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU') AS bucket_code,
-                       COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu') AS bucket_label,
-                       COUNT(DISTINCT f.patient_id) AS patients_count,
-                       COUNT(DISTINCT s.id) AS seances_count
+        List<LigneDeFacture> parSituationBrut = jdbc.query("""
+                SELECT f.id AS facture_id, f.patient_id,
+                       COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU') AS bucket_code,
+                       COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu') AS bucket_label
                 FROM factures f
-                LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
                 WHERE f.center_id = ?
                   AND f.date_facturation BETWEEN ? AND ?
-                GROUP BY COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU'),
-                         COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu')
-                ORDER BY patients_count DESC, seances_count DESC, bucket_code ASC
+                ORDER BY bucket_code ASC
                 """,
-                (rs, i) -> repartition(rs.getString("bucket_code"), rs.getString("bucket_label"), rs.getLong("patients_count"),
-                        rs.getLong("seances_count")), id, du, au);
+                (rs, i) -> new LigneDeFacture(rs.getObject("facture_id", UUID.class), rs.getObject("patient_id", UUID.class),
+                        rs.getString("bucket_code"), rs.getString("bucket_label")), id, du, au);
 
-        Indicateurs indicateurs = jdbc.queryForObject("""
-                SELECT COUNT(DISTINCT f.id) AS total_factures,
-                       COUNT(DISTINCT f.patient_id) AS total_patients,
-                       COUNT(DISTINCT s.id) AS total_seances
-                FROM factures f
-                LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
-                WHERE f.center_id = ?
-                  AND f.date_facturation BETWEEN ? AND ?
-                """,
-                (rs, i) -> new Indicateurs(rs.getLong("total_factures"), rs.getLong("total_patients"), rs.getLong("total_seances")),
-                id, du, au);
+        Map<UUID, Long> seancesParFacture = seancesDesFactures.nombreParFacture(id,
+                parCaisseBrut.stream().map(LigneDeFacture::facture).toList());
+
+        List<Repartition> parCaisse = repartitions(parCaisseBrut, seancesParFacture);
+        List<Repartition> parSituation = repartitions(parSituationBrut, seancesParFacture);
+
+        Set<UUID> patients = new HashSet<>();
+        parCaisseBrut.stream().map(LigneDeFacture::patient).filter(p -> p != null).forEach(patients::add);
+        long seances = parCaisseBrut.stream().mapToLong(l -> seancesParFacture.getOrDefault(l.facture(), 0L)).sum();
+        Indicateurs indicateurs = new Indicateurs(parCaisseBrut.stream().map(LigneDeFacture::facture).distinct().count(),
+                patients.size(), seances);
 
         Totaux totaux = jdbc.queryForObject("""
                 SELECT COALESCE(SUM(total_ht), 0) AS ht, COALESCE(SUM(total_tva), 0) AS tva, COALESCE(SUM(total_ttc), 0) AS ttc
@@ -103,8 +108,28 @@ public class LectureDeLaSyntheseJdbc implements LectureDeLaSynthese {
                 indicateurs.patients(), indicateurs.seances(), totaux.ht(), totaux.tva(), totaux.ttc());
     }
 
-    private static Repartition repartition(String code, String libelle, long patients, long seances) {
-        return new Repartition(code, libelle, patients, seances);
+    /** Regroupe les factures par (code, libellé) dans l'ordre du code reçu de la base, puis tri stable patients puis séances décroissants. */
+    private static List<Repartition> repartitions(List<LigneDeFacture> lignes, Map<UUID, Long> seancesParFacture) {
+        Map<List<String>, Groupe> groupes = new LinkedHashMap<>();
+        for (LigneDeFacture ligne : lignes) {
+            Groupe groupe = groupes.computeIfAbsent(List.of(ligne.code(), ligne.libelle()), cle -> new Groupe());
+            if (ligne.patient() != null) {
+                groupe.patients.add(ligne.patient());
+            }
+            groupe.seances += seancesParFacture.getOrDefault(ligne.facture(), 0L);
+        }
+        List<Repartition> resultat = new ArrayList<>();
+        groupes.forEach((cle, groupe) -> resultat.add(new Repartition(cle.get(0), cle.get(1), groupe.patients.size(), groupe.seances)));
+        resultat.sort(Comparator.comparingLong(Repartition::patients).reversed().thenComparing(Comparator.comparingLong(Repartition::seances).reversed()));
+        return resultat;
+    }
+
+    private static final class Groupe {
+        private final Set<UUID> patients = new HashSet<>();
+        private long seances;
+    }
+
+    private record LigneDeFacture(UUID facture, UUID patient, String code, String libelle) {
     }
 
     private record Indicateurs(long factures, long patients, long seances) {

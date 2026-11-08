@@ -1,0 +1,54 @@
+{
+  "apres_absente_facturee" : {
+    "exclusion_absence_id" : null,
+    "facture_id" : "<FACTURE_X>",
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "override_date_nulle" : "true",
+    "statut" : "ABSENT",
+    "statut_avant_exclusion" : "VALIDEE"
+  },
+  "apres_absente_sans_facture" : {
+    "exclusion_absence_id" : "<ABSENCE_X>",
+    "facture_id" : null,
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "override_date_nulle" : "true",
+    "statut" : "ABSENT",
+    "statut_avant_exclusion" : "VALIDEE"
+  },
+  "apres_facturee" : {
+    "exclusion_absence_id" : null,
+    "facture_id" : "<FACTURE_X>",
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "override_date_nulle" : "true",
+    "statut" : "FACTUREE",
+    "statut_avant_exclusion" : "VALIDEE"
+  },
+  "avant_absente_facturee" : {
+    "exclusion_absence_id" : null,
+    "facture_id" : "<FACTURE_X>",
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "override_date_nulle" : "true",
+    "statut" : "ABSENT",
+    "statut_avant_exclusion" : "VALIDEE"
+  },
+  "lierALAbsence_absente_facturee" : "REFUSEE (Seance introuvable ou non modifiable pour exclusion)",
+  "lierALAbsence_absente_sans_facture" : "ACCEPTEE",
+  "lierALAbsence_facturee" : "REFUSEE (Seance introuvable ou non modifiable pour exclusion)",
+  "reinclure_absente_facturee" : "REFUSEE (Seance introuvable ou non reinclusable)"
+}

@@ -38,7 +38,6 @@ class TableDesSeancesTest {
     private record Lecteur(String nature, LocalDate butoir) {
     }
 
-    private static final LocalDate FIN_DE_SE7C2 = LocalDate.of(2027, 1, 31);
     private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
     private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
 
@@ -50,13 +49,7 @@ class TableDesSeancesTest {
     }
 
     static {
-        // Facturation : sous-slice c2 (ARGENT : 5 UPDATE), hors du périmètre de c1.
-        String fact = "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/";
-        lecteur(fact + "acl/legacyseance/SeancesDeFacturationJdbc.java", "lecture + 4 UPDATE (statut ABSENT, exclusion, statut, forfait imposé), c2", FIN_DE_SE7C2);
-        lecteur(fact + "acl/legacyseance/LiaisonDesSeancesJdbc.java", "UPDATE facture_id / statut FACTUREE, c2", FIN_DE_SE7C2);
-        lecteur(fact + "acl/legacyseance/SeancesFacturablesJdbc.java", "lecture des séances facturables, c2", FIN_DE_SE7C2);
-        lecteur(fact + "persistence/LectureDeLaSyntheseJdbc.java", "lecture de la synthèse mensuelle, c2", FIN_DE_SE7C2);
-        lecteur(fact + "persistence/LectureDuTableauDeBordJdbc.java", "lecture du pilotage de la Facturation, c2", FIN_DE_SE7C2);
+        // Facturation : plus aucune entrée depuis SE7c2 (ADR 0097, 2026-11-08) ; les 5 classes SQL ont disparu ou ne touchent plus seances.
         // Autres contextes refaits : lecture seule, à remplacer par seance.v1 (lectures publiées à décider avec chacun).
         lecteur("contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
                 "séances réalisées d'un patient (lecture)", LECTURES_PUBLIEES);
@@ -182,18 +175,38 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_22_lecteurs_dont_12_de_la_plateforme() {
+    void la_liste_blanche_compte_17_lecteurs_dont_12_de_la_plateforme() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs de seances compte 22 entrées (5 Facturation, 5 autres contextes, 12 plateforme dont "
-                        + "8 sources Java et 4 ressources SQL) : toute entrée ajoutée ou retirée doit être décidée, datée et reportée "
+                .as("la liste blanche des lecteurs de seances compte 17 entrées (0 Facturation depuis SE7c2, 5 autres contextes, 12 plateforme "
+                        + "dont 8 sources Java et 4 ressources SQL) : toute entrée ajoutée ou retirée doit être décidée, datée et reportée "
                         + "dans la fiche de SE7c et l'annexe 16")
-                .hasSize(22);
+                .hasSize(17);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/")).count())
                 .as("dont 12 de la plateforme").isEqualTo(12);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
                 .as("dont 4 ressources SQL").isEqualTo(4);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
-                .as("dont 5 de la Facturation (c2)").isEqualTo(5);
+                .as("dont 0 de la Facturation (SE7c2)").isZero();
+    }
+
+    @Test
+    void la_facturation_ne_lit_ni_n_ecrit_plus_la_table_des_seances() throws IOException {
+        List<String> facturation = new ArrayList<>();
+        for (Path source : sourcesDeProduction(backend())) {
+            if (relatif(source).startsWith("contexts/facturation/") && mentionneLaTableDeLaSeance(source)) facturation.add(relatif(source));
+        }
+        assertThat(facturation).as("la Facturation passe par les ports publiés de la Séance, via l'ACL de la plateforme (ADR 0097)").isEmpty();
+        assertThat(LECTEURS_CONNUS.keySet()).noneMatch(c -> c.startsWith("contexts/facturation/"));
+    }
+
+    @Test
+    void les_traducteurs_de_la_facturation_dans_la_plateforme_n_ont_pas_de_sql_sur_les_seances() throws IOException {
+        Path acl = backend().resolve("platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation");
+        try (Stream<Path> fichiers = Files.list(acl)) {
+            List<Path> traducteurs = fichiers.filter(p -> p.toString().endsWith(".java")).toList();
+            assertThat(traducteurs).as("les 4 traducteurs de SE7c2").hasSize(4);
+            assertThat(traducteurs.stream().filter(TableDesSeancesTest::mentionneLaTableDeLaSeance).toList()).isEmpty();
+        }
     }
 
     @Test

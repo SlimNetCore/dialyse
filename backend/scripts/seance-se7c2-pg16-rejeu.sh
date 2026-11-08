@@ -45,10 +45,12 @@ done
 
 cd "$RACINE/backend"
 URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
-echo "=== Contrat PostgreSQL : course de deux emissions (LiaisonConcurrentePostgresContractIT) et seances de la Facturation ==="
-./mvnw -o -pl contexts/facturation -am test \
-  -Dtest="LiaisonConcurrentePostgresContractIT,SeancesPostgresContractIT" \
+echo "=== Contrat PostgreSQL (module Seance, ADR 0097) : course de deux emissions et ports publies de la Seance pour la Facturation ==="
+# Depuis SE7c2 lot B : les ecritures vivent dans contexts/seance (ports publies) ; la variable d'environnement est SEANCE_PG16_PASSWORD.
+export SEANCE_PG16_PASSWORD="$PW"
+./mvnw -o -pl contexts/seance -am test \
+  -Dtest="LiaisonConcurrentePostgresContractIT,FacturationDesSeancesPostgresContractIT" \
   -Dsurefire.failIfNoSpecifiedTests=false \
-  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test || RC=1
+  -Dseance.pg16.url="$URL" -Dseance.pg16.user=facturation_test || RC=1
 echo "=== Fin du rejeu : code $RC (0 = tout vert) ==="
 exit $RC

@@ -74,6 +74,8 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.GenerateursFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesPublieesDesSeancesJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.FacturationDesSeancesJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LiaisonDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.JourDuCentreFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.VoletsFournis;
@@ -147,6 +149,21 @@ public class SeanceConfiguration {
     @Bean
     LecturesPublieesDesSeancesJdbc lecturesPublieesDesSeances(JdbcTemplate jdbc) {
         return new LecturesPublieesDesSeancesJdbc(jdbc);
+    }
+
+    /**
+     * Lectures et écritures publiées de la Séance pour la Facturation (SE7c2, ADR 0097, ARGENT) : séances à facturer, exclusion, forfait imposé
+     * et comptages (un seul bean pour les trois ports) ; liaison séance -> facture (le seul écrivain de {@code facture_id} hors de la Séance).
+     * Aucune transaction propre : elles participent à celle de l'émission (même {@code JdbcTemplate}).
+     */
+    @Bean
+    FacturationDesSeancesJdbc facturationDesSeances(JdbcTemplate jdbc) {
+        return new FacturationDesSeancesJdbc(jdbc);
+    }
+
+    @Bean
+    LiaisonDesSeancesJdbc liaisonDesSeancesAUneFacture(JdbcTemplate jdbc) {
+        return new LiaisonDesSeancesJdbc(jdbc);
     }
 
     @Bean

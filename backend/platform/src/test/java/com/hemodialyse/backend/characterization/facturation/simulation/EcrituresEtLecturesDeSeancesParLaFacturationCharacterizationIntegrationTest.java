@@ -128,10 +128,15 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
         goldenNode("kb_sea_47_poser_le_forfait_n_ecrit_pas_le_code", racine);
     }
 
-    // ------------------------------------------------------------------ (a bis) lierALAbsence sans garde de facture
+    // ------------------------------------------------------------------ (a bis) lierALAbsence : garde de facture (KB-SEA-71)
 
+    /**
+     * ÉCART DÉCIDÉ (ADR 0097, KB-SEA-71, à confirmer métiers) : le legacy acceptait de lier une absence à une séance {@code ABSENT} déjà
+     * rattachée à une facture ; le port de la Séance ajoute la garde {@code facture_id IS NULL} comme {@code reinclure}. Le golden d'origine est
+     * archivé dans {@code _ecarts-legacy/se7c2-ecritures/..._avant_se7c2.legacy.json} (R100) ; seul ce golden change (deux champs).
+     */
     @Test
-    void lier_une_absence_a_une_seance_absente_deja_rattachee_a_une_facture_n_est_pas_refuse() {
+    void lier_une_absence_a_une_seance_absente_deja_rattachee_a_une_facture_est_refuse() {
         UUID facture = UUID.randomUUID();
         nommer(facture, "<FACTURE_X>");
         UUID absence = UUID.randomUUID();
@@ -150,7 +155,7 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
         racine.set("apres_absente_facturee", etat(absenteFacturee));
         racine.set("apres_absente_sans_facture", etat(absenteLibre));
         racine.set("apres_facturee", etat(factureeAvecMemoire));
-        goldenNode("lier_a_l_absence_une_seance_absente_deja_facturee", racine);
+        goldenNode("lier_a_l_absence_une_seance_absente_deja_facturee_nouveau_code", racine);
     }
 
     // ------------------------------------------------------------------ (b) KB-FAC-17 : statut en minuscules

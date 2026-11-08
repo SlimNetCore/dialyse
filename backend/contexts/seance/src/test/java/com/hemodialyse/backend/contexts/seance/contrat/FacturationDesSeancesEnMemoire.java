@@ -17,7 +17,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 /** Double en mémoire des lectures et écritures publiées de la Séance pour la Facturation : mêmes gardes que l'adapter JDBC (ADR 0097). */
-class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, ExclusionsEtForfaitsDesSeancesPublies, SeancesDesFacturesPubliees {
+class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, ExclusionsEtForfaitsDesSeancesPublies, SeancesDesFacturesPubliees,
+        com.hemodialyse.backend.contexts.seance.publishedlanguage.LiaisonDesSeancesAUneFacturePubliee {
+
+    /** Liaison à une facture : une séance après l'autre, comme l'adapter (l'atomicité est celle de la transaction de l'appelant). */
+    @Override
+    public void lier(UUID centre, UUID facture, List<UUID> ids) {
+        for (UUID id : ids) {
+            Seance s = du(centre, id).filter(x -> x.facture == null && ("VALIDEE".equals(x.statut) || "SIGNEE".equals(x.statut)))
+                    .orElseThrow(() -> new IllegalStateException("Une ou plusieurs seances ne sont plus eligibles a la validation"));
+            s.statut = "FACTUREE";
+            s.facture = facture;
+        }
+    }
+
+    UUID factureDe(UUID seance) {
+        return seances.get(seance).facture;
+    }
 
     private record Patient(UUID id, UUID centre, String code, String nom, String prenom, String etat, UUID centrePayeur, UUID agence) {
     }
@@ -135,7 +151,7 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
 
     @Override
     public void lierALAbsence(UUID centre, UUID seance, UUID absence) {
-        Optional<Seance> s = du(centre, seance).filter(x -> "ABSENT".equals(x.statut) && x.memoire != null);
+        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && "ABSENT".equals(x.statut) && x.memoire != null);
         exigerUneLigne(s.isPresent(), "Seance introuvable ou non modifiable pour exclusion");
         s.get().absence = absence;
     }

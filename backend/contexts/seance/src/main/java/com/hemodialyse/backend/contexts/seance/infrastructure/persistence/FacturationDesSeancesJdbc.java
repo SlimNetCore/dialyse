@@ -23,8 +23,8 @@ import java.util.UUID;
  * {@code SeancesDeFacturationJdbc}, {@code SeancesFacturablesJdbc} et des comptages de {@code LectureDeLaSyntheseJdbc} /
  * {@code LectureDuTableauDeBordJdbc} qu'elles remplaceront, mot pour mot : mêmes colonnes, mêmes gardes, même casse du statut (KB-SEA-73),
  * mêmes messages de refus. Aucun montant n'est recalculé : prix copiés à l'identique. N'ouvre aucune transaction : participe à celle de
- * l'appelant (une seule transaction d'émission). {@code lierALAbsence} garde ici la garde d'origine ; la garde {@code facture_id IS NULL}
- * (KB-SEA-71) vient avec le lot c2b. La jointure {@code patients} / {@code centre_payeur} est celle d'origine (résidu C2-R6).
+ * l'appelant (une seule transaction d'émission). SEUL ÉCART DÉCIDÉ (KB-SEA-71, ADR 0097) : {@code lierALAbsence} porte la garde
+ * {@code facture_id IS NULL}, comme {@code reinclure} (une absence ne se lie pas à une séance facturée). La jointure {@code patients} / {@code centre_payeur} est celle d'origine (résidu C2-R6).
  */
 public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, ExclusionsEtForfaitsDesSeancesPublies, SeancesDesFacturesPubliees {
 
@@ -94,7 +94,7 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
     @Override
     public void lierALAbsence(UUID centre, UUID seance, UUID absence) {
         exigerUneLigne(jdbc.update("UPDATE seances SET exclusion_absence_id = ? "
-                + "WHERE id = ? AND center_id = ? AND statut = 'ABSENT' AND statut_avant_exclusion IS NOT NULL",
+                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = 'ABSENT' AND statut_avant_exclusion IS NOT NULL",
                 absence, seance, centre), NON_MODIFIABLE_POUR_EXCLUSION);
     }
 

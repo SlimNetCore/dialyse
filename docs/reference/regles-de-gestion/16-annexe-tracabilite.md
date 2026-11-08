@@ -122,7 +122,12 @@
 Sans contrôleur : SE7c1 (ADR 0096) n'ajoute aucune route. Les lectures publiées de la Séance (`FacturationDesSeancesPubliee`,
 `PlacesDesSeancesPubliees`) sont appelées par le Stock (traducteurs `StatutDesSeancesParLaSeance`, `PerimetreDesSeancesParLaSeance` de la
 plateforme) depuis les routes de sortie pour séances et de consommation de séance déjà listées au chapitre Stock ; règle : RG-SEA-060.
-Les 22 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 5, autres contextes : 5, plateforme : 12 dont 4 ressources SQL : état du cahier de dialyse, jeux d'amorçage et de démonstration) sont inscrits
+SE7c2 (ADR 0097, ARGENT) n'ajoute aucune route non plus : les écritures et lectures de la Facturation sur la table des séances (séances à
+facturer, exclusion, réinclusion, forfait imposé, liaison séance -> facture, comptages de la synthèse et du tableau de bord) passent par les
+ports publiés `SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee` et
+`SeancesDesFacturesPubliees` de la Séance, fournis à la Facturation par les traducteurs de la plateforme
+(`infrastructure/acl/facturation/`) depuis les routes de Facturation déjà listées au chapitre Facturation ; règle : RG-SEA-061.
+Les 17 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 0 depuis SE7c2, autres contextes : 5, plateforme : 12 dont 4 ressources SQL : état du cahier de dialyse, jeux d'amorçage et de démonstration) sont inscrits
 dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir propre à chacun).
 
 ## 16.2 Tâches planifiées

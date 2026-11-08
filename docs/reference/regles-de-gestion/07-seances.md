@@ -251,6 +251,26 @@
   *Source :* `FacturationDesSeancesPubliee`, `PlacesDesSeancesPubliees`, `LecturesPublieesDesSeancesJdbc`,
   `StatutDesSeancesParLaSeance`, `PerimetreDesSeancesParLaSeance`.
 
+- **RG-SEA-061** — **Écritures et lectures publiées de la Séance pour la Facturation (ARGENT)** (slice SE7c2, ADR 0097 ; aucune route,
+  aucune migration, aucune clé étrangère ajoutée, aucun montant, prix, TVA ni arrondi recalculé : les valeurs financières sont copiées à
+  l'identique). La Facturation n'écrit ni ne lit plus la table `seances` : elle passe par quatre ports publiés de la Séance. **Séances à
+  facturer** : statut `VALIDEE` ou `SIGNEE` (casse exacte, KB-FAC-17), non rattachée à une facture, date dans la période (bornes
+  incluses), patient du même centre ; tri nom, prénom, date. **Exclusion** : la séance au statut attendu et non facturée passe à `ABSENT`
+  en mémorisant son statut ; **réinclusion** : elle retrouve ce statut ; **forfait imposé** : id, nom, prix, date et auteur de la surcharge
+  sont écrits sur une séance `VALIDEE` ou `SIGNEE` non facturée, **sans écrire le code du forfait** (KB-SEA-47, reproduit). **Liaison** :
+  chaque séance `VALIDEE` ou `SIGNEE` non facturée du centre passe à `FACTUREE` et porte l'identité de sa facture ; si une seule n'est plus
+  éligible, toute l'émission est annulée (« Une ou plusieurs seances ne sont plus eligibles a la validation », 422) : l'émission reste dans
+  UNE SEULE transaction, non scindée, sans compensation. **Comptages** : deux définitions de « séance facturée » conservées (tableau de
+  bord : statut `FACTUREE` et date de séance dans le mois ; synthèse et répartitions : séances rattachées aux factures du mois ; KB-SEA-75).
+  **Seul écart décidé (à confirmer métiers, KB-SEA-71)** : lier une absence à une séance déjà rattachée à une facture est désormais refusé
+  (garde `facture_id IS NULL`, comme la réinclusion). **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers, DPO, DBA,
+  revue au plus tard le 2026-12-15)** : KB-SEA-47 (code du forfait non écrit), KB-SEA-72 (mémoire d'exclusion blanche), KB-SEA-73
+  (statut en casse exacte), KB-SEA-74 (unicité « une séance, une facture » portée par la seule garde de la liaison et la transaction, aucune
+  clé étrangère), KB-SEA-75 (deux définitions). Requêtes de détection : `verifications-production.md` section 62.
+  *Source :* `SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee`,
+  `SeancesDesFacturesPubliees`, `FacturationDesSeancesJdbc`, `LiaisonDesSeancesJdbc`, `SeancesFacturablesParLaSeance`,
+  `SeancesDeFacturationParLaSeance`, `LiaisonDesSeancesParLaSeance`, `SeancesDesFacturesParLaSeance`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre

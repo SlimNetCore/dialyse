@@ -44,6 +44,10 @@ public abstract class FacturationDesSeancesContrat {
 
     protected abstract SeancesDesFacturesPubliees facturees();
 
+    protected abstract com.hemodialyse.backend.contexts.seance.publishedlanguage.LiaisonDesSeancesAUneFacturePubliee liaison();
+
+    protected abstract UUID factureDe(UUID seance);
+
     protected abstract void patient(UUID id, UUID centre, String code, String nom, String prenom, String etat);
 
     /** Donne au patient son centre payeur et l'agence de celui-ci ; son numéro d'assurance est {@code ASS-<code>}. */
@@ -355,6 +359,73 @@ public abstract class FacturationDesSeancesContrat {
         }
         assertThatThrownBy(() -> exclusions().poserLeForfait(CENTRE_B, validee, PREMIUM, "Forfait HD Premium",
                 new BigDecimal("5200.00"), "medecin", LE_20)).isInstanceOf(IllegalStateException.class);
+    }
+
+    // ---- KB-SEA-71 : une absence ne se lie pas à une séance facturée (SEUL écart décidé)
+
+    @Test
+    void should_refuse_to_link_an_absence_to_an_absent_seance_that_already_carries_an_invoice() {
+        decor();
+        UUID id = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "ABSENT", true);
+        memoire(id, "VALIDEE");
+
+        assertThatThrownBy(() -> exclusions().lierALAbsence(CENTRE_A, id, UUID.randomUUID()))
+                .isInstanceOf(IllegalStateException.class).hasMessage("Seance introuvable ou non modifiable pour exclusion");
+        assertThat(absenceDe(id)).isNull();
+        assertThat(factureDe(id)).isNotNull();
+    }
+
+    // ---- liaison séance -> facture (ARGENT)
+
+    @Test
+    void should_link_the_seances_to_the_invoice_and_bill_them() {
+        decor();
+        UUID validee = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", false);
+        UUID signee = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "SIGNEE", false);
+        UUID autre = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "VALIDEE", false);
+        UUID facture = UUID.randomUUID();
+
+        liaison().lier(CENTRE_A, facture, List.of(validee, signee));
+
+        assertThat(statutDe(validee)).isEqualTo("FACTUREE");
+        assertThat(statutDe(signee)).isEqualTo("FACTUREE");
+        assertThat(factureDe(validee)).isEqualTo(facture);
+        assertThat(factureDe(signee)).isEqualTo(facture);
+        assertThat(statutDe(autre)).isEqualTo("VALIDEE");
+        assertThat(factureDe(autre)).isNull();
+        assertThat(identifiants(CENTRE_A)).containsExactly(autre);
+    }
+
+    @Test
+    void should_refuse_to_link_a_seance_that_is_no_longer_eligible_with_the_exact_message() {
+        decor();
+        UUID facturee = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", true);
+        UUID exclue = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "ABSENT", false);
+        UUID brouillon = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "BROUILLON", false);
+        UUID minuscule = uneSeance(CENTRE_A, AMRANI, "2026-08-05", "validee", false);
+
+        for (UUID refusee : new UUID[]{facturee, exclue, brouillon, minuscule, UUID.randomUUID()}) {
+            assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(refusee)))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Une ou plusieurs seances ne sont plus eligibles a la validation");
+        }
+        assertThat(statutDe(minuscule)).isEqualTo("validee");
+    }
+
+    @Test
+    void should_refuse_to_link_a_seance_of_another_centre_and_never_link_it_twice() {
+        decor();
+        UUID duCentreB = uneSeance(CENTRE_B, PATIENT_B, "2026-08-02", "VALIDEE", false);
+        UUID validee = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "VALIDEE", false);
+        UUID premiere = UUID.randomUUID();
+
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(duCentreB)))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(statutDe(duCentreB)).isEqualTo("VALIDEE");
+        liaison().lier(CENTRE_A, premiere, List.of(validee));
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(validee)))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(factureDe(validee)).isEqualTo(premiere);
     }
 
     // ---- séances facturées, deux définitions (KB-SEA-75)

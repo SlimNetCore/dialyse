@@ -11,6 +11,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /** Partie JDBC du contrat (H2 et PostgreSQL 16 : seule la connexion change). La table réelle des séances vient de {@link TableDesSeances}. */
 abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesContrat {
 
@@ -33,6 +35,36 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
         }
     }
 
+    @org.junit.jupiter.api.Test
+    void should_write_the_author_and_the_instant_of_the_forfait_imposed() {
+        decor();
+        UUID id = UUID.randomUUID();
+        seance(id, CENTRE_A, AMRANI, LocalDate.of(2026, 8, 2), "VALIDEE", null);
+
+        exclusions().poserLeForfait(CENTRE_A, id, PREMIUM, "Forfait HD Premium", new BigDecimal("5200.00"), "medecin",
+                java.time.Instant.parse("2026-10-20T08:00:00Z"));
+
+        assertThat(jdbc().queryForObject("SELECT forfait_override_updated_by FROM seances WHERE id = ?", String.class, id))
+                .isEqualTo("medecin");
+        assertThat(jdbc().queryForObject("SELECT forfait_override_updated_at FROM seances WHERE id = ?", java.sql.Timestamp.class, id)
+                .toInstant()).isEqualTo(java.time.Instant.parse("2026-10-20T08:00:00Z"));
+    }
+
+    @org.junit.jupiter.api.Test
+    void should_keep_the_memory_of_the_exclusion_in_the_two_columns_added_by_v39() {
+        decor();
+        UUID id = UUID.randomUUID();
+        UUID absence = UUID.randomUUID();
+        seance(id, CENTRE_A, AMRANI, LocalDate.of(2026, 8, 2), "SIGNEE", null);
+
+        exclusions().exclure(CENTRE_A, id, "SIGNEE");
+        exclusions().lierALAbsence(CENTRE_A, id, absence);
+
+        assertThat(jdbc().queryForObject("SELECT statut || '/' || statut_avant_exclusion FROM seances WHERE id = ?", String.class, id))
+                .isEqualTo("ABSENT/SIGNEE");
+        assertThat(jdbc().queryForObject("SELECT exclusion_absence_id FROM seances WHERE id = ?", UUID.class, id)).isEqualTo(absence);
+    }
+
     @Override
     protected SeancesAFacturerPubliees aFacturer() {
         return new FacturationDesSeancesJdbc(jdbc());
@@ -46,6 +78,16 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
     @Override
     protected SeancesDesFacturesPubliees facturees() {
         return new FacturationDesSeancesJdbc(jdbc());
+    }
+
+    @Override
+    protected com.hemodialyse.backend.contexts.seance.publishedlanguage.LiaisonDesSeancesAUneFacturePubliee liaison() {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LiaisonDesSeancesJdbc(jdbc());
+    }
+
+    @Override
+    protected UUID factureDe(UUID seance) {
+        return jdbc().queryForObject("SELECT facture_id FROM seances WHERE id = ?", UUID.class, seance);
     }
 
     @Override

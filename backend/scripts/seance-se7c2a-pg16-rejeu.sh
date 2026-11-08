@@ -57,9 +57,9 @@ for q in \
 done
 
 cd "$RACINE/backend"
-echo "=== Contrat PostgreSQL : FacturationDesSeancesPostgresContractIT ==="
+echo "=== Contrat PostgreSQL : FacturationDesSeancesPostgresContractIT et course de deux emissions (LiaisonConcurrentePostgresContractIT) ==="
 ./mvnw -o -pl contexts/seance -am test \
-  -Dtest="com.hemodialyse.backend.contexts.seance.contrat.FacturationDesSeancesPostgresContractIT" \
+  -Dtest="com.hemodialyse.backend.contexts.seance.contrat.FacturationDesSeancesPostgresContractIT,com.hemodialyse.backend.contexts.seance.contrat.LiaisonConcurrentePostgresContractIT" \
   -Dsurefire.failIfNoSpecifiedTests=false \
   -Dseance.pg16.url="jdbc:postgresql://127.0.0.1:$PORT/hemo_test" -Dseance.pg16.user=seance_test || RC=1
 exit $RC
