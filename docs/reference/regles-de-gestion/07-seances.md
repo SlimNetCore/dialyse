@@ -128,6 +128,25 @@
   *Source :* `AjouterUnConsommable`, `ModifierLaQuantiteDUnConsommable`, `RetirerUnConsommable`, `ConsulterLesRaccourcis`,
   `RemplacerLesRaccourcis`, `RaccourcisDeConsommables`, `Seance`, `SeancesControleur`, `ErreursDeSeanceAdvice`.
 
+- **RG-SEA-055** — **Rappel quotidien des séances à régulariser repris dans le module `seance`** (slice SE4, ADR 0091 ; aucune route,
+  aucune table ajoutée ; suite de RG-SEA-046 et 053). Chaque jour à **07:00** (`app.seance.fuseau-par-defaut`), pour **tous** les
+  centres, `RappelerLesSeancesARegulariser` compte les séances `CREE` des **sept jours passés du centre** (la veille comprise, le jour du
+  centre exclu) **non déverrouillées**, avec la date de la plus ancienne, et envoie à l'administrateur la notification
+  `SEANCES_A_REGULARISER` (`ADMIN` seul, journal durable) ; rien n'est envoyé s'il n'y en a aucune ; un centre en erreur n'arrête pas
+  les autres. **Il n'existe pas d'agrégat « dérogation de régularisation »** : la dérogation est le déverrouillage
+  (`regularisation_deverrouillee_at/by`, RG-SEA-053), sans motif ni autorité ; la table `derogations_regularisation` (V50) n'est jamais
+  écrite (KB-SEA-40, conservée, vide). **Corrigés, à confirmer avec les métiers** — (KB-SEA-35) **un seul rappel par centre et par jour du
+  centre** (identifiant déterministe dans le journal existant, verrou consultatif par centre et jour pour deux instances) : un second
+  passage du même jour n'émet rien et le rappel du jour reste figé à son premier passage ; (KB-SEA-36) « aujourd'hui » est le jour du
+  fuseau du centre, plus le jour UTC. **Reproduit, à confirmer avant la mise en production** — (KB-SEA-37) **la fenêtre est de 7 jours
+  alors que le verrou des jours passés n'a aucune borne** : une séance oubliée depuis 8 jours ou plus reste bloquée pour l'infirmier, n'est
+  plus jamais rappelée et le patient reste compté absent (décision métier prioritaire). **Reproduits sans alerte** — (KB-SEA-38) une
+  séance `CREE` dont le patient a disparu est comptée par le rappel mais refusée au déverrouillage et à la validation ; (KB-SEA-39) le
+  détail d'une séance ne porte pas l'indicateur de déverrouillage ; droits et libellés inchangés. Le planificateur est actif dès le
+  déploiement, sans indicateur d'activation : une seule instance du planificateur ou le verrou consultatif vérifié.
+  *Source :* `RappelerLesSeancesARegulariser`, `FenetreDeRegularisation`, `SeancesARegulariser`, `RappelDeRegularisation`,
+  `RappelDesRegularisationsPlanifie`, `VerrousDesRappelsJdbc`, `RappelsFournisLegacy`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre

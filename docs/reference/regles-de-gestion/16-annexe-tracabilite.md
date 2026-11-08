@@ -124,7 +124,7 @@
 | Tâche                              | Cadence                                   | Règles                       |
 |------------------------------------|-------------------------------------------|------------------------------|
 | `ControleDeNuitDesAbsences`        | 02:30 chaque jour et au démarrage         | RG-ABS-040 à 046             |
-| `RappelDesRegularisationsPlanifie` | 07:00 chaque jour                         | RG-SEA-046                   |
+| `RappelDesRegularisationsPlanifie` | 07:00 chaque jour                         | RG-SEA-046, 055              |
 | `AuditScheduler`                   | écriture toutes les 3 s, purge 03:30      | RG-SEC-051, RG-SEC-052       |
 | `DirectionRealtimeScheduler`       | 1 s et 10 s                               | RG-DIR-100, RG-DIR-101       |
 | `DirectionSnapshotScheduler`       | 02:30 le 1er du mois                      | RG-DIR-090                   |

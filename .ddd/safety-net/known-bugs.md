@@ -1849,6 +1849,16 @@ Observés sur le code actuel (le déverrouillage est déjà servi par `contexts/
 | KB-SEA-39 | **Détail sans l'indicateur de déverrouillage** : `GET /api/v1/seances/{id}` (objet `seance`) ne porte pas `regularisationDeverrouilleeAt`, alors que chaque ligne de `GET /api/v1/seances` le porte ; un écran qui lit le détail ne voit pas que la séance est déverrouillée | `cycle/lectures` ; à décider (ajouter le champ au détail) |
 | KB-SEA-40 | **Dérogation inexistante** : aucun code n'écrit `derogations_regularisation` (migration V50, Flyway seulement : la table est absente du schéma H2 des tests, valeur -1) ; le déverrouillage ne demande ni motif ni autorité, l'auteur est le compte de session ; la « dérogation » du modèle tactique n'existe que comme deux colonnes de `seances` | `rappel/nominal`, `cycle/cycle_complet` (-1) ; décision de la slice : conserver ou retirer la table, créer l'agrégat ou non |
 
+### Décisions SE4 (2026-11-08, ADR 0091, toutes « à confirmer métiers / DPO »)
+
+| KB | Décision | État |
+|---|---|---|
+| KB-SEA-35 | **CORRIGÉ** : un rappel par centre et par jour du centre (identifiant déterministe du journal, verrou consultatif) ; écart de parité n° 1 (`cloisonnement_et_repetition`, étape 04) approuvé et archivé | corrigé |
+| KB-SEA-36 | **CORRIGÉ** : jour du centre (`HorlogeDuCentre`), plus le jour UTC ; fuseau du planificateur `app.seance.fuseau-par-defaut` | corrigé |
+| KB-SEA-37 | **REPRODUIT, RISQUE EN TÊTE de l'ADR 0091** : séance oubliée depuis 8 jours ou plus jamais rappelée mais bloquée ; arbitrage au plus tard le 2026-12-15, requête `verifications-production.md` §56-1 chaque semaine ; aucune mise en production avant décision écrite | ouvert |
+| KB-SEA-38, 39 | reproduits sans alerte ; requête §56-4 | ouvert |
+| KB-SEA-40 | aucun agrégat créé, table V50 conservée (aucune opération destructive) ; requête §56-2 ; résidu revue 2026-12-15 | ouvert |
+
 ## Outillage de tests (2026-11-07)
 
 - **Horodatages `updated_at > created_at` des goldens « modification » (DM3 à DM8, SE1 hérite du harnais)** : instable quand les deux valeurs tombaient dans la même microseconde. Corrigé sans toucher aux goldens : `PlanificationCharacterizationSupport` (harnais racine de tous ces filets) intercale un filtre MockMvc garantissant 2 ms d'horloge entre la fin d'une requête et le début de la suivante ; la comparaison stricte est rétablie dans DM3 (`>=` retiré). Prouvé par 3 exécutions des classes `dossiermedical/dm*` (319 tests : ordre par défaut, aléatoire, système de fichiers).
