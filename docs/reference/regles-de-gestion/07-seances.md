@@ -27,7 +27,9 @@
   recrédités, mouvements et bons de sortie supprimés, PMP recalculé) ; les volets paramédical et médical et les
   administrations EPO/fer de la séance sont effacés ; la séance est supprimée. La suppression est **journalisée**
   (séance, patient, date, statut, motif, auteur, horodatage — table `seance_suppression`) en plus du journal d'audit
-  (RG-SEC-050), et notifiée en temps réel (`SEANCE_SUPPRIMEE`) pour rafraîchir les écrans. Irréversible.
+  (RG-SEC-050), et notifiée en temps réel (`SEANCE_SUPPRIMEE`) pour rafraîchir les écrans. Irréversible. Reprise dans le module
+  `seance` : RG-SEA-057 (qui **refuse aussi** toute séance rattachée à une facture, et **ne restitue aucun stock** : lire « restitués »
+  ci-dessus à la lumière de KB-SEA-51).
 
 ## 7.2 Création
 
@@ -167,6 +169,30 @@
   `INFIRMIER` : 403 `ACCESS_DENIED`). Le verrou de ligne ne couvre pas la Facturation (résidu daté, ADR 0092).
   *Source :* `ImposerUnForfait`, `Seance.imposerUnForfait`, `ForfaitImpose`, `AuteurDuForfaitImpose`, `ForfaitsDuCentreParLeLegacy`,
   `ReferentielDeForfaitsFourniLegacy`, `SeancesJdbc`, `SeancesControleur`, `ErreursDeSeanceAdvice`.
+
+- **RG-SEA-057** — **Changement de jour et suppression d'une séance repris dans le module `seance`** (slice SE6, ADR 0093 ; `PUT
+  /api/v1/seances/{id}` et `DELETE /api/v1/seances/{id}?centerId=` `ADMIN` seul ; mêmes URL, mêmes champs JSON (`centerId`, `dateSeance`,
+  `motif`), mêmes tables et colonnes (`seances.date_seance`, `seance_suppression`), aucune migration ; suite de RG-SEA-002 et RG-SEA-050).
+  *Changer de jour* : seule la séance **facturée** est refusée (422 `SEANCE_FACTUREE_NON_MODIFIABLE`) ; l'absence de date, `null` et la
+  chaîne vide valent « le jour du centre » (`HorlogeDuCentre`, jamais l'horloge de la JVM) ; la réponse est `{id, status, dateSeance}`.
+  *Supprimer* : ordre des gardes reproduit (centre de la session 403, séance du centre 422 `SEANCE_INTROUVABLE`, motif de 5 à 500
+  caractères 422, statut `FACTUREE` 422 `SEANCE_FACTUREE_NON_SUPPRIMABLE`) ; puis, tout ou rien dans une seule unité de travail : consommations
+  imputées annulées par le Stock, administrations et volets effacés, séance supprimée, trace écrite dans `seance_suppression` ; la diffusion
+  `SEANCE_SUPPRIMEE` part APRÈS la validation (un échec de diffusion ne défait jamais la suppression). **Corrigés, à confirmer avec les
+  métiers** — (KB-SEA-49) le changement de jour n'écrit que `date_seance` : la facture, le forfait imposé, les signatures et la place sont
+  conservés (le legacy effaçait `facture_id` d'une séance non facturée) ; (KB-SEA-50) **toute séance qui porte une facture est refusée à la
+  suppression, quel que soit son statut** (422 `SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE` : annuler d'abord la facture) ; (KB-SEA-52)
+  identifiant, centre ou JSON illisibles, corps absent, motif en tableau : 400 au lieu de 500, `centerId` absent de la suppression : 400
+  « Centre requis », droits avant 400 ; (KB-SEA-56, partielle) date illisible ou nombre : 400 « Date de séance illisible » (aucune règle de
+  calendrier ajoutée) ; deux écritures simultanées se suivent sous verrou de ligne, verrou non obtenu en 5 s : 409 `ECRITURE_CONCURRENTE`.
+  **Reproduits, RISQUES À CONFIRMER avant la mise en production** — (KB-SEA-54) le jour d'une séance validée ou signée reste modifiable
+  alors que le jour détermine la période de facturation ; (KB-SEA-55) le changement de jour contourne le verrou des jours passés
+  (RG-SEA-053) sans trace de déverrouillage ; (KB-SEA-51) **aucun stock n'est restitué** à la suppression malgré les mots « restitution » du
+  legacy (RG-SEA-050 est à lire ainsi). **Reproduits sans alerte** — (KB-SEA-53) la suppression ne regarde ni le jour, ni la signature du
+  médecin, ni le patient ; droits, audit (`SEANCES_MODIFICATION`, `SEANCES_SUPPRESSION`), diffusion, libellés. Aucun montant n'est recalculé.
+  *Source :* `ChangerLeJourDUneSeance`, `SupprimerUneSeance`, `Seance.changerDeJour`, `Seance.exigerSupprimable`, `MotifDeSuppression`,
+  `SuppressionDeSeance`, `FactureId`, `SeancesJdbc`, `JournalDesSuppressionsJdbc`, `SaisiesDeSeanceFourniesLegacy`, `SeancesControleur`,
+  `ErreursDeSeanceAdvice`.
 
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une

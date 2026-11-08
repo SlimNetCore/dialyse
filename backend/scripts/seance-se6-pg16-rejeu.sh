@@ -63,7 +63,7 @@ echo "=== Aucune cle etrangere vers seances (la suppression ne depend d'aucun or
 [ "$(scalaire "SELECT count(*) FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name WHERE tc.constraint_type='FOREIGN KEY' AND ccu.table_name='seances'")" = "0" ] \
   && echo "ok : aucune cle etrangere vers seances" || { echo "A EXAMINER : une cle etrangere reference seances (ordre d'effacement de la suppression)"; RC=1; }
 
-echo "=== SE6 : requetes de controle (SELECT seule, section 58), executables sur le schema reel ==="
+echo "=== SE6 : 8 requetes de controle (SELECT seule, section 58, meme numerotation 1 a 8), executables sur le schema reel ==="
 for q in \
   "SELECT f.center_id, f.id, f.numero_facture, COALESCE(l.declarees, 0) AS seances_declarees, COALESCE(s.rattachees, 0) AS seances_rattachees FROM factures f LEFT JOIN (SELECT facture_id, center_id, sum(seance_count) AS declarees FROM facture_lignes GROUP BY facture_id, center_id) l ON l.facture_id = f.id AND l.center_id = f.center_id LEFT JOIN (SELECT facture_id, center_id, count(*) AS rattachees FROM seances WHERE facture_id IS NOT NULL GROUP BY facture_id, center_id) s ON s.facture_id = f.id AND s.center_id = f.center_id WHERE COALESCE(l.declarees, 0) > COALESCE(s.rattachees, 0)" \
   "SELECT ss.center_id, ss.seance_id, ss.patient_id, ss.date_seance, ss.statut, ss.supprime_le, f.id AS facture, f.numero_facture FROM seance_suppression ss INNER JOIN factures f ON f.center_id = ss.center_id AND f.patient_id = ss.patient_id AND ss.date_seance BETWEEN f.period_start AND f.period_end ORDER BY ss.supprime_le DESC LIMIT 100" \
@@ -71,7 +71,8 @@ for q in \
   "SELECT s.center_id, s.id, s.statut, s.date_seance, s.facture_id FROM seances s INNER JOIN factures f ON f.id = s.facture_id AND f.center_id = s.center_id WHERE s.date_seance NOT BETWEEN f.period_start AND f.period_end LIMIT 100" \
   "SELECT a.center_id, a.entity_id, a.username, a.occurred_at, a.status_code FROM audit_log a WHERE a.action_code = 'SEANCES_MODIFICATION' AND a.http_method = 'PUT' AND a.route_template = '/api/v1/seances/{seanceId}' AND a.status_code BETWEEN 200 AND 299 ORDER BY a.occurred_at DESC LIMIT 100" \
   "SELECT a.center_id, a.username, count(*) AS suppressions FROM audit_log a WHERE a.action_code = 'SEANCES_SUPPRESSION' AND a.status_code = 204 GROUP BY a.center_id, a.username ORDER BY 3 DESC LIMIT 50" \
-  "SELECT ss.center_id, ss.statut, count(*) AS suppressions_de_seances_validees_ou_signees FROM seance_suppression ss WHERE ss.statut IN ('VALIDEE','SIGNEE') GROUP BY ss.center_id, ss.statut"; do
+  "SELECT ss.center_id, ss.statut, count(*) AS suppressions_de_seances_validees_ou_signees FROM seance_suppression ss WHERE ss.statut IN ('VALIDEE','SIGNEE') GROUP BY ss.center_id, ss.statut" \
+  "SELECT s.center_id, s.id, s.statut, s.date_seance, f.id AS facture, f.numero_facture FROM seances s INNER JOIN factures f ON f.center_id = s.center_id AND f.patient_id = s.patient_id AND s.date_seance BETWEEN f.period_start AND f.period_end WHERE s.facture_id IS NULL AND s.statut IN ('CREE','VALIDEE','SIGNEE') ORDER BY s.date_seance DESC LIMIT 100"; do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done
 
