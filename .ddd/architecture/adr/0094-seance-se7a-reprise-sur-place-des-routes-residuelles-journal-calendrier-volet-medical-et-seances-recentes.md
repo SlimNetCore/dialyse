@@ -67,6 +67,7 @@ Le net SE7a (15 tests, 17 goldens, commit be0d7107) établit que ces routes sont
 | R3 | Constantes des séances récentes lues par `VoletsDeLaSeance.paramedical` (ACL du legacy, une lecture par séance, au plus 10) : à remplacer à la reprise du volet paramédical (DM1) | 2026-12-15 | 2027-06-30 |
 | R4 | Décisions KB-SEA-59 (remplacement total, route ouverte sur séance signée, `ADMIN` écrit, aucun plafond de taille) et KB-SEA-60 (constantes `CREE`) : arbitrage médecins / DPO | 2026-12-15 | avant toute mise en production |
 | R5 | Bornes du calendrier et cohérence avec les séances déjà posées (KB-SEA-58) ; 404 sur suppression inexistante | 2026-12-15 | 2027-03-31 |
+| R6 | Audit des routes résiduelles : golden `se7/audit` non rejoué contre le legacy retiré (filtre générique non modifié) ; à lever par une relecture du journal d'audit après déploiement | 2026-12-15 | 2027-01-31 |
 
 ## Lots
 LOT A (livré 2026-11-08) : cet ADR, domaine, cas d'usage avec doubles, ports, ACL, adapters JDBC et contrats (mémoire, H2, PostgreSQL 16), câblage des cas d'usage ; AUCUN trafic changé (les handlers legacy sont encore actifs). LOT B : contrôleur et advice, retrait des handlers legacy (`SeanceRestController` journal et calendrier, `SeanceStationRestController`, `VoletMedicalRestController`), parité 15/15, écarts approuvés un par un, verrou ArchUnit. LOT C : RG-SEA, annexe 16, glossaire, §59, bilan des résidus, `built`.

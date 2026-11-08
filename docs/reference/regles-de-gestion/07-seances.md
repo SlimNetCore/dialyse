@@ -197,6 +197,31 @@
   `SuppressionDeSeance`, `FactureId`, `SeancesJdbc`, `JournalDesSuppressionsJdbc`, `SaisiesDeSeanceFourniesLegacy`, `SeancesControleur`,
   `ErreursDeSeanceAdvice`.
 
+- **RG-SEA-058** — **Journal du jour, calendrier du centre, volet médical et séances récentes repris dans le module `seance`** (slice
+  SE7a, ADR 0094 ; mêmes URL, mêmes champs JSON, mêmes droits, mêmes tables `seances`, `patients` (lecture), `center_holiday`,
+  `center_closure_day`, `volet_medical`, aucune migration ; suite de RG-SEA-026, 028 et 031). *Journal* (`GET /seances/journal`, `ADMIN`,
+  `INFIRMIER`, `MEDECIN`, `SECRETAIRE`) : les patients ayant une séance ce jour-là, tous statuts, triés par nom puis prénom, et les articles
+  sortis du stock ce jour-là (bons de sortie du Stock, pas les consommables déclarés). *Calendrier* (`GET /seances/calendar` mêmes profils ;
+  `POST` et `DELETE /seances/calendar/holiday` et `/closure`, `ADMIN` seul) : jours fériés et fermetures exceptionnelles, deux tables,
+  deux routes ; le calendrier **reste dans la Séance** (décision par délégation, à confirmer ; transfert à l'Organisation en résidu daté).
+  *Volet médical* (`PUT /seances/{id}/volet-medical`, `ADMIN`, `MEDECIN`) : refus 422 des séances absentes, créées ou facturées ; la séance est
+  lue sous verrou, deux saisies simultanées se suivent (409 `ECRITURE_CONCURRENTE` après 5 s). *Séances récentes*
+  (`GET /seances/patient/{id}/recentes`) : au plus 10 séances STRICTEMENT antérieures au jour (par défaut le jour du centre, `HorlogeDuCentre`),
+  `limit` ramené à 1..10. **Corrigés, à confirmer avec les métiers** — (KB-SEA-57) paramètre ou corps absent, illisible ou hors bornes (mois
+  0 ou 13, journal sans date, identifiant illisible) : 400 `BAD_REQUEST` au lieu de 500, 403 avant 400 ; (KB-SEA-58, partielle) un second
+  jour férié ou une seconde fermeture à la même date : 409 `JOUR_DEJA_AU_CALENDRIER` au lieu de 500, date absente ou libellé de plus de 255
+  caractères : 400 ; centre absent d'un corps : 400 « Centre requis » ; une séance au statut illisible ne cite plus de nom de classe.
+  **Reproduits, RISQUES À CONFIRMER avant la mise en production (médecins et DPO)** — (KB-SEA-59) le volet médical est **remplacé en entier** :
+  un champ absent efface la valeur déjà saisie, la route reste ouverte sur une séance signée, `ADMIN` peut écrire des observations, aucun
+  plafond de taille (colonnes `text`) ; (KB-SEA-60) les constantes des séances `CREE` (non validées) sont servies par les séances récentes.
+  **Reproduits avec signalement** — (KB-SEA-58) le retrait d'un jour inexistant répond toujours 200 `{deleted:true}` ; aucun contrôle de
+  cohérence avec les séances déjà posées ; l'an 1900 est accepté. **Reproduits sans alerte** — (KB-SEA-61) droits, libellés, audit générique
+  des écritures (route et statut), aucune diffusion ni notification. Limite assumée : le golden d'audit n'a pas été rejoué contre le legacy
+  retiré (le filtre d'audit est générique, non modifié).
+  *Source :* `ConsulterLeJournalDuJour`, `ConsulterLeCalendrier`, `AjouterUnJourAuCalendrier`, `RetirerUnJourDuCalendrier`,
+  `RenseignerLeVoletMedical`, `ConsulterLesSeancesRecentes`, `JourDuCalendrier`, `MoisDuCalendrier`, `VoletMedical`, `ObservationsMedicales`,
+  `CalendrierDuCentreJdbc`, `VoletsMedicauxJdbc`, `PatientsDuJourJdbc`, `RoutesResiduellesControleur`, `ErreursDeSeanceAdvice`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
