@@ -24,6 +24,15 @@ Routes encore servies par la plateforme (`SeanceRestController`, `SeanceStationR
 
 Cible : ces routes passent dans `contexts/seance` (journal et récentes en lectures, calendrier à confier à Organisation ou Planification : question ouverte, la table `center_holiday` n'est pas à Séance), les 5 décisions KB-SEA-57 à 61 sont à trancher par ADR.
 
+## Avancement
+### Lot A (2026-11-08) : ADR 0094, domaine, application, ports, ACL, adapters (aucun trafic changé)
+- ADR : `.ddd/architecture/adr/0094-seance-se7a-…md` (accepted, à confirmer métiers / DPO, `review-by: 2026-12-15`, risques cliniques en tête, résidus R1 à R5 datés).
+- Domaine : `JourDuCalendrier`, `NatureDeJour`, `MoisDuCalendrier`, `JourDejaAuCalendrier`, `CalendrierDuCentre` ; `VoletMedical`, `ObservationsMedicales`, `VoletsMedicaux`, `Seance.exigerUnVoletMedical` ; `NombreDeSeancesRecentes`, `Seances.dernieres`.
+- Application : `ConsulterLeJournalDuJour`, `ConsulterLeCalendrier`, `AjouterUnJourAuCalendrier`, `RetirerUnJourDuCalendrier`, `RenseignerLeVoletMedical`, `ConsulterLesSeancesRecentes` (ports `PatientsDuJour`, `SortiesDuJour`).
+- Adapters : `CalendrierDuCentreJdbc`, `VoletsMedicauxJdbc`, `SeancesJdbc.dernieres`, ACL `PatientsDuJourJdbc` (`legacypatient`), `SortiesDuJourDuStock` ; câblage dans `SeanceConfiguration` (cas d'usage non exposés en HTTP).
+- Contrats (double en mémoire, H2, PostgreSQL 16 jetable via `backend/scripts/seance-se7a-pg16-rejeu.sh`) : calendrier, volets médicaux, séances (dernières).
+- Reste (lot B) : contrôleur(s) et advice, retrait des handlers legacy, parité 15 tests / 17 goldens, écarts approuvés un par un, verrou ArchUnit ; (lot C) RG-SEA, annexe 16, glossaire, §59, bilan des résidus, `built`.
+
 ## Questions ouvertes
-- Propriétaire du calendrier du centre (jours fériés, fermetures) : Séance, Organisation ou Planification ?
-- KB-SEA-59 (volet médical effaçable et modifiable après signature) : reproduire ou corriger ?
+- Propriétaire du calendrier du centre : DÉCIDÉ par délégation (à confirmer) : reste dans la Séance, résidu R1 (transfert à l'Organisation O4, butoir 2027-03-31).
+- KB-SEA-59 et KB-SEA-60 : DÉCIDÉS par délégation (reproduits avec alerte, à confirmer médecins / DPO avant toute mise en production, ADR 0094 section A).

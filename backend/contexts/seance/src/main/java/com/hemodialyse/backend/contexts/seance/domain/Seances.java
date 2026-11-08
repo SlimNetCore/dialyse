@@ -52,6 +52,13 @@ public interface Seances {
      */
     void enregistrerLeJour(Seance seance);
 
+    /**
+     * Les dernières séances du patient, STRICTEMENT avant le jour donné, de la plus récente à la plus ancienne (SE7a), tous statuts
+     * confondus : une séance {@code CREE}, non validée, en fait partie (KB-SEA-60, reproduit avec alerte de confidentialité). Un patient
+     * inconnu ou d'un autre centre : liste vide. À égalité de jour : la plus récemment créée d'abord, puis l'identifiant.
+     */
+    List<Seance> dernieres(CentreId centre, PatientId patient, LocalDate avant, NombreDeSeancesRecentes nombre);
+
     /** Supprime la ligne de la séance du centre (SE6). Sans effet sur les saisies liées, supprimées par leurs propriétaires. */
     void supprimer(Seance seance);
 }

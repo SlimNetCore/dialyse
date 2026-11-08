@@ -6,6 +6,7 @@ import com.hemodialyse.backend.contexts.seance.domain.FactureId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitImpose;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
+import com.hemodialyse.backend.contexts.seance.domain.NombreDeSeancesRecentes;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
@@ -135,6 +136,13 @@ public class SeancesJdbc implements Seances {
         return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE center_id = ? AND patient_id = ? AND date_seance = ? "
                         + "ORDER BY created_at ASC NULLS LAST, id ASC", (rs, i) -> seance(rs), centre.valeur(), patient.valeur(),
                 java.sql.Date.valueOf(jour));
+    }
+
+    @Override
+    public List<Seance> dernieres(CentreId centre, PatientId patient, LocalDate avant, NombreDeSeancesRecentes nombre) {
+        return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE center_id = ? AND patient_id = ? AND date_seance < ? "
+                        + "ORDER BY date_seance DESC, created_at DESC NULLS LAST, id ASC LIMIT ?", (rs, i) -> seance(rs), centre.valeur(),
+                patient.valeur(), java.sql.Date.valueOf(avant), nombre.valeur());
     }
 
     @Override

@@ -292,6 +292,22 @@ public final class Seance {
         }
     }
 
+    /**
+     * Garde de l'écriture du volet médical (SE7a) : une séance {@code ABSENT} puis {@code CREE} puis {@code FACTUREE} est refusée (422),
+     * dans cet ordre. {@code VALIDEE} ET {@code SIGNEE} sont acceptées : la signature du médecin ne verrouille pas ses observations
+     * (KB-SEA-59, reproduit avec alerte : condition de mise en production de l'ADR 0094).
+     */
+    public void exigerUnVoletMedical() {
+        if (statut == StatutDeSeance.ABSENT) {
+            throw new SeanceRefusee(MotifDeRefus.VOLET_MEDICAL_SEANCE_ABSENTE,
+                    "La seance exclue de la facturation (patient absent) n'a pas de volet medical");
+        }
+        if (statut == StatutDeSeance.CREE) {
+            throw new SeanceRefusee(MotifDeRefus.VOLET_MEDICAL_AVANT_VALIDATION, "Le volet medical n'est accessible qu'apres validation infirmiere");
+        }
+        exigerNonFacturee();
+    }
+
     /** Refuse (422) la séance facturée : à appeler avant de construire l'auteur, pour garder l'ordre des refus du legacy. */
     public void exigerNonFacturee() {
         if (statut == StatutDeSeance.FACTUREE) {

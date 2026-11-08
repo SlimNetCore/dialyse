@@ -195,6 +195,12 @@ final class Banc {
             }
 
             @Override
+            public List<Seance> dernieres(CentreId centre, PatientId patient, LocalDate avant,
+                                          com.hemodialyse.backend.contexts.seance.domain.NombreDeSeancesRecentes nombre) {
+                return seances.dernieres(centre, patient, avant, nombre);
+            }
+
+            @Override
             public Optional<Seance> trouver(CentreId centre, SeanceId id) {
                 return seances.trouver(centre, id);
             }

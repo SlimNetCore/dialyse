@@ -1,6 +1,20 @@
 package com.hemodialyse.backend.contexts.seance.configuration;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
+import com.hemodialyse.backend.contexts.seance.application.AjouterUnJourAuCalendrier;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLeCalendrier;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLeJournalDuJour;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLesSeancesRecentes;
+import com.hemodialyse.backend.contexts.seance.application.PatientsDuJour;
+import com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletMedical;
+import com.hemodialyse.backend.contexts.seance.application.RetirerUnJourDuCalendrier;
+import com.hemodialyse.backend.contexts.seance.application.SortiesDuJour;
+import com.hemodialyse.backend.contexts.seance.domain.CalendrierDuCentre;
+import com.hemodialyse.backend.contexts.seance.domain.VoletsMedicaux;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PatientsDuJourJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.SortiesDuJourDuStock;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.CalendrierDuCentreJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsMedicauxJdbc;
 import com.hemodialyse.backend.contexts.seance.application.AnnulationDesConsommations;
 import com.hemodialyse.backend.contexts.seance.application.ChangerLeJourDUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.JournalDesSuppressions;
@@ -346,6 +360,72 @@ public class SeanceConfiguration {
                                           @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
                                           @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
         return new SupprimerUneSeance(session, seances, consommations, saisies, journal, uniteDeTravail, identifiants, horloge, diffusions);
+    }
+
+    // ---- SE7a : journal du jour, calendrier du centre, volet médical, séances récentes (ADR 0094)
+
+    @Bean
+    CalendrierDuCentre calendrierDuCentreDeLaSeance(JdbcTemplate jdbc) {
+        return new CalendrierDuCentreJdbc(jdbc);
+    }
+
+    @Bean
+    VoletsMedicaux voletsMedicauxDeLaSeance(JdbcTemplate jdbc) {
+        return new VoletsMedicauxJdbc(jdbc);
+    }
+
+    @Bean
+    PatientsDuJour patientsDuJourDeLaSeance(JdbcTemplate jdbc) {
+        return new PatientsDuJourJdbc(jdbc);
+    }
+
+    @Bean
+    SortiesDuJour sortiesDuJourDeLaSeance(ConsommationsDeSeance stock) {
+        return new SortiesDuJourDuStock(stock);
+    }
+
+    @Bean
+    ConsulterLeJournalDuJour consulterLeJournalDuJour(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                      @Qualifier("patientsDuJourDeLaSeance") PatientsDuJour patients,
+                                                      @Qualifier("sortiesDuJourDeLaSeance") SortiesDuJour sorties) {
+        return new ConsulterLeJournalDuJour(session, patients, sorties);
+    }
+
+    @Bean
+    ConsulterLeCalendrier consulterLeCalendrier(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                @Qualifier("calendrierDuCentreDeLaSeance") CalendrierDuCentre calendrier) {
+        return new ConsulterLeCalendrier(session, calendrier);
+    }
+
+    @Bean
+    AjouterUnJourAuCalendrier ajouterUnJourAuCalendrier(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                        @Qualifier("calendrierDuCentreDeLaSeance") CalendrierDuCentre calendrier,
+                                                        @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants) {
+        return new AjouterUnJourAuCalendrier(session, calendrier, identifiants);
+    }
+
+    @Bean
+    RetirerUnJourDuCalendrier retirerUnJourDuCalendrier(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                        @Qualifier("calendrierDuCentreDeLaSeance") CalendrierDuCentre calendrier) {
+        return new RetirerUnJourDuCalendrier(session, calendrier);
+    }
+
+    @Bean
+    RenseignerLeVoletMedical renseignerLeVoletMedical(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                      @Qualifier("seancesDuContexteSeance") Seances seances,
+                                                      @Qualifier("voletsMedicauxDeLaSeance") VoletsMedicaux volets,
+                                                      @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                                      @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants,
+                                                      @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
+        return new RenseignerLeVoletMedical(session, seances, volets, uniteDeTravail, identifiants, horloge);
+    }
+
+    @Bean
+    ConsulterLesSeancesRecentes consulterLesSeancesRecentes(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                            @Qualifier("seancesDuContexteSeance") Seances seances,
+                                                            @Qualifier("voletsDeLaSeance") VoletsDeLaSeance volets,
+                                                            @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
+        return new ConsulterLesSeancesRecentes(session, seances, volets, horloge);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)

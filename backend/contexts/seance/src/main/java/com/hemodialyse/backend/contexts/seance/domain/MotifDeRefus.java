@@ -38,7 +38,11 @@ public enum MotifDeRefus {
     /** SE6 : motif de suppression absent, trop court ou trop long (5 à 500 caractères). */
     MOTIF_DE_SUPPRESSION_INVALIDE("SEANCE_SUPPRESSION_MOTIF_INVALIDE"),
     /** SE6 : la suppression répond 422 (et non 400) quand la séance est inconnue du centre (reproduit du legacy, KB-SEA-52). */
-    SEANCE_A_SUPPRIMER_INTROUVABLE("SEANCE_INTROUVABLE");
+    SEANCE_A_SUPPRIMER_INTROUVABLE("SEANCE_INTROUVABLE"),
+    /** SE7a : une séance exclue de la facturation (reliquat {@code ABSENT}) n'a pas de volet médical. */
+    VOLET_MEDICAL_SEANCE_ABSENTE("BUSINESS_RULE_VIOLATION"),
+    /** SE7a : le volet médical n'est accessible qu'après la validation infirmière. */
+    VOLET_MEDICAL_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION");
 
     private final String code;
 

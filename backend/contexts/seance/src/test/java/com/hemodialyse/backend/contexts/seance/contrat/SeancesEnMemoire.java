@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.seance.contrat;
 
+import com.hemodialyse.backend.contexts.seance.domain.NombreDeSeancesRecentes;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
@@ -46,6 +47,16 @@ public class SeancesEnMemoire implements Seances {
         trouvees.sort(Comparator.comparing(Seance::creeLe, Comparator.nullsLast(Comparator.<Instant>naturalOrder()))
                 .thenComparing(s -> s.id().valeur()));
         return trouvees;
+    }
+
+    @Override
+    public List<Seance> dernieres(CentreId centre, PatientId patient, LocalDate avant, NombreDeSeancesRecentes nombre) {
+        return lignes.values().stream()
+                .filter(s -> s.centre().equals(centre) && s.patient().equals(patient) && s.jour().isBefore(avant))
+                .sorted(Comparator.comparing(Seance::jour).reversed()
+                        .thenComparing(Comparator.comparing(Seance::creeLe, Comparator.nullsFirst(Comparator.<Instant>naturalOrder())).reversed())
+                        .thenComparing(s -> s.id().valeur()))
+                .limit(nombre.valeur()).map(SeancesEnMemoire::copie).toList();
     }
 
     @Override

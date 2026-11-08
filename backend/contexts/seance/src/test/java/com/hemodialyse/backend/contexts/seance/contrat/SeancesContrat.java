@@ -7,6 +7,7 @@ import com.hemodialyse.backend.contexts.seance.domain.ForfaitDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitImpose;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
+import com.hemodialyse.backend.contexts.seance.domain.NombreDeSeancesRecentes;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Signataire;
@@ -98,6 +99,45 @@ public abstract class SeancesContrat {
 
         assertThat(banc.seances().trouver(CENTRE_B, s(1))).isEmpty();
         assertThat(banc.seances().duJour(CENTRE_B, PATIENT, JOUR)).isEmpty();
+    }
+
+    @Test
+    void should_give_the_latest_sessions_of_the_patient_strictly_before_the_day_newest_first_whatever_their_status() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR.minusDays(1), T0));
+        banc.seances().ajouter(programmee(2, CENTRE_A, PATIENT, JOUR.minusDays(3), T0));
+        banc.seances().ajouter(programmee(3, CENTRE_A, PATIENT, JOUR.minusDays(2), T0));
+        banc.seances().ajouter(programmee(4, CENTRE_A, PATIENT, JOUR, T0));
+        banc.seances().ajouter(programmee(5, CENTRE_A, PATIENT, JOUR.plusDays(1), T0));
+        banc.seances().ajouter(programmee(6, CENTRE_A, AUTRE_PATIENT, JOUR.minusDays(1), T0));
+        banc.seances().ajouter(programmee(7, CENTRE_B, PATIENT, JOUR.minusDays(1), T0));
+
+        var dernieres = banc.seances().dernieres(CENTRE_A, PATIENT, JOUR, NombreDeSeancesRecentes.demande(10));
+
+        assertThat(dernieres).extracting(Seance::id).containsExactly(s(1), s(3), s(2));
+        assertThat(dernieres).extracting(Seance::statut).containsOnly(StatutDeSeance.CREE);
+    }
+
+    @Test
+    void should_stop_at_the_requested_number_and_give_nothing_for_an_unknown_patient_or_another_centre() {
+        var banc = nouveauBanc();
+        for (int n = 1; n <= 4; n++) banc.seances().ajouter(programmee(n, CENTRE_A, PATIENT, JOUR.minusDays(n), T0));
+
+        assertThat(banc.seances().dernieres(CENTRE_A, PATIENT, JOUR, NombreDeSeancesRecentes.demande(2))).extracting(Seance::id)
+                .containsExactly(s(1), s(2));
+        assertThat(banc.seances().dernieres(CENTRE_A, AUTRE_PATIENT, JOUR, NombreDeSeancesRecentes.demande(3))).isEmpty();
+        assertThat(banc.seances().dernieres(CENTRE_B, PATIENT, JOUR, NombreDeSeancesRecentes.demande(3))).isEmpty();
+    }
+
+    @Test
+    void should_order_the_sessions_of_the_same_day_by_the_latest_creation_first_then_by_identifier() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR.minusDays(1), T0));
+        banc.seances().ajouter(programmee(2, CENTRE_A, PATIENT, JOUR.minusDays(1), T0.plusSeconds(60)));
+        banc.seances().ajouter(programmee(3, CENTRE_A, PATIENT, JOUR.minusDays(1), T0));
+
+        assertThat(banc.seances().dernieres(CENTRE_A, PATIENT, JOUR, NombreDeSeancesRecentes.demande(10))).extracting(Seance::id)
+                .containsExactly(s(2), s(1), s(3));
     }
 
     @Test

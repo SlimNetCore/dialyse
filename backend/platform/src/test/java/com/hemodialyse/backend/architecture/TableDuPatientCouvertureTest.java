@@ -90,6 +90,10 @@ class TableDuPatientCouvertureTest {
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/HistoriqueFourniLegacy.java",
             "2026-11-07 : historique des séances (SE1, ADR 0088) : jointure séances-patients avec filtre, tri et pagination en SQL (la découper changerait "
                     + "le résultat) ; reprend la lecture de SeanceRepositoryAdapter ; échéance : reprise de Patient et couverture ou lecture publiée jointe, revue au plus tard le 2026-12-15",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PatientsDuJourJdbc.java",
+            "2026-11-08 : journal du jour (SE7a, ADR 0094, résidu R2) : jointure séances-patients (code, nom, prénom) avec tri nom/prénom en SQL (la "
+                    + "découper changerait l'ordre rendu : collation de la base), reprise à l'identique de SeanceRestController (parité) ; "
+                    + "échéance : lecture publiée du Patient (code, nom, prénom d'un lot de patients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/ForfaitsFournisLegacy.java",
             "2026-11-07 : forfait courant d'une séance (SE1, ADR 0088) : prise en charge couvrant le jour, repris à l'identique de SeanceRestController "
                     + "(parité) ; échéance : lecture publiée de la couverture (CouvertureDesPatients), revue au plus tard le 2026-12-15",
@@ -198,7 +202,13 @@ class TableDuPatientCouvertureTest {
     @Test
     void chaque_jalon_porte_une_date_et_une_echeance() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            assertThat(raison).matches("(?s)2026-11-0[457].*");
+            // Jalons historiques : 2026-11-04, 05 ou 07, inchangés. Seule exception : l'entrée du 2026-11-08 (SE7a, ADR 0094, R2), qui doit
+            // porter sa revue (2026-12-15) ET son butoir propre (2027-03-31).
+            if (raison.startsWith("2026-11-08")) {
+                assertThat(raison).contains("revue au plus tard le 2026-12-15").contains("butoir 2027-03-31");
+            } else {
+                assertThat(raison).matches("(?s)2026-11-0[457].*");
+            }
             assertThat(raison).contains("échéance");
         });
     }
