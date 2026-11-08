@@ -92,6 +92,23 @@
             <artifactId>contexts-stock</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié des Absences : AbsencesDuPilotage (absences du tableau de bord mensuel), SE7b, ADR 0095. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-absences-patients</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!-- Exports du tableau de bord mensuel (CSV, XLSX, PDF), SE7b, ADR 0095 : mêmes bibliothèques et versions que la plateforme. -->
+        <dependency>
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>1.0.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
     </dependencies>
 
     <build>

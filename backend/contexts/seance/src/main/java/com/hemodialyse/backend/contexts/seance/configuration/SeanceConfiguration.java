@@ -1,6 +1,20 @@
 package com.hemodialyse.backend.contexts.seance.configuration;
 
+import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
+import com.hemodialyse.backend.contexts.seance.application.AbsencesDuCentre;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLeDetailDuTableauDeBord;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLeTableauDeBord;
+import com.hemodialyse.backend.contexts.seance.application.ExporterLeTableauDeBord;
+import com.hemodialyse.backend.contexts.seance.application.ExportsDuTableauDeBord;
+import com.hemodialyse.backend.contexts.seance.application.JoursBloques;
+import com.hemodialyse.backend.contexts.seance.application.PatientsDuTableauDeBord;
+import com.hemodialyse.backend.contexts.seance.application.SeancesRealisees;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.absencespatients.AbsencesDuCentreParLePilotage;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PatientsDuTableauDeBordJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.export.ExportsDuTableauDeBordCsvPdfXlsx;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.JoursBloquesDuCalendrier;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesJdbc;
 import com.hemodialyse.backend.contexts.seance.application.AjouterUnJourAuCalendrier;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterLeCalendrier;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterLeJournalDuJour;
@@ -426,6 +440,59 @@ public class SeanceConfiguration {
                                                             @Qualifier("voletsDeLaSeance") VoletsDeLaSeance volets,
                                                             @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
         return new ConsulterLesSeancesRecentes(session, seances, volets, horloge);
+    }
+
+    // ---- SE7b : tableau de bord mensuel des séances, détails et exports (ADR 0095)
+
+    @Bean
+    SeancesRealisees seancesRealiseesDeLaSeance(JdbcTemplate jdbc) {
+        return new SeancesRealiseesJdbc(jdbc);
+    }
+
+    @Bean
+    PatientsDuTableauDeBord patientsDuTableauDeBordDeLaSeance(JdbcTemplate jdbc) {
+        return new PatientsDuTableauDeBordJdbc(jdbc);
+    }
+
+    @Bean
+    AbsencesDuCentre absencesDuCentreDeLaSeance(AbsencesDuPilotage pilotage) {
+        return new AbsencesDuCentreParLePilotage(pilotage);
+    }
+
+    @Bean
+    JoursBloques joursBloquesDeLaSeance(@Qualifier("calendrierDuCentreDeLaSeance") CalendrierDuCentre calendrier) {
+        return new JoursBloquesDuCalendrier(calendrier);
+    }
+
+    @Bean
+    ExportsDuTableauDeBord exportsDuTableauDeBordDeLaSeance() {
+        return new ExportsDuTableauDeBordCsvPdfXlsx();
+    }
+
+    @Bean
+    ConsulterLeTableauDeBord consulterLeTableauDeBord(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                      @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                                      @Qualifier("seancesRealiseesDeLaSeance") SeancesRealisees seances,
+                                                      @Qualifier("patientsDuTableauDeBordDeLaSeance") PatientsDuTableauDeBord patients,
+                                                      @Qualifier("absencesDuCentreDeLaSeance") AbsencesDuCentre absences,
+                                                      @Qualifier("joursBloquesDeLaSeance") JoursBloques joursBloques) {
+        return new ConsulterLeTableauDeBord(session, horloge, seances, patients, absences, joursBloques);
+    }
+
+    @Bean
+    ConsulterLeDetailDuTableauDeBord consulterLeDetailDuTableauDeBord(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                                      @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                                                      @Qualifier("seancesRealiseesDeLaSeance") SeancesRealisees seances,
+                                                                      @Qualifier("patientsDuTableauDeBordDeLaSeance") PatientsDuTableauDeBord patients,
+                                                                      @Qualifier("absencesDuCentreDeLaSeance") AbsencesDuCentre absences) {
+        return new ConsulterLeDetailDuTableauDeBord(session, horloge, seances, patients, absences);
+    }
+
+    @Bean
+    ExporterLeTableauDeBord exporterLeTableauDeBord(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                    ConsulterLeTableauDeBord tableau,
+                                                    @Qualifier("exportsDuTableauDeBordDeLaSeance") ExportsDuTableauDeBord exports) {
+        return new ExporterLeTableauDeBord(session, tableau, exports);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)
