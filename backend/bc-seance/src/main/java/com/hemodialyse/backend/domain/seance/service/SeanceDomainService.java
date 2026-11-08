@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
-import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
@@ -23,9 +22,7 @@ import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +42,6 @@ public class SeanceDomainService implements SeanceUseCase {
 
     private final SeanceRepositoryPort seanceRepo;
     private final PatientRepositoryPort patientRepo;
-    private final CatalogueDArticles catalogue;
-    private final ConsommationsDeSeance stockConsommations;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
     private final SeanceForfaitCatalogPort forfaitCatalogPort;
@@ -56,8 +51,6 @@ public class SeanceDomainService implements SeanceUseCase {
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
-                               CatalogueDArticles catalogue,
-                               ConsommationsDeSeance stockConsommations,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
                                SeanceForfaitCatalogPort forfaitCatalogPort,
@@ -66,8 +59,6 @@ public class SeanceDomainService implements SeanceUseCase {
                                SeancePlacePort placePort) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
-        this.catalogue = catalogue;
-        this.stockConsommations = stockConsommations;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
         this.forfaitCatalogPort = forfaitCatalogPort;
@@ -169,28 +160,6 @@ public class SeanceDomainService implements SeanceUseCase {
     }
 
     @Override
-    public void addConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, BigDecimal quantite, String userId) {
-        if (quantite == null || quantite.signum() <= 0) {
-            throw new IllegalArgumentException("La quantite doit etre strictement positive");
-        }
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new SeanceFactureeNonModifiableException();
-        }
-        if (seance.getStatus() != SeanceStatus.VALIDEE && seance.getStatus() != SeanceStatus.SIGNEE) {
-            throw new IllegalStateException("La seance doit etre validee avant d'ajouter un consommable");
-        }
-        var article = catalogue.article(centerId.value(), articleId)
-                .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
-        if (!article.actif()) {
-            throw new IllegalArgumentException("Article inactif: " + article.code());
-        }
-        stockConsommations.ajouter(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, quantite,
-                userId != null ? userId : "system");
-    }
-
-    @Override
     public List<SeanceRecap> recentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
         int bounded = Math.max(1, Math.min(limit, RECENT_MAX));
         LocalDate until = before != null ? before : LocalDate.now();
@@ -254,33 +223,6 @@ public class SeanceDomainService implements SeanceUseCase {
             placePort.placeLe(centerId, seance.getPatientId(), seance.getDateSeance()).ifPresent(seance::memoriserPlace);
         }
         return seanceRepo.save(seance);
-    }
-
-    @Override
-    public void removeConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new SeanceFactureeNonModifiableException();
-        }
-        stockConsommations.fixer(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, BigDecimal.ZERO,
-                userId);
-    }
-
-    @Override
-    public void updateConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId,
-                                        BigDecimal newQuantite, String userId) {
-        if (newQuantite == null || newQuantite.signum() <= 0) {
-            throw new IllegalArgumentException("La nouvelle quantite doit etre strictement positive");
-        }
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new SeanceFactureeNonModifiableException();
-        }
-        // Le bon de sortie unique de la séance est mis à jour avec la nouvelle quantité de l'article
-        stockConsommations.fixer(centerId.value(), seanceId, seance.getPatientId(), seance.getDateSeance(), articleId, newQuantite,
-                userId);
     }
 
     private UUID resolvePatientIdFromQr(CenterId centerId, String qrCode) {

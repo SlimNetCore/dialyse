@@ -10,7 +10,6 @@ import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -31,12 +30,6 @@ public interface SeanceUseCase {
      * @param derogation confirmation d'une séance hors planning, ou {@code null} sans confirmation
      */
     ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId, DerogationPlanning derogation);
-
-    /**
-     * Ajoute un consommable à une séance <b>déjà validée</b> (sortie de stock FEFO de cette seule ligne), sans repasser
-     * par la validation : les consommables déjà sortis ne sont jamais retraités.
-     */
-    void addConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, BigDecimal quantite, String userId);
 
     /**
      * Résultat d'un scan.
@@ -71,20 +64,8 @@ public interface SeanceUseCase {
     Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId);
 
     // SE2 (ADR 0089) : validate, signByMedecin et unlockForRegularisation vivent dans contexts/seance (ValiderUneSeance,
-    // SignerUneSeance, DeverrouillerUneSeance).
-
-    /**
-     * Remove a consommable from a validated seance: reverses the FEFO stock exits
-     * for the given article, restores lot quantities and triggers PMP recalculation.
-     */
-    void removeConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, String userId);
-
-    /**
-     * Update the quantity of a consommable on a validated seance: reverses existing
-     * exits then re-issues FEFO exits for the new quantity.
-     */
-    void updateConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId,
-                                 BigDecimal newQuantite, String userId);
+    // SignerUneSeance, DeverrouillerUneSeance). SE3 (ADR 0090) : l'ajout, la modification et le retrait d'un consommable vivent
+    // dans contexts/seance (AjouterUnConsommable, ModifierLaQuantiteDUnConsommable, RetirerUnConsommable).
 }
 
 

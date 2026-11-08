@@ -1,0 +1,37 @@
+{
+  "01 quantite nulle" : "400 BAD_REQUEST | La nouvelle quantite doit etre strictement positive",
+  "02 quantite negative" : "400 BAD_REQUEST | La nouvelle quantite doit etre strictement positive",
+  "03 quantite absente" : "400 BAD_REQUEST | La nouvelle quantite doit etre strictement positive",
+  "04 quantite textuelle" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "05 augmentation d'un article devenu inactif (5 > 4)" : "400 BAD_REQUEST | Article inactif: SE2-ART_INACTIF",
+  "06 diminution d'un article devenu inactif (2 < 4)" : "200 ok",
+  "07 meme quantite d'un article inactif" : "200 ok",
+  "08 article inconnu" : "400 BAD_REQUEST | Article introuvable: <ART_INCONNU>",
+  "09 article d'un autre centre" : "400 BAD_REQUEST | Article introuvable: <ART_AUTRE_CENTRE>",
+  "10 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "11 consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_INACTIF",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "12 centre absent du corps" : "400 BAD_REQUEST | Centre requis",
+  "13 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "14 corps illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "15 identifiant d'article mal forme" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "16 sans userId dans le corps" : "200 ok",
+  "17 consommations finales" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "1.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_INACTIF",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ]
+}

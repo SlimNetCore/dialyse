@@ -1,5 +1,14 @@
 package com.hemodialyse.backend.contexts.seance.interfaces.http;
 
+import com.hemodialyse.backend.contexts.seance.application.AjouterUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLesRaccourcis;
+import com.hemodialyse.backend.contexts.seance.application.ModifierLaQuantiteDUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.RemplacerLesRaccourcis;
+import com.hemodialyse.backend.contexts.seance.application.RetirerUnConsommable;
+import com.hemodialyse.backend.contexts.seance.domain.ArticleId;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.AjoutDeConsommableDemande;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ModificationDeConsommableDemande;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.RaccourcisDemande;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
@@ -19,9 +28,11 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +53,10 @@ import java.util.UUID;
  * <p>
  * Routé depuis B2 : les quatre handlers du legacy sont retirés de {@code SeanceRestController} (refactoring sur place, ADR 0024 :
  * aucune façade ni drapeau, la bascule est réversible par retour git).
+ * <p>
+ * SE3 (ADR 0090) : l'ajout, la modification et le retrait d'un consommable (ADMIN et INFIRMIER) et les raccourcis de consommables (lecture
+ * ADMIN, INFIRMIER et SECRETAIRE ; remplacement ADMIN seul), mêmes URL, mêmes champs JSON et mêmes droits que le legacy. Aucune
+ * contrainte de bean sur les corps : toute valeur absente ou illisible est un 400 {@code BAD_REQUEST}, 403 avant 400 (KB-SEA-26).
  */
 @RestController
 @RequestMapping("/api/v1/seances")
@@ -54,9 +69,17 @@ public class SeancesControleur {
     private final ValiderUneSeance valider;
     private final SignerUneSeance signer;
     private final DeverrouillerUneSeance deverrouiller;
+    private final AjouterUnConsommable ajouterUnConsommable;
+    private final ModifierLaQuantiteDUnConsommable modifierUnConsommable;
+    private final RetirerUnConsommable retirerUnConsommable;
+    private final ConsulterLesRaccourcis consulterLesRaccourcis;
+    private final RemplacerLesRaccourcis remplacerLesRaccourcis;
 
     public SeancesControleur(CreerUneSeance creer, ScannerUnPatient scanner, ConsulterUneSeance consulter, ListerLesSeances lister,
-                             ValiderUneSeance valider, SignerUneSeance signer, DeverrouillerUneSeance deverrouiller) {
+                             ValiderUneSeance valider, SignerUneSeance signer, DeverrouillerUneSeance deverrouiller,
+                             AjouterUnConsommable ajouterUnConsommable, ModifierLaQuantiteDUnConsommable modifierUnConsommable,
+                             RetirerUnConsommable retirerUnConsommable, ConsulterLesRaccourcis consulterLesRaccourcis,
+                             RemplacerLesRaccourcis remplacerLesRaccourcis) {
         this.creer = creer;
         this.scanner = scanner;
         this.consulter = consulter;
@@ -64,6 +87,59 @@ public class SeancesControleur {
         this.valider = valider;
         this.signer = signer;
         this.deverrouiller = deverrouiller;
+        this.ajouterUnConsommable = ajouterUnConsommable;
+        this.modifierUnConsommable = modifierUnConsommable;
+        this.retirerUnConsommable = retirerUnConsommable;
+        this.consulterLesRaccourcis = consulterLesRaccourcis;
+        this.remplacerLesRaccourcis = remplacerLesRaccourcis;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @PostMapping("/{seanceId}/consommables")
+    public ResponseEntity<Map<String, Object>> ajouterUnConsommable(@PathVariable UUID seanceId,
+                                                                    @RequestBody AjoutDeConsommableDemande demande) {
+        ajouterUnConsommable.executer(demande.centerId(), seanceId, demande.articleId(), demande.quantite());
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("added", true);
+        reponse.put("articleId", demande.articleId());
+        reponse.put("quantite", demande.quantite());
+        return ResponseEntity.ok(reponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @PutMapping("/{seanceId}/consommables/{articleId}")
+    public ResponseEntity<Map<String, Object>> modifierLaQuantiteDUnConsommable(@PathVariable UUID seanceId, @PathVariable UUID articleId,
+                                                                                @RequestBody ModificationDeConsommableDemande demande) {
+        modifierUnConsommable.executer(demande.centerId(), seanceId, articleId, demande.quantite(), demande.userId());
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("updated", true);
+        reponse.put("articleId", articleId);
+        reponse.put("quantite", demande.quantite());
+        return ResponseEntity.ok(reponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @DeleteMapping("/{seanceId}/consommables/{articleId}")
+    public ResponseEntity<Map<String, Object>> retirerUnConsommable(@PathVariable UUID seanceId, @PathVariable UUID articleId,
+                                                                    @RequestParam UUID centerId,
+                                                                    @RequestParam(defaultValue = "system") String userId) {
+        retirerUnConsommable.executer(centerId, seanceId, articleId, userId);
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("removed", true);
+        reponse.put("articleId", articleId);
+        return ResponseEntity.ok(reponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
+    @GetMapping("/raccourcis-consommables")
+    public List<UUID> raccourcis(@RequestParam(required = false) UUID centerId) {
+        return consulterLesRaccourcis.executer(centerId).articles().stream().map(ArticleId::valeur).toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/raccourcis-consommables")
+    public List<UUID> remplacerLesRaccourcis(@RequestParam(required = false) UUID centerId, @RequestBody RaccourcisDemande demande) {
+        return remplacerLesRaccourcis.executer(centerId, demande.articleIds()).articles().stream().map(ArticleId::valeur).toList();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")

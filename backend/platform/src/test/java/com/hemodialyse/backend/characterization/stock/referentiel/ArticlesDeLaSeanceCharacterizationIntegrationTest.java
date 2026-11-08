@@ -109,6 +109,12 @@ class ArticlesDeLaSeanceCharacterizationIntegrationTest extends ReferentielStock
         UUID autreCentre = art(CENTRE_B, "ART_AUTRE_CENTRE", true);
         UUID inconnu = UUID.fromString("99997500-0000-0000-0001-999999999999");
         aliasNommes.put(inconnu.toString(), "<ART_INCONNU>");
+        // Le patient existe : depuis SE3 (ADR 0090, KB-SEA-27 corrigé) le cas d'usage lit le patient avant d'écrire ; ce test
+        // caractérise le jugement de l'article, pas l'absence du patient (couverte par les goldens de se3).
+        jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
+                + "type_patient, created_at, jour_lundi, jour_mardi, jour_mercredi, jour_jeudi, jour_vendredi, jour_samedi, "
+                + "jour_dimanche) VALUES (?, ?, 'ZT-S8-P', 'Patient', 'S8', 'M', DATE '2020-01-01', 'ASS-ZT-S8', 'NON_VACANCIER', "
+                + "CURRENT_TIMESTAMP, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)", PATIENT, CENTRE_A);
         UUID creee = seance("SEANCE_CREE", "CREE");
         UUID validee = seance("SEANCE_VALIDEE", "VALIDEE");
         UUID facturee = seance("SEANCE_FACTUREE", "FACTUREE");
@@ -122,7 +128,8 @@ class ArticlesDeLaSeanceCharacterizationIntegrationTest extends ReferentielStock
         golden("consommable_article_inconnu", ajouter(validee, inconnu, "1"));
         golden("consommable_article_inactif_nouveau_code", ajouter(validee, inactif, "1"));
         golden("consommable_article_d_un_autre_centre", ajouter(validee, autreCentre, "1"));
-        golden("consommable_quantite_nulle", ajouter(validee, actif, "0"));
+        // SE3 (ADR 0090, KB-SEA-26 corrigé) : la quantité nulle est jugée par le domaine (400 BAD_REQUEST), plus par la validation de forme.
+        golden("consommable_quantite_nulle_nouveau_code",ajouter(validee, actif, "0"));
     }
 
     @Test

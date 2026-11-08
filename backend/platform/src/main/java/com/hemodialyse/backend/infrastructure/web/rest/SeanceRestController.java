@@ -886,74 +886,7 @@ public class SeanceRestController {
                                            String labelOrReason) {
     }
 
-    /**
-     * Remove a consommable article from a validated seance, restoring stock.
-     */
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
-    @DeleteMapping("/{seanceId}/consommables/{articleId}")
-    public ResponseEntity<?> removeConsommable(@PathVariable UUID seanceId,
-                                               @PathVariable UUID articleId,
-                                               @RequestParam UUID centerId,
-                                               @RequestParam(defaultValue = "system") String userId) {
-        centerAccessGuard.requireCenter(centerId); // KB-MED-02
-        seanceUseCase.removeConsommableSeance(CenterId.of(centerId), seanceId, articleId, userId);
-        notificationService.notifySeanceUpdated(centerId, seanceId);
-        notifierSaisieConsommable(centerId, seanceId, "CONSOMMABLE_RETRAIT");
-        return ResponseEntity.ok(Map.of("removed", true, "articleId", articleId));
-    }
-
-    /**
-     * Ajoute un consommable à une séance <b>déjà validée</b> : seule cette ligne sort du stock (FEFO), les consommables
-     * déjà sortis ne sont jamais retraités.
-     */
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
-    @PostMapping("/{seanceId}/consommables")
-    public ResponseEntity<?> addConsommable(@PathVariable UUID seanceId,
-                                            @RequestBody @Valid AddConsommableRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02
-        seanceUseCase.addConsommableSeance(CenterId.of(request.centerId()), seanceId, request.articleId(),
-                request.quantite(), CurrentUser.username());
-        notificationService.notifySeanceUpdated(request.centerId(), seanceId);
-        notifierSaisieConsommable(request.centerId(), seanceId, "CONSOMMABLE_AJOUT");
-        return ResponseEntity.ok(Map.of("added", true, "articleId", request.articleId(), "quantite", request.quantite()));
-    }
-
-    /**
-     * Signale au médecin une saisie de consommable (patient et date lus sur la séance).
-     */
-    private void notifierSaisieConsommable(UUID centerId, UUID seanceId, String type) {
-        var details = seanceUseCase.getDetails(CenterId.of(centerId), seanceId);
-        var seance = details.seance();
-        notificationService.notifySaisieInfirmier(centerId, type, seance.getPatientId(), details.patient().getNom(),
-                details.patient().getPrenom(), CurrentUser.username(),
-                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
-    }
-
-    /**
-     * Update the quantity of a consommable on a validated seance (FEFO re-issue).
-     */
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
-    @PutMapping("/{seanceId}/consommables/{articleId}")
-    public ResponseEntity<?> updateConsommableQuantite(@PathVariable UUID seanceId,
-                                                       @PathVariable UUID articleId,
-                                                       @RequestBody @Valid UpdateConsommableRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02
-        seanceUseCase.updateConsommableSeance(
-                CenterId.of(request.centerId()), seanceId, articleId,
-                request.quantite(), request.userId());
-        notificationService.notifySeanceUpdated(request.centerId(), seanceId);
-        notifierSaisieConsommable(request.centerId(), seanceId, "CONSOMMABLE_MODIF");
-        return ResponseEntity.ok(Map.of("updated", true, "articleId", articleId, "quantite", request.quantite()));
-    }
-
-    public record AddConsommableRequest(
-            @jakarta.validation.constraints.NotNull UUID centerId,
-            @jakarta.validation.constraints.NotNull UUID articleId,
-            @jakarta.validation.constraints.NotNull @jakarta.validation.constraints.Positive java.math.BigDecimal quantite) {
-    }
-
-    public record UpdateConsommableRequest(UUID centerId, String userId, java.math.BigDecimal quantite) {
-    }
+    // SE3 (ADR 0090) : l'ajout, la modification et le retrait d'un consommable sont servis par contexts/seance (SeancesControleur).
 }
 
 

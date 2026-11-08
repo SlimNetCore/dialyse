@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.application.seance;
 
-import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.Seance;
@@ -20,11 +19,9 @@ import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort
 import com.hemodialyse.backend.domain.seance.service.SeanceDomainService;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -48,8 +45,6 @@ public class SeanceApplicationService implements SeanceUseCase {
     public SeanceApplicationService(com.hemodialyse.backend.application.centre.JourDuCentre jourDuCentre,
                                     SeanceRepositoryPort seanceRepo,
                                     PatientRepositoryPort patientRepo,
-                                    CatalogueDArticles catalogue,
-                                    ConsommationsDeSeance consommations,
                                     VoletParamedicalRepositoryPort voletParamedicalRepo,
                                     VoletMedicalRepositoryPort voletMedicalRepo,
                                     SeanceForfaitCatalogPort forfaitCatalogPort,
@@ -57,8 +52,7 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     SeancePlanningPort planningPort,
                                     SeancePlacePort placePort) {
         this.jourDuCentre = jourDuCentre;
-        this.delegate = new SeanceDomainService(seanceRepo, patientRepo, catalogue,
-                consommations, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
+        this.delegate = new SeanceDomainService(seanceRepo, patientRepo, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
                 planningPort, placePort);
     }
 
@@ -80,11 +74,6 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Override
     public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId, DerogationPlanning derogation) {
         return delegate.scanAndValidate(centerId, qrCode, userId, derogation);
-    }
-
-    @Override
-    public void addConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, BigDecimal quantite, String userId) {
-        delegate.addConsommableSeance(centerId, seanceId, articleId, quantite, userId);
     }
 
     @Override
@@ -113,17 +102,6 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Override
     public Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId) {
         return delegate.updateForfait(centerId, seanceId, forfaitId, userId);
-    }
-
-    @Override
-    public void removeConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
-        delegate.removeConsommableSeance(centerId, seanceId, articleId, userId);
-    }
-
-    @Override
-    public void updateConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId,
-                                        BigDecimal newQuantite, String userId) {
-        delegate.updateConsommableSeance(centerId, seanceId, articleId, newQuantite, userId);
     }
 }
 

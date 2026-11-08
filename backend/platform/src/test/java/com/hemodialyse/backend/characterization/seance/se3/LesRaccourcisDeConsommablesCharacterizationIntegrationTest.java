@@ -65,7 +65,7 @@ class LesRaccourcisDeConsommablesCharacterizationIntegrationTest extends Se3Char
         m.put("12 etat inchange apres tous les refus (douze)", etatDesRaccourcis().size());
         m.put("13 un article valide puis un invalide : rien n'est ecrit", refus(remplacerLesRaccourcis(CENTRE_A, List.of(articles.get(5), inconnu),
                 adminA())) + " ; " + etatDesRaccourcis().stream().map(l -> l.get("article")).toList());
-        arbre("bornes", m);
+        arbre("bornes_nouveau_code", m);
     }
 
     @Test
@@ -130,7 +130,7 @@ class LesRaccourcisDeConsommablesCharacterizationIntegrationTest extends Se3Char
         m.put("10 ecriture sans centerId (centre de la session)", reponse(remplacerLesRaccourcis(null, List.of(a1), adminA())));
         m.put("11 SUPERADMIN + ADMIN vise le centre B (transverse)", refus(remplacerLesRaccourcis(CENTRE_B, List.of(b1), as(CENTRE_A, "SUPERADMIN", "ADMIN"))));
         m.put("12 etat final", etatDesRaccourcis());
-        arbre("cloisonnement", m);
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test

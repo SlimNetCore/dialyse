@@ -1,0 +1,36 @@
+{
+  "01 etat de depart" : [ {
+    "article" : "SE2-ART_A",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "0"
+  }, {
+    "article" : "SE2-ART_B",
+    "center_id" : "<CENTRE_B>",
+    "ordre" : "0"
+  } ],
+  "02 infirmier A lit le centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 infirmier B lit le centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 administrateur A ecrit au centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "05 administrateur B ecrit au centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "06 administrateur A ecrit au centre A avec un article du centre B" : "400 BAD_REQUEST | Article introuvable: <ART_B>",
+  "07 lecture sans centerId (centre de la session)" : {
+    "corps" : [ "<ART_A>" ],
+    "status" : 200
+  },
+  "08 lecture sans centerId, session sans centre" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+  "09 lecture illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "10 ecriture sans centerId (centre de la session)" : {
+    "corps" : [ "<ART_A>" ],
+    "status" : 200
+  },
+  "11 SUPERADMIN + ADMIN vise le centre B (transverse)" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "12 etat final" : [ {
+    "article" : "SE2-ART_A",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "0"
+  }, {
+    "article" : "SE2-ART_B",
+    "center_id" : "<CENTRE_B>",
+    "ordre" : "0"
+  } ]
+}

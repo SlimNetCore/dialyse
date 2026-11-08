@@ -1,0 +1,17 @@
+{
+  "01 infirmier A vise le centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "02 infirmier B vise le centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 infirmier B, centre B, seance du centre A" : "400 BAD_REQUEST | Seance introuvable",
+  "04 infirmier A, centre A, seance du centre B" : "400 BAD_REQUEST | Seance introuvable",
+  "05 infirmier A, centre A, article du centre B" : "400 BAD_REQUEST | Article introuvable: <ART_B>",
+  "06 consommations (aucune)" : [ ],
+  "07 SUPERADMIN + ADMIN vise le centre B (transverse)" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "08 administrateur A" : "200 ok",
+  "09 consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_A",
+    "lot_id" : null,
+    "quantite" : "1.00",
+    "sur_une_piece" : "false"
+  } ]
+}

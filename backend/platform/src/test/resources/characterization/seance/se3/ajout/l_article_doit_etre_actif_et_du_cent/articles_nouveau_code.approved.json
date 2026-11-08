@@ -1,0 +1,16 @@
+{
+  "01 article actif" : "200 ok",
+  "02 article inactif" : "400 BAD_REQUEST | Article inactif: SE2-ART_INACTIF",
+  "03 article inconnu" : "400 BAD_REQUEST | Article introuvable: <ART_INCONNU>",
+  "04 article d'un autre centre" : "400 BAD_REQUEST | Article introuvable: <ART_AUTRE_CENTRE>",
+  "05 seance creee et article inconnu (le statut est controle avant l'article)" : "422 BUSINESS_RULE_VIOLATION | La seance doit etre validee avant d'ajouter un consommable",
+  "06 seance inconnue et quantite nulle (la validation du corps precede la recherche de la seance)" : "400 BAD_REQUEST | La quantite doit etre strictement positive",
+  "07 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "08 consommations (une seule : article actif)" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "1.00",
+    "sur_une_piece" : "false"
+  } ]
+}

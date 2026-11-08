@@ -55,7 +55,7 @@ class LaModificationDUneQuantiteConsommeeCharacterizationIntegrationTest extends
             diffusions.clear();
             m.put(statut, issueEtConsommations(modifier(seance, a1, 3, infirmierA())) + " ; diffusions=" + diffusions.size());
         }
-        arbre("matrice_des_statuts", m);
+        arbre("matrice_des_statuts_nouveau_code", m);
     }
 
     @Test
@@ -88,7 +88,7 @@ class LaModificationDUneQuantiteConsommeeCharacterizationIntegrationTest extends
         m.put("15 identifiant d'article mal forme", refus(doPut(consommablesApi(seance) + "/pas-un-uuid", modification(1), infirmierA())));
         m.put("16 sans userId dans le corps", refus(doPut(consommableApi(seance, actif, null), corps("centerId", CENTRE_A, "quantite", 1), infirmierA())));
         m.put("17 consommations finales", consommationsImputees());
-        arbre("quantites_et_articles", m);
+        arbre("quantites_et_articles_nouveau_code", m);
     }
 
     @Test
@@ -135,7 +135,7 @@ class LaModificationDUneQuantiteConsommeeCharacterizationIntegrationTest extends
                 "quantite", 1), as(CENTRE_A, "SUPERADMIN", "ADMIN"))));
         m.put("08 administrateur A", refus(modifier(seanceA, articleA, 1, adminA())));
         m.put("09 consommations", consommationsImputees());
-        arbre("cloisonnement", m);
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test

@@ -53,7 +53,7 @@ class LAjoutDUnConsommableSurUneSeanceCharacterizationIntegrationTest extends Se
             diffusions.clear();
             m.put(statut, issueEtConsommations(ajouter(seance, a1, 2, infirmierA())) + " ; diffusions=" + diffusions.size());
         }
-        arbre("matrice_des_statuts", m);
+        arbre("matrice_des_statuts_nouveau_code", m);
     }
 
     @Test
@@ -80,7 +80,7 @@ class LAjoutDUnConsommableSurUneSeanceCharacterizationIntegrationTest extends Se
         m.put("13 quantite enorme (1e12)", refus(ajouter(seance, a1, "1000000000000", infirmierA())));
         m.put("14 consommations apres les refus et les deux derniers ajouts", consommationsImputees());
         m.put("15 stock des articles inchange", stocksDesArticles());
-        arbre("quantites_et_formes", m);
+        arbre("quantites_et_formes_nouveau_code", m);
     }
 
     @Test
@@ -103,7 +103,7 @@ class LAjoutDUnConsommableSurUneSeanceCharacterizationIntegrationTest extends Se
                 actif, 0, infirmierA())));
         m.put("07 seance inconnue", refus(ajouter(idStable("seance", "inconnue"), actif, 1, infirmierA())));
         m.put("08 consommations (une seule : article actif)", consommationsImputees());
-        arbre("articles", m);
+        arbre("articles_nouveau_code", m);
     }
 
     @Test
@@ -216,7 +216,7 @@ class LAjoutDUnConsommableSurUneSeanceCharacterizationIntegrationTest extends Se
         m.put("01 ajout", refus(ajouter(seance, a1, 2, infirmierA())));
         m.put("02 consommations (ecrites malgre l'echec de la reponse ?)", consommationsImputees());
         m.put("03 diffusions", diffusionsLues());
-        arbre("patient_disparu", m);
+        arbre("patient_disparu_nouveau_code", m);
     }
 
     @Test

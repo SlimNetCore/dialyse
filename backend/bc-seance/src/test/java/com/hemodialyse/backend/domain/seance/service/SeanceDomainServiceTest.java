@@ -230,7 +230,7 @@ class SeanceDomainServiceTest {
             SeanceForfaitCatalogPort forfaitCatalogPort,
             SeanceBillingEligibilityPort billingEligibilityPort,
             SituationPlanning situation) {
-        return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, bonSortieUseCase,
+        return new SeanceDomainService(seanceRepo, patientRepo,
                 mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
                 forfaitCatalogPort, billingEligibilityPort, (centerId, patientId, date) -> situation,
                 (centerId, patientId, date) -> Optional.of(PLACE_DU_JOUR));
@@ -414,116 +414,8 @@ class SeanceDomainServiceTest {
                 () -> f.service().scanAndValidate(autre, f.patientId().toString(), "inf-01", null));
     }
 
-    @Test
-    void addConsommableSeance_should_issue_only_the_new_line_on_a_validated_session() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryArticleRepository articles = new InMemoryArticleRepository();
-        articles.addArticle(articleId, centerId.value(), "ART-1", BigDecimal.TEN);
-        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.validerParInfirmier("inf-01");
-        seanceRepo.save(seance);
-        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                articles, new InMemoryLotRepository(), spy);
-
-        service.addConsommableSeance(centerId, seanceId, articleId, new BigDecimal("2"), "inf-01");
-
-        assertTrue(spy.addCalled);
-        assertEquals(articleId, spy.lastAddedArticleId);
-        assertEquals(new BigDecimal("2"), spy.lastAddedQuantite);
-        assertFalse(spy.called, "ni bon de sortie de validation ni retraitement des lignes existantes");
-    }
-
-    // ───────── Ajout d'un consommable à une séance déjà validée ─────────
-
-    @Test
-    void addConsommableSeance_should_refuse_a_created_a_billed_session_a_bad_quantity_and_an_inactive_article() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryArticleRepository articles = new InMemoryArticleRepository();
-        articles.addArticle(articleId, centerId.value(), "ART-1", BigDecimal.TEN);
-        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
-        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                articles, new InMemoryLotRepository(), spy);
-
-        UUID creee = UUID.randomUUID();
-        seanceRepo.save(new Seance(creee, patientId, centerId.value(), LocalDate.now()));
-        assertThrows(IllegalStateException.class,
-                () -> service.addConsommableSeance(centerId, creee, articleId, BigDecimal.ONE, "inf"));
-
-        UUID facturee = UUID.randomUUID();
-        Seance f = new Seance(facturee, patientId, centerId.value(), LocalDate.now().minusDays(1));
-        f.setStatus(SeanceStatus.FACTUREE);
-        seanceRepo.save(f);
-        assertThrows(IllegalStateException.class,
-                () -> service.addConsommableSeance(centerId, facturee, articleId, BigDecimal.ONE, "inf"));
-
-        UUID validee = UUID.randomUUID();
-        Seance v = new Seance(validee, patientId, centerId.value(), LocalDate.now().minusDays(2));
-        v.validerParInfirmier("inf");
-        seanceRepo.save(v);
-        assertThrows(IllegalArgumentException.class,
-                () -> service.addConsommableSeance(centerId, validee, articleId, BigDecimal.ZERO, "inf"));
-        assertThrows(IllegalArgumentException.class,
-                () -> service.addConsommableSeance(centerId, validee, UUID.randomUUID(), BigDecimal.ONE, "inf"));
-        assertFalse(spy.addCalled, "aucune sortie de stock sur un refus");
-    }
-
     private record ScanFixture(CenterId centerId, UUID patientId, InMemorySeanceRepository seances,
                                SpyBonSortieUseCase bonSortie, SeanceDomainService service) {
-    }
-
-    @Test
-    void removeConsommableSeance_should_set_the_article_quantity_to_zero_on_the_session_bon() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.validerParInfirmier("inf-01");
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo,
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), spyBonSortie);
-        service.removeConsommableSeance(centerId, seanceId, articleId, "inf-01");
-
-        assertTrue(spyBonSortie.setCalled);
-        assertEquals(articleId, spyBonSortie.lastSetArticleId);
-        assertEquals(0, BigDecimal.ZERO.compareTo(spyBonSortie.lastSetQuantite));
-    }
-
-    @Test
-    void updateConsommableSeance_should_set_the_new_quantity_on_the_single_session_bon() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.validerParInfirmier("inf-01");
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo,
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), spyBonSortie);
-        service.updateConsommableSeance(centerId, seanceId, articleId, new BigDecimal("3"), "inf-01");
-
-        assertTrue(spyBonSortie.setCalled);
-        assertEquals(articleId, spyBonSortie.lastSetArticleId);
-        assertEquals(new BigDecimal("3"), spyBonSortie.lastSetQuantite);
-        assertFalse(spyBonSortie.addCalled, "une modification ne crée pas une nouvelle sortie");
     }
 
     @Test
@@ -594,24 +486,7 @@ class SeanceDomainServiceTest {
                 "un autre centre ne voit rien");
     }
 
-    @Test
-    void removeConsommableSeance_should_fail_when_facturee() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.setStatus(SeanceStatus.FACTUREE);
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo,
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
-
-        assertThrows(IllegalStateException.class,
-                () -> service.removeConsommableSeance(centerId, seanceId, UUID.randomUUID(), "inf-01"));
-    }
+    // SE3 (ADR 0090) : les consommables déclarés (ajout, modification, retrait) sont tenus par les tests de contexts/seance.
 
     @Test
     void updateDate_should_allow_edit_when_seance_is_signee() {

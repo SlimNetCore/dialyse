@@ -1,6 +1,11 @@
 package com.hemodialyse.backend.contexts.seance.interfaces.http;
 
 import com.hemodialyse.backend.contexts.seance.application.AccesRefuse;
+import com.hemodialyse.backend.contexts.seance.application.AjouterUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLesRaccourcis;
+import com.hemodialyse.backend.contexts.seance.application.ModifierLaQuantiteDUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.RemplacerLesRaccourcis;
+import com.hemodialyse.backend.contexts.seance.application.RetirerUnConsommable;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
@@ -41,8 +46,10 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -72,9 +79,100 @@ class SeancesControleurTest {
         valider = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance.class);
         signer = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.SignerUneSeance.class);
         deverrouiller = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeance.class);
-        mvc = MockMvcBuilders.standaloneSetup(new SeancesControleur(creer, scanner, consulter, lister, valider, signer, deverrouiller))
+        ajouter = Mockito.mock(AjouterUnConsommable.class);
+        modifier = Mockito.mock(ModifierLaQuantiteDUnConsommable.class);
+        retirer = Mockito.mock(RetirerUnConsommable.class);
+        consulterRaccourcis = Mockito.mock(ConsulterLesRaccourcis.class);
+        remplacerRaccourcis = Mockito.mock(RemplacerLesRaccourcis.class);
+        mvc = MockMvcBuilders.standaloneSetup(new SeancesControleur(creer, scanner, consulter, lister, valider, signer, deverrouiller,
+                        ajouter, modifier, retirer, consulterRaccourcis, remplacerRaccourcis))
                 .setControllerAdvice(new ErreursDeSeanceAdvice()).build();
         avecLeRole("INFIRMIER");
+    }
+
+    private AjouterUnConsommable ajouter;
+    private ModifierLaQuantiteDUnConsommable modifier;
+    private RetirerUnConsommable retirer;
+    private ConsulterLesRaccourcis consulterRaccourcis;
+    private RemplacerLesRaccourcis remplacerRaccourcis;
+    private static final UUID ARTICLE = new UUID(6, 1);
+
+    @Test
+    void les_consommables_repondent_avec_les_champs_du_legacy_et_la_quantite_telle_que_saisie() throws Exception {
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/consommables").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"articleId\":\"" + ARTICLE + "\",\"quantite\":1.5,\"inconnue\":1}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.added").value(true))
+                .andExpect(jsonPath("$.articleId").value(ARTICLE.toString())).andExpect(jsonPath("$.quantite").value(1.5));
+        Mockito.verify(ajouter).executer(CENTRE, SEANCE, ARTICLE, new BigDecimal("1.5"));
+
+        mvc.perform(put("/api/v1/seances/" + SEANCE + "/consommables/" + ARTICLE).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"userId\":\"inf-01\",\"quantite\":3}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.updated").value(true)).andExpect(jsonPath("$.quantite").value(3));
+        Mockito.verify(modifier).executer(CENTRE, SEANCE, ARTICLE, new BigDecimal("3"), "inf-01");
+
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "/consommables/" + ARTICLE).param("centerId", CENTRE.toString()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.removed").value(true))
+                .andExpect(jsonPath("$.articleId").value(ARTICLE.toString()));
+        Mockito.verify(retirer).executer(CENTRE, SEANCE, ARTICLE, "system");
+    }
+
+    @Test
+    void les_erreurs_de_forme_des_consommables_sont_400_et_jamais_500_avec_403_avant_400() throws Exception {
+        String route = "/api/v1/seances/" + SEANCE + "/consommables";
+        mvc.perform(post(route).contentType(MediaType.APPLICATION_JSON).content("{\"quantite\":\"abc\"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        mvc.perform(post(route).contentType(MediaType.APPLICATION_JSON).content("{\"articleId\":\"pas-un-uuid\"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post(route).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+        mvc.perform(put(route + "/pas-un-uuid").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isBadRequest());
+        mvc.perform(delete(route + "/" + ARTICLE)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Parametre requis absent : centerId"));
+        mvc.perform(delete(route + "/" + ARTICLE).param("centerId", "illisible")).andExpect(status().isBadRequest());
+
+        avecLeRole("MEDECIN");
+        mvc.perform(post(route).contentType(MediaType.APPLICATION_JSON).content("{\"quantite\":\"abc\"}"))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+        mvc.perform(delete(route + "/" + ARTICLE)).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void les_refus_du_domaine_et_du_stock_gardent_leur_statut_et_leur_code() throws Exception {
+        Mockito.doThrow(new SeanceRefusee(MotifDeRefus.CONSOMMABLES_AVANT_VALIDATION, "La seance doit etre validee avant d'ajouter un consommable"))
+                .when(ajouter).executer(any(), any(), any(), any());
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/consommables").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"articleId\":\"" + ARTICLE + "\",\"quantite\":1}"))
+                .andExpect(status().is(422)).andExpect(jsonPath("$.code").value("BUSINESS_RULE_VIOLATION"));
+        Mockito.doThrow(new com.hemodialyse.backend.contexts.seance.application.ConsommationRefusee("PIECE_DEJA_RAPPROCHEE", "rapprochée"))
+                .when(modifier).executer(any(), any(), any(), any(), any());
+        mvc.perform(put("/api/v1/seances/" + SEANCE + "/consommables/" + ARTICLE).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"quantite\":1}"))
+                .andExpect(status().is(422)).andExpect(jsonPath("$.code").value("PIECE_DEJA_RAPPROCHEE"));
+        Mockito.doThrow(new PatientIntrouvable()).when(retirer).executer(any(), any(), any(), any());
+        mvc.perform(delete("/api/v1/seances/" + SEANCE + "/consommables/" + ARTICLE).param("centerId", CENTRE.toString()))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("PATIENT_INTROUVABLE"));
+    }
+
+    @Test
+    void les_raccourcis_se_lisent_dans_l_ordre_et_se_remplacent_par_l_administrateur_seul() throws Exception {
+        var liste = com.hemodialyse.backend.contexts.seance.domain.RaccourcisDeConsommables.restituer(new CentreId(CENTRE),
+                List.of(new com.hemodialyse.backend.contexts.seance.domain.ArticleId(ARTICLE)));
+        Mockito.when(consulterRaccourcis.executer(any())).thenReturn(liste);
+        mvc.perform(get("/api/v1/seances/raccourcis-consommables").param("centerId", CENTRE.toString()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0]").value(ARTICLE.toString()));
+
+        avecLeRole("SECRETAIRE");
+        mvc.perform(get("/api/v1/seances/raccourcis-consommables")).andExpect(status().isOk());
+        mvc.perform(put("/api/v1/seances/raccourcis-consommables").contentType(MediaType.APPLICATION_JSON).content("pas du json"))
+                .andExpect(status().isForbidden());
+
+        avecLeRole("ADMIN");
+        Mockito.when(remplacerRaccourcis.executer(null, List.of(ARTICLE))).thenReturn(liste);
+        mvc.perform(put("/api/v1/seances/raccourcis-consommables").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"articleIds\":[\"" + ARTICLE + "\"]}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0]").value(ARTICLE.toString()));
+        mvc.perform(put("/api/v1/seances/raccourcis-consommables").contentType(MediaType.APPLICATION_JSON).content("pas du json"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(put("/api/v1/seances/raccourcis-consommables").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
     private com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance valider;

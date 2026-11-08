@@ -1,0 +1,8 @@
+{
+  "ABSENT" : "422 BUSINESS_RULE_VIOLATION | La seance doit etre validee avant d'ajouter un consommable ; [] ; diffusions=0",
+  "CREE" : "422 BUSINESS_RULE_VIOLATION | La seance doit etre validee avant d'ajouter un consommable ; [] ; diffusions=0",
+  "EN_COURS" : "400 BAD_REQUEST | La séance <SEANCE> porte une valeur illisible : statut inconnu ; [] ; diffusions=0",
+  "FACTUREE" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; [] ; diffusions=0",
+  "SIGNEE" : "200 ok ; [{alerte=AUCUNE_PIECE, article=SE2-ART_1, lot_id=null, quantite=2.00, sur_une_piece=false}] ; diffusions=2",
+  "VALIDEE" : "200 ok ; [{alerte=AUCUNE_PIECE, article=SE2-ART_1, lot_id=null, quantite=2.00, sur_une_piece=false}] ; diffusions=2"
+}

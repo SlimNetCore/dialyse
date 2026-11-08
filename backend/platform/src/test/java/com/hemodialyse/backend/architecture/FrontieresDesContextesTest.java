@@ -138,6 +138,27 @@ class FrontieresDesContextesTest {
             })
             .because("la validation, la signature et le déverrouillage des séances vivent dans contexts/seance (ADR 0089) ; ces méthodes seront retirées");
 
+    /**
+     * Slice SE3 (ADR 0090) : la déclaration, la modification et le retrait des consommables d'une séance, ainsi que les raccourcis,
+     * vivent dans {@code contexts/seance}. Les handlers, les méthodes de {@code SeanceUseCase}/{@code SeanceDomainService} et la
+     * famille {@code SeanceRaccourci*} sont supprimés (le compilateur interdit tout retour). Il ne reste aucun résidu legacy : le
+     * legacy ne déclare ni ne fixe plus une consommation de séance (seul {@code contexts/seance} le fait, par l'ACL du Stock) ; la
+     * lecture ({@code sortiesParDate}, {@code historique}) et l'annulation à la suppression restent permises.
+     */
+    @ArchTest
+    static final ArchRule seul_contexts_seance_declare_ou_fixe_une_consommation_de_seance = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .and().resideOutsideOfPackage("com.hemodialyse.backend.contexts.stock..")
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "déclare ou fixe une consommation de séance du Stock") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance")
+                            && java.util.Set.of("ajouter", "fixer").contains(appel.getName());
+                }
+            })
+            .because("la déclaration des consommables d'une séance vit dans contexts/seance (ADR 0090)");
+
     private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
 
     /**

@@ -48,7 +48,7 @@ class SeanceSuppressionIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private SeanceUseCase seances;
+    private com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance consommations;
 
     private MockMvc mockMvc;
     private UUID article;
@@ -106,7 +106,9 @@ class SeanceSuppressionIntegrationTest {
     @Test
     void the_admin_deletes_a_validated_session_and_its_imputed_consumables_are_erased() throws Exception {
         UUID id = seance(C1, "VALIDEE");
-        seances.addConsommableSeance(CenterId.of(C1), id, article, new BigDecimal("3"), "inf-01");
+        // Mise en place par le langage publié du Stock (ce que la déclaration d'un consommable lui transmet, SE3) : la séance de ce test n'a
+        // pas de patient en base, que le cas d'usage de la Séance lit désormais avant d'écrire (KB-SEA-27) ; l'objet du test est la restitution.
+        consommations.ajouter(C1, id, UUID.randomUUID(), LUNDI, article, new BigDecimal("3"), "inf-01");
         jdbc.update("INSERT INTO volet_paramedical (id, seance_id, center_id, poids_avant_kg) VALUES (?, ?, ?, ?)",
                 UUID.randomUUID(), id, C1, new BigDecimal("72.5"));
         assertThat(restant()).as("consumption no longer lowers the stock").isEqualByComparingTo("10");

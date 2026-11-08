@@ -62,7 +62,7 @@ class LeRetraitDUnConsommableCharacterizationIntegrationTest extends Se3Characte
             diffusions.clear();
             m.put(statut, issueEtConsommations(retirer(seance, a1, infirmierA())) + " ; diffusions=" + diffusions.size());
         }
-        arbre("matrice_des_statuts", m);
+        arbre("matrice_des_statuts_nouveau_code", m);
     }
 
     @Test
@@ -83,7 +83,7 @@ class LeRetraitDUnConsommableCharacterizationIntegrationTest extends Se3Characte
         m.put("07 utilisateur du parametre ignore par l'observation", refus(doDelete(consommableApi(seance, a1, CENTRE_A) + "&userId=autre-compte",
                 infirmierA())));
         m.put("08 consommations", consommationsImputees());
-        arbre("parametres", m);
+        arbre("parametres_nouveau_code", m);
     }
 
     @Test
