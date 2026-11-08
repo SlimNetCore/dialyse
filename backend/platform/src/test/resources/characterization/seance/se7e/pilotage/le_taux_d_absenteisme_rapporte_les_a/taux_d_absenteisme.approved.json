@@ -1,0 +1,7 @@
+{
+  "centres (ordre servi)" : [ "Centre Alpha SE7e | nbAbsences=5 | nbSeances=6 | tauxAbsenteisme=45.45", "Centre Beta SE7e | nbAbsences=null | nbSeances=2 | tauxAbsenteisme=null" ],
+  "centresMasques" : 1,
+  "from" : "<D+31>",
+  "to" : "<D+58>",
+  "total" : "nbAbsences=5 | nbSeances=6 | tauxAbsenteisme=45.45"
+}

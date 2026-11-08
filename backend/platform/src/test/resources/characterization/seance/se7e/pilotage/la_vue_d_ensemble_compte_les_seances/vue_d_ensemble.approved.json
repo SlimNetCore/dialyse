@@ -1,0 +1,9 @@
+{
+  "centres (ordre servi)" : [ "Centre Alpha SE7e | <CENTRE_A> | seances=6", "Centre Beta SE7e | <CENTRE_B> | seances=2" ],
+  "from" : "<D+30>",
+  "mensuel (ordre servi)" : [ "2026-01 | <CENTRE_A> | seances=1", "2026-02 | <CENTRE_A> | seances=4", "2026-02 | <CENTRE_B> | seances=1", "2026-03 | <CENTRE_A> | seances=1", "2026-03 | <CENTRE_B> | seances=1" ],
+  "periodePrecedente" : "<D+0> -> <D+29> | seances=3",
+  "status" : 200,
+  "to" : "<D+59>",
+  "totaux.seances" : 8
+}

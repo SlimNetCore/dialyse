@@ -1,0 +1,14 @@
+{
+  "annulation apres retrait de la seance du centre B" : {
+    "status" : 200,
+    "statut du lot" : "ANNULE"
+  },
+  "annulation par le centre A (la seance du centre B porte le meme patient_id)" : {
+    "bloquants (tries par le test)" : [ "patient « P1 » (seances)" ],
+    "code" : "MIGRATION_CANCEL_BLOCKED",
+    "detail" : "Annulation impossible : des données reprises ont déjà été utilisées",
+    "status" : 422
+  },
+  "patients repris restants au centre A" : 0,
+  "seances apres annulation" : [ ]
+}

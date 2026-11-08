@@ -1,0 +1,20 @@
+{
+  "du 15 decembre 2025 au 15 janvier 2026 (32 jours)" : {
+    "centres (ordre servi)" : [ "Centre Alpha SE7e | <CENTRE_A> | seances=4", "Centre Beta SE7e | <CENTRE_B> | seances=1" ],
+    "from" : "<D-17>",
+    "mensuel (ordre servi)" : [ "2025-12 | <CENTRE_A> | seances=2", "2025-12 | <CENTRE_B> | seances=1", "2026-01 | <CENTRE_A> | seances=2" ],
+    "periodePrecedente" : "<D-49> -> <D-18> | seances=2",
+    "status" : 200,
+    "to" : "<D+14>",
+    "totaux.seances" : 5
+  },
+  "un seul jour, le 1er janvier 2026" : {
+    "centres (ordre servi)" : [ "Centre Alpha SE7e | <CENTRE_A> | seances=1", "Centre Beta SE7e | <CENTRE_B> | seances=0" ],
+    "from" : "<D+0>",
+    "mensuel (ordre servi)" : [ "2026-01 | <CENTRE_A> | seances=1" ],
+    "periodePrecedente" : "<D-1> -> <D-1> | seances=1",
+    "status" : 200,
+    "to" : "<D+0>",
+    "totaux.seances" : 1
+  }
+}

@@ -224,7 +224,11 @@
     "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyplanning/PatientsAttendusJdbc.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/SeancesRealiseesParLaSeance.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/LiensDExclusionParLaSeance.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/SeancesRealiseesAvecLeurPlaceParLaSeance.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/SeancesRealiseesAvecLeurPlaceParLaSeance.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/CahierDialyseReportService.java",
+    "backend/platform/src/main/resources/reports/cahier_dialyse.jrxml",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java"
   ],
   "seamAllowed": []
 }

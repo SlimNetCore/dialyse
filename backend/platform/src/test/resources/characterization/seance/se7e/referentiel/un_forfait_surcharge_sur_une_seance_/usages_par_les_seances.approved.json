@@ -1,0 +1,24 @@
+{
+  "forfait du centre A surcharge sur une seance du centre B" : {
+    "code" : "REFERENTIAL_IN_USE",
+    "detail" : "Suppression impossible : cet élément de « Forfaits » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+    "forfait encore en base" : 1,
+    "status" : 422
+  },
+  "forfait sans usage" : {
+    "forfait encore en base" : 0,
+    "status" : 204
+  },
+  "forfait surcharge sur deux seances ANNULEE" : {
+    "code" : "REFERENTIAL_IN_USE",
+    "detail" : "Suppression impossible : cet élément de « Forfaits » est encore utilisé (2 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+    "forfait encore en base" : 1,
+    "status" : 422
+  },
+  "forfait surcharge sur une seance VALIDEE du centre" : {
+    "code" : "REFERENTIAL_IN_USE",
+    "detail" : "Suppression impossible : cet élément de « Forfaits » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+    "forfait encore en base" : 1,
+    "status" : 422
+  }
+}

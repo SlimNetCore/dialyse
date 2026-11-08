@@ -1,0 +1,6 @@
+{
+  "contentType" : "application/pdf",
+  "rangees du tableau des poids (triees par le test)" : [ "<D+31> 70.50 68.00 66.00", "<D+32> 72.00 70.00 66.00", "<D+33> 68.00", "<D+34> 80.00 77.50 68.00", "<D+35> 68.00", "<D+35> 69.25 67.75 68.00" ],
+  "status" : 200,
+  "texte (partie paramedicale, en-tete et pagination)" : [ "Rapport statistiques patient", "Centre: <CENTRE_A> | Patient: <PS> | Periode: <D+31> ->", "Statistiques paramedicales", "Seances: 6.00", "Poids avant moyen (kg): 72.94", "Poids apres moyen (kg): 70.81", "UF reelle moyenne (mL): 2125.00", "Date seance Poids avant Poids apres Poids sec cible", "pages=1" ]
+}
