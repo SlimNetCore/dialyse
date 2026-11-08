@@ -52,6 +52,20 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.Consomma
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlaceFournie;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
+import com.hemodialyse.backend.contexts.seance.application.AjouterUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.ConsommablesDeLaSeance;
+import com.hemodialyse.backend.contexts.seance.application.ConsulterLesRaccourcis;
+import com.hemodialyse.backend.contexts.seance.application.ModifierLaQuantiteDUnConsommable;
+import com.hemodialyse.backend.contexts.seance.application.RemplacerLesRaccourcis;
+import com.hemodialyse.backend.contexts.seance.application.RetirerUnConsommable;
+import com.hemodialyse.backend.contexts.seance.domain.ArticlesDuCentre;
+import com.hemodialyse.backend.contexts.seance.domain.RaccourcisDesCentres;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ArticlesDuCentreDuStock;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommablesDeLaSeanceDuStock;
+import com.hemodialyse.backend.contexts.seance.infrastructure.cache.RaccourcisDesCentresEnCache;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.RaccourcisDesCentresJdbc;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -153,6 +167,74 @@ public class SeanceConfiguration {
     @Bean
     ConsommationsALaValidation consommationsALaValidationDeLaSeance(CatalogueDArticles catalogue, ConsommationsDeSeance stock) {
         return new ConsommationsALaValidationDuStock(catalogue, stock);
+    }
+
+    // ---- SE3 : consommables déclarés et raccourcis (ADR 0090)
+
+    @Bean
+    ConsommablesDeLaSeance consommablesDeLaSeanceDuStock(ConsommationsDeSeance stock) {
+        return new ConsommablesDeLaSeanceDuStock(stock);
+    }
+
+    @Bean
+    ArticlesDuCentre articlesDuCentreDeLaSeance(CatalogueDArticles catalogue) {
+        return new ArticlesDuCentreDuStock(catalogue);
+    }
+
+    /**
+     * Raccourcis : adapter JDBC, derrière le cache par centre {@code seance.raccourcis} (KB-SEA-32, reproduit). La purge est posée APRÈS la
+     * validation de la transaction.
+     */
+    @Bean
+    RaccourcisDesCentres raccourcisDesCentresDeLaSeance(JdbcTemplate jdbc, CacheManager caches) {
+        Cache cache = caches.getCache(RaccourcisDesCentresEnCache.NOM_DU_CACHE);
+        if (cache == null) throw new IllegalStateException("Cache " + RaccourcisDesCentresEnCache.NOM_DU_CACHE + " non déclaré");
+        return new RaccourcisDesCentresEnCache(new RaccourcisDesCentresJdbc(jdbc), cache);
+    }
+
+    @Bean
+    AjouterUnConsommable ajouterUnConsommable(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                              @Qualifier("seancesDuContexteSeance") Seances seances,
+                                              @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                              @Qualifier("consommablesDeLaSeanceDuStock") ConsommablesDeLaSeance consommables,
+                                              @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                              @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new AjouterUnConsommable(session, seances, patients, consommables, uniteDeTravail, diffusions);
+    }
+
+    @Bean
+    ModifierLaQuantiteDUnConsommable modifierLaQuantiteDUnConsommable(
+            @Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+            @Qualifier("seancesDuContexteSeance") Seances seances,
+            @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+            @Qualifier("consommablesDeLaSeanceDuStock") ConsommablesDeLaSeance consommables,
+            @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+            @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new ModifierLaQuantiteDUnConsommable(session, seances, patients, consommables, uniteDeTravail, diffusions);
+    }
+
+    @Bean
+    RetirerUnConsommable retirerUnConsommable(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                              @Qualifier("seancesDuContexteSeance") Seances seances,
+                                              @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                              @Qualifier("consommablesDeLaSeanceDuStock") ConsommablesDeLaSeance consommables,
+                                              @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                              @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new RetirerUnConsommable(session, seances, patients, consommables, uniteDeTravail, diffusions);
+    }
+
+    @Bean
+    ConsulterLesRaccourcis consulterLesRaccourcis(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                  @Qualifier("raccourcisDesCentresDeLaSeance") RaccourcisDesCentres raccourcis) {
+        return new ConsulterLesRaccourcis(session, raccourcis);
+    }
+
+    @Bean
+    RemplacerLesRaccourcis remplacerLesRaccourcis(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                  @Qualifier("articlesDuCentreDeLaSeance") ArticlesDuCentre articles,
+                                                  @Qualifier("raccourcisDesCentresDeLaSeance") RaccourcisDesCentres raccourcis,
+                                                  @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail) {
+        return new RemplacerLesRaccourcis(session, articles, raccourcis, uniteDeTravail);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)

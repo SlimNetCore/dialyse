@@ -17,4 +17,10 @@ public interface DiffusionsDeSeance {
 
     /** SE2 : la séance d'un jour passé vient d'être déverrouillée pour régularisation (les infirmiers du centre en sont prévenus). */
     void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient);
+
+    /**
+     * SE3 : un consommable de la séance a été ajouté, modifié ou retiré (infirmiers et secrétaires du centre). Diffusée à chaque appel,
+     * même sans changement de quantité (KB-SEA-28, reproduit : sans risque d'intégrité).
+     */
+    void consommablesModifies(CentreId centre, Seance seance);
 }

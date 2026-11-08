@@ -1,8 +1,14 @@
 package com.hemodialyse.backend.contexts.seance.application;
 
+import com.hemodialyse.backend.contexts.seance.contrat.RaccourcisDesCentresEnMemoire;
 import com.hemodialyse.backend.contexts.seance.contrat.SeancesEnMemoire;
+import com.hemodialyse.backend.contexts.seance.domain.ArticleDuCentre;
+import com.hemodialyse.backend.contexts.seance.domain.ArticleId;
+import com.hemodialyse.backend.contexts.seance.domain.ArticlesDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.CauseDeNonFacturation;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
+import com.hemodialyse.backend.contexts.seance.domain.QuantiteConsommee;
+import com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
@@ -10,6 +16,7 @@ import com.hemodialyse.backend.contexts.seance.domain.SituationDuPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -17,6 +24,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -121,7 +129,81 @@ final class Banc {
             public void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient) {
                 diffusionsRecues.add("SEANCE_DEVERROUILLEE:" + patient.nom());
             }
+
+            @Override
+            public void consommablesModifies(CentreId centre, Seance seance) {
+                diffusionsRecues.add("SEANCE_CONSOMMABLE_CHANGED:" + seance.id().valeur());
+            }
         };
+    }
+
+    /** SE3 : quantités déclarées au Stock par « séance/article » (le double cumule, fixe et retire comme le Stock) et auteurs transmis. */
+    final Map<String, BigDecimal> declarees = new LinkedHashMap<>();
+    final List<String> auteursTransmis = new ArrayList<>();
+
+    ConsommablesDeLaSeance consommables() {
+        return new ConsommablesDeLaSeance() {
+            @Override
+            public void ajouter(CentreId centre, Seance seance, ArticleId article, QuantiteConsommee quantite, String auteur) {
+                verifier(article, true);
+                declarees.merge(cle(seance, article), quantite.valeur(), BigDecimal::add);
+                auteursTransmis.add(auteur);
+            }
+
+            @Override
+            public void remplacer(CentreId centre, Seance seance, ArticleId article, QuantiteConsommee quantite, String auteur) {
+                verifier(article, quantite.valeur().compareTo(declarees.getOrDefault(cle(seance, article), BigDecimal.ZERO)) > 0);
+                declarees.put(cle(seance, article), quantite.valeur());
+                auteursTransmis.add(auteur);
+            }
+
+            @Override
+            public void retirer(CentreId centre, Seance seance, ArticleId article, String auteur) {
+                verifier(article, false);
+                declarees.remove(cle(seance, article));
+                auteursTransmis.add(auteur);
+            }
+
+            /** Comme le Stock : article inconnu, ou inactif quand la quantité augmente : refus de saisie (400). */
+            private void verifier(ArticleId article, boolean augmente) {
+                if (refusDuStock != null) throw new ConsommationRefusee(refusDuStock, "refus du Stock");
+                var fiche = articles.get(article.valeur());
+                if (fiche == null) throw new SaisieInvalide("Article introuvable: " + article.valeur());
+                if (augmente && !fiche.actif()) throw new SaisieInvalide("Article inactif: " + fiche.code());
+            }
+        };
+    }
+
+    private static String cle(Seance seance, ArticleId article) {
+        return seance.id().valeur() + "/" + article.valeur();
+    }
+
+    AjouterUnConsommable ajouterUnConsommable() {
+        return new AjouterUnConsommable(session, seances, patients, consommables(), unite(), diffusions());
+    }
+
+    ModifierLaQuantiteDUnConsommable modifierUnConsommable() {
+        return new ModifierLaQuantiteDUnConsommable(session, seances, patients, consommables(), unite(), diffusions());
+    }
+
+    RetirerUnConsommable retirerUnConsommable() {
+        return new RetirerUnConsommable(session, seances, patients, consommables(), unite(), diffusions());
+    }
+
+    /** SE3 : raccourcis par centre, en mémoire (même contrat que la base). */
+    final RaccourcisDesCentresEnMemoire raccourcis = new RaccourcisDesCentresEnMemoire();
+
+    ArticlesDuCentre catalogue() {
+        return (centre, article) -> Optional.ofNullable(articles.get(article.valeur()))
+                .map(a -> new ArticleDuCentre(new ArticleId(a.id()), a.code(), a.actif()));
+    }
+
+    ConsulterLesRaccourcis consulterLesRaccourcis() {
+        return new ConsulterLesRaccourcis(session, raccourcis);
+    }
+
+    RemplacerLesRaccourcis remplacerLesRaccourcis() {
+        return new RemplacerLesRaccourcis(session, catalogue(), raccourcis, unite());
     }
 
     /** Places des patients (le jour n'importe pas pour le double). */

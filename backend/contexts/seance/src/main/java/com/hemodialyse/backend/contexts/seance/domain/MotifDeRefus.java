@@ -25,7 +25,9 @@ public enum MotifDeRefus {
     /** SE2 : seule une séance « créée » d'un jour passé se déverrouille. */
     DEVERROUILLAGE_INVALIDE("SEANCE_DEVERROUILLAGE_INVALIDE"),
     /** SE2 : l'infirmier ne valide pas une séance d'un jour passé sans le déverrouillage de l'administrateur. */
-    REGULARISATION_NON_DEVERROUILLEE("SEANCE_REGULARISATION_NON_DEVERROUILLEE");
+    REGULARISATION_NON_DEVERROUILLEE("SEANCE_REGULARISATION_NON_DEVERROUILLEE"),
+    /** SE3 : on n'ajoute un consommable qu'à une séance validée ou signée (KB-SEA-24 : la modification et le retrait sont plus larges). */
+    CONSOMMABLES_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION");
 
     private final String code;
 

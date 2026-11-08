@@ -190,6 +190,26 @@ public final class Seance {
         }
     }
 
+    /**
+     * Garde de l'AJOUT d'un consommable (SE3) : une séance facturée est refusée (422 {@code SEANCE_FACTUREE_NON_MODIFIABLE}), puis seule une
+     * séance validée ou signée en reçoit ; {@code CREE} et le reliquat {@code ABSENT} sont refusés (422 {@code BUSINESS_RULE_VIOLATION}).
+     */
+    public void exigerLAjoutDeConsommables() {
+        exigerNonFacturee();
+        if (statut != StatutDeSeance.VALIDEE && statut != StatutDeSeance.SIGNEE) {
+            throw new SeanceRefusee(MotifDeRefus.CONSOMMABLES_AVANT_VALIDATION, "La seance doit etre validee avant d'ajouter un consommable");
+        }
+    }
+
+    /**
+     * Garde de la MODIFICATION et du RETRAIT d'un consommable (SE3) : seule la séance facturée est refusée. Les statuts {@code CREE} et
+     * {@code ABSENT} sont acceptés, contrairement à l'ajout (KB-SEA-24, reproduit : l'incohérence entre les trois routes est à faire
+     * confirmer par les métiers avant la mise en production).
+     */
+    public void exigerLaModificationDesConsommables() {
+        exigerNonFacturee();
+    }
+
     private void exigerNonFacturee() {
         if (statut == StatutDeSeance.FACTUREE) {
             throw new SeanceRefusee(MotifDeRefus.SEANCE_FACTUREE, "La seance facturee ne peut plus etre modifiee");

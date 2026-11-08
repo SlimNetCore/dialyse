@@ -133,6 +133,16 @@ class TraducteursDesLangagesPubliesFournisTest {
         Mockito.verify(fourni).saisieDeLInfirmier(CENTRE, "SEANCE_CREEE", PATIENT, "Nom", "Prenom", "marie", "2026-06-15");
     }
 
+    @Test
+    void la_diffusion_des_consommables_ne_porte_que_le_centre_et_la_seance() {
+        DiffusionsFournies fourni = Mockito.mock(DiffusionsFournies.class);
+        var seance = Seance.creer(new SeanceId(SEANCE), new CentreId(CENTRE), new PatientId(PATIENT), JOUR, Instant.parse("2026-06-15T08:00:00Z"));
+
+        new DiffusionsParLeLegacy(fourni).consommablesModifies(new CentreId(CENTRE), seance);
+
+        Mockito.verify(fourni).consommablesModifies(CENTRE, SEANCE);
+    }
+
     private static HistoriqueFourni.Ligne ligne(String statut, String motif) {
         return new HistoriqueFourni.Ligne(SEANCE, CENTRE, PATIENT, "P-1", "Nom", "Prenom", JOUR, statut, null, null, null, null, null,
                 motif != null, motif);

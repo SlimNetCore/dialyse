@@ -5,4 +5,9 @@ public class EcritureConcurrente extends RuntimeException {
     public EcritureConcurrente() {
         super("Cette séance vient d'être modifiée par une autre écriture : relire puis recommencer");
     }
+
+    /** Autre ressource que la séance (SE3 : les raccourcis de consommables du centre). */
+    public EcritureConcurrente(String message) {
+        super(message);
+    }
 }

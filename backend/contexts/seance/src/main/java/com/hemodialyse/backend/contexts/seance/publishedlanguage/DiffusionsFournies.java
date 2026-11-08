@@ -17,4 +17,7 @@ public interface DiffusionsFournies {
 
     /** SE2 : une séance d'un jour passé vient d'être déverrouillée pour régularisation. */
     void seanceDeverrouillee(UUID centre, UUID seance, String nom, String prenom, String jour);
+
+    /** SE3 : un consommable de la séance a été ajouté, modifié ou retiré ({@code SEANCE_CONSOMMABLE_CHANGED}, infirmiers et secrétaires). */
+    void consommablesModifies(UUID centre, UUID seance);
 }

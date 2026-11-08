@@ -43,6 +43,11 @@ public class DiffusionsFournieesLegacy implements DiffusionsFournies {
         diffuser("SEANCE_DEVERROUILLEE", () -> notifications.notifySeanceDeverrouillee(centre, seance, nom, prenom, jour));
     }
 
+    @Override
+    public void consommablesModifies(UUID centre, UUID seance) {
+        diffuser("SEANCE_CONSOMMABLE_CHANGED", () -> notifications.notifySeanceUpdated(centre, seance));
+    }
+
     private static void diffuser(String evenement, Runnable envoi) {
         try {
             envoi.run();
