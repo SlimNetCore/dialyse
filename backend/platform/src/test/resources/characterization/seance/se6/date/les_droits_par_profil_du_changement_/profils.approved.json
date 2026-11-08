@@ -1,0 +1,17 @@
+{
+  "ADMIN" : "200 ; [{date_seance=<J+2>, facture_id=null, statut=CREE}]",
+  "ADMIN sans centre" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "DIRECTION" : "403 ROLE_SCOPE ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "INFIRMIER + SECRETAIRE" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "INFIRMIER seul" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "MEDECIN + ADMIN" : "200 ; [{date_seance=<J+2>, facture_id=null, statut=CREE}]",
+  "MEDECIN + INFIRMIER" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "MEDECIN seul" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "SECRETAIRE" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "SUPERADMIN" : "403 ROLE_SCOPE ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "anonyme" : "403 ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "aucun role" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]",
+  "role personnalise (CHEF_DE_SALLE)" : "403 ACCESS_DENIED ; [{date_seance=<J>, facture_id=null, statut=CREE}]"
+}

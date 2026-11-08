@@ -1,0 +1,10 @@
+{
+  "01 avant l'admission du patient" : "200 ok ; [{date_seance=<AVANT_ADMISSION>, facture_id=null, statut=CREE}]",
+  "02 jour de fermeture exceptionnelle" : "200 ok ; [{date_seance=<J+5>, facture_id=null, statut=CREE}]",
+  "03 jour ferie" : "200 ok ; [{date_seance=<J+6>, facture_id=null, statut=CREE}]",
+  "04 jour sans dialyse programmee" : "200 ok ; [{date_seance=<J+7>, facture_id=null, statut=CREE}]",
+  "05 jour deja pris par une autre seance du meme patient" : "200 ok ; [{date_seance=<J+3>, facture_id=null, statut=CREE}]",
+  "06 seances du patient ce jour-la" : 2,
+  "07 jour d'une seance d'un autre patient" : "200 ok ; [{date_seance=<J+4>, facture_id=null, statut=CREE}]",
+  "08 seances du jour J+4" : 2
+}

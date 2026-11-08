@@ -1,0 +1,43 @@
+{
+  "01 passee (J-30) SIGNEE" : "204 ; restante=0",
+  "02 du jour (J) SIGNEE" : "204 ; restante=0",
+  "03 future (J+30) SIGNEE" : "204 ; restante=0",
+  "04 seance d'un patient absent de la base" : "204 ; restante=0",
+  "05 journal" : [ {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PATIENT_ABSENT>",
+    "seance_id" : "<ORPHELINE>",
+    "statut" : "CREE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J+30>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE_03>",
+    "statut" : "SIGNEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE_02>",
+    "statut" : "SIGNEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J-30>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE_01>",
+    "statut" : "SIGNEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  } ]
+}

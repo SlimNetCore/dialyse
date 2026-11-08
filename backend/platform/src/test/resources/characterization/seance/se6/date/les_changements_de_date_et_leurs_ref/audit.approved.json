@@ -1,0 +1,35 @@
+{
+  "journal" : [ {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE_CREE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE_INCONNUE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}",
+    "status_code" : "400"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE_CREE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}",
+    "status_code" : "403"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE_FACTUREE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}",
+    "status_code" : "422"
+  } ]
+}

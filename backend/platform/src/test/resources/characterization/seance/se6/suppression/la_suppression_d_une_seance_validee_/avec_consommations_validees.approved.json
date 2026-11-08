@@ -1,0 +1,61 @@
+{
+  "01 validation avec une consommation de 4" : "200 ok",
+  "02 avant : consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "4.00",
+    "sur_une_piece" : "false"
+  } ],
+  "03 avant : lots et stock" : [ [ {
+    "numero_lot" : "LOT_1",
+    "quantite_initiale" : "10.00",
+    "quantite_restante" : "10.00"
+  } ], [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  } ] ],
+  "04 avant : mouvements de stock" : 1,
+  "05 avant : pieces de sortie" : [ {
+    "sorties" : "0"
+  } ],
+  "06 avant : lignes de sortie" : [ {
+    "lignes" : "0"
+  } ],
+  "07 suppression" : "204",
+  "08 apres : traces" : {
+    "administrations" : 0,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 0,
+    "volets medicaux" : 0,
+    "volets paramedicaux" : 0
+  },
+  "09 apres : consommations" : [ ],
+  "10 apres : lots et stock" : [ [ {
+    "numero_lot" : "LOT_1",
+    "quantite_initiale" : "10.00",
+    "quantite_restante" : "10.00"
+  } ], [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  } ] ],
+  "11 apres : mouvements de stock" : 1,
+  "12 apres : pieces de sortie" : [ {
+    "sorties" : "0"
+  } ],
+  "13 apres : lignes de sortie" : [ {
+    "lignes" : "0"
+  } ],
+  "14 journal" : [ {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE>",
+    "statut" : "VALIDEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  } ]
+}

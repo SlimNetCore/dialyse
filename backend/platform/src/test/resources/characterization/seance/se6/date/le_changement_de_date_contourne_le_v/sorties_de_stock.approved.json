@@ -1,0 +1,13 @@
+{
+  "01 validation avec une consommation" : "200 ok",
+  "02 jour de la sortie de stock avant" : [ ],
+  "03 changement de date vers J+2" : "200 ok ; [{date_seance=<J+2>, facture_id=null, statut=VALIDEE}]",
+  "04 jour de la sortie de stock apres" : [ ],
+  "05 consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "3.00",
+    "sur_une_piece" : "false"
+  } ]
+}

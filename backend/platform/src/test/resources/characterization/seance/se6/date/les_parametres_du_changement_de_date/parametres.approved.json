@@ -1,0 +1,20 @@
+{
+  "01 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "02 identifiant illisible" : "500 INTERNAL_ERROR",
+  "03 centerId absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "04 centerId illisible" : "500 INTERNAL_ERROR",
+  "05 corps JSON illisible" : "500 INTERNAL_ERROR",
+  "06 corps vide" : "500 INTERNAL_ERROR",
+  "07 corps objet vide" : "400 VALIDATION_ERROR | Invalid request content.",
+  "08 la seance n'a pas bouge" : [ {
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "statut" : "CREE"
+  } ],
+  "09 champs inconnus (statut, factureId) ignores ou refuses" : "200 ok",
+  "10 la seance" : [ {
+    "date_seance" : "<J+2>",
+    "facture_id" : null,
+    "statut" : "CREE"
+  } ]
+}

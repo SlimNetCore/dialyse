@@ -1,0 +1,106 @@
+{
+  "01 avant : traces de la seance" : {
+    "administrations" : 1,
+    "consommations" : 1,
+    "imputations" : 2,
+    "mouvements de stock" : 0,
+    "seances" : 1,
+    "volets medicaux" : 1,
+    "volets paramedicaux" : 1
+  },
+  "02 avant : consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "3.00",
+    "sur_une_piece" : "false"
+  } ],
+  "03 avant : lots et stock" : [ [ {
+    "numero_lot" : "LOT_1",
+    "quantite_initiale" : "10.00",
+    "quantite_restante" : "10.00"
+  }, {
+    "numero_lot" : "LOT_2",
+    "quantite_initiale" : "10.00",
+    "quantite_restante" : "10.00"
+  } ], [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  }, {
+    "code" : "SE2-ART_2",
+    "stock_quantity" : "10.00"
+  } ] ],
+  "04 suppression par l'administrateur" : {
+    "status" : 204
+  },
+  "05 apres : traces de la seance" : {
+    "administrations" : 0,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 0,
+    "volets medicaux" : 0,
+    "volets paramedicaux" : 0
+  },
+  "06 apres : consommations" : [ ],
+  "07 apres : lots et stock inchanges" : [ [ {
+    "numero_lot" : "LOT_1",
+    "quantite_initiale" : "10.00",
+    "quantite_restante" : "10.00"
+  }, {
+    "numero_lot" : "LOT_2",
+    "quantite_initiale" : "10.00",
+    "quantite_restante" : "10.00"
+  } ], [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  }, {
+    "code" : "SE2-ART_2",
+    "stock_quantity" : "10.00"
+  } ] ],
+  "08 journal des suppressions" : [ {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE>",
+    "statut" : "VALIDEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  } ],
+  "09 diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "dateSeance" : "<J>",
+        "patientId" : "<PAT_A>",
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "ADMIN,INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_SUPPRIMEE"
+    }
+  } ],
+  "10 notifications" : [ ],
+  "11 raccourcis inchanges" : [ {
+    "article" : "SE2-ART_1",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "1"
+  } ],
+  "12 l'autre seance du patient est intacte" : {
+    "administrations" : 1,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 1,
+    "volets medicaux" : 1,
+    "volets paramedicaux" : 1
+  },
+  "13 seconde suppression de la meme seance" : "422 SEANCE_INTROUVABLE | Séance introuvable",
+  "14 journal apres la seconde suppression" : 1
+}

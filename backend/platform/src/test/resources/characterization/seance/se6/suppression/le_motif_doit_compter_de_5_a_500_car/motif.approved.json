@@ -1,0 +1,13 @@
+{
+  "01 absent (corps vide d'objet)" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères ; journal=[]",
+  "02 chaine vide" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères ; journal=[]",
+  "03 espaces seuls" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères ; journal=[]",
+  "04 quatre caracteres" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères ; journal=[]",
+  "05 quatre caracteres entoures d'espaces" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères ; journal=[]",
+  "06 cinq caracteres" : "204 ; journal=[{bord=sans espace de bord, longueur=5}]",
+  "07 cinq caracteres entoures d'espaces" : "204 ; journal=[{bord=sans espace de bord, longueur=5}]",
+  "08 cinq cents caracteres" : "204 ; journal=[{bord=sans espace de bord, longueur=500}]",
+  "09 cinq cents caracteres entoures d'espaces" : "204 ; journal=[{bord=sans espace de bord, longueur=500}]",
+  "10 cinq cent un caracteres" : "422 SEANCE_SUPPRESSION_MOTIF_INVALIDE | Le motif de suppression doit compter de 5 à 500 caractères ; journal=[]",
+  "11 accents et ponctuation" : "204 ; journal=[{bord=sans espace de bord, longueur=40}]"
+}

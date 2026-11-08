@@ -1,0 +1,52 @@
+{
+  "SIGNEE 01 avant" : [ {
+    "facture_id" : "<FACTURE>",
+    "statut" : "SIGNEE"
+  } ],
+  "SIGNEE 02 suppression" : "204",
+  "SIGNEE 03 apres : traces" : {
+    "administrations" : 0,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 0,
+    "volets medicaux" : 0,
+    "volets paramedicaux" : 0
+  },
+  "SIGNEE 04 le journal ne garde ni la facture ni son lien" : [ {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE>",
+    "statut" : "SIGNEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  } ],
+  "SIGNEE 05 seances encore rattachees a la facture" : 0,
+  "VALIDEE 01 avant" : [ {
+    "facture_id" : "<FACTURE>",
+    "statut" : "VALIDEE"
+  } ],
+  "VALIDEE 02 suppression" : "204",
+  "VALIDEE 03 apres : traces" : {
+    "administrations" : 0,
+    "consommations" : 0,
+    "imputations" : 0,
+    "mouvements de stock" : 0,
+    "seances" : 0,
+    "volets medicaux" : 0,
+    "volets paramedicaux" : 0
+  },
+  "VALIDEE 04 le journal ne garde ni la facture ni son lien" : [ {
+    "center_id" : "<CENTRE_A>",
+    "date_seance" : "<J>",
+    "motif" : "Seance saisie en double",
+    "patient_id" : "<PAT_A>",
+    "seance_id" : "<SEANCE>",
+    "statut" : "VALIDEE",
+    "supprime_le" : "renseigne",
+    "supprime_par" : "u-admin"
+  } ],
+  "VALIDEE 05 seances encore rattachees a la facture" : 0
+}

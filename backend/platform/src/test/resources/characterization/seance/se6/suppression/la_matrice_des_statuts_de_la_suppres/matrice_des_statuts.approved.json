@@ -1,0 +1,14 @@
+{
+  "avec facture_id : ABSENT" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "avec facture_id : CREE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "avec facture_id : EN_COURS" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : FACTUREE" : "422 SEANCE_FACTUREE_NON_SUPPRIMABLE | Une séance facturée ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "avec facture_id : SIGNEE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "avec facture_id : VALIDEE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : ABSENT" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : CREE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : EN_COURS" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "sans facture_id : FACTUREE" : "422 SEANCE_FACTUREE_NON_SUPPRIMABLE | Une séance facturée ne peut pas être supprimée : annulez d'abord la facture ; seance restante=1 ; suppressions=0 ; diffusions=0",
+  "sans facture_id : SIGNEE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1",
+  "sans facture_id : VALIDEE" : "204 ; seance restante=0 ; suppressions=1 ; diffusions=1"
+}

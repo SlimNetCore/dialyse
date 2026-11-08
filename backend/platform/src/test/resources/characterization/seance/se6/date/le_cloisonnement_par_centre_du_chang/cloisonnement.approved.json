@@ -1,0 +1,25 @@
+{
+  "01 administrateur A, centre A, seance B" : "400 BAD_REQUEST | Seance introuvable",
+  "02 administrateur A, centre B dans le corps, seance B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 administrateur B, centre A dans le corps, seance A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 administrateur B, centre B dans le corps, seance A" : "400 BAD_REQUEST | Seance introuvable",
+  "05 etat" : [ [ {
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "statut" : "CREE"
+  } ], [ {
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "statut" : "CREE"
+  } ] ],
+  "06 SUPERADMIN + ADMIN du centre A vise le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "07 etat" : [ [ {
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "statut" : "CREE"
+  } ], [ {
+    "date_seance" : "<J>",
+    "facture_id" : null,
+    "statut" : "CREE"
+  } ] ]
+}

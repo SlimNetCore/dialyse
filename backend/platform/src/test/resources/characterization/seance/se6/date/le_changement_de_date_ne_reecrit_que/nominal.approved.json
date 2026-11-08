@@ -1,0 +1,39 @@
+{
+  "01 avant" : [ {
+    "date_seance" : "<J>",
+    "signed_infirmier_by" : "inf-initiale",
+    "signed_medecin_by" : "med-initial",
+    "statut" : "SIGNEE"
+  } ],
+  "02 changement de date vers J+2" : {
+    "corps" : {
+      "dateSeance" : "<J+2>",
+      "id" : "<SEANCE>",
+      "status" : "SIGNEE"
+    },
+    "status" : 200
+  },
+  "03 colonnes modifiees" : [ "date_seance" ],
+  "04 apres" : [ {
+    "date_seance" : "<J+2>",
+    "signed_infirmier_by" : "inf-initiale",
+    "signed_medecin_by" : "med-initial",
+    "statut" : "SIGNEE"
+  } ],
+  "05 place conservee" : [ {
+    "creneau_id" : "<CRENEAU>",
+    "generateur_id" : "<GENERATEUR>",
+    "salle_id" : "<SALLE>"
+  } ],
+  "06 consommations inchangees" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "07 diffusions" : [ ],
+  "08 notifications" : [ ],
+  "09 seconde modification vers la meme date" : "200 ok",
+  "10 colonnes modifiees par la seconde" : [ "date_seance" ]
+}
