@@ -1,0 +1,9 @@
+{
+  "01 date absente" : "400 BAD_REQUEST | Parametre requis absent : dateSeance",
+  "02 date illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "03 date au format jour/mois/annee" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "04 date vide" : "400 BAD_REQUEST | Parametre requis absent : dateSeance",
+  "05 centre absent" : "400 BAD_REQUEST | Parametre requis absent : centerId",
+  "06 centre illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "07 date lointaine (an 9999)" : "200 ok"
+}

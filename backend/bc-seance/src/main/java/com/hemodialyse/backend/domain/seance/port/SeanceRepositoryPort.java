@@ -20,12 +20,6 @@ public interface SeanceRepositoryPort {
     Optional<Seance> findByPatientIdAndDate(CenterId centerId, UUID patientId, LocalDate dateSeance);
 
     /**
-     * Les {@code limit} séances les plus récentes d'un patient, strictement antérieures à {@code before}
-     * (de la plus récente à la plus ancienne), dans le centre.
-     */
-    List<Seance> findRecentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit);
-
-    /**
      * Historique des séances du centre : filtré, trié et paginé en base, avec le code, le nom et le prénom du patient
      * déjà renseignés (jointure, sans requête par ligne).
      */

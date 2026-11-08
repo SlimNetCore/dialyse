@@ -8,7 +8,6 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
-import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
@@ -153,15 +152,6 @@ public class SeanceDomainService implements SeanceUseCase {
             default -> throw new IllegalStateException(
                     "La séance du jour de ce patient est marquée absente : elle ne peut pas être validée");
         };
-    }
-
-    @Override
-    public List<SeanceRecap> recentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
-        int bounded = Math.max(1, Math.min(limit, RECENT_MAX));
-        LocalDate until = before != null ? before : LocalDate.now();
-        return seanceRepo.findRecentByPatient(centerId, patientId, until, bounded).stream()
-                .map(s -> new SeanceRecap(s, voletParamedicalRepo.findBySeanceId(s.getId(), centerId).orElse(null)))
-                .toList();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.seance.interfaces.http;
 import com.hemodialyse.backend.contexts.seance.application.AccesRefuse;
 import com.hemodialyse.backend.contexts.seance.application.ConsommationRefusee;
 import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.seance.domain.JourDejaAuCalendrier;
 import com.hemodialyse.backend.contexts.seance.domain.PatientIntrouvable;
 import com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceDuJourAmbigue;
@@ -32,7 +33,7 @@ import org.springframework.web.servlet.HandlerMapping;
  * introuvable reste un 400 (reproduit, KB-SEA-04). Aucun message ne reprend de donnée de santé ni de nom de classe (KB-SEA-07).
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = SeancesControleur.class)
+@RestControllerAdvice(assignableTypes = {SeancesControleur.class, RoutesResiduellesControleur.class})
 class ErreursDeSeanceAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -71,6 +72,11 @@ class ErreursDeSeanceAdvice {
     @ExceptionHandler(EcritureConcurrente.class)
     ProblemDetail ecritureConcurrente(EcritureConcurrente erreur) {
         return probleme(HttpStatus.CONFLICT, "Ecriture concurrente", erreur.getMessage(), "ECRITURE_CONCURRENTE");
+    }
+
+    @ExceptionHandler(JourDejaAuCalendrier.class)
+    ProblemDetail jourDejaAuCalendrier(JourDejaAuCalendrier erreur) {
+        return probleme(HttpStatus.CONFLICT, "Jour deja au calendrier", erreur.getMessage(), "JOUR_DEJA_AU_CALENDRIER");
     }
 
     @ExceptionHandler(SeanceIllisible.class)

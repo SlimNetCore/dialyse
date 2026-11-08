@@ -1,0 +1,59 @@
+{
+  "01 suppression d'un ferie inconnu" : {
+    "corps" : {
+      "deleted" : true
+    },
+    "status" : 200
+  },
+  "02 suppression d'un ferie par la route des fermetures (autre table)" : {
+    "corps" : {
+      "deleted" : true
+    },
+    "status" : 200
+  },
+  "03 etat apres 01 et 02" : {
+    "feries" : [ {
+      "day_date" : "<D+0>",
+      "label" : "Ferie A"
+    } ],
+    "fermetures" : [ {
+      "day_date" : "<D+0>",
+      "reason" : "Fermeture A"
+    } ]
+  },
+  "04 suppression du ferie de l'autre centre avec le centre A" : {
+    "corps" : {
+      "deleted" : true
+    },
+    "status" : 200
+  },
+  "05 le ferie de l'autre centre est toujours la" : [ {
+    "day_date" : "<D+0>",
+    "label" : "Ferie B"
+  } ],
+  "06 suppression sans centre" : "400 BAD_REQUEST | Parametre requis absent : centerId",
+  "07 suppression avec le centre B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "08 identifiant illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "09 suppression du ferie du centre A" : {
+    "corps" : {
+      "deleted" : true
+    },
+    "status" : 200
+  },
+  "10 suppression de la fermeture du centre A" : {
+    "corps" : {
+      "deleted" : true
+    },
+    "status" : 200
+  },
+  "11 seconde suppression de la fermeture" : {
+    "corps" : {
+      "deleted" : true
+    },
+    "status" : 200
+  },
+  "12 etat final du centre A" : {
+    "feries" : [ ],
+    "fermetures" : [ ]
+  }
+}

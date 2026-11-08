@@ -42,7 +42,7 @@ class SeanceRestControllerTest {
                 mock(NotificationService.class),
                 mock(JdbcTemplate.class),
                 GARDE,
-                mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class), mock(com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance.class)
+                mock(com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage.class)
         );
     }
 

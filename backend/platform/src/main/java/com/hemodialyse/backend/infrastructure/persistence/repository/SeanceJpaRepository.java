@@ -15,9 +15,6 @@ public interface SeanceJpaRepository extends JpaRepository<SeanceJpaEntity, UUID
 
     Optional<SeanceJpaEntity> findByCenterIdAndPatientIdAndDateSeance(UUID centerId, UUID patientId, LocalDate dateSeance);
 
-    List<SeanceJpaEntity> findByCenterIdAndPatientIdAndDateSeanceLessThanOrderByDateSeanceDesc(
-            UUID centerId, UUID patientId, LocalDate before, Pageable pageable);
-
     /**
      * Alimente la vue longitudinale des constantes du dossier médical (Phase 4).
      */

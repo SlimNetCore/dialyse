@@ -1,9 +1,9 @@
 # 07 — Séances de dialyse (cahier de dialyse)
 
 > Préfixe `RG-SEA`. Sources : `Seance`, `SeanceStatus`, `SeanceDomainService`, `SeanceApplicationService`,
-> `SeanceBillingEligibilityJdbcAdapter`, `VoletParamedicalDomainService`, `VoletMedicalDomainService`,
+> `SeanceBillingEligibilityJdbcAdapter`, `VoletParamedicalDomainService`, `RenseignerLeVoletMedical`,
 > `TensionArterielle`,
-> `SeancesControleur`, `SeanceRestController`, `VoletMedicalRestController`, `VoletParamedicalRestController`, `BonSortieService`.
+> `SeancesControleur`, `RoutesResiduellesControleur`, `SeanceRestController`, `VoletParamedicalRestController`, `BonSortieService`.
 
 ## 7.1 Cycle de vie
 

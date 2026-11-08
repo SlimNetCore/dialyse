@@ -58,14 +58,6 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         return jpa.findByCenterIdAndPatientIdAndDateSeance(centerId.value(), patientId, dateSeance).map(this::toDomain);
     }
 
-    @Override
-    public List<Seance> findRecentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
-        return jpa.findByCenterIdAndPatientIdAndDateSeanceLessThanOrderByDateSeanceDesc(
-                        centerId.value(), patientId, before, PageRequest.of(0, limit)).stream()
-                .map(this::toDomain)
-                .toList();
-    }
-
     /**
      * Recherche filtrée, triée et paginée en base (JPA Criteria : aucun paramètre null, donc aucun souci de typage
      * H2 / PostgreSQL). Le patient est joint dans la même requête : pas de requête par ligne.

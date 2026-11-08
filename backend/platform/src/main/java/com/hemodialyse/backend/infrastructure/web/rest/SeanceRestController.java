@@ -48,20 +48,17 @@ public class SeanceRestController {
     private final JdbcTemplate jdbc;
     private final CenterAccessGuard centerAccessGuard;
     private final AbsencesDuPilotage absencesDuPilotage;
-    private final com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance consommationsStock;
 
     public SeanceRestController(SeanceUseCase seanceUseCase,
                                 NotificationService notificationService,
                                 JdbcTemplate jdbc,
                                 CenterAccessGuard centerAccessGuard,
-                                AbsencesDuPilotage absencesDuPilotage,
-                                com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance consommationsStock) {
+                                AbsencesDuPilotage absencesDuPilotage) {
         this.absencesDuPilotage = absencesDuPilotage;
         this.seanceUseCase = seanceUseCase;
         this.notificationService = notificationService;
         this.jdbc = jdbc;
         this.centerAccessGuard = centerAccessGuard;
-        this.consommationsStock = consommationsStock;
     }
 
     // Création, scan, consultation et liste des séances : servies par `contexts/seance` (SeancesControleur, SE1, ADR 0088).
@@ -73,57 +70,9 @@ public class SeanceRestController {
 
     // SE2 : valider, signer-medecin et deverrouiller-regularisation sont servis par contexts/seance (SeancesControleur, ADR 0089).
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
-    @GetMapping("/journal")
-    public ResponseEntity<?> journalByDate(@RequestParam UUID centerId,
-                                           @RequestParam LocalDate dateSeance) {
-        centerAccessGuard.requireCenter(centerId); // revue DM1 : le centre demandé doit être celui du jeton (403 sinon)
-        var patients = jdbc.query(
-                """
-                        SELECT s.id AS seance_id,
-                               s.patient_id AS patient_id,
-                               s.date_seance AS date_seance,
-                               s.statut AS statut,
-                               p.code_patient AS code_patient,
-                               p.nom AS nom,
-                               p.prenom AS prenom
-                        FROM seances s
-                        INNER JOIN patients p ON p.id = s.patient_id
-                        WHERE s.center_id = ?
-                          AND s.date_seance = ?
-                        ORDER BY p.nom ASC, p.prenom ASC
-                        """,
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("seanceId", rs.getObject("seance_id", UUID.class));
-                    row.put("patientId", rs.getObject("patient_id", UUID.class));
-                    row.put("dateSeance", rs.getObject("date_seance", Date.class).toLocalDate());
-                    row.put("status", rs.getString("statut"));
-                    row.put("patientCode", rs.getString("code_patient"));
-                    row.put("patientNom", rs.getString("nom"));
-                    row.put("patientPrenom", rs.getString("prenom"));
-                    return row;
-                },
-                centerId,
-                Date.valueOf(dateSeance)
-        );
-
-        var articles = new java.util.ArrayList<Map<String, Object>>();
-        for (var s : consommationsStock.sortiesParDate(centerId, dateSeance)) {
-            Map<String, Object> row = new LinkedHashMap<>();
-            row.put("articleId", s.articleId());
-            row.put("articleCode", s.articleCode());
-            row.put("articleLibelle", s.articleLibelle());
-            row.put("quantiteTotale", s.quantiteTotale());
-            articles.add(row);
-        }
-
-        var payload = new LinkedHashMap<String, Object>();
-        payload.put("dateSeance", dateSeance);
-        payload.put("patients", patients);
-        payload.put("sortiesArticles", articles);
-        return ResponseEntity.ok(payload);
-    }
+    // SE7a (ADR 0094) : le journal du jour (GET /journal), le calendrier du centre (GET /calendar, POST et DELETE /calendar/holiday et
+    // /calendar/closure), le volet médical (PUT /{id}/volet-medical) et les séances récentes sont servis par contexts/seance
+    // (RoutesResiduellesControleur).
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
     @GetMapping("/dashboard")
@@ -180,100 +129,6 @@ public class SeanceRestController {
                         "attachment; filename=seances-dashboard-" + year + "-" + String.format("%02d", month) + ".csv")
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(csv);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
-    @GetMapping("/calendar")
-    public ResponseEntity<?> calendar(@RequestParam UUID centerId,
-                                      @RequestParam int year,
-                                      @RequestParam int month) {
-        centerAccessGuard.requireCenter(centerId); // revue DM1 : le centre demandé doit être celui du jeton (403 sinon)
-        YearMonth ym = YearMonth.of(year, month);
-        LocalDate from = ym.atDay(1);
-        LocalDate to = ym.atEndOfMonth();
-
-        var holidays = jdbc.query(
-                "SELECT id, day_date, label FROM center_holiday WHERE center_id = ? AND day_date BETWEEN ? AND ? ORDER BY day_date ASC",
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("id", rs.getObject("id", UUID.class));
-                    row.put("dayDate", rs.getObject("day_date", Date.class).toLocalDate());
-                    row.put("label", rs.getString("label"));
-                    return row;
-                },
-                centerId,
-                Date.valueOf(from),
-                Date.valueOf(to)
-        );
-
-        var closures = jdbc.query(
-                "SELECT id, day_date, reason FROM center_closure_day WHERE center_id = ? AND day_date BETWEEN ? AND ? ORDER BY day_date ASC",
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("id", rs.getObject("id", UUID.class));
-                    row.put("dayDate", rs.getObject("day_date", Date.class).toLocalDate());
-                    row.put("reason", rs.getString("reason"));
-                    return row;
-                },
-                centerId,
-                Date.valueOf(from),
-                Date.valueOf(to)
-        );
-
-        return ResponseEntity.ok(Map.of(
-                "year", year,
-                "month", month,
-                "holidays", holidays,
-                "closures", closures
-        ));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/calendar/holiday")
-    public ResponseEntity<?> addHoliday(@RequestBody @Valid SeanceCalendarDayRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
-        UUID id = UUID.randomUUID();
-        jdbc.update(
-                "MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id) VALUES (?, ?, ?, ?)",
-                id,
-                request.centerId(),
-                Date.valueOf(request.dayDate()),
-                request.labelOrReason()
-        );
-        return ResponseEntity.ok(Map.of("id", id, "dayDate", request.dayDate()));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/calendar/holiday/{id}")
-    public ResponseEntity<?> deleteHoliday(@PathVariable UUID id,
-                                           @RequestParam UUID centerId) {
-        centerAccessGuard.requireCenter(centerId); // KB-MED-02
-        jdbc.update("DELETE FROM center_holiday WHERE id = ? AND center_id = ?", id, centerId);
-        return ResponseEntity.ok(Map.of("deleted", true));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/calendar/closure")
-    public ResponseEntity<?> addClosure(@RequestBody @Valid SeanceCalendarDayRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02
-        UUID id = UUID.randomUUID();
-        jdbc.update(
-                "MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id) VALUES (?, ?, ?, ?)",
-                id,
-                request.centerId(),
-                Date.valueOf(request.dayDate()),
-                request.labelOrReason()
-        );
-        return ResponseEntity.ok(Map.of("id", id, "dayDate", request.dayDate()));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/calendar/closure/{id}")
-    public ResponseEntity<?> deleteClosure(@PathVariable UUID id,
-                                           @RequestParam UUID centerId) {
-        centerAccessGuard.requireCenter(centerId); // KB-MED-02
-        jdbc.update("DELETE FROM center_closure_day WHERE id = ? AND center_id = ?", id, centerId);
-        return ResponseEntity.ok(Map.of("deleted", true));
     }
 
     private Map<String, Object> buildSeanceDashboard(UUID centerId, int year, int month) {
@@ -744,11 +599,6 @@ public class SeanceRestController {
             return "40-59";
         }
         return "60+";
-    }
-
-    public record SeanceCalendarDayRequest(UUID centerId,
-                                           LocalDate dayDate,
-                                           String labelOrReason) {
     }
 
     // SE3 (ADR 0090) : l'ajout, la modification et le retrait d'un consommable sont servis par contexts/seance (SeancesControleur).

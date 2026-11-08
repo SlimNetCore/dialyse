@@ -461,29 +461,7 @@ class SeanceDomainServiceTest {
         assertEquals(SeanceSearch.Sort.DATE, SeanceSearch.Sort.parse(null));
     }
 
-    @Test
-    void recentByPatient_should_return_the_latest_sessions_before_the_date_newest_first_and_bounded() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        LocalDate today = LocalDate.of(2026, 10, 4);
-        for (int i = 0; i < 14; i++) {
-            seanceRepo.save(new Seance(UUID.randomUUID(), patientId, centerId.value(), today.minusDays(i)));
-        }
-        seanceRepo.save(new Seance(UUID.randomUUID(), UUID.randomUUID(), centerId.value(), today.minusDays(1)));
-        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
-
-        var recents = service.recentByPatient(centerId, patientId, today, 3);
-
-        assertEquals(3, recents.size());
-        assertEquals(today.minusDays(1), recents.get(0).seance().getDateSeance(), "la séance du jour est exclue");
-        assertEquals(today.minusDays(3), recents.get(2).seance().getDateSeance());
-        assertEquals(10, service.recentByPatient(centerId, patientId, today, 99).size(), "limite bornée à 10");
-        assertEquals(1, service.recentByPatient(centerId, patientId, today, 0).size(), "au moins une");
-        assertEquals(0, service.recentByPatient(CenterId.of(UUID.randomUUID()), patientId, today, 3).size(),
-                "un autre centre ne voit rien");
-    }
+    // SE7a (ADR 0094) : les séances récentes d'un patient sont testées dans contexts/seance (ConsulterLesSeancesRecentesTest).
 
     // SE3 (ADR 0090) : les consommables déclarés (ajout, modification, retrait) sont tenus par les tests de contexts/seance.
 
@@ -524,15 +502,6 @@ class SeanceDomainServiceTest {
             return new PagedResult<>(List.of(), 0, page, size);
         }
 
-        @Override
-        public List<Seance> findRecentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
-            return data.values().stream()
-                    .filter(s -> centerId.value().equals(s.getCenterId()) && patientId.equals(s.getPatientId())
-                            && s.getDateSeance().isBefore(before))
-                    .sorted(java.util.Comparator.comparing(Seance::getDateSeance).reversed())
-                    .limit(limit)
-                    .toList();
-        }
 
     }
 

@@ -1,0 +1,51 @@
+{
+  "journal" : [ {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : null,
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/calendar/closure",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : null,
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/calendar/holiday",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_CREATION",
+    "entity_id" : null,
+    "entity_type" : "seances",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/calendar/holiday",
+    "status_code" : "409"
+  }, {
+    "action_code" : "SEANCES_SUPPRESSION",
+    "entity_id" : "<UUID_GENERE_1>",
+    "entity_type" : "seances",
+    "http_method" : "DELETE",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/calendar/holiday/{id}",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/volet-medical",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/volet-medical",
+    "status_code" : "403"
+  } ]
+}

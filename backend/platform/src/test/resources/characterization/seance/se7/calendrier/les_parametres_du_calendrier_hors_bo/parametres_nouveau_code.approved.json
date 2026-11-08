@@ -1,0 +1,12 @@
+{
+  "01 mois 0" : "400 BAD_REQUEST | Mois du calendrier hors bornes",
+  "02 mois 13" : "400 BAD_REQUEST | Mois du calendrier hors bornes",
+  "03 mois negatif" : "400 BAD_REQUEST | Mois du calendrier hors bornes",
+  "04 annee 0" : "200 ok",
+  "05 annee 1000000000 (hors bornes)" : "400 BAD_REQUEST | Mois du calendrier hors bornes",
+  "06 annee absente" : "400 BAD_REQUEST | Parametre requis absent : year",
+  "07 mois absent" : "400 BAD_REQUEST | Parametre requis absent : month",
+  "08 annee texte" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "09 annee 1900" : "200 ok",
+  "10 centre absent" : "400 BAD_REQUEST | Parametre requis absent : centerId"
+}

@@ -1,0 +1,196 @@
+{
+  "01 defaut (before = jour du centre, limit = 3)" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_A>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    }, {
+      "dateSeance" : "<J-4>",
+      "dureeMinutes" : 202,
+      "poidsApresKg" : 68.2,
+      "poidsAvantKg" : 70.2,
+      "seanceId" : "<S_2_A>",
+      "status" : "SIGNEE",
+      "taApres" : "122/70",
+      "taAvant" : "132/80",
+      "ultrafiltrationMl" : 1002.0
+    }, {
+      "dateSeance" : "<J-5>",
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : null,
+      "seanceId" : "<S_3_A>",
+      "status" : "SIGNEE",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    } ],
+    "status" : 200
+  },
+  "02 before = J-5 (la seance de J-5 incluse ou non)" : {
+    "corps" : [ {
+      "dateSeance" : "<J-6>",
+      "dureeMinutes" : 204,
+      "poidsApresKg" : 68.4,
+      "poidsAvantKg" : 70.4,
+      "seanceId" : "<S_4_A>",
+      "status" : "SIGNEE",
+      "taApres" : "124/70",
+      "taAvant" : "134/80",
+      "ultrafiltrationMl" : 1004.0
+    }, {
+      "dateSeance" : "<J-7>",
+      "dureeMinutes" : 205,
+      "poidsApresKg" : 68.5,
+      "poidsAvantKg" : 70.5,
+      "seanceId" : "<S_5_A>",
+      "status" : "CREE",
+      "taApres" : "125/70",
+      "taAvant" : "135/80",
+      "ultrafiltrationMl" : 1005.0
+    } ],
+    "status" : 200
+  },
+  "03 limit = 1" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_A>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    } ],
+    "status" : 200
+  },
+  "04 limit = 10 (toutes)" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_A>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    }, {
+      "dateSeance" : "<J-4>",
+      "dureeMinutes" : 202,
+      "poidsApresKg" : 68.2,
+      "poidsAvantKg" : 70.2,
+      "seanceId" : "<S_2_A>",
+      "status" : "SIGNEE",
+      "taApres" : "122/70",
+      "taAvant" : "132/80",
+      "ultrafiltrationMl" : 1002.0
+    }, {
+      "dateSeance" : "<J-5>",
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : null,
+      "seanceId" : "<S_3_A>",
+      "status" : "SIGNEE",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    }, {
+      "dateSeance" : "<J-6>",
+      "dureeMinutes" : 204,
+      "poidsApresKg" : 68.4,
+      "poidsAvantKg" : 70.4,
+      "seanceId" : "<S_4_A>",
+      "status" : "SIGNEE",
+      "taApres" : "124/70",
+      "taAvant" : "134/80",
+      "ultrafiltrationMl" : 1004.0
+    }, {
+      "dateSeance" : "<J-7>",
+      "dureeMinutes" : 205,
+      "poidsApresKg" : 68.5,
+      "poidsAvantKg" : 70.5,
+      "seanceId" : "<S_5_A>",
+      "status" : "CREE",
+      "taApres" : "125/70",
+      "taAvant" : "135/80",
+      "ultrafiltrationMl" : 1005.0
+    } ],
+    "status" : 200
+  },
+  "05 limit = 0" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_A>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    } ],
+    "status" : 200
+  },
+  "06 limit negatif" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_A>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    } ],
+    "status" : 200
+  },
+  "07 limit texte" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "08 before illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "09 before tres ancien" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "10 centre explicite = centre de la session" : {
+    "corps" : [ {
+      "dateSeance" : "<J-3>",
+      "dureeMinutes" : 201,
+      "poidsApresKg" : 68.1,
+      "poidsAvantKg" : 70.1,
+      "seanceId" : "<S_1_A>",
+      "status" : "SIGNEE",
+      "taApres" : "121/70",
+      "taAvant" : "131/80",
+      "ultrafiltrationMl" : 1001.0
+    }, {
+      "dateSeance" : "<J-4>",
+      "dureeMinutes" : 202,
+      "poidsApresKg" : 68.2,
+      "poidsAvantKg" : 70.2,
+      "seanceId" : "<S_2_A>",
+      "status" : "SIGNEE",
+      "taApres" : "122/70",
+      "taAvant" : "132/80",
+      "ultrafiltrationMl" : 1002.0
+    }, {
+      "dateSeance" : "<J-5>",
+      "dureeMinutes" : null,
+      "poidsApresKg" : null,
+      "poidsAvantKg" : null,
+      "seanceId" : "<S_3_A>",
+      "status" : "SIGNEE",
+      "taApres" : null,
+      "taAvant" : null,
+      "ultrafiltrationMl" : null
+    } ],
+    "status" : 200
+  }
+}

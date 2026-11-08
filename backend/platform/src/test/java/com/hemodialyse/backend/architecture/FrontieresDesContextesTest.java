@@ -212,6 +212,23 @@ class FrontieresDesContextesTest {
             .because("une seule entrée pour le changement de jour et pour la suppression : le contrôleur du module (ADR 0093)");
 
     /**
+     * SE7a (ADR 0094) : le journal du jour, le calendrier du centre (consultation, ajout, retrait), le volet médical et les séances récentes
+     * vivent dans {@code contexts/seance}. Les handlers, {@code VoletMedicalUseCase}, {@code VoletMedicalDomainService},
+     * {@code SeanceUseCase.recentByPatient} et {@code SeanceRepositoryPort.findRecentByPatient} sont supprimés (le compilateur interdit
+     * tout retour) ; aucune classe hors du contexte ne dépend de ces cas d'usage, sans exception.
+     */
+    @ArchTest
+    static final ArchRule seul_contexts_seance_sert_les_routes_residuelles = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ConsulterLeJournalDuJour")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ConsulterLeCalendrier")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.AjouterUnJourAuCalendrier")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.RetirerUnJourDuCalendrier")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletMedical")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ConsulterLesSeancesRecentes")
+            .because("une seule entrée pour le journal, le calendrier, le volet médical et les séances récentes : le contrôleur du module (ADR 0094)");
+
+    /**
      * SE6 (KB-SEA-49) : le legacy réécrivait TOUTE la ligne de la séance au changement de jour et effaçait {@code facture_id}. L'écriture
      * de la ligne entière ({@code SeanceRepositoryPort.save}) n'a plus qu'un appelant : {@code SeanceDomainService} (création et validation
      * par scan, résidus SE1/SE2 sans appelant de production hors création legacy) ; plus aucun contrôleur, service d'application ou

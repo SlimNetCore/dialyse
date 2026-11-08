@@ -70,3 +70,16 @@ Le net SE7a (15 tests, 17 goldens, commit be0d7107) établit que ces routes sont
 
 ## Lots
 LOT A (livré 2026-11-08) : cet ADR, domaine, cas d'usage avec doubles, ports, ACL, adapters JDBC et contrats (mémoire, H2, PostgreSQL 16), câblage des cas d'usage ; AUCUN trafic changé (les handlers legacy sont encore actifs). LOT B : contrôleur et advice, retrait des handlers legacy (`SeanceRestController` journal et calendrier, `SeanceStationRestController`, `VoletMedicalRestController`), parité 15/15, écarts approuvés un par un, verrou ArchUnit. LOT C : RG-SEA, annexe 16, glossaire, §59, bilan des résidus, `built`.
+
+LOT B (livré 2026-11-08, décisions à confirmer par le coordinateur) : `RoutesResiduellesControleur` (6 cas d'usage), `ErreursDeSeanceAdvice` étendu (403 avant 400 ; 409 `JOUR_DEJA_AU_CALENDRIER`), handlers legacy retirés (journal, calendrier x5 dans `SeanceRestController` ; suppression de `SeanceStationRestController`, `VoletMedicalRestController`, `VoletMedicalUseCase`, `VoletMedicalDomainService`, `SeanceRecap`, `recentByPatient`, `findRecentByPatient`) ; le tableau de bord et le volet paramédical restent legacy. Seam inscrit dans `seams.md` puis refermé. Verrou ArchUnit `seul_contexts_seance_sert_les_routes_residuelles` sans exception.
+Parité : 15 tests, 17 goldens ; 9 goldens identiques au legacy, 8 écarts approuvés un par un (legacy archivé en R100 sous `se7/_ecarts-legacy/<dossier>/<nom>_avant_se7a.legacy.json`, vérifié contre `git show be0d7107:<chemin>`) :
+| Écart | Legacy | Nouveau | Décision |
+|---|---|---|---|
+| Paramètre ou corps absent ou illisible (journal, calendrier, retrait, séances récentes, volet) | 500 `INTERNAL_ERROR` | 400 `BAD_REQUEST` (403 avant 400) | CORRIGÉ (KB-SEA-57, 60) |
+| Mois hors bornes (0, 13, négatif, année 1000000000) | 500 | 400 | CORRIGÉ (KB-SEA-57) ; année 0 et 1900 restent 200 (reproduit) |
+| Jour férié ou fermeture en double | 500 `DATA_ACCESS_ERROR` | 409 `JOUR_DEJA_AU_CALENDRIER` | CORRIGÉ (KB-SEA-58) |
+| Jour sans date, libellé de 2000 caractères | 500 | 400 (« Jour requis », libellé borné à 255) | CORRIGÉ (KB-SEA-58) |
+| Corps `{}` du calendrier ou du volet sans centre | 500 / 400 « CenterId cannot be null » | 400 « Centre requis » | CORRIGÉ (sans nom de classe) |
+| Volet médical sur séance au statut inconnu (`EN_COURS`) | 400 avec le nom de la classe d'énumération | 400 « valeur illisible : statut inconnu » | CORRIGÉ (fuite de nom de classe) |
+Reproduits sans écart : retrait d'un jour inexistant = 200 `deleted:true` (KB-SEA-58, signalé), remplacement total du volet, route ouverte sur séance signée, aucun plafond de taille (KB-SEA-59), `limit` ramené à 1..10 (KB-SEA-60), constantes des séances `CREE` exposées (KB-SEA-60), droits par profil, 403 des profils sans droit.
+Audit : le journal d'audit est un filtre générique du gabarit de route, indépendant du contrôleur ; nouveau golden `se7/audit` (ajout, doublon 409, retrait, volet 200 et 403 sont journalisés avec la route et le statut ; les lectures ne le sont pas). Seul le statut du doublon change (500 vers 409). Le golden n'a pas pu être rejoué contre le legacy retiré : l'identité du comportement d'audit repose sur le filtre générique (non modifié).

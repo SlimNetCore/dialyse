@@ -6,7 +6,6 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
-import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlacePort;
@@ -72,12 +71,6 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Override
     public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId, DerogationPlanning derogation) {
         return delegate.scanAndValidate(centerId, qrCode, userId, derogation);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<SeanceRecap> recentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
-        return delegate.recentByPatient(centerId, patientId, before, limit);
     }
 
     @Override

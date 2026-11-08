@@ -1,9 +1,7 @@
 package com.hemodialyse.backend.infrastructure.config;
 
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
-import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
-import com.hemodialyse.backend.domain.seance.service.VoletMedicalDomainService;
 import com.hemodialyse.backend.domain.seance.service.VoletParamedicalDomainService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,12 +22,6 @@ public class DomainServiceConfig {
     public com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(
             com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort repo) {
         return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(repo);
-    }
-
-    @Bean
-    public VoletMedicalDomainService voletMedicalDomainService(SeanceRepositoryPort seanceRepo,
-                                                               VoletMedicalRepositoryPort voletRepo) {
-        return new VoletMedicalDomainService(seanceRepo, voletRepo);
     }
 
     @Bean

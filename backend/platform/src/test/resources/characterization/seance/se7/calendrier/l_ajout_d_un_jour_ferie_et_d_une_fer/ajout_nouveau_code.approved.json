@@ -1,0 +1,46 @@
+{
+  "01 ferie le 15/01" : {
+    "corps" : {
+      "dayDate" : "<D+14>",
+      "id" : "<UUID_GENERE_1>"
+    },
+    "status" : 200
+  },
+  "02 meme ferie une seconde fois" : {
+    "corps" : {
+      "code" : "JOUR_DEJA_AU_CALENDRIER",
+      "detail" : "Un jour férié existe déjà à cette date pour ce centre : <D+14>",
+      "instance" : "/api/v1/seances/calendar/holiday",
+      "status" : 409,
+      "title" : "Jour deja au calendrier"
+    },
+    "status" : 409
+  },
+  "03 ferie sans libelle" : "200 ok",
+  "04 ferie sans date" : "400 BAD_REQUEST | Jour requis",
+  "05 ferie dans le passe lointain (an 1900)" : "200 ok",
+  "06 ferie avec un libelle de 2000 caracteres" : "400 BAD_REQUEST | Libellé trop long : 255 caractères au plus",
+  "07 fermeture le 20/01" : {
+    "corps" : {
+      "dayDate" : "<D+19>",
+      "id" : "<UUID_GENERE_2>"
+    },
+    "status" : 200
+  },
+  "08 fermeture en double" : {
+    "corps" : {
+      "code" : "JOUR_DEJA_AU_CALENDRIER",
+      "detail" : "Une fermeture exceptionnelle existe déjà à cette date pour ce centre : <D+19>",
+      "instance" : "/api/v1/seances/calendar/closure",
+      "status" : 409,
+      "title" : "Jour deja au calendrier"
+    },
+    "status" : 409
+  },
+  "09 fermeture sans motif" : "200 ok",
+  "10 fermeture sans date" : "400 BAD_REQUEST | Jour requis",
+  "11 corps vide" : "400 BAD_REQUEST | Centre requis",
+  "12 corps absent" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "13 date illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "14 centre B demande par la session A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+}
