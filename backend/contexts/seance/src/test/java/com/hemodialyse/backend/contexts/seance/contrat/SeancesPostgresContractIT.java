@@ -103,6 +103,48 @@ class SeancesPostgresContractIT extends SeancesJdbcContrat {
     }
 
     /**
+     * SE7a : la saisie du volet médical (cas d'usage réel sur les adapters réels) pendant qu'une autre connexion tient le verrou de la
+     * séance : elle attend le délai puis lève l'écriture concurrente (409 à la route) et n'écrit AUCUN volet.
+     */
+    @Test
+    void la_saisie_du_volet_medical_attend_le_verrou_de_la_seance_puis_leve_l_ecriture_concurrente_sans_rien_ecrire() throws Exception {
+        nouveauBanc().seances().ajouter(Seance.creer(s(1), CENTRE_A, PATIENT, JOUR, T0));
+        var session = new com.hemodialyse.backend.contexts.seance.application.SessionCourante() {
+            public com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centre(java.util.UUID demande) {
+                return CENTRE_A;
+            }
+
+            public String utilisateur() {
+                return "u-medecin";
+            }
+
+            public boolean estAdministrateur() {
+                return false;
+            }
+
+            public boolean valideAuScan() {
+                return false;
+            }
+        };
+        var cas = new com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletMedical(session, new SeancesJdbc(jdbc),
+                new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsMedicauxJdbc(jdbc), unite(),
+                java.util.UUID::randomUUID, com.hemodialyse.backend.contexts.seance.application.HorlogeDuCentre.enUtc(
+                java.time.Clock.fixed(T0, java.time.ZoneOffset.UTC)));
+        try (Connection verrou = dataSource.getConnection()) {
+            verrou.setAutoCommit(false);
+            try (PreparedStatement tient = verrou.prepareStatement("SELECT id FROM seances WHERE id = ? FOR UPDATE")) {
+                tient.setObject(1, s(1).valeur());
+                tient.executeQuery();
+                assertThatThrownBy(() -> cas.executer(CENTRE_A.valeur(), s(1).valeur(), () -> new com.hemodialyse.backend.contexts.seance.domain.ObservationsMedicales("x", null, null, null, null, null)))
+                        .isInstanceOf(EcritureConcurrente.class);
+            } finally {
+                verrou.rollback();
+            }
+        }
+        assertThat(new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsMedicauxJdbc(jdbc).deLaSeance(CENTRE_A, s(1))).isEmpty();
+    }
+
+    /**
      * SE5 : deux impositions de forfait simultanées sur la même séance. La première tient le verrou de la ligne ({@code FOR UPDATE}) ; la
      * seconde attend le délai puis lève l'écriture concurrente (409) au lieu d'écraser en silence ; verrou libéré, elle l'obtient.
      */

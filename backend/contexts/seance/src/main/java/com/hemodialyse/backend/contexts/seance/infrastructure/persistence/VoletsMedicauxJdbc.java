@@ -16,8 +16,9 @@ import java.util.UUID;
 
 /**
  * Les volets médicaux sur la table RÉELLE {@code volet_medical} (aucune colonne ajoutée). La mise à jour remplace les six observations et
- * {@code updated_at}, jamais {@code created_at}. L'unicité d'un volet par séance est tenue par l'application : la séance est verrouillée
- * ({@code FOR UPDATE}) avant la lecture et l'écriture (la table n'a pas de contrainte d'unicité sur {@code seance_id}).
+ * {@code updated_at}, jamais {@code created_at}. L'unicité d'un volet par séance est tenue par la base ({@code UNIQUE (seance_id)}, Flyway V1) ET
+ * par l'application : la séance est verrouillée ({@code FOR UPDATE}) avant la lecture et l'écriture, ce qui fait suivre deux saisies
+ * simultanées au lieu de laisser la seconde échouer sur la contrainte.
  */
 public class VoletsMedicauxJdbc implements VoletsMedicaux {
 

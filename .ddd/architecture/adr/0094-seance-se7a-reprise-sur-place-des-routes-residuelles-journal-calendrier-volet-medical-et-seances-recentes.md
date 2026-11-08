@@ -67,6 +67,8 @@ Le net SE7a (15 tests, 17 goldens, commit be0d7107) établit que ces routes sont
 | R3 | Constantes des séances récentes lues par `VoletsDeLaSeance.paramedical` (ACL du legacy, une lecture par séance, au plus 10) : à remplacer à la reprise du volet paramédical (DM1) | 2026-12-15 | 2027-06-30 |
 | R4 | Décisions KB-SEA-59 (remplacement total, route ouverte sur séance signée, `ADMIN` écrit, aucun plafond de taille) et KB-SEA-60 (constantes `CREE`) : arbitrage médecins / DPO | 2026-12-15 | avant toute mise en production |
 | R5 | Bornes du calendrier et cohérence avec les séances déjà posées (KB-SEA-58) ; 404 sur suppression inexistante | 2026-12-15 | 2027-03-31 |
+| R1 (lecteurs) | Lecteurs SQL directs des tables `center_holiday` et `center_closure_day` hors `CalendrierDuCentreJdbc` (recensement 2026-11-08, à migrer vers un langage publié du calendrier) : `backend/platform/.../persistence/adapter/SeancePlanningJdbcAdapter.java:43-44` (Planification legacy, séance planifiable un jour fermé) ; `backend/platform/.../web/rest/SeanceRestController.java:159-160` (tableau de bord, jours bloqués, SE7b) ; `backend/contexts/absences-patients/.../acl/legacyplanning/PatientsAttendusJdbc.java:39-40` (patients attendus) ; `backend/contexts/planification/.../acl/legacyorganisation/LectureDesRessourcesLegacy.java:64,66` (fermetures du planning) ; le front lit via `GET /calendar`. Propriétaire cible : **Organisation, slice O4 (lectures publiées)** ; O2 (salles, créneaux) ne le reçoit pas. O4 est `planned` (aucun consommateur) : la ligne « reçoit le calendrier du centre depuis seance SE7a » y est inscrite sans changer son statut. | 2026-12-15 | 2027-03-31 |
+| R7 | Fixtures du net d'intégration `characterization/seance/se7` relatives à l'horloge système (`jour(n)` du support Se6) : le scénario « défaut » des séances récentes dépend du jour JVM contre le jour du centre, contourné par une fenêtre sans séance ; non trivial à corriger (le support est partagé par SE1 à SE7) | 2026-12-15 | 2027-01-31 |
 | R6 | Audit des routes résiduelles : golden `se7/audit` non rejoué contre le legacy retiré (filtre générique non modifié) ; à lever par une relecture du journal d'audit après déploiement | 2026-12-15 | 2027-01-31 |
 
 ## Lots
@@ -82,5 +84,16 @@ Parité : 15 tests, 17 goldens ; 9 goldens identiques au legacy, 8 écarts appro
 | Jour sans date, libellé de 2000 caractères | 500 | 400 (« Jour requis », libellé borné à 255) | CORRIGÉ (KB-SEA-58) |
 | Corps `{}` du calendrier ou du volet sans centre | 500 / 400 « CenterId cannot be null » | 400 « Centre requis » | CORRIGÉ (sans nom de classe) |
 | Volet médical sur séance au statut inconnu (`EN_COURS`) | 400 avec le nom de la classe d'énumération | 400 « valeur illisible : statut inconnu » | CORRIGÉ (fuite de nom de classe) |
+Les 8 écarts, un par un (archive legacy sous `se7/_ecarts-legacy/<dossier>/`, golden approuvé `<nom>_nouveau_code.approved.json`) :
+| # | Archive legacy | Écart |
+|---|---|---|
+| 1 | `calendrier/ajout_avant_se7a.legacy.json` | doublon férié et fermeture 500 vers 409 ; sans date 500 vers 400 ; libellé de 2000 caractères 500 vers 400 ; `{}` et corps absent ou date illisible 500 vers 400 ; `{}` : « Centre requis » |
+| 2 | `calendrier/parametres_avant_se7a.legacy.json` | mois 0, 13, négatif, année 1000000000, année ou mois ou centre absents, année texte : 500 vers 400 |
+| 3 | `calendrier/suppression_avant_se7a.legacy.json` | retrait sans centre et identifiant illisible : 500 vers 400 |
+| 4 | `journal/parametres_avant_se7a.legacy.json` | date absente, illisible, jj/mm/aaaa, vide, centre absent ou illisible : 500 vers 400 |
+| 5 | `recentes/cloisonnement_avant_se7a.legacy.json` | identifiant de patient illisible : 500 vers 400 |
+| 6 | `recentes/tri_et_bornes_avant_se7a.legacy.json` | `limit` texte et `before` illisible : 500 vers 400 |
+| 7 | `volet/droits_et_corps_avant_se7a.legacy.json` | JSON illisible, corps absent, identifiant de séance illisible : 500 vers 400 ; centre absent ou nul : « CenterId cannot be null » vers « Centre requis » |
+| 8 | `volet/matrice_des_statuts_avant_se7a.legacy.json` | statut `EN_COURS` : message sans nom de classe d'énumération |
 Reproduits sans écart : retrait d'un jour inexistant = 200 `deleted:true` (KB-SEA-58, signalé), remplacement total du volet, route ouverte sur séance signée, aucun plafond de taille (KB-SEA-59), `limit` ramené à 1..10 (KB-SEA-60), constantes des séances `CREE` exposées (KB-SEA-60), droits par profil, 403 des profils sans droit.
 Audit : le journal d'audit est un filtre générique du gabarit de route, indépendant du contrôleur ; nouveau golden `se7/audit` (ajout, doublon 409, retrait, volet 200 et 403 sont journalisés avec la route et le statut ; les lectures ne le sont pas). Seul le statut du doublon change (500 vers 409). Le golden n'a pas pu être rejoué contre le legacy retiré : l'identité du comportement d'audit repose sur le filtre générique (non modifié).

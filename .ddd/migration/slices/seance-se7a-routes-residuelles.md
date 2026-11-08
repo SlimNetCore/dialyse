@@ -55,6 +55,8 @@ Cible : ces routes passent dans `contexts/seance` (journal et récentes en lectu
 | R3 | Constantes des séances récentes lues via l'ACL du legacy (`VoletsDeLaSeance.paramedical`) : à remplacer avec le volet paramédical (DM1) | 2026-12-15 | 2027-06-30 |
 | R4 | Arbitrage médecins / DPO de KB-SEA-59 et KB-SEA-60 | 2026-12-15 | avant toute mise en production |
 | R5 | Bornes du calendrier, cohérence avec les séances posées, 404 sur retrait inexistant (KB-SEA-58) | 2026-12-15 | 2027-03-31 |
+| R1 (lecteurs) | Lecteurs SQL directs du calendrier (hors `CalendrierDuCentreJdbc`) : `SeancePlanningJdbcAdapter.java:43-44`, `SeanceRestController.java:159-160` (tableau de bord, SE7b), `PatientsAttendusJdbc.java:39-40` (absences-patients), `LectureDesRessourcesLegacy.java:64,66` (planification) ; propriétaire cible Organisation O4 (lectures publiées), ligne ajoutée à `organisation-o4-lectures-publiees.md` | 2026-12-15 | 2027-03-31 |
+| R7 | Fixtures `jour(n)` du net `se7` relatives à l'horloge système (support Se6 partagé, non trivial à corriger) | 2026-12-15 | 2027-01-31 |
 | R6 | Audit des routes résiduelles : golden `se7/audit` non rejoué contre le legacy retiré (filtre générique non modifié) ; à lever par une relecture du journal d'audit en production après déploiement | 2026-12-15 | 2027-01-31 |
 
 ## Questions ouvertes

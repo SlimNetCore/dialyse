@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * Saisie du volet médical d'une séance (PUT /api/v1/seances/{id}/volet-medical, administrateur ou médecin). REMPLACE les six observations en
  * entier : une observation absente du corps efface la valeur déjà saisie, sans historique (KB-SEA-59, reproduit avec alerte, ADR 0094) ; la
  * route reste ouverte sur une séance signée. La séance est lue sous verrou de ligne : deux saisies simultanées se suivent, verrou non obtenu
- * dans le délai : 409 {@code ECRITURE_CONCURRENTE}. Ordre des refus : centre (403), observations trop longues (400), séance introuvable
+ * dans le délai : 409 {@code ECRITURE_CONCURRENTE}. Ordre des refus : centre (403), séance introuvable
  * (400), statut (422 : absente, créée, facturée). Aucune diffusion, aucune notification (reproduit).
  */
 public class RenseignerLeVoletMedical {
@@ -38,7 +38,7 @@ public class RenseignerLeVoletMedical {
         this.horloge = horloge;
     }
 
-    /** @param observationsDemandees lit les observations du corps ; lève {@code SaisieInvalide} si l'une dépasse la borne */
+    /** @param observationsDemandees lit les observations du corps, lues APRÈS le contrôle du centre ; aucun plafond de taille (KB-SEA-59) */
     public VoletMedical executer(UUID centreDemande, UUID seance, Supplier<ObservationsMedicales> observationsDemandees) {
         CentreId centre = session.centre(centreDemande); // 403 avant tout 400
         ObservationsMedicales observations = observationsDemandees.get();

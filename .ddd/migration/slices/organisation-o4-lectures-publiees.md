@@ -16,6 +16,8 @@ sources: [.ddd/tactical/organisation.md, ADR 0063]
 > que l'entrée soit retirée, ou si un nouveau lecteur apparaît). La slice est donc `planned` : elle n'est pas implémentée ici (décision
 > de l'utilisateur : constater et consigner). Le texte ci-dessous est l'intention d'origine.
 
+Reçoit le calendrier du centre (`center_holiday`, `center_closure_day`) depuis seance SE7a (ADR 0094, résidu R1, revue 2026-12-15, butoir 2027-03-31) : 4 lecteurs SQL directs à migrer (voir l'ADR 0094). Statut de la slice inchangé.
+
 Tous les consommateurs (Planification, Stock, Seance, Facturation, GMAO, Pilotage) passent par organisation.v1. Retrait
 de bc-referential pour l'organisation. Garde « pas de SQL sur les tables d'Organisation hors contexte » (modèle
 TableDuStockTest).

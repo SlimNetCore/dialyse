@@ -63,6 +63,19 @@ class RenseignerLeVoletMedicalTest {
     }
 
     @Test
+    void should_propagate_the_concurrent_write_and_write_nothing_when_the_row_lock_is_refused() {
+        var s = semer(1, StatutDeSeance.VALIDEE);
+        var seancesVerrouillees = org.mockito.Mockito.mock(com.hemodialyse.backend.contexts.seance.domain.Seances.class);
+        org.mockito.Mockito.when(seancesVerrouillees.trouverPourModifier(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente());
+        var refuse = new RenseignerLeVoletMedical(banc.session, seancesVerrouillees, volets, banc.unite(), banc.identifiants(), banc.horloge());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> refuse.executer(CENTRE_A.valeur(), s.id().valeur(), () -> complet()))
+                .isInstanceOf(com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente.class);
+        assertThat(volets.nombre()).isZero();
+    }
+
+    @Test
     void should_replace_everything_so_that_a_field_left_out_erases_the_value_already_entered_and_keep_one_volet() {
         var s = semer(1, StatutDeSeance.VALIDEE);
         cas().executer(CENTRE_A.valeur(), s.id().valeur(), () -> complet());

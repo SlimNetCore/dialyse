@@ -115,6 +115,16 @@ class RoutesResiduellesControleurTest {
     }
 
     @Test
+    void deux_saisies_simultanees_du_volet_medical_la_seconde_recoit_409_ecriture_concurrente() throws Exception {
+        avecLeRole("MEDECIN");
+        Mockito.when(volet.executer(eq(CENTRE), eq(SEANCE), any())).thenThrow(new com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente());
+
+        mvc.perform(put("/api/v1/seances/" + SEANCE + "/volet-medical").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"prescription\":\"x\"}"))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("ECRITURE_CONCURRENTE"));
+    }
+
+    @Test
     void un_jour_deja_au_calendrier_est_un_conflit_et_un_jour_absent_une_requete_invalide() throws Exception {
         Mockito.when(ajouter.executer(eq(CENTRE), eq(NatureDeJour.JOUR_FERIE), eq(JOUR), any())).thenThrow(new JourDejaAuCalendrier(NatureDeJour.JOUR_FERIE, JOUR));
         Mockito.when(ajouter.executer(eq(CENTRE), eq(NatureDeJour.FERMETURE_EXCEPTIONNELLE), eq(null), any())).thenThrow(new SaisieInvalide("Jour requis"));
