@@ -210,7 +210,9 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/VoletMedicalRepositoryPort.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/VoletMedicalRepositoryAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/VoletMedicalJpaEntity.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/VoletMedicalJpaRepository.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/VoletMedicalJpaRepository.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/StatutDesSeancesParLaSeance.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/PerimetreDesSeancesParLaSeance.java"
   ],
   "seamAllowed": []
 }

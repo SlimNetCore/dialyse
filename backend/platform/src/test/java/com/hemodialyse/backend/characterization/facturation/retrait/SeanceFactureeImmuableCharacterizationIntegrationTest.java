@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.facturation.retrait;
 
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.StatutDesSeancesLegacy;
+import com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Slice facturation-f6-retrait-bc-facturation, consommateurs Séance et Stock : une séance au statut {@code FACTUREE}
  * (posé par la Facturation à l'émission, F3) est immuable. Chaque route de modification d'une séance est rejouée sur une
  * séance facturée ; la réponse HTTP et l'état SQL (séance, stock) sont verrouillés, ainsi que la lecture du statut par le
- * contexte Stock ({@code StatutDesSeancesLegacy}, ACL de production appelée directement, sans double).
+ * contexte Stock (port {@code StatutDesSeances} câblé en production : ACL de la plateforme puis lecture publiée de la Séance, SE7c1, sans
+ * double).
  * Les routes {@code DELETE /seances/{id}} (SeanceSuppressionIntegrationTest) et {@code PUT /stock/bons-sortie/{id}}
  * (BonSortieRestControllerIntegrationTest) sont déjà verrouillées ailleurs et ne sont pas dupliquées.
  */
@@ -29,7 +30,8 @@ class SeanceFactureeImmuableCharacterizationIntegrationTest extends RetraitChara
     private static final UUID SEANCE_VALIDEE = UUID.fromString("99997600-0000-0000-0000-000000005002");
     private static final UUID SEANCE_AUTRE_CENTRE = UUID.fromString("99997600-0000-0000-0000-000000005003");
 
-    private StatutDesSeancesLegacy etatDeFacturation;
+    @Autowired
+    private StatutDesSeances etatDeFacturation;
 
     @Override
     protected String theme() {
@@ -38,7 +40,6 @@ class SeanceFactureeImmuableCharacterizationIntegrationTest extends RetraitChara
 
     @BeforeEach
     void donnees() {
-        etatDeFacturation = new StatutDesSeancesLegacy(jdbc);
         article();
         forfait();
         patient(PATIENT_1, CENTRE_A, "AMRANI");

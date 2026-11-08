@@ -460,6 +460,17 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("la Seance ne s'utilise que par son langage publie (ADR 0062)");
 
+    /**
+     * SE7c1 (ADR 0096) : le Stock lit la facturation et la place d'une séance par le langage publié de la Séance, dans l'ACL de la
+     * plateforme. Le module Seance dépend du module Stock : le Stock ne dépend d'AUCUNE classe de la Séance, sans exception.
+     */
+    @ArchTest
+    static final ArchRule le_stock_ne_depend_pas_de_la_seance = noClasses()
+            .that().resideInAPackage(STOCK + "..")
+            .should().dependOnClassesThat().resideInAPackage(SEANCE + "..")
+            .allowEmptyShould(true)
+            .because("le Stock ne lit plus la table seances : l'ACL de la plateforme appelle seance.v1 (ADR 0096)");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

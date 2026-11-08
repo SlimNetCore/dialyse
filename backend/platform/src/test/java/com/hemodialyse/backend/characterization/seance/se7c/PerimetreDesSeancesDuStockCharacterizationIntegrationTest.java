@@ -5,8 +5,6 @@ import com.hemodialyse.backend.contexts.stock.domain.consommations.PerimetreDesS
 import com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.DemiJournee;
 import com.hemodialyse.backend.contexts.stock.domain.sortieseances.PerimetreDeSortie;
-import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.PerimetreDesSeancesLegacy;
-import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacyseances.StatutDesSeancesLegacy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Slice seance-se7c1-lectures-stock, filet COMPLÉMENTAIRE (étape 0) : la lecture de la salle et de la demi-journée d'une séance par le
- * contexte Stock ({@code PerimetreDesSeancesLegacy}) n'était verrouillée qu'avec un double (GestionDesConsommationsTest) ; aucune
- * requête SQL n'était observée. Ce filet appelle l'ACL de production sur la base (H2) et verrouille chaque branche : séance inconnue,
+ * contexte Stock n'était verrouillée qu'avec un double (GestionDesConsommationsTest) ; aucune requête SQL n'était observée. Écrit sur
+ * l'ACL SQL d'origine (9 tests verts sur le legacy), il appelle depuis SE7c1 les ports du Stock câblés en production (ACL de la
+ * plateforme puis lecture publiée de la Séance) sur la base (H2) : parité. Il verrouille chaque branche : séance inconnue,
  * d'un autre centre, salle et créneau nuls, salle ou créneau d'un autre centre ou disparu, matin / après-midi / midi / soir / ni
  * l'un ni l'autre, accents et casse. Il verrouille aussi le statut de la séance pour les cas que le filet F6 ne couvre pas (statut
  * absent de la liste). Indépendant de l'horloge ; assertions explicites (pas de golden).
@@ -45,14 +44,14 @@ class PerimetreDesSeancesDuStockCharacterizationIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
     private PerimetreDesSeances perimetres;
+    @Autowired
     private StatutDesSeances statuts;
 
     @BeforeEach
     void donnees() {
         nettoyer();
-        perimetres = new PerimetreDesSeancesLegacy(jdbc);
-        statuts = new StatutDesSeancesLegacy(jdbc);
         jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
                 + "type_patient, etat_patient, created_at) VALUES (?, ?, 'P-SE7C', 'TEST', 'Test', 'F', ?, 'ASS-SE7C', "
                 + "'NON_VACANCIER', 'PERMANENT', CURRENT_TIMESTAMP)", PATIENT_A, CENTRE_A, Date.valueOf(LocalDate.of(2025, 1, 10)));

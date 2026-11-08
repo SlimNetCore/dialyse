@@ -68,7 +68,6 @@ class TableDeLOrganisationTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/VerrouDuReferentielDesInfirmiersJdbc.java",
             "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/acl/legacycentres/CentresActifsLegacy.java",
             "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
-            "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/acl/legacyseances/PerimetreDesSeancesLegacy.java",
             "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/persistence/InventairesJdbc.java",
             "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/persistence/OperationsDeStockJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
