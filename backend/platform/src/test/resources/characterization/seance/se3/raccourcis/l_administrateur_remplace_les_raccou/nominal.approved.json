@@ -1,0 +1,44 @@
+{
+  "01 lecture initiale (aucun raccourci)" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "02 remplacement par 3, 1, 2" : {
+    "corps" : [ "<ART_3>", "<ART_1>", "<ART_2>" ],
+    "status" : 200
+  },
+  "03 etat" : [ {
+    "article" : "SE2-ART_3",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "0"
+  }, {
+    "article" : "SE2-ART_1",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "1"
+  }, {
+    "article" : "SE2-ART_2",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "2"
+  } ],
+  "04 lecture par l'infirmier (ordre conserve)" : {
+    "corps" : [ "<ART_3>", "<ART_1>", "<ART_2>" ],
+    "status" : 200
+  },
+  "05 remplacement par 2 seul" : {
+    "corps" : [ "<ART_2>" ],
+    "status" : 200
+  },
+  "06 etat" : [ {
+    "article" : "SE2-ART_2",
+    "center_id" : "<CENTRE_A>",
+    "ordre" : "0"
+  } ],
+  "07 remplacement par la liste vide" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "08 etat (aucun)" : [ ],
+  "09 corps sans liste (articleIds absent)" : "200 ok",
+  "10 liste nulle" : "200 ok",
+  "11 diffusions (aucune)" : [ ]
+}

@@ -1,0 +1,95 @@
+{
+  "01 ajout de 2 de l'article 1" : {
+    "corps" : {
+      "added" : true,
+      "articleId" : "<ART_1>",
+      "quantite" : 2
+    },
+    "status" : 200
+  },
+  "02 consommations imputees (aucune piece : alerte AUCUNE_PIECE)" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "03 mouvements de stock inchanges" : true,
+  "04 stock des articles inchange" : [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  }, {
+    "code" : "SE2-ART_2",
+    "stock_quantity" : "20.00"
+  } ],
+  "05 diffusions (mise a jour de la seance, puis saisie de l'infirmier)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_CONSOMMABLE_CHANGED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "CONSOMMABLE_AJOUT",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "06 second ajout de 3 du meme article (cumul)" : {
+    "corps" : {
+      "added" : true,
+      "articleId" : "<ART_1>",
+      "quantite" : 3
+    },
+    "status" : 200
+  },
+  "07 ajout de 1.5 de l'article 2 (quantite decimale)" : {
+    "corps" : {
+      "added" : true,
+      "articleId" : "<ART_2>",
+      "quantite" : 1.5
+    },
+    "status" : 200
+  },
+  "08 consommations apres les trois ajouts" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "5.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "1.50",
+    "sur_une_piece" : "false"
+  } ],
+  "09 etat de la seance inchange" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "pose par le harnais",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-initiale",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "pose par le harnais"
+  } ]
+}

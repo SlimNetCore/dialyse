@@ -1,0 +1,15 @@
+{
+  "01 douze articles" : "200 ok",
+  "02 etat (douze)" : 12,
+  "03 treize articles" : "400 BAD_REQUEST | Au plus 12 raccourcis de consommables",
+  "04 doublon" : "400 BAD_REQUEST | Article en double ou invalide dans les raccourcis",
+  "05 element nul" : "400 BAD_REQUEST | Article en double ou invalide dans les raccourcis",
+  "06 article inactif" : "400 BAD_REQUEST | Article inactif: SE2-ART_INACTIF",
+  "07 article inconnu" : "400 BAD_REQUEST | Article introuvable: <ART_INCONNU>",
+  "08 article d'un autre centre" : "400 BAD_REQUEST | Article introuvable: <ART_AUTRE_CENTRE>",
+  "09 identifiant illisible" : "500 INTERNAL_ERROR",
+  "10 corps absent" : "500 INTERNAL_ERROR",
+  "11 corps illisible" : "500 INTERNAL_ERROR",
+  "12 etat inchange apres tous les refus (douze)" : 12,
+  "13 un article valide puis un invalide : rien n'est ecrit" : "400 BAD_REQUEST | Article introuvable: <ART_INCONNU> ; [SE2-ART_01, SE2-ART_02, SE2-ART_03, SE2-ART_04, SE2-ART_05, SE2-ART_06, SE2-ART_07, SE2-ART_08, SE2-ART_09, SE2-ART_10, SE2-ART_11, SE2-ART_12]"
+}

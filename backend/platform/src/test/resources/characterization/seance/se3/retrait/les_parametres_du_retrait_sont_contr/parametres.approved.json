@@ -1,0 +1,16 @@
+{
+  "01 seance inconnue" : "400 BAD_REQUEST | Seance introuvable",
+  "02 article inconnu (retrait sans effet)" : "422 ARTICLE_INTROUVABLE | Article introuvable: <ART_INCONNU>",
+  "03 centre absent" : "500 INTERNAL_ERROR",
+  "04 centre illisible" : "500 INTERNAL_ERROR",
+  "05 article mal forme" : "500 INTERNAL_ERROR",
+  "06 consommations inchangees" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "07 utilisateur du parametre ignore par l'observation" : "200 ok",
+  "08 consommations" : [ ]
+}

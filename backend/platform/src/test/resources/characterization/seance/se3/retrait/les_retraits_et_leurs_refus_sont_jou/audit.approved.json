@@ -1,0 +1,27 @@
+{
+  "journal" : [ {
+    "action_code" : "SEANCES_SUPPRESSION",
+    "entity_id" : "<ART_1>",
+    "entity_type" : "seances",
+    "http_method" : "DELETE",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/consommables/{articleId}",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_SUPPRESSION",
+    "entity_id" : "<ART_1>",
+    "entity_type" : "seances",
+    "http_method" : "DELETE",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/consommables/{articleId}",
+    "status_code" : "400"
+  }, {
+    "action_code" : "SEANCES_SUPPRESSION",
+    "entity_id" : "<ART_1>",
+    "entity_type" : "seances",
+    "http_method" : "DELETE",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/consommables/{articleId}",
+    "status_code" : "403"
+  } ]
+}

@@ -1,66 +1,49 @@
 ---
 slice: seance-se3-consommables
 status: characterized
-date: 2026-11-01
-sources: [.ddd/migration/slices/seance-se3-consommables.md, .ddd/tactical/seance.md, ADR 0045, 0046, 0062]
+date: 2026-11-08
+sources: [.ddd/migration/slices/seance-se3-consommables.md, ADR 0024, ADR 0088, ADR 0089, .ddd/safety-net/known-bugs.md (KB-SEA-22 à 34)]
 ---
 
 # Filet de caractérisation — SE3 Consommables déclarés
 
+> Remplace la version du 2026-11-01, qui annonçait des scénarios non exécutés (aucun test `characterization/seance/se3`, table `seance_consommables` inexistante). Celle-ci décrit ce qui tourne.
+
 ## Point d'observation
 
-HTTP (MockMvc sur le contexte Spring complet, sécurité réelle + `CenterAccessGuard`/`RoleScopeFilter`,
-H2 du profil `test`) et état SQL des tables `seance_consommables` / `stock_movements` / `articles`.
-Aucun mock du code caractérisé. Les opérations `DeclarerConsommables`, `ListerConsommablesDeSeance`,
-`addConsommableSeance`, `removeConsommableSeance`, `updateConsommableSeance` passent par
-`SeanceRestController`, `SeanceApplicationService` et `SeanceDomainService`, avec isolation multi-centre
-par `center_id` et coordination avec le Stock via le langage publié `ConsommationsDeSeance`.
+HTTP (MockMvc, contexte Spring complet, sécurité réelle + `RoleScopeFilter` + `CenterAccessGuard`, H2 `test`), état SQL des consommations du Stock (`consommations_de_seance`, `…_imputations`), `stock_movements`, `articles`, `lots`, `seance_raccourcis_articles`, diffusions temps réel, audit. Aucun mock du code caractérisé. Harnais : `Se3CharacterizationSupport` (sur `Se2CharacterizationSupport`, `Se1CharacterizationSupport`). Tests : `backend/platform/src/test/java/com/hemodialyse/backend/characterization/seance/se3/` ; goldens : `backend/platform/src/test/resources/characterization/seance/se3/<dossier>/` (28 goldens approuvés un par un).
 
-## Tests existants couvrant la slice
+## Scénarios (28)
 
-- `backend/platform/src/test/java/.../infrastructure/web/rest/SeanceRestControllerTest` (ajout/retrait/modification de
-  consommable, rôles, multi-centre) ;
-- `backend/platform/src/test/java/.../infrastructure/web/rest/SeanceScanValidationControllerTest` (validation directe
-  avec consommables, multi-centre) ;
-- `backend/platform/src/test/java/.../infrastructure/web/rest/SeanceSuppressionIntegrationTest` (restitution du stock à
-  la suppression de séance) ;
-- `backend/bc-seance/src/test/java/.../domain/seance/service/SeanceDomainServiceTest` (logique domaine : ajout sur
-  séance validée uniquement, quantité, article inactif/inconnu, multi-centre) ;
--
-`backend/platform/src/test/java/.../characterization/stock/referentiel/ArticlesDeLaSeanceCharacterizationIntegrationTest`
-(article inconnu, d'un autre centre, inactif).
+| Dossier | Nb | Contenu |
+|---|---|---|
+| `ajout` (`POST /seances/{id}/consommables`) | 10 | nominal (imputation sans mouvement, cumul, décimal, diffusions) ; matrice des 6 statuts ; quantités et formes (13) ; articles (actif, inactif, inconnu, autre centre, ordre des gardes) ; sortie pour séances (dépassement, hors pièce) ; pièce rapprochée (ajout, modification, retrait refusés) ; profils (15) ; cloisonnement ; patient disparu ; audit |
+| `modification` (`PUT …/{articleId}`) | 6 | nominal (remplacement, quantité identique rediffusée) ; matrice des statuts ; quantités, article inactif, formes ; profils ; cloisonnement ; audit |
+| `retrait` (`DELETE …/{articleId}?centerId=`) | 6 | nominal (aucune restitution de stock) ; matrice des statuts ; paramètres ; profils ; cloisonnement ; audit |
+| `raccourcis` (`GET|PUT /seances/raccourcis-consommables`) | 6 | nominal (ordre, remplacement complet) ; bornes (12, doublon, nul, inactif, inconnu, autre centre, formes) ; cache par centre ; profils ; cloisonnement ; audit |
 
-## Scénarios verrouillés (multi-centre)
+## Seams
 
-- Ajout d'un consommable sur une séance déjà `VALIDEE` : seule cette ligne sort du stock (FEFO), les consommables
-  déclarés à la validation sont déjà sortis ; idempotence du statut uniquement (RG-SEA-024).
-- Refus d'ajout sur une séance `CREEE` ou `FACTUREE` ; refus pour quantité nulle/négative ; refus pour article
-  inconnu, d'un autre centre ou inactif (400, KB-STK-56).
-- Retrait d'un consommable d'une séance (`ADMIN`, `INFIRMIER`) : la quantité est mise à zéro sur le bon de sortie
-  de la séance et le stock est restitué ; refus si la séance est verrouillée pour facturation.
-- Modification de la quantité d'un consommable : mise à jour de la ligne unique du bon de sortie ; refus si la
-  séance est verrouillée pour facturation.
-- Validation d'une séance : les consommables déclarés sont sortis du stock automatiquement, chaque ligne génère
-  une sortie FEFO (RG-SEA-021) ; un article inactif provoque un refus (400, KB-STK-57).
-- Suppression d'une séance : les consommables et administrations EPO/fer sortis du stock pour la séance sont
-  restitués (lots selon le mouvement d'origine).
-- Isolation inter-centres : une séance du centre A n'est ni modifiable ni consultable depuis le centre B ;
-  `centerId` systématiquement propagé dans `SeanceUseCase`/`SeanceRepositoryPort` et dans les clés de cache.
-- Raccourcis de consommables du centre : au plus 12 articles, sans doublon, articles actifs et du même centre ;
-  mise en cache par centre et purgée à chaque modification (RG-SEA-027).
+Aucun (aucun code de production modifié). Dates : séances posées au jour du centre `<J>` ou `<J+1>` ; aucun test ne lit l'heure, ni le fuseau système.
+
+## Couverture et mutation
+
+Couverture de branches non mesurée (pas de JaCoCo configuré pour la zone) ; mutation non exécutée (pas de PIT dans le dépôt). Revue par lecture du code : branches de `SeanceDomainService.addConsommableSeance`/`removeConsommableSeance`/`updateConsommableSeance` (quantité, séance, statut `FACTUREE`, `VALIDEE`/`SIGNEE`, article, actif), `SeanceRaccourciDomainService.replace` (liste nulle, > 12, nul, doublon, introuvable, inactif), `SeanceRaccourciApplicationService` (cache, purge), `SeanceStationRestController` (raccourcis), `SeanceRaccourciJdbcAdapter`, `GestionDesConsommations` (pièce, rapprochée, `AUCUNE_PIECE`, `DEPASSEMENT`, hors pièce) toutes exercées.
 
 ## Stabilité
 
-Suite exécutée sur H2 (profil `test`). Isolation centre vérifiée par `SeanceRestControllerTest`,
-`SeanceDomainServiceTest` et `ArticlesDeLaSeanceCharacterizationIntegrationTest`. Aucun mock du code
-caractérisé. Exécution répétée sans flakiness détectée.
+3 exécutions consécutives de `seance.se3` (ordre par défaut, `-Dsurefire.runOrder=random` ×2) : 0 échec ; suite complète `./mvnw -o test -fae` voir la réponse de l'appelant.
 
-## Points d'attention
+## Limites (non verrouillé)
 
-- `addConsommableSeance` n'est autorisé que sur une séance déjà validée ; l'ajout sur une séance créée est refusé.
-- Valider à nouveau une séance déjà validée avec une liste de consommables retraite ces consommables (nouvelle
-  sortie) : l'idempotence ne porte que sur le statut (RG-SEA-024).
-- Le stock décide des lots (FEFO) ; la Séance ne lit plus les lots directement (langage publié `ConsommationsDeSeance`).
-- Compatibilité H2 (dev) / PostgreSQL (prod) : aucun SQL spécifique à un moteur.
-- Les règles de gestion associées : RG-SEA-021, RG-SEA-022, RG-SEA-024, RG-SEA-027 (voir
-  `docs/reference/regles-de-gestion/07-seances.md`).
+- Écritures simultanées (deux ajouts parallèles du même article) : non observées (lecture puis écriture non verrouillée hors pièce ; résultat non déterministe sur H2). À traiter à la reprise (verrou ou version).
+- `GET /api/v1/stock/consommations/{seance}` et favoris (`ConsommationsControleur`) : lectures du Stock, filet Stock.
+- Consommables de la validation (`valider` avec `consommations`) : SE2 ; suppression d'une séance (restitution) : `SeanceSuppressionIntegrationTest`.
+- Article devenu inactif déjà présent dans les raccourcis lus : non scénarisé.
+- PostgreSQL : seul H2 est exécuté (arrondi à deux décimales à confirmer sur le moteur de production).
+- Rapprochement : seul le parcours sans écart est joué (écarts et motifs : filet Stock).
+- Facturation (forfait) : aucun effet observé sur le forfait depuis ces routes.
+
+## Bugs connus
+
+KB-SEA-22 à KB-SEA-34 dans `.ddd/safety-net/known-bugs.md` (non corrigés).

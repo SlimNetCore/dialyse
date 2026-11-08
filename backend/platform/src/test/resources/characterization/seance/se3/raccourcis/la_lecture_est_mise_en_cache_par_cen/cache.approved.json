@@ -1,0 +1,39 @@
+{
+  "01 lecture A (met en cache la liste vide)" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "02 lecture A apres une ecriture SQL directe (valeur en cache)" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "03 remplacement par l'administrateur A (purge)" : {
+    "corps" : [ "<ART_2>" ],
+    "status" : 200
+  },
+  "04 lecture A (valeur ecrite)" : {
+    "corps" : [ "<ART_2>" ],
+    "status" : 200
+  },
+  "05 lecture B (met en cache la liste vide)" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "06 remplacement refuse au centre A (aucune purge)" : "400 BAD_REQUEST | Article en double ou invalide dans les raccourcis",
+  "07 lecture B toujours en cache" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "08 remplacement A ne purge pas B" : {
+    "corps" : [ "<ART_1>" ],
+    "status" : 200
+  },
+  "09 lecture B toujours en cache apres l'ecriture de A" : {
+    "corps" : [ ],
+    "status" : 200
+  },
+  "10 lecture B apres purge complete (valeur de la base)" : {
+    "corps" : [ "<ART_B1>" ],
+    "status" : 200
+  }
+}

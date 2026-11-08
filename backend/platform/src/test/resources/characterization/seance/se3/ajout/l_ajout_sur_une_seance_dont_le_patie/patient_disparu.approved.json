@@ -1,0 +1,20 @@
+{
+  "01 ajout" : "400 BAD_REQUEST | Patient introuvable",
+  "02 consommations (ecrites malgre l'echec de la reponse ?)" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "03 diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_CONSOMMABLE_CHANGED"
+    }
+  } ]
+}

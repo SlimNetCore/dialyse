@@ -1,0 +1,120 @@
+{
+  "01 consommations avant" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "3.00",
+    "sur_une_piece" : "false"
+  } ],
+  "02 retrait de l'article 1" : {
+    "corps" : {
+      "articleId" : "<ART_1>",
+      "removed" : true
+    },
+    "status" : 200
+  },
+  "03 consommations (article 2 seul)" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "3.00",
+    "sur_une_piece" : "false"
+  } ],
+  "04 diffusions (mise a jour, puis saisie de retrait)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_CONSOMMABLE_CHANGED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "CONSOMMABLE_RETRAIT",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "05 retrait de l'article 1 une seconde fois (sans effet, rediffuse)" : {
+    "corps" : {
+      "articleId" : "<ART_1>",
+      "removed" : true
+    },
+    "status" : 200
+  },
+  "06 diffusions du retrait sans effet" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_CONSOMMABLE_CHANGED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "CONSOMMABLE_RETRAIT",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "07 retrait d'un article jamais declare" : {
+    "corps" : {
+      "articleId" : "<ART_3>",
+      "removed" : true
+    },
+    "status" : 200
+  },
+  "08 retrait de la derniere ligne" : {
+    "corps" : {
+      "articleId" : "<ART_2>",
+      "removed" : true
+    },
+    "status" : 200
+  },
+  "09 consommations (la consommation de la seance disparait)" : [ {
+    "consommations" : "0"
+  } ],
+  "10 mouvements de stock inchanges (aucune restitution)" : true,
+  "11 stock des articles inchange" : [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  }, {
+    "code" : "SE2-ART_2",
+    "stock_quantity" : "10.00"
+  }, {
+    "code" : "SE2-ART_3",
+    "stock_quantity" : "10.00"
+  } ],
+  "12 ajout apres le retrait (nouvelle consommation)" : "200 ok",
+  "13 consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "1.00",
+    "sur_une_piece" : "false"
+  } ]
+}

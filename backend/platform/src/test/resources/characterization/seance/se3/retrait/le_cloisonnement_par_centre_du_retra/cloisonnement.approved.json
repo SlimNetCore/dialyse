@@ -1,0 +1,41 @@
+{
+  "00 consommations de depart" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_A",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_B",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "01 infirmier A vise le centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "02 infirmier B vise le centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 infirmier B, centre B, seance du centre A" : "400 BAD_REQUEST | Seance introuvable",
+  "04 infirmier A, centre A, seance du centre B" : "400 BAD_REQUEST | Seance introuvable",
+  "05 consommations inchangees" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_A",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_B",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ],
+  "06 SUPERADMIN + ADMIN vise le centre B (transverse)" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "07 administrateur A retire au centre A" : "200 ok",
+  "08 consommations" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_B",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "false"
+  } ]
+}

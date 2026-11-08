@@ -1,0 +1,26 @@
+{
+  "01 quantite nulle" : "400 VALIDATION_ERROR | Invalid request content.",
+  "02 quantite negative" : "400 VALIDATION_ERROR | Invalid request content.",
+  "03 quantite absente" : "400 VALIDATION_ERROR | Invalid request content.",
+  "04 quantite textuelle" : "500 INTERNAL_ERROR",
+  "05 article absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "06 centre absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "07 article illisible" : "500 INTERNAL_ERROR",
+  "08 corps vide" : "400 VALIDATION_ERROR | Invalid request content.",
+  "09 corps absent" : "500 INTERNAL_ERROR",
+  "10 corps illisible" : "500 INTERNAL_ERROR",
+  "11 propriete inconnue ignoree" : "200 ok",
+  "12 quantite tres precise (1.23456789)" : "200 ok",
+  "13 quantite enorme (1e12)" : "200 ok",
+  "14 consommations apres les refus et les deux derniers ajouts" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "1000000000002.23",
+    "sur_une_piece" : "false"
+  } ],
+  "15 stock des articles inchange" : [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  } ]
+}

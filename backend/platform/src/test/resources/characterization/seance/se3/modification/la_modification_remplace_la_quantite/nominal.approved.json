@@ -1,0 +1,117 @@
+{
+  "01 ajout de 2 de l'article 1 et de 4 de l'article 2" : "200 ok ; 200 ok",
+  "02 modification de l'article 1 a 5" : {
+    "corps" : {
+      "articleId" : "<ART_1>",
+      "quantite" : 5,
+      "updated" : true
+    },
+    "status" : 200
+  },
+  "03 consommations (5 et 4)" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "5.00",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "4.00",
+    "sur_une_piece" : "false"
+  } ],
+  "04 diffusions (mise a jour, puis saisie de modification)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_CONSOMMABLE_CHANGED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "CONSOMMABLE_MODIF",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "05 modification a la meme quantite" : {
+    "corps" : {
+      "articleId" : "<ART_1>",
+      "quantite" : 5,
+      "updated" : true
+    },
+    "status" : 200
+  },
+  "06 diffusions de la modification sans effet (rediffusees)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "seanceId" : "<SEANCE>",
+        "targetRoles" : "INFIRMIER,SECRETAIRE"
+      },
+      "type" : "SEANCE_CONSOMMABLE_CHANGED"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "auteur" : "u-infirmier",
+        "date" : "<J>",
+        "patientId" : "<PAT_A>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "saisie" : "CONSOMMABLE_MODIF",
+        "targetRoles" : "MEDECIN"
+      },
+      "type" : "SAISIE_INFIRMIER"
+    }
+  } ],
+  "07 modification a la baisse (1)" : {
+    "corps" : {
+      "articleId" : "<ART_1>",
+      "quantite" : 1,
+      "updated" : true
+    },
+    "status" : 200
+  },
+  "08 modification decimale (0.25)" : {
+    "corps" : {
+      "articleId" : "<ART_1>",
+      "quantite" : 0.25,
+      "updated" : true
+    },
+    "status" : 200
+  },
+  "09 consommations (0.25 et 4)" : [ {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "0.25",
+    "sur_une_piece" : "false"
+  }, {
+    "alerte" : "AUCUNE_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "4.00",
+    "sur_une_piece" : "false"
+  } ],
+  "10 mouvements de stock inchanges" : true,
+  "11 stock des articles inchange" : [ {
+    "code" : "SE2-ART_1",
+    "stock_quantity" : "10.00"
+  }, {
+    "code" : "SE2-ART_2",
+    "stock_quantity" : "10.00"
+  } ]
+}

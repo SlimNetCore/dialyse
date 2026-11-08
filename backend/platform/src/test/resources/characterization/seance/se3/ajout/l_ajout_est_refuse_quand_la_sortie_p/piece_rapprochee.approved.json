@@ -1,0 +1,20 @@
+{
+  "01 piece du lendemain" : 200,
+  "02 ajout de 8 (toute la piece)" : "200 ok",
+  "03 rapprochement constate (statut)" : "200 ok",
+  "04 ajout pendant le constat du rapprochement (non refuse)" : "200 ok",
+  "05 validation du rapprochement avec un ecart" : "422 ECART_SANS_MOTIF | Tout écart doit être justifié par un motif avant la validation",
+  "06 retour a 8 par la modification (ecart nul)" : "200 ok",
+  "07 validation du rapprochement sans ecart" : "200 ok",
+  "08 ajout sur la piece rapprochee" : "422 PIECE_DEJA_RAPPROCHEE | La sortie pour séances de cette séance est déjà rapprochée",
+  "09 ajout d'un article hors piece sur la piece rapprochee" : "422 PIECE_DEJA_RAPPROCHEE | La sortie pour séances de cette séance est déjà rapprochée",
+  "10 modification sur la piece rapprochee" : "422 PIECE_DEJA_RAPPROCHEE | La sortie pour séances de cette séance est déjà rapprochée",
+  "11 retrait sur la piece rapprochee" : "422 PIECE_DEJA_RAPPROCHEE | La sortie pour séances de cette séance est déjà rapprochée",
+  "12 consommations apres le rapprochement (inchangees)" : [ {
+    "alerte" : null,
+    "article" : "SE2-ART_1",
+    "lot_id" : "<LOT_1>",
+    "quantite" : "8.00",
+    "sur_une_piece" : "true"
+  } ]
+}

@@ -1,0 +1,17 @@
+{
+  "ADMIN" : "200 ; consommations=1 ; diffusions=2",
+  "ADMIN sans centre" : "403 ACCESS_DENIED ; consommations=0 ; diffusions=0",
+  "DIRECTION" : "403 ROLE_SCOPE ; consommations=0 ; diffusions=0",
+  "INFIRMIER + SECRETAIRE" : "200 ; consommations=1 ; diffusions=2",
+  "INFIRMIER seul" : "200 ; consommations=1 ; diffusions=2",
+  "MEDECIN + ADMIN" : "200 ; consommations=1 ; diffusions=2",
+  "MEDECIN + INFIRMIER" : "200 ; consommations=1 ; diffusions=2",
+  "MEDECIN seul" : "403 ACCESS_DENIED ; consommations=0 ; diffusions=0",
+  "SECRETAIRE" : "403 ACCESS_DENIED ; consommations=0 ; diffusions=0",
+  "SUPERADMIN" : "403 ROLE_SCOPE ; consommations=0 ; diffusions=0",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE ; consommations=0 ; diffusions=0",
+  "anonyme" : "403 ; consommations=0",
+  "aucun role" : "403 ACCESS_DENIED ; consommations=0 ; diffusions=0",
+  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED ; consommations=0 ; diffusions=0",
+  "role personnalise (CHEF_DE_SALLE)" : "403 ACCESS_DENIED ; consommations=0 ; diffusions=0"
+}

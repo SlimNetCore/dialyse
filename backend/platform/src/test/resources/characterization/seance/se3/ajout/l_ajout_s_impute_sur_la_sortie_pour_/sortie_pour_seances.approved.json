@@ -1,0 +1,36 @@
+{
+  "01 piece du lendemain" : 200,
+  "02 ajout de 5 sur la piece de 8" : "200 ok",
+  "03 ajout de 5 par un autre patient (depassement, 3 restants)" : "200 ok",
+  "04 ajout d'un article hors piece" : "200 ok",
+  "05 consommations imputees (par lot, alertes)" : [ {
+    "alerte" : "DEPASSEMENT_DE_LA_SORTIE",
+    "article" : "SE2-ART_1",
+    "lot_id" : null,
+    "quantite" : "2.00",
+    "sur_une_piece" : "true"
+  }, {
+    "alerte" : null,
+    "article" : "SE2-ART_1",
+    "lot_id" : "<LOT_1>",
+    "quantite" : "3.00",
+    "sur_une_piece" : "true"
+  }, {
+    "alerte" : null,
+    "article" : "SE2-ART_1",
+    "lot_id" : "<LOT_1>",
+    "quantite" : "5.00",
+    "sur_une_piece" : "true"
+  }, {
+    "alerte" : "ARTICLE_HORS_PIECE",
+    "article" : "SE2-ART_2",
+    "lot_id" : null,
+    "quantite" : "1.00",
+    "sur_une_piece" : "true"
+  } ],
+  "06 mouvements de stock inchanges depuis la piece" : true,
+  "07 lot inchange (la sortie a eu lieu a la piece)" : [ {
+    "numero_lot" : "LOT_1",
+    "quantite_restante" : "2.00"
+  } ]
+}
