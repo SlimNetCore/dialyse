@@ -1,0 +1,45 @@
+---
+slice: seance-se7c2-ecritures-facturation
+status: audit (aucun code c2)
+date: 2026-11-08
+context: seance (consommateur : facturation)
+sources: [.ddd/migration/slices/seance-se7c-lectures-facturation-stock.md, ADR 0096, known-bugs.md (KB-SEA-47, 49, 50), contrats de facturation (SeancesContrat, joué sur double, H2 et PG16), filets F2 à F7b]
+---
+
+# SE7c2 : audit de couverture des 5 fichiers de Facturation qui touchent `seances` (ARGENT)
+
+Audit de lecture : aucun test ni code ajoutés. Légende : VERROUILLÉ = un test échoue si la requête change ; PARTIEL = cas nominal seulement ; NON = rien ne l'observe. `SC` = `contexts/facturation/src/test/.../contrat/SeancesContrat` (joué sur le double, H2 et PostgreSQL 16 : `SeancesJdbcContratTest`, `SeancesPostgresContractIT`). `F-sim` = `platform/.../characterization/facturation/simulation/ExclusionEtForfaitCharacterizationIntegrationTest`. `F-val` = `.../validation/` (`SeancesFacturees...`, `EmissionDesFactures...`, `RefusEtAutorisations...`). `F-pil` = `.../pilotage/`.
+
+## 1. `SeancesDeFacturationJdbc` (5 requêtes, 4 UPDATE)
+| Requête | Verrouillé par | Non verrouillé |
+|---|---|---|
+| `trouver` (SELECT séance, centre, état d'exclusion) | SC `should_find_a_seance_of_the_centre_with_its_state`, `should_not_find_an_unknown_seance_nor_one_of_another_centre`, `should_see_an_invoiced_seance_as_invoiced` | `statut_avant_exclusion` blanc (`''`) lu comme nul : NON |
+| `exclure` (UPDATE statut `ABSENT`, mémoire du statut avant) | SC `should_exclude_a_seance_remember_its_status...`, `should_refuse_to_exclude_a_seance_in_another_status_invoiced_unknown_or_of_another_centre` ; F-sim `exclure_une_seance...`, `les_refus_d_exclusion`, `l_exclusion_d_une_seance_d_un_autre_centre...` | statut stocké en minuscules (`validee`) : NON (la garde `statut = ?` est sensible à la casse, KB-FAC-17 est cité dans le code, aucun test ne le porte) ; course entre deux exclusions : NON |
+| `lierALAbsence` (UPDATE `exclusion_absence_id`) | SC `should_remember_the_absence_declared_by_the_exclusion`, `should_refuse_to_link_an_absence_to_a_seance_that_was_not_excluded` ; F-sim `le_refus_du_module_absences_annule_l_exclusion` | rien d'autre |
+| `reinclure` (UPDATE rétablit le statut) | SC `should_reinclude_...`, `should_refuse_to_reinclude_a_seance_that_was_not_excluded_by_the_facturation` ; F-sim `reinclure_une_seance_exclue...`, `les_refus_de_reinclusion` | réinclusion d'une séance facturée entre-temps : PARTIEL (via `facture_id IS NULL`, un seul cas) |
+| `poserLeForfait` (UPDATE `forfait_override_id/nom/prix/updated_at/by`, VALIDEE ou SIGNEE, non facturée) | SC `should_impose_a_forfait_on_a_seance_and_read_it_back_in_the_facturables`, `should_refuse_to_impose_a_forfait_on_an_excluded_invoiced_unknown_or_foreign_seance` ; F-sim `changer_le_forfait_d_une_seance...`, `les_refus_de_changement_de_forfait` ; domaine : `ChangerLeForfaitDUneSeanceTest` | **KB-SEA-47 : `forfait_override_code` n'est PAS écrit par la Facturation (il garde l'ancienne valeur ou nul) : NON verrouillé côté Facturation** (le KB cite « NON rejoué »). Seul SE5 (côté Séance) lit le code. `forfait_override_updated_at/by` : PARTIEL (écrits, relus ?) à vérifier |
+
+## 2. `LiaisonDesSeancesJdbc` (1 UPDATE : statut `FACTUREE`, `facture_id`)
+| Requête | Verrouillé par | Non verrouillé |
+|---|---|---|
+| `lier` (UPDATE gardé VALIDEE/SIGNEE, non facturée, centre) | SC `should_link_the_seances_to_the_invoice_and_bill_them`, `should_refuse_to_link_a_seance_that_is_no_longer_eligible`, `should_refuse_to_link_a_seance_of_another_centre` ; domaine `ValiderLaFacturationTest.should_fail_the_whole_validation_when_a_seance_is_no_longer_eligible_at_the_link` ; F-val `l_echec_d_une_facture_annule_toutes_les_autres_les_seances_et_la_sequence`, `revalider_la_meme_periode_ne_cree_rien_de_plus`, `seules_les_seances_validees_ou_signees...` ; `SeanceFactureeImmuable...` (F6) en aval | **Deux émissions simultanées sur les mêmes séances (course) : NON** (seul le garde `facture_id IS NULL` protège, rien ne le rejoue en concurrence sur PG16) ; statut en minuscules : NON ; atomicité de plusieurs séances dont la 2e échoue : PARTIEL (cas « une facture échoue ») |
+
+## 3. `SeancesFacturablesJdbc` (1 SELECT, jointures `patients` et `centre_payeur`)
+VERROUILLÉ par SC (`should_read_only_validated_or_signed_seances_not_invoiced_of_the_centre_within_the_period`, bornes incluses, tri patient puis date, lecture du patient, forfait de la prise en charge, forfait imposé prioritaire, prise en charge la plus récente, payeur) et F-val `seules_les_seances_validees_ou_signees_sans_facture_de_la_periode_et_du_centre_sont_facturees`, `la_periode_peut_etre_donnee_par_deux_dates...`, `le_mois_l_emporte...`, `une_seance_d_un_patient_d_un_autre_centre...`, `PolitiqueDeForfaitAppliqueTest`. Non verrouillé : statut en minuscules (KB-FAC-17 : le SQL est sensible à la casse, aucun test) ; séance d'un patient d'un autre centre de la MÊME séance (jointure `p.center_id = s.center_id`) : couvert par le cas ci-dessus (une seule variante).
+
+## 4. `LectureDeLaSyntheseJdbc` (3 requêtes sur `seances` : jointure `s.facture_id = f.id`, comptage des séances)
+VERROUILLÉ par F-pil `SyntheseMensuelleImprimee...` (`la_synthese_de_fevrier_...`, bornes, centre inconnu, périodes sans facture), `SyntheseViaModeleDeDocument...`, `CoherenceAvecLesEcrituresDuNouveauModule...`, `LecturesPubliquesJdbcContrat` (double / H2 / PG16). Non verrouillé : une séance `FACTUREE` sans `facture_id`, ou un `facture_id` posé sur une séance d'un autre centre que celui de la facture (jointure sur `center_id`) : à vérifier un par un ; compte DISTINCT des séances d'une facture dont les séances ont changé de statut : NON.
+
+## 5. `LectureDuTableauDeBordJdbc` (3 requêtes sur `seances` : comptage `statut = 'FACTUREE'` par `date_seance`, jointure `facture_id`)
+VERROUILLÉ par F-pil `TableauDeBordFacturation...` (février, bornes premier et dernier jour, centre inconnu, classement par séances, bissextile, réponses refusées) et `PilotageJdbcContrat` (double / H2 / PG16). **Non verrouillé : le tableau de bord compte les séances par STATUT et DATE de séance (`statut = 'FACTUREE'`), la synthèse par `facture_id` : deux définitions de « séance facturée » dans la même Facturation (écart observable si une séance est `FACTUREE` sans lien, ou déplacée) : NON caractérisé.**
+
+## 6. KB et zones d'argent hors des 5 fichiers mais liées
+KB-SEA-49 (le changement de date efface `facture_id`) et KB-SEA-50 (suppression d'une séance portant un `facture_id` hors statut `FACTUREE`) sont des écrivains DE LA SÉANCE (SE6) et sont déjà verrouillés par leurs goldens SE5 / SE6 (`facture_effacee`, `avec_facture`, `matrice_des_statuts`) : ils ne sont pas dans c2. Ils partagent avec c2 la même colonne `facture_id` : le port c2 devra être le SEUL écrivain de `facture_id` hors SE6.
+
+## Recommandations
+1. **Ajouter AVANT tout code (filet c2)**, sans corriger : (a) KB-SEA-47 côté Facturation : `poserLeForfait` ne touche pas `forfait_override_code` (séance avec code existant avant et après) ; (b) KB-FAC-17 : une séance au statut `validee` n'est ni facturable, ni excluable, ni liable, ni forfaitable ; (c) course de deux émissions sur la même séance (PG16 : une seule gagne, l'autre échoue sans rien écrire) ; (d) `statut_avant_exclusion` blanc ; (e) tableau de bord contre synthèse : séance `FACTUREE` sans `facture_id`. Goldens approuvés un par un.
+2. **Découpage c2a puis c2b** :
+   - **c2a (lectures + exclusion, argent indirect)** : `SeancesFacturablesJdbc`, `LectureDeLaSyntheseJdbc`, `LectureDuTableauDeBordJdbc` (lectures publiées de `seance.v1`) et les UPDATE réversibles d'exclusion / réinclusion / liaison à l'absence / forfait imposé (`SeancesDeFacturationJdbc`, 4 UPDATE : tous gardés par `facture_id IS NULL`). Risque modéré : la facture n'existe pas encore.
+   - **c2b (le seul UPDATE qui crée de l'argent)** : `LiaisonDesSeancesJdbc.lier` (statut `FACTUREE` et `facture_id`). À traiter seul, après c2a, avec le test de course PG16 (reco 1c), une liste blanche qui fait de ce port le SEUL écrivain de `facture_id` (hors SE6), et une vérification de production en SELECT seule (séances `FACTUREE` sans facture, factures sans séance).
+3. Pas de correction pendant la reprise : KB-SEA-47, KB-FAC-17 et les deux définitions de « facturée » (tableau de bord, synthèse) sont à décider par les métiers avant c2a.
+4. Le port publié devra rester dans `seance.v1` (écritures gardées par l'état attendu, 422 si 0 ligne). La cohérence transactionnelle entre l'émission de la facture (Facturation) et la liaison des séances (Séance) est le point de conception de c2b : une seule transaction (comme aujourd'hui) ou une compensation ; à trancher par ADR avant le code.

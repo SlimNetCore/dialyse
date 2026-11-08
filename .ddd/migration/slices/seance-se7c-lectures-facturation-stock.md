@@ -1,25 +1,44 @@
 ---
 slice: seance-se7c-lectures-facturation-stock
-status: planned
+status: partial (c1 built, c2 planned)
 date: 2026-11-08
 order: 7.3
 context: seance
 parent: seance-se7-lectures-publiees
 depends_on: [seance-se7a-routes-residuelles]
-sources: [.ddd/safety-net/seance-se7-lectures-publiees.md, .ddd/safety-net/known-bugs.md (KB-SEA-47, 49, 50)]
+sources: [.ddd/safety-net/seance-se7-lectures-publiees.md, .ddd/safety-net/seance-se7c2-ecritures-facturation.md, .ddd/safety-net/known-bugs.md (KB-SEA-47, 49, 50, 68 à 70), ADR 0096]
 ---
 
 # SE7c : lectures et écritures de Facturation et de Stock sur la table des séances
 
-Consommateurs qui touchent `seances` hors contexte, aucun ne passe par `seance.v1` aujourd'hui.
+Consommateurs qui touchaient `seances` hors contexte, aucun ne passait par `seance.v1`. Deux sous-slices : **c1 Stock (lecture seule)** `slices.seance-se7c1-lectures-stock` = `built` ; **c2 Facturation (5 fichiers, 5 UPDATE d'argent)** `slices.seance-se7c2-ecritures-facturation` = `planned`. La clé du parent `seance-se7c-lectures-facturation-stock` n'est PAS à `built` (c2 reste).
 
-| Fichier | Occurrences | Nature |
-|---|---|---|
-| `contexts/facturation/.../acl/legacyseance/SeancesDeFacturationJdbc.java` | 5 | lecture + **4 UPDATE** (statut `ABSENT`, exclusion, statut, forfait imposé : ARGENT) |
-| `contexts/facturation/.../acl/legacyseance/LiaisonDesSeancesJdbc.java` | 1 | **UPDATE** `facture_id` / statut `FACTUREE` (ARGENT) |
-| `contexts/facturation/.../acl/legacyseance/SeancesFacturablesJdbc.java` | 1 | lecture des séances facturables |
-| `contexts/facturation/.../persistence/LectureDeLaSyntheseJdbc.java` | 3 | lecture (synthèse mensuelle) |
-| `contexts/facturation/.../persistence/LectureDuTableauDeBordJdbc.java` | 3 | lecture (pilotage) |
-| `contexts/stock/.../acl/legacyseances/StatutDesSeancesLegacy.java`, `PerimetreDesSeancesLegacy.java` | 1 + 1 | lecture statut, salle, créneau |
+## c1 : Stock (built, 2026-11-08, ADR 0096)
+| Fait | Détail |
+|---|---|
+| Étape 0 | Filet complémentaire `characterization/seance/se7c/PerimetreDesSeancesDuStockCharacterizationIntegrationTest` (9 tests, verts sur le legacy avant migration) ; le statut était déjà verrouillé par `SeanceFactureeImmuable...` (F6). KB-SEA-68 à 70 consignés, non corrigés |
+| Ports publiés | `FacturationDesSeancesPubliee`, `PlacesDesSeancesPubliees` dans `contexts/seance/publishedlanguage` |
+| Adapter | `LecturesPublieesDesSeancesJdbc` (`contexts/seance/infrastructure/persistence`), contrat à 8 cas : double en mémoire, H2, PostgreSQL 16 jetable (`backend/scripts/seance-se7c1-pg16-rejeu.sh`, port 55543) |
+| ACL du Stock | `platform/.../infrastructure/acl/stock/StatutDesSeancesParLaSeance`, `PerimetreDesSeancesParLaSeance` (dans la plateforme : cycle Maven Seance -> Stock, ADR 0096 décision 4) ; seam inscrit puis refermé, fichiers dans `covered.json` |
+| Retiré | `StatutDesSeancesLegacy`, `PerimetreDesSeancesLegacy` et leurs 2 beans ; entrée Stock de `TableDeLOrganisationTest` |
+| Verrous | `TableDesSeancesTest` réécrit (liste blanche nominative datée de 18 lecteurs, aucun du Stock) ; règle ArchUnit `le_stock_ne_depend_pas_de_la_seance` ; `FrontieresDesContextesTest` sans exception |
+| Parité | Goldens Stock S6b / S4 inchangés et verts ; `SeanceFactureeImmuable...` et le filet SE7c appellent les ports du Stock câblés en production |
+| Écarts de parité | Aucun (REPRODUIRE) |
+| Flag / bascule | Aucun (refactoring sur place, ADR 0024) ; rollback = retour au commit précédent ; `.ddd/migration/verifications-production.md` §61 (SELECT seule) |
 
-Filet existant : Facturation F2 à F6 (simulation, validation, retrait, immuabilité), Stock S6b/S4. Risque : élevé (argent, intégrité de facturation, KB-SEA-47/49/50). Découpage conseillé en deux lots : c1 Stock (2 fichiers, lecture seule), c2 Facturation (5 fichiers, 5 UPDATE). Ports publiés à créer dans `seance.v1` : statut/périmètre d'une séance, séances facturables, liaison à la facture, exclusion, forfait imposé.
+### Reste à faire (c1)
+Décisions KB-SEA-68, 69, 70 (métiers) ; remplacer la lecture de `salle` et `position_creneau` par `organisation.v1` (jalon O4) ; replacer l'ACL du Stock dans `contexts/stock` si un module de langage publié partagé est décidé.
+
+## c2 : Facturation (planned, audit de couverture rendue)
+Audit par fichier et par requête : `.ddd/safety-net/seance-se7c2-ecritures-facturation.md`. Découpage recommandé : c2a (lectures + 4 UPDATE gardés par `facture_id IS NULL`), c2b (`LiaisonDesSeancesJdbc.lier`, le seul UPDATE qui crée de l'argent, test de course PG16). Tests de caractérisation à ajouter AVANT tout code : KB-SEA-47 côté Facturation, KB-FAC-17 (statut en minuscules), course d'émission, `statut_avant_exclusion` blanc, tableau de bord contre synthèse. Aucun code c2 écrit.
+
+## Bilan nominatif des résidus (revue ≤ 2026-12-15 ET butoir propre)
+| # | Résidu | Revue | Butoir |
+|---|---|---|---|
+| R1 | `LecturesPublieesDesSeancesJdbc` lit `salle` et `position_creneau` en SQL direct : à remplacer par `organisation.v1` (O4) | 2026-12-15 | 2027-03-31 |
+| R2 | ACL du Stock logée dans la plateforme (cycle Maven) | 2026-12-15 | 2027-06-30 |
+| R3 | Décisions KB-SEA-68, 69, 70 | 2026-12-15 | avant toute mise en production |
+| R4 | 18 lecteurs SQL de `seances` hors Séance en liste blanche (`TableDesSeancesTest`) : Facturation (5) | 2026-12-15 | 2027-01-31 |
+| R5 | idem : absences-patients (3), planification (1), dossier-médical (1), fournisseurs plateforme de la Séance (2) | 2026-12-15 | 2027-03-31 |
+| R6 | idem : pilotage Direction (3), statistiques du patient, cahier de dialyse, annulation de migration (SUPPRESSION de séances) | 2026-12-15 | 2027-06-30 |
+| R7 | c2 : KB-SEA-47, KB-FAC-17, deux définitions de « facturée » à décider avant c2a | 2026-12-15 | 2027-01-31 |

@@ -240,6 +240,17 @@
   `PatientsDuTableauDeBordJdbc`, `AbsencesDuCentreParLePilotage`, `ExportsDuTableauDeBordCsvPdfXlsx`, `TableauDeBordDesSeancesControleur`,
   `ErreursDeSeanceAdvice`.
 
+- **RG-SEA-060** — **Lectures publiées de la Séance pour le Stock** (slice SE7c1, ADR 0096 ; aucune route, aucune migration, aucun
+  montant, lecture seule). Le Stock ne lit plus la table `seances` : il demande à la Séance, par son langage publié, si une séance est
+  **facturée** et quelle est sa **place** (code de la salle, code et libellé du créneau). Une séance est facturée quand son statut est
+  `FACTUREE`, sans tenir compte de la casse (KB-SEA-70) ; une séance inconnue ou d'un autre centre n'est pas facturée et n'a pas de place
+  (le Stock retombe alors sur la sortie « journée »). La salle et le créneau ne sont lus que dans le centre de la séance (sinon aucun,
+  KB-SEA-69). Le Stock déduit la demi-journée du code ou du libellé du créneau (KB-SEA-68 : « matin », « après-midi », « midi »,
+  « soir »). **Reproduit tel quel, RISQUES À CONFIRMER avant la mise en production (métiers, revue au plus tard le 2026-12-15)** :
+  KB-SEA-68, 69 et 70.
+  *Source :* `FacturationDesSeancesPubliee`, `PlacesDesSeancesPubliees`, `LecturesPublieesDesSeancesJdbc`,
+  `StatutDesSeancesParLaSeance`, `PerimetreDesSeancesParLaSeance`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre

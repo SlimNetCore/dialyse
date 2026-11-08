@@ -119,6 +119,12 @@
 | `ApiExceptionHandler`                                                             | (contrat d'erreur)                                                                                                                                      | —                                                                                                                                                                           | RG-TRV-010 à 016                                                               |
 | `ReferentialAdminExceptionHandler`                                                | (erreurs d'import et de référentiels)                                                                                                                   | —                                                                                                                                                                           | RG-REF-004, RG-REF-012                                                         |
 
+Sans contrôleur : SE7c1 (ADR 0096) n'ajoute aucune route. Les lectures publiées de la Séance (`FacturationDesSeancesPubliee`,
+`PlacesDesSeancesPubliees`) sont appelées par le Stock (traducteurs `StatutDesSeancesParLaSeance`, `PerimetreDesSeancesParLaSeance` de la
+plateforme) depuis les routes de sortie pour séances et de consommation de séance déjà listées au chapitre Stock ; règle : RG-SEA-060.
+Les 18 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 5, autres contextes : 5, plateforme : 8) sont inscrits
+dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir propre à chacun).
+
 ## 16.2 Tâches planifiées
 
 | Tâche                              | Cadence                                   | Règles                       |

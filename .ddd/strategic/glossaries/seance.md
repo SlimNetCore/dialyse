@@ -58,6 +58,10 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §4]
 | Effectif du mois | Patients pris en charge dans le mois ; contaminé entre centres (reproduit) | `EffectifDuMois`, `PatientDuMois`, `FinDeLaPriseEnCharge` | `activePatients` | patients actifs | RG-SEA-059 ; KB-SEA-64 | proposed |
 | Tranche d'âge | Classe d'âge du patient au jour du centre, pour la démographie | `TrancheDAge`, `Demographie`, `Sexe` | `ageBuckets` | catégorie d'âge | RG-SEA-059 | proposed |
 | Export du tableau de bord | Le tableau de bord du mois en CSV, PDF ou XLSX, mêmes octets que le legacy | `ExporterLeTableauDeBord`, `FormatDExport` | `dashboard/export` | impression | RG-SEA-059 | proposed |
+| Séance facturée (publiée) | Réponse de la Séance au Stock : le statut de la séance est `FACTUREE` (casse ignorée), jamais le lien vers la facture | `FacturationDesSeancesPubliee` | `StatutDesSeancesLegacy` (retiré) | séance rattachée à une facture (autre sens : `facture_id`) | RG-SEA-060 ; KB-SEA-70 | proposed |
+| Place d'une séance (publiée) | Code de la salle, code et libellé du créneau d'une séance, lus dans son centre ; la demi-journée est interprétée par le Stock | `PlacesDesSeancesPubliees`, `PlaceDeSeancePubliee` | `PerimetreDesSeancesLegacy` (retiré) | place mémorisée à la validation (`PlaceDeSeance`, identifiants) | RG-SEA-060 ; KB-SEA-68, 69 | proposed |
+
+Questions ouvertes (SE7c1) : la demi-journée doit-elle devenir une donnée du créneau (Organisation) plutôt qu'un mot cherché dans son libellé (KB-SEA-68) ? Normaliser le statut `FACTUREE` (KB-SEA-70) ?
 
 Questions ouvertes (SE7b) : libellés `Séances attendues` et `Effectif du mois` à valider par les métiers ; faut-il restreindre le détail nominatif (KB-SEA-66) ?
 
