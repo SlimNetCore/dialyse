@@ -9,8 +9,9 @@ import java.util.Optional;
 /**
  * Séance : acte de dialyse d'un patient, un jour donné, dans un centre (racine d'agrégat, une seule entité). SE1 porte la CRÉATION
  * (statut {@code CREE}, éventuellement confirmée hors planning) ; SE2 la validation par l'infirmier, la signature du médecin et le
- * déverrouillage pour régularisation ; SE5 l'imposition d'un forfait (surcharge) ; le verrou de facturation (SE6) reste au legacy tant
- * que sa slice n'est pas reprise.
+ * déverrouillage pour régularisation ; SE5 l'imposition d'un forfait (surcharge) ; SE6 le changement de jour et la suppression (refus
+ * des séances facturées ou rattachées à une facture). La POSE du verrou de facturation reste à la Facturation : la Séance lit le statut
+ * {@code FACTUREE} et {@code facture_id}, elle ne les écrit jamais.
  * <p>
  * Aucune règle d'unicité par patient et par jour : plusieurs séances le même jour restent permises (KB-SEA-02, reproduit).
  */
@@ -19,21 +20,23 @@ public final class Seance {
     private final SeanceId id;
     private final CentreId centre;
     private final PatientId patient;
-    private final LocalDate jour;
+    private LocalDate jour;
     private StatutDeSeance statut;
     private final Instant creeLe;
     private final DerogationHorsPlanning derogation;
     private Jalons jalons;
     private Traces traces;
     private ForfaitImpose forfaitImpose;
+    private final FactureId facture;
 
     private Seance(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut, Instant creeLe,
                    DerogationHorsPlanning derogation, Jalons jalons, Traces traces) {
-        this(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, null);
+        this(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, null, null);
     }
 
     private Seance(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut, Instant creeLe,
-                   DerogationHorsPlanning derogation, Jalons jalons, Traces traces, ForfaitImpose forfaitImpose) {
+                   DerogationHorsPlanning derogation, Jalons jalons, Traces traces, ForfaitImpose forfaitImpose, FactureId facture) {
+        this.facture = facture;
         this.id = exiger(id, "Séance requise");
         this.centre = exiger(centre, "Centre requis");
         this.patient = exiger(patient, "Patient requis");
@@ -74,7 +77,14 @@ public final class Seance {
     public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
                                    Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons, Traces traces,
                                    ForfaitImpose forfaitImpose) {
-        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, forfaitImpose);
+        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, forfaitImpose, null);
+    }
+
+    /** Restitue une ligne existante complète, avec la facture qui l'a prise (nulle s'il n'y en a pas). */
+    public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
+                                   Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons, Traces traces,
+                                   ForfaitImpose forfaitImpose, FactureId facture) {
+        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, forfaitImpose, facture);
     }
 
     public SeanceId id() {
@@ -241,6 +251,39 @@ public final class Seance {
         exiger(maintenant, "Instant de l'imposition requis");
         exiger(auteur, "Auteur requis");
         this.forfaitImpose = new ForfaitImpose(forfait.id(), forfait.code(), forfait.nom(), forfait.prix(), maintenant, auteur.valeur());
+    }
+
+    /** La facture qui a pris la séance (posée par la Facturation), s'il y en a une. */
+    public Optional<FactureId> facture() {
+        return Optional.ofNullable(facture);
+    }
+
+    /**
+     * Change le jour de la séance (SE6). Seule la séance facturée est refusée (422 {@code SEANCE_FACTUREE_NON_MODIFIABLE}). AUCUNE autre
+     * règle, reproduite du legacy et à confirmer métiers avant la mise en production (ADR 0093) : ni le statut (KB-SEA-54 : le jour d'une
+     * séance validée ou signée, qui détermine sa période de facturation, est modifiable), ni le verrou des jours passés (KB-SEA-55), ni
+     * calendrier, admission ou planning (KB-SEA-56). Le statut, les signatures, la place, le forfait imposé et la facture sont conservés.
+     */
+    public void changerDeJour(LocalDate nouveauJour) {
+        exigerNonFacturee();
+        this.jour = exiger(nouveauJour, "Jour de la séance requis");
+    }
+
+    /**
+     * Garde de la SUPPRESSION : une séance facturée est refusée (422 {@code SEANCE_FACTUREE_NON_SUPPRIMABLE}, message du legacy), puis,
+     * CORRECTION de KB-SEA-50 (à confirmer métiers), une séance rattachée à une facture l'est aussi quel que soit son statut (422
+     * {@code SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE}) : la facture ne perd plus une séance en silence. Ni le jour, ni les
+     * signatures, ni le patient ne sont regardés (KB-SEA-53, reproduit).
+     */
+    public void exigerSupprimable() {
+        if (statut == StatutDeSeance.FACTUREE) {
+            throw new SeanceRefusee(MotifDeRefus.SEANCE_FACTUREE_NON_SUPPRIMABLE,
+                    "Une séance facturée ne peut pas être supprimée : annulez d'abord la facture");
+        }
+        if (facture != null) {
+            throw new SeanceRefusee(MotifDeRefus.SEANCE_RATTACHEE_A_UNE_FACTURE,
+                    "Une séance rattachée à une facture ne peut pas être supprimée : annulez d'abord la facture");
+        }
     }
 
     /** Refuse (422) la séance facturée : à appeler avant de construire l'auteur, pour garder l'ordre des refus du legacy. */

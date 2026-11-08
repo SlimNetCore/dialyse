@@ -1,6 +1,15 @@
 package com.hemodialyse.backend.contexts.seance.configuration;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
+import com.hemodialyse.backend.contexts.seance.application.AnnulationDesConsommations;
+import com.hemodialyse.backend.contexts.seance.application.ChangerLeJourDUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.JournalDesSuppressions;
+import com.hemodialyse.backend.contexts.seance.application.SaisiesDeLaSeance;
+import com.hemodialyse.backend.contexts.seance.application.SupprimerUneSeance;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.SaisiesParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsAnnuleesParLeStock;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.JournalDesSuppressionsJdbc;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SaisiesDeSeanceFournies;
 import com.hemodialyse.backend.contexts.seance.application.ConsommationsDeLaSeance;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
@@ -299,6 +308,44 @@ public class SeanceConfiguration {
                                       @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
                                       @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
         return new ImposerUnForfait(session, seances, referentiel, forfaits, uniteDeTravail, horloge);
+    }
+
+    // ---- SE6 : changement de jour et suppression d'une séance (ADR 0093)
+
+    @Bean
+    AnnulationDesConsommations annulationDesConsommationsDeLaSeance(ConsommationsDeSeance stock) {
+        return new ConsommationsAnnuleesParLeStock(stock);
+    }
+
+    @Bean
+    SaisiesDeLaSeance saisiesDeLaSeance(SaisiesDeSeanceFournies saisies) {
+        return new SaisiesParLeLegacy(saisies);
+    }
+
+    @Bean
+    JournalDesSuppressions journalDesSuppressionsDeLaSeance(JdbcTemplate jdbc) {
+        return new JournalDesSuppressionsJdbc(jdbc);
+    }
+
+    @Bean
+    ChangerLeJourDUneSeance changerLeJourDUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                    @Qualifier("seancesDuContexteSeance") Seances seances,
+                                                    @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                                    @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
+        return new ChangerLeJourDUneSeance(session, seances, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    SupprimerUneSeance supprimerUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                          @Qualifier("seancesDuContexteSeance") Seances seances,
+                                          @Qualifier("annulationDesConsommationsDeLaSeance") AnnulationDesConsommations consommations,
+                                          @Qualifier("saisiesDeLaSeance") SaisiesDeLaSeance saisies,
+                                          @Qualifier("journalDesSuppressionsDeLaSeance") JournalDesSuppressions journal,
+                                          @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                          @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants,
+                                          @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                          @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new SupprimerUneSeance(session, seances, consommations, saisies, journal, uniteDeTravail, identifiants, horloge, diffusions);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)

@@ -27,7 +27,18 @@ public enum MotifDeRefus {
     /** SE2 : l'infirmier ne valide pas une séance d'un jour passé sans le déverrouillage de l'administrateur. */
     REGULARISATION_NON_DEVERROUILLEE("SEANCE_REGULARISATION_NON_DEVERROUILLEE"),
     /** SE3 : on n'ajoute un consommable qu'à une séance validée ou signée (KB-SEA-24 : la modification et le retrait sont plus larges). */
-    CONSOMMABLES_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION");
+    CONSOMMABLES_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION"),
+    /** SE6 : une séance facturée ne se supprime pas (la facture la référence). */
+    SEANCE_FACTUREE_NON_SUPPRIMABLE("SEANCE_FACTUREE_NON_SUPPRIMABLE"),
+    /**
+     * SE6, NOUVEAU (KB-SEA-50 corrigé, à confirmer métiers) : une séance rattachée à une facture ne se supprime pas, quel que soit son
+     * statut ; la facture perdrait la séance et le journal des suppressions n'en garde pas le lien.
+     */
+    SEANCE_RATTACHEE_A_UNE_FACTURE("SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE"),
+    /** SE6 : motif de suppression absent, trop court ou trop long (5 à 500 caractères). */
+    MOTIF_DE_SUPPRESSION_INVALIDE("SEANCE_SUPPRESSION_MOTIF_INVALIDE"),
+    /** SE6 : la suppression répond 422 (et non 400) quand la séance est inconnue du centre (reproduit du legacy, KB-SEA-52). */
+    SEANCE_A_SUPPRIMER_INTROUVABLE("SEANCE_INTROUVABLE");
 
     private final String code;
 

@@ -57,7 +57,7 @@ public class SeancesEnMemoire implements Seances {
     /** Comme une base : on rend une COPIE, une modification n'existe qu'une fois enregistrée (et un retour arrière la défait). */
     private static Seance copie(Seance s) {
         return Seance.restituer(s.id(), s.centre(), s.patient(), s.jour(), s.statut(), s.creeLe(), s.derogation().orElse(null), s.jalons(),
-                s.traces(), s.forfaitImpose().orElse(null));
+                s.traces(), s.forfaitImpose().orElse(null), s.facture().orElse(null));
     }
 
     /** Nombre de verrous de ligne demandés (le double n'a pas de concurrence : il garde la trace de l'appel). */
@@ -84,7 +84,25 @@ public class SeancesEnMemoire implements Seances {
         if (enBase == null) throw new IllegalStateException("Séance inconnue");
         var impose = seance.forfaitImpose().orElseThrow(() -> new IllegalStateException("Aucun forfait imposé à enregistrer"));
         lignes.put(seance.id(), Seance.restituer(enBase.id(), enBase.centre(), enBase.patient(), enBase.jour(), enBase.statut(),
-                enBase.creeLe(), enBase.derogation().orElse(null), enBase.jalons(), enBase.traces(), impose));
+                enBase.creeLe(), enBase.derogation().orElse(null), enBase.jalons(), enBase.traces(), impose,
+                enBase.facture().orElse(null)));
+    }
+
+    /** Comme la base : seul le jour est écrit, le reste de la ligne enregistrée (statut, facture, forfait imposé) est conservé tel quel. */
+    @Override
+    public void enregistrerLeJour(Seance seance) {
+        Seance enBase = lignes.get(seance.id());
+        if (enBase == null) throw new IllegalStateException("Séance inconnue");
+        lignes.put(seance.id(), Seance.restituer(enBase.id(), enBase.centre(), enBase.patient(), seance.jour(), enBase.statut(),
+                enBase.creeLe(), enBase.derogation().orElse(null), enBase.jalons(), enBase.traces(), enBase.forfaitImpose().orElse(null),
+                enBase.facture().orElse(null)));
+    }
+
+    @Override
+    public void supprimer(Seance seance) {
+        Seance enBase = lignes.get(seance.id());
+        if (enBase == null || !enBase.centre().equals(seance.centre())) throw new IllegalStateException("Séance inconnue");
+        lignes.remove(seance.id());
     }
 
     /** Sème une ligne telle qu'elle existe déjà en base (hors règles de création). */

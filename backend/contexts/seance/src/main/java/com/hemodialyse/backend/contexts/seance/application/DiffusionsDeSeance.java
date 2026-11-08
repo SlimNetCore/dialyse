@@ -23,4 +23,10 @@ public interface DiffusionsDeSeance {
      * même sans changement de quantité (KB-SEA-28, reproduit : sans risque d'intégrité).
      */
     void consommablesModifies(CentreId centre, Seance seance);
+
+    /**
+     * SE6 : la séance vient d'être supprimée ({@code SEANCE_SUPPRIMEE}, administrateurs, infirmiers et secrétaires du centre). Aucune
+     * notification persistée (reproduit).
+     */
+    void seanceSupprimee(CentreId centre, com.hemodialyse.backend.contexts.seance.domain.SuppressionDeSeance suppression);
 }

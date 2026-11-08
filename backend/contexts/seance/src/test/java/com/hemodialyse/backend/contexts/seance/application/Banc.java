@@ -12,7 +12,9 @@ import com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
+import com.hemodialyse.backend.contexts.seance.domain.Seances;
 import com.hemodialyse.backend.contexts.seance.domain.SituationDuPlanning;
+import com.hemodialyse.backend.contexts.seance.domain.SuppressionDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
@@ -134,7 +136,97 @@ final class Banc {
             public void consommablesModifies(CentreId centre, Seance seance) {
                 diffusionsRecues.add("SEANCE_CONSOMMABLE_CHANGED:" + seance.id().valeur());
             }
+
+            @Override
+            public void seanceSupprimee(CentreId centre, SuppressionDeSeance suppression) {
+                diffusionsRecues.add("SEANCE_SUPPRIMEE:" + suppression.seance().valeur() + ":" + suppression.jour());
+            }
         };
+    }
+
+    // ---- SE6 : changement de jour et suppression
+
+    /** Appels dans l'ordre : « consommations », « saisies », « suppression » (ligne), « journal » : prouve l'ordre du legacy. */
+    final List<String> etapesDeLaSuppression = new ArrayList<>();
+    final List<SuppressionDeSeance> journal = new ArrayList<>();
+    /** Le Stock refuse l'annulation (séance facturée, pièce rapprochée) avec ce code. */
+    String refusDeLAnnulation;
+    /** Le journal échoue : prouve que la suppression est tout ou rien. */
+    boolean leJournalEchoue;
+
+    AnnulationDesConsommations annulationDesConsommations() {
+        return (centre, seance, auteur) -> {
+            if (refusDeLAnnulation != null) throw new ConsommationRefusee(refusDeLAnnulation, "refus du Stock");
+            etapesDeLaSuppression.add("consommations:" + auteur);
+        };
+    }
+
+    SaisiesDeLaSeance saisiesDeLaSeance() {
+        return (centre, seance) -> etapesDeLaSuppression.add("saisies");
+    }
+
+    JournalDesSuppressions journalDesSuppressions() {
+        return suppression -> {
+            if (leJournalEchoue) throw new IllegalStateException("journal indisponible");
+            etapesDeLaSuppression.add("journal");
+            journal.add(suppression);
+        };
+    }
+
+    ChangerLeJourDUneSeance changerLeJour() {
+        return new ChangerLeJourDUneSeance(session, seances, unite(), horloge());
+    }
+
+    SupprimerUneSeance supprimer() {
+        Seances tracee = new Seances() {
+            @Override
+            public void ajouter(Seance seance) {
+                seances.ajouter(seance);
+            }
+
+            @Override
+            public void verrouillerLeJour(CentreId centre, PatientId patient, LocalDate jour) {
+                seances.verrouillerLeJour(centre, patient, jour);
+            }
+
+            @Override
+            public List<Seance> duJour(CentreId centre, PatientId patient, LocalDate jour) {
+                return seances.duJour(centre, patient, jour);
+            }
+
+            @Override
+            public Optional<Seance> trouver(CentreId centre, SeanceId id) {
+                return seances.trouver(centre, id);
+            }
+
+            @Override
+            public Optional<Seance> trouverPourModifier(CentreId centre, SeanceId id) {
+                return seances.trouverPourModifier(centre, id);
+            }
+
+            @Override
+            public void enregistrer(Seance seance) {
+                seances.enregistrer(seance);
+            }
+
+            @Override
+            public void enregistrerLeForfaitImpose(Seance seance) {
+                seances.enregistrerLeForfaitImpose(seance);
+            }
+
+            @Override
+            public void enregistrerLeJour(Seance seance) {
+                seances.enregistrerLeJour(seance);
+            }
+
+            @Override
+            public void supprimer(Seance seance) {
+                etapesDeLaSuppression.add("suppression");
+                seances.supprimer(seance);
+            }
+        };
+        return new SupprimerUneSeance(session, tracee, annulationDesConsommations(), saisiesDeLaSeance(), journalDesSuppressions(), unite(),
+                identifiants(), horloge(), diffusions());
     }
 
     /** SE3 : quantités déclarées au Stock par « séance/article » (le double cumule, fixe et retire comme le Stock) et auteurs transmis. */

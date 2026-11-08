@@ -44,4 +44,14 @@ public interface Seances {
      * les jalons, pour ne pas réécrire, depuis un état lu plus tôt, ce qu'un autre écrivain (la Facturation) aurait changé entre-temps.
      */
     void enregistrerLeForfaitImpose(Seance seance);
+
+    /**
+     * Enregistre le nouveau jour d'une séance existante (SE6) : la SEULE colonne {@code date_seance}. Ni le statut, ni les jalons, ni la
+     * facture, ni le forfait imposé ne sont réécrits depuis un état lu plus tôt (KB-SEA-49, corrigé : le legacy réécrivait toute la
+     * ligne et effaçait {@code facture_id}).
+     */
+    void enregistrerLeJour(Seance seance);
+
+    /** Supprime la ligne de la séance du centre (SE6). Sans effet sur les saisies liées, supprimées par leurs propriétaires. */
+    void supprimer(Seance seance);
 }

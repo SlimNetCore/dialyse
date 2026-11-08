@@ -48,6 +48,12 @@ public class DiffusionsFournieesLegacy implements DiffusionsFournies {
         diffuser("SEANCE_CONSOMMABLE_CHANGED", () -> notifications.notifySeanceUpdated(centre, seance));
     }
 
+    @Override
+    public void seanceSupprimee(UUID centre, UUID seance, UUID patient, String jour) {
+        diffuser("SEANCE_SUPPRIMEE", () -> notifications.notifySeanceSupprimee(centre, seance, patient,
+                jour == null ? null : java.time.LocalDate.parse(jour)));
+    }
+
     private static void diffuser(String evenement, Runnable envoi) {
         try {
             envoi.run();

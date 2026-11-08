@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.seance.contrat;
 
 import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.AuteurDuForfaitImpose;
+import com.hemodialyse.backend.contexts.seance.domain.FactureId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitImpose;
@@ -370,6 +371,94 @@ public abstract class SeancesContrat {
         seance.imposerUnForfait(F1, T1, COMPTA);
 
         assertThatThrownBy(() -> banc.seances().enregistrerLeForfaitImpose(seance)).isInstanceOf(IllegalStateException.class);
+    }
+
+    // ---- SE6 : jour, facture rattachée, suppression
+
+    private static final FactureId FACTURE = new FactureId(new UUID(8, 1));
+
+    @Test
+    void should_read_the_invoice_that_took_the_session_and_none_for_a_session_never_billed() {
+        var banc = nouveauBanc();
+        banc.semer(Seance.restituer(s(1), CENTRE_A, PATIENT, JOUR, StatutDeSeance.SIGNEE, T0, null, null, null, null, FACTURE));
+        banc.seances().ajouter(programmee(2, CENTRE_A, PATIENT, JOUR, T0));
+
+        assertThat(banc.seances().trouver(CENTRE_A, s(1)).orElseThrow().facture()).contains(FACTURE);
+        assertThat(banc.seances().trouver(CENTRE_A, s(2)).orElseThrow().facture()).isEmpty();
+    }
+
+    @Test
+    void should_write_only_the_day_and_keep_the_invoice_the_status_and_the_forfait_imposed() {
+        var banc = nouveauBanc();
+        banc.semer(Seance.restituer(s(1), CENTRE_A, PATIENT, JOUR, StatutDeSeance.SIGNEE, T0, null, new Seance.Jalons(T0, T0, T0, null),
+                new Seance.Traces("inf-01", "med-01", null, null), new ForfaitImpose(F1.id(), "F1", "Forfait 1", new BigDecimal("250.50"),
+                T1, "compta-01"), FACTURE));
+        var seance = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        seance.changerDeJour(JOUR.plusDays(2));
+
+        banc.seances().enregistrerLeJour(seance);
+
+        var lue = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThat(lue.jour()).isEqualTo(JOUR.plusDays(2));
+        assertThat(lue.facture()).contains(FACTURE);
+        assertThat(lue.statut()).isEqualTo(StatutDeSeance.SIGNEE);
+        assertThat(lue.traces().infirmier()).isEqualTo("inf-01");
+        assertThat(lue.traces().medecin()).isEqualTo("med-01");
+        assertThat(lue.forfaitImpose().orElseThrow().code()).isEqualTo("F1");
+    }
+
+    @Test
+    void should_never_undo_a_concurrent_forfait_or_status_change_when_the_day_is_recorded() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        var lueAvant = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        var autre = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        autre.imposerUnForfait(F1, T1, COMPTA);
+        banc.seances().enregistrerLeForfaitImpose(autre);
+        autre.validerParLInfirmier(T1, new Signataire("inf-01"));
+        banc.seances().enregistrer(autre);
+
+        lueAvant.changerDeJour(JOUR.minusDays(1));
+        banc.seances().enregistrerLeJour(lueAvant);
+
+        var finale = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThat(finale.jour()).isEqualTo(JOUR.minusDays(1));
+        assertThat(finale.statut()).isEqualTo(StatutDeSeance.VALIDEE);
+        assertThat(finale.forfaitImpose().orElseThrow().code()).isEqualTo("F1");
+    }
+
+    @Test
+    void should_refuse_to_record_the_day_of_a_session_that_does_not_exist() {
+        var banc = nouveauBanc();
+
+        assertThatThrownBy(() -> banc.seances().enregistrerLeJour(programmee(1, CENTRE_A, PATIENT, JOUR, T0)))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void should_remove_only_the_session_of_the_centre_and_leave_the_others() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        banc.seances().ajouter(programmee(2, CENTRE_A, PATIENT, JOUR, T0.plusSeconds(1)));
+        banc.seances().ajouter(programmee(3, CENTRE_B, PATIENT, JOUR, T0));
+
+        banc.seances().supprimer(banc.seances().trouver(CENTRE_A, s(1)).orElseThrow());
+
+        assertThat(banc.seances().trouver(CENTRE_A, s(1))).isEmpty();
+        assertThat(banc.seances().trouver(CENTRE_A, s(2))).isPresent();
+        assertThat(banc.seances().trouver(CENTRE_B, s(3))).isPresent();
+    }
+
+    @Test
+    void should_refuse_to_remove_a_session_that_does_not_exist_or_belongs_to_another_centre() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(3, CENTRE_B, PATIENT, JOUR, T0));
+        var absente = programmee(1, CENTRE_A, PATIENT, JOUR, T0);
+        var autreCentre = Seance.creer(s(3), CENTRE_A, PATIENT, JOUR, T0);
+
+        assertThatThrownBy(() -> banc.seances().supprimer(absente)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> banc.seances().supprimer(autreCentre)).isInstanceOf(IllegalStateException.class);
+        assertThat(banc.seances().trouver(CENTRE_B, s(3))).isPresent();
     }
 
     @Test

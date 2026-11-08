@@ -48,8 +48,8 @@ abstract class SeancesJdbcContrat extends SeancesContrat {
                                 + "signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at, hors_planning, motif_hors_planning, "
                                 + "precision_hors_planning, signed_infirmier_by, signed_medecin_by, regularisation_deverrouillee_by, salle_id, "
                                 + "creneau_id, generateur_id, forfait_override_id, forfait_override_code, forfait_override_nom, "
-                                + "forfait_override_prix, forfait_override_updated_at, forfait_override_updated_by) "
-                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", s.id().valeur(), s.centre().valeur(),
+                                + "forfait_override_prix, forfait_override_updated_at, forfait_override_updated_by, facture_id) "
+                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", s.id().valeur(), s.centre().valeur(),
                         s.patient().valeur(), java.sql.Date.valueOf(s.jour()), s.statut().name(), horodatage(s.creeLe()),
                         horodatage(jalons.valideeLe()), horodatage(jalons.signeeParLInfirmierLe()), horodatage(jalons.signeeParLeMedecinLe()),
                         horodatage(jalons.deverrouilleePourRegularisationLe()), s.horsPlanning(),
@@ -59,7 +59,7 @@ abstract class SeancesJdbcContrat extends SeancesContrat {
                         s.forfaitImpose().map(f -> f.forfait().valeur()).orElse(null), s.forfaitImpose().map(f -> f.code()).orElse(null),
                         s.forfaitImpose().map(f -> f.nom()).orElse(null), s.forfaitImpose().map(f -> f.prix()).orElse(null),
                         horodatage(s.forfaitImpose().map(f -> f.imposeLe()).orElse(null)),
-                        s.forfaitImpose().map(f -> f.auteur()).orElse(null));
+                        s.forfaitImpose().map(f -> f.auteur()).orElse(null), s.facture().map(f -> f.valeur()).orElse(null));
             }
 
             @Override

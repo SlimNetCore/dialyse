@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance;
 import com.hemodialyse.backend.contexts.seance.application.DiffusionsDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
+import com.hemodialyse.backend.contexts.seance.domain.SuppressionDeSeance;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
@@ -41,6 +42,12 @@ public class DiffusionsParLeLegacy implements DiffusionsDeSeance {
     @Override
     public void consommablesModifies(CentreId centre, Seance seance) {
         diffusions.consommablesModifies(centre.valeur(), seance.id().valeur());
+    }
+
+    @Override
+    public void seanceSupprimee(CentreId centre, SuppressionDeSeance suppression) {
+        diffusions.seanceSupprimee(centre.valeur(), suppression.seance().valeur(), suppression.patient().valeur(),
+                suppression.jour() == null ? null : suppression.jour().toString());
     }
 
     private static String jour(Seance seance) {

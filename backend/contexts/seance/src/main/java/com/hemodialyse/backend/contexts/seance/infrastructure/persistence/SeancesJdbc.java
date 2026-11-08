@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.seance.domain.FactureId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitImpose;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
@@ -46,7 +47,7 @@ public class SeancesJdbc implements Seances {
             + "precision_hors_planning, validated_at, signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at, "
             + "signed_infirmier_by, signed_medecin_by, regularisation_deverrouillee_by, salle_id, creneau_id, generateur_id, "
             + "forfait_override_id, forfait_override_code, forfait_override_nom, forfait_override_prix, forfait_override_updated_at, "
-            + "forfait_override_updated_by";
+            + "forfait_override_updated_by, facture_id";
 
     private final JdbcTemplate jdbc;
     private volatile Boolean postgreSql;
@@ -117,6 +118,19 @@ public class SeancesJdbc implements Seances {
     }
 
     @Override
+    public void enregistrerLeJour(Seance s) {
+        int lignes = jdbc.update("UPDATE seances SET date_seance = ? WHERE id = ? AND center_id = ?", java.sql.Date.valueOf(s.jour()),
+                s.id().valeur(), s.centre().valeur());
+        if (lignes != 1) throw new IllegalStateException("Séance " + s.id().valeur() + " introuvable à l'enregistrement du jour");
+    }
+
+    @Override
+    public void supprimer(Seance s) {
+        int lignes = jdbc.update("DELETE FROM seances WHERE id = ? AND center_id = ?", s.id().valeur(), s.centre().valeur());
+        if (lignes != 1) throw new IllegalStateException("Séance " + s.id().valeur() + " introuvable à la suppression");
+    }
+
+    @Override
     public List<Seance> duJour(CentreId centre, PatientId patient, LocalDate jour) {
         return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE center_id = ? AND patient_id = ? AND date_seance = ? "
                         + "ORDER BY created_at ASC NULLS LAST, id ASC", (rs, i) -> seance(rs), centre.valeur(), patient.valeur(),
@@ -151,7 +165,13 @@ public class SeancesJdbc implements Seances {
                 instant(rs, "created_at"), derogation, new Seance.Jalons(instant(rs, "validated_at"), instant(rs, "signed_infirmier_at"),
                         instant(rs, "signed_medecin_at"), instant(rs, "regularisation_deverrouillee_at")),
                 new Seance.Traces(rs.getString("signed_infirmier_by"), rs.getString("signed_medecin_by"),
-                        rs.getString("regularisation_deverrouillee_by"), place(rs)), forfaitImpose(rs));
+                        rs.getString("regularisation_deverrouillee_by"), place(rs)), forfaitImpose(rs), facture(rs));
+    }
+
+    /** La facture qui a pris la séance : {@code facture_id}, posé par la Facturation seule (la Séance ne l'écrit jamais). */
+    private static FactureId facture(ResultSet rs) throws SQLException {
+        UUID facture = rs.getObject("facture_id", UUID.class);
+        return facture == null ? null : new FactureId(facture);
     }
 
     /** Le forfait imposé : présent dès que {@code forfait_override_id} l'est (code, instant et auteur peuvent manquer : Facturation). */

@@ -20,4 +20,7 @@ public interface DiffusionsFournies {
 
     /** SE3 : un consommable de la séance a été ajouté, modifié ou retiré ({@code SEANCE_CONSOMMABLE_CHANGED}, infirmiers et secrétaires). */
     void consommablesModifies(UUID centre, UUID seance);
+
+    /** SE6 : la séance vient d'être supprimée ({@code SEANCE_SUPPRIMEE}, administrateurs, infirmiers et secrétaires). */
+    void seanceSupprimee(UUID centre, UUID seance, UUID patient, String jour);
 }
