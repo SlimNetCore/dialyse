@@ -136,7 +136,7 @@
   les autres. **Il n'existe pas d'agrégat « dérogation de régularisation »** : la dérogation est le déverrouillage
   (`regularisation_deverrouillee_at/by`, RG-SEA-053), sans motif ni autorité ; la table `derogations_regularisation` (V50) n'est jamais
   écrite (KB-SEA-40, conservée, vide). **Corrigés, à confirmer avec les métiers** — (KB-SEA-35) **un seul rappel par centre et par jour du
-  centre** (identifiant déterministe dans le journal existant, verrou consultatif par centre et jour pour deux instances) : un second
+  centre** (identifiant déterministe dans le journal existant ; pour deux instances, **le verrou consultatif par centre et jour est la garantie**, sans repli sur la violation de clé du journal, et le scénario à deux instances n'est pas prouvé de bout en bout) : un second
   passage du même jour n'émet rien et le rappel du jour reste figé à son premier passage ; (KB-SEA-36) « aujourd'hui » est le jour du
   fuseau du centre, plus le jour UTC. **Reproduit, à confirmer avant la mise en production** — (KB-SEA-37) **la fenêtre est de 7 jours
   alors que le verrou des jours passés n'a aucune borne** : une séance oubliée depuis 8 jours ou plus reste bloquée pour l'infirmier, n'est

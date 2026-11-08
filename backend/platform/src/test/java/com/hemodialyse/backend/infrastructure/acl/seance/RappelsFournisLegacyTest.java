@@ -19,12 +19,14 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Fournisseur du langage publié {@code RappelsFournis} (SE4) : identifiant déterministe (centre, jour du centre), une seule alerte par
- * centre et par jour, tolérance à l'insertion concurrente de cet identifiant par une autre instance (KB-SEA-35).
+ * centre et par jour (KB-SEA-35). Aucun repli sur la violation de clé : la garantie multi-instances est le verrou consultatif du cas
+ * d'usage (contrat PostgreSQL du verrou).
  */
 class RappelsFournisLegacyTest {
 
@@ -63,21 +65,15 @@ class RappelsFournisLegacyTest {
     }
 
     @Test
-    void une_insertion_concurrente_de_l_identifiant_par_une_autre_instance_est_traitee_comme_deja_emise() {
+    void une_violation_de_cle_du_journal_remonte_sans_repli_car_la_garantie_est_le_verrou_consultatif() {
         UUID id = RappelsFournisLegacy.identifiant(CENTRE, JOUR);
-        when(journal.existe(id)).thenReturn(false, true);
+        when(journal.existe(id)).thenReturn(false);
         doThrow(new DuplicateKeyException("notification_evenement_pkey")).when(service)
                 .notifySeancesARegulariser(CENTRE, 1L, null, id);
 
-        assertFalse(fournisseur.rappeler(CENTRE, JOUR, 1, null), "pas d'erreur : l'autre instance a émis le rappel");
-    }
-
-    @Test
-    void une_violation_d_integrite_sans_rappel_enregistre_reste_une_erreur() {
-        UUID id = RappelsFournisLegacy.identifiant(CENTRE, JOUR);
-        when(journal.existe(id)).thenReturn(false);
-        doThrow(new DataIntegrityViolationException("autre contrainte")).when(service).notifySeancesARegulariser(CENTRE, 1L, null, id);
-
+        // aucun repli : sur PostgreSQL un INSERT en échec abandonne la transaction (25P02) ; la garantie est le verrou consultatif
+        // (VerrousDesRappelsPostgresContractIT) ; si le verrou était contourné, l'erreur remonte et le centre est rendu en incident
         assertThrows(DataIntegrityViolationException.class, () -> fournisseur.rappeler(CENTRE, JOUR, 1, null));
+        verify(journal, times(1)).existe(id);
     }
 }

@@ -204,7 +204,8 @@ class RappelerLesSeancesARegulariserTest {
 
     @Test
     void should_use_a_different_day_for_each_centre_when_their_time_zones_differ() {
-        horloge = new HorlogeDuCentre(Clock.systemUTC(), centre -> centre.equals(CENTRE_A.valeur()) ? AUJOURDHUI : AUJOURDHUI.plusDays(1));
+        horloge = new HorlogeDuCentre(Clock.fixed(Instant.parse("2026-06-15T05:00:00Z"), ZoneOffset.UTC),
+                centre -> centre.equals(CENTRE_A.valeur()) ? AUJOURDHUI : AUJOURDHUI.plusDays(1));
         oubliee(CENTRE_A, 0, StatutDeSeance.CREE);
         oubliee(CENTRE_B, 0, StatutDeSeance.CREE);
 
@@ -232,7 +233,7 @@ class RappelerLesSeancesARegulariserTest {
 
     @Test
     void should_report_an_incident_when_the_day_of_a_centre_cannot_be_read() {
-        horloge = new HorlogeDuCentre(Clock.systemUTC(), centre -> {
+        horloge = new HorlogeDuCentre(Clock.fixed(Instant.parse("2026-06-15T05:00:00Z"), ZoneOffset.UTC), centre -> {
             if (centre.equals(CENTRE_A.valeur())) throw new IllegalStateException("fuseau illisible");
             return AUJOURDHUI;
         });

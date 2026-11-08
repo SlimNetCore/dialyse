@@ -3,7 +3,6 @@ package com.hemodialyse.backend.infrastructure.acl.seance;
 import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -13,8 +12,14 @@ import java.util.UUID;
 /**
  * Fournit à la Séance le langage publié {@link RappelsFournis} (ACL vers le centre de notifications legacy) : l'alerte durable
  * {@code SEANCES_A_REGULARISER} pour {@code ADMIN}. Son identifiant est déterministe (UUID v3 de « type | centre | jour du centre ») :
- * une seule alerte par centre et par jour du centre, même avec plusieurs instances du serveur (KB-SEA-35, corrigé ; aucune table
- * ajoutée : le journal {@code notification_evenement} porte l'identifiant).
+ * une seule alerte par centre et par jour du centre (KB-SEA-35, corrigé ; aucune table ajoutée : le journal
+ * {@code notification_evenement} porte l'identifiant).
+ * <p>
+ * GARANTIE multi-instances : le VERROU CONSULTATIF (centre, jour) pris par le cas d'usage dans la même transaction, pas un repli sur
+ * violation de clé. Une seconde instance attend le verrou, puis voit l'identifiant déjà journalisé ({@code existe}) et n'émet rien. Aucun
+ * repli sur {@code DataIntegrityViolationException} : sur PostgreSQL un INSERT en échec abandonne la transaction en cours (25P02), un
+ * repli ne pourrait pas relire le journal ; si le verrou était contourné, l'erreur remonte, le centre est rendu en incident et il n'y a
+ * pas de doublon (la clé primaire du journal l'interdit).
  */
 @Component
 public class RappelsFournisLegacy implements RappelsFournis {
@@ -39,16 +44,7 @@ public class RappelsFournisLegacy implements RappelsFournis {
         if (journal.existe(id)) {
             return false;
         }
-        try {
-            notifications.notifySeancesARegulariser(centre, nbSeances, plusAncienne, id);
-        } catch (DataIntegrityViolationException concurrente) {
-            // deux instances ont passé le contrôle « existe » ensemble : l'autre a inséré l'identifiant déterministe d'abord, le
-            // rappel est déjà émis (une seule fois) ; toute autre cause de violation reste une erreur
-            if (journal.existe(id)) {
-                return false;
-            }
-            throw concurrente;
-        }
+        notifications.notifySeancesARegulariser(centre, nbSeances, plusAncienne, id);
         return true;
     }
 }

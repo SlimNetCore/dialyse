@@ -54,7 +54,10 @@ echo "=== SE4 : requetes de controle (SELECT seule), executables sur le schema r
 for q in \
   "SELECT count(*) FROM derogations_regularisation" \
   "SELECT center_id, count(*) FROM derogations_regularisation GROUP BY center_id" \
-  "SELECT s.center_id, count(*) AS oubliees_hors_fenetre, min(s.date_seance) AS plus_ancienne FROM seances s WHERE s.statut = 'CREE' AND s.date_seance < current_date - 7 GROUP BY s.center_id" \
+  "SELECT s.center_id, count(*) AS oubliees_hors_fenetre, min(s.date_seance) AS plus_ancienne FROM seances s WHERE s.statut = 'CREE' AND s.date_seance < current_date - 7 AND s.regularisation_deverrouillee_at IS NULL GROUP BY s.center_id" \
+  "SELECT center_id, payload, cree_le FROM notification_evenement WHERE type = 'SEANCES_A_REGULARISER' AND cree_le >= current_date ORDER BY center_id" \
+  "SELECT s.center_id, count(*) AS a_regulariser, min(s.date_seance) AS plus_ancienne FROM seances s WHERE s.statut = 'CREE' AND s.date_seance BETWEEN current_date - 7 AND current_date - 1 AND s.regularisation_deverrouillee_at IS NULL GROUP BY s.center_id" \
+  "SELECT center_id, seance_id, motif, autorite, date_derogation FROM derogations_regularisation ORDER BY date_derogation DESC LIMIT 50" \
   "SELECT s.center_id, count(*) AS creees_deverrouillees FROM seances s WHERE s.statut = 'CREE' AND s.regularisation_deverrouillee_at IS NOT NULL GROUP BY s.center_id" \
   "SELECT s.center_id, s.id FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id WHERE s.statut = 'CREE' AND p.id IS NULL" \
   "SELECT center_id, count(*) AS rappels, count(DISTINCT left(payload, 200)) AS charges FROM notification_evenement WHERE type = 'SEANCES_A_REGULARISER' GROUP BY center_id, cree_le::date HAVING count(*) > 1"; do
