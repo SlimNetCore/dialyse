@@ -106,6 +106,28 @@
   article inactif) annule toute la validation (statut, place, consommations).
   *Source :* `ValiderUneSeance`, `SignerUneSeance`, `DeverrouillerUneSeance`, `Seance`, `SeancesControleur`, `ErreursDeSeanceAdvice`.
 
+- **RG-SEA-054** — **Consommables déclarés d'une séance et raccourcis de consommables du centre repris dans le module `seance`**
+  (slice SE3, ADR 0090 ; `POST /api/v1/seances/{id}/consommables`, `PUT /api/v1/seances/{id}/consommables/{articleId}`,
+  `DELETE /api/v1/seances/{id}/consommables/{articleId}` `ADMIN`, `INFIRMIER` ; `GET /api/v1/seances/raccourcis-consommables`
+  `ADMIN`, `INFIRMIER`, `SECRETAIRE` ; `PUT /api/v1/seances/raccourcis-consommables` `ADMIN` ; mêmes URLs, mêmes rôles, mêmes tables,
+  même cache `seance.raccourcis`, mêmes messages que RG-SEA-022, 025 et 027). La Séance **déclare**, le Stock impute (langage publié
+  `ConsommationsDeSeance`). **Corrigés, à confirmer avec les métiers** — (KB-SEA-26) un corps illisible, une quantité ou un identifiant
+  illisible répondent 400 `BAD_REQUEST` au lieu de 500, le refus de droits 403 passant avant le 400 ; (KB-SEA-27) la lecture du patient, la
+  vérification du statut et l'écriture se font dans une seule unité de travail : un patient disparu répond 404 `PATIENT_INTROUVABLE` sans
+  rien écrire (comme SE1 et SE2) ; (KB-SEA-25) un seul statut par cause : article inconnu, d'un autre centre ou inactif et quantité
+  invalide répondent 400 `BAD_REQUEST` sur les trois routes (les refus du Stock pour séance facturée ou pièce rapprochée restent 422 avec le
+  code du Stock) ; écritures concurrentes : la séance est lue sous verrou (`FOR UPDATE`), le remplacement des raccourcis sous verrou
+  consultatif du centre, verrou non obtenu en 5 s : 409 `ECRITURE_CONCURRENTE`. **Reproduits, à confirmer avant la mise en production** —
+  (KB-SEA-33) l'auteur de la saisie n'est pas conservé par le Stock : **risque médico-légal de traçabilité**, à valider avec le DPO ;
+  (KB-SEA-22) aucune sortie de stock n'est créée à la déclaration malgré la Javadoc FEFO ; (KB-SEA-24) la modification et le retrait sont
+  acceptés sur une séance `CREE` ou `ABSENT` ; (KB-SEA-31) `PUT` des raccourcis avec un corps vide **efface tous les raccourcis du centre**.
+  **Reproduits sans alerte** — (KB-SEA-23, 28, 30, 32, 34) ; (KB-SEA-29) l'audit porte `SEANCES_CREATION` (POST), `SEANCES_MODIFICATION`
+  (PUT) et `SEANCES_SUPPRESSION` (DELETE) et, pour les raccourcis, `SEANCES_MODIFICATION` sans identifiant d'entité ; les droits par
+  route. L'ajout exige une séance `VALIDEE` ou `SIGNEE` et non facturée ; les raccourcis sont limités à 12 articles actifs du centre,
+  sans doublon, dans l'ordre choisi (liste nulle = liste vide).
+  *Source :* `AjouterUnConsommable`, `ModifierLaQuantiteDUnConsommable`, `RetirerUnConsommable`, `ConsulterLesRaccourcis`,
+  `RemplacerLesRaccourcis`, `RaccourcisDeConsommables`, `Seance`, `SeancesControleur`, `ErreursDeSeanceAdvice`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
@@ -206,7 +228,7 @@
   (`PUT /seances/raccourcis-consommables`) ; la lecture est ouverte à `ADMIN`, `INFIRMIER` et `SECRETAIRE`. Sans
   raccourci configuré, l'écran propose les articles les plus sortis du jour (6 au plus). La liste est propre au centre
   (isolation stricte), mise en cache par centre et purgée à chaque modification. Un article inconnu, d'un autre centre ou **inactif** est refusé en 400 (`BAD_REQUEST`, KB-STK-56 corrigé ; c'était 422 pour l'inactif) ; de même pour l'ajout d'un consommable et pour la **validation de la séance** avec consommations (KB-STK-57). *Source :*
-  `SeanceRaccourciDomainService`, `SeanceRaccourciApplicationService`.
+  `RaccourcisDeConsommables`, `ConsulterLesRaccourcis`, `RemplacerLesRaccourcis` (module `seance`, RG-SEA-054).
 - **RG-SEA-028** — **Rappel des dernières séances** (`GET /seances/patient/{id}/recentes`, `ADMIN`, `INFIRMIER`,
   `MEDECIN`) : les 3 dernières séances du patient antérieures à la séance ouverte (10 au plus, de la plus récente à
   la plus ancienne) avec leurs constantes — poids avant/après, perte de poids, tension, durée, ultrafiltration.
