@@ -21,7 +21,7 @@ Consommateurs qui touchaient `seances` hors contexte, aucun ne passait par `sean
 | Adapter | `LecturesPublieesDesSeancesJdbc` (`contexts/seance/infrastructure/persistence`), contrat à 8 cas : double en mémoire, H2, PostgreSQL 16 jetable (`backend/scripts/seance-se7c1-pg16-rejeu.sh`, port 55543) |
 | ACL du Stock | `platform/.../infrastructure/acl/stock/StatutDesSeancesParLaSeance`, `PerimetreDesSeancesParLaSeance` (dans la plateforme : cycle Maven Seance -> Stock, ADR 0096 décision 4) ; seam inscrit puis refermé, fichiers dans `covered.json` |
 | Retiré | `StatutDesSeancesLegacy`, `PerimetreDesSeancesLegacy` et leurs 2 beans ; entrée Stock de `TableDeLOrganisationTest` |
-| Verrous | `TableDesSeancesTest` réécrit (liste blanche nominative datée de 18 lecteurs, aucun du Stock) ; règle ArchUnit `le_stock_ne_depend_pas_de_la_seance` ; `FrontieresDesContextesTest` sans exception |
+| Verrous | `TableDesSeancesTest` réécrit (liste blanche nominative datée de 22 lecteurs (garde durcie par la revue : `FROM a, seances`, `public.seances`, ressources SQL hors Flyway ; elle a révélé 4 ressources), aucun du Stock) ; règle ArchUnit `le_stock_ne_depend_pas_de_la_seance` ; `FrontieresDesContextesTest` sans exception |
 | Parité | Goldens Stock S6b / S4 inchangés et verts ; `SeanceFactureeImmuable...` et le filet SE7c appellent les ports du Stock câblés en production |
 | Écarts de parité | Aucun (REPRODUIRE) |
 | Flag / bascule | Aucun (refactoring sur place, ADR 0024) ; rollback = retour au commit précédent ; `.ddd/migration/verifications-production.md` §61 (SELECT seule) |
@@ -30,15 +30,15 @@ Consommateurs qui touchaient `seances` hors contexte, aucun ne passait par `sean
 Décisions KB-SEA-68, 69, 70 (métiers) ; remplacer la lecture de `salle` et `position_creneau` par `organisation.v1` (jalon O4) ; replacer l'ACL du Stock dans `contexts/stock` si un module de langage publié partagé est décidé.
 
 ## c2 : Facturation (planned, audit de couverture rendue)
-Audit par fichier et par requête : `.ddd/safety-net/seance-se7c2-ecritures-facturation.md`. Découpage recommandé : c2a (lectures + 4 UPDATE gardés par `facture_id IS NULL`), c2b (`LiaisonDesSeancesJdbc.lier`, le seul UPDATE qui crée de l'argent, test de course PG16). Tests de caractérisation à ajouter AVANT tout code : KB-SEA-47 côté Facturation, KB-FAC-17 (statut en minuscules), course d'émission, `statut_avant_exclusion` blanc, tableau de bord contre synthèse. Aucun code c2 écrit.
+Audit par fichier et par requête : `.ddd/safety-net/seance-se7c2-ecritures-facturation.md`. Découpage recommandé : c2a (lectures + 4 UPDATE dont 3 gardés par `facture_id IS NULL` ; `lierALAbsence` ne l'est pas), c2b (`LiaisonDesSeancesJdbc.lier`, le seul UPDATE qui crée de l'argent, test de course PG16). Tests de caractérisation à ajouter AVANT tout code : `lierALAbsence` sur une séance facturée, KB-SEA-47 côté Facturation, KB-FAC-17 (statut en minuscules), course d'émission, `statut_avant_exclusion` blanc, tableau de bord contre synthèse. Aucun code c2 écrit.
 
 ## Bilan nominatif des résidus (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
 | R1 | `LecturesPublieesDesSeancesJdbc` lit `salle` et `position_creneau` en SQL direct : à remplacer par `organisation.v1` (O4) | 2026-12-15 | 2027-03-31 |
 | R2 | ACL du Stock logée dans la plateforme (cycle Maven) | 2026-12-15 | 2027-06-30 |
-| R3 | Décisions KB-SEA-68, 69, 70 | 2026-12-15 | avant toute mise en production |
-| R4 | 18 lecteurs SQL de `seances` hors Séance en liste blanche (`TableDesSeancesTest`) : Facturation (5) | 2026-12-15 | 2027-01-31 |
+| R3 | Décisions KB-SEA-68, 69, 70 | 2026-12-15 | 2027-01-31 (et, au plus tard, avant toute mise en production) |
+| R4 | 22 lecteurs SQL de `seances` hors Séance en liste blanche (`TableDesSeancesTest`) : Facturation (5) | 2026-12-15 | 2027-01-31 |
 | R5 | idem : absences-patients (3), planification (1), dossier-médical (1), fournisseurs plateforme de la Séance (2) | 2026-12-15 | 2027-03-31 |
-| R6 | idem : pilotage Direction (3), statistiques du patient, cahier de dialyse, annulation de migration (SUPPRESSION de séances) | 2026-12-15 | 2027-06-30 |
+| R6 | idem : pilotage Direction (3), statistiques du patient, cahier de dialyse (service et état `cahier_dialyse.jrxml`), annulation de migration (SUPPRESSION de séances), 3 scripts SQL de développement / démonstration (`seed.sql`, `renadial-seed.sql`, `renadial-purge.sql`) | 2026-12-15 | 2027-06-30 |
 | R7 | c2 : KB-SEA-47, KB-FAC-17, deux définitions de « facturée » à décider avant c2a | 2026-12-15 | 2027-01-31 |

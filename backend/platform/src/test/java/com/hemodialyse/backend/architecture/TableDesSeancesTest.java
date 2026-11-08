@@ -79,12 +79,27 @@ class TableDesSeancesTest {
         lecteur(plateforme + "infrastructure/reporting/CahierDialyseReportService.java", "cahier de dialyse imprimé (lecture)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
                 "annulation d'un lot de migration (SUPPRESSION de séances importées)", RETRAIT_DU_PILOTAGE_LEGACY);
+        // Ressources SQL de production hors Flyway, révélées par le durcissement de la garde (revue SE7c1, 2026-11-08).
+        String ressources = "platform/src/main/resources/";
+        lecteur(ressources + "reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47 lit le code du forfait)",
+                RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/seed.sql", "jeu d'amorçage de développement (écrit des séances)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des séances)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des séances ; jamais sur une base partagée)",
+                RETRAIT_DU_PILOTAGE_LEGACY);
     }
 
     private static final Set<String> TABLES_DE_LA_SEANCE = Set.of("seances");
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
-            "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
+            "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+(?:public\\.)?([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
+
+    /** Jointure à l'ancienne dans une même chaîne SQL : {@code FROM patients p, seances s} (la table n'est pas juste après FROM). */
+    private static final Pattern LISTE_DE_TABLES = Pattern.compile(
+            "\\bFROM\\s+[^;()\"]{0,160}?,\\s*(?:public\\.)?seances\\b", Pattern.CASE_INSENSITIVE);
+
+    /** Ressources SQL de production hors Flyway (états Jasper, requêtes en fichier) : lues comme les sources Java. */
+    private static final Set<String> EXTENSIONS_DE_RESSOURCES = Set.of(".sql", ".jrxml", ".xml");
 
     private static Path backend() {
         return Path.of("..").toAbsolutePath().normalize();
@@ -108,6 +123,14 @@ class TableDesSeancesTest {
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java")).filter(p -> !chemin(p).contains("/entity/")).forEach(trouves::add);
                 }
+                Path ressources = module.resolve("src/main/resources");
+                if (Files.isDirectory(ressources)) {
+                    try (Stream<Path> fichiers = Files.walk(ressources)) {
+                        fichiers.filter(Files::isRegularFile).filter(p -> !chemin(p).contains("/db/migration/"))
+                                .filter(p -> EXTENSIONS_DE_RESSOURCES.stream().anyMatch(e -> p.toString().endsWith(e)))
+                                .forEach(trouves::add);
+                    }
+                }
             }
         }
         return trouves;
@@ -115,11 +138,12 @@ class TableDesSeancesTest {
 
     private static boolean mentionneLaTableDeLaSeance(Path source) {
         try {
-            Matcher m = LECTURE_SQL.matcher(Files.readString(source));
+            String texte = Files.readString(source);
+            Matcher m = LECTURE_SQL.matcher(texte);
             while (m.find()) {
                 if (TABLES_DE_LA_SEANCE.contains(m.group(2).toLowerCase())) return true;
             }
-            return false;
+            return LISTE_DE_TABLES.matcher(texte).find();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -158,6 +182,21 @@ class TableDesSeancesTest {
     }
 
     @Test
+    void la_liste_blanche_compte_22_lecteurs_dont_12_de_la_plateforme() {
+        assertThat(LECTEURS_CONNUS)
+                .as("la liste blanche des lecteurs de seances compte 22 entrées (5 Facturation, 5 autres contextes, 12 plateforme dont "
+                        + "8 sources Java et 4 ressources SQL) : toute entrée ajoutée ou retirée doit être décidée, datée et reportée "
+                        + "dans la fiche de SE7c et l'annexe 16")
+                .hasSize(22);
+        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/")).count())
+                .as("dont 12 de la plateforme").isEqualTo(12);
+        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
+                .as("dont 4 ressources SQL").isEqualTo(4);
+        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
+                .as("dont 5 de la Facturation (c2)").isEqualTo(5);
+    }
+
+    @Test
     void le_contexte_stock_ne_lit_plus_la_table_des_seances() throws IOException {
         List<String> stock = new ArrayList<>();
         for (Path source : sourcesDeProduction(backend())) {
@@ -174,6 +213,8 @@ class TableDesSeancesTest {
         assertThat(scannes).anyMatch(s -> s.contains("/infrastructure/acl/"));
         assertThat(scannes).anyMatch(s -> s.contains("/infrastructure/persistence/"));
         assertThat(scannes).noneMatch(s -> s.startsWith("contexts/seance/"));
+        assertThat(scannes).as("ressources SQL de production hors Flyway").anyMatch(s -> s.contains("/src/main/resources/"));
+        assertThat(scannes).noneMatch(s -> s.contains("/db/migration/"));
     }
 
     @Test
@@ -198,6 +239,31 @@ class TableDesSeancesTest {
                 }
                 """);
 
+        Path liste = bac.resolve("JointureAncienne.java");
+        Files.writeString(liste, """
+                class JointureAncienne {
+                    String lecture = "SELECT p.nom FROM patients p, seances s WHERE s.patient_id = p.id";
+                }
+                """);
+        Path qualifiee = bac.resolve("TableQualifiee.java");
+        Files.writeString(qualifiee, """
+                class TableQualifiee {
+                    String lecture = "SELECT s.id FROM public.seances s";
+                }
+                """);
+        Path ressource = bac.resolve("etat.jrxml");
+        Files.writeString(ressource, "<queryString><![CDATA[SELECT s.id FROM seances s WHERE s.center_id = $P{centre}]]></queryString>");
+        Path variable = bac.resolve("VariableNommeeSeances.java");
+        Files.writeString(variable, """
+                class VariableNommeeSeances {
+                    void appel(java.util.List<String> patients, java.util.List<String> seances) { }
+                }
+                """);
+
+        assertThat(mentionneLaTableDeLaSeance(liste)).as("FROM a, seances").isTrue();
+        assertThat(mentionneLaTableDeLaSeance(qualifiee)).as("public.seances").isTrue();
+        assertThat(mentionneLaTableDeLaSeance(ressource)).as("ressource SQL").isTrue();
+        assertThat(mentionneLaTableDeLaSeance(variable)).as("une variable nommée seances n'est pas du SQL").isFalse();
         assertThat(mentionneLaTableDeLaSeance(fautif)).as("lecture de seances").isTrue();
         assertThat(mentionneLaTableDeLaSeance(ecriture)).as("écriture de seances").isTrue();
         assertThat(mentionneLaTableDeLaSeance(propre)).as("table d'un autre contexte").isFalse();
