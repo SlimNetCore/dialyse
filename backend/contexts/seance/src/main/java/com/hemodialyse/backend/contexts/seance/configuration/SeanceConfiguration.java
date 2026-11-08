@@ -197,11 +197,20 @@ public class SeanceConfiguration {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.StatistiquesDesSeancesJdbc(jdbc);
     }
 
-    /** Un seul bean pour les deux comptages (cahier de dialyse, forfait imposé). */
+    /**
+     * Les deux comptages (cahier de dialyse, forfait imposé) sont servis par le même adapter {@code SeancesDuCahierEtForfaitsImposesJdbc},
+     * exposé au conteneur sous ses deux PORTS seulement (revue SE7e n3) : chaque bean est une référence de méthode qui n'implémente QUE son
+     * port (l'instance de l'adapter, qui implémente les deux, n'est pas un bean : Spring apparie par le type réel de l'objet, deux beans de
+     * la classe concrète rendraient chaque port ambigu).
+     */
     @Bean
-    com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDuCahierEtForfaitsImposesJdbc seancesDuCahierEtForfaitsImposes(
-            JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDuCahierEtForfaitsImposesJdbc(jdbc);
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDuCahierPubliees seancesDuCahierPubliees(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDuCahierEtForfaitsImposesJdbc(jdbc)::nombreDeSeancesAImprimer;
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsImposesAuxSeancesPublies forfaitsImposesAuxSeancesPublies(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDuCahierEtForfaitsImposesJdbc(jdbc)::nombreDeSeancesQuiImposentLeForfait;
     }
 
     /**

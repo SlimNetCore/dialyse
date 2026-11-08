@@ -73,7 +73,9 @@ class TableDesSeancesTest {
         lecteur(ressources + "reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
                         + "de document PERSONNALISABLE par centre, dont la requête unique est embarquée (ADR 0099, décision 3, résidu E-R3)",
                 CAHIER_PERSONNALISABLE);
-        lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des séances ; rejoué à chaque démarrage sans SEED_DATA_LOCATIONS ; SE7f)",
+        lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des séances ; rejoué à chaque démarrage HORS profil prod : "
+                        + "application.yml spring.sql.init.mode=always, application-prod.yml never ; SEED_DATA_LOCATIONS REMPLACE le script, "
+                        + "ne coupe pas le rejeu ; SE7f)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des séances ; SE7f)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des séances ; jamais sur une base partagée ; SE7f)",
@@ -249,12 +251,38 @@ class TableDesSeancesTest {
                     String n(Node t) { return t.path("seances").asText() + " FROM table"; }
                 }
                 """);
-        List<Path> sources = List.of(descripteurs, compteur, liste, constructeur, url, jsonSansSql);
+        Path format = bac.resolve("Formateur.java");
+        Files.writeString(format, """
+                class Formateur {
+                    static final String TABLE = "seances";
+                    long n() { return jdbc.queryForObject(String.format("SELECT COUNT(*) FROM %s WHERE id = ?", TABLE), Long.class, 1); }
+                }
+                """);
+        Path formatted = bac.resolve("Formate.java");
+        Files.writeString(formatted, """
+                class Formate {
+                    static final String TABLE = "seances";
+                    String sql() { return "SELECT id FROM %s".formatted(TABLE); }
+                }
+                """);
+        Path blocDeTexte = bac.resolve("BlocDeTexte.java");
+        Files.writeString(blocDeTexte, """
+                class BlocDeTexte {
+                    static final String TABLE = "seances";
+                    String sql() {
+                        return \"""
+                                SELECT id
+                                  FROM
+                                \""" + TABLE + " WHERE id = ?";
+                    }
+                }
+                """);
+        List<Path> sources = List.of(descripteurs, compteur, liste, constructeur, url, jsonSansSql, format, formatted, blocDeTexte);
 
         assertThat(NomsDeTableCalcules.lecteursIndirects(sources, TABLES_DE_LA_SEANCE))
-                .as("descripteur nommé par un constructeur de SQL, liste et constructeur dans le même fichier ; ni un code d'URL non nommé, "
-                        + "ni une clé JSON sans requête construite")
-                .containsExactlyInAnyOrder(descripteurs, liste, constructeur);
+                .as("descripteur nommé par un constructeur de SQL, liste et constructeur dans le même fichier, String.format, formatted et "
+                        + "text block (revue SE7e n4) ; ni un code d'URL non nommé, ni une clé JSON sans requête construite")
+                .containsExactlyInAnyOrder(descripteurs, liste, constructeur, format, formatted, blocDeTexte);
         assertThat(mentionneLaTableDeLaSeance(liste)).as("littéral et requête construite dans le même fichier").isTrue();
         assertThat(mentionneLaTableDeLaSeance(descripteurs)).as("seul : la détection inter-fichiers est nécessaire").isFalse();
     }

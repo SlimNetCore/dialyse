@@ -12,7 +12,8 @@ import java.util.regex.Pattern;
 
 /**
  * Détection des noms de table CALCULÉS ou INDIRECTS (KB-SEA-92, SE7e, ADR 0099), technique partagée par les gardes de tables : une requête
- * construite ({@code "SELECT COUNT(*) FROM " + usage.table()}, {@code new StringBuilder("FROM ").append(table.name())}) n'a pas de
+ * construite ({@code "SELECT COUNT(*) FROM " + usage.table()}, {@code new StringBuilder("FROM ").append(table.name())},
+ * {@code String.format("… FROM %s", t)}, {@code "… FROM %s".formatted(t)}, text block suivi de {@code +}) n'a pas de
  * littéral {@code FROM seances} ; le nom de la table est une chaîne {@code "seances"} posée ailleurs (descripteur, constante, liste).
  * <p>
  * Règle : un source de production qui contient le LITTÉRAL exact d'une table surveillée ({@code "seances"} ou {@code "public.seances"},
@@ -23,9 +24,15 @@ import java.util.regex.Pattern;
  */
 final class NomsDeTableCalcules {
 
-    /** Fin d'un littéral SQL suivie d'une concaténation ou d'un {@code append} : le nom de la table vient d'une variable. */
+    /**
+     * Le nom de la table vient d'une variable : fin d'un littéral SQL ({@code "} ou text block {@code """}) suivie d'une concaténation
+     * ({@code +}), d'un {@code append} ou d'un {@code .formatted(} ; ou bien un {@code %s} juste après le mot-clé ({@code String.format},
+     * {@code formatted}, dans une chaîne simple ou un text block). Revue SE7e n4 : {@code String.format("… FROM %s", t)},
+     * {@code "… FROM %s".formatted(t)} et {@code """ … FROM\n""" + t} sont vus.
+     */
     private static final Pattern SQL_CONSTRUIT = Pattern.compile(
-            "\\b(?:FROM|JOIN|INTO|UPDATE|TABLE)\\s*\"\\s*(?:\\+|\\)\\s*\\.\\s*append\\s*\\()", Pattern.CASE_INSENSITIVE);
+            "\\b(?:FROM|JOIN|INTO|UPDATE|TABLE)\\s*(?:\"{1,3}\\s*(?:\\+|\\)\\s*\\.\\s*append\\s*\\(|\\.\\s*formatted\\s*\\()|%s)",
+            Pattern.CASE_INSENSITIVE);
 
     private NomsDeTableCalcules() {
     }

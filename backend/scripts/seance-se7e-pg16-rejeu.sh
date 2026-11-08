@@ -12,9 +12,14 @@
 #   E6-E9  contexts/seance/.../persistence/StatistiquesDesSeancesJdbc.java ; avant : application/query/PatientStatsQueryService.java:294-327
 #   E10    contexts/seance/.../persistence/SeancesDuCahierEtForfaitsImposesJdbc.nombreDeSeancesAImprimer ; avant : CahierDialyseReportService:84
 #   E11    platform/src/main/resources/reports/cahier_dialyse.jrxml:42-135 (requete de l'etat, entiere ; inchangee)
-#   E12-14 contexts/seance/.../persistence/SeancesDeLaRepriseJdbc.java (seanceDejaPresente, seancesDuPatient, factureDeLaSeance) ; avant :
-#          HistoricalRecordJdbcAdapter.java:94 et MigrationRollbackJdbcAdapter.java:83, :106
-#   E15    SeancesDuCahierEtForfaitsImposesJdbc.nombreDeSeancesQuiImposentLeForfait ; avant : ReferentialAdminJdbcAdapter.java:201
+#   E12    contexts/seance/.../persistence/SeancesDeLaRepriseJdbc.seanceDejaPresente ; avant : HistoricalRecordJdbcAdapter.java:94
+#   E14    SeancesDeLaRepriseJdbc.seancesDuPatient ; avant : MigrationRollbackJdbcAdapter.java:83
+#   E15    SeancesDeLaRepriseJdbc.factureDeLaSeance ; avant : MigrationRollbackJdbcAdapter.java:106
+#   E17    SeancesDuCahierEtForfaitsImposesJdbc.nombreDeSeancesQuiImposentLeForfait ; avant : ReferentialAdminJdbcAdapter.java:201
+# Numerotation = celle de l'audit .ddd/safety-net/seance-se7e.md section 1 (E1 a E17). NON rejoues ici comme verifications : E13 (INSERT),
+# update et E16 (DELETE) ; les ecritures sur seances de ce script ne sont que le jeu de donnees (fonction seance, UPDATE forfait_override).
+# E13, update et E16 sont verifies sur PostgreSQL par le contrat PilotageEtRapportsDesSeancesPostgresContractIT lance en fin de script
+# (depuis 4cd1ab8a) : 19 verifications SELECT ici (E1-E12, E14, E15, E17), les ecritures par le contrat.
 # Puis les requetes de detection (SELECT seule) de la section 64 de .ddd/migration/verifications-production.md (ADR 0099, annexe), dont
 # la verification de flyway_schema_history (table tenue ici par le script, une ligne par fichier applique, avec le DDL de Flyway), le
 # comportement de db/seed.sql sur PostgreSQL (question ouverte SE7e) et le contrat PostgreSQL PilotageEtRapportsDesSeancesPostgresContractIT
@@ -283,14 +288,15 @@ echo "=== E12 HistoricalRecordJdbcAdapter:94 : seance deja presente le meme jour
 verifier "E12 findExisting 2026-01-05 (ANNULEE)" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND date_seance = '2026-01-05' AND patient_id = '$P1' ORDER BY created_at")" \
   "5e7e4000-0000-0000-0000-000000000001"
 verifier "E12 findExisting 2026-01-07 (seance de l'autre centre : rien au centre du lot)" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND date_seance = '2026-01-07' AND patient_id = '$P1' ORDER BY created_at")" ""
-echo "=== E13 MigrationRollbackJdbcAdapter:83 : seances du patient repris, SANS centre (KB-SEA-90) ==="
-verifier "E13 seances du patient" "$(sql "SELECT CAST(id AS VARCHAR(36)) FROM seances WHERE patient_id = '$P1'" | sort | lignes)" \
+echo "=== E13 (INSERT), update, E16 (DELETE) : non rejoues ici ; verifies par le contrat PostgreSQL en fin de script ==="
+echo "=== E14 MigrationRollbackJdbcAdapter:83 : seances du patient repris, SANS centre (KB-SEA-90) ==="
+verifier "E14 seances du patient" "$(sql "SELECT CAST(id AS VARCHAR(36)) FROM seances WHERE patient_id = '$P1'" | sort | lignes)" \
   "5e7e4000-0000-0000-0000-000000000001;5e7e4000-0000-0000-0000-000000000002;5e7e4000-0000-0000-0000-000000000003"
-echo "=== E14 MigrationRollbackJdbcAdapter:106 : seance reprise facturee (facture_id), sans centre ==="
-verifier "E14 facture_id nul" "$(sql "SELECT CAST(facture_id AS VARCHAR(36)) FROM seances WHERE id = '5e7e4000-0000-0000-0000-000000000003' AND facture_id IS NOT NULL")" ""
-echo "=== E15 ReferentialAdminJdbcAdapter:201 : usages d'un forfait par seances.forfait_override_id, SANS centre ni statut (KB-SEA-91) ==="
-verifier "E15 forfait du centre A surcharge sur une seance du centre B" "$(sql "SELECT COUNT(*) FROM seances WHERE forfait_override_id = '$FORFAIT_B'")" "1"
-verifier "E15 forfait surcharge sur deux seances (dont une sans code)" "$(sql "SELECT COUNT(*) FROM seances WHERE forfait_override_id = '$FORFAIT_SURCH'")" "2"
+echo "=== E15 MigrationRollbackJdbcAdapter:106 : seance reprise facturee (facture_id), sans centre (KB-SEA-90) ==="
+verifier "E15 facture_id nul" "$(sql "SELECT CAST(facture_id AS VARCHAR(36)) FROM seances WHERE id = '5e7e4000-0000-0000-0000-000000000003' AND facture_id IS NOT NULL")" ""
+echo "=== E17 ReferentialAdminJdbcAdapter:201 : usages d'un forfait par seances.forfait_override_id, SANS centre ni statut (KB-SEA-91) ==="
+verifier "E17 forfait du centre A surcharge sur une seance du centre B" "$(sql "SELECT COUNT(*) FROM seances WHERE forfait_override_id = '$FORFAIT_B'")" "1"
+verifier "E17 forfait surcharge sur deux seances (dont une sans code)" "$(sql "SELECT COUNT(*) FROM seances WHERE forfait_override_id = '$FORFAIT_SURCH'")" "2"
 
 echo "=== Section 64 : requetes de detection (SELECT seule), executees telles quelles sur le schema reel et le jeu fictif ==="
 verifier "64.1 migrations Flyway de la table des seances appliquees (V1, V21, V23, V26, V31, V39)" \

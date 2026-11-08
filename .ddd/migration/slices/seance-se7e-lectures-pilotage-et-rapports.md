@@ -26,7 +26,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 | `java/…/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java` | E14, E15, E16 (nom calculé) | annulation d'un lot (SUPPRESSION) |
 | `java/…/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java` + `ReferentialAdminTables.java` | E17 (usage indirect) | refus de suppression d'un forfait |
 
-## Lots livrés (commit filet `b46f81dd` ; lots A à D non commités, le coordinateur commite)
+## Lots livrés (commit filet `b46f81dd` ; lots A à D : commit `4cd1ab8a`)
 | Lot | Contenu |
 |---|---|
 | Filet | `b46f81dd` : 15 goldens SE7e, rejeu PG16, KB-SEA-83 à 92 ; revérifié vert sur le legacy avant tout code (15/15, 2026-11-08) |
@@ -55,7 +55,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 ## Exécutions (2026-11-08)
 - Legacy avant tout code : SE7e 15/15.
 - Contrat Séance : mémoire 13/13, H2 13/13 ; PG16 14/14 (avec la version) dans `seance-se7e-pg16-rejeu.sh 55549`.
-- Rejeu PG16 : 19 vérifications des requêtes de production, 8 détections §64 (dont `flyway_schema_history`), 3 vérifications de `db/seed.sql`, contrat 14/14 ; **code 0**.
+- Rejeu PG16 : 19 vérifications des requêtes SELECT de production (E1-E12, E14, E15, E17, libellés renumérotés sur l'audit le 2026-11-08, revue m2 ; E13, `update`, E16 par le contrat PG16), 8 détections §64 (dont `flyway_schema_history`), 3 vérifications de `db/seed.sql`, contrat 14/14 ; **code 0**.
 - Tests ciblés : architecture (`TableDesSeancesTest` 13, `FrontieresDesContextesTest` 43, `TableDuPatientCouvertureTest` 6, `TableDeLOrganisationTest` 4, `TableDesEquipementsDeLaGmaoTest` 3), `PatientStatsRestControllerTest` 5, `ReglesDeGestionDocumentationTest` 7, intégration et caractérisation liées 159 : verts.
 - Suite complète `./mvnw -o test -fae` (depuis `backend/`, un build à la fois) : voir « Suite complète » ci-dessous.
 - `check-arch` : 0 violation.
@@ -74,6 +74,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 | E-R6 | `MigrationRollbackJdbcAdapter` lit encore `volet_medical` et `volet_paramedical` (tables de la Séance) en SQL pour « complétée » | 2026-12-15 | 2027-03-31 |
 | E-R7 | Technique `NomsDeTableCalcules` appliquée à `TableDesSeancesTest` seulement ; faux positif nommé `MigrationEntity.java` | 2026-12-15 | 2027-03-31 |
 | E-R8 | Non rejoués : instantanés et diffusion temps réel de la Direction (période par défaut = aujourd'hui), cahier EXCEL / HTML, sérialisation JSON de `poidsEvolution` sur PostgreSQL, concurrence ; couverture de branches et mutation non mesurées (PIT non lancé) ; PDF et DOCX de la documentation fonctionnelle (RG-SEA-065 à 068) à la prochaine régénération ordinaire (`docs/client/tools`) | 2026-12-15 | 2027-03-31 |
+| E-R9 | `SeancesDeLaRepriseJdbc.reprendre` (`:68`) lit `OffsetDateTime.now()` pour `created_at` (reproduit de `HistoricalRecordJdbcAdapter.insert`, valeur masquée par le golden `reprise/*`) : seule lecture d'horloge d'un port publié de la Séance, à remplacer par `HorlogeDuCentre.maintenant()` avec le cas d'usage de reprise (E-R4) | 2026-12-15 | 2027-06-30 |
 
 Restent en liste blanche pour SE7f (butoirs de `TableDesSeancesTest`) : `HistoriqueFourniLegacy`, `ForfaitsFournisLegacy` (2027-03-31), `db/seed.sql`, `db/demo/renadial-seed.sql`, `db/demo/renadial-purge.sql` (2027-06-30).
 
@@ -82,4 +83,4 @@ Restent en liste blanche pour SE7f (butoirs de `TableDesSeancesTest`) : `Histori
 - Confirmation métiers / DPO de l'ADR 0099 (au plus tard 2026-12-15) ; exécuter §64 sur une copie de production (la requête 1 dit quelles migrations sont réellement appliquées).
 
 ## Reste à faire
-Résidus E-R1 à E-R8 ; SE7f (fournisseurs `seance.v1`, scripts de données, retrait de bc-seance, garde finale) ; `/ddd-verify seance-se7e-lectures-pilotage-et-rapports`.
+Résidus E-R1 à E-R9 ; SE7f (fournisseurs `seance.v1`, scripts de données, retrait de bc-seance, garde finale) ; `/ddd-verify seance-se7e-lectures-pilotage-et-rapports`.
