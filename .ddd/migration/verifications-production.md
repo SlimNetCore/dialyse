@@ -2096,3 +2096,25 @@ SELECT id, center_id FROM seances WHERE hors_planning AND (motif_hors_planning I
 SELECT s.center_id, count(*) AS patient_absent_ou_autre_centre FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id WHERE p.id IS NULL GROUP BY s.center_id;
 ```
 Recette AVANT bascule : (a) créer une séance sans date puis par scan, entre minuit et 1 h heure du centre : la date est celle du jour du centre (KB-SEA-01) ; (b) scan d'un patient aux séances multiples : 409 ; (c) POST sans centre : 400 « Centre requis » ; (d) QR sans caractère alphanumérique : 400 ; patient d'un autre centre : 404 ; (e) précision de motif de plus de 255 caractères : 400 ; (f) les requêtes 1 et 2 doivent ramener 0 ligne ou chaque ligne doit être expliquée. Risque à arbitrer avant mise en production : KB-SEA-03 (la création manuelle ne contrôle pas le planning). Surveillance : hausse attendue des 400, 404 et 409 `SEANCE_DU_JOUR_AMBIGUE`, WARN de statut illisible. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).
+
+## 54. Séance SE2 (validation, signature du médecin, déverrouillage de régularisation) : parité et gardes (2026-11-08) — SELECT seulement
+
+Aucune migration, même table `seances`, mêmes URLs (ADR 0089). À exécuter sur une COPIE ou en lecture seule, avant et après le déploiement. Aucune correction automatique, aucun `UPDATE`, `DELETE` ni `DROP`.
+```sql
+-- 1. SIGNATURES INCOHÉRENTES (KB-SEA-20) : signée sans validation infirmière ni signature médicale complète, ou signature médicale sur une séance non validée.
+SELECT id, center_id, statut FROM seances WHERE statut = 'SIGNEE' AND (validated_at IS NULL OR signed_infirmier_by IS NULL OR signed_medecin_at IS NULL OR signed_medecin_by IS NULL);
+SELECT id, center_id, statut FROM seances WHERE statut IN ('CREE','VALIDEE') AND (signed_medecin_at IS NOT NULL OR signed_medecin_by IS NOT NULL);
+-- 2. SIGNATAIRES TROP LONGS : plus de 100 caractères (le module répond désormais 400 au lieu de 500).
+SELECT id, center_id FROM seances WHERE length(signed_infirmier_by) > 100 OR length(signed_medecin_by) > 100 OR length(regularisation_deverrouillee_by) > 100;
+-- 3. SIGNATAIRES DISTINCTS PAR CENTRE (KB-SEA-11) : le signataire vient du corps de la requête, jamais de la session ; une valeur inattendue (« system », compte d'un autre centre, texte libre) est à expliquer avec le juridique et le DPO avant la mise en production.
+SELECT center_id, signed_medecin_by AS signataire_medical, count(*) AS signatures FROM seances WHERE signed_medecin_by IS NOT NULL GROUP BY center_id, signed_medecin_by ORDER BY center_id, signatures DESC;
+-- 4. SÉANCES À VENIR VALIDÉES (KB-SEA-12) : validation anticipée admise par le legacy et reproduite.
+SELECT center_id, count(*) AS validees_a_venir FROM seances WHERE statut IN ('VALIDEE','SIGNEE') AND date_seance > CURRENT_DATE GROUP BY center_id;
+-- 5. DÉVERROUILLAGES ANCIENS (KB-SEA-13) : séances déverrouillées plus de 7 jours après leur date (aucune borne n'existe, la fenêtre de 7 jours ne concerne que le rappel).
+SELECT center_id, count(*) AS deverrouillees_au_dela_de_7_jours FROM seances WHERE regularisation_deverrouillee_at IS NOT NULL AND CAST(regularisation_deverrouillee_at AS DATE) - date_seance > 7 GROUP BY center_id;
+-- 6. DÉVERROUILLÉES NON RÉGULARISÉES : déverrouillage posé mais séance toujours créée (travail en attente des infirmiers).
+SELECT center_id, count(*) AS en_attente FROM seances WHERE regularisation_deverrouillee_at IS NOT NULL AND statut = 'CREE' GROUP BY center_id;
+-- 7. VALIDÉES SANS PLACE FIGÉE (RG-SEA-049) : les séances validées avant la migration V26 n'en ont pas ; une validation répétée ne la remplace jamais.
+SELECT center_id, count(*) AS sans_place FROM seances WHERE statut IN ('VALIDEE','SIGNEE') AND (salle_id IS NULL OR creneau_id IS NULL) GROUP BY center_id;
+```
+Recette AVANT bascule : (a) valider une séance du jour avec et sans consommable, puis la revalider (cumul des consommables attendu, KB-SEA-15) ; (b) valider un jour passé sans déverrouillage : 422 `SEANCE_REGULARISATION_NON_DEVERROUILLEE` pour l'infirmier, 200 pour l'administrateur ; (c) signer une séance créée : refus, une séance validée : `SIGNEE` ; (d) déverrouiller une séance créée d'un jour passé (idempotent) puis la valider en infirmier ; (e) corps illisible, `centerId` absent, signataire de plus de 100 caractères : 400 ; mauvais rôle : 403 avant le 400 ; (f) deux validations simultanées : la seconde attend le verrou ou répond 409 `ECRITURE_CONCURRENTE` ; (g) entre minuit et 1 h heure du centre, le « jour passé » est celui du centre ; (h) les requêtes 1 et 2 doivent ramener 0 ligne ou chaque ligne doit être expliquée. Risques à arbitrer AVANT mise en production : KB-SEA-11 (signataire lu dans le corps : imputation d'une signature médicale, décision juridique et DPO), KB-SEA-12, KB-SEA-13, KB-SEA-15 (voir l'ADR 0089). Surveillance : hausse attendue des 400 (corps illisible, signataire long) et des 404 `PATIENT_INTROUVABLE`, baisse des 500 sur les trois routes, 409 `ECRITURE_CONCURRENTE`. Rollback : revenir au commit précédent (refactoring sur place, ADR 0024).

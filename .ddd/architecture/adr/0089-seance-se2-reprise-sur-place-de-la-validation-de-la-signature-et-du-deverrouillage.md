@@ -56,3 +56,16 @@ Routes servies par `SeancesControleur` (mêmes droits : `valider` ADMIN/INFIRMIE
 | Article de consommation invalide (`500`) | CORRIGER : 400 « Article de consommation invalide », retour arrière complet |
 | Audit : les refus `500` deviennent `400` | conséquence des lignes précédentes |
 Tests : indépendants de l'heure (le jour lu est celui du centre, la garde de minuit du harnais est celle du centre) ; le test P6 de Planification lit la place par `ValiderUneSeance` sous une session d'administrateur, goldens inchangés.
+
+## Lot C (livré 2026-11-08) : documentation et bilan nominatif des résidus (revue au plus tard le 2026-12-15)
+Documentation : RG-SEA-053 (`07-seances.md`), annexe 16 (entrée `SeancesControleur` suite, test garde `ReglesDeGestionDocumentationTest`), glossaire `seance.md` (7 termes `proposed`), `verifications-production.md` section 54 (SELECT seulement). Doc fonctionnelle et maquette : non régénérées (aucun changement visible à l'écran, mêmes URLs, mêmes rôles ; À CONFIRMER PAR L'UTILISATEUR, comme ADR 0088 point 12).
+
+| Résidu legacy conservé | Pourquoi | Verrou | Retrait |
+|---|---|---|---|
+| `SeanceDomainService.validerParLeScanResiduel` (aide privée née de SE2, appelée par `scanAndValidate` et `createFromQr`) | `scanAndValidate` et `createFromQr` sont les résidus de SE1 sans appelant de production ; ils ne compilaient plus sans `validate` | règle ArchUnit de SE1 (aucun appelant hors chaîne) | avec `scanAndValidate`, `createFromQr`, `SeanceUseCase.create` et leurs tests de `SeanceDomainServiceTest`, à la revue du 2026-12-15 |
+| `Seance.validerParInfirmier`, `signerParMedecin`, `deverrouillerPourRegularisation`, `memoriserPlace` (entité legacy de `bc-seance`) | encore utilisées comme préparation d'état par des tests de SE3 à SE7 et par `validerParLeScanResiduel` | `plus_aucun_appelant_des_ecritures_legacy_de_la_validation_de_seance` (seuls `Seance` et `SeanceDomainService` appellent) | avec les tests de SE3 à SE7 qui les emploient, au plus tard le 2026-12-15 |
+| `PlaceFournieLegacy` et le port `SeancePlacePort` (enveloppe de `SeancePlaceJdbcAdapter`) | la place du jour vient encore du Planning par son adapter legacy (RG-SEA-049) | précédent des `*Legacy` de `acl/seance/` | avec SE7 (relecture de la place par la semaine) |
+| `DiffusionsFournieesLegacy` (dont `seanceDeverrouillee`) | les diffusions temps réel passent par `NotificationService` legacy | idem | avec la reprise des notifications |
+| Date serveur dans les lectures de SE3 à SE7 (`LocalDate.now()`) | hors périmètre SE2 ; seul le jour du centre est lu par SE1 et SE2 | RG-SEA-052 | SE4 et SE7 |
+| Décisions REPRODUITES à confirmer (KB-SEA-11, 12, 13, 15) | arbitrage métier, juridique et DPO | en tête de l'ADR, §54, RG-SEA-053 | avant la mise en production |
+Le retrait des résidus à la revue du 2026-12-15 est nominatif : si le bilan n'est pas fait à cette date, un jalon rouge est ouvert dans `known-bugs.md`.

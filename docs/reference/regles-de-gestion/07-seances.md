@@ -63,8 +63,8 @@
 - **RG-SEA-052** — **Création, scan et consultation reprises dans le module `seance`** (slice SE1, ADR 0088 ;
   `POST /api/v1/seances`, `POST /api/v1/seances/scan`, `GET /api/v1/seances/{id}`, `GET /api/v1/seances`, mêmes URLs, mêmes
   rôles que RG-SEA-010, 012 et 029, mêmes tables). Décisions de la reprise : **corrigés** — (KB-SEA-01) « aujourd'hui »
-  est le **jour du centre** (fuseau du centre, `Africa/Algiers` par défaut), pour la création sans date et pour le scan seulement (la liste des séances récentes d'un patient du poste infirmier, la modification de date et le
-  déverrouillage de régularisation lisent encore la date du serveur : à corriger avec SE2, SE4 et SE7) ;
+  est le **jour du centre** (fuseau du centre, `Africa/Algiers` par défaut), pour la création sans date et pour le scan seulement (la liste des séances récentes d'un patient du poste infirmier et la modification de date lisent encore la date du
+  serveur : à corriger avec SE4 et SE7 ; la validation et le déverrouillage lisent le jour du centre depuis SE2, RG-SEA-053) ;
   (KB-SEA-02) plusieurs séances ce jour-là pour le patient lors d'un scan : 409 `SEANCE_DU_JOUR_AMBIGUE` au lieu d'un
   500 ; (KB-SEA-04) une requête mal formée répond 400 et non 500 (`BAD_REQUEST`, `VALIDATION_ERROR`, `centerId` absent du détail
   et de la liste, précision de motif
@@ -83,6 +83,27 @@
   *Source :* `SeancesControleur`, `ErreursDeSeanceAdvice`, `HorlogeDuCentre`.
 
 ## 7.3 Validation infirmière et consommables
+
+- **RG-SEA-053** — **Validation, signature du médecin et déverrouillage de régularisation reprises dans le module `seance`**
+  (slice SE2, ADR 0089 ; `POST /api/v1/seances/{id}/valider` `ADMIN`, `INFIRMIER` ; `POST /api/v1/seances/{id}/signer-medecin`
+  `ADMIN`, `MEDECIN` ; `POST /api/v1/seances/{id}/deverrouiller-regularisation?centerId=` `ADMIN` ; mêmes URLs, mêmes rôles, mêmes
+  tables, mêmes matrices de statuts et mêmes messages que RG-SEA-020, 021, 046 et 049). Le scan de l'infirmier (RG-SEA-012) valide
+  par la même règle. **Corrigés** — (KB-SEA-18) la séance est lue sous verrou avant d'être modifiée : un verrou non obtenu répond
+  409 `ECRITURE_CONCURRENTE` ; (KB-SEA-16) un corps illisible, absent, nul ou en tableau, un `centerId` ou un identifiant de séance
+  absent ou illisible, une ligne de consommable nulle répondent 400 `BAD_REQUEST` sans message technique (le refus de droits 403 passe
+  avant le 400) ; un signataire de plus de 100 caractères répond 400 (et non 500) sans rien écrire ; une séance inconnue ou d'un autre
+  centre répond 400 « Seance introuvable », un patient disparu 404 `PATIENT_INTROUVABLE`, un article inconnu ou inactif 400, un statut
+  illisible en base 400 sans nom de classe interne ; le « jour passé » du verrou de validation (RG-SEA-046) et du déverrouillage est le
+  **jour du centre** (KB-SEA-01). **Reproduits, à confirmer avant la mise en production** — (KB-SEA-11) le signataire est lu dans le corps
+  de la requête et non dans la session : un compte peut valider ou signer au nom d'un autre, **risque d'imputation d'une signature
+  médicale (décision juridique et DPO)** ; (KB-SEA-12) une séance à venir se valide sans limite ; (KB-SEA-13) la fenêtre de 7 jours de
+  RG-SEA-046 ne borne pas le déverrouillage (elle ne concerne que le rappel) ; (KB-SEA-15) les consommables relevés se **cumulent** à
+  chaque validation répétée. **Reproduits sans alerte** — (KB-SEA-14) rediffusion à chaque appel ; (KB-SEA-17) l'audit des trois routes
+  porte l'action `SEANCES_CREATION` avec l'identifiant de la séance ; (KB-SEA-19) aucun cache à invalider ; (KB-SEA-20) un seul message
+  pour toute séance non signable ; (KB-SEA-21) les droits (le `SUPERADMIN` reste refusé en 403 `ROLE_SCOPE`) et la place figée est la place
+  courante de la fiche du patient, le déplacement temporaire du jour prioritaire. Un refus du Stock à la validation (stock insuffisant,
+  article inactif) annule toute la validation (statut, place, consommations).
+  *Source :* `ValiderUneSeance`, `SignerUneSeance`, `DeverrouillerUneSeance`, `Seance`, `SeancesControleur`, `ErreursDeSeanceAdvice`.
 
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
