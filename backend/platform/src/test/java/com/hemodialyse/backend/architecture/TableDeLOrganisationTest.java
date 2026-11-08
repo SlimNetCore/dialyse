@@ -42,6 +42,10 @@ class TableDeLOrganisationTest {
             // 2026-11-07, DM2 : liste des centres du contrôle de nuit de l'observance (centers), lecture seule ; remplace l'entrée du
             // planificateur legacy retirée dans le même lot. RETRAIT : à l'échéance de organisation.v1 (jalon O4).
             "contexts/dossier-medical/src/main/java/com/hemodialyse/backend/contexts/dossiermedical/infrastructure/acl/legacyorganisation/CentresActifsJdbc.java",
+            // 2026-11-08, SE4 : liste des centres du rappel quotidien des séances à régulariser (centers), lecture seule, comme le
+            // planificateur legacy qu'elle remplace (retiré au lot B ; son entrée est retirée dans le même lot). RETRAIT : à
+            // l'échéance de organisation.v1 (jalon O4).
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacyorganisation/CentresARappelerJdbc.java",
             // 2026-11-03, PC1 : fuseau du centre (centers) et libellés de la recherche et des mouvements (medecin, salle,
             // position_creneau) : lecture seule, à remplacer par organisation.v1
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",

@@ -64,6 +64,14 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.Articles
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommablesDeLaSeanceDuStock;
 import com.hemodialyse.backend.contexts.seance.infrastructure.cache.RaccourcisDesCentresEnCache;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.RaccourcisDesCentresJdbc;
+import com.hemodialyse.backend.contexts.seance.application.CentresARappeler;
+import com.hemodialyse.backend.contexts.seance.application.RappelerLesSeancesARegulariser;
+import com.hemodialyse.backend.contexts.seance.application.RappelsDeRegularisation;
+import com.hemodialyse.backend.contexts.seance.application.VerrousDesRappels;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyorganisation.CentresARappelerJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.RappelsParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VerrousDesRappelsJdbc;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -235,6 +243,34 @@ public class SeanceConfiguration {
                                                   @Qualifier("raccourcisDesCentresDeLaSeance") RaccourcisDesCentres raccourcis,
                                                   @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail) {
         return new RemplacerLesRaccourcis(session, articles, raccourcis, uniteDeTravail);
+    }
+
+    // ---- SE4 : rappel quotidien des séances à régulariser (ADR 0091)
+
+    @Bean
+    CentresARappeler centresARappelerDeLaSeance(JdbcTemplate jdbc) {
+        return new CentresARappelerJdbc(jdbc);
+    }
+
+    @Bean
+    RappelsDeRegularisation rappelsDeRegularisationDeLaSeance(RappelsFournis rappels) {
+        return new RappelsParLeLegacy(rappels);
+    }
+
+    @Bean
+    VerrousDesRappels verrousDesRappelsDeLaSeance(JdbcTemplate jdbc) {
+        return new VerrousDesRappelsJdbc(jdbc);
+    }
+
+    @Bean
+    RappelerLesSeancesARegulariser rappelerLesSeancesARegulariser(
+            @Qualifier("centresARappelerDeLaSeance") CentresARappeler centres,
+            @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+            @Qualifier("historiqueDesSeances") HistoriqueDesSeances historique,
+            @Qualifier("rappelsDeRegularisationDeLaSeance") RappelsDeRegularisation rappels,
+            @Qualifier("verrousDesRappelsDeLaSeance") VerrousDesRappels verrous,
+            @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail) {
+        return new RappelerLesSeancesARegulariser(centres, horloge, historique, rappels, verrous, uniteDeTravail);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)

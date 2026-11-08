@@ -533,11 +533,24 @@ public class NotificationService {
      * patients concernés sont comptés absents.
      */
     public void notifySeancesARegulariser(UUID centerId, long nbSeances, java.time.LocalDate plusAncienne) {
+        notifySeancesARegulariser(centerId, nbSeances, plusAncienne, null);
+    }
+
+    /**
+     * Variante à identifiant déterministe (un par centre et par jour du centre, calculé par l'appelant) : déjà enregistré, le rappel
+     * n'est ni renvoyé ni dupliqué, même si deux instances du serveur le déclenchent ensemble (KB-SEA-35). Sans identifiant imposé,
+     * comportement historique : un identifiant aléatoire à chaque appel.
+     */
+    public void notifySeancesARegulariser(UUID centerId, long nbSeances, java.time.LocalDate plusAncienne, UUID idImpose) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("nbSeances", String.valueOf(nbSeances));
         payload.put("plusAncienne", plusAncienne == null ? "" : plusAncienne.toString());
         payload.put("targetRoles", "ADMIN");
-        send(centerId, "SEANCES_A_REGULARISER", payload);
+        if (idImpose == null) {
+            send(centerId, "SEANCES_A_REGULARISER", payload);
+        } else {
+            send(centerId, "SEANCES_A_REGULARISER", payload, idImpose);
+        }
     }
 
     /**
