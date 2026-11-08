@@ -196,7 +196,7 @@ class LeScanDUnPatientCharacterizationIntegrationTest extends Se1Characterizatio
         m.put("01 patients non attendus", a);
         nettoyerSe1();
         patientCouvert(CENTRE_A, "PAT_A");
-        fermerLeCentre(CENTRE_A, LocalDate.now());
+        fermerLeCentre(CENTRE_A, aujourdhui());
         Map<String, String> b = new LinkedHashMap<>();
         b.put("01 centre ferme : INFIRMIER sans motif", refus(scanner("SE1-PAT_A", infirmierA())));
         b.put("02 centre ferme : INFIRMIER avec motif", refus(scannerAvecMotif("SE1-PAT_A", "URGENCE", null, infirmierA())));

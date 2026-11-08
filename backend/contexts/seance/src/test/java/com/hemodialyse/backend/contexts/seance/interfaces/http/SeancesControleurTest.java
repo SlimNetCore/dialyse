@@ -69,9 +69,80 @@ class SeancesControleurTest {
         scanner = Mockito.mock(ScannerUnPatient.class);
         consulter = Mockito.mock(ConsulterUneSeance.class);
         lister = Mockito.mock(ListerLesSeances.class);
-        mvc = MockMvcBuilders.standaloneSetup(new SeancesControleur(creer, scanner, consulter, lister))
+        valider = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance.class);
+        signer = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.SignerUneSeance.class);
+        deverrouiller = Mockito.mock(com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeance.class);
+        mvc = MockMvcBuilders.standaloneSetup(new SeancesControleur(creer, scanner, consulter, lister, valider, signer, deverrouiller))
                 .setControllerAdvice(new ErreursDeSeanceAdvice()).build();
         avecLeRole("INFIRMIER");
+    }
+
+    private com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance valider;
+    private com.hemodialyse.backend.contexts.seance.application.SignerUneSeance signer;
+    private com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeance deverrouiller;
+
+    @Test
+    void la_validation_repond_avec_les_quatre_champs_du_legacy() throws Exception {
+        Seance validee = seance();
+        validee.validerParLInfirmier(Instant.parse("2026-06-15T09:00:00Z"), new com.hemodialyse.backend.contexts.seance.domain.Signataire("inf-01"));
+        Mockito.when(valider.executer(eq(CENTRE), eq(SEANCE), eq("inf-01"), any()))
+                .thenReturn(new com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance.Validation(validee, fiche()));
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/valider").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"userId\":\"inf-01\",\"consommations\":[]}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(SEANCE.toString()))
+                .andExpect(jsonPath("$.status").value("VALIDEE"))
+                .andExpect(jsonPath("$.validatedAt").exists())
+                .andExpect(jsonPath("$.signedByInfirmierAt").exists());
+    }
+
+    @Test
+    void la_signature_et_le_deverrouillage_repondent_avec_les_champs_du_legacy() throws Exception {
+        Seance signee = Seance.restituer(new SeanceId(SEANCE), new CentreId(CENTRE), new PatientId(PATIENT), JOUR,
+                com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance.VALIDEE, null, null, null);
+        signee.signerParLeMedecin(Instant.parse("2026-06-15T09:00:00Z"), new com.hemodialyse.backend.contexts.seance.domain.Signataire("med"));
+        Mockito.when(signer.executer(eq(CENTRE), eq(SEANCE), eq("med"))).thenReturn(signee);
+        avecLeRole("MEDECIN");
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/signer-medecin").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\",\"userId\":\"med\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SIGNEE"))
+                .andExpect(jsonPath("$.signedByMedecinAt").exists());
+
+        Seance deverrouillee = seance();
+        deverrouillee.deverrouillerPourRegularisation(Instant.parse("2026-06-20T09:00:00Z"),
+                new com.hemodialyse.backend.contexts.seance.domain.Signataire("u"), JOUR.plusDays(5));
+        Mockito.when(deverrouiller.executer(CENTRE, SEANCE)).thenReturn(deverrouillee);
+        avecLeRole("ADMIN");
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/deverrouiller-regularisation").param("centerId", CENTRE.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CREE"))
+                .andExpect(jsonPath("$.regularisationDeverrouilleeAt").exists());
+    }
+
+    @Test
+    void les_routes_de_la_vie_de_la_seance_refusent_en_403_avant_400_et_en_400_sans_centre() throws Exception {
+        avecLeRole("SECRETAIRE");
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/valider").contentType(MediaType.APPLICATION_JSON).content("pas du json"))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/deverrouiller-regularisation"))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+        avecLeRole("ADMIN");
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/deverrouiller-regularisation"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/valider").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("Centre requis"));
+        mvc.perform(post("/api/v1/seances/pas-un-uuid/valider").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void un_refus_du_stock_repond_422_avec_le_code_du_stock() throws Exception {
+        Mockito.when(valider.executer(eq(CENTRE), eq(SEANCE), any(), any())).thenThrow(
+                new com.hemodialyse.backend.contexts.seance.application.ConsommationRefusee("PIECE_DEJA_RAPPROCHEE", "pièce rapprochée"));
+        mvc.perform(post("/api/v1/seances/" + SEANCE + "/valider").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerId\":\"" + CENTRE + "\"}"))
+                .andExpect(status().is(422)).andExpect(jsonPath("$.code").value("PIECE_DEJA_RAPPROCHEE"));
     }
 
     @AfterEach

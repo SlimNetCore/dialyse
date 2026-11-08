@@ -14,12 +14,10 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.D
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.HistoriqueParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlanningDesPatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ValidationParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.ValidationFournie;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -116,20 +114,6 @@ class TraducteursDesLangagesPubliesFournisTest {
         assertThat(recu[0]).isEqualTo(java.util.Set.of("CREE", "VALIDEE"));
         assertThat(recu[1]).isEqualTo("PATIENT");
         assertThat(recu[2]).isEqualTo(500);
-    }
-
-    @Test
-    void la_validation_relit_la_seance_validee() {
-        var seances = new SeancesEnMemoire();
-        var id = new SeanceId(SEANCE);
-        seances.semer(Seance.creer(id, new CentreId(CENTRE), new PatientId(PATIENT), JOUR, Instant.parse("2026-06-15T08:00:00Z")));
-        var appels = new java.util.ArrayList<String>();
-        ValidationFournie fourni = (c, s, auteur) -> appels.add(c + "|" + s + "|" + auteur);
-        var validation = new ValidationParLeLegacy(fourni, seances);
-        assertThat(validation.validerParLInfirmier(new CentreId(CENTRE), id, "marie").id()).isEqualTo(id);
-        assertThat(appels).containsExactly(CENTRE + "|" + SEANCE + "|marie");
-        assertThatThrownBy(() -> validation.validerParLInfirmier(new CentreId(CENTRE), new SeanceId(new UUID(9, 9)), "marie"))
-                .isInstanceOf(SeanceIntrouvable.class);
     }
 
     @Test

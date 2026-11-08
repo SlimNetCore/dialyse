@@ -432,3 +432,16 @@ Inscrit AVANT toute action. Tous les fichiers édités ou supprimés sont déjà
 | 2026-11-07 | seance-se1-creation | **ÉDITION** des tests legacy `SeanceRestControllerTest`, `SeanceScanValidationControllerTest` (retrait des cas des 4 handlers retirés) | Ces cas décrivent des handlers supprimés ; le comportement est tenu par les goldens SE1 et les tests du module |
 | 2026-11-07 | seance-se1-creation | **ÉDITION** de `contexts/seance/.../SeancesControleur.java`, `ErreursDeSeanceAdvice.java` (retrait de la condition `seance.se1.controleur-actif`) | Le routage est effectif |
 | 2026-11-07 | seance-se1-creation | **CONSERVÉS** (résidus nommés, revue 2026-12-15, verrou ArchUnit contre de nouveaux appelants) : `SeanceUseCase.create/createFromQr/scanAndValidate`, `SeanceDomainService`, `SeanceApplicationService` (mêmes méthodes) | Retrait des méthodes mortes reporté (tests du domaine legacy à réécrire) |
+
+### Séance SE2 lot B (routage par retrait des handlers) : OUVERT le 2026-11-08, FERMÉ à la fin du lot (`seamAllowed` vide)
+
+Inscrit AVANT toute action. Tous les fichiers édités ou supprimés sont déjà dans `covered.json` (aucune entrée à ajouter à `seamAllowed`).
+
+| Date | Slice | Fichiers édités ou supprimés | Raison |
+|---|---|---|---|
+| 2026-11-08 | seance-se2-validation-signature | **ÉDITION** de `platform/.../web/rest/SeanceRestController.java` : retrait des handlers `validate`, `unlockForRegularisation`, `signByMedecin` et de l'aide `exigerDeverrouillagePourSeancePassee` | Les 3 routes sont servies par `contexts/seance` (`SeancesControleur`) ; deux contrôleurs sur la même route feraient échouer le démarrage |
+| 2026-11-08 | seance-se2-validation-signature | **SUPPRESSION** (`git rm`) des DTO `ValidateSeanceRequest`, `ValidateSeanceArticleRequest`, `SignSeanceMedecinRequest` | Plus aucun appelant |
+| 2026-11-08 | seance-se2-validation-signature | **ÉDITION** de `bc-seance/.../SeanceUseCase.java`, `bc-seance/.../SeanceDomainService.java`, `platform/.../SeanceApplicationService.java` : retrait de `validate`, `signByMedecin`, `unlockForRegularisation` ; **ÉDITION** des tests legacy associés (`SeanceDomainServiceTest`, `SeanceRestControllerTest`, et le test de caractérisation P6 `LecturesDePlaceConsommeesParLaSeance…`, déplacé sur `ValiderUneSeance`, goldens inchangés) ; la validation sans consommable du scan résiduel de SE1 devient une aide privée de `SeanceDomainService` (`validerParLeScanResiduel`) | Ces méthodes et handlers sont remplacés par `ValiderUneSeance`, `SignerUneSeance`, `DeverrouillerUneSeance` ; le comportement est tenu par les goldens SE2 et les tests du module |
+| 2026-11-08 | seance-se2-validation-signature | **CONSERVÉS** (résidus nommés, revue 2026-12-15, verrou ArchUnit contre tout appelant de production) : `Seance.validerParInfirmier`, `signerParMedecin`, `deverrouillerPourRegularisation`, `memoriserPlace` (modèle legacy de `bc-seance`, encore utilisés comme préparation d'état par des tests de SE3 à SE7) | Retrait avec les tests qui les emploient |
+
+**FERMÉ le 2026-11-08** : `seamAllowed` = `[]`, les trois DTO supprimés retirés de `covered.json`.

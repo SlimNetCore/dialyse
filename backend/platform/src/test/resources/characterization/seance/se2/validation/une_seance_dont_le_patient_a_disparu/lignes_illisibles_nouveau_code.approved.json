@@ -1,0 +1,38 @@
+{
+  "01 patient disparu : infirmier" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "02 patient disparu : administrateur" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "03 statut en minuscules : infirmier" : "400 BAD_REQUEST | La séance <SEANCE_STATUT_MINUSCULE> porte une valeur illisible : statut inconnu",
+  "04 etat" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_B>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "cree",
+    "validation" : "null"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<J>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ]
+}

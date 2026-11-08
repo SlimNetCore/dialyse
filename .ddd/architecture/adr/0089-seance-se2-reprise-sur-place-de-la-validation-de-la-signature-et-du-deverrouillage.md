@@ -43,3 +43,16 @@ SE2 est caractérisée (net 95ab8291, 33 scénarios, 33 goldens) : `POST /api/v1
 
 ## Lot A (livré 2026-11-08) et suite
 LOT A : domaine, application, ports publiés et ACL, dépôt JDBC, contrats (mémoire, H2, PostgreSQL 16 par `seance-se1-pg16-rejeu.sh`), câblage des trois cas d'usage ; AUCUNE route changée. LOT B : contrôleur, advice, droits, routage, parité 33/33, retrait des handlers et de `SeanceUseCase.validate` legacy (le scan de SE1 passe au cas d'usage du module), verrou ArchUnit. LOT C : documentation, `built`.
+
+## Lot B (livré 2026-11-08) : routage et parité 33/33
+Routes servies par `SeancesControleur` (mêmes droits : `valider` ADMIN/INFIRMIER, `signer-medecin` ADMIN/MEDECIN, `deverrouiller-regularisation` ADMIN) ; handlers legacy, trois méthodes de `SeanceUseCase` et trois DTO retirés ; scan de SE1 : `ScannerUnPatient` valide par l'agrégat du module (goldens SE1 31/31 inchangés) ; verrou ArchUnit sur les quatre méthodes résiduelles de l'entité legacy. Parité : 33 scénarios exécutés, 21 identiques au legacy, 12 écarts DÉCIDÉS, archivés octet pour octet dans `_ecarts-legacy/<volet>/*_avant_se2.legacy.json` (R100) et remplacés par des goldens `*_nouveau_code` approuvés un par un :
+| Écart | Décision |
+|---|---|
+| Corps ou paramètre illisible, absent, mal formé (`500` ; `centerId` absent ou illisible, `500`) | CORRIGER : 400 « Corps ou paramètre illisible » / « Parametre requis absent », 403 avant 400 |
+| `centerId` absent du corps (`400 CenterId cannot be null`) | CORRIGER le message : 400 « Centre requis » |
+| Signataire de plus de 100 caractères (`500 DATA_ACCESS_ERROR`) | CORRIGER : 400 « Signataire trop long (100 caractères au plus) », aucune écriture |
+| Statut inconnu en base (`400 No enum constant …SeanceStatus.EN_COURS`) | CORRIGER : pas de nom de classe interne, 400 « La séance … porte une valeur illisible : statut inconnu » |
+| Patient disparu (`400 Patient introuvable`) | CORRIGER (décision de SE1) : 404 `PATIENT_INTROUVABLE` |
+| Article de consommation invalide (`500`) | CORRIGER : 400 « Article de consommation invalide », retour arrière complet |
+| Audit : les refus `500` deviennent `400` | conséquence des lignes précédentes |
+Tests : indépendants de l'heure (le jour lu est celui du centre, la garde de minuit du harnais est celle du centre) ; le test P6 de Planification lit la place par `ValiderUneSeance` sous une session d'administrateur, goldens inchangés.

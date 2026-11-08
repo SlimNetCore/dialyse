@@ -1,0 +1,37 @@
+{
+  "01 corps sans userId" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_medecin_by" : "system",
+      "statut" : "SIGNEE"
+    } ]
+  },
+  "02 userId vide" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_medecin_by" : "",
+      "statut" : "SIGNEE"
+    } ]
+  },
+  "03 userId d'un autre compte" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_medecin_by" : "autre-compte",
+      "statut" : "SIGNEE"
+    } ]
+  },
+  "04 userId de 100 caracteres" : {
+    "reponse" : "200 ok",
+    "signataire en base" : [ {
+      "signed_medecin_by" : "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "statut" : "SIGNEE"
+    } ]
+  },
+  "05 userId de 101 caracteres" : {
+    "reponse" : "400 BAD_REQUEST | Signataire trop long (100 caractères au plus)",
+    "signataire en base" : [ {
+      "signed_medecin_by" : null,
+      "statut" : "VALIDEE"
+    } ]
+  }
+}

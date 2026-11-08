@@ -157,11 +157,11 @@ public class SeanceDomainService implements SeanceUseCase {
         if (existante.isEmpty()) {
             DerogationPlanning retenue = verifierProgramme(centerId, patientId, date, derogation);
             Seance creee = creer(centerId, patientId, date, retenue);
-            return new ScanResult(validate(centerId, creee.getId(), userId, List.of()), true, true, false);
+            return new ScanResult(validerParLeScanResiduel(centerId, creee.getId(), userId), true, true, false);
         }
         Seance seance = existante.get();
         return switch (seance.getStatus()) {
-            case CREE -> new ScanResult(validate(centerId, seance.getId(), userId, List.of()), false, true, false);
+            case CREE -> new ScanResult(validerParLeScanResiduel(centerId, seance.getId(), userId), false, true, false);
             case VALIDEE, SIGNEE, FACTUREE -> new ScanResult(seance, false, false, true);
             default -> throw new IllegalStateException(
                     "La séance du jour de ce patient est marquée absente : elle ne peut pas être validée");
@@ -242,52 +242,17 @@ public class SeanceDomainService implements SeanceUseCase {
         return seanceRepo.save(seance);
     }
 
-    @Override
-    public Seance unlockForRegularisation(CenterId centerId, UUID seanceId, String userId) {
+    /**
+     * RÉSIDU (SE2, ADR 0089, revue au plus tard le 2026-12-15) : la validation sans consommable que {@code scanAndValidate} (lui-même
+     * résidu de SE1, sans appelant de production) employait via {@code validate}, retirée avec la reprise de SE2. Retiré avec lui.
+     */
+    private Seance validerParLeScanResiduel(CenterId centerId, UUID seanceId, String userId) {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        seance.deverrouillerPourRegularisation(userId != null ? userId : "system", LocalDate.now());
-        return seanceRepo.save(seance);
-    }
-
-    @Override
-    public Seance validate(CenterId centerId, UUID seanceId, String userId, List<SeanceArticleConsumption> consommations) {
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-
         seance.validerParInfirmier(userId != null ? userId : "system");
         if (seance.getPlace() == null) {
             placePort.placeLe(centerId, seance.getPatientId(), seance.getDateSeance()).ifPresent(seance::memoriserPlace);
         }
-
-        List<SeanceArticleConsumption> items = consommations != null ? consommations : List.of();
-
-        if (!items.isEmpty()) {
-            List<ConsommationsDeSeance.Ligne> lignes = new ArrayList<>();
-            for (SeanceArticleConsumption item : items) {
-                if (item == null || item.articleId() == null) {
-                    throw new IllegalArgumentException("Article de consommation invalide");
-                }
-                var article = catalogue.article(centerId.value(), item.articleId())
-                        .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
-                if (!article.actif()) {
-                    throw new IllegalArgumentException("Article inactif: " + article.code());
-                }
-                lignes.add(new ConsommationsDeSeance.Ligne(item.articleId(), item.quantite()));
-            }
-            // Le Stock décide : sortie FEFO immédiate (comportement historique) ou imputation sur la sortie pour séances du centre
-            stockConsommations.enregistrerALaValidation(centerId.value(), seance.getId(), seance.getPatientId(), seance.getDateSeance(),
-                    lignes, userId != null ? userId : "system");
-        }
-        return seanceRepo.save(seance);
-    }
-
-    @Override
-    public Seance signByMedecin(CenterId centerId, UUID seanceId, String userId) {
-        Seance seance = seanceRepo.findById(seanceId, centerId)
-                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-
-        seance.signerParMedecin(userId != null ? userId : "system");
         return seanceRepo.save(seance);
     }
 

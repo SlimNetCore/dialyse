@@ -1,10 +1,13 @@
 package com.hemodialyse.backend.characterization.planification.semaine;
 
 import com.hemodialyse.backend.characterization.planification.SemaineCharacterizationSupport;
-import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance;
+import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,13 +19,25 @@ import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI
 /**
  * Filet de caractérisation P6 : lecture de la place par la Séance ({@code SeancePlaceJdbcAdapter}) au moment de la validation d'une
  * séance : le déplacement temporaire du jour prime sur la place habituelle du patient, la place est figée sur la séance, puis relue par
- * la semaine. Point d'observation : le cas d'usage {@code SeanceUseCase.validate} (même point que {@code PlanningSeancesRealiseesIntegrationTest},
- * la route {@code POST /seances/{id}/valider} ajoute le verrou des séances passées, hors de P6) et l'état SQL des séances.
+ * la semaine. Point d'observation : le cas d'usage {@code ValiderUneSeance} (SE2, ADR 0089 ; ex-{@code SeanceUseCase.validate}, retiré),
+ * appelé sous une session d'administrateur, et l'état SQL des séances. Les goldens sont inchangés.
  */
 class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extends SemaineCharacterizationSupport {
 
     @Autowired
-    private SeanceUseCase seances;
+    private ValiderUneSeance validation;
+
+    /** La validation de la séance (SE2, ADR 0089) lit la session : un administrateur du centre, qui régularise aussi les jours passés. */
+    private void valider(UUID centre, UUID seance) {
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                UserPrincipal.create("inf-01", centre.toString(), "inf-01", "x", List.of("ADMIN"), true), null,
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+        try {
+            validation.executer(centre, seance, "inf-01", List.of());
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+    }
 
     @Override
     protected String theme() {
@@ -51,7 +66,7 @@ class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extend
         nommerLaSemaine(-1);
         UUID p = place(CENTRE_A, "PAT_1", salle1, matin, g1a, LUNDI);
         UUID s = seanceACreer(CENTRE_A, p, semaine(-1, LUNDI));
-        seances.validate(CenterId.of(CENTRE_A), s, "inf-01", List.of());
+        valider(CENTRE_A, s);
         etatDesSeances("place_habituelle");
     }
 
@@ -63,8 +78,8 @@ class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extend
         deplacementTemporaire(CENTRE_A, p, semaine(-1, LUNDI), salle2, apresMidi, g2a);
         UUID lundi = seanceACreer(CENTRE_A, p, semaine(-1, LUNDI));
         UUID mardi = seanceACreer(CENTRE_A, p, semaine(-1, MARDI));
-        seances.validate(CenterId.of(CENTRE_A), lundi, "inf-01", List.of());
-        seances.validate(CenterId.of(CENTRE_A), mardi, "inf-01", List.of());
+        valider(CENTRE_A, lundi);
+        valider(CENTRE_A, mardi);
         etatDesSeances("deplacement_prioritaire");
     }
 
@@ -80,7 +95,7 @@ class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extend
         jdbc.update("UPDATE patients SET salle_id = NULL, position_id = NULL WHERE id = ?", nonPlaceMaisDeplace);
         deplacementTemporaire(CENTRE_A, nonPlaceMaisDeplace, semaine(-1, LUNDI), salle2, matin, g2a);
         for (UUID p : List.of(sansSalle, sansCreneau, nonPlaceMaisDeplace)) {
-            seances.validate(CenterId.of(CENTRE_A), seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)), "inf-01", List.of());
+            valider(CENTRE_A, seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)));
         }
         etatDesSeances("sans_place");
     }
@@ -92,7 +107,7 @@ class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extend
         UUID p = place(CENTRE_A, "PAT_1", salle1, matin, g1a, LUNDI);
         deplacementTemporaire(CENTRE_A, p, semaine(-1, MARDI), salle2, apresMidi, g2a);
         deplacementTemporaire(CENTRE_B, p, semaine(-1, LUNDI), salleB, creneauB, giso);
-        seances.validate(CenterId.of(CENTRE_A), seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)), "inf-01", List.of());
+        valider(CENTRE_A, seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)));
         etatDesSeances("deplacement_ignore");
     }
 
@@ -102,7 +117,7 @@ class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extend
         nommerLaSemaine(-1);
         UUID hs = generateur(CENTRE_A, "G_HS", salle2, "HORS_SERVICE");
         UUID p = place(CENTRE_A, "PAT_1", salle1, matin, hs, LUNDI);
-        seances.validate(CenterId.of(CENTRE_A), seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)), "inf-01", List.of());
+        valider(CENTRE_A, seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)));
         etatDesSeances("generateur_hors_service");
     }
 
@@ -112,7 +127,7 @@ class LecturesDePlaceConsommeesParLaSeanceCharacterizationIntegrationTest extend
         nommerLaSemaine(-1);
         UUID p = place(CENTRE_A, "PAT_1", salle1, matin, g1a, LUNDI);
         deplacementTemporaire(CENTRE_A, p, semaine(-1, LUNDI), salle2, apresMidi, g2a);
-        seances.validate(CenterId.of(CENTRE_A), seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)), "inf-01", List.of());
+        valider(CENTRE_A, seanceACreer(CENTRE_A, p, semaine(-1, LUNDI)));
         jdbc.update("DELETE FROM deplacement_temporaire WHERE center_id = ?", CENTRE_A);
         jdbc.update("UPDATE patients SET jour_lundi = FALSE, jour_mardi = TRUE WHERE id = ?", p);
         arbre("seance_figee_relue_par_la_semaine", projectionDeLaSemaine(lireLaSemaine(-1)));

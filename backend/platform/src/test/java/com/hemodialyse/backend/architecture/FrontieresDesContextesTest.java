@@ -112,6 +112,32 @@ class FrontieresDesContextesTest {
             })
             .because("la création, le scan et la consultation des séances vivent dans contexts/seance (ADR 0088) ; ces méthodes seront retirées");
 
+    private static final java.util.Set<String> METHODES_RESIDUELLES_DE_LA_VALIDATION_DE_SEANCE = java.util.Set.of(
+            "validerParInfirmier", "signerParMedecin", "deverrouillerPourRegularisation", "memoriserPlace");
+    private static final java.util.Set<String> CLASSES_PORTEUSES_DE_LA_VALIDATION_DE_SEANCE = java.util.Set.of(
+            "com.hemodialyse.backend.domain.seance.model.Seance",
+            "com.hemodialyse.backend.domain.seance.service.SeanceDomainService");
+
+    /**
+     * Slice SE2 (ADR 0089) : la validation, la signature et le déverrouillage des séances vivent dans {@code contexts/seance}
+     * ({@code ValiderUneSeance}, {@code SignerUneSeance}, {@code DeverrouillerUneSeance}). {@code SeanceUseCase.validate},
+     * {@code signByMedecin} et {@code unlockForRegularisation} sont retirés ; les quatre méthodes de l'entité legacy {@code Seance} qui
+     * restent n'ont plus d'appelant de production hors d'elle-même et du scan résiduel de SE1 ({@code SeanceDomainService}) ; aucun
+     * nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15).
+     */
+    @ArchTest
+    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_de_la_validation_de_seance = noClasses()
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "cible une méthode résiduelle de l'entité Seance depuis hors de sa chaîne résiduelle") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.model.Seance")
+                            && METHODES_RESIDUELLES_DE_LA_VALIDATION_DE_SEANCE.contains(appel.getName())
+                            && !CLASSES_PORTEUSES_DE_LA_VALIDATION_DE_SEANCE.contains(appel.getOriginOwner().getName());
+                }
+            })
+            .because("la validation, la signature et le déverrouillage des séances vivent dans contexts/seance (ADR 0089) ; ces méthodes seront retirées");
+
     private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
 
     /**

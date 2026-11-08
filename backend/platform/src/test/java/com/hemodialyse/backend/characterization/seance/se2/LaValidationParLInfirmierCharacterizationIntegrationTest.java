@@ -57,7 +57,7 @@ class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2Charac
             c.put("signataire en base", lignes("SELECT statut, signed_infirmier_by FROM seances WHERE id = ?", seance));
             m.put(String.format("%02d %s", i + 1, cas[i]), c);
         }
-        arbre("compte_signataire", m);
+        arbre("compte_signataire_nouveau_code", m);
     }
 
     @Test
@@ -79,7 +79,7 @@ class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2Charac
             }
             m.put(statut, cas);
         }
-        arbre("matrice_des_statuts", m);
+        arbre("matrice_des_statuts_nouveau_code", m);
     }
 
     @Test
@@ -190,7 +190,7 @@ class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2Charac
         m.put("11 propriete inconnue ignoree", refus(doPost(validerApi(seance), "{\"centerId\":\"" + CENTRE_A + "\",\"userId\":\"u\",\"inconnue\":1}",
                 infirmierA())));
         m.put("12 etat final", etatSe2());
-        arbre("corps_et_formes", m);
+        arbre("corps_et_formes_nouveau_code", m);
     }
 
     @Test
@@ -255,7 +255,7 @@ class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2Charac
         Resp valide = valider(seance, infirmierA());
         m.put("10 puis une validation sans consommations : la place du patient est alors memorisee", refus(valide) + " ; "
                 + lignes("SELECT statut, salle_id, creneau_id FROM seances WHERE id = ?", seance));
-        arbre("retour_arriere", m);
+        arbre("retour_arriere_nouveau_code", m);
     }
 
     @Test
@@ -358,7 +358,7 @@ class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2Charac
         doPost(validerApi(creee), "{pas du json", infirmierA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 
     @Test
@@ -394,6 +394,6 @@ class LaValidationParLInfirmierCharacterizationIntegrationTest extends Se2Charac
         m.put("02 patient disparu : administrateur", refus(valider(sansPatient, adminA())));
         m.put("03 statut en minuscules : infirmier", refus(valider(illisible, infirmierA())));
         m.put("04 etat", etatSe2());
-        arbre("lignes_illisibles", m);
+        arbre("lignes_illisibles_nouveau_code", m);
     }
 }

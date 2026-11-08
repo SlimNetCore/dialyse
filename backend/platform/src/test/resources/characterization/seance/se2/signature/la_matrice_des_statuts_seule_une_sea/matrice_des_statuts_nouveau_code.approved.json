@@ -1,0 +1,27 @@
+{
+  "ABSENT" : {
+    "administrateur" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=ABSENT, validation=renseigne}",
+    "medecin" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=ABSENT, validation=renseigne}"
+  },
+  "CREE" : {
+    "administrateur" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}",
+    "medecin" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "EN_COURS" : {
+    "administrateur" : "400 BAD_REQUEST | La séance <SEANCE> porte une valeur illisible : statut inconnu ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=EN_COURS, validation=renseigne}",
+    "medecin" : "400 BAD_REQUEST | La séance <SEANCE> porte une valeur illisible : statut inconnu ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=EN_COURS, validation=renseigne}"
+  },
+  "FACTUREE" : {
+    "administrateur" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=FACTUREE, validation=renseigne}",
+    "medecin" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; {regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=inf-initiale, signed_medecin_by=null, statut=FACTUREE, validation=renseigne}"
+  },
+  "SIGNEE" : {
+    "administrateur" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-initial, statut=SIGNEE, validation=renseigne}",
+    "medecin" : "422 BUSINESS_RULE_VIOLATION | La signature medecin est autorisee uniquement apres validation infirmiere ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-initial, statut=SIGNEE, validation=renseigne}"
+  },
+  "VALIDEE" : {
+    "administrateur" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}",
+    "medecin" : "200 ok ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-01, statut=SIGNEE, validation=renseigne}"
+  },
+  "VALIDEE portant deja une signature de medecin (ligne incoherente)" : "422 BUSINESS_RULE_VIOLATION | La seance est deja signee par un medecin ; {regularisation_deverrouillee_by=null, signature_medecin=renseigne, signed_infirmier_by=inf-initiale, signed_medecin_by=med-initial, statut=VALIDEE, validation=renseigne}"
+}

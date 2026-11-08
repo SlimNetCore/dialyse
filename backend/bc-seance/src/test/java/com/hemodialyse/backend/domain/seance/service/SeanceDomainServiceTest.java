@@ -138,145 +138,6 @@ class SeanceDomainServiceTest {
     }
 
     @Test
-    void validate_without_consommables_should_succeed_without_stock_movement() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
-        InMemoryLotRepository lotRepo = new InMemoryLotRepository();
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo, articleRepo, lotRepo, spyBonSortie);
-        Seance validated = service.validate(centerId, seanceId, "inf-01", List.of());
-
-        assertEquals(SeanceStatus.VALIDEE, validated.getStatus());
-        assertFalse(spyBonSortie.called, "BonSortie should NOT be created when no consommables");
-    }
-
-    @Test
-    void validate_with_consommables_should_create_bon_sortie_via_fefo() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-        UUID lotId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
-        articleRepo.addArticle(articleId, centerId.value(), "ART-01", new BigDecimal("10"));
-
-        InMemoryLotRepository lotRepo = new InMemoryLotRepository();
-        lotRepo.addLot(articleId, centerId.value(), lotId, new BigDecimal("10"), null);
-
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo, articleRepo, lotRepo, spyBonSortie);
-        Seance validated = service.validate(centerId, seanceId, "inf-01",
-                List.of(new SeanceArticleConsumption(articleId, new BigDecimal("2"))));
-
-        assertEquals(SeanceStatus.VALIDEE, validated.getStatus());
-        assertTrue(spyBonSortie.called, "BonSortie should be created");
-        assertEquals(1, spyBonSortie.lastItems.size());
-        assertEquals(articleId, spyBonSortie.lastItems.getFirst().articleId());
-        assertEquals(new BigDecimal("2"), spyBonSortie.lastItems.getFirst().quantite());
-    }
-
-    @Test
-    void validate_should_refuse_an_inactive_or_unknown_article_with_a_bad_request_and_consume_nothing() {
-        // KB-STK-57 : l'article inactif est refusé comme l'article inconnu (IllegalArgumentException, 400), il était refusé en 422
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID inactif = UUID.randomUUID();
-        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
-        articleRepo.addArticleInactif(inactif, centerId.value(), "ART-OLD");
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now()));
-        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
-        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId), articleRepo,
-                new InMemoryLotRepository(), spy);
-
-        IllegalArgumentException refus = assertThrows(IllegalArgumentException.class, () -> service.validate(centerId, seanceId,
-                "inf-01", List.of(new SeanceArticleConsumption(inactif, BigDecimal.ONE))));
-        assertEquals("Article inactif: ART-OLD", refus.getMessage());
-        assertThrows(IllegalArgumentException.class, () -> service.validate(centerId, seanceId, "inf-01",
-                List.of(new SeanceArticleConsumption(UUID.randomUUID(), BigDecimal.ONE))));
-        assertFalse(spy.called, "aucune consommation n'est enregistrée");
-    }
-
-    @Test
-    void validate_should_allow_additional_consommables_when_seance_already_validated() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        UUID articleId = UUID.randomUUID();
-        UUID lotId = UUID.randomUUID();
-
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
-        articleRepo.addArticle(articleId, centerId.value(), "ART-01", new BigDecimal("10"));
-
-        InMemoryLotRepository lotRepo = new InMemoryLotRepository();
-        lotRepo.addLot(articleId, centerId.value(), lotId, new BigDecimal("10"), null);
-
-        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.validerParInfirmier("inf-01");
-        seanceRepo.save(seance);
-
-        SeanceDomainService service = buildService(seanceRepo, patientRepo, articleRepo, lotRepo, spyBonSortie);
-        Seance result = service.validate(centerId, seanceId, "inf-02",
-                List.of(new SeanceArticleConsumption(articleId, new BigDecimal("1"))));
-
-        assertEquals(SeanceStatus.VALIDEE, result.getStatus());
-        assertTrue(spyBonSortie.called);
-        assertEquals(new BigDecimal("1"), spyBonSortie.lastItems.getFirst().quantite());
-    }
-
-    @Test
-    void signByMedecin_should_succeed_after_infirmier_validation() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
-        seance.validerParInfirmier("inf-01");
-        seanceRepo.save(seance);
-        SeanceDomainService service = buildService(seanceRepo, patientRepo,
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
-
-        Seance signed = service.signByMedecin(centerId, seanceId, "med-01");
-        assertEquals(SeanceStatus.SIGNEE, signed.getStatus());
-        assertNotNull(signed.getSignedByMedecinAt());
-        assertEquals("med-01", signed.getSignedByMedecinUserId());
-    }
-
-    @Test
-    void signByMedecin_should_fail_when_seance_not_validated() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
-        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now()));
-        SeanceDomainService service = buildService(seanceRepo, patientRepo,
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
-
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> service.signByMedecin(centerId, seanceId, "med-01"));
-        assertTrue(ex.getMessage().contains("validation infirmiere"));
-    }
-
-    @Test
     void createFromQr_should_always_use_server_today_date() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
@@ -377,37 +238,7 @@ class SeanceDomainServiceTest {
 
     private static final PlaceSeance PLACE_DU_JOUR = new PlaceSeance(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
 
-    @Test
-    void validate_should_freeze_the_place_of_the_day_and_never_replace_it_afterwards() {
-        ScanFixture f = scanFixture();
-        UUID id = UUID.randomUUID();
-        f.seances().save(new Seance(id, f.patientId(), f.centerId().value(), LocalDate.now()));
-
-        Seance validee = f.service().validate(f.centerId(), id, "inf-01", List.of());
-        assertEquals(PLACE_DU_JOUR, validee.getPlace());
-
-        // une séance validée garde la place de son jour, même revalidée plus tard (ajout de consommables)
-        PlaceSeance ancienne = new PlaceSeance(UUID.randomUUID(), UUID.randomUUID(), null);
-        validee.setPlace(ancienne);
-        f.seances().save(validee);
-        assertEquals(ancienne, f.service().validate(f.centerId(), id, "inf-01", List.of()).getPlace());
-    }
-
-    @Test
-    void validate_should_leave_the_place_empty_for_a_patient_without_place() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        UUID id = UUID.randomUUID();
-        seanceRepo.save(new Seance(id, patientId, centerId.value(), LocalDate.now()));
-        SeanceDomainService service = new SeanceDomainService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                new InMemoryArticleRepository(), new SpyBonSortieUseCase(),
-                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
-                new InMemoryForfaitCatalog(), new AlwaysBillableEligibility(), (c, p, d) -> ATTENDU,
-                (c, p, d) -> Optional.empty());
-
-        assertNull(service.validate(centerId, id, "inf-01", List.of()).getPlace());
-    }
+    // SE2 : la place figée à la validation est couverte par ValiderUneSeanceTest (contexts/seance).
 
     @Test
     void a_place_requires_a_room_and_a_slot() {
@@ -693,24 +524,6 @@ class SeanceDomainServiceTest {
         assertEquals(articleId, spyBonSortie.lastSetArticleId);
         assertEquals(new BigDecimal("3"), spyBonSortie.lastSetQuantite);
         assertFalse(spyBonSortie.addCalled, "une modification ne crée pas une nouvelle sortie");
-    }
-
-    @Test
-    void unlockForRegularisation_should_persist_the_unlock_of_a_past_session_and_refuse_an_unknown_one() {
-        CenterId centerId = CenterId.of(UUID.randomUUID());
-        UUID patientId = UUID.randomUUID();
-        UUID seanceId = UUID.randomUUID();
-        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
-        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now().minusDays(3)));
-        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
-
-        Seance unlocked = service.unlockForRegularisation(centerId, seanceId, "admin");
-
-        assertTrue(unlocked.estDeverrouilleePourRegularisation());
-        assertTrue(seanceRepo.findById(seanceId, centerId).orElseThrow().estDeverrouilleePourRegularisation());
-        assertThrows(IllegalArgumentException.class,
-                () -> service.unlockForRegularisation(centerId, UUID.randomUUID(), "admin"));
     }
 
     @Test

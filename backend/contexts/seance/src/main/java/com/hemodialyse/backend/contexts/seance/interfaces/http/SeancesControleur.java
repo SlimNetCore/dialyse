@@ -4,12 +4,17 @@ import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.ForfaitsDeSeance;
+import com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.ListerLesSeances;
 import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
+import com.hemodialyse.backend.contexts.seance.application.SignerUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance;
 import com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.CreationDeSeanceDemande;
 import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ScanDeSeanceDemande;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.SignatureDeSeanceDemande;
+import com.hemodialyse.backend.contexts.seance.interfaces.http.dto.ValidationDeSeanceDemande;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -46,12 +51,19 @@ public class SeancesControleur {
     private final ScannerUnPatient scanner;
     private final ConsulterUneSeance consulter;
     private final ListerLesSeances lister;
+    private final ValiderUneSeance valider;
+    private final SignerUneSeance signer;
+    private final DeverrouillerUneSeance deverrouiller;
 
-    public SeancesControleur(CreerUneSeance creer, ScannerUnPatient scanner, ConsulterUneSeance consulter, ListerLesSeances lister) {
+    public SeancesControleur(CreerUneSeance creer, ScannerUnPatient scanner, ConsulterUneSeance consulter, ListerLesSeances lister,
+                             ValiderUneSeance valider, SignerUneSeance signer, DeverrouillerUneSeance deverrouiller) {
         this.creer = creer;
         this.scanner = scanner;
         this.consulter = consulter;
         this.lister = lister;
+        this.valider = valider;
+        this.signer = signer;
+        this.deverrouiller = deverrouiller;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
@@ -74,6 +86,44 @@ public class SeancesControleur {
         reponse.put("created", resultat.creee());
         reponse.put("validatedNow", resultat.validee());
         reponse.put("alreadyValidated", resultat.dejaValidee());
+        return ResponseEntity.ok(reponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @PostMapping("/{seanceId}/valider")
+    public ResponseEntity<Map<String, Object>> valider(@PathVariable UUID seanceId, @RequestBody ValidationDeSeanceDemande demande) {
+        if (demande.centerId() == null) throw new SaisieInvalide("Centre requis");
+        List<ValiderUneSeance.Ligne> lignes = demande.consommations() == null ? List.of() : demande.consommations().stream()
+                .map(c -> c == null ? null : new ValiderUneSeance.Ligne(c.articleId(), c.quantite())).toList();
+        Seance seance = valider.executer(demande.centerId(), seanceId, demande.userId(), lignes).seance();
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("id", seance.id().valeur());
+        reponse.put("status", seance.statut());
+        reponse.put("validatedAt", seance.jalons().valideeLe());
+        reponse.put("signedByInfirmierAt", seance.jalons().signeeParLInfirmierLe());
+        return ResponseEntity.ok(reponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PostMapping("/{seanceId}/signer-medecin")
+    public ResponseEntity<Map<String, Object>> signer(@PathVariable UUID seanceId, @RequestBody SignatureDeSeanceDemande demande) {
+        if (demande.centerId() == null) throw new SaisieInvalide("Centre requis");
+        Seance seance = signer.executer(demande.centerId(), seanceId, demande.userId());
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("id", seance.id().valeur());
+        reponse.put("status", seance.statut());
+        reponse.put("signedByMedecinAt", seance.jalons().signeeParLeMedecinLe());
+        return ResponseEntity.ok(reponse);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{seanceId}/deverrouiller-regularisation")
+    public ResponseEntity<Map<String, Object>> deverrouiller(@PathVariable UUID seanceId, @RequestParam UUID centerId) {
+        Seance seance = deverrouiller.executer(centerId, seanceId);
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("id", seance.id().valeur());
+        reponse.put("status", seance.statut());
+        reponse.put("regularisationDeverrouilleeAt", seance.jalons().deverrouilleePourRegularisationLe());
         return ResponseEntity.ok(reponse);
     }
 

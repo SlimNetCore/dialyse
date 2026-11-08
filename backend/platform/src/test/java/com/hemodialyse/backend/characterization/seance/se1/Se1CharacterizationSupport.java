@@ -28,9 +28,10 @@ import java.util.UUID;
  * H2 {@code test}), état SQL de la table REELLE {@code seances}, diffusions temps réel (courtier de messages), audit. Aucun mock du
  * code caractérisé, aucun code de production modifié (aucun seam).
  * <p>
- * Dates : explicites FIXES {@code <D+n>} pour les créations avec date ; la création sans date prend le jour du centre
- * ({@code Africa/Algiers}, {@code <J>}) et le scan prend le jour de la JVM ({@code LocalDate.now()}, aussi nommé {@code <J>}) : voir
- * KB-SEA-01. Garde de minuit (JVM et centre). Identifiants : alias nommés ou {@code <UUID_GENERE_n>} ; horodatages masqués.
+ * Dates : explicites FIXES {@code <D+n>} pour les créations avec date ; la création sans date, le scan, la validation et le
+ * déverrouillage prennent le jour du centre ({@code Africa/Algiers}, {@code <J>}) : seul ce jour compte, aucun test ne lit le jour de la
+ * JVM, donc aucun ne dépend de l'heure (garde de minuit du centre héritée de Roulement). Identifiants : alias nommés ou
+ * {@code <UUID_GENERE_n>} ; horodatages masqués.
  * DONNEES FICTIVES uniquement.
  */
 public abstract class Se1CharacterizationSupport extends SemaineCharacterizationSupport {
@@ -63,7 +64,6 @@ public abstract class Se1CharacterizationSupport extends SemaineCharacterization
 
     @BeforeEach
     protected void setUpSe1() throws Exception {
-        attendreSiProcheDeMinuitDeLaJvm();
         nettoyerSe1();
     }
 
@@ -85,15 +85,6 @@ public abstract class Se1CharacterizationSupport extends SemaineCharacterization
         diffusions.clear();
     }
 
-    private static void attendreSiProcheDeMinuitDeLaJvm() throws InterruptedException {
-        ZoneId zone = ZoneId.systemDefault();
-        Instant minuit = LocalDate.now(zone).plusDays(1).atStartOfDay(zone).toInstant();
-        Duration reste = Duration.between(Instant.now(), minuit);
-        if (reste.compareTo(Duration.ofMinutes(2)) < 0) {
-            Thread.sleep(reste.toMillis() + 2000);
-        }
-    }
-
     // ------------------------------------------------------------------ dates
 
     protected LocalDate fixe(int n) {
@@ -102,7 +93,6 @@ public abstract class Se1CharacterizationSupport extends SemaineCharacterization
 
     /** Le jour du centre ({@code <J>}) ; le jour de la JVM porte le même nom (voir KB-SEA-01). */
     protected LocalDate aujourdhuiNomme() {
-        alias(LocalDate.now(), "<J>");
         return jour(0);
     }
 

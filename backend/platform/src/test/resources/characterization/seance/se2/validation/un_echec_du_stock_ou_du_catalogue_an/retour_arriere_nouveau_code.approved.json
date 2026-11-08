@@ -1,0 +1,76 @@
+{
+  "01 article actif puis article inactif (400)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "400 BAD_REQUEST | Article inactif: SE2-ART_INACTIF",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "02 article actif puis article inconnu (400)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "400 BAD_REQUEST | Article introuvable: <ART_INCONNU>",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "03 article actif puis article d'un autre centre (400)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "400 BAD_REQUEST | Article introuvable: <ART_AUTRE_CENTRE>",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "04 article sans identifiant (400)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "400 BAD_REQUEST | Article de consommation invalide",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "05 quantite nulle apres une ligne valide (422 du Stock)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "422 QUANTITE_INVALIDE | La quantité doit être strictement positive",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "06 quantite negative (422 du Stock)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "422 QUANTITE_INVALIDE | La quantité doit être strictement positive",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "07 quantite absente (422 du Stock)" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "422 QUANTITE_INVALIDE | La quantité doit être strictement positive",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "08 ligne nulle dans la liste" : {
+    "consommations imputees" : [ ],
+    "place memorisee" : [ {
+      "creneau_id" : null,
+      "salle_id" : null
+    } ],
+    "reponse" : "400 BAD_REQUEST | Article de consommation invalide",
+    "seance" : "{regularisation_deverrouillee_by=null, signature_medecin=null, signed_infirmier_by=null, signed_medecin_by=null, statut=CREE, validation=null}"
+  },
+  "09 diffusions (aucune)" : [ ],
+  "10 puis une validation sans consommations : la place du patient est alors memorisee" : "200 ok ; [{creneau_id=<CRENEAU_MATIN>, salle_id=<SALLE_1>, statut=VALIDEE}]"
+}

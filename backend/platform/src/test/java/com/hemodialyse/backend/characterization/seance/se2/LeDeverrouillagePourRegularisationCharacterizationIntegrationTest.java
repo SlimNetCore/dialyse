@@ -71,7 +71,7 @@ class LeDeverrouillagePourRegularisationCharacterizationIntegrationTest extends 
         deverrouillerEnBase(deja);
         m.put("CREE deja deverrouillee (idempotent)", issue(deverrouiller(deja, adminA()), deja));
         m.put("etat de la seance deja deverrouillee", etatSe2());
-        arbre("matrice_des_statuts", m);
+        arbre("matrice_des_statuts_nouveau_code", m);
     }
 
     @Test
@@ -116,7 +116,7 @@ class LeDeverrouillagePourRegularisationCharacterizationIntegrationTest extends 
         m.put("11 SUPERADMIN + ADMIN de la session A vise le centre B (transverse)", refus(doPost(deverrouillerApi(seanceB, CENTRE_B), "",
                 as(CENTRE_A, "SUPERADMIN", "ADMIN"))));
         m.put("12 etat apres le superadmin", etatSe2());
-        arbre("cloisonnement_et_parametres", m);
+        arbre("cloisonnement_et_parametres_nouveau_code", m);
     }
 
     @Test

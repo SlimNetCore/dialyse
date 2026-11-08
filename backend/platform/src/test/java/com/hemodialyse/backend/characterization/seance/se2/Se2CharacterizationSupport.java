@@ -21,9 +21,9 @@ import java.util.UUID;
  * H2 {@code test}), état SQL de {@code seances} et des tables de consommations du Stock, diffusions temps réel, audit. Aucun mock du
  * code caractérisé, aucun code de production modifié (aucun seam).
  * <p>
- * Dates : la validation compare le jour de la séance au jour de la JVM ({@code LocalDate.now()}), le déverrouillage aussi, alors que la
- * création sans date prend le jour du centre (KB-SEA-01) : les séances relatives sont posées au jour du centre {@code <J>} (garde de
- * minuit sur les deux fuseaux, héritée de SE1). Dates fixes {@code <D+n>} pour les séances sans enjeu d'horloge.
+ * Dates : le legacy comparait le jour de la séance au jour de la JVM (KB-SEA-01) ; le module lit le jour du centre : les séances
+ * relatives sont posées au jour du centre {@code <J>} (garde de minuit du centre, héritée de Roulement), indépendamment de l'heure
+ * d'exécution. Dates fixes {@code <D+n>} pour les séances sans enjeu d'horloge.
  */
 public abstract class Se2CharacterizationSupport extends Se1CharacterizationSupport {
 

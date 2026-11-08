@@ -39,7 +39,9 @@ class ScannerUnPatientTest {
         assertThat(resultat.validee()).isTrue();
         assertThat(resultat.dejaValidee()).isFalse();
         assertThat(resultat.seance().statut()).isEqualTo(StatutDeSeance.VALIDEE);
-        assertThat(banc.validations).hasSize(1).first().asString().endsWith("/u-infirmier");
+        var enregistree = banc.seances.trouver(CENTRE_A, resultat.seance().id()).orElseThrow();
+        assertThat(enregistree.statut()).isEqualTo(StatutDeSeance.VALIDEE);
+        assertThat(enregistree.traces().infirmier()).isEqualTo("u-infirmier");
         assertThat(banc.diffusionsRecues).containsExactly("SEANCE_CREATED:Nom1", "SEANCE_VALIDATED:Nom1", "SEANCE_VALIDEE:u-infirmier");
     }
 
@@ -72,7 +74,6 @@ class ScannerUnPatientTest {
 
         assertThat(resultat.dejaValidee()).isTrue();
         assertThat(resultat.validee()).isFalse();
-        assertThat(banc.validations).isEmpty();
         assertThat(banc.diffusionsRecues).isEmpty();
     }
 
@@ -104,7 +105,6 @@ class ScannerUnPatientTest {
         assertThat(resultat.validee()).isFalse();
         assertThat(resultat.dejaValidee()).isFalse();
         assertThat(resultat.seance().statut()).isEqualTo(StatutDeSeance.CREE);
-        assertThat(banc.validations).isEmpty();
         assertThat(banc.diffusionsRecues).containsExactly("SEANCE_CREATED:Nom1", "SEANCE_CREEE:u-secretaire");
     }
 
@@ -183,7 +183,7 @@ class ScannerUnPatientTest {
 
     @Test
     void should_undo_the_creation_when_the_validation_fails() {
-        banc.lAdapterDeValidationEchoue = true;
+        banc.laPlaceEchoue = true;
 
         assertThatThrownBy(() -> scanner("P-001")).isInstanceOf(IllegalStateException.class);
 

@@ -18,7 +18,6 @@ import com.hemodialyse.backend.contexts.seance.application.ResoudreLePatientScan
 import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
 import com.hemodialyse.backend.contexts.seance.application.SessionCourante;
 import com.hemodialyse.backend.contexts.seance.application.UniteDeTravail;
-import com.hemodialyse.backend.contexts.seance.application.ValidationDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.VoletsDeLaSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seances;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
@@ -27,7 +26,6 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.G
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.HistoriqueParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlanningDesPatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ValidationParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.VoletsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
@@ -36,7 +34,6 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.GenerateursFour
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.JourDuCentreFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.ValidationFournie;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.VoletsFournis;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyidentite.SessionLegacy;
@@ -144,12 +141,6 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    ValidationDeSeance validationDeLaSeance(ValidationFournie validation,
-                                            @Qualifier("seancesDuContexteSeance") Seances seances) {
-        return new ValidationParLeLegacy(validation, seances);
-    }
-
-    @Bean
     DiffusionsDeSeance diffusionsDeLaSeance(DiffusionsFournies diffusions) {
         return new DiffusionsParLeLegacy(diffusions);
     }
@@ -217,13 +208,13 @@ public class SeanceConfiguration {
                                       @Qualifier("planningDesPatientsDeLaSeance") PlanningDesPatients planning,
                                       @Qualifier("eligibiliteALaFacturationDeLaSeance") EligibiliteALaFacturation eligibilite,
                                       @Qualifier("seancesDuContexteSeance") Seances seances,
-                                      @Qualifier("validationDeLaSeance") ValidationDeSeance validation,
+                                      @Qualifier("placeDuPatientDeLaSeance") PlaceDuPatient places,
                                       @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
                                       @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants,
                                       @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
                                       @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
         return new ScannerUnPatient(session, new ResoudreLePatientScanne(patients), patients, generateurs, planning, eligibilite,
-                seances, validation, uniteDeTravail, identifiants, horloge, diffusions);
+                seances, places, uniteDeTravail, identifiants, horloge, diffusions);
     }
 
     @Bean

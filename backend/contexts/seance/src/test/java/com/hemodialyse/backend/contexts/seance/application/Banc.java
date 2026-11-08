@@ -41,9 +41,9 @@ final class Banc {
     final Map<String, SituationDuPlanning> situations = new HashMap<>();
     final Map<String, CauseDeNonFacturation> causes = new HashMap<>();
     final List<String> diffusionsRecues = new ArrayList<>();
-    final List<String> validations = new ArrayList<>();
     final Map<UUID, GenerateursDesPatients.Generateur> equipements = new HashMap<>();
-    boolean lAdapterDeValidationEchoue;
+    /** La lecture de la place échoue : prouve qu'un échec pendant la validation du scan défait aussi la création. */
+    boolean laPlaceEchoue;
     private int compteur = 100;
     private Clock horloge = Clock.fixed(MAINTENANT, ZoneOffset.UTC);
 
@@ -100,18 +100,6 @@ final class Banc {
         return (centre, equipement) -> Optional.ofNullable(equipements.get(equipement));
     }
 
-    ValidationDeSeance validation() {
-        return (centre, seance, auteur) -> {
-            if (lAdapterDeValidationEchoue) throw new IllegalStateException("validation refusée");
-            validations.add(seance.valeur() + "/" + auteur);
-            Seance avant = seances.trouver(centre, seance).orElseThrow();
-            Seance validee = Seance.restituer(avant.id(), avant.centre(), avant.patient(), avant.jour(), StatutDeSeance.VALIDEE,
-                    avant.creeLe(), avant.derogation().orElse(null), new Seance.Jalons(MAINTENANT, MAINTENANT, null, null));
-            seances.semer(validee);
-            return validee;
-        };
-    }
-
     DiffusionsDeSeance diffusions() {
         return new DiffusionsDeSeance() {
             @Override
@@ -145,7 +133,10 @@ final class Banc {
     String refusDuStock;
 
     PlaceDuPatient placeDuPatient() {
-        return (centre, patient, jour) -> Optional.ofNullable(places.get(cle(centre, patient)));
+        return (centre, patient, jour) -> {
+            if (laPlaceEchoue) throw new IllegalStateException("place illisible");
+            return Optional.ofNullable(places.get(cle(centre, patient)));
+        };
     }
 
     ConsommationsALaValidation consommationsALaValidation() {
@@ -188,7 +179,7 @@ final class Banc {
     }
 
     ScannerUnPatient scanner() {
-        return new ScannerUnPatient(session, resolution(), patients, generateurs(), planning(), eligibilite(), seances, validation(),
+        return new ScannerUnPatient(session, resolution(), patients, generateurs(), planning(), eligibilite(), seances, placeDuPatient(),
                 unite(), identifiants(), horloge(), diffusions());
     }
 

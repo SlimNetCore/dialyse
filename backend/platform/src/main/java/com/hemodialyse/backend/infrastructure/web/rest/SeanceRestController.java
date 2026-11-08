@@ -206,74 +206,7 @@ public class SeanceRestController {
         ));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
-    @PostMapping("/{seanceId}/valider")
-    public ResponseEntity<?> validate(@PathVariable UUID seanceId, @RequestBody @Valid ValidateSeanceRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
-        exigerDeverrouillagePourSeancePassee(CenterId.of(request.centerId()), seanceId);
-        var consommations = request.consommations() == null
-                ? java.util.List.<SeanceArticleConsumption>of()
-                : request.consommations().stream()
-                .map(item -> new SeanceArticleConsumption(item.articleId(), item.quantite()))
-                .toList();
-
-        var seance = seanceUseCase.validate(CenterId.of(request.centerId()), seanceId, request.userId(), consommations);
-        var details = seanceUseCase.getDetails(CenterId.of(request.centerId()), seance.getId());
-        var patient = details.patient();
-        notificationService.notifySeanceValidated(
-                request.centerId(),
-                seance.getId(),
-                seance.getPatientId(),
-                patient.getNom(),
-                patient.getPrenom(),
-                seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
-        );
-        notificationService.notifySaisieInfirmier(request.centerId(), "SEANCE_VALIDEE", seance.getPatientId(),
-                patient.getNom(), patient.getPrenom(), CurrentUser.username(),
-                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
-
-        return ResponseEntity.ok(Map.of(
-                "id", seance.getId(),
-                "status", seance.getStatus(),
-                "validatedAt", seance.getValidatedAt(),
-                "signedByInfirmierAt", seance.getSignedByInfirmierAt()
-        ));
-    }
-
-    /**
-     * L'administrateur déverrouille une séance d'un jour passé restée « créée » (validation oubliée) : elle devient
-     * visible de l'infirmier, qui peut la valider. Les infirmiers du centre en sont prévenus.
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{seanceId}/deverrouiller-regularisation")
-    public ResponseEntity<?> unlockForRegularisation(@PathVariable UUID seanceId, @RequestParam UUID centerId) {
-        centerAccessGuard.requireCenter(centerId); // KB-MED-02 : le centre demandé doit être celui du jeton (403 sinon)
-        var centre = CenterId.of(centerId);
-        var seance = seanceUseCase.unlockForRegularisation(centre, seanceId, CurrentUser.username());
-        var patient = seanceUseCase.getDetails(centre, seanceId).patient();
-        notificationService.notifySeanceDeverrouillee(centerId, seanceId, patient.getNom(), patient.getPrenom(),
-                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
-        var payload = new LinkedHashMap<String, Object>();
-        payload.put("id", seance.getId());
-        payload.put("status", seance.getStatus());
-        payload.put("regularisationDeverrouilleeAt", seance.getRegularisationDeverrouilleeAt());
-        return ResponseEntity.ok(payload);
-    }
-
-    /**
-     * Une séance d'un jour passé restée « créée » (validation oubliée) ne se régularise que si l'administrateur l'a
-     * déverrouillée : l'infirmier valide librement les séances du jour, jamais les autres. L'administrateur valide
-     * toujours.
-     */
-    private void exigerDeverrouillagePourSeancePassee(CenterId centre, UUID seanceId) {
-        var seance = seanceUseCase.getDetails(centre, seanceId).seance();
-        LocalDate jour = seance.getDateSeance();
-        if (jour != null && jour.isBefore(LocalDate.now()) && !CurrentUser.hasAnyRole("ADMIN")
-                && !seance.estDeverrouilleePourRegularisation()) {
-            throw new BusinessException("SEANCE_REGULARISATION_NON_DEVERROUILLEE",
-                    "Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur");
-        }
-    }
+    // SE2 : valider, signer-medecin et deverrouiller-regularisation sont servis par contexts/seance (SeancesControleur, ADR 0089).
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
     @GetMapping("/journal")
@@ -951,19 +884,6 @@ public class SeanceRestController {
     public record SeanceCalendarDayRequest(UUID centerId,
                                            LocalDate dayDate,
                                            String labelOrReason) {
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
-    @PostMapping("/{seanceId}/signer-medecin")
-    public ResponseEntity<?> signByMedecin(@PathVariable UUID seanceId,
-                                           @RequestBody @Valid SignSeanceMedecinRequest request) {
-        centerAccessGuard.requireCenter(request.centerId()); // KB-MED-02 : le centre du corps doit être celui du jeton (403 sinon)
-        var seance = seanceUseCase.signByMedecin(CenterId.of(request.centerId()), seanceId, request.userId());
-        return ResponseEntity.ok(Map.of(
-                "id", seance.getId(),
-                "status", seance.getStatus(),
-                "signedByMedecinAt", seance.getSignedByMedecinAt()
-        ));
     }
 
     /**

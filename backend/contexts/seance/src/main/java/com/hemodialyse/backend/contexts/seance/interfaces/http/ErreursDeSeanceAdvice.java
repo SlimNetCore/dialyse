@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.seance.interfaces.http;
 
 import com.hemodialyse.backend.contexts.seance.application.AccesRefuse;
+import com.hemodialyse.backend.contexts.seance.application.ConsommationRefusee;
 import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.seance.domain.PatientIntrouvable;
 import com.hemodialyse.backend.contexts.seance.domain.SaisieInvalide;
@@ -75,6 +76,11 @@ class ErreursDeSeanceAdvice {
     @ExceptionHandler(SeanceIllisible.class)
     ProblemDetail seanceIllisible(SeanceIllisible erreur) {
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
+    }
+
+    @ExceptionHandler(ConsommationRefusee.class)
+    ProblemDetail consommationRefusee(ConsommationRefusee erreur) {
+        return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), erreur.code());
     }
 
     @ExceptionHandler(AccesRefuse.class)

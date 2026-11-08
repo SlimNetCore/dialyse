@@ -60,7 +60,7 @@ class LaSignatureMedicaleCharacterizationIntegrationTest extends Se2Characteriza
         UUID incoherente = seanceValidee(CENTRE_A, patient, "SEANCE_INCOHERENTE", jour, "VALIDEE");
         jdbc.update("UPDATE seances SET signed_medecin_at = ?, signed_medecin_by = 'med-initial' WHERE id = ?", CREATION_FIXE, incoherente);
         m.put("VALIDEE portant deja une signature de medecin (ligne incoherente)", issue(signer(incoherente, medecinA()), incoherente));
-        arbre("matrice_des_statuts", m);
+        arbre("matrice_des_statuts_nouveau_code", m);
     }
 
     @Test
@@ -79,7 +79,7 @@ class LaSignatureMedicaleCharacterizationIntegrationTest extends Se2Characteriza
             c.put("signataire en base", lignes("SELECT statut, signed_medecin_by FROM seances WHERE id = ?", seance));
             m.put(String.format("%02d %s", i + 1, cas[i]), c);
         }
-        arbre("compte_signataire", m);
+        arbre("compte_signataire_nouveau_code", m);
     }
 
     @Test
@@ -141,7 +141,7 @@ class LaSignatureMedicaleCharacterizationIntegrationTest extends Se2Characteriza
         m.put("12 SUPERADMIN + ADMIN de la session A vise le centre B (transverse)", refus(doPost(signerApi(seanceB),
                 corps("centerId", CENTRE_B, "userId", "u"), as(CENTRE_A, "SUPERADMIN", "ADMIN"))));
         m.put("13 etat apres le superadmin", etatSe2());
-        arbre("cloisonnement_et_corps", m);
+        arbre("cloisonnement_et_corps_nouveau_code", m);
     }
 
     @Test
@@ -162,7 +162,7 @@ class LaSignatureMedicaleCharacterizationIntegrationTest extends Se2Characteriza
         doPost(signerApi(validee), "{pas du json", medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 
     @Test

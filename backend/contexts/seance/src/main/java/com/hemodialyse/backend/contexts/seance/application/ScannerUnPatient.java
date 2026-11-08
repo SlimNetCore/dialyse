@@ -13,6 +13,7 @@ import com.hemodialyse.backend.contexts.seance.domain.SeanceDuJourAmbigue;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceRefusee;
 import com.hemodialyse.backend.contexts.seance.domain.Seances;
+import com.hemodialyse.backend.contexts.seance.domain.Signataire;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
@@ -21,8 +22,8 @@ import java.util.UUID;
 
 /**
  * Scan d'un patient (POST /api/v1/seances/scan). Administrateur et infirmier : la séance du jour est validée directement (créée puis
- * validée s'il n'y en a pas, validée si elle était « créée », rendue telle quelle si déjà validée) ; la validation (SE2, legacy) passe par
- * le port {@link ValidationDeSeance}, dans la même unité de travail que la création. Secrétaire (qui ne valide pas) : la séance du jour est
+ * validée s'il n'y en a pas, validée si elle était « créée », rendue telle quelle si déjà validée) ; la validation est celle de la Séance (SE2,
+ * intention de {@link Seance}), dans la même unité de travail que la création. Secrétaire (qui ne valide pas) : la séance du jour est
  * créée ou rendue, à valider par l'infirmier. Le jour est celui du centre (KB-SEA-01). Une création hors planning exige une dérogation
  * (motif, précision), que seul l'administrateur peut employer pour franchir un jour de fermeture ; l'ordre des contrôles est planning,
  * prise en charge, attestation. Plusieurs séances le même jour : 409 (KB-SEA-02). Le drapeau {@code creee} de la secrétaire reste faux et
@@ -37,7 +38,7 @@ public class ScannerUnPatient {
     private final PlanningDesPatients planning;
     private final EligibiliteALaFacturation eligibilite;
     private final Seances seances;
-    private final ValidationDeSeance validation;
+    private final PlaceDuPatient places;
     private final UniteDeTravail uniteDeTravail;
     private final GenerateurDIdentifiants identifiants;
     private final HorlogeDuCentre horloge;
@@ -45,7 +46,7 @@ public class ScannerUnPatient {
 
     public ScannerUnPatient(SessionCourante session, ResoudreLePatientScanne resolution, PatientsDeLaSeance patients,
                             GenerateursDesPatients generateurs, PlanningDesPatients planning, EligibiliteALaFacturation eligibilite,
-                            Seances seances, ValidationDeSeance validation, UniteDeTravail uniteDeTravail,
+                            Seances seances, PlaceDuPatient places, UniteDeTravail uniteDeTravail,
                             GenerateurDIdentifiants identifiants, HorlogeDuCentre horloge, DiffusionsDeSeance diffusions) {
         this.session = session;
         this.resolution = resolution;
@@ -54,7 +55,7 @@ public class ScannerUnPatient {
         this.planning = planning;
         this.eligibilite = eligibilite;
         this.seances = seances;
-        this.validation = validation;
+        this.places = places;
         this.uniteDeTravail = uniteDeTravail;
         this.identifiants = identifiants;
         this.horloge = horloge;
@@ -95,16 +96,28 @@ public class ScannerUnPatient {
                                               DerogationHorsPlanning derogation, String auteur, FicheDuPatient fiche) {
         if (existante.isEmpty()) {
             Seance creee = creer(centre, patient, jour, derogation);
-            Seance validee = validation.validerParLInfirmier(centre, creee.id(), auteur);
-            return new ResultatDuScan(validee, fiche, true, true, false);
+            return new ResultatDuScan(valider(centre, creee, auteur), fiche, true, true, false);
         }
         Seance seance = existante.get();
         return switch (seance.statut()) {
-            case CREE -> new ResultatDuScan(validation.validerParLInfirmier(centre, seance.id(), auteur), fiche, false, true, false);
+            case CREE -> new ResultatDuScan(valider(centre, seance, auteur), fiche, false, true, false);
             case VALIDEE, SIGNEE, FACTUREE -> new ResultatDuScan(seance, fiche, false, false, true);
             case ABSENT -> throw new SeanceRefusee(MotifDeRefus.SEANCE_DU_JOUR_ABSENTE,
                     "La séance du jour de ce patient est marquée absente : elle ne peut pas être validée");
         };
+    }
+
+    /**
+     * Validation par le scan (SE2) : la séance passe à validée au nom du compte de la session (KB-SEA-09), sa place du jour est mémorisée,
+     * sans consommable ni verrou des jours passés (le scan vaut pour le jour du centre). Même unité de travail que la création.
+     */
+    private Seance valider(CentreId centre, Seance seance, String auteur) {
+        seance.validerParLInfirmier(horloge.maintenant(), Signataire.lire(auteur));
+        if (seance.traces().place() == null) {
+            places.placeLe(centre, seance.patient(), seance.jour()).ifPresent(seance::memoriserPlace);
+        }
+        seances.enregistrer(seance);
+        return seance;
     }
 
     private ResultatDuScan scannerPourCreer(CentreId centre, PatientId patient, LocalDate jour, Optional<Seance> existante,
