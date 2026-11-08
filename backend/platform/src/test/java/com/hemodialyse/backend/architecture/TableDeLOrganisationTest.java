@@ -46,6 +46,10 @@ class TableDeLOrganisationTest {
             // planificateur legacy qu'elle remplace (retiré au lot B ; son entrée est retirée dans le même lot). RETRAIT : à
             // l'échéance de organisation.v1 (jalon O4).
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacyorganisation/CentresARappelerJdbc.java",
+            // 2026-11-08, SE7c1 (ADR 0096) : code de la salle et code / libellé du créneau d'une séance (salle, position_creneau), lecture
+            // seule, publiés au Stock par PlacesDesSeancesPubliees ; reprend la lecture de PerimetreDesSeancesLegacy (Stock), retirée au lot B.
+            // RETRAIT : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/LecturesPublieesDesSeancesJdbc.java",
             // 2026-11-03, PC1 : fuseau du centre (centers) et libellés de la recherche et des mouvements (medecin, salle,
             // position_creneau) : lecture seule, à remplacer par organisation.v1
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",

@@ -73,6 +73,7 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.GenerateursFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesPublieesDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.JourDuCentreFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.VoletsFournis;
@@ -140,6 +141,12 @@ public class SeanceConfiguration {
     @Bean
     Seances seancesDuContexteSeance(JdbcTemplate jdbc) {
         return new SeancesJdbc(jdbc);
+    }
+
+    /** Lectures publiées de la Séance ({@code seance.v1}, ADR 0096) : facturation et place d'une séance, pour le Stock (SE7c1). */
+    @Bean
+    LecturesPublieesDesSeancesJdbc lecturesPublieesDesSeances(JdbcTemplate jdbc) {
+        return new LecturesPublieesDesSeancesJdbc(jdbc);
     }
 
     @Bean
