@@ -58,7 +58,9 @@ class AbsencePatientIntegrationTest {
     @Autowired
     private DetectionAbsences detection;
     @Autowired
-    private SeanceRestController seances;
+    private com.hemodialyse.backend.contexts.seance.application.ConsulterLeTableauDeBord tableau;
+    @Autowired
+    private com.hemodialyse.backend.contexts.seance.application.ConsulterLeDetailDuTableauDeBord detail;
     @Autowired
     private DirectionAbsencesQueryService direction;
     @Autowired
@@ -125,7 +127,6 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void the_monthly_dashboard_counts_the_tracked_absences_and_the_performed_sessions() {
         // KB-ABS-05 : le tableau de bord est gardé par le centre de la session ; l'administrateur du centre 1 est connecté
         connecteEnAdminDuCentre(C1);
@@ -137,23 +138,23 @@ class AbsencePatientIntegrationTest {
         int annee = jour.getYear();
         int mois = jour.getMonthValue();
 
-        var c1 = (java.util.Map<String, Object>) seances.dashboard(C1, annee, mois).getBody();
+        var c1 = tableau.executer(C1, annee, mois);
 
-        assertEquals(1L, c1.get("presenceCount"), "seule la séance validée est une présence");
-        assertEquals(1L, c1.get("absenceCount"), "l'absence suivie compte, l'absence annulée non");
+        assertEquals(1L, c1.presences(), "seule la séance validée est une présence");
+        assertEquals(1L, c1.absences(), "l'absence suivie compte, l'absence annulée non");
         final int an = annee;
         final int mo = mois;
-        assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> seances.dashboard(C2, an, mo), "le centre 2 n'est pas celui de la session");
+        assertThrows(com.hemodialyse.backend.contexts.seance.application.AccesRefuse.class,
+                () -> tableau.executer(C2, an, mo), "le centre 2 n'est pas celui de la session");
         connecteEnAdminDuCentre(C2);
-        var c2 = (java.util.Map<String, Object>) seances.dashboard(C2, annee, mois).getBody();
-        assertEquals(0L, c2.get("absenceCount"), "isolation par centre");
+        var c2 = tableau.executer(C2, annee, mois);
+        assertEquals(0L, c2.absences(), "isolation par centre");
         connecteEnAdminDuCentre(C1);
-        var absences = (java.util.Map<String, Object>) seances.dashboardDetails(C1, annee, mois, "absence").getBody();
-        var presences = (java.util.Map<String, Object>) seances.dashboardDetails(C1, annee, mois, "presence").getBody();
-        assertEquals(1, absences.get("total"));
-        assertEquals("A_QUALIFIER", ((List<java.util.Map<String, Object>>) absences.get("items")).getFirst().get("status"));
-        assertEquals(1, presences.get("total"));
+        var absences = detail.executer(C1, annee, mois, "absence");
+        var presences = detail.executer(C1, annee, mois, "presence");
+        assertEquals(1, absences.lignes().size());
+        assertEquals("A_QUALIFIER", absences.lignes().getFirst().statut());
+        assertEquals(1, presences.lignes().size());
     }
 
     @Test

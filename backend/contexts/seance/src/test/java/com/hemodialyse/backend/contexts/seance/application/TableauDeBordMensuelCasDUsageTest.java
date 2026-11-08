@@ -89,6 +89,20 @@ class TableauDeBordMensuelCasDUsageTest {
     }
 
     @Test
+    void should_not_count_in_the_running_month_the_absences_dated_after_today_in_the_dashboard_and_the_detail_KB_ABS_35() {
+        banc.horlogeA("2026-03-15T10:00:00Z");
+        for (int jour : new int[]{10, 15, 16, 28}) donnees.absence(CENTRE_A, BEA, LocalDate.of(2026, 3, jour), "A_QUALIFIER");
+
+        var t = tableau().executer(CENTRE_A.valeur(), 2026, 3);
+        var d = detail().executer(CENTRE_A.valeur(), 2026, 3, "absence");
+
+        // l'export réutilise le même tableau (ExporterLeTableauDeBord.tableau.pour) : même borne
+        assertThat(t.absences()).isEqualTo(2);
+        assertThat(t.periodeFin()).isEqualTo(LocalDate.of(2026, 3, 15));
+        assertThat(d.lignes()).extracting(l -> l.jour().getDayOfMonth()).containsExactly(10, 15);
+    }
+
+    @Test
     void should_use_the_day_of_the_centre_clock_and_not_the_machine_day() {
         banc.horlogeA("2026-01-10T22:30:00Z"); // Alger (UTC+1) : déjà le 2026-01-10 23:30
         donnees.absence(CENTRE_A, BEA, LocalDate.of(2026, 1, 10), "A_QUALIFIER");

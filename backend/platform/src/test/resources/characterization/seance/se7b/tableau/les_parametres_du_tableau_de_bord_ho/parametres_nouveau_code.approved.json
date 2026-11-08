@@ -1,0 +1,22 @@
+{
+  "01 mois 0" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "02 mois -1" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "03 annee 1000000000" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "04 annee absente" : "400 BAD_REQUEST | Parametre requis absent : year",
+  "05 mois absent" : "400 BAD_REQUEST | Parametre requis absent : month",
+  "06 centre illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "07 detail mois 0" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "08 detail mois 13" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "09 detail annee 1000000000" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "10 detail annee absente" : "400 BAD_REQUEST | Parametre requis absent : year",
+  "11 detail mois absent" : "400 BAD_REQUEST | Parametre requis absent : month",
+  "12 detail mois 13 avec un kind inconnu (le kind est controle en premier)" : "400 BAD_REQUEST | kind must be 'presence' or 'absence'",
+  "13 detail centre illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "14 export mois 0" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "15 export mois 13" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "16 export annee 1000000000" : "400 BAD_REQUEST | Mois du tableau de bord hors bornes",
+  "17 export annee illisible" : "400 BAD_REQUEST | Corps ou paramètre illisible",
+  "18 export annee absente" : "400 BAD_REQUEST | Parametre requis absent : year",
+  "19 export centre absent" : "400 BAD_REQUEST | Parametre requis absent : centerId",
+  "20 export format inconnu et mois 13 (le format est controle apres le centre, avant le mois)" : "400 BAD_REQUEST | format must be 'csv', 'pdf' or 'xlsx'"
+}

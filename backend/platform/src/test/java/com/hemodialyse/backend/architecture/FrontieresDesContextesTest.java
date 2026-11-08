@@ -229,6 +229,25 @@ class FrontieresDesContextesTest {
             .because("une seule entrée pour le journal, le calendrier, le volet médical et les séances récentes : le contrôleur du module (ADR 0094)");
 
     /**
+     * SE7b (ADR 0095) : le tableau de bord mensuel des séances (compteurs, détail nominatif, exports) n'a qu'une entrée, le contrôleur du
+     * module. Le détail nominatif est une donnée de santé ouverte à la secrétaire (KB-SEA-66) : aucune autre classe hors du contexte ne
+     * doit le relire, sans exception.
+     */
+    @ArchTest
+    static final ArchRule seul_contexts_seance_sert_le_tableau_de_bord_mensuel = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ConsulterLeTableauDeBord")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ConsulterLeDetailDuTableauDeBord")
+            .orShould().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.ExporterLeTableauDeBord")
+            .because("une seule entrée pour le tableau de bord, son détail nominatif et ses exports : le contrôleur du module (ADR 0095)");
+
+    /** SE7b : le contrôleur historique de la Séance ne porte plus aucune route ; il ne doit pas réapparaître. */
+    @ArchTest
+    static final ArchRule le_controleur_historique_de_la_seance_a_disparu = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.SeanceRestController")
+            .because("SeanceRestController est supprimé (SE7b, ADR 0095) : ses routes sont dans contexts/seance (le PUT du volet paramédical reste dans son contrôleur, DM1)");
+
+    /**
      * SE6 (KB-SEA-49) : le legacy réécrivait TOUTE la ligne de la séance au changement de jour et effaçait {@code facture_id}. L'écriture
      * de la ligne entière ({@code SeanceRepositoryPort.save}) n'a plus qu'un appelant : {@code SeanceDomainService} (création et validation
      * par scan, résidus SE1/SE2 sans appelant de production hors création legacy) ; plus aucun contrôleur, service d'application ou

@@ -128,9 +128,10 @@ class LecturesDeAbsencesParLaDirectionEtLaSeanceCharacterizationIntegrationTest 
 
     @Test
     void les_parametres_invalides_du_tableau_de_bord_sont_refuses() throws Exception {
-        golden("tableau_de_bord_mois_13", doGet(SEANCES + "/dashboard?centerId=" + CENTRE_A + "&year=2026&month=13", adminA()));
-        golden("tableau_de_bord_sans_centre", doGet(SEANCES + "/dashboard?year=2026&month=3", adminA()));
-        golden("tableau_de_bord_annee_illisible", doGet(SEANCES + "/dashboard?centerId=" + CENTRE_A + "&year=abc&month=3", adminA()));
+        // KB-SEA-63 corrigé (SE7b, ADR 0095) : mois hors bornes, 500 -> 400 (legacy archivé sous _ecarts-legacy/lectures-publiees-a4)
+        golden("tableau_de_bord_mois_13_nouveau_code", doGet(SEANCES + "/dashboard?centerId=" + CENTRE_A + "&year=2026&month=13", adminA()));
+        golden("tableau_de_bord_sans_centre_nouveau_code", doGet(SEANCES + "/dashboard?year=2026&month=3", adminA()));
+        golden("tableau_de_bord_annee_illisible_nouveau_code", doGet(SEANCES + "/dashboard?centerId=" + CENTRE_A + "&year=abc&month=3", adminA()));
     }
 
     // ------------------------------------------------------------------ Seance : details
@@ -154,7 +155,8 @@ class LecturesDeAbsencesParLaDirectionEtLaSeanceCharacterizationIntegrationTest 
 
         goldenNode("details_type_normalise_nombre_d_absences", mapper.valueToTree(cas));
         golden("details_type_inconnu", doGet(SEANCES + "/dashboard/details?centerId=" + CENTRE_A + "&year=2026&month=3&kind=retard", adminA()));
-        golden("details_type_absent", doGet(SEANCES + "/dashboard/details?centerId=" + CENTRE_A + "&year=2026&month=3", adminA()));
+        // KB-SEA-63 corrigé (SE7b, ADR 0095) : paramètre kind absent, 500 -> 400 (legacy archivé sous _ecarts-legacy/lectures-publiees-a4)
+        golden("details_type_absent_nouveau_code", doGet(SEANCES + "/dashboard/details?centerId=" + CENTRE_A + "&year=2026&month=3", adminA()));
     }
 
     // ------------------------------------------------------------------ profils

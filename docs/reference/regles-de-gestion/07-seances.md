@@ -3,7 +3,7 @@
 > Préfixe `RG-SEA`. Sources : `Seance`, `SeanceStatus`, `SeanceDomainService`, `SeanceApplicationService`,
 > `SeanceBillingEligibilityJdbcAdapter`, `VoletParamedicalDomainService`, `RenseignerLeVoletMedical`,
 > `TensionArterielle`,
-> `SeancesControleur`, `RoutesResiduellesControleur`, `SeanceRestController`, `VoletParamedicalRestController`, `BonSortieService`.
+> `SeancesControleur`, `RoutesResiduellesControleur`, `TableauDeBordDesSeancesControleur`, `VoletParamedicalRestController`, `BonSortieService`.
 
 ## 7.1 Cycle de vie
 

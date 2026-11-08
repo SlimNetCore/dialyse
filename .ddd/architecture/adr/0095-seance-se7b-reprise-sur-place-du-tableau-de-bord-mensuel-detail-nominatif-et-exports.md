@@ -59,5 +59,17 @@ Le net SE7b (16 tests, 16 goldens, commit 973b6a8a) établit que ces routes sont
 | R6 | Génération de PDF et de XLSX déclarée dans le module (POI, OpenHTMLtoPDF) et dans la plateforme : un module d'export partagé est à décider avec le premier autre consommateur | 2026-12-15 | 2027-06-30 |
 | R7 | Test PC1 `le_tableau_de_bord_de_la_seance_compte_l_effectif...` lit le mois courant (horloge) et masque les dates : non modifié | 2026-12-15 | 2027-01-31 |
 
+## Lot B : routage, parité, écarts approuvés un par un (livré 2026-11-08, décisions à confirmer par le coordinateur)
+`TableauDeBordDesSeancesControleur` (nom propre : `TableauDeBordControleur` existe dans Facturation, conflit de bean), `ErreursDeSeanceAdvice` étendu (400 effectif sur année ou mois absents ou illisibles et centre illisible ; 403 avant 400). `SeanceRestController` SUPPRIMÉ (il n'avait plus aucune autre route) ; seam inscrit dans `seams.md` AVANT, refermé après (`seamAllowed` vide, fichier retiré de `covered.json`). Verrous ArchUnit `seul_contexts_seance_sert_le_tableau_de_bord_mensuel` et `le_controleur_historique_de_la_seance_a_disparu`, sans exception ; l'entrée du contrôleur retirée de la liste blanche `TableDuPatientCouvertureTest`.
+Parité : les 16 scénarios SE7b, dont les exports CSV, XLSX et PDF décodés, sont identiques au legacy, SAUF `tableau/parametres` ; les filets Absences A4 et Patient-couverture PC1 restent verts, SAUF 4 goldens A4 (même famille KB-SEA-63). 5 écarts, tous KB-SEA-63 (500 devient 400), approuvés un par un, legacy archivé en R100 (`git mv`, vérifié contre `git show 973b6a8a:<chemin>`) sous `_ecarts-legacy`, golden recréé en `*_nouveau_code.approved.json` :
+| # | Archive legacy | Écart |
+|---|---|---|
+| 1 | `seance/se7b/_ecarts-legacy/tableau/parametres_avant_se7b.legacy.json` | 19 cas (mois 0, -1, 13 ; année 1 000 000 000 ; année ou mois absents ou illisibles ; centre illisible ou absent) sur les 3 routes : 500 vers 400 ; le format inconnu et le `kind` inconnu étaient déjà 400 |
+| 2 | `absences-patients/consultation/_ecarts-legacy/lectures-publiees-a4/tableau_de_bord_mois_13_avant_se7b.legacy.json` | A4 : `dashboard` mois 13 : 500 vers 400 |
+| 3 | `.../tableau_de_bord_sans_centre_avant_se7b.legacy.json` | A4 : `dashboard` sans `centerId` : 500 vers 400 |
+| 4 | `.../tableau_de_bord_annee_illisible_avant_se7b.legacy.json` | A4 : `dashboard` année `abc` : 500 vers 400 |
+| 5 | `.../details_type_absent_avant_se7b.legacy.json` | A4 : `dashboard/details` sans `kind` : 500 vers 400 |
+Aucun autre golden de A4 ou de PC1 n'a changé. `BorneDesAbsencesDuTableauDeBordTest` (KB-ABS-35, test unitaire du contrôleur supprimé) est reporté en test d'application du module ; `AbsencePatientIntegrationTest` appelle désormais les cas d'usage du module.
+
 ## Lots
 LOT A (livré 2026-11-08) : cet ADR, domaine, cas d'usage avec doubles, ports, ACL, adapters de lecture et d'export, requêtes rejouées sur PostgreSQL 16 ; AUCUN trafic changé (les handlers legacy sont encore actifs). LOT B : contrôleur et advice, retrait des 3 handlers legacy (seam inscrit avant, refermé après), parité 16/16, écarts approuvés un par un, verrou ArchUnit. LOT C : RG-SEA, annexe 16, glossaire, §60, bilan des résidus, `built`.

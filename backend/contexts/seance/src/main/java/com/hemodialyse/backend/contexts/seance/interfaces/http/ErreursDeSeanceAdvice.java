@@ -33,7 +33,7 @@ import org.springframework.web.servlet.HandlerMapping;
  * introuvable reste un 400 (reproduit, KB-SEA-04). Aucun message ne reprend de donnée de santé ni de nom de classe (KB-SEA-07).
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = {SeancesControleur.class, RoutesResiduellesControleur.class})
+@RestControllerAdvice(assignableTypes = {SeancesControleur.class, RoutesResiduellesControleur.class, TableauDeBordDesSeancesControleur.class})
 class ErreursDeSeanceAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {

@@ -196,7 +196,7 @@
   exports) et la vue de la Direction (cumul par centre, statut et motif, mensuel) lisent les absences par le langage publié
   `AbsencesDuPilotage`, avec les mêmes requêtes qu'avant : bornes de dates incluses, **absences annulées jamais comptées**, centres autorisés
   fournis par l'appelant. Le mensuel ne garde que les statuts à qualifier, justifiée et non justifiée. Aucune table d'absence n'est lue hors du contexte.
-  *Source :* `AbsencesDuPilotage`, `AbsencesDuPilotageJdbc`, `SeanceRestController`, `DirectionAbsencesQueryService`.
+  *Source :* `AbsencesDuPilotage`, `AbsencesDuPilotageJdbc`, `TableauDeBordDesSeancesControleur`, `DirectionAbsencesQueryService`.
 - **RG-ABS-061** — **« Aujourd'hui » du pilotage et absences futures** (KB-ABS-34, 35, corrigés à la slice A4) : « aujourd'hui » est le jour du fuseau des
   centres (RG-ABS-059), pas celui de l'UTC, pour la période par défaut de la Direction (année en cours jusqu'à aujourd'hui) et la fin de période
   du tableau de bord. **Aucune absence postérieure à aujourd'hui n'est comptée**, dans le tableau de bord (nombre, détail, exports CSV, PDF, XLSX) comme dans la vue Direction
@@ -207,7 +207,7 @@
   `GET /api/v1/direction/absences` est refusée en **400** `BAD_REQUEST` (était : 500) ; un `format` d'export du tableau de bord autre que
   `csv`, `pdf` ou `xlsx` (sans égard à la casse) est refusé en **400** `BAD_REQUEST` (était : CSV servi silencieusement). Sans `format` : CSV.
   La période de la Direction reste refusée en 422 si inversée (`PERIODE_INVALIDE`) ou de plus de 5 ans (`PERIODE_TROP_LONGUE`).
-  *Source :* `DatesIllisiblesDeLaDirectionAdvice`, `SeanceRestController.exportDashboard`.
+  *Source :* `DatesIllisiblesDeLaDirectionAdvice`, `TableauDeBordDesSeancesControleur.exporter`.
 
 ## 6.7 Clôture mensuelle des absences (slice A6, ADR 0042)
 

@@ -132,7 +132,8 @@ class LeTableauDeBordMensuelDesSeancesCharacterizationIntegrationTest extends Se
         m.put("18 export annee absente", refus(export(CENTRE_A, null, 1, "xlsx", adminA())));
         m.put("19 export centre absent", refus(doGet(SEANCES_API + "/dashboard/export?year=2026&month=1", adminA())));
         m.put("20 export format inconnu et mois 13 (le format est controle apres le centre, avant le mois)", refus(export(CENTRE_A, 2026, 13, "txt", adminA())));
-        arbre("parametres", m);
+        // KB-SEA-63 corrigé (SE7b, ADR 0095) : 500 -> 400 ; le legacy est archivé sous se7b/_ecarts-legacy/tableau
+        arbre("parametres_nouveau_code", m);
     }
 
     @Test

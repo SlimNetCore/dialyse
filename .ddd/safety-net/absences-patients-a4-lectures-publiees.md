@@ -5,6 +5,8 @@ sources: SeanceRestController, DirectionAbsencesQueryService, filets A1 (lecture
 ---
 # Filet A4 - lectures publiees de `absence_patient`
 
+> **2026-11-08, SE7b lot B (ADR 0095)** : `SeanceRestController` est supprime ; les routes `dashboard`, `dashboard/details` et `dashboard/export` sont servies par `contexts/seance`. 4 goldens de ce filet changent, tous KB-SEA-63 (500 devient 400), legacy archive en R100 sous `absences-patients/consultation/_ecarts-legacy/lectures-publiees-a4/*_avant_se7b.legacy.json` et golden recree en `*_nouveau_code` : `tableau_de_bord_mois_13`, `tableau_de_bord_sans_centre`, `tableau_de_bord_annee_illisible`, `details_type_absent`. Tous les autres goldens (details par type, exports csv/pdf/xlsx, format invalide, centre autre, matrice de profils, mois futur) sont inchanges.
+
 ## Requetes a remplacer par le port `AbsencesDuPilotage` (hors module, grep exhaustif de `absence_patient` dans les `src/main`)
 | # | Fichier:lignes | Requete | Verrouille par |
 |---|---|---|---|

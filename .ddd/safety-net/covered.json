@@ -23,7 +23,6 @@
     "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/service/VoletParamedicalDomainService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/ApiExceptionHandler.java",
     "backend/shared-kernel/src/main/java/com/hemodialyse/backend/domain/shared/exception/SeanceFactureeNonModifiableException.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/SignalementDesSaisiesLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/NotificationsDuCentreLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/NotificationService.java",

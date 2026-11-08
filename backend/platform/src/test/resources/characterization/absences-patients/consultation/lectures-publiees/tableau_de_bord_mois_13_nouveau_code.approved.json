@@ -1,0 +1,12 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Mois du tableau de bord hors bornes",
+    "instance" : "/api/v1/seances/dashboard",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

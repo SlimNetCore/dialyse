@@ -78,8 +78,6 @@ class TableDuPatientCouvertureTest {
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlanningJdbcAdapter.java", PLACE + " (jours de dialyse)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
             "2026-11-04 : outil de migration, écrit/supprime en bloc (patients, assure, assure_patient) ; à lancer hors activité du centre (ADR 0077 point 12, ADR 0078 point 10) ; échéance : reprise de la migration par le module",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/SeanceRestController.java",
-            "2026-11-04 : contrôleur de 1300 lignes de la Séance (tableau de bord, journal), hors ports ; échéance : reprise du contexte Séance",
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java", HORS_VERROU
                     + " : INSERT construit (« INSERT INTO » + nom de table) sur attestation_droit et prise_en_charge, import de la migration historique",
