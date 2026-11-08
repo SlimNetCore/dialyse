@@ -75,7 +75,8 @@ for q in \
   "SELECT s.center_id, count(*) AS id_sans_code FROM seances s WHERE s.forfait_override_id IS NOT NULL AND (s.forfait_override_code IS NULL OR s.forfait_override_code = '') GROUP BY s.center_id" \
   "SELECT s.center_id, s.id, s.forfait_override_code, f.code AS code_du_referentiel FROM seances s INNER JOIN forfait f ON f.id = s.forfait_override_id AND f.center_id = s.center_id WHERE s.forfait_override_id IS NOT NULL AND s.forfait_override_code IS DISTINCT FROM f.code" \
   "SELECT s.center_id, s.forfait_override_updated_by, count(*) AS surcharges FROM seances s WHERE s.forfait_override_id IS NOT NULL GROUP BY s.center_id, s.forfait_override_updated_by ORDER BY 3 DESC LIMIT 50" \
-  "SELECT s.center_id, s.id FROM seances s LEFT JOIN forfait f ON f.id = s.forfait_override_id AND f.center_id = s.center_id WHERE s.forfait_override_id IS NOT NULL AND f.id IS NULL"; do
+  "SELECT s.center_id, s.id FROM seances s LEFT JOIN forfait f ON f.id = s.forfait_override_id AND f.center_id = s.center_id WHERE s.forfait_override_id IS NOT NULL AND f.id IS NULL" \
+  "SELECT s.center_id, p.statut, count(DISTINCT s.id) AS seances_couvertes_par_une_pec_non_validee FROM seances s INNER JOIN prise_en_charge p ON p.center_id = s.center_id AND p.patient_id = s.patient_id AND p.statut <> 'VALIDEE' AND COALESCE(p.forfait_effectif_id, p.forfait_demande_id) IS NOT NULL WHERE s.forfait_override_id IS NULL AND ((p.date_debut_effectif IS NOT NULL AND s.date_seance >= p.date_debut_effectif AND (s.date_seance <= p.date_fin_effectif OR p.date_fin_effectif IS NULL)) OR (p.date_debut_demande IS NOT NULL AND s.date_seance >= p.date_debut_demande AND (s.date_seance <= p.date_fin_demande OR p.date_fin_demande IS NULL))) GROUP BY s.center_id, p.statut"; do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done
 

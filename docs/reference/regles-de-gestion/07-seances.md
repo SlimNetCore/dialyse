@@ -147,6 +147,27 @@
   *Source :* `RappelerLesSeancesARegulariser`, `FenetreDeRegularisation`, `SeancesARegulariser`, `RappelDeRegularisation`,
   `RappelDesRegularisationsPlanifie`, `VerrousDesRappelsJdbc`, `RappelsFournisLegacy`.
 
+- **RG-SEA-056** — **Surcharge du forfait d'une séance reprise dans le module `seance`** (slice SE5, ADR 0092 ; `PUT
+  /api/v1/seances/{id}/forfait` `ADMIN` seul ; mêmes URL, mêmes champs JSON `centerId`, `forfaitId`, `userId`, mêmes tables et colonnes
+  `seances.forfait_override_*`, aucune migration ; suite de RG-SEA-033). Intention « imposer un forfait » : la séance copie le **code,
+  le nom et le prix** du forfait du référentiel du centre (instantané jamais rafraîchi quand le référentiel change), l'instant et
+  l'auteur, et le forfait imposé **prime** sur celui de la prise en charge (détail et liste à sept clés) ; une nouvelle imposition remplace
+  tout, sans historique. Ordre des refus : centre du corps différent de la session 403, séance introuvable 400, forfait introuvable pour
+  le centre 400, séance facturée 422 `SEANCE_FACTUREE_NON_MODIFIABLE`. Aucun montant n'est recalculé : ni TVA ni arrondi. **Corrigés, à
+  confirmer avec les métiers** — (KB-SEA-44) un identifiant de forfait, de centre ou de séance illisible, un corps illisible ou absent et un
+  auteur de plus de 100 caractères répondent 400 `BAD_REQUEST` au lieu de 500, le refus de droits passant avant le 400 ; deux impositions
+  simultanées de la même séance se suivent sous le verrou de ligne (`FOR UPDATE`), verrou non obtenu en 5 s : 409 `ECRITURE_CONCURRENTE`
+  (l'ancien code écrasait en silence) ; un statut illisible répond 400 sans nom de classe. **Reproduits, RISQUES D'ARGENT à confirmer
+  avant la mise en production** — (KB-SEA-41) un forfait sans prix ou à 0.00 est imposé sans alerte ; (KB-SEA-43) seul le statut
+  `FACTUREE` est refusé : une séance `CREE` ou `ABSENT` reçoit un forfait et `facture_id` n'est pas regardé ; (KB-SEA-46) le forfait courant
+  ignore le statut de la prise en charge (une PEC refusée, annulée ou en brouillon fournit le forfait affiché) ; (KB-SEA-47) la
+  Facturation (`poserLeForfait`, hors périmètre, non corrigée) n'écrit pas `forfait_override_code` ; (KB-SEA-42) l'auteur est un champ libre
+  du corps, jamais le compte de session. **Reproduits sans alerte** — (KB-SEA-45) aucun historique, audit réduit à `SEANCES_MODIFICATION`,
+  la route et le statut ; (KB-SEA-48) droits : seul `ADMIN` (`DIRECTION` et `SUPERADMIN` : 403 `ROLE_SCOPE`, `MEDECIN`, `SECRETAIRE`,
+  `INFIRMIER` : 403 `ACCESS_DENIED`). Le verrou de ligne ne couvre pas la Facturation (résidu daté, ADR 0092).
+  *Source :* `ImposerUnForfait`, `Seance.imposerUnForfait`, `ForfaitImpose`, `AuteurDuForfaitImpose`, `ForfaitsDuCentreParLeLegacy`,
+  `ReferentielDeForfaitsFourniLegacy`, `SeancesJdbc`, `SeancesControleur`, `ErreursDeSeanceAdvice`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
@@ -280,7 +301,7 @@
 - **RG-SEA-033** — Forfait de la séance : par défaut celui de la prise en charge ; l'administrateur (`ADMIN` seul —
   l'infirmier ne le modifie pas) peut le **surcharger** par un forfait du
   centre actif (« Forfait introuvable pour le centre actif » sinon), avec enregistrement de l'auteur et de
-  l'horodatage ; interdit si facturée.
+  l'horodatage ; interdit si facturée. Reprise dans le module `seance` : RG-SEA-056.
 
 ## 7.5 Consultation, journal, tableau de bord et calendrier
 
