@@ -1,6 +1,6 @@
 ---
 slice: seance-se7c2-ecritures-facturation
-status: audit (aucun code c2)
+status: audit comblé (filet c2 complété le 2026-11-08, voir section 7 ; aucun code de production c2)
 date: 2026-11-08
 context: seance (consommateur : facturation)
 sources: [.ddd/migration/slices/seance-se7c-lectures-facturation-stock.md, ADR 0096, known-bugs.md (KB-SEA-47, 49, 50), contrats de facturation (SeancesContrat, joué sur double, H2 et PG16), filets F2 à F7b]
@@ -35,6 +35,20 @@ VERROUILLÉ par F-pil `TableauDeBordFacturation...` (février, bornes premier et
 
 ## 6. KB et zones d'argent hors des 5 fichiers mais liées
 KB-SEA-49 (le changement de date efface `facture_id`) et KB-SEA-50 (suppression d'une séance portant un `facture_id` hors statut `FACTUREE`) sont des écrivains DE LA SÉANCE (SE6) et sont déjà verrouillés par leurs goldens SE5 / SE6 (`facture_effacee`, `avec_facture`, `matrice_des_statuts`) : ils ne sont pas dans c2. Ils partagent avec c2 la même colonne `facture_id` : le port c2 devra être le SEUL écrivain de `facture_id` hors SE6.
+
+## 7. Lacunes comblées (2026-11-08, OBSERVE sans corriger ; aucun seam, aucun code de production)
+Filet H2 : `platform/src/test/java/…/characterization/facturation/simulation/EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTest` (5 tests, ports de la Facturation câblés en production appelés sur la base ; goldens `…/resources/characterization/facturation/simulation/se7c2-ecritures/`, approuvés un par un). Filet PostgreSQL 16 : `contexts/facturation/src/test/java/…/contrat/LiaisonConcurrentePostgresContractIT` (3 tests) via `backend/scripts/seance-se7c2-pg16-rejeu.sh` (port 55545, mot de passe en variable d'environnement `FACTURATION_PG16_PASSWORD`). Indépendants de l'horloge (instants et dates fixes) ; 3 exécutions vertes de chaque, dont `-Dsurefire.runOrder=random` pour la plate-forme.
+
+| Lacune (reco 1) | Verrou | KB |
+|---|---|---|
+| (a) `poserLeForfait` n'écrit pas `forfait_override_code` ; `updated_at/by` écrits | golden `kb_sea_47_poser_le_forfait_n_ecrit_pas_le_code` (code `F-HD` périmé, code nul sur séance sans surcharge, `updated_by = medecin`, date non nulle) | KB-SEA-47 rejoué |
+| (a bis) `lierALAbsence` sur `ABSENT` + `facture_id` | golden `lier_a_l_absence_une_seance_absente_deja_facturee` (acceptée ; `reinclure` refusé ; `FACTUREE` + mémoire refusée) | KB-SEA-71 |
+| (b) statut en minuscules | golden `statut_en_minuscules_matrice_des_ecritures_et_lectures` : 7 statuts x (lecture facturable, trouver, exclure, exclure avec le statut lu, lierALAbsence, réinclure, poserLeForfait, lier) ; complète `should_read_only_...` et `should_refuse_to_link_...` du contrat | KB-SEA-73 (KB-FAC-17) |
+| (c) course de deux émissions | PG16 : la perdante échoue sans rien écrire, annulation entière de sa transaction, deuxième émission séquentielle refusée | KB-SEA-74 |
+| (d) `statut_avant_exclusion` blanc | golden `statut_avant_exclusion_blanc` (nul, `''`, espaces) | KB-SEA-72 |
+| (e) deux définitions de « facturée » | golden `deux_definitions_de_seance_facturee_tableau_de_bord_contre_synthese` (3 contre 5 en février, 7 séances d'écart) | KB-SEA-75 (KB-FAC-54) |
+
+Reste NON verrouillé (limites) : course entre deux exclusions ou entre une exclusion et une émission (même mécanisme de verrou de ligne, non rejoué) ; interblocage de deux émissions qui liraient les mêmes séances dans un ordre différent (non déterministe, non rejoué) ; atomicité de l'émission COMPLÈTE (insertion des factures + liaison) sous concurrence : seule la liaison est rejouée ; jointure de la synthèse sur un patient d'un autre centre ; mutation testing non lancé (PIT absent du projet).
 
 ## Recommandations
 1. **Ajouter AVANT tout code (filet c2)**, sans corriger : (a) KB-SEA-47 côté Facturation : `poserLeForfait` ne touche pas `forfait_override_code` (séance avec code existant avant et après) ; (a bis) `lierALAbsence` sur une séance `ABSENT` portant un `facture_id` (la requête ne regarde pas la facture : décrire l'effet actuel, ne pas le corriger) ; (b) KB-FAC-17 : une séance au statut `validee` n'est ni facturable, ni excluable, ni liable, ni forfaitable ; (c) course de deux émissions sur la même séance (PG16 : une seule gagne, l'autre échoue sans rien écrire) ; (d) `statut_avant_exclusion` blanc ; (e) tableau de bord contre synthèse : séance `FACTUREE` sans `facture_id`. Goldens approuvés un par un.

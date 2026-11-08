@@ -1,0 +1,65 @@
+{
+  "seances" : [ {
+    "date_seance" : "2026-02-03",
+    "facture_id" : "<FACTURE_F1>",
+    "id" : "<S_coherente_facturee_et_liee>",
+    "statut" : "FACTUREE"
+  }, {
+    "date_seance" : "2026-02-04",
+    "facture_id" : "<FACTURE_F1>",
+    "id" : "<S_liee_mais_validee>",
+    "statut" : "VALIDEE"
+  }, {
+    "date_seance" : "2026-02-05",
+    "facture_id" : null,
+    "id" : "<S_facturee_sans_facture>",
+    "statut" : "FACTUREE"
+  }, {
+    "date_seance" : "2026-02-06",
+    "facture_id" : "<FACTURE_F1>",
+    "id" : "<S_liee_statut_facturee_en_minuscules>",
+    "statut" : "facturee"
+  }, {
+    "date_seance" : "2026-03-02",
+    "facture_id" : "<FACTURE_F1>",
+    "id" : "<S_facturee_et_liee_deplacee_en_mars>",
+    "statut" : "FACTUREE"
+  }, {
+    "date_seance" : "2026-02-07",
+    "facture_id" : "<FACTURE_DU_CENTRE_B>",
+    "id" : "<S_facturee_liee_a_la_facture_d_un_autre_centre>",
+    "statut" : "FACTUREE"
+  }, {
+    "date_seance" : "2026-02-08",
+    "facture_id" : "<FACTURE_F1>",
+    "id" : "<S_absente_liee>",
+    "statut" : "ABSENT"
+  } ],
+  "synthese_de_fevrier" : {
+    "factures" : 1,
+    "parCaisse" : [ {
+      "code" : "INCONNU",
+      "patients" : 1,
+      "seances_par_facture" : 5
+    } ],
+    "parSituation" : [ {
+      "code" : "INCONNU",
+      "patients" : 1,
+      "seances_par_facture" : 5
+    } ],
+    "seances_par_facture" : 5
+  },
+  "tableau_de_bord_de_fevrier" : {
+    "facturesEmises" : 1,
+    "parCaisse" : [ {
+      "code" : "INCONNU",
+      "patients" : 1,
+      "seances_par_facture" : 5
+    } ],
+    "parSituation" : [ {
+      "code" : "INCONNU",
+      "seances_par_facture" : 5
+    } ],
+    "seancesFacturees_par_statut_et_date" : 3
+  }
+}

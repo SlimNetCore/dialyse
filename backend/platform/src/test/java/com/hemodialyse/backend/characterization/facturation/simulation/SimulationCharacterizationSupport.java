@@ -283,6 +283,15 @@ abstract class SimulationCharacterizationSupport {
     }
 
     /**
+     * Golden d'un arbre JSON construit par le test (SE7c2 : états lus directement sur la table des séances), normalisé comme les
+     * autres goldens : identifiants connus remplacés par leur alias, autres UUID et horodatages masqués, clés triées.
+     */
+    protected void goldenNode(String name, JsonNode node) {
+        Scrubber s = new Scrubber();
+        GoldenMaster.verify(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(s.scrub(node)));
+    }
+
+    /**
      * Exclusions du centre (F2 « nouveau code », ADR 0031) : statut des séances avec la mémoire de l'exclusion, et absences de
      * patients déclarées (motif, commentaire, auteur, valeur figée). Une même absence porte le même alias des deux côtés.
      */
