@@ -8,8 +8,9 @@ import java.util.Optional;
 
 /**
  * Séance : acte de dialyse d'un patient, un jour donné, dans un centre (racine d'agrégat, une seule entité). SE1 porte la CRÉATION
- * (statut {@code CREE}, éventuellement confirmée hors planning) et la restitution des lignes existantes ; la validation, la signature,
- * le forfait et le verrou de facturation (SE2 à SE6) restent au legacy tant que leurs slices ne sont pas reprises.
+ * (statut {@code CREE}, éventuellement confirmée hors planning) ; SE2 la validation par l'infirmier, la signature du médecin et le
+ * déverrouillage pour régularisation ; le forfait et le verrou de facturation (SE3 à SE6) restent au legacy tant que leurs slices ne
+ * sont pas reprises.
  * <p>
  * Aucune règle d'unicité par patient et par jour : plusieurs séances le même jour restent permises (KB-SEA-02, reproduit).
  */
@@ -19,13 +20,14 @@ public final class Seance {
     private final CentreId centre;
     private final PatientId patient;
     private final LocalDate jour;
-    private final StatutDeSeance statut;
+    private StatutDeSeance statut;
     private final Instant creeLe;
     private final DerogationHorsPlanning derogation;
-    private final Jalons jalons;
+    private Jalons jalons;
+    private Traces traces;
 
     private Seance(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut, Instant creeLe,
-                   DerogationHorsPlanning derogation, Jalons jalons) {
+                   DerogationHorsPlanning derogation, Jalons jalons, Traces traces) {
         this.id = exiger(id, "Séance requise");
         this.centre = exiger(centre, "Centre requis");
         this.patient = exiger(patient, "Patient requis");
@@ -34,24 +36,31 @@ public final class Seance {
         this.creeLe = creeLe;
         this.derogation = derogation;
         this.jalons = jalons == null ? Jalons.AUCUN : jalons;
+        this.traces = traces == null ? Traces.AUCUNE : traces;
     }
 
     /** Crée une séance programmée (patient attendu) : statut {@code CREE}, sans dérogation. */
     public static Seance creer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, Instant creeLe) {
-        return new Seance(id, centre, patient, jour, StatutDeSeance.CREE, exiger(creeLe, "Heure de création requise"), null, null);
+        return new Seance(id, centre, patient, jour, StatutDeSeance.CREE, exiger(creeLe, "Heure de création requise"), null, null, null);
     }
 
     /** Crée une séance confirmée hors planning : le motif (et sa précision) est inscrit sur la séance. */
     public static Seance creerHorsPlanning(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, Instant creeLe,
                                            DerogationHorsPlanning derogation) {
         return new Seance(id, centre, patient, jour, StatutDeSeance.CREE, exiger(creeLe, "Heure de création requise"),
-                exiger(derogation, "Dérogation requise"), null);
+                exiger(derogation, "Dérogation requise"), null, null);
     }
 
     /** Restitue une ligne existante (adapter de persistance) : aucune règle de création n'est rejouée. */
     public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
                                    Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons) {
-        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons);
+        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, null);
+    }
+
+    /** Restitue une ligne existante avec ses traces (signataires, déverrouilleur, place mémorisée). */
+    public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
+                                   Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons, Traces traces) {
+        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces);
     }
 
     public SeanceId id() {
@@ -94,6 +103,105 @@ public final class Seance {
     /** Vrai tant que la séance n'a pas été validée par l'infirmier (le scan la valide alors, la secrétaire la laisse). */
     public boolean attendLaValidation() {
         return statut == StatutDeSeance.CREE;
+    }
+
+    public Traces traces() {
+        return traces;
+    }
+
+    public boolean estDeverrouilleePourRegularisation() {
+        return jalons.deverrouilleePourRegularisationLe() != null;
+    }
+
+    /**
+     * Valide la séance par l'infirmier : {@code CREE} devient {@code VALIDEE}, la validation et la signature de l'infirmier sont datées
+     * et le signataire retenu. Une séance déjà validée ou signée n'est pas rejetée et ne change pas (rend faux) ; facturée : refusée
+     * (422 {@code SEANCE_FACTUREE_NON_MODIFIABLE}) ; tout autre statut (le reliquat {@code ABSENT}) : refusée.
+     *
+     * @return vrai si la séance vient de passer à validée
+     */
+    public boolean validerParLInfirmier(Instant maintenant, Signataire signataire) {
+        exigerNonFacturee();
+        if (statut == StatutDeSeance.VALIDEE || statut == StatutDeSeance.SIGNEE) return false;
+        if (statut != StatutDeSeance.CREE) {
+            throw new SeanceRefusee(MotifDeRefus.STATUT_NON_VALIDABLE, "La seance n'est pas en statut CREE");
+        }
+        this.statut = StatutDeSeance.VALIDEE;
+        this.jalons = new Jalons(maintenant, maintenant, jalons.signeeParLeMedecinLe(), jalons.deverrouilleePourRegularisationLe());
+        this.traces = new Traces(signataire.valeur(), traces.medecin(), traces.deverrouilleePar(), traces.place());
+        return true;
+    }
+
+    /** Fige la place où la séance a eu lieu ; une place déjà mémorisée n'est jamais remplacée. */
+    public void memoriserPlace(PlaceDeSeance placeDuJour) {
+        if (traces.place() == null && placeDuJour != null) {
+            this.traces = new Traces(traces.infirmier(), traces.medecin(), traces.deverrouilleePar(), placeDuJour);
+        }
+    }
+
+    /**
+     * Signature du médecin : seule une séance validée se signe (le message est le même pour toute autre cause, KB-SEA-20, reproduit) ;
+     * une ligne incohérente (validée mais déjà signée) est refusée.
+     */
+    public void signerParLeMedecin(Instant maintenant, Signataire signataire) {
+        exigerNonFacturee();
+        if (statut != StatutDeSeance.VALIDEE) {
+            throw new SeanceRefusee(MotifDeRefus.SIGNATURE_AVANT_VALIDATION,
+                    "La signature medecin est autorisee uniquement apres validation infirmiere");
+        }
+        if (jalons.signeeParLeMedecinLe() != null) {
+            throw new SeanceRefusee(MotifDeRefus.DEJA_SIGNEE, "La seance est deja signee par un medecin");
+        }
+        this.jalons = new Jalons(jalons.valideeLe(), jalons.signeeParLInfirmierLe(), maintenant, jalons.deverrouilleePourRegularisationLe());
+        this.traces = new Traces(traces.infirmier(), signataire.valeur(), traces.deverrouilleePar(), traces.place());
+        this.statut = StatutDeSeance.SIGNEE;
+    }
+
+    /**
+     * L'administrateur déverrouille une séance « créée » d'un jour passé (validation oubliée) : le statut et la place ne changent pas.
+     * Sans effet (rend faux) si elle l'est déjà. Le jour passé n'est borné à aucune fenêtre (KB-SEA-13, reproduit).
+     *
+     * @param aujourdhui le jour du centre (KB-SEA-01)
+     */
+    public boolean deverrouillerPourRegularisation(Instant maintenant, Signataire auteur, LocalDate aujourdhui) {
+        exigerNonFacturee();
+        if (statut != StatutDeSeance.CREE) {
+            throw new SeanceRefusee(MotifDeRefus.DEVERROUILLAGE_INVALIDE,
+                    "Seule une séance restée « créée » peut être déverrouillée pour régularisation");
+        }
+        if (!jour.isBefore(aujourdhui)) {
+            throw new SeanceRefusee(MotifDeRefus.DEVERROUILLAGE_INVALIDE,
+                    "Seule une séance d'un jour passé peut être déverrouillée pour régularisation");
+        }
+        if (estDeverrouilleePourRegularisation()) return false;
+        this.jalons = new Jalons(jalons.valideeLe(), jalons.signeeParLInfirmierLe(), jalons.signeeParLeMedecinLe(), maintenant);
+        this.traces = new Traces(traces.infirmier(), traces.medecin(), auteur.valeur(), traces.place());
+        return true;
+    }
+
+    /**
+     * Verrou des jours passés (évalué AVANT le statut et l'idempotence, KB-SEA-12) : l'infirmier ne valide pas une séance d'un jour passé
+     * sans le déverrouillage de l'administrateur ; l'administrateur valide toujours ; une séance à venir se valide sans limite (reproduit).
+     */
+    public void exigerLaRegularisation(LocalDate aujourdhui, boolean administrateur) {
+        if (jour.isBefore(aujourdhui) && !administrateur && !estDeverrouilleePourRegularisation()) {
+            throw new SeanceRefusee(MotifDeRefus.REGULARISATION_NON_DEVERROUILLEE,
+                    "Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur");
+        }
+    }
+
+    private void exigerNonFacturee() {
+        if (statut == StatutDeSeance.FACTUREE) {
+            throw new SeanceRefusee(MotifDeRefus.SEANCE_FACTUREE, "La seance facturee ne peut plus etre modifiee");
+        }
+    }
+
+    /**
+     * Qui a signé, déverrouillé, et où la séance a eu lieu (tous peuvent être nuls) : colonnes {@code signed_infirmier_by},
+     * {@code signed_medecin_by}, {@code regularisation_deverrouillee_by} et place mémorisée.
+     */
+    public record Traces(String infirmier, String medecin, String deverrouilleePar, PlaceDeSeance place) {
+        public static final Traces AUCUNE = new Traces(null, null, null, null);
     }
 
     private static <T> T exiger(T valeur, String message) {

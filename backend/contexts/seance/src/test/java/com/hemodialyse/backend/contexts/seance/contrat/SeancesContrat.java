@@ -3,6 +3,8 @@ package com.hemodialyse.backend.contexts.seance.contrat;
 import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
+import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
+import com.hemodialyse.backend.contexts.seance.domain.Signataire;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceIllisible;
@@ -171,5 +173,92 @@ public abstract class SeancesContrat {
 
         assertThatCode(() -> banc.seances().verrouillerLeJour(CENTRE_A, PATIENT, JOUR)).doesNotThrowAnyException();
         assertThat(banc.seances().duJour(CENTRE_A, PATIENT, JOUR)).hasSize(1);
+    }
+
+    private static final Instant T1 = Instant.parse("2026-06-15T09:30:00Z");
+    private static final PlaceDeSeance PLACE = new PlaceDeSeance(new UUID(3, 1), new UUID(4, 1), new UUID(5, 1));
+
+    @Test
+    void should_persist_a_validation_with_the_signatory_and_the_memorized_place() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        var seance = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        seance.validerParLInfirmier(T1, new Signataire("inf-01"));
+        seance.memoriserPlace(PLACE);
+
+        banc.seances().enregistrer(seance);
+
+        var lue = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThat(lue.statut()).isEqualTo(StatutDeSeance.VALIDEE);
+        assertThat(lue.jalons().valideeLe()).isEqualTo(T1);
+        assertThat(lue.jalons().signeeParLInfirmierLe()).isEqualTo(T1);
+        assertThat(lue.traces().infirmier()).isEqualTo("inf-01");
+        assertThat(lue.traces().place()).isEqualTo(PLACE);
+    }
+
+    @Test
+    void should_persist_the_doctor_signature_and_then_the_unlock_of_a_created_session() {
+        var banc = nouveauBanc();
+        banc.semer(Seance.restituer(s(1), CENTRE_A, PATIENT, JOUR, StatutDeSeance.VALIDEE, T0, null, new Seance.Jalons(T0, T0, null, null),
+                new Seance.Traces("inf-initiale", null, null, null)));
+        banc.semer(programmee(2, CENTRE_A, PATIENT, JOUR.minusDays(3), T0));
+
+        var validee = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        validee.signerParLeMedecin(T1, new Signataire("med-01"));
+        banc.seances().enregistrer(validee);
+        var creee = banc.seances().trouverPourModifier(CENTRE_A, s(2)).orElseThrow();
+        creee.deverrouillerPourRegularisation(T1, new Signataire("u-admin"), JOUR);
+        banc.seances().enregistrer(creee);
+
+        var signee = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThat(signee.statut()).isEqualTo(StatutDeSeance.SIGNEE);
+        assertThat(signee.jalons().signeeParLeMedecinLe()).isEqualTo(T1);
+        assertThat(signee.traces().medecin()).isEqualTo("med-01");
+        assertThat(signee.traces().infirmier()).isEqualTo("inf-initiale");
+        var deverrouillee = banc.seances().trouver(CENTRE_A, s(2)).orElseThrow();
+        assertThat(deverrouillee.statut()).isEqualTo(StatutDeSeance.CREE);
+        assertThat(deverrouillee.estDeverrouilleePourRegularisation()).isTrue();
+        assertThat(deverrouillee.traces().deverrouilleePar()).isEqualTo("u-admin");
+    }
+
+    @Test
+    void should_read_a_memorized_place_without_generator() {
+        var banc = nouveauBanc();
+        banc.semer(Seance.restituer(s(1), CENTRE_A, PATIENT, JOUR, StatutDeSeance.VALIDEE, T0, null, new Seance.Jalons(T0, T0, null, null),
+                new Seance.Traces("inf", null, null, new PlaceDeSeance(new UUID(3, 1), new UUID(4, 1), null))));
+
+        var lue = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+
+        assertThat(lue.traces().place()).isEqualTo(new PlaceDeSeance(new UUID(3, 1), new UUID(4, 1), null));
+    }
+
+    @Test
+    void should_not_persist_a_change_that_was_never_recorded() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        var seance = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+
+        seance.validerParLInfirmier(T1, new Signataire("inf-01"));
+
+        assertThat(banc.seances().trouver(CENTRE_A, s(1)).orElseThrow().statut()).isEqualTo(StatutDeSeance.CREE);
+    }
+
+    @Test
+    void should_lock_and_read_only_a_session_of_the_centre_and_report_an_unreadable_one() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        banc.semerUneLigneIllisible(CENTRE_A, s(7));
+
+        assertThat(banc.seances().trouverPourModifier(CENTRE_A, s(1))).isPresent();
+        assertThat(banc.seances().trouverPourModifier(CENTRE_B, s(1))).isEmpty();
+        assertThat(banc.seances().trouverPourModifier(CENTRE_A, s(99))).isEmpty();
+        assertThatThrownBy(() -> banc.seances().trouverPourModifier(CENTRE_A, s(7))).isInstanceOf(SeanceIllisible.class);
+    }
+
+    @Test
+    void should_refuse_to_record_a_session_that_does_not_exist() {
+        var banc = nouveauBanc();
+        assertThatThrownBy(() -> banc.seances().enregistrer(programmee(1, CENTRE_A, PATIENT, JOUR, T0)))
+                .isInstanceOf(IllegalStateException.class);
     }
 }

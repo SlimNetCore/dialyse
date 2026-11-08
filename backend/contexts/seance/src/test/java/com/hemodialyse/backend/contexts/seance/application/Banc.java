@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.seance.application;
 import com.hemodialyse.backend.contexts.seance.contrat.SeancesEnMemoire;
 import com.hemodialyse.backend.contexts.seance.domain.CauseDeNonFacturation;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
+import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.SituationDuPlanning;
@@ -127,7 +128,54 @@ final class Banc {
             public void saisieDeLInfirmier(CentreId centre, String type, Seance seance, FicheDuPatient patient, String auteur) {
                 diffusionsRecues.add(type + ":" + auteur);
             }
+
+            @Override
+            public void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient) {
+                diffusionsRecues.add("SEANCE_DEVERROUILLEE:" + patient.nom());
+            }
         };
+    }
+
+    /** Places des patients (le jour n'importe pas pour le double). */
+    final Map<String, PlaceDeSeance> places = new HashMap<>();
+    /** Articles du catalogue, par identifiant. */
+    final Map<UUID, ConsommationsALaValidation.Article> articles = new HashMap<>();
+    /** Consommables enregistrés à la validation : « séance/article/quantité/auteur ». */
+    final List<String> consommationsEnregistrees = new ArrayList<>();
+    String refusDuStock;
+
+    PlaceDuPatient placeDuPatient() {
+        return (centre, patient, jour) -> Optional.ofNullable(places.get(cle(centre, patient)));
+    }
+
+    ConsommationsALaValidation consommationsALaValidation() {
+        return new ConsommationsALaValidation() {
+            @Override
+            public Optional<Article> article(CentreId centre, UUID article) {
+                return Optional.ofNullable(articles.get(article));
+            }
+
+            @Override
+            public void enregistrer(CentreId centre, Seance seance, List<Ligne> lignes, String auteur) {
+                if (refusDuStock != null) throw new ConsommationRefusee(refusDuStock, "refus du Stock");
+                for (Ligne l : lignes) {
+                    consommationsEnregistrees.add(seance.id().valeur() + "/" + l.article() + "/" + l.quantite() + "/" + auteur);
+                }
+            }
+        };
+    }
+
+    ValiderUneSeance valider() {
+        return new ValiderUneSeance(session, patients, seances, placeDuPatient(), consommationsALaValidation(), unite(), horloge(),
+                diffusions());
+    }
+
+    SignerUneSeance signer() {
+        return new SignerUneSeance(session, seances, unite(), horloge());
+    }
+
+    DeverrouillerUneSeance deverrouiller() {
+        return new DeverrouillerUneSeance(session, patients, seances, unite(), horloge(), diffusions());
     }
 
     ResoudreLePatientScanne resolution() {

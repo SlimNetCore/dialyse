@@ -26,4 +26,16 @@ public interface Seances {
 
     /** La séance du centre ; inconnue ou d'un autre centre : vide. {@link SeanceIllisible} si la ligne ne se lit pas. */
     Optional<Seance> trouver(CentreId centre, SeanceId id);
+
+    /**
+     * Comme {@link #trouver}, en verrouillant la ligne jusqu'à la fin de l'unité de travail (SE2, KB-SEA-18 : deux validations, signatures ou
+     * déverrouillages simultanés se suivent). Verrou non obtenu dans le délai : {@link EcritureConcurrente} (409).
+     */
+    Optional<Seance> trouverPourModifier(CentreId centre, SeanceId id);
+
+    /**
+     * Enregistre l'état d'une séance existante après une intention (validation, signature, déverrouillage) : statut, jalons, signataires,
+     * déverrouilleur et place. La création reste {@link #ajouter}.
+     */
+    void enregistrer(Seance seance);
 }

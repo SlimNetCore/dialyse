@@ -33,6 +33,11 @@ public class DiffusionsParLeLegacy implements DiffusionsDeSeance {
                 jour(seance));
     }
 
+    @Override
+    public void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient) {
+        diffusions.seanceDeverrouillee(centre.valeur(), seance.id().valeur(), patient.nom(), patient.prenom(), jour(seance));
+    }
+
     private static String jour(Seance seance) {
         return seance.jour() == null ? null : seance.jour().toString();
     }

@@ -42,13 +42,18 @@ abstract class SeancesJdbcContrat extends SeancesContrat {
             public void semer(Seance s) {
                 var jalons = s.jalons();
                 var derogation = s.derogation();
+                var traces = s.traces();
+                var place = traces.place();
                 jdbc.update("INSERT INTO seances (id, center_id, patient_id, date_seance, statut, created_at, validated_at, "
                                 + "signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at, hors_planning, motif_hors_planning, "
-                                + "precision_hors_planning) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", s.id().valeur(), s.centre().valeur(),
+                                + "precision_hors_planning, signed_infirmier_by, signed_medecin_by, regularisation_deverrouillee_by, salle_id, "
+                                + "creneau_id, generateur_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", s.id().valeur(), s.centre().valeur(),
                         s.patient().valeur(), java.sql.Date.valueOf(s.jour()), s.statut().name(), horodatage(s.creeLe()),
                         horodatage(jalons.valideeLe()), horodatage(jalons.signeeParLInfirmierLe()), horodatage(jalons.signeeParLeMedecinLe()),
                         horodatage(jalons.deverrouilleePourRegularisationLe()), s.horsPlanning(),
-                        derogation.map(d -> d.motif().name()).orElse(null), derogation.map(DerogationHorsPlanning::precision).orElse(null));
+                        derogation.map(d -> d.motif().name()).orElse(null), derogation.map(DerogationHorsPlanning::precision).orElse(null),
+                        traces.infirmier(), traces.medecin(), traces.deverrouilleePar(), place == null ? null : place.salle(),
+                        place == null ? null : place.creneau(), place == null ? null : place.generateur());
             }
 
             @Override

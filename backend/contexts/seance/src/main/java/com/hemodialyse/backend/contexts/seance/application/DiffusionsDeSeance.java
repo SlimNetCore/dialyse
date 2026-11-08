@@ -14,4 +14,7 @@ public interface DiffusionsDeSeance {
 
     /** Saisie de l'infirmier : {@code type} vaut {@code SEANCE_CREEE} ou {@code SEANCE_VALIDEE}. */
     void saisieDeLInfirmier(CentreId centre, String type, Seance seance, FicheDuPatient patient, String auteur);
+
+    /** SE2 : la séance d'un jour passé vient d'être déverrouillée pour régularisation (les infirmiers du centre en sont prévenus). */
+    void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient);
 }

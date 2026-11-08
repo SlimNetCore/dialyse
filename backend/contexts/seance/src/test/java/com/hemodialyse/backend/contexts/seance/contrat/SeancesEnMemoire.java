@@ -26,7 +26,7 @@ public class SeancesEnMemoire implements Seances {
     @Override
     public void ajouter(Seance seance) {
         if (lignes.containsKey(seance.id())) throw new IllegalStateException("Séance déjà enregistrée");
-        lignes.put(seance.id(), seance);
+        lignes.put(seance.id(), copie(seance));
     }
 
     /** Nombre de verrous du jour demandés (le double n'a pas de concurrence : il garde seulement la trace de l'appel). */
@@ -41,7 +41,7 @@ public class SeancesEnMemoire implements Seances {
     public List<Seance> duJour(CentreId centre, PatientId patient, LocalDate jour) {
         List<Seance> trouvees = new ArrayList<>();
         for (Seance s : lignes.values()) {
-            if (s.centre().equals(centre) && s.patient().equals(patient) && s.jour().equals(jour)) trouvees.add(s);
+            if (s.centre().equals(centre) && s.patient().equals(patient) && s.jour().equals(jour)) trouvees.add(copie(s));
         }
         trouvees.sort(Comparator.comparing(Seance::creeLe, Comparator.nullsLast(Comparator.<Instant>naturalOrder()))
                 .thenComparing(s -> s.id().valeur()));
@@ -51,12 +51,33 @@ public class SeancesEnMemoire implements Seances {
     @Override
     public Optional<Seance> trouver(CentreId centre, SeanceId id) {
         if (centre.equals(illisibles.get(id))) throw new SeanceIllisible(id, "statut inconnu");
-        return Optional.ofNullable(lignes.get(id)).filter(s -> s.centre().equals(centre));
+        return Optional.ofNullable(lignes.get(id)).filter(s -> s.centre().equals(centre)).map(SeancesEnMemoire::copie);
+    }
+
+    /** Comme une base : on rend une COPIE, une modification n'existe qu'une fois enregistrée (et un retour arrière la défait). */
+    private static Seance copie(Seance s) {
+        return Seance.restituer(s.id(), s.centre(), s.patient(), s.jour(), s.statut(), s.creeLe(), s.derogation().orElse(null), s.jalons(),
+                s.traces());
+    }
+
+    /** Nombre de verrous de ligne demandés (le double n'a pas de concurrence : il garde la trace de l'appel). */
+    public int verrousDeLigneDemandes;
+
+    @Override
+    public Optional<Seance> trouverPourModifier(CentreId centre, SeanceId id) {
+        verrousDeLigneDemandes++;
+        return trouver(centre, id);
+    }
+
+    @Override
+    public void enregistrer(Seance seance) {
+        if (!lignes.containsKey(seance.id())) throw new IllegalStateException("Séance inconnue");
+        lignes.put(seance.id(), copie(seance));
     }
 
     /** Sème une ligne telle qu'elle existe déjà en base (hors règles de création). */
     public void semer(Seance seance) {
-        lignes.put(seance.id(), seance);
+        lignes.put(seance.id(), copie(seance));
     }
 
     /** Sème une ligne dont le statut n'est pas lisible. */

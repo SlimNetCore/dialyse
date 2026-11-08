@@ -45,6 +45,15 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.Consomma
 import com.hemodialyse.backend.contexts.seance.infrastructure.identifiants.GenerateurDIdentifiantsAleatoires;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.transaction.UniteDeTravailSpring;
+import com.hemodialyse.backend.contexts.seance.application.ConsommationsALaValidation;
+import com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.PlaceDuPatient;
+import com.hemodialyse.backend.contexts.seance.application.SignerUneSeance;
+import com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlaceParLePlanning;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsALaValidationDuStock;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlaceFournie;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -145,7 +154,47 @@ public class SeanceConfiguration {
         return new DiffusionsParLeLegacy(diffusions);
     }
 
+    @Bean
+    PlaceDuPatient placeDuPatientDeLaSeance(PlaceFournie places) {
+        return new PlaceParLePlanning(places);
+    }
+
+    @Bean
+    ConsommationsALaValidation consommationsALaValidationDeLaSeance(CatalogueDArticles catalogue, ConsommationsDeSeance stock) {
+        return new ConsommationsALaValidationDuStock(catalogue, stock);
+    }
+
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)
+
+    @Bean
+    ValiderUneSeance validerUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                      @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                      @Qualifier("seancesDuContexteSeance") Seances seances,
+                                      @Qualifier("placeDuPatientDeLaSeance") PlaceDuPatient places,
+                                      @Qualifier("consommationsALaValidationDeLaSeance") ConsommationsALaValidation consommations,
+                                      @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                      @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                      @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new ValiderUneSeance(session, patients, seances, places, consommations, uniteDeTravail, horloge, diffusions);
+    }
+
+    @Bean
+    SignerUneSeance signerUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                    @Qualifier("seancesDuContexteSeance") Seances seances,
+                                    @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                    @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
+        return new SignerUneSeance(session, seances, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    DeverrouillerUneSeance deverrouillerUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                  @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                                  @Qualifier("seancesDuContexteSeance") Seances seances,
+                                                  @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                                  @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                                  @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new DeverrouillerUneSeance(session, patients, seances, uniteDeTravail, horloge, diffusions);
+    }
 
     @Bean
     CreerUneSeance creerUneSeance(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,

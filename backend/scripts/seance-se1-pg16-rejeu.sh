@@ -34,7 +34,7 @@ scalaire() { "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "$1" | tr -d '\r'
 
 echo "=== Colonnes lues et ecrites par SeancesJdbc (schema reel) ==="
 T=seances
-for c in id center_id patient_id date_seance statut created_at hors_planning motif_hors_planning precision_hors_planning validated_at signed_infirmier_at signed_medecin_at regularisation_deverrouillee_at; do
+for c in id center_id patient_id date_seance statut created_at hors_planning motif_hors_planning precision_hors_planning validated_at signed_infirmier_at signed_medecin_at regularisation_deverrouillee_at signed_infirmier_by signed_medecin_by regularisation_deverrouillee_by salle_id creneau_id generateur_id; do
   [ "$(scalaire "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='$T' AND column_name='$c'")" = "1" ] \
     || { echo "COLONNE ABSENTE : $T.$c"; RC=1; }
 done

@@ -14,4 +14,7 @@ public interface DiffusionsFournies {
 
     /** {@code type} vaut {@code SEANCE_CREEE} ou {@code SEANCE_VALIDEE}. */
     void saisieDeLInfirmier(UUID centre, String type, UUID patient, String nom, String prenom, String auteur, String jour);
+
+    /** SE2 : une séance d'un jour passé vient d'être déverrouillée pour régularisation. */
+    void seanceDeverrouillee(UUID centre, UUID seance, String nom, String prenom, String jour);
 }

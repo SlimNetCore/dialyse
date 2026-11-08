@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
+import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceIllisible;
@@ -40,7 +41,8 @@ import java.util.UUID;
 public class SeancesJdbc implements Seances {
 
     private static final String COLONNES = "id, center_id, patient_id, date_seance, statut, created_at, hors_planning, motif_hors_planning, "
-            + "precision_hors_planning, validated_at, signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at";
+            + "precision_hors_planning, validated_at, signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at, "
+            + "signed_infirmier_by, signed_medecin_by, regularisation_deverrouillee_by, salle_id, creneau_id, generateur_id";
 
     private final JdbcTemplate jdbc;
     private volatile Boolean postgreSql;
@@ -65,9 +67,39 @@ public class SeancesJdbc implements Seances {
             jdbc.query("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", rs -> {
             }, "seance-du-jour|" + centre.valeur() + "|" + patient.valeur() + "|" + jour);
         } catch (PessimisticLockingFailureException | QueryTimeoutException | UncategorizedSQLException e) {
-            if (e instanceof UncategorizedSQLException technique && !"55P03".equals(technique.getSQLException().getSQLState())) throw e;
-            throw new EcritureConcurrente();
+            throw refusDeVerrou(e);
         }
+    }
+
+    /** Un refus de verrou (délai dépassé, SQLSTATE 55P03) devient {@link EcritureConcurrente} ; toute autre erreur technique est relancée. */
+    private static RuntimeException refusDeVerrou(RuntimeException e) {
+        if (e instanceof UncategorizedSQLException technique && !"55P03".equals(technique.getSQLException().getSQLState())) return e;
+        return new EcritureConcurrente();
+    }
+
+    @Override
+    public Optional<Seance> trouverPourModifier(CentreId centre, SeanceId id) {
+        try {
+            return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE id = ? AND center_id = ? FOR UPDATE", (rs, i) -> seance(rs),
+                    id.valeur(), centre.valeur()).stream().findFirst();
+        } catch (PessimisticLockingFailureException | QueryTimeoutException | UncategorizedSQLException e) {
+            throw refusDeVerrou(e);
+        }
+    }
+
+    @Override
+    public void enregistrer(Seance s) {
+        Seance.Jalons j = s.jalons();
+        Seance.Traces t = s.traces();
+        var place = t.place();
+        int lignes = jdbc.update("UPDATE seances SET statut = ?, validated_at = ?, signed_infirmier_at = ?, signed_medecin_at = ?, "
+                        + "regularisation_deverrouillee_at = ?, signed_infirmier_by = ?, signed_medecin_by = ?, "
+                        + "regularisation_deverrouillee_by = ?, salle_id = ?, creneau_id = ?, generateur_id = ? WHERE id = ? AND center_id = ?",
+                s.statut().name(), horodatage(j.valideeLe()), horodatage(j.signeeParLInfirmierLe()), horodatage(j.signeeParLeMedecinLe()),
+                horodatage(j.deverrouilleePourRegularisationLe()), t.infirmier(), t.medecin(), t.deverrouilleePar(),
+                place == null ? null : place.salle(), place == null ? null : place.creneau(), place == null ? null : place.generateur(),
+                s.id().valeur(), s.centre().valeur());
+        if (lignes != 1) throw new IllegalStateException("Séance " + s.id().valeur() + " introuvable à l'enregistrement");
     }
 
     @Override
@@ -103,7 +135,16 @@ public class SeancesJdbc implements Seances {
         return Seance.restituer(id, new CentreId(rs.getObject("center_id", UUID.class)),
                 new PatientId(rs.getObject("patient_id", UUID.class)), rs.getObject("date_seance", LocalDate.class), statut,
                 instant(rs, "created_at"), derogation, new Seance.Jalons(instant(rs, "validated_at"), instant(rs, "signed_infirmier_at"),
-                        instant(rs, "signed_medecin_at"), instant(rs, "regularisation_deverrouillee_at")));
+                        instant(rs, "signed_medecin_at"), instant(rs, "regularisation_deverrouillee_at")),
+                new Seance.Traces(rs.getString("signed_infirmier_by"), rs.getString("signed_medecin_by"),
+                        rs.getString("regularisation_deverrouillee_by"), place(rs)));
+    }
+
+    /** La place mémorisée : salle ET créneau renseignés, sinon aucune (le générateur est facultatif). */
+    private static PlaceDeSeance place(ResultSet rs) throws SQLException {
+        UUID salle = rs.getObject("salle_id", UUID.class);
+        UUID creneau = rs.getObject("creneau_id", UUID.class);
+        return salle == null || creneau == null ? null : new PlaceDeSeance(salle, creneau, rs.getObject("generateur_id", UUID.class));
     }
 
     private boolean estPostgreSql() {

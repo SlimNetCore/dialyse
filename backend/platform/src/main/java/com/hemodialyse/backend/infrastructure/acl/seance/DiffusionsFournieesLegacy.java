@@ -38,6 +38,11 @@ public class DiffusionsFournieesLegacy implements DiffusionsFournies {
         diffuser("SAISIE_INFIRMIER", () -> notifications.notifySaisieInfirmier(centre, type, patient, nom, prenom, auteur, jour));
     }
 
+    @Override
+    public void seanceDeverrouillee(UUID centre, UUID seance, String nom, String prenom, String jour) {
+        diffuser("SEANCE_DEVERROUILLEE", () -> notifications.notifySeanceDeverrouillee(centre, seance, nom, prenom, jour));
+    }
+
     private static void diffuser(String evenement, Runnable envoi) {
         try {
             envoi.run();

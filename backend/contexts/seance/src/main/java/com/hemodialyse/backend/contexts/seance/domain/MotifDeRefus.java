@@ -13,7 +13,19 @@ public enum MotifDeRefus {
     PATIENT_NON_ATTENDU("SEANCE_HORS_PLANNING_PATIENT"),
     MOTIF_DE_DEROGATION_REQUIS("SEANCE_DEROGATION_MOTIF_REQUIS"),
     PRECISION_DE_DEROGATION_REQUISE("SEANCE_DEROGATION_PRECISION_REQUISE"),
-    SEANCE_DU_JOUR_ABSENTE("BUSINESS_RULE_VIOLATION");
+    SEANCE_DU_JOUR_ABSENTE("BUSINESS_RULE_VIOLATION"),
+    /** SE2 : une séance facturée ne se modifie plus (validation, signature, déverrouillage). */
+    SEANCE_FACTUREE("SEANCE_FACTUREE_NON_MODIFIABLE"),
+    /** SE2 : seule une séance « créée » se valide (statut autre que créée, validée, signée, facturée : le reliquat « absent »). */
+    STATUT_NON_VALIDABLE("BUSINESS_RULE_VIOLATION"),
+    /** SE2 : la signature du médecin suppose la validation infirmière (KB-SEA-20 : message reproduit pour toutes les causes). */
+    SIGNATURE_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION"),
+    /** SE2 : ligne incohérente, validée mais déjà signée par un médecin. */
+    DEJA_SIGNEE("BUSINESS_RULE_VIOLATION"),
+    /** SE2 : seule une séance « créée » d'un jour passé se déverrouille. */
+    DEVERROUILLAGE_INVALIDE("SEANCE_DEVERROUILLAGE_INVALIDE"),
+    /** SE2 : l'infirmier ne valide pas une séance d'un jour passé sans le déverrouillage de l'administrateur. */
+    REGULARISATION_NON_DEVERROUILLEE("SEANCE_REGULARISATION_NON_DEVERROUILLEE");
 
     private final String code;
 

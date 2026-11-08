@@ -30,7 +30,7 @@ class CreerUneSeanceTest {
         assertThat(enregistree.seance().statut()).isEqualTo(StatutDeSeance.CREE);
         assertThat(enregistree.seance().jour()).isEqualTo(JOUR.plusDays(3));
         assertThat(enregistree.seance().horsPlanning()).isFalse();
-        assertThat(banc.seances.toutes()).containsExactly(enregistree.seance());
+        assertThat(banc.seances.toutes()).usingRecursiveFieldByFieldElementComparator().containsExactly(enregistree.seance());
     }
 
     @Test
