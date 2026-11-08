@@ -1,0 +1,20 @@
+{
+  "01 infirmier B lit le centre A : tableau de bord" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "02 infirmier B lit le centre A : details" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 infirmier B lit le centre A : export" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "04 secretaire A lit le centre B : tableau de bord" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "05 medecin A lit le centre B : details" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "06 infirmier B lit son centre : effectif" : {
+    "absenceCount" : 0,
+    "effectifPatients" : 1,
+    "expectedSeances" : 31,
+    "month" : 1,
+    "periodEnd" : "<D+30>",
+    "periodStart" : "<D+0>",
+    "presenceCount" : 0,
+    "status" : 200,
+    "totalSeances" : 0,
+    "year" : 2026
+  },
+  "07 centre inexistant" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+}

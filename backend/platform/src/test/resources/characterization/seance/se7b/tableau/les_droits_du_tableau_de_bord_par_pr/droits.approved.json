@@ -1,0 +1,77 @@
+{
+  "ADMIN" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "ADMIN sans centre" : {
+    "GET dashboard" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "GET dashboard/details" : "403 ACCESS_DENIED | Session sans centre de rattachement",
+    "GET dashboard/export" : "403 ACCESS_DENIED | Session sans centre de rattachement"
+  },
+  "DIRECTION" : {
+    "GET dashboard" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET dashboard/details" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET dashboard/export" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "INFIRMIER + SECRETAIRE" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "INFIRMIER seul" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "MEDECIN + ADMIN" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "MEDECIN + INFIRMIER" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "MEDECIN seul" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "SECRETAIRE" : {
+    "GET dashboard" : "200 ok",
+    "GET dashboard/details" : "200 ok",
+    "GET dashboard/export" : "200 ok"
+  },
+  "SUPERADMIN" : {
+    "GET dashboard" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET dashboard/details" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET dashboard/export" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "SUPERADMIN + ADMIN" : {
+    "GET dashboard" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET dashboard/details" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "GET dashboard/export" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+  },
+  "anonyme" : {
+    "GET dashboard" : "403",
+    "GET dashboard/details" : "403",
+    "GET dashboard/export" : "403"
+  },
+  "aucun role" : {
+    "GET dashboard" : "403 ACCESS_DENIED | Access Denied",
+    "GET dashboard/details" : "403 ACCESS_DENIED | Access Denied",
+    "GET dashboard/export" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "role inconnu (COMPTABLE)" : {
+    "GET dashboard" : "403 ACCESS_DENIED | Access Denied",
+    "GET dashboard/details" : "403 ACCESS_DENIED | Access Denied",
+    "GET dashboard/export" : "403 ACCESS_DENIED | Access Denied"
+  },
+  "role personnalise (CHEF_DE_SALLE)" : {
+    "GET dashboard" : "403 ACCESS_DENIED | Access Denied",
+    "GET dashboard/details" : "403 ACCESS_DENIED | Access Denied",
+    "GET dashboard/export" : "403 ACCESS_DENIED | Access Denied"
+  }
+}

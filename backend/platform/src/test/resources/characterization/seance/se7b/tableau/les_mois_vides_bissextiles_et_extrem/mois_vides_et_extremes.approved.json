@@ -1,0 +1,162 @@
+{
+  "01 centre B sans aucune donnee, janvier 2026" : {
+    "corps" : {
+      "absenceCount" : 0,
+      "absenceDetails" : {
+        "absenceCount" : 0,
+        "blockedDays" : 0,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "SAMEDI" : 0,
+          "VENDREDI" : 0
+        },
+        "expectedFromSchedule" : 0,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 0,
+        "periodEnd" : "<D+30>",
+        "periodStart" : "<D+0>",
+        "presenceCount" : 0
+      },
+      "ageDistribution" : {
+        "0-17" : 0,
+        "18-39" : 0,
+        "40-59" : 0,
+        "60+" : 0,
+        "INCONNU" : 0
+      },
+      "effectifPatients" : 0,
+      "expectedSeances" : 0,
+      "month" : 1,
+      "presenceCount" : 0,
+      "sexeDistribution" : {
+        "AUTRE" : 0,
+        "F" : 0,
+        "M" : 0
+      },
+      "totalSeances" : 0,
+      "year" : 2026
+    },
+    "status" : 200
+  },
+  "02 fevrier 2024 (29 jours) du centre A, un patient tous les jours" : {
+    "corps" : {
+      "absenceCount" : 0,
+      "absenceDetails" : {
+        "absenceCount" : 0,
+        "blockedDays" : 0,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "FRIDAY" : 4,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "MONDAY" : 4,
+          "SAMEDI" : 0,
+          "SATURDAY" : 4,
+          "SUNDAY" : 4,
+          "THURSDAY" : 5,
+          "TUESDAY" : 4,
+          "VENDREDI" : 0,
+          "WEDNESDAY" : 4
+        },
+        "expectedFromSchedule" : 29,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 1,
+        "periodEnd" : "<FEV2024.FIN>",
+        "periodStart" : "<FEV2024.DEBUT>",
+        "presenceCount" : 0
+      },
+      "ageDistribution" : {
+        "0-17" : 0,
+        "18-39" : 0,
+        "40-59" : 1,
+        "60+" : 0,
+        "INCONNU" : 0
+      },
+      "effectifPatients" : 1,
+      "expectedSeances" : 29,
+      "month" : 2,
+      "presenceCount" : 0,
+      "sexeDistribution" : {
+        "AUTRE" : 0,
+        "F" : 0,
+        "M" : 1
+      },
+      "totalSeances" : 0,
+      "year" : 2024
+    },
+    "status" : 200
+  },
+  "03 decembre 9999" : {
+    "corps" : {
+      "absenceCount" : 0,
+      "absenceDetails" : {
+        "absenceCount" : 0,
+        "blockedDays" : 0,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "SAMEDI" : 0,
+          "VENDREDI" : 0
+        },
+        "expectedFromSchedule" : 0,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 0,
+        "periodEnd" : "<AN9999.DEBUT>",
+        "periodStart" : "<AN9999.DEBUT>",
+        "presenceCount" : 0
+      },
+      "ageDistribution" : {
+        "0-17" : 0,
+        "18-39" : 0,
+        "40-59" : 0,
+        "60+" : 1,
+        "INCONNU" : 0
+      },
+      "effectifPatients" : 1,
+      "expectedSeances" : 0,
+      "month" : 12,
+      "presenceCount" : 0,
+      "sexeDistribution" : {
+        "AUTRE" : 0,
+        "F" : 0,
+        "M" : 1
+      },
+      "totalSeances" : 0,
+      "year" : 9999
+    },
+    "status" : 200
+  },
+  "04 annee 1" : {
+    "absenceCount" : 0,
+    "effectifPatients" : 0,
+    "expectedSeances" : 0,
+    "month" : 1,
+    "periodEnd" : "<AN1.FIN>",
+    "periodStart" : "<AN1.DEBUT>",
+    "presenceCount" : 0,
+    "status" : 200,
+    "totalSeances" : 0,
+    "year" : 1
+  },
+  "05 annee 0" : {
+    "absenceCount" : 0,
+    "effectifPatients" : 0,
+    "expectedSeances" : 0,
+    "month" : 1,
+    "periodEnd" : "<AN0.FIN>",
+    "periodStart" : "<AN0.DEBUT>",
+    "presenceCount" : 0,
+    "status" : 200,
+    "totalSeances" : 0,
+    "year" : 0
+  }
+}

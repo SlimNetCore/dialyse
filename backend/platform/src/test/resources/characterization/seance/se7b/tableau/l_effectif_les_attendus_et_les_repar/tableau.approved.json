@@ -1,0 +1,52 @@
+{
+  "reponse" : {
+    "corps" : {
+      "absenceCount" : 1,
+      "absenceDetails" : {
+        "absenceCount" : 1,
+        "blockedDays" : 0,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "FRIDAY" : 11,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "MONDAY" : 5,
+          "SAMEDI" : 0,
+          "SATURDAY" : 6,
+          "SUNDAY" : 5,
+          "THURSDAY" : 10,
+          "TUESDAY" : 4,
+          "VENDREDI" : 0,
+          "WEDNESDAY" : 4
+        },
+        "expectedFromSchedule" : 45,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 12,
+        "periodEnd" : "<D+30>",
+        "periodStart" : "<D+0>",
+        "presenceCount" : 3
+      },
+      "ageDistribution" : {
+        "0-17" : 1,
+        "18-39" : 6,
+        "40-59" : 1,
+        "60+" : 4,
+        "INCONNU" : 1
+      },
+      "effectifPatients" : 13,
+      "expectedSeances" : 45,
+      "month" : 1,
+      "presenceCount" : 3,
+      "sexeDistribution" : {
+        "AUTRE" : 1,
+        "F" : 5,
+        "M" : 7
+      },
+      "totalSeances" : 3,
+      "year" : 2026
+    },
+    "status" : 200
+  }
+}

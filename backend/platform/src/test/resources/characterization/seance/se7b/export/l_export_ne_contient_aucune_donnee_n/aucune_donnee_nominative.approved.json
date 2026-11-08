@@ -1,0 +1,14 @@
+{
+  "contient [10000]" : false,
+  "contient [11900]" : false,
+  "contient [19.00]" : false,
+  "contient [ASS-SE1]" : false,
+  "contient [Forfait]" : false,
+  "contient [Nom E0]" : false,
+  "contient [Pre E0]" : false,
+  "contient [SE1-E0]" : false,
+  "tableau de bord" : {
+    "cles de absenceDetails (triees)" : [ "absenceCount", "blockedDays", "expectedByWeekday", "expectedFromSchedule", "formula", "patientsConsidered", "periodEnd", "periodStart", "presenceCount" ],
+    "cles du corps" : [ "year", "month", "expectedSeances", "presenceCount", "absenceCount", "totalSeances", "effectifPatients", "absenceDetails", "sexeDistribution", "ageDistribution" ]
+  }
+}

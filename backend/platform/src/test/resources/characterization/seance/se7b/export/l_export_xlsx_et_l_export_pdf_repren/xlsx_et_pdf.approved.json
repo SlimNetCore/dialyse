@@ -1,0 +1,21 @@
+{
+  "pdf" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "attachment; filename=seances-dashboard-2026-01.pdf",
+    "contentType" : "application/pdf",
+    "debut du fichier" : "%PDF-",
+    "status" : 200,
+    "texte" : [ "Dashboard séances", "Période: 2026-01", "Séances prévues: 45", "Présences: 3", "Absences: 1", "Séances totales: 3", "Répartition sexe", "Sexe Count", "M 7", "F 5", "AUTRE 1", "Répartition âge", "Tranche Count", "0-17 1", "18-39 6", "40-59 1", "60+ 4", "INCONNU 1", "pages=1" ]
+  },
+  "xlsx" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "attachment; filename=seances-dashboard-2026-01.xlsx",
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "feuilles" : {
+      "Repartition age" : [ "Tranche age | Count", "0-17 | 1", "18-39 | 6", "40-59 | 1", "60+ | 4", "INCONNU | 1" ],
+      "Repartition sexe" : [ "Sexe | Count", "M | 7", "F | 5", "AUTRE | 1" ],
+      "Synthese" : [ "Annee | 2026", "Mois | 1", "Seances prevues | 45", "Presences | 3", "Absences | 1", "Seances totales | 3" ]
+    },
+    "status" : 200
+  }
+}

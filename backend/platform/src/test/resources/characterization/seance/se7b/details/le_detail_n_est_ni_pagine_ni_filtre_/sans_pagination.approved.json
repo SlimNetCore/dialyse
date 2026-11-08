@@ -1,0 +1,8 @@
+{
+  "avec page, size, sort, patientId et status (parametres ignores)" : 62,
+  "corps identique pour l'infirmier et la secretaire" : true,
+  "dernieres" : [ "<D+29> | Beta Deux | FRIDAY | VALIDEE | scheduled=true present=true", "<D+30> | Alpha Un | SATURDAY | VALIDEE | scheduled=true present=true", "<D+30> | Beta Deux | SATURDAY | SIGNEE | scheduled=true present=true" ],
+  "lignes rendues" : 62,
+  "premieres" : [ "<D+0> | Alpha Un | THURSDAY | VALIDEE | scheduled=true present=true", "<D+0> | Beta Deux | THURSDAY | SIGNEE | scheduled=true present=true", "<D+1> | Alpha Un | FRIDAY | VALIDEE | scheduled=true present=true" ],
+  "total annonce" : 62
+}

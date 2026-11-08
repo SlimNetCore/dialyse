@@ -1,0 +1,50 @@
+{
+  "01 decembre 2025 (centre A)" : {
+    "absenceCount" : 1,
+    "effectifPatients" : 2,
+    "expectedSeances" : 0,
+    "month" : 12,
+    "periodEnd" : "<D-1>",
+    "periodStart" : "<D-31>",
+    "presenceCount" : 1,
+    "status" : 200,
+    "totalSeances" : 1,
+    "year" : 2025
+  },
+  "02 janvier 2026 (centre A)" : {
+    "absenceCount" : 5,
+    "effectifPatients" : 2,
+    "expectedSeances" : 0,
+    "month" : 1,
+    "periodEnd" : "<D+30>",
+    "periodStart" : "<D+0>",
+    "presenceCount" : 5,
+    "status" : 200,
+    "totalSeances" : 5,
+    "year" : 2026
+  },
+  "03 fevrier 2026 (centre A)" : {
+    "absenceCount" : 1,
+    "effectifPatients" : 2,
+    "expectedSeances" : 0,
+    "month" : 2,
+    "periodEnd" : "<D+58>",
+    "periodStart" : "<D+31>",
+    "presenceCount" : 1,
+    "status" : 200,
+    "totalSeances" : 1,
+    "year" : 2026
+  },
+  "04 janvier 2026 (centre B)" : {
+    "absenceCount" : 1,
+    "effectifPatients" : 1,
+    "expectedSeances" : 0,
+    "month" : 1,
+    "periodEnd" : "<D+30>",
+    "periodStart" : "<D+0>",
+    "presenceCount" : 2,
+    "status" : 200,
+    "totalSeances" : 2,
+    "year" : 2026
+  }
+}

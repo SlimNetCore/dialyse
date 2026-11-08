@@ -25,4 +25,4 @@ SE1 à SE6 (écritures via `contexts/seance`, 9 familles de goldens), DM1 (volet
 
 ## Sous-slices
 
-Voir `.ddd/migration/slices/seance-se7a` à `seance-se7f`. Non couvert à ce jour : tout SE7b à SE7f (voir leurs fichiers pour le risque et les filets à compléter).
+Voir `.ddd/migration/slices/seance-se7a` à `seance-se7f`. SE7b (tableau de bord mensuel) est caractérisée depuis le 2026-11-08 : voir `.ddd/safety-net/seance-se7b-tableau-de-bord-mensuel.md`. Non couvert à ce jour : SE7c à SE7f (voir leurs fichiers pour le risque et les filets à compléter).

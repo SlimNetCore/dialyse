@@ -1,0 +1,6 @@
+{
+  "compteur du tableau de bord (absenceCount)" : 6,
+  "lignes" : [ "<D+3> | Benali Karim | SUNDAY | RATTRAPEE | scheduled=true present=false", "<D+4> | Aouad Zoubir | MONDAY | JUSTIFIEE | scheduled=true present=false", "<D+4> | Benali Amine | MONDAY | NON_JUSTIFIEE | scheduled=true present=false", "<D+4> | abdi Said | MONDAY | A_QUALIFIER | scheduled=true present=false", "<D+30> | ZIDANE Yacine | SATURDAY | A_QUALIFIER | scheduled=true present=false" ],
+  "status" : 200,
+  "total" : 5
+}

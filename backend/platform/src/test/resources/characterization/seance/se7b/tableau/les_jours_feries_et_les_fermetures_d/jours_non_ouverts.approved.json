@@ -1,0 +1,102 @@
+{
+  "01 sans jour non ouvert" : {
+    "corps" : {
+      "absenceCount" : 0,
+      "absenceDetails" : {
+        "absenceCount" : 0,
+        "blockedDays" : 0,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "FRIDAY" : 5,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "MONDAY" : 4,
+          "SAMEDI" : 0,
+          "SATURDAY" : 5,
+          "SUNDAY" : 4,
+          "THURSDAY" : 10,
+          "TUESDAY" : 4,
+          "VENDREDI" : 0,
+          "WEDNESDAY" : 4
+        },
+        "expectedFromSchedule" : 36,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 2,
+        "periodEnd" : "<D+30>",
+        "periodStart" : "<D+0>",
+        "presenceCount" : 0
+      },
+      "ageDistribution" : {
+        "0-17" : 0,
+        "18-39" : 0,
+        "40-59" : 2,
+        "60+" : 0,
+        "INCONNU" : 0
+      },
+      "effectifPatients" : 2,
+      "expectedSeances" : 36,
+      "month" : 1,
+      "presenceCount" : 0,
+      "sexeDistribution" : {
+        "AUTRE" : 0,
+        "F" : 0,
+        "M" : 2
+      },
+      "totalSeances" : 0,
+      "year" : 2026
+    },
+    "status" : 200
+  },
+  "02 un ferie et une fermeture le meme jour, une fermeture, deux hors mois, un ferie de l'autre centre" : {
+    "corps" : {
+      "absenceCount" : 0,
+      "absenceDetails" : {
+        "absenceCount" : 0,
+        "blockedDays" : 2,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "FRIDAY" : 5,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "MONDAY" : 4,
+          "SAMEDI" : 0,
+          "SATURDAY" : 5,
+          "SUNDAY" : 4,
+          "THURSDAY" : 6,
+          "TUESDAY" : 4,
+          "VENDREDI" : 0,
+          "WEDNESDAY" : 4
+        },
+        "expectedFromSchedule" : 32,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 2,
+        "periodEnd" : "<D+30>",
+        "periodStart" : "<D+0>",
+        "presenceCount" : 0
+      },
+      "ageDistribution" : {
+        "0-17" : 0,
+        "18-39" : 0,
+        "40-59" : 2,
+        "60+" : 0,
+        "INCONNU" : 0
+      },
+      "effectifPatients" : 2,
+      "expectedSeances" : 32,
+      "month" : 1,
+      "presenceCount" : 0,
+      "sexeDistribution" : {
+        "AUTRE" : 0,
+        "F" : 0,
+        "M" : 2
+      },
+      "totalSeances" : 0,
+      "year" : 2026
+    },
+    "status" : 200
+  }
+}

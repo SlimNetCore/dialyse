@@ -1,0 +1,22 @@
+{
+  "01 mois 0" : "500 INTERNAL_ERROR",
+  "02 mois -1" : "500 INTERNAL_ERROR",
+  "03 annee 1000000000" : "500 INTERNAL_ERROR",
+  "04 annee absente" : "500 INTERNAL_ERROR",
+  "05 mois absent" : "500 INTERNAL_ERROR",
+  "06 centre illisible" : "500 INTERNAL_ERROR",
+  "07 detail mois 0" : "500 INTERNAL_ERROR",
+  "08 detail mois 13" : "500 INTERNAL_ERROR",
+  "09 detail annee 1000000000" : "500 INTERNAL_ERROR",
+  "10 detail annee absente" : "500 INTERNAL_ERROR",
+  "11 detail mois absent" : "500 INTERNAL_ERROR",
+  "12 detail mois 13 avec un kind inconnu (le kind est controle en premier)" : "400 BAD_REQUEST | kind must be 'presence' or 'absence'",
+  "13 detail centre illisible" : "500 INTERNAL_ERROR",
+  "14 export mois 0" : "500 INTERNAL_ERROR",
+  "15 export mois 13" : "500 INTERNAL_ERROR",
+  "16 export annee 1000000000" : "500 INTERNAL_ERROR",
+  "17 export annee illisible" : "500 INTERNAL_ERROR",
+  "18 export annee absente" : "500 INTERNAL_ERROR",
+  "19 export centre absent" : "500 INTERNAL_ERROR",
+  "20 export format inconnu et mois 13 (le format est controle apres le centre, avant le mois)" : "400 BAD_REQUEST | format must be 'csv', 'pdf' or 'xlsx'"
+}

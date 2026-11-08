@@ -1,0 +1,44 @@
+{
+  "details du centre A" : [ "<D+3> | Local Un | SUNDAY | VALIDEE | scheduled=true present=true" ],
+  "tableau de bord du centre A" : {
+    "absenceCount" : 0,
+    "absenceDetails" : {
+      "absenceCount" : 0,
+      "blockedDays" : 0,
+      "expectedByWeekday" : {
+        "DIMANCHE" : 0,
+        "JEUDI" : 0,
+        "LUNDI" : 0,
+        "MARDI" : 0,
+        "MERCREDI" : 0,
+        "SAMEDI" : 0,
+        "VENDREDI" : 0
+      },
+      "expectedFromSchedule" : 0,
+      "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+      "patientsConsidered" : 1,
+      "periodEnd" : "<D+30>",
+      "periodStart" : "<D+0>",
+      "presenceCount" : 2
+    },
+    "ageDistribution" : {
+      "0-17" : 0,
+      "18-39" : 1,
+      "40-59" : 1,
+      "60+" : 0,
+      "INCONNU" : 0
+    },
+    "effectifPatients" : 2,
+    "expectedSeances" : 0,
+    "month" : 1,
+    "presenceCount" : 2,
+    "sexeDistribution" : {
+      "AUTRE" : 0,
+      "F" : 1,
+      "M" : 1
+    },
+    "totalSeances" : 2,
+    "year" : 2026
+  },
+  "total des details" : 1
+}

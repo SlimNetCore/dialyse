@@ -1,0 +1,15 @@
+{
+  "entete" : 9,
+  "lignes" : [ "<D+0> | Aouad Zoubir | THURSDAY | VALIDEE | scheduled=true present=true", "<D+2> | ZIDANE Yacine | SATURDAY | SIGNEE | scheduled=true present=true", "<D+9> | Aouad Zoubir | SATURDAY | VALIDEE | scheduled=true present=true", "<D+9> | Benali Amine | SATURDAY | VALIDEE | scheduled=true present=true", "<D+9> | Benali Karim | SATURDAY | VALIDEE | scheduled=true present=true", "<D+9> | ZIDANE Yacine | SATURDAY | VALIDEE | scheduled=true present=true", "<D+9> | abdi Said | SATURDAY | VALIDEE | scheduled=true present=true", "<D+9> | Émile Zola | SATURDAY | VALIDEE | scheduled=true present=true", "<D+30> | Aouad Zoubir | SATURDAY | FACTUREE | scheduled=true present=true" ],
+  "premiere ligne brute" : {
+    "dateSeance" : "<D+0>",
+    "patientId" : "<N1>",
+    "patientNom" : "Aouad",
+    "patientPrenom" : "Zoubir",
+    "present" : true,
+    "scheduled" : true,
+    "status" : "VALIDEE",
+    "weekday" : "THURSDAY"
+  },
+  "status" : 200
+}

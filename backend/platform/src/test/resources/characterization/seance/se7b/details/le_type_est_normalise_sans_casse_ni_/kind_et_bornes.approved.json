@@ -1,0 +1,44 @@
+{
+  "kind=[%20Presence%20]" : {
+    "kind rendu" : "presence",
+    "lignes" : [ "<D+0> | Nom K1 Pre K1 | THURSDAY | VALIDEE | scheduled=true present=true", "<D+30> | Nom K1 Pre K1 | SATURDAY | VALIDEE | scheduled=true present=true" ],
+    "status" : 200
+  },
+  "kind=[%20]" : {
+    "refus" : "400 BAD_REQUEST | kind must be 'presence' or 'absence'",
+    "status" : 400
+  },
+  "kind=[%20aBsEnCe%20]" : {
+    "kind rendu" : "absence",
+    "lignes" : [ "<D+1> | Nom K1 Pre K1 | FRIDAY | A_QUALIFIER | scheduled=true present=false" ],
+    "status" : 200
+  },
+  "kind=[ABSENCE]" : {
+    "kind rendu" : "absence",
+    "lignes" : [ "<D+1> | Nom K1 Pre K1 | FRIDAY | A_QUALIFIER | scheduled=true present=false" ],
+    "status" : 200
+  },
+  "kind=[PRESENCE]" : {
+    "kind rendu" : "presence",
+    "lignes" : [ "<D+0> | Nom K1 Pre K1 | THURSDAY | VALIDEE | scheduled=true present=true", "<D+30> | Nom K1 Pre K1 | SATURDAY | VALIDEE | scheduled=true present=true" ],
+    "status" : 200
+  },
+  "kind=[]" : {
+    "refus" : "400 BAD_REQUEST | kind must be 'presence' or 'absence'",
+    "status" : 400
+  },
+  "kind=[absence]" : {
+    "kind rendu" : "absence",
+    "lignes" : [ "<D+1> | Nom K1 Pre K1 | FRIDAY | A_QUALIFIER | scheduled=true present=false" ],
+    "status" : 200
+  },
+  "kind=[presence]" : {
+    "kind rendu" : "presence",
+    "lignes" : [ "<D+0> | Nom K1 Pre K1 | THURSDAY | VALIDEE | scheduled=true present=true", "<D+30> | Nom K1 Pre K1 | SATURDAY | VALIDEE | scheduled=true present=true" ],
+    "status" : 200
+  },
+  "kind=[presences]" : {
+    "refus" : "400 BAD_REQUEST | kind must be 'presence' or 'absence'",
+    "status" : 400
+  }
+}

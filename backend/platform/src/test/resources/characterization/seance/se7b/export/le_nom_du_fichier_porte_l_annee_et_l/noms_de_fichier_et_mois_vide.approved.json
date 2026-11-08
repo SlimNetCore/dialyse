@@ -1,0 +1,18 @@
+{
+  "csv 1/2025" : "200 text/plain attachment; filename=seances-dashboard-2025-01.csv",
+  "csv 12/2025" : "200 text/plain attachment; filename=seances-dashboard-2025-12.csv",
+  "csv 9/2025" : "200 text/plain attachment; filename=seances-dashboard-2025-09.csv",
+  "csv du centre B sans donnee (decembre 2025)" : [ "year,month,expectedSeances,presenceCount,absenceCount,totalSeances", "2025,12,0,0,0,0", "", "sexe,count", "M,0", "F,0", "AUTRE,0", "", "ageRange,count", "0-17,0", "18-39,0", "40-59,0", "60+,0", "INCONNU,0", "" ],
+  "pdf 1/2025" : "200 application/pdf attachment; filename=seances-dashboard-2025-01.pdf",
+  "pdf 12/2025" : "200 application/pdf attachment; filename=seances-dashboard-2025-12.pdf",
+  "pdf 9/2025" : "200 application/pdf attachment; filename=seances-dashboard-2025-09.pdf",
+  "pdf du centre B sans donnee (decembre 2025)" : [ "Dashboard séances", "Période: 2025-12", "Séances prévues: 0", "Présences: 0", "Absences: 0", "Séances totales: 0", "Répartition sexe", "Sexe Count", "M 0", "F 0", "AUTRE 0", "Répartition âge", "Tranche Count", "0-17 0", "18-39 0", "40-59 0", "60+ 0", "INCONNU 0", "pages=1" ],
+  "xlsx 1/2025" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet attachment; filename=seances-dashboard-2025-01.xlsx",
+  "xlsx 12/2025" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet attachment; filename=seances-dashboard-2025-12.xlsx",
+  "xlsx 9/2025" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet attachment; filename=seances-dashboard-2025-09.xlsx",
+  "xlsx du centre B sans donnee (decembre 2025)" : {
+    "Repartition age" : [ "Tranche age | Count", "0-17 | 0", "18-39 | 0", "40-59 | 0", "60+ | 0", "INCONNU | 0" ],
+    "Repartition sexe" : [ "Sexe | Count", "M | 0", "F | 0", "AUTRE | 0" ],
+    "Synthese" : [ "Annee | 2025", "Mois | 12", "Seances prevues | 0", "Presences | 0", "Absences | 0", "Seances totales | 0" ]
+  }
+}
