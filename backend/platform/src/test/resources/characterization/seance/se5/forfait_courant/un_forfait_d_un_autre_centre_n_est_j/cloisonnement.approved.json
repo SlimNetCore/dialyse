@@ -1,0 +1,17 @@
+{
+  "01 PEC du centre A pointant un forfait du centre B : ignoree" : null,
+  "02 PEC valide" : {
+    "code" : "SE5-F_A",
+    "id" : "<F_A>",
+    "nom" : "Forfait F_A",
+    "nombreSeances" : 0,
+    "prix" : 100.0
+  },
+  "03 liste du centre A : une ligne, le forfait" : {
+    "code" : "SE5-F_A",
+    "id" : "<F_A>",
+    "nom" : "Forfait F_A",
+    "nombreSeances" : 0,
+    "prix" : 100.0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "01 auteur quelconque (aucun lien avec la session)" : "200 ok",
+  "02 colonnes" : [ {
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_id" : "<F1>",
+    "forfait_override_nom" : "Forfait F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "quelqu-un-d-autre",
+    "mise_a_jour" : "renseigne",
+    "statut" : "CREE"
+  } ],
+  "03 auteur entoure d'espaces : nettoye" : "200 ok",
+  "04 colonnes" : [ {
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_id" : "<F1>",
+    "forfait_override_nom" : "Forfait F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "compta-02",
+    "mise_a_jour" : "renseigne",
+    "statut" : "CREE"
+  } ],
+  "05 auteur absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "06 auteur vide" : "400 VALIDATION_ERROR | Invalid request content.",
+  "07 auteur d'espaces" : "400 VALIDATION_ERROR | Invalid request content.",
+  "08 colonnes inchangees par les refus" : [ {
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_id" : "<F1>",
+    "forfait_override_nom" : "Forfait F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "compta-02",
+    "mise_a_jour" : "renseigne",
+    "statut" : "CREE"
+  } ],
+  "09 auteur de 100 caracteres" : "200 ok",
+  "10 colonnes (longueur de l'auteur)" : 100,
+  "11 auteur de 101 caracteres" : "500 DATA_ACCESS_ERROR",
+  "12 colonnes apres le refus eventuel" : 100
+}

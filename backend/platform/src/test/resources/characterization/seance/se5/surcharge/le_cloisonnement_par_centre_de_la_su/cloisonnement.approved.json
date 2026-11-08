@@ -1,0 +1,58 @@
+{
+  "01 administrateur B surcharge la seance du centre A (corps centre B)" : "400 BAD_REQUEST | Seance introuvable",
+  "02 administrateur B surcharge la seance du centre A avec un forfait du centre B (corps centre A)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "03 administrateur A surcharge la seance du centre B (corps centre A)" : "400 BAD_REQUEST | Seance introuvable",
+  "04 colonnes des deux seances inchangees" : [ [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ], [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ] ],
+  "05 SUPERADMIN + ADMIN du centre A vise le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "06 colonnes des deux seances" : [ [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ], [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ] ],
+  "07 administrateur B surcharge sa propre seance" : "200 ok",
+  "08 colonnes des deux seances" : [ [ {
+    "forfait_override_code" : null,
+    "forfait_override_id" : null,
+    "forfait_override_nom" : null,
+    "forfait_override_prix" : null,
+    "forfait_override_updated_by" : null,
+    "mise_a_jour" : "null",
+    "statut" : "CREE"
+  } ], [ {
+    "forfait_override_code" : "SE5-F_B",
+    "forfait_override_id" : "<F_B>",
+    "forfait_override_nom" : "Forfait F_B",
+    "forfait_override_prix" : "300.00",
+    "forfait_override_updated_by" : "c",
+    "mise_a_jour" : "renseigne",
+    "statut" : "CREE"
+  } ] ]
+}

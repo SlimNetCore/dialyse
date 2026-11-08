@@ -1,0 +1,35 @@
+{
+  "journal" : [ {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/forfait",
+    "status_code" : "200"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<UUID_GENERE_1>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/forfait",
+    "status_code" : "400"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/forfait",
+    "status_code" : "403"
+  }, {
+    "action_code" : "SEANCES_MODIFICATION",
+    "entity_id" : "<SEANCE_FACTUREE>",
+    "entity_type" : "seances",
+    "http_method" : "PUT",
+    "nombre" : "1",
+    "route_template" : "/api/v1/seances/{seanceId}/forfait",
+    "status_code" : "422"
+  } ]
+}

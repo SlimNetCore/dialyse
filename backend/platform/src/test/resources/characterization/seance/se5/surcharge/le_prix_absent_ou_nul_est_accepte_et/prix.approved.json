@@ -1,0 +1,187 @@
+{
+  "PRIX_CENTIMES" : {
+    "colonnes" : [ {
+      "forfait_override_code" : "SE5-PRIX_CENTIMES",
+      "forfait_override_id" : "<PRIX_CENTIMES>",
+      "forfait_override_nom" : "Forfait PRIX_CENTIMES",
+      "forfait_override_prix" : "12.50",
+      "forfait_override_updated_by" : "compta-01",
+      "mise_a_jour" : "renseigne",
+      "statut" : "CREE"
+    } ],
+    "detail" : {
+      "code" : "SE5-PRIX_CENTIMES",
+      "id" : "<PRIX_CENTIMES>",
+      "nom" : "Forfait PRIX_CENTIMES",
+      "nombreSeances" : null,
+      "prix" : 12.5,
+      "updatedAt" : "<HORODATAGE>",
+      "updatedBy" : "compta-01"
+    },
+    "reponse" : {
+      "corps" : {
+        "dateSeance" : "<D+3>",
+        "forfait" : {
+          "code" : "SE5-PRIX_CENTIMES",
+          "id" : "<PRIX_CENTIMES>",
+          "nom" : "Forfait PRIX_CENTIMES",
+          "nombreSeances" : null,
+          "prix" : 12.5,
+          "updatedAt" : "<HORODATAGE>",
+          "updatedBy" : "compta-01"
+        },
+        "id" : "<SEANCE_PRIX_CENTIMES>",
+        "status" : "CREE"
+      },
+      "status" : 200
+    }
+  },
+  "PRIX_ENTIER" : {
+    "colonnes" : [ {
+      "forfait_override_code" : "SE5-PRIX_ENTIER",
+      "forfait_override_id" : "<PRIX_ENTIER>",
+      "forfait_override_nom" : "Forfait PRIX_ENTIER",
+      "forfait_override_prix" : "100.00",
+      "forfait_override_updated_by" : "compta-01",
+      "mise_a_jour" : "renseigne",
+      "statut" : "CREE"
+    } ],
+    "detail" : {
+      "code" : "SE5-PRIX_ENTIER",
+      "id" : "<PRIX_ENTIER>",
+      "nom" : "Forfait PRIX_ENTIER",
+      "nombreSeances" : null,
+      "prix" : 100.0,
+      "updatedAt" : "<HORODATAGE>",
+      "updatedBy" : "compta-01"
+    },
+    "reponse" : {
+      "corps" : {
+        "dateSeance" : "<D+4>",
+        "forfait" : {
+          "code" : "SE5-PRIX_ENTIER",
+          "id" : "<PRIX_ENTIER>",
+          "nom" : "Forfait PRIX_ENTIER",
+          "nombreSeances" : null,
+          "prix" : 100.0,
+          "updatedAt" : "<HORODATAGE>",
+          "updatedBy" : "compta-01"
+        },
+        "id" : "<SEANCE_PRIX_ENTIER>",
+        "status" : "CREE"
+      },
+      "status" : 200
+    }
+  },
+  "PRIX_MAX" : {
+    "colonnes" : [ {
+      "forfait_override_code" : "SE5-PRIX_MAX",
+      "forfait_override_id" : "<PRIX_MAX>",
+      "forfait_override_nom" : "Forfait PRIX_MAX",
+      "forfait_override_prix" : "99999999.99",
+      "forfait_override_updated_by" : "compta-01",
+      "mise_a_jour" : "renseigne",
+      "statut" : "CREE"
+    } ],
+    "detail" : {
+      "code" : "SE5-PRIX_MAX",
+      "id" : "<PRIX_MAX>",
+      "nom" : "Forfait PRIX_MAX",
+      "nombreSeances" : null,
+      "prix" : 9.999999999E7,
+      "updatedAt" : "<HORODATAGE>",
+      "updatedBy" : "compta-01"
+    },
+    "reponse" : {
+      "corps" : {
+        "dateSeance" : "<D+5>",
+        "forfait" : {
+          "code" : "SE5-PRIX_MAX",
+          "id" : "<PRIX_MAX>",
+          "nom" : "Forfait PRIX_MAX",
+          "nombreSeances" : null,
+          "prix" : 9.999999999E7,
+          "updatedAt" : "<HORODATAGE>",
+          "updatedBy" : "compta-01"
+        },
+        "id" : "<SEANCE_PRIX_MAX>",
+        "status" : "CREE"
+      },
+      "status" : 200
+    }
+  },
+  "PRIX_ZERO" : {
+    "colonnes" : [ {
+      "forfait_override_code" : "SE5-PRIX_ZERO",
+      "forfait_override_id" : "<PRIX_ZERO>",
+      "forfait_override_nom" : "Forfait PRIX_ZERO",
+      "forfait_override_prix" : "0.00",
+      "forfait_override_updated_by" : "compta-01",
+      "mise_a_jour" : "renseigne",
+      "statut" : "CREE"
+    } ],
+    "detail" : {
+      "code" : "SE5-PRIX_ZERO",
+      "id" : "<PRIX_ZERO>",
+      "nom" : "Forfait PRIX_ZERO",
+      "nombreSeances" : null,
+      "prix" : 0.0,
+      "updatedAt" : "<HORODATAGE>",
+      "updatedBy" : "compta-01"
+    },
+    "reponse" : {
+      "corps" : {
+        "dateSeance" : "<D+2>",
+        "forfait" : {
+          "code" : "SE5-PRIX_ZERO",
+          "id" : "<PRIX_ZERO>",
+          "nom" : "Forfait PRIX_ZERO",
+          "nombreSeances" : null,
+          "prix" : 0.0,
+          "updatedAt" : "<HORODATAGE>",
+          "updatedBy" : "compta-01"
+        },
+        "id" : "<SEANCE_PRIX_ZERO>",
+        "status" : "CREE"
+      },
+      "status" : 200
+    }
+  },
+  "SANS_PRIX" : {
+    "colonnes" : [ {
+      "forfait_override_code" : "SE5-SANS_PRIX",
+      "forfait_override_id" : "<SANS_PRIX>",
+      "forfait_override_nom" : "Forfait SANS_PRIX",
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : "compta-01",
+      "mise_a_jour" : "renseigne",
+      "statut" : "CREE"
+    } ],
+    "detail" : {
+      "code" : "SE5-SANS_PRIX",
+      "id" : "<SANS_PRIX>",
+      "nom" : "Forfait SANS_PRIX",
+      "nombreSeances" : null,
+      "prix" : null,
+      "updatedAt" : "<HORODATAGE>",
+      "updatedBy" : "compta-01"
+    },
+    "reponse" : {
+      "corps" : {
+        "dateSeance" : "<D+1>",
+        "forfait" : {
+          "code" : "SE5-SANS_PRIX",
+          "id" : "<SANS_PRIX>",
+          "nom" : "Forfait SANS_PRIX",
+          "nombreSeances" : null,
+          "prix" : null,
+          "updatedAt" : "<HORODATAGE>",
+          "updatedBy" : "compta-01"
+        },
+        "id" : "<SEANCE_SANS_PRIX>",
+        "status" : "CREE"
+      },
+      "status" : 200
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "01 surcharge F1 avant facturation" : "200 ok",
+  "02 surcharge F2 apres facturation" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee",
+  "03 colonnes inchangees" : true,
+  "04 colonnes" : [ {
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_id" : "<F1>",
+    "forfait_override_nom" : "Forfait F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "compta-01",
+    "mise_a_jour" : "renseigne",
+    "statut" : "FACTUREE"
+  } ]
+}

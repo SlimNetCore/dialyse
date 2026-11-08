@@ -1,0 +1,30 @@
+{
+  "01 aucune PEC ne couvre 2026 : la plus recente creee (RECENT)" : {
+    "code" : "SE5-RECENT",
+    "id" : "<RECENT>",
+    "nom" : "Forfait RECENT",
+    "nombreSeances" : 0,
+    "prix" : 90.0
+  },
+  "02 une PEC demandee couvre 2026 : COURANT, meme si elle est plus ancienne" : {
+    "code" : "SE5-COURANT",
+    "id" : "<COURANT>",
+    "nom" : "Forfait COURANT",
+    "nombreSeances" : 0,
+    "prix" : 110.0
+  },
+  "03 une seance avant la periode courante : repli sur la plus recente (RECENT)" : {
+    "code" : "SE5-RECENT",
+    "id" : "<RECENT>",
+    "nom" : "Forfait RECENT",
+    "nombreSeances" : 0,
+    "prix" : 90.0
+  },
+  "04 PEC ouverte (sans fin) dont l'effectif couvre : l'effectif (RECENT) devant la demande" : {
+    "code" : "SE5-RECENT",
+    "id" : "<RECENT>",
+    "nom" : "Forfait RECENT",
+    "nombreSeances" : 0,
+    "prix" : 90.0
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "01 seule la PEC demandee porte un forfait" : {
+    "code" : "SE5-DEMANDE",
+    "id" : "<DEMANDE>",
+    "nom" : "Forfait DEMANDE",
+    "nombreSeances" : 0,
+    "prix" : 100.0
+  },
+  "02 PEC avec forfait demande et forfait effectif : l'effectif" : {
+    "code" : "SE5-EFFECTIF",
+    "id" : "<EFFECTIF>",
+    "nom" : "Forfait EFFECTIF",
+    "nombreSeances" : 0,
+    "prix" : 120.0
+  },
+  "03 la surcharge prime sur l'effectif" : {
+    "code" : "SE5-SURCHARGE",
+    "id" : "<SURCHARGE>",
+    "nom" : "Forfait SURCHARGE",
+    "nombreSeances" : null,
+    "prix" : 150.0,
+    "updatedAt" : "<HORODATAGE>",
+    "updatedBy" : "compta-01"
+  },
+  "04 la surcharge de s2 ne touche pas s1" : {
+    "code" : "SE5-DEMANDE",
+    "id" : "<DEMANDE>",
+    "nom" : "Forfait DEMANDE",
+    "nombreSeances" : 0,
+    "prix" : 100.0
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "01 premiere surcharge F1 par compta-01" : "200 ok",
+  "02 colonnes" : [ {
+    "forfait_override_code" : "SE5-F1",
+    "forfait_override_id" : "<F1>",
+    "forfait_override_nom" : "Forfait F1",
+    "forfait_override_prix" : "100.00",
+    "forfait_override_updated_by" : "compta-01",
+    "mise_a_jour" : "renseigne",
+    "statut" : "VALIDEE"
+  } ],
+  "03 seconde surcharge F2 par compta-02" : "200 ok",
+  "04 colonnes (F2 et compta-02 remplacent tout)" : [ {
+    "forfait_override_code" : "SE5-F2",
+    "forfait_override_id" : "<F2>",
+    "forfait_override_nom" : "Forfait F2",
+    "forfait_override_prix" : "180.00",
+    "forfait_override_updated_by" : "compta-02",
+    "mise_a_jour" : "renseigne",
+    "statut" : "VALIDEE"
+  } ],
+  "05 l'instant a change" : true,
+  "06 troisieme surcharge : le meme forfait F2 par compta-03" : "200 ok",
+  "07 l'instant a encore change et l'auteur est le dernier" : [ true, [ {
+    "forfait_override_code" : "SE5-F2",
+    "forfait_override_id" : "<F2>",
+    "forfait_override_nom" : "Forfait F2",
+    "forfait_override_prix" : "180.00",
+    "forfait_override_updated_by" : "compta-03",
+    "mise_a_jour" : "renseigne",
+    "statut" : "VALIDEE"
+  } ] ],
+  "08 aucune table d'historique : une seule ligne de seance" : 1
+}

@@ -1,0 +1,17 @@
+{
+  "ADMIN" : "200 ; surcharge=<F1>",
+  "ADMIN sans centre" : "403 ACCESS_DENIED ; surcharge=null",
+  "DIRECTION" : "403 ROLE_SCOPE ; surcharge=null",
+  "INFIRMIER + SECRETAIRE" : "403 ACCESS_DENIED ; surcharge=null",
+  "INFIRMIER seul" : "403 ACCESS_DENIED ; surcharge=null",
+  "MEDECIN + ADMIN" : "200 ; surcharge=<F1>",
+  "MEDECIN + INFIRMIER" : "403 ACCESS_DENIED ; surcharge=null",
+  "MEDECIN seul" : "403 ACCESS_DENIED ; surcharge=null",
+  "SECRETAIRE" : "403 ACCESS_DENIED ; surcharge=null",
+  "SUPERADMIN" : "403 ROLE_SCOPE ; surcharge=null",
+  "SUPERADMIN + ADMIN" : "403 ROLE_SCOPE ; surcharge=null",
+  "anonyme" : "403 ; surcharge=null",
+  "aucun role" : "403 ACCESS_DENIED ; surcharge=null",
+  "role inconnu (COMPTABLE)" : "403 ACCESS_DENIED ; surcharge=null",
+  "role personnalise (CHEF_DE_SALLE)" : "403 ACCESS_DENIED ; surcharge=null"
+}

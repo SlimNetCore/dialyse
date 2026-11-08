@@ -1,0 +1,9 @@
+{
+  "01 repli : l'effectif (C, creee plus tot) devant la demandee plus recente (A)" : {
+    "code" : "SE5-C",
+    "id" : "<C>",
+    "nom" : "Forfait C",
+    "nombreSeances" : 0,
+    "prix" : 30.0
+  }
+}

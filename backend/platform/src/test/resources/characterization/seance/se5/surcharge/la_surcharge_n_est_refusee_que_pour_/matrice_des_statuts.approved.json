@@ -1,0 +1,8 @@
+{
+  "ABSENT" : "200 ok ; [{forfait_override_code=SE5-F1, forfait_override_id=<F1>, forfait_override_nom=Forfait F1, forfait_override_prix=100.00, forfait_override_updated_by=compta-01, mise_a_jour=renseigne, statut=ABSENT}]",
+  "CREE" : "200 ok ; [{forfait_override_code=SE5-F1, forfait_override_id=<F1>, forfait_override_nom=Forfait F1, forfait_override_prix=100.00, forfait_override_updated_by=compta-01, mise_a_jour=renseigne, statut=CREE}]",
+  "EN_COURS" : "400 BAD_REQUEST | No enum constant com.hemodialyse.backend.domain.seance.model.SeanceStatus.EN_COURS ; [{forfait_override_code=null, forfait_override_id=null, forfait_override_nom=null, forfait_override_prix=null, forfait_override_updated_by=null, mise_a_jour=null, statut=EN_COURS}]",
+  "FACTUREE" : "422 SEANCE_FACTUREE_NON_MODIFIABLE | La seance facturee ne peut plus etre modifiee ; [{forfait_override_code=null, forfait_override_id=null, forfait_override_nom=null, forfait_override_prix=null, forfait_override_updated_by=null, mise_a_jour=null, statut=FACTUREE}]",
+  "SIGNEE" : "200 ok ; [{forfait_override_code=SE5-F1, forfait_override_id=<F1>, forfait_override_nom=Forfait F1, forfait_override_prix=100.00, forfait_override_updated_by=compta-01, mise_a_jour=renseigne, statut=SIGNEE}]",
+  "VALIDEE" : "200 ok ; [{forfait_override_code=SE5-F1, forfait_override_id=<F1>, forfait_override_nom=Forfait F1, forfait_override_prix=100.00, forfait_override_updated_by=compta-01, mise_a_jour=renseigne, statut=VALIDEE}]"
+}

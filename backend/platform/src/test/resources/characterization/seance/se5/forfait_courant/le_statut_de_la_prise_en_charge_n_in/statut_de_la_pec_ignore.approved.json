@@ -1,0 +1,44 @@
+{
+  "ANNULEE" : {
+    "code" : "SE5-F",
+    "id" : "<F>",
+    "nom" : "Forfait F",
+    "nombreSeances" : 0,
+    "prix" : 75.0
+  },
+  "BROUILLON" : {
+    "code" : "SE5-F",
+    "id" : "<F>",
+    "nom" : "Forfait F",
+    "nombreSeances" : 0,
+    "prix" : 75.0
+  },
+  "EN_ATTENTE" : {
+    "code" : "SE5-F",
+    "id" : "<F>",
+    "nom" : "Forfait F",
+    "nombreSeances" : 0,
+    "prix" : 75.0
+  },
+  "INCONNU" : {
+    "code" : "SE5-F",
+    "id" : "<F>",
+    "nom" : "Forfait F",
+    "nombreSeances" : 0,
+    "prix" : 75.0
+  },
+  "REFUSEE" : {
+    "code" : "SE5-F",
+    "id" : "<F>",
+    "nom" : "Forfait F",
+    "nombreSeances" : 0,
+    "prix" : 75.0
+  },
+  "VALIDEE" : {
+    "code" : "SE5-F",
+    "id" : "<F>",
+    "nom" : "Forfait F",
+    "nombreSeances" : 0,
+    "prix" : 75.0
+  }
+}
