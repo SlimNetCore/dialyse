@@ -1,0 +1,69 @@
+---
+status: accepted
+date: 2026-11-08
+review-by: 2026-12-15
+decision-makers: [utilisateur (décisions déléguées à l'assistant via le coordinateur, 2026-11-08), architecte]
+context-scope: seance, facturation
+related: ADR 0024 (refactoring sur place), 0031, 0043, 0045, 0046, 0092, 0093, 0096 ; `.ddd/migration/slices/seance-se7c-lectures-facturation-stock.md`, `.ddd/safety-net/seance-se7c2-ecritures-facturation.md`, KB-SEA-47, KB-SEA-71 à 75, KB-FAC-17, KB-FAC-54
+---
+
+# 0097 - Séance, SE7c2 : écritures et lectures publiées de la Facturation sur la table des séances (ARGENT)
+
+Décisions prises par délégation, EN VIGUEUR, **à confirmer métiers / DPO / DBA au plus tard le 2026-12-15**. Aucun montant, prix, taux de TVA ni arrondi n'est recalculé ni modifié : les valeurs financières (`forfait_override_prix`, prix des forfaits, totaux des factures) sont lues et écrites À L'IDENTIQUE, avec les mêmes types SQL.
+
+## RISQUES D'ARGENT À FAIRE CONFIRMER (en tête, avant toute mise en production)
+| KB | Risque | Décision de cet ADR | Condition de mise en production |
+|---|---|---|---|
+| KB-SEA-47 | **`poserLeForfait` n'écrit PAS `forfait_override_code`** : après un forfait imposé par la Facturation, id, nom et prix de la surcharge changent mais le code garde l'ancienne valeur (ou reste nul). Seul le cahier de dialyse (état Jasper) et SE5 lisent le code : un document peut afficher un code périmé à côté d'un prix à jour | REPRODUIRE (le port écrit exactement les cinq mêmes colonnes) | Décision métier : écrire le code, ou ne plus le lire. Requête de détection en annexe (SELECT seule, section 62) à zéro ligne ou décision écrite |
+| KB-SEA-71 | **`lierALAbsence` n'avait pas la garde `facture_id IS NULL`** : une absence pouvait être rattachée à une séance déjà facturée (alors que `reinclure` de la même séance est refusé) | **CORRIGER** (seul écart décidé de la sous-slice, intégrité de facturation) : le port ajoute `facture_id IS NULL`. Écart à approuver UN PAR UN, golden `lier_a_l_absence_une_seance_absente_deja_facturee` archivé en R100 byte-for-byte (`git mv`) puis réécrit | Confirmation métier : aucun flux légitime ne lie une absence à une séance facturée. Détection des cas existants (annexe) |
+| KB-SEA-72 | Mémoire d'exclusion blanche (`''`, espaces) : lue comme absente par `trouver`, tenue pour présente par `lierALAbsence` et `reinclure` (`IS NOT NULL`) | REPRODUIRE exactement (le port garde `IS NOT NULL`, `trouver` convertit le blanc en absence) ; la garde du domaine reste devant le port | Décision DBA : contrainte de colonne ou nettoyage |
+| KB-SEA-73 / KB-FAC-17 | Statut comparé en casse exacte par toutes les écritures et lectures de la Facturation ; `exclure` appelé avec le statut lu (`validee`) réussit en SQL | REPRODUIRE (casse exacte, aucune normalisation) | Décision : normaliser le statut (contrainte) ou aligner les lecteurs |
+| KB-SEA-74 | **L'unicité « une séance, une facture » ne repose que sur le `WHERE facture_id IS NULL AND statut IN ('VALIDEE','SIGNEE')` de `lier` et sur la transaction d'émission** ; aucune clé étrangère ni contrainte d'unicité sur `seances.facture_id` | REPRODUIRE ; AUCUNE FK ajoutée (migration = décision DBA / métier, résidu daté) ; requêtes de détection en annexe | Détection à zéro ligne ; décision DBA sur la clé étrangère |
+| KB-SEA-75 / KB-FAC-54 | Deux définitions de « séance facturée » : le tableau de bord compte `statut = 'FACTUREE'` et la date de séance dans le mois ; la synthèse et les répartitions comptent les séances dont `facture_id` est celui d'une facture du mois | REPRODUIRE les deux définitions, chacune sur son propre port publié | Décision de la direction : une seule définition |
+
+## Contexte
+La Facturation écrit et lit la table `seances` (propriété de la Séance) par cinq classes SQL : `SeancesDeFacturationJdbc` (lecture + 4 UPDATE : `exclure`, `lierALAbsence`, `reinclure`, `poserLeForfait`), `LiaisonDesSeancesJdbc.lier` (le SEUL UPDATE qui crée de l'argent : statut `FACTUREE` et `facture_id`), `SeancesFacturablesJdbc` (séances à facturer, jointure `patients` et `centre_payeur`), `LectureDeLaSyntheseJdbc` et `LectureDuTableauDeBordJdbc` (comptages de séances). Aucune ne passe par `seance.v1`. Filet existant AVANT toute migration (vert sur le legacy) : goldens `characterization/facturation/**` (F2 à F7b), `EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTest` (5 goldens `se7c2-ecritures`), `LiaisonConcurrentePostgresContractIT` (PG16 jetable), `SeancesContrat` (double, H2, PG16), `PilotageContrat`.
+
+## Décisions
+1. **Quatre ports publiés** dans `contexts/seance/publishedlanguage` (`seance.v1`), langage de la Séance (statuts en `String`, aucun type de la Facturation) :
+   - `SeancesAFacturerPubliees` : les séances `VALIDEE` ou `SIGNEE`, non facturées, du centre dans la période (bornes incluses), avec le patient (jointure interne à la Séance), le payeur et la surcharge de forfait ; ordre inchangé (nom, prénom, date, identifiant). Les PRISES EN CHARGE ne sont pas lues ici : la politique de forfait reste à la Facturation, qui continue d'appeler `CouvertureDesPatients` ;
+   - `ExclusionsEtForfaitsDesSeancesPublies` : `trouver`, `exclure`, `lierALAbsence`, `reinclure`, `poserLeForfait` (écritures LIMITÉES aux colonnes concernées, gardées par l'état attendu, `IllegalStateException` aux mêmes messages si aucune ligne n'est modifiée : le 422 existant) ;
+   - `LiaisonDesSeancesAUneFacturePubliee` : `lier(centre, facture, séances)`, un UPDATE par séance, même garde, même message, même exception ;
+   - `SeancesDesFacturesPubliees` : `nombreParFacture(centre, factures)` (séances dont `facture_id` est une des factures, même centre) et `nombreDeSeancesFactureesEntre(centre, début, fin)` (`statut = 'FACTUREE'`, casse exacte, date de séance dans la période).
+2. **Une seule transaction pour l'émission** : les adapters de la Séance n'ouvrent AUCUNE transaction (ni `REQUIRES_NEW`, ni `TransactionTemplate`) et utilisent le même `JdbcTemplate` / `DataSource` que la Facturation. L'insertion des factures, l'incrément de la séquence, la liaison des séances et la publication restent dans la transaction d'émission existante de `UniteDeTravailSpring` : **elle n'est pas scindée, aucune compensation n'est introduite**. Un échec de `lier` (0 ligne) annule l'émission ENTIÈRE, comme aujourd'hui (KB-SEA-74, rejoué sur PG16). Alternative écartée : liaison dans une transaction propre à la Séance + compensation (risque de facture sans séances liées, ou de séances `FACTUREE` sans facture, sans gain).
+3. **Adapters JDBC dans `contexts/seance/infrastructure/persistence`** (même table, mêmes colonnes, même sémantique, aucun montant recalculé). La jointure `patients` / `centre_payeur` de `SeancesAFacturerPubliees` est reproduite telle quelle dans l'adapter de la Séance (jointure inter-contextes inscrite dans la garde `TableDuPatientCouvertureTest` à la place de `SeancesFacturablesJdbc`, même butoir) : le patient n'a pas de langage publié portant code, état, numéro d'assurance et payeur.
+4. **Traducteurs dans la plateforme** (`platform/infrastructure/acl/facturation/`), pas dans le module Facturation : Séance dépend de Absences-patients qui dépend de Facturation ; Facturation ne peut donc pas dépendre de Séance (cycle Maven, vérifié dans les `pom.xml`). Comme pour le Stock (ADR 0096), les traducteurs implémentent les ports du domaine de la Facturation en appelant les ports publiés de la Séance, et sont câblés par la plateforme. Les deux lectures de pilotage (synthèse, tableau de bord) restent dans la Facturation pour tout ce qui touche `factures`, `agence` et `caisse_assurance` ; seul le comptage des séances passe par `SeancesDesFacturesPubliees` (somme des comptes par facture : une séance n'a qu'une seule `facture_id`, donc `COUNT(DISTINCT s.id)` d'un groupe de factures est la somme des comptes par facture ; l'ordre des répartitions est conservé par un tri stable sur l'ordre SQL).
+5. **Gardes reproduites sans exception** : statuts et casse (KB-SEA-73), mémoire d'exclusion blanche (KB-SEA-72), définition double de « facturée » (KB-SEA-75), `forfait_override_code` non écrit (KB-SEA-47), ordre des refus (le domaine d'abord, puis la garde SQL). Seule correction : KB-SEA-71 (`facture_id IS NULL` sur `lierALAbsence`).
+6. **Jour du centre** : aucune date « aujourd'hui » n'est lue par ces ports ; les bornes sont fournies par l'appelant. Si un jour est lu à l'avenir : `HorlogeDuCentre`.
+7. **Verrous** : `TableDesSeancesTest` perd les 5 entrées Facturation (22 vers 17 lecteurs, compte asserté) ; règle ArchUnit « la Facturation ne dépend d'aucune classe de `contexts.seance` » ; `FrontieresDesContextesTest` sans exception ; seul `LiaisonDesSeancesAUneFacturePubliee` écrit `facture_id` hors SE6 (liste blanche des écrivains).
+8. **Tests** : un contrat par port, joué par un double en mémoire, l'adapter JDBC sur H2 et sur PostgreSQL 16 jetable (ports 55xxx, mot de passe en variable d'environnement, jamais 5432) ; traducteurs de la plateforme testés table-driven ; parité par TOUS les goldens Facturation et SE7c2 inchangés, sauf l'écart KB-SEA-71 ; course de deux émissions rejouée sur PG16.
+9. **Aucun événement d'intégration**, aucune table, aucune colonne, aucune migration, aucune FK.
+
+## Parité attendue
+Tous les goldens `characterization/facturation/**` et `se7c2-ecritures` inchangés et verts, à l'exception de `lier_a_l_absence_une_seance_absente_deja_facturee` (écart décidé KB-SEA-71, à approuver et archiver en R100 byte-for-byte avant réécriture).
+
+## Annexe : requêtes de détection (SELECT seule, reprises en section 62 de `verifications-production.md`)
+```sql
+-- KB-SEA-47 : surcharge dont le code ne correspond plus au forfait imposé.
+SELECT s.center_id, s.id, s.forfait_override_id, s.forfait_override_code FROM seances s LEFT JOIN forfait f ON f.id = s.forfait_override_id WHERE s.forfait_override_id IS NOT NULL AND s.forfait_override_code IS DISTINCT FROM f.code LIMIT 100;
+-- KB-SEA-71 / 74 : facture_id sans facture, ou facture d'un autre centre.
+SELECT s.center_id, s.id, s.statut, s.facture_id FROM seances s LEFT JOIN factures f ON f.id = s.facture_id WHERE s.facture_id IS NOT NULL AND (f.id IS NULL OR f.center_id <> s.center_id) LIMIT 100;
+-- KB-SEA-71 : séances ABSENT portant une facture (absence liée à une séance facturée).
+SELECT s.center_id, s.id, s.facture_id, s.exclusion_absence_id FROM seances s WHERE s.statut = 'ABSENT' AND s.facture_id IS NOT NULL LIMIT 100;
+-- KB-SEA-74 : factures du même patient dont les périodes se chevauchent (risque de double facturation d'une même séance).
+SELECT a.center_id, a.patient_id, a.id AS facture_a, b.id AS facture_b FROM factures a INNER JOIN factures b ON b.center_id = a.center_id AND b.patient_id = a.patient_id AND b.id > a.id AND b.period_start <= a.period_end AND a.period_start <= b.period_end LIMIT 100;
+```
+
+## Résidus nominatifs (revue ≤ 2026-12-15 ET butoir propre pour chacun)
+| # | Résidu | Revue | Butoir |
+|---|---|---|---|
+| C2-R1 | Aucune clé étrangère ni contrainte sur `seances.facture_id` (KB-SEA-74) : décision DBA / métier | 2026-12-15 | 2027-03-31 |
+| C2-R2 | KB-SEA-47 : écrire `forfait_override_code` ou ne plus le lire | 2026-12-15 | 2027-01-31 (et avant toute mise en production) |
+| C2-R3 | KB-SEA-72, 73 (casse, mémoire blanche) : contrainte ou normalisation du statut | 2026-12-15 | 2027-03-31 |
+| C2-R4 | KB-SEA-75 / KB-FAC-54 : une seule définition de « séance facturée » | 2026-12-15 | 2027-01-31 |
+| C2-R5 | Traducteurs de la Facturation logés dans la plateforme (cycle Maven Séance - Absences - Facturation) | 2026-12-15 | 2027-06-30 |
+| C2-R6 | `SeancesAFacturerPubliees` lit `patients` et `centre_payeur` (jointure) : à remplacer par un langage publié de Patient et couverture | 2026-12-15 | 2027-03-31 |
+| C2-R7 | Course entre deux exclusions, ou entre une exclusion et une émission, et interblocage de deux émissions : non rejoués | 2026-12-15 | 2027-03-31 |
+
+## Lots
+LOT A (2026-11-08) : cet ADR, ports publiés. LOT c2a : adapter JDBC et contrats des lectures et des trois UPDATE gardés par `facture_id IS NULL`. LOT c2b : `lier` (course PG16) et `lierALAbsence` corrigé (KB-SEA-71). LOT B : traducteurs de la plateforme, câblage, suppression des 5 classes SQL de la Facturation, seam, verrous. LOT C : RG, annexe 16, glossaire, section 62, fiche, bilan, état `built`.

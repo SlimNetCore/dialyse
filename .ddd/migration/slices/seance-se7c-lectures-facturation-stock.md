@@ -32,6 +32,9 @@ Décisions KB-SEA-68, 69, 70 (métiers) ; remplacer la lecture de `salle` et `po
 ## c2 : Facturation (planned, audit de couverture rendue)
 Audit par fichier et par requête : `.ddd/safety-net/seance-se7c2-ecritures-facturation.md`. Découpage recommandé : c2a (lectures + 4 UPDATE dont 3 gardés par `facture_id IS NULL` ; `lierALAbsence` ne l'est pas), c2b (`LiaisonDesSeancesJdbc.lier`, le seul UPDATE qui crée de l'argent, test de course PG16). Tests de caractérisation à ajouter AVANT tout code : `lierALAbsence` sur une séance facturée, KB-SEA-47 côté Facturation, KB-FAC-17 (statut en minuscules), course d'émission, `statut_avant_exclusion` blanc, tableau de bord contre synthèse. Aucun code c2 écrit.
 
+### c2 : lot A livré (2026-11-08)
+ADR 0097 (accepted, à confirmer, review-by 2026-12-15) + 4 ports publiés dans `contexts/seance/publishedlanguage` (`SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee`, `SeancesDesFacturesPubliees`). Aucun adapter, aucun trafic changé. Cycle Maven vérifié (Séance -> Absences-patients -> Facturation) : traducteurs dans `platform/infrastructure/acl/facturation/`. Reste : c2a (adapter + contrats lectures et 3 UPDATE), c2b (`lier`, `lierALAbsence` corrigé KB-SEA-71), B (bascule), C (documents, état).
+
 ## Bilan nominatif des résidus (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
