@@ -19,8 +19,10 @@ final class ReferentialAdminTables {
         TABLES.put(ReferentialKind.FORFAIT, new Table("forfait",
                 List.of(text("code", "code"), text("libelle", "libelle"), new Column("prix", "prix", ColumnType.DECIMAL)),
                 List.of(), List.of("t.code", "t.libelle"), "t.code",
+                // L'usage comme forfait imposé à une séance est compté par le langage publié de la Séance (SE7e, ADR 0099), à la
+                // même place dans la liste qu'avant (ordre des comptages inchangé).
                 List.of(new Usage("prise_en_charge", "forfait_demande_id"), new Usage("prise_en_charge", "forfait_effectif_id"),
-                        new Usage("seances", "forfait_override_id"), new Usage("facture_lignes", "forfait_id")),
+                        Usage.publie(UsagePublie.FORFAIT_IMPOSE_A_UNE_SEANCE), new Usage("facture_lignes", "forfait_id")),
                 List.of("ref.forfaits")));
 
         TABLES.put(ReferentialKind.CRENEAU, new Table("position_creneau",
@@ -78,6 +80,13 @@ final class ReferentialAdminTables {
         return TABLES.get(kind);
     }
 
+    /**
+     * Usage d'un référentiel lu par le langage publié d'un contexte, et non par un {@code COUNT} construit sur sa table : le forfait
+     * imposé à une séance ({@code ForfaitsImposesAuxSeancesPublies}, SE7e, ADR 0099 ; même comptage qu'avant, sans centre ni statut,
+     * KB-SEA-91).
+     */
+    enum UsagePublie {FORFAIT_IMPOSE_A_UNE_SEANCE}
+
     private static Column text(String field, String column) {
         return new Column(field, column, ColumnType.TEXT);
     }
@@ -97,9 +106,18 @@ final class ReferentialAdminTables {
     }
 
     /**
-     * Colonne qui pointe sur une ligne de ce référentiel (suppression refusée tant qu'elle est utilisée).
+     * Colonne qui pointe sur une ligne de ce référentiel (suppression refusée tant qu'elle est utilisée) ; ou, si {@code publie} est posé,
+     * usage compté par un langage publié ({@code table} et {@code column} nuls).
      */
-    record Usage(String table, String column) {
+    record Usage(String table, String column, UsagePublie publie) {
+
+        Usage(String table, String column) {
+            this(table, column, null);
+        }
+
+        static Usage publie(UsagePublie usage) {
+            return new Usage(null, null, usage);
+        }
     }
 
     record Table(String name, List<Column> columns, List<Reference> references, List<String> searchColumns,

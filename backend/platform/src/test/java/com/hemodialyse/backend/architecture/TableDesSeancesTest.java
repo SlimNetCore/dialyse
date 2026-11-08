@@ -40,9 +40,18 @@ class TableDesSeancesTest {
 
     private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
     private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
+    /** Résidu E-R3 (ADR 0099) : requête embarquée du modèle de document PERSONNALISABLE du cahier de dialyse. */
+    private static final LocalDate CAHIER_PERSONNALISABLE = LocalDate.of(2027, 6, 30);
 
-    /** Lecteurs SQL connus hors du contexte Séance (chemin depuis {@code backend/}) : 2026-11-08, SE7c1. */
+    /** Lecteurs SQL connus hors du contexte Séance (chemin depuis {@code backend/}) : 2026-11-08, SE7c1 ; réduite par SE7e (ADR 0099). */
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>();
+
+    /**
+     * FAUX POSITIFS de la détection des noms calculés ({@link NomsDeTableCalcules}) : un littéral {@code "seances"} qui n'atteint AUCUNE
+     * requête, dans un fichier nommé par un constructeur de SQL. Nommés, avec la raison vérifiée dans le code (2026-11-08, SE7e) ; une
+     * entrée qui n'est plus détectée est une entrée morte.
+     */
+    private static final Map<String, String> MENTIONS_NON_SQL = new TreeMap<>();
 
     private static void lecteur(String chemin, String nature, LocalDate butoir) {
         LECTEURS_CONNUS.put(chemin, new Lecteur(nature, butoir));
@@ -52,25 +61,28 @@ class TableDesSeancesTest {
         // Facturation : plus aucune entrée depuis SE7c2 (ADR 0097, 2026-11-08) ; les 5 classes SQL ont disparu ou ne touchent plus seances.
         // Absences de patients, Planification, Dossier médical : plus aucune entrée depuis SE7d (ADR 0098, 2026-11-08) ; les 5 lecteurs passent
         // par seance.v1 (SeancesRealiseesPubliees, LiensDExclusionPublies, SeancesRealiseesAvecLeurPlacePubliees, ConstantesDesSeancesPubliees).
-        // Plateforme (legacy) : fournisseurs du langage publié de la Séance, pilotage de la Direction, rapports, migration.
+        // Plateforme : plus aucun lecteur du pilotage, des statistiques, du cahier (service), de la reprise ni du référentiel depuis SE7e
+        // (ADR 0099, 2026-11-08) : ils passent par SeancesRealiseesDesCentresPubliees, StatistiquesDesSeancesPubliees, SeancesDuCahierPubliees,
+        // SeancesDeLaReprisePubliees, ForfaitsImposesAuxSeancesPublies. Restent les fournisseurs de seance.v1 (SE7f), l'état Jasper (justifié)
+        // et les scripts de données (SE7f).
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
-        lecteur(plateforme + "infrastructure/acl/seance/HistoriqueFourniLegacy.java", "historique des séances fourni à la Séance (lecture)", LECTURES_PUBLIEES);
-        lecteur(plateforme + "infrastructure/acl/seance/ForfaitsFournisLegacy.java", "forfaits fournis à la Séance (lecture)", LECTURES_PUBLIEES);
-        lecteur(plateforme + "application/direction/DirectionDashboardQueryService.java", "tableau de bord de la Direction (lecture)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "application/direction/DirectionBreakdownQueryService.java", "répartition de la Direction (lecture)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "application/direction/DirectionAbsencesQueryService.java", "absences de la Direction (lecture)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "application/query/PatientStatsQueryService.java", "statistiques du patient (lecture)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "infrastructure/reporting/CahierDialyseReportService.java", "cahier de dialyse imprimé (lecture)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
-                "annulation d'un lot de migration (SUPPRESSION de séances importées)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(plateforme + "infrastructure/acl/seance/HistoriqueFourniLegacy.java", "historique des séances fourni à la Séance (lecture ; SE7f)", LECTURES_PUBLIEES);
+        lecteur(plateforme + "infrastructure/acl/seance/ForfaitsFournisLegacy.java", "forfaits fournis à la Séance (lecture ; SE7f)", LECTURES_PUBLIEES);
         // Ressources SQL de production hors Flyway, révélées par le durcissement de la garde (revue SE7c1, 2026-11-08).
         String ressources = "platform/src/main/resources/";
-        lecteur(ressources + "reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47 lit le code du forfait)",
+        lecteur(ressources + "reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
+                        + "de document PERSONNALISABLE par centre, dont la requête unique est embarquée (ADR 0099, décision 3, résidu E-R3)",
+                CAHIER_PERSONNALISABLE);
+        lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des séances ; rejoué à chaque démarrage sans SEED_DATA_LOCATIONS ; SE7f)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/seed.sql", "jeu d'amorçage de développement (écrit des séances)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des séances)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des séances ; jamais sur une base partagée)",
+        lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des séances ; SE7f)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des séances ; jamais sur une base partagée ; SE7f)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
+
+        MENTIONS_NON_SQL.put(plateforme + "infrastructure/migration/model/MigrationEntity.java",
+                "code du type de donnée importée (SEANCES(\"seances\", …) : segment d'URL /import/seances et colonne « seances » de "
+                        + "joursDialyse) ; nommé par HistoricalRecordJdbcAdapter qui construit ses requêtes depuis TABLES, où les séances ne "
+                        + "figurent plus (SE7e) : la chaîne n'atteint aucune requête");
     }
 
     private static final Set<String> TABLES_DE_LA_SEANCE = Set.of("seances");
@@ -120,6 +132,10 @@ class TableDesSeancesTest {
         return trouves;
     }
 
+    /**
+     * Lecture littérale dans un fichier : {@code FROM seances}, {@code FROM a, seances}, OU littéral {@code "seances"} dans un fichier qui
+     * construit lui-même une requête (nom de table calculé dans le même fichier, KB-SEA-92).
+     */
     private static boolean mentionneLaTableDeLaSeance(Path source) {
         try {
             String texte = Files.readString(source);
@@ -127,33 +143,120 @@ class TableDesSeancesTest {
             while (m.find()) {
                 if (TABLES_DE_LA_SEANCE.contains(m.group(2).toLowerCase())) return true;
             }
-            return LISTE_DE_TABLES.matcher(texte).find();
+            if (LISTE_DE_TABLES.matcher(texte).find()) return true;
+            return NomsDeTableCalcules.contientLeLitteral(texte, TABLES_DE_LA_SEANCE) && NomsDeTableCalcules.construitUneRequete(texte);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    /**
+     * Tous les lecteurs de {@code seances} des {@code sources} (chemins relatifs) : lecture littérale, ou nom de table calculé ou INDIRECT
+     * (littéral {@code "seances"} rattaché à une requête construite d'un autre fichier : KB-SEA-92, durcissement SE7e).
+     */
+    private static Set<String> lecteurs(List<Path> sources) {
+        Set<String> lecteurs = new TreeSet<>();
+        for (Path source : sources) {
+            if (mentionneLaTableDeLaSeance(source)) lecteurs.add(relatif(source));
+        }
+        NomsDeTableCalcules.lecteursIndirects(sources, TABLES_DE_LA_SEANCE).forEach(p -> lecteurs.add(relatif(p)));
+        return lecteurs;
+    }
+
     @Test
     void aucun_nouveau_lecteur_sql_de_la_table_des_seances_hors_de_la_liste_blanche() throws IOException {
-        Set<String> nouveaux = new TreeSet<>();
-        for (Path source : sourcesDeProduction(backend())) {
-            if (mentionneLaTableDeLaSeance(source) && !LECTEURS_CONNUS.containsKey(relatif(source))) nouveaux.add(relatif(source));
-        }
+        Set<String> nouveaux = new TreeSet<>(lecteurs(sourcesDeProduction(backend())));
+        nouveaux.removeAll(LECTEURS_CONNUS.keySet());
+        nouveaux.removeAll(MENTIONS_NON_SQL.keySet());
         assertThat(nouveaux)
-                .as("nouveaux lecteurs SQL de seances : passer par seance.v1 (publishedlanguage) ou les inscrire (nommés, datés, butoir)")
+                .as("nouveaux lecteurs SQL de seances (littéraux, noms de table calculés ou indirects) : passer par seance.v1 "
+                        + "(publishedlanguage) ou les inscrire (nommés, datés, butoir)")
                 .isEmpty();
     }
 
     @Test
     void aucune_entree_morte_dans_la_liste_blanche() throws IOException {
+        Set<String> lecteurs = lecteurs(sourcesDeProduction(backend()));
         Set<String> morts = new TreeSet<>();
         for (String chemin : LECTEURS_CONNUS.keySet()) {
-            Path source = backend().resolve(chemin);
-            if (!Files.isRegularFile(source) || !mentionneLaTableDeLaSeance(source)) morts.add(chemin);
+            if (!Files.isRegularFile(backend().resolve(chemin)) || !lecteurs.contains(chemin)) morts.add(chemin);
+        }
+        for (String chemin : MENTIONS_NON_SQL.keySet()) {
+            if (!Files.isRegularFile(backend().resolve(chemin)) || !lecteurs.contains(chemin)) morts.add(chemin);
         }
         assertThat(morts)
-                .as("entrées qui ne lisent plus seances : les retirer (avancement de SE7c)")
+                .as("entrées qui ne lisent plus seances (ou faux positifs qui ne sont plus détectés) : les retirer")
                 .isEmpty();
+    }
+
+    @Test
+    void les_lecteurs_se7e_de_la_plateforme_ne_lisent_ni_n_ecrivent_plus_la_table_des_seances() throws IOException {
+        String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
+        List<String> se7e = List.of(plateforme + "application/direction/DirectionDashboardQueryService.java",
+                plateforme + "application/direction/DirectionBreakdownQueryService.java",
+                plateforme + "application/direction/DirectionAbsencesQueryService.java",
+                plateforme + "application/query/PatientStatsQueryService.java",
+                plateforme + "infrastructure/reporting/CahierDialyseReportService.java",
+                plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
+                plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
+                plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
+                plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminTables.java");
+        assertThat(se7e).as("les 9 fichiers de SE7e existent").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
+        Set<String> lecteurs = lecteurs(sourcesDeProduction(backend()));
+        assertThat(se7e.stream().filter(lecteurs::contains).toList())
+                .as("ces fichiers passent par les ports publiés de la Séance (ADR 0099, SE7e), sans SQL ni nom de table calculé sur seances")
+                .isEmpty();
+    }
+
+    @Test
+    void la_garde_detecte_un_nom_de_table_calcule_ou_indirect() throws IOException {
+        Path bac = Files.createTempDirectory("garde-seance-se7e");
+        Path descripteurs = bac.resolve("Descripteurs.java");
+        Files.writeString(descripteurs, """
+                class Descripteurs {
+                    static final Usage U = new Usage("seances", "forfait_override_id");
+                }
+                """);
+        Path compteur = bac.resolve("Compteur.java");
+        Files.writeString(compteur, """
+                class Compteur {
+                    long n(Usage u) { return jdbc.queryForObject("SELECT COUNT(*) FROM " + Descripteurs.U.table(), Long.class); }
+                }
+                """);
+        Path liste = bac.resolve("ListeDeTables.java");
+        Files.writeString(liste, """
+                class ListeDeTables {
+                    static final java.util.List<String> T = java.util.List.of("prise_en_charge", "public.SEANCES");
+                    void supprimer(String t) { jdbc.update("DELETE FROM " + t + " WHERE id = ?", 1); }
+                }
+                """);
+        Path constructeur = bac.resolve("Constructeur.java");
+        Files.writeString(constructeur, """
+                class Constructeur {
+                    static final String TABLE = "seances";
+                    String sql() { return new StringBuilder("SELECT id FROM ").append(TABLE).toString(); }
+                }
+                """);
+        Path url = bac.resolve("CodeDUrl.java");
+        Files.writeString(url, """
+                class CodeDUrl {
+                    static final String CODE = "seances";
+                }
+                """);
+        Path jsonSansSql = bac.resolve("CleJson.java");
+        Files.writeString(jsonSansSql, """
+                class CleJson {
+                    String n(Node t) { return t.path("seances").asText() + " FROM table"; }
+                }
+                """);
+        List<Path> sources = List.of(descripteurs, compteur, liste, constructeur, url, jsonSansSql);
+
+        assertThat(NomsDeTableCalcules.lecteursIndirects(sources, TABLES_DE_LA_SEANCE))
+                .as("descripteur nommé par un constructeur de SQL, liste et constructeur dans le même fichier ; ni un code d'URL non nommé, "
+                        + "ni une clé JSON sans requête construite")
+                .containsExactlyInAnyOrder(descripteurs, liste, constructeur);
+        assertThat(mentionneLaTableDeLaSeance(liste)).as("littéral et requête construite dans le même fichier").isTrue();
+        assertThat(mentionneLaTableDeLaSeance(descripteurs)).as("seul : la détection inter-fichiers est nécessaire").isFalse();
     }
 
     @Test
@@ -166,18 +269,24 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_12_lecteurs_tous_de_la_plateforme() {
+    void la_liste_blanche_compte_6_lecteurs_ceux_de_se7f_et_l_etat_jasper_justifie() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs de seances compte 12 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis SE7d, "
-                        + "12 plateforme dont 8 sources Java et 4 ressources SQL) : toute entrée ajoutée ou retirée doit être décidée, datée et "
-                        + "reportée dans la fiche de la slice et l'annexe 16")
-                .hasSize(12);
+                .as("la liste blanche des lecteurs de seances compte 6 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis SE7d, "
+                        + "0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel depuis SE7e ; restent 2 "
+                        + "fournisseurs de seance.v1 et 3 scripts de données, tous de SE7f, et l'état Jasper du cahier, justifié) : toute entrée "
+                        + "ajoutée ou retirée doit être décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
+                .hasSize(6);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).count())
                 .as("dont 0 d'un autre contexte (SE7d)").isZero();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/")).count())
-                .as("dont 12 de la plateforme").isEqualTo(12);
+                .as("dont 6 de la plateforme").isEqualTo(6);
+        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/java/")))
+                .as("dont 2 sources Java, les fournisseurs de seance.v1 (SE7f)")
+                .containsExactlyInAnyOrder("platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/HistoriqueFourniLegacy.java",
+                        "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/ForfaitsFournisLegacy.java");
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
-                .as("dont 4 ressources SQL").isEqualTo(4);
+                .as("dont 4 ressources SQL (l'état Jasper et 3 scripts de données)").isEqualTo(4);
+        assertThat(MENTIONS_NON_SQL).as("1 faux positif nommé de la détection des noms calculés").hasSize(1);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
                 .as("dont 0 de la Facturation (SE7c2)").isZero();
     }

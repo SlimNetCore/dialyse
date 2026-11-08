@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsImposesAuxSeancesPublies;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
@@ -40,10 +41,13 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     private final JdbcTemplate jdbc;
     private final ReferentialCacheEvictor cacheEvictor;
+    private final ForfaitsImposesAuxSeancesPublies forfaitsImposes;
 
-    public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor) {
+    public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor,
+                                       ForfaitsImposesAuxSeancesPublies forfaitsImposes) {
         this.jdbc = jdbc;
         this.cacheEvictor = cacheEvictor;
+        this.forfaitsImposes = forfaitsImposes;
     }
 
     private static String select(Table table) {
@@ -197,6 +201,11 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         long total = 0;
         for (Usage usage : ReferentialAdminTables.of(kind).usages()) {
             try {
+                if (usage.publie() == ReferentialAdminTables.UsagePublie.FORFAIT_IMPOSE_A_UNE_SEANCE) {
+                    // forfait imposé à une séance : langage publié de la Séance (SE7e, ADR 0099), même comptage
+                    total += forfaitsImposes.nombreDeSeancesQuiImposentLeForfait(id);
+                    continue;
+                }
                 Long count = jdbc.queryForObject(
                         "SELECT COUNT(*) FROM " + usage.table() + " WHERE " + usage.column() + " = ?", Long.class, id);
                 total += count == null ? 0 : count;

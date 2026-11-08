@@ -4,13 +4,12 @@ import com.hemodialyse.backend.application.direction.DirectionDashboardQueryServ
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -37,18 +36,18 @@ public class DirectionAbsencesQueryService {
     private static final int MAX_YEARS = 5;
     private static final BigDecimal CENT = BigDecimal.valueOf(100);
 
-    private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
 
     private final SyntheseFinanciereDesCentres finance;
     private final AbsencesDuPilotage pilotage;
+    private final SeancesRealiseesDesCentresPubliees seancesRealisees;
 
-    public DirectionAbsencesQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                         SyntheseFinanciereDesCentres finance, AbsencesDuPilotage pilotage) {
+    public DirectionAbsencesQueryService(DirectionDashboardQueryService dashboard, SyntheseFinanciereDesCentres finance,
+                                         AbsencesDuPilotage pilotage, SeancesRealiseesDesCentresPubliees seancesRealisees) {
         this.finance = finance;
         this.pilotage = pilotage;
-        this.jdbc = jdbc;
         this.dashboard = dashboard;
+        this.seancesRealisees = seancesRealisees;
     }
 
     private static List<MotifAbsenceStat> motifs(Map<String, Cumul> motifs) {
@@ -85,13 +84,6 @@ public class DirectionAbsencesQueryService {
         return numerateur.multiply(CENT).divide(denominateur, 2, RoundingMode.HALF_UP);
     }
 
-    private static Object[] parametres(Collection<UUID> ids, LocalDate from, LocalDate to) {
-        List<Object> p = new ArrayList<>(ids);
-        p.add(Date.valueOf(from));
-        p.add(Date.valueOf(to));
-        return p.toArray();
-    }
-
     public AbsencesOverview absences(UUID societeId, LocalDate from, LocalDate to) {
         LocalDate aujourdhui = pilotage.aujourdhui();
         LocalDate end = to != null ? to : aujourdhui;
@@ -108,15 +100,9 @@ public class DirectionAbsencesQueryService {
                     stats(new Cumul(), 0, BigDecimal.ZERO), List.of(), List.of(), List.of(), 0);
         }
         List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
-        String in = String.join(",", ids.stream().map(i -> "?").toList());
-        Object[] params = parametres(ids, start, end);
 
-        Map<UUID, Long> seances = new HashMap<>();
-        jdbc.query("SELECT center_id, COUNT(*) AS n FROM seances WHERE center_id IN (" + in
-                        + ") AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id",
-                rs -> {
-                    seances.put(rs.getObject("center_id", UUID.class), rs.getLong("n"));
-                }, params);
+        // Dénominateur du taux d'absentéisme : lecture publiée de la Séance (SE7e, ADR 0099), même requête que la vue d'ensemble
+        Map<UUID, Long> seances = new HashMap<>(seancesRealisees.parCentre(ids, start, end));
         Map<UUID, BigDecimal> ca = new HashMap<>();
         finance.chiffresParCentre(ids, start, end).forEach((centre, chiffres) -> ca.put(centre, chiffres.chiffreDAffairesHt()));
 

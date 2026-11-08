@@ -1,12 +1,12 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDuCahierPubliees;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import net.sf.jasperreports.engine.JRParameter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -25,7 +25,9 @@ import java.util.UUID;
  * Cahier de dialyse d'un patient : modèle de document {@value ModeleDocumentCatalog#CAHIER_DIALYSE}, imprimé via
  * {@link ModeleDocumentPrinter}. Le modèle lit lui-même les séances (validées, signées ou facturées), les volets
  * paramédical et médical, les consommables valorisés, le forfait et la prescription en vigueur ; l'identité du patient
- * et la période sont passées en paramètres.
+ * et la période sont passées en paramètres. Le modèle est PERSONNALISABLE par centre (version active en base, une seule
+ * requête embarquée) : sa requête reste donc dans l'état Jasper, lecteur nommé de {@code seances} (ADR 0099, décision 3,
+ * résidu E-R3) ; seul le refus {@code CAHIER_VIDE} passe par le langage publié de la Séance.
  */
 @Service
 public class CahierDialyseReportService {
@@ -37,12 +39,13 @@ public class CahierDialyseReportService {
 
     private final ModeleDocumentPrinter printer;
     private final PatientRepositoryPort patients;
-    private final JdbcTemplate jdbc;
+    /** Compte des séances imprimables : langage publié de la Séance (SE7e, ADR 0099). */
+    private final SeancesDuCahierPubliees seances;
 
-    public CahierDialyseReportService(ModeleDocumentPrinter printer, PatientRepositoryPort patients, JdbcTemplate jdbc) {
+    public CahierDialyseReportService(ModeleDocumentPrinter printer, PatientRepositoryPort patients, SeancesDuCahierPubliees seances) {
         this.printer = printer;
         this.patients = patients;
-        this.jdbc = jdbc;
+        this.seances = seances;
     }
 
     private static String ligneDe(String libelle, String valeur) {
@@ -81,11 +84,8 @@ public class CahierDialyseReportService {
      * Nombre de séances imprimables (validées, signées ou facturées) du patient sur la période.
      */
     int nombreSeances(UUID centreId, UUID patientId, LocalDate from, LocalDate to) {
-        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM seances WHERE center_id = ? AND patient_id = ? "
-                        + "AND statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') AND date_seance BETWEEN ? AND ?",
-                Integer.class, centreId, patientId, Date.valueOf(from == null ? DEBUT_PAR_DEFAUT : from),
-                Date.valueOf(to == null ? FIN_PAR_DEFAUT : to));
-        return n == null ? 0 : n;
+        return seances.nombreDeSeancesAImprimer(centreId, patientId, from == null ? DEBUT_PAR_DEFAUT : from,
+                to == null ? FIN_PAR_DEFAUT : to);
     }
 
     /**

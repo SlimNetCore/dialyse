@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -47,14 +48,16 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
                 Set.of("patientId", "datePrelevement", "plaquettes", "hbGDl", "htPct", "ferritineNgMl", "cstfPct",
                         "ureePreMgDl", "ureePostMgDl", "creatinineMgDl", "ktVMensuel", "phosphoreMgDl", "calciumMgDl",
                         "pthPgMl", "albumineGDl", "proteinesGDl", "crpMgL"), true, true));
-        TABLES.put(MigrationEntity.SEANCES, new Table("seances",
-                Set.of("patientId", "dateSeance", "statut"), true, false));
+        // Les séances ne sont plus décrites ici : la Séance les reprend par son langage publié (SE7e, ADR 0099), avec la même liste
+        // blanche (patientId, dateSeance, statut), la même date de création et les mêmes requêtes.
     }
 
     private final JdbcTemplate jdbc;
+    private final SeancesDeLaReprisePubliees seances;
 
-    public HistoricalRecordJdbcAdapter(JdbcTemplate jdbc) {
+    public HistoricalRecordJdbcAdapter(JdbcTemplate jdbc, SeancesDeLaReprisePubliees seances) {
         this.jdbc = jdbc;
+        this.seances = seances;
     }
 
     static Table table(MigrationEntity entity) {
@@ -79,6 +82,7 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
 
     @Override
     public Optional<UUID> findExisting(CenterId centerId, MigrationEntity entity, Map<String, Object> key) {
+        if (entity == MigrationEntity.SEANCES) return seances.seanceDejaPresente(centerId.value(), key);
         Table table = table(entity);
         List<Object> params = new ArrayList<>(List.of(centerId.value()));
         StringBuilder where = new StringBuilder(" WHERE center_id = ?");
@@ -97,6 +101,7 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
 
     @Override
     public UUID insert(CenterId centerId, MigrationEntity entity, Map<String, Object> values) {
+        if (entity == MigrationEntity.SEANCES) return seances.reprendre(centerId.value(), values);
         Table table = table(entity);
         UUID id = UUID.randomUUID();
         OffsetDateTime now = OffsetDateTime.now();
@@ -122,6 +127,10 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
 
     @Override
     public void update(CenterId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
+        if (entity == MigrationEntity.SEANCES) {
+            seances.modifier(centerId.value(), id, values);
+            return;
+        }
         Table table = table(entity);
         List<String> assignments = new ArrayList<>();
         List<Object> params = new ArrayList<>();

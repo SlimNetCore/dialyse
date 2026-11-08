@@ -309,6 +309,49 @@
   correction, à confirmer au plus tard le 2026-12-15** (DPO : mêmes mesures, mêmes destinataires `MEDECIN`, `ADMIN`).
   *Source :* `ConstantesDesSeancesPubliees`, `ConstantesDesSeancesJdbc`, `HistoriqueDesConstantesPublie`.
 
+- **RG-SEA-065** — **Lecture publiée des séances réalisées pour le pilotage de la Direction** (slice SE7e, ADR 0099 ; aucune route,
+  aucune migration, lecture seule, comportement inchangé). La vue d'ensemble, la période précédente, l'évolution mensuelle, la
+  répartition par caisse, le rapport PDF, l'instantané et le taux d'absentéisme de la Direction comptent les séances par le langage
+  publié de la Séance. Une séance compte quand son statut est `VALIDEE`, `SIGNEE` ou `FACTUREE` en **casse exacte et sans blanc** et
+  que sa date est dans la période, bornes incluses, pour les seuls centres de la société. **Deux comptes qui ne concordent pas**
+  (KB-SEA-83) : la vue d'ensemble et le taux d'absentéisme comptent toutes ces séances ; la répartition par caisse ne compte que celles
+  dont **la fiche du patient est dans le centre de la séance**, et suit la caisse de la fiche **sans contrôle de centre** ; à chiffre
+  d'affaires égal, l'ordre des caisses n'est pas défini (KB-SEA-84). Agrégats seulement, aucune ligne de patient. **Reproduits sans
+  correction, à confirmer par les métiers au plus tard le 2026-12-15** : KB-SEA-83, 84. Détection : `verifications-production.md` §64.
+  *Source :* `SeancesRealiseesDesCentresPubliees`, `SeancesRealiseesDesCentresJdbc`, `DirectionDashboardQueryService`,
+  `DirectionBreakdownQueryService`, `DirectionAbsencesQueryService`.
+
+- **RG-SEA-066** — **Lecture publiée des séances pour les statistiques du patient** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
+  lecture seule, comportement inchangé). Les statistiques paramédicales (écran et export PDF) lisent par le langage publié de la Séance
+  **toutes les séances du patient dans le centre, quel que soit leur statut** (annulées et non réalisées comprises), avec les mesures du
+  **volet paramédical rattaché à la séance, même posé dans un autre centre** (KB-SEA-85) : nombre de séances, moyennes des poids avant et
+  après et de l'ultrafiltration réelle (saisie, sinon perte de poids x 1000 ; une moyenne sans mesure vaut `0.0`), évolution du poids avec
+  le **poids sec en vigueur** le jour de la séance (dernière prescription du patient au centre portant un poids sec, la plus récemment
+  modifiée à date égale) et évolution de la tension. Ordre par **date seule** (deux séances du même jour : ordre non défini) ; les noms
+  des colonnes de l'évolution du poids et la précision des moyennes dépendent de la base (KB-SEA-86, 87). **Reproduits sans correction, à
+  confirmer au plus tard le 2026-12-15** (DPO : mêmes mesures, mêmes rôles `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` ; export `ADMIN`).
+  *Source :* `StatistiquesDesSeancesPubliees`, `StatistiquesDesSeancesJdbc`, `PatientStatsQueryService`.
+
+- **RG-SEA-067** — **Cahier de dialyse et usage d'un forfait : comptages publiés** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
+  lecture seule, comportement inchangé). Le refus `CAHIER_VIDE` compte par le langage publié de la Séance les séances du patient au
+  centre, `VALIDEE`, `SIGNEE` ou `FACTUREE` en casse exacte, dans la période (par défaut du 1900-01-01 au 2999-12-31) ; le **contenu** du
+  cahier reste lu par le **modèle de document du centre** (personnalisable, une requête embarquée ; forfait imposé sans code imprimé
+  vide, KB-SEA-88), mise en page et rendu inchangés. La suppression d'un forfait du référentiel est refusée (`REFERENTIAL_IN_USE`) tant
+  qu'une séance **de n'importe quel centre et de n'importe quel statut** l'impose (KB-SEA-91), compté par le même langage publié.
+  **Reproduits sans correction, à confirmer au plus tard le 2026-12-15** : KB-SEA-88, 91.
+  *Source :* `SeancesDuCahierPubliees`, `ForfaitsImposesAuxSeancesPublies`, `SeancesDuCahierEtForfaitsImposesJdbc`,
+  `CahierDialyseReportService`, `ReferentialAdminJdbcAdapter`, `ReferentialAdminTables`.
+
+- **RG-SEA-068** — **Séances reprises de l'ancien logiciel : écritures publiées** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
+  comportement inchangé). L'import des séances d'un lot de reprise et l'annulation du lot passent par le **seul** port publié qui écrit
+  et supprime des séances hors de la Séance, réservé à la reprise. Une séance **déjà présente** le même jour pour le patient dans le
+  centre du lot, **quel que soit son statut** (annulée comprise), est conservée et la ligne n'est pas reprise (KB-SEA-89) ; sinon la
+  séance est créée `FACTUREE` (facturée dans l'ancien logiciel) ou `SIGNEE`. Seuls la date, le statut et le patient sont acceptés. À
+  l'annulation, un patient repris ne se supprime pas tant qu'il a une séance **dans n'importe quel centre** qui n'a pas été créée par le
+  lot (KB-SEA-90) ; une séance reprise ne se supprime pas si elle est facturée ou complétée dans la plateforme ; la suppression ne vise
+  que le centre du lot. **Reproduits sans correction, à confirmer au plus tard le 2026-12-15** : KB-SEA-89, 90.
+  *Source :* `SeancesDeLaReprisePubliees`, `SeancesDeLaRepriseJdbc`, `HistoricalRecordJdbcAdapter`, `MigrationRollbackJdbcAdapter`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre

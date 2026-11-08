@@ -519,6 +519,58 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("le Dossier médical lit les constantes par seance.v1 (ADR 0098), sans SQL sur la table seances");
 
+    /**
+     * SE7e (ADR 0099) : les derniers lecteurs Java de la plateforme (pilotage de la Direction, statistiques du patient, cahier de dialyse,
+     * reprise de données, référentiel) lisent les séances par le langage publié de la Séance. Chacun dépend de SON port publié (la
+     * plateforme dépend directement de {@code contexts-seance} : aucun cycle Maven) ; {@code TableDesSeancesTest} vérifie qu'ils n'ont
+     * plus de SQL ni de nom de table calculé sur {@code seances}.
+     */
+    private static final String PORTS_SE7E = SEANCE + ".publishedlanguage.";
+
+    @ArchTest
+    static final ArchRule le_pilotage_de_la_direction_lit_les_seances_realisees_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionDashboardQueryService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService")
+            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesRealiseesDesCentresPubliees")
+            .because("le pilotage compte les séances réalisées par seance.v1 (ADR 0099, SE7e)");
+
+    @ArchTest
+    static final ArchRule les_statistiques_du_patient_lisent_les_seances_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
+            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "StatistiquesDesSeancesPubliees")
+            .because("les statistiques du patient lisent les séances par seance.v1 (ADR 0099, SE7e)");
+
+    @ArchTest
+    static final ArchRule le_cahier_compte_ses_seances_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.CahierDialyseReportService")
+            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesDuCahierPubliees")
+            .because("le refus CAHIER_VIDE compte les séances par seance.v1 (ADR 0099, SE7e)");
+
+    @ArchTest
+    static final ArchRule le_referentiel_compte_les_forfaits_imposes_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.referential.ReferentialAdminJdbcAdapter")
+            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "ForfaitsImposesAuxSeancesPublies")
+            .because("l'usage d'un forfait imposé à une séance est compté par seance.v1 (ADR 0099, SE7e)");
+
+    /**
+     * SE7e (ADR 0099) : {@code SeancesDeLaReprisePubliees} est le SEUL port, hors de la Séance, qui ÉCRIT et SUPPRIME des séances. Il est
+     * réservé aux deux adapters de la reprise de données (import et annulation d'un lot) ; aucune autre classe ne peut l'utiliser.
+     */
+    @ArchTest
+    static final ArchRule seule_la_reprise_de_donnees_ecrit_des_seances_par_le_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(SEANCE + "..")
+            .and().haveNameNotMatching(".*\\.(HistoricalRecordJdbcAdapter|MigrationRollbackJdbcAdapter)(\\$.*)?")
+            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesDeLaReprisePubliees")
+            .because("seule la reprise de données écrit et supprime des séances hors de la Séance (ADR 0099, SE7e)");
+
+    @ArchTest
+    static final ArchRule la_reprise_de_donnees_ecrit_les_seances_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.migration.HistoricalRecordJdbcAdapter")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.migration.MigrationRollbackJdbcAdapter")
+            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesDeLaReprisePubliees")
+            .because("la reprise lit, écrit et supprime les séances par seance.v1 (ADR 0099, SE7e)");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

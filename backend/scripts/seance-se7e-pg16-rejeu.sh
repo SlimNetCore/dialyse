@@ -3,14 +3,22 @@
 # patient, cahier de dialyse et son etat Jasper, reprise de donnees, usages d'un forfait) sur un PostgreSQL 16 REEL et JETABLE : cluster
 # temporaire detruit en sortie. Chaine Flyway V1..Vn (psql), jeu de donnees FICTIF minimal (les memes cas que les goldens H2 de
 # backend/platform/src/test/resources/characterization/seance/se7e/), puis les requetes de production A L'IDENTIQUE (parametres remplaces
-# par des litteraux) :
-#   E1-E3  application/direction/DirectionDashboardQueryService.java:121, :167, :183 (centre, periode precedente, mois via EXTRACT)
-#   E4     application/direction/DirectionBreakdownQueryService.java:190 (seances par caisse, jointure patients sur l'id ET le centre)
-#   E5     application/direction/DirectionAbsencesQueryService.java:115 (meme predicat que E1, periode de fevrier)
-#   E6-E9  application/query/PatientStatsQueryService.java:294-327 (compte sans statut, AVG d'un NUMERIC, poids sec en vigueur, libelles)
-#   E10-11 infrastructure/reporting/CahierDialyseReportService.java:84 et reports/cahier_dialyse.jrxml:42-135 (requete de l'etat, entiere)
-#   E12-14 persistence/adapter/migration/HistoricalRecordJdbcAdapter.java:94 et MigrationRollbackJdbcAdapter.java:83, :106
-#   E15    persistence/adapter/referential/ReferentialAdminJdbcAdapter.java:201 (usage seances.forfait_override_id)
+# par des litteraux). Depuis le lot C de SE7e (ADR 0099), elles vivent dans la Seance, MOT POUR MOT (sauf l'etat Jasper, reste dans le
+# modele de document personnalisable du centre, ADR 0099 decision 3) :
+#   E1-E3  contexts/seance/.../persistence/SeancesRealiseesDesCentresJdbc.java (parCentre, auTotal, parMois) ; avant :
+#          application/direction/DirectionDashboardQueryService.java:121, :167, :183
+#   E4     SeancesRealiseesDesCentresJdbc.parCaisse (jointure patients sur l'id ET le centre) ; avant : DirectionBreakdownQueryService.java:190
+#   E5     SeancesRealiseesDesCentresJdbc.parCentre (meme texte que E1) ; avant : DirectionAbsencesQueryService.java:115
+#   E6-E9  contexts/seance/.../persistence/StatistiquesDesSeancesJdbc.java ; avant : application/query/PatientStatsQueryService.java:294-327
+#   E10    contexts/seance/.../persistence/SeancesDuCahierEtForfaitsImposesJdbc.nombreDeSeancesAImprimer ; avant : CahierDialyseReportService:84
+#   E11    platform/src/main/resources/reports/cahier_dialyse.jrxml:42-135 (requete de l'etat, entiere ; inchangee)
+#   E12-14 contexts/seance/.../persistence/SeancesDeLaRepriseJdbc.java (seanceDejaPresente, seancesDuPatient, factureDeLaSeance) ; avant :
+#          HistoricalRecordJdbcAdapter.java:94 et MigrationRollbackJdbcAdapter.java:83, :106
+#   E15    SeancesDuCahierEtForfaitsImposesJdbc.nombreDeSeancesQuiImposentLeForfait ; avant : ReferentialAdminJdbcAdapter.java:201
+# Puis les requetes de detection (SELECT seule) de la section 64 de .ddd/migration/verifications-production.md (ADR 0099, annexe), dont
+# la verification de flyway_schema_history (table tenue ici par le script, une ligne par fichier applique, avec le DDL de Flyway), le
+# comportement de db/seed.sql sur PostgreSQL (question ouverte SE7e) et le contrat PostgreSQL PilotageEtRapportsDesSeancesPostgresContractIT
+# (Seance, 13 + 1 tests), dans la base jetable uniquement.
 # Points propres a PostgreSQL verifies : precision de AVG sur NUMERIC (H2 : 12 decimales, KB-SEA-87), libelles de colonnes en minuscules
 # (H2 : majuscules, cles JSON de poidsEvolution, KB-SEA-86), EXTRACT numerique, ordre des UUID a date egale (cahier), FETCH FIRST et CAST
 # du jrxml.
@@ -32,8 +40,16 @@ export PGPASSWORD="$PW"
 PSQL=("$PGBIN/psql" -h 127.0.0.1 -p "$PORT" -U seance_test)
 "${PSQL[@]}" -d postgres -qc "create database hemo_test" || exit 3
 MIG="$RACINE/backend/platform/src/main/resources/db/migration"
-for f in $(cd "$MIG" && ls V*.sql | sort -V); do "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/$f" || { echo "ECHEC de $f"; exit 3; }; done
-echo "Chaine Flyway appliquee"
+# Historique Flyway reconstitue (DDL de la table flyway_schema_history de Flyway 11 pour PostgreSQL) : une ligne par fichier applique, pour
+# rejouer telle quelle la requete 64.1 de verifications-production.md.
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qc "CREATE TABLE flyway_schema_history (installed_rank INT NOT NULL PRIMARY KEY, version VARCHAR(50), description VARCHAR(200) NOT NULL, type VARCHAR(20) NOT NULL, script VARCHAR(1000) NOT NULL, checksum INT, installed_by VARCHAR(100) NOT NULL, installed_on TIMESTAMP NOT NULL DEFAULT now(), execution_time INT NOT NULL, success BOOLEAN NOT NULL)" || exit 3
+RANG=0
+for f in $(cd "$MIG" && ls V*.sql | sort -V); do
+  "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/$f" || { echo "ECHEC de $f"; exit 3; }
+  RANG=$((RANG + 1)); VERSION="${f#V}"; VERSION="${VERSION%%__*}"; DESCRIPTION="${f#*__}"; DESCRIPTION="${DESCRIPTION%.sql}"
+  "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qc "INSERT INTO flyway_schema_history (installed_rank, version, description, type, script, installed_by, execution_time, success) VALUES ($RANG, '$VERSION', '${DESCRIPTION//_/ }', 'SQL', '$f', 'seance_test', 0, TRUE)" || exit 3
+done
+echo "Chaine Flyway appliquee ($RANG fichiers)"
 
 A="99997800-0000-0000-0000-00000000000a"
 B="99997800-0000-0000-0000-00000000000b"
@@ -275,6 +291,49 @@ verifier "E14 facture_id nul" "$(sql "SELECT CAST(facture_id AS VARCHAR(36)) FRO
 echo "=== E15 ReferentialAdminJdbcAdapter:201 : usages d'un forfait par seances.forfait_override_id, SANS centre ni statut (KB-SEA-91) ==="
 verifier "E15 forfait du centre A surcharge sur une seance du centre B" "$(sql "SELECT COUNT(*) FROM seances WHERE forfait_override_id = '$FORFAIT_B'")" "1"
 verifier "E15 forfait surcharge sur deux seances (dont une sans code)" "$(sql "SELECT COUNT(*) FROM seances WHERE forfait_override_id = '$FORFAIT_SURCH'")" "2"
+
+echo "=== Section 64 : requetes de detection (SELECT seule), executees telles quelles sur le schema reel et le jeu fictif ==="
+verifier "64.1 migrations Flyway de la table des seances appliquees (V1, V21, V23, V26, V31, V39)" \
+  "$(sql "SELECT version, success FROM flyway_schema_history WHERE version IN ('1', '21', '23', '26', '31', '39') ORDER BY installed_rank" | lignes)" \
+  "1|t;21|t;23|t;26|t;31|t;39|t"
+verifier "64.2 KB-SEA-84 fiches rattachees a la caisse d'un autre centre" \
+  "$(sql "SELECT p.center_id, ca.center_id AS centre_de_la_caisse, count(*) FROM patients p JOIN centre_payeur cp ON cp.id = p.centre_payeur_id JOIN agence ag ON ag.id = cp.agence_id JOIN caisse_assurance ca ON ca.id = ag.caisse_id WHERE ca.center_id <> p.center_id GROUP BY p.center_id, ca.center_id" | sort | lignes)" \
+  "$A|$B|1"
+verifier "64.3 KB-SEA-85 volets paramedicaux poses dans un autre centre que leur seance" \
+  "$(sql "SELECT s.center_id, vp.center_id AS centre_du_volet, count(*) FROM volet_paramedical vp JOIN seances s ON s.id = vp.seance_id WHERE vp.center_id <> s.center_id GROUP BY s.center_id, vp.center_id" | sort | lignes)" \
+  "$D|$E|1"
+R="$(sql "SELECT center_id, patient_id, date_seance, count(*) FROM seances GROUP BY center_id, patient_id, date_seance HAVING count(*) > 1 LIMIT 100")"
+verifier "64.4 KB-SEA-86 plusieurs seances d'un patient le meme jour, tous statuts (groupes)" "$(echo "$R" | grep -c .)" "3"
+verifier "64.5 KB-SEA-88 forfait impose sans code recopie" \
+  "$(sql "SELECT center_id, count(*) FROM seances WHERE forfait_override_id IS NOT NULL AND (forfait_override_code IS NULL OR trim(forfait_override_code) = '') GROUP BY center_id" | sort | lignes)" \
+  "$D|1;$E|1"
+R="$(sql "SELECT patient_id, count(DISTINCT center_id) FROM seances GROUP BY patient_id HAVING count(DISTINCT center_id) > 1 LIMIT 100")"
+verifier "64.6 KB-SEA-90 patients dont les seances sont dans plusieurs centres (annulation d'un lot bloquee par un autre centre)" "$(echo "$R" | grep -c .)" "4"
+verifier "64.7 KB-SEA-91 forfait impose a une seance d'un autre centre que le forfait" \
+  "$(sql "SELECT s.center_id, f.center_id AS centre_du_forfait, count(*) FROM seances s JOIN forfait f ON f.id = s.forfait_override_id WHERE f.center_id <> s.center_id GROUP BY s.center_id, f.center_id" | sort | lignes)" \
+  "$E|$D|1"
+verifier "64.8 E-R3 versions personnalisees actives du cahier de dialyse (requete embarquee hors du depot)" \
+  "$(sql "SELECT md.center_id, mdv.version, position('seances' in lower(mdv.contenu)) > 0 AS lit_seances FROM modele_document_version mdv JOIN modele_document md ON md.id = mdv.modele_id WHERE md.code = 'CAHIER_DIALYSE' AND mdv.actif = TRUE ORDER BY md.center_id")" \
+  ""
+
+echo "=== Question ouverte SE7e : db/seed.sql (profil par defaut, spring.sql.init.mode=always) rejoue sur PostgreSQL, ARRET a la premiere erreur (continue-on-error par defaut : false) ==="
+AVANT="$(sql "SELECT (SELECT count(*) FROM seances) || '|' || (SELECT count(*) FROM societes) || '|' || (SELECT count(*) FROM centers)")"
+SEED_LOG="$(PGCLIENTENCODING=UTF8 "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$RACINE/backend/platform/src/main/resources/db/seed.sql" 2>&1 | tr -d '\r' | head -5)"
+echo "sortie de psql : $SEED_LOG"
+verifier "seed.sql s'arrete sur une erreur unique (ON_ERROR_STOP, comme continue-on-error=false)" "$(echo "$SEED_LOG" | grep -c 'ERROR:')" "1"
+verifier "l'erreur porte sur la 1re instruction (MERGE INTO societes ... KEY, syntaxe H2, lignes 3 a 8)" \
+  "$(echo "$SEED_LOG" | grep -c -E 'seed.sql:[3-8]: ERROR:')" "1"
+verifier "seed.sql n'a rien ecrit (seances, societes, centres inchanges)" \
+  "$(sql "SELECT (SELECT count(*) FROM seances) || '|' || (SELECT count(*) FROM societes) || '|' || (SELECT count(*) FROM centers)")" "$AVANT"
+
+echo "=== Contrat PostgreSQL de la Seance : PilotageEtRapportsDesSeancesPostgresContractIT ==="
+export SEANCE_PG16_PASSWORD="$PW"
+URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
+cd "$RACINE/backend" || exit 3
+./mvnw -o -pl contexts/seance -am test \
+  -Dtest="com.hemodialyse.backend.contexts.seance.contrat.PilotageEtRapportsDesSeancesPostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dseance.pg16.url="$URL" -Dseance.pg16.user=seance_test || RC=1
 
 echo "=== Fin du rejeu : code $RC (0 = tout conforme) ==="
 exit $RC

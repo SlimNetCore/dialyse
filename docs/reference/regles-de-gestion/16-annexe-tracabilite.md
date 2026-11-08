@@ -133,8 +133,18 @@ SE7d (ADR 0098) n'ajoute aucune route : les lectures des Absences de patients (`
 publiés `SeancesRealiseesPubliees`, `LiensDExclusionPublies`, `SeancesRealiseesAvecLeurPlacePubliees` (fournis par les traducteurs
 `infrastructure/acl/absences/` et `infrastructure/acl/planification/` de la plateforme) et `ConstantesDesSeancesPubliees` (dépendance
 directe du Dossier médical) ; règles : RG-SEA-062, 063, 064.
-Les 12 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d, plateforme : 12 dont 4 ressources SQL : état du cahier de dialyse, jeux d'amorçage et de démonstration) sont inscrits
-dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir propre à chacun).
+SE7e (ADR 0099) n'ajoute aucune route : le pilotage de la Direction (`/api/v1/direction/overview`, `/breakdown`, `/absences`, `/report`,
+`/snapshots`), les statistiques du patient (`/api/v1/patients/{id}/stats/paramedical`, `/stats/export`, recherches), le cahier de dialyse
+(`/api/v1/cahier-dialyse/{id}/imprimer`, refus `CAHIER_VIDE`), la reprise de données (`/api/v1/admin/migration/batches/{id}/import/seances`,
+`/cancel`) et la suppression d'un forfait (`/api/v1/admin/referentials/forfaits/{id}`) déjà listés passent par les ports publiés
+`SeancesRealiseesDesCentresPubliees`, `StatistiquesDesSeancesPubliees`, `SeancesDuCahierPubliees`, `SeancesDeLaReprisePubliees` (seul port
+d'écriture hors de la Séance, réservé à la reprise) et `ForfaitsImposesAuxSeancesPublies`, injectés directement (la plateforme dépend du
+module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068.
+Les 6 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d,
+lecteurs Java du pilotage, des statistiques, du cahier, de la reprise et du référentiel : 0 depuis SE7e ; plateforme : 2 fournisseurs du
+langage publié `seance.v1` et 3 scripts de données, à traiter en SE7f, et l'état Jasper du cahier de dialyse, modèle personnalisable gardé
+avec sa requête, ADR 0099) sont inscrits dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir
+propre à chacun). Depuis SE7e, la garde voit aussi les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92).
 
 ## 16.2 Tâches planifiées
 

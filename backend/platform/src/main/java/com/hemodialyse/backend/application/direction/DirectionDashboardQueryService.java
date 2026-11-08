@@ -3,13 +3,13 @@ package com.hemodialyse.backend.application.direction;
 import com.hemodialyse.backend.application.query.EffectifSql;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -40,10 +40,16 @@ public class DirectionDashboardQueryService {
      * Part financière (CA, encaissé) : lecture publiée du module Facturation (slice F5).
      */
     private final SyntheseFinanciereDesCentres finance;
+    /**
+     * Séances réalisées des centres : lecture publiée de la Séance (SE7e, ADR 0099), mêmes requêtes qu'avant.
+     */
+    private final SeancesRealiseesDesCentresPubliees seancesRealisees;
 
-    public DirectionDashboardQueryService(JdbcTemplate jdbc, SyntheseFinanciereDesCentres finance) {
+    public DirectionDashboardQueryService(JdbcTemplate jdbc, SyntheseFinanciereDesCentres finance,
+                                          SeancesRealiseesDesCentresPubliees seancesRealisees) {
         this.jdbc = jdbc;
         this.finance = finance;
+        this.seancesRealisees = seancesRealisees;
     }
 
     /**
@@ -68,12 +74,6 @@ public class DirectionDashboardQueryService {
 
     private static String placeholders(int n) {
         return String.join(",", java.util.Collections.nCopies(n, "?"));
-    }
-
-    private static Object[] params(List<UUID> ids, Object... rest) {
-        List<Object> all = new ArrayList<>(ids);
-        all.addAll(List.of(rest));
-        return all.toArray();
     }
 
     public SocieteInfo societe(UUID societeId) {
@@ -103,8 +103,6 @@ public class DirectionDashboardQueryService {
                     List.of(), null);
         }
         String in = placeholders(ids.size());
-        Date sqlFrom = Date.valueOf(start);
-        Date sqlTo = Date.valueOf(end);
 
         Map<UUID, long[]> patients = new HashMap<>();
         // Effectif de la période : un patient sorti avant le début n'est pas compté, un patient sorti pendant ou après l'est
@@ -117,12 +115,7 @@ public class DirectionDashboardQueryService {
                     patients.put(rs.getObject("center_id", UUID.class), new long[]{rs.getLong("total"), rs.getLong("kt")});
                 }, effectifArgs.toArray());
 
-        Map<UUID, Long> seances = new HashMap<>();
-        jdbc.query("SELECT center_id, COUNT(*) AS n FROM seances WHERE center_id IN (" + in + ") "
-                        + "AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id",
-                rs -> {
-                    seances.put(rs.getObject("center_id", UUID.class), rs.getLong("n"));
-                }, params(ids, sqlFrom, sqlTo));
+        Map<UUID, Long> seances = new HashMap<>(seancesRealisees.parCentre(ids, start, end));
 
         // Factures émises sur la période et leurs règlements (encaissé à ce jour) : reste à recouvrer cohérent avec le CA.
         Map<UUID, ChiffresDuCentre> finances = finance.chiffresParCentre(ids, start, end);
@@ -146,9 +139,9 @@ public class DirectionDashboardQueryService {
             totEnc = totEnc.add(e);
         }
         CentreStats totaux = stats(null, null, true, totPatients, totKt, totSeances, totFactures, totHt, totTtc, totEnc);
-        PeriodComparison previous = previousPeriodTotals(ids, in, start, end);
+        PeriodComparison previous = previousPeriodTotals(ids, start, end);
         return new Overview(societeId, societe.raisonSociale(), start, end, OffsetDateTime.now(ZoneOffset.UTC),
-                AnonymityPolicy.THRESHOLD, perCentre, totaux, monthly(ids, in, sqlFrom, sqlTo), previous);
+                AnonymityPolicy.THRESHOLD, perCentre, totaux, monthly(ids, start, end), previous);
     }
 
     /**
@@ -157,16 +150,11 @@ public class DirectionDashboardQueryService {
      * côté des indicateurs financiers et d'activité. Le nombre de patients n'est volontairement pas comparé : c'est
      * un effectif constaté à l'instant présent, pas une donnée d'activité mesurée sur la période.
      */
-    private PeriodComparison previousPeriodTotals(List<UUID> ids, String in, LocalDate start, LocalDate end) {
+    private PeriodComparison previousPeriodTotals(List<UUID> ids, LocalDate start, LocalDate end) {
         long days = java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
         LocalDate prevTo = start.minusDays(1);
         LocalDate prevFrom = prevTo.minusDays(days - 1);
-        Date sqlFrom = Date.valueOf(prevFrom);
-        Date sqlTo = Date.valueOf(prevTo);
-
-        Long seances = jdbc.queryForObject("SELECT COUNT(*) FROM seances WHERE center_id IN (" + in + ") "
-                        + "AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE','FACTUREE')",
-                Long.class, params(ids, sqlFrom, sqlTo));
+        long seances = seancesRealisees.auTotal(ids, prevFrom, prevTo);
         ChiffresDuCentre cumul = finance.chiffresCumules(ids, prevFrom, prevTo);
         BigDecimal caHt = cumul.chiffreDAffairesHt();
         BigDecimal caTtc = cumul.chiffreDAffairesTtc();
@@ -174,21 +162,17 @@ public class DirectionDashboardQueryService {
         BigDecimal reste = caTtc.subtract(encaisse).max(BigDecimal.ZERO);
         BigDecimal taux = caTtc.signum() == 0 ? null
                 : encaisse.multiply(BigDecimal.valueOf(100)).divide(caTtc, 1, RoundingMode.HALF_UP);
-        return new PeriodComparison(prevFrom, prevTo, seances == null ? 0 : seances, caHt, caTtc, encaisse, reste, taux);
+        return new PeriodComparison(prevFrom, prevTo, seances, caHt, caTtc, encaisse, reste, taux);
     }
 
-    private List<MonthlyPoint> monthly(List<UUID> ids, String in, Date from, Date to) {
+    private List<MonthlyPoint> monthly(List<UUID> ids, LocalDate from, LocalDate to) {
         Map<String, MonthlyPoint> points = new LinkedHashMap<>();
         Map<String, long[]> seancesByKey = new HashMap<>();
-        jdbc.query("SELECT center_id, EXTRACT(YEAR FROM date_seance) AS y, EXTRACT(MONTH FROM date_seance) AS m, COUNT(*) AS n "
-                        + "FROM seances WHERE center_id IN (" + in + ") AND date_seance BETWEEN ? AND ? "
-                        + "AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id, y, m",
-                rs -> {
-                    seancesByKey.put(key(rs.getObject("center_id", UUID.class), rs.getInt("y"), rs.getInt("m")),
-                            new long[]{rs.getLong("n")});
-                }, params(ids, from, to));
+        for (var mois : seancesRealisees.parMois(ids, from, to)) {
+            seancesByKey.put(key(mois.centre(), mois.annee(), mois.mois()), new long[]{mois.nombre()});
+        }
         Map<String, BigDecimal[]> caByKey = new HashMap<>();
-        for (var mois : finance.chiffresParMois(ids, from.toLocalDate(), to.toLocalDate())) {
+        for (var mois : finance.chiffresParMois(ids, from, to)) {
             caByKey.put(key(mois.centre(), mois.annee(), mois.mois()),
                     new BigDecimal[]{mois.chiffreDAffairesHt(), mois.chiffreDAffairesTtc()});
         }

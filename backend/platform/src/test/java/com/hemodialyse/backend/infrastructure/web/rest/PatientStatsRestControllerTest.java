@@ -83,7 +83,7 @@ class PatientStatsRestControllerTest {
         private UUID lastPatientId;
 
         private FakeStatsQueryService() {
-            super(null);
+            super(null, null);
         }
 
         @Override

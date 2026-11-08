@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.MigrationRollbackPort;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -34,26 +36,30 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     /**
      * Tables rattachées à un patient qui empêchent sa suppression (assure_patient est supprimée avec lui).
      */
-    private static final List<String> PATIENT_DATA = List.of("prise_en_charge", "attestation_droit", "seances", "factures",
-            "dossier_medical_patient", "prescriptions_medicales", "antecedents_medicaux", "allergies_patient",
+    private static final List<String> PATIENT_DATA = List.of("prise_en_charge", "attestation_droit", SeancesDeLaReprisePubliees.NATURE,
+            "factures", "dossier_medical_patient", "prescriptions_medicales", "antecedents_medicaux", "allergies_patient",
             "serologies_patient", "abords_vasculaires", "resultats_analyses", "observations_biologiques", "ordonnances",
             "demandes_examen", "administrations_anemie", "bons_sortie", "bilans_pre_greffe");
 
     private final JdbcTemplate jdbc;
     private final RepriseDesSoldes reprise;
+    /** Séances reprises : lues et supprimées par le langage publié de la Séance (SE7e, ADR 0099), mêmes requêtes qu'avant. */
+    private final SeancesDeLaReprisePubliees seances;
 
-    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise) {
+    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances) {
         this.reprise = reprise;
         this.jdbc = jdbc;
+        this.seances = seances;
     }
 
     /**
-     * Lignes créées par le lot, par table (elles ne bloquent pas la suppression de leur patient).
+     * Lignes créées par le lot, par nature de données (elles ne bloquent pas la suppression de leur patient).
      */
     private static Map<String, Set<String>> createdByTable(List<IdMapping> created) {
         Map<String, Set<String>> out = new HashMap<>();
         for (IdMapping m : created) {
             String table = m.entity() == MigrationEntity.SOLDES_OUVERTURE ? "factures"
+                    : m.entity() == MigrationEntity.SEANCES ? SeancesDeLaReprisePubliees.NATURE
                     : HistoricalRecordJdbcAdapter.TABLES.containsKey(m.entity())
                     ? HistoricalRecordJdbcAdapter.TABLES.get(m.entity()).name() : null;
             if (table != null) out.computeIfAbsent(table, t -> new HashSet<>()).add(m.targetId().toLowerCase());
@@ -78,8 +84,9 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     UUID patientId = UUID.fromString(m.targetId());
                     for (String table : PATIENT_DATA) {
                         Set<String> ownRows = createdByTable.getOrDefault(table, Set.of());
-                        // les factures sont celles de la Facturation : lues par son langage publié
+                        // les factures sont celles de la Facturation, les séances celles de la Séance : lues par leur langage publié
                         List<String> rows = "factures".equals(table) ? reprise.facturesDuPatient(patientId)
+                                : SeancesDeLaReprisePubliees.NATURE.equals(table) ? ids(() -> seances.seancesDuPatient(patientId))
                                 : ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId);
                         boolean usedElsewhere = rows.stream().anyMatch(id -> !ownRows.contains(id));
                         if (usedElsewhere) {
@@ -103,8 +110,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 }
                 case SEANCES -> {
                     UUID seanceId = UUID.fromString(m.targetId());
-                    boolean billed = !ids("SELECT CAST(facture_id AS VARCHAR(36)) FROM seances WHERE id = ? AND facture_id IS NOT NULL",
-                            seanceId).isEmpty();
+                    boolean billed = !ids(() -> seances.factureDeLaSeance(seanceId)).isEmpty();
                     boolean completed = !ids("SELECT CAST(id AS VARCHAR(36)) FROM volet_medical WHERE seance_id = ?", seanceId).isEmpty()
                             || !ids("SELECT CAST(id AS VARCHAR(36)) FROM volet_paramedical WHERE seance_id = ?", seanceId).isEmpty();
                     if (billed || completed) {
@@ -140,6 +146,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 case ASSURES ->
                         jdbc.update("DELETE FROM assure WHERE numero_assurance = ? AND center_id = ?", m.targetId(), center);
                 case SOLDES_OUVERTURE -> reprise.supprimer(center, UUID.fromString(m.targetId()));
+                case SEANCES -> seances.retirer(center, UUID.fromString(m.targetId()));
                 default -> jdbc.update("DELETE FROM " + HistoricalRecordJdbcAdapter.table(m.entity()).name()
                         + " WHERE id = ? AND center_id = ?", UUID.fromString(m.targetId()), center);
             }
@@ -147,8 +154,13 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     }
 
     private List<String> ids(String sql, Object... args) {
+        return ids(() -> jdbc.queryForList(sql, String.class, args));
+    }
+
+    /** Identifiants en minuscules ; contrôle ignoré si la table est absente (même traitement pour une lecture publiée). */
+    private List<String> ids(Supplier<List<String>> lecture) {
         try {
-            return jdbc.queryForList(sql, String.class, args).stream().map(String::toLowerCase).toList();
+            return lecture.get().stream().map(String::toLowerCase).toList();
         } catch (DataAccessException e) {
             // Table absente d'un schéma allégé (ex. H2 de développement sans le module concerné).
             log.debug("Contrôle ignoré : {}", e.getMessage());

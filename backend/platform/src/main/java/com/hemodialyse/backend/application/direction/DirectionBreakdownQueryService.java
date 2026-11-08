@@ -4,6 +4,7 @@ import com.hemodialyse.backend.application.direction.DirectionDashboardQueryServ
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
 import com.hemodialyse.backend.application.query.EffectifSql;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -45,12 +46,14 @@ public class DirectionBreakdownQueryService {
     private final DirectionDashboardQueryService dashboard;
 
     private final SyntheseFinanciereDesCentres finance;
+    private final SeancesRealiseesDesCentresPubliees seancesRealisees;
 
     public DirectionBreakdownQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                          SyntheseFinanciereDesCentres finance) {
+                                          SyntheseFinanciereDesCentres finance, SeancesRealiseesDesCentresPubliees seancesRealisees) {
         this.finance = finance;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
+        this.seancesRealisees = seancesRealisees;
     }
 
     /**
@@ -109,7 +112,7 @@ public class DirectionBreakdownQueryService {
 
         Map<String, Agg> caisseCells = new LinkedHashMap<>();
         loadCaissePatients(in, ids, start, end, caisseCells);
-        loadCaisseSeances(in, ids, sqlFrom, sqlTo, caisseCells);
+        loadCaisseSeances(ids, start, end, caisseCells);
         loadCaisseCa(in, ids, sqlFrom, sqlTo, caisseCells);
 
         Map<UUID, Anemie> anemie = new HashMap<>();
@@ -184,17 +187,14 @@ public class DirectionBreakdownQueryService {
                 }, effectifArgs(ids, effectif));
     }
 
-    private void loadCaisseSeances(String in, List<UUID> ids, Date from, Date to, Map<String, Agg> cells) {
-        List<Object> args = new ArrayList<>(ids);
-        args.addAll(List.of(from, to));
-        jdbc.query("SELECT s.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, COUNT(*) AS n "
-                        + "FROM seances s INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id "
-                        + CAISSE_JOIN + "WHERE s.center_id IN (" + in + ") AND s.date_seance BETWEEN ? AND ? "
-                        + "AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, COALESCE(ca.code, '')",
-                rs -> {
-                    cell(cells, rs.getObject("center_id", UUID.class), rs.getString("code"), rs.getString("nom"))
-                            .seances += rs.getLong("n");
-                }, args.toArray());
+    /**
+     * Séances réalisées par caisse : lecture publiée de la Séance (SE7e, ADR 0099), même requête qu'avant (jointure de la fiche au centre
+     * de la séance, KB-SEA-83 ; chaîne de caisse sans centre, KB-SEA-84), lignes dans l'ordre du SGBD.
+     */
+    private void loadCaisseSeances(List<UUID> ids, LocalDate from, LocalDate to, Map<String, Agg> cells) {
+        for (var caisse : seancesRealisees.parCaisse(ids, from, to)) {
+            cell(cells, caisse.centre(), caisse.codeCaisse(), caisse.nomCaisse()).seances += caisse.nombre();
+        }
     }
 
     /**

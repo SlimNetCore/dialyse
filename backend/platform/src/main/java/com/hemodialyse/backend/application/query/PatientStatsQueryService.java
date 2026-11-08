@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.query;
 
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -16,31 +17,21 @@ public class PatientStatsQueryService {
 
     private final JdbcTemplate jdbc;
     private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
+    /**
+     * Séances du patient et mesures de leur volet paramédical (UF réelle = saisie, sinon perte de poids x 1000 ; tension en texte
+     * « 130/80 » ; poids sec en vigueur de la prescription médicale) : langage publié de la Séance (SE7e, ADR 0099).
+     */
+    private final StatistiquesDesSeancesPubliees statistiques;
 
-    public PatientStatsQueryService(JdbcTemplate jdbc) {
+    public PatientStatsQueryService(JdbcTemplate jdbc, StatistiquesDesSeancesPubliees statistiques) {
         this.jdbc = jdbc;
+        this.statistiques = statistiques;
         this.identity = new com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider(jdbc);
     }
 
-    /**
-     * UF réelle : valeur saisie (ultrafiltration_ml) ou, à défaut, perte de poids per-dialytique × 1000.
-     * Le schéma effectif de volet_paramedical (entité JPA) ne contient ni uf_reelle_ml, ni TA
-     * systolique/diastolique séparées : la TA est stockée en texte « 130/80 » (ta_avant / ta_apres).
-     * Le poids sec cible provient de la prescription médicale (prescriptions_medicales).
-     */
-    private static final String UF_REELLE_EXPR =
-            "COALESCE(vp.ultrafiltration_ml, (vp.poids_avant_kg - vp.poids_apres_kg) * 1000)";
-
-    /**
-     * Poids sec cible en vigueur le jour de la séance : dernière prescription médicale portant un
-     * poids sec, datée au plus tard du jour de la séance (le médecin n'a pas à le ressaisir à chaque
-     * nouvelle prescription).
-     */
-    private static final String POIDS_SEC_A_LA_SEANCE_EXPR =
-            "(SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm "
-                    + "WHERE pm.patient_id = s.patient_id AND pm.center_id = s.center_id "
-                    + "AND pm.poids_sec_cible_kg IS NOT NULL AND pm.date_prescription <= s.date_seance "
-                    + "ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1)";
+    private static Double zeroSiNul(Double value) {
+        return value != null ? value : 0.0d;
+    }
 
     private static final java.util.regex.Pattern TA_PATTERN =
             java.util.regex.Pattern.compile("^\\s*(\\d{2,3})\\s*[/\\-]\\s*(\\d{2,3})");
@@ -267,13 +258,6 @@ public class PatientStatsQueryService {
         return '"' + escaped + '"';
     }
 
-    private String buildSeanceDateFilter(LocalDate from, LocalDate to) {
-        if (from != null && to != null) return " AND s.date_seance BETWEEN '" + from + "' AND '" + to + "'";
-        if (from != null) return " AND s.date_seance >= '" + from + "'";
-        if (to != null) return " AND s.date_seance <= '" + to + "'";
-        return "";
-    }
-
     private String buildAnalyseDateFilter(LocalDate from, LocalDate to) {
         if (from != null && to != null) return " AND ra.date_prelevement BETWEEN '" + from + "' AND '" + to + "'";
         if (from != null) return " AND ra.date_prelevement >= '" + from + "'";
@@ -288,43 +272,31 @@ public class PatientStatsQueryService {
         return "";
     }
 
+    /**
+     * Statistiques paramédicales : les séances et leur volet sont lus par le langage publié de la Séance (SE7e, ADR 0099), mêmes requêtes
+     * et même ordre qu'avant (tous statuts, volet joint sans centre : KB-SEA-85 ; ordre par date seule et libellés du SGBD : KB-SEA-86 ;
+     * précision des moyennes du SGBD : KB-SEA-87). Moyenne absente rendue {@code 0.0} comme avant.
+     */
     public Map<String, Object> getParamedicalStats(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
-        String dateFilter = buildSeanceDateFilter(from, to);
+        Long seanceCount = statistiques.nombreDeSeances(centerId, patientId, from, to);
+        Double avgPoidsAvant = zeroSiNul(statistiques.moyenneDuPoidsAvant(centerId, patientId, from, to));
+        Double avgPoidsApres = zeroSiNul(statistiques.moyenneDuPoidsApres(centerId, patientId, from, to));
+        Double avgUfReelle = zeroSiNul(statistiques.moyenneDeLUltrafiltration(centerId, patientId, from, to));
 
-        String baseFrom = " FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id "
-                + "WHERE s.center_id = ? AND s.patient_id = ? " + dateFilter;
+        List<Map<String, Object>> poidsEvolution = statistiques.evolutionDuPoids(centerId, patientId, from, to);
 
-        Long seanceCount = queryLong("SELECT COUNT(1)" + baseFrom, centerId, patientId);
-        Double avgPoidsAvant = queryDouble("SELECT AVG(vp.poids_avant_kg)" + baseFrom, centerId, patientId);
-        Double avgPoidsApres = queryDouble("SELECT AVG(vp.poids_apres_kg)" + baseFrom, centerId, patientId);
-        Double avgUfReelle = queryDouble("SELECT AVG(" + UF_REELLE_EXPR + ")" + baseFrom, centerId, patientId);
-
-        List<Map<String, Object>> poidsEvolution = jdbc.queryForList(
-                "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, "
-                        + POIDS_SEC_A_LA_SEANCE_EXPR + " AS poids_sec_cible_kg, "
-                        + UF_REELLE_EXPR + " AS uf_reelle_ml"
-                        + baseFrom
-                        + " ORDER BY s.date_seance ASC",
-                centerId, patientId
-        );
-
-        List<Map<String, Object>> taEvolution = jdbc.query(
-                "SELECT s.date_seance, vp.ta_avant, vp.ta_apres"
-                        + baseFrom
-                        + " ORDER BY s.date_seance ASC",
-                (rs, rowNum) -> {
-                    Integer[] avant = parseTension(rs.getString("ta_avant"));
-                    Integer[] apres = parseTension(rs.getString("ta_apres"));
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("date_seance", rs.getDate("date_seance"));
-                    row.put("ta_systolique_avant", avant[0]);
-                    row.put("ta_diastolique_avant", avant[1]);
-                    row.put("ta_systolique_apres", apres[0]);
-                    row.put("ta_diastolique_apres", apres[1]);
-                    return row;
-                },
-                centerId, patientId
-        );
+        List<Map<String, Object>> taEvolution = new ArrayList<>();
+        for (var tensions : statistiques.evolutionDeLaTension(centerId, patientId, from, to)) {
+            Integer[] avant = parseTension(tensions.tensionAvant());
+            Integer[] apres = parseTension(tensions.tensionApres());
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("date_seance", tensions.date() == null ? null : java.sql.Date.valueOf(tensions.date()));
+            row.put("ta_systolique_avant", avant[0]);
+            row.put("ta_diastolique_avant", avant[1]);
+            row.put("ta_systolique_apres", apres[0]);
+            row.put("ta_diastolique_apres", apres[1]);
+            taEvolution.add(row);
+        }
 
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("seanceCount", seanceCount);
@@ -348,11 +320,6 @@ public class PatientStatsQueryService {
                         + "AND pm.date_prescription <= ? ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1",
                 Double.class, centerId, patientId, at != null ? at : LocalDate.now());
         return values.isEmpty() ? null : values.get(0);
-    }
-
-    private Long queryLong(String sql, UUID centerId, UUID patientId) {
-        Long value = jdbc.queryForObject(sql, Long.class, centerId, patientId);
-        return value != null ? value : 0L;
     }
 
     private Double queryDouble(String sql, UUID centerId, UUID patientId) {

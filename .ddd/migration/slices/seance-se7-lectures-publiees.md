@@ -25,5 +25,5 @@ Cette slice reste `planned` : elle n'est caractérisée qu'au travers de ses sou
 | 7.2 | `seance-se7b-tableau-de-bord-mensuel` | planned | dashboard, détails, exports |
 | 7.3 | `seance-se7c-lectures-facturation-stock` | planned | 7 fichiers dont 5 UPDATE sur `seances` (argent) |
 | 7.4 | `seance-se7d-lectures-absences-planification-dossier` | planned | 5 fichiers |
-| 7.5 | `seance-se7e-lectures-pilotage-et-rapports` | planned | 8 fichiers dont migration |
+| 7.5 | `seance-se7e-lectures-pilotage-et-rapports` | built (2026-11-08, ADR 0099 ; état de `state.json` qui fait foi pour les autres lignes) | 9 fichiers de plateforme via 5 ports publiés (dont l'écriture de la reprise) ; état Jasper du cahier gardé, justifié ; garde durcie (KB-SEA-92) |
 | 7.6 | `seance-se7f-retrait-bc-seance-et-garde` | planned | retrait bc-seance, `TableDesSeancesTest` |

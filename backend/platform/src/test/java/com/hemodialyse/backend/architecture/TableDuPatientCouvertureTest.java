@@ -69,6 +69,11 @@ class TableDuPatientCouvertureTest {
             "2026-11-08 (déplacée de planification/.../legacyseance/SeancesRealiseesJdbc, ADR 0098, SE7d) : jointure séances x patients sur "
                     + "l'identifiant ET le centre (KB-SEA-80, reproduit) publiée à la Planification avec le nom et le prénom de la fiche ; "
                     + "échéance : résidu D-R3, langage publié du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/SeancesRealiseesDesCentresJdbc.java",
+            "2026-11-08 (déplacée de platform/.../DirectionBreakdownQueryService.loadCaisseSeances, ADR 0099, SE7e) : séances réalisées par "
+                    + "caisse, jointure séances x patients sur l'identifiant ET le centre (KB-SEA-83, reproduit) et chaîne payeur / agence / caisse "
+                    + "sans centre (KB-SEA-84) dans un GROUP BY (la découper changerait le résultat), publiée au pilotage de la Direction ; "
+                    + "échéance : résidu E-R2, langage publié du Patient (caisse de la fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/LectureDesPreferencesJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
             "2026-11-04 : lecture croisée Planification / dossier médical (transporteurs, date de naissance, abords vasculaires), pas une lecture de fiche publiée ; échéance : reprise du dossier médical",

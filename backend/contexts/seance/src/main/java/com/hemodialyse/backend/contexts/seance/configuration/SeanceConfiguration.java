@@ -182,6 +182,37 @@ public class SeanceConfiguration {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ConstantesDesSeancesJdbc(jdbc);
     }
 
+    /**
+     * Lectures publiées de la Séance pour la plateforme (SE7e, ADR 0099) : pilotage de la Direction, statistiques du patient, cahier de
+     * dialyse, usages d'un forfait. Lecture seule, sans transaction propre.
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees seancesRealiseesDesCentresPubliees(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesDesCentresJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees statistiquesDesSeancesPubliees(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.StatistiquesDesSeancesJdbc(jdbc);
+    }
+
+    /** Un seul bean pour les deux comptages (cahier de dialyse, forfait imposé). */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDuCahierEtForfaitsImposesJdbc seancesDuCahierEtForfaitsImposes(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDuCahierEtForfaitsImposesJdbc(jdbc);
+    }
+
+    /**
+     * Séances reprises (SE7e, ADR 0099) : le seul port qui écrit et supprime des séances hors des cas d'usage de la Séance, réservé à la
+     * reprise de données (ArchUnit). Participe à la transaction de l'import ou de l'annulation du lot.
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees seancesDeLaReprisePubliees(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesDeLaRepriseJdbc(jdbc);
+    }
+
     @Bean
     SessionCourante sessionCouranteDeLaSeance() {
         return new SessionLegacy();
