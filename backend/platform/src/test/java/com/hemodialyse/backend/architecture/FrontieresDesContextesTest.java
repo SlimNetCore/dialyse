@@ -230,6 +230,24 @@ class FrontieresDesContextesTest {
             })
             .because("la réécriture de la ligne entière effaçait facture_id (KB-SEA-49) ; les écritures ciblées vivent dans contexts/seance");
 
+    /**
+     * SE6 (revue, KB-SEA-50) : les surcharges courtes de {@code Seance.restituer} (sans {@code FactureId}) posent la facture à nul ; un
+     * adaptateur de production qui les emploierait rendrait la garde de suppression inopérante EN SILENCE. Le code de production
+     * (tests exclus) n'appelle donc que la restitution complète, à onze paramètres, où la facture est un argument explicite.
+     */
+    @ArchTest
+    static final ArchRule le_code_de_production_restitue_une_seance_avec_sa_facture = noClasses()
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "restitue une séance sans passer sa facture (surcharge courte de Seance.restituer)") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().getFullName().equals("com.hemodialyse.backend.contexts.seance.domain.Seance")
+                            && appel.getName().equals("restituer")
+                            && appel.getTarget().getRawParameterTypes().size() < 11;
+                }
+            })
+            .because("une surcharge sans FactureId ferait d'une séance facturée une séance libre : la garde KB-SEA-50 s'ouvrirait en silence");
+
     private static final java.util.Set<String> CLASSES_AUTORISEES_A_ECRIRE_LE_FORFAIT_SURCHARGE_LEGACY = java.util.Set.of(
             "com.hemodialyse.backend.domain.seance.model.Seance",
             "com.hemodialyse.backend.infrastructure.persistence.adapter.SeanceRepositoryAdapter");

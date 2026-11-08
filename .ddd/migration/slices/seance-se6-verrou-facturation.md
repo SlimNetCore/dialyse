@@ -21,8 +21,9 @@ review-by: 2026-12-15
 | Sortants | `Seances.enregistrerLeJour` (n'écrit QUE `date_seance`) et `supprimer` (`SeancesJdbc`) ; `JournalDesSuppressionsJdbc` (table `seance_suppression`) ; ACL `AnnulationDesConsommations` (langage publié du Stock), `SaisiesDeLaSeance` (`SaisiesDeSeanceFourniesLegacy`, plateforme), `DiffusionsDeSeance.seanceSupprimee` ; doubles mémoire / H2 / PG16 sous le même contrat |
 | Entrant | `SeancesControleur` `PUT` et `DELETE /api/v1/seances/{id}`, `@PreAuthorize ADMIN`, `ErreursDeSeanceAdvice` (403 avant 400, 409, 422) ; DTO `ChangementDeJourDemande`, `SuppressionDeSeanceDemande` |
 | Retraits legacy | handler `update` de `SeanceRestController`, `SeanceSuppressionRestController`, `SuppressionSeanceService`, `SuppressionSeanceJournalPort` + adapter, `SuppressionSeance`, `MotifSuppressionSeance`, `UpdateSeanceRequest`, `SeanceUseCase.updateDate`, `Seance.verifierSuppressible`, `SeanceRepositoryPort.delete` ; seam ouvert puis refermé (`seams.md`, `seamAllowed` vide), `covered.json` allégé |
+| Revue (2026-11-08) | Atomicité prouvée sur la pile réelle (`AtomiciteDeLaSuppressionDUneSeanceIntegrationTest`, 2 échecs injectés, rollback complet) ; surcharges courtes de `Seance.restituer` interdites au code de production (ArchUnit) ; D9, D10, inventaire §58 requête 9 |
 | Garde-fous | ArchUnit (`FrontieresDesContextesTest`) : seul `contexts/seance` dépend de `ChangerLeJourDUneSeance` et `SupprimerUneSeance` ; `SeanceRepositoryPort.save` (ligne entière) n'a plus que `SeanceDomainService` pour appelant |
-| Documentation | RG-SEA-057 (+ renvoi en RG-SEA-050), annexe 16, glossaire (5 termes `proposed`), section 58 de `verifications-production.md` (8 requêtes SELECT, rejouées sur PG16 jetable par `backend/scripts/seance-se6-pg16-rejeu.sh`, même numérotation) |
+| Documentation | RG-SEA-057 (+ renvoi en RG-SEA-050), annexe 16, glossaire (5 termes `proposed`), section 58 de `verifications-production.md` (9 requêtes SELECT, rejouées sur PG16 jetable par `backend/scripts/seance-se6-pg16-rejeu.sh`, même numérotation) |
 
 ## Parité de caractérisation
 
@@ -34,7 +35,9 @@ review-by: 2026-12-15
 |---|---|---|---|
 | 49 | CORRIGÉ : le changement de jour n'écrit que `date_seance` ; dégâts passés non réparés | intégrité de facturation | 1, 3, 4, 8 |
 | 50 | CORRIGÉ : toute séance rattachée à une facture est refusée à la suppression (422) ; factures déjà orphelines à traiter | intégrité de facturation | 1, 2, 3 |
-| 51 | REPRODUIT : aucun stock restitué à la suppression | stock / argent | 7 |
+| 51 | REPRODUIT : aucun stock restitué à la suppression ; `bons_sortie` / `stock_movements` conservés sans séance (inventaire, revue) | stock / argent | 7, 9 |
+| D9 | GARDÉ : un échec de diffusion de `SEANCE_SUPPRIMEE` n'empêche pas la suppression (le legacy : 500 après l'effacement) ; test `DiffusionsFournieesLegacyTest` | — | — |
+| D10 | REPRODUIT : séance rattachée non `FACTUREE` : le jour change, la suppression est refusée ; refuser aussi le changement de jour ? | intégrité de facturation | 3, 4 |
 | 52 | CORRIGÉ : 400 au lieu de 500, `centerId` obligatoire à la suppression, 403 avant 400 | — | — |
 | 53 | REPRODUIT sans alerte : ni jour, ni signature, ni patient regardés | — | — |
 | 54 | REPRODUIT : le jour d'une séance validée ou signée reste modifiable (il détermine la période de facturation) | ARGENT | 4, 5 |
@@ -57,7 +60,7 @@ Si une date butoir est dépassée sans retrait : nouvel ADR de prolongation moti
 
 ## Plan de mise en production (sans drapeau)
 
-- Pré-requis : décision écrite sur KB-49, 50, 51, 54, 55 ; requêtes 1 à 8 de la section 58 exécutées avant et après déploiement (requête 1 à 0 ligne ou factures traitées) ; recette (a) à (g) de la section 58.
+- Pré-requis : décision écrite sur KB-49, 50, 51, 54, 55 ; requêtes 1 à 9 de la section 58 exécutées avant et après déploiement (requête 1 à 0 ligne ou factures traitées) ; recette (a) à (g) de la section 58.
 - Surveillance : requêtes 1, 3, 4 et 6 chaque semaine ; 409 `ECRITURE_CONCURRENTE` observés ; clients appelant `DELETE` sans `centerId` (400 désormais).
 - Rollback : `git revert` du commit de reprise (colonnes inchangées, aucune donnée à restaurer ; les suppressions déjà faites restent irréversibles). Jamais d'activation par l'agent.
 

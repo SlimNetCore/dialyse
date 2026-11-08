@@ -188,7 +188,10 @@
   **Reproduits, RISQUES À CONFIRMER avant la mise en production** — (KB-SEA-54) le jour d'une séance validée ou signée reste modifiable
   alors que le jour détermine la période de facturation ; (KB-SEA-55) le changement de jour contourne le verrou des jours passés
   (RG-SEA-053) sans trace de déverrouillage ; (KB-SEA-51) **aucun stock n'est restitué** à la suppression malgré les mots « restitution » du
-  legacy (RG-SEA-050 est à lire ainsi). **Reproduits sans alerte** — (KB-SEA-53) la suppression ne regarde ni le jour, ni la signature du
+  legacy (RG-SEA-050 est à lire ainsi), et les `bons_sortie` / `stock_movements` de la séance restent sans séance (aucune clé étrangère) ;
+  (D10) une séance rattachée à une facture mais non `FACTUREE` peut changer de jour (et sortir de la période de sa facture) alors que sa
+  suppression est refusée. **Écart gardé, à confirmer** — (D9) un échec de diffusion de `SEANCE_SUPPRIMEE` est journalisé et n'empêche
+  pas la suppression (le legacy renvoyait une 500 après l'effacement). **Reproduits sans alerte** — (KB-SEA-53) la suppression ne regarde ni le jour, ni la signature du
   médecin, ni le patient ; droits, audit (`SEANCES_MODIFICATION`, `SEANCES_SUPPRESSION`), diffusion, libellés. Aucun montant n'est recalculé.
   *Source :* `ChangerLeJourDUneSeance`, `SupprimerUneSeance`, `Seance.changerDeJour`, `Seance.exigerSupprimable`, `MotifDeSuppression`,
   `SuppressionDeSeance`, `FactureId`, `SeancesJdbc`, `JournalDesSuppressionsJdbc`, `SaisiesDeSeanceFourniesLegacy`, `SeancesControleur`,

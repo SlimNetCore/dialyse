@@ -61,7 +61,13 @@ public final class Seance {
                 exiger(derogation, "Dérogation requise"), null, null);
     }
 
-    /** Restitue une ligne existante (adapter de persistance) : aucune règle de création n'est rejouée. */
+    /*
+     * Les trois surcharges courtes ci-dessous (sans FactureId) posent la facture à nul : elles sont RÉSERVÉES AUX TESTS. Un test
+     * d'architecture (FrontieresDesContextesTest.le_code_de_production_restitue_une_seance_avec_sa_facture) fait échouer la construction
+     * si du code de production les appelle (revue SE6, KB-SEA-50 : sinon la garde de suppression s'ouvrirait en silence).
+     */
+
+    /** Restitue une ligne existante (adapter de persistance) : aucune règle de création n'est rejouée. TESTS SEULEMENT. */
     public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
                                    Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons) {
         return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, null);
