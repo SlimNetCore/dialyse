@@ -1,19 +1,23 @@
 #!/bin/bash
 # Rejeu de la sous-slice SE7c2 (ecritures et lectures de la table des seances par la Facturation) sur un PostgreSQL 16 REEL et
-# JETABLE : cluster temporaire detruit en sortie. Chaine Flyway V1..Vn (psql), puis le contrat PostgreSQL de la course de deux
-# emissions simultanees sur les memes seances (LiaisonConcurrentePostgresContractIT, ecrit dans la base jetable uniquement) et le
-# contrat des seances de la Facturation (SeancesPostgresContractIT).
+# JETABLE : cluster temporaire detruit en sortie. Chaine Flyway V1..Vn (psql), puis les requetes de controle (SELECT seule, dont
+# les requetes 1, 3 et 4 du paragraphe 62 de .ddd/migration/verifications-production.md, a l'identique), puis :
+#  - module Seance : la course de deux emissions simultanees sur les memes seances (LiaisonConcurrentePostgresContractIT, ecrit dans
+#    la base jetable uniquement) et les ports publies de la Seance pour la Facturation (FacturationDesSeancesPostgresContractIT) ;
+#  - module Facturation : le forfait applique (ForfaitAppliquePostgresContractIT : ForfaitsDuCentreJdbc et prises en charge reelles,
+#    sans SQL sur seances).
 # A lancer en arriere-plan avec un log : backend/scripts/seance-se7c2-pg16-rejeu.sh 55545
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Mot de passe du cluster jetable : variable d'environnement
-# FACTURATION_PG16_PASSWORD (tiree au hasard ici si absente), jamais en -D sur la ligne de commande Maven (le test la lit dans
-# l'environnement). Code de sortie : 0 si tout est vert.
+# SEANCE_PG16_PASSWORD (tiree au hasard ici si absente), recopiee dans SEANCE_PG16_PASSWORD et FACTURATION_PG16_PASSWORD pour les
+# deux modules ; jamais en -D sur la ligne de commande Maven (les tests la lisent dans l'environnement). Code de sortie : 0 si tout
+# est vert.
 set -uo pipefail
 PORT="${1:-55545}"
 [ "$PORT" != "5432" ] || { echo "Port 5432 interdit"; exit 2; }
 PGBIN="${PGBIN:-/c/Program Files/PostgreSQL/16/bin}"
 RACINE="$(cd "$(dirname "$0")/../.." && pwd)"
 TMP="$(mktemp -d)"
-PW="${FACTURATION_PG16_PASSWORD:-pw$RANDOM$RANDOM$RANDOM$RANDOM}"
+PW="${SEANCE_PG16_PASSWORD:-pw$RANDOM$RANDOM$RANDOM$RANDOM}"
 echo -n "$PW" > "$TMP/pw"
 trap '"$PGBIN/pg_ctl" -D "$TMP/data" stop -m fast >/dev/null 2>&1 || true; rm -rf "$TMP"' EXIT
 "$PGBIN/initdb" -D "$TMP/data" -U facturation_test --pwfile="$TMP/pw" -A scram-sha-256 -E UTF8 --locale=C >/dev/null 2>&1 || exit 3
@@ -42,6 +46,15 @@ for q in \
   "SELECT s.center_id, s.statut, count(*) AS statuts_hors_casse_canonique FROM seances s WHERE s.statut <> upper(s.statut) GROUP BY s.center_id, s.statut"; do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done
+echo "=== Paragraphe 62 (verifications-production.md) : requetes 1, 3 et 4 a l'identique, SELECT seule, 0 ligne attendue sur le schema neuf ==="
+for q in \
+  "SELECT s.center_id, s.id, s.forfait_override_id, s.forfait_override_code FROM seances s LEFT JOIN forfait f ON f.id = s.forfait_override_id WHERE s.forfait_override_id IS NOT NULL AND s.forfait_override_code IS DISTINCT FROM f.code LIMIT 100" \
+  "SELECT s.center_id, s.id, s.facture_id, s.exclusion_absence_id FROM seances s WHERE s.statut = 'ABSENT' AND s.facture_id IS NOT NULL LIMIT 100" \
+  "SELECT a.center_id, a.patient_id, a.id AS facture_a, b.id AS facture_b FROM factures a INNER JOIN factures b ON b.center_id = a.center_id AND b.patient_id = a.patient_id AND b.id > a.id AND b.period_start <= a.period_end AND a.period_start <= b.period_end LIMIT 100"; do
+  LIGNES="$("${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "SELECT count(*) FROM ($q) r")" || { echo "ECHEC de la requete : $q"; RC=1; continue; }
+  LIGNES="$(echo "$LIGNES" | tr -d '\r')"
+  [ "$LIGNES" = "0" ] && echo "requete executable, 0 ligne" || { echo "LIGNES INATTENDUES ($LIGNES) : $q"; RC=1; }
+done
 
 cd "$RACINE/backend"
 URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
@@ -52,5 +65,11 @@ export SEANCE_PG16_PASSWORD="$PW"
   -Dtest="LiaisonConcurrentePostgresContractIT,FacturationDesSeancesPostgresContractIT" \
   -Dsurefire.failIfNoSpecifiedTests=false \
   -Dseance.pg16.url="$URL" -Dseance.pg16.user=facturation_test || RC=1
+echo "=== Contrat PostgreSQL (module Facturation, revue SE7c2 m1) : forfait applique, sans SQL sur seances ==="
+export FACTURATION_PG16_PASSWORD="$PW"
+./mvnw -o -pl contexts/facturation -am test \
+  -Dtest="ForfaitAppliquePostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test || RC=1
 echo "=== Fin du rejeu : code $RC (0 = tout vert) ==="
 exit $RC

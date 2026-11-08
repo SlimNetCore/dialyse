@@ -66,6 +66,8 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §4]
 | Liaison d'une séance à sa facture (publiée) | La séance validée ou signée non facturée passe à `FACTUREE` et porte l'identité de sa facture ; tout ou rien avec l'émission | `LiaisonDesSeancesAUneFacturePubliee` | `LiaisonDesSeancesJdbc` (Facturation, retiré) | rattachement par la Séance elle-même (SE6) | RG-SEA-061 ; KB-SEA-74 | proposed |
 | Séances facturées (deux définitions) | Par statut `FACTUREE` et date de séance (tableau de bord) ; par rattachement aux factures du mois (synthèse, répartitions) | `SeancesDesFacturesPubliees` | `billedSeances`, `seances_count` | « séance facturée » du Stock (statut, casse ignorée) | RG-SEA-061 ; KB-SEA-75, KB-FAC-54 | proposed |
 
+Renvoi (2026-11-08, revue SE7c2) : côté Facturation, ces quatre ports publiés sont consommés au travers de quatre interfaces requises du langage publié de la Facturation, `SeancesAFacturerFournies`, `ExclusionsDeSeancesFournies`, `LiaisonDesSeancesFournie` et `SeancesDesFacturesFournies` (termes « (fournies) », statut `proposed`, définis dans `.ddd/strategic/glossaries/facturation.md`), implémentées par les traducteurs `platform/…/infrastructure/acl/facturation/*ParLaSeance`. Ce ne sont pas des termes de la Séance.
+
 Questions ouvertes (SE7c2) : écrire le code du forfait imposé ou ne plus le lire (KB-SEA-47) ? Une seule définition de « séance facturée » (KB-SEA-75) ? Clé étrangère sur `seances.facture_id` (KB-SEA-74) ?
 
 Questions ouvertes (SE7c1) : la demi-journée doit-elle devenir une donnée du créneau (Organisation) plutôt qu'un mot cherché dans son libellé (KB-SEA-68) ? Normaliser le statut `FACTUREE` (KB-SEA-70) ?

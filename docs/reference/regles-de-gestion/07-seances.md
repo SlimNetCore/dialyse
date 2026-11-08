@@ -262,8 +262,11 @@
   éligible, toute l'émission est annulée (« Une ou plusieurs seances ne sont plus eligibles a la validation », 422) : l'émission reste dans
   UNE SEULE transaction, non scindée, sans compensation. **Comptages** : deux définitions de « séance facturée » conservées (tableau de
   bord : statut `FACTUREE` et date de séance dans le mois ; synthèse et répartitions : séances rattachées aux factures du mois ; KB-SEA-75).
-  **Seul écart décidé (à confirmer métiers, KB-SEA-71)** : lier une absence à une séance déjà rattachée à une facture est désormais refusé
-  (garde `facture_id IS NULL`, comme la réinclusion). **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers, DPO, DBA,
+  **Seul écart décidé (à confirmer métiers, KB-SEA-71)** : le port publié refuse désormais de lier une absence à une séance déjà rattachée
+  à une facture (garde `facture_id IS NULL`, comme la réinclusion). C'est une **défense en profondeur sur le port**, observée au niveau du
+  port (golden et contrat), **sans effet aujourd'hui sur le trafic HTTP** : l'exclusion d'une séance, seul appelant, exclut d'abord la
+  séance, ce qui exige déjà qu'elle soit non facturée, puis lie l'absence dans la même transaction ; le refus visible par l'utilisateur
+  reste celui de l'exclusion. **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers, DPO, DBA,
   revue au plus tard le 2026-12-15)** : KB-SEA-47 (code du forfait non écrit), KB-SEA-72 (mémoire d'exclusion blanche), KB-SEA-73
   (statut en casse exacte), KB-SEA-74 (unicité « une séance, une facture » portée par la seule garde de la liaison et la transaction, aucune
   clé étrangère), KB-SEA-75 (deux définitions). Requêtes de détection : `verifications-production.md` section 62.

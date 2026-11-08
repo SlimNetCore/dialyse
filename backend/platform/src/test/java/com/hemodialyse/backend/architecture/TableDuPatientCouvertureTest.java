@@ -71,7 +71,10 @@ class TableDuPatientCouvertureTest {
             "2026-11-04 : lecture croisée Planification / dossier médical (transporteurs, date de naissance, abords vasculaires), pas une lecture de fiche publiée ; échéance : reprise du dossier médical",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/NomsDesPatientsJdbc.java", CYCLE + " (port FichesDesPatients.noms)",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/FacturationDesSeancesJdbc.java", JOINTURE + " : séances x patients, tri nom/prénom, payeur, publiées à la Facturation (ADR 0097, SE7c2 ; déplacée de SeancesFacturablesJdbc ; résidu C2-R6, remplacer par un langage publié de Patient ; la partie PEC passe par le langage publié) ; échéance : 2027-03-31",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/FacturationDesSeancesJdbc.java",
+            "2026-11-08 (déplacée de SeancesFacturablesJdbc, ADR 0097, SE7c2) : jointure séances x patients dans un tri nom/prénom et la lecture "
+                    + "du payeur, publiées à la Facturation (la découper changerait l'ordre) ; la partie PEC passe déjà par le langage publié ; "
+                    + "échéance : résidu C2-R6, langage publié du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE + " : six tables de Facturation, KB-FAC-49",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
@@ -205,8 +208,8 @@ class TableDuPatientCouvertureTest {
     @Test
     void chaque_jalon_porte_une_date_et_une_echeance() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            // Jalons historiques : 2026-11-04, 05 ou 07, inchangés. Seule exception : l'entrée du 2026-11-08 (SE7a, ADR 0094, R2), qui doit
-            // porter sa revue (2026-12-15) ET son butoir propre (2027-03-31).
+            // Jalons historiques : 2026-11-04, 05 ou 07, inchangés. Exceptions : les entrées du 2026-11-08 (SE7a, ADR 0094, R2 ; SE7c2,
+            // ADR 0097, C2-R6, entrée déplacée), qui doivent porter leur revue (2026-12-15) ET leur butoir propre (2027-03-31).
             if (raison.startsWith("2026-11-08")) {
                 assertThat(raison).contains("revue au plus tard le 2026-12-15").contains("butoir 2027-03-31");
             } else {

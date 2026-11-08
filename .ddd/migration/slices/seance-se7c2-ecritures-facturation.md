@@ -32,9 +32,9 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 | Flag / bascule | Aucun (ADR 0024) ; rollback = retour au commit précédent ; contrôle SELECT seule `verifications-production.md` §62 |
 
 ## Correspondance des cas des contrats Facturation supprimés
-Les 3 fichiers supprimés ne déclaraient que 2 cas propres (`SeancesPostgresContractIT`) ; `SeancesJdbcContrat` (décor SQL) et `SeancesJdbcContratTest` (H2) rejouaient les 25 cas de `facturation/contrat/SeancesContrat`. Le double en mémoire de la Facturation joue toujours `SeancesContrat` (`SeancesEnMemoireContratTest`). 27 cas, 27 retrouvés, **0 recréé**.
+Les 3 fichiers supprimés ne déclaraient que 2 cas propres (`SeancesPostgresContractIT`) ; `SeancesJdbcContrat` (décor SQL) et `SeancesJdbcContratTest` (H2) rejouaient les 25 cas de `facturation/contrat/SeancesContrat`. Le double en mémoire de la Facturation joue toujours `SeancesContrat` (`SeancesEnMemoireContratTest`). 27 cas, 27 retrouvés, **0 recréé** au lot C ; après la revue du 2026-11-08, les cas 5, 6, 7, 24 et 25 sont de nouveau joués sur JDBC (`FAC-JDBC`, extraits de `SeancesContrat` sans duplication).
 
-`FDS` = `seance/.../contrat/FacturationDesSeancesContrat` (mémoire, H2, PG16) ; `FDS-JDBC` = `FacturationDesSeancesJdbcContrat` (H2, PG16) ; `TDS` = `facturation/.../acl/seance/TraducteursDesSeancesTest` ; `PFA` = `PolitiqueDeForfaitAppliqueTest` ; `Aperçu` / `Excl.` = goldens `ApercuCharacterizationIntegrationTest` / `ExclusionEtForfaitCharacterizationIntegrationTest` (bout en bout, adapters réels).
+`FDS` = `seance/.../contrat/FacturationDesSeancesContrat` (mémoire, H2, PG16) ; `FAC-JDBC` = `facturation/.../contrat/ForfaitAppliqueContrat` (5 cas extraits de `SeancesContrat`, qui l'étend : mémoire ; `ForfaitAppliqueJdbcContratTest` H2 ; `ForfaitAppliquePostgresContractIT` PG16 rejoué par `seance-se7c2-pg16-rejeu.sh` ; rétabli après la revue du 2026-11-08) ; `FDS-JDBC` = `FacturationDesSeancesJdbcContrat` (H2, PG16) ; `TDS` = `facturation/.../acl/seance/TraducteursDesSeancesTest` ; `PFA` = `PolitiqueDeForfaitAppliqueTest` ; `Aperçu` / `Excl.` = goldens `ApercuCharacterizationIntegrationTest` / `ExclusionEtForfaitCharacterizationIntegrationTest` (bout en bout, adapters réels).
 
 | # | Cas supprimé (`SeancesContrat` via JDBC, sauf 26-27) | Équivalent |
 |---|---|---|
@@ -42,9 +42,9 @@ Les 3 fichiers supprimés ne déclaraient que 2 cas propres (`SeancesPostgresCon
 | 2 | `should_include_the_first_and_the_last_day_of_the_period` | FDS, même nom |
 | 3 | `should_order_the_seances_by_patient_name_then_date` | FDS, même nom |
 | 4 | `should_read_the_patient_of_each_seance` | FDS `should_read_the_patient_the_payer_and_the_imposed_forfait_of_each_seance` ; traduction TDS `should_apply_the_imposed_forfait_before_the_prise_en_charge` |
-| 5 | `should_apply_the_forfait_of_the_prise_en_charge_covering_the_date` | PFA, même nom ; TDS (cas `false`) ; Aperçu `le_forfait_applique_suit_la_surcharge_puis_la_pec_couvrant_la_date_puis_la_pec_la_plus_recente` |
-| 6 | `should_apply_the_forfait_imposed_on_the_seance_before_the_prise_en_charge` | FDS cas 4 (lecture de la surcharge) ; TDS (cas `true`) ; PFA `should_apply_the_forfait_imposed_on_the_seance_before_any_prise_en_charge` ; Aperçu idem |
-| 7 | `should_apply_the_most_recent_prise_en_charge_even_when_it_has_ended_then_the_undefined_forfait` | PFA `should_fall_back_on_the_most_recent_prise_en_charge_even_when_it_has_ended`, `should_apply_the_undefined_forfait_at_zero_without_any_prise_en_charge` ; TDS `should_read_the_prises_en_charge_of_a_patient_once_and_keep_the_order_and_the_undefined_forfait` ; Aperçu (`PEC_ECHUE_05`, `SANS_PEC_03`) |
+| 5 | `should_apply_the_forfait_of_the_prise_en_charge_covering_the_date` | **FAC-JDBC, même nom (vrai `CouvertureDesPatientsJdbc`, H2 et PG16)** ; PFA, même nom ; TDS (cas `false`) ; Aperçu `le_forfait_applique_suit_la_surcharge_puis_la_pec_couvrant_la_date_puis_la_pec_la_plus_recente` |
+| 6 | `should_apply_the_forfait_imposed_on_the_seance_before_the_prise_en_charge` | **FAC-JDBC, même nom** ; FDS cas 4 (lecture de la surcharge) ; TDS (cas `true`) ; PFA `should_apply_the_forfait_imposed_on_the_seance_before_any_prise_en_charge` ; Aperçu idem |
+| 7 | `should_apply_the_most_recent_prise_en_charge_even_when_it_has_ended_then_the_undefined_forfait` | **FAC-JDBC, même nom** ; PFA `should_fall_back_on_the_most_recent_prise_en_charge_even_when_it_has_ended`, `should_apply_the_undefined_forfait_at_zero_without_any_prise_en_charge` ; TDS `should_read_the_prises_en_charge_of_a_patient_once_and_keep_the_order_and_the_undefined_forfait` ; Aperçu (`PEC_ECHUE_05`, `SANS_PEC_03`) |
 | 8 | `should_find_a_seance_of_the_centre_with_its_state` | FDS, même nom ; TDS `should_translate_the_seance_found_with_its_memory_of_the_exclusion` |
 | 9 | `should_not_find_an_unknown_seance_nor_one_of_another_centre` | FDS `should_not_find_an_unknown_seance_nor_one_of_another_centre_and_see_an_invoiced_one_as_invoiced` |
 | 10 | `should_see_an_invoiced_seance_as_invoiced` | FDS, idem 9 |
@@ -61,12 +61,12 @@ Les 3 fichiers supprimés ne déclaraient que 2 cas propres (`SeancesPostgresCon
 | 21 | `should_link_the_seances_to_the_invoice_and_bill_them` | FDS, même nom |
 | 22 | `should_refuse_to_link_a_seance_that_is_no_longer_eligible` | FDS `should_refuse_to_link_a_seance_that_is_no_longer_eligible_with_the_exact_message` |
 | 23 | `should_refuse_to_link_a_seance_of_another_centre` | FDS `should_refuse_to_link_a_seance_of_another_centre_and_never_link_it_twice` ; course : `LiaisonConcurrentePostgresContractIT` |
-| 24 | `should_find_a_forfait_of_the_centre_with_its_label_and_price` (`ForfaitsDuCentreJdbc`, table `forfait`, resté à la Facturation) | Excl. golden `forfait_nominal_200` (libellé et prix relus par l'aperçu recalculé) ; double : `SeancesEnMemoireContratTest` |
-| 25 | `should_not_find_an_unknown_forfait_nor_one_of_another_centre` | Excl. goldens `forfait_inconnu`, `forfait_du_centre_B` ; double : `SeancesEnMemoireContratTest` |
+| 24 | `should_find_a_forfait_of_the_centre_with_its_label_and_price` (`ForfaitsDuCentreJdbc`, table `forfait`, resté à la Facturation) | **FAC-JDBC, même nom (H2 et PG16, rétabli après revue)** ; Excl. golden `forfait_nominal_200` ; double : `SeancesEnMemoireContratTest` |
+| 25 | `should_not_find_an_unknown_forfait_nor_one_of_another_centre` | **FAC-JDBC, même nom (H2 et PG16)** ; Excl. goldens `forfait_inconnu`, `forfait_du_centre_B` ; double : `SeancesEnMemoireContratTest` |
 | 26 | PG16 `should_write_the_author_and_the_instant_of_the_forfait_imposed` | FDS-JDBC, même nom (H2 et PG16) |
 | 27 | PG16 `should_keep_the_memory_of_the_exclusion_in_the_two_columns_added_by_v39` | FDS-JDBC, même nom (H2 et PG16) |
 
-Note : `ForfaitsDuCentreJdbc` ne lit pas `seances` ; il n'a plus de test d'adapter JDBC dédié (cas 24-25 tenus par les goldens bout en bout). Il n'a pas sa place dans le contrat de la Séance ; un test H2 dédié côté Facturation est à ajouter si l'on veut un filet au niveau de l'adapter (C2-R8 ci-dessous, hors butoir d'argent).
+Note (corrigée après la revue du 2026-11-08, constat m1) : `ForfaitsDuCentreJdbc` (table `forfait`) et la politique de forfait de bout en bout avec le vrai `CouvertureDesPatientsJdbc` (3 cas de prise en charge) sont de nouveau joués sur H2 et PostgreSQL 16 par `ForfaitAppliqueContrat`, sans aucun SQL sur `seances` : les séances y arrivent par le port `SeancesAFacturerFournies`, que la plateforme implémente (`SeancesFacturablesParLaSeance`, lecture déjà prouvée sur H2 et PG16 par FDS) ; le module Facturation ne pouvant pas dépendre de la Séance (cycle Maven), un double de ce port respectant son contrat documenté (casse exacte, non facturées, période incluse, tri nom, prénom, date, identifiant) le remplace dans ce contrat. Les lignes `patients` ne sont posées que pour les clés étrangères de `prise_en_charge` du schéma réel.
 
 ## Bilan nominatif des résidus (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
@@ -78,7 +78,25 @@ Note : `ForfaitsDuCentreJdbc` ne lit pas `seances` ; il n'a plus de test d'adapt
 | C2-R5 | 4 langages `*Fournies` et traducteurs `*ParLaSeance` logés dans la plateforme (cycle Maven Séance -> Absences-patients -> Facturation) | 2026-12-15 | 2027-06-30 |
 | C2-R6 | `SeancesAFacturerPubliees` lit `patients` et `centre_payeur` (jointure, entrée de `TableDuPatientCouvertureTest`) : à remplacer par un langage publié de Patient et couverture | 2026-12-15 | 2027-03-31 |
 | C2-R7 | Courses exclusion / exclusion, exclusion / émission et interblocage de deux émissions : non rejoués | 2026-12-15 | 2027-03-31 |
-| C2-R8 | KB-SEA-76 (test d'audit asynchrone instable) ; `ForfaitsDuCentreJdbc` sans test d'adapter dédié | 2026-12-15 | 2027-01-31 |
+| C2-R8 | KB-SEA-76 (test d'audit asynchrone instable) ; ~~`ForfaitsDuCentreJdbc` sans test d'adapter dédié~~ soldé le 2026-11-08 (`ForfaitAppliqueContrat`, H2 + PG16) | 2026-12-15 | 2027-01-31 |
+| C2-R9 | Port `exclure(centre, séance, statutAvant)` orienté données : la règle « séance excluable » reste dans `SeanceDeFacturation` (Facturation) et la Séance subit la transition sans passer par son modèle ; à remplacer par une commande d'intention côté Séance (`exclureDeLaFacturation`) quand l'agrégat Séance portera ses transitions (suggestion de la revue ; ADR 0097) | 2026-12-15 | 2027-06-30 |
+| C2-R10 | Écrivains de `seances.facture_id` hors Séance, révélés par `EcrivainsDeLaFactureDesSeancesTest` (voir ci-dessous) | 2026-12-15 | 2027-06-30 |
+
+## Suites de la revue indépendante (2026-11-08, `.ddd/verify/verify-seance-se7c2.md`)
+
+**KB-SEA-71 : portée réelle (constat m2).** La garde `facture_id IS NULL` de `lierALAbsence` est une **défense en profondeur sur le port**, observée par le golden au niveau du port (`lier_a_l_absence_une_seance_absente_deja_facturee_nouveau_code`, appel direct du port) et par le contrat FDS `should_refuse_to_link_an_absence_to_an_absent_seance_that_already_carries_an_invoice`. **Sans effet aujourd'hui sur le trafic HTTP** : `ExclureUneSeance` (seul appelant) fait refuser une séance facturée par le domaine (`SeanceDeFacturation.exclure`) puis par la garde de `exclure`, avant `lierALAbsence`, dans la même transaction. Aucun code de production changé. La recette (e) du §62 est réécrite (refus observable de l'exclusion, en HTTP) ; la garde du port ne se recette pas en HTTP.
+
+**Écrivains de `seances.facture_id` (constat m4).** Garde `platform/src/test/java/com/hemodialyse/backend/architecture/EcrivainsDeLaFactureDesSeancesTest.java` (même scan que `TableDesSeancesTest`, Séance comprise ; compte asserté 3 ; revue au plus tard le 2026-12-15) :
+
+| Écrivain | Contexte | Nature | Butoir |
+|---|---|---|---|
+| `contexts/seance/.../persistence/LiaisonDesSeancesJdbc.java` | Séance | `SET statut = 'FACTUREE', facture_id = ?` à l'émission ; le SEUL écrivain voulu (via `LiaisonDesSeancesAUneFacturePubliee`) | — |
+| `platform/.../persistence/adapter/SeanceRepositoryAdapter.java` | hors Séance (legacy) | réécriture JPA de la ligne ENTIÈRE (`toJpa` ne porte pas `factureId`) : `facture_id` redevient NULL lors d'un changement de date legacy (`SeanceDomainService.updateDate`, `PUT /api/v1/seances/{id}`, route non reprise) ; KB-SEA-49, ARGENT, déjà consigné et caractérisé (`se5/date/…/facture_effacee`), non corrigé | 2027-06-30 |
+| `platform/src/main/resources/db/seed.sql` | hors Séance (amorçage) | jeu de développement : rattache les séances `FACTUREE` sans facture aux factures `AUTO-` du mois ; jamais sur une base partagée | 2027-06-30 |
+
+La phrase de l'ADR « seul `LiaisonDesSeancesAUneFacturePubliee` écrit `facture_id` » est donc vraie pour le code de la nouvelle architecture, pas pour le dépôt : les deux écrivains legacy sont listés plutôt que masqués (C2-R10). Les migrations Flyway et les entités JPA sont hors du scan (comme `TableDesSeancesTest`) ; aucune migration n'écrit `seances.facture_id` (vérifié par recherche le 2026-11-08).
+
+**Nits et suggestion.** En-tête de `seance-se7c2-pg16-rejeu.sh` réécrit (tests et variables réels) ; entrée déplacée de `TableDuPatientCouvertureTest` datée « 2026-11-08 (déplacée) » avec une seule échéance (revue 2026-12-15, butoir 2027-03-31) ; suggestion consignée en C2-R9 (pas de changement du port : reproduction décidée par l'ADR). Renommage des fournisseurs `SeancesDeFacturationParLaSeance` / `SeancesFacturablesParLaSeance` sur l'interface implémentée (constat m6, « éventuellement ») : **non fait**, ce sont des fichiers de production de la plateforme hors seam ouvert et le gain est seulement de nommage ; noms et synonymes consignés au glossaire de la Facturation (questions ouvertes).
 
 ## Reste à faire
-Confirmation métiers / DPO / DBA de l'ADR 0097 (au plus tard 2026-12-15) ; exécuter les requêtes §62 sur une copie de production ; résidus C2-R1 à C2-R8 ; `/ddd-verify`.
+Confirmation métiers / DPO / DBA de l'ADR 0097 (au plus tard 2026-12-15) ; exécuter les requêtes §62 sur une copie de production ; résidus C2-R1 à C2-R10 ; `/ddd-verify`.
