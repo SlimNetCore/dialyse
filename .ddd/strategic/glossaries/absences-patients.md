@@ -80,3 +80,12 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §5, rép
    d'absences clos).
 2. « Clôture » seul désigne la clôture mensuelle des absences dans ce contexte ; dans la Facturation, « clôture »
    désigne celle du mois de facturation (deux sens, deux contextes).
+
+## Termes ajoutés par la slice SE7d (2026-11-08, ADR 0098) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Séances réalisées (fournies) | Ce dont les Absences ont besoin de la Séance : jours réalisés du centre, jours d'un patient, séance réalisée un jour, patients ayant une séance réalisée un jour (statuts `VALIDEE`, `SIGNEE`, `FACTUREE` exacts) ; interface requise du langage publié des Absences, fournie par la plateforme | `SeancesRealiseesFournies` (`JourRealiseFourni`), ACL `SeancesRealiseesPubliees` | `legacyseance/SeancesRealiseesJdbc` (retiré) | « séances validées » | RG-SEA-062 ; KB-SEA-77, 82 | proposed |
+| Lien d'exclusion (fourni) | Le lien qu'une séance exclue garde vers l'absence de l'exclusion, lu dans le centre sans regarder le statut de la séance : tant qu'il existe, l'absence ne s'annule pas | `LiensDExclusionFournis`, ACL `ExclusionsDeSeancesPubliees` | `legacyseance/ExclusionsDeSeancesJdbc` (retiré) | « origine de l'absence » (c'est la conséquence, pas le lien) | RG-ABS (absence d'une exclusion), RG-SEA-062 ; KB-SEA-81 | proposed |
+
+Question ouverte (SE7d) : « séances réalisées (fournies) » et « séances réalisées (publiées) » (Séance) désignent la même chose vue de deux côtés : garder deux noms (un par langage publié) ou un seul quand le cycle Maven sera levé (résidu D-R5) ?

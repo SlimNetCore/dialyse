@@ -27,8 +27,10 @@ import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.lega
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.ForfaitsDesPatientsDeLaCouverture;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.NomsDesPatientsDeLaFiche;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.patientcouverture.PatientsDuCentreDeLaFiche;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.ExclusionsDeSeancesJdbc;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.SeancesRealiseesJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.seance.ExclusionsDeSeancesPubliees;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.seance.SeancesRealiseesPubliees;
+import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.LiensDExclusionFournis;
+import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SeancesRealiseesFournies;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.identifiants.GenerateurDIdentifiantsAleatoires;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
@@ -99,8 +101,8 @@ public class AbsencesPatientsContexteConfiguration {
     }
 
     @Bean
-    SeancesRealisees absencesPatientsSeancesRealisees(JdbcTemplate jdbc) {
-        return new SeancesRealiseesJdbc(jdbc);
+    SeancesRealisees absencesPatientsSeancesRealisees(SeancesRealiseesFournies seances) {
+        return new SeancesRealiseesPubliees(seances);
     }
 
     @Bean
@@ -164,8 +166,8 @@ public class AbsencesPatientsContexteConfiguration {
     }
 
     @Bean
-    ExclusionsDeSeances absencesPatientsExclusionsDeSeances(JdbcTemplate jdbc) {
-        return new ExclusionsDeSeancesJdbc(jdbc);
+    ExclusionsDeSeances absencesPatientsExclusionsDeSeances(LiensDExclusionFournis liens) {
+        return new ExclusionsDeSeancesPubliees(liens);
     }
 
     @Bean
@@ -277,8 +279,9 @@ public class AbsencesPatientsContexteConfiguration {
 
     @Bean
     PatientsAttendus absencesPatientsPatientsAttendus(JdbcTemplate jdbc,
-            com.hemodialyse.backend.contexts.planification.publishedlanguage.PresenceDesPatients presence) {
-        return new PatientsAttendusJdbc(jdbc, presence);
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PresenceDesPatients presence,
+            SeancesRealiseesFournies seances) {
+        return new PatientsAttendusJdbc(jdbc, presence, seances);
     }
 
     @Bean

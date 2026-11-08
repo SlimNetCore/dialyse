@@ -7,7 +7,6 @@ import com.hemodialyse.backend.contexts.planification.domain.SemaineDuPlanning.P
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyoptimisation.DeplacementsTemporairesJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SeriesDuCentreJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyseance.SeancesRealiseesJdbc;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -18,7 +17,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Contrat des lectures de la semaine (séjours des patients, séances réalisées, déplacements temporaires, séries du centre) contre les
+ * Contrat des lectures de la semaine (séjours des patients, déplacements temporaires, séries du centre ; les séances réalisées sont lues
+ * par la Séance depuis SE7d) contre les
  * tables de la plateforme : H2 (schéma réduit créé par le test) et PostgreSQL 16 (schéma Flyway). Les règles de présence ne sont pas
  * ici (tests de domaine) : on vérifie la traduction des colonnes, les bornes de période et de centre.
  */
@@ -84,31 +84,9 @@ abstract class LecturesDeLaSemaineJdbcContrat {
         assertThat(sansRisque.get(0).sejour()).isEqualTo(complet.duCentre(CENTRE).get(0).sejour());
     }
 
-    @Test
-    void should_read_the_realised_sessions_of_the_period_with_their_frozen_place_and_ignore_the_others() {
-        patient(ALICE, CENTRE.valeur(), "Durand", "Alice", false, null, null, true);
-        seance(CENTRE.valeur(), ALICE, LUNDI, "VALIDEE", true);
-        seance(CENTRE.valeur(), ALICE, LUNDI.plusDays(1), "SIGNEE", false);
-        seance(CENTRE.valeur(), ALICE, LUNDI.plusDays(2), "CREE", true);
-        seance(CENTRE.valeur(), ALICE, LUNDI.plusDays(30), "FACTUREE", true);
-        patient(AUTRE_PATIENT, AUTRE_CENTRE, "Autre", "Centre", false, null, null, true);
-        seance(AUTRE_CENTRE, AUTRE_PATIENT, LUNDI, "VALIDEE", true);
-
-        var seances = new SeancesRealiseesJdbc(jdbc()).duCentre(CENTRE, LUNDI, LUNDI.plusDays(6));
-
-        assertThat(seances).hasSize(2);
-        assertThat(seances.get(0).date()).isEqualTo(LUNDI);
-        assertThat(seances.get(0).nom()).isEqualTo("Alice Durand");
-        assertThat(seances.get(0).salle().valeur()).isEqualTo(SALLE);
-        assertThat(seances.get(1).date()).isEqualTo(LUNDI.plusDays(1));
-        assertThat(seances.get(1).salle()).as("place non mémorisée").isNull();
-    }
-
-    private void seance(UUID centre, UUID patient, LocalDate date, String statut, boolean place) {
-        jdbc().update("INSERT INTO seances (id, center_id, patient_id, date_seance, statut, salle_id, creneau_id, generateur_id) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", UUID.randomUUID(), centre, patient, Date.valueOf(date), statut,
-                place ? SALLE : null, place ? CRENEAU : null, place ? GENERATEUR : null);
-    }
+    // SE7d (ADR 0098) : « should_read_the_realised_sessions_of_the_period_with_their_frozen_place_and_ignore_the_others » est joué, sous le
+    // même nom, par seance/.../contrat/SeancesRealiseesEtConstantesContrat (mémoire, H2, PG16) ; la traduction (nom, place, risque) par
+    // planification/.../acl/seance/SeancesRealiseesPublieesTest. La Planification n'a plus de SQL sur seances.
 
     @Test
     void should_read_the_temporary_moves_of_the_period_of_the_centre_sorted_by_date() {

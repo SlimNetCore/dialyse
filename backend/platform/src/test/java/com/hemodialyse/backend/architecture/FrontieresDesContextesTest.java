@@ -483,6 +483,42 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("la Facturation ne lit plus la table seances : l'ACL de la plateforme appelle seance.v1 (ADR 0097)");
 
+    /**
+     * SE7d (ADR 0098) : les Absences de patients lisent les séances réalisées et le lien d'exclusion par le langage publié de la Séance, dans
+     * l'ACL de la plateforme (cycle Maven : la Séance dépend des Absences). Elles ne dépendent d'AUCUNE classe de la Séance, sans exception.
+     */
+    @ArchTest
+    static final ArchRule les_absences_de_patients_ne_dependent_pas_de_la_seance = noClasses()
+            .that().resideInAPackage(ABSENCES + "..")
+            .should().dependOnClassesThat().resideInAPackage(SEANCE + "..")
+            .allowEmptyShould(true)
+            .because("les Absences ne lisent plus la table seances : l'ACL de la plateforme appelle seance.v1 (ADR 0098)");
+
+    /**
+     * SE7d (ADR 0098) : la Planification lit les séances réalisées avec leur place par le langage publié de la Séance, dans l'ACL de la
+     * plateforme (cycle Maven : la Séance dépend de Patient-couverture et des Absences, qui dépendent de la Planification). Elle ne dépend
+     * d'AUCUNE classe de la Séance, sans exception.
+     */
+    @ArchTest
+    static final ArchRule la_planification_ne_depend_pas_de_la_seance = noClasses()
+            .that().resideInAPackage(PLANIFICATION + "..")
+            .should().dependOnClassesThat().resideInAPackage(SEANCE + "..")
+            .allowEmptyShould(true)
+            .because("la Planification ne lit plus la table seances : l'ACL de la plateforme appelle seance.v1 (ADR 0098)");
+
+    /**
+     * SE7d (ADR 0098) : le Dossier médical dépend directement du module Séance (aucun cycle) mais n'en connaît que le langage publié
+     * ({@code ConstantesDesSeancesPubliees}), jamais le domaine, l'application, l'infrastructure, les interfaces ni la configuration.
+     */
+    @ArchTest
+    static final ArchRule le_dossier_medical_ne_connait_de_la_seance_que_son_langage_publie = noClasses()
+            .that().resideInAPackage("com.hemodialyse.backend.contexts.dossiermedical..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    SEANCE + ".domain..", SEANCE + ".application..", SEANCE + ".infrastructure..", SEANCE + ".interfaces..",
+                    SEANCE + ".configuration..")
+            .allowEmptyShould(true)
+            .because("le Dossier médical lit les constantes par seance.v1 (ADR 0098), sans SQL sur la table seances");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

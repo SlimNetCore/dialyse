@@ -50,17 +50,8 @@ class TableDesSeancesTest {
 
     static {
         // Facturation : plus aucune entrée depuis SE7c2 (ADR 0097, 2026-11-08) ; les 5 classes SQL ont disparu ou ne touchent plus seances.
-        // Autres contextes refaits : lecture seule, à remplacer par seance.v1 (lectures publiées à décider avec chacun).
-        lecteur("contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
-                "séances réalisées d'un patient (lecture)", LECTURES_PUBLIEES);
-        lecteur("contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyseance/ExclusionsDeSeancesJdbc.java",
-                "exclusion de séances pour absence (lecture)", LECTURES_PUBLIEES);
-        lecteur("contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyplanning/PatientsAttendusJdbc.java",
-                "patients attendus (jointure séances, lecture)", LECTURES_PUBLIEES);
-        lecteur("contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java",
-                "séances réalisées pour la grille de la semaine (lecture)", LECTURES_PUBLIEES);
-        lecteur("contexts/dossier-medical/src/main/java/com/hemodialyse/backend/contexts/dossiermedical/infrastructure/persistence/HistoriqueDesConstantesJdbc.java",
-                "historique des constantes (jointure séances, lecture)", LECTURES_PUBLIEES);
+        // Absences de patients, Planification, Dossier médical : plus aucune entrée depuis SE7d (ADR 0098, 2026-11-08) ; les 5 lecteurs passent
+        // par seance.v1 (SeancesRealiseesPubliees, LiensDExclusionPublies, SeancesRealiseesAvecLeurPlacePubliees, ConstantesDesSeancesPubliees).
         // Plateforme (legacy) : fournisseurs du langage publié de la Séance, pilotage de la Direction, rapports, migration.
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
         lecteur(plateforme + "infrastructure/acl/seance/HistoriqueFourniLegacy.java", "historique des séances fourni à la Séance (lecture)", LECTURES_PUBLIEES);
@@ -175,12 +166,14 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_17_lecteurs_dont_12_de_la_plateforme() {
+    void la_liste_blanche_compte_12_lecteurs_tous_de_la_plateforme() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs de seances compte 17 entrées (0 Facturation depuis SE7c2, 5 autres contextes, 12 plateforme "
-                        + "dont 8 sources Java et 4 ressources SQL) : toute entrée ajoutée ou retirée doit être décidée, datée et reportée "
-                        + "dans la fiche de SE7c et l'annexe 16")
-                .hasSize(17);
+                .as("la liste blanche des lecteurs de seances compte 12 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis SE7d, "
+                        + "12 plateforme dont 8 sources Java et 4 ressources SQL) : toute entrée ajoutée ou retirée doit être décidée, datée et "
+                        + "reportée dans la fiche de la slice et l'annexe 16")
+                .hasSize(12);
+        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).count())
+                .as("dont 0 d'un autre contexte (SE7d)").isZero();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/")).count())
                 .as("dont 12 de la plateforme").isEqualTo(12);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
@@ -207,6 +200,28 @@ class TableDesSeancesTest {
             assertThat(traducteurs).as("les 4 traducteurs de SE7c2").hasSize(4);
             assertThat(traducteurs.stream().filter(TableDesSeancesTest::mentionneLaTableDeLaSeance).toList()).isEmpty();
         }
+    }
+
+    @Test
+    void les_absences_la_planification_et_le_dossier_medical_ne_lisent_plus_la_table_des_seances() throws IOException {
+        List<String> consommateurs = new ArrayList<>();
+        for (Path source : sourcesDeProduction(backend())) {
+            String chemin = relatif(source);
+            boolean consommateur = chemin.startsWith("contexts/absences-patients/") || chemin.startsWith("contexts/planification/")
+                    || chemin.startsWith("contexts/dossier-medical/");
+            if (consommateur && mentionneLaTableDeLaSeance(source)) consommateurs.add(chemin);
+        }
+        assertThat(consommateurs).as("ces contextes passent par les ports publiés de la Séance (ADR 0098, SE7d)").isEmpty();
+    }
+
+    @Test
+    void les_traducteurs_des_absences_et_de_la_planification_dans_la_plateforme_n_ont_pas_de_sql_sur_les_seances() {
+        String acl = "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/";
+        List<Path> traducteurs = List.of(backend().resolve(acl + "absences/SeancesRealiseesParLaSeance.java"),
+                backend().resolve(acl + "absences/LiensDExclusionParLaSeance.java"),
+                backend().resolve(acl + "planification/SeancesRealiseesAvecLeurPlaceParLaSeance.java"));
+        assertThat(traducteurs).as("les 3 traducteurs de SE7d").allMatch(Files::isRegularFile);
+        assertThat(traducteurs.stream().filter(TableDesSeancesTest::mentionneLaTableDeLaSeance).toList()).isEmpty();
     }
 
     @Test

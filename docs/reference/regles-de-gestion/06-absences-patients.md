@@ -190,7 +190,8 @@
   héritée d'avant A2 n'est jamais supprimée par l'application : la réinclusion est alors refusée (**422**
   `ABSENCE_D_EXCLUSION_MODIFIEE`), à traiter avec l'administrateur (liste : `verifications-production.md` § 24.4). Une absence déjà
   supprimée : la réinclusion réussit.
-  *Source :* `ExclusionDeLaFacturation`, `AnnulerUneAbsence`, `RetirerLAbsenceDeLExclusion`, `ExclusionsDeSeancesJdbc`, `SignalementDesSaisiesLegacy`.
+  *Source :* `ExclusionDeLaFacturation`, `AnnulerUneAbsence`, `RetirerLAbsenceDeLExclusion`, `ExclusionsDeSeancesPubliees` (lien lu par
+  le langage publié de la Séance depuis SE7d, RG-SEA-062), `SignalementDesSaisiesLegacy`.
 
 - **RG-ABS-060** — **Lectures publiées pour le pilotage** (slice A4, ADR 0041) : le tableau de bord des séances d'un centre (nombre, détail,
   exports) et la vue de la Direction (cumul par centre, statut et motif, mensuel) lisent les absences par le langage publié

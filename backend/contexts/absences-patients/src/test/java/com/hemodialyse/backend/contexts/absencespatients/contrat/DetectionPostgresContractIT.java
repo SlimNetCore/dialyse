@@ -96,7 +96,8 @@ class DetectionPostgresContractIT {
 
     private List<PatientId> attendus(LocalDate jour) {
         return new PatientsAttendusJdbc(jdbc, new com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresenceDesPatients(
-                new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc)))
+                new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc)),
+                new SeancesRealiseesSurLaTable(jdbc))
                 .sansSeanceRealisee(CENTRE, jour);
     }
 

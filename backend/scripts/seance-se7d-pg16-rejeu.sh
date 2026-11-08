@@ -1,17 +1,21 @@
 #!/bin/bash
 # Rejeu de la sous-slice SE7d (lectures de la table des seances par Absences patients, Planification et Dossier medical) sur un
 # PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en sortie. Chaine Flyway V1..Vn (psql), jeu de donnees FICTIF minimal, puis
-# les huit requetes de production A L'IDENTIQUE (parametres remplaces par des litteraux) :
-#   A1-A3 contexts/absences-patients/.../legacyseance/SeancesRealiseesJdbc.java:31, :39, :47
-#   A4    contexts/absences-patients/.../legacyseance/ExclusionsDeSeancesJdbc.java:23
-#   A5    contexts/absences-patients/.../legacyplanning/PatientsAttendusJdbc.java:50
-#   P1    contexts/planification/.../legacyseance/SeancesRealiseesJdbc.java:36
-#   D1-D2 contexts/dossier-medical/.../persistence/HistoriqueDesConstantesJdbc.java:34 (total) et :25 (page)
+# les huit requetes de production A L'IDENTIQUE (parametres remplaces par des litteraux). Depuis le lot B/C de SE7d (ADR 0098), elles vivent
+# dans la Seance, mot pour mot :
+#   A1-A3, A5, A4, P1  contexts/seance/.../persistence/LecturesDesSeancesRealiseesJdbc.java (joursRealisesDuCentre, joursRealisesDuPatient,
+#                      estRealisee, patientsRealisesLe, absenceLiee, duCentre) ; avant SE7d : Absences legacyseance/SeancesRealiseesJdbc,
+#                      legacyseance/ExclusionsDeSeancesJdbc, legacyplanning/PatientsAttendusJdbc, Planification legacyseance/SeancesRealiseesJdbc
+#   D1-D2              contexts/seance/.../persistence/ConstantesDesSeancesJdbc.java (nombreDeSeances, page) ; avant : HistoriqueDesConstantesJdbc
+# Puis les cinq requetes de detection (SELECT seule) de la section 63 de .ddd/migration/verifications-production.md (ADR 0098, annexe),
+# et les contrats PostgreSQL : SeancesRealiseesEtConstantesPostgresContractIT (Seance, 15 tests) et HistoriqueDesConstantesPostgresContractIT
+# (Dossier medical, 9 tests, ACL de production au-dessus de l'adapter de la Seance), dans la base jetable uniquement.
 # Points propres a PostgreSQL verifies : ordre des NULL de created_at en tri decroissant (KB-SEA-79 : H2 les met en dernier), blancs de
 # fin de statut (varchar : significatifs), comparaison des UUID (octets non signes), ordre entre lignes d'une meme date (non garanti).
 # A lancer en arriere-plan avec un log : backend/scripts/seance-se7d-pg16-rejeu.sh 55548
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Mot de passe du cluster jetable : variable d'environnement
-# SEANCE_PG16_PASSWORD (tiree au hasard ici si absente). Code de sortie : 0 si tout est conforme.
+# SEANCE_PG16_PASSWORD (tiree au hasard ici si absente), transmis a Maven par l'environnement (SEANCE_PG16_PASSWORD,
+# DOSSIERMEDICAL_PG16_PASSWORD), jamais en -D. Code de sortie : 0 si tout est conforme.
 set -uo pipefail
 PORT="${1:-55548}"
 [ "$PORT" != "5432" ] || { echo "Port 5432 interdit"; exit 2; }
@@ -129,6 +133,30 @@ verifier "D2 egalite complete : identifiant decroissant (octets non signes)" "$(
 verifier "D2 page 1 taille 2" "$(sql "$(printf "$PAGE" "$P4" 2 2)" | cut -d'|' -f1 | lignes)" "$EGAL_A;$EGAL_C"
 verifier "D2 creation nulle : PostgreSQL la classe EN PREMIER (H2 : en dernier, golden creation_nulle_sur_h2, KB-SEA-79)" \
   "$(sql "$(printf "$PAGE" "$P5" 20 0)" | cut -d'|' -f1 | lignes)" "$NULLE;$TARD;$FIXE"
+
+echo "=== Section 63 : requetes de detection (SELECT seule), executees telles quelles sur le schema reel et le jeu fictif ==="
+verifier "63.1 KB-SEA-79 creations nulles par centre" \
+  "$(sql "SELECT center_id, count(*) FROM seances WHERE created_at IS NULL GROUP BY center_id" | lignes)" "$A|1"
+verifier "63.2 KB-SEA-81 lien d'exclusion sur une seance non ABSENT" \
+  "$(sql "SELECT center_id, statut, count(*) FROM seances WHERE exclusion_absence_id IS NOT NULL AND statut <> 'ABSENT' GROUP BY center_id, statut" | lignes)" \
+  "$A|VALIDEE|1"
+R="$(sql "SELECT center_id, statut, count(*) FROM seances WHERE upper(trim(statut)) IN ('VALIDEE', 'SIGNEE', 'FACTUREE') AND statut NOT IN ('VALIDEE', 'SIGNEE', 'FACTUREE') GROUP BY center_id, statut")"
+verifier "63.3 KB-SEA-82 statuts realises hors casse canonique ou avec blancs (groupes)" "$(echo "$R" | grep -c .)" "6"
+verifier "63.4 KB-SEA-80 seances realisees dont la fiche n'est pas dans le centre de la seance" \
+  "$(sql "SELECT s.center_id, count(*) FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id WHERE s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') AND p.id IS NULL GROUP BY s.center_id" | lignes)" \
+  "$A|1"
+R="$(sql "SELECT center_id, patient_id, date_seance, count(*) FROM seances WHERE statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') GROUP BY center_id, patient_id, date_seance HAVING count(*) > 1 LIMIT 100")"
+verifier "63.5 KB-SEA-78 plusieurs seances realisees d'un patient le meme jour (groupes)" "$(echo "$R" | grep -c .)" "5"
+
+echo "=== Contrats PostgreSQL : Seance (SeancesRealiseesEtConstantesPostgresContractIT) et Dossier medical (HistoriqueDesConstantesPostgresContractIT) ==="
+export SEANCE_PG16_PASSWORD="$PW"
+export DOSSIERMEDICAL_PG16_PASSWORD="$PW"
+URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
+cd "$RACINE/backend" || exit 3
+./mvnw -o -pl contexts/dossier-medical -am test \
+  -Dtest="com.hemodialyse.backend.contexts.seance.contrat.SeancesRealiseesEtConstantesPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.HistoriqueDesConstantesPostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dseance.pg16.url="$URL" -Dseance.pg16.user=seance_test -Ddossiermedical.pg16.url="$URL" -Ddossiermedical.pg16.user=seance_test || RC=1
 
 echo "=== Fin du rejeu : code $RC (0 = tout conforme) ==="
 exit $RC

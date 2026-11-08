@@ -97,6 +97,14 @@
             <artifactId>contexts-stock</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publie de la Seance : ConstantesDesSeancesPubliees (historique des constantes), SE7d, ADR 0098. Aucun cycle : aucun
+             module dont depend la Seance ne depend du Dossier medical (verifie le 2026-11-08). Seul le paquet publishedlanguage est utilise
+             (ArchitectureHexagonaleTest, FrontieresDesContextesTest). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-seance</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!-- Reprise sur place (ADR 0024, GEL.md, ADR 0080) : le module ne porte que DM1 (constantes) ; DM2 a DM8 seront repris slice par slice. -->

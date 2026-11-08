@@ -706,8 +706,12 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.SeancesRealisees planificationSeancesRealisees(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyseance.SeancesRealiseesJdbc(jdbc);
+    com.hemodialyse.backend.contexts.planification.application.SeancesRealisees planificationSeancesRealisees(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.SeancesRealiseesAvecLeurPlaceFournies seances) {
+        // SE7d (ADR 0098) : les séances réalisées viennent de seance.v1 (fournies par la plateforme) ; le risque infectieux reste lu ici
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.seance.SeancesRealiseesPubliees(seances,
+                centre -> com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc
+                        .patientsARisque(jdbc, centre));
     }
 
     @Bean

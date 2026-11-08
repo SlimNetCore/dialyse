@@ -154,3 +154,9 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Générateurs de secours | Un générateur de secours pour huit en service, arrondi au supérieur (capacité théorique) | `GenerateursDeSecours` | `CapaciteTheoriqueCalculator` | — | RG-PLN-060 | proposed |
 | Capacité de la salle | Nombre maximal de générateurs affectés à une salle ; sans capacité, aucune limite ; le générateur déjà dans la salle n'est pas compté | `CapaciteDeLaSalle`, `CapaciteDesSalles.CapaciteDeLaSalleDepassee` | `CapaciteSalleRegle`, `SALLE_CAPACITE_DEPASSEE` | — | RG-PLN-061 | proposed (P9) |
 | Semaine de l'infirmier | « Mon planning » : sa semaine dans la grille du centre, composée de la présence et du planning réel (un patient en sommeil n'y figure plus : ni occupant, ni nombre de patients, ni effectif requis ; un seul calcul de présence, décision du 2026-11-02) | `SemaineDeLInfirmierDuModule` | `SemaineDeLInfirmierLegacy` | — | RG-PLN-104, KB-PLN-106 | proposed (P9) |
+
+## Termes ajoutés par la slice SE7d (2026-11-08, ADR 0098) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Séance réalisée avec sa place (fournie) | Séance réalisée (statuts exacts) de la période avec la place figée à sa validation et le nom et le prénom bruts de la fiche, lue seulement si la fiche est dans le centre de la séance ; interface requise du langage publié de la Planification, fournie par la plateforme. La Planification compose le nom « prénom nom » et ajoute le risque infectieux (`SeanceRealisee`) | `SeancesRealiseesAvecLeurPlaceFournies` (`SeanceRealiseeAvecPlaceFournie`), ACL `acl/seance/SeancesRealiseesPubliees` | `legacyseance/SeancesRealiseesJdbc` (retiré) | « séance passée » | RG-SEA-063 ; KB-SEA-78, 80 | proposed |

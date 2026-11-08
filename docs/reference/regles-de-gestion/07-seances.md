@@ -274,6 +274,41 @@
   `SeancesDesFacturesPubliees`, `FacturationDesSeancesJdbc`, `LiaisonDesSeancesJdbc`, `SeancesFacturablesParLaSeance`,
   `SeancesDeFacturationParLaSeance`, `LiaisonDesSeancesParLaSeance`, `SeancesDesFacturesParLaSeance`.
 
+- **RG-SEA-062** — **Lectures publiées de la Séance pour les Absences de patients** (slice SE7d, ADR 0098 ; aucune route, aucune
+  migration, lecture seule, comportement inchangé). Les Absences ne lisent plus la table `seances` : elles demandent à la Séance, par son
+  langage publié, les **séances réalisées** et le **lien d'exclusion**. Une séance est **réalisée** quand son statut est `VALIDEE`,
+  `SIGNEE` ou `FACTUREE`, en **casse exacte et sans blanc** (`validee`, `VALIDEE ` ne comptent pas, KB-SEA-82) ; tout est borné au centre,
+  bornes de dates incluses (des bornes inversées ne donnent rien). Quatre lectures : la **semaine** (une ligne par patient et par jour
+  réalisé, dates croissantes ; l'ordre de deux patients d'un même jour n'est pas défini, KB-SEA-77), les **jours d'un patient** (jours
+  distincts croissants, rattrapage), la **séance réalisée un jour** (déclaration, rattrapage, réconciliation de nuit) et les **patients
+  ayant une séance réalisée un jour** (patients écartés de la détection de nuit). **Lien d'exclusion** : une absence vient d'une exclusion
+  tant qu'une séance **du centre** garde le lien vers elle, **quel que soit le statut de cette séance** (KB-SEA-81) ; un lien porté par
+  une séance d'un autre centre est ignoré. **Reproduits sans correction, à confirmer par les métiers au plus tard le 2026-12-15** :
+  KB-SEA-77, 81, 82. Requêtes de détection : `verifications-production.md` section 63.
+  *Source :* `SeancesRealiseesPubliees`, `LiensDExclusionPublies`, `LecturesDesSeancesRealiseesJdbc`, `SeancesRealiseesParLaSeance`,
+  `LiensDExclusionParLaSeance`, `SeancesRealiseesFournies`, `LiensDExclusionFournis`, `ExclusionsDeSeancesPubliees`, `PatientsAttendusJdbc`.
+
+- **RG-SEA-063** — **Lecture publiée des séances réalisées avec leur place pour la Planification** (slice SE7d, ADR 0098 ; aucune route,
+  aucune migration, lecture seule, comportement inchangé). La grille de la semaine du planning (et l'empreinte de l'optimisation) lit
+  par le langage publié de la Séance les séances réalisées (statuts exacts, KB-SEA-82) de la période avec la **place figée à leur
+  validation** (salle, créneau, générateur ; aucune si elle n'a pas été figée, RG-SEA-049) et le **nom et le prénom de la fiche** ; la
+  Planification compose le nom « prénom nom ». Tri par **date seule** : deux séances réalisées d'un même patient le même jour sortent dans
+  un ordre non défini et la grille ne garde que la première (KB-SEA-78). Une séance réalisée n'est lue que si **la fiche du patient est
+  dans le centre de la séance** (KB-SEA-80 : un patient dont la fiche a changé de centre perd ses séances passées dans la grille).
+  **Reproduits sans correction, à confirmer par les métiers au plus tard le 2026-12-15** : KB-SEA-78, 80, 82.
+  *Source :* `SeancesRealiseesAvecLeurPlacePubliees`, `LecturesDesSeancesRealiseesJdbc`, `SeancesRealiseesAvecLeurPlaceParLaSeance`,
+  `SeancesRealiseesAvecLeurPlaceFournies`, `SeancesRealiseesPubliees` (Planification).
+
+- **RG-SEA-064** — **Lecture publiée des constantes des séances pour le Dossier médical** (slice SE7d, ADR 0098 ; aucune route, aucune
+  migration, lecture seule, comportement inchangé). L'historique des constantes du patient (`GET /api/v1/patients/{id}/constantes`)
+  lit par le langage publié de la Séance **toutes les séances du patient dans le centre, quel que soit leur statut**, avec les sept
+  mesures du **volet paramédical du même centre** (poids avant et après, tension avant et après, débit sang, ultrafiltration, durée ;
+  toutes vides sans volet ou si le volet est rattaché à un autre centre) ; aucune lecture de la fiche du patient. Le total est lu avant
+  la page. Ordre : date de séance décroissante, puis création décroissante, puis identifiant décroissant. Une séance **sans date de
+  création** se classe selon la base : en dernier sur H2 (tests), en **premier** sur PostgreSQL (production) (KB-SEA-79). **Reproduit sans
+  correction, à confirmer au plus tard le 2026-12-15** (DPO : mêmes mesures, mêmes destinataires `MEDECIN`, `ADMIN`).
+  *Source :* `ConstantesDesSeancesPubliees`, `ConstantesDesSeancesJdbc`, `HistoriqueDesConstantesPublie`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre

@@ -65,7 +65,10 @@ class TableDuPatientCouvertureTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/MouvementsDesPatientsJdbc.java", PLACE + " ; ÉCRIT le mouvement PLACE_LIBEREE",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PlanningDesPlacesDuCentreJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/SejoursDesPatientsJdbc.java", PLACE,
-            "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyseance/SeancesRealiseesJdbc.java", PLACE + " (jointure séances-patients)",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/LecturesDesSeancesRealiseesJdbc.java",
+            "2026-11-08 (déplacée de planification/.../legacyseance/SeancesRealiseesJdbc, ADR 0098, SE7d) : jointure séances x patients sur "
+                    + "l'identifiant ET le centre (KB-SEA-80, reproduit) publiée à la Planification avec le nom et le prénom de la fiche ; "
+                    + "échéance : résidu D-R3, langage publié du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/LectureDesPreferencesJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
             "2026-11-04 : lecture croisée Planification / dossier médical (transporteurs, date de naissance, abords vasculaires), pas une lecture de fiche publiée ; échéance : reprise du dossier médical",

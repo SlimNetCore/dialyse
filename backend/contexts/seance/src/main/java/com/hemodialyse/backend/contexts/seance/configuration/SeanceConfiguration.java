@@ -166,6 +166,22 @@ public class SeanceConfiguration {
         return new LiaisonDesSeancesJdbc(jdbc);
     }
 
+    /**
+     * Lectures publiées de la Séance pour les Absences de patients et la Planification (SE7d, ADR 0098) : séances réalisées, lien
+     * d'exclusion, séances réalisées avec leur place (un seul bean pour les trois ports). Lecture seule, sans transaction propre.
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesDesSeancesRealiseesJdbc lecturesDesSeancesRealiseesPubliees(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesDesSeancesRealiseesJdbc(jdbc);
+    }
+
+    /** Lecture publiée des constantes des séances pour le Dossier médical (SE7d, ADR 0098). Lecture seule. */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.ConstantesDesSeancesPubliees constantesDesSeancesPubliees(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ConstantesDesSeancesJdbc(jdbc);
+    }
+
     @Bean
     SessionCourante sessionCouranteDeLaSeance() {
         return new SessionLegacy();

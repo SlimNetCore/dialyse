@@ -127,7 +127,13 @@ facturer, exclusion, réinclusion, forfait imposé, liaison séance -> facture, 
 ports publiés `SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee` et
 `SeancesDesFacturesPubliees` de la Séance, fournis à la Facturation par les traducteurs de la plateforme
 (`infrastructure/acl/facturation/`) depuis les routes de Facturation déjà listées au chapitre Facturation ; règle : RG-SEA-061.
-Les 17 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 0 depuis SE7c2, autres contextes : 5, plateforme : 12 dont 4 ressources SQL : état du cahier de dialyse, jeux d'amorçage et de démonstration) sont inscrits
+SE7d (ADR 0098) n'ajoute aucune route : les lectures des Absences de patients (`/api/v1/absences-patients/semaine`,
+`/{id}/seances-rattrapage`, déclaration, rattrapage, annulation, `ControleDeNuitDesAbsences`), de la Planification
+(`/api/v1/planning/semaine`, optimisations) et du Dossier médical (`/api/v1/patients/{id}/constantes`) déjà listées passent par les ports
+publiés `SeancesRealiseesPubliees`, `LiensDExclusionPublies`, `SeancesRealiseesAvecLeurPlacePubliees` (fournis par les traducteurs
+`infrastructure/acl/absences/` et `infrastructure/acl/planification/` de la plateforme) et `ConstantesDesSeancesPubliees` (dépendance
+directe du Dossier médical) ; règles : RG-SEA-062, 063, 064.
+Les 12 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d, plateforme : 12 dont 4 ressources SQL : état du cahier de dialyse, jeux d'amorçage et de démonstration) sont inscrits
 dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir propre à chacun).
 
 ## 16.2 Tâches planifiées

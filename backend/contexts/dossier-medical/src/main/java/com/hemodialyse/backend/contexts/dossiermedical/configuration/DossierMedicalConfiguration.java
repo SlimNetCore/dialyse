@@ -99,7 +99,6 @@ import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.legacy
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.patientcouverture.PatientsDuCentreDeLaFiche;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.identifiants.GenerateurDIdentifiantsAleatoires;
-import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.HistoriqueDesConstantesJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.NumerotationDesOrdonnancesJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.OrdonnancesJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.transaction.UniteDeTravailSpring;
@@ -192,8 +191,10 @@ public class DossierMedicalConfiguration {
     }
 
     @Bean
-    HistoriqueDesConstantes historiqueDesConstantes(JdbcTemplate jdbc) {
-        return new HistoriqueDesConstantesJdbc(jdbc);
+    HistoriqueDesConstantes historiqueDesConstantes(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.ConstantesDesSeancesPubliees seances) {
+        // SE7d (ADR 0098) : la Séance publie les constantes de ses séances ; plus aucun SQL sur seances ici
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.HistoriqueDesConstantesPublie(seances);
     }
 
     @Bean

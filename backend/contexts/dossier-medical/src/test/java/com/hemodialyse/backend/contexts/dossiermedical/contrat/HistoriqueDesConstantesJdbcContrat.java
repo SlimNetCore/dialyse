@@ -4,7 +4,8 @@ import com.hemodialyse.backend.contexts.dossiermedical.domain.Constantes;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.HistoriqueDesConstantes;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.PatientId;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.SeanceId;
-import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.HistoriqueDesConstantesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.HistoriqueDesConstantesPublie;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ConstantesDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -13,7 +14,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** Contrat du port sur les tables réelles {@code seances} et {@code volet_paramedical} (H2 et PostgreSQL 16 : sous-classes). */
+/**
+ * Contrat du port sur les tables réelles {@code seances} et {@code volet_paramedical} (H2 et PostgreSQL 16 : sous-classes), joué depuis
+ * SE7d par l'ACL {@code HistoriqueDesConstantesPublie} au-dessus de l'adapter publié de la Séance ({@code ConstantesDesSeancesJdbc}).
+ */
 abstract class HistoriqueDesConstantesJdbcContrat extends HistoriqueDesConstantesContrat {
 
     protected abstract JdbcTemplate jdbc();
@@ -42,7 +46,8 @@ abstract class HistoriqueDesConstantesJdbcContrat extends HistoriqueDesConstante
     protected Banc nouveauBanc() {
         vider();
         JdbcTemplate jdbc = jdbc();
-        HistoriqueDesConstantesJdbc historique = new HistoriqueDesConstantesJdbc(jdbc);
+        // SE7d (ADR 0098) : l'ACL de production au-dessus du VRAI adapter publié de la Séance (dépendance directe, sans cycle)
+        HistoriqueDesConstantes historique = new HistoriqueDesConstantesPublie(new ConstantesDesSeancesJdbc(jdbc));
         return new Banc() {
             @Override
             public void seance(CentreId centre, PatientId patient, SeanceId seance, LocalDate date, Instant creeLe) {

@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.absencespatients.application.LectureDesA
 import com.hemodialyse.backend.contexts.absencespatients.application.SeancesRealisees;
 import com.hemodialyse.backend.contexts.absencespatients.domain.AbsenceSuivie;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyseance.SeancesRealiseesJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.seance.SeancesRealiseesPubliees;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.LectureDesAbsencesJdbc;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -33,9 +33,10 @@ abstract class LecturesDuSuiviJdbcContrat extends LecturesDuSuiviContrat {
                 new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.FichesPublieesJdbc(jdbc()));
     }
 
+    /** Depuis SE7d (ADR 0098) : l'ACL de production au-dessus d'un double du langage fourni qui lit la table semée par ce contrat. */
     @Override
     protected SeancesRealisees seances() {
-        return new SeancesRealiseesJdbc(jdbc());
+        return new SeancesRealiseesPubliees(new SeancesRealiseesSurLaTable(jdbc()));
     }
 
     /**
