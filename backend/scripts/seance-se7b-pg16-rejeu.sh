@@ -64,11 +64,11 @@ done
 echo "=== SE7b : requetes de controle (SELECT seule, section 60), executables sur le schema reel ==="
 for q in \
   "SELECT s.center_id, count(*) AS seances_de_patients_d_un_autre_centre FROM seances s INNER JOIN patients p ON p.id = s.patient_id WHERE p.center_id <> s.center_id GROUP BY s.center_id" \
-  "SELECT a.center_id, a.roles, count(*) AS lectures_du_detail_nominatif FROM audit_log a WHERE a.route_template = '/api/v1/seances/dashboard/details' AND a.status_code BETWEEN 200 AND 299 GROUP BY a.center_id, a.roles ORDER BY 3 DESC LIMIT 50" \
+  "SELECT p.center_id, count(*) AS patients_lisibles_dans_le_detail FROM patients p GROUP BY p.center_id" \
   "SELECT s.center_id, s.date_seance, s.patient_id, count(*) AS seances_le_meme_jour FROM seances s WHERE s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') GROUP BY s.center_id, s.date_seance, s.patient_id HAVING count(*) > 1 ORDER BY 4 DESC LIMIT 100" \
-  "SELECT p.center_id, count(*) AS patients_sans_sexe_connu FROM patients p WHERE upper(trim(p.sexe)) NOT IN ('M', 'H', 'F') GROUP BY p.center_id" \
+  "SELECT p.center_id, count(*) AS patients_comptes_comme_autre FROM patients p WHERE p.sexe IS NULL OR upper(trim(p.sexe)) NOT IN ('M', 'H', 'F') GROUP BY p.center_id" \
   "SELECT p.center_id, p.etat_patient, count(*) AS sortis_sans_date FROM patients p WHERE p.etat_patient IN ('TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI') AND p.date_evenement_etat IS NULL GROUP BY p.center_id, p.etat_patient" \
-  "SELECT s.center_id, count(*) AS patients_presents_et_absents_le_meme_jour FROM seances s INNER JOIN absence_patient a ON a.center_id = s.center_id AND a.patient_id = s.patient_id AND a.date_seance = s.date_seance AND a.statut <> 'ANNULEE' WHERE s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') GROUP BY s.center_id"; do
+  "SELECT s.center_id, count(DISTINCT s.patient_id) AS patients_distincts_presents_et_absents_le_meme_jour FROM seances s INNER JOIN absence_patient a ON a.center_id = s.center_id AND a.patient_id = s.patient_id AND a.date_seance = s.date_seance AND a.statut <> 'ANNULEE' WHERE s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') GROUP BY s.center_id"; do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done
 exit $RC

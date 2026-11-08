@@ -1892,7 +1892,7 @@ supprimée : la réinclusion réussit.
 exports) et la vue de la Direction (cumul par centre, statut et motif, mensuel) lisent les absences par le langage publié
 <code>AbsencesDuPilotage</code>, avec les mêmes requêtes qu&#39;avant : bornes de dates incluses, <strong>absences annulées jamais comptées</strong>, centres autorisés
 fournis par l&#39;appelant. Le mensuel ne garde que les statuts à qualifier, justifiée et non justifiée. Aucune table d&#39;absence n&#39;est lue hors du contexte.
-<em>Source :</em> <code>AbsencesDuPilotage</code>, <code>AbsencesDuPilotageJdbc</code>, <code>SeanceRestController</code>, <code>DirectionAbsencesQueryService</code>.</p>
+<em>Source :</em> <code>AbsencesDuPilotage</code>, <code>AbsencesDuPilotageJdbc</code>, <code>TableauDeBordDesSeancesControleur</code>, <code>DirectionAbsencesQueryService</code>.</p>
 </div></div>
 <div class="rule" id="RG-ABS-061"><div class="rid">RG-ABS-061</div><div class="rtxt"><p><strong>« Aujourd&#39;hui » du pilotage et absences futures</strong> (KB-ABS-34, 35, corrigés à la slice A4) : « aujourd&#39;hui » est le jour du fuseau des
 centres (RG-ABS-059), pas celui de l&#39;UTC, pour la période par défaut de la Direction (année en cours jusqu&#39;à aujourd&#39;hui) et la fin de période
@@ -1905,7 +1905,7 @@ gardent la fin demandée. <em>(Était : jour UTC ; absences futures comptées ; 
 <code>GET /api/v1/direction/absences</code> est refusée en <strong>400</strong> <code>BAD_REQUEST</code> (était : 500) ; un <code>format</code> d&#39;export du tableau de bord autre que
 <code>csv</code>, <code>pdf</code> ou <code>xlsx</code> (sans égard à la casse) est refusé en <strong>400</strong> <code>BAD_REQUEST</code> (était : CSV servi silencieusement). Sans <code>format</code> : CSV.
 La période de la Direction reste refusée en 422 si inversée (<code>PERIODE_INVALIDE</code>) ou de plus de 5 ans (<code>PERIODE_TROP_LONGUE</code>).
-<em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>, <code>SeanceRestController.exportDashboard</code>.</p>
+<em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>, <code>TableauDeBordDesSeancesControleur.exporter</code>.</p>
 </div></div>
 <h2>6.7 Clôture mensuelle des absences (slice A6, ADR 0042)</h2>
 <p>Un <strong>mois d&#39;absences</strong> (un mois d&#39;un centre) est ouvert ou clos. Un mois sans ligne est ouvert ; aucun mois n&#39;est clos
@@ -1987,7 +1987,7 @@ réouverture. Les événements d&#39;intégration
 <p>Préfixe <code>RG-SEA</code>. Sources : <code>Seance</code>, <code>SeanceStatus</code>, <code>SeanceDomainService</code>, <code>SeanceApplicationService</code>,
 <code>SeanceBillingEligibilityJdbcAdapter</code>, <code>VoletParamedicalDomainService</code>, <code>VoletMedicalDomainService</code>,
 <code>TensionArterielle</code>,
-<code>SeanceRestController</code>, <code>VoletMedicalRestController</code>, <code>VoletParamedicalRestController</code>, <code>BonSortieService</code>.</p>
+<code>TableauDeBordDesSeancesControleur</code>, <code>VoletMedicalRestController</code>, <code>VoletParamedicalRestController</code>, <code>BonSortieService</code>.</p>
 </blockquote>
 <h2>7.1 Cycle de vie</h2>
 <div class="rule" id="RG-SEA-001"><div class="rid">RG-SEA-001</div><div class="rtxt"><p>Statuts d&#39;une séance : <code>CREE</code> → <code>VALIDEE</code> (validation infirmière) → <code>SIGNEE</code> (signature médecin) →
@@ -4659,7 +4659,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-PEC-010</td>
 </tr>
 <tr>
-<td><code>SeanceRestController</code></td>
+<td><code>TableauDeBordDesSeancesControleur</code></td>
 <td><code>/api/v1/seances</code></td>
 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> selon l&#39;action</td>
 <td>RG-SEA-001 à 044, 051, RG-ABS-060 à 062</td>

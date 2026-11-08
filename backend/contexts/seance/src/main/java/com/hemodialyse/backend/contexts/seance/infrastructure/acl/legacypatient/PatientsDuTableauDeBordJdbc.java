@@ -22,7 +22,7 @@ import java.util.UUID;
 /**
  * ACL vers la table des patients ({@code patients}, tenue par le Patient et couverture), en lecture seule : la programmation des
  * patients du centre, les patients ayant une séance réalisée dans le mois, et leur identité. Reprend les trois requêtes du legacy à
- * l'identique. Résidu daté de l'ADR 0095 (R2) : à remplacer par un langage publié du Patient (effectif et programmation d'un mois).
+ * l'identique. Résidu daté de l'ADR 0095 (R1) : à remplacer par un langage publié du Patient (effectif et programmation d'un mois).
  * <p>
  * Lecture tolérante comme le legacy : un booléen peut être un nombre (non nul : vrai), une date peut être {@link LocalDate} ou
  * {@link Date} (autre type : absente).

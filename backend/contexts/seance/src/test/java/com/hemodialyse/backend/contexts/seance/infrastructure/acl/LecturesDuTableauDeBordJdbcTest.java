@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Lectures SQL du tableau de bord sur H2 (mode PostgreSQL) : séances réalisées du centre (bornes du mois incluses), patients et jointure des
- * présents (sans filtre du centre du patient : KB-SEA-65), identités. Lecture seule. Sur PostgreSQL 16 réel, les mêmes requêtes sont
+ * présents (sans filtre du centre du patient : KB-SEA-64), identités. Lecture seule. Sur PostgreSQL 16 réel, les mêmes requêtes sont
  * exécutées par {@code backend/scripts/seance-se7b-pg16-rejeu.sh} (SELECT seule).
  */
 class LecturesDuTableauDeBordJdbcTest {

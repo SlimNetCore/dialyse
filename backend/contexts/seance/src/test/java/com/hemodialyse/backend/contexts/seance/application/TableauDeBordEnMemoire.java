@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Doubles en mémoire des ports de lecture du tableau de bord (SE7b) : séances réalisées, patients, absences, jours non ouvrés. Un
  * patient est rangé dans le centre qui le tient ; une séance l'est dans le centre où elle a lieu (le patient peut être d'un autre centre :
- * KB-SEA-65).
+ * KB-SEA-64).
  */
 final class TableauDeBordEnMemoire implements SeancesRealisees, PatientsDuTableauDeBord, AbsencesDuCentre {
 

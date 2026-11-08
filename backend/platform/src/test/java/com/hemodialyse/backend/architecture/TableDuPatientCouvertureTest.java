@@ -93,8 +93,8 @@ class TableDuPatientCouvertureTest {
                     + "découper changerait l'ordre rendu : collation de la base), reprise à l'identique de SeanceRestController (parité) ; "
                     + "échéance : lecture publiée du Patient (code, nom, prénom d'un lot de patients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PatientsDuTableauDeBordJdbc.java",
-            "2026-11-08 : tableau de bord mensuel des séances (SE7b, ADR 0095, résidu R2) : programmation hebdomadaire, état et sommeil des patients du "
-                    + "centre, jointure séances-patients des présents (sans filtre du centre du patient : KB-SEA-65, reproduit), identités du détail "
+            "2026-11-08 : tableau de bord mensuel des séances (SE7b, ADR 0095, résidu R1) : programmation hebdomadaire, état et sommeil des patients du "
+                    + "centre, jointure séances-patients des présents (sans filtre du centre du patient : KB-SEA-64, reproduit), identités du détail "
                     + "nominatif (KB-SEA-66) ; reprise à l'identique de SeanceRestController (parité) ; échéance : lecture publiée du Patient (effectif "
                     + "et programmation d'un mois), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/ForfaitsFournisLegacy.java",

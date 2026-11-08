@@ -19,7 +19,7 @@ public interface PatientsDuTableauDeBord {
     List<PatientDuMois> duCentre(CentreId centre);
 
     /**
-     * Les patients (sexe et naissance) qui ont une séance réalisée dans le mois du centre, une fois chacun. KB-SEA-65 : la jointure ne
+     * Les patients (sexe et naissance) qui ont une séance réalisée dans le mois du centre, une fois chacun. KB-SEA-64 : la jointure ne
      * filtre pas le centre du patient, un patient d'un autre centre ayant une séance dans ce centre est rendu (reproduit).
      */
     List<Demographie> presentsDuMois(CentreId centre, MoisDuTableauDeBord mois);

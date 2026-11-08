@@ -10,7 +10,7 @@ import java.util.Map;
  * charge sur le mois (hors sommeil, présents au moins un jour avant la libération de leur place), qu'ils aient déjà dialysé ou non, et
  * ceux qui ont une séance réalisée dans le mois. Chaque patient est compté une fois.
  * <p>
- * KB-SEA-65 (reproduit, décision métier requise avant tout usage de pilotage) : les « présents » viennent d'une jointure des séances du
+ * KB-SEA-64 (reproduit, décision métier requise avant tout usage de pilotage) : les « présents » viennent d'une jointure des séances du
  * centre avec TOUS les patients, sans filtre de centre sur le patient ; un patient d'un autre centre ayant une séance dans ce centre est
  * compté dans l'effectif et les répartitions.
  *

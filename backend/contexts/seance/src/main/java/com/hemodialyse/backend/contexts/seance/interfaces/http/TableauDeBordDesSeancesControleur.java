@@ -28,7 +28,7 @@ import java.util.UUID;
  * bornes, une année ou un mois absents ou illisibles, un centre illisible ; 403 avant 400 (garde de l'advice).
  * <p>
  * Les clés françaises mortes de {@code expectedByWeekday} (KB-SEA-62), la fuite d'un patient d'un autre centre dans les répartitions
- * (KB-SEA-65) et le détail nominatif ouvert à la secrétaire (KB-SEA-66) sont REPRODUITS à l'identique : voir l'ADR 0095, section A.
+ * (KB-SEA-64) et le détail nominatif ouvert à la secrétaire (KB-SEA-66) sont REPRODUITS à l'identique : voir l'ADR 0095, section A.
  */
 @RestController
 @RequestMapping("/api/v1/seances")

@@ -229,9 +229,11 @@
   Aucun montant n'est exposé. Les exports CSV, PDF et XLSX gardent les mêmes octets (CSV `text/plain` sans charset). **Corrigés, à
   confirmer avec les métiers** — (KB-SEA-63) année ou mois absent ou illisible, centre illisible, `kind` absent : 400 `BAD_REQUEST` au
   lieu de 500, 403 avant 400. **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers et DPO)** — (KB-SEA-66) le détail
-  nominatif sert nom, prénom et date de naissance à tous les profils autorisés ; (KB-SEA-64) un patient présent et absent le même jour
-  compte deux fois ; (KB-SEA-65) l'effectif du mois est contaminé entre centres ; (KB-SEA-62) les séances attendues ne reconnaissent que
-  les 7 clés françaises (les clés anglaises sont comptées, les françaises à 0). **Reproduits sans alerte** — (KB-SEA-67) tri du détail
+  nominatif sert nom, prénom, identifiant et présence ou absence à tous les profils autorisés, et ses lectures ne sont PAS auditées
+  (décision DPO requise) ; (KB-SEA-64) les compteurs ne se recoupent pas avec le détail et l'effectif du mois est contaminé par des
+  patients d'un autre centre ; (KB-SEA-65) un patient peut être compté présent et absent le même jour ; (KB-SEA-62) les clés françaises
+  de `expectedByWeekday` restent à 0, les comptes sont sur les clés anglaises. **Écart décidé, à confirmer** — les absences sont bornées
+  au jour du fuseau de chaque centre (et non plus du fuseau par défaut). **Reproduits sans alerte** — (KB-SEA-67) tri du détail
   sensible à la casse, droits, libellés. Un échec de lecture du calendrier est avalé avec un WARN portant le seul identifiant du centre.
   *Source :* `ConsulterLeTableauDeBord`, `ConsulterLeDetailDuTableauDeBord`, `ExporterLeTableauDeBord`, `MoisDuTableauDeBord`,
   `SeancesAttendues`, `EffectifDuMois`, `FinDeLaPriseEnCharge`, `TrancheDAge`, `LigneDuDetail`, `FormatDExport`, `SeancesRealiseesJdbc`,
