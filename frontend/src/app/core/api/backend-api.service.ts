@@ -902,7 +902,7 @@ export class BackendApiService {
     );
   }
 
-  /** Ajoute un consommable à une séance déjà validée (seule cette ligne sort du stock). */
+  /** Ajoute un consommable à une séance déjà validée (la quantité est imputée par le Stock sur la sortie pour séances ; aucun mouvement de stock, KB-SEA-22). */
   addSeanceConsommable(seanceId: string, payload: { centerId: string; articleId: string; quantite: number }):
     Observable<{ added: boolean; articleId: string; quantite: number }> {
     return this.http.post<{ added: boolean; articleId: string; quantite: number }>(
@@ -1102,7 +1102,7 @@ export class BackendApiService {
     );
   }
 
-  /** Update the quantity of a consommable on a validated seance (FEFO re-issue). */
+  /** Update the quantity of a consommable on a validated seance (imputed by the Stock on the session issue; no stock movement, KB-SEA-22). */
   updateSeanceConsommableQuantite(seanceId: string, articleId: string, payload: {
     centerId: string;
     userId: string;

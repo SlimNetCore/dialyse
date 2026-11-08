@@ -48,12 +48,12 @@ public class ModifierLaQuantiteDUnConsommable {
         SeanceId id = new SeanceId(seance);
         String auteur = auteurDuCorps == null ? "system" : auteurDuCorps;
 
-        Declaration declaration = uniteDeTravail.executer(() -> {
+        SeanceDeclaree declaration =uniteDeTravail.executer(() -> {
             Seance trouvee = seances.trouverPourModifier(centre, id).orElseThrow(SeanceIntrouvable::new);
             trouvee.exigerLaModificationDesConsommables();
             FicheDuPatient fiche = patients.fiche(centre, trouvee.patient()).orElseThrow(PatientIntrouvable::new);
             consommables.remplacer(centre, trouvee, articleDemande, nouvelle, auteur);
-            return new Declaration(trouvee, fiche);
+            return new SeanceDeclaree(trouvee, fiche);
         });
         diffusions.consommablesModifies(centre, declaration.seance());
         diffusions.saisieDeLInfirmier(centre, "CONSOMMABLE_MODIF", declaration.seance(), declaration.patient(), session.utilisateur());

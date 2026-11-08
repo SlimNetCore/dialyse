@@ -464,8 +464,8 @@ export const SeanceStore = signalStore(
     ),
 
     /**
-     * Ajoute un consommable à une séance déjà validée : seule cette ligne sort du stock (aucun retraitement des lignes
-     * existantes), puis le résumé de la séance est rechargé depuis le serveur.
+     * Ajoute un consommable à une séance déjà validée : la quantité est imputée par le Stock sur la sortie pour séances
+     * (aucun mouvement de stock, aucun retraitement des lignes existantes, KB-SEA-22), puis le résumé de la séance est rechargé depuis le serveur.
      */
     addConsommableToSeance: rxMethod<{ seanceId: string; centerId: string; articleId: string; quantite: number }>(
       pipe(

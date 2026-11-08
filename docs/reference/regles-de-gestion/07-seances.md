@@ -144,16 +144,18 @@
   la validation est refusée avec la quantité manquante (« Stock insuffisant pour l'article … »). Un **bon de sortie**
   valorisé au PMP est créé (motif SEANCE), de façon atomique avec
   le changement de statut.
-- **RG-SEA-022** — Retirer un consommable d'une séance (`ADMIN`, `INFIRMIER`) restitue le stock ; modifier sa quantité
-  (positive) met à jour la ligne du **bon de sortie unique de la séance** (RG-SEA-025), dont les lots sont
-  resélectionnés
-  au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.
-- **RG-SEA-025** — **Une séance = un seul bon de sortie « SEANCE »** : à la validation (RG-SEA-021) ou, pour une
-  séance déjà validée, dès le **premier article ajouté** (`ADMIN`, `INFIRMIER` ; `POST /seances/{id}/consommables`),
-  le bon est créé avec son numéro de pièce ; chaque ajout, modification de quantité ou retrait **met à jour ce même
-  bon** (lignes, lots et mouvements recalculés par FEFO, stock rendu restitué) au lieu de créer une sortie par article.
-  Article actif exigé pour une quantité qui augmente, quantité d'ajout strictement positive ; autorisé pour une séance
-  `VALIDEE` ou `SIGNEE`, refusé si facturée (« La seance facturee ne peut plus etre modifiee ») ou non validée.
+- **RG-SEA-022** — Modifier la quantité (positive) d'un consommable déclaré ou le retirer (`ADMIN`, `INFIRMIER`) **met à jour
+  la consommation imputée par le Stock** sur la sortie pour séances du jour (le retrait fixe la quantité à zéro) : **aucun
+  mouvement de stock, aucune restitution et aucune sélection de lots FEFO n'ont lieu à la déclaration** (KB-SEA-22, voir
+  RG-SEA-054) ; le stock physique est décrémenté par la sortie pour séances (RG-STK, ADR 0045) et par la validation
+  (RG-SEA-021). Interdit si la séance est facturée. Chaque changement notifie le centre.
+- **RG-SEA-025** — **Déclaration d'un consommable sur une séance déjà validée** (`ADMIN`, `INFIRMIER` ;
+  `POST /seances/{id}/consommables`) : la quantité est **imputée par le Stock** sur la sortie pour séances du jour (alertes
+  `AUCUNE_PIECE`, `DEPASSEMENT_DE_LA_SORTIE`, `ARTICLE_HORS_PIECE`) ; elle s'ajoute à celle déjà déclarée pour l'article
+  (cumul, KB-SEA-23) ; **aucun bon de sortie n'est créé ni mis à jour, aucun mouvement ni lot n'est touché** (KB-SEA-22). Le
+  bon de sortie « SEANCE » unique de la séance n'est créé qu'à la validation (RG-SEA-021). Article actif exigé, quantité
+  d'ajout strictement positive ; autorisé pour une séance `VALIDEE` ou `SIGNEE`, refusé si facturée (« La seance facturee ne
+  peut plus etre modifiee ») ou non validée. Reprise dans le module `seance` : RG-SEA-054.
   Les administrations EPO/fer gardent leur propre bon numéroté (poste « ADMINISTRATION »). Chaque saisie notifie le
   médecin (RG-NOT-004).
 - **RG-SEA-026** — **Poste infirmier** (écran « Séances » ; le médecin seul n'y a pas accès, il passe par son tableau de

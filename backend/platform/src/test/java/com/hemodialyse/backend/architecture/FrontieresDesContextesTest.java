@@ -159,6 +159,31 @@ class FrontieresDesContextesTest {
             })
             .because("la déclaration des consommables d'une séance vit dans contexts/seance (ADR 0090)");
 
+    /**
+     * Revue SE3 : les deux autres écritures de la même consommation ont chacune un seul appelant légitime. {@code enregistrerALaValidation}
+     * appartient à {@code contexts/seance} (validation, SE2) ; {@code administrer} (EPO, fer) appartient à {@code contexts/dossier-medical}.
+     * Aucune autre classe, legacy comprise, ne les appelle ; le Stock les implémente.
+     */
+    @ArchTest
+    static final ArchRule les_autres_ecritures_de_consommation_de_seance_ont_un_seul_appelant_legitime = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.stock..")
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "appelle administrer ou enregistrerALaValidation du Stock depuis un contexte non propriétaire") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    if (!appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance")) {
+                        return false;
+                    }
+                    String origine = appel.getOriginOwner().getPackageName();
+                    return switch (appel.getName()) {
+                        case "enregistrerALaValidation" -> !origine.startsWith("com.hemodialyse.backend.contexts.seance");
+                        case "administrer" -> !origine.startsWith("com.hemodialyse.backend.contexts.dossiermedical");
+                        default -> false;
+                    };
+                }
+            })
+            .because("enregistrerALaValidation appartient à contexts/seance et administrer à contexts/dossier-medical (revue SE3)");
+
     private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
 
     /**

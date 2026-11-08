@@ -44,12 +44,12 @@ public class RetirerUnConsommable {
         SeanceId id = new SeanceId(seance);
         String auteur = auteurDuParametre == null ? "system" : auteurDuParametre;
 
-        Declaration declaration = uniteDeTravail.executer(() -> {
+        SeanceDeclaree declaration =uniteDeTravail.executer(() -> {
             Seance trouvee = seances.trouverPourModifier(centre, id).orElseThrow(SeanceIntrouvable::new);
             trouvee.exigerLaModificationDesConsommables();
             FicheDuPatient fiche = patients.fiche(centre, trouvee.patient()).orElseThrow(PatientIntrouvable::new);
             consommables.retirer(centre, trouvee, articleDemande, auteur);
-            return new Declaration(trouvee, fiche);
+            return new SeanceDeclaree(trouvee, fiche);
         });
         diffusions.consommablesModifies(centre, declaration.seance());
         diffusions.saisieDeLInfirmier(centre, "CONSOMMABLE_RETRAIT", declaration.seance(), declaration.patient(), session.utilisateur());

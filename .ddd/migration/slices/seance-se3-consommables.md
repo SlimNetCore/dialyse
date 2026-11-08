@@ -34,7 +34,7 @@ Tests réécrits : `SeanceSuppressionIntegrationTest` (mise en place par le lang
 Ajout : matrice des statuts, patient disparu (404), articles (statut unifié 400), quantités et formes (500 vers 400) · Modification : matrice des statuts, quantités et articles, cloisonnement · Retrait : matrice des statuts, paramètres · Raccourcis : bornes, cloisonnement · **12e (filet Stock, `ArticlesDeLaSeanceCharacterizationIntegrationTest`)** : `consommable_quantite_nulle`, `VALIDATION_ERROR` devenu `BAD_REQUEST` ; le test insère aussi le patient de la séance (golden `consommable_article_inconnu` inchangé).
 
 ## Jalons rouges datés (known-bugs.md, « Décisions SE3 »)
-KB-SEA-33 (auteur ignoré par l'adapter du Stock, médico-légal) et KB-SEA-22 (aucune sortie de stock) : mise en production conditionnée à la décision DPO et métiers, revue au plus tard le 2026-12-15.
+KB-SEA-33 (auteur ignoré par l'adapter du Stock, médico-légal), KB-SEA-22 (aucune sortie de stock), KB-SEA-24 (gardes de statut) et KB-SEA-31 (`PUT {}` efface les raccourcis) : mise en production conditionnée à la décision DPO et métiers, revue au plus tard le 2026-12-15.
 
 ## Bilan des résidus (revue au plus tard le 2026-12-15 ; date butoir de retrait propre : 2027-01-31)
 | Résidu | Où | Sort |
@@ -44,6 +44,7 @@ KB-SEA-33 (auteur ignoré par l'adapter du Stock, médico-légal) et KB-SEA-22 (
 | Lecture `ConsommationsDeSeance.sortiesParDate` (consommables les plus sortis du jour) et `LocalDate.now()` serveur | `SeanceRestController` | SE7 (lectures publiées) ; 2027-01-31 |
 | Annulation des consommations à la suppression d'une séance | `SuppressionSeanceService` | slice de la suppression, hors SE3 ; revue 2026-12-15 |
 | Mentions « consommable » de `SeanceUseCase`/`SeanceDomainService` | commentaires seulement | aucun code ; à nettoyer avec SE4 |
+| Test de concurrence des consommables bout en bout (deux écritures sur la même séance sous PostgreSQL : `FOR UPDATE`, `lock_timeout`, écriture Stock) : seul le mapping 409 de l'advice et les raccourcis sont testés | `SeancesJdbc.trouverPourModifier`, `UniteDeTravailSpring` | à écrire (PG16 jetable) au plus tard le 2027-01-31 ; d'ici là recette manuelle §55 (g) |
 Aucun appelant legacy d'écriture de consommation ne subsiste : verrou ArchUnit ci-dessus.
 
 ## Décisions à confirmer avant la mise en production

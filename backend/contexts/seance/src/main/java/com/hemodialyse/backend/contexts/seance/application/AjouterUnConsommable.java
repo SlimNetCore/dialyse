@@ -48,12 +48,12 @@ public class AjouterUnConsommable {
         SeanceId id = new SeanceId(seance);
         String auteur = session.utilisateur();
 
-        Declaration declaration = uniteDeTravail.executer(() -> {
+        SeanceDeclaree declaration =uniteDeTravail.executer(() -> {
             Seance trouvee = seances.trouverPourModifier(centre, id).orElseThrow(SeanceIntrouvable::new);
             trouvee.exigerLAjoutDeConsommables();
             FicheDuPatient fiche = patients.fiche(centre, trouvee.patient()).orElseThrow(PatientIntrouvable::new);
             consommables.ajouter(centre, trouvee, articleDemande, aAjouter, auteur);
-            return new Declaration(trouvee, fiche);
+            return new SeanceDeclaree(trouvee, fiche);
         });
         diffusions.consommablesModifies(centre, declaration.seance());
         diffusions.saisieDeLInfirmier(centre, "CONSOMMABLE_AJOUT", declaration.seance(), declaration.patient(), auteur);
