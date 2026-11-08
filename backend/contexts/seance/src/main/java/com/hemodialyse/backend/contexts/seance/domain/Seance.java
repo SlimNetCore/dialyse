@@ -243,7 +243,8 @@ public final class Seance {
         this.forfaitImpose = new ForfaitImpose(forfait.id(), forfait.code(), forfait.nom(), forfait.prix(), maintenant, auteur.valeur());
     }
 
-    private void exigerNonFacturee() {
+    /** Refuse (422) la séance facturée : à appeler avant de construire l'auteur, pour garder l'ordre des refus du legacy. */
+    public void exigerNonFacturee() {
         if (statut == StatutDeSeance.FACTUREE) {
             throw new SeanceRefusee(MotifDeRefus.SEANCE_FACTUREE, "La seance facturee ne peut plus etre modifiee");
         }

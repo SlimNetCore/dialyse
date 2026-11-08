@@ -26,4 +26,6 @@
 |-----------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|------------------------------------------------------------------------|------------------------------------------------------------------|
 | `SeanceCreee`, `SeanceValidee`, `SeanceSignee`, `ConsommablesDeSeanceDeclares`, `ForfaitDeSeanceSurcharge`, `SeanceDeverrouilleePourRegularisation` | traducteur domaine -> `publishedlanguage/v1` | Facturation, Stock, Absences, Dossier medical, Pilotage, Planification | registre Modulith, at-least-once, idempotence eventId (ADR 0013) |
 
+Etat (SE5, ADR 0092) : `ForfaitDeSeanceSurcharge` n'est PAS emis (aucun consommateur ; la Facturation lit les colonnes `forfait_override_*`) ; il sera cree avec son premier consommateur.
+
 Regles : payloads en types JDK (UUID, String, BigDecimal, Instant) ; nouvelle version `v2` a cote de `v1`.

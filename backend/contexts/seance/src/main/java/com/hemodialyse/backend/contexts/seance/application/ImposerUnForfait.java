@@ -43,12 +43,12 @@ public class ImposerUnForfait {
         CentreId centre = session.centre(centreDemande); // 403 avant tout 400 (KB-SEA-04)
         SeanceId id = new SeanceId(seance);
         ForfaitId forfaitDemande = new ForfaitId(forfait);
-        AuteurDuForfaitImpose imposeur = new AuteurDuForfaitImpose(auteur);
         Seance imposee = uniteDeTravail.executer(() -> {
             Seance trouvee = seances.trouverPourModifier(centre, id).orElseThrow(SeanceIntrouvable::new);
             var choisi = referentiel.trouver(centre, forfaitDemande)
                     .orElseThrow(() -> new SaisieInvalide("Forfait introuvable pour le centre actif"));
-            trouvee.imposerUnForfait(choisi, horloge.maintenant(), imposeur);
+            trouvee.exigerNonFacturee(); // 422 avant le contrôle de l'auteur : ordre du legacy
+            trouvee.imposerUnForfait(choisi, horloge.maintenant(), new AuteurDuForfaitImpose(auteur));
             seances.enregistrerLeForfaitImpose(trouvee);
             return trouvee;
         });

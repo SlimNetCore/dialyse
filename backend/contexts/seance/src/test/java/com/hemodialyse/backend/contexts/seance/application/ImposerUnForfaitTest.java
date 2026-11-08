@@ -198,7 +198,19 @@ class ImposerUnForfaitTest {
         assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), s.id().valeur(), F1, "y".repeat(101)))
                 .isInstanceOf(SaisieInvalide.class);
         assertThat(relue(s).forfaitImpose()).isEmpty();
-        assertThat(banc.seances.verrousDeLigneDemandes).isZero();
+    }
+
+    @Test
+    void should_refuse_an_invoiced_session_with_422_before_checking_the_author_as_the_legacy_did() {
+        var facturee = semer(1, StatutDeSeance.FACTUREE);
+        var creee = semer(2, StatutDeSeance.CREE);
+
+        assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), facturee.id().valeur(), F1, "y".repeat(101)))
+                .isInstanceOfSatisfying(SeanceRefusee.class, e -> assertThat(e.motif().code()).isEqualTo("SEANCE_FACTUREE_NON_MODIFIABLE"));
+        assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), creee.id().valeur(), F1, "y".repeat(101)))
+                .isInstanceOf(SaisieInvalide.class);
+        assertThat(relue(facturee).forfaitImpose()).isEmpty();
+        assertThat(relue(creee).forfaitImpose()).isEmpty();
     }
 
     @Test
