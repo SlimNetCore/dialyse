@@ -1,0 +1,27 @@
+{
+  "01 jour de la demande avant la seance (seance a venir)" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "02 jour de la demande le lendemain de la seance" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+10>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+10>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "03 aucune seance modifiee" : true,
+  "04 lignes de derogations_regularisation (-1 : table absente du schema H2)" : -1
+}

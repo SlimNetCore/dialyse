@@ -1,0 +1,46 @@
+{
+  "01 deverrouillage" : "200 ok",
+  "02 validation par l'infirmier" : "200 ok",
+  "03 nouveau deverrouillage d'une seance validee" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance restée « créée » peut être déverrouillée pour régularisation",
+  "04 diffusions du refus" : [ ],
+  "05 etat (validee, deverrouillage conserve)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+20>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  } ],
+  "06 la seance validee n'est plus rappelee" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "07 signature du medecin (la seance reste signable)" : "200 ok",
+  "08 deverrouillage d'une seance signee" : "422 SEANCE_DEVERROUILLAGE_INVALIDE | Seule une séance restée « créée » peut être déverrouillée pour régularisation",
+  "09 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+20>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "renseigne",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : "med-01",
+    "statut" : "SIGNEE",
+    "validation" : "renseigne"
+  } ]
+}

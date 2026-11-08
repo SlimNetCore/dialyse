@@ -1,0 +1,10 @@
+{
+  "01 detail avant" : "200 status=CREE ; regularisationDeverrouilleeAt absent du detail",
+  "02 deverrouillage" : "200 ok",
+  "03 detail apres" : "200 status=CREE ; regularisationDeverrouilleeAt absent du detail",
+  "04 liste deverrouillee=true (administrateur)" : "200 total=1 [<D+20> CREE deverrouillee=oui]",
+  "05 liste deverrouillee=false (administrateur)" : "200 total=1 [<D+21> CREE deverrouillee=non]",
+  "06 liste deverrouillee=true (infirmier)" : "200 total=1 [<D+20> CREE deverrouillee=oui]",
+  "07 liste sans filtre (infirmier)" : "200 total=2 [<D+21> CREE deverrouillee=non, <D+20> CREE deverrouillee=oui]",
+  "08 liste du centre B (aucune deverrouillee)" : "200 ok"
+}

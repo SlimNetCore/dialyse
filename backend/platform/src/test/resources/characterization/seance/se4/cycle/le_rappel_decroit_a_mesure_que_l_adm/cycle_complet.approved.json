@@ -1,0 +1,150 @@
+{
+  "01 rappel initial (3 oubliees)" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "3",
+          "plusAncienne" : "<D+27>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"3\",\"plusAncienne\":\"<D+27>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "02 l'infirmier ne peut pas valider la 28e avant le deverrouillage" : "422 SEANCE_REGULARISATION_NON_DEVERROUILLEE | Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur",
+  "03 deverrouillage de la 28e par l'administrateur" : "200 ok",
+  "04 diffusion du deverrouillage (infirmiers)" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "payload" : {
+        "dateSeance" : "<D+28>",
+        "patientNom" : "Patient PAT_A",
+        "patientPrenom" : "Test",
+        "seanceId" : "<SEANCE_28>",
+        "targetRoles" : "INFIRMIER"
+      },
+      "type" : "SEANCE_DEVERROUILLEE"
+    }
+  } ],
+  "05 rappel apres deverrouillage (2 oubliees : la 28e n'est plus rappelee)" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "2",
+          "plusAncienne" : "<D+27>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"2\",\"plusAncienne\":\"<D+27>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "06 l'infirmier valide la 28e" : "200 ok",
+  "07 rappel apres validation de la 28e (inchange : 2)" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "2",
+          "plusAncienne" : "<D+27>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"2\",\"plusAncienne\":\"<D+27>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "08 l'administrateur valide la 27e sans deverrouillage prealable" : "200 ok",
+  "09 rappel (1 oubliee : la 29e)" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+29>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+29>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "10 deverrouillage de la 29e" : "200 ok",
+  "11 rappel (plus aucune seance a regulariser : aucune diffusion, aucun journal)" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "12 etat final" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+27>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+28>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "renseigne",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : "inf-01",
+    "signed_medecin_by" : null,
+    "statut" : "VALIDEE",
+    "validation" : "renseigne"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+29>",
+    "deverrouillage" : "renseigne",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : "u-admin",
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ],
+  "13 lignes de derogations_regularisation (-1 : table absente du schema H2)" : -1
+}

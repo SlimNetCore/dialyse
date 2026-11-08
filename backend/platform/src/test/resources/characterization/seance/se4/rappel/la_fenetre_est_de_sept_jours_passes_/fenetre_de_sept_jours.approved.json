@@ -1,0 +1,79 @@
+{
+  "+00 jours" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "+01 jours" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "+30 jours" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "-01 jours" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+39>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+39>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "-06 jours" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+34>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+34>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "-07 jours" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+33>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+33>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "-08 jours" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "-09 jours" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  }
+}

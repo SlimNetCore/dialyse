@@ -1,0 +1,57 @@
+{
+  "01 patient disparu : administrateur" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "02 aucune diffusion" : [ ],
+  "03 etat (ni deverrouillage ni validation)" : [ {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+20>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_B>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  }, {
+    "center_id" : "<CENTRE_A>",
+    "creneau_id" : null,
+    "date_seance" : "<D+20>",
+    "deverrouillage" : "null",
+    "facture_id" : null,
+    "generateur_id" : null,
+    "patient_id" : "<PAT_A>",
+    "regularisation_deverrouillee_by" : null,
+    "salle_id" : null,
+    "signature_infirmier" : "null",
+    "signature_medecin" : "null",
+    "signed_infirmier_by" : null,
+    "signed_medecin_by" : null,
+    "statut" : "CREE",
+    "validation" : "null"
+  } ],
+  "04 le rappel compte quand meme la seance sans patient" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+20>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+20>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "05 la seance au patient present se deverrouille" : "200 ok"
+}

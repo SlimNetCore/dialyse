@@ -1,0 +1,68 @@
+{
+  "ABSENT" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "CREE" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+38>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+38>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "EN_COURS" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "FACTUREE" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "INCONNU" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "SIGNEE" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "VALIDEE" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "cree" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "une creee, un statut inconnu et un statut en minuscules dans le meme centre" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+38>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+38>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  }
+}

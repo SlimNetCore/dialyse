@@ -1,0 +1,23 @@
+{
+  "01 rappel du centre A (3 oubliees : hier, 4 jours, 7 jours)" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "3",
+          "plusAncienne" : "<D+23>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"3\",\"plusAncienne\":\"<D+23>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "02 le rappel n'ecrit aucune seance" : true,
+  "03 lignes de derogations_regularisation (-1 : table absente du schema H2, creee par Flyway V50 seulement)" : -1
+}
