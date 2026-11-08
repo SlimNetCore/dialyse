@@ -122,8 +122,10 @@ class LeRappelDesSeancesARegulariserCharacterizationIntegrationTest extends Se4C
         viderLesRappels();
         rappeler(CENTRE_A, aujourdhui);
         rappeler(CENTRE_A, aujourdhui);
-        m.put("04 deux appels du meme jour pour le meme centre : deux rappels et deux lignes de journal", rappelLu());
-        arbre("cloisonnement_et_repetition", m);
+        // Parite SE4 : ECART DECIDE (KB-SEA-35 corrige, ADR 0091) : le legacy diffusait et journalisait deux rappels ; le module n'en emet
+        // qu'un par centre et par jour du centre. Les etapes 01 a 03 restent identiques au legacy (golden archive sous _ecarts-legacy).
+        m.put("04 deux appels du meme jour pour le meme centre : un seul rappel et une seule ligne de journal (KB-SEA-35 corrige)", rappelLu());
+        arbre("cloisonnement_et_repetition_nouveau_code", m);
     }
 
     @Test

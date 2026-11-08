@@ -72,6 +72,7 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyorganisa
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.RappelsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VerrousDesRappelsJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis;
+import com.hemodialyse.backend.contexts.seance.interfaces.jobs.RappelDesRegularisationsPlanifie;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -271,6 +272,12 @@ public class SeanceConfiguration {
             @Qualifier("verrousDesRappelsDeLaSeance") VerrousDesRappels verrous,
             @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail) {
         return new RappelerLesSeancesARegulariser(centres, horloge, historique, rappels, verrous, uniteDeTravail);
+    }
+
+    /** L'unique planificateur du rappel (07:00), déclaré ici comme celui du Stock : le legacy n'en a plus (lot B). */
+    @Bean
+    RappelDesRegularisationsPlanifie rappelDesRegularisationsPlanifie(RappelerLesSeancesARegulariser rappeler) {
+        return new RappelDesRegularisationsPlanifie(rappeler);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)

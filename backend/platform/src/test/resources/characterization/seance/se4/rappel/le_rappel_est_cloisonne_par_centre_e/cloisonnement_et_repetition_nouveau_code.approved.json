@@ -1,0 +1,63 @@
+{
+  "01 centre A" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "2",
+          "plusAncienne" : "<D+37>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"2\",\"plusAncienne\":\"<D+37>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "02 centre B" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_B>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "1",
+          "plusAncienne" : "<D+35>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_B>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"1\",\"plusAncienne\":\"<D+35>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  },
+  "03 centre sans aucune seance" : {
+    "diffusions" : [ ],
+    "journal" : [ ]
+  },
+  "04 deux appels du meme jour pour le meme centre : un seul rappel et une seule ligne de journal (KB-SEA-35 corrige)" : {
+    "diffusions" : [ {
+      "destination" : "/topic/center/<CENTRE_A>/events",
+      "message" : {
+        "payload" : {
+          "nbSeances" : "2",
+          "plusAncienne" : "<D+37>",
+          "targetRoles" : "ADMIN"
+        },
+        "type" : "SEANCES_A_REGULARISER"
+      }
+    } ],
+    "journal" : [ {
+      "center_id" : "<CENTRE_A>",
+      "payload" : "{\"targetRoles\":\"ADMIN\",\"nbSeances\":\"2\",\"plusAncienne\":\"<D+37>\"}",
+      "target_roles" : ",ADMIN,",
+      "type" : "SEANCES_A_REGULARISER"
+    } ]
+  }
+}

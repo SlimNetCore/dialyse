@@ -183,10 +183,11 @@
   l' **infirmier** dans son bloc « À régulariser » (il ne voit que celles-là, jamais les autres) et il peut la valider.
   L'infirmier ne valide librement que les séances **du jour** : valider une séance d'un jour passé non déverrouillée est
   refusé par le serveur (`SEANCE_REGULARISATION_NON_DEVERROUILLEE`) ; l'administrateur valide toujours. La secrétaire
-  ne voit pas le bloc. Un **rappel** est envoyé chaque jour à **07:00** (`SeanceRegularisationScheduler`, après la
-  détection des absences de 02:30) à l'administrateur de chaque centre qui a de telles séances **pas encore
-  déverrouillées** : nombre et date de la plus ancienne (notification `SEANCES_A_REGULARISER`, `ADMIN` seul ; rien
-  n'est envoyé s'il n'y en a aucune). Une fois validée, la séance compte comme réalisée et
+  ne voit pas le bloc. Un **rappel** est envoyé chaque jour à **07:00** (`RappelDesRegularisationsPlanifie`, après la
+  détection des absences de 02:30, au jour du fuseau de chaque centre) à l'administrateur de chaque centre qui a de
+  telles séances **pas encore déverrouillées** : nombre et date de la plus ancienne (notification
+  `SEANCES_A_REGULARISER`, `ADMIN` seul ; rien n'est envoyé s'il n'y en a aucune ; **un seul rappel par centre et par
+  jour**). Une fois validée, la séance compte comme réalisée et
   l'absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance réalisée à
   cette date »). Au-delà de 7 jours, la séance reste consultable dans l'historique (RG-SEA-029).
 - **RG-SEA-047** — **Navigation entre patients du poste infirmier** : après un scan réussi, le poste se positionne

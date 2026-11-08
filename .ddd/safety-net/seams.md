@@ -466,3 +466,12 @@ Inscrit AVANT toute action. Le fichier édité est déjà dans `covered.json` (a
 | 2026-11-08 | seance-se4-derogation-regularisation | **ÉDITION** de `platform/.../application/notification/NotificationService.java` : AJOUT de la surcharge `notifySeancesARegulariser(centre, nbSeances, plusAncienne, idImpose)` (identifiant déterministe, comme `notifyAbsencesAQualifier` et `notifyLotsProchesPeremption`) ; la méthode à trois arguments est conservée telle quelle (le planificateur legacy l'appelle jusqu'au lot B) | Le rappel du module doit émettre une seule alerte par centre et par jour du centre (KB-SEA-35) sans nouvelle table : le journal `notification_evenement` porte déjà l'identifiant |
 
 **FERMÉ le 2026-11-08** : `seamAllowed` = `[]`.
+
+### Séance SE4 lot B (planificateur dans le module, retrait du service et du scheduler legacy) : OUVERT le 2026-11-08, FERMÉ à la fin du lot (`seamAllowed` vide)
+
+Inscrit AVANT toute action. Tous les fichiers supprimés sont déjà dans `covered.json` (aucune entrée à ajouter à `seamAllowed`).
+
+| Date | Slice | Fichiers supprimés | Raison |
+|---|---|---|---|
+| 2026-11-08 | seance-se4-derogation-regularisation | **SUPPRESSION** (`git rm`) de `platform/.../infrastructure/scheduling/SeanceRegularisationScheduler.java` et de son test `SeanceRegularisationSchedulerTest` | Le planificateur du module (`RappelDesRegularisationsPlanifie`, cron 07:00) le remplace : deux planificateurs actifs enverraient le rappel deux fois |
+| 2026-11-08 | seance-se4-derogation-regularisation | **SUPPRESSION** (`git rm`) de `platform/.../application/seance/SeanceRegularisationService.java` et de son test `SeanceRegularisationServiceIntegrationTest` | Plus aucun appelant : le cas d'usage `RappelerLesSeancesARegulariser` lit l'historique par le port ; le comportement (fenêtre, statuts, déverrouillées, plus ancienne, cloisonnement) est tenu par les goldens SE4 et les tests du module ; le rappel du service legacy n'est plus appelé non plus (`NotificationService.notifySeancesARegulariser` à trois arguments reste, test `NotificationServiceSaisieInfirmierTest`) |

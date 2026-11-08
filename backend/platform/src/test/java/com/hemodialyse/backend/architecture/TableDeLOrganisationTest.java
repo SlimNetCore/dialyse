@@ -78,7 +78,6 @@ class TableDeLOrganisationTest {
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentProvisioner.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/SeanceRegularisationScheduler.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/UserRestController.java");
 

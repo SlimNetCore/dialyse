@@ -1,11 +1,10 @@
 package com.hemodialyse.backend.characterization.seance.se4;
 
 import com.hemodialyse.backend.characterization.seance.se3.Se3CharacterizationSupport;
-import com.hemodialyse.backend.infrastructure.scheduling.SeanceRegularisationScheduler;
+import com.hemodialyse.backend.contexts.seance.application.RappelerLesSeancesARegulariser;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.UUID;
 public abstract class Se4CharacterizationSupport extends Se3CharacterizationSupport {
 
     @Autowired
-    private SeanceRegularisationScheduler rappelQuotidien;
+    private RappelerLesSeancesARegulariser rappelQuotidien;
 
     @Override
     protected String tranche() {
@@ -42,14 +41,16 @@ public abstract class Se4CharacterizationSupport extends Se3CharacterizationSupp
         super.nettoyerSe1();
     }
 
-    /** Lance le rappel d'un centre comme le fait le travail de 07:00, mais pour un jour de la demande choisi par le scénario. */
+    /**
+     * Lance le rappel d'un centre comme le fait le travail de 07:00, mais pour un jour de la demande choisi par le scénario. Depuis le
+     * lot B (parité) : le cas d'usage du module, {@code executerPourLeCentre} (le jour est fourni, aucune heure lue) ; le legacy appelait
+     * par réflexion {@code SeanceRegularisationScheduler.rappelerCentre}. Un incident (que le legacy ne faisait que journaliser) échoue
+     * le scénario : aucun scénario du filet n'en provoque.
+     */
     protected void rappeler(UUID centre, LocalDate jourDeLaDemande) throws Exception {
-        Method m = SeanceRegularisationScheduler.class.getDeclaredMethod("rappelerCentre", UUID.class, LocalDate.class);
-        m.setAccessible(true);
-        try {
-            m.invoke(rappelQuotidien, centre, jourDeLaDemande);
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException("le rappel ne doit jamais propager d'exception", e.getCause());
+        var resultat = rappelQuotidien.executerPourLeCentre(new CentreId(centre), jourDeLaDemande);
+        if (resultat.incident() != null) {
+            throw new IllegalStateException("le rappel ne doit jamais propager d'exception : " + resultat.incident());
         }
     }
 

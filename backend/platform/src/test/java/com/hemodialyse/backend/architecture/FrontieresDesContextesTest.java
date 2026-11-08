@@ -160,6 +160,32 @@ class FrontieresDesContextesTest {
             .because("la déclaration des consommables d'une séance vit dans contexts/seance (ADR 0090)");
 
     /**
+     * SE4 (ADR 0091) : le rappel quotidien des séances à régulariser vit dans {@code contexts/seance} (cas d'usage, planificateur de
+     * 07:00 unique). Le service et le scheduler legacy sont supprimés (le compilateur interdit tout retour) ; seul le fournisseur du
+     * langage publié {@code RappelsFournis} (plateforme, ACL) appelle encore {@code NotificationService.notifySeancesARegulariser}, et
+     * aucune classe hors du contexte ne dépend du cas d'usage : un second déclencheur provoquerait un double rappel.
+     */
+    @ArchTest
+    static final ArchRule seul_le_fournisseur_du_langage_publie_emet_le_rappel_de_regularisation = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.infrastructure.acl.seance..")
+            .and().doNotHaveFullyQualifiedName("com.hemodialyse.backend.application.notification.NotificationService")
+            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
+                    "émet le rappel de régularisation (SEANCES_A_REGULARISER)") {
+                @Override
+                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
+                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.application.notification.NotificationService")
+                            && appel.getName().equals("notifySeancesARegulariser");
+                }
+            })
+            .because("le rappel vit dans contexts/seance ; l'identifiant déterministe évite le doublon (KB-SEA-35)");
+
+    @ArchTest
+    static final ArchRule seul_contexts_seance_declenche_le_rappel_de_regularisation = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.RappelerLesSeancesARegulariser")
+            .because("un seul planificateur actif : celui du module (cron 07:00), pas de double déclenchement (ADR 0091)");
+
+    /**
      * Revue SE3 : les deux autres écritures de la même consommation ont chacune un seul appelant légitime. {@code enregistrerALaValidation}
      * appartient à {@code contexts/seance} (validation, SE2) ; {@code administrer} (EPO, fer) appartient à {@code contexts/dossier-medical}.
      * Aucune autre classe, legacy comprise, ne les appelle ; le Stock les implémente.
