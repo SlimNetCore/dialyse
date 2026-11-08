@@ -1,6 +1,6 @@
 ---
 slice: seance-se7c-lectures-facturation-stock
-status: partial (c1 built, c2 planned)
+status: built (c1 et c2 built, 2026-11-08)
 date: 2026-11-08
 order: 7.3
 context: seance
@@ -11,7 +11,7 @@ sources: [.ddd/safety-net/seance-se7-lectures-publiees.md, .ddd/safety-net/seanc
 
 # SE7c : lectures et écritures de Facturation et de Stock sur la table des séances
 
-Consommateurs qui touchaient `seances` hors contexte, aucun ne passait par `seance.v1`. Deux sous-slices : **c1 Stock (lecture seule)** `slices.seance-se7c1-lectures-stock` = `built` ; **c2 Facturation (5 fichiers, 5 UPDATE d'argent)** `slices.seance-se7c2-ecritures-facturation` = `planned`. La clé du parent `seance-se7c-lectures-facturation-stock` n'est PAS à `built` (c2 reste).
+Consommateurs qui touchaient `seances` hors contexte, aucun ne passait par `seance.v1`. Deux sous-slices : **c1 Stock (lecture seule)** `slices.seance-se7c1-lectures-stock` = `built` ; **c2 Facturation (5 fichiers, 5 UPDATE d'argent)** `slices.seance-se7c2-ecritures-facturation` = `built` (2026-11-08). La clé du parent `seance-se7c-lectures-facturation-stock` est à `built`.
 
 ## c1 : Stock (built, 2026-11-08, ADR 0096)
 | Fait | Détail |
@@ -35,13 +35,16 @@ Audit par fichier et par requête : `.ddd/safety-net/seance-se7c2-ecritures-fact
 ### c2 : lot A livré (2026-11-08)
 ADR 0097 (accepted, à confirmer, review-by 2026-12-15) + 4 ports publiés dans `contexts/seance/publishedlanguage` (`SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee`, `SeancesDesFacturesPubliees`). Aucun adapter, aucun trafic changé. Cycle Maven vérifié (Séance -> Absences-patients -> Facturation) : traducteurs dans `platform/infrastructure/acl/facturation/`. **c2a livré** : `FacturationDesSeancesJdbc` (séances à facturer, `trouver`, `exclure`, `reinclure`, `poserLeForfait`, `lierALAbsence` encore SANS garde de facture, comptages) ; contrat commun de 21 cas (double, H2, PG16 jetable par `backend/scripts/seance-se7c2a-pg16-rejeu.sh`, port 55546) ; entrée provisoire de `TableDuPatientCouvertureTest` (jointure patients, retirée à B avec `SeancesFacturablesJdbc`). Aucun trafic changé. Reste : c2b (`lier`, `lierALAbsence` corrigé KB-SEA-71), B (bascule), C (documents, état).
 
+### c2 : built (2026-11-08)
+c2b + B livrés (`42108ce2`), lot C (documents, état) fait : `slices.seance-se7c2-ecritures-facturation` = `built`, clé parente `built`. Détail, correspondance des contrats supprimés et résidus C2-R1 à C2-R8 : `.ddd/migration/slices/seance-se7c2-ecritures-facturation.md`.
+
 ## Bilan nominatif des résidus (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
 | R1 | `LecturesPublieesDesSeancesJdbc` lit `salle` et `position_creneau` en SQL direct : à remplacer par `organisation.v1` (O4) | 2026-12-15 | 2027-03-31 |
 | R2 | ACL du Stock logée dans la plateforme (cycle Maven) | 2026-12-15 | 2027-06-30 |
 | R3 | Décisions KB-SEA-68, 69, 70 | 2026-12-15 | 2027-01-31 (et, au plus tard, avant toute mise en production) |
-| R4 | 22 lecteurs SQL de `seances` hors Séance en liste blanche (`TableDesSeancesTest`) : Facturation (5) | 2026-12-15 | 2027-01-31 |
+| R4 | ~~22 lecteurs SQL de `seances` hors Séance en liste blanche (`TableDesSeancesTest`) : Facturation (5)~~ SOLDÉ par c2 (`42108ce2`, 17 lecteurs) | 2026-12-15 | 2027-01-31 |
 | R5 | idem : absences-patients (3), planification (1), dossier-médical (1), fournisseurs plateforme de la Séance (2) | 2026-12-15 | 2027-03-31 |
 | R6 | idem : pilotage Direction (3), statistiques du patient, cahier de dialyse (service et état `cahier_dialyse.jrxml`), annulation de migration (SUPPRESSION de séances), 3 scripts SQL de développement / démonstration (`seed.sql`, `renadial-seed.sql`, `renadial-purge.sql`) | 2026-12-15 | 2027-06-30 |
-| R7 | c2 : KB-SEA-47, KB-FAC-17, deux définitions de « facturée » à décider avant c2a | 2026-12-15 | 2027-01-31 |
+| R7 | c2 : KB-SEA-47, KB-FAC-17, deux définitions de « facturée » : reproduits par l'ADR 0097, suivis par C2-R2, C2-R3, C2-R4 (fiche c2) | 2026-12-15 | 2027-01-31 |

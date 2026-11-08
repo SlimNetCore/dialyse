@@ -96,12 +96,12 @@
     "dossier-medical-dm9-statistiques-et-lectures-sql": "planned",
     "seance-se7a-routes-residuelles": "built",
     "seance-se7b-tableau-de-bord-mensuel": "built",
-    "seance-se7c-lectures-facturation-stock": "planned",
+    "seance-se7c-lectures-facturation-stock": "built",
     "seance-se7d-lectures-absences-planification-dossier": "planned",
     "seance-se7e-lectures-pilotage-et-rapports": "planned",
     "seance-se7f-retrait-bc-seance-et-garde": "planned",
     "seance-se7c1-lectures-stock": "built",
-    "seance-se7c2-ecritures-facturation": "characterized"
+    "seance-se7c2-ecritures-facturation": "built"
   },
   "contexts": {
     "gmao": "architected",
