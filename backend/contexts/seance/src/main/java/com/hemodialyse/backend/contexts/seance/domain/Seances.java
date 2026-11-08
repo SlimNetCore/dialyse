@@ -38,4 +38,10 @@ public interface Seances {
      * déverrouilleur et place. La création reste {@link #ajouter}.
      */
     void enregistrer(Seance seance);
+
+    /**
+     * Enregistre le forfait imposé à une séance existante (SE5) : les SEULES colonnes {@code forfait_override_*}, jamais le statut ni
+     * les jalons, pour ne pas réécrire, depuis un état lu plus tôt, ce qu'un autre écrivain (la Facturation) aurait changé entre-temps.
+     */
+    void enregistrerLeForfaitImpose(Seance seance);
 }

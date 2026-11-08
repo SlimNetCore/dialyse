@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.contexts.seance.contrat;
 
 import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
+import com.hemodialyse.backend.contexts.seance.domain.AuteurDuForfaitImpose;
+import com.hemodialyse.backend.contexts.seance.domain.ForfaitDuCentre;
+import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
+import com.hemodialyse.backend.contexts.seance.domain.ForfaitImpose;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
@@ -13,6 +17,7 @@ import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -253,6 +258,118 @@ public abstract class SeancesContrat {
         assertThat(banc.seances().trouverPourModifier(CENTRE_B, s(1))).isEmpty();
         assertThat(banc.seances().trouverPourModifier(CENTRE_A, s(99))).isEmpty();
         assertThatThrownBy(() -> banc.seances().trouverPourModifier(CENTRE_A, s(7))).isInstanceOf(SeanceIllisible.class);
+    }
+
+    // ---- SE5 : forfait imposé
+
+    private static final ForfaitDuCentre F1 = new ForfaitDuCentre(new ForfaitId(new UUID(6, 1)), "F1", "Forfait 1", new BigDecimal("250.50"));
+    private static final AuteurDuForfaitImpose COMPTA = new AuteurDuForfaitImpose("compta-01");
+
+    @Test
+    void should_persist_a_forfait_imposed_with_its_snapshot_the_author_and_the_instant() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        var seance = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        seance.imposerUnForfait(F1, T1, COMPTA);
+
+        banc.seances().enregistrerLeForfaitImpose(seance);
+
+        var impose = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow().forfaitImpose().orElseThrow();
+        assertThat(impose.forfait()).isEqualTo(F1.id());
+        assertThat(impose.code()).isEqualTo("F1");
+        assertThat(impose.nom()).isEqualTo("Forfait 1");
+        assertThat(impose.prix()).isEqualByComparingTo("250.50");
+        assertThat(impose.imposeLe()).isEqualTo(T1);
+        assertThat(impose.auteur()).isEqualTo("compta-01");
+    }
+
+    @Test
+    void should_replace_the_forfait_imposed_and_keep_a_missing_price_missing() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        var premiere = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        premiere.imposerUnForfait(F1, T1, COMPTA);
+        banc.seances().enregistrerLeForfaitImpose(premiere);
+        var seconde = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        seconde.imposerUnForfait(new ForfaitDuCentre(new ForfaitId(new UUID(6, 2)), "F2", "Forfait 2", null), T1.plusSeconds(5),
+                new AuteurDuForfaitImpose("compta-02"));
+
+        banc.seances().enregistrerLeForfaitImpose(seconde);
+
+        var impose = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow().forfaitImpose().orElseThrow();
+        assertThat(impose.code()).isEqualTo("F2");
+        assertThat(impose.prix()).isNull();
+        assertThat(impose.imposeLe()).isEqualTo(T1.plusSeconds(5));
+        assertThat(impose.auteur()).isEqualTo("compta-02");
+    }
+
+    @Test
+    void should_write_only_the_forfait_columns_and_never_undo_a_concurrent_change_of_the_status() {
+        var banc = nouveauBanc();
+        banc.semer(Seance.restituer(s(1), CENTRE_A, PATIENT, JOUR, StatutDeSeance.VALIDEE, T0, null, new Seance.Jalons(T0, T0, null, null),
+                new Seance.Traces("inf-01", null, null, null)));
+        var lueAvant = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        var signee = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        signee.signerParLeMedecin(T1, new Signataire("med-01"));
+        banc.seances().enregistrer(signee);
+
+        lueAvant.imposerUnForfait(F1, T1, COMPTA);
+        banc.seances().enregistrerLeForfaitImpose(lueAvant);
+
+        var finale = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThat(finale.statut()).isEqualTo(StatutDeSeance.SIGNEE);
+        assertThat(finale.traces().medecin()).isEqualTo("med-01");
+        assertThat(finale.forfaitImpose().orElseThrow().code()).isEqualTo("F1");
+    }
+
+    @Test
+    void should_not_let_a_status_change_erase_the_forfait_imposed() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+        var seance = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        seance.imposerUnForfait(F1, T1, COMPTA);
+        banc.seances().enregistrerLeForfaitImpose(seance);
+
+        var validee = banc.seances().trouverPourModifier(CENTRE_A, s(1)).orElseThrow();
+        validee.validerParLInfirmier(T1, new Signataire("inf-01"));
+        banc.seances().enregistrer(validee);
+
+        var lue = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThat(lue.statut()).isEqualTo(StatutDeSeance.VALIDEE);
+        assertThat(lue.forfaitImpose().orElseThrow().code()).isEqualTo("F1");
+    }
+
+    @Test
+    void should_read_a_forfait_imposed_by_the_billing_without_code_instant_or_author() {
+        var banc = nouveauBanc();
+        banc.semer(Seance.restituer(s(1), CENTRE_A, PATIENT, JOUR, StatutDeSeance.SIGNEE, T0, null, null, null,
+                new ForfaitImpose(F1.id(), null, "Forfait 1", new BigDecimal("12.00"), null, null)));
+
+        var impose = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow().forfaitImpose().orElseThrow();
+
+        assertThat(impose.code()).isNull();
+        assertThat(impose.imposeLe()).isNull();
+        assertThat(impose.auteur()).isNull();
+        assertThat(impose.prix()).isEqualByComparingTo("12.00");
+    }
+
+    @Test
+    void should_have_no_forfait_imposed_on_a_session_that_never_received_one_and_refuse_to_record_none() {
+        var banc = nouveauBanc();
+        banc.seances().ajouter(programmee(1, CENTRE_A, PATIENT, JOUR, T0));
+
+        assertThat(banc.seances().trouver(CENTRE_A, s(1)).orElseThrow().forfaitImpose()).isEmpty();
+        var sans = banc.seances().trouver(CENTRE_A, s(1)).orElseThrow();
+        assertThatThrownBy(() -> banc.seances().enregistrerLeForfaitImpose(sans)).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void should_refuse_to_record_the_forfait_of_a_session_that_does_not_exist() {
+        var banc = nouveauBanc();
+        var seance = programmee(1, CENTRE_A, PATIENT, JOUR, T0);
+        seance.imposerUnForfait(F1, T1, COMPTA);
+
+        assertThatThrownBy(() -> banc.seances().enregistrerLeForfaitImpose(seance)).isInstanceOf(IllegalStateException.class);
     }
 
     @Test

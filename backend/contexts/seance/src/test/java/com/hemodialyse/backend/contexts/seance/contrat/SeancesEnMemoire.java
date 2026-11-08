@@ -57,7 +57,7 @@ public class SeancesEnMemoire implements Seances {
     /** Comme une base : on rend une COPIE, une modification n'existe qu'une fois enregistrée (et un retour arrière la défait). */
     private static Seance copie(Seance s) {
         return Seance.restituer(s.id(), s.centre(), s.patient(), s.jour(), s.statut(), s.creeLe(), s.derogation().orElse(null), s.jalons(),
-                s.traces());
+                s.traces(), s.forfaitImpose().orElse(null));
     }
 
     /** Nombre de verrous de ligne demandés (le double n'a pas de concurrence : il garde la trace de l'appel). */
@@ -73,6 +73,18 @@ public class SeancesEnMemoire implements Seances {
     public void enregistrer(Seance seance) {
         if (!lignes.containsKey(seance.id())) throw new IllegalStateException("Séance inconnue");
         lignes.put(seance.id(), copie(seance));
+    }
+
+    /**
+     * Comme la base : seul le forfait imposé est écrit, le reste de la ligne enregistrée (statut, jalons) est conservé tel quel.
+     */
+    @Override
+    public void enregistrerLeForfaitImpose(Seance seance) {
+        Seance enBase = lignes.get(seance.id());
+        if (enBase == null) throw new IllegalStateException("Séance inconnue");
+        var impose = seance.forfaitImpose().orElseThrow(() -> new IllegalStateException("Aucun forfait imposé à enregistrer"));
+        lignes.put(seance.id(), Seance.restituer(enBase.id(), enBase.centre(), enBase.patient(), enBase.jour(), enBase.statut(),
+                enBase.creeLe(), enBase.derogation().orElse(null), enBase.jalons(), enBase.traces(), impose));
     }
 
     /** Sème une ligne telle qu'elle existe déjà en base (hors règles de création). */

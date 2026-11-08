@@ -9,8 +9,8 @@ import java.util.Optional;
 /**
  * Séance : acte de dialyse d'un patient, un jour donné, dans un centre (racine d'agrégat, une seule entité). SE1 porte la CRÉATION
  * (statut {@code CREE}, éventuellement confirmée hors planning) ; SE2 la validation par l'infirmier, la signature du médecin et le
- * déverrouillage pour régularisation ; le forfait et le verrou de facturation (SE3 à SE6) restent au legacy tant que leurs slices ne
- * sont pas reprises.
+ * déverrouillage pour régularisation ; SE5 l'imposition d'un forfait (surcharge) ; le verrou de facturation (SE6) reste au legacy tant
+ * que sa slice n'est pas reprise.
  * <p>
  * Aucune règle d'unicité par patient et par jour : plusieurs séances le même jour restent permises (KB-SEA-02, reproduit).
  */
@@ -25,9 +25,15 @@ public final class Seance {
     private final DerogationHorsPlanning derogation;
     private Jalons jalons;
     private Traces traces;
+    private ForfaitImpose forfaitImpose;
 
     private Seance(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut, Instant creeLe,
                    DerogationHorsPlanning derogation, Jalons jalons, Traces traces) {
+        this(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, null);
+    }
+
+    private Seance(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut, Instant creeLe,
+                   DerogationHorsPlanning derogation, Jalons jalons, Traces traces, ForfaitImpose forfaitImpose) {
         this.id = exiger(id, "Séance requise");
         this.centre = exiger(centre, "Centre requis");
         this.patient = exiger(patient, "Patient requis");
@@ -37,6 +43,7 @@ public final class Seance {
         this.derogation = derogation;
         this.jalons = jalons == null ? Jalons.AUCUN : jalons;
         this.traces = traces == null ? Traces.AUCUNE : traces;
+        this.forfaitImpose = forfaitImpose;
     }
 
     /** Crée une séance programmée (patient attendu) : statut {@code CREE}, sans dérogation. */
@@ -61,6 +68,13 @@ public final class Seance {
     public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
                                    Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons, Traces traces) {
         return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces);
+    }
+
+    /** Restitue une ligne existante avec ses traces et le forfait imposé (nul s'il n'y en a pas). */
+    public static Seance restituer(SeanceId id, CentreId centre, PatientId patient, LocalDate jour, StatutDeSeance statut,
+                                   Instant creeLe, DerogationHorsPlanning derogation, Jalons jalons, Traces traces,
+                                   ForfaitImpose forfaitImpose) {
+        return new Seance(id, centre, patient, jour, statut, creeLe, derogation, jalons, traces, forfaitImpose);
     }
 
     public SeanceId id() {
@@ -208,6 +222,25 @@ public final class Seance {
      */
     public void exigerLaModificationDesConsommables() {
         exigerNonFacturee();
+    }
+
+    /** Le forfait imposé à la séance, s'il y en a un. */
+    public Optional<ForfaitImpose> forfaitImpose() {
+        return Optional.ofNullable(forfaitImpose);
+    }
+
+    /**
+     * Impose un forfait du référentiel à la séance (SE5) : copie son code, son nom et son prix tels quels, date l'imposition et retient
+     * l'auteur ; remplace sans historique l'imposition précédente (KB-SEA-45, reproduit). Seule une séance facturée est refusée (422
+     * {@code SEANCE_FACTUREE_NON_MODIFIABLE}) ; tout autre statut est accepté, une séance absente ou non validée comprise, et
+     * {@code facture_id} n'est pas regardé (KB-SEA-43, reproduit : risque d'argent, condition de mise en production de l'ADR 0092).
+     */
+    public void imposerUnForfait(ForfaitDuCentre forfait, Instant maintenant, AuteurDuForfaitImpose auteur) {
+        exigerNonFacturee();
+        exiger(forfait, "Forfait requis");
+        exiger(maintenant, "Instant de l'imposition requis");
+        exiger(auteur, "Auteur requis");
+        this.forfaitImpose = new ForfaitImpose(forfait.id(), forfait.code(), forfait.nom(), forfait.prix(), maintenant, auteur.valeur());
     }
 
     private void exigerNonFacturee() {

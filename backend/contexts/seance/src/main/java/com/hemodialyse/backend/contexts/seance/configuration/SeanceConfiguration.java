@@ -19,7 +19,11 @@ import com.hemodialyse.backend.contexts.seance.application.ScannerUnPatient;
 import com.hemodialyse.backend.contexts.seance.application.SessionCourante;
 import com.hemodialyse.backend.contexts.seance.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.seance.application.VoletsDeLaSeance;
+import com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait;
+import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.Seances;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ForfaitsDuCentreParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ReferentielDeForfaitsFourni;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ForfaitsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.GenerateursParLeLegacy;
@@ -278,6 +282,23 @@ public class SeanceConfiguration {
     @Bean
     RappelDesRegularisationsPlanifie rappelDesRegularisationsPlanifie(RappelerLesSeancesARegulariser rappeler) {
         return new RappelDesRegularisationsPlanifie(rappeler);
+    }
+
+    // ---- SE5 : imposition d'un forfait à une séance (ADR 0092)
+
+    @Bean
+    ForfaitsDuCentre forfaitsDuCentreDeLaSeance(ReferentielDeForfaitsFourni referentiel) {
+        return new ForfaitsDuCentreParLeLegacy(referentiel);
+    }
+
+    @Bean
+    ImposerUnForfait imposerUnForfait(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                      @Qualifier("seancesDuContexteSeance") Seances seances,
+                                      @Qualifier("forfaitsDuCentreDeLaSeance") ForfaitsDuCentre referentiel,
+                                      @Qualifier("forfaitsDeLaSeance") ForfaitsDeSeance forfaits,
+                                      @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                      @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge) {
+        return new ImposerUnForfait(session, seances, referentiel, forfaits, uniteDeTravail, horloge);
     }
 
     // ---- Cas d'usage (appelés par le contrôleur de l'interface)

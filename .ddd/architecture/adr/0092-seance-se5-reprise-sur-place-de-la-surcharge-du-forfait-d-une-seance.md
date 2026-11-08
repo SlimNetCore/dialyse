@@ -1,0 +1,50 @@
+---
+status: accepted
+date: 2026-11-08
+review-by: 2026-12-15
+decision-makers: [utilisateur (décisions déléguées à l'assistant via le coordinateur, 2026-11-08), architecte]
+context-scope: seance
+related: ADR 0002, 0024 (refactoring sur place), 0062, 0074 (prix absent accepté), 0088 (SE1), 0089 (SE2), 0090 (SE3), 0091 (SE4) ; `.ddd/safety-net/seance-se5-forfait-surcharge.md` (net 6ee001cc, 16 scénarios, 16 goldens), `.ddd/migration/slices/seance-se5-forfait-surcharge.md`, KB-SEA-41 à 48
+---
+
+# 0092 - Séance, SE5 : reprise sur place de la surcharge du forfait d'une séance (« imposer un forfait »)
+
+## RISQUES D'ARGENT À FAIRE CONFIRMER AVANT LA MISE EN PRODUCTION (décisions REPRODUITES, conditions de mise en production)
+Toutes les décisions de cet ADR sont prises par délégation, EN VIGUEUR, **à confirmer métiers / DPO**. **Jalon daté : les risques ci-dessous sont à arbitrer au plus tard le 2026-12-15 (revue) ; aucune mise en production sans décision écrite sur chacun.** Aucun montant n'est recalculé par le module : prix, code et nom sont copiés à l'identique du référentiel ; ni TVA, ni arrondi.
+
+| KB | Risque (reproduit à l'identique) | Condition de mise en production | Contrôle (SELECT seule, `verifications-production.md` §57) |
+|---|---|---|---|
+| **KB-SEA-41** | Un forfait sans prix (`forfait.prix` est nullable) ou à 0.00 est imposé SANS alerte : la séance est ensuite facturée à 0 ou sans prix (ADR 0074). | Décision écrite : refuser un prix absent ou nul, ou accepter et suivre. | requête 1 |
+| **KB-SEA-43** | Seul `FACTUREE` est refusé. Une séance `ABSENT` ou `CREE` reçoit un forfait imposé ; **`facture_id` n'est pas regardé** : une séance déjà facturée dont le statut n'est pas `FACTUREE` (ou rouverte) peut être surchargée après facturation. | Décision écrite : statuts autorisés alignés sur la Facturation, et refus si `facture_id` est renseigné. | requêtes 2 et 3 |
+| **KB-SEA-46** | Le forfait courant (lecture) ignore le statut de la prise en charge : une PEC `REFUSEE`, `ANNULEE`, `BROUILLON` fournit le forfait affiché ; hors période, la plus récente PEC porteuse d'un forfait est retenue. | Décision écrite : filtrer sur `VALIDEE`. | requête 8 (lecture seule, sur les PEC non validées couvrant des séances) |
+| **KB-SEA-47** | Deux écrivains de la surcharge : la Facturation (`SeancesDeFacturationJdbc.poserLeForfait`) n'écrit PAS `forfait_override_code`. **Hors périmètre de SE5, NON corrigé** : le module Séance, lui, écrit le code. Le code peut rester celui de l'ancienne surcharge (ou NULL) alors que l'id, le nom et le prix changent ; le cahier de dialyse affiche ce code. | Décision écrite : faire écrire le code par la Facturation (slice Facturation) ou le retirer du cahier. | requêtes 4 et 5 (détection : code vide, code différent de celui du référentiel) |
+| **KB-SEA-42** | L'auteur de la surcharge est un champ libre du corps (`userId`), comme KB-SEA-11 pour la signature : un administrateur peut surcharger au nom d'un autre. Seule la borne de longueur est corrigée (400). | Décision écrite métiers / DPO : auteur = compte de session. | requête 6 |
+
+## Reproduits sans alerte
+- **KB-SEA-45** : une nouvelle surcharge écrase tout (forfait, prix, auteur, instant), sans historique ; l'audit ne garde que `SEANCES_MODIFICATION`, la route et le statut (ni ancien ni nouveau forfait ni prix). Aucune table d'historique n'est créée.
+- **KB-SEA-48** : droits : seul `ADMIN` ; `MEDECIN`, `SECRETAIRE`, `INFIRMIER` : 403 `ACCESS_DENIED` ; `DIRECTION`, `SUPERADMIN` : 403 `ROLE_SCOPE` ; ils ne sont PAS élargis. Le centre du corps doit être celui de la session (403).
+- L'instantané du forfait n'est jamais rafraîchi quand le référentiel change ; la suppression d'un forfait utilisé reste bloquée par `ReferentialAdminTables`.
+
+## Contexte
+Le net SE5 (16 scénarios) a constaté que la surcharge n'est PAS migrée : `PUT /api/v1/seances/{id}/forfait` est servi par `SeanceRestController.updateForfait` (legacy) -> `SeanceApplicationService` -> `SeanceDomainService.updateForfait` -> `Seance.modifierForfait`, catalogue `SeanceForfaitCatalogAdapter`. La lecture du forfait courant (détail, liste) est déjà servie par le module via le langage publié `ForfaitsFournis` (SE1).
+
+## Décisions
+1. **Dans `backend/contexts/seance`**, mêmes tables et mêmes colonnes (`seances.forfait_override_*`, `forfait`), mêmes URL et mêmes champs JSON ; aucune migration (ADR 0024, pas de façade ni de drapeau : la bascule est le retrait des handlers legacy, réversible par retour git).
+2. **Domaine (pur)** : la surcharge est un état de l'agrégat `Seance` (pas un nouvel agrégat : une seule ligne, une seule transaction) ; intention nommée **« imposer un forfait »** (`Seance.imposerUnForfait`). Objets-valeur : `ForfaitId`, `ForfaitDuCentre` (instantané du référentiel : prix nullable, recopié tel quel), `ForfaitImpose` (instantané + instant + auteur ; restitué sans contrôle : une ligne de la Facturation peut n'avoir ni code, ni instant, ni auteur), `AuteurDuForfaitImpose` (nettoyé, non vide, 100 caractères au plus). Seule la séance `FACTUREE` est refusée (422 `SEANCE_FACTUREE_NON_MODIFIABLE`).
+3. **Application** : `ImposerUnForfait` (centre de session 403 -> séance introuvable 400 -> forfait introuvable pour le centre 400 -> séance facturée 422, ordre du legacy) ; la séance est lue **sous verrou de ligne** (`FOR UPDATE`) ; le forfait courant rendu est relu après l'unité de travail, comme le legacy. Aucune diffusion. Pas de garde de patient : le legacy n'en a pas (le forfait courant se lit sur l'identifiant du patient de la séance).
+4. **Ports** : `ForfaitsDuCentre` (domaine, référentiel du centre) et `Seances.enregistrerLeForfaitImpose` (n'écrit QUE les colonnes `forfait_override_*`, jamais le statut ni les jalons : ne défait pas un changement concurrent de la Facturation ou d'une signature, prouvé par le contrat).
+5. **Adapters** : langage publié `ReferentielDeForfaitsFourni` fourni par la plateforme (`ReferentielDeForfaitsFourniLegacy`, SELECT seul sur `forfait`, même requête que `SeanceForfaitCatalogAdapter`), ACL `ForfaitsDuCentreParLeLegacy` (`libelle` devient le nom, aucune normalisation du prix), `SeancesJdbc` lit et écrit les six colonnes. Contrats : double en mémoire, H2 et PostgreSQL 16 jetable (`seance-se5-pg16-rejeu.sh`).
+6. **Décisions par bug connu** :
+
+| KB | Décision | Raison |
+|---|---|---|
+| KB-SEA-44 | **CORRIGER** : identifiant de forfait, de centre ou de séance illisible, JSON ou corps illisible, auteur de 101 caractères ou plus : **400** (et non 500), 403 avant 400 | cohérent SE1 à SE3 (`ErreursDeSeanceAdvice`) |
+| Concurrence | **CORRIGER** : deux surcharges simultanées de la même séance se suivent sous le verrou de ligne ; verrou non obtenu dans le délai : **409** `ECRITURE_CONCURRENTE` (le legacy écrasait en silence) | prouvé sur PostgreSQL 16 (`SeancesPostgresContractIT`) |
+| KB-SEA-41, 42, 43, 45, 46, 48 | **REPRODUIRE** (risques en tête) | décision métier prioritaire |
+| KB-SEA-47 | **NE PAS corriger** (Facturation hors périmètre), documenter, requêtes de détection §57 | éviter de changer l'écrivain d'une autre slice |
+| Statut illisible (`EN_COURS`) | 400 sans nom de classe (écart déjà décidé en SE1, KB-SEA-26) | même mécanique `SeanceIllisible` |
+
+**Limite assumée** : le verrou de ligne n'est pris que par les écrivains du module Séance ; la Facturation (`poserLeForfait`) ne le prend pas. Une imposition et un changement de forfait de simulation simultanés ne sont donc pas sérialisés (le dernier écrit gagne, comme avant). Résidu daté, à traiter avec la reprise de cet écrivain.
+
+## Lots
+LOT A (livré 2026-11-08) : cet ADR, domaine, cas d'usage `ImposerUnForfait` avec doubles, langage publié, ACL, adapters JDBC et contrats (mémoire, H2, PostgreSQL 16), câblage du cas d'usage ; AUCUN trafic changé (le handler legacy est encore actif). LOT B : contrôleur et advice, retrait des handlers legacy, parité 16/16, verrou ArchUnit. LOT C : RG-SEA, annexe, glossaire, §57, résidus, `built`.

@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.acl.seance;
 
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ReferentielDeForfaitsFourni;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,5 +52,10 @@ class LecturesDeLaSeancePostgresContractIT extends LecturesDeLaSeanceContrat {
     @Override
     ForfaitsFournis forfaits() {
         return new ForfaitsFournisLegacy(connexion());
+    }
+
+    @Override
+    ReferentielDeForfaitsFourni referentiel() {
+        return new ReferentielDeForfaitsFourniLegacy(connexion());
     }
 }

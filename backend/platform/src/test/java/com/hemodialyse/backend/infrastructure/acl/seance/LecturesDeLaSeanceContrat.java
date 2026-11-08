@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.acl.seance;
 
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ReferentielDeForfaitsFourni;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -86,6 +87,8 @@ abstract class LecturesDeLaSeanceContrat {
     abstract HistoriqueFourni historique();
 
     abstract ForfaitsFournis forfaits();
+
+    abstract ReferentielDeForfaitsFourni referentiel();
 
     private HistoriqueFourni.Page tout(Set<String> statuts, String texte, String ordre, boolean decroissant, Boolean deverrouillee,
                                        LocalDate du, LocalDate au, int page, int taille) {
@@ -248,5 +251,35 @@ abstract class LecturesDeLaSeanceContrat {
         priseEnCharge(AUTRE_CENTRE, ALPHA, ailleurs, null, JOUR.minusDays(1), null, null, null, T0);
 
         assertThat(forfaits().courant(CENTRE, seance, ALPHA, JOUR)).isEmpty();
+    }
+
+    // ---- référentiel des forfaits (SE5, ADR 0092)
+
+    @Test
+    void le_referentiel_fournit_le_forfait_du_centre_avec_son_code_son_libelle_et_son_prix_tels_quels() {
+        UUID forfait = forfait(CENTRE, "F1", "250.50");
+
+        var lu = referentiel().forfait(CENTRE, forfait).orElseThrow();
+
+        assertThat(lu.id()).isEqualTo(forfait);
+        assertThat(lu.code()).isEqualTo("F1");
+        assertThat(lu.libelle()).isEqualTo("Forfait F1");
+        assertThat(lu.prix()).isEqualByComparingTo("250.50");
+    }
+
+    @Test
+    void le_referentiel_fournit_un_forfait_sans_prix_avec_un_prix_absent() {
+        UUID forfait = UUID.randomUUID();
+        jdbc().update("INSERT INTO forfait (id, center_id, code, libelle, prix) VALUES (?,?,?,?,NULL)", forfait, CENTRE, "SANS_PRIX", "Sans prix");
+
+        assertThat(referentiel().forfait(CENTRE, forfait).orElseThrow().prix()).isNull();
+    }
+
+    @Test
+    void le_referentiel_ne_fournit_ni_un_forfait_inconnu_ni_un_forfait_d_un_autre_centre() {
+        UUID ailleurs = forfait(AUTRE_CENTRE, "AILLEURS", "70.00");
+
+        assertThat(referentiel().forfait(CENTRE, ailleurs)).isEmpty();
+        assertThat(referentiel().forfait(CENTRE, UUID.randomUUID())).isEmpty();
     }
 }

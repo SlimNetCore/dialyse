@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.acl.seance;
 
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.ReferentielDeForfaitsFourni;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -24,5 +25,10 @@ class LecturesDeLaSeanceH2ContratTest extends LecturesDeLaSeanceContrat {
     @Override
     ForfaitsFournis forfaits() {
         return new ForfaitsFournisLegacy(jdbc);
+    }
+
+    @Override
+    ReferentielDeForfaitsFourni referentiel() {
+        return new ReferentielDeForfaitsFourniLegacy(jdbc);
     }
 }

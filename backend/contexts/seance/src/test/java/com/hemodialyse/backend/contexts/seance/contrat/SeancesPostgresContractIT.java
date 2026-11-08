@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.seance.contrat;
 
 import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.transaction.UniteDeTravailSpring;
 import org.junit.jupiter.api.AfterEach;
@@ -99,6 +100,29 @@ class SeancesPostgresContractIT extends SeancesJdbcContrat {
                 verrou.rollback();
             }
         }
+    }
+
+    /**
+     * SE5 : deux impositions de forfait simultanées sur la même séance. La première tient le verrou de la ligne ({@code FOR UPDATE}) ; la
+     * seconde attend le délai puis lève l'écriture concurrente (409) au lieu d'écraser en silence ; verrou libéré, elle l'obtient.
+     */
+    @Test
+    void une_seconde_imposition_de_forfait_attend_le_verrou_de_la_ligne_puis_leve_l_ecriture_concurrente() throws Exception {
+        nouveauBanc().seances().ajouter(Seance.creer(s(1), CENTRE_A, PATIENT, JOUR, T0));
+        try (Connection verrou = dataSource.getConnection()) {
+            verrou.setAutoCommit(false);
+            try (PreparedStatement tient = verrou.prepareStatement("SELECT id FROM seances WHERE id = ? FOR UPDATE")) {
+                tient.setObject(1, s(1).valeur());
+                tient.executeQuery();
+                long debut = System.nanoTime();
+                assertThatThrownBy(() -> unite().executer(() -> new SeancesJdbc(jdbc).trouverPourModifier(CENTRE_A, s(1))))
+                        .isInstanceOf(EcritureConcurrente.class);
+                assertThat(Duration.ofNanos(System.nanoTime() - debut)).isGreaterThanOrEqualTo(Duration.ofMillis(400));
+            } finally {
+                verrou.rollback();
+            }
+        }
+        assertThat(unite().executer(() -> new SeancesJdbc(jdbc).trouverPourModifier(CENTRE_A, s(1)))).isPresent();
     }
 
     @BeforeEach

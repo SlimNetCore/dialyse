@@ -2,6 +2,8 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.seance.domain.DerogationHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.EcritureConcurrente;
+import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
+import com.hemodialyse.backend.contexts.seance.domain.ForfaitImpose;
 import com.hemodialyse.backend.contexts.seance.domain.MotifHorsPlanning;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
@@ -42,7 +44,9 @@ public class SeancesJdbc implements Seances {
 
     private static final String COLONNES = "id, center_id, patient_id, date_seance, statut, created_at, hors_planning, motif_hors_planning, "
             + "precision_hors_planning, validated_at, signed_infirmier_at, signed_medecin_at, regularisation_deverrouillee_at, "
-            + "signed_infirmier_by, signed_medecin_by, regularisation_deverrouillee_by, salle_id, creneau_id, generateur_id";
+            + "signed_infirmier_by, signed_medecin_by, regularisation_deverrouillee_by, salle_id, creneau_id, generateur_id, "
+            + "forfait_override_id, forfait_override_code, forfait_override_nom, forfait_override_prix, forfait_override_updated_at, "
+            + "forfait_override_updated_by";
 
     private final JdbcTemplate jdbc;
     private volatile Boolean postgreSql;
@@ -103,6 +107,16 @@ public class SeancesJdbc implements Seances {
     }
 
     @Override
+    public void enregistrerLeForfaitImpose(Seance s) {
+        ForfaitImpose impose = s.forfaitImpose().orElseThrow(() -> new IllegalStateException("Aucun forfait imposé à enregistrer"));
+        int lignes = jdbc.update("UPDATE seances SET forfait_override_id = ?, forfait_override_code = ?, forfait_override_nom = ?, "
+                        + "forfait_override_prix = ?, forfait_override_updated_at = ?, forfait_override_updated_by = ? "
+                        + "WHERE id = ? AND center_id = ?", impose.forfait().valeur(), impose.code(), impose.nom(), impose.prix(),
+                horodatage(impose.imposeLe()), impose.auteur(), s.id().valeur(), s.centre().valeur());
+        if (lignes != 1) throw new IllegalStateException("Séance " + s.id().valeur() + " introuvable à l'enregistrement du forfait");
+    }
+
+    @Override
     public List<Seance> duJour(CentreId centre, PatientId patient, LocalDate jour) {
         return jdbc.query("SELECT " + COLONNES + " FROM seances WHERE center_id = ? AND patient_id = ? AND date_seance = ? "
                         + "ORDER BY created_at ASC NULLS LAST, id ASC", (rs, i) -> seance(rs), centre.valeur(), patient.valeur(),
@@ -137,7 +151,16 @@ public class SeancesJdbc implements Seances {
                 instant(rs, "created_at"), derogation, new Seance.Jalons(instant(rs, "validated_at"), instant(rs, "signed_infirmier_at"),
                         instant(rs, "signed_medecin_at"), instant(rs, "regularisation_deverrouillee_at")),
                 new Seance.Traces(rs.getString("signed_infirmier_by"), rs.getString("signed_medecin_by"),
-                        rs.getString("regularisation_deverrouillee_by"), place(rs)));
+                        rs.getString("regularisation_deverrouillee_by"), place(rs)), forfaitImpose(rs));
+    }
+
+    /** Le forfait imposé : présent dès que {@code forfait_override_id} l'est (code, instant et auteur peuvent manquer : Facturation). */
+    private static ForfaitImpose forfaitImpose(ResultSet rs) throws SQLException {
+        UUID forfait = rs.getObject("forfait_override_id", UUID.class);
+        if (forfait == null) return null;
+        return new ForfaitImpose(new ForfaitId(forfait), rs.getString("forfait_override_code"), rs.getString("forfait_override_nom"),
+                rs.getBigDecimal("forfait_override_prix"), instant(rs, "forfait_override_updated_at"),
+                rs.getString("forfait_override_updated_by"));
     }
 
     /** La place mémorisée : salle ET créneau renseignés, sinon aucune (le générateur est facultatif). */
