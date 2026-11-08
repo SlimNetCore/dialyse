@@ -1,0 +1,49 @@
+{
+  "01 reponse (infirmier du centre A, corps centre A)" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Patient introuvable",
+      "instance" : "/api/v1/seances/<SEANCE_A_FICHE_B>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "02 volets en base apres la reponse" : [ {
+    "anticoagulant" : "HEPARINE",
+    "center_id" : "<CENTRE_A>",
+    "debit_sang_ml_min" : "300",
+    "duree_minutes" : "240",
+    "incidents" : "RAS",
+    "poids_apres_kg" : "68.00",
+    "poids_avant_kg" : "70.50",
+    "ta_apres" : "120/70",
+    "ta_avant" : "130/80",
+    "type_dialysat" : "STANDARD",
+    "ultrafiltration_ml" : "2000.00"
+  } ],
+  "03 notifications" : [ ],
+  "04 seconde saisie (le volet existe : meme chemin, meme issue)" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Patient introuvable",
+      "instance" : "/api/v1/seances/<SEANCE_A_FICHE_B>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "05 volets en base (poids remplace)" : [ {
+    "anticoagulant" : null,
+    "center_id" : "<CENTRE_A>",
+    "debit_sang_ml_min" : null,
+    "duree_minutes" : null,
+    "incidents" : null,
+    "poids_apres_kg" : null,
+    "poids_avant_kg" : "71.00",
+    "ta_apres" : null,
+    "ta_avant" : null,
+    "type_dialysat" : null,
+    "ultrafiltration_ml" : null
+  } ]
+}

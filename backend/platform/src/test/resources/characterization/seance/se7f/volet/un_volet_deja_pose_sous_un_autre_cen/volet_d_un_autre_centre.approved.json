@@ -1,0 +1,33 @@
+{
+  "01 volets avant" : [ {
+    "anticoagulant" : null,
+    "center_id" : "<CENTRE_B>",
+    "debit_sang_ml_min" : null,
+    "duree_minutes" : null,
+    "incidents" : null,
+    "poids_apres_kg" : "77.50",
+    "poids_avant_kg" : "80.00",
+    "ta_apres" : null,
+    "ta_avant" : "140/90",
+    "type_dialysat" : null,
+    "ultrafiltration_ml" : null
+  } ],
+  "02 reponse (infirmier du centre A, corps centre A)" : {
+    "code" : "DATA_ACCESS_ERROR",
+    "status" : 500
+  },
+  "03 volets apres (le volet du centre B est intact, aucun volet au centre A)" : [ {
+    "anticoagulant" : null,
+    "center_id" : "<CENTRE_B>",
+    "debit_sang_ml_min" : null,
+    "duree_minutes" : null,
+    "incidents" : null,
+    "poids_apres_kg" : "77.50",
+    "poids_avant_kg" : "80.00",
+    "ta_apres" : null,
+    "ta_avant" : "140/90",
+    "type_dialysat" : null,
+    "ultrafiltration_ml" : null
+  } ],
+  "04 notifications" : [ ]
+}

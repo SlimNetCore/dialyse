@@ -1,0 +1,46 @@
+{
+  "01 aucune analyse" : {
+    "egfrRenseigne" : false,
+    "risque" : "NON_EVALUABLE",
+    "stade" : "NON_EVALUABLE",
+    "status" : 200
+  },
+  "02 creatinine 1.0 au centre A (D+10), 9.0 au centre B (D+40) : la plus recente du centre A" : {
+    "egfrRenseigne" : true,
+    "risque" : "NON_EVALUABLE",
+    "stade" : "G2",
+    "status" : 200
+  },
+  "03 plus 9.0 au centre A (D+20) : la plus recente du centre" : {
+    "egfrRenseigne" : true,
+    "risque" : "NON_EVALUABLE",
+    "stade" : "G5",
+    "status" : 200
+  },
+  "04 plus une analyse sans creatinine (D+30) : ignoree" : {
+    "egfrRenseigne" : true,
+    "risque" : "NON_EVALUABLE",
+    "stade" : "G5",
+    "status" : 200
+  },
+  "05 plus une creatinine a 0 (D+35) : retenue (non nulle) puis non evaluable" : {
+    "egfrRenseigne" : false,
+    "risque" : "NON_EVALUABLE",
+    "stade" : "NON_EVALUABLE",
+    "status" : 200
+  },
+  "06 lecture par l'administrateur" : {
+    "egfrRenseigne" : false,
+    "risque" : "NON_EVALUABLE",
+    "stade" : "NON_EVALUABLE",
+    "status" : 200
+  },
+  "07 lecture par l'infirmier" : {
+    "refus" : "403 ACCESS_DENIED | Access Denied",
+    "status" : 403
+  },
+  "08 lecture depuis le centre B (fiche au centre A)" : {
+    "refus" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "status" : 404
+  }
+}

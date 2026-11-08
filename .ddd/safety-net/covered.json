@@ -228,7 +228,11 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/CahierDialyseReportService.java",
     "backend/platform/src/main/resources/reports/cahier_dialyse.jrxml",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/model/VoletParamedical.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/VoletParamedicalUseCase.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/VoletParamedicalRepositoryPort.java",
+    "backend/bc-seance/src/main/java/com/hemodialyse/backend/domain/seance/port/SeancePlanningPort.java"
   ],
   "seamAllowed": []
 }
