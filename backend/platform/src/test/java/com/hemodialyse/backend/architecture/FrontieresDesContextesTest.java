@@ -53,7 +53,6 @@ class FrontieresDesContextesTest {
     static final ArchRule les_lecteurs_medicaux_de_la_plateforme_passent_par_les_langages_publies_du_dossier_medical = noClasses()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.GreffePdfService")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService")
             .should().dependOnClassesThat().haveFullyQualifiedName("org.springframework.jdbc.core.JdbcTemplate")
             .because("le calcul médical vit dans contexts/dossier-medical (DossierDeGreffePublie, StatistiquesMedicalesPubliees, "
                     + "IndicateursCliniquesPublies, ADR 0101) ; la plateforme ne garde que la présentation");
@@ -470,10 +469,29 @@ class FrontieresDesContextesTest {
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketStockEventPublisher")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketInventaireEventPublisher")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.DirectionSubscriptionTracker")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketDirectionPublisher")
             .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage..")
             .because("la politique d'alertes, l'historique et le temps réel vivent dans le Pilotage direction (PD3, ADR 0104)");
+
+    /**
+     * PD6 (ADR 0106) : la composition des indicateurs de la direction (cliniques du Dossier médical, stock du Stock, alertes) vit dans le
+     * Pilotage direction ; son ancien service de la plateforme et les trois traducteurs qui le fournissaient au module ne doivent pas
+     * réapparaître, et le contrôleur ne joint le Pilotage que par son langage publié {@code IndicateursDeLaDirection}.
+     */
+    @ArchTest
+    static final ArchRule la_composition_des_indicateurs_de_la_direction_a_quitte_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.pilotagedirection.IndicateursAFigerParLaPlateforme")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.pilotagedirection.IndicateursDuRapportParLaPlateforme")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.pilotagedirection.IndicateursDuTempsReelParLaPlateforme")
+            .because("les indicateurs de la direction sont composés par contexts/pilotage-direction (ConsulterLesIndicateursDeLaDirection, PD6, ADR 0106)");
+
+    @ArchTest
+    static final ArchRule le_controleur_des_indicateurs_les_lit_par_le_langage_publie_du_pilotage = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
+            .should().dependOnClassesThat().haveFullyQualifiedName(
+                    "com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection")
+            .because("GET /api/v1/direction/indicators est servi par IndicateursDeLaDirection (PD6, ADR 0106)");
 
     @ArchTest
     static final ArchRule les_statistiques_du_patient_lisent_les_seances_par_le_langage_publie = classes()

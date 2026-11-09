@@ -1,0 +1,98 @@
+{
+  "fin <D+100> : alertes" : [ {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PERIMES",
+    "severity" : "CRITICAL",
+    "valeur" : 1
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PEREMPTION_PROCHE",
+    "severity" : "WARNING",
+    "valeur" : 1
+  } ],
+  "fin <D+100> : centre A" : {
+    "articlesActifs" : 1,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 1,
+    "lotsPerimes" : 1,
+    "valeurStock" : 15.0
+  },
+  "fin <D+100> : centre B (aucun article)" : {
+    "articlesActifs" : 0,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  },
+  "fin <D+50> : alertes" : [ {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PEREMPTION_PROCHE",
+    "severity" : "WARNING",
+    "valeur" : 1
+  } ],
+  "fin <D+50> : centre A" : {
+    "articlesActifs" : 1,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 1,
+    "lotsPerimes" : 0,
+    "valeurStock" : 15.0
+  },
+  "fin <D+50> : centre B (aucun article)" : {
+    "articlesActifs" : 0,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  },
+  "fin <D+60> : alertes" : [ {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PEREMPTION_PROCHE",
+    "severity" : "WARNING",
+    "valeur" : 2
+  } ],
+  "fin <D+60> : centre A" : {
+    "articlesActifs" : 1,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 2,
+    "lotsPerimes" : 0,
+    "valeurStock" : 15.0
+  },
+  "fin <D+60> : centre B (aucun article)" : {
+    "articlesActifs" : 0,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  },
+  "fin <D+61> : alertes" : [ {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PERIMES",
+    "severity" : "CRITICAL",
+    "valeur" : 1
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PEREMPTION_PROCHE",
+    "severity" : "WARNING",
+    "valeur" : 1
+  } ],
+  "fin <D+61> : centre A" : {
+    "articlesActifs" : 1,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 1,
+    "lotsPerimes" : 1,
+    "valeurStock" : 15.0
+  },
+  "fin <D+61> : centre B (aucun article)" : {
+    "articlesActifs" : 0,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  }
+}

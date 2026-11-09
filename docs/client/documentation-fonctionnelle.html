@@ -3859,7 +3859,8 @@ du 2026-10-21 (KB-FAC-67).</p>
 les changements en temps réel</strong>. Sources : <code>DirectionDashboardRestController</code>, <code>DirectionSnapshotRestController</code>,
 <code>AnonymityPolicy</code> (effectifs de la plateforme) et <code>EffectifMasque</code> / <code>IndicateursCliniquesPublies</code> (indicateurs cliniques publiés par le Dossier médical, DM9), <code>Direction*QueryService</code>, <code>DirectionReportPdfService</code>, <code>DirectionAccessGuard</code> et, dans le contexte Pilotage direction,
 <code>PolitiqueDAlertes</code>, <code>RapprochementDesAlertes</code>, <code>EnregistrerLesAlertes</code>, <code>ConsulterLHistoriqueDesAlertes</code>,
-<code>ConstatDesIndicateurs</code>, <code>SuivreLeTempsReel</code>, <code>TempsReelPlanifie</code>.</p>
+<code>ConstatDesIndicateurs</code>, <code>SuivreLeTempsReel</code>, <code>TempsReelPlanifie</code>, <code>ConsulterLesIndicateursDeLaDirection</code>,
+<code>IndicateursDeLaSociete</code>, <code>StockDuCentre</code>.</p>
 </blockquote>
 <h2>13.1 Périmètre et accès</h2>
 <div class="rule" id="RG-DIR-001"><div class="rid">RG-DIR-001</div><div class="rtxt"><p>Les routes <code>/api/v1/direction/**</code> sont réservées au rôle <code>DIRECTION</code>, en <strong>lecture seule</strong> ; la
@@ -4057,6 +4058,22 @@ JVM (KB-DIR-03, statu quo). <em>Source :</em> <code>RapprochementDesAlertes</cod
 plus récemment active (<code>COALESCE(résolue, vue)</code>) à la plus ancienne ; <code>limit</code> vaut 50 par défaut, est <strong>ramené</strong> à 1 (0 ou négatif) ou à 200
 (au-delà) sans refus ; un <code>limit</code> illisible répond 500 (KB-DIR-02, statu quo). Le contexte est le seul propriétaire de la table
 <code>direction_alert_history</code>. <em>Source :</em> <code>ConsulterLHistoriqueDesAlertes</code>, <code>LimiteDHistorique</code>.</p>
+</div></div>
+<h2>13.15 Composition des indicateurs de la direction (contexte Pilotage direction)</h2>
+<p>Les indicateurs servis par <code>GET /api/v1/direction/indicators</code> (RG-DIR-030, RG-DIR-031) sont désormais <strong>composés par le contexte Pilotage
+direction</strong> (PD6, ADR 0106, langage publié <code>IndicateursDeLaDirection</code>) à partir des indicateurs cliniques du Dossier médical et du stock du
+Stock, sans changement de comportement. Les points marqués « statu quo » sont <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
+<div class="rule" id="RG-DIR-110"><div class="rid">RG-DIR-110</div><div class="rtxt"><p>La période est contrôlée <strong>avant</strong> toute lecture (RG-DIR-003, 422 <code>PERIODE_INVALIDE</code> ou <code>PERIODE_TROP_LONGUE</code>). Les
+indicateurs cliniques de chaque centre et leur consolidé sont ceux du Dossier médical, <strong>déjà masqués</strong> (effectif de 1 à 4 publié nul, zéro
+reste zéro) : le consolidé est calculé sur les valeurs brutes de tous les centres puis masqué, et le Pilotage ne le recalcule jamais à partir
+des centres publiés (KB-DIR-01, statu quo). Le <strong>stock</strong> de chaque centre est évalué à la <strong>date de fin</strong> de la période (KB-DIR-07, statu quo) ;
+sa valeur est la quantité en stock multipliée par le prix moyen pondéré (un article sans prix vaut zéro), arrondie au centime (demi supérieur)
+<strong>par centre</strong>, tandis que les <strong>totaux de la société additionnent les valeurs non arrondies</strong> des centres puis arrondissent une seule fois
+(0,003 et 0,003 donnent 0,00 et 0,00 par centre mais 0,01 au total). Un centre <strong>inactif</strong> est servi comme les autres ; un centre inconnu du
+Stock a un stock à zéro. Une société <strong>sans centre</strong> reçoit des totaux à zéro, aucun centre et aucune alerte (le stock n&#39;est pas lu). Les
+alertes (RG-DIR-105) sont levées centre par centre, dans l&#39;ordre des centres, sur les taux déjà masqués et sur l&#39;observance brute ; le seuil
+d&#39;anonymat servi est 5 (<code>seuilAnonymat</code>). Le même résultat est gravé dans les instantanés mensuels (RG-DIR-090) et lu par le rapport de
+synthèse et le temps réel (RG-DIR-106). <em>Source :</em> <code>ConsulterLesIndicateursDeLaDirection</code>, <code>IndicateursDeLaSociete</code>, <code>StockDuCentre</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p14"><h1><span class="n">Partie 14</span>Référentiels du centre, modèles de documents, imports et reprise de données</h1>

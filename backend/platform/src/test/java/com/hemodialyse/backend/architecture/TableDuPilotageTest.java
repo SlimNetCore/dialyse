@@ -162,8 +162,9 @@ class TableDuPilotageTest {
 
     /**
      * Ce qui RESTE dans {@code application/direction}, nominativement, avec son propriétaire cible et sa raison (revue au plus tard le
-     * 2026-12-15, butoir des résiduels PD5-R1 à R6 : 2027-03-31). Dix de ces classes ne sont pas du Pilotage ; la onzième,
-     * {@code DirectionIndicatorsQueryService}, compose des indicateurs du Pilotage et reste à migrer (PD5-R5, slice PD6 planifiée).
+     * 2026-12-15, butoir des résiduels PD5-R1 à R6 : 2027-03-31). Aucune de ces dix classes n'est du Pilotage : la onzième,
+     * {@code DirectionIndicatorsQueryService} (composition des indicateurs), est passée dans le contexte avec PD6 (ADR 0106) ; elle ne doit
+     * pas réapparaître ici.
      */
     private record Reste(String categorie, String proprietaire) {
     }
@@ -177,9 +178,6 @@ class TableDuPilotageTest {
             Map.entry("DirectionAbsencesQueryService.java", new Reste("lecture d'un autre contexte", "Absences de patients (absencespatients.v1)")),
             Map.entry("DirectionCapaciteQueryService.java", new Reste("lecture d'un autre contexte", "Planification (capacité) et GMAO")),
             Map.entry("DirectionGmaoQueryService.java", new Reste("lecture d'un autre contexte", "GMAO (gmao.v1)")),
-            Map.entry("DirectionIndicatorsQueryService.java", new Reste("composition du Pilotage, non migrée (slice PD6 planifiée)",
-                    "Pilotage direction (composition du tableau de bord, des alertes et de leur politique), avec lectures cliniques (DM9) et stock par langages publiés ; "
-                            + "pas de filet dédié à ce jour (PD5-R5, ADR 0105)")),
             Map.entry("DirectionStockGroupesQueryService.java", new Reste("lecture d'un autre contexte", "Stock (stock.v1)")),
             Map.entry("AnonymityPolicy.java", new Reste("lecture d'un autre contexte", "plateforme : masquage des lectures ci-dessus (le Pilotage a son SeuilDAnonymat : égalité des deux seuils testée)"))));
 
@@ -231,8 +229,8 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void la_liste_du_reste_compte_onze_entrees_dont_deux_de_rendu_et_trois_de_comptes() {
-        assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(11);
+    void la_liste_du_reste_compte_dix_entrees_dont_deux_de_rendu_et_trois_de_comptes_et_plus_aucune_composition_du_pilotage() {
+        assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(10).doesNotContainKey("DirectionIndicatorsQueryService.java");
         assertThat(RESTE_DANS_APPLICATION_DIRECTION.keySet()).containsAll(RENDU_PDF).containsAll(COMPTES);
         RESTE_DANS_APPLICATION_DIRECTION.forEach((nom, reste) -> {
             assertThat(reste.categorie()).as("catégorie de " + nom).isNotBlank();

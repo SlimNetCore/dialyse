@@ -66,6 +66,15 @@ class ArchitectureHexagonaleTest {
             .that().resideInAPackage(RACINE + ".interfaces..")
             .should().dependOnClassesThat().resideInAnyPackage(RACINE + ".infrastructure..", RACINE + ".configuration..");
 
+    /** PD6 (ADR 0106) : ni le domaine ni l'application ne lisent un autre contexte ; seules les ACL de l'infrastructure le font. */
+    @ArchTest
+    static final ArchRule seule_l_infrastructure_lit_les_autres_contextes = noClasses()
+            .that().resideInAnyPackage(RACINE + ".domain..", RACINE + ".application..", RACINE + ".interfaces..")
+            .should().dependOnClassesThat(
+                    resideInAPackage("com.hemodialyse.backend.contexts..")
+                            .and(not(resideInAPackage(RACINE + "..")))
+                            .and(not(resideInAPackage("com.hemodialyse.backend.contexts.sharedkernel.."))));
+
     @ArchTest
     static final ArchRule aucun_import_du_legacy = noClasses().that().resideInAPackage(RACINE + "..")
             .should().dependOnClassesThat().resideInAnyPackage(

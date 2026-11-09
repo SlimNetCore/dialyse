@@ -156,5 +156,8 @@ Les §1 à §9 ci-dessus décrivent l'état AVANT les lots (conservés comme his
 
 Un fichier `Direction*` du Pilotage ne reste donc plus en plateforme. Les gardes sont dans `TableDuPilotageTest` ; ADR 0105.
 
+## Audit PD6 (composition des indicateurs, ADR 0106)
+`DirectionIndicatorsQueryService` (ligne 10 du tableau initial) et ses trois traducteurs sont retirés ; la composition vit dans le module (`ConsulterLesIndicateursDeLaDirection`, `IndicateursDeLaSociete`). Filet : DM8 (forme, masquage, périmètre), DM9 (fuite par différence), PD3 `seuils` (alertes, stock à la date de fin, valeur = quantité x PMP), PD1 `bornes` ; trous comblés AVANT migration par `pd6/indicateurs` (`sans_centre`, `arrondi_et_inactif`, `date_de_fin`) et par le test du traducteur du rapport (repris dans `IndicateursDeLaDirectionIntegrationTest`). `application/direction` ne compte plus que 10 fichiers, aucun du Pilotage.
+
 ## Questions ouvertes
 Voir §9 ; en outre : faut-il une garde `TableDuPilotageTest` (lecteurs nominatifs de `direction_snapshot` et `direction_alert_history` : aujourd'hui 7 et 12 seuls) avant PD5, et le filet du tracker STOMP (simulation de `SessionSubscribeEvent`) est-il exigé pour PD3 ou PD5 ?

@@ -79,6 +79,12 @@
             <artifactId>contexts-dossier-medical</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- PD6 (ADR 0106) : stock.v1 (IndicateursDuStock, S9). contexts-stock ne depend que de contexts-shared-kernel : aucun cycle. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-stock</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

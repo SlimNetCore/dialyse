@@ -1,0 +1,67 @@
+{
+  "01 reponse complete (centres vides, totaux a zero, aucune alerte, seuil d'anonymat 5)" : {
+    "body" : {
+      "alertes" : [ ],
+      "centres" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "centerId" : null,
+        "clinique" : {
+          "albumine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "greffeBilanEnCours" : 0,
+          "greffeListeAttente" : 0,
+          "greffesPeriode" : 0,
+          "hemoglobine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "ktV" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "patientsObservanceEnRetard" : 0,
+          "phosphore" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "pth" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "vhbPositifs" : 0,
+          "vhcPositifs" : 0,
+          "vihPositifs" : 0
+        },
+        "nom" : null,
+        "stock" : {
+          "articlesActifs" : 0,
+          "articlesSousSeuil" : 0,
+          "lotsPeremptionProche" : 0,
+          "lotsPerimes" : 0,
+          "valeurStock" : 0.0
+        }
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

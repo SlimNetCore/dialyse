@@ -24,7 +24,7 @@ import java.util.UUID;
 /**
  * Enrichissement GMAO (aide à la décision) du tableau de bord de la direction : coût de maintenance,
  * état du parc d'équipements et temps d'indisponibilité, par centre et consolidés pour la société —
- * même patron que {@link DirectionIndicatorsQueryService} (par-centre + totaux, aucune anonymisation
+ * même patron que celui des indicateurs du Pilotage direction (par-centre + totaux, aucune anonymisation
  * nécessaire ici car il ne s'agit pas de données patient nominatives, hors sécurité patient ci-dessous).
  */
 @Service

@@ -7,8 +7,8 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Tabl
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.EntreeDHistorique;
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
-import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
-import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Indicateurs;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService;
@@ -53,7 +53,7 @@ public class DirectionDashboardRestController {
 
     private final DirectionAccessGuard guard;
     private final TableauDeBordDeLaDirection tableau;
-    private final DirectionIndicatorsQueryService indicators;
+    private final IndicateursDeLaDirection indicators;
     private final DirectionReportPdfService reports;
     private final AlertesDeLaDirection alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
@@ -62,7 +62,7 @@ public class DirectionDashboardRestController {
     private final DirectionCapaciteQueryService capacites;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, TableauDeBordDeLaDirection tableau,
-                                            DirectionIndicatorsQueryService indicators,
+                                            IndicateursDeLaDirection indicators,
                                             DirectionReportPdfService reports,
                                             AlertesDeLaDirection alertHistory,
                                             DirectionGmaoQueryService gmaoQueries,
@@ -104,11 +104,11 @@ public class DirectionDashboardRestController {
      * Indicateurs médicaux (cibles KDIGO), de stock et alertes : agrégats anonymes par centre et consolidés.
      */
     @GetMapping("/indicators")
-    public ResponseEntity<Indicators> indicators(
+    public ResponseEntity<Indicateurs> indicators(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(indicators.indicators(societeId, from, to));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(indicators.indicateurs(societeId, from, to));
     }
 
     /**

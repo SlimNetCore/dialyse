@@ -15,8 +15,17 @@ import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persist
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.InstantanesMensuelsJdbc;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.planifie.CaptureDuMoisEcoulePlanifiee;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.InstantanesMensuelsPublies;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursAFigerFournis;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.IndicateursCliniquesPublies;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLesIndicateursDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.IndicateursCliniquesDesCentres;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.StockDesCentres;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.dossiermedical.CliniquesParLeDossierMedical;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.indicateurs.IndicateursDuRapportParLesIndicateursPublies;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.StockParLeStock;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.IndicateursPublies;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock;
 import tools.jackson.databind.ObjectMapper;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLHistoriqueDesAlertes;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.EnregistrerLesAlertes;
@@ -31,7 +40,6 @@ import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.Aler
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.TempsReelPublie;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaSociete;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaVueDEnsemble;
@@ -61,8 +69,9 @@ import java.time.Clock;
 /**
  * Composition du lot A (PD1 + PD4, ADR 0102) : le tableau de bord et le rapport de synthèse de la direction, publiés. Mêmes tables
  * ({@code societes}, {@code centers}, {@code patients}) et mêmes URL (servies par la plateforme) que le legacy ; aucun flag, aucune
- * façade. L'horloge est le fuseau de la JVM (KB-DIR-03, statu quo). Les indicateurs sont FOURNIS par la plateforme
- * ({@link IndicateursDeLaDirectionFournis}).
+ * façade. L'horloge est le fuseau de la JVM (KB-DIR-03, statu quo). Les indicateurs (cliniques du Dossier médical, stock du Stock) sont
+ * COMPOSÉS par le Pilotage depuis PD6 (ADR 0106) : {@link IndicateursDeLaDirection} ; le rapport les lit par
+ * {@link IndicateursDeLaDirectionFournis}, dont l'adaptateur est du module.
  */
 @Configuration(proxyBeanMethods = false)
 public class PilotageDirectionConfiguration {
@@ -87,7 +96,7 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    ContenuDuMoisAFiger contenuDuMoisAFiger(TableauDeBordDeLaDirection tableau, IndicateursAFigerFournis indicateurs,
+    ContenuDuMoisAFiger contenuDuMoisAFiger(TableauDeBordDeLaDirection tableau, IndicateursDeLaDirection indicateurs,
                                             ObjectMapper mapper) {
         return new ContenuFigeParLeTableauDeBord(tableau, indicateurs, mapper);
     }
@@ -130,7 +139,7 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    SuivreLeTempsReel suivreLeTempsReel(TableauDeBordDeLaDirection tableau, IndicateursDuTempsReelFournis indicateurs,
+    SuivreLeTempsReel suivreLeTempsReel(TableauDeBordDeLaDirection tableau, IndicateursDeLaDirection indicateurs,
                                         EnregistrerLesAlertes alertes, JdbcTemplate jdbc,
                                         DiffusionDuTableauDeBordFournie canal, HorlogeDuPilotage horloge) {
         return new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicateurs), alertes,
@@ -175,6 +184,30 @@ public class PilotageDirectionConfiguration {
         return new TableauDeBordPublie(new ConsulterLaSociete(societes),
                 new ConsulterLaVueDEnsemble(societes, effectifs, seances, facturation, horloge),
                 new ConsulterLaRepartition(societes, effectifs, seances, facturation, anemie, horloge));
+    }
+
+    // ───────────── PD6 (ADR 0106) : les indicateurs de la direction, composés par le Pilotage ─────────────
+
+    @Bean
+    IndicateursCliniquesDesCentres indicateursCliniquesDesCentres(IndicateursCliniquesPublies dossierMedical) {
+        return new CliniquesParLeDossierMedical(dossierMedical);
+    }
+
+    @Bean
+    StockDesCentres stockDesCentres(IndicateursDuStock stock) {
+        return new StockParLeStock(stock);
+    }
+
+    @Bean
+    IndicateursDeLaDirection indicateursDeLaDirection(SocietesSuivies societes, IndicateursCliniquesDesCentres cliniques,
+                                                      StockDesCentres stocks, HorlogeDuPilotage horloge) {
+        return new IndicateursPublies(new ConsulterLesIndicateursDeLaDirection(societes, cliniques, stocks, horloge));
+    }
+
+    /** Le rapport de synthèse lit les indicateurs sous la forme de {@link IndicateursDeLaDirectionFournis} (adaptateur du module). */
+    @Bean
+    IndicateursDeLaDirectionFournis indicateursDuRapport(IndicateursDeLaDirection indicateurs) {
+        return new IndicateursDuRapportParLesIndicateursPublies(indicateurs);
     }
 
     @Bean

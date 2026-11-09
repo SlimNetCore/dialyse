@@ -10,7 +10,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persist
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie.TableauDeBordModifie;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,7 +54,7 @@ class DirectionRealtimeIntegrationTest {
     @Autowired
     private TableauDeBordDeLaDirection tableau;
     @Autowired
-    private IndicateursDuTempsReelFournis indicators;
+    private IndicateursDeLaDirection indicators;
     /**
      * Suivi isolé du contexte (diffusion capturée) : pas de bean simulé, donc pas de second contexte Spring.
      */

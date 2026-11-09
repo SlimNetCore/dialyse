@@ -210,3 +210,21 @@ points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard 
   (direction de cette société seule) précède ce suivi et reste dans la plateforme (`WebSocketAuthentication`). Pas de comptage persistant :
   un redémarrage du serveur oublie les abonnements (les clients se réabonnent). *Source :* `DirectionSubscriptionTracker` (plateforme, filet :
   `LesAbonnementsDeLaDirectionCharacterizationTest`).
+
+## 13.15 Composition des indicateurs de la direction (contexte Pilotage direction)
+
+Les indicateurs servis par `GET /api/v1/direction/indicators` (RG-DIR-030, RG-DIR-031) sont désormais **composés par le contexte Pilotage
+direction** (PD6, ADR 0106, langage publié `IndicateursDeLaDirection`) à partir des indicateurs cliniques du Dossier médical et du stock du
+Stock, sans changement de comportement. Les points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard le 2026-12-15**.
+
+- **RG-DIR-110** — La période est contrôlée **avant** toute lecture (RG-DIR-003, 422 `PERIODE_INVALIDE` ou `PERIODE_TROP_LONGUE`). Les
+  indicateurs cliniques de chaque centre et leur consolidé sont ceux du Dossier médical, **déjà masqués** (effectif de 1 à 4 publié nul, zéro
+  reste zéro) : le consolidé est calculé sur les valeurs brutes de tous les centres puis masqué, et le Pilotage ne le recalcule jamais à partir
+  des centres publiés (KB-DIR-01, statu quo). Le **stock** de chaque centre est évalué à la **date de fin** de la période (KB-DIR-07, statu quo) ;
+  sa valeur est la quantité en stock multipliée par le prix moyen pondéré (un article sans prix vaut zéro), arrondie au centime (demi supérieur)
+  **par centre**, tandis que les **totaux de la société additionnent les valeurs non arrondies** des centres puis arrondissent une seule fois
+  (0,003 et 0,003 donnent 0,00 et 0,00 par centre mais 0,01 au total). Un centre **inactif** est servi comme les autres ; un centre inconnu du
+  Stock a un stock à zéro. Une société **sans centre** reçoit des totaux à zéro, aucun centre et aucune alerte (le stock n'est pas lu). Les
+  alertes (RG-DIR-105) sont levées centre par centre, dans l'ordre des centres, sur les taux déjà masqués et sur l'observance brute ; le seuil
+  d'anonymat servi est 5 (`seuilAnonymat`). Le même résultat est gravé dans les instantanés mensuels (RG-DIR-090) et lu par le rapport de
+  synthèse et le temps réel (RG-DIR-106). *Source :* `ConsulterLesIndicateursDeLaDirection`, `IndicateursDeLaSociete`, `StockDuCentre`.

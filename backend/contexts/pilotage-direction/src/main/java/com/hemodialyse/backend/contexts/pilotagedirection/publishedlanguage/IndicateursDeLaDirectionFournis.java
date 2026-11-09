@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Port FOURNI au Pilotage direction par la plateforme ({@code pilotagedirection.v1}, ADR 0102, PD4) : les indicateurs médicaux, de
- * stock et les alertes d'une société sur une période, DÉJÀ MASQUÉS (seuil d'anonymat), tels que la route {@code /indicators} les sert.
- * Ils restent calculés par la plateforme depuis DM9 (ADR 0101) ; le Pilotage ne les lit que pour constituer le rapport de synthèse.
+ * Les indicateurs d'une société sur une période SOUS LA FORME QUE LIT LE RAPPORT DE SYNTHÈSE ({@code pilotagedirection.v1}, ADR 0102, PD4) :
+ * indicateurs médicaux, de stock et alertes, DÉJÀ MASQUÉS (seuil d'anonymat). Depuis PD6 (ADR 0106) la plateforme ne les fournit plus : le
+ * Pilotage les compose ({@link IndicateursDeLaDirection}) et un adaptateur du module les traduit vers ce port. Les enregistrements restent le
+ * contrat du rapport ({@code SourceDuRapport}), qui sert aussi à relire un instantané figé (résiduel PD6-R1 : nom du port à renommer avec
+ * le prochain changement de version du langage publié).
  * <p>
  * Les valeurs absentes ({@code null}) sont des valeurs masquées ou inconnues : le rapport les imprime « &lt; seuil » ou « — ».
  */

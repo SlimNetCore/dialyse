@@ -13,7 +13,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Aler
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Gravite;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
@@ -40,7 +40,7 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
     @Autowired
     private com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection tableau;
     @Autowired
-    private IndicateursDuTempsReelFournis indicateurs;
+    private IndicateursDeLaDirection indicateurs;
     @Autowired
     private DiffusionDuTableauDeBordFournie diffuseur;
     /**

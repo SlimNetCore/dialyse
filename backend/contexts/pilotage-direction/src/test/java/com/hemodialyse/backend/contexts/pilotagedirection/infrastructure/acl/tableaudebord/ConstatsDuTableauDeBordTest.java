@@ -6,12 +6,12 @@ import com.hemodialyse.backend.contexts.pilotagedirection.domain.ConstatDesIndic
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.GraviteDAlerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Gravite;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.Clinique;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.IndicateursDeLaSociete;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.IndicateursDuCentre;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.Marqueur;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.Stock;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Clinique;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Indicateurs;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.IndicateursDuCentre;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Marqueur;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Stock;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CaisseDuCentre;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.Repartition;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.RepartitionParAge;
@@ -45,11 +45,12 @@ class ConstatsDuTableauDeBordTest {
         return new VueDEnsemble(SOCIETE, "Société", null, null, null, 5, List.of(c), null, List.of(), null);
     }
 
-    private static IndicateursDeLaSociete indicateurs(long base, List<Alerte> alertes) {
-        Marqueur m = new Marqueur(base, BigDecimal.valueOf(base));
-        Clinique k = new Clinique(m, m, m, m, m, base, base, base, base, base, base);
-        Stock s = new Stock(base, base, base, BigDecimal.valueOf(base));
-        return new IndicateursDeLaSociete(List.of(new IndicateursDuCentre(CENTRE, "Centre", k, s)), alertes);
+    private static Indicateurs indicateurs(long base, List<Alerte> alertes) {
+        Marqueur m = new Marqueur(base, BigDecimal.valueOf(base), BigDecimal.valueOf(base), BigDecimal.valueOf(base));
+        Clinique k = new Clinique(m, m, m, m, m, base, base, base, base, base, base, base);
+        Stock s = new Stock(base, base, base, base, BigDecimal.valueOf(base));
+        IndicateursDuCentre centre = new IndicateursDuCentre(CENTRE, "Centre", true, k, s);
+        return new Indicateurs(SOCIETE, null, null, null, 5, List.of(centre), centre, alertes);
     }
 
     private static Repartition repartition(long base, String caisseCode) {
@@ -128,7 +129,7 @@ class ConstatsDuTableauDeBordTest {
 
     @Test
     void la_lecture_range_les_alertes_levees_dans_l_ordre_des_indicateurs_fournis() {
-        IndicateursDuTempsReelFournis fournis = societeId -> indicateurs(1, List.of(
+        IndicateursDeLaDirection fournis = (societeId, from, to) -> indicateurs(1, List.of(
                 new Alerte(CENTRE, "Centre", "STOCK_SOUS_SEUIL", Gravite.CRITICAL, BigDecimal.ONE),
                 new Alerte(CENTRE, "Centre", "LOTS_PERIMES", Gravite.CRITICAL, BigDecimal.TEN)));
         var tableau = new com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection() {

@@ -5,10 +5,10 @@ import com.hemodialyse.backend.contexts.pilotagedirection.domain.AlerteLevee;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.ConstatDesIndicateurs;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.GraviteDAlerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.IndicateursDeLaSociete;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.IndicateursDuCentre;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis.Marqueur;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Indicateurs;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.IndicateursDuCentre;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Marqueur;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CaisseDuCentre;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.Repartition;
@@ -30,16 +30,16 @@ import static com.hemodialyse.backend.contexts.pilotagedirection.domain.ConstatD
 
 /**
  * Adaptateur sortant (ACL) : relit le tableau de bord de la société sur la période par défaut (vue d'ensemble et répartitions du Pilotage,
- * indicateurs FOURNIS par la plateforme) et en fait un constat. Les noms des indicateurs ({@code patients}, {@code caTtc},
+ * indicateurs que le Pilotage compose lui-même, PD6) et en fait un constat. Les noms des indicateurs ({@code patients}, {@code caTtc},
  * {@code ktV:dansCible}, {@code age:<tranche>}, {@code seances:<caisse>}...) sont ceux des changements diffusés au client : valeurs de contrat,
  * repris à l'identique de l'ancien {@code DirectionRealtimeService.snapshot}. Un indicateur absent (masqué) n'est pas retenu.
  */
 public final class ConstatsDuTableauDeBordParLeTableauDeBord implements ConstatsDuTableauDeBord {
 
     private final TableauDeBordDeLaDirection tableau;
-    private final IndicateursDuTempsReelFournis indicateurs;
+    private final IndicateursDeLaDirection indicateurs;
 
-    public ConstatsDuTableauDeBordParLeTableauDeBord(TableauDeBordDeLaDirection tableau, IndicateursDuTempsReelFournis indicateurs) {
+    public ConstatsDuTableauDeBordParLeTableauDeBord(TableauDeBordDeLaDirection tableau, IndicateursDeLaDirection indicateurs) {
         this.tableau = tableau;
         this.indicateurs = indicateurs;
     }
@@ -47,7 +47,7 @@ public final class ConstatsDuTableauDeBordParLeTableauDeBord implements Constats
     @Override
     public Lecture lire(UUID societeId) {
         VueDEnsemble vue = tableau.vueDEnsemble(societeId, null, null);
-        IndicateursDeLaSociete ind = indicateurs.pour(societeId);
+        Indicateurs ind = indicateurs.indicateurs(societeId, null, null);
         Repartition repartition = tableau.repartition(societeId, null, null);
         return new Lecture(constater(vue, ind, repartition), ind.alertes().stream().map(ConstatsDuTableauDeBordParLeTableauDeBord::lever).toList());
     }
@@ -56,7 +56,7 @@ public final class ConstatsDuTableauDeBordParLeTableauDeBord implements Constats
         return new AlerteLevee(a.centerId(), a.centre(), a.code(), GraviteDAlerte.valueOf(a.severity().name()), a.valeur());
     }
 
-    static ConstatDesIndicateurs constater(VueDEnsemble vue, IndicateursDeLaSociete ind, Repartition repartition) {
+    static ConstatDesIndicateurs constater(VueDEnsemble vue, Indicateurs ind, Repartition repartition) {
         ConstatDesIndicateurs s = new ConstatDesIndicateurs();
         for (StatistiquesDuCentre c : vue.centres()) {
             s.retenir(c.centerId(), c.nom(), PATIENTS, "patients", c.patients());

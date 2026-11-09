@@ -1,0 +1,24 @@
+{
+  "01 centres (nom | actif) : le centre inactif est servi" : [ "Centre A | actif=true", "Centre B | actif=false" ],
+  "02 centre A : 0,30 x 0,01 = 0,003 arrondi a 0,00" : {
+    "articlesActifs" : 1,
+    "articlesSousSeuil" : 0,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  },
+  "03 centre B (inactif) : meme valeur, un article sans PMP vaut zero et passe sous le seuil" : {
+    "articlesActifs" : 2,
+    "articlesSousSeuil" : 1,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.0
+  },
+  "04 totaux : 0,003 + 0,003 = 0,006 arrondi a 0,01 (et non 0,00 + 0,00)" : {
+    "articlesActifs" : 3,
+    "articlesSousSeuil" : 1,
+    "lotsPeremptionProche" : 0,
+    "lotsPerimes" : 0,
+    "valeurStock" : 0.01
+  }
+}

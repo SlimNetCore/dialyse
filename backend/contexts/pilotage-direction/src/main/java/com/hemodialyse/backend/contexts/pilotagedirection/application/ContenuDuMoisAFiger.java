@@ -7,7 +7,7 @@ import java.util.UUID;
 
 /**
  * Port sortant : constitue le contenu à figer d'une société sur un mois : sa vue d'ensemble, ses indicateurs et ses répartitions, calculés
- * maintenant et sérialisés (RG-DIR-090). Les indicateurs sont fournis par la plateforme (ADR 0102, 0103).
+ * maintenant et sérialisés (RG-DIR-090). Les indicateurs sont composés par le Pilotage (ADR 0103, 0106).
  */
 public interface ContenuDuMoisAFiger {
 
