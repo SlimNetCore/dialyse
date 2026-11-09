@@ -654,3 +654,13 @@ Toutes les éditions de production sont dans `backend/contexts/**` (newCodeRoot)
 ### Organisation O4, lot E (ADR 0111) : AUCUN seam, le 2026-11-09
 
 Deux éditions de production dans la plateforme, sur des fichiers dont le filet est écrit AVANT l'édition : `DocumentIdentityProvider` (déjà dans `covered.json`) et `ModeleDocumentProvisioner` (le hook l'a bloqué : il n'était pas couvert ; le filet `IdentiteImprimeeCasLimitesCharacterizationIntegrationTest`, vert sur le legacy, le couvre désormais ; ajouté à `covered`, pas à `seamAllowed`). Ce sont des éditions de constructeur et de requête, sans nouveau fichier de plateforme. Le reste est dans `backend/contexts/organisation` (langage publié `IdentiteImprimee`, `IdentiteImprimeeJdbc`, bean). `TableDeLOrganisationTest` (test) passe de 9 à 7. `seamAllowed` est resté `[]` du début à la fin (relu en fin de lot).
+
+### Organisation L7, correction de KB-ORG-09 et KB-ORG-10 (ADR 0115) : OUVERT le 2026-11-09, FERMÉ à la fin du lot (`seamAllowed` vidé, relu)
+
+Correction VOLONTAIRE de comportement (demande de l'utilisateur du 2026-11-09, `.ddd/migration/corrections-kb-2026-11-09.md` §6), pas une migration à parité. Trois fichiers inscrits dans `seamAllowed` AVANT édition (autorisation portée par la demande du lot) ; filet : tests rouges écrits d'abord, caractérisation du Stock et de PC1 (goldens) rejouée.
+
+| Date | Slice | Fichiers (chemins exacts depuis `backend/`) | Nature | Raison |
+|---|---|---|---|---|
+| 2026-11-09 | organisation-l7-kb-org-09-10 (ADR 0115) | `platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/CentresDuStockParOrganisation.java` | **ÉDITION** (fichier du lot B, hors `covered`) | `centresActifsAuSensStrict()` devient `centresActifs()` et appelle `AnnuaireDesCentres.actifs()` : une seule définition de « centre actif » |
+| 2026-11-09 | organisation-l7-kb-org-09-10 (ADR 0115) | `platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CenterJpaEntity.java` | **ÉDITION** (colonne `actif` : défaut TRUE et NOT NULL, ce que fait la base H2 bâtie par Hibernate) | H2 n'a pas de Flyway : la base de test reflète le défaut et la contrainte de la migration V56 |
+| 2026-11-09 | organisation-l7-kb-org-09-10 (ADR 0115) | `platform/src/main/resources/db/migration/V56__centers_actif_not_null.sql` | **CRÉATION** | Migration PostgreSQL additive : UPDATE des NULL en TRUE, DEFAULT TRUE, NOT NULL |

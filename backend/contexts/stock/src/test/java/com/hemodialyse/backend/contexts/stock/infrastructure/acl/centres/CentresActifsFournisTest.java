@@ -33,9 +33,9 @@ class CentresActifsFournisTest {
                 new CentresActifsFournis(new CentresFournisSurJdbcDeTest(jdbc)).liste());
     }
 
-    /** KB-ORG-09 : un centre dont l'état n'est pas renseigné est exclu au sens strict du Stock. */
+    /** KB-ORG-09 corrigé (ADR 0115) : le Stock a la même définition que les autres, un centre sans état est actif. */
     @Test
-    void un_centre_dont_l_etat_n_est_pas_renseigne_est_exclu_au_sens_strict() {
+    void un_centre_dont_l_etat_n_est_pas_renseigne_est_actif_pour_le_stock_comme_pour_les_autres() {
         JdbcTemplate jdbc = new JdbcTemplate(new DriverManagerDataSource(
                 "jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1", "sa", ""));
         jdbc.execute("CREATE TABLE centers (id UUID PRIMARY KEY, actif BOOLEAN)");
@@ -44,7 +44,7 @@ class CentresActifsFournisTest {
         jdbc.update("INSERT INTO centers (id, actif) VALUES (?, TRUE)", actif);
         jdbc.update("INSERT INTO centers (id, actif) VALUES (?, NULL)", sansEtat);
 
-        assertEquals(List.of(new CentreId(actif)),
+        assertEquals(List.of(new CentreId(actif), new CentreId(sansEtat)),
                 new CentresActifsFournis(new CentresFournisSurJdbcDeTest(jdbc)).liste());
     }
 }

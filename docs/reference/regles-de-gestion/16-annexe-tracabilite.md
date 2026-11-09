@@ -130,6 +130,9 @@ ports publiés `SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublie
 Le lot L3 (ADR 0114, 2026-11-09) n'ajoute aucune route non plus : il corrige KB-SEA-72, 73, 74 et 82 dans les mêmes ports publiés (mémoire
 d'exclusion, garde de l'exclusion, liaison à une facture existante du même centre) et pose deux contraintes PostgreSQL `NOT VALID`
 (migrations V54 clé étrangère `seances.facture_id`, V55 CHECK du statut) ; règle : RG-SEA-061 (mise à jour).
+Le lot L7 (ADR 0115, 2026-11-09) n'ajoute aucune route non plus : il corrige KB-ORG-09 (un seul sens de « centre actif », Stock compris ;
+migration V56 `centers.actif` NOT NULL DEFAULT TRUE ; règle RG-STK-061 mise à jour) et KB-ORG-10 (le journal des mouvements lit la salle et le
+créneau dans le centre du mouvement ; règle RG-PAT-035 mise à jour) dans le langage publié `organisation.v1`.
 SE7d (ADR 0098) n'ajoute aucune route : les lectures des Absences de patients (`/api/v1/absences-patients/semaine`,
 `/{id}/seances-rattrapage`, déclaration, rattrapage, annulation, `ControleDeNuitDesAbsences`), de la Planification
 (`/api/v1/planning/semaine`, optimisations) et du Dossier médical (`/api/v1/patients/{id}/constantes`) déjà listées passent par les ports

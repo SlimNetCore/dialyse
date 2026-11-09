@@ -61,21 +61,21 @@ final class LibellesEnMemoire implements LibellesDeLOrganisation {
     }
 
     @Override
-    public Map<UUID, String> nomsDesSalles(Collection<UUID> ids) {
+    public Map<UUID, String> nomsDesSalles(UUID centre, Collection<UUID> ids) {
         Map<UUID, String> sortie = new HashMap<>();
         for (UUID id : distincts(ids)) {
             Salle s = salles.get(id);
-            if (s != null && s.nom() != null) sortie.put(id, s.nom());
+            if (s != null && s.centre().equals(centre) && s.nom() != null) sortie.put(id, s.nom());
         }
         return sortie;
     }
 
     @Override
-    public Map<UUID, String> libellesDesCreneaux(Collection<UUID> ids) {
+    public Map<UUID, String> libellesDesCreneaux(UUID centre, Collection<UUID> ids) {
         Map<UUID, String> sortie = new HashMap<>();
         for (UUID id : distincts(ids)) {
             Creneau c = creneaux.get(id);
-            if (c != null && c.libelle() != null) sortie.put(id, c.libelle());
+            if (c != null && c.centre().equals(centre) && c.libelle() != null) sortie.put(id, c.libelle());
         }
         return sortie;
     }

@@ -68,13 +68,16 @@ abstract class LibellesContrat {
     }
 
     @Test
-    void les_noms_de_salles_et_libelles_de_creneaux_ne_sont_pas_bornes_au_centre() {
+    void les_noms_de_salles_et_libelles_de_creneaux_sont_bornes_au_centre() {
         referentiel();
 
-        assertThat(libelles().nomsDesSalles(List.of(S1, S_AUTRE, INCONNU)))
-                .containsOnly(java.util.Map.entry(S1, "Salle un"), java.util.Map.entry(S_AUTRE, "Salle neuf"));
-        assertThat(libelles().libellesDesCreneaux(List.of(C1, C_AUTRE, INCONNU)))
-                .containsOnly(java.util.Map.entry(C1, "Matin"), java.util.Map.entry(C_AUTRE, "Soir"));
+        // KB-ORG-10 corrigé (ADR 0115) : une salle ou un créneau d'un autre centre n'a pas d'entrée, comme un identifiant inconnu.
+        assertThat(libelles().nomsDesSalles(CENTRE, List.of(S1, S_AUTRE, INCONNU)))
+                .containsOnly(java.util.Map.entry(S1, "Salle un"));
+        assertThat(libelles().libellesDesCreneaux(CENTRE, List.of(C1, C_AUTRE, INCONNU)))
+                .containsOnly(java.util.Map.entry(C1, "Matin"));
+        assertThat(libelles().nomsDesSalles(AUTRE, List.of(S1, S_AUTRE))).containsOnly(java.util.Map.entry(S_AUTRE, "Salle neuf"));
+        assertThat(libelles().libellesDesCreneaux(AUTRE, List.of(C1, C_AUTRE))).containsOnly(java.util.Map.entry(C_AUTRE, "Soir"));
     }
 
     @Test
@@ -84,7 +87,7 @@ abstract class LibellesContrat {
         assertThat(libelles().codesDesSalles(CENTRE, List.of())).isEmpty();
         assertThat(libelles().nomsDesMedecins(CENTRE, java.util.Arrays.asList((UUID) null))).isEmpty();
         assertThat(libelles().creneauxDuCentre(CENTRE, java.util.Arrays.asList(C1, C1, null))).containsOnlyKeys(C1);
-        assertThat(libelles().nomsDesSalles(java.util.Arrays.asList((UUID) null))).isEmpty();
+        assertThat(libelles().nomsDesSalles(CENTRE, java.util.Arrays.asList((UUID) null))).isEmpty();
     }
 
     @Test

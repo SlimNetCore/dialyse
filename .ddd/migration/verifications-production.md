@@ -2530,3 +2530,18 @@ SELECT s.center_id, s.id, s.statut, s.facture_id FROM seances s LEFT JOIN factur
 ```
 **Interprétation** : `0` ligne partout : on peut valider les deux contraintes (`ALTER TABLE seances VALIDATE CONSTRAINT …`, hors Flyway). `> 0` en 76.1 : ces séances ne sont plus modifiables en base (le CHECK `NOT VALID` refuse toute mise à jour de leur ligne) tant que leur statut n'est pas normalisé statut par statut par décision écrite (un `facturee` normalisé en `FACTUREE` change les comptes du tableau de bord et du Stock, KB-SEA-70). `> 0` en 76.2 : restaurer la facture, ou remettre `facture_id` à NULL et le statut à `VALIDEE`, par décision écrite ; la contrainte `NOT VALID` refuse déjà tout NOUVEL identifiant orphelin. Les requêtes 62.6 (mémoires blanches : ces séances ne sont plus réincluses ni liées à une absence par le port) et 62.2 restent à lire. SELECT rejouées sous forme équivalente sur PostgreSQL 16 jetable (`backend/scripts/seance-se7c2-pg16-rejeu.sh`, schéma Flyway V1 à V55) ; ne disent RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : simuler puis valider la facturation d'un mois : mêmes séances, mêmes totaux, séances `FACTUREE` portant la facture ; exclure puis réinclure une séance validée : statut et mémoire rétablis ; `SELECT convalidated FROM pg_constraint WHERE conname IN ('fk_seances_facture', 'ck_seances_statut_canonique')` rend `f` tant que les contraintes ne sont pas validées. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 77. Organisation L7 (ADR 0115, KB-ORG-09 et KB-ORG-10 CORRIGÉS) : préalables de la migration V56 et de la lecture bornée (2026-11-09) — SELECT seulement
+
+Les deux anomalies reproduites aux lots B et C sont corrigées ; les détections §72.1 et §73.1 changent de rôle : ce sont les PRÉALABLES du déploiement (à exécuter sur une copie ou en lecture seule, AVANT), pas des décisions en attente.
+
+```sql
+-- 77.1 = 72.1 : centres sans état. nuls > 0 : V56 les passe à TRUE et ils ENTRENT dans le contrôle de nuit des péremptions du Stock (notifications nouvelles).
+SELECT count(*) FILTER (WHERE actif IS NULL) AS nuls, count(*) FILTER (WHERE actif) AS actifs, count(*) FILTER (WHERE NOT actif) AS inactifs FROM centers;
+-- 77.2 = 73.1 : mouvements dont la salle ou le créneau est d'un AUTRE centre. > 0 : ces lignes perdent leur libellé dans le journal (identifiant conservé).
+SELECT count(*) FILTER (WHERE s.id IS NOT NULL AND s.center_id <> m.center_id) AS salles_d_un_autre_centre,
+       count(*) FILTER (WHERE c.id IS NOT NULL AND c.center_id <> m.center_id) AS creneaux_d_un_autre_centre
+FROM mouvement_patient m LEFT JOIN salle s ON s.id = m.salle_id LEFT JOIN position_creneau c ON c.id = m.position_id;
+```
+**Interprétation** : `0` partout : V56 n'ajoute que la contrainte et la borne est sans effet visible. `nuls > 0` : prévenir les métiers Stock (et confirmer que ces centres sont bien en service ; sinon `UPDATE centers SET actif = FALSE` par décision écrite AVANT V56). `> 0` en 77.2 : lister les lignes (`m.id`, `m.center_id`, `s.center_id`) et décider par écrit : remapper l'identifiant vers la salle ou le créneau du centre du mouvement, ou accepter le libellé vide ; ne pas rouvrir la lecture non bornée. SELECT NON rejoués sur PostgreSQL 16 (O4-R7) ; ne disent RIEN de l'état de la production.
+**Recette (lecture seule, sur une copie)** : après V56, `SELECT is_nullable, column_default FROM information_schema.columns WHERE table_name = 'centers' AND column_name = 'actif'` rend `NO` et `true` ; le journal des mouvements d'un centre n'affiche plus que les salles et créneaux de ce centre. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

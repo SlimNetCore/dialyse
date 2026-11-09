@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Centres de l'Organisation. {@code getBoolean("actif")} lit NULL comme faux (O4-R4) : depuis KB-ORG-09 (ADR 0115, migration V56) la colonne
+ * est NOT NULL avec défaut TRUE, donc cette lecture et celle de l'annuaire ({@code COALESCE(actif, TRUE)}) sont équivalentes ; aucun
+ * changement de code nécessaire.
+ */
 public class CentresJdbc implements CentreRepository {
     private static final RowMapper<Centre> MAPPER = (rs, i) -> new Centre(
             new CentreId(rs.getObject("id", UUID.class)),

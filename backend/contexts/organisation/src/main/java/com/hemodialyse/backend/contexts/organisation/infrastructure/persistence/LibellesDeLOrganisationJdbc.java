@@ -21,7 +21,7 @@ import java.util.UUID;
  *   <li>{@code LecturesPublieesDesSeancesJdbc} (Séance) : {@code code} de {@code salle} et {@code code, libelle} de {@code position_creneau},
  *   bornés au centre ;</li>
  *   <li>{@code LectureDesMouvementsJdbc} (Patient et couverture) : {@code salle.nom} et {@code position_creneau.libelle}, jointures
- *   {@code LEFT JOIN … ON id} SANS borne de centre ;</li>
+ *   {@code LEFT JOIN … ON id} SANS borne de centre à l'origine ; BORNÉES au centre depuis KB-ORG-10 (ADR 0115) ;</li>
  *   <li>{@code LectureDesPatientsJdbc} (Patient et couverture) : libellé du médecin, code et libellé du créneau, et les recherches par
  *   libellé ou identifiant, tous bornés au centre.</li>
  * </ul>
@@ -67,26 +67,28 @@ public class LibellesDeLOrganisationJdbc implements LibellesDeLOrganisation {
     }
 
     @Override
-    public Map<UUID, String> nomsDesSalles(Collection<UUID> salles) {
+    public Map<UUID, String> nomsDesSalles(UUID centre, Collection<UUID> salles) {
         Set<UUID> ids = distincts(salles);
         Map<UUID, String> sortie = new HashMap<>();
         if (ids.isEmpty()) return sortie;
-        nomme.query("SELECT id, nom FROM salle WHERE id IN (:ids)", new MapSqlParameterSource().addValue("ids", ids), rs -> {
-            String nom = rs.getString("nom");
-            if (nom != null) sortie.put(rs.getObject("id", UUID.class), nom);
-        });
+        nomme.query("SELECT id, nom FROM salle WHERE center_id = :centre AND id IN (:ids)",
+                new MapSqlParameterSource().addValue("centre", centre).addValue("ids", ids), rs -> {
+                    String nom = rs.getString("nom");
+                    if (nom != null) sortie.put(rs.getObject("id", UUID.class), nom);
+                });
         return sortie;
     }
 
     @Override
-    public Map<UUID, String> libellesDesCreneaux(Collection<UUID> creneaux) {
+    public Map<UUID, String> libellesDesCreneaux(UUID centre, Collection<UUID> creneaux) {
         Set<UUID> ids = distincts(creneaux);
         Map<UUID, String> sortie = new HashMap<>();
         if (ids.isEmpty()) return sortie;
-        nomme.query("SELECT id, libelle FROM position_creneau WHERE id IN (:ids)", new MapSqlParameterSource().addValue("ids", ids), rs -> {
-            String libelle = rs.getString("libelle");
-            if (libelle != null) sortie.put(rs.getObject("id", UUID.class), libelle);
-        });
+        nomme.query("SELECT id, libelle FROM position_creneau WHERE center_id = :centre AND id IN (:ids)",
+                new MapSqlParameterSource().addValue("centre", centre).addValue("ids", ids), rs -> {
+                    String libelle = rs.getString("libelle");
+                    if (libelle != null) sortie.put(rs.getObject("id", UUID.class), libelle);
+                });
         return sortie;
     }
 

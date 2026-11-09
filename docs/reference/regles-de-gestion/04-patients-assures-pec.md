@@ -113,7 +113,10 @@
 - **RG-PAT-035** — Le suivi des mouvements est consultable en **liste paginée** (page 0, taille 20 par défaut,
   100 maximum : une page négative ou une taille hors de 1 à 100 est refusée en 400), du plus récent au plus ancien,
   filtrable par patient, type et période de date d'effet, **limitée au centre courant**, pour les profils `ADMIN`,
-  `SECRETAIRE`, `MEDECIN` et `INFIRMIER` ; un paramètre illisible répond 400.
+  `SECRETAIRE`, `MEDECIN` et `INFIRMIER` ; un paramètre illisible répond 400. **KB-ORG-10 CORRIGÉ le 2026-11-09 (lot L7, ADR 0115, à confirmer
+  par les métiers et le DPO avant le 2026-12-15)** : le nom de la salle et le libellé du créneau d'un mouvement sont lus DANS le centre du
+  mouvement ; une salle ou un créneau d'un autre centre (ou disparu) s'affiche vide, l'identifiant restant dans la ligne. *(Avant : le libellé
+  d'un autre centre était affiché.)*
 - **RG-PAT-038** — Le **numéro d'assurance** du patient est **unique par centre**, comparé après retrait des espaces de
   bord et sans tenir compte de la casse, à la création **et à la modification** (422 `BUSINESS_RULE_VIOLATION`). Aucune
   contrainte en base : le contrôle se fait sous le verrou du centre ; les doublons existants se relèvent par la requête de

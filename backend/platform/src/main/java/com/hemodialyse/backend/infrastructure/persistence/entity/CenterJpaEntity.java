@@ -47,10 +47,11 @@ public class CenterJpaEntity {
     private String siteWeb;
 
     /**
-     * {@code null} (lignes antérieures à l'introduction des sociétés) est interprété comme actif.
+     * Jamais {@code null} (KB-ORG-09 corrigé, ADR 0115, migration V56 : défaut TRUE, NOT NULL) ; la base de test H2, bâtie par Hibernate,
+     * porte le même défaut et la même contrainte. {@link #isActif()} garde sa tolérance au {@code null} pour les anciennes lignes lues.
      */
-    @Column(name = "actif")
-    private Boolean actif;
+    @Column(name = "actif", nullable = false, columnDefinition = "boolean default true")
+    private Boolean actif = Boolean.TRUE;
 
     /**
      * Fuseau horaire du centre (identifiant IANA), null = UTC : définit le jour métier du Stock.

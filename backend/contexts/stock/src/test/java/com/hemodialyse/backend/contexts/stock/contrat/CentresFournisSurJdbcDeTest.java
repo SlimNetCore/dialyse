@@ -24,8 +24,8 @@ public final class CentresFournisSurJdbcDeTest implements CentresFournis, Verrou
     }
 
     @Override
-    public List<UUID> centresActifsAuSensStrict() {
-        return jdbc.query("SELECT id FROM centers WHERE actif = TRUE ORDER BY id", (rs, i) -> rs.getObject(1, UUID.class));
+    public List<UUID> centresActifs() {
+        return jdbc.query("SELECT id FROM centers WHERE COALESCE(actif, TRUE) = TRUE ORDER BY id", (rs, i) -> rs.getObject(1, UUID.class));
     }
 
     @Override

@@ -13,10 +13,10 @@ import java.util.UUID;
 public interface CentresFournis {
 
     /**
-     * Les centres actifs AU SENS STRICT du Stock, par identifiant croissant : un centre dont l'état n'a jamais été renseigné n'y figure pas
-     * (comportement historique du contrôle de nuit des péremptions, O4-R3, KB-ORG-09).
+     * Les centres actifs, par identifiant croissant, au même sens que pour tous les contextes (KB-ORG-09 corrigé, ADR 0115) : seul un centre
+     * désactivé en est exclu ; l'état d'un centre n'est plus jamais NULL.
      */
-    List<UUID> centresActifsAuSensStrict();
+    List<UUID> centresActifs();
 
     /** Tous les centres, actifs ou non (comptabilisation de nuit), dans un ordre non spécifié. */
     List<UUID> tousLesCentres();

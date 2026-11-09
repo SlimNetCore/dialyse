@@ -189,7 +189,8 @@ class LibellesDeLOrganisationDansLesLecturesTest {
     // ------------------------------------------------------------------ journal des mouvements
 
     @Test
-    void le_journal_rend_le_nom_de_la_salle_et_le_libelle_du_creneau_sans_borne_de_centre_et_vide_si_disparus() {
+    void le_journal_rend_le_nom_de_la_salle_et_le_libelle_du_creneau_du_centre_du_mouvement_et_vide_si_disparus_ou_d_un_autre_centre() {
+        // KB-ORG-10 corrigé (ADR 0115) : une salle ou un créneau d'un autre centre rend un libellé vide, comme un libellé disparu.
         UUID p = patient("M1", "A", null, null);
         mouvement(p, 1, SALLE_1, MATIN);
         mouvement(p, 2, SALLE_AUTRE_CENTRE, CRENEAU_AUTRE_CENTRE);
@@ -199,8 +200,8 @@ class LibellesDeLOrganisationDansLesLecturesTest {
         var page = mouvements().lister(CENTRE, new LectureDesMouvements.Filtre(null, null, null, null), 0, 20);
 
         assertThat(page.total()).isEqualTo(4);
-        assertThat(page.items()).extracting(LectureDesMouvements.Ligne::salle).containsExactly(null, null, "Salle neuf", "Salle un");
-        assertThat(page.items()).extracting(LectureDesMouvements.Ligne::creneau).containsExactly(null, null, "Soir", "Matin");
+        assertThat(page.items()).extracting(LectureDesMouvements.Ligne::salle).containsExactly(null, null, null, "Salle un");
+        assertThat(page.items()).extracting(LectureDesMouvements.Ligne::creneau).containsExactly(null, null, null, "Matin");
     }
 
     // ------------------------------------------------------------------ outillage

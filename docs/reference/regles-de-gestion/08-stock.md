@@ -209,7 +209,10 @@
   (J+1, J+8, J+15…, sans état conservé) ; un lot **reçu déjà périmé** est signalé au premier contrôle qui suit sa réception ; si le contrôle de J+1 est manqué, le rappel suivant est J+8. Le signalement est une **alerte durable unique par centre et par jour** (identifiant
   déterministe, sûre en multi-instance) destinée à `ADMIN` et `PHARMACIEN` (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord), et un événement
   d'intégration `LotProcheExpiration` v1 par lot (registre Spring Modulith, consommateurs idempotents sur son identifiant). Un centre en
-  échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. *(Avant S8 : journal technique seul,
+  échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. **« Centre actif » a le même sens
+  pour le Stock que pour tous les contextes (KB-ORG-09 CORRIGÉ le 2026-11-09, lot L7, ADR 0115, à confirmer par les métiers Stock avant le
+  2026-12-15)** : seul un centre désactivé est exclu ; l'état d'un centre n'est plus jamais vide (migration V56, défaut « actif »), donc un centre
+  jamais renseigné, jusque-là ignoré de ce contrôle, y entre. *(Avant S8 : journal technique seul,
   tous les centres, KB-STK-53.)* *Source :* `ControlerLesPeremptions`, `RegleDesPeremptions`, `NotificationsDesPeremptionsLegacy`.
 - **RG-STK-062** — **Traçabilité par lot** : de l'entrée (bon de réception, fournisseur) aux sorties (séances, patients)
   pour un numéro de lot donné (`ADMIN`, `PHARMACIEN`).

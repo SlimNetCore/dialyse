@@ -53,12 +53,13 @@ abstract class AnnuairesContrat {
         assertThat(centres().actifs()).containsExactly(C1, C3, C4, C5);
     }
 
-    /** O4-R3 (ADR 0108, KB-ORG-09) : la variante stricte du Stock exclut un état non renseigné, la variante large l'inclut. */
+    /** KB-ORG-09 corrigé (ADR 0115) : une seule définition de « centre actif » ; la variante stricte du Stock n'existe plus. */
     @Test
-    void les_centres_actifs_au_sens_strict_excluent_un_etat_non_renseigne() {
+    void il_n_existe_qu_une_definition_de_centre_actif_et_elle_inclut_un_etat_non_renseigne() {
         donnees();
-        assertThat(centres().actifsAuSensStrict()).containsExactly(C1, C4, C5);
-        assertThat(centres().actifs()).as("la variante large inclut C3").contains(C3);
+        assertThat(centres().actifs()).contains(C3).doesNotContain(C2);
+        assertThat(AnnuaireDesCentres.class.getMethods()).extracting(java.lang.reflect.Method::getName)
+                .doesNotContain("actifsAuSensStrict");
     }
 
     @Test

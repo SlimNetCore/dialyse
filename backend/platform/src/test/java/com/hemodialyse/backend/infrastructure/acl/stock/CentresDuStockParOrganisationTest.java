@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 /**
  * Parité du Stock après O4 lot B (ADR 0108) : les adapters du Stock câblés sur les VRAIS traducteurs de la plateforme et sur le VRAI langage
  * publié d'Organisation (H2, mode PostgreSQL) rendent ce que rendaient les lecteurs SQL retirés. Les scénarios sont ceux de la caractérisation
- * écrite et verte sur les lecteurs d'origine : centre actif au sens strict (état non renseigné exclu, KB-ORG-09), tous les centres, jour du
+ * écrite et verte sur les lecteurs d'origine : centre actif (état non renseigné actif depuis la correction de KB-ORG-09, ADR 0115), tous les centres, jour du
  * fuseau (UTC si absent, blanc, illisible ou centre inconnu), verrou de période. L'horloge est fixe.
  */
 class CentresDuStockParOrganisationTest {
@@ -62,9 +62,9 @@ class CentresDuStockParOrganisationTest {
     }
 
     @Test
-    void le_stock_exclut_un_centre_dont_l_etat_n_est_pas_renseigne_et_garde_l_ordre_des_identifiants() {
-        jdbc.update("DELETE FROM centers WHERE id = ?", DESACTIVE);
-        assertThat(new CentresActifsFournis(centres).liste()).containsExactly(new CentreId(ACTIF));
+    void le_stock_retient_un_centre_dont_l_etat_n_est_pas_renseigne_et_garde_l_ordre_des_identifiants() {
+        // KB-ORG-09 corrigé (ADR 0115) : même définition de « centre actif » que les autres contextes.
+        assertThat(new CentresActifsFournis(centres).liste()).containsExactly(new CentreId(ACTIF), new CentreId(SANS_ETAT));
     }
 
     @Test

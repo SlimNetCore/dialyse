@@ -28,13 +28,6 @@ public class AnnuaireDesCentresJdbc implements AnnuaireDesCentres {
                 (rs, i) -> rs.getObject(1, UUID.class));
     }
 
-    /** SQL du lecteur {@code CentresActifsLegacy} du Stock (lot B, ADR 0108) : {@code NULL} est exclu. */
-    @Override
-    public List<UUID> actifsAuSensStrict() {
-        return jdbc.query("SELECT id FROM centers WHERE actif = TRUE ORDER BY id",
-                (rs, i) -> rs.getObject(1, UUID.class));
-    }
-
     @Override
     public List<UUID> tous() {
         return jdbc.query("SELECT id FROM centers", (rs, i) -> rs.getObject(1, UUID.class));

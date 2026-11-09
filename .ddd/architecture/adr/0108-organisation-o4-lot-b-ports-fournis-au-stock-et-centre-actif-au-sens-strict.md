@@ -9,6 +9,10 @@ related: ADR 0107 (lot A, plan en lots), 0098 et 0104 (ports `*Fournis`), 0024 e
 
 # 0108 - Organisation O4, lot B : ports fournis au Stock, centre actif au sens strict (O4-R3)
 
+> **AMENDÉ le 2026-11-09 par l'ADR 0115 (KB-ORG-09 corrigé)** : la variante stricte `actifsAuSensStrict()` est retirée, le port du Stock est
+> `centresActifs()` (un centre sans état est actif), `centers.actif` devient NOT NULL DEFAULT TRUE (migration V56). Le texte ci-dessous décrit
+> la décision d'origine (historique).
+
 Refactoring SUR PLACE (ADR 0024/0075) : mêmes tables, mêmes URL, mêmes rôles, mêmes codes ; ni façade, ni flag, ni projection, ni métrique, ni
 événement. Les points « à confirmer » le sont par les métiers / DPO au plus tard le **2026-12-15**.
 

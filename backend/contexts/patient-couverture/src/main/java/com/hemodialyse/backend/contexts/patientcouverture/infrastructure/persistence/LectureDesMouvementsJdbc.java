@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Lecture du journal {@code mouvement_patient} : même requête, même ordre et mêmes jointures que la liste actuelle (un
  * mouvement dont le patient n'est pas du centre est masqué ; salle, créneau et générateur sont facultatifs). Le nom de la salle et le
- * libellé du créneau viennent du langage publié d'Organisation (O4 lot C, ADR 0109), lus par lot sans borne de centre (KB-ORG-10).
+ * libellé du créneau viennent du langage publié d'Organisation (O4 lot C, ADR 0109), lus par lot, bornés au centre du mouvement (KB-ORG-10 corrigé, ADR 0115).
  */
 public class LectureDesMouvementsJdbc implements LectureDesMouvements {
 
@@ -59,8 +59,8 @@ public class LectureDesMouvementsJdbc implements LectureDesMouvements {
         argsPage.add(size);
         argsPage.add((long) page * size);
         // Le nom de la salle et le libellé du créneau ne sont plus joints : ils sont lus par lot dans le langage publié d'Organisation
-        // (O4 lot C, ADR 0109), SANS borne de centre comme l'étaient les jointures. Les jointures sur clé primaire ne changeaient ni
-        // l'ordre ni le nombre de lignes.
+        // (O4 lot C, ADR 0109), BORNÉS au centre du mouvement (KB-ORG-10 corrigé, ADR 0115) : une salle ou un créneau d'un autre centre
+        // rend un libellé vide, comme un libellé disparu. Ni l'ordre ni le nombre de lignes ne changent.
         List<Object[]> brutes = jdbc.query("SELECT m.id, m.patient_id, m.type, m.date_effet, m.etat_precedent, m.etat_nouveau, "
                 + "m.jours_dialyse, m.automatique, m.cree_le, p.nom, p.prenom, p.code_patient, m.salle_id, "
                 + "m.position_id, g.code AS generateur_code" + DEPUIS + ou
@@ -74,8 +74,8 @@ public class LectureDesMouvementsJdbc implements LectureDesMouvements {
                 argsPage.toArray());
         List<UUID> salles = brutes.stream().map(b -> (UUID) b[8]).toList();
         List<UUID> creneaux = brutes.stream().map(b -> (UUID) b[9]).toList();
-        Map<UUID, String> nomsDesSalles = libelles.nomsDesSalles(salles);
-        Map<UUID, String> libellesDesCreneaux = libelles.libellesDesCreneaux(creneaux);
+        Map<UUID, String> nomsDesSalles = libelles.nomsDesSalles(centre.valeur(), salles);
+        Map<UUID, String> libellesDesCreneaux = libelles.libellesDesCreneaux(centre.valeur(), creneaux);
         List<Ligne> lignes = new ArrayList<>();
         for (Object[] b : brutes) {
             UUID salle = (UUID) b[8];

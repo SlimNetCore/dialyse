@@ -26,13 +26,13 @@ public interface LibellesDeLOrganisation {
     Map<UUID, LibelleDeCreneau> creneauxDuCentre(UUID centre, Collection<UUID> creneaux);
 
     /**
-     * Le nom des salles, SANS borne de centre : une salle d'un autre centre est rendue comme les autres (reproduit la jointure du journal
-     * des mouvements de Patient et couverture, KB-ORG-10). Un nom absent (NULL) n'a pas d'entrée ; un nom blanc est rendu tel quel.
+     * Le nom des salles DU CENTRE : une salle d'un autre centre n'a pas d'entrée, comme une salle disparue (KB-ORG-10 corrigé, ADR 0115).
+     * Un nom absent (NULL) n'a pas d'entrée ; un nom blanc est rendu tel quel.
      */
-    Map<UUID, String> nomsDesSalles(Collection<UUID> salles);
+    Map<UUID, String> nomsDesSalles(UUID centre, Collection<UUID> salles);
 
-    /** Le libellé des créneaux, SANS borne de centre (même raison que {@link #nomsDesSalles}, KB-ORG-10). */
-    Map<UUID, String> libellesDesCreneaux(Collection<UUID> creneaux);
+    /** Le libellé des créneaux DU CENTRE (un créneau d'un autre centre n'a pas d'entrée, même raison que {@link #nomsDesSalles}). */
+    Map<UUID, String> libellesDesCreneaux(UUID centre, Collection<UUID> creneaux);
 
     /**
      * Le libellé des médecins DU CENTRE : « nom prénom » sans blanc de bord, le prénom étant facultatif. Un médecin désactivé garde son

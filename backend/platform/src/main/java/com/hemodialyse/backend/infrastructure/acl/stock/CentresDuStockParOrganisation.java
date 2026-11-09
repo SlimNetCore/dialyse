@@ -14,8 +14,7 @@ import java.util.UUID;
  * dépendre d'Organisation (cycle Maven) ; la plateforme, qui connaît les deux, fournit au Stock son port {@link CentresFournis}. Remplace
  * les lecteurs {@code CentresActifsLegacy}, {@code HorlogeDesCentresLegacy} et la liste des centres d'{@code OperationsDeStockJdbc}.
  * <p>
- * O4-R3 : le Stock garde SA définition de « centre actif » (variante stricte, un état non renseigné est exclu) ; les autres consommateurs
- * utilisent la variante large. L'écart est tracé (KB-ORG-09).
+ * KB-ORG-09 corrigé (ADR 0115) : le Stock utilise la même définition de « centre actif » que les autres consommateurs ({@code actifs()}).
  */
 @Component
 public class CentresDuStockParOrganisation implements CentresFournis {
@@ -27,8 +26,8 @@ public class CentresDuStockParOrganisation implements CentresFournis {
     }
 
     @Override
-    public List<UUID> centresActifsAuSensStrict() {
-        return annuaire.actifsAuSensStrict();
+    public List<UUID> centresActifs() {
+        return annuaire.actifs();
     }
 
     @Override

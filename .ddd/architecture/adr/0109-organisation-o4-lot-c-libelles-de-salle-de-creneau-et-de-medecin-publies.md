@@ -9,6 +9,9 @@ related: ADR 0107 (lot A, plan en lots), 0108 (lot B), 0096 (lectures publiées 
 
 # 0109 - Organisation O4, lot C : libellés de salle, de créneau et de médecin publiés
 
+> **AMENDÉ le 2026-11-09 par l'ADR 0115 (KB-ORG-10 corrigé)** : `nomsDesSalles` et `libellesDesCreneaux` prennent le centre et sont BORNÉS à ce
+> centre ; le journal des mouvements n'affiche plus le libellé d'un autre centre. Le texte ci-dessous décrit la décision d'origine (historique).
+
 Refactoring SUR PLACE (ADR 0024/0075) : mêmes tables, mêmes URL, mêmes rôles, mêmes codes ; ni façade, ni flag, ni projection, ni métrique, ni
 événement. Les points « à confirmer » le sont par les métiers / DPO au plus tard le **2026-12-15**.
 
