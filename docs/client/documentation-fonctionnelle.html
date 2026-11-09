@@ -4059,7 +4059,16 @@ plus récemment active (<code>COALESCE(résolue, vue)</code>) à la plus ancienn
 (au-delà) sans refus ; un <code>limit</code> illisible répond 500 (KB-DIR-02, statu quo). Le contexte est le seul propriétaire de la table
 <code>direction_alert_history</code>. <em>Source :</em> <code>ConsulterLHistoriqueDesAlertes</code>, <code>LimiteDHistorique</code>.</p>
 </div></div>
-<h2>13.15 Composition des indicateurs de la direction (contexte Pilotage direction)</h2>
+<div class="rule" id="RG-DIR-109"><div class="rid">RG-DIR-109</div><div class="rtxt"><p>Une société est <strong>suivie</strong> (RG-DIR-106) tant qu&#39;au moins un abonnement de direction au canal
+<code>/topic/societe/{id}/…</code> subsiste. Chaque couple (session, abonnement) n&#39;est compté <strong>qu&#39;une fois</strong> (un abonnement répété ne double pas le
+compte) ; le désabonnement d&#39;un abonnement inconnu ne retire personne ; la <strong>déconnexion</strong> d&#39;une session libère tous ses abonnements et eux
+seuls ; une destination qui n&#39;est pas un canal de société, ou dont l&#39;identifiant est illisible, est ignorée sans erreur. Le premier abonné
+d&#39;une société pose son constat de référence au prochain passage rapide (une seconde au plus). Le contrôle des droits d&#39;abonnement
+(direction de cette société seule) précède ce suivi et reste dans la plateforme (<code>WebSocketAuthentication</code>). Pas de comptage persistant :
+un redémarrage du serveur oublie les abonnements (les clients se réabonnent). <em>Source :</em> <code>DirectionSubscriptionTracker</code> (plateforme, filet :
+<code>LesAbonnementsDeLaDirectionCharacterizationTest</code>).</p>
+</div></div>
+<h2>13.15Composition des indicateurs de la direction (contexte Pilotage direction)</h2>
 <p>Les indicateurs servis par <code>GET /api/v1/direction/indicators</code> (RG-DIR-030, RG-DIR-031) sont désormais <strong>composés par le contexte Pilotage
 direction</strong> (PD6, ADR 0106, langage publié <code>IndicateursDeLaDirection</code>) à partir des indicateurs cliniques du Dossier médical et du stock du
 Stock, sans changement de comportement. Les points marqués « statu quo » sont <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
