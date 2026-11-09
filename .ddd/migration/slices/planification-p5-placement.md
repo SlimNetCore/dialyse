@@ -85,3 +85,6 @@ Refonte sur place : pas de palier ni de drapeau (ADR 0024). Avant déploiement :
 3. « nom prénom » partout dans les alertes ; libellés fr/en/ar/kab de `RETOUR_SALLE_ORDINAIRE_PROPOSE` à relire par un locuteur.
 4. 400 pour une fiche illisible : non fait (global) ; `DELETE` d'une sérologie ne réévalue toujours rien (KB-PLN-61).
 5. Glossaire : termes P5 en `proposed`.
+
+## Lot L2 (2026-11-09, ADR 0113)
+La règle du risque infectieux lue par le placement (RG-PLN-012) change : seule la dernière sérologie conclusive (positive ou négative) d'un marqueur décide, un douteux ou un en cours plus récent n'efface plus un positif (KB-MED-106 CORRIGÉ). Aucun code de la Planification ne change (relais du langage publié) ; seul le double de test `RisquesInfectieuxDeTest` est aligné. Plus de patients sont placés en isolement ; la liste est donnée par la détection §75.1 de `verifications-production.md`. Validation médicale attendue ≤ 2026-12-15.

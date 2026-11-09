@@ -120,10 +120,11 @@ class LeRisqueInfectieuxLuParLaPlanificationCharacterizationIntegrationTest exte
         m.put("04 P3 meme jour : positif saisi a 10 h, negatif saisi a 11 h", categorie(CENTRE_A, p3));
         m.put("05 P4 meme jour : negatif saisi a 10 h, positif saisi a 11 h", categorie(CENTRE_A, p4));
         m.put("06 P5 meme jour, meme heure de saisie : positif et negatif indepartageables", categorie(CENTRE_A, p5));
-        m.put("07 P6 positif <D+10> puis DOUTEUX <D+20> (le douteux leve le risque)", categorie(CENTRE_A, p6));
-        m.put("08 P7 positif <D+10> puis EN_COURS <D+20> (le controle en attente leve le risque)", categorie(CENTRE_A, p7));
+        // KB-MED-106 CORRIGE (2026-11-09, ADR 0113, lot L2) : seul un resultat POSITIF ou NEGATIF est conclusif ; le douteux et l'en cours ne levent plus le risque.
+        m.put("07 P6 positif <D+10> puis DOUTEUX <D+20> (le douteux n'est pas conclusif : le positif reste en vigueur)", categorie(CENTRE_A, p6));
+        m.put("08 P7 positif <D+10> puis EN_COURS <D+20> (le controle en attente n'est pas conclusif : le positif reste en vigueur)", categorie(CENTRE_A, p7));
         m.put("09 P8 positif AG_HBS <D+10>, negatif AC_VHC <D+20> (autre marqueur : sans effet)", categorie(CENTRE_A, p8));
-        arbre("derniere_serologie", m);
+        arbre("derniere_serologie_nouveau_code", m);
     }
 
     @Test

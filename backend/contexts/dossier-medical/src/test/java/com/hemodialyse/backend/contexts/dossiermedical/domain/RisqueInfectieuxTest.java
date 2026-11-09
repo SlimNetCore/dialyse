@@ -47,15 +47,53 @@ class RisqueInfectieuxTest {
                 s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S11)))).containsExactly(P);
     }
 
-    /** KB-MED-106 (RISQUE CLINIQUE, reproduit) : un douteux ou un en cours plus récent lève le risque sans résultat négatif. */
+    /** KB-MED-106 (CORRIGÉ 2026-11-09, ADR 0113) : seul un POSITIF ou un NEGATIF est conclusif ; un douteux ou un en cours plus récent n'efface pas un positif. */
     @Test
-    void un_douteux_ou_un_en_cours_plus_recent_leve_le_risque_kb_med_106() {
+    void un_douteux_ou_un_en_cours_plus_recent_ne_leve_pas_le_risque_kb_med_106() {
         assertThat(RisqueInfectieux.patientsARisque(List.of(
                 s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.DOUTEUX, J.plusDays(5), S10)))).containsExactly(P);
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.EN_COURS, J.plusDays(5), S10)))).containsExactly(P);
+    }
+
+    @Test
+    void seul_le_dernier_resultat_conclusif_decide_kb_med_106() {
+        // positif puis négatif : sorti du risque
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.NEGATIF, J.plusDays(5), S10)))).isEmpty();
+        // douteux seul : pas de risque
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.DOUTEUX, J, S10)))).isEmpty();
+        // négatif puis douteux : pas de risque
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.NEGATIF, J, S10),
                 s(MarqueurSerologique.AG_HBS, ResultatSerologique.DOUTEUX, J.plusDays(5), S10)))).isEmpty();
+        // positif, négatif, puis douteux : pas de risque
         assertThat(RisqueInfectieux.patientsARisque(List.of(
                 s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S10),
-                s(MarqueurSerologique.AG_HBS, ResultatSerologique.EN_COURS, J.plusDays(5), S10)))).isEmpty();
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.NEGATIF, J.plusDays(5), S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.DOUTEUX, J.plusDays(9), S10)))).isEmpty();
+        // négatif, positif, puis en cours : à risque
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.NEGATIF, J, S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J.plusDays(5), S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.EN_COURS, J.plusDays(9), S10)))).containsExactly(P);
+        // positif puis douteux le même jour (saisie plus tardive) : à risque
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.DOUTEUX, J, S11)))).containsExactly(P);
+    }
+
+    @Test
+    void les_marqueurs_sont_independants_pour_le_dernier_resultat_conclusif_kb_med_106() {
+        assertThat(RisqueInfectieux.patientsARisque(List.of(
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.POSITIF, J, S10),
+                s(MarqueurSerologique.AG_HBS, ResultatSerologique.NEGATIF, J.plusDays(5), S10),
+                s(MarqueurSerologique.VIH_AC, ResultatSerologique.POSITIF, J, S10),
+                s(MarqueurSerologique.VIH_AC, ResultatSerologique.DOUTEUX, J.plusDays(5), S10)))).containsExactly(P);
     }
 
     /** KB-MED-107 (reproduit) : à égalité totale, rien n'est « plus récent » que le positif : il l'emporte. */

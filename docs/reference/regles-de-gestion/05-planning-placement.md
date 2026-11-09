@@ -58,9 +58,13 @@
   rattachés à une salle du centre, sont disponibles. Un générateur en maintenance, en attente de pièce, hors service,
   désactivé
   ou réformé n'est jamais proposé.
-- **RG-PLN-012** — Un patient est **à risque infectieux** si sa **dernière** sérologie d'au moins un des marqueurs
+- **RG-PLN-012** — Un patient est **à risque infectieux** si sa **dernière sérologie conclusive** d'au moins un des marqueurs
   AgHBs, anti-VHC,
   ARN du VHC ou VIH est **positive** (la dernière par marqueur, départagée par date de prélèvement puis date de saisie).
+  **Seul un résultat positif ou négatif est conclusif** : un résultat **douteux ou en cours** plus récent n'efface plus un positif
+  antérieur (le patient reste à risque, donc en salle d'isolement, tant que la dernière sérologie conclusive du marqueur est positive) ;
+  un douteux ou un en cours seul ne crée pas de risque. **KB-MED-106 CORRIGÉ le 2026-11-09 (lot L2, ADR 0113, RG-MED-049h ; RISQUE
+  CLINIQUE, validation médicale attendue au plus tard le 2026-12-15)** : avant, un douteux ou un en cours plus récent levait le risque.
 - **RG-PLN-013** — Les fermetures datées sont les jours fériés et les jours de fermeture exceptionnelle du centre ; la
   proposition
   de placement signale les fermetures des **90 prochains jours** tombant sur les jours proposés.

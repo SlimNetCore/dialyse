@@ -96,12 +96,13 @@ RC=0
 verifier() { # libelle obtenu attendu
   if [ "$2" = "$3" ]; then echo "OK    $1 : $2"; else echo "ECART $1"; echo "   obtenu : $2"; echo "   attendu : $3"; RC=1; fi
 }
-RISQUE="SELECT DISTINCT s.patient_id FROM serologies_patient s WHERE s.center_id = '%s' AND s.marqueur IN ('AG_HBS', 'AC_VHC', 'ARN_VHC', 'VIH_AC') AND s.resultat = 'POSITIF' AND NOT EXISTS (SELECT 1 FROM serologies_patient n WHERE n.center_id = s.center_id AND n.patient_id = s.patient_id AND n.marqueur = s.marqueur AND (n.date_prelevement > s.date_prelevement OR (n.date_prelevement = s.date_prelevement AND n.created_at > s.created_at))) ORDER BY 1"
+RISQUE="SELECT DISTINCT s.patient_id FROM serologies_patient s WHERE s.center_id = '%s' AND s.marqueur IN ('AG_HBS', 'AC_VHC', 'ARN_VHC', 'VIH_AC') AND s.resultat = 'POSITIF' AND NOT EXISTS (SELECT 1 FROM serologies_patient n WHERE n.center_id = s.center_id AND n.patient_id = s.patient_id AND n.marqueur = s.marqueur AND n.resultat IN ('POSITIF', 'NEGATIF') AND (n.date_prelevement > s.date_prelevement OR (n.date_prelevement = s.date_prelevement AND n.created_at > s.created_at))) ORDER BY 1"
+# KB-MED-106 CORRIGE le 2026-11-09 (lot L2, ADR 0113) : seul un POSITIF ou un NEGATIF plus recent leve le risque (n.resultat IN ('POSITIF', 'NEGATIF')).
 
-echo "=== M1 RisquesInfectieuxJdbc:21-28 : patients a risque par centre ==="
-verifier "M1 centre A (P2, P4, P5, P8, FA3 et les 5 porteurs de la Direction ; ni P1, P3, P6, P7, FA1, FA2)" \
+echo "=== M1 PatientsARisqueInfectieuxJdbc : patients a risque par centre (dernier resultat CONCLUSIF, KB-MED-106 corrige) ==="
+verifier "M1 centre A (P2, P4, P5, P6, P7, P8, FA3 et les 5 porteurs de la Direction ; ni P1, P3, FA1, FA2)" \
   "$(sql "$(printf "$RISQUE" "$A")" | lignes)" \
-  "$(P 2);$(P 4);$(P 5);$(P 8);$FA3;d9000000-0000-0000-0000-0000000000e1;d9000000-0000-0000-0000-0000000000e2;d9000000-0000-0000-0000-0000000000e3;d9000000-0000-0000-0000-0000000000e4;d9000000-0000-0000-0000-0000000000e5"
+  "$(P 2);$(P 4);$(P 5);$(P 6);$(P 7);$(P 8);$FA3;d9000000-0000-0000-0000-0000000000e1;d9000000-0000-0000-0000-0000000000e2;d9000000-0000-0000-0000-0000000000e3;d9000000-0000-0000-0000-0000000000e4;d9000000-0000-0000-0000-0000000000e5"
 verifier "M1 centre B (FA1 et FA2 dont le positif est pose en B, le porteur unique F1 ; le negatif de A pour FA2 n'est pas vu)" \
   "$(sql "$(printf "$RISQUE" "$B")" | lignes)" "$FA1;$FA2;d9000000-0000-0000-0000-0000000000f1"
 
@@ -143,6 +144,9 @@ echo "=== Section 66 de verifications-production.md (SELECT seulement) : detecti
 verifier "66.1 KB-MED-106 : patients dont le dernier resultat d'un marqueur a risque est DOUTEUX ou EN_COURS apres un POSITIF (P6, P7)" \
   "$(sql "SELECT d.center_id, d.patient_id, d.marqueur, d.resultat FROM serologies_patient d WHERE d.marqueur IN ('AG_HBS', 'AC_VHC', 'ARN_VHC', 'VIH_AC') AND d.resultat IN ('DOUTEUX', 'EN_COURS') AND NOT EXISTS (SELECT 1 FROM serologies_patient n WHERE n.center_id = d.center_id AND n.patient_id = d.patient_id AND n.marqueur = d.marqueur AND (n.date_prelevement > d.date_prelevement OR (n.date_prelevement = d.date_prelevement AND n.created_at > d.created_at))) AND EXISTS (SELECT 1 FROM serologies_patient p WHERE p.center_id = d.center_id AND p.patient_id = d.patient_id AND p.marqueur = d.marqueur AND p.resultat = 'POSITIF' AND p.date_prelevement < d.date_prelevement) ORDER BY 1, 2" | lignes)" \
   "$A|$(P 6)|AG_HBS|DOUTEUX;$A|$(P 7)|AG_HBS|EN_COURS"
+verifier "75.1 KB-MED-106 corrige : patients qui ENTRENT en isolement (dernier resultat conclusif POSITIF, plus recent DOUTEUX ou EN_COURS ; P6, P7)" \
+  "$(sql "SELECT d.center_id, d.patient_id, d.marqueur FROM serologies_patient d WHERE d.marqueur IN ('AG_HBS', 'AC_VHC', 'ARN_VHC', 'VIH_AC') AND d.resultat IN ('DOUTEUX', 'EN_COURS') AND NOT EXISTS (SELECT 1 FROM serologies_patient n WHERE n.center_id = d.center_id AND n.patient_id = d.patient_id AND n.marqueur = d.marqueur AND (n.date_prelevement > d.date_prelevement OR (n.date_prelevement = d.date_prelevement AND n.created_at > d.created_at))) AND EXISTS (SELECT 1 FROM serologies_patient p WHERE p.center_id = d.center_id AND p.patient_id = d.patient_id AND p.marqueur = d.marqueur AND p.resultat = 'POSITIF' AND p.date_prelevement <= d.date_prelevement AND NOT EXISTS (SELECT 1 FROM serologies_patient c WHERE c.center_id = p.center_id AND c.patient_id = p.patient_id AND c.marqueur = p.marqueur AND c.resultat IN ('POSITIF', 'NEGATIF') AND (c.date_prelevement > p.date_prelevement OR (c.date_prelevement = p.date_prelevement AND c.created_at > p.created_at)))) GROUP BY d.center_id, d.patient_id, d.marqueur ORDER BY 1, 2" | lignes)" \
+  "$A|$(P 6)|AG_HBS;$A|$(P 7)|AG_HBS"
 verifier "66.2 KB-MED-107 : deux serologies du meme marqueur, meme patient, meme centre, meme date et meme horodatage de saisie, resultats differents (P5)" \
   "$(sql "SELECT a.center_id, a.patient_id, a.marqueur, a.date_prelevement, count(*) FROM serologies_patient a JOIN serologies_patient b ON b.center_id = a.center_id AND b.patient_id = a.patient_id AND b.marqueur = a.marqueur AND b.date_prelevement = a.date_prelevement AND b.created_at = a.created_at AND b.id <> a.id AND b.resultat <> a.resultat GROUP BY a.center_id, a.patient_id, a.marqueur, a.date_prelevement" | lignes)" \
   "$A|$(P 5)|AC_VHC|$D10|2"

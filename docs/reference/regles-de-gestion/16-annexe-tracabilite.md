@@ -178,6 +178,10 @@ il ne reste dans `application/direction` que le rendu PDF, les comptes et les se
 Le lot L1 (2026-11-09, ADR 0112) n'ajoute aucune route ni tâche : il change le contenu de `/overview`, `/breakdown`, `/indicators`, `/report`,
 `/snapshots/{mois}` et `/snapshots/{mois}/report` (totaux de patients supprimés dès qu'un centre est masqué, y compris à la relecture d'un
 instantané ancien ; règles : RG-DIR-111 et RG-MED-049g).
+Le lot L2 (2026-11-09, ADR 0113) n'ajoute aucune route ni tâche : il change le résultat du risque infectieux lu par la Planification pour
+l'isolement (placement d'un patient, réaffectation après une sérologie, propositions de place, lecture de la semaine) : seule la dernière
+sérologie conclusive (positive ou négative) d'un marqueur décide, un résultat douteux ou en cours plus récent n'efface plus un positif
+(règles : RG-PLN-012 et RG-MED-049h).
 Les tables `direction_snapshot` et `direction_alert_history` ont chacune pour seul propriétaire un adaptateur JDBC du module
 (`InstantanesMensuelsJdbc`, `HistoriqueDesAlertesJdbc`), inscrits dans `TableDuPilotageTest`. Depuis SE7e, la
 garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92) ; depuis SE7f, les entités JPA (`@Table`) et les

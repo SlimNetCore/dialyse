@@ -48,7 +48,7 @@ abstract class RisquesInfectieuxContrat {
     }
 
     @Test
-    void la_derniere_serologie_tranche_departagee_par_le_prelevement_puis_la_saisie_et_le_douteux_leve_le_risque() {
+    void la_derniere_serologie_conclusive_tranche_departagee_par_le_prelevement_puis_la_saisie_et_le_douteux_ne_leve_pas_le_risque() {
         serologie(CENTRE_A, patient(1), "AG_HBS", "POSITIF", J, S10);
         serologie(CENTRE_A, patient(1), "AG_HBS", "NEGATIF", J.plusDays(5), S10);
         serologie(CENTRE_A, patient(2), "AG_HBS", "NEGATIF", J, S10);
@@ -60,7 +60,7 @@ abstract class RisquesInfectieuxContrat {
         // KB-MED-107 : égalité totale, le positif l'emporte.
         serologie(CENTRE_A, patient(5), "AG_HBS", "POSITIF", J, S10);
         serologie(CENTRE_A, patient(5), "AG_HBS", "NEGATIF", J, S10);
-        // KB-MED-106 : douteux ou en cours plus récent lève le risque.
+        // KB-MED-106 (corrigé) : un douteux ou un en cours plus récent n'efface pas le positif.
         serologie(CENTRE_A, patient(6), "AG_HBS", "POSITIF", J, S10);
         serologie(CENTRE_A, patient(6), "AG_HBS", "DOUTEUX", J.plusDays(5), S10);
         serologie(CENTRE_A, patient(7), "AG_HBS", "POSITIF", J, S10);
@@ -68,7 +68,21 @@ abstract class RisquesInfectieuxContrat {
         // Un autre marqueur plus récent ne change rien.
         serologie(CENTRE_A, patient(8), "VIH_AC", "POSITIF", J, S10);
         serologie(CENTRE_A, patient(8), "AG_HBS", "NEGATIF", J.plusDays(9), S10);
-        assertThat(risques().patientsARisque(CENTRE_A)).containsExactlyInAnyOrder(patient(2), patient(4), patient(5), patient(8));
+        // Positif, négatif, puis douteux : le dernier résultat conclusif est négatif.
+        serologie(CENTRE_A, patient(9), "AG_HBS", "POSITIF", J, S10);
+        serologie(CENTRE_A, patient(9), "AG_HBS", "NEGATIF", J.plusDays(5), S10);
+        serologie(CENTRE_A, patient(9), "AG_HBS", "DOUTEUX", J.plusDays(9), S10);
+        // Négatif puis douteux : pas de risque. Douteux seul : pas de risque.
+        serologie(CENTRE_A, patient(10), "AG_HBS", "NEGATIF", J, S10);
+        serologie(CENTRE_A, patient(10), "AG_HBS", "DOUTEUX", J.plusDays(5), S10);
+        serologie(CENTRE_A, patient(11), "AC_VHC", "DOUTEUX", J, S10);
+        // Marqueurs indépendants : VIH positif puis douteux reste à risque même si AgHBs est négatif.
+        serologie(CENTRE_A, patient(12), "AG_HBS", "POSITIF", J, S10);
+        serologie(CENTRE_A, patient(12), "AG_HBS", "NEGATIF", J.plusDays(5), S10);
+        serologie(CENTRE_A, patient(12), "VIH_AC", "POSITIF", J, S10);
+        serologie(CENTRE_A, patient(12), "VIH_AC", "EN_COURS", J.plusDays(5), S10);
+        assertThat(risques().patientsARisque(CENTRE_A))
+                .containsExactlyInAnyOrder(patient(2), patient(4), patient(5), patient(6), patient(7), patient(8), patient(12));
     }
 
     /** KB-MED-108 : le risque est lu par le centre de la SÉROLOGIE ; un négatif plus récent posé ailleurs n'y lève rien. */

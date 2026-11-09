@@ -1,0 +1,11 @@
+{
+  "01 ensemble des patients a risque du centre A" : [ "<P2_NEGATIF_PUIS_POSITIF>", "<P4_MEME_JOUR_POSITIF_SAISI_APRES>", "<P5_MEME_JOUR_MEME_SAISIE>", "<P6_POSITIF_PUIS_DOUTEUX>", "<P7_POSITIF_PUIS_EN_COURS>", "<P8_POSITIF_AG_HBS_PUIS_NEGATIF_AC_VHC>" ],
+  "02 P1 positif <D+10> puis negatif <D+20>" : "SANS_RISQUE",
+  "03 P2 negatif <D+10> puis positif <D+20>" : "A_RISQUE",
+  "04 P3 meme jour : positif saisi a 10 h, negatif saisi a 11 h" : "SANS_RISQUE",
+  "05 P4 meme jour : negatif saisi a 10 h, positif saisi a 11 h" : "A_RISQUE",
+  "06 P5 meme jour, meme heure de saisie : positif et negatif indepartageables" : "A_RISQUE",
+  "07 P6 positif <D+10> puis DOUTEUX <D+20> (le douteux n'est pas conclusif : le positif reste en vigueur)" : "A_RISQUE",
+  "08 P7 positif <D+10> puis EN_COURS <D+20> (le controle en attente n'est pas conclusif : le positif reste en vigueur)" : "A_RISQUE",
+  "09 P8 positif AG_HBS <D+10>, negatif AC_VHC <D+20> (autre marqueur : sans effet)" : "A_RISQUE"
+}

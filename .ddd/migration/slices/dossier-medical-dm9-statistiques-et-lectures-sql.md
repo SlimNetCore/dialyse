@@ -80,5 +80,8 @@ Rejeu PostgreSQL 16 `dossier-medical-dm9-pg16-rejeu.sh 55551` (cluster jetable, 
 ## Lot L1 (2026-11-09, ADR 0112)
 KB-MED-104 CORRIGÉ (suppression complémentaire des consolidés, RG-MED-049g) : goldens `dm9/direction/{un_centre_masque,deux_centres_masques,serologies_et_greffes}` et `dm8/direction/greffes` réapprouvés en `*_nouveau_code`, anciens archivés dans `dm9/_ecarts-legacy/direction/` et `dm8/_ecarts-legacy/direction/` (`*_avant_l1.legacy.json`). Validation DPO attendue ≤ 2026-12-15.
 
+## Lot L2 (2026-11-09, ADR 0113)
+KB-MED-106 CORRIGÉ (risque clinique, dernière sérologie conclusive, RG-PLN-012 et RG-MED-049h) : un DOUTEUX ou EN_COURS plus récent n'efface plus un POSITIF ; `RisqueInfectieux` et `PatientsARisqueInfectieuxJdbc` alignés (+ double de test de la Planification) ; golden `dm9/planification/.../derniere_serologie` réapprouvé en `derniere_serologie_nouveau_code` (cas 07, 08 et ensemble), ancien dans `dm9/_ecarts-legacy/planification/derniere_serologie_avant_l2.legacy.json` ; rejeu PG16 mis à jour (M1, détection 75.1). L'indicateur Direction des porteurs positifs (KB-MED-105) n'est pas aligné. Validation médicale et liste §75.1 attendues ≤ 2026-12-15.
+
 ## Reste à faire
 Revue `/ddd-verify` faite le 2026-11-09 (`.ddd/verify/verify-dossier-medical-dm9.md`, pass-with-actions, suites données) ; résidus M-R1 à M-R10 ; confirmations métiers / médecins / DPO au plus tard le 2026-12-15.

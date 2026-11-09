@@ -490,8 +490,9 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   sérologique le plus ancien l'emporte toujours (KB-MED-94, reproduit) ;
   (c) **risque infectieux et cathéters lus par la Planification** (`RisquesInfectieuxPublies`, `AbordsVasculairesPublies`, fournis à la
   Planification par la plateforme : `RisquesInfectieuxFournis`, `AbordsVasculairesFournis`) : même règle (RG-PLN-012, RG-PLN-097) ;
-  **REPRODUIT, RISQUE CLINIQUE à trancher par les médecins en priorité (KB-MED-106)** : un résultat DOUTEUX ou EN_COURS plus
-  récent qu'un positif lève le risque infectieux sans résultat négatif ; reproduits aussi : à égalité totale le positif l'emporte
+  **KB-MED-106 CORRIGÉ le 2026-11-09 (lot L2, RG-MED-049h, RISQUE CLINIQUE, validation médicale attendue ≤ 2026-12-15)** : avant, un
+  résultat DOUTEUX ou EN_COURS plus récent qu'un positif levait le risque infectieux sans résultat négatif ; désormais seule la dernière
+  sérologie conclusive (positive ou négative) décide ; reproduits : à égalité totale le positif l'emporte
   (KB-MED-107), lecture par le centre de la sérologie ou de l'abord et non de la fiche (KB-MED-108) ;
   (d) **reproduits, à confirmer** : KB-MED-104 (CORRIGÉ depuis le 2026-11-09, voir RG-MED-049g), KB-MED-100 (audit inégal, trois `POST stats/*/search` sans appelant
   frontend conservés), KB-MED-109 (ordre non défini à date égale dans les tendances, le CSV et le PDF ; double comptage des taux de la
@@ -514,6 +515,18 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   permettrait la même déduction). Le booléen « observance en retard » (valeur brute servant l'alerte de la Direction, RG-DIR-105) est inchangé.
   Une société sans centre garde des consolidés à zéro. Avant la correction, les consolidés étaient la somme des valeurs brutes puis masquées.
   *Source :* `CalculerLesIndicateursCliniques`, `EffectifMasque.consolider`. Règle commune : RG-DIR-111.
+- **RG-MED-049h** — *Dernière sérologie conclusive du risque infectieux (KB-MED-106, **CORRIGÉ le 2026-11-09**, lot L2, ADR 0113 ; à la demande
+  de l'utilisateur, RISQUE CLINIQUE, **validation médicale attendue au plus tard le 2026-12-15**)* : seul un résultat **POSITIF ou NEGATIF est
+  conclusif**. Pour chaque patient et chaque marqueur surveillé (AgHBs, anti-VHC, ARN du VHC, VIH ; centre de la sérologie), le risque est décidé
+  par la **dernière sérologie conclusive** (date de prélèvement, puis horodatage de saisie ; à égalité totale le positif l'emporte, KB-MED-107) :
+  le patient est à risque si elle est positive. Un résultat DOUTEUX ou EN_COURS plus récent **n'efface plus** un positif antérieur ; un
+  DOUTEUX ou EN_COURS seul, ou précédé d'un seul négatif, ne crée aucun risque ; positif, négatif puis douteux : pas de risque ; les marqueurs
+  sont indépendants. La casse reste stricte (un résultat ou un marqueur en casse inattendue n'est ni positif ni conclusif). Même règle sur tous les
+  chemins qui décident de l'isolement (placement d'un patient, réaffectation après une sérologie, propositions de place, semaine : RG-PLN-012).
+  **Effet** : des patients aujourd'hui hors isolement parce qu'un douteux ou un en cours a succédé à un positif y reviennent (liste à faire valider
+  par les médecins avant mise en production : détection §75.1 de `verifications-production.md`). **Non modifié** : la règle propre de l'indicateur
+  Direction des porteurs positifs (RG-MED-049e, KB-MED-105), où un douteux plus récent compte encore « non positif ».
+  *Source :* `RisqueInfectieux`, `PatientsARisqueInfectieuxJdbc`.
 
 ## 11.11 Constantes, statistiques et export interopérable
 
