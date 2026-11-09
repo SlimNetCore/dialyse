@@ -287,9 +287,9 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 
 | Ordre | Slice                                                        | Risque | Etat    | Fiche                                              |
 |-------|--------------------------------------------------------------|--------|---------|----------------------------------------------------|
-| O1    | Societes et centres (OHS, CentreId)                          | faible | in-progress | slices/organisation-o1-societes-centres.md         |
+| O1    | Societes et centres (OHS, CentreId)                          | faible | built   | slices/organisation-o1-societes-centres.md         |
 | O2    | Salles et creneaux (positions)                               | moyen  | in-progress | slices/organisation-o2-salles-creneaux.md          |
-| O3    | Referentiels de parametrage (medecins, machines, protocoles) | faible | in-progress | slices/organisation-o3-referentiels-parametrage.md |
+| O3    | Referentiels de parametrage (medecins, machines, protocoles) | faible | built   | slices/organisation-o3-referentiels-parametrage.md |
 | O4    | Lectures publiees (organisation.v1, aucun consommateur)      | moyen  | planned | slices/organisation-o4-lectures-publiees.md        |
 | O5    | Retrait de bc-referential (fait sans filet, filet reconstitue) | moyen | in-progress | slices/organisation-o5-retrait-bc-referential.md   |
 
@@ -318,13 +318,15 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 
 | Ordre | Slice                                             | Risque | Etat    | Fiche                                          |
 |-------|---------------------------------------------------|--------|---------|------------------------------------------------|
-| SE1   | Creation de seance (conditionnee par PEC valide)  | moyen  | planned | slices/seance-se1-creation.md                  |
-| SE2   | Validation et signature                           | eleve  | planned | slices/seance-se2-validation-signature.md      |
-| SE3   | Consommables declares (motif sortie stock)        | eleve  | planned | slices/seance-se3-consommables.md              |
-| SE4   | Derogation de regularisation                      | moyen  | planned | slices/seance-se4-derogation-regularisation.md |
-| SE5   | Forfait surcharge                                 | moyen  | planned | slices/seance-se5-forfait-surcharge.md         |
-| SE6   | Verrou facturation (reception FacturationValidee) | eleve  | planned | slices/seance-se6-verrou-facturation.md        |
-| SE7   | Lectures publiees et retrait du legacy Seance     | eleve  | planned | slices/seance-se7-lectures-publiees.md         |
+| SE1   | Creation de seance (conditionnee par PEC valide)  | moyen  | built   | slices/seance-se1-creation.md                  |
+| SE2   | Validation et signature                           | eleve  | built   | slices/seance-se2-validation-signature.md      |
+| SE3   | Consommables declares (motif sortie stock)        | eleve  | built   | slices/seance-se3-consommables.md              |
+| SE4   | Derogation de regularisation                      | moyen  | built   | slices/seance-se4-derogation-regularisation.md |
+| SE5   | Forfait surcharge                                 | moyen  | built   | slices/seance-se5-forfait-surcharge.md         |
+| SE6   | Verrou facturation (reception FacturationValidee) | eleve  | built   | slices/seance-se6-verrou-facturation.md        |
+| SE7   | Lectures publiees et retrait du legacy Seance (SE7a-SE7f) | eleve | built (2026-11-09) | slices/seance-se7-lectures-publiees.md |
+
+> **SE7 `built` le 2026-11-09 (ADR 0094 à 0100)** : SE7a routes résiduelles, SE7b tableau de bord mensuel, SE7c1/c2 lectures Stock et écritures Facturation, SE7d Absences/Planification/Dossier médical, SE7e Pilotage/rapports/reprise, SE7f retrait de `bc-seance` (volet paramédical dans la Séance, créatinine au Dossier médical, capacité à la Planification). Parité stricte (aucun golden modifié) ; un seul écart assumé (409 `ECRITURE_CONCURRENTE` sur deux PUT volet simultanés, ADR 0100, à confirmer). Allow-lists datées (`TableDesSeancesTest` 6, `TableDesAnalysesTest`, `EcrivainsDeLaFactureDesSeancesTest` 2), revue au plus tard le 2026-12-15. KB-SEA-71 à 99 à arbitrer par les métiers.
 
 > **GEL du 2026-11-02 (ADR 0074, `backend/contexts/seance/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice SE n'est `built` ni `characterized` (aucun golden Seance dedie). Statuts de seance = ceux du LEGACY (`FACTUREE`, `ABSENT` inclus ; retrait d'`ABSENT` avec Facturation F2 / Absences, ADR 0002). **Ordre de reprise : Seance reste la DERNIERE** (coeur le plus couple, 18 lecteurs SQL de `seances`). Jalons deja poses : par Planification (port `attenduLe`, regle de presence dupliquee dans `SeancePlanningJdbcAdapter`, colonnes de place de `patients` dans `SeanceRestController`, `SeanceRestController` de 1 315 lignes a decouper) ; par Stock (`ConsommationsDeSeance`, SE3). Filet legacy existant reparti entre Stock, Planification, Absences, Facturation (inventaire dans `GEL.md`). Reprise : filet Seance d'abord (creation, validation/signature, forfait, deverrouillage, liste blanche des lecteurs), puis slices sur place (memes tables, memes URL).
 
@@ -334,13 +336,16 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | Ordre | Slice                                  | Risque | Etat    | Fiche                                               |
 |-------|----------------------------------------|--------|---------|-----------------------------------------------------|
 | DM1   | Constantes                             | faible | built (2026-11-06, ADR 0080) | slices/dossier-medical-dm1-constantes.md            |
-| DM2   | Prescriptions (ordonnances)            | moyen  | planned | slices/dossier-medical-dm2-prescriptions.md         |
-| DM3   | Demandes d'examen et resultats         | moyen  | planned | slices/dossier-medical-dm3-examens.md               |
-| DM4   | Serologie (detection positive)         | moyen  | planned | slices/dossier-medical-dm4-serologie.md             |
-| DM5   | Antecedents et allergies               | faible | planned | slices/dossier-medical-dm5-antecedents-allergies.md |
-| DM6   | Observations biologiques               | faible | planned | slices/dossier-medical-dm6-biologie.md              |
-| DM7   | Bilan pre-greffe                       | moyen  | planned | slices/dossier-medical-dm7-bilan-pregreffe.md       |
-| DM8   | Lectures publiees et retrait du legacy | eleve  | planned | slices/dossier-medical-dm8-lectures-publiees.md     |
+| DM2   | Prescriptions (ordonnances)            | moyen  | built   | slices/dossier-medical-dm2-prescriptions.md         |
+| DM3   | Demandes d'examen et resultats         | moyen  | built   | slices/dossier-medical-dm3-examens.md               |
+| DM4   | Serologie (detection positive)         | moyen  | built   | slices/dossier-medical-dm4-serologie.md             |
+| DM5   | Antecedents et allergies               | faible | built   | slices/dossier-medical-dm5-antecedents-allergies.md |
+| DM6   | Observations biologiques               | faible | built   | slices/dossier-medical-dm6-biologie.md              |
+| DM7   | Bilan pre-greffe                       | moyen  | built   | slices/dossier-medical-dm7-bilan-pregreffe.md       |
+| DM8   | Lectures publiees                      | eleve  | built   | slices/dossier-medical-dm8-lectures-publiees.md     |
+| DM9   | Statistiques, indicateurs, KDIGO, lecteurs Planification, retrait de `bc-medical` | eleve | built (2026-11-09, ADR 0101) | slices/dossier-medical-dm9-statistiques-et-lectures-sql.md |
+
+> **DM9 `built` le 2026-11-09 (ADR 0101)** : `bc-medical` retiré ; le module possède tout le calcul (statistiques, KDIGO, dossier de greffe, indicateurs Direction, risques infectieux, abords vasculaires) exposé par son langage publié ; la plateforme garde la présentation (PDF/CSV) et ne lit plus aucune table médicale (`TableDuDossierMedicalTest` active, 10 entrées datées). Deux écarts assumés (données illisibles en base : 200/422 au lieu d'un 400 fuyant un nom de classe, KB-MED-110). **KB-MED-106 (risque clinique : un DOUTEUX/EN_COURS plus récent lève l'isolement) reproduit, à trancher par les médecins en priorité** ; KB-MED-104 (DPO) condition de mise en production.
 
 > **Levee partielle du 2026-11-06 (ADR 0080)** : DM1 (lecture des constantes) est repris SUR PLACE et `built` ; le module est de nouveau au reacteur. Decoupage reel : DM2 = ordonnances/prescriptions + anemie/observance/alertes/administrations + planificateur 06:30 ; DM3 = examens ; DM4 = serologie ; DM5 = antecedents/allergies + abords vasculaires ; DM6 = biologie ; DM7 = bilan pre-greffe + donneurs vivants ; DM8 = DossierMedicalPatient/FHIR/stats-medical + lecteurs Direction et Planification. DM2 a DM8 `planned`, sans filet.
 >
