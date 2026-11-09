@@ -158,13 +158,20 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
         goldenNode("lier_a_l_absence_une_seance_absente_deja_facturee_nouveau_code", racine);
     }
 
-    // ------------------------------------------------------------------ (b) KB-FAC-17 : statut en minuscules
+    // ------------------------------------------------------------------ (b) KB-FAC-17 : statut en minuscules ; KB-SEA-73 corrigé (L3, ADR 0114)
 
+    /**
+     * NOUVEAU CODE (L3, KB-SEA-73) : le port refuse désormais d'exclure une séance qui n'est pas exactement validée ou signée, même avec
+     * « son propre statut » (l'ancien golden, où le SQL acceptait son propre statut, est archivé sous {@code _ecarts-legacy}). La casse
+     * du statut elle-même reste reproduite (KB-FAC-17, KB-SEA-82 : correction de donnée, pas de code).
+     */
     @Test
-    void un_statut_en_minuscules_n_est_ni_facturable_ni_liable_ni_forfaitable_ni_reinclusible_mais_le_sql_accepte_son_propre_statut() {
+    void un_statut_en_minuscules_n_est_ni_facturable_ni_liable_ni_forfaitable_ni_reinclusible_et_le_port_n_exclut_que_du_valide_ou_du_signe() {
         String[] statuts = {"VALIDEE", "ABSENT", "validee", "signee", "Signee", "absent", "facturee"};
         ObjectNode racine = mapper.createObjectNode();
         UUID facture = UUID.randomUUID();
+        // KB-SEA-74 (ADR 0114) : la liaison ne vise qu'une facture existante ; la facture est posée pour que SEUL le statut décide du refus.
+        facture(facture, CENTRE_A, P_EFFECTIF, "FEV-MATRICE");
         for (String statut : statuts) {
             ObjectNode o = racine.putObject(statut);
             UUID lue = ligne("lue_" + statut, statut, "VALIDEE", null);
@@ -194,7 +201,7 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
             o.put("lier", essai(() -> liaison.lier(centreA(), facture, List.of(liable))));
             o.put("lier_statut_apres", statutDe(liable));
         }
-        goldenNode("statut_en_minuscules_matrice_des_ecritures_et_lectures", racine);
+        goldenNode("statut_en_minuscules_matrice_des_ecritures_et_lectures_nouveau_code", racine);
     }
 
     private String statutDe(UUID id) {
@@ -203,8 +210,12 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
 
     // ------------------------------------------------------------------ (d) statut_avant_exclusion blanc
 
+    /**
+     * NOUVEAU CODE (L3, KB-SEA-72) : une mémoire d'exclusion blanche est absente pour la lecture ET pour les deux écritures SQL
+     * ({@code lierALAbsence}, {@code reinclure}), qui la refusent désormais. L'ancien golden est archivé sous {@code _ecarts-legacy}.
+     */
     @Test
-    void une_memoire_d_exclusion_blanche_est_lue_comme_absente_mais_le_sql_la_tient_pour_presente() {
+    void une_memoire_d_exclusion_blanche_est_absente_pour_la_lecture_et_pour_les_ecritures() {
         ObjectNode racine = mapper.createObjectNode();
         String[][] cas = {{"nulle", null}, {"vide", ""}, {"espaces", "   "}};
         for (String[] unCas : cas) {
@@ -223,7 +234,7 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
             o.put("reinclure_sql_VALIDEE", essai(() -> seances.reinclure(centreA(), reincluse, StatutDeSeance.VALIDEE)));
             o.set("reinclure_etat_apres", etat(reincluse));
         }
-        goldenNode("statut_avant_exclusion_blanc", racine);
+        goldenNode("statut_avant_exclusion_blanc_nouveau_code", racine);
     }
 
     // ------------------------------------------------------------------ (e) deux définitions de « séance facturée »

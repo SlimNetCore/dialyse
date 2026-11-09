@@ -1,0 +1,92 @@
+{
+  "espaces" : {
+    "domaine_reinclure" : "REFUSEE (Seance introuvable ou non reinclusable)",
+    "lierALAbsence_etat_apres" : {
+      "exclusion_absence_id" : null,
+      "facture_id" : null,
+      "forfait_override_code" : null,
+      "forfait_override_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : null,
+      "override_date_nulle" : "true",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "   "
+    },
+    "lierALAbsence_sql" : "REFUSEE (Seance introuvable ou non modifiable pour exclusion)",
+    "reinclure_etat_apres" : {
+      "exclusion_absence_id" : null,
+      "facture_id" : null,
+      "forfait_override_code" : null,
+      "forfait_override_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : null,
+      "override_date_nulle" : "true",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : "   "
+    },
+    "reinclure_sql_VALIDEE" : "REFUSEE (Seance introuvable ou non reinclusable)",
+    "trouver_statutAvantExclusion" : "null"
+  },
+  "nulle" : {
+    "domaine_reinclure" : "REFUSEE (Seance introuvable ou non reinclusable)",
+    "lierALAbsence_etat_apres" : {
+      "exclusion_absence_id" : null,
+      "facture_id" : null,
+      "forfait_override_code" : null,
+      "forfait_override_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : null,
+      "override_date_nulle" : "true",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : null
+    },
+    "lierALAbsence_sql" : "REFUSEE (Seance introuvable ou non modifiable pour exclusion)",
+    "reinclure_etat_apres" : {
+      "exclusion_absence_id" : null,
+      "facture_id" : null,
+      "forfait_override_code" : null,
+      "forfait_override_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : null,
+      "override_date_nulle" : "true",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : null
+    },
+    "reinclure_sql_VALIDEE" : "REFUSEE (Seance introuvable ou non reinclusable)",
+    "trouver_statutAvantExclusion" : "null"
+  },
+  "vide" : {
+    "domaine_reinclure" : "REFUSEE (Seance introuvable ou non reinclusable)",
+    "lierALAbsence_etat_apres" : {
+      "exclusion_absence_id" : null,
+      "facture_id" : null,
+      "forfait_override_code" : null,
+      "forfait_override_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : null,
+      "override_date_nulle" : "true",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : ""
+    },
+    "lierALAbsence_sql" : "REFUSEE (Seance introuvable ou non modifiable pour exclusion)",
+    "reinclure_etat_apres" : {
+      "exclusion_absence_id" : null,
+      "facture_id" : null,
+      "forfait_override_code" : null,
+      "forfait_override_id" : null,
+      "forfait_override_nom" : null,
+      "forfait_override_prix" : null,
+      "forfait_override_updated_by" : null,
+      "override_date_nulle" : "true",
+      "statut" : "ABSENT",
+      "statut_avant_exclusion" : ""
+    },
+    "reinclure_sql_VALIDEE" : "REFUSEE (Seance introuvable ou non reinclusable)",
+    "trouver_statutAvantExclusion" : "null"
+  }
+}

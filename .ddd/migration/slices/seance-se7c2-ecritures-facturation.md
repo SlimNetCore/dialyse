@@ -71,9 +71,9 @@ Note (corrigée après la revue du 2026-11-08, constat m1) : `ForfaitsDuCentreJd
 ## Bilan nominatif des résidus (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
-| C2-R1 | Aucune clé étrangère ni contrainte sur `seances.facture_id` (KB-SEA-74) : décision DBA / métier ; détection §62 | 2026-12-15 | 2027-03-31 |
+| C2-R1 | ~~Aucune clé étrangère ni contrainte sur `seances.facture_id` (KB-SEA-74)~~ corrigé le 2026-11-09 (lot L3, ADR 0114) : garde applicative + V54 `NOT VALID` ; reste à VALIDER la contrainte à la main après §62.2/§76.2 | 2026-12-15 | 2027-03-31 |
 | C2-R2 | KB-SEA-47 : écrire `forfait_override_code` ou ne plus le lire | 2026-12-15 | 2027-01-31 (et avant toute mise en production) |
-| C2-R3 | KB-SEA-72, KB-SEA-73 / KB-FAC-17 (mémoire blanche, casse du statut) : contrainte ou normalisation | 2026-12-15 | 2027-03-31 |
+| C2-R3 | ~~KB-SEA-72, KB-SEA-73 (mémoire blanche, garde du port)~~ corrigés le 2026-11-09 (lot L3, ADR 0114) ; casse du statut (KB-FAC-17, KB-SEA-82) : V55 `NOT VALID`, reste à normaliser les données (§76.1) puis VALIDER à la main | 2026-12-15 | 2027-03-31 |
 | C2-R4 | KB-SEA-75 / KB-FAC-54 : une seule définition de « séance facturée » | 2026-12-15 | 2027-01-31 |
 | C2-R5 | 4 langages `*Fournies` et traducteurs `*ParLaSeance` logés dans la plateforme (cycle Maven Séance -> Absences-patients -> Facturation) | 2026-12-15 | 2027-06-30 |
 | C2-R6 | `SeancesAFacturerPubliees` lit `patients` et `centre_payeur` (jointure, entrée de `TableDuPatientCouvertureTest`) : à remplacer par un langage publié de Patient et couverture | 2026-12-15 | 2027-03-31 |

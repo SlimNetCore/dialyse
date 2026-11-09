@@ -25,6 +25,7 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
     public void lier(UUID centre, UUID facture, List<UUID> ids) {
         for (UUID id : ids) {
             Seance s = du(centre, id).filter(x -> x.facture == null && ("VALIDEE".equals(x.statut) || "SIGNEE".equals(x.statut)))
+                    .filter(x -> centre.equals(centresDesFactures.get(facture)))
                     .orElseThrow(() -> new IllegalStateException("Une ou plusieurs seances ne sont plus eligibles a la validation"));
             s.statut = "FACTUREE";
             s.facture = facture;
@@ -33,6 +34,12 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
 
     UUID factureDe(UUID seance) {
         return seances.get(seance).facture;
+    }
+
+    private final Map<UUID, UUID> centresDesFactures = new HashMap<>();
+
+    void facture(UUID id, UUID centre) {
+        centresDesFactures.put(id, centre);
     }
 
     private record Patient(UUID id, UUID centre, String code, String nom, String prenom, String etat, UUID centrePayeur, UUID agence) {
@@ -108,6 +115,11 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
         return Optional.ofNullable(seances.get(id)).filter(s -> s.centre.equals(centre));
     }
 
+    /** « Mémoire présente » (KB-SEA-72) : au moins un caractère hors espace, comme {@code LENGTH(TRIM(...)) > 0} de l'adapter. */
+    private static boolean memoirePresente(Seance s) {
+        return s.memoire != null && s.memoire.chars().anyMatch(c -> c != ' ');
+    }
+
     private static void exigerUneLigne(boolean modifiee, String message) {
         if (!modifiee) {
             throw new IllegalStateException(message);
@@ -137,12 +149,13 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
     @Override
     public Optional<SeanceExcluablePublie> trouver(UUID centre, UUID seance) {
         return du(centre, seance).map(s -> new SeanceExcluablePublie(s.id, s.patient, s.date, s.statut, s.facture != null,
-                s.memoire == null || s.memoire.isBlank() ? null : s.memoire, s.absence));
+                memoirePresente(s) ? s.memoire : null, s.absence));
     }
 
     @Override
     public void exclure(UUID centre, UUID seance, String statutAvant) {
-        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && x.statut.equals(statutAvant));
+        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && x.statut.equals(statutAvant)
+                && ("VALIDEE".equals(x.statut) || "SIGNEE".equals(x.statut)));
         exigerUneLigne(s.isPresent(), "Seance introuvable ou non modifiable pour exclusion");
         s.get().statut = "ABSENT";
         s.get().memoire = statutAvant;
@@ -151,14 +164,14 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
 
     @Override
     public void lierALAbsence(UUID centre, UUID seance, UUID absence) {
-        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && "ABSENT".equals(x.statut) && x.memoire != null);
+        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && "ABSENT".equals(x.statut) && memoirePresente(x));
         exigerUneLigne(s.isPresent(), "Seance introuvable ou non modifiable pour exclusion");
         s.get().absence = absence;
     }
 
     @Override
     public void reinclure(UUID centre, UUID seance, String statutRetabli) {
-        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && "ABSENT".equals(x.statut) && x.memoire != null);
+        Optional<Seance> s = du(centre, seance).filter(x -> x.facture == null && "ABSENT".equals(x.statut) && memoirePresente(x));
         exigerUneLigne(s.isPresent(), "Seance introuvable ou non reinclusable");
         s.get().statut = statutRetabli;
         s.get().memoire = null;

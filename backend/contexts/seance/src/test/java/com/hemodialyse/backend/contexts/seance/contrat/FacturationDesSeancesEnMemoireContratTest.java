@@ -39,6 +39,11 @@ class FacturationDesSeancesEnMemoireContratTest extends FacturationDesSeancesCon
     }
 
     @Override
+    protected void facture(UUID id, UUID centre) {
+        seances.facture(id, centre);
+    }
+
+    @Override
     protected void patient(UUID id, UUID centre, String code, String nom, String prenom, String etat) {
         seances.patient(id, centre, code, nom, prenom, etat);
     }

@@ -266,10 +266,17 @@
   à une facture (garde `facture_id IS NULL`, comme la réinclusion). C'est une **défense en profondeur sur le port**, observée au niveau du
   port (golden et contrat), **sans effet aujourd'hui sur le trafic HTTP** : l'exclusion d'une séance, seul appelant, exclut d'abord la
   séance, ce qui exige déjà qu'elle soit non facturée, puis lie l'absence dans la même transaction ; le refus visible par l'utilisateur
-  reste celui de l'exclusion. **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers, DPO, DBA,
-  revue au plus tard le 2026-12-15)** : KB-SEA-47 (code du forfait non écrit), KB-SEA-72 (mémoire d'exclusion blanche), KB-SEA-73
-  (statut en casse exacte), KB-SEA-74 (unicité « une séance, une facture » portée par la seule garde de la liaison et la transaction, aucune
-  clé étrangère), KB-SEA-75 (deux définitions). Requêtes de détection : `verifications-production.md` section 62.
+  reste celui de l'exclusion. **Corrigés le 2026-11-09 (lot L3, ADR 0114, à confirmer par les métiers avant le 2026-12-15)** :
+  (KB-SEA-72) la **mémoire d'exclusion** n'est « présente » que si elle contient au moins un caractère hors espace, pour la lecture comme pour
+  la liaison à une absence et la réinclusion, qui refusent une mémoire blanche ; (KB-SEA-73) l'**exclusion** d'une séance n'est acceptée par le
+  port que si elle est exactement `VALIDEE` ou `SIGNEE` (le port redit la règle du domaine), même appelée avec son propre statut ; (KB-SEA-74)
+  une séance ne se **lie** qu'à une facture qui existe et appartient au même centre (garde de l'écriture) ; en production PostgreSQL, une clé
+  étrangère `seances.facture_id` vers `factures` (migration V54, `NOT VALID`) refuse tout nouvel identifiant orphelin et la suppression d'une
+  facture encore liée, sans empêcher le démarrage sur des données sales ; (KB-SEA-82) en production, un CHECK de statut canonique
+  (`UPPER(TRIM(statut))`, migration V55, `NOT VALID`) refuse tout statut écrit en minuscules ou avec un blanc ; les lecteurs restent en casse
+  exacte (KB-FAC-17). Les deux contraintes se valident à la main après nettoyage (`VALIDATE CONSTRAINT`). **Clos** : KB-SEA-71 (déjà corrigé).
+  **Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers, DPO, DBA, revue au plus tard le 2026-12-15)** : KB-SEA-47 (code du
+  forfait non écrit), KB-SEA-75 (deux définitions). Requêtes de détection : `verifications-production.md` sections 62 et 76.
   *Source :* `SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee`,
   `SeancesDesFacturesPubliees`, `FacturationDesSeancesJdbc`, `LiaisonDesSeancesJdbc`, `SeancesFacturablesParLaSeance`,
   `SeancesDeFacturationParLaSeance`, `LiaisonDesSeancesParLaSeance`, `SeancesDesFacturesParLaSeance`.

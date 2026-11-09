@@ -23,8 +23,10 @@ import java.util.UUID;
  * {@code SeancesDeFacturationJdbc}, {@code SeancesFacturablesJdbc} et des comptages de {@code LectureDeLaSyntheseJdbc} /
  * {@code LectureDuTableauDeBordJdbc} qu'elles remplaceront, mot pour mot : mêmes colonnes, mêmes gardes, même casse du statut (KB-SEA-73),
  * mêmes messages de refus. Aucun montant n'est recalculé : prix copiés à l'identique. N'ouvre aucune transaction : participe à celle de
- * l'appelant (une seule transaction d'émission). SEUL ÉCART DÉCIDÉ (KB-SEA-71, ADR 0097) : {@code lierALAbsence} porte la garde
- * {@code facture_id IS NULL}, comme {@code reinclure} (une absence ne se lie pas à une séance facturée). La jointure {@code patients} / {@code centre_payeur} est celle d'origine (résidu C2-R6).
+ * l'appelant (une seule transaction d'émission). ÉCARTS DÉCIDÉS : KB-SEA-71 (ADR 0097) : {@code lierALAbsence} porte la garde
+ * {@code facture_id IS NULL}, comme {@code reinclure} ; lot L3 (ADR 0114, corrections demandées) : KB-SEA-72 (une seule définition de
+ * « mémoire présente », {@code MEMOIRE_PRESENTE}, lue et écrite) et KB-SEA-73 ({@code exclure} n'accepte qu'une séance exactement validée
+ * ou signée), qui remplacent le « mot pour mot » ci-dessus pour ces points. La jointure {@code patients} / {@code centre_payeur} est celle d'origine (résidu C2-R6).
  */
 public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, ExclusionsEtForfaitsDesSeancesPublies, SeancesDesFacturesPubliees {
 
@@ -71,38 +73,43 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
 
     @Override
     public Optional<SeanceExcluablePublie> trouver(UUID centre, UUID seance) {
-        return jdbc.query("SELECT id, patient_id, date_seance, statut, facture_id, statut_avant_exclusion, exclusion_absence_id "
+        // KB-SEA-72 (ADR 0114) : « mémoire présente » = au moins un caractère hors espace, UNE seule définition (MEMOIRE_PRESENTE), lue ici
+        // par le SQL et reprise telle quelle par les deux écritures ci-dessous : lecture et écritures ne divergent plus.
+        return jdbc.query("SELECT id, patient_id, date_seance, statut, facture_id, "
+                        + "CASE WHEN " + MEMOIRE_PRESENTE + " THEN statut_avant_exclusion END AS statut_avant_exclusion, exclusion_absence_id "
                         + "FROM seances WHERE id = ? AND center_id = ?",
-                (rs, ligne) -> {
-                    String avant = rs.getString("statut_avant_exclusion");
-                    return new SeanceExcluablePublie(rs.getObject("id", UUID.class), rs.getObject("patient_id", UUID.class),
-                            rs.getDate("date_seance").toLocalDate(), rs.getString("statut"),
-                            rs.getObject("facture_id", UUID.class) != null,
-                            avant == null || avant.isBlank() ? null : avant,
-                            rs.getObject("exclusion_absence_id", UUID.class));
-                },
+                (rs, ligne) -> new SeanceExcluablePublie(rs.getObject("id", UUID.class), rs.getObject("patient_id", UUID.class),
+                        rs.getDate("date_seance").toLocalDate(), rs.getString("statut"),
+                        rs.getObject("facture_id", UUID.class) != null,
+                        rs.getString("statut_avant_exclusion"),
+                        rs.getObject("exclusion_absence_id", UUID.class)),
                 seance, centre).stream().findFirst();
     }
+
+    /** « Mémoire d'exclusion présente » (KB-SEA-72) : non nulle ET au moins un caractère hors espace ; SQL portable H2 / PostgreSQL. */
+    private static final String MEMOIRE_PRESENTE = "(statut_avant_exclusion IS NOT NULL AND LENGTH(TRIM(statut_avant_exclusion)) > 0)";
+
+    /** Séance « facturable » (domaine {@code estFacturable()}) : validée ou signée, en casse exacte (KB-SEA-73 : le port redit la garde du domaine). */
+    private static final String STATUT_FACTURABLE = "statut IN ('VALIDEE', 'SIGNEE')";
 
     @Override
     public void exclure(UUID centre, UUID seance, String statutAvant) {
         exigerUneLigne(jdbc.update("UPDATE seances SET statut = 'ABSENT', statut_avant_exclusion = ?, exclusion_absence_id = NULL "
-                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = ?",
+                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = ? AND " + STATUT_FACTURABLE,
                 statutAvant, seance, centre, statutAvant), NON_MODIFIABLE_POUR_EXCLUSION);
     }
 
     @Override
     public void lierALAbsence(UUID centre, UUID seance, UUID absence) {
         exigerUneLigne(jdbc.update("UPDATE seances SET exclusion_absence_id = ? "
-                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = 'ABSENT' AND statut_avant_exclusion IS NOT NULL",
+                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = 'ABSENT' AND " + MEMOIRE_PRESENTE,
                 absence, seance, centre), NON_MODIFIABLE_POUR_EXCLUSION);
     }
 
     @Override
     public void reinclure(UUID centre, UUID seance, String statutRetabli) {
         exigerUneLigne(jdbc.update("UPDATE seances SET statut = ?, statut_avant_exclusion = NULL, exclusion_absence_id = NULL "
-                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = 'ABSENT' "
-                + "AND statut_avant_exclusion IS NOT NULL",
+                + "WHERE id = ? AND center_id = ? AND facture_id IS NULL AND statut = 'ABSENT' AND " + MEMOIRE_PRESENTE,
                 statutRetabli, seance, centre), "Seance introuvable ou non reinclusable");
     }
 

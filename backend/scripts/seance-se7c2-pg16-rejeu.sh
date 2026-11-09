@@ -33,8 +33,11 @@ DOUBLONS="$(cd "$MIG" && ls V*.sql | sed -E 's/^V([0-9]+)__.*/\1/' | sort -n | u
 for f in $(cd "$MIG" && ls V*.sql | sort -V); do "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/$f" >/dev/null || { echo "ECHEC de $f"; exit 3; }; done
 echo "Chaine Flyway appliquee"
 RC=0
-echo "=== Contraintes reelles de seances.facture_id (aucune cle etrangere vers factures attendue) ==="
-"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage k ON k.constraint_name = tc.constraint_name WHERE tc.table_name = 'seances' AND tc.constraint_type = 'FOREIGN KEY' AND k.column_name = 'facture_id'" | tr -d '\r'
+echo "=== Contraintes de seances (ADR 0114) : V54 cle etrangere et V55 CHECK, toutes deux NOT VALID (convalidated = f) ==="
+for c in fk_seances_facture ck_seances_statut_canonique; do
+  ETAT="$("${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT convalidated FROM pg_constraint WHERE conname = '$c' AND conrelid = 'seances'::regclass" | tr -d '\r')"
+  [ "$ETAT" = "f" ] && echo "$c : presente, NOT VALID" || { echo "$c : ETAT INATTENDU ($ETAT)"; RC=1; }
+done
 echo "=== SE7c2 : requetes de controle (SELECT seule), executables sur le schema reel ==="
 for q in \
   "SELECT s.center_id, count(*) AS seances_facturees_sans_facture FROM seances s WHERE s.statut = 'FACTUREE' AND s.facture_id IS NULL GROUP BY s.center_id" \
@@ -43,7 +46,8 @@ for q in \
   "SELECT s.center_id, count(*) AS seances_liees_a_la_facture_d_un_autre_centre FROM seances s INNER JOIN factures f ON f.id = s.facture_id WHERE f.center_id <> s.center_id GROUP BY s.center_id" \
   "SELECT s.center_id, count(*) AS surcharges_avec_id_sans_code FROM seances s WHERE s.forfait_override_id IS NOT NULL AND s.forfait_override_code IS NULL GROUP BY s.center_id" \
   "SELECT s.center_id, count(*) AS memoires_d_exclusion_blanches FROM seances s WHERE s.statut_avant_exclusion IS NOT NULL AND trim(s.statut_avant_exclusion) = '' GROUP BY s.center_id" \
-  "SELECT s.center_id, s.statut, count(*) AS statuts_hors_casse_canonique FROM seances s WHERE s.statut <> upper(s.statut) GROUP BY s.center_id, s.statut"; do
+  "SELECT s.center_id, s.statut, count(*) AS statuts_hors_casse_canonique FROM seances s WHERE s.statut <> upper(s.statut) GROUP BY s.center_id, s.statut" \
+  "SELECT s.center_id, s.statut, count(*) AS statuts_non_canoniques_casse_ou_blancs FROM seances s WHERE s.statut <> upper(trim(s.statut)) GROUP BY s.center_id, s.statut"; do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$q" >/dev/null && echo "requete executable" || { echo "ECHEC de la requete : $q"; RC=1; }
 done
 echo "=== Paragraphe 62 (verifications-production.md) : requetes 1, 3 et 4 a l'identique, SELECT seule, 0 ligne attendue sur le schema neuf ==="

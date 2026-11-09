@@ -68,6 +68,8 @@ class LiaisonConcurrentePostgresContractIT {
     @BeforeEach
     void decor() {
         nettoyer();
+        // Les contraintes V54 et V55 telles que Flyway les pose (NOT VALID) : d'autres contrats ont pu les retirer de la base jetable.
+        TableDesSeances.poserLesContraintesDeProduction(jdbc);
         jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
                         + "type_patient, etat_patient) VALUES (?, ?, 'P-C2', 'Amrani', 'Lina', 'F', ?, 'ASS-C2', 'NON_VACANCIER', 'PERMANENT')",
                 PATIENT, CENTRE_ID, Date.valueOf(LocalDate.of(2026, 1, 10)));
@@ -76,7 +78,18 @@ class LiaisonConcurrentePostgresContractIT {
     @AfterEach
     void nettoyer() {
         jdbc.update("DELETE FROM seances WHERE center_id = ?", CENTRE_ID);
+        jdbc.update("DELETE FROM factures WHERE center_id = ?", CENTRE_ID);
         jdbc.update("DELETE FROM patients WHERE center_id = ?", CENTRE_ID);
+    }
+
+    /** Une facture émise du centre (KB-SEA-74, ADR 0114 : la liaison ne vise qu'une facture existante, la clé étrangère V54 aussi). */
+    private UUID facture() {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO factures (id, center_id, patient_id, numero_facture, period_start, period_end, date_facturation, "
+                        + "tva_rate, total_ht, total_tva, total_ttc) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)",
+                id, CENTRE_ID, PATIENT, "F-" + id, Date.valueOf(LocalDate.of(2026, 8, 1)), Date.valueOf(LocalDate.of(2026, 8, 31)),
+                Date.valueOf(LocalDate.of(2026, 9, 1)));
+        return id;
     }
 
     private UUID seance(String statut) {
@@ -142,8 +155,8 @@ class LiaisonConcurrentePostgresContractIT {
     void de_deux_emissions_simultanees_sur_les_memes_seances_une_seule_gagne_et_l_autre_n_ecrit_rien() throws Exception {
         UUID s1 = seance("VALIDEE");
         UUID s2 = seance("SIGNEE");
-        UUID gagnante = UUID.randomUUID();
-        UUID perdante = UUID.randomUUID();
+        UUID gagnante = facture();
+        UUID perdante = facture();
 
         Throwable echec = courseDeDeuxEmissions(gagnante, List.of(s1, s2), perdante, List.of(s1, s2));
 
@@ -156,8 +169,8 @@ class LiaisonConcurrentePostgresContractIT {
     void l_emission_perdante_est_annulee_en_entier_meme_pour_les_seances_libres_qu_elle_avait_deja_liees() throws Exception {
         UUID disputee = seance("VALIDEE");
         UUID libre = seance("VALIDEE");
-        UUID gagnante = UUID.randomUUID();
-        UUID perdante = UUID.randomUUID();
+        UUID gagnante = facture();
+        UUID perdante = facture();
 
         Throwable echec = courseDeDeuxEmissions(gagnante, List.of(disputee), perdante, List.of(libre, disputee));
 
@@ -170,12 +183,42 @@ class LiaisonConcurrentePostgresContractIT {
     @Test
     void une_seconde_emission_apres_la_validation_de_la_premiere_est_refusee_sans_rien_ecrire() {
         UUID s1 = seance("VALIDEE");
-        UUID gagnante = UUID.randomUUID();
+        UUID gagnante = facture();
         LiaisonDesSeancesJdbc liaison = new LiaisonDesSeancesJdbc(jdbc);
         liaison.lier(CENTRE, gagnante, List.of(s1));
 
-        assertThatThrownBy(() -> liaison.lier(CENTRE, UUID.randomUUID(), List.of(s1)))
+        assertThatThrownBy(() -> liaison.lier(CENTRE, facture(), List.of(s1)))
                 .isInstanceOf(IllegalStateException.class).hasMessage(MESSAGE);
         assertThat(etat(s1)).isEqualTo("FACTUREE/" + gagnante);
+    }
+
+    /** KB-SEA-74 : la clé étrangère V54 (NOT VALID) refuse, sur PostgreSQL, un écrivain qui contournerait la garde de l'adapter. */
+    @Test
+    void la_cle_etrangere_refuse_un_identifiant_de_facture_inexistant_meme_ecrit_hors_de_l_adapter() {
+        UUID s1 = seance("VALIDEE");
+
+        assertThatThrownBy(() -> jdbc.update("UPDATE seances SET facture_id = ? WHERE id = ?", UUID.randomUUID(), s1))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThat(etat(s1)).isEqualTo("VALIDEE/sans facture");
+    }
+
+    /** KB-SEA-74 : une facture encore liée à une séance ne se supprime pas (refus voulu). */
+    @Test
+    void une_facture_encore_liee_a_une_seance_ne_se_supprime_pas() {
+        UUID s1 = seance("VALIDEE");
+        UUID facture = facture();
+        new LiaisonDesSeancesJdbc(jdbc).lier(CENTRE, facture, List.of(s1));
+
+        assertThatThrownBy(() -> jdbc.update("DELETE FROM factures WHERE id = ?", facture))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+    }
+
+    /** KB-SEA-82 : le CHECK V55 (NOT VALID) refuse un statut non canonique, mais ne bloque pas une ligne sale déjà présente. */
+    @Test
+    void la_contrainte_de_statut_refuse_une_nouvelle_ecriture_non_canonique_sans_toucher_aux_lignes_deja_presentes() {
+        assertThatThrownBy(() -> seance("validee")).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> seance("VALIDEE ")).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        UUID canonique = seance("SIGNEE");
+        assertThat(etat(canonique)).isEqualTo("SIGNEE/sans facture");
     }
 }

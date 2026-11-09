@@ -26,11 +26,15 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
                 + "type_patient VARCHAR(50), etat_patient VARCHAR(50), centre_payeur_id UUID)");
         jdbc().execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID, "
                 + "code VARCHAR(50), nom VARCHAR(255))");
+        jdbc().execute("CREATE TABLE IF NOT EXISTS factures (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "
+                + "numero_facture VARCHAR(120) NOT NULL, period_start DATE NOT NULL, period_end DATE NOT NULL, date_facturation DATE NOT NULL, "
+                + "tva_rate DECIMAL(5,2) NOT NULL, total_ht DECIMAL(14,2) NOT NULL, total_tva DECIMAL(14,2) NOT NULL, "
+                + "total_ttc DECIMAL(14,2) NOT NULL)");
         vider();
     }
 
     protected void vider() {
-        for (String table : new String[]{"seances", "patients", "centre_payeur"}) {
+        for (String table : new String[]{"seances", "factures", "patients", "centre_payeur"}) {
             jdbc().update("DELETE FROM " + table + " WHERE center_id IN (?, ?)", CENTRE_A, CENTRE_B);
         }
     }
@@ -88,6 +92,14 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
     @Override
     protected UUID factureDe(UUID seance) {
         return jdbc().queryForObject("SELECT facture_id FROM seances WHERE id = ?", UUID.class, seance);
+    }
+
+    @Override
+    protected void facture(UUID id, UUID centre) {
+        jdbc().update("INSERT INTO factures (id, center_id, patient_id, numero_facture, period_start, period_end, date_facturation, "
+                        + "tva_rate, total_ht, total_tva, total_ttc) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)",
+                id, centre, UUID.randomUUID(), "F-" + id, Date.valueOf(LocalDate.of(2026, 8, 1)), Date.valueOf(LocalDate.of(2026, 8, 31)),
+                Date.valueOf(LocalDate.of(2026, 9, 1)));
     }
 
     @Override

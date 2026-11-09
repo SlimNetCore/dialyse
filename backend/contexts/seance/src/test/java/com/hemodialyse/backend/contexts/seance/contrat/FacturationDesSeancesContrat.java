@@ -21,9 +21,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Contrat commun des lectures et écritures publiées de la Séance pour la Facturation (ADR 0097, lot c2a) : joué par le double en mémoire,
- * l'adapter JDBC sur H2 et sur PostgreSQL 16 jetable. Il décrit le comportement REPRODUIT du legacy (statut en casse exacte KB-SEA-73,
- * mémoire d'exclusion blanche KB-SEA-72, {@code forfait_override_code} non écrit KB-SEA-47, deux définitions de « facturée » KB-SEA-75).
- * {@code lierALAbsence} sur une séance facturée (KB-SEA-71) est traité au lot c2b.
+ * l'adapter JDBC sur H2 et sur PostgreSQL 16 jetable. Il décrit le comportement REPRODUIT du legacy (statut en casse exacte KB-FAC-17,
+ * {@code forfait_override_code} non écrit KB-SEA-47, deux définitions de « facturée » KB-SEA-75), corrigé au lot L3 (ADR 0114) pour
+ * KB-SEA-72 (mémoire blanche absente partout), KB-SEA-73 (le port n'exclut que du validé ou du signé) et KB-SEA-74 (liaison à une facture
+ * existante du même centre). {@code lierALAbsence} sur une séance facturée (KB-SEA-71) est traité au lot c2b.
  */
 public abstract class FacturationDesSeancesContrat {
 
@@ -47,6 +48,9 @@ public abstract class FacturationDesSeancesContrat {
     protected abstract com.hemodialyse.backend.contexts.seance.publishedlanguage.LiaisonDesSeancesAUneFacturePubliee liaison();
 
     protected abstract UUID factureDe(UUID seance);
+
+    /** Une facture émise du centre : le rattachement d'une séance ne vise que des factures qui existent (KB-SEA-74). */
+    protected abstract void facture(UUID id, UUID centre);
 
     protected abstract void patient(UUID id, UUID centre, String code, String nom, String prenom, String etat);
 
@@ -77,6 +81,12 @@ public abstract class FacturationDesSeancesContrat {
     private UUID uneSeance(UUID centre, UUID patient, String jour, String statut, boolean facturee) {
         UUID id = UUID.randomUUID();
         seance(id, centre, patient, LocalDate.parse(jour), statut, facturee ? UUID.randomUUID() : null);
+        return id;
+    }
+
+    private UUID uneFacture(UUID centre) {
+        UUID id = UUID.randomUUID();
+        facture(id, centre);
         return id;
     }
 
@@ -233,16 +243,24 @@ public abstract class FacturationDesSeancesContrat {
         assertThat(statutDe(validee)).isEqualTo("VALIDEE");
     }
 
+    /** KB-SEA-73 corrigé (ADR 0114) : le port redit la garde du domaine, seules les séances validées ou signées s'excluent, en casse exacte. */
     @Test
-    void should_exclude_a_seance_whose_stored_status_is_in_lower_case_when_given_that_exact_status() {
+    void should_refuse_to_exclude_a_seance_whose_stored_status_is_not_exactly_validated_or_signed_even_when_given_that_status() {
         decor();
-        UUID id = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "validee", false);
+        UUID minuscule = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "validee", false);
+        UUID brouillon = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "BROUILLON", false);
+        UUID blanc = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "VALIDEE ", false);
 
-        assertThatThrownBy(() -> exclusions().exclure(CENTRE_A, id, "VALIDEE")).isInstanceOf(IllegalStateException.class);
-        exclusions().exclure(CENTRE_A, id, "validee");
+        assertThatThrownBy(() -> exclusions().exclure(CENTRE_A, minuscule, "VALIDEE")).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> exclusions().exclure(CENTRE_A, minuscule, "validee")).isInstanceOf(IllegalStateException.class)
+                .hasMessage("Seance introuvable ou non modifiable pour exclusion");
+        assertThatThrownBy(() -> exclusions().exclure(CENTRE_A, brouillon, "BROUILLON")).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> exclusions().exclure(CENTRE_A, blanc, "VALIDEE ")).isInstanceOf(IllegalStateException.class);
 
-        assertThat(statutDe(id)).isEqualTo("ABSENT");
-        assertThat(memoireDe(id)).isEqualTo("validee");
+        assertThat(statutDe(minuscule)).isEqualTo("validee");
+        assertThat(memoireDe(minuscule)).isNull();
+        assertThat(statutDe(brouillon)).isEqualTo("BROUILLON");
+        assertThat(statutDe(blanc)).isEqualTo("VALIDEE ");
     }
 
     @Test
@@ -305,8 +323,9 @@ public abstract class FacturationDesSeancesContrat {
         assertThat(statutDe(absenteFacturee)).isEqualTo("ABSENT");
     }
 
+    /** KB-SEA-72 corrigé (ADR 0114) : une mémoire blanche est absente pour la lecture ET pour les écritures. */
     @Test
-    void should_let_the_writes_through_on_a_blank_memory_of_the_exclusion_as_the_legacy_does() {
+    void should_refuse_the_writes_on_a_blank_memory_of_the_exclusion_as_the_read_sees_it_absent() {
         decor();
         UUID absence = UUID.randomUUID();
         UUID lie = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "ABSENT", false);
@@ -314,11 +333,30 @@ public abstract class FacturationDesSeancesContrat {
         UUID rendue = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "ABSENT", false);
         memoire(rendue, "");
 
+        assertThatThrownBy(() -> exclusions().lierALAbsence(CENTRE_A, lie, absence)).isInstanceOf(IllegalStateException.class)
+                .hasMessage("Seance introuvable ou non modifiable pour exclusion");
+        assertThatThrownBy(() -> exclusions().reinclure(CENTRE_A, rendue, "VALIDEE")).isInstanceOf(IllegalStateException.class)
+                .hasMessage("Seance introuvable ou non reinclusable");
+
+        assertThat(absenceDe(lie)).isNull();
+        assertThat(statutDe(rendue)).isEqualTo("ABSENT");
+        assertThat(memoireDe(rendue)).isEqualTo("");
+    }
+
+    @Test
+    void should_still_let_the_writes_through_on_a_real_memory_of_the_exclusion() {
+        decor();
+        UUID absence = UUID.randomUUID();
+        UUID lie = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "ABSENT", false);
+        memoire(lie, "VALIDEE");
+        UUID rendue = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "ABSENT", false);
+        memoire(rendue, "SIGNEE");
+
         exclusions().lierALAbsence(CENTRE_A, lie, absence);
-        exclusions().reinclure(CENTRE_A, rendue, "VALIDEE");
+        exclusions().reinclure(CENTRE_A, rendue, "SIGNEE");
 
         assertThat(absenceDe(lie)).isEqualTo(absence);
-        assertThat(statutDe(rendue)).isEqualTo("VALIDEE");
+        assertThat(statutDe(rendue)).isEqualTo("SIGNEE");
         assertThat(memoireDe(rendue)).isNull();
     }
 
@@ -383,7 +421,7 @@ public abstract class FacturationDesSeancesContrat {
         UUID validee = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", false);
         UUID signee = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "SIGNEE", false);
         UUID autre = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "VALIDEE", false);
-        UUID facture = UUID.randomUUID();
+        UUID facture = uneFacture(CENTRE_A);
 
         liaison().lier(CENTRE_A, facture, List.of(validee, signee));
 
@@ -404,8 +442,10 @@ public abstract class FacturationDesSeancesContrat {
         UUID brouillon = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "BROUILLON", false);
         UUID minuscule = uneSeance(CENTRE_A, AMRANI, "2026-08-05", "validee", false);
 
+        UUID facture = uneFacture(CENTRE_A);
+
         for (UUID refusee : new UUID[]{facturee, exclue, brouillon, minuscule, UUID.randomUUID()}) {
-            assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(refusee)))
+            assertThatThrownBy(() -> liaison().lier(CENTRE_A, facture, List.of(refusee)))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("Une ou plusieurs seances ne sont plus eligibles a la validation");
         }
@@ -417,15 +457,35 @@ public abstract class FacturationDesSeancesContrat {
         decor();
         UUID duCentreB = uneSeance(CENTRE_B, PATIENT_B, "2026-08-02", "VALIDEE", false);
         UUID validee = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "VALIDEE", false);
-        UUID premiere = UUID.randomUUID();
+        UUID premiere = uneFacture(CENTRE_A);
+        UUID seconde = uneFacture(CENTRE_A);
 
-        assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(duCentreB)))
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, premiere, List.of(duCentreB)))
                 .isInstanceOf(IllegalStateException.class);
         assertThat(statutDe(duCentreB)).isEqualTo("VALIDEE");
         liaison().lier(CENTRE_A, premiere, List.of(validee));
-        assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(validee)))
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, seconde, List.of(validee)))
                 .isInstanceOf(IllegalStateException.class);
         assertThat(factureDe(validee)).isEqualTo(premiere);
+    }
+
+    /** KB-SEA-74 corrigé (ADR 0114) : une séance ne se lie qu'à une facture qui existe, du même centre (garde de l'écriture). */
+    @Test
+    void should_refuse_to_link_a_seance_to_an_invoice_that_does_not_exist_or_belongs_to_another_centre() {
+        decor();
+        UUID s1 = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", false);
+        UUID s2 = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "SIGNEE", false);
+        UUID factureDuCentreB = uneFacture(CENTRE_B);
+
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(s1)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Une ou plusieurs seances ne sont plus eligibles a la validation");
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, factureDuCentreB, List.of(s1, s2)))
+                .isInstanceOf(IllegalStateException.class);
+
+        assertThat(statutDe(s1)).isEqualTo("VALIDEE");
+        assertThat(factureDe(s1)).isNull();
+        assertThat(factureDe(s2)).isNull();
     }
 
     // ---- séances facturées, deux définitions (KB-SEA-75)

@@ -55,6 +55,10 @@ for f in $(cd "$MIG" && ls V*.sql | sort -V); do
   "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qc "INSERT INTO flyway_schema_history (installed_rank, version, description, type, script, installed_by, execution_time, success) VALUES ($RANG, '$VERSION', '${DESCRIPTION//_/ }', 'SQL', '$f', 'seance_test', 0, TRUE)" || exit 3
 done
 echo "Chaine Flyway appliquee ($RANG fichiers)"
+# ADR 0114 (lot L3) : ce rejeu pose volontairement des statuts non canoniques (KB-SEA-82) et des identifiants de facture sans facture ; sur
+# cette base JETABLE, on retire les contraintes de production V54 (cle etrangere) et V55 (CHECK du statut), toutes deux NOT VALID. Elles sont
+# testees pour elles-memes par seance-se7c2-pg16-rejeu.sh.
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qc "ALTER TABLE seances DROP CONSTRAINT IF EXISTS fk_seances_facture, DROP CONSTRAINT IF EXISTS ck_seances_statut_canonique" || exit 3
 
 A="99997800-0000-0000-0000-00000000000a"
 B="99997800-0000-0000-0000-00000000000b"

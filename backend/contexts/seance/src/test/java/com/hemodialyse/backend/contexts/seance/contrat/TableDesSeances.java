@@ -24,5 +24,24 @@ final class TableDesSeances {
                 + "regularisation_deverrouillee_at TIMESTAMP WITH TIME ZONE, regularisation_deverrouillee_by VARCHAR(100), "
                 + "hors_planning BOOLEAN DEFAULT FALSE NOT NULL, motif_hors_planning VARCHAR(20), precision_hors_planning VARCHAR(255), "
                 + "salle_id UUID, creneau_id UUID, generateur_id UUID, statut_avant_exclusion VARCHAR(20), exclusion_absence_id UUID)");
+        retirerLesContraintesDeProduction(jdbc);
+    }
+
+    /**
+     * Sur la base PostgreSQL 16 JETABLE, retire les deux contraintes de production de {@code seances} (V54 clé étrangère, V55 CHECK du
+     * statut, ADR 0114, toutes deux NOT VALID) : les contrats de LECTURE y posent volontairement des statuts non canoniques (matrices de
+     * KB-SEA-70/82) et des identifiants de facture sans facture. Elles sont testées pour elles-mêmes par
+     * {@code LiaisonConcurrentePostgresContractIT}, qui les rétablit. Sans effet sur H2 (qui ne les porte pas).
+     */
+    static void retirerLesContraintesDeProduction(JdbcTemplate jdbc) {
+        jdbc.execute("ALTER TABLE seances DROP CONSTRAINT IF EXISTS fk_seances_facture");
+        jdbc.execute("ALTER TABLE seances DROP CONSTRAINT IF EXISTS ck_seances_statut_canonique");
+    }
+
+    /** Rétablit les deux contraintes comme les migrations V54 et V55 les posent (NOT VALID), sur la base jetable. */
+    static void poserLesContraintesDeProduction(JdbcTemplate jdbc) {
+        retirerLesContraintesDeProduction(jdbc);
+        jdbc.execute("ALTER TABLE seances ADD CONSTRAINT fk_seances_facture FOREIGN KEY (facture_id) REFERENCES factures (id) NOT VALID");
+        jdbc.execute("ALTER TABLE seances ADD CONSTRAINT ck_seances_statut_canonique CHECK (statut = UPPER(TRIM(statut))) NOT VALID");
     }
 }

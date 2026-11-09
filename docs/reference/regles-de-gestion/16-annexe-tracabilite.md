@@ -127,6 +127,9 @@ facturer, exclusion, réinclusion, forfait imposé, liaison séance -> facture, 
 ports publiés `SeancesAFacturerPubliees`, `ExclusionsEtForfaitsDesSeancesPublies`, `LiaisonDesSeancesAUneFacturePubliee` et
 `SeancesDesFacturesPubliees` de la Séance, fournis à la Facturation par les traducteurs de la plateforme
 (`infrastructure/acl/facturation/`) depuis les routes de Facturation déjà listées au chapitre Facturation ; règle : RG-SEA-061.
+Le lot L3 (ADR 0114, 2026-11-09) n'ajoute aucune route non plus : il corrige KB-SEA-72, 73, 74 et 82 dans les mêmes ports publiés (mémoire
+d'exclusion, garde de l'exclusion, liaison à une facture existante du même centre) et pose deux contraintes PostgreSQL `NOT VALID`
+(migrations V54 clé étrangère `seances.facture_id`, V55 CHECK du statut) ; règle : RG-SEA-061 (mise à jour).
 SE7d (ADR 0098) n'ajoute aucune route : les lectures des Absences de patients (`/api/v1/absences-patients/semaine`,
 `/{id}/seances-rattrapage`, déclaration, rattrapage, annulation, `ControleDeNuitDesAbsences`), de la Planification
 (`/api/v1/planning/semaine`, optimisations) et du Dossier médical (`/api/v1/patients/{id}/constantes`) déjà listées passent par les ports
