@@ -18,8 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Les tables de l'Organisation appartiennent au contexte Organisation. La slice O4 (lectures publiées {@code organisation.v1}) est
- * {@code planned} : aucun consommateur ne passe encore par le langage publié, et des sources hors du contexte lisent ces tables en
- * SQL direct. Cette garde ne le cache pas :
+ * construite (lots A à E, ADR 0107 à 0111) : les consommateurs passent par le langage publié, et seuls les résiduels nominatifs
+ * O4-R9 à O4-R13 (identité et accès, amorçage de développement, admin générique) lisent encore ces tables en SQL direct.
+ * Cette garde ne le cache pas :
  * <ul>
  *   <li>elle scanne TOUT le code de production (plateforme, anciens modules, autres contextes, ACL et adapters de persistance
  *   compris), sauf le contexte Organisation et les entités JPA ;</li>

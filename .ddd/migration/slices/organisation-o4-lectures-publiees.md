@@ -1,6 +1,6 @@
 ---
 slice: organisation-o4-lectures-publiees
-status: in-progress
+status: built
 date: 2026-11-09
 order: 4
 context: organisation
@@ -109,7 +109,9 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
 ## État final de O4 (après le lot E)
 
 Liste blanche : **7 lecteurs nominatifs** (aucun ne relève du langage d'Organisation) ; ports `*Fournis` de Stock en place ; annuaires, libellés, salles et créneaux, identité imprimée,
-isolement et verrous publiés. Reste avant `built` : la revue finale (décision de l'utilisateur) et les résiduels ci-dessous. Statut de la slice : `in-progress`.
+isolement et verrous publiés. Revue indépendante des lots B à E faite (`.ddd/verify/verify-organisation-o4-lots-b-e.md` : pass-with-actions, 0 blocker, 0 major). Statut de la slice : `built` (2026-11-09), avec les résiduels ci-dessous.
+
+**Conditions du retrait du legacy (revue des lots B à E, m1 et m2) :** (1) exécuter les contrats de `VerrouDuCentre` et de `reserverLeCentre` sur PostgreSQL 16 réel (variante `*PostgresContractIT`, O4-R7), car `FOR NO KEY UPDATE`, `COALESCE` et la casse peuvent différer de H2 ; (2) confirmation métiers / DPO de KB-ORG-09 et KB-ORG-10 au plus tard le 2026-12-15. Tant que ces deux conditions ne sont pas levées, `built` ne vaut pas « legacy retirable en production ».
 
 ## Résiduels
 
