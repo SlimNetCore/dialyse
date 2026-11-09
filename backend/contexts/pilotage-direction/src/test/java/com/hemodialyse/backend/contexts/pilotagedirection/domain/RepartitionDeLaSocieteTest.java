@@ -124,7 +124,7 @@ class RepartitionDeLaSocieteTest {
     }
 
     @Test
-    void les_totaux_par_caisse_additionnent_les_effectifs_bruts_meme_masques_et_sont_tries_par_chiffre_daffaires_decroissant() {
+    void les_totaux_par_caisse_sont_tries_par_chiffre_daffaires_decroissant_et_additionnent_les_bruts_sans_les_publier_masques_kb_dir_01_corrige() {
         var patients = List.of(new PatientsDeLaCaisse(A, "CNAS", "CNAS", 3), new PatientsDeLaCaisse(B, "CNAS", "CNAS", 4),
                 new PatientsDeLaCaisse(A, "CASNOS", "CASNOS", 2));
         var seances = List.of(new SeancesDeLaCaisse(A, "CNAS", "CNAS", 10), new SeancesDeLaCaisse(B, "CNAS", "CNAS", 5));
@@ -136,12 +136,63 @@ class RepartitionDeLaSocieteTest {
 
         var cnas = repartition.caissesDeLaSociete().stream().filter(c -> c.code().equals("CNAS")).findFirst().orElseThrow();
         assertThat(cnas.patients()).isEqualTo(7);
-        assertThat(cnas.patientsPublies()).isEqualTo(7L);
+        assertThat(cnas.patientsPublies()).isNull();
         assertThat(cnas.seances()).isEqualTo(15);
         assertThat(cnas.caHt()).isEqualByComparingTo("150.50");
         assertThat(repartition.caisses().stream().filter(c -> c.centreId().equals(A) && c.code().equals("CNAS")).findFirst().orElseThrow()
                 .patientsPublies()).isNull();
         assertThat(repartition.caissesDeLaSociete()).extracting(c -> c.code()).containsExactly("CASNOS", "CNAS");
+    }
+
+    private static RepartitionDeLaSociete.CaisseDeLaSociete total(RepartitionDeLaSociete r, String code) {
+        return r.caissesDeLaSociete().stream().filter(c -> c.code().equals(code)).findFirst().orElseThrow();
+    }
+
+    @Test
+    void le_total_d_une_caisse_est_supprime_des_qu_un_seul_centre_est_masque_pour_cette_caisse() {
+        var patients = List.of(new PatientsDeLaCaisse(A, "CNAS", "CNAS", 40), new PatientsDeLaCaisse(B, "CNAS", "CNAS", 2),
+                new PatientsDeLaCaisse(A, "CASNOS", "CASNOS", 10), new PatientsDeLaCaisse(B, "CASNOS", "CASNOS", 8));
+
+        var repartition = repartir(annabaEtBlida(), List.of(), patients, List.of(), List.of());
+
+        assertThat(total(repartition, "CNAS").patientsPublies()).isNull();
+        assertThat(total(repartition, "CASNOS").patientsPublies()).isEqualTo(18L);
+        assertThat(total(repartition, "CNAS").patients()).isEqualTo(42);
+    }
+
+    @Test
+    void le_total_d_une_caisse_est_supprime_quand_tous_ses_centres_sont_masques_et_publie_a_cinq_pile() {
+        var patients = List.of(new PatientsDeLaCaisse(A, "CNAS", "CNAS", 1), new PatientsDeLaCaisse(B, "CNAS", "CNAS", 4),
+                new PatientsDeLaCaisse(A, "CASNOS", "CASNOS", 5), new PatientsDeLaCaisse(B, "CASNOS", "CASNOS", 0));
+
+        var repartition = repartir(annabaEtBlida(), List.of(), patients, List.of(), List.of());
+
+        assertThat(total(repartition, "CNAS").patientsPublies()).isNull();
+        assertThat(total(repartition, "CASNOS").patientsPublies()).isEqualTo(5L);
+    }
+
+    @Test
+    void une_societe_a_un_seul_centre_masque_n_a_pas_de_total_de_caisse_et_zero_reste_zero() {
+        var seul = societe(new CentreDeLaSociete(A, "Annaba", true));
+        var patients = List.of(new PatientsDeLaCaisse(A, "CNAS", "CNAS", 3), new PatientsDeLaCaisse(A, "CASNOS", "CASNOS", 0));
+
+        var repartition = repartir(seul, List.of(), patients, List.of(), List.of());
+
+        assertThat(total(repartition, "CNAS").patientsPublies()).isNull();
+        assertThat(total(repartition, "CASNOS").patientsPublies()).isEqualTo(0L);
+    }
+
+    @Test
+    void la_suppression_complementaire_ne_touche_ni_les_seances_ni_le_chiffre_d_affaires_du_total() {
+        var patients = List.of(new PatientsDeLaCaisse(A, "CNAS", "CNAS", 3));
+        var seances = List.of(new SeancesDeLaCaisse(A, "CNAS", "CNAS", 40));
+        var chiffre = List.of(new ChiffreDeLaCaisse(A, "CNAS", "CNAS", new BigDecimal("10.00")));
+
+        var cnas = total(repartir(annabaEtBlida(), List.of(), patients, seances, chiffre), "CNAS");
+
+        assertThat(cnas.patientsPublies()).isNull();
+        assertThat(cnas.seances()).isEqualTo(40);
+        assertThat(cnas.caHt()).isEqualByComparingTo("10.00");
     }
 
     @Test

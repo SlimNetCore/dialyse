@@ -7,6 +7,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.domain.MatriceDesCaiss
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.MatriceDesCaisses.CelluleDeCaisse;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.MatriceDesCaisses.CentreDeLaMatrice;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.MatriceDesCaisses.TotalDeCaisse;
+import com.hemodialyse.backend.contexts.pilotagedirection.domain.SeuilDAnonymat;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.TrancheDAge;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirectionFournis;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirectionFournis.IndicateursDeLaPeriode;
@@ -77,9 +78,25 @@ public final class ConstituerLeRapportDeSynthese {
     public Rapport constituer(SourceDuRapport source) {
         VueDEnsemble vue = source.vue();
         IndicateursDeLaPeriode ind = source.indicateurs();
+        StatistiquesDuCentre totaux = totauxSansRecoupement(vue);
         return new Rapport(source.titre(), vue.societeNom(), texte(vue.from()), texte(vue.to()), vue.seuilAnonymat(), source.genereLe(),
-                synthese(vue.totaux()), alertes(ind), finances(vue), evolution(vue.mensuel()), qualite(ind), stock(ind),
+                synthese(totaux), alertes(ind), finances(vue, totaux), evolution(vue.mensuel()), qualite(ind), stock(ind),
                 source.repartition() == null ? null : repartitions(source.repartition()));
+    }
+
+    /**
+     * Suppression complémentaire (KB-DIR-01, corrigé le 2026-11-09) : le rapport n'imprime jamais un total de patients dont un centre est
+     * masqué, même si sa source (un instantané figé avant la correction) le porte encore.
+     */
+    private static StatistiquesDuCentre totauxSansRecoupement(VueDEnsemble vue) {
+        StatistiquesDuCentre t = vue.totaux();
+        if (t == null || vue.centres() == null) return t;
+        Long patients = SeuilDAnonymat.totalPublieDepuis(t.patients(),
+                vue.centres().stream().map(c -> c == null ? null : c.patients()).toList());
+        Long sousKt = SeuilDAnonymat.totalPublieDepuis(t.patientsSousKt(),
+                vue.centres().stream().map(c -> c == null ? null : c.patientsSousKt()).toList());
+        return new StatistiquesDuCentre(t.centerId(), t.nom(), t.actif(), patients, sousKt, t.seances(), t.factures(), t.caHt(), t.caTtc(),
+                t.encaisse(), t.resteARecouvrer(), t.tauxEncaissement());
     }
 
     private static String texte(Object valeur) {
@@ -105,9 +122,9 @@ public final class ConstituerLeRapportDeSynthese {
                 c.encaisse(), c.resteARecouvrer(), c.tauxEncaissement());
     }
 
-    private static Finances finances(VueDEnsemble vue) {
+    private static Finances finances(VueDEnsemble vue, StatistiquesDuCentre totaux) {
         if (vue.centres() == null) return null;
-        return new Finances(vue.centres().stream().map(ConstituerLeRapportDeSynthese::ligne).toList(), ligne(vue.totaux()));
+        return new Finances(vue.centres().stream().map(ConstituerLeRapportDeSynthese::ligne).toList(), ligne(totaux));
     }
 
     private static List<Mois> evolution(List<PointMensuel> points) {
@@ -128,7 +145,24 @@ public final class ConstituerLeRapportDeSynthese {
 
     private static QualiteDesSoins qualite(IndicateursDeLaPeriode ind) {
         if (ind == null || ind.centres() == null) return null;
-        return new QualiteDesSoins(ind.centres().stream().map(c -> clinique(c, c.nom())).toList(), clinique(ind.totaux(), null));
+        return new QualiteDesSoins(ind.centres().stream().map(c -> clinique(c, c.nom())).toList(), cliniqueDuTotal(ind));
+    }
+
+    /** Le total clinique sans les effectifs dont un centre est masqué (KB-MED-104, corrigé le 2026-11-09), même pour une source ancienne. */
+    private static LigneClinique cliniqueDuTotal(IndicateursDeLaPeriode ind) {
+        LigneClinique t = clinique(ind.totaux(), null);
+        List<LigneClinique> centres = ind.centres().stream().map(c -> clinique(c, c.nom())).toList();
+        return new LigneClinique(t.nom(), t.ktV(), t.hemoglobine(), t.phosphore(), t.pth(), t.albumine(),
+                sans(t.vhbPositifs(), centres, LigneClinique::vhbPositifs), sans(t.vhcPositifs(), centres, LigneClinique::vhcPositifs),
+                sans(t.vihPositifs(), centres, LigneClinique::vihPositifs),
+                sans(t.patientsObservanceEnRetard(), centres, LigneClinique::patientsObservanceEnRetard),
+                sans(t.greffeListeAttente(), centres, LigneClinique::greffeListeAttente),
+                sans(t.greffeBilanEnCours(), centres, LigneClinique::greffeBilanEnCours),
+                sans(t.greffesPeriode(), centres, LigneClinique::greffesPeriode));
+    }
+
+    private static Long sans(Long total, List<LigneClinique> centres, java.util.function.Function<LigneClinique, Long> champ) {
+        return SeuilDAnonymat.totalPublieDepuis(total, centres.stream().map(champ).toList());
     }
 
     private static LigneStock ligneDeStock(IndicateursDuCentre c, String nom) {
@@ -177,8 +211,11 @@ public final class ConstituerLeRapportDeSynthese {
             r.caisses().forEach(c -> cellules.add(new CelluleDeCaisse(c.centerId() == null ? ABSENT : c.centerId().toString(),
                     (c.caisseCode() == null ? ABSENT : c.caisseCode()).replace(ABSENT, ""), c.patients(), c.seances(), c.caHt())));
         }
+        // Suppression complémentaire (KB-DIR-01, corrigé le 2026-11-09) : le total d'une caisse est imprimé masqué si l'une de ses cellules l'est.
         List<TotalDeCaisse> totaux = r.caisseTotaux().stream().map(t -> new TotalDeCaisse(t.caisseCode() == null ? ABSENT : t.caisseCode(),
-                t.caisse(), t.patients(), t.seances(), t.caHt())).toList();
+                t.caisse(), SeuilDAnonymat.totalPublieDepuis(t.patients(), cellules.stream()
+                        .filter(c -> (t.caisseCode() == null ? ABSENT : t.caisseCode()).equals(c.code())).map(CelluleDeCaisse::patients).toList()),
+                t.seances(), t.caHt())).toList();
         List<LigneDeCaisse> lignes = MatriceDesCaisses.constituer(centres, cellules, totaux).stream()
                 .map(l -> new LigneDeCaisse(l.caisse(), l.patients(), l.totalPatients(), l.seances(), l.totalSeances(), l.caHt(),
                         l.totalCaHt())).toList();

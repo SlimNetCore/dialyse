@@ -1,0 +1,14 @@
+{
+  "01 A = 2, B = 2 : somme 4 sous le seuil" : {
+    "centre A" : "masque",
+    "centre B" : "masque",
+    "deduction par difference" : "indeductible (totaux masques)",
+    "totaux" : "masque"
+  },
+  "02 A = 3, B = 2 : somme 5 au seuil (avant : publiee ; maintenant : supprimee, les deux centres sont masques)" : {
+    "centre A" : "masque",
+    "centre B" : "masque",
+    "deduction par difference" : "indeductible (totaux masques)",
+    "totaux" : "masque"
+  }
+}

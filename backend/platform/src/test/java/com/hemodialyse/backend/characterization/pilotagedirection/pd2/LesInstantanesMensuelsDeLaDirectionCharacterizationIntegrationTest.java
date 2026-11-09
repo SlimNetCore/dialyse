@@ -188,6 +188,36 @@ class LesInstantanesMensuelsDeLaDirectionCharacterizationIntegrationTest extends
         }
     }
 
+    /**
+     * KB-DIR-01 / KB-MED-104 corriges le 2026-11-09 (lot L1, ADR 0112) : un instantane fige AVANT la correction porte des totaux de patients bruts
+     * (10 = 7 + 3). Il est relu masque (totaux supprimes des qu'un centre est masque) SANS jamais reecrire {@code direction_snapshot.payload}.
+     */
+    @Test
+    void un_instantane_ancien_aux_totaux_bruts_est_relu_masque_sans_reecrire_son_contenu_nouveau_code() throws Exception {
+        YearMonth m1 = mois(-1);
+        nommerLaPeriodePrecedenteDe(m1, "<PERIODE_AVANT_M-1>");
+        doPost(SNAPSHOTS + "/" + m1, "", direction());
+        String ancien = "{\"overview\":{\"societeNom\":\"Ancien\",\"seuilAnonymat\":5,\"centres\":[{\"nom\":\"Centre A\",\"patients\":7,\"patientsSousKt\":5},"
+                + "{\"nom\":\"Centre B\",\"patients\":null,\"patientsSousKt\":null}],\"totaux\":{\"patients\":10,\"patientsSousKt\":8,\"seances\":6}},"
+                + "\"indicators\":{\"centres\":[{\"nom\":\"Centre A\",\"clinique\":{\"vhbPositifs\":6,\"vhcPositifs\":0,\"hemoglobine\":{\"evalues\":8,\"pctDansCible\":50.0}}},"
+                + "{\"nom\":\"Centre B\",\"clinique\":{\"vhbPositifs\":null,\"vhcPositifs\":0,\"hemoglobine\":{\"evalues\":null,\"pctDansCible\":null}}}],"
+                + "\"totaux\":{\"clinique\":{\"vhbPositifs\":8,\"vhcPositifs\":0,\"hemoglobine\":{\"evalues\":11,\"pctDansCible\":54.5,\"pctSousCible\":9.1,\"pctAuDessus\":36.4}}}},"
+                + "\"breakdown\":{\"caisses\":[{\"caisseCode\":\"CNAS\",\"patients\":7},{\"caisseCode\":\"CNAS\",\"patients\":null},{\"caisseCode\":\"CASNOS\",\"patients\":9}],"
+                + "\"caisseTotaux\":[{\"caisseCode\":\"CNAS\",\"patients\":10,\"seances\":4},{\"caisseCode\":\"CASNOS\",\"patients\":9,\"seances\":2}]}}";
+        jdbc.update("UPDATE direction_snapshot SET payload = ? WHERE societe_id = ? AND mois = ?", ancien, SOCIETE, m1.toString());
+        Resp r = direction("/snapshots/" + m1);
+        JsonNode c = corps(r);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("01 vue d'ensemble relue : totaux.patients et patientsSousKt supprimes (Centre B masque), seances inchangees", c.path("overview").path("totaux"));
+        m.put("02 consolides cliniques : vhbPositifs supprime (B masque), vhcPositifs (0 et 0) garde, taux du marqueur supprimes",
+                c.path("indicators").path("totaux").path("clinique"));
+        m.put("03 totaux par caisse : CNAS supprime (une cellule masquee), CASNOS garde", c.path("breakdown").path("caisseTotaux"));
+        m.put("04 les valeurs des centres sont inchangees", c.path("overview").path("centres"));
+        m.put("05 le contenu stocke n'est JAMAIS reecrit (RG-DIR-090)",
+                ancien.equals(jdbc.queryForObject("SELECT payload FROM direction_snapshot WHERE societe_id = ? AND mois = ?", String.class, SOCIETE, m1.toString())));
+        arbrePd("ancien_instantane_masque_a_la_lecture_nouveau_code", m);
+    }
+
     private String aliasDe(UUID id) {
         return aliasNommes.getOrDefault(id.toString(), id.toString());
     }

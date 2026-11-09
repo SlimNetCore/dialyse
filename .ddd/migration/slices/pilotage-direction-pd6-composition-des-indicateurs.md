@@ -40,5 +40,8 @@ Sans objet (refactoring sur place). Retour arrière : revert du commit.
 ## Résiduels
 PD6-R1 à R4 : voir ADR 0106 (nom du port `IndicateursDeLaDirectionFournis`, deux copies du seuil 5, KB-DIR-01/07 à confirmer, HTML client édité à la main).
 
+## Lot L1 (2026-11-09, ADR 0112)
+KB-DIR-01 et KB-MED-104 CORRIGÉS : les consolidés cliniques publiés par le Dossier médical sont supprimés dès qu'un centre est masqué (RG-MED-049g) ; le Pilotage les passe tels quels (aucune modification de `ConsulterLesIndicateursDeLaDirection`). Goldens `pd6/indicateurs/*` inchangés.
+
 ## Reste à faire
 Rien pour le Pilotage direction : PD1 à PD6 sont `built`. Reste hors Pilotage : PD5-R1 à R4 et R6 (propriétaires : Absences, Planification, GMAO, Stock, IAM).

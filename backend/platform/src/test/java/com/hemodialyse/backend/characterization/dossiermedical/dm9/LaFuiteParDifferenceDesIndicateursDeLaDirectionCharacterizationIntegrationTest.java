@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * DM9 : KB-MED-104 (RISQUE DE CONFIDENTIALITÉ PRIORITAIRE, décision DPO requise) REPRODUIT et rendu explicite pour l'arbitrage :
- * {@code GET /api/v1/direction/indicators} ({@code DirectionIndicatorsQueryService}, {@code AnonymityPolicy}) masque par centre tout effectif
- * compris entre 1 et 4, mais les totaux additionnent les effectifs NON masqués ({@code Raw.merge}) : la différence « totaux moins centres
- * visibles » rend l'effectif masqué, et deux centres masqués dont la somme atteint 5 publient leur somme. DM8 ({@code dossiermedical/dm8/direction},
- * {@code forme}, {@code greffes}) l'observe au passage ; ici la déduction est CALCULÉE dans le golden pour les patients évalués (hémoglobine), les
- * sérologies positives et les bilans de greffe. Rien n'est corrigé.
+ * DM9 : KB-MED-104 (confidentialité, validation DPO attendue ≤ 2026-12-15) CORRIGÉ le 2026-11-09 (lot L1, ADR 0112). Avant : {@code GET
+ * /api/v1/direction/indicators} masquait par centre tout effectif compris entre 1 et 4, mais les totaux additionnaient les effectifs bruts : la
+ * différence « totaux moins centres visibles » rendait l'effectif masqué, et deux centres masqués dont la somme atteint 5 publiaient leur somme
+ * (anciens goldens archivés dans {@code _ecarts-legacy}). Maintenant : suppression complémentaire, un total est publié {@code null} dès qu'un
+ * centre qui le compose est masqué. La déduction est CALCULÉE dans le golden pour les patients évalués (hémoglobine), les sérologies positives
+ * et les bilans de greffe (goldens {@code *_nouveau_code}).
  */
 class LaFuiteParDifferenceDesIndicateursDeLaDirectionCharacterizationIntegrationTest extends Dm9CharacterizationSupport {
 
@@ -126,7 +126,7 @@ class LaFuiteParDifferenceDesIndicateursDeLaDirectionCharacterizationIntegration
     }
 
     @Test
-    void l_effectif_masque_d_un_centre_se_deduit_des_totaux_qui_additionnent_les_effectifs_masques() throws Exception {
+    void l_effectif_masque_d_un_centre_se_deduisait_des_totaux_qui_additionnaient_les_masques_et_ne_se_deduit_plus_nouveau_code() throws Exception {
         hemoglobines(CENTRE_A, "A", 5);
         hemoglobines(CENTRE_B, "B", 3);
         Resp r = indicateurs();
@@ -134,23 +134,23 @@ class LaFuiteParDifferenceDesIndicateursDeLaDirectionCharacterizationIntegration
         m.put("01 statut", r.status());
         m.put("02 seuil d'anonymat de la reponse", corps(r).path("seuilAnonymat").asString());
         m.putAll(lecture(r, "03 patients evalues en hemoglobine : A = 5 publies, B = 3 masques", "hemoglobine", "evalues"));
-        m.put("04 taux dans la cible des totaux (calcule sur les 8 patients, masques compris)", effectif(totaux(r), "hemoglobine", "pctDansCible"));
-        arbre("un_centre_masque", m);
+        m.put("04 taux dans la cible des totaux (supprime avec les patients evalues : sinon le taux de B se deduirait)", effectif(totaux(r), "hemoglobine", "pctDansCible"));
+        arbre("un_centre_masque_nouveau_code", m);
     }
 
     @Test
-    void deux_centres_masques_publient_leur_somme_des_que_celle_ci_atteint_le_seuil() throws Exception {
+    void deux_centres_masques_publient_leur_somme_avant_la_correction_et_les_totaux_sont_supprimes_nouveau_code() throws Exception {
         hemoglobines(CENTRE_A, "A", 2);
         hemoglobines(CENTRE_B, "B", 2);
         Map<String, Object> m = new LinkedHashMap<>();
         m.putAll(lecture(indicateurs(), "01 A = 2, B = 2 : somme 4 sous le seuil", "hemoglobine", "evalues"));
         hemoglobines(CENTRE_A, "A_SUPPLEMENTAIRE", 1);
-        m.putAll(lecture(indicateurs(), "02 A = 3, B = 2 : somme 5 au seuil", "hemoglobine", "evalues"));
-        arbre("deux_centres_masques", m);
+        m.putAll(lecture(indicateurs(), "02 A = 3, B = 2 : somme 5 au seuil (avant : publiee ; maintenant : supprimee, les deux centres sont masques)", "hemoglobine", "evalues"));
+        arbre("deux_centres_masques_nouveau_code", m);
     }
 
     @Test
-    void les_serologies_positives_et_les_bilans_de_greffe_fuient_de_la_meme_facon_jusqu_a_un_seul_patient() throws Exception {
+    void les_serologies_positives_et_les_bilans_de_greffe_ne_fuient_plus_jusqu_a_un_seul_patient_nouveau_code() throws Exception {
         for (int i = 0; i < 5; i++) {
             serologieEnBase(CENTRE_A, patientDm9(CENTRE_A, "VHB_A" + i), "VHB_A_" + i, "AG_HBS", "POSITIF", fixe(10));
             bilanEnBase(CENTRE_A, patientDm9(CENTRE_A, "ATT_A" + i), "ATT_A_" + i, "INSCRIT_LISTE_ATTENTE", null);
@@ -164,6 +164,6 @@ class LaFuiteParDifferenceDesIndicateursDeLaDirectionCharacterizationIntegration
         m.putAll(lecture(r, "01 porteurs AgHBs positifs : A = 5, B = 1 (un seul patient du centre B)", "vhbPositifs"));
         m.putAll(lecture(r, "02 inscrits en liste d'attente de greffe : A = 5, B = 4", "greffeListeAttente"));
         m.putAll(lecture(r, "03 bilans en cours : aucun (zero reste zero)", "greffeBilanEnCours"));
-        arbre("serologies_et_greffes", m);
+        arbre("serologies_et_greffes_nouveau_code", m);
     }
 }

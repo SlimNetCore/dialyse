@@ -1,0 +1,93 @@
+{
+  "01 reponse complete (A : 7 presents dont 2 sous KT masques, sorti pendant compte, sorti avant et admis apres exclus ; B : 3 masques ; KB-DIR-01 corrige (lot L1) : le total de patients est supprime car B est masque)" : {
+    "body" : {
+      "centres" : [ {
+        "actif" : true,
+        "caHt" : 1750.0,
+        "caTtc" : 2082.5,
+        "centerId" : "<CENTRE_A>",
+        "encaisse" : 800.0,
+        "factures" : 4,
+        "nom" : "Centre A",
+        "patients" : 7,
+        "patientsSousKt" : null,
+        "resteARecouvrer" : 1282.5,
+        "seances" : 4,
+        "tauxEncaissement" : 38.4
+      }, {
+        "actif" : true,
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : "<CENTRE_B>",
+        "encaisse" : 0.0,
+        "factures" : 0,
+        "nom" : "Centre B",
+        "patients" : null,
+        "patientsSousKt" : 0,
+        "resteARecouvrer" : 0.0,
+        "seances" : 2,
+        "tauxEncaissement" : null
+      } ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "mensuel" : [ {
+        "caHt" : 1000.0,
+        "caTtc" : 1190.0,
+        "centerId" : "<CENTRE_A>",
+        "mois" : "2026-01",
+        "seances" : 2
+      }, {
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : "<CENTRE_B>",
+        "mois" : "2026-01",
+        "seances" : 2
+      }, {
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : "<CENTRE_A>",
+        "mois" : "2026-02",
+        "seances" : 1
+      }, {
+        "caHt" : 750.0,
+        "caTtc" : 892.5,
+        "centerId" : "<CENTRE_A>",
+        "mois" : "2026-03",
+        "seances" : 1
+      } ],
+      "periodePrecedente" : {
+        "caHt" : 300.0,
+        "caTtc" : 357.0,
+        "encaisse" : 357.0,
+        "from" : "<D-101>",
+        "resteARecouvrer" : 0.0,
+        "seances" : 1,
+        "tauxEncaissement" : 100.0,
+        "to" : "<D-1>"
+      },
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE>",
+      "societeNom" : "Clinique Pilotage & Fils",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "caHt" : 1750.0,
+        "caTtc" : 2082.5,
+        "centerId" : null,
+        "encaisse" : 800.0,
+        "factures" : 4,
+        "nom" : null,
+        "patients" : null,
+        "patientsSousKt" : null,
+        "resteARecouvrer" : 1282.5,
+        "seances" : 6,
+        "tauxEncaissement" : 38.4
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 plus de fuite par difference : totaux.patients est null (avant : 10, d'ou B = 10 - 7 = 3)" : true,
+  "03 encaisse du centre A inclut le reglement poste apres la periode (600 + 200 sur une facture de la periode)" : "800.0"
+}

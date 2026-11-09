@@ -1,0 +1,36 @@
+{
+  "01 vue d'ensemble relue : totaux.patients et patientsSousKt supprimes (Centre B masque), seances inchangees" : {
+    "patients" : null,
+    "patientsSousKt" : null,
+    "seances" : 6
+  },
+  "02 consolides cliniques : vhbPositifs supprime (B masque), vhcPositifs (0 et 0) garde, taux du marqueur supprimes" : {
+    "hemoglobine" : {
+      "evalues" : null,
+      "pctAuDessus" : null,
+      "pctDansCible" : null,
+      "pctSousCible" : null
+    },
+    "vhbPositifs" : null,
+    "vhcPositifs" : 0
+  },
+  "03 totaux par caisse : CNAS supprime (une cellule masquee), CASNOS garde" : [ {
+    "caisseCode" : "CNAS",
+    "patients" : null,
+    "seances" : 4
+  }, {
+    "caisseCode" : "CASNOS",
+    "patients" : 9,
+    "seances" : 2
+  } ],
+  "04 les valeurs des centres sont inchangees" : [ {
+    "nom" : "Centre A",
+    "patients" : 7,
+    "patientsSousKt" : 5
+  }, {
+    "nom" : "Centre B",
+    "patients" : null,
+    "patientsSousKt" : null
+  } ],
+  "05 le contenu stocke n'est JAMAIS reecrit (RG-DIR-090)" : true
+}

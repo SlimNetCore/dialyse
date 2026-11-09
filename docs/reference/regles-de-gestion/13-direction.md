@@ -151,9 +151,10 @@
   ne fait que garder le jeton, porter les routes et rendre le PDF (HTML vers PDF). Règles reproduites à l'identique du fonctionnement
   antérieur : la période par défaut et ses refus (RG-DIR-003, réponse 422 avec le même code) sont contrôlés **avant** toute lecture ;
   la période précédente (même durée) n'est pas soumise à la limite de 5 ans ; l'effectif d'une période est celui de RG-PAT-037 ;
-  l'âge d'une tranche est l'âge révolu **au jour de l'appel** ; les totaux de la société sont calculés sur les effectifs **bruts** (un
-  centre masqué compte dans le total : la différence entre le total et la somme des centres publiés peut révéler un effectif masqué,
-  KB-DIR-01, à faire confirmer par le DPO) ; « aujourd'hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
+  l'âge d'une tranche est l'âge révolu **au jour de l'appel** ; **CORRIGÉ le 2026-11-09 (KB-DIR-01, lot L1, ADR 0112, validation DPO
+  attendue au plus tard le 2026-12-15)** : un total de patients (société, total d'une caisse, total du rapport) est publié nul dès que l'un
+  des centres qui le composent est masqué (RG-DIR-111) ; avant, les totaux étaient calculés sur les effectifs bruts et la différence avec la
+  somme des centres publiés révélait l'effectif masqué ; « aujourd'hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
   ou Africa/Algiers). Le rapport mensuel imprime l'instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
   les mêmes libellés d'alerte ; un code d'alerte inconnu est imprimé tel quel. *Source :* `ConsulterLaVueDEnsemble`,
   `ConsulterLaRepartition`, `ConstituerLeRapportDeSynthese`.
@@ -219,8 +220,8 @@ Stock, sans changement de comportement. Les points marqués « statu quo » sont
 
 - **RG-DIR-110** — La période est contrôlée **avant** toute lecture (RG-DIR-003, 422 `PERIODE_INVALIDE` ou `PERIODE_TROP_LONGUE`). Les
   indicateurs cliniques de chaque centre et leur consolidé sont ceux du Dossier médical, **déjà masqués** (effectif de 1 à 4 publié nul, zéro
-  reste zéro) : le consolidé est calculé sur les valeurs brutes de tous les centres puis masqué, et le Pilotage ne le recalcule jamais à partir
-  des centres publiés (KB-DIR-01, statu quo). Le **stock** de chaque centre est évalué à la **date de fin** de la période (KB-DIR-07, statu quo) ;
+  reste zéro) ; **CORRIGÉ le 2026-11-09 (KB-MED-104, lot L1, RG-MED-049g)** : un consolidé est publié nul dès qu'un centre le porte masqué, et le
+  Pilotage ne le recalcule jamais à partir des centres publiés. Le **stock** de chaque centre est évalué à la **date de fin** de la période (KB-DIR-07, statu quo) ;
   sa valeur est la quantité en stock multipliée par le prix moyen pondéré (un article sans prix vaut zéro), arrondie au centime (demi supérieur)
   **par centre**, tandis que les **totaux de la société additionnent les valeurs non arrondies** des centres puis arrondissent une seule fois
   (0,003 et 0,003 donnent 0,00 et 0,00 par centre mais 0,01 au total). Un centre **inactif** est servi comme les autres ; un centre inconnu du
@@ -228,3 +229,20 @@ Stock, sans changement de comportement. Les points marqués « statu quo » sont
   alertes (RG-DIR-105) sont levées centre par centre, dans l'ordre des centres, sur les taux déjà masqués et sur l'observance brute ; le seuil
   d'anonymat servi est 5 (`seuilAnonymat`). Le même résultat est gravé dans les instantanés mensuels (RG-DIR-090) et lu par le rapport de
   synthèse et le temps réel (RG-DIR-106). *Source :* `ConsulterLesIndicateursDeLaDirection`, `IndicateursDeLaSociete`, `StockDuCentre`.
+
+- **RG-DIR-111** — *Suppression complémentaire des totaux (KB-DIR-01 et KB-MED-104, **CORRIGÉS le 2026-11-09**, lot L1, ADR 0112 ; correction
+  faite à la demande de l'utilisateur, **validation du DPO attendue au plus tard le 2026-12-15**)* : un effectif de patients de 1 à 4 est masqué
+  par centre (RG-DIR-030) ; un **total** est désormais publié **nul** (« < seuil » à l'écran et dans le PDF) dès qu'**au moins un** des effectifs
+  qui le composent est masqué, de sorte que « total moins somme des centres publiés » ne révèle plus l'effectif masqué. Règle unique appliquée à :
+  `totaux.patients` et `totaux.patientsSousKt` de la vue d'ensemble ; `caisseTotaux[].patients` de la répartition (un total par caisse, selon les
+  centres qui portent **cette** caisse) ; les sept effectifs cliniques consolidés (RG-MED-049g) et, pour chacun des cinq marqueurs, les patients
+  évalués **et** les taux consolidés ; la synthèse, la ligne « Total société » et le total de chaque caisse du rapport PDF ; la qualité des soins
+  du rapport. Zéro reste zéro ; un effectif de 5 exactement n'est pas masqué ; une société à un seul centre masqué n'a pas de total. Les séances,
+  le chiffre d'affaires, les factures et les administrations (RG-DIR-030) ne sont pas des effectifs de patients : inchangés. **Instantanés déjà
+  figés** (RG-DIR-090) : ils contiennent des totaux bruts d'avant la correction ; ils sont **masqués à la lecture** (règle relue du JSON publié :
+  total nul si une valeur de centre de la même colonne est nulle, y compris pour le rapport PDF d'un instantané ancien) sans **jamais réécrire**
+  `direction_snapshot.payload` ; un instantané capturé après la correction est déjà conforme. **Résiduels de confidentialité non traités (DPO)** :
+  effectif d'un centre moins la somme de sa ventilation sexe, âge ou caisse (une seule cellule masquée se déduit de l'effectif publié du centre) ;
+  pourcentages cliniques d'un petit échantillon ; une société dont un centre est petit n'a plus jamais de total patients (effet voulu).
+  *Source :* `BilanDuCentre.consolider`, `RepartitionDeLaSociete` (`CaisseDeLaSociete`), `SeuilDAnonymat.totalPublieDepuis`,
+  `MasqueDesTotauxFiges`, `ConstituerLeRapportDeSynthese`.

@@ -2492,3 +2492,17 @@ FROM patients p LEFT JOIN medecin md ON md.id = p.medecin_traitant_id LEFT JOIN 
 ```
 **Interprétation** : `0` partout : l'absence de borne du journal est sans effet, la lecture pourra être bornée au centre (suppression de `nomsDesSalles` / `libellesDesCreneaux` au profit de `codesDesSalles`-like bornés), décision métiers/DPO. `> 0` : ces mouvements affichent aujourd'hui le libellé d'une salle ou d'un créneau d'un autre centre (fuite d'affichage inter-centres) : ne rien corriger avant leur décision. SELECT NON rejoués sur PostgreSQL 16 (O4-R7).
 **Recette (lecture seule, sur une copie)** : la liste des patients (colonnes médecin et créneau, filtres par libellé) et le journal des mouvements (salle, créneau) rendent les mêmes libellés qu'avant (goldens des consommateurs inchangés). Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 74. Confidentialité L1 (suppression complémentaire des totaux, ADR 0112, KB-DIR-01 et KB-MED-104 CORRIGÉS) : détection de données (2026-11-09) — SELECT seulement
+
+Aucune migration, aucune colonne, aucune réécriture : `direction_snapshot.payload` reste figé (RG-DIR-090). La correction masque à la LECTURE les totaux bruts des instantanés mensuels capturés avant elle. Ce contrôle dénombre les instantanés dont la lecture change (un centre masqué dans la vue d'ensemble : l'instantané relu perd son total de patients) ; il ne lit que des comptes.
+
+```sql
+-- 74.1 Instantanés figés dont un centre de la vue d'ensemble est masque (« patients »:null dans centres) : leur total est supprimé à la lecture. Recherche textuelle, JSON compact.
+SELECT societe_id, count(*) AS instantanes, min(mois) AS premier, max(mois) AS dernier
+FROM direction_snapshot
+WHERE payload LIKE '%"patients":null%'
+GROUP BY societe_id ORDER BY societe_id;
+```
+**Interprétation** : `0` ligne : aucun instantané existant ne change à la lecture. `> 0` : ces mois sont relus (JSON et PDF) SANS total de patients ; le contenu stocké garde les totaux bruts (lisibles par un accès SQL : résiduel DPO, ADR 0112). Prévenir la Direction que les rapports déjà émis ne sont pas rappelés. Format du JSON de `payload` à vérifier sur la copie (espaces) avant de conclure à `0`. SELECT NON rejoué sur PostgreSQL 16.
+**Recette (lecture seule, sur une copie)** : `GET /api/v1/direction/snapshots/{mois}` d'un mois listé en 74.1 rend `overview.totaux.patients` nul et les mêmes valeurs par centre qu'avant ; `…/report` imprime « &lt; seuil » dans « Total société » ; `SELECT payload` est identique avant et après la lecture. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

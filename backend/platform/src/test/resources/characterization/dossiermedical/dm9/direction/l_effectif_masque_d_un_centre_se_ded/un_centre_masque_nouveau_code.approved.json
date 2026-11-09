@@ -1,0 +1,11 @@
+{
+  "01 statut" : 200,
+  "02 seuil d'anonymat de la reponse" : "5",
+  "03 patients evalues en hemoglobine : A = 5 publies, B = 3 masques" : {
+    "centre A" : "5",
+    "centre B" : "masque",
+    "deduction par difference" : "indeductible (totaux masques)",
+    "totaux" : "masque"
+  },
+  "04 taux dans la cible des totaux (supprime avec les patients evalues : sinon le taux de B se deduirait)" : "masque"
+}

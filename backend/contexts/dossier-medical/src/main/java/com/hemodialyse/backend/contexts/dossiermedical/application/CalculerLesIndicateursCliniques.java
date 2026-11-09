@@ -18,8 +18,8 @@ import java.util.UUID;
 /**
  * Indicateurs cliniques des centres d'une société pour la Direction (RG-DIR, RG-MED-081) : répartition des dernières valeurs face aux cibles
  * KDIGO, porteurs positifs AgHBs / anti-VHC / VIH, retards d'observance, greffes ; par centre et consolidés. Repris mot pour mot de
- * {@code DirectionIndicatorsQueryService} (DM9, ADR 0101). REPRODUIT, à trancher par le DPO : les consolidés sont la somme des valeurs
- * BRUTES puis masqués ({@link EffectifMasque}) : la différence révèle un effectif masqué (KB-MED-104).
+ * {@code DirectionIndicatorsQueryService} (DM9, ADR 0101). CORRIGÉ le 2026-11-09 (KB-MED-104, ADR 0112, validation DPO attendue) : un
+ * consolidé est supprimé (publié {@code null}) dès que l'un des centres qui le composent est masqué ({@link EffectifMasque#consolider}).
  */
 public class CalculerLesIndicateursCliniques implements IndicateursCliniquesPublies {
 
@@ -50,13 +50,37 @@ public class CalculerLesIndicateursCliniques implements IndicateursCliniquesPubl
                 b.greffes = g.greffesPeriode();
             }));
         }
-        Brut total = new Brut();
         Map<UUID, IndicateursCliniques> parCentre = new LinkedHashMap<>();
-        bruts.forEach((centre, b) -> {
-            parCentre.put(centre, b.publier());
-            total.fusionner(b);
-        });
-        return new IndicateursCliniquesDesCentres(parCentre, total.publier());
+        bruts.forEach((centre, b) -> parCentre.put(centre, b.publier()));
+        return new IndicateursCliniquesDesCentres(parCentre, consolider(bruts.values()));
+    }
+
+    /**
+     * Les consolidés de la société, avec suppression complémentaire (KB-MED-104, corrigé le 2026-11-09) : chaque effectif consolidé est
+     * publié {@code null} dès qu'un centre le porte masqué ; pour un marqueur, les patients évalués ET les taux sont supprimés ensemble
+     * (le taux d'un total dont un centre est masqué permettrait la même déduction).
+     */
+    private static IndicateursCliniques consolider(java.util.Collection<Brut> centres) {
+        Brut total = new Brut();
+        for (Brut b : centres) total.fusionner(b);
+        return new IndicateursCliniques(
+                consolider(centres, total, Cible.KT_V), consolider(centres, total, Cible.HEMOGLOBINE),
+                consolider(centres, total, Cible.PHOSPHORE), consolider(centres, total, Cible.PTH),
+                consolider(centres, total, Cible.ALBUMINE),
+                effectif(centres, b -> b.vhb), effectif(centres, b -> b.vhc), effectif(centres, b -> b.vih),
+                effectif(centres, b -> b.observance), total.observance > 0,
+                effectif(centres, b -> b.greffeAttente), effectif(centres, b -> b.greffeBilan), effectif(centres, b -> b.greffes));
+    }
+
+    private static Long effectif(java.util.Collection<Brut> centres, java.util.function.ToLongFunction<Brut> champ) {
+        return EffectifMasque.consolider(centres.stream().map(b -> champ.applyAsLong(b)).toList());
+    }
+
+    private static IndicateursCliniquesPublies.RepartitionFaceALaCible consolider(java.util.Collection<Brut> centres, Brut total,
+                                                                                 Cible cible) {
+        boolean composeDeMasques = EffectifMasque.composeDeMasques(centres.stream().map(b -> (long) b.valeurs.get(cible).size()).toList());
+        return composeDeMasques ? new IndicateursCliniquesPublies.RepartitionFaceALaCible(null, null, null, null)
+                : total.repartition(cible);
     }
 
     private static void brut(Map<UUID, Brut> bruts, UUID centre, java.util.function.Consumer<Brut> maj) {
@@ -91,7 +115,7 @@ public class CalculerLesIndicateursCliniques implements IndicateursCliniquesPubl
                     EffectifMasque.masquer(greffeAttente), EffectifMasque.masquer(greffeBilan), EffectifMasque.masquer(greffes));
         }
 
-        private IndicateursCliniquesPublies.RepartitionFaceALaCible repartition(Cible cible) {
+        IndicateursCliniquesPublies.RepartitionFaceALaCible repartition(Cible cible) {
             com.hemodialyse.backend.contexts.dossiermedical.domain.RepartitionFaceALaCible r =
                     com.hemodialyse.backend.contexts.dossiermedical.domain.RepartitionFaceALaCible.de(valeurs.get(cible), cible.regle());
             return new IndicateursCliniquesPublies.RepartitionFaceALaCible(r.evalues(), r.pctDansCible(), r.pctSousCible(), r.pctAuDessus());

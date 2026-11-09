@@ -130,14 +130,15 @@ class ConsulterLaVueDEnsembleTest {
     }
 
     @Test
-    void les_totaux_sont_les_sommes_brutes_des_centres_meme_quand_leur_effectif_est_masque() {
+    void le_total_de_patients_est_supprime_quand_des_centres_sont_masques_et_les_autres_totaux_restent_des_sommes_kb_dir_01_corrige() {
         var centres = List.of(new CentreDeLaSociete(A, "Annaba", true), new CentreDeLaSociete(B, "Blida", true));
         var vue = cas(centres, Map.of(A, new EffectifDuCentre(3, 1), B, new EffectifDuCentre(4, 0)), Map.of(A, 10L, B, 5L))
                 .execute(SOCIETE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 31));
 
         assertThat(vue.centres()).hasSize(2);
         assertThat(vue.centres().getFirst().patientsPublies()).isNull();
-        assertThat(vue.totaux().patientsPublies()).isEqualTo(7L);
+        assertThat(vue.totaux().patientsPublies()).isNull();
+        assertThat(vue.totaux().patientsSousKtPublies()).isNull();
         assertThat(vue.totaux().seances()).isEqualTo(15);
         assertThat(vue.totaux().finances().caHt()).isEqualByComparingTo("100.00");
     }

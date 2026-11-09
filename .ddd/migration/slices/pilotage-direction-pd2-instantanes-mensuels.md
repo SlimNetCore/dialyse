@@ -40,5 +40,8 @@ Aucune (refactoring sur place) : pas de flag, pas de paliers, pas de métriques.
 | PD2-R8 | TICKET SÉPARÉ (hors lot, préexistant) : 1 échec + 25 erreurs de la suite complète en ordre aléatoire (pollution d'état entre classes, 8 classes), identiques sur HEAD~1 |
 | PD2-R9 | Détections 70.1 à 70.4 non rejouées sur PostgreSQL 16 (70.4 : `to_char(date_trunc(...))`) : à rejouer avant la revue du 2026-12-15 |
 
+## Lot L1 (2026-11-09, ADR 0112) : instantanés relus masqués
+Les instantanés figés avant la correction de KB-DIR-01 / KB-MED-104 portent des totaux bruts : ils sont masqués À LA LECTURE (`MasqueDesTotauxFiges` dans `InstantanesMensuelsPublies`) ; `direction_snapshot.payload` n'est JAMAIS réécrit (RG-DIR-090). Nouveau golden `ancien_instantane_masque_a_la_lecture_nouveau_code`. Détection §74.
+
 ## Reste à faire
 Revue indépendante `.ddd/verify/` ; confirmations métiers/DPO ; PD3 (alertes) et PD5.

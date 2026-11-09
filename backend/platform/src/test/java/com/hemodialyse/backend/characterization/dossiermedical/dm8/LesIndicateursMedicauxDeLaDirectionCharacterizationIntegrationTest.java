@@ -231,7 +231,7 @@ class LesIndicateursMedicauxDeLaDirectionCharacterizationIntegrationTest extends
     }
 
     @Test
-    void les_bilans_de_greffe_sont_comptes_par_statut_et_la_date_de_greffe_dans_la_periode() throws Exception {
+    void les_bilans_de_greffe_sont_comptes_par_statut_et_la_date_de_greffe_dans_la_periode_nouveau_code() throws Exception {
         for (int i = 0; i < 5; i++) {
             bilanEnBase(CENTRE_A, patient("ATTENTE" + i), "ATT_" + i, "INSCRIT_LISTE_ATTENTE", null);
             bilanEnBase(CENTRE_A, patient("ENBILAN" + i), "BIL_" + i, "BILAN_EN_COURS", null);
@@ -253,7 +253,8 @@ class LesIndicateursMedicauxDeLaDirectionCharacterizationIntegrationTest extends
             m.put(String.format("%03d periode 0 a %d : totaux", fin, fin), resume(corps(r).path("totaux").path("clinique"), "greffeListeAttente", "greffeBilanEnCours",
                     "greffesPeriode"));
         }
-        arbre("greffes", m);
+        // KB-MED-104 corrige le 2026-11-09 (L1) : un total est supprime (« - ») des qu'un centre est masque (B : 4 attente, 4 greffes).
+        arbre("greffes_nouveau_code", m);
     }
 
     @Test

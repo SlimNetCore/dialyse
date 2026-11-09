@@ -65,9 +65,13 @@ class LaPeriodeEtLeSeuilDAnonymatTest {
         assertThat(SeuilDAnonymat.masquer(5)).isEqualTo(5L);
     }
 
+    private static BilanDuCentre bilan(String nom, long patients, long sousKt) {
+        return new BilanDuCentre(UUID.randomUUID(), nom, true, patients, sousKt, 10, 2, ChiffresFinanciers.zero());
+    }
+
     @Test
-    void les_totaux_de_la_societe_sont_calcules_sur_les_effectifs_bruts_meme_masques() {
-        // KB-DIR-01 reproduit : 3 + 4 patients masques dans les centres, 7 dans le total (fuite par difference).
+    void le_total_de_la_societe_est_supprime_quand_tous_ses_centres_sont_masques_kb_dir_01_corrige() {
+        // KB-DIR-01 corrige (2026-11-09) : 3 + 4 patients masques dans les centres, total supprime (plus de fuite par difference).
         var a = new BilanDuCentre(UUID.randomUUID(), "A", true, 3, 1, 10, 2, ChiffresFinanciers.zero());
         var b = new BilanDuCentre(UUID.randomUUID(), "B", true, 4, 2, 5, 1, ChiffresFinanciers.zero());
 
@@ -75,9 +79,72 @@ class LaPeriodeEtLeSeuilDAnonymatTest {
 
         assertThat(a.patientsPublies()).isNull();
         assertThat(b.patientsPublies()).isNull();
-        assertThat(total.patientsPublies()).isEqualTo(7L);
+        assertThat(total.patientsPublies()).isNull();
         assertThat(total.patientsSousKtPublies()).isNull();
         assertThat(total.seances()).isEqualTo(15);
+        assertThat(total.patients()).isEqualTo(7);
+    }
+
+    @Test
+    void un_seul_centre_masque_suffit_a_supprimer_le_total_mais_pas_les_seances_ni_les_finances() {
+        var grand = bilan("Grand", 50, 20);
+        var petit = bilan("Petit", 3, 12);
+
+        var total = BilanDuCentre.consolider(List.of(grand, petit));
+
+        assertThat(grand.patientsPublies()).isEqualTo(50L);
+        assertThat(petit.patientsPublies()).isNull();
+        assertThat(total.patientsPublies()).isNull();
+        assertThat(total.patientsSousKtPublies()).isEqualTo(32L);
+        assertThat(total.seances()).isEqualTo(20);
+    }
+
+    @Test
+    void le_total_est_publie_sans_centre_masque_a_cinq_pile_et_zero_reste_zero() {
+        var cinq = bilan("Cinq", 5, 0);
+        var zero = bilan("Zero", 0, 0);
+
+        var total = BilanDuCentre.consolider(List.of(cinq, zero));
+
+        assertThat(total.patientsPublies()).isEqualTo(5L);
+        assertThat(total.patientsSousKtPublies()).isEqualTo(0L);
+        assertThat(BilanDuCentre.consolider(List.of(bilan("Z", 0, 0))).patientsPublies()).isEqualTo(0L);
+        assertThat(BilanDuCentre.sansActivite().patientsPublies()).isEqualTo(0L);
+    }
+
+    @Test
+    void une_societe_a_un_seul_centre_masque_n_a_pas_de_total_et_une_societe_a_un_centre_publiable_garde_le_sien() {
+        assertThat(BilanDuCentre.consolider(List.of(bilan("A", 2, 0))).patientsPublies()).isNull();
+        assertThat(BilanDuCentre.consolider(List.of(bilan("A", 9, 0))).patientsPublies()).isEqualTo(9L);
+    }
+
+    @Test
+    void la_suppression_complementaire_se_propage_a_un_total_de_totaux() {
+        var consolide = BilanDuCentre.consolider(List.of(bilan("A", 3, 0), bilan("B", 40, 0)));
+
+        assertThat(BilanDuCentre.consolider(List.of(consolide, bilan("C", 30, 0))).patientsPublies()).isNull();
+    }
+
+    @Test
+    void la_somme_des_effectifs_publies_et_le_total_ne_permettent_plus_de_retrouver_un_effectif_masque() {
+        var centres = List.of(bilan("A", 20, 0), bilan("B", 2, 0), bilan("C", 30, 0));
+
+        var total = BilanDuCentre.consolider(centres);
+
+        long sommeDesPublies = centres.stream().map(BilanDuCentre::patientsPublies).filter(java.util.Objects::nonNull)
+                .mapToLong(Long::longValue).sum();
+        assertThat(sommeDesPublies).isEqualTo(50L);
+        assertThat(total.patientsPublies()).isNull();
+    }
+
+    @Test
+    void un_total_deja_fige_est_supprime_a_la_lecture_si_un_centre_est_publie_masque() {
+        assertThat(SeuilDAnonymat.totalPublieDepuis(7L, java.util.Arrays.asList(null, null))).isNull();
+        assertThat(SeuilDAnonymat.totalPublieDepuis(57L, java.util.Arrays.asList(50L, null))).isNull();
+        assertThat(SeuilDAnonymat.totalPublieDepuis(55L, java.util.Arrays.asList(50L, 5L))).isEqualTo(55L);
+        assertThat(SeuilDAnonymat.totalPublieDepuis(0L, java.util.Arrays.asList(0L, 0L))).isEqualTo(0L);
+        assertThat(SeuilDAnonymat.totalPublieDepuis(0L, List.of())).isEqualTo(0L);
+        assertThat(SeuilDAnonymat.totalPublieDepuis(null, List.of(5L))).isNull();
     }
 
     @Test

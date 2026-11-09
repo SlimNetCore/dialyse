@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Adaptateur entrant du langage publié {@link InstantanesMensuelsDeLaDirection} : appelle les cas d'usage et relit le contenu figé. Un
+ * Adaptateur entrant du langage publié {@link InstantanesMensuelsDeLaDirection} : appelle les cas d'usage et relit le contenu figé en y supprimant les totaux de patients composés d'un centre masqué ({@link MasqueDesTotauxFiges}). Un
  * contenu illisible lève l'erreur de lecture JSON (500, KB-DIR-06 e, reproduit : il reste listé). {@code breakdown} absent d'un instantané
  * ancien reste un nœud manquant (servi {@code null}, KB-DIR-06 a, reproduit).
  */
@@ -56,6 +56,9 @@ public final class InstantanesMensuelsPublies implements InstantanesMensuelsDeLa
 
     private Instantane traduire(InstantaneFige i) {
         JsonNode racine = mapper.readTree(i.contenu());
+        // KB-DIR-01 / KB-MED-104 corrigés (2026-11-09) : les totaux bruts d'un instantané ancien sont supprimés À LA LECTURE (arbre en
+        // mémoire ; le contenu stocké n'est jamais réécrit).
+        MasqueDesTotauxFiges.appliquer(racine.path("overview"), racine.path("indicators"), racine.path("breakdown"));
         return new Instantane(i.mois(), i.genereLe(), racine.path("overview"), racine.path("indicators"), racine.path("breakdown"));
     }
 }

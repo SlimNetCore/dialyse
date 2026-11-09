@@ -95,16 +95,28 @@ class ConstituerLeRapportDeSyntheseTest {
     }
 
     @Test
-    void les_totaux_de_la_synthese_sont_ceux_de_la_source_meme_si_un_centre_est_masque() {
+    void le_rapport_n_imprime_pas_un_total_de_patients_dont_un_centre_est_masque_meme_si_la_source_ancienne_le_porte_kb_dir_01_corrige() {
+        // Source d'un instantané figé avant la correction : total brut 7 alors que les deux centres sont masqués.
         var vue = vue(List.of(centre(A, "Annaba", null, 10), centre(B, "Blida", null, 5)), centre(null, null, 7L, 15), List.of());
 
         var rapport = cas(null, SANS_INDICATEUR).constituer(new SourceDuRapport("Instantané", MAINTENANT.atOffset(ZoneOffset.UTC), vue, null, null));
 
         assertThat(rapport.finances().centres()).extracting(l -> l.patients()).containsExactly(null, null);
-        assertThat(rapport.synthese().patients()).isEqualTo(7L);
-        assertThat(rapport.finances().total().patients()).isEqualTo(7L);
+        assertThat(rapport.synthese().patients()).isNull();
+        assertThat(rapport.finances().total().patientsSousKt()).isNull();
+        assertThat(rapport.finances().total().patients()).isNull();
         assertThat(rapport.synthese().seances()).isEqualTo(15L);
         assertThat(rapport.titre()).isEqualTo("Instantané");
+    }
+
+    @Test
+    void le_rapport_garde_un_total_de_patients_compose_de_centres_publies() {
+        var vue = vue(List.of(centre(A, "Annaba", 50L, 10), centre(B, "Blida", 5L, 5)), centre(null, null, 55L, 15), List.of());
+
+        var rapport = cas(null, SANS_INDICATEUR).constituer(new SourceDuRapport("Instantané", MAINTENANT.atOffset(ZoneOffset.UTC), vue, null, null));
+
+        assertThat(rapport.synthese().patients()).isEqualTo(55L);
+        assertThat(rapport.finances().total().patients()).isEqualTo(55L);
     }
 
     @Test
@@ -184,9 +196,31 @@ class ConstituerLeRapportDeSyntheseTest {
         assertThat(caisses.centres()).containsExactly("Annaba", "Blida");
         assertThat(caisses.lignes()).extracting(l -> l.caisse()).containsExactly("CNAS", "Caisse non renseignée");
         assertThat(caisses.lignes().getFirst().patients()).containsExactly(null, 0L);
-        assertThat(caisses.lignes().getFirst().totalPatients()).isEqualTo(3L);
+        // KB-DIR-01 corrigé : le total d'une caisse dont une cellule est masquée est imprimé masqué (la source ancienne portait 3).
+        assertThat(caisses.lignes().getFirst().totalPatients()).isNull();
+        assertThat(caisses.lignes().get(1).totalPatients()).isEqualTo(9L);
         assertThat(caisses.lignes().get(1).patients()).containsExactly(9L, 0L);
         assertThat(caisses.lignes().get(1).seances()).containsExactly(4L, 0L);
+    }
+
+    @Test
+    void le_total_clinique_sans_effectif_masque_dans_un_centre_est_imprime_masque_champ_par_champ_kb_med_104_corrige() {
+        var centreA = new IndicateursDeLaDirectionFournis.IndicateursDuCentre("Annaba",
+                new IndicateursDeLaDirectionFournis.Clinique(null, null, null, null, null, 50L, 8L, 0L, 5L, null, null, null), null);
+        var centreB = new IndicateursDeLaDirectionFournis.IndicateursDuCentre("Blida",
+                new IndicateursDeLaDirectionFournis.Clinique(null, null, null, null, null, null, 6L, 0L, 5L, null, null, null), null);
+        // Source ancienne : totaux bruts 52 (vhb) alors que Blida est masque ; vhc 14 reste publiable.
+        var totaux = new IndicateursDeLaDirectionFournis.IndicateursDuCentre(null,
+                new IndicateursDeLaDirectionFournis.Clinique(null, null, null, null, null, 52L, 14L, 0L, 10L, null, null, null), null);
+        var indicateurs = new IndicateursDeLaDirectionFournis.IndicateursDeLaPeriode(List.of(centreA, centreB), totaux, List.of());
+
+        var qualite = cas(null, SANS_INDICATEUR).constituer(new SourceDuRapport("t", MAINTENANT.atOffset(ZoneOffset.UTC),
+                vue(List.of(), null, List.of()), indicateurs, null)).qualite();
+
+        assertThat(qualite.total().vhbPositifs()).isNull();
+        assertThat(qualite.total().vhcPositifs()).isEqualTo(14L);
+        assertThat(qualite.total().vihPositifs()).isEqualTo(0L);
+        assertThat(qualite.total().patientsObservanceEnRetard()).isEqualTo(10L);
     }
 
     @Test

@@ -472,10 +472,10 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   400 (avant : 500) ; 403 avant 400 ; les POST de recherche restent journalisés `PATIENTS_CREATION` (libellé trompeur
   reproduit, KB-MED-100, à confirmer avec le DPO).
 - **RG-MED-049e** — *Indicateurs Direction, période et totaux (`/api/v1/direction/indicators`, ADR 0087)* : `from` ou `to`
-  illisible : 400 (avant : 500) ; 403 avant 400. **RISQUE DE CONFIDENTIALITÉ PRIORITAIRE reproduit (KB-MED-104, à confirmer par
-  le DPO)** : les effectifs inférieurs à 5 sont masqués par centre mais les totaux additionnent les valeurs non masquées ; la
-  différence entre le total et les centres visibles révèle l'effectif masqué. Seuil, formes, règles de comptage des sérologies et
-  droits inchangés.
+  illisible : 400 (avant : 500) ; 403 avant 400. **KB-MED-104 CORRIGÉ le 2026-11-09 (lot L1, RG-MED-049g, validation DPO attendue au plus
+  tard le 2026-12-15)** : les effectifs inférieurs à 5 sont masqués par centre ; avant, les totaux additionnaient les valeurs non masquées et
+  la différence entre le total et les centres visibles révélait l'effectif masqué ; désormais un consolidé est supprimé dès qu'un centre est
+  masqué. Seuil, formes, règles de comptage des sérologies et droits inchangés.
 - **RG-MED-049f** — *Reprise sur place DM9 du calcul médical restant et retrait du module legacy `bc-medical` (ADR 0101 ; décisions
   déléguées, à confirmer par les médecins, les métiers et le DPO au plus tard le 2026-12-15)* :
   (a) **le contexte `dossier-medical` possède tout le calcul, la plateforme ne garde que la présentation** : statistiques médicales du
@@ -493,8 +493,7 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   **REPRODUIT, RISQUE CLINIQUE à trancher par les médecins en priorité (KB-MED-106)** : un résultat DOUTEUX ou EN_COURS plus
   récent qu'un positif lève le risque infectieux sans résultat négatif ; reproduits aussi : à égalité totale le positif l'emporte
   (KB-MED-107), lecture par le centre de la sérologie ou de l'abord et non de la fiche (KB-MED-108) ;
-  (d) **reproduits, à confirmer** : KB-MED-104 (fuite par différence des totaux Direction : les consolidés sont calculés sur les valeurs
-  brutes puis masqués, condition de mise en production, DPO), KB-MED-100 (audit inégal, trois `POST stats/*/search` sans appelant
+  (d) **reproduits, à confirmer** : KB-MED-104 (CORRIGÉ depuis le 2026-11-09, voir RG-MED-049g), KB-MED-100 (audit inégal, trois `POST stats/*/search` sans appelant
   frontend conservés), KB-MED-109 (ordre non défini à date égale dans les tendances, le CSV et le PDF ; double comptage des taux de la
   Direction) ;
   (e) **effacement des administrations d'une séance supprimée** fourni à la Séance par le Dossier médical
@@ -506,6 +505,15 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   (marqueur, résultat, type, statut ou système de codage hors des valeurs connues) faisait échouer tout le PDF et l'évaluation KDIGO en
   400 dans le legacy ; le contexte ignore la ligne illisible (avertissement serveur) et rend les lignes lisibles du patient (règles des
   lecteurs DM4/DM5) ; **à confirmer par les médecins (ignorer ou refuser une sérologie illisible)**.
+- **RG-MED-049g** — *Suppression complémentaire des consolidés cliniques (KB-MED-104, **CORRIGÉ le 2026-11-09**, lot L1, ADR 0112 ; à la
+  demande de l'utilisateur, **validation du DPO attendue au plus tard le 2026-12-15**)* : `IndicateursCliniquesPublies.desCentres` masque par
+  centre tout effectif de 1 à 4 (`EffectifMasque`, zéro reste zéro, 5 exactement publié) ; le **consolidé** de la société est publié nul dès qu'au
+  moins un centre porte l'effectif masqué, **champ par champ** : porteurs AgHBs, anti-VHC et VIH positifs, patients en retard d'observance,
+  inscrits en liste d'attente, bilans de greffe en cours, greffes de la période ; pour chacun des cinq marqueurs (Kt/V, hémoglobine, phosphore,
+  PTH, albumine), les patients évalués et les trois taux consolidés sont supprimés ensemble (le taux d'un total dont un centre est masqué
+  permettrait la même déduction). Le booléen « observance en retard » (valeur brute servant l'alerte de la Direction, RG-DIR-105) est inchangé.
+  Une société sans centre garde des consolidés à zéro. Avant la correction, les consolidés étaient la somme des valeurs brutes puis masquées.
+  *Source :* `CalculerLesIndicateursCliniques`, `EffectifMasque.consolider`. Règle commune : RG-DIR-111.
 
 ## 11.11 Constantes, statistiques et export interopérable
 

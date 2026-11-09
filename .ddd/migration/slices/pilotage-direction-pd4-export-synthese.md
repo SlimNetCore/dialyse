@@ -19,6 +19,9 @@ Refactoring SUR PLACE (ADR 0102) : mêmes URL `/api/v1/direction/report` et `/ap
 ## Parité
 Goldens PD4 (3 tests, texte du PDF), PD2 (instantanés) : inchangés. Aucun écart assumé. Texte du rapport mensuel identique entre le rendu en direct et le rendu d'un instantané figé (représentation des décimaux conservée).
 
+## Lot L1 (2026-11-09, ADR 0112)
+KB-DIR-01 CORRIGÉ : le rapport imprime « &lt; seuil » pour la synthèse, « Total société » et le total de chaque caisse dès qu'un centre est masqué, y compris pour le rapport d'un instantané ancien (`ConstituerLeRapportDeSynthese` applique la règle à sa source). Golden `rapport_en_direct` : ancien archivé dans `pd4/_ecarts-legacy/rapport/rapport_en_direct_avant_l1.legacy.json`, nouveau `rapport_en_direct_nouveau_code` ; ajouté `rapport_ancien_instantane_nouveau_code`.
+
 ## Reste à faire
 - Instantanés mensuels (PD2) et alertes temps réel (PD3) : `DirectionSnapshotService`, `DirectionAlertHistoryService` restent en plateforme (garde nominative `TableDuPilotageTest`).
 - Question ouverte : KB-DIR-01 (les instantanés déjà figés portent les totaux bruts : détection §69.1 de `verifications-production.md`).

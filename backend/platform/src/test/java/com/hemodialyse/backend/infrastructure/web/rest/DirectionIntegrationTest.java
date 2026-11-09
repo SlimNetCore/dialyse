@@ -201,7 +201,8 @@ class DirectionIntegrationTest {
         assertEquals(33.6, a1.get("tauxEncaissement").asDouble(), 0.001);
         assertTrue(a1.get("patientsSousKt").isNull(), "2 patients sous KT : effectif faible masqué");
         assertTrue(a2.get("patients").isNull(), "2 patients : effectif faible masqué");
-        assertEquals(8, overview.get("totaux").get("patients").asInt(), "le total consolidé est publiable");
+        // KB-DIR-01 corrigé (2026-11-09) : A2 est masqué, donc le total consolidé (6 + 2) est supprimé (jadis publié : 8).
+        assertTrue(overview.get("totaux").get("patients").isNull(), "le total est supprimé car un centre est masqué");
         assertEquals(5, overview.get("seuilAnonymat").asInt());
         assertTrue(overview.get("mensuel").size() >= 1);
 
@@ -294,7 +295,8 @@ class DirectionIntegrationTest {
         assertTrue(c2.get("clinique").get("ktV").get("evalues").isNull());
         assertTrue(c2.get("clinique").get("ktV").get("pctDansCible").isNull());
         assertTrue(c2.get("clinique").get("vhbPositifs").isNull());
-        assertEquals(6, body.get("totaux").get("clinique").get("vhbPositifs").asInt(), "total consolidé publiable");
+        // KB-MED-104 corrigé (2026-11-09) : le centre c2 est masqué, donc le consolidé (5 + 1) est supprimé (jadis publié : 6).
+        assertTrue(body.get("totaux").get("clinique").get("vhbPositifs").isNull(), "total consolidé supprimé car un centre est masqué");
 
         List<String> codes = new java.util.ArrayList<>();
         for (JsonNode a : body.get("alertes")) {

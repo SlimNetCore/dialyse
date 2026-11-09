@@ -20,7 +20,8 @@ import java.util.UUID;
  * <p>
  * Règles (RG-DIR) : le sexe est lu à l'initiale (M, F, sinon autre, la casse et les blancs ignorés) ; la caisse d'un patient sans caisse a
  * le code vide ; les lignes de caisse sont triées par NOM de centre (sans tenir compte de la casse) puis par chiffre d'affaires HT
- * décroissant ; les totaux par caisse (sommes des BRUTS : KB-DIR-01) par chiffre d'affaires HT décroissant ; une société sans centre n'a
+ * décroissant ; les totaux par caisse, par chiffre d'affaires HT décroissant, sont publiés sans effectif de patients dès qu'un centre porte
+ * cette caisse avec un effectif masqué (suppression complémentaire, KB-DIR-01 corrigé le 2026-11-09) ; une société sans centre n'a
  * aucune répartition.
  */
 public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, OffsetDateTime genereLe, List<ProfilDuCentre> profils,
@@ -89,6 +90,7 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
                     cellule.patients, cellule.seances, cellule.caHt));
             Cellule total = totaux.computeIfAbsent(cellule.code, k -> new Cellule(null, cellule.code, cellule.nom));
             total.patients += cellule.patients;
+            total.composeDeMasques |= SeuilDAnonymat.estMasque(cellule.patients);
             total.seances += cellule.seances;
             total.caHt = total.caHt.add(cellule.caHt);
         }
@@ -97,7 +99,7 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
             return parCentre != 0 ? parCentre : y.caHt().compareTo(x.caHt());
         });
         List<CaisseDeLaSociete> parSociete = totaux.values().stream()
-                .map(t -> new CaisseDeLaSociete(t.code, t.nom, t.patients, t.seances, t.caHt))
+                .map(t -> new CaisseDeLaSociete(t.code, t.nom, t.patients, t.seances, t.caHt, t.composeDeMasques))
                 .sorted((x, y) -> y.caHt().compareTo(x.caHt())).toList();
         return new RepartitionDeLaSociete(societe, periode, genereLe, profilsDesCentres, lignes, parSociete, anemies);
     }
@@ -166,9 +168,14 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
         }
     }
 
-    public record CaisseDeLaSociete(String code, String nom, long patients, long seances, BigDecimal caHt) {
+    /**
+     * Le total d'une caisse sur la société. Suppression complémentaire (KB-DIR-01, corrigé le 2026-11-09) : {@code patientsComposesDeMasques}
+     * est vrai si l'un des centres porte cette caisse avec un effectif masqué ; le total est alors publié {@code null}.
+     */
+    public record CaisseDeLaSociete(String code, String nom, long patients, long seances, BigDecimal caHt,
+                                    boolean patientsComposesDeMasques) {
         public Long patientsPublies() {
-            return SeuilDAnonymat.masquer(patients);
+            return patientsComposesDeMasques ? null : SeuilDAnonymat.masquer(patients);
         }
     }
 
@@ -203,6 +210,7 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
         final String code;
         String nom;
         long patients;
+        boolean composeDeMasques;
         long seances;
         BigDecimal caHt = ChiffresFinanciers.montantNul();
 

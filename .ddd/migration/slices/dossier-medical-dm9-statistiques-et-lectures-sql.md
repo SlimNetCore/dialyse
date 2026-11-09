@@ -77,5 +77,8 @@ Rejeu PostgreSQL 16 `dossier-medical-dm9-pg16-rejeu.sh 55551` (cluster jetable, 
 4. KB-MED-107, 108 (métiers, Transfert patient), 109 (médecins, Direction) ; KB-MED-94 ; valeurs de référence KDIGO.
 5. KB-MED-110 : confirmation métiers des écarts assumés (étape, bilan ; sérologie ou antécédent illisible : ignorer ou refuser ?).
 
+## Lot L1 (2026-11-09, ADR 0112)
+KB-MED-104 CORRIGÉ (suppression complémentaire des consolidés, RG-MED-049g) : goldens `dm9/direction/{un_centre_masque,deux_centres_masques,serologies_et_greffes}` et `dm8/direction/greffes` réapprouvés en `*_nouveau_code`, anciens archivés dans `dm9/_ecarts-legacy/direction/` et `dm8/_ecarts-legacy/direction/` (`*_avant_l1.legacy.json`). Validation DPO attendue ≤ 2026-12-15.
+
 ## Reste à faire
 Revue `/ddd-verify` faite le 2026-11-09 (`.ddd/verify/verify-dossier-medical-dm9.md`, pass-with-actions, suites données) ; résidus M-R1 à M-R10 ; confirmations métiers / médecins / DPO au plus tard le 2026-12-15.

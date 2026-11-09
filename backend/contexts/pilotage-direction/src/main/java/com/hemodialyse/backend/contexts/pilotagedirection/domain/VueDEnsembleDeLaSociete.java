@@ -14,7 +14,8 @@ import java.util.UUID;
  * centres inactifs compris), le bilan consolidé de la société, l'évolution mensuelle et la période précédente de même durée.
  * <p>
  * Règles (RG-DIR) : une société SANS centre rend des totaux nuls, aucune liste et AUCUNE période précédente ; l'encaissé nul est servi
- * {@code 0.00} ; les totaux sont les sommes des valeurs BRUTES des centres (KB-DIR-01) ; l'évolution mensuelle est triée par
+ * {@code 0.00} ; les totaux sont les sommes des valeurs brutes des centres, mais le total de patients est publié supprimé dès qu'un centre est masqué
+ * (suppression complémentaire, KB-DIR-01 corrigé le 2026-11-09, {@link BilanDuCentre}) ; l'évolution mensuelle est triée par
  * {@code AAAA-MM|centre}, un mois présent d'un seul côté (séances ou finances) est complété par zéro.
  */
 public record VueDEnsembleDeLaSociete(SocieteSuivie societe, Periode periode, OffsetDateTime genereLe, List<BilanDuCentre> centres,

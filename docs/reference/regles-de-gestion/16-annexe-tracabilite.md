@@ -175,6 +175,9 @@ PD6 (ADR 0106, composition des indicateurs) n'ajoute aucune route : `/api/v1/dir
 `DirectionDashboardRestController` mais lit par le langage publié `IndicateursDeLaDirection` du Pilotage direction (règle : RG-DIR-110) ;
 `DirectionIndicatorsQueryService` et les trois traducteurs qui le fournissaient au module (instantanés, rapport, temps réel) sont retirés ;
 il ne reste dans `application/direction` que le rendu PDF, les comptes et les services de lecture des autres contextes.
+Le lot L1 (2026-11-09, ADR 0112) n'ajoute aucune route ni tâche : il change le contenu de `/overview`, `/breakdown`, `/indicators`, `/report`,
+`/snapshots/{mois}` et `/snapshots/{mois}/report` (totaux de patients supprimés dès qu'un centre est masqué, y compris à la relecture d'un
+instantané ancien ; règles : RG-DIR-111 et RG-MED-049g).
 Les tables `direction_snapshot` et `direction_alert_history` ont chacune pour seul propriétaire un adaptateur JDBC du module
 (`InstantanesMensuelsJdbc`, `HistoriqueDesAlertesJdbc`), inscrits dans `TableDuPilotageTest`. Depuis SE7e, la
 garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92) ; depuis SE7f, les entités JPA (`@Table`) et les

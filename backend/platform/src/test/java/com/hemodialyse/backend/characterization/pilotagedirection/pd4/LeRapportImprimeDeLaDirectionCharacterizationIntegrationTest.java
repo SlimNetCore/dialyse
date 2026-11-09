@@ -44,7 +44,7 @@ class LeRapportImprimeDeLaDirectionCharacterizationIntegrationTest extends Pilot
     }
 
     @Test
-    void le_rapport_en_direct_porte_l_en_tete_de_la_societe_et_toutes_les_statistiques_masquees_comprises() throws Exception {
+    void le_rapport_en_direct_porte_l_en_tete_de_la_societe_et_toutes_les_statistiques_masquees_comprises_nouveau_code() throws Exception {
         jeuComplet();
         for (int i = 0; i < 5; i++) {
             analyseEnBase(CENTRE_A, patientPd(CENTRE_A, "K" + i), "K_" + i, fixe(10), "kt_v_mensuel", i < 3 ? "1.30" : "1.00", "hb_g_dl", "10.8");
@@ -52,7 +52,8 @@ class LeRapportImprimeDeLaDirectionCharacterizationIntegrationTest extends Pilot
         article(CENTRE_A, "ART", "2", "10", "100.00");
         fixe(-1);
         fixe(-101);
-        arbrePd("rapport_en_direct", rapport(binaire(DIRECTION + "/report?from=" + fixe(0) + "&to=" + fixe(100), direction())));
+        // KB-DIR-01 / KB-MED-104 corriges le 2026-11-09 (L1) : « Total société » et la caisse sans code impriment « < seuil » des qu'un centre est masque.
+        arbrePd("rapport_en_direct_nouveau_code", rapport(binaire(DIRECTION + "/report?from=" + fixe(0) + "&to=" + fixe(100), direction())));
     }
 
     @Test
@@ -72,6 +73,24 @@ class LeRapportImprimeDeLaDirectionCharacterizationIntegrationTest extends Pilot
         m.put("02 instantane ancien sans 'breakdown' : sections de repartition absentes, alertes libellees (code inconnu rendu brut), totaux masques « < seuil »",
                 rapport(binaire(DIRECTION + "/snapshots/" + m1 + "/report", direction())));
         arbrePd("rapport_mensuel", m);
+    }
+
+    /** KB-DIR-01 corrige (L1, 2026-11-09) : le rapport d'un instantane ANCIEN aux totaux bruts imprime « < seuil » pour les totaux dont un centre est masque. */
+    @Test
+    void le_rapport_d_un_instantane_ancien_aux_totaux_bruts_imprime_les_totaux_masques_nouveau_code() throws Exception {
+        YearMonth m1 = mois(-1);
+        nommerLaPeriodePrecedenteDe(m1, "<PERIODE_AVANT_M-1>");
+        doPost(DIRECTION + "/snapshots/" + m1, "", direction());
+        jdbc.update("UPDATE direction_snapshot SET payload = ? WHERE societe_id = ? AND mois = ?",
+                "{\"overview\":{\"societeNom\":\"Ancien\",\"from\":\"" + m1.atDay(1) + "\",\"to\":\"" + m1.atEndOfMonth() + "\",\"seuilAnonymat\":5,"
+                        + "\"totaux\":{\"patients\":15,\"patientsSousKt\":15,\"seances\":6,\"factures\":2,\"caHt\":1000.00,\"caTtc\":1190.00,\"encaisse\":600.00,"
+                        + "\"resteARecouvrer\":590.00,\"tauxEncaissement\":50.4},"
+                        + "\"centres\":[{\"nom\":\"Centre A\",\"patients\":12,\"patientsSousKt\":15,\"seances\":4,\"factures\":2,\"caHt\":1000.00,\"caTtc\":1190.00,"
+                        + "\"encaisse\":600.00,\"resteARecouvrer\":590.00,\"tauxEncaissement\":50.4},"
+                        + "{\"nom\":\"Centre B\",\"patients\":null,\"patientsSousKt\":0,\"seances\":2,\"factures\":0,\"caHt\":0,\"caTtc\":0,\"encaisse\":0,"
+                        + "\"resteARecouvrer\":0,\"tauxEncaissement\":null}],\"mensuel\":[]},"
+                        + "\"indicators\":{\"centres\":[],\"totaux\":{\"clinique\":{},\"stock\":{}},\"alertes\":[]}}", SOCIETE, m1.toString());
+        arbrePd("rapport_ancien_instantane_nouveau_code", rapport(binaire(DIRECTION + "/snapshots/" + m1 + "/report", direction())));
     }
 
     @Test

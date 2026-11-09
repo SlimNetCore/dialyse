@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Indicateurs cliniques publiés avec un double du port de lectures : masque par centre, consolidés sur les bruts (KB-MED-104 reproduit). */
+/** Indicateurs cliniques publiés avec un double du port de lectures : masque par centre, consolidés supprimés dès qu'un centre est masqué (KB-MED-104 corrigé le 2026-11-09). */
 class CalculerLesIndicateursCliniquesTest {
     private static final UUID A = new UUID(0, 0xA);
     private static final UUID B = new UUID(0, 0xB);
@@ -60,9 +60,12 @@ class CalculerLesIndicateursCliniquesTest {
         assertThat(r.consolides().observanceEnRetard()).isFalse();
     }
 
-    /** KB-MED-104 : A = 5 publié, B = 3 masqué, consolidés 8 : « B = 3 » se déduit ; les taux des consolidés portent sur 8. */
+    /**
+     * KB-MED-104 corrigé (2026-11-09), suppression complémentaire : A = 5 publié, B = 3 masqué ; les consolidés composés d'un centre masqué
+     * sont publiés {@code null} (7 effectifs et, pour les cinq marqueurs, évalués et taux), de sorte que « B = 3 » ne se déduit plus.
+     */
     @Test
-    void un_centre_masque_est_deductible_des_consolides_kb_med_104() {
+    void un_centre_masque_n_est_plus_deductible_des_consolides_kb_med_104_corrige() {
         valeurs.put(LecturesDesIndicateursCliniques.Cible.HEMOGLOBINE, Map.of(A, hb(5), B, hb(3)));
         positifs.put(MarqueurSerologique.AG_HBS, Map.of(A, 5L, B, 1L));
         observance.put(B, 2L);
@@ -73,15 +76,54 @@ class CalculerLesIndicateursCliniquesTest {
         assertThat(r.parCentre().get(A).hemoglobine().pctDansCible()).isEqualByComparingTo("100.0");
         assertThat(r.parCentre().get(B).hemoglobine().evalues()).isNull();
         assertThat(r.parCentre().get(B).hemoglobine().pctDansCible()).isNull();
-        assertThat(r.consolides().hemoglobine().evalues()).isEqualTo(8L);
+        assertThat(r.consolides().hemoglobine().evalues()).isNull();
+        assertThat(r.consolides().hemoglobine().pctDansCible()).isNull();
         assertThat(r.parCentre().get(B).vhbPositifs()).isNull();
-        assertThat(r.consolides().vhbPositifs()).isEqualTo(6L);
+        assertThat(r.consolides().vhbPositifs()).isNull();
         assertThat(r.parCentre().get(B).patientsObservanceEnRetard()).isNull();
+        assertThat(r.consolides().patientsObservanceEnRetard()).isNull();
         assertThat(r.parCentre().get(B).observanceEnRetard()).isTrue();
         assertThat(r.parCentre().get(A).observanceEnRetard()).isFalse();
-        assertThat(r.consolides().greffeListeAttente()).isEqualTo(9L);
+        assertThat(r.consolides().observanceEnRetard()).isTrue();
+        // greffeListeAttente : A = 5 et B = 4 (masque) ; greffeBilanEnCours : 0 et 0 (zero reste zero) ; greffes : 0 et 1 (masque)
+        assertThat(r.consolides().greffeListeAttente()).isNull();
+        assertThat(r.consolides().greffeBilanEnCours()).isZero();
+        assertThat(r.consolides().greffesPeriode()).isNull();
         assertThat(r.parCentre().get(B).greffesPeriode()).isNull();
         assertThat(r.parCentre().get(A).greffesPeriode()).isZero();
+    }
+
+    /** Un effectif consolidé est supprimé champ par champ : seuls les champs dont un centre est masqué le sont. */
+    @Test
+    void la_suppression_complementaire_est_propre_a_chaque_effectif() {
+        positifs.put(MarqueurSerologique.AG_HBS, Map.of(A, 8L, B, 2L));
+        positifs.put(MarqueurSerologique.AC_VHC, Map.of(A, 8L, B, 6L));
+        positifs.put(MarqueurSerologique.VIH_AC, Map.of(A, 5L, B, 0L));
+        var r = calcul.desCentres(List.of(A, B), DU, AU);
+        assertThat(r.consolides().vhbPositifs()).isNull();
+        assertThat(r.consolides().vhcPositifs()).isEqualTo(14L);
+        assertThat(r.consolides().vihPositifs()).isEqualTo(5L);
+    }
+
+    @Test
+    void tous_les_centres_masques_le_total_est_supprime_et_cinq_pile_n_est_pas_masque() {
+        positifs.put(MarqueurSerologique.AG_HBS, Map.of(A, 1L, B, 4L));
+        positifs.put(MarqueurSerologique.AC_VHC, Map.of(A, 5L, B, 5L));
+        valeurs.put(LecturesDesIndicateursCliniques.Cible.HEMOGLOBINE, Map.of(A, hb(5), B, hb(5)));
+        var r = calcul.desCentres(List.of(A, B), DU, AU);
+        assertThat(r.consolides().vhbPositifs()).isNull();
+        assertThat(r.consolides().vhcPositifs()).isEqualTo(10L);
+        assertThat(r.consolides().hemoglobine().evalues()).isEqualTo(10L);
+        assertThat(r.consolides().hemoglobine().pctDansCible()).isEqualByComparingTo("100.0");
+    }
+
+    @Test
+    void une_societe_a_un_seul_centre_masque_n_a_pas_de_total_et_un_seul_centre_publiable_garde_son_total() {
+        positifs.put(MarqueurSerologique.AG_HBS, Map.of(A, 3L));
+        positifs.put(MarqueurSerologique.AC_VHC, Map.of(A, 9L));
+        var r = calcul.desCentres(List.of(A), DU, AU);
+        assertThat(r.consolides().vhbPositifs()).isNull();
+        assertThat(r.consolides().vhcPositifs()).isEqualTo(9L);
     }
 
     @Test

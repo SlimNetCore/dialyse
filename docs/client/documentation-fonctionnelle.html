@@ -4007,9 +4007,10 @@ par le contexte <strong>Pilotage direction</strong> (langage publié <code>Table
 ne fait que garder le jeton, porter les routes et rendre le PDF (HTML vers PDF). Règles reproduites à l&#39;identique du fonctionnement
 antérieur : la période par défaut et ses refus (RG-DIR-003, réponse 422 avec le même code) sont contrôlés <strong>avant</strong> toute lecture ;
 la période précédente (même durée) n&#39;est pas soumise à la limite de 5 ans ; l&#39;effectif d&#39;une période est celui de RG-PAT-037 ;
-l&#39;âge d&#39;une tranche est l&#39;âge révolu <strong>au jour de l&#39;appel</strong> ; les totaux de la société sont calculés sur les effectifs <strong>bruts</strong> (un
-centre masqué compte dans le total : la différence entre le total et la somme des centres publiés peut révéler un effectif masqué,
-KB-DIR-01, à faire confirmer par le DPO) ; « aujourd&#39;hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
+l&#39;âge d&#39;une tranche est l&#39;âge révolu <strong>au jour de l&#39;appel</strong> ; <strong>CORRIGÉ le 2026-11-09 (KB-DIR-01, lot L1, ADR 0112, validation DPO
+attendue au plus tard le 2026-12-15)</strong> : un total de patients (société, total d&#39;une caisse, total du rapport) est publié nul dès que l&#39;un
+des centres qui le composent est masqué (RG-DIR-111) ; avant, les totaux étaient calculés sur les effectifs bruts et la différence avec la
+somme des centres publiés révélait l&#39;effectif masqué ; « aujourd&#39;hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
 ou Africa/Algiers). Le rapport mensuel imprime l&#39;instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
 les mêmes libellés d&#39;alerte ; un code d&#39;alerte inconnu est imprimé tel quel. <em>Source :</em> <code>ConsulterLaVueDEnsemble</code>,
 <code>ConsulterLaRepartition</code>, <code>ConstituerLeRapportDeSynthese</code>.</p>
@@ -4074,8 +4075,8 @@ direction</strong> (PD6, ADR 0106, langage publié <code>IndicateursDeLaDirectio
 Stock, sans changement de comportement. Les points marqués « statu quo » sont <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
 <div class="rule" id="RG-DIR-110"><div class="rid">RG-DIR-110</div><div class="rtxt"><p>La période est contrôlée <strong>avant</strong> toute lecture (RG-DIR-003, 422 <code>PERIODE_INVALIDE</code> ou <code>PERIODE_TROP_LONGUE</code>). Les
 indicateurs cliniques de chaque centre et leur consolidé sont ceux du Dossier médical, <strong>déjà masqués</strong> (effectif de 1 à 4 publié nul, zéro
-reste zéro) : le consolidé est calculé sur les valeurs brutes de tous les centres puis masqué, et le Pilotage ne le recalcule jamais à partir
-des centres publiés (KB-DIR-01, statu quo). Le <strong>stock</strong> de chaque centre est évalué à la <strong>date de fin</strong> de la période (KB-DIR-07, statu quo) ;
+reste zéro) ; <strong>CORRIGÉ le 2026-11-09 (KB-MED-104, lot L1, RG-MED-049g)</strong> : un consolidé est publié nul dès qu&#39;un centre le porte masqué, et le
+Pilotage ne le recalcule jamais à partir des centres publiés. Le <strong>stock</strong> de chaque centre est évalué à la <strong>date de fin</strong> de la période (KB-DIR-07, statu quo) ;
 sa valeur est la quantité en stock multipliée par le prix moyen pondéré (un article sans prix vaut zéro), arrondie au centime (demi supérieur)
 <strong>par centre</strong>, tandis que les <strong>totaux de la société additionnent les valeurs non arrondies</strong> des centres puis arrondissent une seule fois
 (0,003 et 0,003 donnent 0,00 et 0,00 par centre mais 0,01 au total). Un centre <strong>inactif</strong> est servi comme les autres ; un centre inconnu du
@@ -4083,6 +4084,18 @@ Stock a un stock à zéro. Une société <strong>sans centre</strong> reçoit de
 alertes (RG-DIR-105) sont levées centre par centre, dans l&#39;ordre des centres, sur les taux déjà masqués et sur l&#39;observance brute ; le seuil
 d&#39;anonymat servi est 5 (<code>seuilAnonymat</code>). Le même résultat est gravé dans les instantanés mensuels (RG-DIR-090) et lu par le rapport de
 synthèse et le temps réel (RG-DIR-106). <em>Source :</em> <code>ConsulterLesIndicateursDeLaDirection</code>, <code>IndicateursDeLaSociete</code>, <code>StockDuCentre</code>.</p>
+</div></div>
+<div class="rule" id="RG-DIR-111"><div class="rid">RG-DIR-111</div><div class="rtxt"><p><em>Suppression complémentaire des totaux (KB-DIR-01 et KB-MED-104, <strong>CORRIGÉS le 2026-11-09</strong>, lot L1, ADR 0112 ; correction
+faite à la demande de l&#39;utilisateur, <strong>validation du DPO attendue au plus tard le 2026-12-15</strong>)</em> : un effectif de patients de 1 à 4 est masqué
+par centre (RG-DIR-030) ; un <strong>total</strong> est désormais publié <strong>nul</strong> (« &lt; seuil » à l&#39;écran et dans le PDF) dès qu&#39;<strong>au moins un</strong> des effectifs
+qui le composent est masqué, de sorte que « total moins somme des centres publiés » ne révèle plus l&#39;effectif masqué. Règle unique appliquée aux
+totaux de patients de la vue d&#39;ensemble, au total par caisse de la répartition (selon les centres qui portent <strong>cette</strong> caisse), aux sept effectifs
+cliniques consolidés (RG-MED-049g) et, pour chaque marqueur, aux patients évalués et aux taux consolidés, ainsi qu&#39;au rapport PDF (synthèse, « Total société »,
+total de chaque caisse, qualité des soins). Zéro reste zéro ; un effectif de 5 exactement n&#39;est pas masqué ; une société à un seul centre masqué n&#39;a pas de
+total. Les séances, le chiffre d&#39;affaires, les factures et les administrations sont inchangés. <strong>Instantanés déjà figés</strong> (RG-DIR-090) : ils sont
+<strong>masqués à la lecture</strong> (y compris pour le rapport PDF d&#39;un instantané ancien) sans <strong>jamais réécrire</strong> leur contenu stocké. <strong>Résiduels
+non traités (DPO)</strong> : effectif d&#39;un centre moins la somme de sa ventilation par sexe, âge ou caisse ; pourcentages cliniques d&#39;un petit échantillon ; une
+société dont un centre est petit n&#39;a plus jamais de total patients (effet voulu).</p>
 </div></div>
 </section>
 <section class="part" id="p14"><h1><span class="n">Partie 14</span>Référentiels du centre, modèles de documents, imports et reprise de données</h1>

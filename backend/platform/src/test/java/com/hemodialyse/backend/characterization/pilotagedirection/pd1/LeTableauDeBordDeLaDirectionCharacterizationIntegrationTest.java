@@ -15,8 +15,9 @@ import java.util.UUID;
 /**
  * PD1 : tableau de bord de la direction tel que servi par le LEGACY ({@code GET /api/v1/direction/societe}, {@code /overview}, {@code /breakdown} ;
  * {@code DirectionDashboardQueryService}, {@code DirectionBreakdownQueryService}, {@code AnonymityPolicy}, {@code DirectionAccessGuard}) : périmètre de la
- * société du jeton, masquage des effectifs de 1 à 4 par centre (et totaux calculés sur les bruts : fuite par différence, même famille que KB-MED-104),
- * effectif de la période, règlements de toutes dates, bornes de période, valeurs par défaut, droits. Rien n'est corrigé.
+ * société du jeton, masquage des effectifs de 1 à 4 par centre, effectif de la période, règlements de toutes dates, bornes de période, valeurs par
+ * défaut, droits. Lot L1 (2026-11-09, ADR 0112) : KB-DIR-01 CORRIGÉ, le total est supprimé dès qu'un centre est masqué (goldens {@code *_nouveau_code} ;
+ * les anciens sont archivés dans {@code _ecarts-legacy}).
  */
 class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends PilotageDirectionCharacterizationSupport {
 
@@ -52,22 +53,22 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
     }
 
     @Test
-    void la_vue_d_ensemble_compte_l_effectif_de_la_periode_masque_les_petits_centres_et_additionne_les_bruts() throws Exception {
+    void la_vue_d_ensemble_compte_l_effectif_de_la_periode_masque_les_petits_centres_et_supprime_le_total_nouveau_code() throws Exception {
         jeuComplet();
         fixe(-1);
         fixe(-101);
         Resp r = direction("/overview" + periode());
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("01 reponse complete (A : 7 presents dont 2 sous KT masques, sorti pendant compte, sorti avant et admis apres exclus ; B : 3 masques)", reponse(r));
+        m.put("01 reponse complete (A : 7 presents dont 2 sous KT masques, sorti pendant compte, sorti avant et admis apres exclus ; B : 3 masques ; "
+                + "KB-DIR-01 corrige (lot L1) : le total de patients est supprime car B est masque)", reponse(r));
         JsonNode t = corps(r).path("totaux");
-        m.put("02 fuite par difference : totaux.patients - centre A publie = effectif masque de B",
-                t.path("patients").asLong() - corps(r).path("centres").get(0).path("patients").asLong());
+        m.put("02 plus de fuite par difference : totaux.patients est null (avant : 10, d'ou B = 10 - 7 = 3)", t.path("patients").isNull());
         m.put("03 encaisse du centre A inclut le reglement poste apres la periode (600 + 200 sur une facture de la periode)", corps(r).path("centres").get(0).path("encaisse").asString());
-        arbrePd("overview", m);
+        arbrePd("overview_nouveau_code", m);
     }
 
     @Test
-    void la_repartition_detaille_sexe_age_caisse_et_anemie_par_centre_avec_masquage() throws Exception {
+    void la_repartition_detaille_sexe_age_caisse_et_anemie_par_centre_avec_masquage_nouveau_code() throws Exception {
         jeuComplet();
         LocalDate aujourdhui = LocalDate.now();
         for (int i = 0; i < 5; i++) {
@@ -77,7 +78,7 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
         Resp r = direction("/breakdown" + periode());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("01 reponse complete (sexe par initiale M/F sinon autre ; tranches d'age au jour de l'appel ; caisses triees par centre puis CA HT decroissant ; "
-                + "anemie)", reponse(r));
+                + "anemie ; KB-DIR-01 corrige (lot L1) : le total de la caisse sans code est supprime car le centre B y est masque)", reponse(r));
         Map<String, Object> ages = new LinkedHashMap<>();
         for (JsonNode ligne : corps(r).path("ages")) {
             if (CENTRE_B.toString().equals(ligne.path("centerId").asString())) {
@@ -85,7 +86,7 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
             }
         }
         m.put("02 centre B (13 patients : 3 nes en 1960 masques, 5 de 18 ans aujourd'hui, 5 qui auront 18 ans demain) : 18 ans revolus = 18_29, la veille = 0_17", ages);
-        arbrePd("breakdown", m);
+        arbrePd("breakdown_nouveau_code", m);
     }
 
     @Test
