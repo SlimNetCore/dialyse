@@ -362,13 +362,15 @@
   400 mmHg et la systolique est au moins égale à la diastolique (sinon 422 `BUSINESS_ERROR`, messages du legacy) ; une tension vide est
   gardée telle quelle ; durée, débit et ultrafiltration ne sont pas bornés. Ordre des refus : centre du corps (403 avant tout 400), séance
   inconnue du centre (400 « Seance introuvable »), séance **facturée** (422 `SEANCE_FACTUREE_NON_MODIFIABLE` ; `CREE`, `VALIDEE`,
-  `SIGNEE` et le reliquat `ABSENT` sont acceptés), mesures. Deux saisies simultanées se suivent (séance lue sous verrou de ligne ; 409
-  `ECRITURE_CONCURRENTE` au-delà du délai). La réponse rend `id`, `seanceId`, `updatedAt` ; deux diffusions suivent (volet enregistré
+  `SIGNEE` et le reliquat `ABSENT` sont acceptés), mesures. **Écart assumé sous concurrence, à confirmer par les métiers au plus tard
+  le 2026-12-15** (ADR 0100, « Parité attendue ») : deux saisies simultanées de la même séance se suivent (séance lue sous verrou de ligne,
+  la seconde attend la première puis écrit) ; si la première tient le verrou plus de 5 s, la seconde répond 409 `ECRITURE_CONCURRENTE`
+  (relire puis recommencer), là où le legacy écrivait deux fois sans verrou (deux 200, la dernière écriture écrasait l'autre). La réponse rend `id`, `seanceId`, `updatedAt` ; deux diffusions suivent (volet enregistré
   pour les infirmiers et secrétaires du centre, saisie de l'infirmier de type `PARAMEDICAL` pour les médecins). Le volet est **effacé avec
   la séance** (RG-SEA-054) et relu par le détail et les séances récentes **au centre de la séance seulement**.
   **Reproduits sans correction, à confirmer au plus tard le 2026-12-15** : KB-SEA-93 (le volet est écrit puis la réponse est 400 « Patient
   introuvable » quand la fiche est hors du centre, sans diffusion), KB-SEA-94 (un volet posé sous un autre centre est invisible et bloque la
-  saisie : 500 `DATA_ACCESS_ERROR`), un corps illisible répond 500 `INTERNAL_ERROR` (comme le legacy).
+  saisie : 500 `DATA_ACCESS_ERROR`), un corps illisible répond 500 `INTERNAL_ERROR` (comme le legacy, KB-SEA-99).
   *Source :* `VoletParamedical`, `MesuresDeSeance`, `Poids`, `TensionArterielle`, `Seance.exigerUnVoletParamedical`,
   `RenseignerLeVoletParamedical`, `VoletsParamedicauxJdbc`, `VoletParamedicalControleur`, `ErreursDuVoletParamedicalAdvice`.
 

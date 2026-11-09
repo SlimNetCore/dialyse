@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-07<br>616 règles de gestion · 16 domaines · 500 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-09 (RG-SEA-069 à 071 ajoutées à la main ; PDF et DOCX à régénérer)<br>619 règles de gestion · 16 domaines · 500 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
@@ -1988,7 +1988,7 @@ réouverture. Les événements d&#39;intégration
 <p>Préfixe <code>RG-SEA</code>. Sources : <code>Seance</code>, <code>SeanceStatus</code>, <code>SeanceDomainService</code>, <code>SeanceApplicationService</code>,
 <code>SeanceBillingEligibilityJdbcAdapter</code>, <code>VoletParamedicalDomainService</code>, <code>VoletMedicalDomainService</code>,
 <code>TensionArterielle</code>,
-<code>TableauDeBordDesSeancesControleur</code>, <code>VoletMedicalRestController</code>, <code>VoletParamedicalRestController</code>, <code>BonSortieService</code>.</p>
+<code>TableauDeBordDesSeancesControleur</code>, <code>VoletMedicalRestController</code>, <code>VoletParamedicalControleur</code> (contexte Séance), <code>BonSortieService</code>.</p>
 </blockquote>
 <h2>7.1 Cycle de vie</h2>
 <div class="rule" id="RG-SEA-001"><div class="rid">RG-SEA-001</div><div class="rtxt"><p>Statuts d&#39;une séance : <code>CREE</code> → <code>VALIDEE</code> (validation infirmière) → <code>SIGNEE</code> (signature médecin) →
@@ -2248,6 +2248,55 @@ médical de la séance : prescription, tolérance, examen clinique, résultats b
 information absente est imprimée « - ». Chaque page porte l&#39;en-tête (logo, société, centre, identité du patient) et
 le pied de page (édition, pagination, centre, pied de page société) du centre. Refus : patient hors du centre
 (<code>PATIENT_INTROUVABLE</code>), aucune séance à imprimer (<code>CAHIER_VIDE</code>), début après la fin (<code>CAHIER_PERIODE_INVALIDE</code>).</p>
+</div></div>
+<h2>7.7 Volet paramédical dans la Séance, lectures reprises et retrait du module legacy (slice SE7f, ADR 0100)</h2>
+<div class="rule" id="RG-SEA-069"><div class="rid">RG-SEA-069</div><div class="rtxt"><p><strong>Volet paramédical : les constantes de la séance appartiennent à la Séance</strong> (slice SE7f, ADR 0100 ; même route
+<code>PUT /api/v1/seances/{seanceId}/volet-paramedical</code>, mêmes rôles <code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code>, mêmes champs, aucune migration ;
+comportement inchangé). Le volet porte <strong>dix mesures</strong> : poids avant et après (kg), tension avant et après, durée (min), débit sang
+(ml/min), ultrafiltration (ml), anticoagulant, type de dialysat, incidents. La saisie <strong>remplace le volet en entier</strong> : une mesure absente
+du corps efface la valeur déjà saisie (RG-SEA-030). Un poids présent est <strong>strictement positif et au plus 500 kg</strong> (sinon 422
+<code>BUSINESS_ERROR</code>, « Le poids doit être strictement positif » / « Le poids dépasse la borne plausible (500 kg) ») ; une tension présente
+est lue « systolique/diastolique », la notation en cmHg (« 12/8 », « 11,5/7 ») est convertie en mmHg, les valeurs sont bornées de 20 à
+400 mmHg et la systolique est au moins égale à la diastolique (sinon 422 <code>BUSINESS_ERROR</code>, messages du legacy) ; une tension vide est
+gardée telle quelle ; durée, débit et ultrafiltration ne sont pas bornés. Ordre des refus : centre du corps (403 avant tout 400), séance
+inconnue du centre (400 « Seance introuvable »), séance <strong>facturée</strong> (422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> ; <code>CREE</code>, <code>VALIDEE</code>,
+<code>SIGNEE</code> et le reliquat <code>ABSENT</code> sont acceptés), mesures. <strong>Écart assumé sous concurrence, à confirmer par les métiers au plus tard
+le 2026-12-15</strong> (ADR 0100, « Parité attendue ») : deux saisies simultanées de la même séance se suivent (séance lue sous verrou de ligne,
+la seconde attend la première puis écrit) ; si la première tient le verrou plus de 5 s, la seconde répond 409 <code>ECRITURE_CONCURRENTE</code>
+(relire puis recommencer), là où le legacy écrivait deux fois sans verrou (deux 200, la dernière écriture écrasait l&#39;autre). La réponse rend
+<code>id</code>, <code>seanceId</code>, <code>updatedAt</code> ; deux diffusions suivent (volet enregistré pour les infirmiers et secrétaires du centre, saisie de
+l&#39;infirmier de type <code>PARAMEDICAL</code> pour les médecins). Le volet est <strong>effacé avec la séance</strong> (RG-SEA-054) et relu par le détail et les
+séances récentes <strong>au centre de la séance seulement</strong>. <strong>Reproduits sans correction, à confirmer au plus tard le 2026-12-15</strong> : KB-SEA-93
+(le volet est écrit puis la réponse est 400 « Patient introuvable » quand la fiche est hors du centre, sans diffusion), KB-SEA-94 (un volet posé
+sous un autre centre est invisible et bloque la saisie : 500 <code>DATA_ACCESS_ERROR</code>), un corps illisible répond 500 <code>INTERNAL_ERROR</code>
+(comme le legacy, KB-SEA-99).</p>
+<p><em>Source :</em> <code>VoletParamedical</code>, <code>MesuresDeSeance</code>, <code>Poids</code>, <code>TensionArterielle</code>, <code>Seance.exigerUnVoletParamedical</code>,
+<code>RenseignerLeVoletParamedical</code>, <code>VoletsParamedicauxJdbc</code>, <code>VoletParamedicalControleur</code>, <code>ErreursDuVoletParamedicalAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-070"><div class="rid">RG-SEA-070</div><div class="rtxt"><p><strong>Lectures reprises de la plateforme par la Séance</strong> (slice SE7f, ADR 0100 ; aucune route, aucune migration,
+comportement inchangé). Le planning du patient (jours de dialyse, sommeil, état et dates de la fiche AU CENTRE ; centre fermé = jour
+férié OU fermeture exceptionnelle à la date, additionnés : KB-SEA-95 reproduit), la place du patient à la validation (déplacement
+temporaire du jour, sinon place de la fiche publiée par la Planification ; vide sans salle ou créneau), le forfait courant (imposé, puis
+prise en charge couvrant le jour, effective avant demandée, puis la plus récente portant un forfait), l&#39;historique des séances (jointure
+séances-fiches, filtres, tris, pagination, statuts illisibles exclus et journalisés), le générateur du patient (équipement GMAO du centre,
+hors supprimé), le référentiel des forfaits du centre et le <strong>jour du centre</strong> (fuseau <code>centers.fuseau_horaire</code>, défaut de la plateforme)
+sont lus par la Séance elle-même, requêtes <strong>reprises mot pour mot</strong> des fournisseurs retirés de la plateforme. Restent fournis par la
+plateforme : les fiches des patients, les diffusions, le rappel de régularisation et l&#39;effacement des administrations de traitement.</p>
+<p><em>Source :</em> <code>PlanningDesPatientsJdbc</code>, <code>PlaceDuPatientJdbc</code>, <code>ForfaitsDeSeanceJdbc</code>, <code>HistoriqueDesSeancesJdbc</code>, <code>GenerateursDesPatientsJdbc</code>,
+<code>ForfaitsDuCentreJdbc</code>, <code>JourDuCentreJdbc</code>, <code>SaisiesParLeLegacy</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-071"><div class="rid">RG-SEA-071</div><div class="rtxt"><p><strong>Retrait du module legacy <code>bc-seance</code> et gardes des tables de la Séance</strong> (slice SE7f, ADR 0100). Le module Maven
+<code>backend/bc-seance</code> et ses dix-sept utilisateurs de la plateforme sont retirés ; la <strong>dernière créatinine</strong> de l&#39;évaluation KDIGO est lue
+par le langage publié du Dossier médical (<code>DerniereCreatininePubliee</code> : analyses du patient au centre, date de prélèvement décroissante,
+première créatinine non nulle ; <strong>KB-SEA-96 reproduit, à confirmer par les médecins au plus tard le 2026-12-15</strong> : ordre non défini à date
+égale, une créatinine à 0 est retenue) et la <strong>capacité théorique</strong> des centres par le langage publié de la Planification
+(<code>CapaciteTheoriqueDesCentres</code> : un générateur de secours pour huit, capacité = postes actifs x séries x patients par poste et par série,
+seuil de proximité 90 %, même résultat). Les tables <code>seances</code>, <code>volet_paramedical</code> et <code>volet_medical</code> ne sont lues ou écrites hors de la
+Séance que par une <strong>liste blanche nominative datée</strong> (<code>TableDesSeancesTest</code>, 6 entrées : l&#39;annulation d&#39;un lot de reprise pour les
+volets, le schéma H2, l&#39;état Jasper du cahier et trois scripts de données) ; <code>resultats_analyses</code> hors du Dossier médical de même
+(<code>TableDesAnalysesTest</code>, 8 entrées) ; les entités JPA sont détectées. <strong>KB-SEA-49 est clos</strong> (le code qui effaçait <code>facture_id</code> n&#39;existe plus).</p>
+<p><em>Source :</em> <code>KdigoGreffeQueryService</code>, <code>DerniereCreatinineJdbc</code>, <code>DirectionCapaciteQueryService</code>, <code>ConsulterLaCapaciteTheorique</code>,
+<code>CapaciteTheorique</code>, <code>TableDesSeancesTest</code>, <code>TableDesAnalysesTest</code>, <code>FrontieresDesContextesTest</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p08"><h1><span class="n">Partie 8</span>Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</h1>
@@ -4678,10 +4727,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-SEA-026 à 029</td>
 </tr>
 <tr>
-<td><code>VoletParamedicalRestController</code></td>
+<td><code>VoletParamedicalControleur</code> (contexte Séance)</td>
 <td><code>/api/v1/seances/{id}/volet-paramedical</code></td>
 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
-<td>RG-SEA-030</td>
+<td>RG-SEA-030, 069</td>
 </tr>
 <tr>
 <td><code>VoletMedicalRestController</code></td>

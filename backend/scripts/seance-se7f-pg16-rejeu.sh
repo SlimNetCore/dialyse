@@ -13,7 +13,9 @@
 #       centre, est refuse par la base (golden volet_d_un_autre_centre : 500 DATA_ACCESS_ERROR)
 #   F6  ResultatAnalyseJpaRepository.findByPatientIdAndCenterIdOrderByDatePrelevementDesc (derivee) : analyses du patient AU CENTRE, date
 #       decroissante ; a date egale, ordre NON defini (KB-SEA-96) : observe, non impose
-# Numerotation = celle de l'audit .ddd/safety-net/seance-se7f.md section 2.
+#   F7  (revue SE7f m5, 2026-11-09) deux ecritures concurrentes du volet paramedical de la meme seance, chemin SQL du PUT du nouveau code
+#       (FOR UPDATE + lock_timeout 5 s) : verrou tenu 7 s -> seconde en 55P03 (409) ; verrou tenu 1 s -> les deux ecrivent (sequentialisees)
+# Numerotation F1-F6 = celle de l'audit .ddd/safety-net/seance-se7f.md section 2.
 # Lots A-E (ADR 0100) : le script rejoue ensuite les 5 detections SELECT de la section 65 de verifications-production.md, puis lance les
 # contrats PostgreSQL des adapters repris (VoletsParamedicauxPostgresContractIT, LecturesReprisesDeLaPlateformePostgresContractIT dans
 # contexts/seance ; DerniereCreatininePostgresContractIT dans contexts/dossier-medical) contre la base jetable (schema Flyway reel).
@@ -114,6 +116,36 @@ verifier "F6 derniere creatinine non nulle du centre A sans les lignes du 03-01 
 PREMIERE="$(sql "SELECT id FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' ORDER BY date_prelevement DESC LIMIT 1")"
 echo "F6 a date egale (2026-03-01, deux lignes), PostgreSQL 16 sert d'abord : $PREMIERE (ordre NON defini, KB-SEA-96 : observe, non impose)"
 verifier "F6 les deux analyses du 03-01 sont servies" "$(sql "SELECT COUNT(*) FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' AND date_prelevement = '2026-03-01'")" "2"
+
+# F7 (revue SE7f m5, 2026-11-09 ; ADR 0100 "Parite attendue", ecart assume sous concurrence) : deux ecritures CONCURRENTES du volet
+# paramedical de la MEME seance, chemin SQL du PUT /api/v1/seances/{id}/volet-paramedical tel que l'executent UniteDeTravailSpring
+# (SET LOCAL lock_timeout = 5000), SeancesJdbc.trouverPourModifier (SELECT ... FROM seances WHERE id AND center_id FOR UPDATE) et
+# VoletsParamedicauxJdbc (lecture au centre puis UPDATE, sinon INSERT ; ici l'equivalent SQL : UPDATE au centre, INSERT si aucun).
+# Ce n'est PAS un appel HTTP : le script ne demarre pas l'application ; "ECRIT" vaut 200, "lock timeout" (SQLSTATE 55P03) vaut 409.
+# Deux processus psql (& puis wait) ; le premier garde le verrou pendant ATTENTE secondes (pg_sleep) avant d'ecrire et de valider.
+ecriture_du_volet() { # fichier attente poids identifiant_du_nouveau_volet
+  "${PSQL[@]}" -d hemo_test -qtA -c "BEGIN; SET LOCAL lock_timeout = 5000; SELECT id FROM seances WHERE id = '$SF' AND center_id = '$A' FOR UPDATE; SELECT pg_sleep($2); UPDATE volet_paramedical SET poids_avant_kg = $3, updated_at = now() WHERE seance_id = '$SF' AND center_id = '$A'; INSERT INTO volet_paramedical (id, center_id, seance_id, poids_avant_kg, created_at, updated_at) SELECT '$4', '$A', '$SF', $3, now(), now() WHERE NOT EXISTS (SELECT 1 FROM volet_paramedical WHERE seance_id = '$SF' AND center_id = '$A'); COMMIT; SELECT 'ECRIT';" 2>&1 | tr -d '\r' | dd of="$1" status=none
+}
+resultat_f7() { # fichier -> ECRIT | 409 (lock timeout, 55P03) | AUTRE
+  if grep -q '^ECRIT$' "$1"; then echo "ECRIT"; elif grep -qi 'lock timeout' "$1"; then echo "409 lock timeout"; else echo "AUTRE : $(paste -sd ' ' "$1")"; fi
+}
+echo "=== F7 deux ecritures concurrentes du volet paramedical de la seance $SF (centre A) : chemin SQL du PUT, lock_timeout 5 s ==="
+echo "F7a : la premiere ecriture tient le verrou de la seance 7 s (> 5 s) ; la seconde part 1 s apres"
+ecriture_du_volet "$TMP/f7a_1" 7 70.00 5e7f2000-0000-0000-0000-0000000000f1 &
+sleep 1
+ecriture_du_volet "$TMP/f7a_2" 0 71.00 5e7f2000-0000-0000-0000-0000000000f2 &
+wait
+verifier "F7a premiere ecriture (verrou tenu 7 s) : ecrite (200)" "$(resultat_f7 "$TMP/f7a_1")" "ECRIT"
+verifier "F7a seconde ecriture : verrou non obtenu en 5 s, SQLSTATE 55P03 (409 ECRITURE_CONCURRENTE ; le legacy aurait ecrit : 200)" "$(resultat_f7 "$TMP/f7a_2")" "409 lock timeout"
+verifier "F7a un seul volet pour la seance, celui de la premiere ecriture (70.00)" "$(sql "SELECT count(*), min(poids_avant_kg) FROM volet_paramedical WHERE seance_id = '$SF'")" "1|70.00"
+echo "F7b : la premiere ecriture tient le verrou 1 s (< 5 s) ; la seconde part 0,5 s apres et attend"
+ecriture_du_volet "$TMP/f7b_1" 1 72.00 5e7f2000-0000-0000-0000-0000000000f3 &
+sleep 0.5
+ecriture_du_volet "$TMP/f7b_2" 0 73.00 5e7f2000-0000-0000-0000-0000000000f4 &
+wait
+verifier "F7b premiere ecriture : ecrite (200)" "$(resultat_f7 "$TMP/f7b_1")" "ECRIT"
+verifier "F7b seconde ecriture : a attendu le verrou puis ecrite (200, sequentialisee)" "$(resultat_f7 "$TMP/f7b_2")" "ECRIT"
+verifier "F7b un seul volet, la seconde ecriture a remplace la premiere (73.00), aucun second INSERT" "$(sql "SELECT count(*), min(poids_avant_kg) FROM volet_paramedical WHERE seance_id = '$SF'")" "1|73.00"
 
 echo "=== Section 65 de verifications-production.md (ADR 0100, SELECT seulement) : detections rejouees a l'identique ==="
 verifier "65.1 KB-SEA-94 : volets poses dans un autre centre que leur seance (un paramedical et un medical du centre B sur la seance SA du centre A)" \
