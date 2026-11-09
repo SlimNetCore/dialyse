@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Repris des deux cas « markers » de {@code DirectionAlertPolicyTest} (plateforme) : masque sous le seuil, taux face à la cible. */
+/** Répartition face à la cible : masque sous le seuil d'anonymat, taux face à la cible. */
 class RepartitionFaceALaCibleTest {
 
     @Test

@@ -4028,6 +4028,36 @@ société n&#39;empêche pas les suivantes. « Mois courant » = date du serveur
 2026-12-15). <em>Source :</em> <code>MoisDInstantane</code>, <code>InstantaneMensuel</code>, <code>CapturerUnInstantaneMensuel</code>, <code>ConsulterUnInstantane</code>,
 <code>ListerLesInstantanes</code>, <code>CapturerLesInstantanesDuMoisEcoule</code>.</p>
 </div></div>
+<h2>13.14 Alertes et temps réel (contexte Pilotage direction)</h2>
+<p>Les règles RG-DIR-031, RG-DIR-032 et RG-DIR-100 à RG-DIR-102 sont désormais portées par le contexte <strong>Pilotage direction</strong> (lot C, PD3, ADR 0104)
+sans changement de comportement ; les quatre règles ci-dessous précisent ce que le fonctionnement antérieur faisait sans l&#39;écrire. Tous les
+points marqués « statu quo » sont <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
+<div class="rule" id="RG-DIR-105"><div class="rid">RG-DIR-105</div><div class="rtxt"><p>La <strong>politique d&#39;alertes</strong> (<code>PolitiqueDAlertes</code>, langage publié <code>AlertesDeLaDirection</code>) lève, par centre et dans cet ordre,
+les six codes de RG-DIR-031. Les seuils de taux sont <strong>inclusifs du minimum</strong> (Kt/V exactement 80 %, hémoglobine exactement 50 % : aucune
+alerte) ; un taux masqué par l&#39;anonymat ne lève jamais d&#39;alerte de taux ; l&#39;observance en retard ne porte pas de valeur ; la valeur des alertes
+de stock est le nombre d&#39;articles ou de lots. Les alertes de stock sont évaluées à la <strong>date de fin de la période demandée</strong>, pas à
+aujourd&#39;hui (KB-DIR-07, statu quo). Les alertes GMAO (RG-DIR-040 et suivantes) utilisent le même enregistrement mais restent calculées par la
+plateforme. <em>Source :</em> <code>PolitiqueDAlertes</code>.</p>
+</div></div>
+<div class="rule" id="RG-DIR-106"><div class="rid">RG-DIR-106</div><div class="rtxt"><p>Le <strong>temps réel</strong> recalcule une société à chaque signal d&#39;un de ses centres (toutes les secondes) et à chaque balayage (toutes
+les 10 secondes), <strong>seulement si au moins une direction y est abonnée</strong> ; le premier recalcul d&#39;un abonnement n&#39;est qu&#39;un constat de
+référence (rien n&#39;est diffusé) ; le dernier abonné parti, le constat est oublié ; un échec de lecture est journalisé et ignoré (rien n&#39;est écrit,
+ni historique ni diffusion) ; un échec de <strong>diffusion</strong> survient après l&#39;écriture de l&#39;historique et le rangement du constat : l&#39;historique
+est écrit et le changement est perdu, jamais rediffusé (statu quo) ; la diffusion est plafonnée à 60 changements. Un signal pour un centre inconnu est ignoré. Le suivi des
+abonnements STOMP reste dans la plateforme (PD5). <em>Source :</em> <code>SuivreLeTempsReel</code>.</p>
+</div></div>
+<div class="rule" id="RG-DIR-107"><div class="rid">RG-DIR-107</div><div class="rtxt"><p>L&#39;<strong>historique des alertes</strong> est alimenté par chaque recalcul. L&#39;identité d&#39;une alerte ouverte est le couple <strong>(centre,
+code)</strong>, sans notion de jour : tant qu&#39;elle est ouverte, sa valeur, sa gravité et le nom du centre restent <strong>figés à la première
+apparition</strong> (stock sous seuil 3 puis 7 : reste 3) ; si elle disparaît, elle est résolue ; si elle réapparaît (même le jour même), c&#39;est une
+<strong>nouvelle ligne</strong> ; une alerte du centre A n&#39;affecte jamais celle du centre B ni une autre société (KB-DIR-04, option (a) de R2, statu quo).
+Aucune contrainte d&#39;unicité en base : deux recalculs simultanés peuvent ouvrir deux lignes (résiduel PD3-R2). L&#39;horodatage est celui de la
+JVM (KB-DIR-03, statu quo). <em>Source :</em> <code>RapprochementDesAlertes</code>, <code>EnregistrerLesAlertes</code>.</p>
+</div></div>
+<div class="rule" id="RG-DIR-108"><div class="rid">RG-DIR-108</div><div class="rtxt"><p>La <strong>consultation</strong> de l&#39;historique (<code>GET /api/v1/direction/alerts/history</code>) rend les entrées de la société de la session, de la
+plus récemment active (<code>COALESCE(résolue, vue)</code>) à la plus ancienne ; <code>limit</code> vaut 50 par défaut, est <strong>ramené</strong> à 1 (0 ou négatif) ou à 200
+(au-delà) sans refus ; un <code>limit</code> illisible répond 500 (KB-DIR-02, statu quo). Le contexte est le seul propriétaire de la table
+<code>direction_alert_history</code>. <em>Source :</em> <code>ConsulterLHistoriqueDesAlertes</code>, <code>LimiteDHistorique</code>.</p>
+</div></div>
 </section>
 <section class="part" id="p14"><h1><span class="n">Partie 14</span>Référentiels du centre, modèles de documents, imports et reprise de données</h1>
 <blockquote>

@@ -188,8 +188,9 @@ points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard 
   plateforme. *Source :* `PolitiqueDAlertes`.
 - **RG-DIR-106** — Le **temps réel** recalcule une société à chaque signal d'un de ses centres (toutes les secondes) et à chaque balayage (toutes
   les 10 secondes), **seulement si au moins une direction y est abonnée** ; le premier recalcul d'un abonnement n'est qu'un constat de
-  référence (rien n'est diffusé) ; le dernier abonné parti, le constat est oublié ; un recalcul qui échoue est journalisé et ignoré (ni
-  historique ni diffusion) ; la diffusion est plafonnée à 60 changements. Un signal pour un centre inconnu est ignoré. Le suivi des
+  référence (rien n'est diffusé) ; le dernier abonné parti, le constat est oublié ; un échec de lecture est journalisé et ignoré (rien n'est écrit,
+  ni historique ni diffusion) ; un échec de **diffusion** survient après l'écriture de l'historique et le rangement du constat : l'historique
+  est écrit et le changement est perdu, jamais rediffusé (statu quo) ; la diffusion est plafonnée à 60 changements. Un signal pour un centre inconnu est ignoré. Le suivi des
   abonnements STOMP reste dans la plateforme (PD5). *Source :* `SuivreLeTempsReel`.
 - **RG-DIR-107** — L'**historique des alertes** est alimenté par chaque recalcul. L'identité d'une alerte ouverte est le couple **(centre,
   code)**, sans notion de jour : tant qu'elle est ouverte, sa valeur, sa gravité et le nom du centre restent **figés à la première

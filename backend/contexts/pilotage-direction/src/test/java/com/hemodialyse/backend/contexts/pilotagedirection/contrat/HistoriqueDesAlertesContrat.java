@@ -87,6 +87,17 @@ abstract class HistoriqueDesAlertesContrat {
         assertEquals(List.of("KTV_CONFORMITE_BASSE", "LOTS_PERIMES"), h.recentes(SOCIETE, 2).stream().map(Entree::code).toList());
     }
 
+    /** PD3-R2 (KB-DIR-04, RG-DIR-107) : aucune unicité de l'alerte ouverte ; deux écrivains concurrents ouvrent deux lignes. */
+    @Test
+    void deux_ouvertures_de_la_meme_cle_donnent_deux_lignes_ouvertes_statu_quo_PD3_R2() {
+        HistoriqueDesAlertes h = historique();
+        h.ouvrir(SOCIETE, alerte("STOCK_SOUS_SEUIL", GraviteDAlerte.CRITICAL, "3"), T0);
+        h.ouvrir(SOCIETE, alerte("STOCK_SOUS_SEUIL", GraviteDAlerte.CRITICAL, "3"), T0);
+
+        assertEquals(2, h.ouvertes(SOCIETE).size());
+        assertEquals(2, h.recentes(SOCIETE, 10).size());
+    }
+
     @Test
     void les_entrees_d_une_societe_ne_contiennent_pas_celles_d_une_autre() {
         historique().ouvrir(AUTRE, alerte("LOTS_PERIMES", GraviteDAlerte.CRITICAL, "9"), T0);
