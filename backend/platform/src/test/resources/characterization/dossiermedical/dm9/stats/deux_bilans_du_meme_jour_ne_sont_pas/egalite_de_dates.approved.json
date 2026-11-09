@@ -1,0 +1,13 @@
+{
+  "01 statut" : 200,
+  "02 moyennes (hb | ktv | ferritine)" : "12.0 | 1.0 | 400.0",
+  "03 nombre de lignes de tendance" : 3,
+  "04 lignes de tendance TRIEES (ordre servi non fige : les deux bilans du <D+10> sont indepartageables)" : [ "hb=10.0 ktv=1.0 ferritine=300.0", "hb=12.0 ktv= ferritine=500.0", "hb=14.0 ktv= ferritine=" ],
+  "05 la troisieme ligne servie est celle du <D+20> (seule la date tranche)" : "14.0",
+  "06 csv : statut et type" : "200 text/csv",
+  "07 csv : en-tete" : "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl",
+  "08 csv : nombre de lignes de donnees (plus une ligne vide finale)" : 4,
+  "09 csv : lignes de donnees TRIEES" : [ "\"<D+10>\",\"10.00\",\"1.00\",\"300.00\",\"5.50\",", "\"<D+10>\",\"12.00\",,\"500.00\",,\"9.00\"", "\"<D+20>\",\"14.00\",,,," ],
+  "10 csv : la troisieme ligne servie est celle du <D+20>" : "\"<D+20>\",\"14.00\",,,,",
+  "11 aucune ecriture" : true
+}

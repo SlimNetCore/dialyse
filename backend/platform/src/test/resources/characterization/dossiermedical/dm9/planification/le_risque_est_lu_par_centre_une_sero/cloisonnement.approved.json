@@ -1,0 +1,12 @@
+{
+  "01 patients a risque lus au centre A" : [ "<FICHE_A3_POSITIF_EN_A_NEGATIF_PLUS_RECENT_EN_B>", "<SANS_FICHE>" ],
+  "02 patients a risque lus au centre B" : [ "<FICHE_A1_POSITIF_POSE_AU_CENTRE_B>", "<FICHE_A2_NEGATIF_EN_A_POSITIF_PLUS_ANCIEN_EN_B>", "<FICHE_B_POSITIF_AU_CENTRE_B>" ],
+  "03 FICHE_A1 vue du centre A (son positif est pose au centre B)" : "SANS_RISQUE",
+  "04 FICHE_A1 vue du centre B" : "A_RISQUE",
+  "05 FICHE_A2 vue du centre A (negatif recent en A)" : "SANS_RISQUE",
+  "06 FICHE_A2 vue du centre B (positif ancien en B, le negatif de A n'est pas vu)" : "A_RISQUE",
+  "07 FICHE_A3 vue du centre A (positif en A, le negatif plus recent de B n'est pas vu)" : "A_RISQUE",
+  "08 FICHE_A3 vue du centre B" : "SANS_RISQUE",
+  "09 FICHE_B vue du centre A" : "SANS_RISQUE",
+  "10 patient sans fiche, serologie positive au centre A" : "A_RISQUE"
+}

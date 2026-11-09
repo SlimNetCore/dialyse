@@ -1,0 +1,7 @@
+{
+  "01 nom du centre en base" : "Centre <b>DM9</b> & Fils",
+  "02 statut" : 200,
+  "03 type" : "application/pdf",
+  "04 signature du fichier" : "%PDF-",
+  "05 texte" : [ "Centre <b>DM9</b> & Fils", "Rapport statistiques patient", "Centre: <CENTRE_A> | Patient: <PAT_A> | Periode: - -> - | Genere le:", "<HORODATAGE_MINUTE>", "Statistiques paramedicales", "Seances: 0.00", "Poids avant moyen (kg): 0.00", "Poids apres moyen (kg): 0.00", "UF reelle moyenne (mL): 0.00", "Date seance Poids avant Poids apres Poids sec cible", "Aucune donnee", "Statistiques medicales", "Hb moyenne (g/dL): 10.00", "Kt/V moyen: 1.00", "Ferritine moyenne (ng/mL): 300.00", "Date prelevement Hb Kt/V Ferritine", "<D+10> 10.00 1.00 300.00", "Centre <b>DM9</b> & Fils" ]
+}

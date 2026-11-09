@@ -1,0 +1,14 @@
+{
+  "01 au jour <D+100>" : {
+    "<ENFANT_AVEC_CATHETER_ET_TRANSPORTEUR>" : "competences=[CATHETER, PEDIATRIE] transporteurs=[<TRANSPORTEUR_ALLER>]",
+    "<NAISSANCE_FUTURE>" : "competences=[PEDIATRIE] transporteurs=[]",
+    "<NE_18_ANS_MOINS_UN_JOUR_AVANT>" : "competences=[PEDIATRIE] transporteurs=[]",
+    "<NE_LE_JOUR_MEME>" : "competences=[PEDIATRIE] transporteurs=[]"
+  },
+  "02 au lendemain <D+101> (la borne des dix-huit ans a bouge d'un jour)" : {
+    "<ENFANT_AVEC_CATHETER_ET_TRANSPORTEUR>" : "competences=[CATHETER, PEDIATRIE] transporteurs=[<TRANSPORTEUR_ALLER>]",
+    "<NAISSANCE_FUTURE>" : "competences=[PEDIATRIE] transporteurs=[]",
+    "<NE_LE_JOUR_MEME>" : "competences=[PEDIATRIE] transporteurs=[]"
+  },
+  "03 centre B (fiche B dont l'abord est pose au centre A)" : { }
+}

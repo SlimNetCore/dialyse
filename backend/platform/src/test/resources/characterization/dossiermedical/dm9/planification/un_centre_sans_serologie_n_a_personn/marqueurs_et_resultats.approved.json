@@ -1,0 +1,16 @@
+{
+  "01 centre sans aucune serologie : ensemble" : [ ],
+  "02 centre sans aucune serologie : P1" : "SANS_RISQUE",
+  "03 ensemble des patients a risque du centre A" : [ "<P1_AG_HBS_POSITIF>", "<P8_AG_HBS_NEGATIF_ET_VIH_POSITIF>" ],
+  "04 P1 AG_HBS POSITIF" : "A_RISQUE",
+  "05 P2 TPHA POSITIF (marqueur hors risque)" : "SANS_RISQUE",
+  "06 P3 VIH_AC DOUTEUX" : "SANS_RISQUE",
+  "07 P4 ARN_VHC EN_COURS" : "SANS_RISQUE",
+  "08 P5 AC_VHC NEGATIF" : "SANS_RISQUE",
+  "09 P6 resultat 'positif' en minuscules" : "SANS_RISQUE",
+  "10 P7 marqueur 'ag_hbs' en minuscules" : "SANS_RISQUE",
+  "11 P8 AG_HBS negatif mais VIH_AC positif (regle par marqueur)" : "A_RISQUE",
+  "12 patient inconnu" : "SANS_RISQUE",
+  "13 centre B (aucune serologie)" : [ ],
+  "14 aucune ecriture" : true
+}

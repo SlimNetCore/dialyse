@@ -1,0 +1,13 @@
+{
+  "01 centre A sans patient" : { },
+  "02 centre A : transporteurs (un patient sans rien absent, meme transporteur compte une fois)" : {
+    "<DEUX_TRANSPORTEURS>" : "competences=[] transporteurs=[<TRANSPORTEUR_ALLER>, <TRANSPORTEUR_RETOUR>]",
+    "<MEME_TRANSPORTEUR_ALLER_ET_RETOUR>" : "competences=[] transporteurs=[<TRANSPORTEUR_ALLER>]",
+    "<TRANSPORTEUR_ALLER_SEUL>" : "competences=[] transporteurs=[<TRANSPORTEUR_ALLER>]",
+    "<TRANSPORTEUR_RETOUR_SEUL>" : "competences=[] transporteurs=[<TRANSPORTEUR_RETOUR>]"
+  },
+  "03 centre B" : {
+    "<TRANSPORTEUR_DU_CENTRE_B>" : "competences=[] transporteurs=[<TRANSPORTEUR_ALLER>]"
+  },
+  "04 aucune ecriture" : true
+}

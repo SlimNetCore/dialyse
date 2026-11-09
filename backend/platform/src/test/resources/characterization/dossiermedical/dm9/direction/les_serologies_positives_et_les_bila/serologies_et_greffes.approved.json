@@ -1,0 +1,20 @@
+{
+  "01 porteurs AgHBs positifs : A = 5, B = 1 (un seul patient du centre B)" : {
+    "centre A" : "5",
+    "centre B" : "masque",
+    "deduction par difference" : "centre B = 1",
+    "totaux" : "6"
+  },
+  "02 inscrits en liste d'attente de greffe : A = 5, B = 4" : {
+    "centre A" : "5",
+    "centre B" : "masque",
+    "deduction par difference" : "centre B = 4",
+    "totaux" : "9"
+  },
+  "03 bilans en cours : aucun (zero reste zero)" : {
+    "centre A" : "0",
+    "centre B" : "0",
+    "deduction par difference" : "rien a deduire (tout est publie)",
+    "totaux" : "0"
+  }
+}

@@ -185,7 +185,18 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/CahierDialyseReportService.java",
     "backend/platform/src/main/resources/reports/cahier_dialyse.jrxml",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
+    "backend/contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacydossiermedical/RisquesInfectieuxJdbc.java",
+    "backend/contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/service/KdigoEvaluationPolicy.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/RegleCibleKdigo.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/StatutCible.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/kdigo/valueobject/EvaluationCible.java",
+    "backend/bc-medical/src/main/java/com/hemodialyse/backend/domain/medical/anemie/port/AdministrationTraitementRepositoryPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/EvaluationCibleResponse.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/NotificationsDeLAnemieLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/SignalementDesPrescriptionsLegacy.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java"
   ],
   "seamAllowed": []
 }
