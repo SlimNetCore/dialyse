@@ -5,7 +5,8 @@ import com.hemodialyse.backend.contexts.planification.domain.CategorieDIsolement
 import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.SemaineDuPlanning.PatientDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyoptimisation.DeplacementsTemporairesJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SeriesDuCentreJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesEtCreneauxDuCentreJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.SeriesDuCentrePubliees;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -114,8 +115,8 @@ abstract class LecturesDeLaSemaineJdbcContrat {
         creneau(CENTRE.valeur(), "S");
         creneau(AUTRE_CENTRE, "M");
 
-        assertThat(new SeriesDuCentreJdbc(jdbc()).nombre(CENTRE)).isEqualTo(2);
-        assertThat(new SeriesDuCentreJdbc(jdbc()).nombre(new CentreId(UUID.randomUUID()))).isZero();
+        assertThat(new SeriesDuCentrePubliees(new SallesEtCreneauxDuCentreJdbc(jdbc())).nombre(CENTRE)).isEqualTo(2);
+        assertThat(new SeriesDuCentrePubliees(new SallesEtCreneauxDuCentreJdbc(jdbc())).nombre(new CentreId(UUID.randomUUID()))).isZero();
     }
 
     private void creneau(UUID centre, String code) {

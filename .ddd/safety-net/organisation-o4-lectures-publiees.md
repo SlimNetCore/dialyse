@@ -166,6 +166,8 @@ Propriétaire cible : Identité et accès (pas encore un contexte) ou Documents 
 
 Totaux : A = 10 (1, 2, 3, 4, 7, 8, 9, 10, 12, 13) ; B = 4 (5, 6, 11, 23) ; C = 3 ; D = 6 (17-22) ; E/résiduels = 9 (24-32).
 Après le lot A : 32 - 10 = 22 entrées dans la liste blanche.
+Lot D (2026-11-09, ADR 0110) : les lecteurs 17-22 sont migrés (15 -> 9) ; l'écriture du 19 est devenue la commande `DefinirLesSallesDIsolement`, le verrou du 22
+la méthode `VerrouDuCentre.reserverLeCentre` ; filet ajouté AVANT migration : `LecturesDOrganisationDansLaPlanificationTest` (9 tests).
 
 ### Constats de l'audit
 

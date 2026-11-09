@@ -9,9 +9,11 @@ import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.PaginationInvalide;
 import com.hemodialyse.backend.contexts.planification.domain.Pagination;
 import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.LectureDesRessourcesLegacy;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SallesDuCentreJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.VueDesSallesLegacy;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.IsolementDesSallesJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesEtCreneauxDuCentreJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.LectureDesRessourcesPubliees;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.SallesDuCentrePubliees;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.VueDesSallesPubliees;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.ParametresDuPlanningJdbc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,8 +85,13 @@ class RessourcesEtSallesLegacyTest {
         return new Generateur(UUID.randomUUID(), code, "Equipement " + code, salle, statut, CENTRE);
     }
 
-    private LectureDesRessourcesLegacy ressources() {
-        return new LectureDesRessourcesLegacy(jdbc, generateurs, new ParametresDuPlanningJdbc(jdbc, new SallesDuCentreJdbc(jdbc)));
+    private SallesEtCreneauxDuCentreJdbc organisation() {
+        return new SallesEtCreneauxDuCentreJdbc(jdbc);
+    }
+
+    private LectureDesRessourcesPubliees ressources() {
+        return new LectureDesRessourcesPubliees(jdbc, organisation(), generateurs,
+                new ParametresDuPlanningJdbc(jdbc, new SallesDuCentrePubliees(organisation(), new IsolementDesSallesJdbc(jdbc))));
     }
 
     @Test
@@ -150,7 +157,7 @@ class RessourcesEtSallesLegacyTest {
         gmao.add(generateur("G5", SALLE_B, "EN_SERVICE"));
         gmao.add(generateur("G6", SALLE_B, "EN_SERVICE"));
 
-        VueDesSalles.Page page = new VueDesSallesLegacy(jdbc, generateurs).lister(new CentreId(CENTRE), new Pagination(0, 20));
+        VueDesSalles.Page page = new VueDesSallesPubliees(organisation(), generateurs).lister(new CentreId(CENTRE), new Pagination(0, 20));
 
         assertThat(page.total()).isEqualTo(2);
         VueDesSalles.SalleVue a = page.items().get(0);
@@ -165,7 +172,7 @@ class RessourcesEtSallesLegacyTest {
 
     @Test
     void should_page_the_rooms_and_cap_the_size_at_100() {
-        VueDesSallesLegacy vue = new VueDesSallesLegacy(jdbc, generateurs);
+        VueDesSallesPubliees vue = new VueDesSallesPubliees(organisation(), generateurs);
 
         assertThat(vue.lister(new CentreId(CENTRE), new Pagination(1, 1)).items()).extracting(VueDesSalles.SalleVue::nom)
                 .containsExactly("Salle B");

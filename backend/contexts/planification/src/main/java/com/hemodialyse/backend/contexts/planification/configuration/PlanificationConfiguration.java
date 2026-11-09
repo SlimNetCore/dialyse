@@ -27,7 +27,9 @@ import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyi
 import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.GenerateurDeMotDePasseTemporaire;
 import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsAleatoires;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.InfirmiersJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDuReferentielDesInfirmiersJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.LectureDesRessourcesPubliees;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.VerrouDuReferentielDesInfirmiersParOrganisation;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.VueDesSallesPubliees;
 import com.hemodialyse.backend.contexts.planification.interfaces.publie.FichesDesInfirmiersPourLeLegacy;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.application.AffecterAuRoulement;
@@ -81,8 +83,8 @@ import com.hemodialyse.backend.contexts.planification.domain.ReglagesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.VerrouDuCentre;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyinfirmier.InfirmiersDuCentreJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.CreneauxDuCentreJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SallesDuCentreJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.CreneauxDuCentrePublies;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.SallesDuCentrePubliees;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PatientsDuCentreJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.LectureDesPreferencesJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.ParametresDuPlanningJdbc;
@@ -128,13 +130,16 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    SallesDuCentre planificationSallesDuCentre(JdbcTemplate jdbc) {
-        return new SallesDuCentreJdbc(jdbc);
+    SallesDuCentre planificationSallesDuCentre(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.SallesEtCreneauxDuCentre organisation,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.DefinirLesSallesDIsolement isolement) {
+        return new SallesDuCentrePubliees(organisation, isolement);
     }
 
     @Bean
-    CreneauxDuCentre planificationCreneauxDuCentre(JdbcTemplate jdbc) {
-        return new CreneauxDuCentreJdbc(jdbc);
+    CreneauxDuCentre planificationCreneauxDuCentre(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.SallesEtCreneauxDuCentre organisation) {
+        return new CreneauxDuCentrePublies(organisation);
     }
 
     @Bean
@@ -219,8 +224,9 @@ public class PlanificationConfiguration {
     // ------------------------------------------------------------------ slice P2 : référentiel des infirmiers et comptes
 
     @Bean
-    VerrouDuReferentielDesInfirmiers planificationVerrouDuReferentielDesInfirmiers(JdbcTemplate jdbc) {
-        return new VerrouDuReferentielDesInfirmiersJdbc(jdbc);
+    VerrouDuReferentielDesInfirmiers planificationVerrouDuReferentielDesInfirmiers(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.VerrouDuCentre verrouDuCentre) {
+        return new VerrouDuReferentielDesInfirmiersParOrganisation(verrouDuCentre);
     }
 
     @Bean
@@ -614,17 +620,18 @@ public class PlanificationConfiguration {
 
     @Bean
     com.hemodialyse.backend.contexts.planification.application.LectureDesRessources planificationLectureDesRessources(
-            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs,
+            JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.SallesEtCreneauxDuCentre organisation,
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs,
             ParametresDuPlanningRepository parametres) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.LectureDesRessourcesLegacy(
-                jdbc, generateurs, parametres);
+        return new LectureDesRessourcesPubliees(jdbc, organisation, generateurs, parametres);
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.VueDesSallesLegacy planificationVueDesSalles(
-            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.VueDesSallesLegacy(jdbc,
-                generateurs);
+    VueDesSallesPubliees planificationVueDesSalles(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.SallesEtCreneauxDuCentre organisation,
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs) {
+        return new VueDesSallesPubliees(organisation, generateurs);
     }
 
     @Bean
@@ -763,8 +770,9 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.SeriesDuCentre planificationSeriesDuCentre(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SeriesDuCentreJdbc(jdbc);
+    com.hemodialyse.backend.contexts.planification.application.SeriesDuCentre planificationSeriesDuCentre(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.SallesEtCreneauxDuCentre organisation) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.SeriesDuCentrePubliees(organisation);
     }
 
     @Bean

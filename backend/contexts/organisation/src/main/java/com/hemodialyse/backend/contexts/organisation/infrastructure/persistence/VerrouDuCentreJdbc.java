@@ -21,4 +21,10 @@ public class VerrouDuCentreJdbc implements VerrouDuCentre {
     public void verrouiller(UUID centre) {
         jdbc.queryForList("SELECT id FROM centers WHERE id = ? FOR UPDATE", UUID.class, centre);
     }
+
+    /** SQL repris à l'identique de {@code VerrouDuReferentielDesInfirmiersJdbc} (Planification, retiré au lot D de O4, ADR 0110). */
+    @Override
+    public void reserverLeCentre(UUID centre) {
+        jdbc.update("UPDATE centers SET id = id WHERE id = ?", centre);
+    }
 }

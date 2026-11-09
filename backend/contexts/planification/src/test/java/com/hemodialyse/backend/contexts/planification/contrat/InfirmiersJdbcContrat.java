@@ -16,7 +16,8 @@ import com.hemodialyse.backend.contexts.planification.domain.VerrouDuReferentiel
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyidentite.ComptesUtilisateursJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.InfirmiersJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RoulementsJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDuReferentielDesInfirmiersJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDuCentreJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.VerrouDuReferentielDesInfirmiersParOrganisation;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -70,7 +71,7 @@ public abstract class InfirmiersJdbcContrat extends InfirmiersContrat {
     }
 
     protected VerrouDuReferentielDesInfirmiers verrou() {
-        return new VerrouDuReferentielDesInfirmiersJdbc(jdbc());
+        return new VerrouDuReferentielDesInfirmiersParOrganisation(new VerrouDuCentreJdbc(jdbc()));
     }
 
     private void roleInfirmier() {

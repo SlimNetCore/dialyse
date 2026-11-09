@@ -11,4 +11,13 @@ import java.util.UUID;
 public interface VerrouDuCentre {
 
     void verrouiller(UUID centre);
+
+    /**
+     * (O4 lot D, ADR 0110) Réserve la ligne du centre en écriture SANS bloquer les insertions des lignes qui référencent le centre :
+     * mise à jour sans changement ({@code UPDATE centers SET id = id}). Sur PostgreSQL c'est un verrou {@code FOR NO KEY UPDATE}
+     * (le verrou {@link #verrouiller} est {@code FOR UPDATE}, plus fort, et bloquerait ces insertions). Sert à sérialiser les écritures
+     * d'un référentiel rattaché au centre (ADR 0056, infirmiers de la Planification). Même transaction que l'appelant ; un centre inconnu
+     * n'est pas une erreur. Un verrou refusé (délai, interblocage) remonte en exception Spring que l'appelant traduit.
+     */
+    void reserverLeCentre(UUID centre);
 }

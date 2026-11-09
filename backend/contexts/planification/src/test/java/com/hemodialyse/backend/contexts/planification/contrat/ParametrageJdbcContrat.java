@@ -22,8 +22,10 @@ import com.hemodialyse.backend.contexts.planification.domain.ReglagesDePlanifica
 import com.hemodialyse.backend.contexts.planification.domain.ReglagesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.VerrouDuCentre;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyinfirmier.InfirmiersDuCentreJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.CreneauxDuCentreJdbc;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SallesDuCentreJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.IsolementDesSallesJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesEtCreneauxDuCentreJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.CreneauxDuCentrePublies;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.SallesDuCentrePubliees;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PatientsDuCentreJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.LectureDesPreferencesJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.ParametresDuPlanningJdbc;
@@ -60,8 +62,8 @@ public abstract class ParametrageJdbcContrat extends ParametrageContrat {
 
     protected abstract TransactionTemplate transaction();
 
-    private SallesDuCentreJdbc salles() {
-        return new SallesDuCentreJdbc(jdbc());
+    private SallesDuCentrePubliees salles() {
+        return new SallesDuCentrePubliees(new SallesEtCreneauxDuCentreJdbc(jdbc()), new IsolementDesSallesJdbc(jdbc()));
     }
 
     @Override
@@ -197,8 +199,9 @@ public abstract class ParametrageJdbcContrat extends ParametrageContrat {
         jdbc().update("INSERT INTO position_creneau (id, center_id, code, libelle) VALUES (?, ?, 'MATIN', 'Matin')", creneau,
                 CENTRE.valeur());
 
-        assertThat(new CreneauxDuCentreJdbc(jdbc()).contient(CENTRE, new CreneauId(creneau))).isTrue();
-        assertThat(new CreneauxDuCentreJdbc(jdbc()).contient(AUTRE, new CreneauId(creneau))).isFalse();
+        CreneauxDuCentrePublies creneaux = new CreneauxDuCentrePublies(new SallesEtCreneauxDuCentreJdbc(jdbc()));
+        assertThat(creneaux.contient(CENTRE, new CreneauId(creneau))).isTrue();
+        assertThat(creneaux.contient(AUTRE, new CreneauId(creneau))).isFalse();
     }
 
     @Test

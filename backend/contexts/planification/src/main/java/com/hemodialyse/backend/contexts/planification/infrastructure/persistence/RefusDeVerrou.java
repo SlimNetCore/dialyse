@@ -12,12 +12,12 @@ import java.util.function.Supplier;
  * Un verrou de ligne qu'on ne peut pas prendre (délai dépassé, interblocage) ou une clé créée entre-temps par une autre écriture
  * est une écriture concurrente : 409 {@code PLANIFICATION_ECRITURE_CONCURRENTE}.
  */
-final class RefusDeVerrou {
+public final class RefusDeVerrou {
 
     private RefusDeVerrou() {
     }
 
-    static <T> T verrouillant(Supplier<T> action) {
+    public static <T> T verrouillant(Supplier<T> action) {
         try {
             return action.get();
         } catch (PessimisticLockingFailureException | QueryTimeoutException | DuplicateKeyException e) {

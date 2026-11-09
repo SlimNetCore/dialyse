@@ -1,7 +1,7 @@
-package com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+package com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.SallesEtCreneauxDuCentre;
 import com.hemodialyse.backend.contexts.planification.application.LectureDesRessources;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.CreneauId;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.GenerateurId;
@@ -12,46 +12,48 @@ import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre.
 import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre.Fermeture;
 import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre.Generateur;
 import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre.Salle;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * ACL vers Organisation (salles et créneaux, tables {@code salle} et {@code position_creneau}, encore dans le legacy), vers GMAO (les
- * générateurs par son langage publié {@link GenerateursDuCentre}, jamais par sa table), vers le paramétrage (jours d'ouverture) et
- * vers le calendrier clinique (fériés et fermetures exceptionnelles des 90 jours suivant le jour donné). Seuls les générateurs de
- * dialyse {@code EN_SERVICE} rattachés à une salle sont retenus (RG-PLN-011). Salles et créneaux sont triés par code.
+ * Traducteur vers Organisation (salles et créneaux par son langage publié {@link SallesEtCreneauxDuCentre}, O4 lot D, ADR 0110), vers
+ * GMAO (les générateurs par son langage publié {@link GenerateursDuCentre}, jamais par sa table), vers le paramétrage (jours d'ouverture)
+ * et vers le calendrier clinique (fériés et fermetures exceptionnelles des 90 jours suivant le jour donné ; tables du calendrier, hors
+ * Organisation, O4-R5). Seuls les générateurs de dialyse {@code EN_SERVICE} rattachés à une salle sont retenus (RG-PLN-011). Salles et
+ * créneaux sont triés par code.
  */
-public class LectureDesRessourcesLegacy implements LectureDesRessources {
+public class LectureDesRessourcesPubliees implements LectureDesRessources {
 
     /** Horizon des fermetures datées signalées sur une proposition de placement (RG-PLN-013). */
     static final int HORIZON_DES_FERMETURES_EN_JOURS = 90;
     static final String EN_SERVICE = "EN_SERVICE";
 
     private final JdbcTemplate jdbc;
+    private final SallesEtCreneauxDuCentre organisation;
     private final GenerateursDuCentre generateurs;
     private final ParametresDuPlanningRepository parametres;
 
-    public LectureDesRessourcesLegacy(JdbcTemplate jdbc, GenerateursDuCentre generateurs, ParametresDuPlanningRepository parametres) {
+    public LectureDesRessourcesPubliees(JdbcTemplate jdbc, SallesEtCreneauxDuCentre organisation, GenerateursDuCentre generateurs,
+                                        ParametresDuPlanningRepository parametres) {
         this.jdbc = jdbc;
+        this.organisation = organisation;
         this.generateurs = generateurs;
         this.parametres = parametres;
     }
 
     @Override
     public RessourcesDuCentre duCentre(CentreId centre, LocalDate aPartirDu) {
-        List<Salle> salles = jdbc.query("SELECT id, nom, isolement FROM salle WHERE center_id = ? ORDER BY code",
-                (rs, i) -> new Salle(new SalleId(rs.getObject("id", UUID.class)), rs.getString("nom"),
-                        SallesDuCentreJdbc.OUI.equals(rs.getString("isolement"))), centre.valeur());
+        List<Salle> salles = organisation.sallesParCode(centre.valeur()).stream()
+                .map(s -> new Salle(new SalleId(s.id()), s.nom(), s.estSalleDIsolement())).toList();
         AtomicInteger rang = new AtomicInteger();
-        List<Creneau> creneaux = jdbc.query("SELECT id, libelle FROM position_creneau WHERE center_id = ? ORDER BY code",
-                (rs, i) -> new Creneau(new CreneauId(rs.getObject("id", UUID.class)), rs.getString("libelle"),
-                        rang.incrementAndGet()), centre.valeur());
+        List<Creneau> creneaux = organisation.creneauxParCode(centre.valeur()).stream()
+                .map(c -> new Creneau(new CreneauId(c.id()), c.libelle(), rang.incrementAndGet())).toList();
         List<Generateur> enService = generateurs.duCentre(centre.valeur()).stream()
                 .filter(g -> EN_SERVICE.equals(g.statut()) && g.salleId() != null)
                 .map(g -> new Generateur(new GenerateurId(g.id()), g.code(), new SalleId(g.salleId()))).toList();
