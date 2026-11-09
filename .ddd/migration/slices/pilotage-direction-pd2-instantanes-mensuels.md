@@ -36,6 +36,9 @@ Aucune (refactoring sur place) : pas de flag, pas de paliers, pas de métriques.
 | PD2-R4 | KB-DIR-01 : instantanés déjà figés avec totaux bruts, non retraités |
 | PD2-R5 | Fuseau du mois courant (KB-DIR-03), futur en lecture et contenu illisible (KB-DIR-06 b, e) : statu quo, décisions métiers |
 | PD2-R6 | Fuseau du centre annoncé par la fiche d'origine : non reproduit (le legacy ne le lit pas) |
+| PD2-R7 | `ContenuFige(String)` : obsession de primitive assumée tant que le contenu reste opaque (voir PD2-R2) |
+| PD2-R8 | TICKET SÉPARÉ (hors lot, préexistant) : 1 échec + 25 erreurs de la suite complète en ordre aléatoire (pollution d'état entre classes, 8 classes), identiques sur HEAD~1 |
+| PD2-R9 | Détections 70.1 à 70.4 non rejouées sur PostgreSQL 16 (70.4 : `to_char(date_trunc(...))`) : à rejouer avant la revue du 2026-12-15 |
 
 ## Reste à faire
 Revue indépendante `.ddd/verify/` ; confirmations métiers/DPO ; PD3 (alertes) et PD5.

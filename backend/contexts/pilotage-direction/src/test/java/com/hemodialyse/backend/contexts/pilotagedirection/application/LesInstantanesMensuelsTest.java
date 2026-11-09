@@ -114,6 +114,46 @@ class LesInstantanesMensuelsTest {
         assertThat(instantanes.lister(SOCIETE)).hasSize(1);
     }
 
+    /** Double d'une course : une autre demande fige le même mois entre la vérification et l'enregistrement, l'enregistrement est perdu. */
+    private InstantanesMensuels instantanesPerdantLaCourse() {
+        return new InstantanesMensuels() {
+            @Override
+            public List<InstantaneListe> lister(UUID societeId) {
+                return instantanes.lister(societeId);
+            }
+
+            @Override
+            public java.util.Optional<InstantaneFige> trouver(UUID societeId, com.hemodialyse.backend.contexts.pilotagedirection.domain.MoisDInstantane mois) {
+                return instantanes.trouver(societeId, mois);
+            }
+
+            @Override
+            public boolean enregistrer(com.hemodialyse.backend.contexts.pilotagedirection.domain.InstantaneMensuel instantane) {
+                instantanes.enregistrer(com.hemodialyse.backend.contexts.pilotagedirection.domain.InstantaneMensuel.figer(
+                        instantane.societeId(), instantane.mois(), java.time.YearMonth.of(2026, 11), new ContenuFige("{\"concurrent\":true}")));
+                return false;
+            }
+        };
+    }
+
+    @Test
+    void une_capture_qui_perd_la_course_renvoie_l_instantane_deja_fige_par_l_autre_demande() {
+        var capturer = new CapturerUnInstantaneMensuel(instantanesPerdantLaCourse(), contenu, HORLOGE);
+
+        var fige = capturer.execute(SOCIETE, "2026-10");
+
+        assertThat(fige.contenu()).isEqualTo("{\"concurrent\":true}");
+        assertThat(instantanes.lister(SOCIETE)).hasSize(1);
+    }
+
+    @Test
+    void la_tache_ne_compte_pas_un_instantane_perdu_dans_une_course() {
+        var tache = new CapturerLesInstantanesDuMoisEcoule(() -> List.of(SOCIETE), instantanesPerdantLaCourse(), contenu, HORLOGE);
+
+        assertThat(tache.execute()).isZero();
+        assertThat(instantanes.lister(SOCIETE)).hasSize(1);
+    }
+
     @Test
     void un_instantane_existant_n_est_jamais_remplace_par_la_capture() {
         var capturer = new CapturerUnInstantaneMensuel(instantanes, contenu, HORLOGE);

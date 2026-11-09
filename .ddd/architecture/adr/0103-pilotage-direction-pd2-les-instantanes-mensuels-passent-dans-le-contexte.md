@@ -36,6 +36,8 @@ Les 4 goldens PD2 (`instantanes/*`), les 13 autres goldens PD1/PD3/PD4, `Directi
 8. **Retraits** : `DirectionSnapshotService` et `DirectionSnapshotScheduler` (plateforme). `seamAllowed` n'a servi qu'à CRÉER `IndicateursAFigerParLaPlateforme` (remis à `[]`).
 9. **Gardes** : `TableDuPilotageTest` (propriétaire nominatif de `direction_snapshot`, plus aucun lecteur de plateforme ; `DirectionAlertHistoryService` reste le lecteur PD3), `TableDeLOrganisationTest` (entrée du service retirée), ArchUnit du module (inchangé, vert), `FrontieresDesContextesTest` (inchangé, vert).
 
+10. **Suites de la revue (n2)** : le langage publié expose `JsonNode` (Jackson 3) parce qu'il reproduit exactement le corps servi ; couplage assumé, à lever avec PD5. `ContenuFigeParLeTableauDeBord` vit dans `infrastructure/persistence` : à déplacer vers `infrastructure/acl/tableaudebord` au prochain passage. La forme du JSON des indicateurs figés est gardée par `IndicateursAFigerParLaPlateformeIntegrationTest`.
+
 ## Résidus assumés (revue 2026-12-15, butoir 2027-03-31)
 - PD2-R1 : `SocietesEtCentresJdbc` lit `societes` (liste des sociétés actives) en SQL : à remplacer par `organisation.v1` (jalon O4).
 - PD2-R2 : port `IndicateursAFigerFournis` à valeur opaque, jusqu'à la reprise des indicateurs par un contexte (PD5).

@@ -200,7 +200,7 @@ canaux de société exigent une session de direction valide. <em>Source :</em> <
 <td>RG-ABS-040</td>
 </tr>
 <tr>
-<td><code>DirectionSnapshotScheduler</code></td>
+<td><code>CaptureDuMoisEcoulePlanifiee</code></td>
 <td>02:30 le 1er du mois</td>
 <td>fige le mois écoulé</td>
 <td>RG-DIR-090</td>
@@ -4013,6 +4013,21 @@ ou Africa/Algiers). Le rapport mensuel imprime l&#39;instantané figé (RG-DIR-0
 les mêmes libellés d&#39;alerte ; un code d&#39;alerte inconnu est imprimé tel quel. <em>Source :</em> <code>ConsulterLaVueDEnsemble</code>,
 <code>ConsulterLaRepartition</code>, <code>ConstituerLeRapportDeSynthese</code>.</p>
 </div></div>
+<h2>13.13 Instantanés mensuels (contexte Pilotage direction)</h2>
+<div class="rule" id="RG-DIR-104"><div class="rid">RG-DIR-104</div><div class="rtxt"><p>Les instantanés mensuels (RG-DIR-090 à 091) sont gérés par le contexte <strong>Pilotage direction</strong> (langage publié
+<code>InstantanesMensuelsDeLaDirection</code>, table <code>direction_snapshot</code> dont il est le seul propriétaire) ; la plateforme garde le jeton, la route
+et le rendu PDF. Règles reproduites à l&#39;identique du fonctionnement antérieur : le mois est contrôlé <strong>avant</strong> toute lecture (illisible,
+puis non terminé, puis trop ancien) ; le mois d&#39;il y a exactement 60 mois est capturable, celui d&#39;il y a 61 mois est refusé ; un instantané
+contient la vue d&#39;ensemble, les indicateurs et les répartitions du mois (bornes du premier au dernier jour) ; la capture est
+<strong>idempotente</strong> (un instantané existant n&#39;est ni recalculé ni remplacé, même <code>generated_at</code> ; une capture simultanée perdue est ignorée) ;
+la <strong>lecture</strong> d&#39;un mois futur répond <code>SNAPSHOT_INTROUVABLE</code> (aucun contrôle du futur en lecture, KB-DIR-06 b) ; un instantané antérieur
+aux répartitions est servi avec <code>breakdown</code> nul (KB-DIR-06 a) ; l&#39;horodatage de capture est celui de la base (KB-DIR-06 c) ; un contenu
+illisible en base est <strong>listé</strong> mais sa lecture répond 500 (KB-DIR-06 e) ; la tâche du 1er du mois à 02:30 fige le mois précédent de chaque
+société <strong>active</strong>, société sans centre comprise (instantané à zéro, KB-DIR-06 d), ignore l&#39;inactive, est rejouable, et un échec sur une
+société n&#39;empêche pas les suivantes. « Mois courant » = date du serveur (UTC, KB-DIR-03, statu quo à confirmer métiers/DPO au plus tard le
+2026-12-15). <em>Source :</em> <code>MoisDInstantane</code>, <code>InstantaneMensuel</code>, <code>CapturerUnInstantaneMensuel</code>, <code>ConsulterUnInstantane</code>,
+<code>ListerLesInstantanes</code>, <code>CapturerLesInstantanesDuMoisEcoule</code>.</p>
+</div></div>
 </section>
 <section class="part" id="p14"><h1><span class="n">Partie 14</span>Référentiels du centre, modèles de documents, imports et reprise de données</h1>
 <blockquote>
@@ -5244,7 +5259,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-DIR-100, RG-DIR-101</td>
 </tr>
 <tr>
-<td><code>DirectionSnapshotScheduler</code></td>
+<td><code>CaptureDuMoisEcoulePlanifiee</code></td>
 <td>02:30 le 1er du mois</td>
 <td>RG-DIR-090</td>
 </tr>

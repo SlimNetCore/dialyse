@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.pilotagedirection.domain;
 
+import java.time.YearMonth;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -25,13 +26,13 @@ public final class InstantaneMensuel {
      *
      * @throws RegleDuPilotageViolee si le mois n'est pas capturable à la date courante (écoulé et de moins de cinq ans)
      */
-    public static InstantaneMensuel figer(UUID societeId, MoisDInstantane mois, java.time.YearMonth courant, ContenuFige contenu) {
+    public static InstantaneMensuel figer(UUID societeId, MoisDInstantane mois, YearMonth courant, ContenuFige contenu) {
         mois.exigerCapturable(courant);
         return new InstantaneMensuel(societeId, mois, contenu);
     }
 
     /** Le mois précédent le mois courant, tel que la tâche du 1er du mois le fige (écoulé par construction). */
-    public static InstantaneMensuel figerLeMoisEcoule(UUID societeId, java.time.YearMonth courant, ContenuFige contenu) {
+    public static InstantaneMensuel figerLeMoisEcoule(UUID societeId, YearMonth courant, ContenuFige contenu) {
         return figer(societeId, MoisDInstantane.precedent(courant), courant, contenu);
     }
 
