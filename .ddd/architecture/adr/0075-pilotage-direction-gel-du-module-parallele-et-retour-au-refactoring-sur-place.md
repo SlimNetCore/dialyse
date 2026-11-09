@@ -1,9 +1,9 @@
 ---
-status: accepted
+status: superseded par 0102 pour le périmètre PD1 + PD4 (le gel est levé le 2026-11-09, lot A : le module `contexts/pilotage-direction` est reconstruit sur le modèle réel et remis au réacteur, voir ADR 0102 ; PD2, PD3 et PD5 restent à faire sur place)
 date: 2026-11-02
 decision-makers: [utilisateur (décision du 2026-11-02, décision déléguée à l'assistant pour l'acceptation formelle), architecte]
 context-scope: pilotage-direction
-related: ADR 0024 (refactoring sur place), 0066, 0002, 0072, 0073 et 0074 (même démarche pour le dossier médical, Patient et couverture et la Séance) ; `.ddd/verify/verify-pilotage-direction.md` ; `backend/contexts/pilotage-direction/GEL.md`
+related: ADR 0024 (refactoring sur place), 0066, 0002, 0072, 0073 et 0074 (même démarche pour le dossier médical, Patient et couverture et la Séance) ; `.ddd/verify/verify-pilotage-direction.md` ; ADR 0102 (levée du gel pour PD1 + PD4) ; `GEL.md` du module supprimé au lot A (commit `5870d55d`)
 ---
 
 # 0075 - Pilotage direction : gel du module parallèle et reprise sur place

@@ -199,9 +199,18 @@ verifier "68.4 KB-DIR-05 : seances realisees dont la fiche du patient est dans u
 verifier "68.5 KB-DIR-06 : societes actives sans instantane du mois ecoule (la tache de 02:30 n'a pas tourne ou a echoue) : ici les deux (jeu fictif)" \
   "$(sql "SELECT COUNT(*) FROM societes s WHERE s.actif = TRUE AND NOT EXISTS (SELECT 1 FROM direction_snapshot d WHERE d.societe_id = s.id AND d.mois = to_char(date_trunc('month', current_date) - interval '1 month', 'YYYY-MM'))")" "2"
 echo "=== Section 69 de verifications-production.md (PD1 et PD4, ADR 0102) : condition de mise en production de KB-DIR-01 (SELECT seulement) ==="
-verifier "69.1 KB-DIR-01 : instantanes DEJA figes dont le payload porte les totaux bruts de la societe ('\"totaux\"') : aucun dans le jeu fictif" \
-  "$(sql "SELECT societe_id, mois FROM direction_snapshot WHERE POSITION('\"totaux\"' IN payload) > 0 ORDER BY 1, 2" | lignes)" ""
+#   69.1 (m1 de la revue du lot A) : la cle "totaux" figure dans TOUT instantane ; la detection est donc discriminante : un centre MASQUE
+#   (patients nul) ET des totaux de patients superieurs a la somme des centres publies (le total deduit un effectif masque).
+DET691="WITH s AS (SELECT societe_id, mois, CASE WHEN payload LIKE '{%' THEN payload::jsonb END AS j FROM direction_snapshot), c AS (SELECT s.societe_id, s.mois, e->'patients' AS p FROM s, jsonb_array_elements(CASE WHEN jsonb_typeof(s.j#>'{overview,centres}') = 'array' THEN s.j#>'{overview,centres}' ELSE '[]'::jsonb END) e) SELECT s.societe_id, s.mois FROM s WHERE jsonb_typeof(s.j#>'{overview,totaux,patients}') = 'number' AND EXISTS (SELECT 1 FROM c WHERE c.societe_id = s.societe_id AND c.mois = s.mois AND c.p = 'null'::jsonb) AND (s.j#>>'{overview,totaux,patients}')::bigint > COALESCE((SELECT SUM((c.p#>>'{}')::bigint) FROM c WHERE c.societe_id = s.societe_id AND c.mois = s.mois AND jsonb_typeof(c.p) = 'number'), 0) ORDER BY 1, 2"
+verifier "69.1 KB-DIR-01 : instantanes figes avec un centre masque ET des totaux superieurs a la somme des centres publies : aucun dans le jeu fictif" \
+  "$(sql "$DET691" | lignes)" ""
 verifier "69.2 nombre d'instantanes figes (les deux du jeu fictif)" "$(sql "SELECT COUNT(*) FROM direction_snapshot")" "2"
+echo "    --- cas positif et cas temoin de 69.1 (instantanes synthetiques inseres puis supprimes, cluster jetable) ---"
+sql "INSERT INTO direction_snapshot (id, societe_id, mois, payload, generated_at) VALUES ('d8000000-0000-0000-0000-000000000011', '$AUTRE', '2024-08', '{\"overview\":{\"centres\":[{\"patients\":null},{\"patients\":9}],\"totaux\":{\"patients\":12}}}', CURRENT_TIMESTAMP), ('d8000000-0000-0000-0000-000000000012', '$AUTRE', '2024-07', '{\"overview\":{\"centres\":[{\"patients\":9}],\"totaux\":{\"patients\":9}}}', CURRENT_TIMESTAMP), ('d8000000-0000-0000-0000-000000000013', '$AUTRE', '2024-06', '{\"overview\":{\"centres\":[{\"patients\":null}],\"totaux\":{\"patients\":null}}}', CURRENT_TIMESTAMP)" || exit 3
+verifier "69.1 cas positif : seul l'instantane au centre masque et au total superieur est detecte (2024-08) ; le temoin sans masque (2024-07) et le total nul (2024-06) ne le sont pas" \
+  "$(sql "$DET691" | lignes)" "$AUTRE|2024-08"
+sql "DELETE FROM direction_snapshot WHERE id IN ('d8000000-0000-0000-0000-000000000011','d8000000-0000-0000-0000-000000000012','d8000000-0000-0000-0000-000000000013')" || exit 3
+verifier "69.1/69.2 nettoyage : les deux instantanes du jeu fictif seulement" "$(sql "SELECT COUNT(*) FROM direction_snapshot")" "2"
 
 echo "=== Contrat PostgreSQL des lectures du module Pilotage direction (PD1, ADR 0102) : societe et centres, effectif, profils, caisses, anemie ==="
 export PD_PG16_PASSWORD="$PW"
