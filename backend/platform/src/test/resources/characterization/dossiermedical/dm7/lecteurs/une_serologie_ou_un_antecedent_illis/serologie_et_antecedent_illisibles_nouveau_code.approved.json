@@ -1,0 +1,6 @@
+{
+  "01 KDIGO" : "risque PRA | 85.0 | % | ELEVE ; egfr - | NON_EVALUABLE ; alertes [AG_HBS=POSITIF]",
+  "02 PDF statut" : 200,
+  "03 PDF texte" : [ "Centre P2 A", "Dossier de préparation à la greffe rénale", "Patient : Patient PAT_A Test (DM7-PAT_A) — Groupe sanguin déclaré : A+", "Éligibilité", "Statut : ELIGIBLE", "Groupe sanguin confirmé : -", "Typage HLA : -", "PRA classe I / II : 15.00 % / 85.00 %", "Contre-indications : -", "Conclusion néphrologue : -", "Décisions de RCP", "Aucune décision enregistrée.", "Checklist du bilan pré-greffe", "Aucune étape enregistrée.", "Sérologies", "Marqueur Résultat Date prélèvement", "AG_HBS POSITIF 06/01/2026", "Antécédents actifs", "Diagnostic", "Hypertension arterielle", "Donneurs vivants candidats", "Aucun donneur candidat enregistré.", "Centre P2 A" ],
+  "04 lignes en base" : "3 serologies, 2 antecedents"
+}

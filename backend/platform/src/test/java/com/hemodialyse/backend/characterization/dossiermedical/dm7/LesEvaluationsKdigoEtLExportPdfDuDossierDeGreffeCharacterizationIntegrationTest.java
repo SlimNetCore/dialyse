@@ -198,6 +198,28 @@ class LesEvaluationsKdigoEtLExportPdfDuDossierDeGreffeCharacterizationIntegratio
         arbre("pdf_ligne_illisible_nouveau_code", m);
     }
 
+    @Test
+    void une_serologie_ou_un_antecedent_illisible_est_ignore_par_le_pdf_et_par_kdigo() throws Exception {
+        UUID patient = patientDm7(CENTRE_A, "PAT_A", "M", LocalDate.of(1970, 5, 17), "A+");
+        bilanEnBase(CENTRE_A, patient, "BIL", "ELIGIBLE", null, null, null, null, null, "15", "85", null, null);
+        serologieEnBase(CENTRE_A, patient, "S_LISIBLE", "AG_HBS", "POSITIF", fixe(5));
+        serologieEnBase(CENTRE_A, patient, "S_MARQUEUR", "MARQ_DISPARU", "POSITIF", fixe(6));
+        serologieEnBase(CENTRE_A, patient, "S_RESULTAT", "VIH_AC", "RES_DISPARU", fixe(7));
+        antecedentEnBase(CENTRE_A, patient, "A_LISIBLE", "Hypertension arterielle", "ACTIF");
+        antecedentEnBase(CENTRE_A, patient, "A_STATUT", "Antecedent ancien", "STATUT_DISPARU");
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("01 KDIGO", kdigo(patient));
+        MockHttpServletResponse r = binaire(greffe(patient, "export-pdf"), medecinA());
+        m.put("02 PDF statut", r.getStatus());
+        m.put("03 PDF texte", texte(r.getContentAsByteArray()));
+        m.put("04 lignes en base", nombreDe("serologies_patient", CENTRE_A) + " serologies, " + nombreDe("antecedents_medicaux", CENTRE_A) + " antecedents");
+        // DM9 (ADR 0101, KB-MED-110 étendu, suites de la revue du 2026-11-09) : le legacy (SerologieRepositoryAdapter.toDomain:70-71,
+        // AntecedentRepositoryAdapter.toDomain:67-69 à 7a16c21a, valueOf) répondait 400 avec le nom qualifié d'une énumération de bc-medical
+        // dès qu'une sérologie ou un antécédent du patient était illisible ; sans golden legacy (cas non caractérisé avant le retrait).
+        // Le contexte ignore la ligne illisible (filtre LISIBLES de SerologiesJdbc / AntecedentsJdbc, WARN avec son identifiant) : 200.
+        arbre("serologie_et_antecedent_illisibles_nouveau_code", m);
+    }
+
     private List<String> texte(byte[] pdf) throws Exception {
         List<String> lignes = new ArrayList<>();
         try (PDDocument doc = PDDocument.load(pdf)) {

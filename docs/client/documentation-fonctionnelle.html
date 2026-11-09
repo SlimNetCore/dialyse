@@ -2295,7 +2295,7 @@ seuil de proximité 90 %, même résultat). Les tables <code>seances</code>, <co
 Séance que par une <strong>liste blanche nominative datée</strong> (<code>TableDesSeancesTest</code>, 6 entrées : l&#39;annulation d&#39;un lot de reprise pour les
 volets, le schéma H2, l&#39;état Jasper du cahier et trois scripts de données) ; <code>resultats_analyses</code> hors du Dossier médical de même
 (<code>TableDesAnalysesTest</code>, 8 entrées) ; les entités JPA sont détectées. <strong>KB-SEA-49 est clos</strong> (le code qui effaçait <code>facture_id</code> n&#39;existe plus).</p>
-<p><em>Source :</em> <code>KdigoGreffeQueryService</code>, <code>DerniereCreatinineJdbc</code>, <code>DirectionCapaciteQueryService</code>, <code>ConsulterLaCapaciteTheorique</code>,
+<p><em>Source :</em> <code>EvaluerLeCandidatALaGreffe</code> (contexte Dossier médical, depuis DM9), <code>DerniereCreatinineJdbc</code>, <code>DirectionCapaciteQueryService</code>, <code>ConsulterLaCapaciteTheorique</code>,
 <code>CapaciteTheorique</code>, <code>TableDesSeancesTest</code>, <code>TableDesAnalysesTest</code>, <code>FrontieresDesContextesTest</code>.</p>
 </div></div>
 </section>
@@ -3082,7 +3082,7 @@ Sources : agrégats du contexte <code>dossier-medical</code> (<code>Allergie</co
 <code>PrescrireUnTraitement</code> (DM2), <code>ResultatAnalyseDomainService</code>,
 <code>DossierMedicalPatientDomainService</code>, <code>AbordVasculaireDomainService</code>, <code>ControleDeNuitDeLObservance</code>,
 <code>PeriodeDObservance</code>, <code>ConsulterLeSuiviDeLAnemie</code>,
-<code>KdigoGreffeQueryService</code>, <code>FhirExportService</code>, contrôleurs du dossier.</p>
+<code>EvaluationKdigoControleur</code> (contexte Dossier médical, depuis DM9), <code>FhirExportService</code>, contrôleurs du dossier.</p>
 </blockquote>
 <h2>11.1 Principes d&#39;accès</h2>
 <div class="rule" id="RG-MED-001"><div class="rid">RG-MED-001</div><div class="rtxt"><p><strong>Écriture réservée au médecin</strong> (rôle <code>MEDECIN</code>) pour : antécédents, allergies, sérologies, demandes

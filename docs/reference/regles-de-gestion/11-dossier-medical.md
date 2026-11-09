@@ -502,7 +502,10 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   (f) **écart assumé (KB-MED-110, à confirmer avec les métiers)** : le PDF de greffe et l'évaluation KDIGO d'un patient dont une étape
   ou un bilan porte une valeur illisible en base répondaient 400 avec le nom qualifié d'une classe Java du module retiré ; le contexte
   ignore l'étape illisible (le PDF est rendu sans elle, avertissement serveur avec son seul identifiant) et refuse un bilan illisible en
-  422 `BILAN_PRE_GREFFE_ILLISIBLE` (règles de RG-MED-046 d et 047 e).
+  422 `BILAN_PRE_GREFFE_ILLISIBLE` (règles de RG-MED-046 d et 047 e) ; de même, une **sérologie ou un antécédent illisible** en base
+  (marqueur, résultat, type, statut ou système de codage hors des valeurs connues) faisait échouer tout le PDF et l'évaluation KDIGO en
+  400 dans le legacy ; le contexte ignore la ligne illisible (avertissement serveur) et rend les lignes lisibles du patient (règles des
+  lecteurs DM4/DM5) ; **à confirmer par les médecins (ignorer ou refuser une sérologie illisible)**.
 
 ## 11.11 Constantes, statistiques et export interopérable
 
