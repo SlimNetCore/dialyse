@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * mensuels figés, PD2, passée dans le contexte au lot B) et {@code direction_alert_history} (historique des alertes, PD3). Remplace
  * {@code LectureSeuleDuPilotageTest}, qui ne protégeait que les quatre tables du module parallèle gelé (retiré avec le lot A).
  * <p>
- * Liste blanche NOMINATIVE des lecteurs et écrivains actuels : le propriétaire de {@code direction_snapshot} (adaptateur du contexte) et le
- * lecteur de PD3 resté en plateforme (PD3 viendra ensuite) ; chaque entrée porte sa date et son butoir. Une entrée dont le fichier ne lit
- * plus la table est « morte » : elle est à retirer (avancement de PD3). Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
+ * Liste blanche NOMINATIVE des lecteurs et écrivains actuels : les deux propriétaires, adaptateurs JDBC du contexte
+ * ({@code direction_snapshot} depuis le lot B, {@code direction_alert_history} depuis le lot C, PD3, ADR 0104) ; chaque entrée porte sa
+ * date et son butoir. Une entrée dont le fichier ne lit plus la table est « morte » : elle est à retirer. Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
  * contextes par leurs langages publiés (ou, pour {@code patients} et {@code centers}, par les entrées nommées de leurs gardes).
  */
 class TableDuPilotageTest {
@@ -43,13 +43,21 @@ class TableDuPilotageTest {
             "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/"
                     + "InstantanesMensuelsJdbc.java";
 
+    /**
+     * PROPRIÉTAIRE de {@code direction_alert_history} depuis le lot C (PD3, ADR 0104) : l'adaptateur JDBC du contexte, seul lecteur et seul
+     * écrivain de l'historique des alertes (aucun butoir : c'est le chez-soi de la table).
+     */
+    private static final String PROPRIETAIRE_DE_L_HISTORIQUE =
+            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/"
+                    + "HistoriqueDesAlertesJdbc.java";
+
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>(Map.of(
             PROPRIETAIRE_DES_INSTANTANES,
             new Lecteur("2026-11-09 : propriétaire de direction_snapshot (PD2, ADR 0103) : liste, relit et fige les instantanés mensuels ; "
                     + "SQL repris mot pour mot du service retiré", LocalDate.of(2099, 12, 31)),
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertHistoryService.java",
-            new Lecteur("2026-11-09 : écrit et lit l'historique des alertes (direction_alert_history) tant que la direction est connectée "
-                    + "(PD3, inchangé par les lots A et B) ; échéance : reprise de PD3", LocalDate.of(2027, 3, 31))));
+            PROPRIETAIRE_DE_L_HISTORIQUE,
+            new Lecteur("2026-11-09 : propriétaire de direction_alert_history (PD3, ADR 0104) : ouvre, résout et relit l'historique des "
+                    + "alertes tant que la direction est connectée ; SQL repris mot pour mot du service retiré", LocalDate.of(2099, 12, 31))));
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
@@ -122,6 +130,16 @@ class TableDuPilotageTest {
         }
         assertThat(lecteurs).as("PD2 est passée dans le contexte : seul l'adaptateur JDBC du Pilotage lit/écrit direction_snapshot")
                 .containsExactly(PROPRIETAIRE_DES_INSTANTANES);
+    }
+
+    @Test
+    void direction_alert_history_n_a_plus_que_son_proprietaire_dans_le_contexte_et_aucun_lecteur_de_la_plateforme() throws IOException {
+        Set<String> lecteurs = new TreeSet<>();
+        for (Path source : sourcesDeProduction(backend())) {
+            if (lit(source, Set.of("direction_alert_history"))) lecteurs.add(relatif(source));
+        }
+        assertThat(lecteurs).as("PD3 est passée dans le contexte : seul l'adaptateur JDBC du Pilotage lit/écrit direction_alert_history")
+                .containsExactly(PROPRIETAIRE_DE_L_HISTORIQUE);
     }
 
     @Test

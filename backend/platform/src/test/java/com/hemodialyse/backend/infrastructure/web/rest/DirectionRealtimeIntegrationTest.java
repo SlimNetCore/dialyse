@@ -1,9 +1,16 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.direction.DashboardDiff.Change;
-import com.hemodialyse.backend.application.direction.DirectionRealtimePort;
-import com.hemodialyse.backend.application.direction.DirectionRealtimePort.DashboardChanged;
-import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.EnregistrerLesAlertes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.HorlogeDuPilotage;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.SuivreLeTempsReel;
+import com.hemodialyse.backend.contexts.pilotagedirection.domain.Changement;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.tableaudebord.ConstatsDuTableauDeBordParLeTableauDeBord;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.diffusion.DiffusionParLeCanalFourni;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie.TableauDeBordModifie;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
-import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 
 import java.math.BigDecimal;
@@ -49,23 +54,24 @@ class DirectionRealtimeIntegrationTest {
     @Autowired
     private TableauDeBordDeLaDirection tableau;
     @Autowired
-    private DirectionIndicatorsQueryService indicators;
-    @Autowired
-    private DirectionAlertHistoryService alertHistory;
+    private IndicateursDuTempsReelFournis indicators;
     /**
-     * Service isolé du contexte (diffusion capturée) : pas de bean simulé, donc pas de second contexte Spring.
+     * Suivi isolé du contexte (diffusion capturée) : pas de bean simulé, donc pas de second contexte Spring.
      */
-    private DirectionRealtimeService realtime;
-    private DirectionRealtimePort port;
+    private SuivreLeTempsReel realtime;
+    private DiffusionDuTableauDeBordFournie port;
 
-    private static List<String> names(List<Change> changes) {
-        return changes.stream().map(Change::name).toList();
+    private static List<String> names(List<Changement> changes) {
+        return changes.stream().map(Changement::nom).toList();
     }
 
     @BeforeEach
     void setup() {
-        port = mock(DirectionRealtimePort.class);
-        realtime = new DirectionRealtimeService(jdbc, tableau, indicators, port, alertHistory);
+        port = mock(DiffusionDuTableauDeBordFournie.class);
+        HorlogeDuPilotage horloge = new HorlogeDuPilotage(java.time.Clock.systemUTC());
+        realtime = new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicators),
+                new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentreJdbc(jdbc),
+                new DiffusionParLeCanalFourni(port), horloge);
         cleanup();
         jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,TRUE,CURRENT_TIMESTAMP)",
                 SOC, "ZT-RT1", "Société RT");
@@ -74,7 +80,7 @@ class DirectionRealtimeIntegrationTest {
 
     @AfterEach
     void cleanup() {
-        realtime.watcherRemoved(SOC);
+        realtime.abonneRetire(SOC);
         for (String table : List.of("facture_reglements", "factures", "seances", "articles", "patients")) {
             jdbc.update("DELETE FROM " + table + " WHERE center_id = ?", CENTRE);
         }
@@ -84,8 +90,8 @@ class DirectionRealtimeIntegrationTest {
 
     @Test
     void a_change_of_any_displayed_indicator_is_detected_and_published() {
-        realtime.watcherAdded(SOC);
-        assertTrue(realtime.refresh(SOC).isEmpty(), "premier calcul : simple instantané de référence");
+        realtime.abonneAjoute(SOC);
+        assertTrue(realtime.rafraichir(SOC).isEmpty(), "premier calcul : simple instantané de référence");
         verify(port, never()).publish(any(), any());
 
         UUID patient = patient();
@@ -97,13 +103,13 @@ class DirectionRealtimeIntegrationTest {
                 UUID.randomUUID(), CENTRE, patient, "ZT-RT-F1", today, today, today, new BigDecimal("19.00"),
                 new BigDecimal("1000"), new BigDecimal("190"), new BigDecimal("1190"));
 
-        List<Change> changes = realtime.refresh(SOC);
+        List<Changement> changes = realtime.rafraichir(SOC);
         assertTrue(names(changes).contains("seances"));
         assertTrue(names(changes).contains("caTtc"));
         assertTrue(names(changes).contains("factures"));
         assertTrue(changes.stream().allMatch(c -> "Centre RT".equals(c.centre())));
 
-        ArgumentCaptor<DashboardChanged> event = ArgumentCaptor.forClass(DashboardChanged.class);
+        ArgumentCaptor<TableauDeBordModifie> event = ArgumentCaptor.forClass(TableauDeBordModifie.class);
         verify(port, times(1)).publish(eq(SOC), event.capture());
         assertEquals("DASHBOARD_CHANGED", event.getValue().type());
         assertEquals(SOC, event.getValue().societeId());
@@ -111,58 +117,58 @@ class DirectionRealtimeIntegrationTest {
 
         // rien n'a changé depuis : aucune nouvelle diffusion
         reset(port);
-        assertTrue(realtime.refresh(SOC).isEmpty());
+        assertTrue(realtime.rafraichir(SOC).isEmpty());
         verify(port, never()).publish(any(), any());
     }
 
     @Test
     void a_new_alert_is_reported_as_a_change() {
-        realtime.watcherAdded(SOC);
-        realtime.refresh(SOC);
+        realtime.abonneAjoute(SOC);
+        realtime.rafraichir(SOC);
         jdbc.update("INSERT INTO articles (id, center_id, code, libelle, unite, stock_quantity, seuil_alerte, gere_par_lot, active) "
                         + "VALUES (?,?,?,?,?,?,?,TRUE,TRUE)",
                 UUID.randomUUID(), CENTRE, "ZT-RT-ART", "Article", "U", new BigDecimal("1"), new BigDecimal("10"));
-        List<Change> changes = realtime.refresh(SOC);
-        Change raised = changes.stream().filter(c -> "STOCK_SOUS_SEUIL".equals(c.name())).findFirst().orElseThrow();
-        assertEquals("ALERTES", raised.family());
-        assertEquals(0, raised.before().signum());
+        List<Changement> changes = realtime.rafraichir(SOC);
+        Changement raised = changes.stream().filter(c -> "STOCK_SOUS_SEUIL".equals(c.nom())).findFirst().orElseThrow();
+        assertEquals("ALERTES", raised.famille());
+        assertEquals(0, raised.avant().signum());
     }
 
     @Test
     void only_watched_societes_are_signalled_and_recomputed() {
         // aucune direction connectée : le signal est ignoré, rien n'est recalculé ni publié
-        realtime.markDirtyForCentre(CENTRE);
-        realtime.processDirty();
+        realtime.unCentreAChange(CENTRE);
+        realtime.traiterLesSignalements();
         verify(port, never()).publish(any(), any());
-        assertFalse(realtime.isWatched(SOC));
+        assertFalse(realtime.estSuivie(SOC));
 
-        realtime.watcherAdded(SOC);
-        assertTrue(realtime.isWatched(SOC));
-        realtime.watcherRemoved(SOC);
-        assertFalse(realtime.isWatched(SOC));
+        realtime.abonneAjoute(SOC);
+        assertTrue(realtime.estSuivie(SOC));
+        realtime.abonneRetire(SOC);
+        assertFalse(realtime.estSuivie(SOC));
     }
 
     @Test
     void a_signal_from_a_centre_triggers_the_recomputation_of_its_societe() {
-        realtime.watcherAdded(SOC);
-        realtime.processDirty();                  // baseline (marquée à l'abonnement)
+        realtime.abonneAjoute(SOC);
+        realtime.traiterLesSignalements();                  // baseline (marquée à l'abonnement)
         UUID patient = patient(); // un seul patient : effectif masqué, donc aucune variation publiable en soi
         jdbc.update("INSERT INTO seances (id, patient_id, center_id, date_seance, statut, created_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)",
                 UUID.randomUUID(), patient, CENTRE, Date.valueOf(LocalDate.now()), "VALIDEE");
-        realtime.markDirtyForCentre(CENTRE);      // un événement applicatif du centre
-        realtime.processDirty();
-        ArgumentCaptor<DashboardChanged> event = ArgumentCaptor.forClass(DashboardChanged.class);
+        realtime.unCentreAChange(CENTRE);      // un événement applicatif du centre
+        realtime.traiterLesSignalements();
+        ArgumentCaptor<TableauDeBordModifie> event = ArgumentCaptor.forClass(TableauDeBordModifie.class);
         verify(port, times(1)).publish(eq(SOC), event.capture());
-        assertTrue(names(event.getValue().changes()).contains("seances"));
+        assertTrue(event.getValue().changes().stream().anyMatch(c -> "seances".equals(c.name())));
     }
 
     @Test
     void a_masked_headcount_never_leaks_through_a_change() {
-        realtime.watcherAdded(SOC);
-        realtime.refresh(SOC);
+        realtime.abonneAjoute(SOC);
+        realtime.rafraichir(SOC);
         patient();
         patient(); // 2 patients : sous le seuil d'anonymat
-        assertTrue(realtime.refresh(SOC).stream().noneMatch(c -> c.family().equals("PATIENTS")),
+        assertTrue(realtime.rafraichir(SOC).stream().noneMatch(c -> c.famille().equals("PATIENTS")),
                 "aucune variation d'effectif inférieur au seuil ne doit être diffusée");
     }
 

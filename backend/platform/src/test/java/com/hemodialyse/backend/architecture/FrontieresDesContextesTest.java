@@ -459,6 +459,22 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage..")
             .because("le contrôleur et le rendu PDF consomment le Pilotage direction par son langage publié (PD1, PD4, ADR 0102)");
 
+    /**
+     * PD3 (ADR 0104) : les alertes et le temps réel de la direction sont repris par le Pilotage direction. Les signaleurs de la plateforme
+     * (notifications, stock, inventaire, suivi des abonnements STOMP) et les indicateurs (qui appellent la politique d'alertes) ne le
+     * joignent que par son langage publié ; le diffuseur STOMP est l'adaptateur de sortie du port fourni.
+     */
+    @ArchTest
+    static final ArchRule les_alertes_et_le_temps_reel_de_la_direction_passent_par_le_langage_publie_du_pilotage = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.notification.NotificationService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketStockEventPublisher")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketInventaireEventPublisher")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.DirectionSubscriptionTracker")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketDirectionPublisher")
+            .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage..")
+            .because("la politique d'alertes, l'historique et le temps réel vivent dans le Pilotage direction (PD3, ADR 0104)");
+
     @ArchTest
     static final ArchRule les_statistiques_du_patient_lisent_les_seances_par_le_langage_publie = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")

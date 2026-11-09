@@ -1,11 +1,19 @@
 package com.hemodialyse.backend.characterization.pilotagedirection.pd3;
 
-import com.hemodialyse.backend.application.direction.DashboardDiff.Change;
-import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
-import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Alert;
-import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Severity;
-import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
 import com.hemodialyse.backend.characterization.pilotagedirection.PilotageDirectionCharacterizationSupport;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.EnregistrerLesAlertes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.HorlogeDuPilotage;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.SuivreLeTempsReel;
+import com.hemodialyse.backend.contexts.pilotagedirection.domain.Changement;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.tableaudebord.ConstatsDuTableauDeBordParLeTableauDeBord;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.diffusion.DiffusionParLeCanalFourni;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Gravite;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
@@ -28,23 +36,26 @@ import java.util.UUID;
 class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDirectionCharacterizationSupport {
 
     @Autowired
-    private DirectionAlertHistoryService historique;
+    private AlertesDeLaDirection historique;
     @Autowired
     private com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection tableau;
     @Autowired
-    private com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService indicateurs;
+    private IndicateursDuTempsReelFournis indicateurs;
     @Autowired
-    private com.hemodialyse.backend.infrastructure.websocket.WebSocketDirectionPublisher diffuseur;
+    private DiffusionDuTableauDeBordFournie diffuseur;
     /**
-     * Instance dédiée du service temps réel, câblée sur les MÊMES beans de production (lectures, historique, diffuseur STOMP réel) : seul le
-     * singleton est piloté par {@code DirectionRealtimeScheduler} (recalcul chaque seconde, balayage toutes les 10 s), qui interférerait avec les
+     * Instance dédiée du suivi du temps réel, câblée sur les MÊMES beans de production (lectures, historique JDBC, diffuseur STOMP réel) : seul
+     * le singleton est piloté par {@code TempsReelPlanifie} (recalcul chaque seconde, balayage toutes les 10 s), qui interférerait avec les
      * étapes du scénario. Aucun mock : même construction que la production.
      */
-    private DirectionRealtimeService tempsReel;
+    private SuivreLeTempsReel tempsReel;
 
     @org.junit.jupiter.api.BeforeEach
     void construireLeTempsReel() {
-        tempsReel = new DirectionRealtimeService(jdbc, tableau, indicateurs, diffuseur, historique);
+        HorlogeDuPilotage horloge = new HorlogeDuPilotage(java.time.Clock.systemUTC());
+        tempsReel = new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicateurs),
+                new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentreJdbc(jdbc),
+                new DiffusionParLeCanalFourni(diffuseur), horloge);
     }
 
     @Override
@@ -57,8 +68,8 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
         return "alertes";
     }
 
-    private static Alert alerte(UUID centre, String nom, String code, Severity s, String valeur) {
-        return new Alert(centre, nom, code, s, valeur == null ? null : new BigDecimal(valeur));
+    private static Alerte alerte(UUID centre, String nom, String code, Gravite s, String valeur) {
+        return new Alerte(centre, nom, code, s, valeur == null ? null : new BigDecimal(valeur));
     }
 
     /** Lignes de l'historique en base, triées pour la lecture (centre, code, résolue ?, valeur) ; horodatages seulement masqués. */
@@ -115,17 +126,17 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
     void une_alerte_ouverte_est_identifiee_par_centre_et_code_sans_regle_par_jour_et_garde_sa_premiere_valeur() {
         alerteEnBase(AUTRE_SOCIETE, CENTRE_AUTRE, "Centre Confidentiel", "STOCK_SOUS_SEUIL", "CRITICAL", "1", CREATION_FIXE, null);
         Map<String, Object> m = new LinkedHashMap<>();
-        historique.record(SOCIETE, List.of(alerte(CENTRE_A, "Centre A", "STOCK_SOUS_SEUIL", Severity.CRITICAL, "3")));
+        historique.enregistrer(SOCIETE, List.of(alerte(CENTRE_A, "Centre A", "STOCK_SOUS_SEUIL", Gravite.CRITICAL, "3")));
         m.put("01 premier constat : une ligne ouverte", lignesEnBase(SOCIETE));
-        historique.record(SOCIETE, List.of(alerte(CENTRE_A, "Centre A renomme", "STOCK_SOUS_SEUIL", Severity.CRITICAL, "7")));
+        historique.enregistrer(SOCIETE, List.of(alerte(CENTRE_A, "Centre A renomme", "STOCK_SOUS_SEUIL", Gravite.CRITICAL, "7")));
         m.put("02 meme centre et code, valeur 7 et nom change : aucune ligne nouvelle, valeur et nom FIGES a 3 / Centre A", lignesEnBase(SOCIETE));
-        historique.record(SOCIETE, List.of(alerte(CENTRE_A, "Centre A", "STOCK_SOUS_SEUIL", Severity.CRITICAL, "7"),
-                alerte(CENTRE_A, "Centre A", "LOTS_PERIMES", Severity.CRITICAL, "1"), alerte(CENTRE_B, "Centre B", "STOCK_SOUS_SEUIL", Severity.CRITICAL, "2")));
+        historique.enregistrer(SOCIETE, List.of(alerte(CENTRE_A, "Centre A", "STOCK_SOUS_SEUIL", Gravite.CRITICAL, "7"),
+                alerte(CENTRE_A, "Centre A", "LOTS_PERIMES", Gravite.CRITICAL, "1"), alerte(CENTRE_B, "Centre B", "STOCK_SOUS_SEUIL", Gravite.CRITICAL, "2")));
         m.put("03 deux codes du meme centre le meme jour et le meme code dans un autre centre : trois lignes ouvertes", lignesEnBase(SOCIETE));
-        historique.record(SOCIETE, List.of(alerte(CENTRE_B, "Centre B", "STOCK_SOUS_SEUIL", Severity.CRITICAL, "2")));
+        historique.enregistrer(SOCIETE, List.of(alerte(CENTRE_B, "Centre B", "STOCK_SOUS_SEUIL", Gravite.CRITICAL, "2")));
         m.put("04 les alertes du centre A disparaissent : resolues ; B reste ouverte", lignesEnBase(SOCIETE));
-        historique.record(SOCIETE, List.of());
-        historique.record(SOCIETE, List.of(alerte(CENTRE_B, "Centre B", "STOCK_SOUS_SEUIL", Severity.WARNING, "2")));
+        historique.enregistrer(SOCIETE, List.of());
+        historique.enregistrer(SOCIETE, List.of(alerte(CENTRE_B, "Centre B", "STOCK_SOUS_SEUIL", Gravite.WARNING, "2")));
         m.put("05 B disparait puis reapparait le meme jour (severite changee) : nouvelle ligne ouverte, l'ancienne reste resolue", lignesEnBase(SOCIETE));
         m.put("06 l'autre societe n'est jamais touchee", lignesEnBase(AUTRE_SOCIETE));
         arbrePd("ouverture_et_resolution", m);
@@ -176,46 +187,46 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
     @Test
     void le_recalcul_temps_reel_journalise_les_alertes_de_stock_les_diffuse_a_la_direction_connectee_puis_les_resout() throws Exception {
         LocalDate aujourdhui = LocalDate.now();
-        tempsReel.watcherAdded(SOCIETE);
+        tempsReel.abonneAjoute(SOCIETE);
         try {
             Map<String, Object> m = new LinkedHashMap<>();
-            m.put("01 premier recalcul : instantane de reference, aucun changement, aucune diffusion", changes(tempsReel.refresh(SOCIETE)) + " | diffusions : " + diffusions.size());
+            m.put("01 premier recalcul : instantane de reference, aucun changement, aucune diffusion", changes(tempsReel.rafraichir(SOCIETE)) + " | diffusions : " + diffusions.size());
             UUID art = article(CENTRE_A, "ART", "1", "10", "4.00");
             lot(CENTRE_A, art, "PERIME", aujourdhui.minusDays(1), "5");
             lot(CENTRE_A, art, "PROCHE", aujourdhui.plusDays(90), "5");
             lot(CENTRE_A, art, "LOIN", aujourdhui.plusDays(91), "5");
             diffusions.clear();
-            m.put("02 article sous le seuil, lot perime, lot a 90 jours : changements detectes (familles STOCK et ALERTES)", changes(tempsReel.refresh(SOCIETE)));
+            m.put("02 article sous le seuil, lot perime, lot a 90 jours : changements detectes (familles STOCK et ALERTES)", changes(tempsReel.rafraichir(SOCIETE)));
             attendreLesEvenements();
             m.put("03 diffusion STOMP a la societe", diffusions);
             m.put("04 historique HTTP apres le recalcul", entrees(direction("/alerts/history"), null));
             jdbc.update("DELETE FROM lots WHERE article_id = ?", art);
             jdbc.update("UPDATE articles SET stock_quantity = 100 WHERE id = ?", art);
-            m.put("05 stock reconstitue : alertes retombees a 0 et resolues", changes(tempsReel.refresh(SOCIETE)));
+            m.put("05 stock reconstitue : alertes retombees a 0 et resolues", changes(tempsReel.rafraichir(SOCIETE)));
             m.put("06 historique HTTP : les trois alertes resolues", entrees(direction("/alerts/history"), null));
             m.put("07 lignes en base", lignesEnBase(SOCIETE));
             m.put("08 societe non suivie : un signal de centre ne recalcule rien", signalSansSuivi());
             arbrePd("temps_reel", m);
         } finally {
-            tempsReel.watcherRemoved(SOCIETE);
+            tempsReel.abonneRetire(SOCIETE);
         }
     }
 
     private String signalSansSuivi() {
-        tempsReel.watcherRemoved(SOCIETE);
-        boolean suivie = tempsReel.isWatched(SOCIETE);
+        tempsReel.abonneRetire(SOCIETE);
+        boolean suivie = tempsReel.estSuivie(SOCIETE);
         int avant = jdbc.queryForObject("SELECT COUNT(*) FROM direction_alert_history WHERE societe_id = ?", Integer.class, SOCIETE);
-        tempsReel.markDirtyForCentre(CENTRE_A);
-        tempsReel.processDirty();
+        tempsReel.unCentreAChange(CENTRE_A);
+        tempsReel.traiterLesSignalements();
         int apres = jdbc.queryForObject("SELECT COUNT(*) FROM direction_alert_history WHERE societe_id = ?", Integer.class, SOCIETE);
         return "suivie : " + suivie + " | lignes avant/apres : " + avant + "/" + apres;
     }
 
-    private List<String> changes(List<Change> changes) {
+    private List<String> changes(List<Changement> changes) {
         List<String> l = new ArrayList<>();
-        for (Change c : changes) {
-            l.add(aliasNommes.getOrDefault(String.valueOf(c.centerId()), String.valueOf(c.centerId())) + " | " + c.centre() + " | " + c.family() + " | " + c.name()
-                    + " : " + c.before() + " -> " + c.after());
+        for (Changement c : changes) {
+            l.add(aliasNommes.getOrDefault(String.valueOf(c.centreId()), String.valueOf(c.centreId())) + " | " + c.centre() + " | " + c.famille() + " | " + c.nom()
+                    + " : " + c.avant() + " -> " + c.apres());
         }
         return l;
     }

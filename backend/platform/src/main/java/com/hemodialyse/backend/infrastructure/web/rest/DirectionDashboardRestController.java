@@ -4,8 +4,8 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Tabl
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.Repartition;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.VueDEnsemble;
-import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
-import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService.Entry;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.EntreeDHistorique;
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
@@ -55,7 +55,7 @@ public class DirectionDashboardRestController {
     private final TableauDeBordDeLaDirection tableau;
     private final DirectionIndicatorsQueryService indicators;
     private final DirectionReportPdfService reports;
-    private final DirectionAlertHistoryService alertHistory;
+    private final AlertesDeLaDirection alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
     private final DirectionStockGroupesQueryService stockGroupes;
     private final DirectionAbsencesQueryService absences;
@@ -64,7 +64,7 @@ public class DirectionDashboardRestController {
     public DirectionDashboardRestController(DirectionAccessGuard guard, TableauDeBordDeLaDirection tableau,
                                             DirectionIndicatorsQueryService indicators,
                                             DirectionReportPdfService reports,
-                                            DirectionAlertHistoryService alertHistory,
+                                            AlertesDeLaDirection alertHistory,
                                             DirectionGmaoQueryService gmaoQueries,
                                             DirectionStockGroupesQueryService stockGroupes,
                                             DirectionAbsencesQueryService absences,
@@ -190,13 +190,13 @@ public class DirectionDashboardRestController {
 
     /**
      * Historique récent des alertes (apparitions et résolutions), du plus récemment actif au plus ancien.
-     * Alimenté uniquement pendant que la direction est connectée (voir {@code DirectionRealtimeService}).
+     * Alimenté uniquement pendant que la direction est connectée (temps réel du Pilotage direction). PD3 (ADR 0104) : servi par le contexte
+     * Pilotage direction, qui borne {@code limit} à [1, 200].
      */
     @GetMapping("/alerts/history")
-    public ResponseEntity<List<Entry>> alertsHistory(
+    public ResponseEntity<List<EntreeDHistorique>> alertsHistory(
             @RequestParam(required = false, defaultValue = "50") int limit) {
         UUID societeId = guard.requireSociete();
-        int bounded = Math.max(1, Math.min(limit, 200));
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(alertHistory.history(societeId, bounded));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(alertHistory.historique(societeId, limit));
     }
 }

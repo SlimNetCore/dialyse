@@ -3,9 +3,10 @@
 > Préfixe `RG-DIR`. La direction voit **tous les centres de sa société** sans jamais voir un patient : le système
 > **consolide**, **compare** à la période précédente, **lève des alertes** et **diffuse
 > les changements en temps réel**. Sources : `DirectionDashboardRestController`, `DirectionSnapshotRestController`,
-> `AnonymityPolicy`, `DirectionAlertPolicy`, `DirectionAlertHistoryService`,
-> `DashboardDiff`, `Direction*QueryService`, `DirectionSnapshotService`, `DirectionRealtimeService`,
-> `DirectionReportPdfService`, `DirectionAccessGuard`, schedulers `Direction*`.
+> `AnonymityPolicy`, `Direction*QueryService`, `DirectionReportPdfService`, `DirectionAccessGuard`, et, dans le contexte Pilotage
+> direction : `PolitiqueDAlertes`, `RapprochementDesAlertes`, `EnregistrerLesAlertes`, `ConsulterLHistoriqueDesAlertes`,
+> `ConstatDesIndicateurs`, `SuivreLeTempsReel`, `TempsReelPlanifie` (ex `DirectionAlertPolicy`, `DirectionAlertHistoryService`,
+> `DashboardDiff`, `DirectionRealtimeService`, `DirectionRealtimeScheduler`, retirés).
 
 ## 13.1 Périmètre et accès
 
@@ -172,3 +173,31 @@
   société n'empêche pas les suivantes. « Mois courant » = date du serveur (UTC, KB-DIR-03, statu quo à confirmer métiers/DPO au plus tard le
   2026-12-15). *Source :* `MoisDInstantane`, `InstantaneMensuel`, `CapturerUnInstantaneMensuel`, `ConsulterUnInstantane`,
   `ListerLesInstantanes`, `CapturerLesInstantanesDuMoisEcoule`.
+
+## 13.14 Alertes et temps réel (contexte Pilotage direction)
+
+Les règles RG-DIR-031, RG-DIR-032 et RG-DIR-100 à RG-DIR-102 sont désormais portées par le contexte **Pilotage direction** (lot C, PD3, ADR 0104)
+sans changement de comportement ; les quatre règles ci-dessous précisent ce que le fonctionnement antérieur faisait sans l'écrire. Tous les
+points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard le 2026-12-15**.
+
+- **RG-DIR-105** — La **politique d'alertes** (`PolitiqueDAlertes`, langage publié `AlertesDeLaDirection`) lève, par centre et dans cet ordre,
+  les six codes de RG-DIR-031. Les seuils de taux sont **inclusifs du minimum** (Kt/V exactement 80 %, hémoglobine exactement 50 % : aucune
+  alerte) ; un taux masqué par l'anonymat ne lève jamais d'alerte de taux ; l'observance en retard ne porte pas de valeur ; la valeur des alertes
+  de stock est le nombre d'articles ou de lots. Les alertes de stock sont évaluées à la **date de fin de la période demandée**, pas à
+  aujourd'hui (KB-DIR-07, statu quo). Les alertes GMAO (RG-DIR-040 et suivantes) utilisent le même enregistrement mais restent calculées par la
+  plateforme. *Source :* `PolitiqueDAlertes`.
+- **RG-DIR-106** — Le **temps réel** recalcule une société à chaque signal d'un de ses centres (toutes les secondes) et à chaque balayage (toutes
+  les 10 secondes), **seulement si au moins une direction y est abonnée** ; le premier recalcul d'un abonnement n'est qu'un constat de
+  référence (rien n'est diffusé) ; le dernier abonné parti, le constat est oublié ; un recalcul qui échoue est journalisé et ignoré (ni
+  historique ni diffusion) ; la diffusion est plafonnée à 60 changements. Un signal pour un centre inconnu est ignoré. Le suivi des
+  abonnements STOMP reste dans la plateforme (PD5). *Source :* `SuivreLeTempsReel`.
+- **RG-DIR-107** — L'**historique des alertes** est alimenté par chaque recalcul. L'identité d'une alerte ouverte est le couple **(centre,
+  code)**, sans notion de jour : tant qu'elle est ouverte, sa valeur, sa gravité et le nom du centre restent **figés à la première
+  apparition** (stock sous seuil 3 puis 7 : reste 3) ; si elle disparaît, elle est résolue ; si elle réapparaît (même le jour même), c'est une
+  **nouvelle ligne** ; une alerte du centre A n'affecte jamais celle du centre B ni une autre société (KB-DIR-04, option (a) de R2, statu quo).
+  Aucune contrainte d'unicité en base : deux recalculs simultanés peuvent ouvrir deux lignes (résiduel PD3-R2). L'horodatage est celui de la
+  JVM (KB-DIR-03, statu quo). *Source :* `RapprochementDesAlertes`, `EnregistrerLesAlertes`.
+- **RG-DIR-108** — La **consultation** de l'historique (`GET /api/v1/direction/alerts/history`) rend les entrées de la société de la session, de la
+  plus récemment active (`COALESCE(résolue, vue)`) à la plus ancienne ; `limit` vaut 50 par défaut, est **ramené** à 1 (0 ou négatif) ou à 200
+  (au-delà) sans refus ; un `limit` illisible répond 500 (KB-DIR-02, statu quo). Le contexte est le seul propriétaire de la table
+  `direction_alert_history`. *Source :* `ConsulterLHistoriqueDesAlertes`, `LimiteDHistorique`.

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
-import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class WebSocketStockEventPublisher {
 
     private final SimpMessagingTemplate messaging;
-    private final DirectionRealtimeService directionRealtime;
+    private final TempsReelDeLaDirection directionRealtime;
 
-    public WebSocketStockEventPublisher(SimpMessagingTemplate messaging, DirectionRealtimeService directionRealtime) {
+    public WebSocketStockEventPublisher(SimpMessagingTemplate messaging, TempsReelDeLaDirection directionRealtime) {
         this.messaging = messaging;
         this.directionRealtime = directionRealtime;
     }
@@ -51,7 +51,7 @@ public class WebSocketStockEventPublisher {
         event.put("payload", payload);
         event.put("timestamp", Instant.now().toString());
         messaging.convertAndSend("/topic/center/" + centerId + "/events", (Object) event);
-        directionRealtime.markDirtyForCentre(centerId);
+        directionRealtime.unCentreAChange(centerId);
     }
 }
 

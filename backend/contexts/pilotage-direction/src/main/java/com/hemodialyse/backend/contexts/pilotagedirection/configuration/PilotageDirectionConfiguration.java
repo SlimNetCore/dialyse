@@ -18,6 +18,21 @@ import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.Inst
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursAFigerFournis;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
 import tools.jackson.databind.ObjectMapper;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLHistoriqueDesAlertes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.EnregistrerLesAlertes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.HistoriqueDesAlertes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.SuivreLeTempsReel;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.tableaudebord.ConstatsDuTableauDeBordParLeTableauDeBord;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.diffusion.DiffusionParLeCanalFourni;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.planifie.TempsReelPlanifie;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.AlertesPubliees;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.TempsReelPublie;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDuTempsReelFournis;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaSociete;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaVueDEnsemble;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.EffectifsDesPatients;
@@ -95,6 +110,42 @@ public class PilotageDirectionConfiguration {
     @Bean
     CaptureDuMoisEcoulePlanifiee captureDuMoisEcoulePlanifiee(CapturerLesInstantanesDuMoisEcoule capture) {
         return new CaptureDuMoisEcoulePlanifiee(capture);
+    }
+
+    // ───────────── Lot C (PD3, ADR 0104) : les alertes de la direction et leur temps réel ─────────────
+
+    @Bean
+    HistoriqueDesAlertes historiqueDesAlertes(JdbcTemplate jdbc) {
+        return new HistoriqueDesAlertesJdbc(jdbc);
+    }
+
+    @Bean
+    EnregistrerLesAlertes enregistrerLesAlertes(HistoriqueDesAlertes historique, HorlogeDuPilotage horloge) {
+        return new EnregistrerLesAlertes(historique, horloge);
+    }
+
+    @Bean
+    AlertesDeLaDirection alertesDeLaDirection(EnregistrerLesAlertes enregistrer, HistoriqueDesAlertes historique) {
+        return new AlertesPubliees(enregistrer, new ConsulterLHistoriqueDesAlertes(historique));
+    }
+
+    @Bean
+    SuivreLeTempsReel suivreLeTempsReel(TableauDeBordDeLaDirection tableau, IndicateursDuTempsReelFournis indicateurs,
+                                        EnregistrerLesAlertes alertes, JdbcTemplate jdbc,
+                                        DiffusionDuTableauDeBordFournie canal, HorlogeDuPilotage horloge) {
+        return new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicateurs), alertes,
+                new SocieteDUnCentreJdbc(jdbc), new DiffusionParLeCanalFourni(canal), horloge);
+    }
+
+    @Bean
+    TempsReelDeLaDirection tempsReelDeLaDirection(SuivreLeTempsReel tempsReel) {
+        return new TempsReelPublie(tempsReel);
+    }
+
+    /** Les cadences du temps réel : un bean planifié du module (mêmes délais que l'ancien {@code DirectionRealtimeScheduler}). */
+    @Bean
+    TempsReelPlanifie tempsReelPlanifie(SuivreLeTempsReel tempsReel) {
+        return new TempsReelPlanifie(tempsReel);
     }
 
     @Bean

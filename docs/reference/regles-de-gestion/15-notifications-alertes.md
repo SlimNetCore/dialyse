@@ -3,7 +3,7 @@
 > Préfixe `RG-NOT`. Ce chapitre **recense, en un seul endroit, tout ce que le système surveille et signale**, avec son
 > déclencheur, son destinataire et le chapitre qui en détaille la règle. Sources :
 > `NotificationService`, `WebSocketStockEventPublisher`, `WebSocketInventaireEventPublisher`,
-> `WebSocketDirectionPublisher`, `DirectionRealtimeService`, schedulers.
+> `WebSocketDirectionPublisher`, `SuivreLeTempsReel` (Pilotage direction, RG-DIR-106), schedulers.
 
 ## 15.1 Mécanisme
 

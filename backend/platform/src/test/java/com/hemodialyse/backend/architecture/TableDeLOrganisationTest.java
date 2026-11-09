@@ -80,7 +80,10 @@ class TableDeLOrganisationTest {
             // DirectionDashboardQueryService (retiré) vers le Pilotage direction. RETRAIT : à l'échéance de organisation.v1 (jalon O4),
             // butoir 2027-03-31.
             "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/SocietesEtCentresJdbc.java",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
+            // 2026-11-09, PD3 (ADR 0104) : société d'un centre (centers.societe_id) pour le signal temps réel d'un centre, lecture seule,
+            // déplacée de DirectionRealtimeService (retiré) vers le Pilotage direction. RETRAIT : à l'échéance de organisation.v1
+            // (jalon O4), butoir 2027-03-31.
+            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/SocieteDUnCentreJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
             // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-02) ; salle et position_creneau par SQL dynamique.

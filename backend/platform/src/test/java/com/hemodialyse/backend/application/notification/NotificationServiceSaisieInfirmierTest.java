@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -29,7 +29,7 @@ class NotificationServiceSaisieInfirmierTest {
 
     private final SimpMessagingTemplate messaging = mock(SimpMessagingTemplate.class);
     private final NotificationJournalPort journal = mock(NotificationJournalPort.class);
-    private final NotificationService service = new NotificationService(messaging, mock(DirectionRealtimeService.class),
+    private final NotificationService service = new NotificationService(messaging, mock(TempsReelDeLaDirection.class),
             journal);
     private final UUID centre = UUID.randomUUID();
 

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Alert;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
@@ -36,12 +37,15 @@ public class DirectionIndicatorsQueryService {
     private final TableauDeBordDeLaDirection dashboard;
     private final IndicateursCliniquesPublies indicateursCliniques;
     private final com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock;
+    private final AlertesDeLaDirection politiqueDAlertes;
 
     public DirectionIndicatorsQueryService(TableauDeBordDeLaDirection dashboard, IndicateursCliniquesPublies indicateursCliniques,
-                                           com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock) {
+                                           com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock,
+                                           AlertesDeLaDirection politiqueDAlertes) {
         this.dashboard = dashboard;
         this.indicateursCliniques = indicateursCliniques;
         this.indicateursStock = indicateursStock;
+        this.politiqueDAlertes = politiqueDAlertes;
     }
 
     private static Marker marker(RepartitionFaceALaCible r) {
@@ -80,7 +84,7 @@ public class DirectionIndicatorsQueryService {
         Map<UUID, StockBrut> stocks = loadStock(ids, end);
 
         List<CentreIndicators> centres = new ArrayList<>();
-        List<Alert> alertes = new ArrayList<>();
+        List<Alerte> alertes = new ArrayList<>();
         StockBrut totalStock = new StockBrut();
         for (CentreDeLaSociete c : societe.centres()) {
             IndicateursCliniques clinique = cliniques.parCentre().get(c.id());
@@ -88,9 +92,9 @@ public class DirectionIndicatorsQueryService {
             CentreIndicators built = build(c.id(), c.nom(), c.actif(), clinique, stock);
             centres.add(built);
             totalStock.merge(stock);
-            alertes.addAll(DirectionAlertPolicy.evaluate(new DirectionAlertPolicy.Inputs(c.id(), c.nom(),
+            alertes.addAll(politiqueDAlertes.evaluer(c.id(), c.nom(),
                     built.clinique().ktV().pctDansCible(), built.clinique().hemoglobine().pctDansCible(),
-                    clinique.observanceEnRetard(), stock.articlesSousSeuil, stock.lotsPerimes, stock.lotsProches)));
+                    clinique.observanceEnRetard(), stock.articlesSousSeuil, stock.lotsPerimes, stock.lotsProches));
         }
         return new Indicators(societeId, start, end, now, AnonymityPolicy.THRESHOLD, centres,
                 build(null, null, true, cliniques.consolides(), totalStock), alertes);
@@ -150,6 +154,6 @@ public class DirectionIndicatorsQueryService {
 
     public record Indicators(UUID societeId, LocalDate from, LocalDate to, OffsetDateTime generatedAt,
                              int seuilAnonymat, List<CentreIndicators> centres, CentreIndicators totaux,
-                             List<Alert> alertes) {
+                             List<Alerte> alertes) {
     }
 }

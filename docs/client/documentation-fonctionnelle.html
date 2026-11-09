@@ -159,7 +159,7 @@ chaque
 </div></div>
 <div class="rule" id="RG-TRV-061"><div class="rid">RG-TRV-061</div><div class="rtxt"><p>Chaque évènement de centre signale aussi au tableau de bord de la direction qu&#39;une donnée a changé
 (rafraîchissement
-temps réel). <em>Source :</em> <code>NotificationService.send</code> → <code>DirectionRealtimeService.markDirtyForCentre</code>.</p>
+temps réel). <em>Source :</em> <code>NotificationService.send</code> → <code>TempsReelDeLaDirection.unCentreAChange</code> (Pilotage direction).</p>
 </div></div>
 <div class="rule" id="RG-TRV-062"><div class="rid">RG-TRV-062</div><div class="rtxt"><p>La connexion WebSocket est permise sans authentification (les canaux de centre ne changent pas) ;
 seuls les
@@ -230,7 +230,7 @@ canaux de société exigent une session de direction valide. <em>Source :</em> <
 <td>RG-INF-046</td>
 </tr>
 <tr>
-<td><code>DirectionRealtimeScheduler</code></td>
+<td><code>TempsReelPlanifie</code></td>
 <td>1 s et 10 s</td>
 <td>diffusion temps réel de la direction</td>
 <td>RG-DIR-100</td>
@@ -3857,9 +3857,9 @@ du 2026-10-21 (KB-FAC-67).</p>
 <p>Préfixe <code>RG-DIR</code>. La direction voit <strong>tous les centres de sa société</strong> sans jamais voir un patient : le système
 <strong>consolide</strong>, <strong>compare</strong> à la période précédente, <strong>lève des alertes</strong> et <strong>diffuse
 les changements en temps réel</strong>. Sources : <code>DirectionDashboardRestController</code>, <code>DirectionSnapshotRestController</code>,
-<code>AnonymityPolicy</code> (effectifs de la plateforme) et <code>EffectifMasque</code> / <code>IndicateursCliniquesPublies</code> (indicateurs cliniques publiés par le Dossier médical, DM9), <code>DirectionAlertPolicy</code>, <code>DirectionAlertHistoryService</code>,
-<code>DashboardDiff</code>, <code>Direction*QueryService</code>, <code>DirectionSnapshotService</code>, <code>DirectionRealtimeService</code>,
-<code>DirectionReportPdfService</code>, <code>DirectionAccessGuard</code>, schedulers <code>Direction*</code>.</p>
+<code>AnonymityPolicy</code> (effectifs de la plateforme) et <code>EffectifMasque</code> / <code>IndicateursCliniquesPublies</code> (indicateurs cliniques publiés par le Dossier médical, DM9), <code>Direction*QueryService</code>, <code>DirectionReportPdfService</code>, <code>DirectionAccessGuard</code> et, dans le contexte Pilotage direction,
+<code>PolitiqueDAlertes</code>, <code>RapprochementDesAlertes</code>, <code>EnregistrerLesAlertes</code>, <code>ConsulterLHistoriqueDesAlertes</code>,
+<code>ConstatDesIndicateurs</code>, <code>SuivreLeTempsReel</code>, <code>TempsReelPlanifie</code>.</p>
 </blockquote>
 <h2>13.1 Périmètre et accès</h2>
 <div class="rule" id="RG-DIR-001"><div class="rid">RG-DIR-001</div><div class="rtxt"><p>Les routes <code>/api/v1/direction/**</code> sont réservées au rôle <code>DIRECTION</code>, en <strong>lecture seule</strong> ; la
@@ -4194,7 +4194,7 @@ est journalisée (fichier, lignes, créations, mises à jour, anomalies, auteur,
 <p>Préfixe <code>RG-NOT</code>. Ce chapitre <strong>recense, en un seul endroit, tout ce que le système surveille et signale</strong>, avec son
 déclencheur, son destinataire et le chapitre qui en détaille la règle. Sources :
 <code>NotificationService</code>, <code>WebSocketStockEventPublisher</code>, <code>WebSocketInventaireEventPublisher</code>,
-<code>WebSocketDirectionPublisher</code>, <code>DirectionRealtimeService</code>, schedulers.</p>
+<code>WebSocketDirectionPublisher</code>, <code>SuivreLeTempsReel</code> (Pilotage direction), schedulers.</p>
 </blockquote>
 <h2>15.1 Mécanisme</h2>
 <div class="rule" id="RG-NOT-001"><div class="rid">RG-NOT-001</div><div class="rtxt"><p>Les évènements d&#39;un centre sont poussés sur <code>/topic/center/{centerId}/events</code> (STOMP sur <code>/ws</code>) avec
@@ -5254,7 +5254,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-SEC-051, RG-SEC-052</td>
 </tr>
 <tr>
-<td><code>DirectionRealtimeScheduler</code></td>
+<td><code>TempsReelPlanifie</code></td>
 <td>1 s et 10 s</td>
 <td>RG-DIR-100, RG-DIR-101</td>
 </tr>

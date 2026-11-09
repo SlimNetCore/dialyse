@@ -111,7 +111,7 @@
   (`targetRoles`) : seuls ces rôles le voient dans la cloche de notifications. *Source :* `NotificationService`.
 - **RG-TRV-061** — Chaque évènement de centre signale aussi au tableau de bord de la direction qu'une donnée a changé
   (rafraîchissement
-  temps réel). *Source :* `NotificationService.send` → `DirectionRealtimeService.markDirtyForCentre`.
+  temps réel). *Source :* `NotificationService.send` → `TempsReelDeLaDirection.unCentreAChange` (Pilotage direction, RG-DIR-106).
 - **RG-TRV-062** — La connexion WebSocket est permise sans authentification (les canaux de centre ne changent pas) ;
   seuls les
   canaux de société exigent une session de direction valide. *Source :* `WebSocketAuthentication`.
@@ -129,4 +129,4 @@
 | `ControleDesPeremptionsPlanifie.controlerLesPeremptions` | 07:00 chaque jour (fuseau du serveur, Africa/Algiers) | notifie les lots proches de la péremption (centres actifs) | RG-STK-061 |
 | `ReplanificationAutomatiqueScheduler.replanifier` | 02:30 chaque nuit | replanification automatique (centres volontaires)        | RG-PLN-100        |
 | `ControleDeLaPresenceDe0715.controlerLaPresence` | 07:15 chaque jour (Africa/Algiers) | alerte de sous-effectif infirmiers                          | RG-INF-046        |
-| `DirectionRealtimeScheduler`                   | 1 s et 10 s          | diffusion temps réel de la direction                        | RG-DIR-100        |
+| `TempsReelPlanifie`                            | 1 s et 10 s          | diffusion temps réel de la direction                        | RG-DIR-100        |

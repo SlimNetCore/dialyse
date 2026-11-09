@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Alert;
-import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Severity;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Gravite;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
@@ -75,7 +75,7 @@ public class DirectionGmaoQueryService {
         OffsetDateTime generatedAt = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<CentreGmao> centres = new ArrayList<>();
-        List<Alert> alertes = new ArrayList<>();
+        List<Alerte> alertes = new ArrayList<>();
         for (CentreDeLaSociete c : societe.centres()) {
             CentreGmao centreGmao = buildForCentre(c.id(), c.nom(), fromDt, toDt);
             centres.add(centreGmao);
@@ -127,18 +127,18 @@ public class DirectionGmaoQueryService {
         return patients.nombre(centreId, indisponibles);
     }
 
-    private List<Alert> evaluateAlerts(UUID centreId, String nom, CentreGmao c) {
-        List<Alert> alerts = new ArrayList<>();
+    private List<Alerte> evaluateAlerts(UUID centreId, String nom, CentreGmao c) {
+        List<Alerte> alerts = new ArrayList<>();
         if (c.patientsSurEquipementIndisponible() > 0) {
-            alerts.add(new Alert(centreId, nom, "GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE", Severity.CRITICAL,
+            alerts.add(new Alerte(centreId, nom, "GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE", Gravite.CRITICAL,
                     BigDecimal.valueOf(c.patientsSurEquipementIndisponible())));
         }
         if (c.nbHorsService() > 0) {
-            alerts.add(new Alert(centreId, nom, "GMAO_GENERATEURS_HORS_SERVICE", Severity.WARNING,
+            alerts.add(new Alerte(centreId, nom, "GMAO_GENERATEURS_HORS_SERVICE", Gravite.WARNING,
                     BigDecimal.valueOf(c.nbHorsService())));
         }
         if (c.nbReformeRecommandee() > 0) {
-            alerts.add(new Alert(centreId, nom, "GMAO_REFORME_RECOMMANDEE", Severity.WARNING,
+            alerts.add(new Alerte(centreId, nom, "GMAO_REFORME_RECOMMANDEE", Gravite.WARNING,
                     BigDecimal.valueOf(c.nbReformeRecommandee())));
         }
         return alerts;
@@ -206,7 +206,7 @@ public class DirectionGmaoQueryService {
             OffsetDateTime generatedAt,
             List<CentreGmao> centres,
             CentreGmao totaux,
-            List<Alert> alertes
+            List<Alerte> alertes
     ) {
     }
 }

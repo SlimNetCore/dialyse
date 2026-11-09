@@ -14,7 +14,7 @@
 #       D4  SyntheseFinanciereDesCentresJdbc.java:36-38, 42-43, 75-79 : factures, encaisse de toutes dates, CA par caisse (agence figee)
 #       D5  TraitementDeLAnemieJdbc.java:34-40 : COUNT(DISTINCT CASE ...) et SUM(CASE ...)
 #       D6  IndicateursDuStockJdbc.java:32-35, 45-49 : articles sous le seuil, valeur stock x PMP (PMP nul), lots perimes / proches aux bornes
-#       D7  DirectionAlertHistoryService.java:70-72 : ORDER BY COALESCE(resolved_at, first_seen_at) DESC, first_seen_at DESC LIMIT n
+#       D7  HistoriqueDesAlertesJdbc.recentes (module pilotage-direction, PD3, ADR 0104 ; repris mot pour mot de DirectionAlertHistoryService.java:70-72, retire) : ORDER BY COALESCE(resolved_at, first_seen_at) DESC, first_seen_at DESC LIMIT n
 #       D8  DirectionSnapshotService.java:62, 126-128 : liste ORDER BY mois DESC, INSERT avec CURRENT_TIMESTAMP, doublon refuse par uq_direction_snapshot
 #       puis les detections SELECT de la section 68 de .ddd/migration/verifications-production.md.
 #   La partie Java (masquage < 5, somme des totaux sur les bruts, tranches d'age, initiale du sexe, seuils d'alerte, diff temps reel, PDF) n'est pas
@@ -170,13 +170,13 @@ echo "=== D6 IndicateursDuStockJdbc : articles (3 actifs, 1 sous le seuil, valeu
 verifier "D6 articles" "$(sql "SELECT center_id, COUNT(*) AS actifs, SUM(CASE WHEN seuil_alerte > 0 AND stock_quantity <= seuil_alerte THEN 1 ELSE 0 END) AS sous, COALESCE(SUM(stock_quantity * COALESCE(pmp_courant, 0)), 0) AS valeur FROM articles WHERE center_id IN ('$A','$B') AND active = TRUE GROUP BY center_id" | lignes)" "$A|3|1|25.0000"
 verifier "D6 lots : perimes 1 (veille), proches 2 (le jour meme et a 90 jours ; 91 jours, sans reste et sans date exclus)" "$(sql "SELECT center_id, SUM(CASE WHEN date_peremption < '$D100' THEN 1 ELSE 0 END) AS perimes, SUM(CASE WHEN date_peremption >= '$D100' AND date_peremption <= '$D190' THEN 1 ELSE 0 END) AS proches FROM lots WHERE center_id IN ('$A','$B') AND quantite_restante > 0 AND date_peremption IS NOT NULL GROUP BY center_id" | lignes)" "$A|1|2"
 
-echo "=== D7 DirectionAlertHistoryService:70-72 : ordre de l'historique et LIMIT ==="
+echo "=== D7 HistoriqueDesAlertesJdbc.recentes (ex DirectionAlertHistoryService:70-72) : ordre de l'historique et LIMIT ==="
 verifier "D7 ordre : KTV (resolue T+10h), HB (T+5h), OBSERVANCE (T+4h), LOTS (resolue T+3h), STOCK (T+1h) ; autre societe absente" \
   "$(sql "SELECT code FROM direction_alert_history WHERE societe_id = '$SOC' ORDER BY COALESCE(resolved_at, first_seen_at) DESC, first_seen_at DESC LIMIT 50" | lignes)" \
   "KTV_CONFORMITE_BASSE;HB_HORS_CIBLE;OBSERVANCE_EN_RETARD;LOTS_PERIMES;STOCK_SOUS_SEUIL"
 verifier "D7 LIMIT 2" "$(sql "SELECT code FROM direction_alert_history WHERE societe_id = '$SOC' ORDER BY COALESCE(resolved_at, first_seen_at) DESC, first_seen_at DESC LIMIT 2" | lignes)" "KTV_CONFORMITE_BASSE;HB_HORS_CIBLE"
 verifier "D7 valeur numeric(14,2) : 3 relu 3.00, NULL conserve" "$(sql "SELECT code || '=' || COALESCE(valeur::text, 'NULL') FROM direction_alert_history WHERE societe_id = '$SOC' AND code IN ('STOCK_SOUS_SEUIL','OBSERVANCE_EN_RETARD') ORDER BY code" | lignes)" "OBSERVANCE_EN_RETARD=NULL;STOCK_SOUS_SEUIL=3.00"
-verifier "D7 ouvertes par (centre, code) : la requete de record() ne lit que les lignes non resolues" "$(sql "SELECT code FROM direction_alert_history WHERE societe_id = '$SOC' AND resolved_at IS NULL ORDER BY code" | lignes)" "HB_HORS_CIBLE;OBSERVANCE_EN_RETARD;STOCK_SOUS_SEUIL"
+verifier "D7 ouvertes par (centre, code) : la requete de HistoriqueDesAlertesJdbc.ouvertes ne lit que les lignes non resolues" "$(sql "SELECT code FROM direction_alert_history WHERE societe_id = '$SOC' AND resolved_at IS NULL ORDER BY code" | lignes)" "HB_HORS_CIBLE;OBSERVANCE_EN_RETARD;STOCK_SOUS_SEUIL"
 
 echo "=== D8 DirectionSnapshotService : INSERT (CURRENT_TIMESTAMP), liste ORDER BY mois DESC, doublon refuse ==="
 sql "INSERT INTO direction_snapshot (id, societe_id, mois, payload, generated_at) VALUES ('d8000000-0000-0000-0000-000000000001', '$SOC', '2024-09', '{\"overview\":{}}', CURRENT_TIMESTAMP)" || exit 3

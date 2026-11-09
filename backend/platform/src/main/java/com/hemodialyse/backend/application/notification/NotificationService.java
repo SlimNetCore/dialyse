@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -35,10 +35,10 @@ public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
     private final SimpMessagingTemplate messaging;
-    private final DirectionRealtimeService directionRealtime;
+    private final TempsReelDeLaDirection directionRealtime;
     private final NotificationJournalPort journal;
 
-    public NotificationService(SimpMessagingTemplate messaging, DirectionRealtimeService directionRealtime,
+    public NotificationService(SimpMessagingTemplate messaging, TempsReelDeLaDirection directionRealtime,
                                NotificationJournalPort journal) {
         this.messaging = messaging;
         this.directionRealtime = directionRealtime;
@@ -634,7 +634,7 @@ public class NotificationService {
             String destination = "/topic/center/" + centerId + "/events";
             messaging.convertAndSend(destination, (Object) event);
             // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.
-            directionRealtime.markDirtyForCentre(centerId);
+            directionRealtime.unCentreAChange(centerId);
         };
         // Alerte à identifiant imposé (P3 à P5) émise dans une transaction : le temps réel part APRÈS le commit, pour qu'une
         // transaction annulée (409, 422, échec du commit) ne diffuse jamais d'alerte fantôme (revue P5, constat 4).

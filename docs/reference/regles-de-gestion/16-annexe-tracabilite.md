@@ -162,8 +162,13 @@ contextes) mais calculent par le langage publié `TableauDeBordDeLaDirection` et
 produits par le module (422, mêmes codes) ; règle : RG-DIR-103. PD2 (ADR 0103, lot B) n'ajoute aucune route non plus : `/api/v1/direction/snapshots`
 reste servie par `DirectionSnapshotRestController` (jeton, garde de société, rendu PDF) mais lit et fige par le langage publié
 `InstantanesMensuelsDeLaDirection` du Pilotage direction (règle : RG-DIR-104) ; `DirectionSnapshotService` et `DirectionSnapshotScheduler` sont retirés.
-Les lecteurs des tables `direction_snapshot` (propriétaire : `InstantanesMensuelsJdbc` du module) et `direction_alert_history`
-(`DirectionAlertHistoryService`, PD3) sont inscrits dans `TableDuPilotageTest`. Depuis SE7e, la
+PD3 (ADR 0104, lot C) n'ajoute aucune route non plus : `/api/v1/direction/alerts/history` reste servie par `DirectionDashboardRestController`
+mais lit par le langage publié `AlertesDeLaDirection` ; la politique d'alertes, l'historique et le temps réel (détection, diffusion, cadences)
+sont dans le contexte (règles : RG-DIR-105 à RG-DIR-108), la plateforme gardant le canal STOMP (`WebSocketDirectionPublisher`), le suivi des
+abonnements (`DirectionSubscriptionTracker`, PD5) et les indicateurs ; `DirectionAlertPolicy`, `DirectionAlertHistoryService`,
+`DirectionRealtimeService`, `DirectionRealtimePort`, `DashboardDiff` et `DirectionRealtimeScheduler` sont retirés.
+Les tables `direction_snapshot` et `direction_alert_history` ont chacune pour seul propriétaire un adaptateur JDBC du module
+(`InstantanesMensuelsJdbc`, `HistoriqueDesAlertesJdbc`), inscrits dans `TableDuPilotageTest`. Depuis SE7e, la
 garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92) ; depuis SE7f, les entités JPA (`@Table`) et les
 `CREATE TABLE IF NOT EXISTS` (KB-SEA-98).
 
@@ -174,7 +179,7 @@ garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-S
 | `ControleDeNuitDesAbsences`        | 02:30 chaque jour et au démarrage         | RG-ABS-040 à 046             |
 | `RappelDesRegularisationsPlanifie` | 07:00 chaque jour                         | RG-SEA-046, 055              |
 | `AuditScheduler`                   | écriture toutes les 3 s, purge 03:30      | RG-SEC-051, RG-SEC-052       |
-| `DirectionRealtimeScheduler`       | 1 s et 10 s                               | RG-DIR-100, RG-DIR-101       |
+| `TempsReelPlanifie`                | 1 s et 10 s                               | RG-DIR-100, RG-DIR-101, RG-DIR-106 |
 | `CaptureDuMoisEcoulePlanifiee`     | 02:30 le 1er du mois                      | RG-DIR-090, RG-DIR-104       |
 | `ControleDesPeremptionsPlanifie`   | 07:00 chaque jour                         | RG-STK-061                   |
 | `LicenseOnlineCheckJob`            | 03:15 chaque jour                         | RG-SEC-032                   |
