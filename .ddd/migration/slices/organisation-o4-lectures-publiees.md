@@ -21,7 +21,7 @@ Reçoit aussi le calendrier du centre (`center_holiday`, `center_closure_day`) d
 
 ## Mesure d'avancement
 
-Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNUS` (un test le fige) : **32 avant le lot A, 22 après le lot A, 18 après le lot B, 15 après le lot C, 9 après le lot D**.
+Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNUS` (un test le fige) : **32 avant le lot A, 22 après le lot A, 18 après le lot B, 15 après le lot C, 9 après le lot D, 7 après le lot E (état final nominatif)**.
 
 ## Plan en lots (audit complet : `.ddd/safety-net/organisation-o4-lectures-publiees.md`, section « Audit O4 »)
 
@@ -31,8 +31,8 @@ Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNU
 | **B** (fait 2026-11-09) | Stock : centres actifs (sens strict), fuseau (défaut UTC), centres du traitement de nuit, verrou de centre d'inventaire | ports `CentresFournis` et `VerrouDuCentreFourni` déclarés par Stock (cycle Maven : Organisation dépend de Stock) + traducteurs plateforme appelant `AnnuaireDesCentres` (`actifsAuSensStrict`) et `VerrouDuCentre` | 4 | 22 → 18 |
 | **C** (fait 2026-11-09) | libellés de salle, de créneau, de médecin | `LibellesDeLOrganisation` (codes de salles, créneaux, noms de salles et libellés de créneaux sans borne, médecins, recherches par terme) | 3 : Séance `LecturesPublieesDesSeancesJdbc`, Patient-couverture (×2) | 18 → 15 |
 | **D** (fait 2026-11-09) | séries et ressources du planning, salles, verrou du référentiel des infirmiers | `SallesEtCreneauxDuCentre` (salles, créneaux, séries), commande `DefinirLesSallesDIsolement` (l'`UPDATE salle` d'isolement), `VerrouDuCentre.reserverLeCentre` | 6 : Planification | 15 → 9 |
-| E | identité imprimée (logo, pied de page), admin générique | `IdentiteDeLaSociete`, retour de l'admin générique dans le contexte (ADR 0070) | 2 sur 9 (DocumentIdentityProvider, ReferentialAdminJdbcAdapter) | 9 → 7 |
-| Résiduels | comptes, auth, garde d'accès, provisionnement, amorçage dev | — (propriétaire : Identité et accès / Documents, hors Organisation) | 7 nominatifs | 7 |
+| **E** (fait 2026-11-09) | identité imprimée (logo, pied de page, adresse, contacts, mentions légales) ; provisionnement des modèles de documents (tous les centres) ; admin générique ÉVALUÉ, laissé | `IdentiteImprimee` (`duCentre`, `deLaSociete`) ; `AnnuaireDesCentres.tous` (déjà publié au lot A) | 2 : plateforme `DocumentIdentityProvider`, `ModeleDocumentProvisioner` (au lieu de `ReferentialAdminJdbcAdapter`, laissé : O4-R13) | 9 → 7 |
+| Résiduels | authentification, comptes, garde d'accès, amorçage dev, admin générique | — (propriétaire : Identité et accès, ou la plateforme pour l'admin générique ; voir O4-R9 à O4-R13) | 7 nominatifs | 7 |
 
 Chaque lot : langage publié + implémentation JDBC (SQL à l'identique, comparé ligne à ligne) + contrat mémoire/JDBC H2 ; traducteur mince
 côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanche ; goldens inchangés ; ADR de lot.
@@ -92,6 +92,25 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
 - Parité : caractérisation `LecturesDOrganisationDansLaPlanificationTest` (9 tests) écrite et VERTE sur les lecteurs d'origine AVANT migration ; mêmes assertions
   après. Goldens et tests de Planification inchangés ; aucun `.approved` modifié, aucun golden `_nouveau_code`, aucun écart.
 
+## Lot E : fait (2026-11-09, ADR 0111)
+
+- Organisation : `publishedlanguage/IdentiteImprimee` (`duCentre`, `deLaSociete`, records `IdentiteDuCentre`, `IdentiteDeLaSociete`) ; `infrastructure/persistence/IdentiteImprimeeJdbc` ;
+  bean `identiteImprimee`. Seules les données lues sont publiées ; la mise en forme (ligne d'adresse, contact, mentions légales, flux Jasper, `data:` URI, échappement) reste à
+  la plateforme. Contrat `IdentiteImprimeeContrat` exécuté sur un faux en mémoire et sur H2 (5 tests chacun).
+- Plateforme : `DocumentIdentityProvider` (constructeur `IdentiteImprimee`, API publique inchangée : `paramsFor`, `societeIdentity`, `decorateHtml`, `stripReservedParams`) et
+  `ModeleDocumentProvisioner` (constructeur `AnnuaireDesCentres`, `tous()`) ne contiennent plus de SQL sur `centers` ni `societes`. Aucun nouveau fichier de plateforme, aucun seam
+  (`seamAllowed` resté `[]` ; `ModeleDocumentProvisioner` inscrit dans `covered.json` parce que le filet des cas limites ci-dessous le couvre désormais).
+- Admin générique (`ReferentialAdminJdbcAdapter`) : ÉVALUÉ, NON migré (O4-R13, raison dans l'ADR 0111).
+- Parité : `IdentiteImprimeeCasLimitesCharacterizationIntegrationTest` (7 tests) écrit et VERT sur les lecteurs SQL d'origine AVANT migration : société nue, société inactive imprimée
+  avec textes rognés et logo JPEG, logo vide et pied blanc, ville = wilaya, société inconnue, provisionnement de tous les centres même inactifs (idempotent), modèle désactivé conservé.
+  Mêmes assertions après. Les 4 goldens d'identité imprimée (`o1-logo-documents`) et le reste de la suite d'Organisation inchangés ; aucun `.approved` modifié, aucun golden
+  `_nouveau_code`, aucune archive `_ecarts-legacy`, aucun KB nouveau. Constat : le centre sans société est impossible (`centers.societe_id NOT NULL`) ; la jointure externe est conservée.
+
+## État final de O4 (après le lot E)
+
+Liste blanche : **7 lecteurs nominatifs** (aucun ne relève du langage d'Organisation) ; ports `*Fournis` de Stock en place ; annuaires, libellés, salles et créneaux, identité imprimée,
+isolement et verrous publiés. Reste avant `built` : la revue finale (décision de l'utilisateur) et les résiduels ci-dessous. Statut de la slice : `in-progress`.
+
 ## Résiduels
 
 | N° | Résiduel | Cible |
@@ -104,8 +123,15 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
 | O4-R6 | Record `CentresActifs` (publishedlanguage) toujours inutilisé ; événements `SalleOuverte`, `SalleFermee`, `CreneauCree` jamais émis (hors périmètre : pas d'événement en refactoring sur place) | lot E |
 | O4-R7 | Les contrats des annuaires (et `VerrouDuCentre`) ne tournent pas encore sur PostgreSQL 16 réel (variante `*PostgresContractIT`) ; non traité aux lots B, C et D (étendu aux contrats de `LibellesDeLOrganisation`, `SallesEtCreneauxDuCentre`, `reserverLeCentre`, H2 seulement ; les `*PostgresContractIT` de Planification les exercent quand Docker est là) | lot E |
 | O4-R8 | KB-ORG-10 : le journal des mouvements lit nom de salle et libellé de créneau sans borne de centre (reproduit) ; contrôle §73 ; à confirmer métiers/DPO au plus tard le 2026-12-15 | métiers / DPO |
+| O4-R9 | Authentification : `AuthService` lit `centers`/`societes` (nom du centre du jeton, centres et sociétés accessibles au choix de connexion, société active) : jointures avec les comptes (`app_user_*`). Propriétaire cible : Identité et accès (le contexte d'Organisation ne possède pas l'authentification) ; à migrer vers `AnnuaireDesCentres` / `AnnuaireDesSocietes` à l'ouverture de la slice IAM ; butoir 2027-03-31. Aucun test nommé sur ces lectures | slice IAM |
+| O4-R10 | Comptes : `DirectionAccountService`, `SocieteAdminAccountService`, `UserRestController` (existence d'une société, centres d'une société, centres d'un compte : jointures `app_user_center` / `centers`). Propriétaire cible : Identité et accès ; mêmes annuaires publiés suffisent pour la lecture ; butoir 2027-03-31 | slice IAM |
+| O4-R11 | Garde d'accès : `DirectionAccessGuard` (sociétés accessibles à un compte direction). Propriétaire cible : Identité et accès ; lecture couverte par `AnnuaireDesSocietes` ; butoir 2027-03-31 | slice IAM |
+| O4-R12 | Amorçage de développement : `DevSuperAdminBootstrapInitializer` (profil dev : lit la liste des centres, `SELECT id FROM centers`, pour rattacher le super-administrateur de démonstration ; `AnnuaireDesCentres.tous` suffit). Propriétaire : plateforme (outillage de dev) ; à migrer avec la slice IAM ; butoir 2027-03-31 | plateforme / IAM |
+| O4-R13 | Admin générique (`ReferentialAdminJdbcAdapter`, ADR 0070) : SQL dynamique sur `salle`, `position_creneau`, `medecin` (et d'autres tables d'autres propriétaires), cache `ref.*` invalidé après commit, désactivation du médecin. Évalué au lot E et laissé (ADR 0111) : propriétaire cible Organisation pour ses trois tables (commandes d'administration des référentiels de salle, créneau, médecin) ; jalon : revue de l'ADR 0070 avec la slice qui découpera l'admin générique par propriétaire ; butoir 2027-03-31 | Organisation / plateforme |
+
+O4-R6 et O4-R7 restent ouverts au lot E (non traités, voir leurs lignes) ; O4-R2 est précisé par O4-R9 à O4-R12.
 
 ## Retrait
 
 Pas de retour arrière par flag (ADR 0024) : revert Git par lot. La slice sera `built` quand la liste blanche ne contient plus que les résiduels
-nominatifs (7) et que les ports `*Fournis` de Stock existent.
+nominatifs (7, O4-R9 à O4-R13) et que les ports `*Fournis` de Stock existent : c'est le cas depuis le lot E ; le passage à `built` attend la revue finale.

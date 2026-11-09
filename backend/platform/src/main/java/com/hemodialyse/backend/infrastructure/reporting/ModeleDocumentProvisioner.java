@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -23,15 +24,18 @@ public class ModeleDocumentProvisioner implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(ModeleDocumentProvisioner.class);
 
     private final JdbcTemplate jdbc;
+    private final AnnuaireDesCentres annuaireDesCentres;
 
-    public ModeleDocumentProvisioner(JdbcTemplate jdbc) {
+    /** Les centres à provisionner sont lus par le langage publié d'Organisation (O4 lot E, ADR 0111) ; les modèles restent à la plateforme. */
+    public ModeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres) {
         this.jdbc = jdbc;
+        this.annuaireDesCentres = annuaireDesCentres;
     }
 
     @Override
     public void run(ApplicationArguments args) {
         try {
-            List<UUID> centers = jdbc.queryForList("SELECT id FROM centers", UUID.class);
+            List<UUID> centers = annuaireDesCentres.tous();
             int created = 0;
             for (UUID center : centers) {
                 for (ModeleDocumentCatalog.Entry entry : ModeleDocumentCatalog.entries()) {

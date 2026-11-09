@@ -650,3 +650,7 @@ Toutes les éditions de production sont dans `backend/contexts/**` (newCodeRoot)
 ### Organisation O4, lot D (ADR 0110) : AUCUN seam, le 2026-11-09
 
 Toutes les éditions de production sont dans `backend/contexts/**` (newCodeRoot) : `organisation` (langage publié `SallesEtCreneauxDuCentre`, commande `DefinirLesSallesDIsolement`, `VerrouDuCentre.reserverLeCentre`, adapters JDBC, beans) et `planification` (six traducteurs dans `infrastructure/acl/organisation/`, six lecteurs supprimés, configuration, `RefusDeVerrou` rendu public). Aucun fichier de la plateforme ni du legacy n'est modifié ni créé en production (seul `TableDeLOrganisationTest`, test, passe de 15 à 9). `seamAllowed` est resté `[]` du début à la fin (relu en fin de lot).
+
+### Organisation O4, lot E (ADR 0111) : AUCUN seam, le 2026-11-09
+
+Deux éditions de production dans la plateforme, sur des fichiers dont le filet est écrit AVANT l'édition : `DocumentIdentityProvider` (déjà dans `covered.json`) et `ModeleDocumentProvisioner` (le hook l'a bloqué : il n'était pas couvert ; le filet `IdentiteImprimeeCasLimitesCharacterizationIntegrationTest`, vert sur le legacy, le couvre désormais ; ajouté à `covered`, pas à `seamAllowed`). Ce sont des éditions de constructeur et de requête, sans nouveau fichier de plateforme. Le reste est dans `backend/contexts/organisation` (langage publié `IdentiteImprimee`, `IdentiteImprimeeJdbc`, bean). `TableDeLOrganisationTest` (test) passe de 9 à 7. `seamAllowed` est resté `[]` du début à la fin (relu en fin de lot).

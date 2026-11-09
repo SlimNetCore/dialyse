@@ -120,7 +120,8 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/SocieteLetterheadAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/DirectionSubscriptionTracker.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/RapportDUnInstantane.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/RapportDUnInstantane.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentProvisioner.java"
   ],
   "seamAllowed": []
 }

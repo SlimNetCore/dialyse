@@ -160,6 +160,12 @@ public class OrganisationConfiguration {
         return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.IsolementDesSallesJdbc(jdbc);
     }
 
+    /** Langage publié organisation.v1 (O4 lot E, ADR 0111) : identité imprimée d'un centre et de sa société pour les documents. */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.IdentiteImprimee identiteImprimee(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.IdentiteImprimeeJdbc(jdbc);
+    }
+
     @Bean
     public ReferentielsCommunsUseCases referentielsCommunsUseCases(ReferentielsCommunsRepository referentiels) {
         return new ReferentielsCommunsService(referentiels);

@@ -47,6 +47,9 @@ class TableDeLOrganisationTest {
             // 2026-11-09, O4 lot D (ADR 0110) : 6 lecteurs de la Planification retirés (CreneauxDuCentreJdbc, LectureDesRessourcesLegacy,
             // SallesDuCentreJdbc, SeriesDuCentreJdbc, VueDesSallesLegacy, VerrouDuReferentielDesInfirmiersJdbc) : salles et créneaux par
             // SallesEtCreneauxDuCentre, isolement par la commande DefinirLesSallesDIsolement, verrou par VerrouDuCentre : 15 -> 9.
+            // 2026-11-09, O4 lot E (ADR 0111) : 2 lecteurs retirés (DocumentIdentityProvider : identité imprimée par IdentiteImprimee ;
+            // ModeleDocumentProvisioner : tous les centres par AnnuaireDesCentres.tous) : 9 -> 7. Les 7 restants sont des résiduels nominatifs
+            // (O4-R9 à O4-R13 de la fiche O4 : authentification, comptes, garde d'accès, amorçage dev, admin générique).
             // RETRAIT des entrées restantes : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
             "platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAccountService.java",
@@ -54,8 +57,6 @@ class TableDeLOrganisationTest {
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
             // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-02) ; salle et position_creneau par SQL dynamique.
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentProvisioner.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/UserRestController.java");
 
@@ -134,10 +135,10 @@ class TableDeLOrganisationTest {
                 .isEmpty();
     }
 
-    /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A, 18 après le lot B, 15 après le lot C, 9 après le lot D (2026-11-09). Le baisser avec chaque lot. */
+    /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A, 18 après le lot B, 15 après le lot C, 9 après le lot D, 7 après le lot E (2026-11-09). Le baisser avec chaque lot. */
     @Test
     void le_nombre_de_lecteurs_connus_est_le_critere_d_avancement_de_o4() {
-        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot D de O4 : 15 -> 9)").hasSize(9);
+        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot E de O4 : 9 -> 7)").hasSize(7);
     }
 
     @Test

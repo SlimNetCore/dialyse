@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.IdentiteImprimee;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.IdentiteImprimee.IdentiteDeLaSociete;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.IdentiteImprimee.IdentiteDuCentre;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -8,7 +10,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,10 +31,11 @@ public class DocumentIdentityProvider {
     public static final String RESERVED_PREFIX_SOCIETE = "SOCIETE_";
     public static final String RESERVED_PREFIX_CENTRE = "CENTRE_";
 
-    private final JdbcTemplate jdbc;
+    private final IdentiteImprimee identiteImprimee;
 
-    public DocumentIdentityProvider(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
+    /** Les données d'identité sont lues par le langage publié d'Organisation (O4 lot E, ADR 0111) ; la mise en forme reste ici. */
+    public DocumentIdentityProvider(IdentiteImprimee identiteImprimee) {
+        this.identiteImprimee = identiteImprimee;
     }
 
     private static String line(Map<String, Object> p, String key, String style) {
@@ -83,17 +85,6 @@ public class DocumentIdentityProvider {
         return params;
     }
 
-    private static Map<String, Object> lower(Map<String, Object> row) {
-        Map<String, Object> out = new HashMap<>();
-        row.forEach((k, v) -> out.put(k.toLowerCase(), v));
-        return out;
-    }
-
-    private static String str(Map<String, Object> row, String key) {
-        Object v = row.get(key);
-        return v == null ? "" : Objects.toString(v).trim();
-    }
-
     private static String place(String ville, String wilaya) {
         return ville.equalsIgnoreCase(wilaya) ? ville : join(" – ", ville, wilaya);
     }
@@ -118,46 +109,43 @@ public class DocumentIdentityProvider {
         Map<String, Object> params = blank();
         if (centerId == null) return params;
 
-        var rows = jdbc.queryForList(
-                "SELECT c.name AS c_nom, c.adresse AS c_adresse, c.ville AS c_ville, c.wilaya AS c_wilaya, "
-                        + "c.telephone AS c_tel, c.email AS c_email, c.site_web AS c_web, "
-                        + "s.raison_sociale AS s_nom, s.adresse AS s_adresse, s.ville AS s_ville, s.wilaya AS s_wilaya, "
-                        + "s.telephone AS s_tel, s.email AS s_email, s.site_web AS s_web, s.nif AS s_nif, "
-                        + "s.nis AS s_nis, s.rc AS s_rc, s.pied_page AS s_pied, s.logo AS s_logo "
-                        + "FROM centers c LEFT JOIN societes s ON s.id = c.societe_id WHERE c.id = ?", centerId);
-        if (rows.isEmpty()) return params;
-        Map<String, Object> r = lower(rows.get(0));
+        Optional<IdentiteDuCentre> lue = identiteImprimee.duCentre(centerId);
+        if (lue.isEmpty()) return params;
+        IdentiteDuCentre c = lue.get();
+        IdentiteDeLaSociete s = c.societe();
 
-        String centreAdresse = join(", ", str(r, "c_adresse"), place(str(r, "c_ville"), str(r, "c_wilaya")));
-        String centreContact = contact(str(r, "c_tel"), str(r, "c_email"), str(r, "c_web"));
-        String societeAdresse = join(", ", str(r, "s_adresse"), place(str(r, "s_ville"), str(r, "s_wilaya")));
-        String societeContact = join(" · ", societeAdresse, contact(str(r, "s_tel"), str(r, "s_email"), str(r, "s_web")));
-        String legal = Stream.of(label("NIF", str(r, "s_nif")), label("NIS", str(r, "s_nis")), label("RC", str(r, "s_rc")))
-                .filter(x -> !x.isEmpty()).collect(Collectors.joining(" · "));
-        String centreNom = str(r, "c_nom");
+        String centreAdresse = join(", ", c.adresse(), place(c.ville(), c.wilaya()));
+        String centreContact = contact(c.telephone(), c.email(), c.siteWeb());
+        String societeAdresse = join(", ", s.adresse(), place(s.ville(), s.wilaya()));
+        String societeContact = join(" · ", societeAdresse, contact(s.telephone(), s.email(), s.siteWeb()));
+        String centreNom = c.nom();
 
         params.put("CENTRE_NOM", centreNom);
         params.put("CENTRE_ADRESSE", centreAdresse);
-        params.put("CENTRE_TELEPHONE", str(r, "c_tel"));
-        params.put("CENTRE_EMAIL", str(r, "c_email"));
-        params.put("CENTRE_SITE_WEB", str(r, "c_web"));
+        params.put("CENTRE_TELEPHONE", c.telephone());
+        params.put("CENTRE_EMAIL", c.email());
+        params.put("CENTRE_SITE_WEB", c.siteWeb());
         params.put("CENTRE_CONTACT", centreContact);
         params.put("CENTRE_LIGNE", join(" · ", centreNom, centreAdresse, centreContact));
 
-        params.put("SOCIETE_NOM", str(r, "s_nom"));
+        params.put("SOCIETE_NOM", s.raisonSociale());
         params.put("SOCIETE_ADRESSE", societeAdresse);
-        params.put("SOCIETE_TELEPHONE", str(r, "s_tel"));
-        params.put("SOCIETE_EMAIL", str(r, "s_email"));
-        params.put("SOCIETE_SITE_WEB", str(r, "s_web"));
+        params.put("SOCIETE_TELEPHONE", s.telephone());
+        params.put("SOCIETE_EMAIL", s.email());
+        params.put("SOCIETE_SITE_WEB", s.siteWeb());
         params.put("SOCIETE_CONTACT", societeContact);
-        params.put("SOCIETE_LEGAL", legal);
-        params.put("SOCIETE_PIED_PAGE", str(r, "s_pied"));
-        Object logo = r.get("s_logo");
-        if (logo instanceof byte[] bytes && bytes.length > 0) {
+        params.put("SOCIETE_LEGAL", legal(s));
+        params.put("SOCIETE_PIED_PAGE", s.piedDePage());
+        if (s.logo() != null) {
             // Un flux neuf à chaque impression : Jasper le consomme.
-            params.put("SOCIETE_LOGO", new ByteArrayInputStream(bytes));
+            params.put("SOCIETE_LOGO", new ByteArrayInputStream(s.logo()));
         }
         return params;
+    }
+
+    private static String legal(IdentiteDeLaSociete s) {
+        return Stream.of(label("NIF", s.nif()), label("NIS", s.nis()), label("RC", s.rc()))
+                .filter(x -> !x.isEmpty()).collect(Collectors.joining(" · "));
     }
 
     /**
@@ -166,19 +154,11 @@ public class DocumentIdentityProvider {
      */
     public Optional<SocieteIdentity> societeIdentity(UUID societeId) {
         if (societeId == null) return Optional.empty();
-        var rows = jdbc.queryForList(
-                "SELECT s.raison_sociale AS s_nom, s.adresse AS s_adresse, s.ville AS s_ville, s.wilaya AS s_wilaya, "
-                        + "s.telephone AS s_tel, s.email AS s_email, s.site_web AS s_web, s.nif AS s_nif, "
-                        + "s.nis AS s_nis, s.rc AS s_rc, s.pied_page AS s_pied, s.logo AS s_logo "
-                        + "FROM societes s WHERE s.id = ?", societeId);
-        if (rows.isEmpty()) return Optional.empty();
-        Map<String, Object> r = lower(rows.get(0));
-        String adresse = join(", ", str(r, "s_adresse"), place(str(r, "s_ville"), str(r, "s_wilaya")));
-        String contact = join(" · ", adresse, contact(str(r, "s_tel"), str(r, "s_email"), str(r, "s_web")));
-        String legal = Stream.of(label("NIF", str(r, "s_nif")), label("NIS", str(r, "s_nis")), label("RC", str(r, "s_rc")))
-                .filter(x -> !x.isEmpty()).collect(Collectors.joining(" · "));
-        byte[] logo = r.get("s_logo") instanceof byte[] bytes && bytes.length > 0 ? bytes : null;
-        return Optional.of(new SocieteIdentity(str(r, "s_nom"), contact, legal, str(r, "s_pied"), logo));
+        return identiteImprimee.deLaSociete(societeId).map(s -> {
+            String adresse = join(", ", s.adresse(), place(s.ville(), s.wilaya()));
+            String contact = join(" · ", adresse, contact(s.telephone(), s.email(), s.siteWeb()));
+            return new SocieteIdentity(s.raisonSociale(), contact, legal(s), s.piedDePage(), s.logo());
+        });
     }
 
     /**
