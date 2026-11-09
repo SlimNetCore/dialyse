@@ -126,7 +126,8 @@ import com.hemodialyse.backend.contexts.dossiermedical.application.SortiesDeStoc
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Administrations;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Alertes;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.BilansBiologiques;
-import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.legacyorganisation.CentresActifsJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.organisation.TousLesCentresPublies;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.stock.SortiesDeStockDuStock;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.AdministrationsJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.AlertesJdbc;
@@ -326,8 +327,8 @@ public class DossierMedicalConfiguration {
     }
 
     @Bean
-    CentresActifs centresActifsDuDossierMedical(JdbcTemplate jdbc) {
-        return new CentresActifsJdbc(jdbc);
+    CentresActifs centresActifsDuDossierMedical(AnnuaireDesCentres annuaire) {
+        return new TousLesCentresPublies(annuaire);
     }
 
     @Bean

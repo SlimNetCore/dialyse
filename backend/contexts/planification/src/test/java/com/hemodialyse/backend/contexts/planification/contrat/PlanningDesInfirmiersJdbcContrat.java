@@ -24,7 +24,8 @@ import com.hemodialyse.backend.contexts.planification.domain.RemplacementsReposi
 import com.hemodialyse.backend.contexts.planification.domain.RoulementsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.TypeAbsence;
 import com.hemodialyse.backend.contexts.planification.application.SallesDuCentre;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.HorlogeDesCentresPublies;
 import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsDuPlanningAleatoires;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.AbsencesJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.InfirmiersJdbc;
@@ -139,7 +140,8 @@ public abstract class PlanningDesInfirmiersJdbcContrat extends PlanningDesInfirm
     @Test
     void should_judge_today_at_the_centre_timezone_with_algiers_by_default_and_utc_when_configured() {
         Clock minuitMoinsLeMoinsDixUtc = Clock.fixed(Instant.parse("2026-11-02T23:30:00Z"), ZoneOffset.UTC);
-        HorlogeDesCentresLegacy horloge = new HorlogeDesCentresLegacy(jdbc(), minuitMoinsLeMoinsDixUtc, ZoneId.of("Africa/Algiers"));
+        HorlogeDesCentresPublies horloge = new HorlogeDesCentresPublies(new AnnuaireDesCentresJdbc(jdbc()), minuitMoinsLeMoinsDixUtc,
+                ZoneId.of("Africa/Algiers"));
 
         assertThat(horloge.aujourdhui(CENTRE)).isEqualTo(LocalDate.of(2026, 11, 3));
         jdbc().update("UPDATE centers SET fuseau_horaire = 'UTC' WHERE id = ?", CENTRE.valeur());

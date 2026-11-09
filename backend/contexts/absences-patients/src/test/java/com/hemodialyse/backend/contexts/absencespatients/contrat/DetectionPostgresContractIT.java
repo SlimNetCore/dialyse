@@ -8,7 +8,8 @@ import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.Abs
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.ForfaitId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.Valorisation;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyorganisation.CentresActifsJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.organisation.CentresActifsPublies;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyplanning.PatientsAttendusJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesJdbc;
 import org.junit.jupiter.api.AfterEach;
@@ -142,7 +143,7 @@ class DetectionPostgresContractIT {
 
     @Test
     void un_centre_inactif_n_est_pas_parcouru() {
-        assertThat(new CentresActifsJdbc(jdbc).liste()).contains(CENTRE).doesNotContain(INACTIF);
+        assertThat(new CentresActifsPublies(new AnnuaireDesCentresJdbc(jdbc)).liste()).contains(CENTRE).doesNotContain(INACTIF);
     }
 
     @Test

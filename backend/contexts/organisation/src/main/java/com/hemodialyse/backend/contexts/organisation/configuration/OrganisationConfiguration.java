@@ -124,6 +124,18 @@ public class OrganisationConfiguration {
         return new ReferentielsCommunsJdbc(jdbc);
     }
 
+    /** Langage publié organisation.v1 (O4 lot A, ADR 0107) : lecture des centres pour les autres contextes. */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres annuaireDesCentres(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc(jdbc);
+    }
+
+    /** Langage publié organisation.v1 (O4 lot A, ADR 0107) : lecture des sociétés pour les autres contextes. */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes annuaireDesSocietes(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc(jdbc);
+    }
+
     @Bean
     public ReferentielsCommunsUseCases referentielsCommunsUseCases(ReferentielsCommunsRepository referentiels) {
         return new ReferentielsCommunsService(referentiels);

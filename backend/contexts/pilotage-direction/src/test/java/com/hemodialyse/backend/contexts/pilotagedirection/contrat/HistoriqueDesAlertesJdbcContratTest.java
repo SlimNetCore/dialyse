@@ -2,7 +2,8 @@ package com.hemodialyse.backend.contexts.pilotagedirection.contrat;
 
 import com.hemodialyse.backend.contexts.pilotagedirection.application.HistoriqueDesAlertes;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocieteDUnCentrePublie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +65,7 @@ class HistoriqueDesAlertesJdbcContratTest extends HistoriqueDesAlertesContrat {
     @Test
     void la_societe_d_un_centre_est_lue_sur_centers_et_un_centre_inconnu_est_vide() {
         jdbc.update("INSERT INTO centers (id, societe_id) VALUES (?, ?)", CENTRE, SOCIETE);
-        var societes = new SocieteDUnCentreJdbc(jdbc);
+        var societes = new SocieteDUnCentrePublie(new AnnuaireDesSocietesJdbc(jdbc));
         assertEquals(SOCIETE, societes.de(CENTRE).orElseThrow());
         assertTrue(societes.de(UUID.fromString("99997000-0000-0000-0000-0000000000ff")).isEmpty());
     }

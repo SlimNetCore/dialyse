@@ -63,7 +63,8 @@ import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persiste
 import com.hemodialyse.backend.contexts.absencespatients.interfaces.facturation.ClotureDesAbsencesPourLaFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ClotureDesAbsences;
 import org.springframework.context.ApplicationEventPublisher;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyorganisation.CentresActifsJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.organisation.CentresActifsPublies;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyplanning.PatientsAttendusJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.horloge.FuseauParDefaut;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.persistence.AbsencesDuPilotageJdbc;
@@ -273,8 +274,8 @@ public class AbsencesPatientsContexteConfiguration {
     }
 
     @Bean
-    CentresActifs absencesPatientsCentresActifs(JdbcTemplate jdbc) {
-        return new CentresActifsJdbc(jdbc);
+    CentresActifs absencesPatientsCentresActifs(AnnuaireDesCentres annuaire) {
+        return new CentresActifsPublies(annuaire);
     }
 
     @Bean

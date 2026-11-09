@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.acl.centres;
 import com.hemodialyse.backend.application.centre.JourDuCentre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -15,10 +15,10 @@ import java.util.UUID;
 import java.util.function.Function;
 
 /**
- * ACL vers les centres (Organisation, encore lue en SQL) : le fuseau d'un centre est {@code centers.fuseau_horaire} ; centre
+ * ACL vers le langage publié d'Organisation (organisation.v1, O4 lot A, ADR 0107) : le fuseau d'un centre est celui de sa fiche ; centre
  * inconnu, fuseau absent, vide ou illisible : le fuseau par défaut ({@code app.planification.fuseau-par-defaut}, Africa/Algiers).
- * LECTURE DIRECTE TRANSITOIRE de la table {@code centers} : à remplacer par {@code organisation.v1} (jalon O4), au plus tard avec
- * PC5 ; inscrite, nommée et datée, dans la liste blanche de {@code TableDeLOrganisationTest}.
+ * Plus aucun SQL. Le nom {@code ...Legacy} est conservé : renommer cette classe de la plateforme créerait un fichier absent de
+ * {@code covered.json} (hook de sécurité legacy), ce qui demande l'accord de l'utilisateur (voir O4-R1).
  */
 @Component
 public class JourDuCentreLegacy implements JourDuCentre {
@@ -28,10 +28,9 @@ public class JourDuCentreLegacy implements JourDuCentre {
     private final ZoneId fuseauParDefaut;
 
     @Autowired
-    public JourDuCentreLegacy(JdbcTemplate jdbc,
+    public JourDuCentreLegacy(AnnuaireDesCentres centres,
                               @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
-        this(centre -> jdbc.queryForList("SELECT fuseau_horaire FROM centers WHERE id = ?", String.class, centre)
-                .stream().filter(f -> f != null && !f.isBlank()).findFirst(), Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
+        this(centre -> centres.fuseauHoraireDe(centre).map(ZoneId::getId), Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
     }
 
     /** Pour les tests : les fuseaux et l'horloge sont fournis. */

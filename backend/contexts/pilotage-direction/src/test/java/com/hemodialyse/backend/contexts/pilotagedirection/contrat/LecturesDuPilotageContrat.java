@@ -3,7 +3,8 @@ package com.hemodialyse.backend.contexts.pilotagedirection.contrat;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.SocietesSuivies;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.Periode;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.PatientsDesCentresJdbc;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocietesEtCentresJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocietesEtCentresPublies;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -57,7 +58,7 @@ abstract class LecturesDuPilotageContrat {
 
     @Test
     void les_centres_de_la_societe_sont_tries_par_nom_avec_leur_etat() {
-        var societe = new SocietesEtCentresJdbc(jdbc()).societe(SOCIETE);
+        var societe = new SocietesEtCentresPublies(new AnnuaireDesSocietesJdbc(jdbc())).societe(SOCIETE);
 
         assertThat(societe.raisonSociale()).isEqualTo("Société PD");
         assertThat(societe.centres()).extracting("nom").containsExactly("Annaba", "Blida");
@@ -66,7 +67,7 @@ abstract class LecturesDuPilotageContrat {
 
     @Test
     void une_societe_inconnue_est_signalee() {
-        assertThatThrownBy(() -> new SocietesEtCentresJdbc(jdbc()).societe(UUID.randomUUID()))
+        assertThatThrownBy(() -> new SocietesEtCentresPublies(new AnnuaireDesSocietesJdbc(jdbc())).societe(UUID.randomUUID()))
                 .isInstanceOf(SocietesSuivies.SocieteInconnue.class);
     }
 

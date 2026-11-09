@@ -8,7 +8,8 @@ import com.hemodialyse.backend.contexts.pilotagedirection.domain.Changement;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.tableaudebord.ConstatsDuTableauDeBordParLeTableauDeBord;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.diffusion.DiffusionParLeCanalFourni;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocieteDUnCentrePublie;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Alerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.Gravite;
@@ -54,7 +55,7 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
     void construireLeTempsReel() {
         HorlogeDuPilotage horloge = new HorlogeDuPilotage(java.time.Clock.systemUTC());
         tempsReel = new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicateurs),
-                new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentreJdbc(jdbc),
+                new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentrePublie(new AnnuaireDesSocietesJdbc(jdbc)),
                 new DiffusionParLeCanalFourni(diffuseur), horloge);
     }
 

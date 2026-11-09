@@ -4,7 +4,8 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CentresActifs;
 import com.hemodialyse.backend.contexts.planification.application.PersonnelDeLaPresence;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.CentresActifsLegacy;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.CentresActifsPublies;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.PersonnelDeLaPresenceJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RoulementEtAbsencesLusParLeLegacyJdbc;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,7 +29,7 @@ abstract class PersonnelDeLaPresenceJdbcContrat extends PersonnelDeLaPresenceCon
 
     @Override
     protected CentresActifs centresActifs() {
-        return new CentresActifsLegacy(jdbc());
+        return new CentresActifsPublies(new AnnuaireDesCentresJdbc(jdbc()));
     }
 
     @Override

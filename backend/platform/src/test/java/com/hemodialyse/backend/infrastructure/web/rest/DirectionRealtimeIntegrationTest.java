@@ -7,7 +7,8 @@ import com.hemodialyse.backend.contexts.pilotagedirection.domain.Changement;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.tableaudebord.ConstatsDuTableauDeBordParLeTableauDeBord;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.diffusion.DiffusionParLeCanalFourni;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocieteDUnCentrePublie;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.DiffusionDuTableauDeBordFournie.TableauDeBordModifie;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
@@ -70,7 +71,7 @@ class DirectionRealtimeIntegrationTest {
         port = mock(DiffusionDuTableauDeBordFournie.class);
         HorlogeDuPilotage horloge = new HorlogeDuPilotage(java.time.Clock.systemUTC());
         realtime = new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicators),
-                new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentreJdbc(jdbc),
+                new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentrePublie(new AnnuaireDesSocietesJdbc(jdbc)),
                 new DiffusionParLeCanalFourni(port), horloge);
         cleanup();
         jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,TRUE,CURRENT_TIMESTAMP)",

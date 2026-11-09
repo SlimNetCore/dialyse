@@ -3,7 +3,8 @@ package com.hemodialyse.backend.contexts.absencespatients.infrastructure;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.absencespatients.domain.Identifiants.PatientId;
-import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyorganisation.CentresActifsJdbc;
+import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.organisation.CentresActifsPublies;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc;
 import com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.legacyplanning.PatientsAttendusJdbc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,7 +207,7 @@ class PatientsAttendusJdbcTest {
 
     @Test
     void un_centre_inactif_n_est_pas_parcouru_mais_un_centre_sans_indication_l_est() {
-        var centres = new CentresActifsJdbc(jdbc).liste();
+        var centres = new CentresActifsPublies(new AnnuaireDesCentresJdbc(jdbc)).liste();
 
         assertThat(centres).containsExactlyInAnyOrder(CENTRE, AUTRE, SANS_INDICATION).doesNotContain(INACTIF);
     }

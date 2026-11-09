@@ -42,7 +42,8 @@ import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDe
 import com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletParamedical;
 import com.hemodialyse.backend.contexts.seance.domain.VoletsParamedicaux;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyorganisation.JourDuCentreJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.JourDuCentrePublie;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyreferentiel.ForfaitsDuCentreJdbc;
@@ -111,7 +112,7 @@ import com.hemodialyse.backend.contexts.seance.application.CentresARappeler;
 import com.hemodialyse.backend.contexts.seance.application.RappelerLesSeancesARegulariser;
 import com.hemodialyse.backend.contexts.seance.application.RappelsDeRegularisation;
 import com.hemodialyse.backend.contexts.seance.application.VerrousDesRappels;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyorganisation.CentresARappelerJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.CentresARappelerPublies;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.RappelsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VerrousDesRappelsJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis;
@@ -226,10 +227,10 @@ public class SeanceConfiguration {
         return new SessionLegacy();
     }
 
-    /** Le jour du centre est lu par la Séance elle-même depuis SE7f (ADR 0100) : fuseau de {@code centers}, défaut de la plateforme. */
+    /** Le jour du centre est calculé par la Séance (SE7f, ADR 0100) : fuseau lu dans organisation.v1 (O4 lot A, ADR 0107), défaut de la plateforme. */
     @Bean
-    HorlogeDuCentre horlogeDeLaSeance(JdbcTemplate jdbc, @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
-        return new HorlogeDuCentre(Clock.systemUTC(), new JourDuCentreJdbc(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut)));
+    HorlogeDuCentre horlogeDeLaSeance(AnnuaireDesCentres annuaire, @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+        return new HorlogeDuCentre(Clock.systemUTC(), new JourDuCentrePublie(annuaire, Clock.systemUTC(), ZoneId.of(fuseauParDefaut)));
     }
 
     @Bean
@@ -393,8 +394,8 @@ public class SeanceConfiguration {
     // ---- SE4 : rappel quotidien des séances à régulariser (ADR 0091)
 
     @Bean
-    CentresARappeler centresARappelerDeLaSeance(JdbcTemplate jdbc) {
-        return new CentresARappelerJdbc(jdbc);
+    CentresARappeler centresARappelerDeLaSeance(AnnuaireDesCentres annuaire) {
+        return new CentresARappelerPublies(annuaire);
     }
 
     @Bean

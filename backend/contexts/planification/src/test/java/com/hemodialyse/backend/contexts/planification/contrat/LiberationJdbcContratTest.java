@@ -50,7 +50,8 @@ class LiberationJdbcContratTest extends LiberationJdbcContrat {
         jdbc.update("INSERT INTO centers (id, code, name, actif) VALUES (?, 'P7-N', 'Nul', NULL)", nul);
         jdbc.update("INSERT INTO centers (id, code, name, actif) VALUES (?, 'P7-F', 'Faux', FALSE)", faux);
         try {
-            var actifs = new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.CentresActifsLegacy(jdbc)
+            var actifs = new com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.CentresActifsPublies(
+                    new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc(jdbc))
                     .liste().stream().map(c -> c.valeur()).toList();
             org.assertj.core.api.Assertions.assertThat(actifs).contains(vrai, nul).doesNotContain(faux);
         } finally {

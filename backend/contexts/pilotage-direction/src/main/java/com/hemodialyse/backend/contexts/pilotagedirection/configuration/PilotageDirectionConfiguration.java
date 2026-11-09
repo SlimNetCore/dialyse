@@ -34,7 +34,8 @@ import com.hemodialyse.backend.contexts.pilotagedirection.application.SuivreLeTe
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.tableaudebord.ConstatsDuTableauDeBordParLeTableauDeBord;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.diffusion.DiffusionParLeCanalFourni;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.HistoriqueDesAlertesJdbc;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocieteDUnCentreJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocieteDUnCentrePublie;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.planifie.TempsReelPlanifie;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.AlertesPubliees;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.TempsReelPublie;
@@ -53,7 +54,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.dos
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.facturation.FacturationParLaFacturation;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.seance.SeancesRealiseesParLaSeance;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.PatientsDesCentresJdbc;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.SocietesEtCentresJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocietesEtCentresPublies;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.RapportDeSynthesePublie;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.TableauDeBordPublie;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirectionFournis;
@@ -84,8 +85,8 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    SocietesEtCentresJdbc societesSuivies(JdbcTemplate jdbc) {
-        return new SocietesEtCentresJdbc(jdbc);
+    SocietesEtCentresPublies societesSuivies(AnnuaireDesSocietes annuaire) {
+        return new SocietesEtCentresPublies(annuaire);
     }
 
     // ───────────── Lot B (PD2, ADR 0103) : les instantanés mensuels figés ─────────────
@@ -140,10 +141,10 @@ public class PilotageDirectionConfiguration {
 
     @Bean
     SuivreLeTempsReel suivreLeTempsReel(TableauDeBordDeLaDirection tableau, IndicateursDeLaDirection indicateurs,
-                                        EnregistrerLesAlertes alertes, JdbcTemplate jdbc,
+                                        EnregistrerLesAlertes alertes, AnnuaireDesSocietes annuaire,
                                         DiffusionDuTableauDeBordFournie canal, HorlogeDuPilotage horloge) {
         return new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicateurs), alertes,
-                new SocieteDUnCentreJdbc(jdbc), new DiffusionParLeCanalFourni(canal), horloge);
+                new SocieteDUnCentrePublie(annuaire), new DiffusionParLeCanalFourni(canal), horloge);
     }
 
     @Bean

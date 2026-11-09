@@ -51,7 +51,8 @@ import com.hemodialyse.backend.contexts.planification.publishedlanguage.SurEffec
 import com.hemodialyse.backend.contexts.planification.domain.AbsencesRepository;
 import com.hemodialyse.backend.contexts.planification.domain.RemplacementsRepository;
 import com.hemodialyse.backend.contexts.planification.domain.RoulementsRepository;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.HorlogeDesCentresPublies;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.planification.infrastructure.motdepasse.NouveauxIdentifiantsDuPlanningAleatoires;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.AbsencesJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.RemplacementsJdbc;
@@ -360,9 +361,9 @@ public class PlanificationConfiguration {
      * « Aujourd'hui » du centre : son fuseau ({@code centers.fuseau_horaire}), à défaut {@code Africa/Algiers} (ADR 0054).
      */
     @Bean
-    HorlogeDesCentres planificationHorlogeDesCentres(JdbcTemplate jdbc,
+    HorlogeDesCentres planificationHorlogeDesCentres(AnnuaireDesCentres annuaire,
                                                      @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
-        return new HorlogeDesCentresLegacy(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
+        return new HorlogeDesCentresPublies(annuaire, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
     }
 
     @Bean
@@ -491,8 +492,8 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.CentresActifs planificationCentresActifs(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacycentres.CentresActifsLegacy(jdbc);
+    com.hemodialyse.backend.contexts.planification.application.CentresActifs planificationCentresActifs(AnnuaireDesCentres annuaire) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.CentresActifsPublies(annuaire);
     }
 
     @Bean

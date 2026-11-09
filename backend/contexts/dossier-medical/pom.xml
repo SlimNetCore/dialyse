@@ -79,6 +79,12 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié d'Organisation (AnnuaireDesCentres, O4 lot A, ADR 0107) : seul point d'entrée (ArchUnit). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-organisation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publie de Patient et couverture : FichesDesPatients (un patient existe-t-il dans le centre ?), DM2, ADR 0081. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

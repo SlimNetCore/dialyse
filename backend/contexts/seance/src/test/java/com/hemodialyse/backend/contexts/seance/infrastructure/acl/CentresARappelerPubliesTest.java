@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.acl;
 
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyorganisation.CentresARappelerJdbc;
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.CentresARappelerPublies;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** ACL des centres sur H2 (mode PostgreSQL) : tous les centres de la table {@code centers}, sans filtre, lecture seule. */
-class CentresARappelerJdbcTest {
+/**
+ * ACL des centres sur H2 (mode PostgreSQL), de bout en bout avec l'annuaire publié d'Organisation : tous les centres, sans filtre,
+ * lecture seule. Mêmes scénarios que l'ancien {@code CentresARappelerJdbcTest}.
+ */
+class CentresARappelerPubliesTest {
 
     private JdbcTemplate jdbc;
 
@@ -23,6 +27,10 @@ class CentresARappelerJdbcTest {
         jdbc.update("DELETE FROM centers");
     }
 
+    private CentresARappelerPublies centres() {
+        return new CentresARappelerPublies(new AnnuaireDesCentresJdbc(jdbc));
+    }
+
     @Test
     void should_list_every_centre_of_the_solution() {
         UUID a = new UUID(0, 0xA);
@@ -30,12 +38,12 @@ class CentresARappelerJdbcTest {
         jdbc.update("INSERT INTO centers (id, name) VALUES (?, 'A')", a);
         jdbc.update("INSERT INTO centers (id, name) VALUES (?, 'B')", b);
 
-        assertThat(new CentresARappelerJdbc(jdbc).tous()).containsExactlyInAnyOrder(new CentreId(a), new CentreId(b));
+        assertThat(centres().tous()).containsExactlyInAnyOrder(new CentreId(a), new CentreId(b));
     }
 
     @Test
     void should_list_nothing_when_there_is_no_centre_and_never_write() {
-        assertThat(new CentresARappelerJdbc(jdbc).tous()).isEmpty();
+        assertThat(centres().tous()).isEmpty();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM centers", Integer.class)).isZero();
     }
 }

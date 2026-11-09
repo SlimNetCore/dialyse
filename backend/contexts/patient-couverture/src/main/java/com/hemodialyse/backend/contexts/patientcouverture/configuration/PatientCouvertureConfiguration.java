@@ -39,7 +39,8 @@ import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.pla
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.VerrouDesPlacesDuCentre;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.MouvementsDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientRepository;
-import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.organisation.HorlogeDesCentresPublies;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacygmao.GenerateursDuCentreJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.planification.PlaceDeLaFicheParLaPlanification;
@@ -83,9 +84,9 @@ public class PatientCouvertureConfiguration {
     }
 
     @Bean
-    HorlogeDesCentres horlogeDeLaFiche(JdbcTemplate jdbc,
+    HorlogeDesCentres horlogeDeLaFiche(AnnuaireDesCentres annuaire,
                                        @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
-        return new HorlogeDesCentresLegacy(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
+        return new HorlogeDesCentresPublies(annuaire, Clock.systemUTC(), ZoneId.of(fuseauParDefaut));
     }
 
     @Bean

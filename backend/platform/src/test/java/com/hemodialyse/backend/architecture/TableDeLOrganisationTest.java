@@ -38,32 +38,17 @@ class TableDeLOrganisationTest {
 
     /** Lecteurs SQL connus hors du contexte Organisation (chemin depuis {@code backend/}) : 2026-11-02, revue O1-O5. */
     private static final Map<String, String> LECTEURS_CONNUS = lecteurs(
-            "contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyorganisation/CentresActifsJdbc.java",
-            // 2026-11-07, DM2 : liste des centres du contrôle de nuit de l'observance (centers), lecture seule ; remplace l'entrée du
-            // planificateur legacy retirée dans le même lot. RETRAIT : à l'échéance de organisation.v1 (jalon O4).
-            "contexts/dossier-medical/src/main/java/com/hemodialyse/backend/contexts/dossiermedical/infrastructure/acl/legacyorganisation/CentresActifsJdbc.java",
-            // 2026-11-08, SE4 : liste des centres du rappel quotidien des séances à régulariser (centers), lecture seule, comme le
-            // planificateur legacy qu'elle remplace (retiré au lot B ; son entrée est retirée dans le même lot). RETRAIT : à
-            // l'échéance de organisation.v1 (jalon O4).
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacyorganisation/CentresARappelerJdbc.java",
+            // 2026-11-09, O4 lot A (ADR 0107) : 10 lecteurs retirés (centres actifs, tous les centres, fuseau du centre, société d'un
+            // centre, sociétés et centres du Pilotage) : 32 -> 22. Les besoins restants sont dans la fiche O4 (lots B à E). Les deux
+            // lecteurs de Stock (CentresActifsLegacy, HorlogeDesCentresLegacy) restent : cycle Maven (organisation dépend de stock).
             // 2026-11-08, SE7c1 (ADR 0096) : code de la salle et code / libellé du créneau d'une séance (salle, position_creneau), lecture
             // seule, publiés au Stock par PlacesDesSeancesPubliees ; reprend la lecture de PerimetreDesSeancesLegacy (Stock), retirée au lot B.
             // RETRAIT : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/LecturesPublieesDesSeancesJdbc.java",
-            // 2026-11-03, PC1 : fuseau du centre (centers) et libellés de la recherche et des mouvements (medecin, salle,
-            // position_creneau) : lecture seule, à remplacer par organisation.v1
-            "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
+            // 2026-11-03, PC1 : libellés de la recherche et des mouvements (medecin, salle, position_creneau) : lecture seule, à
+            // remplacer par organisation.v1 (le fuseau du centre est migré au lot A)
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/LectureDesMouvementsJdbc.java",
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/LectureDesPatientsJdbc.java",
-            // 2026-11-04, PC4 : fuseau du centre (centers.fuseau_horaire) pour le tableau de bord et la séance sans date : lecture
-            // seule. RETRAIT : à l'échéance de organisation.v1 (jalon O4), au plus tard avec PC5 (lectures publiées).
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/centres/JourDuCentreLegacy.java",
-            // 2026-11-08, SE7f (ADR 0100) : fuseau du centre (centers.fuseau_horaire) pour le jour du centre de la Séance (scan, création sans
-            // date, séances récentes), repris de JourDuCentreLegacy que le fournisseur JourDuCentreFourniLegacy (retiré) enveloppait ; lecture
-            // seule. RETRAIT : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacyorganisation/JourDuCentreJdbc.java",
-            "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/CentresActifsLegacy.java",
-            "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/CreneauxDuCentreJdbc.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/LectureDesRessourcesLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/SallesDuCentreJdbc.java",
@@ -76,14 +61,6 @@ class TableDeLOrganisationTest {
             "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/persistence/OperationsDeStockJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAccountService.java",
-            // 2026-11-09, PD1 (ADR 0102) : société et centres de la direction (societes, centers), lecture seule, déplacée de
-            // DirectionDashboardQueryService (retiré) vers le Pilotage direction. RETRAIT : à l'échéance de organisation.v1 (jalon O4),
-            // butoir 2027-03-31.
-            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/SocietesEtCentresJdbc.java",
-            // 2026-11-09, PD3 (ADR 0104) : société d'un centre (centers.societe_id) pour le signal temps réel d'un centre, lecture seule,
-            // déplacée de DirectionRealtimeService (retiré) vers le Pilotage direction. RETRAIT : à l'échéance de organisation.v1
-            // (jalon O4), butoir 2027-03-31.
-            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/SocieteDUnCentreJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
             // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-02) ; salle et position_creneau par SQL dynamique.
@@ -166,6 +143,12 @@ class TableDeLOrganisationTest {
         assertThat(morts)
                 .as("entrées de la liste blanche qui ne lisent plus les tables de l'Organisation : les retirer (avancement de O4)")
                 .isEmpty();
+    }
+
+    /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A (2026-11-09). Le baisser avec chaque lot. */
+    @Test
+    void le_nombre_de_lecteurs_connus_est_le_critere_d_avancement_de_o4() {
+        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot A de O4 : 32 -> 22)").hasSize(22);
     }
 
     @Test
