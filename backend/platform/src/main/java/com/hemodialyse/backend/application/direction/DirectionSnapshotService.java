@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.Overview;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.VueDEnsemble;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,18 +33,16 @@ public class DirectionSnapshotService {
     private static final Pattern MONTH = Pattern.compile("\\d{4}-\\d{2}");
     private static final int MAX_YEARS_BACK = 5;
     private final JdbcTemplate jdbc;
-    private final DirectionDashboardQueryService dashboard;
+    /** Vue d'ensemble et répartitions : langage publié du Pilotage direction (PD1, ADR 0102), mêmes champs JSON qu'avant. */
+    private final TableauDeBordDeLaDirection tableau;
     private final DirectionIndicatorsQueryService indicators;
-    private final DirectionBreakdownQueryService breakdowns;
     private final ObjectMapper mapper;
 
-    public DirectionSnapshotService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                    DirectionIndicatorsQueryService indicators,
-                                    DirectionBreakdownQueryService breakdowns, ObjectMapper mapper) {
+    public DirectionSnapshotService(JdbcTemplate jdbc, TableauDeBordDeLaDirection tableau,
+                                    DirectionIndicatorsQueryService indicators, ObjectMapper mapper) {
         this.jdbc = jdbc;
-        this.dashboard = dashboard;
+        this.tableau = tableau;
         this.indicators = indicators;
-        this.breakdowns = breakdowns;
         this.mapper = mapper;
     }
 
@@ -116,12 +115,12 @@ public class DirectionSnapshotService {
     private boolean create(UUID societeId, YearMonth month) {
         LocalDate from = month.atDay(1);
         LocalDate to = month.atEndOfMonth();
-        Overview overview = dashboard.overview(societeId, from, to);
+        VueDEnsemble overview = tableau.vueDEnsemble(societeId, from, to);
         Indicators ind = indicators.indicators(societeId, from, to);
         var root = mapper.createObjectNode();
         root.set("overview", mapper.valueToTree(overview));
         root.set("indicators", mapper.valueToTree(ind));
-        root.set("breakdown", mapper.valueToTree(breakdowns.breakdown(societeId, from, to)));
+        root.set("breakdown", mapper.valueToTree(tableau.repartition(societeId, from, to)));
         try {
             jdbc.update("INSERT INTO direction_snapshot (id, societe_id, mois, payload, generated_at) "
                             + "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",

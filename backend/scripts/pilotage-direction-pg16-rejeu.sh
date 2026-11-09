@@ -6,8 +6,10 @@
 #       aucune des tables paralleles du module gele contexts/pilotage-direction ;
 #   (2) le jeu FICTIF minimal des goldens H2 de backend/platform/src/test/resources/characterization/pilotagedirection/ (memes cas) et les requetes
 #       de production A L'IDENTIQUE (parametres remplaces par des litteraux), la ou la semantique H2/PostgreSQL peut differer :
-#       D1  DirectionDashboardQueryService.java:112-113 + EffectifSql.presentSur : effectif de la periode par centre (dates, etats de sortie)
-#       D2  DirectionBreakdownQueryService.java:186-188 : patients par caisse, COALESCE(ca.code,'') + MAX(ca.nom) dans un GROUP BY
+#       D1  PatientsDesCentresJdbc.parCentre + PredicatDEffectif (module pilotage-direction, PD1, ADR 0102 ; repris mot pour mot de
+#           DirectionDashboardQueryService.java:112-113 + EffectifSql.presentSur, retires) : effectif de la periode par centre
+#       D2  PatientsDesCentresJdbc.parCaisse (repris de DirectionBreakdownQueryService.java:186-188, retire) : patients par caisse,
+#           COALESCE(ca.code,'') + MAX(ca.nom) dans un GROUP BY
 #       D3  SeancesRealiseesDesCentresJdbc.java:49-50, 68-70, 80-83 (lues par la Direction, SE7e) : par centre, par mois (EXTRACT), par caisse
 #       D4  SyntheseFinanciereDesCentresJdbc.java:36-38, 42-43, 75-79 : factures, encaisse de toutes dates, CA par caisse (agence figee)
 #       D5  TraitementDeLAnemieJdbc.java:34-40 : COUNT(DISTINCT CASE ...) et SUM(CASE ...)
@@ -196,5 +198,19 @@ verifier "68.4 KB-DIR-05 : seances realisees dont la fiche du patient est dans u
   "$(sql "SELECT s.center_id AS centre_de_la_seance, p.center_id AS centre_de_la_fiche, COUNT(*) FROM seances s JOIN patients p ON p.id = s.patient_id WHERE p.center_id <> s.center_id AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, p.center_id" | lignes)" "$B|$A|1"
 verifier "68.5 KB-DIR-06 : societes actives sans instantane du mois ecoule (la tache de 02:30 n'a pas tourne ou a echoue) : ici les deux (jeu fictif)" \
   "$(sql "SELECT COUNT(*) FROM societes s WHERE s.actif = TRUE AND NOT EXISTS (SELECT 1 FROM direction_snapshot d WHERE d.societe_id = s.id AND d.mois = to_char(date_trunc('month', current_date) - interval '1 month', 'YYYY-MM'))")" "2"
+echo "=== Section 69 de verifications-production.md (PD1 et PD4, ADR 0102) : condition de mise en production de KB-DIR-01 (SELECT seulement) ==="
+verifier "69.1 KB-DIR-01 : instantanes DEJA figes dont le payload porte les totaux bruts de la societe ('\"totaux\"') : aucun dans le jeu fictif" \
+  "$(sql "SELECT societe_id, mois FROM direction_snapshot WHERE POSITION('\"totaux\"' IN payload) > 0 ORDER BY 1, 2" | lignes)" ""
+verifier "69.2 nombre d'instantanes figes (les deux du jeu fictif)" "$(sql "SELECT COUNT(*) FROM direction_snapshot")" "2"
+
+echo "=== Contrat PostgreSQL des lectures du module Pilotage direction (PD1, ADR 0102) : societe et centres, effectif, profils, caisses, anemie ==="
+export PD_PG16_PASSWORD="$PW"
+URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
+cd "$RACINE/backend" || exit 3
+./mvnw -o -pl contexts/pilotage-direction test \
+  -Dtest="com.hemodialyse.backend.contexts.pilotagedirection.contrat.LecturesDuPilotagePostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dpilotagedirection.pg16.url="$URL" -Dpilotagedirection.pg16.user=pd_test -Dpilotagedirection.pg16.password="$PW" || RC=1
+
 echo "=== Fin du rejeu : code $RC (0 = tout conforme) ==="
 exit $RC

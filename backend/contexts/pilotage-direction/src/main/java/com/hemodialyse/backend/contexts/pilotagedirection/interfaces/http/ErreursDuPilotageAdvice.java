@@ -1,0 +1,31 @@
+package com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http;
+
+import com.hemodialyse.backend.contexts.pilotagedirection.domain.RegleDuPilotageViolee;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+/**
+ * Les refus du Pilotage direction, au format commun de la plateforme ({@code ProblemDetail} + {@code code} stable) : 422 pour une période
+ * invalide ({@code PERIODE_INVALIDE}) ou trop longue ({@code PERIODE_TROP_LONGUE}), titre « Regle metier violee » comme la
+ * {@code BusinessException} du legacy dont elle reprend la réponse à l'identique (parité des goldens {@code bornes}).
+ * <p>
+ * Sans restriction de contrôleur : seul le Pilotage lève {@link RegleDuPilotageViolee}, et ses contrôleurs restent dans la plateforme
+ * (jeton, garde de société, routes hébergées avec celles d'autres contextes : ADR 0102).
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@RestControllerAdvice
+class ErreursDuPilotageAdvice {
+
+    @ExceptionHandler(RegleDuPilotageViolee.class)
+    ProblemDetail regleViolee(RegleDuPilotageViolee erreur) {
+        ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        probleme.setTitle("Regle metier violee");
+        probleme.setDetail(erreur.getMessage());
+        probleme.setProperty("code", erreur.code());
+        return probleme;
+    }
+}

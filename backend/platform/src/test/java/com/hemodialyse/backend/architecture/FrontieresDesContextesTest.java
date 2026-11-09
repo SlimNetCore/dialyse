@@ -442,11 +442,22 @@ class FrontieresDesContextesTest {
 
     @ArchTest
     static final ArchRule le_pilotage_de_la_direction_lit_les_seances_realisees_par_le_langage_publie = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionDashboardQueryService")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.seance.SeancesRealiseesParLaSeance")
             .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesRealiseesDesCentresPubliees")
-            .because("le pilotage compte les séances réalisées par seance.v1 (ADR 0099, SE7e)");
+            .because("le pilotage compte les séances réalisées par seance.v1 (ADR 0099, SE7e) ; depuis PD1 (ADR 0102) le tableau de bord le fait dans le module");
+
+    /**
+     * PD1 et PD4 (ADR 0102) : le Pilotage direction ne lit d'un autre contexte que son langage publié (la règle équivalente du module
+     * est dans son {@code ArchitectureHexagonaleTest}) ; la plateforme ne lit du Pilotage que {@code publishedlanguage} (règle existante
+     * {@code le_legacy_n_utilise_le_pilotage_direction_que_par_son_langage_publie}).
+     */
+    @ArchTest
+    static final ArchRule le_tableau_de_bord_et_le_rapport_sont_servis_par_le_pilotage_direction_via_son_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionReportPdfService")
+            .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage..")
+            .because("le contrôleur et le rendu PDF consomment le Pilotage direction par son langage publié (PD1, PD4, ADR 0102)");
 
     @ArchTest
     static final ArchRule les_statistiques_du_patient_lisent_les_seances_par_le_langage_publie = classes()

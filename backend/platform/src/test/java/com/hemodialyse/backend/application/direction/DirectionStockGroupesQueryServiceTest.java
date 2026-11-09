@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService.GroupeStock;
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService.StockGroupesOverview;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
@@ -40,7 +41,7 @@ class DirectionStockGroupesQueryServiceTest {
     private static final UUID C2 = UUID.randomUUID();
     private static final OffsetDateTime JAN = OffsetDateTime.of(2026, 1, 10, 8, 0, 0, 0, ZoneOffset.UTC);
 
-    private final DirectionDashboardQueryService dashboard = mock(DirectionDashboardQueryService.class);
+    private final TableauDeBordDeLaDirection dashboard = mock(TableauDeBordDeLaDirection.class);
     private final GroupesDArticlesDesCentres groupes = mock(GroupesDArticlesDesCentres.class);
     private final ValorisationArticlesService valorisation = mock(ValorisationArticlesService.class);
     private final DirectionStockGroupesQueryService service =
@@ -52,8 +53,8 @@ class DirectionStockGroupesQueryServiceTest {
     }
 
     private void societeAvecDeuxCentres() {
-        when(dashboard.societe(SOCIETE)).thenReturn(new SocieteInfo(SOCIETE, "Société",
-                List.of(new CentreInfo(C1, "Annaba", true), new CentreInfo(C2, "Rouiba", true))));
+        when(dashboard.societe(SOCIETE)).thenReturn(new SocieteDeLaDirection(SOCIETE, "Société",
+                List.of(new CentreDeLaSociete(C1, "Annaba", true), new CentreDeLaSociete(C2, "Rouiba", true))));
     }
 
     @Test

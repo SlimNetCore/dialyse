@@ -84,8 +84,12 @@ class TableDuPatientCouvertureTest {
                     + "du payeur, publiées à la Facturation (la découper changerait l'ordre) ; la partie PEC passe déjà par le langage publié ; "
                     + "échéance : résidu C2-R6, langage publié du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE + " : six tables de Facturation, KB-FAC-49",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
+            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/PatientsDesCentresJdbc.java",
+            "2026-11-09 (déplacée de platform/.../DirectionDashboardQueryService et DirectionBreakdownQueryService, PD1, ADR 0102) : effectif de "
+                    + "la période (prédicat RG-PAT-032), sexe et naissance, patients par caisse (jointure patients x centre payeur x agence x caisse "
+                    + "dans un GROUP BY : la découper changerait le résultat) et prescriptions d'EPO / de fer, agrégats anonymes de la Direction, "
+                    + "requêtes reprises mot pour mot ; échéance : lecture publiée de l'effectif par le Patient, revue au plus tard le 2026-12-15, "
+                    + "butoir 2027-03-31",
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PlanningDesPatientsJdbc.java",
             "2026-11-08 (déplacée de platform/.../persistence/adapter/SeancePlanningJdbcAdapter, SE7f, ADR 0100) : jours de dialyse, sommeil, état et "
                     + "dates de la fiche AU CENTRE pour le scan (requête reprise mot pour mot ; KB-SEA-95) ; " + PLACE + " (jours de dialyse) ; "
@@ -221,7 +225,7 @@ class TableDuPatientCouvertureTest {
         assertThat(JALONS.values()).allSatisfy(raison -> {
             // Jalons historiques : 2026-11-04, 05 ou 07, inchangés. Exceptions : les entrées du 2026-11-08 (SE7a, ADR 0094, R2 ; SE7c2,
             // ADR 0097, C2-R6, entrée déplacée), qui doivent porter leur revue (2026-12-15) ET leur butoir propre (2027-03-31).
-            if (raison.startsWith("2026-11-08")) {
+            if (raison.startsWith("2026-11-08") || raison.startsWith("2026-11-09")) {
                 assertThat(raison).contains("revue au plus tard le 2026-12-15").contains("butoir 2027-03-31");
             } else {
                 assertThat(raison).matches("(?s)2026-11-0[457].*");

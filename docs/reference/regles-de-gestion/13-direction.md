@@ -142,3 +142,17 @@
   les sociétés suivies. Seules les sociétés ayant au moins une direction connectée sont recalculées.
 - **RG-DIR-102** — L'apparition ou la disparition d'une alerte est elle-même un changement diffusé ; les indicateurs
   masqués par l'anonymat ne sont jamais diffusés.
+
+## 13.12 Calcul du tableau de bord et du rapport (contexte Pilotage direction)
+
+- **RG-DIR-103** — La société, la vue d'ensemble, les répartitions (sexe, âge, caisse, anémie) et le **rapport de synthèse** sont calculés
+  par le contexte **Pilotage direction** (langage publié `TableauDeBordDeLaDirection` et `RapportDeSyntheseDeLaDirection`) ; la plateforme
+  ne fait que garder le jeton, porter les routes et rendre le PDF (HTML vers PDF). Règles reproduites à l'identique du fonctionnement
+  antérieur : la période par défaut et ses refus (RG-DIR-003, réponse 422 avec le même code) sont contrôlés **avant** toute lecture ;
+  la période précédente (même durée) n'est pas soumise à la limite de 5 ans ; l'effectif d'une période est celui de RG-PAT-037 ;
+  l'âge d'une tranche est l'âge révolu **au jour de l'appel** ; les totaux de la société sont calculés sur les effectifs **bruts** (un
+  centre masqué compte dans le total : la différence entre le total et la somme des centres publiés peut révéler un effectif masqué,
+  KB-DIR-01, à faire confirmer par le DPO) ; « aujourd'hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
+  ou Africa/Algiers). Le rapport mensuel imprime l'instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
+  les mêmes libellés d'alerte ; un code d'alerte inconnu est imprimé tel quel. *Source :* `ConsulterLaVueDEnsemble`,
+  `ConsulterLaRepartition`, `ConstituerLeRapportDeSynthese`.

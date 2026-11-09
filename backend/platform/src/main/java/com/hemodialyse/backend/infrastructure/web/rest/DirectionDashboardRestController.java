@@ -1,10 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.Overview;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
-import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
-import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService.Breakdown;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.Repartition;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.VueDEnsemble;
 import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
 import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService.Entry;
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
@@ -40,6 +39,12 @@ import java.util.UUID;
  * <p>
  * La société vient du jeton de la session (jamais d'un paramètre) et est revérifiée à chaque appel ; ces routes sont
  * en outre les seules que le rôle DIRECTION peut appeler ({@code RoleScopeFilter}).
+ * <p>
+ * PD1 et PD4 (ADR 0102) : {@code /societe}, {@code /overview}, {@code /breakdown} et {@code /report} sont servies par le contexte Pilotage
+ * direction (langage publié {@link TableauDeBordDeLaDirection}) ; ce contrôleur RESTE en plateforme : il porte le jeton et la garde de
+ * société ({@link DirectionAccessGuard}, revérifiés à chaque appel) et héberge aussi les routes caractérisées par leurs contextes
+ * ({@code /indicators}, {@code /capacite}, {@code /absences}, {@code /gmao}, {@code /stock-groupes}, {@code /alerts/history}). Mêmes URL,
+ * mêmes rôles, mêmes codes.
  */
 @RestController
 @RequestMapping("/api/v1/direction")
@@ -47,9 +52,8 @@ import java.util.UUID;
 public class DirectionDashboardRestController {
 
     private final DirectionAccessGuard guard;
-    private final DirectionDashboardQueryService queries;
+    private final TableauDeBordDeLaDirection tableau;
     private final DirectionIndicatorsQueryService indicators;
-    private final DirectionBreakdownQueryService breakdowns;
     private final DirectionReportPdfService reports;
     private final DirectionAlertHistoryService alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
@@ -57,9 +61,8 @@ public class DirectionDashboardRestController {
     private final DirectionAbsencesQueryService absences;
     private final DirectionCapaciteQueryService capacites;
 
-    public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
+    public DirectionDashboardRestController(DirectionAccessGuard guard, TableauDeBordDeLaDirection tableau,
                                             DirectionIndicatorsQueryService indicators,
-                                            DirectionBreakdownQueryService breakdowns,
                                             DirectionReportPdfService reports,
                                             DirectionAlertHistoryService alertHistory,
                                             DirectionGmaoQueryService gmaoQueries,
@@ -71,9 +74,8 @@ public class DirectionDashboardRestController {
         this.stockGroupes = stockGroupes;
         this.reports = reports;
         this.guard = guard;
-        this.queries = queries;
+        this.tableau = tableau;
         this.indicators = indicators;
-        this.breakdowns = breakdowns;
         this.alertHistory = alertHistory;
         this.gmaoQueries = gmaoQueries;
     }
@@ -82,20 +84,20 @@ public class DirectionDashboardRestController {
      * Société de la direction connectée et liste de ses centres (pour les filtres).
      */
     @GetMapping("/societe")
-    public ResponseEntity<SocieteInfo> societe() {
+    public ResponseEntity<SocieteDeLaDirection> societe() {
         UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(queries.societe(societeId));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.societe(societeId));
     }
 
     /**
      * Vue d'ensemble par centre et consolidée sur la période (par défaut : depuis le 1er janvier).
      */
     @GetMapping("/overview")
-    public ResponseEntity<Overview> overview(
+    public ResponseEntity<VueDEnsemble> overview(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(queries.overview(societeId, from, to));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.vueDEnsemble(societeId, from, to));
     }
 
     /**
@@ -162,11 +164,11 @@ public class DirectionDashboardRestController {
      * traitement de l'anémie. Agrégats anonymes.
      */
     @GetMapping("/breakdown")
-    public ResponseEntity<Breakdown> breakdown(
+    public ResponseEntity<Repartition> breakdown(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(breakdowns.breakdown(societeId, from, to));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.repartition(societeId, from, to));
     }
 
     /**

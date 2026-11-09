@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
@@ -34,12 +35,12 @@ public class DirectionStockGroupesQueryService {
 
     private static final int MAX_YEARS = 5;
 
-    private final DirectionDashboardQueryService dashboard;
+    private final TableauDeBordDeLaDirection dashboard;
     private final GroupesDArticlesDesCentres groupes;
     private final ValorisationArticlesService valorisation;
 
     public DirectionStockGroupesQueryService(
-            DirectionDashboardQueryService dashboard, GroupesDArticlesDesCentres groupes,
+            TableauDeBordDeLaDirection dashboard, GroupesDArticlesDesCentres groupes,
             ValorisationArticlesService valorisation) {
         this.dashboard = dashboard;
         this.groupes = groupes;
@@ -58,7 +59,7 @@ public class DirectionStockGroupesQueryService {
         OffsetDateTime debut = start.atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime finExclue = end.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC);
 
-        List<CentreInfo> centres = dashboard.societe(societeId).centres();
+        List<CentreDeLaSociete> centres = dashboard.societe(societeId).centres();
         Map<UUID, String> nomsCentres = new HashMap<>();
         centres.forEach(c -> nomsCentres.put(c.id(), c.nom()));
         List<GroupeDArticlesPublie> tous = groupes.groupes(nomsCentres.keySet());

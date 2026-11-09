@@ -79,6 +79,12 @@
             <artifactId>contexts-seance</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Pilotage direction (lot A = PD1 + PD4, ADR 0102) : tableau de bord et rapport de synthese ; memes URL /api/v1/direction/* -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-pilotage-direction</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>ai.timefold.solver</groupId>
             <artifactId>timefold-solver-core</artifactId>

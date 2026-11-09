@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
@@ -36,13 +37,13 @@ public class DirectionAbsencesQueryService {
     private static final int MAX_YEARS = 5;
     private static final BigDecimal CENT = BigDecimal.valueOf(100);
 
-    private final DirectionDashboardQueryService dashboard;
+    private final TableauDeBordDeLaDirection dashboard;
 
     private final SyntheseFinanciereDesCentres finance;
     private final AbsencesDuPilotage pilotage;
     private final SeancesRealiseesDesCentresPubliees seancesRealisees;
 
-    public DirectionAbsencesQueryService(DirectionDashboardQueryService dashboard, SyntheseFinanciereDesCentres finance,
+    public DirectionAbsencesQueryService(TableauDeBordDeLaDirection dashboard, SyntheseFinanciereDesCentres finance,
                                          AbsencesDuPilotage pilotage, SeancesRealiseesDesCentresPubliees seancesRealisees) {
         this.finance = finance;
         this.pilotage = pilotage;
@@ -94,12 +95,12 @@ public class DirectionAbsencesQueryService {
         if (start.plusYears(MAX_YEARS).isBefore(end)) {
             throw new BusinessException("PERIODE_TROP_LONGUE", "La période ne peut pas dépasser " + MAX_YEARS + " ans");
         }
-        List<CentreInfo> centres = dashboard.societe(societeId).centres();
+        List<CentreDeLaSociete> centres = dashboard.societe(societeId).centres();
         if (centres.isEmpty()) {
             return new AbsencesOverview(societeId, start, end, OffsetDateTime.now(ZoneOffset.UTC),
                     stats(new Cumul(), 0, BigDecimal.ZERO), List.of(), List.of(), List.of(), 0);
         }
-        List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
+        List<UUID> ids = centres.stream().map(CentreDeLaSociete::id).toList();
 
         // Dénominateur du taux d'absentéisme : lecture publiée de la Séance (SE7e, ADR 0099), même requête que la vue d'ensemble
         Map<UUID, Long> seances = new HashMap<>(seancesRealisees.parCentre(ids, start, end));
@@ -131,7 +132,7 @@ public class DirectionAbsencesQueryService {
         BigDecimal caTotal = BigDecimal.ZERO;
         List<UUID> idsPublies = new ArrayList<>();
         int centresMasques = 0;
-        for (CentreInfo centre : centres) {
+        for (CentreDeLaSociete centre : centres) {
             Cumul c = parCentre.getOrDefault(centre.id(), new Cumul());
             long nbSeances = seances.getOrDefault(centre.id(), 0L);
             BigDecimal caHt = ca.getOrDefault(centre.id(), BigDecimal.ZERO);

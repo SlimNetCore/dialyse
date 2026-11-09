@@ -2,20 +2,29 @@ package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionSnapshotService.Snapshot;
 import com.hemodialyse.backend.application.direction.SocieteLetterheadPort.Letterhead;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Alerte;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Caisses;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Finances;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.LigneClinique;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.LigneDeCaisse;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.LigneFinanciere;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.LigneStock;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Mois;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Rapport;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Repartitions;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Synthese;
+import com.hemodialyse.backend.infrastructure.acl.pilotagedirection.RapportDUnInstantane;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,13 +33,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Rapport de direction imprimable (PDF, A4 paysage) : en-tête et pied de page de la société (logo, coordonnées,
- * mentions légales, pied de page personnalisé, numéro de page) sur chaque page, puis l'ensemble des statistiques du
- * tableau de bord — synthèse, finances, évolution mensuelle, qualité des soins, sérologies, greffe, stock, alertes,
- * répartitions par sexe, âge et caisse d'assurance, traitement de l'anémie.
+ * Rendu du rapport de direction imprimable (PDF, A4 paysage) : en-tête et pied de page de la société (logo, coordonnées, mentions légales,
+ * pied de page personnalisé, numéro de page) sur chaque page, puis l'ensemble des statistiques du tableau de bord — synthèse, finances,
+ * évolution mensuelle, qualité des soins, stock, alertes, répartitions par sexe, âge et caisse d'assurance, traitement de l'anémie.
  * <p>
- * Deux sources : un instantané mensuel figé, ou les données en direct d'une période choisie. Agrégats anonymes
- * uniquement ; les valeurs masquées par l'anonymat restent masquées dans le document.
+ * PD4 (ADR 0102) : le MODÈLE du rapport (sections, totaux, évolution mensuelle, matrice des caisses, masquage) est constitué par le contexte
+ * Pilotage direction ({@link RapportDeSyntheseDeLaDirection}) ; cette classe ne fait plus que la MISE EN FORME (« &lt; seuil », « — »,
+ * montants, barres), le HTML puis le PDF (openhtmltopdf 1.0.10) et l'en-tête de la société ({@link SocieteLetterheadPort}). Deux sources :
+ * un instantané mensuel figé, ou les données en direct d'une période choisie.
  */
 @Service
 public class DirectionReportPdfService {
@@ -49,19 +59,11 @@ public class DirectionReportPdfService {
     }
 
     private final SocieteLetterheadPort letterheads;
-    private final DirectionDashboardQueryService dashboard;
-    private final DirectionIndicatorsQueryService indicators;
-    private final DirectionBreakdownQueryService breakdowns;
-    private final ObjectMapper mapper;
+    private final RapportDeSyntheseDeLaDirection rapports;
 
-    public DirectionReportPdfService(SocieteLetterheadPort letterheads, DirectionDashboardQueryService dashboard,
-                                     DirectionIndicatorsQueryService indicators,
-                                     DirectionBreakdownQueryService breakdowns, ObjectMapper mapper) {
+    public DirectionReportPdfService(SocieteLetterheadPort letterheads, RapportDeSyntheseDeLaDirection rapports) {
         this.letterheads = letterheads;
-        this.dashboard = dashboard;
-        this.indicators = indicators;
-        this.breakdowns = breakdowns;
-        this.mapper = mapper;
+        this.rapports = rapports;
     }
 
     private static String css() {
@@ -99,55 +101,33 @@ public class DirectionReportPdfService {
         sb.append("<td><div class='l'>").append(esc(label)).append("</div><div class='v'>").append(value).append("</div></td>");
     }
 
-    // ───────────────────────────── Document ─────────────────────────────
+    // ───────────────────────────── Mise en forme ─────────────────────────────
 
-    private static String alertLabel(String code) {
-        return switch (code) {
-            case "KTV_CONFORMITE_BASSE" -> "Kt/V dans la cible pour trop peu de patients";
-            case "HB_HORS_CIBLE" -> "Hémoglobine dans la cible pour trop peu de patients";
-            case "OBSERVANCE_EN_RETARD" -> "Traitement de l'anémie en retard d'administration";
-            case "STOCK_SOUS_SEUIL" -> "Articles sous le seuil d'alerte";
-            case "LOTS_PERIMES" -> "Lots périmés encore en stock";
-            case "LOTS_PEREMPTION_PROCHE" -> "Lots à péremption sous 90 jours";
-            default -> code;
-        };
-    }
-
-    private static boolean absent(JsonNode n) {
-        return n == null || n.isMissingNode() || n.isNull();
-    }
-
-    private static String text(JsonNode n) {
-        return absent(n) ? "—" : n.asString();
+    private static String text(Object n) {
+        return n == null ? "—" : n.toString();
     }
 
     /**
      * Effectif de patients : masqué (« &lt; seuil ») quand l'anonymat l'impose.
      */
-    private static String count(JsonNode n) {
-        return absent(n) ? "&lt; seuil" : esc(n.asString());
+    private static String count(Long n) {
+        return n == null ? "&lt; seuil" : esc(n.toString());
     }
 
-    private static String num(JsonNode n) {
-        return absent(n) ? "—" : esc(n.asString());
+    private static String num(Object n) {
+        return n == null ? "—" : esc(n.toString());
     }
 
-    // ───────────────────────────── Sections ─────────────────────────────
-
-    private static String pct(JsonNode n) {
-        return absent(n) ? "—" : esc(n.asString()) + " %";
+    private static String pct(BigDecimal n) {
+        return n == null ? "—" : esc(n.toString()) + " %";
     }
 
-    private static String money(JsonNode n) {
-        return absent(n) ? "—" : money(n.asDouble());
+    private static String money(BigDecimal n) {
+        return n == null ? "—" : money(n.doubleValue());
     }
 
     private static String money(double value) {
         return String.format(Locale.FRANCE, "%,.0f DA", value).replace(' ', ' ').replace(' ', ' ');
-    }
-
-    private static String money(BigDecimal value) {
-        return money(value.doubleValue());
     }
 
     private static String bar(double value, double max) {
@@ -155,8 +135,12 @@ public class DirectionReportPdfService {
         return "<div class='bar'><div style='width:" + width + "%'></div></div>";
     }
 
-    private static String cls(JsonNode n, String cssClass) {
-        return !absent(n) && n.asDouble() > 0 ? " class='" + cssClass + "'" : "";
+    private static String cls(Number n, String cssClass) {
+        return n != null && n.doubleValue() > 0 ? " class='" + cssClass + "'" : "";
+    }
+
+    private static String cls(BigDecimal n, String cssClass) {
+        return n != null && n.doubleValue() > 0 ? " class='" + cssClass + "'" : "";
     }
 
     private static String esc(String s) {
@@ -164,23 +148,22 @@ public class DirectionReportPdfService {
                 .replace("\"", "&quot;").replace("'", "&#39;");
     }
 
+    // ───────────────────────────── Document ─────────────────────────────
+
     /**
      * Rapport d'un mois figé.
      */
     public byte[] pdf(UUID societeId, Snapshot snapshot) {
-        return render(html(societeId, "Rapport mensuel — " + snapshot.mois(), snapshot.generatedAt(),
-                snapshot.overview(), snapshot.indicators(), snapshot.breakdown()));
+        Rapport rapport = rapports.constituer(RapportDUnInstantane.source("Rapport mensuel — " + snapshot.mois(),
+                snapshot.generatedAt(), snapshot.overview(), snapshot.indicators(), snapshot.breakdown()));
+        return render(html(societeId, rapport));
     }
 
     /**
      * Rapport en direct sur la période choisie (par défaut : depuis le 1er janvier).
      */
     public byte[] pdf(UUID societeId, LocalDate from, LocalDate to) {
-        var overview = dashboard.overview(societeId, from, to);
-        JsonNode overviewNode = mapper.valueToTree(overview);
-        return render(html(societeId, "Rapport de direction", OffsetDateTime.now(ZoneOffset.UTC), overviewNode,
-                mapper.valueToTree(indicators.indicators(societeId, overview.from(), overview.to())),
-                mapper.valueToTree(breakdowns.breakdown(societeId, overview.from(), overview.to()))));
+        return render(html(societeId, rapports.enDirect(societeId, from, to)));
     }
 
     private byte[] render(String html) {
@@ -199,32 +182,32 @@ public class DirectionReportPdfService {
         }
     }
 
-    String html(UUID societeId, String title, OffsetDateTime generatedAt, JsonNode overview, JsonNode ind,
-                JsonNode breakdown) {
+    String html(UUID societeId, Rapport rapport) {
         Optional<Letterhead> letterhead = letterheads.forSociete(societeId);
-        String societeNom = letterhead.map(Letterhead::nom).filter(n -> !n.isBlank()).orElse(text(overview.path("societeNom")));
-        String period = text(overview.path("from")) + " au " + text(overview.path("to"));
+        String societeNom = letterhead.map(Letterhead::nom).filter(n -> !n.isBlank()).orElse(text(rapport.societeNom()));
+        String period = text(rapport.debut()) + " au " + text(rapport.fin());
+        OffsetDateTime generatedAt = rapport.genereLe();
 
         StringBuilder sb = new StringBuilder();
         sb.append("<html><head><meta charset='UTF-8'/><style>").append(css()).append("</style></head><body>");
-        sb.append(letterheadHtml(letterhead, societeNom, title, period));
+        sb.append(letterheadHtml(letterhead, societeNom, rapport.titre(), period));
         sb.append(footerHtml(letterhead, societeNom, generatedAt));
 
-        sb.append("<h1>").append(esc(title)).append("</h1>");
+        sb.append("<h1>").append(esc(rapport.titre())).append("</h1>");
         sb.append("<div class='muted'>").append(esc(societeNom)).append(" — période ").append(esc(period))
                 .append(" — données au ").append(generatedAt == null ? "—" : generatedAt.format(STAMP))
-                .append(" — agrégats anonymes (seuil d'anonymat : ").append(esc(text(overview.path("seuilAnonymat"))))
+                .append(" — agrégats anonymes (seuil d'anonymat : ").append(esc(text(rapport.seuilAnonymat())))
                 .append(")</div>");
 
-        summary(sb, overview.path("totaux"));
-        alerts(sb, ind.path("alertes"));
-        finances(sb, overview);
-        monthly(sb, overview.path("mensuel"));
-        clinical(sb, ind);
-        stock(sb, ind);
-        breakdown(sb, breakdown);
+        summary(sb, rapport.synthese());
+        alerts(sb, rapport.alertes());
+        finances(sb, rapport.finances());
+        monthly(sb, rapport.evolution());
+        clinical(sb, rapport);
+        stock(sb, rapport);
+        breakdown(sb, rapport.repartitions());
         sb.append("<p class='note'>Les effectifs de moins de ")
-                .append(esc(text(overview.path("seuilAnonymat"))))
+                .append(esc(text(rapport.seuilAnonymat())))
                 .append(" patients sont masqués (« &lt; seuil ») et les taux calculés sur moins de patients évalués ne ")
                 .append("sont pas publiés. Cibles cliniques : KDIGO (Kt/V &gt;= 1,2 ; hémoglobine 10 à 11,5 g/dL ; ")
                 .append("phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine &gt;= 4 g/dL).</p>");
@@ -257,208 +240,176 @@ public class DirectionReportPdfService {
                 + (generatedAt == null ? "—" : generatedAt.format(STAMP)) + "</div></div>";
     }
 
-    // ───────────────────────────── Formats ─────────────────────────────
+    // ───────────────────────────── Sections ─────────────────────────────
 
-    private void summary(StringBuilder sb, JsonNode t) {
-        if (t.isMissingNode()) return;
+    private void summary(StringBuilder sb, Synthese t) {
+        if (t == null) return;
         sb.append("<table class='kpis'><tr>");
-        kpi(sb, "Patients", count(t.path("patients")));
-        kpi(sb, "Séances", num(t.path("seances")));
-        kpi(sb, "Factures", num(t.path("factures")));
-        kpi(sb, "CA HT", money(t.path("caHt")));
-        kpi(sb, "CA TTC", money(t.path("caTtc")));
-        kpi(sb, "Encaissé", money(t.path("encaisse")));
-        kpi(sb, "Reste à recouvrer", money(t.path("resteARecouvrer")));
-        kpi(sb, "Taux d'encaissement", pct(t.path("tauxEncaissement")));
+        kpi(sb, "Patients", count(t.patients()));
+        kpi(sb, "Séances", num(t.seances()));
+        kpi(sb, "Factures", num(t.factures()));
+        kpi(sb, "CA HT", money(t.caHt()));
+        kpi(sb, "CA TTC", money(t.caTtc()));
+        kpi(sb, "Encaissé", money(t.encaisse()));
+        kpi(sb, "Reste à recouvrer", money(t.resteARecouvrer()));
+        kpi(sb, "Taux d'encaissement", pct(t.tauxEncaissement()));
         sb.append("</tr></table>");
     }
 
-    private void alerts(StringBuilder sb, JsonNode alerts) {
-        if (alerts.isMissingNode() || alerts.size() == 0) return;
+    private void alerts(StringBuilder sb, List<Alerte> alerts) {
+        if (alerts.isEmpty()) return;
         sb.append("<h2>Alertes</h2><div class='alerts'>");
-        for (JsonNode a : alerts) {
-            boolean critical = "CRITICAL".equals(text(a.path("severity")));
-            sb.append("<div class='alert").append(critical ? " critical" : "").append("'><b>")
-                    .append(esc(text(a.path("centre")))).append("</b> — ").append(esc(alertLabel(text(a.path("code")))))
-                    .append(a.path("valeur").isNull() || a.path("valeur").isMissingNode() ? "" : " (" + esc(text(a.path("valeur"))) + ")")
+        for (Alerte a : alerts) {
+            sb.append("<div class='alert").append(a.critique() ? " critical" : "").append("'><b>")
+                    .append(esc(text(a.centre()))).append("</b> — ").append(esc(a.libelle()))
+                    .append(a.valeur() == null ? "" : " (" + esc(text(a.valeur())) + ")")
                     .append("</div>");
         }
         sb.append("</div>");
     }
 
-    private void finances(StringBuilder sb, JsonNode overview) {
-        JsonNode centres = overview.path("centres");
-        if (centres.isMissingNode()) return;
+    private void finances(StringBuilder sb, Finances finances) {
+        if (finances == null) return;
         double max = 0;
-        for (JsonNode c : centres) max = Math.max(max, c.path("caTtc").asDouble());
+        for (LigneFinanciere c : finances.centres()) max = Math.max(max, c.caTtc() == null ? 0 : c.caTtc().doubleValue());
         sb.append("<h2>Finances et activité par centre</h2><table><tr><th>Centre</th><th>Patients</th><th>Dont sous KT</th>")
                 .append("<th>Séances</th><th>Factures</th><th>CA HT</th><th>CA TTC</th><th>Encaissé</th>")
                 .append("<th>Reste à recouvrer</th><th>Taux</th><th style='width:14%'>Part du CA</th></tr>");
-        for (JsonNode c : centres) {
-            sb.append("<tr><td>").append(esc(text(c.path("nom")))).append("</td><td>").append(count(c.path("patients")))
-                    .append("</td><td>").append(count(c.path("patientsSousKt"))).append("</td><td>").append(num(c.path("seances")))
-                    .append("</td><td>").append(num(c.path("factures"))).append("</td><td>").append(money(c.path("caHt")))
-                    .append("</td><td>").append(money(c.path("caTtc"))).append("</td><td>").append(money(c.path("encaisse")))
-                    .append("</td><td>").append(money(c.path("resteARecouvrer"))).append("</td><td>")
-                    .append(pct(c.path("tauxEncaissement"))).append("</td><td>").append(bar(c.path("caTtc").asDouble(), max))
-                    .append("</td></tr>");
+        for (LigneFinanciere c : finances.centres()) {
+            sb.append("<tr><td>").append(esc(text(c.nom()))).append("</td><td>").append(count(c.patients()))
+                    .append("</td><td>").append(count(c.patientsSousKt())).append("</td><td>").append(num(c.seances()))
+                    .append("</td><td>").append(num(c.factures())).append("</td><td>").append(money(c.caHt()))
+                    .append("</td><td>").append(money(c.caTtc())).append("</td><td>").append(money(c.encaisse()))
+                    .append("</td><td>").append(money(c.resteARecouvrer())).append("</td><td>")
+                    .append(pct(c.tauxEncaissement())).append("</td><td>")
+                    .append(bar(c.caTtc() == null ? 0 : c.caTtc().doubleValue(), max)).append("</td></tr>");
         }
-        JsonNode t = overview.path("totaux");
-        sb.append("<tr class='total'><td>Total société</td><td>").append(count(t.path("patients"))).append("</td><td>")
-                .append(count(t.path("patientsSousKt"))).append("</td><td>").append(num(t.path("seances"))).append("</td><td>")
-                .append(num(t.path("factures"))).append("</td><td>").append(money(t.path("caHt"))).append("</td><td>")
-                .append(money(t.path("caTtc"))).append("</td><td>").append(money(t.path("encaisse"))).append("</td><td>")
-                .append(money(t.path("resteARecouvrer"))).append("</td><td>").append(pct(t.path("tauxEncaissement")))
+        LigneFinanciere t = finances.total();
+        sb.append("<tr class='total'><td>Total société</td><td>").append(count(t.patients())).append("</td><td>")
+                .append(count(t.patientsSousKt())).append("</td><td>").append(num(t.seances())).append("</td><td>")
+                .append(num(t.factures())).append("</td><td>").append(money(t.caHt())).append("</td><td>")
+                .append(money(t.caTtc())).append("</td><td>").append(money(t.encaisse())).append("</td><td>")
+                .append(money(t.resteARecouvrer())).append("</td><td>").append(pct(t.tauxEncaissement()))
                 .append("</td><td></td></tr></table>");
     }
 
-    private void monthly(StringBuilder sb, JsonNode points) {
-        if (points.isMissingNode() || points.size() == 0) return;
-        Map<String, double[]> byMonth = new LinkedHashMap<>();
-        for (JsonNode p : points) {
-            double[] v = byMonth.computeIfAbsent(text(p.path("mois")), k -> new double[3]);
-            v[0] += p.path("seances").asDouble();
-            v[1] += p.path("caHt").asDouble();
-            v[2] += p.path("caTtc").asDouble();
-        }
-        double max = byMonth.values().stream().mapToDouble(v -> v[2]).max().orElse(0);
+    private void monthly(StringBuilder sb, List<Mois> mois) {
+        if (mois.isEmpty()) return;
+        double max = mois.stream().mapToDouble(Mois::caTtc).max().orElse(0);
         sb.append("<h2>Évolution mensuelle</h2><table><tr><th>Mois</th><th>Séances</th><th>CA HT</th><th>CA TTC</th>")
                 .append("<th style='width:35%'>CA TTC</th></tr>");
-        byMonth.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e ->
-                sb.append("<tr><td>").append(esc(e.getKey())).append("</td><td>").append(Math.round(e.getValue()[0]))
-                        .append("</td><td>").append(money(e.getValue()[1])).append("</td><td>").append(money(e.getValue()[2]))
-                        .append("</td><td>").append(bar(e.getValue()[2], max)).append("</td></tr>"));
+        mois.forEach(m ->
+                sb.append("<tr><td>").append(esc(m.mois())).append("</td><td>").append(m.seances())
+                        .append("</td><td>").append(money(m.caHt())).append("</td><td>").append(money(m.caTtc()))
+                        .append("</td><td>").append(bar(m.caTtc(), max)).append("</td></tr>"));
         sb.append("</table>");
     }
 
-    private void clinical(StringBuilder sb, JsonNode ind) {
-        JsonNode centres = ind.path("centres");
-        if (centres.isMissingNode()) return;
+    private void clinical(StringBuilder sb, Rapport rapport) {
+        if (rapport.qualite() == null) return;
         sb.append("<h2>Qualité des soins — part des patients dans la cible KDIGO</h2><table><tr><th>Centre</th>")
                 .append("<th>Kt/V</th><th>Hb</th><th>Phosphore</th><th>PTH</th><th>Albumine</th><th>AgHBs +</th>")
                 .append("<th>Anti-VHC +</th><th>VIH +</th><th>Traitement en retard</th><th>Attente greffe</th>")
                 .append("<th>Bilans greffe en cours</th><th>Greffes (période)</th></tr>");
-        for (JsonNode c : centres) clinicalRow(sb, c, text(c.path("nom")), false);
-        clinicalRow(sb, ind.path("totaux"), "Total société", true);
+        for (LigneClinique c : rapport.qualite().centres()) clinicalRow(sb, c, text(c.nom()), false);
+        clinicalRow(sb, rapport.qualite().total(), "Total société", true);
         sb.append("</table>");
     }
 
-    private void clinicalRow(StringBuilder sb, JsonNode c, String name, boolean total) {
-        JsonNode k = c.path("clinique");
+    private void clinicalRow(StringBuilder sb, LigneClinique k, String name, boolean total) {
         sb.append(total ? "<tr class='total'>" : "<tr>").append("<td>").append(esc(name)).append("</td>");
-        for (String marker : new String[]{"ktV", "hemoglobine", "phosphore", "pth", "albumine"}) {
-            sb.append("<td>").append(pct(k.path(marker).path("pctDansCible"))).append("</td>");
+        for (BigDecimal cible : new BigDecimal[]{k.ktV(), k.hemoglobine(), k.phosphore(), k.pth(), k.albumine()}) {
+            sb.append("<td>").append(pct(cible)).append("</td>");
         }
-        for (String f : new String[]{"vhbPositifs", "vhcPositifs", "vihPositifs", "patientsObservanceEnRetard",
-                "greffeListeAttente", "greffeBilanEnCours", "greffesPeriode"}) {
-            sb.append("<td>").append(count(k.path(f))).append("</td>");
+        for (Long f : new Long[]{k.vhbPositifs(), k.vhcPositifs(), k.vihPositifs(), k.patientsObservanceEnRetard(),
+                k.greffeListeAttente(), k.greffeBilanEnCours(), k.greffesPeriode()}) {
+            sb.append("<td>").append(count(f)).append("</td>");
         }
         sb.append("</tr>");
     }
 
-    private void stock(StringBuilder sb, JsonNode ind) {
-        JsonNode centres = ind.path("centres");
-        if (centres.isMissingNode()) return;
+    private void stock(StringBuilder sb, Rapport rapport) {
+        if (rapport.stock() == null) return;
         sb.append("<h2>Stock</h2><table><tr><th>Centre</th><th>Articles actifs</th><th>Sous le seuil</th>")
                 .append("<th>Lots périmés</th><th>Péremption &lt; 90 j</th><th>Valeur du stock</th></tr>");
-        for (JsonNode c : centres) stockRow(sb, c, text(c.path("nom")), false);
-        stockRow(sb, ind.path("totaux"), "Total société", true);
+        for (LigneStock c : rapport.stock().centres()) stockRow(sb, c, text(c.nom()), false);
+        stockRow(sb, rapport.stock().total(), "Total société", true);
         sb.append("</table>");
     }
 
-    private void stockRow(StringBuilder sb, JsonNode c, String name, boolean total) {
-        JsonNode s = c.path("stock");
+    private void stockRow(StringBuilder sb, LigneStock s, String name, boolean total) {
         sb.append(total ? "<tr class='total'>" : "<tr>").append("<td>").append(esc(name)).append("</td><td>")
-                .append(num(s.path("articlesActifs"))).append("</td><td").append(cls(s.path("articlesSousSeuil"), "crit")).append(">")
-                .append(num(s.path("articlesSousSeuil"))).append("</td><td").append(cls(s.path("lotsPerimes"), "crit")).append(">")
-                .append(num(s.path("lotsPerimes"))).append("</td><td").append(cls(s.path("lotsPeremptionProche"), "warn")).append(">")
-                .append(num(s.path("lotsPeremptionProche"))).append("</td><td>").append(money(s.path("valeurStock")))
+                .append(num(s.articlesActifs())).append("</td><td").append(cls(s.articlesSousSeuil(), "crit")).append(">")
+                .append(num(s.articlesSousSeuil())).append("</td><td").append(cls(s.lotsPerimes(), "crit")).append(">")
+                .append(num(s.lotsPerimes())).append("</td><td").append(cls(s.lotsPeremptionProche(), "warn")).append(">")
+                .append(num(s.lotsPeremptionProche())).append("</td><td>").append(money(s.valeurStock()))
                 .append("</td></tr>");
     }
 
-    private void breakdown(StringBuilder sb, JsonNode b) {
-        if (b.isMissingNode() || b.isNull()) {
+    private void breakdown(StringBuilder sb, Repartitions b) {
+        if (b == null) {
             return; // instantané antérieur aux répartitions : rien à afficher
         }
         sb.append("<h2>Répartition des patients par sexe et par âge</h2><table class='two'><tr><td>");
         sb.append("<table><tr><th>Centre</th><th>Hommes</th><th>Femmes</th><th>Autre / inconnu</th></tr>");
-        for (JsonNode r : b.path("sexe")) {
-            sb.append("<tr><td>").append(esc(text(r.path("nom")))).append("</td><td>").append(count(r.path("masculin")))
-                    .append("</td><td>").append(count(r.path("feminin"))).append("</td><td>").append(count(r.path("autre")))
-                    .append("</td></tr>");
-        }
+        b.sexe().forEach(r -> sb.append("<tr><td>").append(esc(text(r.nom()))).append("</td><td>").append(count(r.masculin()))
+                .append("</td><td>").append(count(r.feminin())).append("</td><td>").append(count(r.autre()))
+                .append("</td></tr>"));
         sb.append("</table></td><td><table><tr><th>Centre</th>");
         AGE_LABELS.values().forEach(l -> sb.append("<th>").append(esc(l)).append("</th>"));
         sb.append("</tr>");
-        for (JsonNode r : b.path("ages")) {
-            sb.append("<tr><td>").append(esc(text(r.path("nom")))).append("</td>");
+        b.ages().forEach(r -> {
+            sb.append("<tr><td>").append(esc(text(r.nom()))).append("</td>");
             for (String code : AGE_LABELS.keySet()) {
-                String cell = "—";
-                for (JsonNode t : r.path("tranches")) {
-                    if (code.equals(text(t.path("code")))) cell = count(t.path("count"));
-                }
-                sb.append("<td>").append(cell).append("</td>");
+                sb.append("<td>").append(r.tranches().containsKey(code) ? count(r.tranches().get(code)) : "—").append("</td>");
             }
             sb.append("</tr>");
-        }
+        });
         sb.append("</table></td></tr></table>");
 
-        caisses(sb, b);
-        anemie(sb, b.path("anemie"));
+        caisses(sb, b.caisses());
+        anemie(sb, b);
     }
 
-    private void caisses(StringBuilder sb, JsonNode b) {
-        JsonNode totaux = b.path("caisseTotaux");
-        if (totaux.isMissingNode() || totaux.size() == 0) return;
-        List<String[]> centres = new ArrayList<>();
-        for (JsonNode s : b.path("sexe")) centres.add(new String[]{text(s.path("centerId")), text(s.path("nom"))});
+    private void caisses(StringBuilder sb, Caisses caisses) {
+        if (caisses == null) return;
         sb.append("<h2>Caisses d'assurance par centre</h2>");
-        for (String[] metric : new String[][]{{"patients", "Patients"}, {"seances", "Séances"}, {"caHt", "CA HT"}}) {
-            sb.append("<table><tr><th>").append(esc(metric[1])).append(" — caisse</th>");
-            centres.forEach(c -> sb.append("<th>").append(esc(c[1])).append("</th>"));
+        for (String metric : new String[]{"Patients", "Séances", "CA HT"}) {
+            sb.append("<table><tr><th>").append(esc(metric)).append(" — caisse</th>");
+            caisses.centres().forEach(c -> sb.append("<th>").append(esc(c)).append("</th>"));
             sb.append("<th>Total société</th></tr>");
-            for (JsonNode t : totaux) {
-                String code = text(t.path("caisseCode"));
-                String nom = t.path("caisse").isNull() || t.path("caisse").isMissingNode() ? "" : text(t.path("caisse"));
-                sb.append("<tr><td>").append(esc(nom.isEmpty() ? "Caisse non renseignée" : nom)).append("</td>");
-                for (String[] c : centres) {
-                    String cell = metric[0].equals("caHt") ? money(BigDecimal.ZERO) : "0";
-                    for (JsonNode row : b.path("caisses")) {
-                        if (c[0].equals(text(row.path("centerId"))) && code.equals(text(row.path("caisseCode")).replace("—", ""))) {
-                            cell = metricCell(metric[0], row.path(metric[0]));
-                        }
-                    }
-                    sb.append("<td>").append(cell).append("</td>");
+            for (LigneDeCaisse ligne : caisses.lignes()) {
+                sb.append("<tr><td>").append(esc(ligne.caisse())).append("</td>");
+                for (int i = 0; i < caisses.centres().size(); i++) {
+                    sb.append("<td>").append(switch (metric) {
+                        case "Patients" -> count(ligne.patients().get(i));
+                        case "CA HT" -> money(ligne.caHt().get(i));
+                        default -> num(ligne.seances().get(i));
+                    }).append("</td>");
                 }
-                sb.append("<td><b>").append(metricCell(metric[0], t.path(metric[0]))).append("</b></td></tr>");
+                sb.append("<td><b>").append(switch (metric) {
+                    case "Patients" -> count(ligne.totalPatients());
+                    case "CA HT" -> money(ligne.totalCaHt());
+                    default -> num(ligne.totalSeances());
+                }).append("</b></td></tr>");
             }
             sb.append("</table>");
         }
     }
 
-    private String metricCell(String metric, JsonNode value) {
-        return switch (metric) {
-            case "patients" -> count(value);
-            case "caHt" -> money(value);
-            default -> num(value);
-        };
-    }
-
-    private void anemie(StringBuilder sb, JsonNode rows) {
-        if (rows.isMissingNode() || rows.size() == 0) return;
+    private void anemie(StringBuilder sb, Repartitions b) {
+        if (b.anemie().isEmpty()) return;
         sb.append("<h2>Traitement de l'anémie par centre</h2><table><tr><th>Centre</th><th>Sous EPO (prescrit)</th>")
                 .append("<th>Sous fer (prescrit)</th><th>Patients traités EPO</th><th>Patients traités fer</th>")
                 .append("<th>Administrations EPO</th><th>Administrations fer</th><th>Non administrées</th>")
                 .append("<th>Taux d'administration</th></tr>");
-        for (JsonNode r : rows) {
-            sb.append("<tr><td>").append(esc(text(r.path("nom")))).append("</td><td>").append(count(r.path("patientsSousEpo")))
-                    .append("</td><td>").append(count(r.path("patientsSousFer"))).append("</td><td>")
-                    .append(count(r.path("patientsEpo"))).append("</td><td>").append(count(r.path("patientsFer")))
-                    .append("</td><td>").append(num(r.path("administreesEpo"))).append("</td><td>")
-                    .append(num(r.path("administreesFer"))).append("</td><td").append(cls(r.path("nonAdministrees"), "warn"))
-                    .append(">").append(num(r.path("nonAdministrees"))).append("</td><td>")
-                    .append(pct(r.path("tauxAdministration"))).append("</td></tr>");
-        }
+        b.anemie().forEach(r -> sb.append("<tr><td>").append(esc(text(r.nom()))).append("</td><td>").append(count(r.patientsSousEpo()))
+                .append("</td><td>").append(count(r.patientsSousFer())).append("</td><td>")
+                .append(count(r.patientsEpo())).append("</td><td>").append(count(r.patientsFer()))
+                .append("</td><td>").append(num(r.administreesEpo())).append("</td><td>")
+                .append(num(r.administreesFer())).append("</td><td").append(cls(r.nonAdministrees(), "warn"))
+                .append(">").append(num(r.nonAdministrees())).append("</td><td>")
+                .append(pct(r.tauxAdministration())).append("</td></tr>"));
         sb.append("</table>");
     }
 }

@@ -207,16 +207,16 @@ class TableDesSeancesTest {
     @Test
     void les_lecteurs_se7e_de_la_plateforme_ne_lisent_ni_n_ecrivent_plus_la_table_des_seances() throws IOException {
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
-        List<String> se7e = List.of(plateforme + "application/direction/DirectionDashboardQueryService.java",
-                plateforme + "application/direction/DirectionBreakdownQueryService.java",
-                plateforme + "application/direction/DirectionAbsencesQueryService.java",
+        // PD1 (ADR 0102) : DirectionDashboardQueryService et DirectionBreakdownQueryService ont disparu de la plateforme ; leur lecture des
+        // séances est le port SeancesRealiseesDesCentres du Pilotage direction (SeancesRealiseesParLaSeance, langage publié de la Séance).
+        List<String> se7e = List.of(plateforme + "application/direction/DirectionAbsencesQueryService.java",
                 plateforme + "application/query/PatientStatsQueryService.java",
                 plateforme + "infrastructure/reporting/CahierDialyseReportService.java",
                 plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminTables.java");
-        assertThat(se7e).as("les 9 fichiers de SE7e existent").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
+        assertThat(se7e).as("les 7 fichiers de SE7e restés en plateforme existent").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
         // Sur la seule table seances (la garde des volets, SE7f, inscrit MigrationRollbackJdbcAdapter pour volet_medical / volet_paramedical, E-R6).
         Set<String> lecteursDeSeances = new TreeSet<>();
         for (Path source : sourcesDeProduction(backend())) {

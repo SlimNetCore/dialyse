@@ -2410,3 +2410,17 @@ SELECT s.center_id AS centre_de_la_seance, p.center_id AS centre_de_la_fiche, CO
 SELECT s.id, s.raison_sociale FROM societes s WHERE s.actif = TRUE AND NOT EXISTS (SELECT 1 FROM direction_snapshot d WHERE d.societe_id = s.id AND d.mois = to_char(date_trunc('month', current_date) - interval '1 month', 'YYYY-MM'));
 ```
 Aucune recette de bascule à ce stade (filet seul). **Conditions pour la phase `/ddd-slice`** : requêtes 1 à 5 exécutées sur une copie et résultats joints aux décisions de la section 9 de l'audit (DPO : KB-DIR-01 avec KB-MED-104 ; direction : règle R2, fuseau, date de référence du stock).
+
+## 69. Pilotage direction, lot A = PD1 (tableau de bord) + PD4 (rapport de synthèse) (reprise dans le contexte, ADR 0102) : parité et condition de mise en production (2026-11-09) — SELECT seulement
+
+Refactoring sur place : aucune migration, aucune table ni colonne, aucune route nouvelle ; les requêtes du tableau de bord sont reprises MOT POUR MOT dans `contexts/pilotage-direction` (`SocietesEtCentresJdbc`, `PatientsDesCentresJdbc`, `PredicatDEffectif`) et les lectures des séances, de la facturation et de l'anémie passent par les langages publiés de la Séance, de la Facturation et du Dossier médical (déjà rejouées aux sections 62 à 67). Les détections 68.1 à 68.5 restent valables telles quelles.
+
+Rejeu PostgreSQL 16 le 2026-11-09 : `backend/scripts/pilotage-direction-pg16-rejeu.sh 55552` (cluster jetable, chaîne Flyway réelle, `PD_PG16_PASSWORD`, jamais le port 5432), étendu : D1 à D8 et 68.1 à 68.5 inchangés (D1 et D2 désignent maintenant les adaptateurs du module), plus 69.1 et 69.2 ci-dessous, plus le contrat PostgreSQL du module `LecturesDuPilotagePostgresContractIT` (7 tests : centres de la société triés par nom, société inconnue, effectif aux bornes, décès / greffe à la veille, sortie sans date, séjour limité, profil et caisse, prescriptions d'EPO). Code de sortie 0, toutes les vérifications `OK`.
+
+```sql
+-- 69.1 KB-DIR-01 (CONDITION DE MISE EN PRODUCTION, DPO) : instantanés DÉJÀ figés par la tâche du 1er du mois (RG-DIR-090) dont le payload contient les totaux BRUTS de la société à côté des centres masqués. Le rapport mensuel imprime ces totaux tels quels ; un changement de politique de masquage (options a à d de l'ADR 0102) ne les corrige pas rétroactivement : ils doivent être listés puis recalculés ou supprimés par décision du DPO.
+SELECT societe_id, mois FROM direction_snapshot WHERE POSITION('"totaux"' IN payload) > 0 ORDER BY 1, 2;
+-- 69.2 Volume : nombre d'instantanés figés (borne du retraitement éventuel).
+SELECT COUNT(*) FROM direction_snapshot;
+```
+**Recette (lecture seule, sur une copie)** : (a) `GET /api/v1/direction/overview`, `/breakdown`, `/societe` et `/report` d'une direction connue rendent la même réponse qu'avant (goldens PD1 et PD4 inchangés) ; (b) `/report` avec `from` après `to` rend 422 `PERIODE_INVALIDE` et une période de plus de 5 ans 422 `PERIODE_TROP_LONGUE` (mêmes codes) ; (c) 69.1 exécutée avant toute décision sur KB-DIR-01. Rien n'est activé par ce lot : aucun flag, aucune bascule (refactoring sur place, ADR 0024).

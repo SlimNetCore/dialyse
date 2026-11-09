@@ -11,8 +11,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/ReglementEncaisseComptabiliteListener.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/FacturationSyntheseMensuelleReportService.java",
     "backend/platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAbsencesQueryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/OpeningBalanceJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
@@ -127,7 +125,9 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionReportPdfService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteLetterheadPort.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/SocieteLetterheadAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/IndicateursDuRapportParLaPlateforme.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/RapportDUnInstantane.java"
   ],
   "seamAllowed": []
 }

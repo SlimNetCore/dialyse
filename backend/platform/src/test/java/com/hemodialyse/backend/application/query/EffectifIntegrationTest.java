@@ -1,8 +1,7 @@
 package com.hemodialyse.backend.application.query;
 
-import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLEffectif;
 import com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDeRecherche;
 import com.hemodialyse.backend.contexts.patientcouverture.application.HorlogeDesCentres;
@@ -47,9 +46,7 @@ class EffectifIntegrationTest {
     private LectureDesPatients lecture;
     private ConsulterLEffectif summary;
     @Autowired
-    private DirectionDashboardQueryService dashboard;
-    @Autowired
-    private DirectionBreakdownQueryService breakdown;
+    private TableauDeBordDeLaDirection tableau;
     @Autowired
     private DirectionCapaciteQueryService capacite;
 
@@ -116,17 +113,17 @@ class EffectifIntegrationTest {
 
     @Test
     void the_direction_dashboard_counts_the_headcount_of_the_period() {
-        var overview = dashboard.overview(SOC, DEBUT, FIN);
+        var overview = tableau.vueDEnsemble(SOC, DEBUT, FIN);
 
         assertThat(overview.centres().getFirst().patients()).isEqualTo(7);
-        assertThat(dashboard.overview(SOC, LocalDate.of(2027, 1, 1), LocalDate.of(2027, 1, 31)).centres().getFirst().patients())
+        assertThat(tableau.vueDEnsemble(SOC, LocalDate.of(2027, 1, 1), LocalDate.of(2027, 1, 31)).centres().getFirst().patients())
                 .as("en 2027 le transfert de décembre 2026 est sorti : seuls restent les permanents (dont le sommeil)")
                 .isEqualTo(7);
     }
 
     @Test
     void the_breakdown_by_sex_uses_the_same_headcount() {
-        var sexe = breakdown.breakdown(SOC, DEBUT, FIN).sexe().getFirst();
+        var sexe = tableau.repartition(SOC, DEBUT, FIN).sexe().getFirst();
 
         // M : 3 permanents + transféré de décembre + en sommeil = 5 ; F : 2 permanents (décédée et admise en octobre exclues)
         assertThat(sexe.masculin()).isEqualTo(5L);

@@ -2,8 +2,9 @@ package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Alert;
 import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Severity;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre.Synthese;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -31,7 +32,7 @@ public class DirectionGmaoQueryService {
 
     private static final int MAX_YEARS = 5;
 
-    private final DirectionDashboardQueryService dashboard;
+    private final TableauDeBordDeLaDirection dashboard;
     private static final int TOP_EQUIPEMENTS = 5;
     /**
      * Statuts GMAO d'un générateur « indisponible » : la liste de l'ancienne jointure SQL, reprise telle quelle (le port publié
@@ -48,7 +49,7 @@ public class DirectionGmaoQueryService {
     private final PatientsAuxGenerateurs patients;
 
     public DirectionGmaoQueryService(
-            DirectionDashboardQueryService dashboard,
+            TableauDeBordDeLaDirection dashboard,
             SyntheseGmaoDuCentre syntheses,
             GenerateursDuCentre generateurs,
             PatientsAuxGenerateurs patients) {
@@ -68,14 +69,14 @@ public class DirectionGmaoQueryService {
             throw new BusinessException("PERIODE_TROP_LONGUE", "La période ne peut pas dépasser " + MAX_YEARS + " ans");
         }
 
-        SocieteInfo societe = dashboard.societe(societeId);
+        SocieteDeLaDirection societe = dashboard.societe(societeId);
         OffsetDateTime fromDt = start.atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime toDt = end.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime generatedAt = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<CentreGmao> centres = new ArrayList<>();
         List<Alert> alertes = new ArrayList<>();
-        for (CentreInfo c : societe.centres()) {
+        for (CentreDeLaSociete c : societe.centres()) {
             CentreGmao centreGmao = buildForCentre(c.id(), c.nom(), fromDt, toDt);
             centres.add(centreGmao);
             alertes.addAll(evaluateAlerts(c.id(), c.nom(), centreGmao));

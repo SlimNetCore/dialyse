@@ -4,7 +4,8 @@ import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursInstal
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Capacite;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Niveau;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class DirectionCapaciteQueryService {
 
     private static final int MAX_YEARS = 5;
 
-    private final DirectionDashboardQueryService dashboard;
+    private final TableauDeBordDeLaDirection dashboard;
     /** Les générateurs en service de chaque centre viennent de la lecture publiée par le module GMAO. */
     private final GenerateursInstalles installes;
     /** Capacité théorique (séries, patients par poste et série, file active, calcul) : lecture publiée par le module Planification. */
@@ -44,7 +45,7 @@ public class DirectionCapaciteQueryService {
     /** Fuseau du jour par défaut de la période : celui de la planification (une société consolidée n'a pas un seul centre). */
     private final ZoneId fuseau;
 
-    public DirectionCapaciteQueryService(DirectionDashboardQueryService dashboard, GenerateursInstalles installes,
+    public DirectionCapaciteQueryService(TableauDeBordDeLaDirection dashboard, GenerateursInstalles installes,
                                          CapaciteTheoriqueDesCentres capacites,
                                          @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
         this.installes = installes;
@@ -74,11 +75,11 @@ public class DirectionCapaciteQueryService {
         }
         Regle regle = new Regle(CapaciteTheoriqueDesCentres.GENERATEURS_PAR_SECOURS, CapaciteTheoriqueDesCentres.SEUIL_PROCHE_POURCENT);
         OffsetDateTime maintenant = OffsetDateTime.now(ZoneOffset.UTC);
-        List<CentreInfo> centres = dashboard.societe(societeId).centres();
+        List<CentreDeLaSociete> centres = dashboard.societe(societeId).centres();
         if (centres.isEmpty()) {
             return new CapaciteOverview(societeId, start, end, maintenant, regle, ligne(capacites.consolidee(List.of())), List.of(), 0);
         }
-        List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
+        List<UUID> ids = centres.stream().map(CentreDeLaSociete::id).toList();
         // seuls les générateurs EN SERVICE comptent (KB-PLN-76, décision du 27/10 : comme le planning de la semaine)
         Map<UUID, Long> generateurs = installes.enServiceParCentre(ids, end.plusDays(1).atStartOfDay(fuseau).toInstant());
 
@@ -87,7 +88,7 @@ public class DirectionCapaciteQueryService {
         List<Capacite> publies = new ArrayList<>();
         List<CentreCapacite> lignes = new ArrayList<>();
         int centresMasques = 0;
-        for (CentreInfo c : centres) {
+        for (CentreDeLaSociete c : centres) {
             Capacite r = capacites.duCentre(c.id(), generateurs.getOrDefault(c.id(), 0L).intValue(), start, end);
             lignes.add(new CentreCapacite(c.id(), c.nom(), c.actif(), ligne(r)));
             if (AnonymityPolicy.mask(r.fileActive()) == null) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Contexte Pilotage direction (tableau de bord direction, indicateurs consolidés multi-contextes, supervision,
-     alertes). ADR 0009, 0066. Squelette : aucune logique ; les dépendances propres aux slices s'ajoutent avec elles. -->
+<!-- Contexte Pilotage direction (tableau de bord de la direction d'une societe, rapport de synthese, puis instantanes mensuels et alertes).
+     Reprise SUR PLACE (ADR 0024, 0075, 0102) : memes tables, memes URL /api/v1/direction/*. Le module est revenu au reacteur au lot A (PD1 + PD4). -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -27,15 +27,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>
@@ -46,16 +38,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -79,5 +61,32 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langages publies des autres contextes (lecture seule) : seance.v1 (SeancesRealiseesDesCentresPubliees, SE7e), facturation
+             (SyntheseFinanciereDesCentres, F5), dossier-medical.v1 (TraitementDeLAnemiePublie, DM9). Le code de PRODUCTION n'importe que
+             leur paquet publishedlanguage (ArchitectureHexagonaleTest, FrontieresDesContextesTest). Aucun de ces modules ne depend du Pilotage. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-seance</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-facturation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-dossier-medical</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

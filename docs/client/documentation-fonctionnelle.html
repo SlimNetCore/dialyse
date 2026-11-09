@@ -3484,8 +3484,8 @@ le même profil (<code>ADMIN</code> ou <code>SECRETAIRE</code> ; <code>MEDECIN</
 <div class="rule" id="RG-FAC-026"><div class="rid">RG-FAC-026</div><div class="rtxt"><p>La <strong>part financière du pilotage de la Direction</strong> (vue d&#39;ensemble, répartition par caisse, absences)
 lit la Facturation par son langage publié <code>SyntheseFinanciereDesCentres</code> : chiffre d&#39;affaires HT et TTC (totaux enregistrés),
 nombre de factures, <strong>encaissé</strong> (somme signée des règlements de toutes dates des factures émises dans la période),
-chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture). <em>Source :</em> <code>DirectionDashboardQueryService</code>,
-<code>DirectionBreakdownQueryService</code>, <code>DirectionAbsencesQueryService</code> (plateforme).</p>
+chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture). <em>Source :</em> <code>ConsulterLaVueDEnsemble</code>,
+<code>ConsulterLaRepartition</code> (contexte Pilotage direction), <code>DirectionAbsencesQueryService</code> (plateforme).</p>
 </div></div>
 <h2>12.4 Validation de la facturation</h2>
 <div class="rule" id="RG-FAC-030"><div class="rid">RG-FAC-030</div><div class="rtxt"><p>La <strong>validation</strong> (<code>POST /api/v1/facturation/validate</code>, <code>ADMIN</code> ; le centre du corps doit être celui
@@ -3999,6 +3999,19 @@ les sociétés suivies. Seules les sociétés ayant au moins une direction conne
 </div></div>
 <div class="rule" id="RG-DIR-102"><div class="rid">RG-DIR-102</div><div class="rtxt"><p>L&#39;apparition ou la disparition d&#39;une alerte est elle-même un changement diffusé ; les indicateurs
 masqués par l&#39;anonymat ne sont jamais diffusés.</p>
+</div></div>
+<h2>13.12 Calcul du tableau de bord et du rapport (contexte Pilotage direction)</h2>
+<div class="rule" id="RG-DIR-103"><div class="rid">RG-DIR-103</div><div class="rtxt"><p>La société, la vue d&#39;ensemble, les répartitions (sexe, âge, caisse, anémie) et le <strong>rapport de synthèse</strong> sont calculés
+par le contexte <strong>Pilotage direction</strong> (langage publié <code>TableauDeBordDeLaDirection</code> et <code>RapportDeSyntheseDeLaDirection</code>) ; la plateforme
+ne fait que garder le jeton, porter les routes et rendre le PDF (HTML vers PDF). Règles reproduites à l&#39;identique du fonctionnement
+antérieur : la période par défaut et ses refus (RG-DIR-003, réponse 422 avec le même code) sont contrôlés <strong>avant</strong> toute lecture ;
+la période précédente (même durée) n&#39;est pas soumise à la limite de 5 ans ; l&#39;effectif d&#39;une période est celui de RG-PAT-037 ;
+l&#39;âge d&#39;une tranche est l&#39;âge révolu <strong>au jour de l&#39;appel</strong> ; les totaux de la société sont calculés sur les effectifs <strong>bruts</strong> (un
+centre masqué compte dans le total : la différence entre le total et la somme des centres publiés peut révéler un effectif masqué,
+KB-DIR-01, à faire confirmer par le DPO) ; « aujourd&#39;hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
+ou Africa/Algiers). Le rapport mensuel imprime l&#39;instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
+les mêmes libellés d&#39;alerte ; un code d&#39;alerte inconnu est imprimé tel quel. <em>Source :</em> <code>ConsulterLaVueDEnsemble</code>,
+<code>ConsulterLaRepartition</code>, <code>ConstituerLeRapportDeSynthese</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p14"><h1><span class="n">Partie 14</span>Référentiels du centre, modèles de documents, imports et reprise de données</h1>

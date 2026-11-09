@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.patientcouverture.pc5;
 
-import com.hemodialyse.backend.application.query.EffectifSql;
+import com.hemodialyse.backend.characterization.patientcouverture.pc4.EffectifDeReference;
 import com.hemodialyse.backend.characterization.patientcouverture.pc4.AttestationCharacterizationSupport;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * PC5, risque de DÉRIVE (revue du 2026-11-05) : le prédicat d'effectif d'un jour est copié en dur dans
- * {@code CompteursDeCouvertureJdbc.patientsPresentsLe} (le module ne dépend pas de la plateforme) alors que {@link EffectifSql}
- * reste la source de vérité des jalons Direction. Ce test compare les deux sur tous les états, avec et sans date d'évènement, de
+ * {@code CompteursDeCouvertureJdbc.patientsPresentsLe} (le module ne dépend pas de la plateforme) alors que la règle de référence
+ * ({@link EffectifDeReference}, copie figée de l'ancien {@code EffectifSql} retiré avec PD1, ADR 0102) reste la source de vérité. Ce test compare les deux sur tous les états, avec et sans date d'évènement, de
  * part et d'autre de chaque borne : il échoue si l'un des deux change sans l'autre. Aucun golden (assertions seules).
  */
 class EffectifDuLangagePublieCharacterizationIntegrationTest extends AttestationCharacterizationSupport {
@@ -37,7 +37,7 @@ class EffectifDuLangagePublieCharacterizationIntegrationTest extends Attestation
     }
 
     private long reference(LocalDate jour) {
-        EffectifSql.Fragment effectif = EffectifSql.presentSur("p", jour, jour);
+        EffectifDeReference.Fragment effectif = EffectifDeReference.presentSur("p", jour, jour);
         List<Object> args = new ArrayList<>();
         args.add(CENTRE_A);
         args.addAll(effectif.args());

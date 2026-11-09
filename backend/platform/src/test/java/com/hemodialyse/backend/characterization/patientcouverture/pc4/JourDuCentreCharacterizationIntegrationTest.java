@@ -37,7 +37,7 @@ class JourDuCentreCharacterizationIntegrationTest extends AttestationCharacteriz
 
     /** L'effectif du centre A un jour donné, par la règle de référence (l'ancien prédicat SQL d'effectif). */
     private long effectifAu(LocalDate jour) {
-        var effectif = com.hemodialyse.backend.application.query.EffectifSql.presentSur("p", jour, jour);
+        var effectif = EffectifDeReference.presentSur("p", jour, jour);
         java.util.List<Object> args = new java.util.ArrayList<>();
         args.add(CENTRE_A);
         args.addAll(effectif.args());

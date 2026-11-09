@@ -76,7 +76,10 @@ class TableDeLOrganisationTest {
             "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/persistence/OperationsDeStockJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAccountService.java",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java",
+            // 2026-11-09, PD1 (ADR 0102) : société et centres de la direction (societes, centers), lecture seule, déplacée de
+            // DirectionDashboardQueryService (retiré) vers le Pilotage direction. RETRAIT : à l'échéance de organisation.v1 (jalon O4),
+            // butoir 2027-03-31.
+            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/SocietesEtCentresJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionSnapshotService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",

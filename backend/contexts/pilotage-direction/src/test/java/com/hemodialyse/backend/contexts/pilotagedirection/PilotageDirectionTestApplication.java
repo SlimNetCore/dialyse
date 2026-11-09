@@ -1,11 +1,11 @@
 package com.hemodialyse.backend.contexts.pilotagedirection;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringBootConfiguration;
 
 /**
- * Racine de test du contexte pilotage-direction : les tests d'intégration s'exécutent
- * sans l'application legacy (seule la configuration du contexte est chargée).
+ * Racine de test du module : les tests de contrat s'exécutent sans l'application de la plateforme. Volontairement sans balayage ni
+ * auto-configuration : seuls les adapters JDBC sont instanciés à la main par les tests.
  */
-@SpringBootApplication
+@SpringBootConfiguration
 public class PilotageDirectionTestApplication {
 }

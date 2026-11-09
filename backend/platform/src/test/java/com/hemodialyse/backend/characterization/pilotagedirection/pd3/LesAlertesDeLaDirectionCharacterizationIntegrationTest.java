@@ -30,11 +30,9 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
     @Autowired
     private DirectionAlertHistoryService historique;
     @Autowired
-    private com.hemodialyse.backend.application.direction.DirectionDashboardQueryService dashboard;
+    private com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection tableau;
     @Autowired
     private com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService indicateurs;
-    @Autowired
-    private com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService repartitions;
     @Autowired
     private com.hemodialyse.backend.infrastructure.websocket.WebSocketDirectionPublisher diffuseur;
     /**
@@ -46,7 +44,7 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
 
     @org.junit.jupiter.api.BeforeEach
     void construireLeTempsReel() {
-        tempsReel = new DirectionRealtimeService(jdbc, dashboard, indicateurs, repartitions, diffuseur, historique);
+        tempsReel = new DirectionRealtimeService(jdbc, tableau, indicateurs, diffuseur, historique);
     }
 
     @Override

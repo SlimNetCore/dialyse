@@ -13,9 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
-import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -48,11 +47,9 @@ class DirectionRealtimeIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private DirectionDashboardQueryService dashboard;
+    private TableauDeBordDeLaDirection tableau;
     @Autowired
     private DirectionIndicatorsQueryService indicators;
-    @Autowired
-    private DirectionBreakdownQueryService breakdowns;
     @Autowired
     private DirectionAlertHistoryService alertHistory;
     /**
@@ -68,7 +65,7 @@ class DirectionRealtimeIntegrationTest {
     @BeforeEach
     void setup() {
         port = mock(DirectionRealtimePort.class);
-        realtime = new DirectionRealtimeService(jdbc, dashboard, indicators, breakdowns, port, alertHistory);
+        realtime = new DirectionRealtimeService(jdbc, tableau, indicators, port, alertHistory);
         cleanup();
         jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,TRUE,CURRENT_TIMESTAMP)",
                 SOC, "ZT-RT1", "Société RT");

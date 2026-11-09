@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Alert;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CentreDeLaSociete;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.IndicateursCliniquesPublies;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.IndicateursCliniquesPublies.IndicateursCliniques;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.IndicateursCliniquesPublies.IndicateursCliniquesDesCentres;
@@ -32,11 +33,11 @@ import java.util.UUID;
 public class DirectionIndicatorsQueryService {
 
     private static final int MAX_YEARS = 5;
-    private final DirectionDashboardQueryService dashboard;
+    private final TableauDeBordDeLaDirection dashboard;
     private final IndicateursCliniquesPublies indicateursCliniques;
     private final com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock;
 
-    public DirectionIndicatorsQueryService(DirectionDashboardQueryService dashboard, IndicateursCliniquesPublies indicateursCliniques,
+    public DirectionIndicatorsQueryService(TableauDeBordDeLaDirection dashboard, IndicateursCliniquesPublies indicateursCliniques,
                                            com.hemodialyse.backend.contexts.stock.publishedlanguage.IndicateursDuStock indicateursStock) {
         this.dashboard = dashboard;
         this.indicateursCliniques = indicateursCliniques;
@@ -68,8 +69,8 @@ public class DirectionIndicatorsQueryService {
         if (start.plusYears(MAX_YEARS).isBefore(end)) {
             throw new BusinessException("PERIODE_TROP_LONGUE", "La période ne peut pas dépasser " + MAX_YEARS + " ans");
         }
-        SocieteInfo societe = dashboard.societe(societeId);
-        List<UUID> ids = societe.centres().stream().map(CentreInfo::id).toList();
+        SocieteDeLaDirection societe = dashboard.societe(societeId);
+        List<UUID> ids = societe.centres().stream().map(CentreDeLaSociete::id).toList();
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         IndicateursCliniquesDesCentres cliniques = indicateursCliniques.desCentres(ids, start, end);
         if (ids.isEmpty()) {
@@ -81,7 +82,7 @@ public class DirectionIndicatorsQueryService {
         List<CentreIndicators> centres = new ArrayList<>();
         List<Alert> alertes = new ArrayList<>();
         StockBrut totalStock = new StockBrut();
-        for (CentreInfo c : societe.centres()) {
+        for (CentreDeLaSociete c : societe.centres()) {
             IndicateursCliniques clinique = cliniques.parCentre().get(c.id());
             StockBrut stock = stocks.get(c.id());
             CentreIndicators built = build(c.id(), c.nom(), c.actif(), clinique, stock);

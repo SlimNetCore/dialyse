@@ -2,13 +2,14 @@ package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DashboardDiff.Change;
 import com.hemodialyse.backend.application.direction.DashboardDiff.Snapshot;
-import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService.Breakdown;
-import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService.CaisseRow;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreStats;
-import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.Overview;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.CentreIndicators;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Marker;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.CaisseDuCentre;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.Repartition;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.StatistiquesDuCentre;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.VueDEnsemble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,9 +40,8 @@ public class DirectionRealtimeService {
     static final int MAX_CHANGES = 60;
     private static final Logger log = LoggerFactory.getLogger(DirectionRealtimeService.class);
     private final JdbcTemplate jdbc;
-    private final DirectionDashboardQueryService dashboard;
+    private final TableauDeBordDeLaDirection tableau;
     private final DirectionIndicatorsQueryService indicators;
-    private final DirectionBreakdownQueryService breakdowns;
     private final DirectionRealtimePort port;
     private final DirectionAlertHistoryService alertHistory;
 
@@ -50,14 +50,12 @@ public class DirectionRealtimeService {
     private final Set<UUID> dirty = ConcurrentHashMap.newKeySet();
     private final Map<UUID, UUID> societeByCentre = new ConcurrentHashMap<>();
 
-    public DirectionRealtimeService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                    DirectionIndicatorsQueryService indicators,
-                                    DirectionBreakdownQueryService breakdowns, DirectionRealtimePort port,
+    public DirectionRealtimeService(JdbcTemplate jdbc, TableauDeBordDeLaDirection tableau,
+                                    DirectionIndicatorsQueryService indicators, DirectionRealtimePort port,
                                     DirectionAlertHistoryService alertHistory) {
         this.jdbc = jdbc;
-        this.dashboard = dashboard;
+        this.tableau = tableau;
         this.indicators = indicators;
-        this.breakdowns = breakdowns;
         this.port = port;
         this.alertHistory = alertHistory;
     }
@@ -153,13 +151,13 @@ public class DirectionRealtimeService {
     }
 
     Snapshot snapshot(UUID societeId) {
-        Overview overview = dashboard.overview(societeId, null, null);
+        VueDEnsemble overview = tableau.vueDEnsemble(societeId, null, null);
         Indicators ind = indicators.indicators(societeId, null, null);
-        Breakdown breakdown = breakdowns.breakdown(societeId, null, null);
+        Repartition breakdown = tableau.repartition(societeId, null, null);
         alertHistory.record(societeId, ind.alertes());
         Snapshot s = new Snapshot();
 
-        for (CentreStats c : overview.centres()) {
+        for (StatistiquesDuCentre c : overview.centres()) {
             s.put(c.centerId(), c.nom(), DashboardDiff.PATIENTS, "patients", c.patients());
             s.put(c.centerId(), c.nom(), DashboardDiff.PATIENTS, "patientsSousKt", c.patientsSousKt());
             s.put(c.centerId(), c.nom(), DashboardDiff.SEANCES, "seances", c.seances());
@@ -196,7 +194,7 @@ public class DirectionRealtimeService {
         });
         breakdown.ages().forEach(r -> r.tranches().forEach(t ->
                 s.put(r.centerId(), r.nom(), DashboardDiff.PATIENTS, "age:" + t.code(), t.count())));
-        for (CaisseRow r : breakdown.caisses()) {
+        for (CaisseDuCentre r : breakdown.caisses()) {
             String key = r.caisseCode().isEmpty() ? "?" : r.caisseCode();
             s.put(r.centerId(), r.centre(), DashboardDiff.CAISSES, "seances:" + key, r.seances());
             s.put(r.centerId(), r.centre(), DashboardDiff.CAISSES, "caHt:" + key, r.caHt());
