@@ -1,5 +1,7 @@
 # Filet de non-régression — PD2 instantanés mensuels
 
+> **OBSOLÈTE (gel du module parallèle, 2026-11-02, ADR 0075).** Table `instantanes_mensuels`, R1 « par centre », verrou Facturation, cache `ref.instants.mois` : rien de cela n'existe dans le legacy (`direction_snapshot` par SOCIÉTÉ et mois, aucun verrou, aucun cache). Filet réel : `.ddd/safety-net/pilotage-direction.md` (4 goldens `pilotagedirection/pd2/instantanes/*`).
+
 Slice : `pilotage-direction-pd2-instantanes-mensuels`. Contexte : `pilotage-direction`.
 Date : 2026-11-01.
 

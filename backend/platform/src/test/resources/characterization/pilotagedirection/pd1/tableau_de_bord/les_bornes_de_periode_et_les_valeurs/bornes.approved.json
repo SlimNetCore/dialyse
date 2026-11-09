@@ -1,0 +1,34 @@
+{
+  "/breakdown" : {
+    "5 ans et 1 jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+    "date illisible (from=hier)" : "500 INTERNAL_ERROR",
+    "debut apres fin" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "debut seul : fin = aujourd'hui (JVM, pas le fuseau du centre)" : "200 ok | to est aujourd'hui de la JVM : true",
+    "debut seul dans le futur (fin = aujourd'hui)" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "exactement 5 ans" : "200 ok",
+    "fin seule : debut = 1er janvier de l'annee de la fin" : "200 ok | from=<D+0> | to=<D+100>",
+    "sans parametre : du 1er janvier de l'annee courante a aujourd'hui" : "200 ok | from est le 1er janvier de cette annee : true",
+    "societeId en parametre : ignore, perimetre du jeton" : "200 ok | societeId=<SOCIETE>"
+  },
+  "/overview" : {
+    "5 ans et 1 jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+    "date illisible (from=hier)" : "500 INTERNAL_ERROR",
+    "debut apres fin" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "debut seul : fin = aujourd'hui (JVM, pas le fuseau du centre)" : "200 ok | to est aujourd'hui de la JVM : true",
+    "debut seul dans le futur (fin = aujourd'hui)" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "exactement 5 ans" : "200 ok",
+    "fin seule : debut = 1er janvier de l'annee de la fin" : "200 ok | from=<D+0> | to=<D+100>",
+    "sans parametre : du 1er janvier de l'annee courante a aujourd'hui" : "200 ok | from est le 1er janvier de cette annee : true",
+    "societeId en parametre : ignore, perimetre du jeton" : "200 ok | societeId=<SOCIETE>"
+  },
+  "date illisible selon la route (advice limite a 4 routes : KB)" : {
+    "/absences" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/breakdown" : "500 INTERNAL_ERROR",
+    "/capacite" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/gmao" : "500 INTERNAL_ERROR",
+    "/indicators" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/overview" : "500 INTERNAL_ERROR",
+    "/report" : "500 INTERNAL_ERROR",
+    "/stock-groupes" : "400 BAD_REQUEST | Paramètre illisible : from"
+  }
+}

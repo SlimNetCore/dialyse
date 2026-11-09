@@ -1,0 +1,44 @@
+{
+  "01 societe de test : B inactif liste, A renomme passe apres B (tri par nom)" : {
+    "body" : {
+      "centres" : [ {
+        "actif" : false,
+        "id" : "<CENTRE_B>",
+        "nom" : "Centre B"
+      }, {
+        "actif" : true,
+        "id" : "<CENTRE_A>",
+        "nom" : "Zeta (centre A renomme)"
+      } ],
+      "id" : "<SOCIETE>",
+      "raisonSociale" : "Clinique Pilotage & Fils"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 direction de l'autre societe : son seul centre" : {
+    "body" : {
+      "centres" : [ {
+        "actif" : true,
+        "id" : "<CENTRE_AUTRE_SOCIETE>",
+        "nom" : "Centre Confidentiel"
+      } ],
+      "id" : "<AUTRE_SOCIETE>",
+      "raisonSociale" : "Autre Societe Confidentielle"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 societe sans centre : liste vide" : {
+    "body" : {
+      "centres" : [ ],
+      "id" : "<SOCIETE_SANS_CENTRE>",
+      "raisonSociale" : "Societe Sans Centre"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

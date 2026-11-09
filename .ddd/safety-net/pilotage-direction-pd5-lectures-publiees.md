@@ -1,5 +1,7 @@
 # Filet de non-régression — PD5 lectures publiées et retrait legacy
 
+> **OBSOLÈTE (gel du module parallèle, 2026-11-02, ADR 0075).** `LectureSeuleDuPilotageTest` est `@Disabled` et les « 4 tables possédées » n'existent pas (seules `direction_snapshot` et `direction_alert_history` sont réelles, V1). Inventaire vivant/mort, gardes de tables existantes (entrées Direction de `TableDesSeancesTest`, `TableDuPatientCouvertureTest`, `TableDeLOrganisationTest`, `TableDuDossierMedicalTest`, `TableDesAnalysesTest`) et périmètre du retrait : `.ddd/safety-net/pilotage-direction.md` §1-2 et §9. Statut : `planned` (le filet du retrait reste incomplet : voir §8).
+
 Slice : `pilotage-direction-pd5-lectures-publiees`. Contexte : `pilotage-direction`.
 Date : 2026-11-01.
 

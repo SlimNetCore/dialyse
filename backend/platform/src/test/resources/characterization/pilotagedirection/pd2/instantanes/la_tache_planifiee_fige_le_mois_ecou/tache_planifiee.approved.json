@@ -1,0 +1,11 @@
+{
+  "01 premiere execution (mois ecoule de chaque societe active ; societe inactive ignoree ; societe sans centre figee)" : {
+    "<AUTRE_SOCIETE>" : [ "<M-1>" ],
+    "<SOCIETE>" : [ "<M-1>" ],
+    "<SOCIETE_INACTIVE>" : [ ],
+    "<SOCIETE_SANS_CENTRE>" : [ "<M-1>" ],
+    "au moins les deux societes actives a centres creees" : true
+  },
+  "02 seconde execution : rejouable, rien de plus a figer" : 0,
+  "03 l'instantane de la tache est celui que la direction lit ensuite" : "200 ok"
+}

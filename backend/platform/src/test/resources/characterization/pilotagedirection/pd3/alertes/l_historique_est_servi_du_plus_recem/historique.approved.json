@@ -1,0 +1,18 @@
+{
+  "01 sans parametre : ordre COALESCE(resolved_at, first_seen_at) DESC, puis first_seen_at DESC ; l'autre societe absente" : [ "Centre A | KTV_CONFORMITE_BASSE | WARNING | valeur=60.0 | vue T+0h | resolue T+10h", "Centre B | HB_HORS_CIBLE | WARNING | valeur=40.0 | vue T+5h | resolue -", "Centre B | OBSERVANCE_EN_RETARD | WARNING | valeur=null | vue T+4h | resolue -", "Centre A | LOTS_PERIMES | CRITICAL | valeur=2.0 | vue T+2h | resolue T+3h", "Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=3.0 | vue T+1h | resolue -" ],
+  "02 limit=2" : [ "Centre A | KTV_CONFORMITE_BASSE | WARNING | valeur=60.0 | vue T+0h | resolue T+10h", "Centre B | HB_HORS_CIBLE | WARNING | valeur=40.0 | vue T+5h | resolue -" ],
+  "03 limit=0 : borne a 1" : 1,
+  "04 limit=-5 : borne a 1" : 1,
+  "05 limit=500 : borne a 200 (5 lignes servies)" : 5,
+  "06 limit=abc" : "500 INTERNAL_ERROR",
+  "07 forme d'une entree" : {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "KTV_CONFORMITE_BASSE",
+    "firstSeenAt" : "<HORODATAGE>",
+    "resolvedAt" : "<HORODATAGE>",
+    "severity" : "WARNING",
+    "valeur" : 60.0
+  },
+  "08 autre societe : ses alertes seules" : [ "Centre Confidentiel | LOTS_PERIMES | CRITICAL | valeur=9.0 | vue T+5h | resolue -" ]
+}

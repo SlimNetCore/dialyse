@@ -1,0 +1,8 @@
+{
+  "01 premier constat : une ligne ouverte" : [ "<CENTRE_A> | Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=3.00 | OUVERTE" ],
+  "02 meme centre et code, valeur 7 et nom change : aucune ligne nouvelle, valeur et nom FIGES a 3 / Centre A" : [ "<CENTRE_A> | Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=3.00 | OUVERTE" ],
+  "03 deux codes du meme centre le meme jour et le meme code dans un autre centre : trois lignes ouvertes" : [ "<CENTRE_A> | Centre A | LOTS_PERIMES | CRITICAL | valeur=1.00 | OUVERTE", "<CENTRE_A> | Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=3.00 | OUVERTE", "<CENTRE_B> | Centre B | STOCK_SOUS_SEUIL | CRITICAL | valeur=2.00 | OUVERTE" ],
+  "04 les alertes du centre A disparaissent : resolues ; B reste ouverte" : [ "<CENTRE_A> | Centre A | LOTS_PERIMES | CRITICAL | valeur=1.00 | RESOLUE", "<CENTRE_A> | Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=3.00 | RESOLUE", "<CENTRE_B> | Centre B | STOCK_SOUS_SEUIL | CRITICAL | valeur=2.00 | OUVERTE" ],
+  "05 B disparait puis reapparait le meme jour (severite changee) : nouvelle ligne ouverte, l'ancienne reste resolue" : [ "<CENTRE_A> | Centre A | LOTS_PERIMES | CRITICAL | valeur=1.00 | RESOLUE", "<CENTRE_A> | Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=3.00 | RESOLUE", "<CENTRE_B> | Centre B | STOCK_SOUS_SEUIL | WARNING | valeur=2.00 | OUVERTE", "<CENTRE_B> | Centre B | STOCK_SOUS_SEUIL | CRITICAL | valeur=2.00 | RESOLUE" ],
+  "06 l'autre societe n'est jamais touchee" : [ "<CENTRE_AUTRE_SOCIETE> | Centre Confidentiel | STOCK_SOUS_SEUIL | CRITICAL | valeur=1.00 | OUVERTE" ]
+}

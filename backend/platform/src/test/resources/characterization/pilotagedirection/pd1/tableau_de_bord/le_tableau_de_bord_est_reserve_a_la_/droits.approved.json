@@ -1,0 +1,74 @@
+{
+  "01 onze profils et l'anonyme" : {
+    "ADMIN" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "ADMIN sans centre" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "DIRECTION" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "200 ok",
+      "/overview?from=<D+0>&to=<D+100>" : "200 ok",
+      "/societe" : "200 ok"
+    },
+    "INFIRMIER seul" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "MEDECIN + INFIRMIER" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "MEDECIN seul" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "SECRETAIRE" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "SUPERADMIN" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "/societe" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+    },
+    "SUPERADMIN + ADMIN" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "/societe" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+    },
+    "anonyme" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403",
+      "/overview?from=<D+0>&to=<D+100>" : "403",
+      "/societe" : "403"
+    },
+    "aucun role" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "role inconnu (COMPTABLE)" : {
+      "/breakdown?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/overview?from=<D+0>&to=<D+100>" : "403 ACCESS_DENIED | Access Denied",
+      "/societe" : "403 ACCESS_DENIED | Access Denied"
+    }
+  },
+  "02 revérification en base et perimetre du jeton" : {
+    "direction d'une societe inactive" : "403 ACCESS_DENIED | Accès à cette société refusé",
+    "direction de l'autre societe : ses centres seuls" : [ "<CENTRE_AUTRE_SOCIETE> Centre Confidentiel" ],
+    "direction dont le compte est desactive" : "403 ACCESS_DENIED | Accès à cette société refusé",
+    "direction non rattachee a la societe du jeton" : "403 ACCESS_DENIED | Accès à cette société refusé",
+    "ecriture refusee : POST /overview" : "500 INTERNAL_ERROR",
+    "jeton DIRECTION sans societe" : "403 ACCESS_DENIED | Session sans société",
+    "jeton portant une societe inconnue" : "403 ACCESS_DENIED | Accès à cette société refusé",
+    "role DIRECTION porte par une session de centre (sans societe)" : "403 ACCESS_DENIED | Session sans société"
+  }
+}

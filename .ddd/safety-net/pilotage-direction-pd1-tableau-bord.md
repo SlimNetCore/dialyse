@@ -1,5 +1,7 @@
 # Filet de non-régression — PD1 tableau de bord
 
+> **OBSOLÈTE (gel du module parallèle, 2026-11-02, ADR 0075).** Cette note décrivait le module `contexts/pilotage-direction` (`/api/v1/pilotage/*`, table `tableaux_de_bord`), gelé et hors réacteur ; ses « tests existants » (`TableauDeBord*`) ne tournent plus. Le filet réel du LEGACY (`/api/v1/direction/societe|overview|breakdown`) est décrit dans `.ddd/safety-net/pilotage-direction.md` (2026-11-09, 6 goldens `pilotagedirection/pd1/tableau_de_bord/*`).
+
 Slice : `pilotage-direction-pd1-tableau-bord`. Contexte : `pilotage-direction`.
 Date : 2026-11-01.
 

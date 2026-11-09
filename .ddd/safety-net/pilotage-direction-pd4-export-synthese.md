@@ -1,5 +1,7 @@
 # Filet de non-régression — PD4 export synthèse
 
+> **OBSOLÈTE (gel du module parallèle, 2026-11-02, ADR 0075).** Table `exports_synthese`, formats PDF/HTML énumérés, `ModeleDocumentPrinter` : rien de cela n'existe dans le legacy (PDF `openhtmltopdf` rendu à la demande, aucune table). Filet réel : `.ddd/safety-net/pilotage-direction.md` (3 goldens `pilotagedirection/pd4/rapport/*`, texte extrait du PDF).
+
 Slice : `pilotage-direction-pd4-export-synthese`. Contexte : `pilotage-direction`.
 Date : 2026-11-01.
 

@@ -1,0 +1,52 @@
+{
+  "01 vue d'ensemble : totaux a zero, aucune periode precedente" : {
+    "body" : {
+      "centres" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "mensuel" : [ ],
+      "periodePrecedente" : null,
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "societeNom" : "Societe Sans Centre",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : null,
+        "encaisse" : 0.0,
+        "factures" : 0,
+        "nom" : null,
+        "patients" : 0,
+        "patientsSousKt" : 0,
+        "resteARecouvrer" : 0.0,
+        "seances" : 0,
+        "tauxEncaissement" : null
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 repartition : listes vides" : {
+    "body" : {
+      "ages" : [ ],
+      "anemie" : [ ],
+      "caisseTotaux" : [ ],
+      "caisses" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "sexe" : [ ],
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 indicateurs (le langage publie du Dossier medical est interroge avec une liste de centres vide)" : "200 ok",
+  "04 rapport en direct" : 200,
+  "05 capture d'un instantane du mois ecoule" : "200 ok"
+}

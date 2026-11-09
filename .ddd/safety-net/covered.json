@@ -115,7 +115,19 @@
     "backend/contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/NotificationsDeLAnemieLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/SignalementDesPrescriptionsLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionDashboardRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionSnapshotRestController.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionSnapshotService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertHistoryService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimePort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DashboardDiff.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionReportPdfService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteLetterheadPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/SocieteLetterheadAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java"
   ],
   "seamAllowed": []
 }

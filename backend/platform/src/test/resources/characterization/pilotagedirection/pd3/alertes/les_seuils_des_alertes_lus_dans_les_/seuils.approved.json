@@ -1,0 +1,66 @@
+{
+  "01 alertes servies (A : Kt/V 80 % = seuil inclus, pas d'alerte ; Hb 40 % ; observance ouverte ; stock a la date de fin ; B : Kt/V 60 % ; Hb 60 % ; observance resolue ou d'un autre type ignoree)" : [ {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "HB_HORS_CIBLE",
+    "severity" : "WARNING",
+    "valeur" : 40.0
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "OBSERVANCE_EN_RETARD",
+    "severity" : "WARNING",
+    "valeur" : null
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "STOCK_SOUS_SEUIL",
+    "severity" : "CRITICAL",
+    "valeur" : 1
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PERIMES",
+    "severity" : "CRITICAL",
+    "valeur" : 1
+  }, {
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre A",
+    "code" : "LOTS_PEREMPTION_PROCHE",
+    "severity" : "WARNING",
+    "valeur" : 2
+  }, {
+    "centerId" : "<CENTRE_B>",
+    "centre" : "Centre B",
+    "code" : "KTV_CONFORMITE_BASSE",
+    "severity" : "WARNING",
+    "valeur" : 60.0
+  } ],
+  "02 stock par centre (3 articles actifs, 1 sous le seuil, perimes et proches comptes a la date de fin de periode, valeur = stock x PMP)" : {
+    "Centre A" : {
+      "articlesActifs" : 3,
+      "articlesSousSeuil" : 1,
+      "lotsPeremptionProche" : 2,
+      "lotsPerimes" : 1,
+      "valeurStock" : 25.0
+    },
+    "Centre B" : {
+      "articlesActifs" : 0,
+      "articlesSousSeuil" : 0,
+      "lotsPeremptionProche" : 0,
+      "lotsPerimes" : 0,
+      "valeurStock" : 0.0
+    },
+    "totaux" : {
+      "articlesActifs" : 3,
+      "articlesSousSeuil" : 1,
+      "lotsPeremptionProche" : 2,
+      "lotsPerimes" : 1,
+      "valeurStock" : 25.0
+    }
+  },
+  "03 taux lus (Kt/V dans la cible, Hb dans la cible, patients en retard d'observance)" : {
+    "Centre A" : "80.0 | Hb 40.0 | patients en retard d'observance : masque (1 a 4)",
+    "Centre B" : "60.0 | Hb 60.0 | patients en retard d'observance : 0"
+  }
+}

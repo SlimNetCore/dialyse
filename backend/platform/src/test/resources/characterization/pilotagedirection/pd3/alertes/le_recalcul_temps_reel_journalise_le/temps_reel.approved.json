@@ -1,0 +1,124 @@
+{
+  "01 premier recalcul : instantane de reference, aucun changement, aucune diffusion" : "[] | diffusions : 0",
+  "02 article sous le seuil, lot perime, lot a 90 jours : changements detectes (familles STOCK et ALERTES)" : [ "<CENTRE_A> | Centre A | STOCK | articlesSousSeuil : 0 -> 1", "<CENTRE_A> | Centre A | STOCK | lotsPerimes : 0 -> 1", "<CENTRE_A> | Centre A | STOCK | lotsPeremptionProche : 0 -> 1", "<CENTRE_A> | Centre A | STOCK | valeurStock : 0.00 -> 4.00", "<CENTRE_A> | Centre A | ALERTES | STOCK_SOUS_SEUIL : 0 -> 1", "<CENTRE_A> | Centre A | ALERTES | LOTS_PERIMES : 0 -> 1", "<CENTRE_A> | Centre A | ALERTES | LOTS_PEREMPTION_PROCHE : 0 -> 1" ],
+  "03 diffusion STOMP a la societe" : [ {
+    "destination" : "/topic/societe/<SOCIETE>/dashboard",
+    "message" : {
+      "at" : "<HORODATAGE>",
+      "changes" : [ {
+        "after" : 1,
+        "before" : 0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "articlesSousSeuil"
+      }, {
+        "after" : 1,
+        "before" : 0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "lotsPerimes"
+      }, {
+        "after" : 1,
+        "before" : 0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "lotsPeremptionProche"
+      }, {
+        "after" : 4.0,
+        "before" : 0.0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "valeurStock"
+      }, {
+        "after" : 1,
+        "before" : 0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "ALERTES",
+        "name" : "STOCK_SOUS_SEUIL"
+      }, {
+        "after" : 1,
+        "before" : 0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "ALERTES",
+        "name" : "LOTS_PERIMES"
+      }, {
+        "after" : 1,
+        "before" : 0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "ALERTES",
+        "name" : "LOTS_PEREMPTION_PROCHE"
+      } ],
+      "societeId" : "<SOCIETE>",
+      "type" : "DASHBOARD_CHANGED"
+    }
+  }, {
+    "destination" : "/topic/societe/<SOCIETE>/dashboard",
+    "message" : {
+      "at" : "<HORODATAGE>",
+      "changes" : [ {
+        "after" : 0,
+        "before" : 1,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "articlesSousSeuil"
+      }, {
+        "after" : 0,
+        "before" : 1,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "lotsPerimes"
+      }, {
+        "after" : 0,
+        "before" : 1,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "lotsPeremptionProche"
+      }, {
+        "after" : 400.0,
+        "before" : 4.0,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "STOCK",
+        "name" : "valeurStock"
+      }, {
+        "after" : 0,
+        "before" : 1,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "ALERTES",
+        "name" : "STOCK_SOUS_SEUIL"
+      }, {
+        "after" : 0,
+        "before" : 1,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "ALERTES",
+        "name" : "LOTS_PERIMES"
+      }, {
+        "after" : 0,
+        "before" : 1,
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "family" : "ALERTES",
+        "name" : "LOTS_PEREMPTION_PROCHE"
+      } ],
+      "societeId" : "<SOCIETE>",
+      "type" : "DASHBOARD_CHANGED"
+    }
+  } ],
+  "04 historique HTTP apres le recalcul" : [ "Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=1.0 | vue <HORODATAGE> | resolue -", "Centre A | LOTS_PERIMES | CRITICAL | valeur=1.0 | vue <HORODATAGE> | resolue -", "Centre A | LOTS_PEREMPTION_PROCHE | WARNING | valeur=1.0 | vue <HORODATAGE> | resolue -" ],
+  "05 stock reconstitue : alertes retombees a 0 et resolues" : [ "<CENTRE_A> | Centre A | STOCK | articlesSousSeuil : 1 -> 0", "<CENTRE_A> | Centre A | STOCK | lotsPerimes : 1 -> 0", "<CENTRE_A> | Centre A | STOCK | lotsPeremptionProche : 1 -> 0", "<CENTRE_A> | Centre A | STOCK | valeurStock : 4.00 -> 400.00", "<CENTRE_A> | Centre A | ALERTES | STOCK_SOUS_SEUIL : 1 -> 0", "<CENTRE_A> | Centre A | ALERTES | LOTS_PERIMES : 1 -> 0", "<CENTRE_A> | Centre A | ALERTES | LOTS_PEREMPTION_PROCHE : 1 -> 0" ],
+  "06 historique HTTP : les trois alertes resolues" : [ "Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=1.0 | vue <HORODATAGE> | resolue <HORODATAGE>", "Centre A | LOTS_PERIMES | CRITICAL | valeur=1.0 | vue <HORODATAGE> | resolue <HORODATAGE>", "Centre A | LOTS_PEREMPTION_PROCHE | WARNING | valeur=1.0 | vue <HORODATAGE> | resolue <HORODATAGE>" ],
+  "07 lignes en base" : [ "<CENTRE_A> | Centre A | LOTS_PEREMPTION_PROCHE | WARNING | valeur=1.00 | RESOLUE", "<CENTRE_A> | Centre A | LOTS_PERIMES | CRITICAL | valeur=1.00 | RESOLUE", "<CENTRE_A> | Centre A | STOCK_SOUS_SEUIL | CRITICAL | valeur=1.00 | RESOLUE" ],
+  "08 societe non suivie : un signal de centre ne recalcule rien" : "suivie : false | lignes avant/apres : 3/3"
+}

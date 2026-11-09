@@ -1,0 +1,21 @@
+{
+  "01 capture (POST)" : {
+    "il y a 61 mois" : "422 MOIS_TROP_ANCIEN | Mois trop ancien",
+    "il y a exactement 60 mois (borne incluse)" : "200 ok | mois servi : <M-60>",
+    "mois courant" : "422 MOIS_NON_TERMINE | Seul un mois écoulé peut être figé",
+    "mois illisible (date complete AAAA-MM-JJ)" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois illisible (lettres)" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois illisible (mois 00)" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois illisible (mois 13)" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois illisible (mois sur un chiffre)" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois illisible (sans tiret)" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois prochain" : "422 MOIS_NON_TERMINE | Seul un mois écoulé peut être figé"
+  },
+  "02 lecture (GET)" : {
+    "mois illisible : 2026-13" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois prochain (non fige : introuvable, pas de controle du futur en lecture)" : "422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois",
+    "rapport d'un mois illisible" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "rapport d'un mois non fige" : "422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois"
+  },
+  "03 lignes en base apres ces appels" : [ "<M-60>" ]
+}

@@ -1,0 +1,93 @@
+{
+  "01 liste initiale" : [ ],
+  "02 lecture avant la capture" : "422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois",
+  "03 capture (POST) : instantane complet du mois ecoule" : {
+    "breakdown" : [ "societeId", "from", "to", "generatedAt", "seuilAnonymat", "sexe", "ages", "caisses", "caisseTotaux", "anemie" ],
+    "cles" : [ "mois", "generatedAt", "overview", "indicators", "breakdown" ],
+    "generatedAt" : "<HORODATAGE>",
+    "indicators.cles" : [ "societeId", "from", "to", "generatedAt", "seuilAnonymat", "centres", "totaux", "alertes" ],
+    "indicators.totaux.stock" : {
+      "articlesActifs" : 0,
+      "articlesSousSeuil" : 0,
+      "lotsPeremptionProche" : 0,
+      "lotsPerimes" : 0,
+      "valeurStock" : 0.0
+    },
+    "mois" : "<M-1>",
+    "overview.centres" : 2,
+    "overview.from .. to" : "<M-1.DEBUT> .. <M-1.FIN>",
+    "overview.periodePrecedente" : "<PERIODE_AVANT_M-1.DEBUT> .. <PERIODE_AVANT_M-1.FIN>",
+    "overview.totaux.patients" : "5",
+    "statut" : "200 ok"
+  },
+  "04 vue d'ensemble figee (corps complet)" : {
+    "centres" : [ {
+      "actif" : true,
+      "caHt" : 0.0,
+      "caTtc" : 0.0,
+      "centerId" : "<CENTRE_A>",
+      "encaisse" : 0.0,
+      "factures" : 0,
+      "nom" : "Centre A",
+      "patients" : 5,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.0,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    }, {
+      "actif" : true,
+      "caHt" : 0.0,
+      "caTtc" : 0.0,
+      "centerId" : "<CENTRE_B>",
+      "encaisse" : 0.0,
+      "factures" : 0,
+      "nom" : "Centre B",
+      "patients" : 0,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.0,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    } ],
+    "from" : "<M-1.DEBUT>",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ ],
+    "periodePrecedente" : {
+      "caHt" : 0,
+      "caTtc" : 0,
+      "encaisse" : 0,
+      "from" : "<PERIODE_AVANT_M-1.DEBUT>",
+      "resteARecouvrer" : 0,
+      "seances" : 0,
+      "tauxEncaissement" : null,
+      "to" : "<PERIODE_AVANT_M-1.FIN>"
+    },
+    "seuilAnonymat" : 5,
+    "societeId" : "<SOCIETE>",
+    "societeNom" : "Clinique Pilotage & Fils",
+    "to" : "<M-1.FIN>",
+    "totaux" : {
+      "actif" : true,
+      "caHt" : 0.0,
+      "caTtc" : 0.0,
+      "centerId" : null,
+      "encaisse" : 0.0,
+      "factures" : 0,
+      "nom" : null,
+      "patients" : 5,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.0,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    }
+  },
+  "05 ligne en base" : [ {
+    "generated_at" : "<HORODATAGE>",
+    "id" : "<UUID_GENERE_1>",
+    "mois" : "<M-1>",
+    "societe_id" : "<SOCIETE>",
+    "taille" : "non nulle : true"
+  } ],
+  "06 seconde capture : idempotente, meme generated_at, une seule ligne" : "200 ok | meme generated_at : true | lignes : 1 | meme corps que la premiere : true",
+  "07 apres l'ajout de 5 patients : l'instantane relu garde 5, la vue en direct du meme mois en compte 10" : "instantane : 5 | direct : 10 | meme corps que la capture : true",
+  "08 liste apres capture" : [ "<M-1> genere <HORODATAGE>" ]
+}
