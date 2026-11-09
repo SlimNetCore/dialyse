@@ -147,8 +147,9 @@ public class SeanceConfiguration {
 
     /** Lectures publiées de la Séance ({@code seance.v1}, ADR 0096) : facturation et place d'une séance, pour le Stock (SE7c1). */
     @Bean
-    LecturesPublieesDesSeancesJdbc lecturesPublieesDesSeances(JdbcTemplate jdbc) {
-        return new LecturesPublieesDesSeancesJdbc(jdbc);
+    LecturesPublieesDesSeancesJdbc lecturesPublieesDesSeances(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation libelles) {
+        return new LecturesPublieesDesSeancesJdbc(jdbc, libelles);
     }
 
     /**

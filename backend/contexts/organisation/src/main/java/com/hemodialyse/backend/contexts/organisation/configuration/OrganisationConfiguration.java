@@ -142,6 +142,12 @@ public class OrganisationConfiguration {
         return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc(jdbc);
     }
 
+    /** Langage publié organisation.v1 (O4 lot C, ADR 0109) : libellés des salles, des créneaux et des médecins pour les autres contextes. */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation libellesDeLOrganisation(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.LibellesDeLOrganisationJdbc(jdbc);
+    }
+
     @Bean
     public ReferentielsCommunsUseCases referentielsCommunsUseCases(ReferentielsCommunsRepository referentiels) {
         return new ReferentielsCommunsService(referentiels);

@@ -290,7 +290,7 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | O1    | Societes et centres (OHS, CentreId)                          | faible | built   | slices/organisation-o1-societes-centres.md         |
 | O2    | Salles et creneaux (positions)                               | moyen  | in-progress | slices/organisation-o2-salles-creneaux.md          |
 | O3    | Referentiels de parametrage (medecins, machines, protocoles) | faible | built   | slices/organisation-o3-referentiels-parametrage.md |
-| O4    | Lectures publiees (organisation.v1) : lots A (32 -> 22, ADR 0107) et B Stock (22 -> 18, ADR 0108) faits, lots C-E a faire | moyen  | in-progress | slices/organisation-o4-lectures-publiees.md        |
+| O4    | Lectures publiees (organisation.v1) : lots A (32 -> 22, ADR 0107), B Stock (22 -> 18, ADR 0108) et C libelles (18 -> 15, ADR 0109) faits, lots D-E a faire | moyen  | in-progress | slices/organisation-o4-lectures-publiees.md        |
 | O5    | Retrait de bc-referential (fait sans filet, filet reconstitue) | moyen | in-progress | slices/organisation-o5-retrait-bc-referential.md   |
 
 ## 1 octies. Slices Patient et couverture (contexte `patient-couverture`, module

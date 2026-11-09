@@ -21,7 +21,7 @@ Reçoit aussi le calendrier du centre (`center_holiday`, `center_closure_day`) d
 
 ## Mesure d'avancement
 
-Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNUS` (un test le fige) : **32 avant le lot A, 22 après le lot A, 18 après le lot B**.
+Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNUS` (un test le fige) : **32 avant le lot A, 22 après le lot A, 18 après le lot B, 15 après le lot C**.
 
 ## Plan en lots (audit complet : `.ddd/safety-net/organisation-o4-lectures-publiees.md`, section « Audit O4 »)
 
@@ -29,7 +29,7 @@ Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNU
 |---|---|---|---|---|
 | **A** (fait 2026-11-09) | centres actifs / tous ; fuseau du centre ; société d'un centre ; sociétés et centres | `AnnuaireDesCentres` (`actifs`, `tous`, `fuseauHoraireDe`), `AnnuaireDesSocietes` (`societesActives`, `societeDuCentre`, `societe`) | 10 : Absences, Dossier médical, Séance (×2), Patient-couverture, Planification (×2), plateforme (jour du centre), Pilotage (×2) | 32 → 22 |
 | **B** (fait 2026-11-09) | Stock : centres actifs (sens strict), fuseau (défaut UTC), centres du traitement de nuit, verrou de centre d'inventaire | ports `CentresFournis` et `VerrouDuCentreFourni` déclarés par Stock (cycle Maven : Organisation dépend de Stock) + traducteurs plateforme appelant `AnnuaireDesCentres` (`actifsAuSensStrict`) et `VerrouDuCentre` | 4 | 22 → 18 |
-| C | libellés de salle, de créneau, de médecin | `LibellesDeLOrganisation` (code de salle, code et libellé de créneau, libellé de médecin) | 3 : Séance `LecturesPublieesDesSeancesJdbc`, Patient-couverture (×2) | 18 → 15 |
+| **C** (fait 2026-11-09) | libellés de salle, de créneau, de médecin | `LibellesDeLOrganisation` (codes de salles, créneaux, noms de salles et libellés de créneaux sans borne, médecins, recherches par terme) | 3 : Séance `LecturesPublieesDesSeancesJdbc`, Patient-couverture (×2) | 18 → 15 |
 | D | séries et ressources du planning, salles, verrou du référentiel des infirmiers | `RessourcesDuCentre` (salles, créneaux, séries), commande publiée pour l'isolement des salles (aujourd'hui `UPDATE salle`, écriture), `VerrouDuCentre` | 6 : Planification | 15 → 9 |
 | E | identité imprimée (logo, pied de page), admin générique | `IdentiteDeLaSociete`, retour de l'admin générique dans le contexte (ADR 0070) | 2 sur 9 (DocumentIdentityProvider, ReferentialAdminJdbcAdapter) | 9 → 7 |
 | Résiduels | comptes, auth, garde d'accès, provisionnement, amorçage dev | — (propriétaire : Identité et accès / Documents, hors Organisation) | 7 nominatifs | 7 |
@@ -66,6 +66,19 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
 - Réserve : le contrat de `VerrouDuCentre` n'est exécuté que sur H2 (O4-R7) ; la sérialisation réelle de deux clôtures concurrentes est couverte par
   `InventaireConcurrentIntegrationTest` (plateforme).
 
+## Lot C : fait (2026-11-09, ADR 0109)
+
+- Organisation : `publishedlanguage/LibellesDeLOrganisation`, `infrastructure/persistence/LibellesDeLOrganisationJdbc`, bean `libellesDeLOrganisation`. Contrat
+  `LibellesContrat` exécuté sur un faux en mémoire et sur H2 (8 tests chacun).
+- Consommateurs : `LecturesPublieesDesSeancesJdbc` (Séance), `LectureDesMouvementsJdbc` et `LectureDesPatientsJdbc` (Patient-couverture) reçoivent le port en
+  constructeur ; plus aucun SQL sur `salle`, `position_creneau`, `medecin`. Aucun `pom.xml`, aucun fichier de plateforme, aucun seam.
+- Les 3 lecteurs migrent : aucune jointure n'est restée (les `LEFT JOIN` du journal sont sur clé primaire, ni tri, ni filtre, ni pagination sur ces colonnes).
+  Le journal lit désormais salle et créneau en un lot chacun par page ; pas de N+1.
+- Parité : caractérisation `LibellesDeLOrganisationDansLesLecturesTest` écrite et VERTE sur les lecteurs SQL AVANT migration (8 tests : médecin NULL, inconnu,
+  autre centre, désactivé V52, prénom blanc ; créneau autre centre/inconnu ; filtres par libellé et par identifiant ; journal sans borne de centre), mêmes
+  assertions après. Goldens et tests des consommateurs inchangés ; aucun `.approved` modifié, aucun golden `_nouveau_code`.
+- KB-ORG-10 : le journal des mouvements n'est pas borné au centre (reproduit) ; contrôle §73 ; à confirmer métiers/DPO au plus tard le 2026-12-15.
+
 ## Résiduels
 
 | N° | Résiduel | Cible |
@@ -76,7 +89,8 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
 | O4-R4 | `CentresJdbc` (Organisation) lit `actif` par `getBoolean` (NULL = faux) alors que les consommateurs lisent NULL = actif | lot B |
 | O4-R5 | Calendrier du centre (`center_holiday`, `center_closure_day`, ADR 0094 R1) : 4 lecteurs à migrer, hors lot A | lot ultérieur, butoir 2027-03-31 |
 | O4-R6 | Record `CentresActifs` (publishedlanguage) toujours inutilisé ; événements `SalleOuverte`, `SalleFermee`, `CreneauCree` jamais émis (hors périmètre : pas d'événement en refactoring sur place) | lot D |
-| O4-R7 | Les contrats des annuaires (et `VerrouDuCentre`) ne tournent pas encore sur PostgreSQL 16 réel (variante `*PostgresContractIT`) ; non traité au lot B | lot C |
+| O4-R7 | Les contrats des annuaires (et `VerrouDuCentre`) ne tournent pas encore sur PostgreSQL 16 réel (variante `*PostgresContractIT`) ; non traité aux lots B et C (étendu aux contrats de `LibellesDeLOrganisation`, H2 seulement) | lot D |
+| O4-R8 | KB-ORG-10 : le journal des mouvements lit nom de salle et libellé de créneau sans borne de centre (reproduit) ; contrôle §73 ; à confirmer métiers/DPO au plus tard le 2026-12-15 | métiers / DPO |
 
 ## Retrait
 

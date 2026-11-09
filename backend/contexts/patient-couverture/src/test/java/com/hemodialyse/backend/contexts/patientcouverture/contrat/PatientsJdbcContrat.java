@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.patientcouverture.contrat;
 
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.LibellesDeLOrganisationJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesMouvements;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.EtatDuPatient;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Fiches;
@@ -618,7 +619,7 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
         p.retirerLesMouvements().forEach(mouvements::ajouter);
         depot().enregistrer(p);
 
-        var lues = new LectureDesMouvementsJdbc(jdbc()).lister(CENTRE,
+        var lues = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc())).lister(CENTRE,
                 new LectureDesMouvements.Filtre(p.id().valeur(), null, null, null), 0, 20);
 
         assertThat(lues.total()).isEqualTo(2);
@@ -626,10 +627,10 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
                 .containsExactly(TypeDeMouvement.GUERISON, TypeDeMouvement.ADMISSION);
         assertThat(lues.items().get(0).etatPrecedent()).isEqualTo("PERMANENT");
         assertThat(lues.items().get(0).patientNom()).isEqualTo("Karim Benali");
-        var filtrees = new LectureDesMouvementsJdbc(jdbc()).lister(CENTRE,
+        var filtrees = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc())).lister(CENTRE,
                 new LectureDesMouvements.Filtre(null, TypeDeMouvement.GUERISON, null, null), 0, 20);
         assertThat(filtrees.items()).extracting(LectureDesMouvements.Ligne::patientId).contains(p.id().valeur());
-        assertThat(new LectureDesMouvementsJdbc(jdbc()).lister(AUTRE, new LectureDesMouvements.Filtre(null, null, null, null), 0, 20)
+        assertThat(new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc())).lister(AUTRE, new LectureDesMouvements.Filtre(null, null, null, null), 0, 20)
                 .items()).isEmpty();
     }
 }

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.seance.contrat;
 
+import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.LibellesDeLOrganisationJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesPublieesDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FacturationDesSeancesPubliee;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlacesDesSeancesPubliees;
@@ -48,11 +49,11 @@ abstract class LecturesPublieesDesSeancesJdbcContrat extends LecturesPublieesDes
 
     @Override
     protected FacturationDesSeancesPubliee facturation() {
-        return new LecturesPublieesDesSeancesJdbc(jdbc());
+        return new LecturesPublieesDesSeancesJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc()));
     }
 
     @Override
     protected PlacesDesSeancesPubliees places() {
-        return new LecturesPublieesDesSeancesJdbc(jdbc());
+        return new LecturesPublieesDesSeancesJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc()));
     }
 }

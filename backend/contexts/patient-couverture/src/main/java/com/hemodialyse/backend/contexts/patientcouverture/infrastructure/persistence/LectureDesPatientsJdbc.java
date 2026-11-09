@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation.LibelleDeCreneau;
 import com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDeRecherche;
 import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.application.LigneDEffectif;
@@ -30,7 +32,8 @@ import java.util.function.Function;
 /**
  * Lecture SQL de la liste des patients : mêmes filtres, même tri, mêmes libellés que la recherche actuelle (critères JPA
  * traduits en SQL). Jamais d'écriture. {@code %} et {@code _} ne sont pas échappés (reproduit, KB-PAT-11) ; une colonne non
- * triable retombe sur nom, prénom ; l'ordre alphabétique dépend de l'interclassement de la base.
+ * triable retombe sur nom, prénom ; l'ordre alphabétique dépend de l'interclassement de la base. Les libellés du médecin et du créneau
+ * et leurs recherches viennent du langage publié d'Organisation (O4 lot C, ADR 0109), bornés au centre, lus par lot.
  */
 public class LectureDesPatientsJdbc implements LectureDesPatients {
 
@@ -38,18 +41,17 @@ public class LectureDesPatientsJdbc implements LectureDesPatients {
             "sexe", "sexe", "dateAdmission", "date_admission", "numeroAssurance", "numero_assurance", "etatPatient",
             "etat_patient");
 
-    private static final String MEDECIN_LIBELLE = "TRIM(COALESCE(nom, '') || ' ' || COALESCE(prenom, ''))";
-    private static final String MEDECIN_RECHERCHE =
-            "LOWER(COALESCE(nom, '') || ' ' || COALESCE(prenom, '') || ' ' || COALESCE(prenom, '') || ' ' || COALESCE(nom, ''))";
     private static final String CODE_LIBELLE_RECHERCHE = "LOWER(COALESCE(code, '') || ' ' || COALESCE(libelle, ''))";
     private static final String NOM_RECHERCHE = "LOWER(COALESCE(nom, ''))";
 
     private final JdbcTemplate jdbc;
     private final NamedParameterJdbcTemplate nomme;
+    private final LibellesDeLOrganisation organisation;
 
-    public LectureDesPatientsJdbc(JdbcTemplate jdbc) {
+    public LectureDesPatientsJdbc(JdbcTemplate jdbc, LibellesDeLOrganisation organisation) {
         this.jdbc = jdbc;
         this.nomme = new NamedParameterJdbcTemplate(jdbc);
+        this.organisation = organisation;
     }
 
     private record CodeLibelle(String code, String libelle) {
@@ -74,9 +76,10 @@ public class LectureDesPatientsJdbc implements LectureDesPatients {
         contientOuParmi(predicats, args, "p.sexe", c.sexe());
         contient(predicats, args, "p.numero_assurance", c.numeroAssurance());
         contientOuParmi(predicats, args, "p.etat_patient", c.etatPatient());
-        parmi(predicats, args, "p.medecin_traitant_id", texte(c.medecinTraitantId()) ? medecins(centreId, c.medecinTraitantId()) : null);
+        parmi(predicats, args, "p.medecin_traitant_id", texte(c.medecinTraitantId())
+                ? organisation.medecinsCorrespondant(centreId, c.medecinTraitantId()) : null);
         parmi(predicats, args, "p.position_id", texte(c.positionId())
-                ? choisisOu(c.positionId(), t -> correspondances("position_creneau", CODE_LIBELLE_RECHERCHE, centreId, t)) : null);
+                ? choisisOu(c.positionId(), t -> organisation.creneauxCorrespondant(centreId, t)) : null);
         parmi(predicats, args, "p.transporteur_aller_id", texte(c.transporteurAllerId())
                 ? correspondances("transporteur", NOM_RECHERCHE, centreId, c.transporteurAllerId()) : null);
         parmi(predicats, args, "p.transporteur_retour_id", texte(c.transporteurRetourId())
@@ -142,9 +145,9 @@ public class LectureDesPatientsJdbc implements LectureDesPatients {
         }, argsPage.toArray());
 
         Map<UUID, Pec> pecs = dernieresPecValidees(centreId, lignes.stream().map(Ligne::id).toList());
-        Map<UUID, String> medecins = libelles("SELECT id, " + MEDECIN_LIBELLE + " AS label FROM medecin", centreId,
-                lignes.stream().map(Ligne::medecin).toList());
-        Map<UUID, CodeLibelle> positions = codeLibelles("position_creneau", centreId, lignes.stream().map(Ligne::position).toList());
+        Map<UUID, String> medecins = organisation.nomsDesMedecins(centreId, lignes.stream().map(Ligne::medecin).toList());
+        Map<UUID, LibelleDeCreneau> positions = organisation.creneauxDuCentre(centreId,
+                lignes.stream().map(Ligne::position).toList());
         List<UUID> transporteurs = new ArrayList<>();
         lignes.forEach(l -> {
             transporteurs.add(l.aller());
@@ -158,7 +161,7 @@ public class LectureDesPatientsJdbc implements LectureDesPatients {
         for (Ligne l : lignes) {
             LignePatient b = l.base();
             Pec pec = pecs.get(l.id());
-            CodeLibelle position = trouve(positions, l.position());
+            LibelleDeCreneau position = trouve(positions, l.position());
             CodeLibelle forfait = pec == null ? null : trouve(forfaits, pec.forfaitId());
             items.add(new LignePatient(b.id(), b.codePatient(), b.nom(), b.prenom(), b.sexe(), b.dateAdmission(),
                     b.numeroAssurance(), b.etatPatient(), b.dateEvenementEtat(), b.dateEvenement(), l.medecin(),
@@ -241,10 +244,6 @@ public class LectureDesPatientsJdbc implements LectureDesPatients {
     }
 
     // ---- référentiels (toujours bornés au centre)
-
-    private Set<UUID> medecins(UUID centre, String terme) {
-        return correspondances("medecin", MEDECIN_RECHERCHE, centre, terme);
-    }
 
     private Set<UUID> correspondances(String table, String expression, UUID centre, String terme) {
         String like = "%" + terme.trim().toLowerCase(Locale.ROOT) + "%";

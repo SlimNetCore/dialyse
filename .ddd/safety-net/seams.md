@@ -642,3 +642,7 @@ Inscrits dans `seamAllowed` de `covered.json` AVANT la création (délégation d
 | Date | Slice | Fichiers (chemins exacts depuis `backend/`) | Nature | Raison |
 |---|---|---|---|---|
 | 2026-11-09 | organisation-o4-lectures-publiees (lot B, ADR 0108) | `platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/CentresDuStockParOrganisation.java`, `platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/stock/VerrouDuCentreDuStockParOrganisation.java` | **CRÉATION** (traducteurs minces, aucun SQL) | Le Stock ne peut pas dépendre d'Organisation (cycle Maven) : la plateforme implémente ses ports `CentresFournis` et `VerrouDuCentreFourni` en appelant `AnnuaireDesCentres` (dont la variante `actifsAuSensStrict`, O4-R3) et `VerrouDuCentre`. Tests de la plateforme (hors `legacyPaths`) : `TableDeLOrganisationTest` (22 -> 18), CRÉATION de `CentresDuStockParOrganisationTest` |
+
+### Organisation O4, lot C (ADR 0109) : AUCUN seam, le 2026-11-09
+
+Toutes les éditions de production sont dans `backend/contexts/**` (newCodeRoot) : `organisation` (langage publié `LibellesDeLOrganisation`, adapter JDBC, bean), `seance` et `patient-couverture` (les trois lecteurs et leur configuration). Aucun fichier de la plateforme ni du legacy n'est modifié ni créé en production (seul `TableDeLOrganisationTest`, test, passe de 18 à 15). `seamAllowed` est resté `[]` du début à la fin (relu en fin de lot).

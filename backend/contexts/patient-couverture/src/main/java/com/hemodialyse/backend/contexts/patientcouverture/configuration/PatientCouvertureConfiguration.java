@@ -105,13 +105,15 @@ public class PatientCouvertureConfiguration {
     }
 
     @Bean
-    LectureDesPatients lectureDesPatients(JdbcTemplate jdbc) {
-        return new LectureDesPatientsJdbc(jdbc);
+    LectureDesPatients lectureDesPatients(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation libelles) {
+        return new LectureDesPatientsJdbc(jdbc, libelles);
     }
 
     @Bean
-    LectureDesMouvements lectureDesMouvements(JdbcTemplate jdbc) {
-        return new LectureDesMouvementsJdbc(jdbc);
+    LectureDesMouvements lectureDesMouvements(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation libelles) {
+        return new LectureDesMouvementsJdbc(jdbc, libelles);
     }
 
     @Bean

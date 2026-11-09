@@ -2475,3 +2475,20 @@ SELECT count(*) FILTER (WHERE actif IS NULL) AS nuls, count(*) FILTER (WHERE act
 ```
 **Interprétation** : `nuls = 0` : l'écart de sens n'a aucun effet en production, le Stock pourra passer à la variante large (retrait de `actifsAuSensStrict`, décision métiers/DPO). `nuls > 0` : ces centres sont aujourd'hui EXCLUS du contrôle de nuit des péremptions du Stock mais INCLUS partout ailleurs (Absences, Planification, annuaire) ; les métiers décident s'ils doivent être actifs (renseigner `actif`, ou variante large) ou inactifs (renseigner `actif = FALSE`) : ne rien corriger avant leur décision. 72.1 est un SELECT NON rejoué sur PostgreSQL 16 à ce stade (à exécuter à la main sur la copie ; les contrats de l'annuaire tournent sur H2 mode PostgreSQL seulement, O4-R7).
 **Recette (lecture seule, sur une copie)** : (a) le contrôle de nuit des péremptions et la comptabilisation de nuit parcourent les mêmes centres qu'avant (goldens et tests du Stock inchangés) ; (b) la clôture d'un inventaire « centre entier » verrouille toujours la ligne du centre. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 73. Organisation O4, lot C (libellés de salle, de créneau et de médecin, ADR 0109, KB-ORG-10) : détection de données (2026-11-09) — SELECT seulement
+
+Refactoring sur place : aucune migration, aucune colonne. Le journal des mouvements de Patient et couverture joint la salle et le créneau SANS borne de centre ; le lot C reproduit ce comportement (`nomsDesSalles`, `libellesDesCreneaux`). Ce contrôle dit si l'absence de borne a un effet réel. À exécuter sur une copie ; résultat à joindre à la décision métiers/DPO du 2026-12-15.
+
+```sql
+-- 73.1 Mouvements dont la salle ou le créneau appartient à un AUTRE centre que le mouvement.
+SELECT count(*) FILTER (WHERE s.id IS NOT NULL AND s.center_id <> m.center_id) AS salles_d_un_autre_centre,
+       count(*) FILTER (WHERE c.id IS NOT NULL AND c.center_id <> m.center_id) AS creneaux_d_un_autre_centre
+FROM mouvement_patient m LEFT JOIN salle s ON s.id = m.salle_id LEFT JOIN position_creneau c ON c.id = m.position_id;
+-- 73.2 Patients dont le médecin traitant ou le créneau appartient à un AUTRE centre (le libellé affiché est alors vide : lecture bornée au centre).
+SELECT count(*) FILTER (WHERE md.id IS NOT NULL AND md.center_id <> p.center_id) AS medecins_d_un_autre_centre,
+       count(*) FILTER (WHERE c.id IS NOT NULL AND c.center_id <> p.center_id) AS creneaux_d_un_autre_centre
+FROM patients p LEFT JOIN medecin md ON md.id = p.medecin_traitant_id LEFT JOIN position_creneau c ON c.id = p.position_id;
+```
+**Interprétation** : `0` partout : l'absence de borne du journal est sans effet, la lecture pourra être bornée au centre (suppression de `nomsDesSalles` / `libellesDesCreneaux` au profit de `codesDesSalles`-like bornés), décision métiers/DPO. `> 0` : ces mouvements affichent aujourd'hui le libellé d'une salle ou d'un créneau d'un autre centre (fuite d'affichage inter-centres) : ne rien corriger avant leur décision. SELECT NON rejoués sur PostgreSQL 16 (O4-R7).
+**Recette (lecture seule, sur une copie)** : la liste des patients (colonnes médecin et créneau, filtres par libellé) et le journal des mouvements (salle, créneau) rendent les mêmes libellés qu'avant (goldens des consommateurs inchangés). Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
