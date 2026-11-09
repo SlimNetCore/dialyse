@@ -28,3 +28,13 @@ Thumbs.db
 backend/tmp-*.txt
 backend/tmp-*.log
 /c-run.err
+node_modules/
+# Pipeline scratch (regenerable). Commit .ddd/ markdown artifacts, config, state, arch-rules and safety-net.
+.ddd/scan/files.json
+.ddd/scan/graph.json
+.ddd/scan/intermediate/
+.ddd/scan/arch-cache.json
+.ddd/locks/
+.ddd/active-slice
+.ddd/gate-vars.json
+.ddd/timings.jsonl

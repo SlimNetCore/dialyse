@@ -18,5 +18,24 @@
       "docs/**",
       "infra/**"
     ]
+  },
+  "sliceBudget": {
+    "maxEntrypoints": 5,
+    "maxLegacyFiles": 15,
+    "maxLoc": 1500
+  },
+  "seamsPreApproved": [
+    "clock",
+    "id-generator",
+    "random",
+    "outbound-http-client"
+  ],
+  "locks": {
+    "maven": 2,
+    "node": 1
+  },
+  "commands": {
+    "gate": [],
+    "mutation": ""
   }
 }

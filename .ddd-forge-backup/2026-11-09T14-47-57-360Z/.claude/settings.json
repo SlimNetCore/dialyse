@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --disable-warning=ExperimentalWarning tools/ddd-scan/*)",
+      "Bash(node tools/ddd-scan/*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --disable-warning=ExperimentalWarning \"$CLAUDE_PROJECT_DIR/tools/ddd-scan/guard-legacy.ts\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --disable-warning=ExperimentalWarning \"$CLAUDE_PROJECT_DIR/tools/ddd-scan/check-arch.ts\" --hook"
+          }
+        ]
+      }
+    ]
+  }
+}
