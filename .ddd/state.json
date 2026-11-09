@@ -101,7 +101,8 @@
     "seance-se7e-lectures-pilotage-et-rapports": "built",
     "seance-se7f-retrait-bc-seance-et-garde": "built",
     "seance-se7c1-lectures-stock": "built",
-    "seance-se7c2-ecritures-facturation": "built"
+    "seance-se7c2-ecritures-facturation": "built",
+    "pilotage-direction-pd6-composition-des-indicateurs": "planned"
   },
   "contexts": {
     "gmao": "architected",

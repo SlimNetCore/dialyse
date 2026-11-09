@@ -162,7 +162,8 @@ class TableDuPilotageTest {
 
     /**
      * Ce qui RESTE dans {@code application/direction}, nominativement, avec son propriétaire cible et sa raison (revue au plus tard le
-     * 2026-12-15, butoir des résiduels PD5-R1 à R6 : 2027-03-31). Aucune de ces classes n'est du Pilotage.
+     * 2026-12-15, butoir des résiduels PD5-R1 à R6 : 2027-03-31). Dix de ces classes ne sont pas du Pilotage ; la onzième,
+     * {@code DirectionIndicatorsQueryService}, compose des indicateurs du Pilotage et reste à migrer (PD5-R5, slice PD6 planifiée).
      */
     private record Reste(String categorie, String proprietaire) {
     }
@@ -176,17 +177,22 @@ class TableDuPilotageTest {
             Map.entry("DirectionAbsencesQueryService.java", new Reste("lecture d'un autre contexte", "Absences de patients (absencespatients.v1)")),
             Map.entry("DirectionCapaciteQueryService.java", new Reste("lecture d'un autre contexte", "Planification (capacité) et GMAO")),
             Map.entry("DirectionGmaoQueryService.java", new Reste("lecture d'un autre contexte", "GMAO (gmao.v1)")),
-            Map.entry("DirectionIndicatorsQueryService.java", new Reste("lecture d'un autre contexte", "Dossier médical et Stock (indicateurs, DM9)")),
+            Map.entry("DirectionIndicatorsQueryService.java", new Reste("composition du Pilotage, non migrée (slice PD6 planifiée)",
+                    "Pilotage direction (composition du tableau de bord, des alertes et de leur politique), avec lectures cliniques (DM9) et stock par langages publiés ; "
+                            + "pas de filet dédié à ce jour (PD5-R5, ADR 0105)")),
             Map.entry("DirectionStockGroupesQueryService.java", new Reste("lecture d'un autre contexte", "Stock (stock.v1)")),
-            Map.entry("AnonymityPolicy.java", new Reste("lecture d'un autre contexte", "plateforme : masquage des lectures ci-dessus (le Pilotage a son SeuilDAnonymat)"))));
+            Map.entry("AnonymityPolicy.java", new Reste("lecture d'un autre contexte", "plateforme : masquage des lectures ci-dessus (le Pilotage a son SeuilDAnonymat : égalité des deux seuils testée)"))));
 
     private static final Set<String> COMPTES = Set.of("DirectionAccountService.java", "SocieteAdminAccountService.java", "PasswordPolicy.java");
     private static final Set<String> RENDU_PDF = Set.of("DirectionReportPdfService.java", "SocieteLetterheadPort.java");
-    private static final Pattern SQL_EN_MAJUSCULES = Pattern.compile("\\b(FROM|JOIN)\\s+[a-z_]+\\b");
+    private static final Pattern SQL_EN_MAJUSCULES = Pattern.compile("\\b(FROM|JOIN)\\s+[A-Za-z_]+\\b", Pattern.CASE_INSENSITIVE);
 
+    /** Chemins relatifs à application/direction, récursifs : un sous-package échapperait sinon à la garde. */
     private static Set<String> fichiersDeApplicationDirection() throws IOException {
-        try (Stream<Path> fichiers = Files.list(backend().resolve(APPLICATION_DIRECTION))) {
-            return fichiers.map(p -> p.getFileName().toString()).filter(n -> n.endsWith(".java")).collect(java.util.stream.Collectors.toCollection(TreeSet::new));
+        Path racine = backend().resolve(APPLICATION_DIRECTION);
+        try (Stream<Path> fichiers = Files.walk(racine)) {
+            return fichiers.filter(Files::isRegularFile).map(p -> chemin(racine.relativize(p))).filter(n -> n.endsWith(".java"))
+                    .collect(java.util.stream.Collectors.toCollection(TreeSet::new));
         }
     }
 
@@ -225,14 +231,34 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void la_liste_du_reste_compte_onze_entrees_dont_deux_de_rendu_et_trois_de_comptes_et_sa_revue_est_le_2026_12_15() {
+    void la_liste_du_reste_compte_onze_entrees_dont_deux_de_rendu_et_trois_de_comptes() {
         assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(11);
         assertThat(RESTE_DANS_APPLICATION_DIRECTION.keySet()).containsAll(RENDU_PDF).containsAll(COMPTES);
-        assertThat(REVUE).isEqualTo(LocalDate.of(2026, 12, 15));
         RESTE_DANS_APPLICATION_DIRECTION.forEach((nom, reste) -> {
             assertThat(reste.categorie()).as("catégorie de " + nom).isNotBlank();
             assertThat(reste.proprietaire()).as("propriétaire de " + nom).isNotBlank();
         });
+    }
+
+    /**
+     * Échéance EFFECTIVE (PD5, m3) : passé le 2026-12-15, ce test échoue tant que la revue des listes nominatives (propriétaires des
+     * résiduels PD5-R1 à R8, questions KB-DIR-01 à 08) n'est pas faite ; la faire = confirmer ou corriger les décisions, puis repousser
+     * {@link #REVUE} avec la nouvelle date dans l'ADR 0105. (Aucun autre garde du dépôt n'applique sa date : leurs « revue au plus tard »
+     * sont du texte de raison.)
+     */
+    @Test
+    void la_revue_du_2026_12_15_n_est_pas_depassee() {
+        assertThat(REVUE).as("la date de revue est celle de l'ADR 0105").isEqualTo(LocalDate.of(2026, 12, 15));
+        assertThat(LocalDate.now(java.time.ZoneOffset.UTC))
+                .as("revue des listes nominatives du Pilotage (ADR 0105) échue : confirmer métiers/DPO puis repousser REVUE")
+                .isBeforeOrEqualTo(REVUE);
+    }
+
+    @Test
+    void les_deux_seuils_d_anonymat_de_la_plateforme_et_du_pilotage_sont_egaux() {
+        assertThat(com.hemodialyse.backend.application.direction.AnonymityPolicy.THRESHOLD)
+                .as("KB-DIR-01 : le DPO modifiera les deux copies ensemble (plateforme et SeuilDAnonymat du Pilotage)")
+                .isEqualTo(com.hemodialyse.backend.contexts.pilotagedirection.domain.SeuilDAnonymat.SEUIL);
     }
 
     @Test
