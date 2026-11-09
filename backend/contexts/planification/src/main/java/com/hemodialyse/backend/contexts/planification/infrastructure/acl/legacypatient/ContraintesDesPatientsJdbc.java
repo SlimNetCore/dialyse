@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.planification.application.ContraintesDesPatients;
 import com.hemodialyse.backend.contexts.planification.domain.Competence;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.AbordsVasculairesFournis;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
@@ -17,24 +18,24 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * ACL vers Patient et couverture et le Dossier médical (tables {@code patients} et {@code abords_vasculaires}, lecture seule) : les
- * transporteurs de chaque patient et les compétences qu'il exige des infirmiers, {@code PEDIATRIE} sous 18 ans au jour donné et
- * {@code CATHETER} avec un abord vasculaire actif de type cathéter (tunnélisé ou aigu) non terminé à ce jour (RG-PLN-097). Borné au centre.
+ * ACL vers Patient et couverture (table {@code patients}, lecture seule) et le Dossier médical (langage publié, fourni par la plateforme :
+ * {@link AbordsVasculairesFournis}, DM9, ADR 0101 ; plus aucun SQL sur {@code abords_vasculaires}) : les transporteurs de chaque patient et
+ * les compétences qu'il exige des infirmiers, {@code PEDIATRIE} sous 18 ans au jour donné et {@code CATHETER} avec un abord vasculaire actif
+ * de type cathéter (tunnélisé ou aigu) non terminé à ce jour (RG-PLN-097). Borné au centre.
  */
 public class ContraintesDesPatientsJdbc implements ContraintesDesPatients {
 
     private final JdbcTemplate jdbc;
+    private final AbordsVasculairesFournis abords;
 
-    public ContraintesDesPatientsJdbc(JdbcTemplate jdbc) {
+    public ContraintesDesPatientsJdbc(JdbcTemplate jdbc, AbordsVasculairesFournis abords) {
         this.jdbc = jdbc;
+        this.abords = abords;
     }
 
     @Override
     public Map<PatientId, Contraintes> duCentre(CentreId centre, LocalDate aPartirDu) {
-        Set<UUID> catheters = new HashSet<>(jdbc.query("SELECT DISTINCT patient_id FROM abords_vasculaires "
-                        + "WHERE center_id = ? AND actif = TRUE AND type_abord IN ('KT_TUNNELISE', 'KT_AIGU') "
-                        + "AND (date_fin IS NULL OR date_fin >= ?)",
-                (rs, i) -> rs.getObject("patient_id", UUID.class), centre.valeur(), Date.valueOf(aPartirDu)));
+        Set<UUID> catheters = new HashSet<>(abords.porteursDUnCatheter(centre.valeur(), aPartirDu));
         Map<PatientId, Contraintes> contraintes = new HashMap<>();
         jdbc.query("SELECT id, date_naissance, transporteur_aller_id, transporteur_retour_id FROM patients WHERE center_id = ?",
                 rs -> {

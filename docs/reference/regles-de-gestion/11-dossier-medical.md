@@ -436,8 +436,8 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   peut plus être mise à jour (404) ;
   (f) **reproduit, à confirmer** : la mise à jour remplace tout, aucune règle croisée (statut retenu avec crossmatch positif,
   naissance dans le futur, crossmatch positif sans date acceptés).
-- **RG-MED-049** — *Évaluation KDIGO et dossier de synthèse PDF, garde DM7 (`KdigoGreffeRestController`,
-  `GreffeExportRestController`, ADR 0086)* : un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE`
+- **RG-MED-049** — *Évaluation KDIGO et dossier de synthèse PDF, garde DM7 (`EvaluationKdigoControleur` depuis DM9, auparavant
+  `KdigoGreffeRestController` ; `GreffeExportRestController`, ADR 0086)* : un patient inconnu ou d'un autre centre est refusé en 404 `PATIENT_INTROUVABLE`
   (avant : 200 avec une évaluation « non évaluable » ou un PDF sans en-tête) ; aucune lecture n'ouvre de bilan. **Reproduit
   et signalé comme risque clinique prioritaire (KB-MED-94, à confirmer par les médecins et le DPO)** : pour un même
   marqueur sérologique, le résultat le plus ANCIEN l'emporte dans l'évaluation KDIGO ; le calcul de la fonction rénale, du
@@ -476,6 +476,33 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   le DPO)** : les effectifs inférieurs à 5 sont masqués par centre mais les totaux additionnent les valeurs non masquées ; la
   différence entre le total et les centres visibles révèle l'effectif masqué. Seuil, formes, règles de comptage des sérologies et
   droits inchangés.
+- **RG-MED-049f** — *Reprise sur place DM9 du calcul médical restant et retrait du module legacy `bc-medical` (ADR 0101 ; décisions
+  déléguées, à confirmer par les médecins, les métiers et le DPO au plus tard le 2026-12-15)* :
+  (a) **le contexte `dossier-medical` possède tout le calcul, la plateforme ne garde que la présentation** : statistiques médicales du
+  patient (`StatistiquesMedicalesPubliees` : moyennes, tendances, lignes d'export, poids sec en vigueur ; JSON, CSV et PDF toujours
+  rendus par la plateforme, mêmes URL, mêmes rôles), indicateurs cliniques de la Direction (`IndicateursCliniquesPublies`, déjà masqués
+  par `EffectifMasque`, seuil 5), administrations de l'anémie du Pilotage (`TraitementDeLAnemiePublie`), dossier de synthèse greffe
+  (`DossierDeGreffePublie`, PDF rendu par la plateforme) ; **plus aucune requête SQL de la plateforme ni d'un autre contexte sur les
+  dix-sept tables du Dossier médical** (garde `TableDuDossierMedicalTest`, liste blanche nominative et datée) ;
+  (b) **évaluation KDIGO du candidat** (`EvaluationKdigoControleur`, contexte `dossier-medical`, mêmes URL, champs et droits) : cibles
+  et seuils de RG-MED-081 et 082 repris à l'identique dans `CiblesKdigo` et `EvaluationKdigoDuCandidat` (valeurs **non validées
+  médicalement**, à confirmer) ; la garde du patient (404) est dans le cas d'usage, pour l'évaluation comme pour le PDF ; le résultat
+  sérologique le plus ancien l'emporte toujours (KB-MED-94, reproduit) ;
+  (c) **risque infectieux et cathéters lus par la Planification** (`RisquesInfectieuxPublies`, `AbordsVasculairesPublies`, fournis à la
+  Planification par la plateforme : `RisquesInfectieuxFournis`, `AbordsVasculairesFournis`) : même règle (RG-PLN-012, RG-PLN-097) ;
+  **REPRODUIT, RISQUE CLINIQUE à trancher par les médecins en priorité (KB-MED-106)** : un résultat DOUTEUX ou EN_COURS plus
+  récent qu'un positif lève le risque infectieux sans résultat négatif ; reproduits aussi : à égalité totale le positif l'emporte
+  (KB-MED-107), lecture par le centre de la sérologie ou de l'abord et non de la fiche (KB-MED-108) ;
+  (d) **reproduits, à confirmer** : KB-MED-104 (fuite par différence des totaux Direction : les consolidés sont calculés sur les valeurs
+  brutes puis masqués, condition de mise en production, DPO), KB-MED-100 (audit inégal, trois `POST stats/*/search` sans appelant
+  frontend conservés), KB-MED-109 (ordre non défini à date égale dans les tendances, le CSV et le PDF ; double comptage des taux de la
+  Direction) ;
+  (e) **effacement des administrations d'une séance supprimée** fourni à la Séance par le Dossier médical
+  (`Administrations.effacerCellesDeLaSeance`, même unité de travail que la suppression, RG-SEA) ;
+  (f) **écart assumé (KB-MED-110, à confirmer avec les métiers)** : le PDF de greffe et l'évaluation KDIGO d'un patient dont une étape
+  ou un bilan porte une valeur illisible en base répondaient 400 avec le nom qualifié d'une classe Java du module retiré ; le contexte
+  ignore l'étape illisible (le PDF est rendu sans elle, avertissement serveur avec son seul identifiant) et refuse un bilan illisible en
+  422 `BILAN_PRE_GREFFE_ILLISIBLE` (règles de RG-MED-046 d et 047 e).
 
 ## 11.11 Constantes, statistiques et export interopérable
 

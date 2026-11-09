@@ -67,6 +67,12 @@ public class AdministrationsJdbc implements Administrations {
         return new Administre(nombre == null ? 0 : nombre, dose == null ? 0 : dose);
     }
 
+    /** Même effet que {@code AdministrationTraitementRepositoryAdapter.deleteBySeanceId} (retiré par DM9) : les lignes de la séance AU centre. */
+    @Override
+    public int effacerCellesDeLaSeance(CentreId centre, UUID seance) {
+        return jdbc.update("DELETE FROM administrations_anemie WHERE seance_id = ? AND center_id = ?", seance, centre.valeur());
+    }
+
     private static AdministrationDeTraitement administration(ResultSet rs) throws SQLException {
         var valeur = rs.getBigDecimal("dose");
         DoseAdministree dose = valeur == null ? null : new DoseAdministree(valeur, rs.getString("unite_dose"));

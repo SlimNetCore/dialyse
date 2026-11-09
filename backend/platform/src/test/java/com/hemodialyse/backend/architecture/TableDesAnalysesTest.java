@@ -44,10 +44,8 @@ class TableDesAnalysesTest {
 
     static {
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
-        lecteur(plateforme + "application/direction/DirectionIndicatorsQueryService.java",
-                "indicateurs cliniques du pilotage de la Direction (lecture, agrégats par centre) ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
-        lecteur(plateforme + "application/query/PatientStatsQueryService.java",
-                "statistiques biologiques du patient (lecture) ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
+        // DM9 (ADR 0101) : DirectionIndicatorsQueryService et PatientStatsQueryService lisent par IndicateursCliniquesPubliees et
+        // StatistiquesMedicalesPubliees ; retirés de la liste (8 → 6 entrées).
         lecteur(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
                 "reprise de données (ÉCRIT des analyses historiques, descripteur TABLES) ; échéance : reprise par le module", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
@@ -155,12 +153,17 @@ class TableDesAnalysesTest {
                 "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/ResultatAnalyseRepositoryAdapter.java",
                 "platform/src/main/java/com/hemodialyse/backend/application/query/KdigoGreffeQueryService.java");
         assertThat(disparus.subList(0, 3)).as("retirés par SE7f").noneMatch(c -> Files.isRegularFile(backend().resolve(c)));
-        assertThat(lecteurs(sourcesDeProduction(backend()))).as("KDIGO lit la créatinine par DerniereCreatininePubliee").doesNotContain(disparus.get(3));
+        assertThat(disparus.get(3)).as("retiré par DM9 (ADR 0101) : l'évaluation KDIGO vit dans contexts/dossier-medical")
+                .matches(c -> !Files.isRegularFile(backend().resolve(c)));
+        // DM9 : les deux derniers lecteurs SQL de la plateforme passent par les langages publiés du Dossier médical.
+        assertThat(lecteurs(sourcesDeProduction(backend()))).doesNotContain(
+                "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionIndicatorsQueryService.java",
+                "platform/src/main/java/com/hemodialyse/backend/application/query/PatientStatsQueryService.java");
     }
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(8);
+        assertThat(LECTEURS_CONNUS).hasSize(6);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);

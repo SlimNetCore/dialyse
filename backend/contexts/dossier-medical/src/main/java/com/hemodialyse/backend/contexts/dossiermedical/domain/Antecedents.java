@@ -31,4 +31,7 @@ public interface Antecedents {
 
     /** Antécédents du patient, du début le plus récent au plus ancien (départage : création puis identifiant). */
     PageDeFiches<Antecedent> duPatient(CentreId centre, PatientId patient, int page, int taille);
+
+    /** Tous les antécédents lisibles du patient, dans le même ordre (dossier de greffe, DM9). */
+    java.util.List<Antecedent> tousDuPatient(CentreId centre, PatientId patient);
 }

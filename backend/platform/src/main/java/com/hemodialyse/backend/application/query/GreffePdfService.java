@@ -1,16 +1,13 @@
 package com.hemodialyse.backend.application.query;
 
-import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
-import com.hemodialyse.backend.domain.medical.antecedent.valueobject.StatutClinique;
-import com.hemodialyse.backend.domain.medical.greffe.aggregate.BilanPreGreffe;
-import com.hemodialyse.backend.domain.medical.greffe.aggregate.DonneurVivant;
-import com.hemodialyse.backend.domain.medical.greffe.aggregate.EtapeBilanPreGreffe;
-import com.hemodialyse.backend.domain.medical.greffe.entity.DecisionRcp;
-import com.hemodialyse.backend.domain.medical.greffe.port.BilanPreGreffeRepositoryPort;
-import com.hemodialyse.backend.domain.medical.greffe.port.DonneurVivantRepositoryPort;
-import com.hemodialyse.backend.domain.medical.greffe.port.EtapeBilanPreGreffeRepositoryPort;
-import com.hemodialyse.backend.domain.medical.serologie.aggregate.Serologie;
-import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.AntecedentActif;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Bilan;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.DecisionDeRcp;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Donneur;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.DossierDeGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Etape;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Serologie;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
@@ -20,14 +17,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Génère le dossier de synthèse "préparation à la greffe rénale" (receveur + donneurs vivants
- * candidats) en PDF, destiné au transfert vers le centre de transplantation. Même patron que
- * {@link PatientStatsQueryService#exportPdf} (openhtmltopdf : construction d'un HTML puis rendu).
+ * Génère le dossier de synthèse "préparation à la greffe rénale" (receveur + donneurs vivants candidats) en PDF, destiné au transfert vers
+ * le centre de transplantation. Même patron que {@link PatientStatsQueryService#exportPdf} (openhtmltopdf : construction d'un HTML puis
+ * rendu). DM9 (ADR 0101) : le contenu médical vient du langage publié du Dossier médical ({@link DossierDeGreffePublie}, qui garde le patient :
+ * 404 par l'advice du contexte) ; la plateforme ne garde que l'identité du patient (fiche) et la présentation. Même HTML qu'avant.
  */
 @Service
 public class GreffePdfService {
@@ -35,43 +32,21 @@ public class GreffePdfService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final PatientRepositoryPort patientRepository;
-    private final BilanPreGreffeRepositoryPort bilanRepository;
-    private final EtapeBilanPreGreffeRepositoryPort etapeRepository;
-    private final SerologieRepositoryPort serologieRepository;
-    private final AntecedentRepositoryPort antecedentRepository;
-    private final DonneurVivantRepositoryPort donneurRepository;
+    private final DossierDeGreffePublie dossiers;
     private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
 
-    public GreffePdfService(PatientRepositoryPort patientRepository, BilanPreGreffeRepositoryPort bilanRepository,
-                            EtapeBilanPreGreffeRepositoryPort etapeRepository,
-                            SerologieRepositoryPort serologieRepository,
-                            AntecedentRepositoryPort antecedentRepository,
-                            DonneurVivantRepositoryPort donneurRepository,
+    public GreffePdfService(PatientRepositoryPort patientRepository, DossierDeGreffePublie dossiers,
                             com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity) {
         this.patientRepository = patientRepository;
-        this.bilanRepository = bilanRepository;
-        this.etapeRepository = etapeRepository;
-        this.serologieRepository = serologieRepository;
-        this.antecedentRepository = antecedentRepository;
-        this.donneurRepository = donneurRepository;
+        this.dossiers = dossiers;
         this.identity = identity;
     }
 
     public byte[] exportPdf(CenterId centerId, UUID patientId) {
+        DossierDeGreffe dossier = dossiers.duPatient(centerId.value(), patientId);
         Patient patient = patientRepository.findById(PatientId.of(patientId), centerId).orElse(null);
-        BilanPreGreffe bilan = bilanRepository.findByPatientId(patientId, centerId).orElse(null);
-        List<EtapeBilanPreGreffe> etapes = etapeRepository.findByPatientId(patientId, centerId).stream()
-                .sorted(Comparator.comparing(e -> e.getCategorie().name()))
-                .toList();
-        List<Serologie> serologies = serologieRepository.findByPatientId(patientId, centerId);
-        List<com.hemodialyse.backend.domain.medical.antecedent.aggregate.Antecedent> antecedents =
-                antecedentRepository.findByPatientId(patientId, centerId).stream()
-                        .filter(a -> a.getStatutClinique() == StatutClinique.ACTIF)
-                        .toList();
-        List<DonneurVivant> donneurs = donneurRepository.findByPatientId(patientId, centerId);
 
-        String html = identity.decorateHtml(buildHtml(patient, bilan, etapes, serologies, antecedents, donneurs),
-                centerId.value());
+        String html = identity.decorateHtml(buildHtml(patient, dossier), centerId.value());
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -85,10 +60,12 @@ public class GreffePdfService {
         }
     }
 
-    private String buildHtml(Patient patient, BilanPreGreffe bilan, List<EtapeBilanPreGreffe> etapes,
-                             List<Serologie> serologies,
-                             List<com.hemodialyse.backend.domain.medical.antecedent.aggregate.Antecedent> antecedents,
-                             List<DonneurVivant> donneurs) {
+    private String buildHtml(Patient patient, DossierDeGreffe dossier) {
+        Bilan bilan = dossier.bilan();
+        List<Etape> etapes = dossier.etapes();
+        List<Serologie> serologies = dossier.serologies();
+        List<AntecedentActif> antecedents = dossier.antecedentsActifs();
+        List<Donneur> donneurs = dossier.donneurs();
         StringBuilder sb = new StringBuilder();
         sb.append("<html><head><meta charset='UTF-8'/><style>")
                 .append("body{font-family:Arial,sans-serif;font-size:12px;color:#111;margin:24px;}")
@@ -109,25 +86,25 @@ public class GreffePdfService {
 
         sb.append("<h2>Éligibilité</h2>");
         if (bilan != null) {
-            sb.append("<div class='kpi'>Statut : ").append(escapeHtml(bilan.getStatut().name())).append("</div>")
-                    .append("<div class='kpi'>Groupe sanguin confirmé : ").append(escapeHtml(nullToDash(bilan.getGroupeSanguinConfirme()))).append("</div>")
-                    .append("<div class='kpi'>Typage HLA : ").append(escapeHtml(nullToDash(bilan.getTypageHla()))).append("</div>")
+            sb.append("<div class='kpi'>Statut : ").append(escapeHtml(bilan.statut())).append("</div>")
+                    .append("<div class='kpi'>Groupe sanguin confirmé : ").append(escapeHtml(nullToDash(bilan.groupeSanguinConfirme()))).append("</div>")
+                    .append("<div class='kpi'>Typage HLA : ").append(escapeHtml(nullToDash(bilan.typageHla()))).append("</div>")
                     .append("<div class='kpi'>PRA classe I / II : ")
-                    .append(nullToDash(bilan.getPraClasseI())).append(" % / ")
-                    .append(nullToDash(bilan.getPraClasseII())).append(" %</div>")
-                    .append("<div class='kpi'>Contre-indications : ").append(escapeHtml(nullToDash(bilan.getContreIndications()))).append("</div>")
-                    .append("<div class='kpi'>Conclusion néphrologue : ").append(escapeHtml(nullToDash(bilan.getConclusionNephrologue()))).append("</div>");
+                    .append(nullToDash(bilan.praClasseI())).append(" % / ")
+                    .append(nullToDash(bilan.praClasseII())).append(" %</div>")
+                    .append("<div class='kpi'>Contre-indications : ").append(escapeHtml(nullToDash(bilan.contreIndications()))).append("</div>")
+                    .append("<div class='kpi'>Conclusion néphrologue : ").append(escapeHtml(nullToDash(bilan.conclusionNephrologue()))).append("</div>");
 
             sb.append("<h2>Décisions de RCP</h2>");
-            if (bilan.getDecisionsRcp().isEmpty()) {
+            if (bilan.decisions().isEmpty()) {
                 sb.append("<p>Aucune décision enregistrée.</p>");
             } else {
                 sb.append("<table><thead><tr><th>Date</th><th>Avis</th><th>Compte-rendu</th><th>Prochaine revue</th></tr></thead><tbody>");
-                for (DecisionRcp d : bilan.getDecisionsRcp()) {
-                    sb.append("<tr><td>").append(formatDate(d.getDateReunion()))
-                            .append("</td><td>").append(escapeHtml(d.getAvis().name()))
-                            .append("</td><td>").append(escapeHtml(nullToDash(d.getCompteRendu())))
-                            .append("</td><td>").append(formatDate(d.getProchaineDateRevue()))
+                for (DecisionDeRcp d : bilan.decisions()) {
+                    sb.append("<tr><td>").append(formatDate(d.dateReunion()))
+                            .append("</td><td>").append(escapeHtml(d.avis()))
+                            .append("</td><td>").append(escapeHtml(nullToDash(d.compteRendu())))
+                            .append("</td><td>").append(formatDate(d.prochaineDateRevue()))
                             .append("</td></tr>");
                 }
                 sb.append("</tbody></table>");
@@ -141,12 +118,12 @@ public class GreffePdfService {
             sb.append("<p>Aucune étape enregistrée.</p>");
         } else {
             sb.append("<table><thead><tr><th>Catégorie</th><th>Étape</th><th>Statut</th><th>Date réalisation</th><th>Résultat</th></tr></thead><tbody>");
-            for (EtapeBilanPreGreffe etape : etapes) {
-                sb.append("<tr><td>").append(escapeHtml(etape.getCategorie().name()))
-                        .append("</td><td>").append(escapeHtml(etape.getLibelle()))
-                        .append("</td><td>").append(escapeHtml(etape.getStatut().name()))
-                        .append("</td><td>").append(formatDate(etape.getDateRealisation()))
-                        .append("</td><td>").append(escapeHtml(nullToDash(etape.getResultat())))
+            for (Etape etape : etapes) {
+                sb.append("<tr><td>").append(escapeHtml(etape.categorie()))
+                        .append("</td><td>").append(escapeHtml(etape.libelle()))
+                        .append("</td><td>").append(escapeHtml(etape.statut()))
+                        .append("</td><td>").append(formatDate(etape.dateRealisation()))
+                        .append("</td><td>").append(escapeHtml(nullToDash(etape.resultat())))
                         .append("</td></tr>");
             }
             sb.append("</tbody></table>");
@@ -158,9 +135,9 @@ public class GreffePdfService {
         } else {
             sb.append("<table><thead><tr><th>Marqueur</th><th>Résultat</th><th>Date prélèvement</th></tr></thead><tbody>");
             for (Serologie s : serologies) {
-                sb.append("<tr><td>").append(escapeHtml(s.getMarqueur().name()))
-                        .append("</td><td>").append(escapeHtml(s.getResultat().name()))
-                        .append("</td><td>").append(formatDate(s.getDatePrelevement()))
+                sb.append("<tr><td>").append(escapeHtml(s.marqueur()))
+                        .append("</td><td>").append(escapeHtml(s.resultat()))
+                        .append("</td><td>").append(formatDate(s.datePrelevement()))
                         .append("</td></tr>");
             }
             sb.append("</tbody></table>");
@@ -171,9 +148,8 @@ public class GreffePdfService {
             sb.append("<p>Aucun antécédent actif.</p>");
         } else {
             sb.append("<table><thead><tr><th>Diagnostic</th></tr></thead><tbody>");
-            for (var a : antecedents) {
-                String libelle = a.getDiagnostic() != null ? a.getDiagnostic().display() : a.getLibelleLibre();
-                sb.append("<tr><td>").append(escapeHtml(nullToDash(libelle))).append("</td></tr>");
+            for (AntecedentActif a : antecedents) {
+                sb.append("<tr><td>").append(escapeHtml(nullToDash(a.libelle()))).append("</td></tr>");
             }
             sb.append("</tbody></table>");
         }
@@ -184,12 +160,12 @@ public class GreffePdfService {
         } else {
             sb.append("<table><thead><tr><th>Nom</th><th>Lien de parenté</th><th>Groupe sanguin</th>"
                     + "<th>Statut</th><th>Crossmatch</th></tr></thead><tbody>");
-            for (DonneurVivant d : donneurs) {
-                sb.append("<tr><td>").append(escapeHtml(d.getNom() + " " + nullToDash(d.getPrenom())))
-                        .append("</td><td>").append(escapeHtml(d.getLienParente().name()))
-                        .append("</td><td>").append(escapeHtml(nullToDash(d.getGroupeSanguin())))
-                        .append("</td><td>").append(escapeHtml(d.getStatutBilan().name()))
-                        .append("</td><td>").append(escapeHtml(d.getCrossmatchResultat().name()))
+            for (Donneur d : donneurs) {
+                sb.append("<tr><td>").append(escapeHtml(d.nom() + " " + nullToDash(d.prenom())))
+                        .append("</td><td>").append(escapeHtml(d.lienDeParente()))
+                        .append("</td><td>").append(escapeHtml(nullToDash(d.groupeSanguin())))
+                        .append("</td><td>").append(escapeHtml(d.statutBilan()))
+                        .append("</td><td>").append(escapeHtml(d.crossmatch()))
                         .append("</td></tr>");
             }
             sb.append("</tbody></table>");

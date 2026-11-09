@@ -15,7 +15,7 @@ public record SuiviDeLAnemieReponse(LocalDate dateDernierBilan, List<Evaluation>
     public record Evaluation(String code, BigDecimal valeur, String unite, String statut, BigDecimal borneMin, BigDecimal borneMax,
                              String referenceKdigo) {
         static Evaluation de(EvaluationDeCible e) {
-            return new Evaluation(e.code(), e.valeur(), e.unite(), e.statut(), e.borneMin(), e.borneMax(), e.referenceKdigo());
+            return new Evaluation(e.code(), e.valeur(), e.unite(), e.statut().name(), e.borneMin(), e.borneMax(), e.referenceKdigo());
         }
     }
 

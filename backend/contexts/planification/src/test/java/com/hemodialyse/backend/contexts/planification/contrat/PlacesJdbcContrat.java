@@ -11,7 +11,7 @@ import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.Place;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository;
 import com.hemodialyse.backend.contexts.planification.domain.VerrouDesPlaces;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc;
+import com.hemodialyse.backend.contexts.planification.infrastructure.acl.dossiermedical.RisquesInfectieuxPublies;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.NomsDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc;
 import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.VerrouDesPlacesJdbc;
@@ -62,12 +62,12 @@ abstract class PlacesJdbcContrat extends PlacesContrat {
 
     @Override
     protected PlacesDuCentreRepository places() {
-        return new PlacesDuCentreJdbc(jdbc());
+        return new PlacesDuCentreJdbc(jdbc(), new RisquesInfectieuxDeTest(jdbc()));
     }
 
     @Override
     protected RisquesInfectieux risques() {
-        return new RisquesInfectieuxJdbc(jdbc());
+        return new RisquesInfectieuxPublies(new RisquesInfectieuxDeTest(jdbc()));
     }
 
     @Override

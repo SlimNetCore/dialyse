@@ -3076,9 +3076,9 @@ rien à la saisie manuelle du roulement.</p>
 les évaluations KDIGO sont recalculées à la demande. Le système
 <strong>compare</strong> chaque résultat aux cibles KDIGO, <strong>contrôle chaque jour</strong> l&#39;observance des traitements EPO/fer, <strong>replace
 en isolement</strong> un patient devenu à risque et <strong>alerte</strong> le médecin.
-Sources : agrégats de <code>bc-medical</code> (<code>Allergie</code>, <code>Antecedent</code>, <code>Serologie</code>, <code>DemandeExamen</code>, <code>ObservationBiologique</code>,
-<code>Ordonnance</code>, <code>AdministrationTraitement</code>,
-<code>AlerteObservance</code>, <code>BilanPreGreffe</code>, <code>EtapeBilanPreGreffe</code>, <code>DonneurVivant</code>, <code>DecisionRcp</code>), <code>Kdigo*Policy</code>,
+Sources : agrégats du contexte <code>dossier-medical</code> (<code>Allergie</code>, <code>Antecedent</code>, <code>Serologie</code>, <code>DemandeExamen</code>, <code>ObservationBiologique</code>,
+<code>Ordonnance</code>, <code>AdministrationDeTraitement</code>,
+<code>AlerteDObservance</code>, <code>BilanPreGreffe</code>, <code>EtapeDeBilan</code>, <code>DonneurVivant</code>, <code>DecisionRcp</code> ; le module legacy <code>bc-medical</code> est retiré depuis DM9), <code>CiblesKdigo</code>, <code>EvaluationKdigoDuCandidat</code>, <code>RisqueInfectieux</code>, <code>EffectifMasque</code>,
 <code>PrescrireUnTraitement</code> (DM2), <code>ResultatAnalyseDomainService</code>,
 <code>DossierMedicalPatientDomainService</code>, <code>AbordVasculaireDomainService</code>, <code>ControleDeNuitDeLObservance</code>,
 <code>PeriodeDObservance</code>, <code>ConsulterLeSuiviDeLAnemie</code>,
@@ -3857,7 +3857,7 @@ du 2026-10-21 (KB-FAC-67).</p>
 <p>Préfixe <code>RG-DIR</code>. La direction voit <strong>tous les centres de sa société</strong> sans jamais voir un patient : le système
 <strong>consolide</strong>, <strong>compare</strong> à la période précédente, <strong>lève des alertes</strong> et <strong>diffuse
 les changements en temps réel</strong>. Sources : <code>DirectionDashboardRestController</code>, <code>DirectionSnapshotRestController</code>,
-<code>AnonymityPolicy</code>, <code>DirectionAlertPolicy</code>, <code>DirectionAlertHistoryService</code>,
+<code>AnonymityPolicy</code> (effectifs de la plateforme) et <code>EffectifMasque</code> / <code>IndicateursCliniquesPublies</code> (indicateurs cliniques publiés par le Dossier médical, DM9), <code>DirectionAlertPolicy</code>, <code>DirectionAlertHistoryService</code>,
 <code>DashboardDiff</code>, <code>Direction*QueryService</code>, <code>DirectionSnapshotService</code>, <code>DirectionRealtimeService</code>,
 <code>DirectionReportPdfService</code>, <code>DirectionAccessGuard</code>, schedulers <code>Direction*</code>.</p>
 </blockquote>
@@ -4931,10 +4931,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-080, 081</td>
 </tr>
 <tr>
-<td><code>KdigoGreffeRestController</code></td>
-<td><code>/api/v1/patients/{id}/greffe/kdigo</code></td>
+<td><code>EvaluationKdigoControleur</code> (contexte <code>dossier-medical</code>, DM9)</td>
+<td><code>/api/v1/patients/{id}/greffe/kdigo</code> — garde de patient 404</td>
 <td><code>MEDECIN</code>, <code>ADMIN</code></td>
-<td>RG-MED-082</td>
+<td>RG-MED-082, 049, 049f</td>
 </tr>
 <tr>
 <td><code>BilanPreGreffeRestController</code></td>

@@ -15,7 +15,8 @@
 #   M6  PatientStatsQueryService.java:58, 62-65, 88-92 : moyenne d'hemoglobine et tendances / CSV ORDER BY date_prelevement ASC seul :
 #       a date egale, l'ordre des deux lignes n'est PAS defini (observe, non impose ; KB-MED-109)
 # Numerotation M1-M6 = celle de l'audit .ddd/safety-net/dossier-medical-dm9.md section 6.
-# Le script rejoue ensuite les 5 detections SELECT de la section 66 de verifications-production.md (KB-MED-104, 106 a 109).
+# Le script rejoue ensuite les 5 detections SELECT de la section 66 de verifications-production.md (KB-MED-104, 106 a 109), puis (DM9
+# lots A-E, ADR 0101) les contrats PostgreSQL des adapters repris dans contexts/dossier-medical contre la base jetable (schema Flyway reel).
 # A lancer en arriere-plan avec un log : backend/scripts/dossier-medical-dm9-pg16-rejeu.sh 55551
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Mot de passe du cluster jetable : variable d'environnement
 # DM9_PG16_PASSWORD (tiree au hasard ici si absente), jamais en argument. Code de sortie : 0 si tout est conforme.
@@ -154,6 +155,15 @@ verifier "66.4 KB-MED-109 : plusieurs bilans du meme patient au centre le meme j
 verifier "66.5 KB-MED-104 : centres dont l'effectif evalue en hemoglobine sur la periode est masque (1 a 4 patients) et donc deductible des totaux (centre B : 3)" \
   "$(sql "SELECT r.center_id, count(DISTINCT r.patient_id) AS evalues FROM resultats_analyses r WHERE r.hb_g_dl IS NOT NULL AND r.date_prelevement BETWEEN date_trunc('year', current_date)::date AND current_date GROUP BY r.center_id HAVING count(DISTINCT r.patient_id) BETWEEN 1 AND 4" | lignes)" \
   "$B|3"
+
+echo "=== Contrats PostgreSQL des adapters repris par DM9 (ADR 0101) : risque infectieux, lectures reprises de la plateforme, derniere creatinine, administrations (Dossier medical) ==="
+export DM9_PG16_PASSWORD="$PW"
+URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
+cd "$RACINE/backend" || exit 3
+./mvnw -o -pl contexts/dossier-medical test \
+  -Dtest="com.hemodialyse.backend.contexts.dossiermedical.contrat.RisquesInfectieuxPostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.LecturesReprisesDeLaPlateformePostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.DerniereCreatininePostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.AdministrationsPostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Ddossiermedical.pg16.url="$URL" -Ddossiermedical.pg16.user=dm9_test -Ddossiermedical.pg16.password="$PW" || RC=1
 
 echo "=== Fin du rejeu : code $RC (0 = tout conforme) ==="
 exit $RC

@@ -1,0 +1,5 @@
+{
+  "01 etape illisible" : "200 ok",
+  "02 bilan illisible" : "422 BILAN_PRE_GREFFE_ILLISIBLE | Le bilan pré-greffe de ce patient est illisible en base",
+  "03 KDIGO du bilan illisible" : "422 BILAN_PRE_GREFFE_ILLISIBLE | Le bilan pré-greffe de ce patient est illisible en base"
+}

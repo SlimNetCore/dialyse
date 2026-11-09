@@ -49,10 +49,15 @@ public class AntecedentsEnMemoire implements Antecedents {
     }
 
     @Override
-    public PageDeFiches<Antecedent> duPatient(CentreId centre, PatientId patient, int page, int taille) {
-        List<Antecedent> toutes = fiches.values().stream().filter(a -> a.centre().equals(centre) && a.patient().equals(patient))
+    public List<Antecedent> tousDuPatient(CentreId centre, PatientId patient) {
+        return fiches.values().stream().filter(a -> a.centre().equals(centre) && a.patient().equals(patient))
                 .sorted(Comparator.comparing(Antecedent::debut).thenComparing(Antecedent::creeLe).thenComparing(Antecedent::id).reversed())
                 .map(AntecedentsEnMemoire::copie).toList();
+    }
+
+    @Override
+    public PageDeFiches<Antecedent> duPatient(CentreId centre, PatientId patient, int page, int taille) {
+        List<Antecedent> toutes = tousDuPatient(centre, patient);
         int debut = (int) Math.min((long) page * taille, toutes.size());
         return new PageDeFiches<>(toutes.subList(debut, Math.min(debut + taille, toutes.size())), toutes.size(), page, taille);
     }

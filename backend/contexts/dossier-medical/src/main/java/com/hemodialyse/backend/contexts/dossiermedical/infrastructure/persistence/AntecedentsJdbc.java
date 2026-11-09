@@ -117,6 +117,16 @@ public class AntecedentsJdbc implements Antecedents {
         return new PageDeFiches<>(items, comptes[0], page, taille);
     }
 
+    @Override
+    public List<Antecedent> tousDuPatient(CentreId centre, PatientId patient) {
+        List<Antecedent> items = jdbc.query("SELECT " + COLONNES + " FROM antecedents_medicaux WHERE center_id = ? AND patient_id = ?" + LISIBLES
+                + " ORDER BY date_debut DESC, created_at DESC, id DESC", (rs, i) -> antecedent(rs), centre.valeur(), patient.valeur());
+        Long total = jdbc.queryForObject("SELECT count(*) FROM antecedents_medicaux WHERE center_id = ? AND patient_id = ?", Long.class,
+                centre.valeur(), patient.valeur());
+        if (total != null && total > items.size()) signalerLesIllisibles("", centre, patient);
+        return items;
+    }
+
     /** Journalise en WARN l'identifiant SEUL (aucune donnée de santé ni de patient) des lignes illisibles du patient. */
     private void signalerLesIllisibles(String filtre, CentreId centre, PatientId patient, Object... id) {
         Object[] parametres = new Object[2 + id.length];

@@ -58,6 +58,11 @@ class ControleDeLObservanceTest {
         public Administre administreSur(CentreId centre, PatientId patient, TypeDeTraitement traitement, LocalDate debut, LocalDate fin) {
             return administre;
         }
+
+        @Override
+        public int effacerCellesDeLaSeance(CentreId centre, java.util.UUID seance) {
+            return 0;
+        }
     };
     private final Alertes registre = new Alertes() {
         @Override

@@ -57,7 +57,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
         DemandesDExamenControleur.class, SerologiesControleur.class, AntecedentsControleur.class,
         AllergiesControleur.class, AbordsVasculairesControleur.class, ObservationsBiologiquesControleur.class, AnalysesControleur.class,
         BilanPreGreffeControleur.class, EtapesDeBilanControleur.class, DonneursVivantsControleur.class, DossierMedicalDeBaseControleur.class,
-        ExportFhirControleur.class, SousLaGardeDuDossierMedical.class})
+        ExportFhirControleur.class, EvaluationKdigoControleur.class, SousLaGardeDuDossierMedical.class})
 class ErreursDuDossierMedicalAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {

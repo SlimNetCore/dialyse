@@ -79,9 +79,11 @@ public class OptimisationConfiguration {
         return new DeplacementsTemporairesJdbc(jdbc);
     }
 
+    /** DM9 (ADR 0101) : les porteurs d'un cathéter viennent du langage publié du Dossier médical, fourni par la plateforme. */
     @Bean
-    ContraintesDesPatients planificationContraintesDesPatients(JdbcTemplate jdbc) {
-        return new ContraintesDesPatientsJdbc(jdbc);
+    ContraintesDesPatients planificationContraintesDesPatients(JdbcTemplate jdbc,
+                                                              com.hemodialyse.backend.contexts.planification.publishedlanguage.AbordsVasculairesFournis abords) {
+        return new ContraintesDesPatientsJdbc(jdbc, abords);
     }
 
     @Bean

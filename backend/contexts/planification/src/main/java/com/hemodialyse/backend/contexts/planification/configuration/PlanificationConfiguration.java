@@ -594,13 +594,16 @@ public class PlanificationConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository planificationPlacesDuCentre(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc(jdbc);
+    com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository planificationPlacesDuCentre(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis risques) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc(jdbc, risques);
     }
 
+    /** DM9 (ADR 0101) : le risque infectieux vient du langage publié du Dossier médical, fourni par la plateforme ; plus de SQL ici. */
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux planificationRisquesInfectieux(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc(jdbc);
+    com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux planificationRisquesInfectieux(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis risques) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.dossiermedical.RisquesInfectieuxPublies(risques);
     }
 
     @Bean
@@ -701,17 +704,18 @@ public class PlanificationConfiguration {
     // ---- Slice P6 : planning de la semaine et lectures publiées (présence, base de la capacité théorique) ----
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.SejoursDesPatients planificationSejoursDesPatients(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc);
+    com.hemodialyse.backend.contexts.planification.application.SejoursDesPatients planificationSejoursDesPatients(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis risques) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc, risques);
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.planification.application.SeancesRealisees planificationSeancesRealisees(JdbcTemplate jdbc,
-            com.hemodialyse.backend.contexts.planification.publishedlanguage.SeancesRealiseesAvecLeurPlaceFournies seances) {
-        // SE7d (ADR 0098) : les séances réalisées viennent de seance.v1 (fournies par la plateforme) ; le risque infectieux reste lu ici
+    com.hemodialyse.backend.contexts.planification.application.SeancesRealisees planificationSeancesRealisees(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.SeancesRealiseesAvecLeurPlaceFournies seances,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis risques) {
+        // SE7d (ADR 0098) : les séances réalisées viennent de seance.v1 ; DM9 (ADR 0101) : le risque infectieux de dossier-medical.v1
         return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.seance.SeancesRealiseesPubliees(seances,
-                centre -> com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc
-                        .patientsARisque(jdbc, centre));
+                risques::patientsARisque);
     }
 
     @Bean

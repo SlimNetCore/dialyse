@@ -192,7 +192,10 @@ class LesEvaluationsKdigoEtLExportPdfDuDossierDeGreffeCharacterizationIntegratio
         bilanSimple(CENTRE_A, autre, "BIL", "STATUT_DISPARU");
         m.put("02 bilan illisible", refus(doGet(greffe(autre, "export-pdf"), medecinA())));
         m.put("03 KDIGO du bilan illisible", refus(doGet(greffe(autre, "kdigo"), medecinA())));
-        arbre("pdf_ligne_illisible", m);
+        // DM9 (ADR 0101, écart assumé KB-MED-110) : le legacy répondait 400 avec le nom qualifié d'une énumération de bc-medical (archivé dans
+        // _ecarts-legacy/lecteurs/pdf_ligne_illisible_avant_dm9.legacy.json) ; le contexte ignore l'étape illisible (200) et refuse le bilan
+        // illisible en 422 BILAN_PRE_GREFFE_ILLISIBLE (règles DM7).
+        arbre("pdf_ligne_illisible_nouveau_code", m);
     }
 
     private List<String> texte(byte[] pdf) throws Exception {

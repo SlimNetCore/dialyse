@@ -161,6 +161,13 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 |---|---|---|---|---|---|---|
 | Séance réalisée avec sa place (fournie) | Séance réalisée (statuts exacts) de la période avec la place figée à sa validation et le nom et le prénom bruts de la fiche, lue seulement si la fiche est dans le centre de la séance ; interface requise du langage publié de la Planification, fournie par la plateforme. La Planification compose le nom « prénom nom » et ajoute le risque infectieux (`SeanceRealisee`) | `SeancesRealiseesAvecLeurPlaceFournies` (`SeanceRealiseeAvecPlaceFournie`), ACL `acl/seance/SeancesRealiseesPubliees` | `legacyseance/SeancesRealiseesJdbc` (retiré) | « séance passée » | RG-SEA-063 ; KB-SEA-78, 80 | proposed |
 
+## Termes ajoutés par la slice DM9 (2026-11-09, ADR 0101) — statut `proposed`, à valider par les experts métier
+
+| Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |
+|---|---|---|---|---|---|---|
+| Risque infectieux (fourni) | Les patients à risque infectieux d'un centre (dernière sérologie AgHBs, anti-VHC, ARN du VHC ou VIH positive), interface requise du langage publié de la Planification, fournie par la plateforme depuis le langage publié du Dossier médical (cycle Maven évité) ; la Planification en déduit la catégorie d'isolement | `RisquesInfectieuxFournis`, ACL `acl/dossiermedical/RisquesInfectieuxPublies` | `legacydossiermedical/RisquesInfectieuxJdbc` (retiré) | — | RG-PLN-012 ; KB-MED-106 à 108 reproduits (règle du Dossier médical) | proposed |
+| Porteurs d'un cathéter (fournis) | Les patients d'un centre porteurs d'un cathéter actif non terminé au jour donné, interface requise du langage publié de la Planification, fournie par la plateforme depuis le Dossier médical ; donne la compétence `CATHETER` | `AbordsVasculairesFournis`, `ContraintesDesPatientsJdbc` (patients seuls) | `ContraintesDesPatientsJdbc:34-37` (SQL sur `abords_vasculaires`, retiré) | — | RG-PLN-097 ; la règle des 18 ans (`PEDIATRIE`) reste dans la Planification | proposed |
+
 ## Termes ajoutés par la slice SE7f (2026-11-08, ADR 0100) — statut `proposed`, à valider par les experts métier
 
 | Terme métier | Définition | Identifiant cible | Nom legacy | Synonymes à bannir | Règle / exemple | Statut |

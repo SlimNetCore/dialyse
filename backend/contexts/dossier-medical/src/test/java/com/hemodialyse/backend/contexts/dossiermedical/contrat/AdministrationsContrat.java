@@ -85,6 +85,26 @@ abstract class AdministrationsContrat {
         assertThat(administrations().administreSur(CENTRE_A, PATIENT, TypeDeTraitement.EPO, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 7)).nombre()).isZero();
     }
 
+    /** DM9 (ADR 0101) : l'effacement des administrations d'une séance supprimée (SE6) ne touche que la séance AU centre. */
+    @Test
+    void l_effacement_des_administrations_d_une_seance_ne_touche_que_cette_seance_dans_ce_centre() {
+        UUID seance = UUID.randomUUID();
+        UUID autreSeance = UUID.randomUUID();
+        DoseAdministree dose = new DoseAdministree(new BigDecimal("4000"), "UI");
+        for (int i = 0; i < 2; i++) {
+            administrations().ajouter(AdministrationDeTraitement.enregistrer(UUID.randomUUID(), PATIENT, CENTRE_A, null, TypeDeTraitement.EPO,
+                    "Molecule fictive", dose, "SC", LocalDate.of(2026, 1, 5), seance, "inf", true, null, null, null, T0));
+        }
+        administrations().ajouter(AdministrationDeTraitement.enregistrer(UUID.randomUUID(), PATIENT, CENTRE_A, null, TypeDeTraitement.EPO,
+                "Molecule fictive", dose, "SC", LocalDate.of(2026, 1, 6), autreSeance, "inf", true, null, null, null, T0));
+        administrations().ajouter(AdministrationDeTraitement.enregistrer(UUID.randomUUID(), PATIENT, CENTRE_B, null, TypeDeTraitement.EPO,
+                "Molecule fictive", dose, "SC", LocalDate.of(2026, 1, 7), seance, "inf", true, null, null, null, T0));
+        assertThat(administrations().effacerCellesDeLaSeance(CENTRE_A, seance)).isEqualTo(2);
+        assertThat(administrations().lesPlusRecentes(CENTRE_A, PATIENT, 10)).hasSize(1);
+        assertThat(administrations().lesPlusRecentes(CENTRE_B, PATIENT, 10)).hasSize(1);
+        assertThat(administrations().effacerCellesDeLaSeance(CENTRE_A, seance)).isZero();
+    }
+
     private static List<UUID> ids(List<AdministrationDeTraitement> l) {
         return l.stream().map(AdministrationDeTraitement::id).toList();
     }

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.TraitementDeLAnemiePublie;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
 import com.hemodialyse.backend.application.query.EffectifSql;
@@ -47,13 +48,17 @@ public class DirectionBreakdownQueryService {
 
     private final SyntheseFinanciereDesCentres finance;
     private final SeancesRealiseesDesCentresPubliees seancesRealisees;
+    /** Administrations de l'anémie par centre : langage publié du Dossier médical (DM9, ADR 0101), même requête qu'avant. */
+    private final TraitementDeLAnemiePublie anemie;
 
     public DirectionBreakdownQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                          SyntheseFinanciereDesCentres finance, SeancesRealiseesDesCentresPubliees seancesRealisees) {
+                                          SyntheseFinanciereDesCentres finance, SeancesRealiseesDesCentresPubliees seancesRealisees,
+                                          TraitementDeLAnemiePublie anemie) {
         this.finance = finance;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
         this.seancesRealisees = seancesRealisees;
+        this.anemie = anemie;
     }
 
     /**
@@ -210,26 +215,14 @@ public class DirectionBreakdownQueryService {
     // ───────────────────────────── Chargement ─────────────────────────────
 
     private void loadAnemie(String in, List<UUID> ids, LocalDate start, LocalDate end, Map<UUID, Anemie> anemie) {
-        Date from = Date.valueOf(start);
-        Date to = Date.valueOf(end);
-        List<Object> args = new ArrayList<>(ids);
-        args.addAll(List.of(from, to));
-        jdbc.query("SELECT center_id, "
-                        + "COUNT(DISTINCT CASE WHEN administree = TRUE AND type_traitement = 'EPO' THEN patient_id END) AS pat_epo, "
-                        + "COUNT(DISTINCT CASE WHEN administree = TRUE AND type_traitement = 'FER_INJECTABLE' THEN patient_id END) AS pat_fer, "
-                        + "SUM(CASE WHEN administree = TRUE AND type_traitement = 'EPO' THEN 1 ELSE 0 END) AS adm_epo, "
-                        + "SUM(CASE WHEN administree = TRUE AND type_traitement = 'FER_INJECTABLE' THEN 1 ELSE 0 END) AS adm_fer, "
-                        + "SUM(CASE WHEN administree = FALSE THEN 1 ELSE 0 END) AS non_adm "
-                        + "FROM administrations_anemie WHERE center_id IN (" + in + ") "
-                        + "AND date_administration BETWEEN ? AND ? GROUP BY center_id",
-                rs -> {
-                    Anemie a = anemie.computeIfAbsent(rs.getObject("center_id", UUID.class), k -> new Anemie());
-                    a.patientsEpo = rs.getLong("pat_epo");
-                    a.patientsFer = rs.getLong("pat_fer");
-                    a.admEpo = rs.getLong("adm_epo");
-                    a.admFer = rs.getLong("adm_fer");
-                    a.nonAdm = rs.getLong("non_adm");
-                }, args.toArray());
+        this.anemie.parCentre(ids, start, end).forEach((centre, c) -> {
+            Anemie a = anemie.computeIfAbsent(centre, k -> new Anemie());
+            a.patientsEpo = c.patientsEpo();
+            a.patientsFer = c.patientsFer();
+            a.admEpo = c.administreesEpo();
+            a.admFer = c.administreesFer();
+            a.nonAdm = c.nonAdministrees();
+        });
         EffectifSql.Fragment effectif = EffectifSql.presentSur("p", start, end);
         jdbc.query("SELECT p.center_id, "
                         + "SUM(CASE WHEN p.epo_enabled = TRUE THEN 1 ELSE 0 END) AS sous_epo, "

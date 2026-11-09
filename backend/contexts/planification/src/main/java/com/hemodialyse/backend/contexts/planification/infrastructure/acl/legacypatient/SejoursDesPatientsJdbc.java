@@ -12,7 +12,7 @@ import com.hemodialyse.backend.contexts.planification.domain.JourDeLaSemaine;
 import com.hemodialyse.backend.contexts.planification.domain.Occupation;
 import com.hemodialyse.backend.contexts.planification.domain.SejourDuPatient;
 import com.hemodialyse.backend.contexts.planification.domain.SemaineDuPlanning.PatientDeLaSemaine;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
@@ -31,14 +31,17 @@ import java.util.UUID;
 public class SejoursDesPatientsJdbc implements SejoursDesPatients {
 
     private final JdbcTemplate jdbc;
+    /** Patients à risque infectieux du centre : langage publié du Dossier médical, fourni par la plateforme (DM9, ADR 0101). */
+    private final RisquesInfectieuxFournis risques;
 
-    public SejoursDesPatientsJdbc(JdbcTemplate jdbc) {
+    public SejoursDesPatientsJdbc(JdbcTemplate jdbc, RisquesInfectieuxFournis risques) {
         this.jdbc = jdbc;
+        this.risques = risques;
     }
 
     @Override
     public List<PatientDeLaSemaine> duCentre(CentreId centre) {
-        return lire(centre, RisquesInfectieuxJdbc.patientsARisque(jdbc, centre.valeur()));
+        return lire(centre, risques.patientsARisque(centre.valeur()));
     }
 
     /** Sans lecture du dossier médical : aucune sérologie n'est lue, tous les patients sont {@code SANS_RISQUE}. */

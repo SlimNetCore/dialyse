@@ -26,67 +26,37 @@ class FrontieresDesContextesTest {
                     COMPTABILITE + ".interfaces..", COMPTABILITE + ".configuration..")
             .because("la Comptabilité ne s'utilise que par son langage publié (ADR 0025)");
 
-    private static final String PORTS_LEGACY_GREFFE = "com.hemodialyse.backend.domain.medical.greffe.port.";
-    private static final java.util.Set<String> PORTS_RESIDUELS_DU_BILAN_PRE_GREFFE = java.util.Set.of(
-            PORTS_LEGACY_GREFFE + "BilanPreGreffeRepositoryPort", PORTS_LEGACY_GREFFE + "EtapeBilanPreGreffeRepositoryPort",
-            PORTS_LEGACY_GREFFE + "DonneurVivantRepositoryPort");
-    private static final java.util.Set<String> ECRITURES_RESIDUELLES = java.util.Set.of("save", "deleteById", "findById");
-
     /**
-     * Slice DM7 (ADR 0086) : les écritures résiduelles des ports legacy du bilan pré-greffe ({@code save}, {@code deleteById},
-     * {@code findById}) n'ont plus d'appelant ; le module {@code contexts/dossier-medical} est seul propriétaire de l'écriture. Aucun
-     * nouvel appelant ne doit apparaître avant leur retrait (revue au plus tard le 2026-12-15) ; seules les lectures
-     * ({@code findByPatientId}) restent permises pour KDIGO, le PDF et les statistiques.
+     * DM9 (ADR 0101) : le module Maven {@code bc-medical} est retiré ; aucune classe du dépôt ne doit réintroduire ses paquets legacy
+     * {@code domain.medical} (agrégats, ports, politiques KDIGO, objets-valeurs). Remplace les verrous de DM7 (ADR 0086) et DM8 (ADR 0087)
+     * sur les méthodes résiduelles des ports legacy du bilan pré-greffe, des antécédents et des sérologies (classes disparues : le compilateur
+     * interdit tout retour). Le Dossier médical vit dans {@code contexts/dossier-medical}.
      */
     @ArchTest
-    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_du_bilan_pre_greffe = noClasses()
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "cible une écriture résiduelle des ports legacy du bilan pré-greffe") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return PORTS_RESIDUELS_DU_BILAN_PRE_GREFFE.contains(appel.getTargetOwner().getName())
-                            && ECRITURES_RESIDUELLES.contains(appel.getName());
-                }
-            })
-            .because("l'écriture du bilan pré-greffe vit dans contexts/dossier-medical (ADR 0086) ; ces méthodes seront retirées");
-
-    /**
-     * Slice DM7 (ADR 0086) : la matrice de transition legacy n'est plus utilisée que par l'agrégat legacy lui-même (écriture
-     * morte) ; aucune autre classe ne doit la réutiliser, la machine à états vit dans {@code StatutDuBilanPreGreffe}.
-     */
-    @ArchTest
-    static final ArchRule la_transition_legacy_du_bilan_n_a_pas_d_autre_utilisateur = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.domain.medical.greffe.specification.TransitionStatutBilanGreffeSpecification")
-            .should().onlyHaveDependentClassesThat().haveFullyQualifiedName(
-                    "com.hemodialyse.backend.domain.medical.greffe.aggregate.BilanPreGreffe")
+    static final ArchRule plus_aucune_classe_ne_depend_des_paquets_legacy_du_dossier_medical = noClasses()
+            .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.domain.medical..")
             .allowEmptyShould(true)
-            .because("la machine à états du bilan vit dans contexts/dossier-medical (ADR 0086)");
+            .because("bc-medical est retiré depuis DM9 (ADR 0101) : le Dossier médical vit dans contexts/dossier-medical");
 
-    private static final java.util.Set<String> PORTS_RESIDUELS_DU_DOSSIER_MEDICAL = java.util.Set.of(
-            "com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort",
-            "com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort");
-    private static final java.util.Set<String> METHODES_RESIDUELLES_DU_DOSSIER_MEDICAL = java.util.Set.of(
-            "save", "deleteById", "findById", "findPagedByPatientId");
+    /** DM9 (ADR 0101) : le contrôleur legacy de l'évaluation KDIGO ne doit pas réapparaître (une seule route, celle du module). */
+    @ArchTest
+    static final ArchRule le_controleur_legacy_de_l_evaluation_kdigo_a_disparu = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.KdigoGreffeRestController")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.query.KdigoGreffeQueryService")
+            .because("GET /api/v1/patients/{id}/greffe/kdigo est servi par contexts/dossier-medical (EvaluationKdigoControleur, DM9, ADR 0101)");
 
     /**
-     * Slice DM8 (ADR 0087) : les deux ports legacy qui restent lus par KDIGO et le PDF de greffe (antécédents, sérologies) n'ont plus
-     * d'appelant d'écriture, de lecture unitaire ni de lecture paginée, que ce soit par le port ou par le type de ses adapters ; seule
-     * {@code findByPatientId} reste permise. Aucun nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15). Le troisième,
-     * {@code ResultatAnalyseRepositoryPort} (bc-seance), est retiré par SE7f (ADR 0100) : KDIGO lit la dernière créatinine par le langage
-     * publié du Dossier médical.
+     * DM9 (ADR 0101) : la plateforme lit le dossier de greffe, les statistiques, les indicateurs cliniques et l'anémie par les langages
+     * publiés du Dossier médical ; aucune de ces classes ne construit plus de requête SQL ({@code JdbcTemplate}).
      */
     @ArchTest
-    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_du_dossier_medical = noClasses()
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "cible une méthode résiduelle des ports legacy du dossier médical") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    // Le port ET ses adapters : un appel par le type de l'adapter ou d'une sous-classe est aussi refusé.
-                    return PORTS_RESIDUELS_DU_DOSSIER_MEDICAL.stream().anyMatch(port -> appel.getTargetOwner().isAssignableTo(port))
-                            && METHODES_RESIDUELLES_DU_DOSSIER_MEDICAL.contains(appel.getName());
-                }
-            })
-            .because("l'écriture et la lecture du dossier médical vivent dans contexts/dossier-medical (ADR 0087) ; ces méthodes seront retirées");
+    static final ArchRule les_lecteurs_medicaux_de_la_plateforme_passent_par_les_langages_publies_du_dossier_medical = noClasses()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.GreffePdfService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService")
+            .should().dependOnClassesThat().haveFullyQualifiedName("org.springframework.jdbc.core.JdbcTemplate")
+            .because("le calcul médical vit dans contexts/dossier-medical (DossierDeGreffePublie, StatistiquesMedicalesPubliees, "
+                    + "IndicateursCliniquesPublies, ADR 0101) ; la plateforme ne garde que la présentation");
 
     /**
      * SE7f (ADR 0100) : le module Maven {@code bc-seance} est retiré ; aucune classe du dépôt ne doit réintroduire ses paquets legacy
@@ -114,12 +84,15 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletParamedical")
             .because("la saisie du volet paramédical vit dans contexts/seance (ADR 0100)");
 
-    /** SE7f (ADR 0100) : KDIGO lit la dernière créatinine du patient par le langage publié du Dossier médical (KB-SEA-96 reproduit). */
+    /**
+     * SE7f (ADR 0100) puis DM9 (ADR 0101) : l'évaluation KDIGO du candidat (désormais dans le module) lit la dernière créatinine du patient
+     * par le port publié {@code DerniereCreatininePubliee} (KB-SEA-96 reproduit), plus par un port de {@code bc-seance}.
+     */
     @ArchTest
     static final ArchRule kdigo_lit_la_derniere_creatinine_par_le_langage_publie_du_dossier_medical = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.KdigoGreffeQueryService")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.application.EvaluerLeCandidatALaGreffe")
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee")
-            .because("la dernière créatinine vient de dossier-medical.v1 (ADR 0100, SE7f), plus de bc-seance");
+            .because("la dernière créatinine vient de dossier-medical.v1 (ADR 0100, SE7f ; ADR 0101, DM9), plus de bc-seance");
 
     /** SE7f (ADR 0100) : la Direction calcule la capacité théorique par le langage publié de la Planification. */
     @ArchTest

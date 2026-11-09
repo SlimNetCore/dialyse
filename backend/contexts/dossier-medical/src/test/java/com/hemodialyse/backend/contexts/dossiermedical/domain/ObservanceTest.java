@@ -80,10 +80,10 @@ class ObservanceTest {
 
     @Test
     void l_evaluation_kdigo_compare_la_valeur_a_sa_cible() {
-        assertThat(EvaluationDeCible.hemoglobine(new BigDecimal("9.0")).statut()).isEqualTo("SOUS_CIBLE");
-        assertThat(EvaluationDeCible.hemoglobine(new BigDecimal("10.8")).statut()).isEqualTo("DANS_CIBLE");
-        assertThat(EvaluationDeCible.hemoglobine(new BigDecimal("12")).statut()).isEqualTo("AU_DESSUS_CIBLE");
-        assertThat(EvaluationDeCible.ferritine(null).statut()).isEqualTo("NON_EVALUABLE");
+        assertThat(EvaluationDeCible.hemoglobine(new BigDecimal("9.0")).statut()).isEqualTo(StatutDeCible.SOUS_CIBLE);
+        assertThat(EvaluationDeCible.hemoglobine(new BigDecimal("10.8")).statut()).isEqualTo(StatutDeCible.DANS_CIBLE);
+        assertThat(EvaluationDeCible.hemoglobine(new BigDecimal("12")).statut()).isEqualTo(StatutDeCible.AU_DESSUS_CIBLE);
+        assertThat(EvaluationDeCible.ferritine(null).statut()).isEqualTo(StatutDeCible.NON_EVALUABLE);
         assertThat(EvaluationDeCible.ktV(new BigDecimal("1.5")).code()).isEqualTo("KT_V");
     }
 

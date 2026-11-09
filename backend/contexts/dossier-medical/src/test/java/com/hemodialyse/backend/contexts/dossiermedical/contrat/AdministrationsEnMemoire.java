@@ -36,6 +36,13 @@ public class AdministrationsEnMemoire implements Administrations {
     }
 
     @Override
+    public int effacerCellesDeLaSeance(CentreId centre, java.util.UUID seance) {
+        int avant = fiches.size();
+        fiches.removeIf(a -> a.centre().equals(centre) && seance.equals(a.seance()));
+        return avant - fiches.size();
+    }
+
+    @Override
     public Administre administreSur(CentreId centre, PatientId patient, TypeDeTraitement traitement, LocalDate debut, LocalDate fin) {
         var retenues = fiches.stream().filter(a -> a.centre().equals(centre) && a.patient().equals(patient) && a.traitement() == traitement
                 && a.administree() && !a.jour().isBefore(debut) && !a.jour().isAfter(fin)).toList();

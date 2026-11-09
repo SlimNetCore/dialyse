@@ -51,7 +51,8 @@ class PatientsAttendusJdbcTest {
         // la présence est celle de la planification (langage publié) sur les tables de la plateforme : l'oracle de la règle reste ici
         // depuis SE7d (ADR 0098), les séances réalisées arrivent par le langage fourni : double qui lit la table semée ici
         return new PatientsAttendusJdbc(jdbc, new com.hemodialyse.backend.contexts.planification.application.ConsulterLaPresenceDesPatients(
-                new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc)),
+                new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.SejoursDesPatientsJdbc(jdbc,
+                        centre -> java.util.Set.of())),
                 new com.hemodialyse.backend.contexts.absencespatients.contrat.SeancesRealiseesSurLaTable(jdbc));
     }
 

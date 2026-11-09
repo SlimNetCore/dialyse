@@ -51,7 +51,7 @@ abstract class LecturesDeLaSemaineJdbcContrat {
         patient(BORIS, CENTRE.valeur(), "Martin", "Boris", true, "TRANSFERE", LUNDI, false);
         patient(AUTRE_PATIENT, AUTRE_CENTRE, "Autre", "Centre", false, null, null, true);
 
-        var patients = new SejoursDesPatientsJdbc(jdbc()).duCentre(CENTRE);
+        var patients = new SejoursDesPatientsJdbc(jdbc(), new RisquesInfectieuxDeTest(jdbc())).duCentre(CENTRE);
 
         assertThat(patients).extracting(p -> p.nom()).containsExactly("Alice Durand", "Boris Martin");
         PatientDeLaSemaine alice = patients.get(0);
@@ -76,7 +76,7 @@ abstract class LecturesDeLaSemaineJdbcContrat {
                 + "updated_at) VALUES (?, ?, ?, 'AG_HBS', 'POSITIF', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", UUID.randomUUID(),
                 CENTRE.valeur(), ALICE, Date.valueOf(LUNDI));
 
-        var complet = new SejoursDesPatientsJdbc(jdbc());
+        var complet = new SejoursDesPatientsJdbc(jdbc(), new RisquesInfectieuxDeTest(jdbc()));
 
         assertThat(complet.duCentre(CENTRE).get(0).place().categorie()).isEqualTo(CategorieDIsolement.A_RISQUE);
         var sansRisque = complet.duCentreSansRisque(CENTRE);

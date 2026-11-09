@@ -18,6 +18,12 @@ public interface Administrations {
     /** Administrations EFFECTIVES de la période : nombre (toute unité) et dose cumulée dans l'unité du traitement (comparaison sans casse). */
     Administre administreSur(CentreId centre, PatientId patient, TypeDeTraitement traitement, java.time.LocalDate debut, java.time.LocalDate fin);
 
+    /**
+     * Efface les administrations rattachées à une séance du centre (séance supprimée, SE6 : fourni à la Séance par le langage publié
+     * {@code SaisiesDeSeanceFournies}, DM9) ; suit l'unité de travail de l'appelant. Nombre de lignes effacées.
+     */
+    int effacerCellesDeLaSeance(CentreId centre, java.util.UUID seance);
+
     record Administre(int nombre, long dose) {
     }
 

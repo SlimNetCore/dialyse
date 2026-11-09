@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.application.query;
 
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.StatistiquesMedicalesPubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -12,10 +12,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Statistiques du patient : présentation (JSON, CSV, PDF) seulement. Les mesures médicales viennent du langage publié du Dossier médical
+ * (DM9, ADR 0101 : {@link StatistiquesMedicalesPubliees}, mêmes requêtes qu'avant, clés en MAJUSCULES du SGBD : KB-MED-103, ordre non défini
+ * à date égale : KB-MED-109) ; les séances et le volet paramédical du langage publié de la Séance (SE7e, ADR 0099). Plus aucun SQL ici.
+ */
 @Service
 public class PatientStatsQueryService {
 
-    private final JdbcTemplate jdbc;
+    private final StatistiquesMedicalesPubliees medicales;
     private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
     /**
      * Séances du patient et mesures de leur volet paramédical (UF réelle = saisie, sinon perte de poids x 1000 ; tension en texte
@@ -23,10 +28,11 @@ public class PatientStatsQueryService {
      */
     private final StatistiquesDesSeancesPubliees statistiques;
 
-    public PatientStatsQueryService(JdbcTemplate jdbc, StatistiquesDesSeancesPubliees statistiques) {
-        this.jdbc = jdbc;
+    public PatientStatsQueryService(StatistiquesMedicalesPubliees medicales, StatistiquesDesSeancesPubliees statistiques,
+                                    com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity) {
+        this.medicales = medicales;
         this.statistiques = statistiques;
-        this.identity = new com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider(jdbc);
+        this.identity = identity;
     }
 
     private static Double zeroSiNul(Double value) {
@@ -51,47 +57,18 @@ public class PatientStatsQueryService {
     }
 
     public Map<String, Object> getMedicalStats(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
-        String dateFilter = buildAnalyseDateFilter(from, to);
-
-        String baseFrom = " FROM resultats_analyses ra WHERE ra.center_id = ? AND ra.patient_id = ? " + dateFilter;
-
-        Double avgHb = queryDouble("SELECT AVG(ra.hb_g_dl)" + baseFrom, centerId, patientId);
-        Double avgKtV = queryDouble("SELECT AVG(ra.kt_v_mensuel)" + baseFrom, centerId, patientId);
-        Double avgFerritine = queryDouble("SELECT AVG(ra.ferritine_ng_ml)" + baseFrom, centerId, patientId);
-
-        List<Map<String, Object>> hbTrend = jdbc.queryForList(
-                "SELECT ra.date_prelevement, ra.hb_g_dl, ra.kt_v_mensuel, ra.ferritine_ng_ml "
-                        + baseFrom.replace("SELECT AVG(ra.hb_g_dl)", "")
-                        + " ORDER BY ra.date_prelevement ASC",
-                centerId, patientId
-        );
-
-        List<Map<String, Object>> epoTrend = jdbc.queryForList(
-                "SELECT p.date_prescription, p.epo_dose_ui, p.epo_article_id, p.epo_voie, "
-                        + "p.epo_frequence_valeur, p.epo_frequence_unite "
-                        + "FROM prescriptions_medicales p "
-                        + "WHERE p.center_id = ? AND p.patient_id = ? " + buildPrescriptionDateFilter(from, to)
-                        + " ORDER BY p.date_prescription ASC",
-                centerId, patientId
-        );
-
+        StatistiquesMedicalesPubliees.Moyennes moyennes = medicales.moyennes(centerId, patientId, from, to);
         Map<String, Object> out = new LinkedHashMap<>();
-        out.put("avgHbGDl", avgHb);
-        out.put("avgKtV", avgKtV);
-        out.put("avgFerritineNgMl", avgFerritine);
-        out.put("hbTrend", hbTrend);
-        out.put("epoTrend", epoTrend);
+        out.put("avgHbGDl", moyennes.hemoglobine());
+        out.put("avgKtV", moyennes.ktV());
+        out.put("avgFerritineNgMl", moyennes.ferritine());
+        out.put("hbTrend", medicales.tendanceDesBilans(centerId, patientId, from, to));
+        out.put("epoTrend", medicales.tendanceDesPrescriptionsDEpo(centerId, patientId, from, to));
         return out;
     }
 
     public String exportCsv(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
-        List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT ra.date_prelevement, ra.hb_g_dl, ra.kt_v_mensuel, ra.ferritine_ng_ml, ra.phosphore_mg_dl, ra.calcium_mg_dl "
-                        + "FROM resultats_analyses ra "
-                        + "WHERE ra.center_id = ? AND ra.patient_id = ? " + buildAnalyseDateFilter(from, to)
-                        + " ORDER BY ra.date_prelevement ASC",
-                centerId, patientId
-        );
+        List<Map<String, Object>> rows = medicales.lignesDExport(centerId, patientId, from, to);
 
         String header = "date_prelevement,hb_g_dl,kt_v_mensuel,ferritine_ng_ml,phosphore_mg_dl,calcium_mg_dl";
         String body = rows.stream()
@@ -258,20 +235,6 @@ public class PatientStatsQueryService {
         return '"' + escaped + '"';
     }
 
-    private String buildAnalyseDateFilter(LocalDate from, LocalDate to) {
-        if (from != null && to != null) return " AND ra.date_prelevement BETWEEN '" + from + "' AND '" + to + "'";
-        if (from != null) return " AND ra.date_prelevement >= '" + from + "'";
-        if (to != null) return " AND ra.date_prelevement <= '" + to + "'";
-        return "";
-    }
-
-    private String buildPrescriptionDateFilter(LocalDate from, LocalDate to) {
-        if (from != null && to != null) return " AND p.date_prescription BETWEEN '" + from + "' AND '" + to + "'";
-        if (from != null) return " AND p.date_prescription >= '" + from + "'";
-        if (to != null) return " AND p.date_prescription <= '" + to + "'";
-        return "";
-    }
-
     /**
      * Statistiques paramédicales : les séances et leur volet sont lus par le langage publié de la Séance (SE7e, ADR 0099), mêmes requêtes
      * et même ordre qu'avant (tous statuts, volet joint sans centre : KB-SEA-85 ; ordre par date seule et libellés du SGBD : KB-SEA-86 ;
@@ -314,19 +277,6 @@ public class PatientStatsQueryService {
      * portant un poids sec, datée au plus tard de {@code at}. Null si jamais prescrit.
      */
     private Double currentPoidsSec(UUID centerId, UUID patientId, LocalDate at) {
-        List<Double> values = jdbc.queryForList(
-                "SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm "
-                        + "WHERE pm.center_id = ? AND pm.patient_id = ? AND pm.poids_sec_cible_kg IS NOT NULL "
-                        + "AND pm.date_prescription <= ? ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1",
-                Double.class, centerId, patientId, at != null ? at : LocalDate.now());
-        return values.isEmpty() ? null : values.get(0);
-    }
-
-    private Double queryDouble(String sql, UUID centerId, UUID patientId) {
-        Double value = jdbc.queryForObject(sql, Double.class, centerId, patientId);
-        return value != null ? value : 0.0d;
+        return medicales.poidsSecCibleEnVigueur(centerId, patientId, at != null ? at : LocalDate.now()).orElse(null);
     }
 }
-
-
-

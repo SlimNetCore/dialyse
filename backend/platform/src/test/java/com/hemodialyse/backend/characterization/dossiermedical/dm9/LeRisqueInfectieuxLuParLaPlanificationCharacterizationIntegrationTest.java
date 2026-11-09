@@ -2,7 +2,7 @@ package com.hemodialyse.backend.characterization.dossiermedical.dm9;
 
 import com.hemodialyse.backend.contexts.planification.application.RisquesInfectieux;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.PatientId;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,14 @@ class LeRisqueInfectieuxLuParLaPlanificationCharacterizationIntegrationTest exte
     @Autowired
     private RisquesInfectieux risques;
 
+    /**
+     * DM9 (ADR 0101) : la lecture groupée {@code patientsARisque} est désormais le port publié {@code RisquesInfectieuxFournis}
+     * (planification.v1), fourni par la plateforme depuis {@code RisquesInfectieuxPublies} (dossier-medical.v1) ; mêmes appelants
+     * ({@code PlacesDuCentreJdbc}, {@code SejoursDesPatientsJdbc}, {@code SeancesRealiseesPubliees}). Goldens inchangés.
+     */
+    @Autowired
+    private RisquesInfectieuxFournis fournis;
+
     @Override
     protected String dossier() {
         return "planification";
@@ -36,7 +44,7 @@ class LeRisqueInfectieuxLuParLaPlanificationCharacterizationIntegrationTest exte
     }
 
     private Object patientsARisque(UUID centre) {
-        return aliasTries(RisquesInfectieuxJdbc.patientsARisque(jdbc, centre));
+        return aliasTries(fournis.patientsARisque(centre));
     }
 
     @Test

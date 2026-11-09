@@ -76,7 +76,7 @@ class TableDuPatientCouvertureTest {
                     + "échéance : résidu E-R2, langage publié du Patient (caisse de la fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/LectureDesPreferencesJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
-            "2026-11-04 : lecture croisée Planification / dossier médical (transporteurs, date de naissance, abords vasculaires), pas une lecture de fiche publiée ; échéance : reprise du dossier médical",
+            "2026-11-04 : lecture de la fiche par la Planification (transporteurs, date de naissance : règle des 18 ans, RG-PLN-097), pas une lecture de fiche publiée ; les abords vasculaires viennent de dossier-medical.v1 depuis DM9 (ADR 0101) ; échéance : langage publié du Patient",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/NomsDesPatientsJdbc.java", CYCLE + " (port FichesDesPatients.noms)",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)",
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/FacturationDesSeancesJdbc.java",

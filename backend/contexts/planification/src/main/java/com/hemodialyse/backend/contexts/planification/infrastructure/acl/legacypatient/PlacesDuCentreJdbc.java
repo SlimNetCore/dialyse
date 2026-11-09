@@ -13,7 +13,7 @@ import com.hemodialyse.backend.contexts.planification.domain.Place;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentre;
 import com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository;
 import com.hemodialyse.backend.contexts.planification.domain.RessourcesDuCentre;
-import com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacydossiermedical.RisquesInfectieuxJdbc;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
@@ -38,9 +38,12 @@ public class PlacesDuCentreJdbc implements PlacesDuCentreRepository {
             + "jour_dimanche, jour_lundi, jour_mardi, jour_mercredi, jour_jeudi, jour_vendredi, jour_samedi";
 
     private final JdbcTemplate jdbc;
+    /** Patients à risque infectieux du centre : langage publié du Dossier médical, fourni par la plateforme (DM9, ADR 0101). */
+    private final RisquesInfectieuxFournis risques;
 
-    public PlacesDuCentreJdbc(JdbcTemplate jdbc) {
+    public PlacesDuCentreJdbc(JdbcTemplate jdbc, RisquesInfectieuxFournis risques) {
         this.jdbc = jdbc;
+        this.risques = risques;
     }
 
     private record Ligne(Occupation occupation, LocalDate dernierJour) {
@@ -48,7 +51,7 @@ public class PlacesDuCentreJdbc implements PlacesDuCentreRepository {
 
     @Override
     public PlacesDuCentre charger(CentreId centre, RessourcesDuCentre ressources, LocalDate jugeLe) {
-        Set<UUID> aRisque = RisquesInfectieuxJdbc.patientsARisque(jdbc, centre.valeur());
+        Set<UUID> aRisque = risques.patientsARisque(centre.valeur());
         List<Ligne> lignes = jdbc.query("SELECT " + COLONNES + " FROM patients WHERE center_id = ? AND salle_id IS NOT NULL "
                 + "AND position_id IS NOT NULL", (rs, i) -> lire(rs, aRisque), centre.valeur());
         List<Occupation> occupations = new ArrayList<>();
@@ -62,7 +65,7 @@ public class PlacesDuCentreJdbc implements PlacesDuCentreRepository {
 
     @Override
     public Optional<Occupation> placementActuel(CentreId centre, PatientId patient) {
-        Set<UUID> aRisque = RisquesInfectieuxJdbc.patientsARisque(jdbc, centre.valeur());
+        Set<UUID> aRisque = risques.patientsARisque(centre.valeur());
         return jdbc.query("SELECT " + COLONNES + " FROM patients WHERE center_id = ? AND id = ?",
                 (rs, i) -> lire(rs, aRisque).occupation(), centre.valeur(), patient.valeur()).stream().findFirst();
     }

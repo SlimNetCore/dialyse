@@ -13,7 +13,6 @@ COPY pom.xml ./pom.xml
 COPY shared-kernel/pom.xml ./shared-kernel/pom.xml
 COPY bc-patient/pom.xml ./bc-patient/pom.xml
 COPY bc-assure/pom.xml ./bc-assure/pom.xml
-COPY bc-medical/pom.xml ./bc-medical/pom.xml
 # Contextes refaits sur place (ADR 0024/0025) : un module Maven par contexte, déclaré dans le pom racine
 COPY contexts/shared-kernel/pom.xml ./contexts/shared-kernel/pom.xml
 COPY contexts/gmao/pom.xml ./contexts/gmao/pom.xml

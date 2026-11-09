@@ -268,7 +268,8 @@ abstract class LiberationJdbcContrat {
         fiche(CENTRE, 1, "TRANSFERE", J.minusDays(2));
         monde().nuit().liberer(CENTRE);
         assertThat(aUnePlace(1)).isFalse();
-        assertThat(new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc(jdbc())
+        assertThat(new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.PlacesDuCentreJdbc(jdbc(),
+                new RisquesInfectieuxDeTest(jdbc()))
                 .estSorti(CENTRE, new PatientId(patient(1)), J)).isTrue();
     }
 
