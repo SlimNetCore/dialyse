@@ -46,8 +46,9 @@ public class StockContexteConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres stockHorloge(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy(jdbc, Clock.systemUTC());
+    com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres stockHorloge(
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.CentresFournis centres) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.centres.HorlogeDesCentresFournie(centres, Clock.systemUTC());
     }
 
     @Bean
@@ -131,8 +132,9 @@ public class StockContexteConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.stock.publishedlanguage.OperationsDeStock stockOperationsDeStock(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.OperationsDeStockJdbc(jdbc);
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.OperationsDeStock stockOperationsDeStock(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.CentresFournis centres) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.OperationsDeStockJdbc(jdbc, centres);
     }
 
     // ------------------------------------------------------------------ slice S5 : réceptions et PMP
@@ -298,9 +300,10 @@ public class StockContexteConfiguration {
 
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires stockInventaires(JdbcTemplate jdbc,
-                                                                                          PlatformTransactionManager transactions) {
+                                                                                          PlatformTransactionManager transactions,
+                                                                                          com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrouDuCentreFourni verrou) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.InventairesJdbc(jdbc,
-                new TransactionTemplate(transactions));
+                new TransactionTemplate(transactions), verrou);
     }
 
     @Bean
@@ -333,8 +336,9 @@ public class StockContexteConfiguration {
     // ------------------------------------------------------------------ slice S8 : contrôle des péremptions
 
     @Bean
-    com.hemodialyse.backend.contexts.stock.application.peremptions.CentresActifs stockCentresActifs(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.CentresActifsLegacy(jdbc);
+    com.hemodialyse.backend.contexts.stock.application.peremptions.CentresActifs stockCentresActifs(
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.CentresFournis centres) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.centres.CentresActifsFournis(centres);
     }
 
     @Bean

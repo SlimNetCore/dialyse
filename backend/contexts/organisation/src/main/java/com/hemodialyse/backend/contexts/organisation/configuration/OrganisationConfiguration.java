@@ -130,6 +130,12 @@ public class OrganisationConfiguration {
         return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc(jdbc);
     }
 
+    /** Langage publié organisation.v1 (O4 lot B, ADR 0108) : verrou de la ligne d'un centre, pris dans la transaction de l'appelant. */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.VerrouDuCentre verrouDuCentre(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDuCentreJdbc(jdbc);
+    }
+
     /** Langage publié organisation.v1 (O4 lot A, ADR 0107) : lecture des sociétés pour les autres contextes. */
     @Bean
     public com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes annuaireDesSocietes(JdbcTemplate jdbc) {

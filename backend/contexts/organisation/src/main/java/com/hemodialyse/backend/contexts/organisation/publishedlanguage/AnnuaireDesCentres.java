@@ -17,6 +17,13 @@ public interface AnnuaireDesCentres {
      */
     List<UUID> actifs();
 
+    /**
+     * Les centres actifs AU SENS STRICT, par identifiant croissant : seul un centre explicitement actif est retenu, un centre dont
+     * l'état n'a jamais été renseigné est EXCLU (contrairement à {@link #actifs()}). Variante réservée au Stock, qui l'applique
+     * aujourd'hui à son contrôle de nuit (O4-R3, ADR 0108, KB-ORG-09) ; à supprimer si les métiers confirment la variante large.
+     */
+    List<UUID> actifsAuSensStrict();
+
     /** Tous les centres, actifs ou non, dans un ordre non spécifié. */
     List<UUID> tous();
 

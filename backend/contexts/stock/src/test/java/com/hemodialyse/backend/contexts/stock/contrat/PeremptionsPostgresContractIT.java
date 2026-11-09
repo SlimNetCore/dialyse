@@ -4,8 +4,8 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions;
 import com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions.ResultatDuCentre;
-import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.CentresActifsLegacy;
-import com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres.HorlogeDesCentresLegacy;
+import com.hemodialyse.backend.contexts.stock.infrastructure.acl.centres.CentresActifsFournis;
+import com.hemodialyse.backend.contexts.stock.infrastructure.acl.centres.HorlogeDesCentresFournie;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.ArticlesJdbc;
 import com.hemodialyse.backend.contexts.stock.infrastructure.persistence.LecturesDuStockJdbc;
 import com.hemodialyse.backend.contexts.stock.infrastructure.transaction.UniteDeTravailSpring;
@@ -88,8 +88,9 @@ class PeremptionsPostgresContractIT {
         jdbc.update("INSERT INTO centers (id, actif, code, name, societe_id) VALUES (?, false, 'PGPER-I', 'Centre PG péremptions I', ?)",
                 INACTIF, UUID.randomUUID());
         jdbc.update("UPDATE centers SET fuseau_horaire = 'Africa/Algiers' WHERE id = ?", ACTIF);
-        controle = new ControlerLesPeremptions(new CentresActifsLegacy(jdbc),
-                new HorlogeDesCentresLegacy(jdbc, FIXE), new LecturesDuStockJdbc(jdbc), new ArticlesJdbc(jdbc),
+        CentresFournisSurJdbcDeTest centres = new CentresFournisSurJdbcDeTest(jdbc);
+        controle = new ControlerLesPeremptions(new CentresActifsFournis(centres),
+                new HorlogeDesCentresFournie(centres, FIXE), new LecturesDuStockJdbc(jdbc), new ArticlesJdbc(jdbc),
                 new UniteDeTravailSpring(new TransactionTemplate(transactions)), publies::add, (centre, jour, lots) -> {
             notifies.add(lots);
             return true;
@@ -112,7 +113,7 @@ class PeremptionsPostgresContractIT {
 
     @Test
     void les_lots_proches_des_centres_actifs_sont_publies_et_notifies_sur_la_vraie_base() {
-        HorlogeDesCentres horloge = new HorlogeDesCentresLegacy(jdbc, FIXE);
+        HorlogeDesCentres horloge = new HorlogeDesCentresFournie(new CentresFournisSurJdbcDeTest(jdbc), FIXE);
         LocalDate jour = horloge.aujourdHui(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(ACTIF));
         UUID a = article(ACTIF, "PGPER1", true);
         UUID inactif = article(ACTIF, "PGPER2", false);

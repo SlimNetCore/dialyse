@@ -6,6 +6,7 @@ import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.PeriodeDeStock;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.StatutDInventaire;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrouDuCentreFourni;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -20,7 +21,7 @@ import java.util.function.Function;
 /**
  * Tables {@code inventaires} et {@code inventaire_lignes} (migration V4). La référence {@code INV-nnnnn} vient du compteur
  * {@code INV} dans la transaction de l'inventaire ; une modification verrouille la ligne de l'inventaire ({@code FOR UPDATE}) ; les
- * opérations « centre entier » verrouillent la ligne du centre.
+ * opérations « centre entier » verrouillent la ligne du centre par le port {@link VerrouDuCentreFourni} (O4 lot B, ADR 0108).
  */
 public class InventairesJdbc implements Inventaires {
 
@@ -31,9 +32,12 @@ public class InventairesJdbc implements Inventaires {
     private final TransactionTemplate transaction;
     private final SequenceDesPiecesJdbc sequence;
 
-    public InventairesJdbc(JdbcTemplate jdbc, TransactionTemplate transaction) {
+    private final VerrouDuCentreFourni verrouDuCentre;
+
+    public InventairesJdbc(JdbcTemplate jdbc, TransactionTemplate transaction, VerrouDuCentreFourni verrouDuCentre) {
         this.jdbc = jdbc;
         this.transaction = transaction;
+        this.verrouDuCentre = verrouDuCentre;
         this.sequence = new SequenceDesPiecesJdbc(jdbc);
     }
 
@@ -153,7 +157,7 @@ public class InventairesJdbc implements Inventaires {
 
     @Override
     public void verrouillerLaPeriode(CentreId centre) {
-        jdbc.queryForList("SELECT id FROM centers WHERE id = ? FOR UPDATE", UUID.class, centre.valeur());
+        verrouDuCentre.verrouiller(centre.valeur());
     }
 }
 

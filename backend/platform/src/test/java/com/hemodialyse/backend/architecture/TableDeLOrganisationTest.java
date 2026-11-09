@@ -39,8 +39,9 @@ class TableDeLOrganisationTest {
     /** Lecteurs SQL connus hors du contexte Organisation (chemin depuis {@code backend/}) : 2026-11-02, revue O1-O5. */
     private static final Map<String, String> LECTEURS_CONNUS = lecteurs(
             // 2026-11-09, O4 lot A (ADR 0107) : 10 lecteurs retirés (centres actifs, tous les centres, fuseau du centre, société d'un
-            // centre, sociétés et centres du Pilotage) : 32 -> 22. Les besoins restants sont dans la fiche O4 (lots B à E). Les deux
-            // lecteurs de Stock (CentresActifsLegacy, HorlogeDesCentresLegacy) restent : cycle Maven (organisation dépend de stock).
+            // centre, sociétés et centres du Pilotage) : 32 -> 22. Les besoins restants sont dans la fiche O4 (lots B à E).
+            // 2026-11-09, O4 lot B (ADR 0108) : 4 lecteurs du Stock retirés (CentresActifsLegacy, HorlogeDesCentresLegacy, InventairesJdbc,
+            // OperationsDeStockJdbc) : ports fournis au Stock, traducteurs de la plateforme appelant organisation.v1 : 22 -> 18.
             // 2026-11-08, SE7c1 (ADR 0096) : code de la salle et code / libellé du créneau d'une séance (salle, position_creneau), lecture
             // seule, publiés au Stock par PlacesDesSeancesPubliees ; reprend la lecture de PerimetreDesSeancesLegacy (Stock), retirée au lot B.
             // RETRAIT : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
@@ -55,10 +56,6 @@ class TableDeLOrganisationTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/SeriesDuCentreJdbc.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/VueDesSallesLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/VerrouDuReferentielDesInfirmiersJdbc.java",
-            "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/acl/legacycentres/CentresActifsLegacy.java",
-            "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
-            "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/persistence/InventairesJdbc.java",
-            "contexts/stock/src/main/java/com/hemodialyse/backend/contexts/stock/infrastructure/persistence/OperationsDeStockJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAccountService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",
@@ -145,10 +142,10 @@ class TableDeLOrganisationTest {
                 .isEmpty();
     }
 
-    /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A (2026-11-09). Le baisser avec chaque lot. */
+    /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A, 18 après le lot B (2026-11-09). Le baisser avec chaque lot. */
     @Test
     void le_nombre_de_lecteurs_connus_est_le_critere_d_avancement_de_o4() {
-        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot A de O4 : 32 -> 22)").hasSize(22);
+        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot B de O4 : 22 -> 18)").hasSize(18);
     }
 
     @Test

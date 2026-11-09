@@ -1,7 +1,8 @@
-package com.hemodialyse.backend.contexts.stock.infrastructure.acl.legacycentres;
+package com.hemodialyse.backend.contexts.stock.infrastructure.acl.centres;
 
-import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres;
+import com.hemodialyse.backend.contexts.stock.contrat.CentresFournisSurJdbcDeTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,10 +17,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Jour métier d'un centre : le jour de son fuseau horaire ({@code centers.fuseau_horaire}), UTC par défaut ou si le fuseau est
- * illisible ; l'instant reste en UTC.
+ * Jour métier d'un centre : le jour de son fuseau horaire, UTC par défaut ou si le fuseau est illisible ; l'instant reste en UTC. Reprend,
+ * assertions inchangées, les tests de {@code HorlogeDesCentresLegacy} (seule la construction de l'objet testé change, O4 lot B, ADR 0108).
  */
-class HorlogeDesCentresLegacyTest {
+class HorlogeDesCentresFournieTest {
 
     /**
      * 23 h 30 UTC : déjà le lendemain à Alger (UTC+1), encore la veille à Montréal (UTC−4 en octobre).
@@ -34,7 +35,7 @@ class HorlogeDesCentresLegacyTest {
         DriverManagerDataSource source = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1", "sa", "");
         jdbc = new JdbcTemplate(source);
         jdbc.execute("CREATE TABLE centers (id UUID PRIMARY KEY, fuseau_horaire VARCHAR(50))");
-        horloge = new HorlogeDesCentresLegacy(jdbc, HORLOGE);
+        horloge = new HorlogeDesCentresFournie(new CentresFournisSurJdbcDeTest(jdbc), HORLOGE);
     }
 
     private CentreId centre(String fuseau) {
@@ -69,4 +70,3 @@ class HorlogeDesCentresLegacyTest {
         assertEquals(LocalDate.of(2026, 10, 23), uniforme.aujourdHui(new CentreId(UUID.randomUUID())));
     }
 }
-

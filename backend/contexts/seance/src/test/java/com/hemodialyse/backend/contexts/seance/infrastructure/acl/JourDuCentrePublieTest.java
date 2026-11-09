@@ -40,6 +40,11 @@ class JourDuCentrePublieTest {
         }
 
         @Override
+        public List<UUID> actifsAuSensStrict() {
+            return List.of();
+        }
+
+        @Override
         public List<UUID> tous() {
             return List.of();
         }

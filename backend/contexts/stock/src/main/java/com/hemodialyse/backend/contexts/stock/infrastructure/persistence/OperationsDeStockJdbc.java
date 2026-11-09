@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.stock.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.CentresFournis;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.OperationsDeStock;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -61,8 +62,11 @@ public final class OperationsDeStockJdbc implements OperationsDeStock {
 
     private final JdbcTemplate jdbc;
 
-    public OperationsDeStockJdbc(JdbcTemplate jdbc) {
+    private final CentresFournis centres;
+
+    public OperationsDeStockJdbc(JdbcTemplate jdbc, CentresFournis centres) {
         this.jdbc = jdbc;
+        this.centres = centres;
     }
 
     private static Timestamp debutDuJour(LocalDate jour) {
@@ -84,7 +88,7 @@ public final class OperationsDeStockJdbc implements OperationsDeStock {
 
     @Override
     public List<UUID> centres() {
-        return jdbc.query("SELECT id FROM centers", (rs, i) -> rs.getObject(1, UUID.class));
+        return centres.tousLesCentres();
     }
 
     @Override

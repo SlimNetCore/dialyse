@@ -4,7 +4,7 @@ status: in-progress
 date: 2026-11-09
 order: 4
 context: organisation
-sources: [.ddd/tactical/organisation.md, ADR 0063, ADR 0094, ADR 0107, .ddd/safety-net/organisation-o4-lectures-publiees.md]
+sources: [.ddd/tactical/organisation.md, ADR 0063, ADR 0094, ADR 0107, ADR 0108, .ddd/safety-net/organisation-o4-lectures-publiees.md]
 ---
 
 # O4 — Lectures publiées et retrait du SQL direct sur les tables d'Organisation
@@ -21,14 +21,14 @@ Reçoit aussi le calendrier du centre (`center_holiday`, `center_closure_day`) d
 
 ## Mesure d'avancement
 
-Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNUS` (un test le fige) : **32 avant le lot A, 22 après**.
+Le critère est le nombre d'entrées de `TableDeLOrganisationTest.LECTEURS_CONNUS` (un test le fige) : **32 avant le lot A, 22 après le lot A, 18 après le lot B**.
 
 ## Plan en lots (audit complet : `.ddd/safety-net/organisation-o4-lectures-publiees.md`, section « Audit O4 »)
 
 | Lot | Besoin | Langage publié (organisation.v1) | Lecteurs | Liste blanche |
 |---|---|---|---|---|
 | **A** (fait 2026-11-09) | centres actifs / tous ; fuseau du centre ; société d'un centre ; sociétés et centres | `AnnuaireDesCentres` (`actifs`, `tous`, `fuseauHoraireDe`), `AnnuaireDesSocietes` (`societesActives`, `societeDuCentre`, `societe`) | 10 : Absences, Dossier médical, Séance (×2), Patient-couverture, Planification (×2), plateforme (jour du centre), Pilotage (×2) | 32 → 22 |
-| B | Stock : centres actifs, fuseau (défaut UTC), centres du traitement de nuit, verrou de centre d'inventaire | ports `*Fournis` déclarés par Stock (cycle Maven : Organisation dépend de Stock) + traducteur plateforme appelant `AnnuaireDesCentres` ; port de verrou `VerrouDuCentre` | 4 | 22 → 18 |
+| **B** (fait 2026-11-09) | Stock : centres actifs (sens strict), fuseau (défaut UTC), centres du traitement de nuit, verrou de centre d'inventaire | ports `CentresFournis` et `VerrouDuCentreFourni` déclarés par Stock (cycle Maven : Organisation dépend de Stock) + traducteurs plateforme appelant `AnnuaireDesCentres` (`actifsAuSensStrict`) et `VerrouDuCentre` | 4 | 22 → 18 |
 | C | libellés de salle, de créneau, de médecin | `LibellesDeLOrganisation` (code de salle, code et libellé de créneau, libellé de médecin) | 3 : Séance `LecturesPublieesDesSeancesJdbc`, Patient-couverture (×2) | 18 → 15 |
 | D | séries et ressources du planning, salles, verrou du référentiel des infirmiers | `RessourcesDuCentre` (salles, créneaux, séries), commande publiée pour l'isolement des salles (aujourd'hui `UPDATE salle`, écriture), `VerrouDuCentre` | 6 : Planification | 15 → 9 |
 | E | identité imprimée (logo, pied de page), admin générique | `IdentiteDeLaSociete`, retour de l'admin générique dans le contexte (ADR 0070) | 2 sur 9 (DocumentIdentityProvider, ReferentialAdminJdbcAdapter) | 9 → 7 |
@@ -49,10 +49,22 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
   requise (O4-R1). `seamAllowed` est resté `[]` du début à la fin.
 - Parité : SQL repris à l'identique (voir commentaires des JDBC) ; chaque consommateur garde SON défaut de fuseau (Alger ; Stock UTC au lot B) ;
   aucun `.approved` modifié ; aucun écart de comportement, donc aucun golden `_nouveau_code`, aucune archive `_ecarts-legacy`.
-- Obstacle : Stock (2 lecteurs de centres) NON migré au lot A, voir lot B (cycle Maven + écart `actif = TRUE` strict).
+- Obstacle : Stock (2 lecteurs de centres) NON migré au lot A, traité au lot B (cycle Maven + écart `actif = TRUE` strict).
 - Réserve : trois des lecteurs migrés n'avaient aucun test direct (Dossier médical, Séance `CentresARappeler` hors H2, Patient-couverture
   horloge) ; leur SQL est identique et le comportement est désormais fixé par `AnnuairesContrat`, mais il n'a pas été exécuté contre le lecteur
   d'origine avant migration.
+
+## Lot B : fait (2026-11-09, ADR 0108)
+
+- Stock : `publishedlanguage/CentresFournis`, `VerrouDuCentreFourni` ; `infrastructure/acl/centres/CentresActifsFournis`, `HorlogeDesCentresFournie` (remplacent
+  `acl/legacycentres/*`, supprimés) ; `OperationsDeStockJdbc` et `InventairesJdbc` reçoivent le port en constructeur ; câblage dans `StockContexteConfiguration`.
+- Organisation : `AnnuaireDesCentres.actifsAuSensStrict()` ; `publishedlanguage/VerrouDuCentre` + `VerrouDuCentreJdbc` (bean `verrouDuCentre`).
+- Plateforme : `infrastructure/acl/stock/CentresDuStockParOrganisation`, `VerrouDuCentreDuStockParOrganisation` (aucun SQL). Aucun `pom.xml` modifié.
+- O4-R3 (décision déléguée) : reproduit, sans uniformiser ; variante stricte nommée ; KB-ORG-09 ; contrôle §72. O4-R4 reste ouvert.
+- Parité : caractérisation écrite et verte sur les lecteurs SQL AVANT migration (cas NULL, tous les centres, verrou) ; mêmes assertions après ; aucun
+  `.approved` modifié, aucun golden `_nouveau_code`.
+- Réserve : le contrat de `VerrouDuCentre` n'est exécuté que sur H2 (O4-R7) ; la sérialisation réelle de deux clôtures concurrentes est couverte par
+  `InventaireConcurrentIntegrationTest` (plateforme).
 
 ## Résiduels
 
@@ -60,11 +72,11 @@ côté consommateur ; lecteur SQL supprimé ; entrée retirée de la liste blanc
 |---|---|---|
 | O4-R1 | Renommer `JourDuCentreLegacy` (plateforme) en `JourDuCentrePublie` : seam à inscrire dans `seamAllowed` après accord de l'utilisateur | utilisateur |
 | O4-R2 | Lecteurs comptes / auth / garde d'accès (24-27, 29-31 de l'audit) : propriétaire Identité et accès (ou Documents), aucun test nommé | slice IAM |
-| O4-R3 | `centers.actif` NULL : Stock l'exclut (`actif = TRUE`), les autres l'incluent ; à décider au lot B (à confirmer métiers/DPO au plus tard le 2026-12-15) | lot B |
+| O4-R3 | `centers.actif` NULL : Stock l'exclut (`actif = TRUE`), les autres l'incluent. **Lot B : reproduit chaque comportement** (`actifsAuSensStrict` / `actifs`), KB-ORG-09, contrôle §72 ; à confirmer métiers/DPO au plus tard le 2026-12-15 (0 NULL : le Stock pourra passer à la variante large) | métiers / DPO |
 | O4-R4 | `CentresJdbc` (Organisation) lit `actif` par `getBoolean` (NULL = faux) alors que les consommateurs lisent NULL = actif | lot B |
 | O4-R5 | Calendrier du centre (`center_holiday`, `center_closure_day`, ADR 0094 R1) : 4 lecteurs à migrer, hors lot A | lot ultérieur, butoir 2027-03-31 |
 | O4-R6 | Record `CentresActifs` (publishedlanguage) toujours inutilisé ; événements `SalleOuverte`, `SalleFermee`, `CreneauCree` jamais émis (hors périmètre : pas d'événement en refactoring sur place) | lot D |
-| O4-R7 | Les contrats des annuaires ne tournent pas encore sur PostgreSQL 16 réel (variante `*PostgresContractIT`) | lot B |
+| O4-R7 | Les contrats des annuaires (et `VerrouDuCentre`) ne tournent pas encore sur PostgreSQL 16 réel (variante `*PostgresContractIT`) ; non traité au lot B | lot C |
 
 ## Retrait
 

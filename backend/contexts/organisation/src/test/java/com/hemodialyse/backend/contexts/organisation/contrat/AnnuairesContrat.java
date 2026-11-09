@@ -53,6 +53,14 @@ abstract class AnnuairesContrat {
         assertThat(centres().actifs()).containsExactly(C1, C3, C4, C5);
     }
 
+    /** O4-R3 (ADR 0108, KB-ORG-09) : la variante stricte du Stock exclut un état non renseigné, la variante large l'inclut. */
+    @Test
+    void les_centres_actifs_au_sens_strict_excluent_un_etat_non_renseigne() {
+        donnees();
+        assertThat(centres().actifsAuSensStrict()).containsExactly(C1, C4, C5);
+        assertThat(centres().actifs()).as("la variante large inclut C3").contains(C3);
+    }
+
     @Test
     void tous_les_centres_comprennent_les_centres_desactives() {
         donnees();

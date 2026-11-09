@@ -40,6 +40,12 @@ final class AnnuairesEnMemoire implements AnnuaireDesCentres, AnnuaireDesSociete
     }
 
     @Override
+    public List<UUID> actifsAuSensStrict() {
+        return centres.values().stream().filter(c -> Boolean.TRUE.equals(c.actif()))
+                .map(Centre::id).sorted(Comparator.comparing(UUID::toString)).toList();
+    }
+
+    @Override
     public List<UUID> tous() {
         return new ArrayList<>(centres.keySet());
     }
