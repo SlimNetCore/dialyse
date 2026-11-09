@@ -177,7 +177,7 @@
 ## 13.14 Alertes et temps réel (contexte Pilotage direction)
 
 Les règles RG-DIR-031, RG-DIR-032 et RG-DIR-100 à RG-DIR-102 sont désormais portées par le contexte **Pilotage direction** (lot C, PD3, ADR 0104)
-sans changement de comportement ; les quatre règles ci-dessous précisent ce que le fonctionnement antérieur faisait sans l'écrire. Tous les
+sans changement de comportement ; les cinq règles ci-dessous (RG-DIR-105 à RG-DIR-109) précisent ce que le fonctionnement antérieur faisait sans l'écrire. Tous les
 points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard le 2026-12-15**.
 
 - **RG-DIR-105** — La **politique d'alertes** (`PolitiqueDAlertes`, langage publié `AlertesDeLaDirection`) lève, par centre et dans cet ordre,
@@ -191,7 +191,7 @@ points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard 
   référence (rien n'est diffusé) ; le dernier abonné parti, le constat est oublié ; un échec de lecture est journalisé et ignoré (rien n'est écrit,
   ni historique ni diffusion) ; un échec de **diffusion** survient après l'écriture de l'historique et le rangement du constat : l'historique
   est écrit et le changement est perdu, jamais rediffusé (statu quo) ; la diffusion est plafonnée à 60 changements. Un signal pour un centre inconnu est ignoré. Le suivi des
-  abonnements STOMP reste dans la plateforme (PD5). *Source :* `SuivreLeTempsReel`.
+  abonnements STOMP reste dans la plateforme (RG-DIR-109). *Source :* `SuivreLeTempsReel`.
 - **RG-DIR-107** — L'**historique des alertes** est alimenté par chaque recalcul. L'identité d'une alerte ouverte est le couple **(centre,
   code)**, sans notion de jour : tant qu'elle est ouverte, sa valeur, sa gravité et le nom du centre restent **figés à la première
   apparition** (stock sous seuil 3 puis 7 : reste 3) ; si elle disparaît, elle est résolue ; si elle réapparaît (même le jour même), c'est une
@@ -202,3 +202,11 @@ points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard 
   plus récemment active (`COALESCE(résolue, vue)`) à la plus ancienne ; `limit` vaut 50 par défaut, est **ramené** à 1 (0 ou négatif) ou à 200
   (au-delà) sans refus ; un `limit` illisible répond 500 (KB-DIR-02, statu quo). Le contexte est le seul propriétaire de la table
   `direction_alert_history`. *Source :* `ConsulterLHistoriqueDesAlertes`, `LimiteDHistorique`.
+- **RG-DIR-109** — Une société est **suivie** (RG-DIR-106) tant qu'au moins un abonnement de direction au canal
+  `/topic/societe/{id}/…` subsiste. Chaque couple (session, abonnement) n'est compté **qu'une fois** (un abonnement répété ne double pas le
+  compte) ; le désabonnement d'un abonnement inconnu ne retire personne ; la **déconnexion** d'une session libère tous ses abonnements et eux
+  seuls ; une destination qui n'est pas un canal de société, ou dont l'identifiant est illisible, est ignorée sans erreur. Le premier abonné
+  d'une société pose son constat de référence au prochain passage rapide (une seconde au plus). Le contrôle des droits d'abonnement
+  (direction de cette société seule) précède ce suivi et reste dans la plateforme (`WebSocketAuthentication`). Pas de comptage persistant :
+  un redémarrage du serveur oublie les abonnements (les clients se réabonnent). *Source :* `DirectionSubscriptionTracker` (plateforme, filet :
+  `LesAbonnementsDeLaDirectionCharacterizationTest`).

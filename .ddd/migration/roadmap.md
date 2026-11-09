@@ -356,13 +356,13 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 
 | Ordre | Slice                                   | Risque | Etat    | Fiche                                                 |
 |-------|-----------------------------------------|--------|---------|-------------------------------------------------------|
-| PD1   | Tableau de bord direction (read models) | faible | planned | slices/pilotage-direction-pd1-tableau-bord.md         |
-| PD2   | Instantanes mensuels figes              | moyen  | planned | slices/pilotage-direction-pd2-instantanes-mensuels.md |
-| PD3   | Alertes direction                       | moyen  | planned | slices/pilotage-direction-pd3-alertes.md              |
-| PD4   | Export synthese (reporting)             | moyen  | planned | slices/pilotage-direction-pd4-export-synthese.md      |
-| PD5   | Lectures publiees et retrait du legacy  | moyen  | planned | slices/pilotage-direction-pd5-lectures-publiees.md    |
+| PD1   | Tableau de bord direction (read models) | faible | built (2026-11-09, ADR 0102) | slices/pilotage-direction-pd1-tableau-bord.md         |
+| PD2   | Instantanes mensuels figes              | moyen  | built (2026-11-09, ADR 0103) | slices/pilotage-direction-pd2-instantanes-mensuels.md |
+| PD3   | Alertes direction                       | moyen  | built (2026-11-09, ADR 0104) | slices/pilotage-direction-pd3-alertes.md              |
+| PD4   | Export synthese (reporting)             | moyen  | built (2026-11-09, ADR 0102) | slices/pilotage-direction-pd4-export-synthese.md      |
+| PD5   | Lectures publiees et retrait du legacy  | moyen  | built (2026-11-09, ADR 0105) | slices/pilotage-direction-pd5-lectures-publiees.md    |
 
-> **GEL du 2026-11-02 (ADR 0075, `backend/contexts/pilotage-direction/GEL.md`)** : le module parallele est retire du reacteur ; aucune slice PD n'est `built` ni `characterized` (aucun golden Direction dedie ; le filet existant est reparti entre Planification P6, Absences A4, GMAO, Facturation F5, Stock). Reprise SUR PLACE : memes tables `direction_snapshot` et `direction_alert_history`, memes URL `/api/v1/direction/*`, masquage par centre, fuseau du centre. Regle R2 des alertes a trancher a la reprise (fiche PD3).
+> **Etat reel au 2026-11-09 (ADR 0102 a 0105)** : les cinq slices PD sont `built`, refactoring SUR PLACE (ADR 0024/0075, memes tables `direction_snapshot` et `direction_alert_history`, memes URL `/api/v1/direction/*`, aucune facade ni flag). Le Pilotage possede ses deux tables (adaptateurs JDBC du module, garde `TableDuPilotageTest`). Reste en plateforme, nominativement : rendu PDF, comptes de direction et d'administrateur de societe (Organisation / IAM), services de lecture des autres contextes, canal et suivi des abonnements STOMP, controleurs et garde de societe (residuels PD5-R1 a R6, ADR 0105). Le statut du contexte `pilotage-direction` dans `state.json` reste `architected` (aucun statut de contexte pose par PD5). Historique : le GEL du 2026-11-02 (ADR 0075) avait retire le module parallele du reacteur.
 
 ## 2. Autres contextes (haut niveau, Ã  dÃ©tailler aprÃ¨s `/ddd-tactical <ctx>`)
 

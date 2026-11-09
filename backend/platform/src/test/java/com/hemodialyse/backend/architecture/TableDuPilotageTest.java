@@ -26,6 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * ({@code direction_snapshot} depuis le lot B, {@code direction_alert_history} depuis le lot C, PD3, ADR 0104) ; chaque entrée porte sa
  * date et son butoir. Une entrée dont le fichier ne lit plus la table est « morte » : elle est à retirer. Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
  * contextes par leurs langages publiés (ou, pour {@code patients} et {@code centers}, par les entrées nommées de leurs gardes).
+ * <p>
+ * PD5 (ADR 0105, clôture) : garde nominative de ce qui RESTE dans {@code application/direction} de la plateforme (rendu PDF, comptes de
+ * l'Organisation / IAM, services de lecture des autres contextes), sans SQL ; revue au plus tard le 2026-12-15.
  */
 class TableDuPilotageTest {
 
@@ -148,6 +151,87 @@ class TableDuPilotageTest {
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).startsWith("2026-");
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------
+    // PD5 (ADR 0105) : clôture du Pilotage. Plus aucun fichier du Pilotage dans application/direction de la plateforme.
+    // ---------------------------------------------------------------------------------------------------------------------------------
+
+    private static final String APPLICATION_DIRECTION = "platform/src/main/java/com/hemodialyse/backend/application/direction/";
+
+    /**
+     * Ce qui RESTE dans {@code application/direction}, nominativement, avec son propriétaire cible et sa raison (revue au plus tard le
+     * 2026-12-15, butoir des résiduels PD5-R1 à R6 : 2027-03-31). Aucune de ces classes n'est du Pilotage.
+     */
+    private record Reste(String categorie, String proprietaire) {
+    }
+
+    private static final Map<String, Reste> RESTE_DANS_APPLICATION_DIRECTION = new TreeMap<>(Map.ofEntries(
+            Map.entry("DirectionReportPdfService.java", new Reste("rendu PDF", "plateforme (rendu seul : le contenu vient du Pilotage par son langage publié)")),
+            Map.entry("SocieteLetterheadPort.java", new Reste("rendu PDF", "plateforme (en-tête du rapport)")),
+            Map.entry("DirectionAccountService.java", new Reste("comptes", "Organisation / IAM")),
+            Map.entry("SocieteAdminAccountService.java", new Reste("comptes", "Organisation / IAM")),
+            Map.entry("PasswordPolicy.java", new Reste("comptes", "Organisation / IAM")),
+            Map.entry("DirectionAbsencesQueryService.java", new Reste("lecture d'un autre contexte", "Absences de patients (absencespatients.v1)")),
+            Map.entry("DirectionCapaciteQueryService.java", new Reste("lecture d'un autre contexte", "Planification (capacité) et GMAO")),
+            Map.entry("DirectionGmaoQueryService.java", new Reste("lecture d'un autre contexte", "GMAO (gmao.v1)")),
+            Map.entry("DirectionIndicatorsQueryService.java", new Reste("lecture d'un autre contexte", "Dossier médical et Stock (indicateurs, DM9)")),
+            Map.entry("DirectionStockGroupesQueryService.java", new Reste("lecture d'un autre contexte", "Stock (stock.v1)")),
+            Map.entry("AnonymityPolicy.java", new Reste("lecture d'un autre contexte", "plateforme : masquage des lectures ci-dessus (le Pilotage a son SeuilDAnonymat)"))));
+
+    private static final Set<String> COMPTES = Set.of("DirectionAccountService.java", "SocieteAdminAccountService.java", "PasswordPolicy.java");
+    private static final Set<String> RENDU_PDF = Set.of("DirectionReportPdfService.java", "SocieteLetterheadPort.java");
+    private static final Pattern SQL_EN_MAJUSCULES = Pattern.compile("\\b(FROM|JOIN)\\s+[a-z_]+\\b");
+
+    private static Set<String> fichiersDeApplicationDirection() throws IOException {
+        try (Stream<Path> fichiers = Files.list(backend().resolve(APPLICATION_DIRECTION))) {
+            return fichiers.map(p -> p.getFileName().toString()).filter(n -> n.endsWith(".java")).collect(java.util.stream.Collectors.toCollection(TreeSet::new));
+        }
+    }
+
+    @Test
+    void application_direction_ne_contient_plus_que_le_rendu_pdf_les_comptes_et_les_lectures_des_autres_contextes() throws IOException {
+        assertThat(fichiersDeApplicationDirection())
+                .as("fichiers de application/direction : tout fichier du Pilotage vit dans backend/contexts/pilotage-direction (PD5, ADR 0105) ; "
+                        + "tout nouveau fichier doit être nommé, avec son propriétaire, dans RESTE_DANS_APPLICATION_DIRECTION")
+                .containsExactlyElementsOf(RESTE_DANS_APPLICATION_DIRECTION.keySet());
+    }
+
+    @Test
+    void les_comptes_de_direction_et_d_administrateur_de_societe_restent_en_place_et_ne_sont_pas_du_pilotage() throws IOException {
+        Set<String> presents = fichiersDeApplicationDirection();
+        assertThat(presents).as("les comptes relèvent de l'Organisation / IAM : PD5 ne les retire ni ne les déplace").containsAll(COMPTES);
+        for (String compte : COMPTES) {
+            assertThat(RESTE_DANS_APPLICATION_DIRECTION.get(compte).proprietaire()).isEqualTo("Organisation / IAM");
+            assertThat(lit(backend().resolve(APPLICATION_DIRECTION + compte), TABLES_DU_PILOTAGE)).as(compte + " ne touche pas les tables du Pilotage").isFalse();
+        }
+        for (Path source : sourcesDeProduction(backend())) {
+            if (relatif(source).startsWith("contexts/pilotage-direction/")) {
+                assertThat(source.getFileName().toString()).as("le module Pilotage ne reprend pas les comptes").isNotIn(COMPTES);
+            }
+        }
+    }
+
+    @Test
+    void les_lectures_des_autres_contextes_et_le_rendu_pdf_n_ecrivent_aucun_sql() throws IOException {
+        Set<String> avecSql = new TreeSet<>();
+        for (String nom : RESTE_DANS_APPLICATION_DIRECTION.keySet()) {
+            if (COMPTES.contains(nom)) continue;
+            Matcher m = SQL_EN_MAJUSCULES.matcher(Files.readString(backend().resolve(APPLICATION_DIRECTION + nom)));
+            if (m.find()) avecSql.add(nom + " : " + m.group());
+        }
+        assertThat(avecSql).as("ces classes passent par des langages publiés : aucun SQL cross-context (PD5)").isEmpty();
+    }
+
+    @Test
+    void la_liste_du_reste_compte_onze_entrees_dont_deux_de_rendu_et_trois_de_comptes_et_sa_revue_est_le_2026_12_15() {
+        assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(11);
+        assertThat(RESTE_DANS_APPLICATION_DIRECTION.keySet()).containsAll(RENDU_PDF).containsAll(COMPTES);
+        assertThat(REVUE).isEqualTo(LocalDate.of(2026, 12, 15));
+        RESTE_DANS_APPLICATION_DIRECTION.forEach((nom, reste) -> {
+            assertThat(reste.categorie()).as("catégorie de " + nom).isNotBlank();
+            assertThat(reste.proprietaire()).as("propriétaire de " + nom).isNotBlank();
         });
     }
 

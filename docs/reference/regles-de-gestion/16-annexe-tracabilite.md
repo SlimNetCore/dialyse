@@ -165,8 +165,12 @@ reste servie par `DirectionSnapshotRestController` (jeton, garde de société, r
 PD3 (ADR 0104, lot C) n'ajoute aucune route non plus : `/api/v1/direction/alerts/history` reste servie par `DirectionDashboardRestController`
 mais lit par le langage publié `AlertesDeLaDirection` ; la politique d'alertes, l'historique et le temps réel (détection, diffusion, cadences)
 sont dans le contexte (règles : RG-DIR-105 à RG-DIR-108), la plateforme gardant le canal STOMP (`WebSocketDirectionPublisher`), le suivi des
-abonnements (`DirectionSubscriptionTracker`, PD5) et les indicateurs ; `DirectionAlertPolicy`, `DirectionAlertHistoryService`,
+abonnements (`DirectionSubscriptionTracker`, règle RG-DIR-109) et les indicateurs ; `DirectionAlertPolicy`, `DirectionAlertHistoryService`,
 `DirectionRealtimeService`, `DirectionRealtimePort`, `DashboardDiff` et `DirectionRealtimeScheduler` sont retirés.
+PD5 (ADR 0105, clôture du Pilotage) ne retire ni n'ajoute aucune classe ni route : elle caractérise le suivi des abonnements STOMP
+(`DirectionSubscriptionTracker`, restée dans la plateforme avec `WebSocketAuthentication`), inscrit la liste nominative de ce qui reste dans
+`application/direction` (rendu PDF, comptes de l'Organisation / IAM, services de lecture d'Absences, Planification, GMAO, Stock, Dossier
+médical : `TableDuPilotageTest`) et consigne les résiduels PD5-R1 à R6.
 Les tables `direction_snapshot` et `direction_alert_history` ont chacune pour seul propriétaire un adaptateur JDBC du module
 (`InstantanesMensuelsJdbc`, `HistoriqueDesAlertesJdbc`), inscrits dans `TableDuPilotageTest`. Depuis SE7e, la
 garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92) ; depuis SE7f, les entités JPA (`@Table`) et les

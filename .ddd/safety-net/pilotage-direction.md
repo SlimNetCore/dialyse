@@ -134,5 +134,27 @@ Harnais `PilotageDirectionCharacterizationSupport` (au-dessus de `SemaineCharact
 
 **9.7 KB-DIR-02 et KB-DIR-06 (qualité).** 500 → 400/405 (étendre `DatesIllisiblesDeLaDirectionAdvice` ou un advice du contexte), instantané illisible → 422 métier, GET d'un mois futur → `MOIS_NON_TERMINE` : décisions « reproduire ou corriger » par lot, goldens `bornes`, `historique`, `droits`, `cloisonnement_et_anciens`, `mois_refuses` à réapprouver alors (jamais par l'assistant).
 
+## 10. Audit PD5 (2026-11-09, après les lots A à C)
+
+Les §1 à §9 ci-dessus décrivent l'état AVANT les lots (conservés comme historique). État réel de `platform/.../application/direction` et des fichiers Direction restants, vérifié par `Grep` des consommateurs (`**/src/main/java`) et des `FROM|JOIN` :
+
+| Fichier (depuis `backend/platform/src/main/java/com/hemodialyse/backend/`) | Propriétaire | Consommateurs de production | SQL cross-context | Décision |
+|---|---|---|---|---|
+| `infrastructure/websocket/DirectionSubscriptionTracker.java` | Plateforme (transport STOMP) ; appelle `TempsReelDeLaDirection` du Pilotage | écouteur Spring (aucun appel direct) | aucun | filet posé (8 tests), RESTE (Spring WebSocket + `WebSocketAuthentication`/IAM : cycle Maven sinon) |
+| `infrastructure/websocket/WebSocketDirectionPublisher.java` | Plateforme (adaptateur du port fourni) | `DiffusionDuTableauDeBordFournie` | aucun | reste (ADR 0104) |
+| `application/direction/DirectionReportPdfService.java`, `SocieteLetterheadPort.java` | Plateforme (rendu seul) | 2 contrôleurs ; `SocieteLetterheadAdapter` | aucun (HTML + openhtmltopdf) | reste |
+| `application/direction/DirectionAbsencesQueryService.java` | Absences de patients | `DirectionDashboardRestController` (`/absences`) | aucun (`AbsencesDuPilotage`, `SeancesRealiseesDesCentresPubliees`, liste des centres du Pilotage) | reste, PD5-R1 |
+| `application/direction/DirectionCapaciteQueryService.java` | Planification + GMAO | contrôleur (`/capacite`) | aucun (`CapaciteTheoriqueDesCentres`, `GenerateursInstalles`, `PatientsAuxGenerateurs`) | reste, PD5-R2 |
+| `application/direction/DirectionGmaoQueryService.java` | GMAO | contrôleur (`/gmao`) | aucun (`SyntheseGmaoDuCentre`) ; écrit les alertes par `AlertesDeLaDirection` | reste, PD5-R3 |
+| `application/direction/DirectionStockGroupesQueryService.java` | Stock | contrôleur (`/stock-groupes`) | aucun ; lit `application.stock.ValorisationArticlesService` (service de plateforme, sortie `ValorisationDuStock` publiée) | reste, PD5-R4 |
+| `application/direction/DirectionIndicatorsQueryService.java` | Dossier médical + Stock (indicateurs) | contrôleur (`/indicators`) ; 3 traducteurs `acl/pilotagedirection/*` ; `DirectionGmaoQueryService` | aucun (`IndicateursCliniquesPublies`, `IndicateursDuStock`) | reste, PD5-R5 |
+| `application/direction/AnonymityPolicy.java` | Plateforme (masquage de ces lectures) | Absences, Capacité, Indicateurs | — | reste |
+| `application/direction/DirectionAccountService.java`, `SocieteAdminAccountService.java`, `PasswordPolicy.java` | Organisation / IAM | 2 contrôleurs de société, `InitialSetupService` | tables `app_user*` (hors Pilotage) | JAMAIS touchés, PD5-R6 |
+| `infrastructure/security/DirectionAccessGuard.java` | Organisation / IAM (revérification du compte) | 2 contrôleurs Direction, `AuditRestController`, `WebSocketAuthentication` | `app_user*`, `societes` (entrée de `TableDeLOrganisationTest`) | reste |
+| `infrastructure/web/rest/DirectionDashboardRestController.java`, `DirectionSnapshotRestController.java`, `infrastructure/web/DatesIllisiblesDeLaDirectionAdvice.java` | Plateforme (jeton, `@PreAuthorize`, PDF, routes d'autres contextes) | HTTP | aucun | restent (PD3-R4, PD2) |
+| `direction_snapshot`, `direction_alert_history` (tables du Pilotage) | Pilotage | `InstantanesMensuelsJdbc`, `HistoriqueDesAlertesJdbc` seuls | aucun lecteur hors module (`Grep` sur `src/main/java`) | garde nominative `TableDuPilotageTest` (11 tests) |
+
+Un fichier `Direction*` du Pilotage ne reste donc plus en plateforme. Les gardes sont dans `TableDuPilotageTest` ; ADR 0105.
+
 ## Questions ouvertes
 Voir §9 ; en outre : faut-il une garde `TableDuPilotageTest` (lecteurs nominatifs de `direction_snapshot` et `direction_alert_history` : aujourd'hui 7 et 12 seuls) avant PD5, et le filet du tracker STOMP (simulation de `SessionSubscribeEvent`) est-il exigé pour PD3 ou PD5 ?
