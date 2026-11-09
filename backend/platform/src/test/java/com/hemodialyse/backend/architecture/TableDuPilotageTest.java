@@ -18,13 +18,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * PD1 et PD4 (ADR 0102) : garde des tables que POSSÈDE le Pilotage direction, {@code direction_snapshot} (instantanés mensuels figés,
- * PD2) et {@code direction_alert_history} (historique des alertes, PD3). Remplace {@code LectureSeuleDuPilotageTest}, qui ne protégeait
- * que les quatre tables du module parallèle gelé (retiré avec le lot A).
+ * PD1 et PD4 (ADR 0102), PD2 (ADR 0103) : garde des tables que POSSÈDE le Pilotage direction, {@code direction_snapshot} (instantanés
+ * mensuels figés, PD2, passée dans le contexte au lot B) et {@code direction_alert_history} (historique des alertes, PD3). Remplace
+ * {@code LectureSeuleDuPilotageTest}, qui ne protégeait que les quatre tables du module parallèle gelé (retiré avec le lot A).
  * <p>
- * Liste blanche NOMINATIVE des lecteurs et écrivains actuels, tous restés en plateforme dans ce lot (PD2 et PD3 viendront ensuite) :
- * chaque entrée porte sa date et son butoir. Une entrée dont le fichier ne lit plus la table est « morte » : elle est à retirer
- * (avancement de PD2 / PD3). Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
+ * Liste blanche NOMINATIVE des lecteurs et écrivains actuels : le propriétaire de {@code direction_snapshot} (adaptateur du contexte) et le
+ * lecteur de PD3 resté en plateforme (PD3 viendra ensuite) ; chaque entrée porte sa date et son butoir. Une entrée dont le fichier ne lit
+ * plus la table est « morte » : elle est à retirer (avancement de PD3). Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
  * contextes par leurs langages publiés (ou, pour {@code patients} et {@code centers}, par les entrées nommées de leurs gardes).
  */
 class TableDuPilotageTest {
@@ -35,13 +35,21 @@ class TableDuPilotageTest {
     private record Lecteur(String nature, LocalDate butoir) {
     }
 
+    /**
+     * PROPRIÉTAIRE de {@code direction_snapshot} depuis le lot B (PD2, ADR 0103) : l'adaptateur JDBC du contexte, seul lecteur et seul
+     * écrivain des instantanés mensuels (aucun butoir : c'est le chez-soi de la table).
+     */
+    private static final String PROPRIETAIRE_DES_INSTANTANES =
+            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/"
+                    + "InstantanesMensuelsJdbc.java";
+
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>(Map.of(
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionSnapshotService.java",
-            new Lecteur("2026-11-09 : écrit et lit les instantanés mensuels (direction_snapshot), figés au 1er du mois (PD2, inchangé par le "
-                    + "lot A : seul le type du tableau de bord a changé) ; échéance : reprise de PD2", LocalDate.of(2027, 3, 31)),
+            PROPRIETAIRE_DES_INSTANTANES,
+            new Lecteur("2026-11-09 : propriétaire de direction_snapshot (PD2, ADR 0103) : liste, relit et fige les instantanés mensuels ; "
+                    + "SQL repris mot pour mot du service retiré", LocalDate.of(2099, 12, 31)),
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertHistoryService.java",
             new Lecteur("2026-11-09 : écrit et lit l'historique des alertes (direction_alert_history) tant que la direction est connectée "
-                    + "(PD3, inchangé par le lot A) ; échéance : reprise de PD3", LocalDate.of(2027, 3, 31))));
+                    + "(PD3, inchangé par les lots A et B) ; échéance : reprise de PD3", LocalDate.of(2027, 3, 31))));
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
@@ -104,6 +112,16 @@ class TableDuPilotageTest {
             if (!Files.isRegularFile(source) || !lit(source, TABLES_DU_PILOTAGE)) morts.add(chemin);
         }
         assertThat(morts).as("entrées qui ne lisent plus les tables du Pilotage : les retirer (avancement de PD2 / PD3)").isEmpty();
+    }
+
+    @Test
+    void direction_snapshot_n_a_plus_que_son_proprietaire_dans_le_contexte_et_aucun_lecteur_de_la_plateforme() throws IOException {
+        Set<String> lecteurs = new TreeSet<>();
+        for (Path source : sourcesDeProduction(backend())) {
+            if (lit(source, Set.of("direction_snapshot"))) lecteurs.add(relatif(source));
+        }
+        assertThat(lecteurs).as("PD2 est passée dans le contexte : seul l'adaptateur JDBC du Pilotage lit/écrit direction_snapshot")
+                .containsExactly(PROPRIETAIRE_DES_INSTANTANES);
     }
 
     @Test

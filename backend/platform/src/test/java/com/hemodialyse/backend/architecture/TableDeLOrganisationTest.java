@@ -81,7 +81,6 @@ class TableDeLOrganisationTest {
             // butoir 2027-03-31.
             "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/SocietesEtCentresJdbc.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionSnapshotService.java",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
             // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-02) ; salle et position_creneau par SQL dynamique.

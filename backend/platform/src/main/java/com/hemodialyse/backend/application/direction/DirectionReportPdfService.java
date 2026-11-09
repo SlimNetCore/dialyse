@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionSnapshotService.Snapshot;
 import com.hemodialyse.backend.application.direction.SocieteLetterheadPort.Letterhead;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection.Instantane;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Alerte;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.Caisses;
@@ -153,7 +153,7 @@ public class DirectionReportPdfService {
     /**
      * Rapport d'un mois figé.
      */
-    public byte[] pdf(UUID societeId, Snapshot snapshot) {
+    public byte[] pdf(UUID societeId, Instantane snapshot) {
         Rapport rapport = rapports.constituer(RapportDUnInstantane.source("Rapport mensuel — " + snapshot.mois(),
                 snapshot.generatedAt(), snapshot.overview(), snapshot.indicators(), snapshot.breakdown()));
         return render(html(societeId, rapport));

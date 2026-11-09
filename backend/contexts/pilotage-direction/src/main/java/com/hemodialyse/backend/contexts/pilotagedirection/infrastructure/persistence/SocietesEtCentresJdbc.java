@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.pilotagedirection.application.SocietesActives;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.SocietesSuivies;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.CentreDeLaSociete;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.SocieteSuivie;
@@ -16,12 +17,18 @@ import java.util.UUID;
  * SQL repris MOT POUR MOT de {@code DirectionDashboardQueryService.societe} (retiré, {@code :80} et {@code :81-83} de l'original, commit
  * {@code 9c21d51a}). Un centre sans colonne {@code actif} est actif.
  */
-public final class SocietesEtCentresJdbc implements SocietesSuivies {
+public final class SocietesEtCentresJdbc implements SocietesSuivies, SocietesActives {
 
     private final JdbcTemplate jdbc;
 
     public SocietesEtCentresJdbc(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
+    }
+
+    /** PD2 : SQL repris MOT POUR MOT de {@code DirectionSnapshotService.generateForPreviousMonth} (retiré, {@code :101}). */
+    @Override
+    public List<UUID> identifiants() {
+        return jdbc.queryForList("SELECT id FROM societes WHERE actif = TRUE", UUID.class);
     }
 
     @Override

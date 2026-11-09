@@ -2432,3 +2432,19 @@ ORDER BY 1, 2;
 SELECT COUNT(*) FROM direction_snapshot;
 ```
 **Recette (lecture seule, sur une copie)** : (a) `GET /api/v1/direction/overview`, `/breakdown`, `/societe` et `/report` d'une direction connue rendent la même réponse qu'avant (goldens PD1 et PD4 inchangés) ; (b) `/report` avec `from` après `to` rend 422 `PERIODE_INVALIDE` et une période de plus de 5 ans 422 `PERIODE_TROP_LONGUE` (mêmes codes) ; (c) 69.1 exécutée avant toute décision sur KB-DIR-01. Rien n'est activé par ce lot : aucun flag, aucune bascule (refactoring sur place, ADR 0024).
+
+## 70. Pilotage direction, lot B = PD2 (instantanés mensuels, reprise dans le contexte, ADR 0103) : détections de données (2026-11-09) — SELECT seulement
+
+Refactoring sur place : aucune migration, aucune colonne ; le SQL de `direction_snapshot` est repris MOT POUR MOT par `InstantanesMensuelsJdbc`. Les doublons (société, mois) sont impossibles (`uq_direction_snapshot`) ; les cas ci-dessous sont ceux que le filet a caractérisés (KB-DIR-06 a, e). À exécuter sur une copie avant la mise en production ; résultats à joindre à la décision métiers/DPO du 2026-12-15.
+
+```sql
+-- 70.1 Instantanés dont le mois n'est pas au format AAAA-MM (illisibles par GET /snapshots/{mois}, qui refuse un autre format).
+SELECT societe_id, mois FROM direction_snapshot WHERE mois !~ '^[0-9]{4}-[0-9]{2}$' ORDER BY 1, 2;
+-- 70.2 Instantanés dont le contenu n'est pas un objet JSON (listés, mais leur lecture répond 500, KB-DIR-06 e). Test de forme seulement (un « { » mal fermé n'est pas détecté ici : voir 68.3).
+SELECT societe_id, mois FROM direction_snapshot WHERE payload NOT LIKE '{%' ORDER BY 1, 2;
+-- 70.3 Instantanés antérieurs aux répartitions (sans « breakdown », servis breakdown nul, KB-DIR-06 a) : le rapport mensuel n'imprime pas les sections de répartition.
+SELECT societe_id, mois FROM direction_snapshot WHERE payload LIKE '{%' AND payload NOT LIKE '%"breakdown"%' ORDER BY 1, 2;
+-- 70.4 Sociétés actives sans instantané du mois précédent (ce que la tâche du 1er à 02:30 créerait au prochain passage ; 0 ligne après un passage réussi).
+SELECT s.id, s.raison_sociale FROM societes s WHERE s.actif = TRUE AND NOT EXISTS (SELECT 1 FROM direction_snapshot d WHERE d.societe_id = s.id AND d.mois = to_char(date_trunc('month', current_date) - interval '1 month', 'YYYY-MM'));
+```
+**Recette (lecture seule, sur une copie)** : (a) `GET /api/v1/direction/snapshots`, `/snapshots/{mois}` et `/snapshots/{mois}/report` d'une direction connue rendent la même réponse qu'avant (goldens PD2 inchangés) ; (b) `POST /snapshots/{mois courant}` répond 422 `MOIS_NON_TERMINE`, un mois de plus de 60 mois 422 `MOIS_TROP_ANCIEN` ; (c) 69.1 (KB-DIR-01) reste la condition de mise en production : ce lot ne retraite aucun instantané. Rien n'est activé : aucun flag, aucune bascule (ADR 0024). Rejeu PostgreSQL 16 du script `pilotage-direction-pg16-rejeu.sh` : non modifié ; 70.1 à 70.4 sont des SELECT NON rejoués sur PostgreSQL 16 à ce stade (à exécuter à la main sur la copie ; le contrat JDBC des instantanés tourne sur H2 mode PostgreSQL seulement).

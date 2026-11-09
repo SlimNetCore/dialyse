@@ -117,7 +117,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionDashboardRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionSnapshotRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionSnapshotService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAlertHistoryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimeService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionRealtimePort.java",
@@ -127,7 +126,8 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/SocieteLetterheadAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketDirectionPublisher.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/IndicateursDuRapportParLaPlateforme.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/RapportDUnInstantane.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/RapportDUnInstantane.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/pilotagedirection/IndicateursAFigerParLaPlateforme.java"
   ],
   "seamAllowed": []
 }

@@ -3,7 +3,21 @@ package com.hemodialyse.backend.contexts.pilotagedirection.configuration;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.TraitementDeLAnemiePublie;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConstituerLeRapportDeSynthese;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.CapturerLesInstantanesDuMoisEcoule;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.CapturerUnInstantaneMensuel;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaRepartition;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterUnInstantane;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ContenuDuMoisAFiger;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.InstantanesMensuels;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ListerLesInstantanes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.SocietesActives;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.ContenuFigeParLeTableauDeBord;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.InstantanesMensuelsJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.planifie.CaptureDuMoisEcoulePlanifiee;
+import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.InstantanesMensuelsPublies;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursAFigerFournis;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
+import tools.jackson.databind.ObjectMapper;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaSociete;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaVueDEnsemble;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.EffectifsDesPatients;
@@ -46,8 +60,41 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    SocietesSuivies societesSuivies(JdbcTemplate jdbc) {
+    SocietesEtCentresJdbc societesSuivies(JdbcTemplate jdbc) {
         return new SocietesEtCentresJdbc(jdbc);
+    }
+
+    // ───────────── Lot B (PD2, ADR 0103) : les instantanés mensuels figés ─────────────
+
+    @Bean
+    InstantanesMensuels instantanesMensuels(JdbcTemplate jdbc) {
+        return new InstantanesMensuelsJdbc(jdbc);
+    }
+
+    @Bean
+    ContenuDuMoisAFiger contenuDuMoisAFiger(TableauDeBordDeLaDirection tableau, IndicateursAFigerFournis indicateurs,
+                                            ObjectMapper mapper) {
+        return new ContenuFigeParLeTableauDeBord(tableau, indicateurs, mapper);
+    }
+
+    @Bean
+    CapturerLesInstantanesDuMoisEcoule capturerLesInstantanesDuMoisEcoule(SocietesActives societes, InstantanesMensuels instantanes,
+                                                                          ContenuDuMoisAFiger contenu, HorlogeDuPilotage horloge) {
+        return new CapturerLesInstantanesDuMoisEcoule(societes, instantanes, contenu, horloge);
+    }
+
+    @Bean
+    InstantanesMensuelsDeLaDirection instantanesMensuelsDeLaDirection(InstantanesMensuels instantanes, ContenuDuMoisAFiger contenu,
+                                                                      CapturerLesInstantanesDuMoisEcoule capturerLeMoisEcoule,
+                                                                      HorlogeDuPilotage horloge, ObjectMapper mapper) {
+        return new InstantanesMensuelsPublies(new ListerLesInstantanes(instantanes), new ConsulterUnInstantane(instantanes),
+                new CapturerUnInstantaneMensuel(instantanes, contenu, horloge), capturerLeMoisEcoule, mapper);
+    }
+
+    /** Le cron du 1er du mois à 02:30 : un bean planifié du module (même expression que l'ancien {@code DirectionSnapshotScheduler}). */
+    @Bean
+    CaptureDuMoisEcoulePlanifiee captureDuMoisEcoulePlanifiee(CapturerLesInstantanesDuMoisEcoule capture) {
+        return new CaptureDuMoisEcoulePlanifiee(capture);
     }
 
     @Bean

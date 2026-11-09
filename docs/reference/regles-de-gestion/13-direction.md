@@ -156,3 +156,19 @@
   ou Africa/Algiers). Le rapport mensuel imprime l'instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
   les mêmes libellés d'alerte ; un code d'alerte inconnu est imprimé tel quel. *Source :* `ConsulterLaVueDEnsemble`,
   `ConsulterLaRepartition`, `ConstituerLeRapportDeSynthese`.
+
+## 13.13 Instantanés mensuels (contexte Pilotage direction)
+
+- **RG-DIR-104** — Les instantanés mensuels (RG-DIR-090 à 091) sont gérés par le contexte **Pilotage direction** (langage publié
+  `InstantanesMensuelsDeLaDirection`, table `direction_snapshot` dont il est le seul propriétaire) ; la plateforme garde le jeton, la route
+  et le rendu PDF. Règles reproduites à l'identique du fonctionnement antérieur : le mois est contrôlé **avant** toute lecture (illisible,
+  puis non terminé, puis trop ancien) ; le mois d'il y a exactement 60 mois est capturable, celui d'il y a 61 mois est refusé ; un instantané
+  contient la vue d'ensemble, les indicateurs et les répartitions du mois (bornes du premier au dernier jour) ; la capture est
+  **idempotente** (un instantané existant n'est ni recalculé ni remplacé, même `generated_at` ; une capture simultanée perdue est ignorée) ;
+  la **lecture** d'un mois futur répond `SNAPSHOT_INTROUVABLE` (aucun contrôle du futur en lecture, KB-DIR-06 b) ; un instantané antérieur
+  aux répartitions est servi avec `breakdown` nul (KB-DIR-06 a) ; l'horodatage de capture est celui de la base (KB-DIR-06 c) ; un contenu
+  illisible en base est **listé** mais sa lecture répond 500 (KB-DIR-06 e) ; la tâche du 1er du mois à 02:30 fige le mois précédent de chaque
+  société **active**, société sans centre comprise (instantané à zéro, KB-DIR-06 d), ignore l'inactive, est rejouable, et un échec sur une
+  société n'empêche pas les suivantes. « Mois courant » = date du serveur (UTC, KB-DIR-03, statu quo à confirmer métiers/DPO au plus tard le
+  2026-12-15). *Source :* `MoisDInstantane`, `InstantaneMensuel`, `CapturerUnInstantaneMensuel`, `ConsulterUnInstantane`,
+  `ListerLesInstantanes`, `CapturerLesInstantanesDuMoisEcoule`.

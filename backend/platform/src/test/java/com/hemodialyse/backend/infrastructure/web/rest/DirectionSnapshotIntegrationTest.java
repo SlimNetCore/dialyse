@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.direction.DirectionSnapshotService;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
 import com.hemodialyse.backend.infrastructure.security.RoleScopeFilter;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
@@ -51,7 +51,7 @@ class DirectionSnapshotIntegrationTest {
     @Autowired
     private RoleScopeFilter roleScopeFilter;
     @Autowired
-    private DirectionSnapshotService snapshots;
+    private InstantanesMensuelsDeLaDirection snapshots;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -142,16 +142,16 @@ class DirectionSnapshotIntegrationTest {
 
     @Test
     void the_scheduled_job_freezes_the_previous_month_of_active_societes_and_is_replayable() {
-        int created = snapshots.generateForPreviousMonth();
+        int created = snapshots.figerLeMoisEcoule();
         assertTrue(created >= 2, "au moins les deux sociétés de test");
         String previous = YearMonth.now().minusMonths(1).toString();
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(1) FROM direction_snapshot WHERE societe_id = ? AND mois = ?",
                 Integer.class, SOC_A, previous));
-        assertEquals(0, snapshots.generateForPreviousMonth(), "rejouable : rien de plus à figer");
+        assertEquals(0, snapshots.figerLeMoisEcoule(), "rejouable : rien de plus à figer");
 
         jdbc.update("UPDATE societes SET actif = FALSE WHERE id = ?", SOC_B);
         jdbc.update("DELETE FROM direction_snapshot WHERE societe_id = ?", SOC_B);
-        snapshots.generateForPreviousMonth();
+        snapshots.figerLeMoisEcoule();
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(1) FROM direction_snapshot WHERE societe_id = ?", Integer.class, SOC_B));
     }
 

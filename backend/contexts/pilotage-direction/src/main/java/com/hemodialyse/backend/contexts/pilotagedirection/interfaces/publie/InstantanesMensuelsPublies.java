@@ -1,0 +1,61 @@
+package com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie;
+
+import com.hemodialyse.backend.contexts.pilotagedirection.application.CapturerLesInstantanesDuMoisEcoule;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.CapturerUnInstantaneMensuel;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterUnInstantane;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.InstantanesMensuels.InstantaneFige;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ListerLesInstantanes;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Adaptateur entrant du langage publié {@link InstantanesMensuelsDeLaDirection} : appelle les cas d'usage et relit le contenu figé. Un
+ * contenu illisible lève l'erreur de lecture JSON (500, KB-DIR-06 e, reproduit : il reste listé). {@code breakdown} absent d'un instantané
+ * ancien reste un nœud manquant (servi {@code null}, KB-DIR-06 a, reproduit).
+ */
+public final class InstantanesMensuelsPublies implements InstantanesMensuelsDeLaDirection {
+
+    private final ListerLesInstantanes lister;
+    private final ConsulterUnInstantane consulter;
+    private final CapturerUnInstantaneMensuel capturer;
+    private final CapturerLesInstantanesDuMoisEcoule capturerLeMoisEcoule;
+    private final ObjectMapper mapper;
+
+    public InstantanesMensuelsPublies(ListerLesInstantanes lister, ConsulterUnInstantane consulter, CapturerUnInstantaneMensuel capturer,
+                                      CapturerLesInstantanesDuMoisEcoule capturerLeMoisEcoule, ObjectMapper mapper) {
+        this.lister = lister;
+        this.consulter = consulter;
+        this.capturer = capturer;
+        this.capturerLeMoisEcoule = capturerLeMoisEcoule;
+        this.mapper = mapper;
+    }
+
+    @Override
+    public List<Info> lister(UUID societeId) {
+        return lister.execute(societeId).stream().map(i -> new Info(i.mois(), i.genereLe())).toList();
+    }
+
+    @Override
+    public Instantane lire(UUID societeId, String mois) {
+        return traduire(consulter.execute(societeId, mois));
+    }
+
+    @Override
+    public Instantane figer(UUID societeId, String mois) {
+        return traduire(capturer.execute(societeId, mois));
+    }
+
+    @Override
+    public int figerLeMoisEcoule() {
+        return capturerLeMoisEcoule.execute();
+    }
+
+    private Instantane traduire(InstantaneFige i) {
+        JsonNode racine = mapper.readTree(i.contenu());
+        return new Instantane(i.mois(), i.genereLe(), racine.path("overview"), racine.path("indicators"), racine.path("breakdown"));
+    }
+}

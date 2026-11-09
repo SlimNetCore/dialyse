@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.pilotagedirection.pd2;
 
-import com.hemodialyse.backend.application.direction.DirectionSnapshotService;
 import com.hemodialyse.backend.characterization.pilotagedirection.PilotageDirectionCharacterizationSupport;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
@@ -14,8 +14,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * PD2 : instantanés mensuels du LEGACY ({@code GET/POST /api/v1/direction/snapshots[/{mois}]}, {@code DirectionSnapshotService}, table
- * {@code direction_snapshot}, tâche {@code DirectionSnapshotScheduler} du 1er du mois à 02:30) : un mois écoulé est figé une fois (payload JSON
+ * PD2 : instantanés mensuels ({@code GET/POST /api/v1/direction/snapshots[/{mois}]}, table {@code direction_snapshot}, tâche du 1er du mois à
+ * 02:30) : filet écrit sur le legacy ({@code DirectionSnapshotService}, retiré), exécuté depuis le lot B contre le contexte Pilotage direction
+ * ({@code InstantanesMensuelsDeLaDirection}, ADR 0103) avec les MÊMES goldens : un mois écoulé est figé une fois (payload JSON
  * {@code overview + indicators + breakdown}), jamais recalculé ; mois contrôlés au fuseau de la JVM ({@code YearMonth.now()}, pas le fuseau du
  * centre) ; cloisonnement par société ; instantanés anciens sans répartition. Rien n'est corrigé.
  */
@@ -24,7 +25,7 @@ class LesInstantanesMensuelsDeLaDirectionCharacterizationIntegrationTest extends
     private static final String SNAPSHOTS = DIRECTION + "/snapshots";
 
     @Autowired
-    private DirectionSnapshotService snapshots;
+    private InstantanesMensuelsDeLaDirection snapshots;
 
     @Override
     protected String slice() {
@@ -171,14 +172,14 @@ class LesInstantanesMensuelsDeLaDirectionCharacterizationIntegrationTest extends
         List<UUID> dejaLa = jdbc.queryForList("SELECT id FROM direction_snapshot WHERE mois = ?", UUID.class, m1.toString());
         try {
             Map<String, Object> m = new LinkedHashMap<>();
-            int crees = snapshots.generateForPreviousMonth();
+            int crees = snapshots.figerLeMoisEcoule();
             Map<String, Object> premiere = new LinkedHashMap<>();
             premiere.put("au moins les deux societes actives a centres creees", crees >= 2);
             for (UUID s : List.of(SOCIETE, AUTRE_SOCIETE, SOCIETE_SANS_CENTRE, SOCIETE_INACTIVE)) {
                 premiere.put(aliasDe(s), jdbc.queryForList("SELECT mois FROM direction_snapshot WHERE societe_id = ?", String.class, s));
             }
             m.put("01 premiere execution (mois ecoule de chaque societe active ; societe inactive ignoree ; societe sans centre figee)", premiere);
-            m.put("02 seconde execution : rejouable, rien de plus a figer", snapshots.generateForPreviousMonth());
+            m.put("02 seconde execution : rejouable, rien de plus a figer", snapshots.figerLeMoisEcoule());
             m.put("03 l'instantane de la tache est celui que la direction lit ensuite", instantane(direction("/snapshots/" + m1)).get("statut"));
             arbrePd("tache_planifiee", m);
         } finally {

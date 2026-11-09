@@ -10,7 +10,10 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §11]
 |---|---|---|---|---|---|---|
 | Direction | Vue de la société sur ses centres, anonymisée | — | `Direction*` | — | aucune écriture dans les autres contextes | proposed |
 | Séances réalisées (lues) | Activité des centres comptée par la Direction (vue d'ensemble, période précédente, mois, caisses, taux d'absentéisme) ; lue dans le langage publié de la Séance `SeancesRealiseesDesCentresPubliees` (2026-11-08, SE7e, ADR 0099), jamais en SQL sur `seances` | — (port de la Séance) | requêtes SQL des `Direction*QueryService` (retirées) | « séances validées » pour les trois statuts | RG-SEA-065 ; KB-SEA-83, 84 | proposed |
-| Instantané mensuel | Indicateurs d'un mois écoulé, figés, jamais recalculés | `InstantaneMensuel` | `direction_snapshot` | snapshot | RG-DIR-090 | proposed |
+| Instantané mensuel | Indicateurs d'un mois écoulé, figés, jamais recalculés | `InstantaneMensuel` | `direction_snapshot` | snapshot | RG-DIR-090, RG-DIR-104 | proposed |
+| Mois d'instantané | Mois civil `AAAA-MM` d'un instantané ; capturable s'il est écoulé et de moins de cinq ans (60 mois inclus) ; la lecture n'exige qu'un mois lisible | `MoisDInstantane` | `YearMonth` + `MONTH` de `DirectionSnapshotService` | mois fiscal, période | RG-DIR-091, RG-DIR-104 | proposed |
+| Contenu figé | Vue d'ensemble + indicateurs + répartitions du mois, sérialisés une fois pour toutes ; jamais interprétés ni corrigés | `ContenuFige` | `payload` | payload, blob | RG-DIR-090 | proposed |
+| Capture | Acte de figer un mois (à la demande de la direction ou par la tâche du 1er du mois) ; idempotente | `CapturerUnInstantaneMensuel`, `CapturerLesInstantanesDuMoisEcoule` | `ensure`, `generateForPreviousMonth` | génération, snapshotting | RG-DIR-090, RG-DIR-104 | proposed |
 | Alerte de direction | Seuil dépassé (sévérité) | `AlerteDirection` | `DirectionAlertPolicy` | — | à valider | proposed |
 | État des clôtures | Avancement des 4 clôtures mensuelles par centre | `EtatClotures` (projection) | — (à créer) | — | ADR 0009 | proposed |
 | Perte valorisée | Somme des valorisations d'absences (HT) | projection | — | — | issue d'Absences patients | proposed |
