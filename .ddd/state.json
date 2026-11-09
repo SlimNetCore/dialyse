@@ -76,7 +76,7 @@
     "seance-se4-derogation-regularisation": "built",
     "seance-se5-forfait-surcharge": "built",
     "seance-se6-verrou-facturation": "built",
-    "seance-se7-lectures-publiees": "planned",
+    "seance-se7-lectures-publiees": "built",
     "dossier-medical-dm1-constantes": "built",
     "dossier-medical-dm2-prescriptions": "built",
     "dossier-medical-dm3-examens": "built",
@@ -99,7 +99,7 @@
     "seance-se7c-lectures-facturation-stock": "built",
     "seance-se7d-lectures-absences-planification-dossier": "built",
     "seance-se7e-lectures-pilotage-et-rapports": "built",
-    "seance-se7f-retrait-bc-seance-et-garde": "characterized",
+    "seance-se7f-retrait-bc-seance-et-garde": "built",
     "seance-se7c1-lectures-stock": "built",
     "seance-se7c2-ecritures-facturation": "built"
   },

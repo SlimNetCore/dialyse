@@ -2,22 +2,12 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.acl;
 
 import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
-import com.hemodialyse.backend.contexts.seance.domain.PatientIntrouvable;
-import com.hemodialyse.backend.contexts.seance.domain.Pagination;
-import com.hemodialyse.backend.contexts.seance.domain.RechercheDeSeances;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
-import com.hemodialyse.backend.contexts.seance.domain.SeanceIntrouvable;
-import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
-import com.hemodialyse.backend.contexts.seance.contrat.SeancesEnMemoire;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.HistoriqueParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlanningDesPatientsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,34 +19,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** Traducteurs des langages publiés fournis par la plateforme vers les ports de la Séance (ADR 0088). */
+/**
+ * Traducteurs des langages publiés encore fournis par la plateforme vers les ports de la Séance (ADR 0088 ; depuis SE7f, ADR 0100 : fiches
+ * des patients et diffusions seulement, le planning, l'historique, les forfaits, les générateurs et les volets étant lus par la Séance).
+ */
 class TraducteursDesLangagesPubliesFournisTest {
 
     private static final UUID CENTRE = new UUID(0, 0xA);
     private static final UUID PATIENT = new UUID(1, 1);
     private static final UUID SEANCE = new UUID(2, 2);
     private static final LocalDate JOUR = LocalDate.of(2026, 6, 15);
-
-    @Test
-    void la_situation_du_planning_est_traduite_champ_a_champ() {
-        PlanningFourni fourni = (c, p, j) -> Optional.of(new PlanningFourni.Situation(true, false, true, "TRANSFERE", JOUR, JOUR.minusDays(9)));
-        var situation = new PlanningDesPatientsParLeLegacy(fourni).situation(new CentreId(CENTRE), new PatientId(PATIENT), JOUR);
-        assertThat(situation.centreFerme()).isTrue();
-        assertThat(situation.jourDeDialyse()).isFalse();
-        assertThat(situation.enSommeil()).isTrue();
-        assertThat(situation.etatDuPatient()).isEqualTo("TRANSFERE");
-        assertThat(situation.dateDeLEtat()).isEqualTo(JOUR);
-        assertThat(situation.dateDAdmission()).isEqualTo(JOUR.minusDays(9));
-    }
-
-    @Test
-    void un_patient_inconnu_du_planning_est_un_patient_introuvable() {
-        PlanningFourni fourni = (c, p, j) -> Optional.empty();
-        assertThatThrownBy(() -> new PlanningDesPatientsParLeLegacy(fourni).situation(new CentreId(CENTRE), new PatientId(PATIENT), JOUR))
-                .isInstanceOf(PatientIntrouvable.class);
-    }
 
     @Test
     void la_fiche_du_patient_et_ses_references_sont_traduites() {
@@ -85,38 +58,6 @@ class TraducteursDesLangagesPubliesFournisTest {
     }
 
     @Test
-    void une_ligne_de_statut_illisible_est_ignoree_de_l_historique() {
-        HistoriqueFourni.Ligne lisible = ligne("VALIDEE", "URGENCE");
-        HistoriqueFourni.Ligne illisible = ligne("INCONNU", null);
-        HistoriqueFourni fourni = (c, du, au, statuts, texte, ordre, decroissant, deverrouillee, page, taille)
-                -> new HistoriqueFourni.Page(List.of(illisible, lisible), 2);
-        var page = new HistoriqueParLeLegacy(fourni).rechercher(new CentreId(CENTRE), RechercheDeSeances.toutes(), new Pagination(0, 20));
-        assertThat(page.items()).singleElement().satisfies(l -> {
-            assertThat(l.statut()).isEqualTo(StatutDeSeance.VALIDEE);
-            assertThat(l.motifHorsPlanning()).hasToString("URGENCE");
-            assertThat(l.nomDuPatient()).isEqualTo("Nom");
-        });
-        assertThat(page.total()).isEqualTo(2);
-    }
-
-    @Test
-    void la_recherche_est_transmise_en_noms_de_statut_et_de_tri() {
-        var recu = new Object[3];
-        HistoriqueFourni fourni = (c, du, au, statuts, texte, ordre, decroissant, deverrouillee, page, taille) -> {
-            recu[0] = statuts;
-            recu[1] = ordre;
-            recu[2] = taille;
-            return new HistoriqueFourni.Page(List.of(), 0);
-        };
-        var recherche = new RechercheDeSeances(null, null, RechercheDeSeances.lireLesStatuts("cree, validee"), "x",
-                RechercheDeSeances.OrdreDeTri.lire("patientNom"), false, null);
-        new HistoriqueParLeLegacy(fourni).rechercher(new CentreId(CENTRE), recherche, new Pagination(0, 9999));
-        assertThat(recu[0]).isEqualTo(java.util.Set.of("CREE", "VALIDEE"));
-        assertThat(recu[1]).isEqualTo("PATIENT");
-        assertThat(recu[2]).isEqualTo(500);
-    }
-
-    @Test
     void les_diffusions_portent_l_identite_du_patient_et_le_jour_en_texte_iso() {
         DiffusionsFournies fourni = Mockito.mock(DiffusionsFournies.class);
         var diffusions = new DiffusionsParLeLegacy(fourni);
@@ -127,10 +68,12 @@ class TraducteursDesLangagesPubliesFournisTest {
         diffusions.seanceCreee(new CentreId(CENTRE), seance, patient);
         diffusions.seanceValidee(new CentreId(CENTRE), seance, patient);
         diffusions.saisieDeLInfirmier(new CentreId(CENTRE), "SEANCE_CREEE", seance, patient, "marie");
+        diffusions.voletParamedicalEnregistre(new CentreId(CENTRE), seance, patient);
 
         Mockito.verify(fourni).seanceCreee(CENTRE, SEANCE, PATIENT, "Nom", "Prenom", "2026-06-15");
         Mockito.verify(fourni).seanceValidee(CENTRE, SEANCE, PATIENT, "Nom", "Prenom", "2026-06-15");
         Mockito.verify(fourni).saisieDeLInfirmier(CENTRE, "SEANCE_CREEE", PATIENT, "Nom", "Prenom", "marie", "2026-06-15");
+        Mockito.verify(fourni).voletParamedicalEnregistre(CENTRE, SEANCE, PATIENT, "Nom", "Prenom", "2026-06-15");
     }
 
     @Test
@@ -141,10 +84,5 @@ class TraducteursDesLangagesPubliesFournisTest {
         new DiffusionsParLeLegacy(fourni).consommablesModifies(new CentreId(CENTRE), seance);
 
         Mockito.verify(fourni).consommablesModifies(CENTRE, SEANCE);
-    }
-
-    private static HistoriqueFourni.Ligne ligne(String statut, String motif) {
-        return new HistoriqueFourni.Ligne(SEANCE, CENTRE, PATIENT, "P-1", "Nom", "Prenom", JOUR, statut, null, null, null, null, null,
-                motif != null, motif);
     }
 }

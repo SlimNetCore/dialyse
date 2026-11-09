@@ -38,6 +38,12 @@ public class DiffusionsFournieesLegacy implements DiffusionsFournies {
         diffuser("SAISIE_INFIRMIER", () -> notifications.notifySaisieInfirmier(centre, type, patient, nom, prenom, auteur, jour));
     }
 
+    /** SE7f (ADR 0100) : appel repris du contrôleur legacy du volet paramédical ({@code notifySeanceParamedicalSaved}). */
+    @Override
+    public void voletParamedicalEnregistre(UUID centre, UUID seance, UUID patient, String nom, String prenom, String jour) {
+        diffuser("SEANCE_PARAMEDICAL_SAVED", () -> notifications.notifySeanceParamedicalSaved(centre, seance, patient, nom, prenom, jour));
+    }
+
     @Override
     public void seanceDeverrouillee(UUID centre, UUID seance, String nom, String prenom, String jour) {
         diffuser("SEANCE_DEVERROUILLEE", () -> notifications.notifySeanceDeverrouillee(centre, seance, nom, prenom, jour));

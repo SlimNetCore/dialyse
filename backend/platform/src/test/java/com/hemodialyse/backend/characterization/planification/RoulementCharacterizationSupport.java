@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.characterization.planification;
 
 import com.hemodialyse.backend.characterization.gmao.plans.GoldenMaster;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.infrastructure.security.AuditRequestFilter;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;

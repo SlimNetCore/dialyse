@@ -1,8 +1,5 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
-import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
-import com.hemodialyse.backend.domain.seance.service.VoletParamedicalDomainService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +11,9 @@ import org.springframework.context.annotation.Configuration;
  * high-level use cases stay framework-agnostic and are assembled here, in the
  * infrastructure layer. Transaction atomicity is provided by the persistence
  * adapters (Spring Data repositories are transactional by default).
+ * <p>
+ * SE7f (ADR 0100) : le bean {@code VoletParamedicalDomainService} est retiré avec le module {@code bc-seance} ; la saisie du volet
+ * paramédical vit dans {@code contexts/seance}. Seul reste le service du référentiel d'administration.
  */
 @Configuration
 public class DomainServiceConfig {
@@ -23,20 +23,4 @@ public class DomainServiceConfig {
             com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort repo) {
         return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(repo);
     }
-
-    @Bean
-    public VoletParamedicalDomainService voletParamedicalDomainService(SeanceRepositoryPort seanceRepo,
-                                                                       VoletParamedicalRepositoryPort voletRepo) {
-        return new VoletParamedicalDomainService(seanceRepo, voletRepo);
-    }
-
-
 }
-
-
-
-
-
-
-
-

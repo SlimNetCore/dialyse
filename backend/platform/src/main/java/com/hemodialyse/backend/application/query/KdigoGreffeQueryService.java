@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.query;
 
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee;
 import com.hemodialyse.backend.domain.medical.greffe.aggregate.BilanPreGreffe;
 import com.hemodialyse.backend.domain.medical.greffe.port.BilanPreGreffeRepositoryPort;
 import com.hemodialyse.backend.domain.medical.kdigo.service.KdigoGreffeEvaluationPolicy;
@@ -11,8 +12,6 @@ import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepository
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
-import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
-import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.web.dto.response.AlerteSerologieKdigoResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.response.EvaluationEgfrResponse;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,22 +31,26 @@ import java.util.UUID;
  * Assemble les évaluations KDIGO du bilan pré-greffe (risque immunologique, fonction rénale,
  * points d'attention sérologiques) à partir des données déjà saisies ailleurs dans le dossier —
  * aucune donnée dupliquée, tout est recalculé à la demande via {@link KdigoGreffeEvaluationPolicy}.
+ * <p>
+ * SE7f (ADR 0100) : la dernière créatinine du patient au centre est lue par le langage publié du Dossier médical
+ * ({@link DerniereCreatininePubliee}) au lieu du port {@code ResultatAnalyseRepositoryPort} de {@code bc-seance} (retiré) ; même règle
+ * (KB-SEA-96 reproduit : ordre non défini à date égale, créatinine à 0 retenue).
  */
 @Service
 public class KdigoGreffeQueryService {
 
     private final BilanPreGreffeRepositoryPort bilanRepository;
     private final PatientRepositoryPort patientRepository;
-    private final ResultatAnalyseRepositoryPort resultatAnalyseRepository;
+    private final DerniereCreatininePubliee derniereCreatinine;
     private final SerologieRepositoryPort serologieRepository;
 
     public KdigoGreffeQueryService(BilanPreGreffeRepositoryPort bilanRepository,
                                    PatientRepositoryPort patientRepository,
-                                   ResultatAnalyseRepositoryPort resultatAnalyseRepository,
+                                   DerniereCreatininePubliee derniereCreatinine,
                                    SerologieRepositoryPort serologieRepository) {
         this.bilanRepository = bilanRepository;
         this.patientRepository = patientRepository;
-        this.resultatAnalyseRepository = resultatAnalyseRepository;
+        this.derniereCreatinine = derniereCreatinine;
         this.serologieRepository = serologieRepository;
     }
 
@@ -58,7 +60,7 @@ public class KdigoGreffeQueryService {
                 bilan == null ? null : bilan.getPraClasseI(), bilan == null ? null : bilan.getPraClasseII());
 
         Patient patient = patientRepository.findById(PatientId.of(patientId), centerId).orElse(null);
-        BigDecimal creatinine = dernierCreatinine(centerId, patientId);
+        BigDecimal creatinine = derniereCreatinine.duPatient(centerId.value(), patientId).orElse(null);
         Integer age = age(patient == null ? null : patient.getDateNaissance());
         String sexe = patient == null ? null : patient.getSexe();
         EvaluationEgfr fonctionRenale = KdigoGreffeEvaluationPolicy.evaluerFonctionRenale(creatinine, age, sexe);
@@ -73,14 +75,6 @@ public class KdigoGreffeQueryService {
                 EvaluationRisqueKdigoResponse.from(risqueImmunologique),
                 EvaluationEgfrResponse.from(fonctionRenale),
                 alertesSerologiques.stream().map(AlerteSerologieKdigoResponse::from).toList());
-    }
-
-    private BigDecimal dernierCreatinine(CenterId centerId, UUID patientId) {
-        return resultatAnalyseRepository.findByPatientId(patientId, centerId, null, null).stream()
-                .filter(r -> r.getCreatinineMgDl() != null)
-                .max(Comparator.comparing(ResultatAnalyse::getDatePrelevement))
-                .map(ResultatAnalyse::getCreatinineMgDl)
-                .orElse(null);
     }
 
     private Integer age(LocalDate dateNaissance) {

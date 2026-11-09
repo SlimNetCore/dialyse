@@ -33,6 +33,11 @@ public class VoletsMedicauxEnMemoire implements VoletsMedicaux {
         volets.add(copie(volet));
     }
 
+    @Override
+    public void effacer(CentreId centre, SeanceId seance) {
+        volets.removeIf(v -> v.centre().equals(centre) && v.seance().equals(seance));
+    }
+
     public int nombre() {
         return volets.size();
     }

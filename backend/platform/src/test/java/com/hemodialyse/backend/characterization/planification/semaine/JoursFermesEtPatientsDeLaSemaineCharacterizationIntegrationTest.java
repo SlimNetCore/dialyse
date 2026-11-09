@@ -8,13 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.DIMANCHE;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.JEUDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.SAMEDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.VENDREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.DIMANCHE;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.JEUDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.SAMEDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.VENDREDI;
 
 /**
  * Filet de caractérisation P6 : jours fermés (jours d'ouverture hebdomadaires, fériés, fermetures exceptionnelles) et état des

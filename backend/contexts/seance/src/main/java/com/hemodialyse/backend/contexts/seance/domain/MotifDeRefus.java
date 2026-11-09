@@ -42,7 +42,9 @@ public enum MotifDeRefus {
     /** SE7a : une séance exclue de la facturation (reliquat {@code ABSENT}) n'a pas de volet médical. */
     VOLET_MEDICAL_SEANCE_ABSENTE("BUSINESS_RULE_VIOLATION"),
     /** SE7a : le volet médical n'est accessible qu'après la validation infirmière. */
-    VOLET_MEDICAL_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION");
+    VOLET_MEDICAL_AVANT_VALIDATION("BUSINESS_RULE_VIOLATION"),
+    /** SE7f : une mesure du volet paramédical hors bornes ou illisible (poids, tension) ; code générique du legacy (DM1, reproduit). */
+    MESURE_INVALIDE("BUSINESS_ERROR");
 
     private final String code;
 

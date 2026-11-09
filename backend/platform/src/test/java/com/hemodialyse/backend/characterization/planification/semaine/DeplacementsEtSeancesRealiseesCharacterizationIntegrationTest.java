@@ -7,11 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.JEUDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.SAMEDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.JEUDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.SAMEDI;
 
 /**
  * Filet de caractérisation P6 : déplacements temporaires (table {@code deplacement_temporaire}, écrite par l'application d'une

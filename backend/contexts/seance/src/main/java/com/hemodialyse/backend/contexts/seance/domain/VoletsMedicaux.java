@@ -15,4 +15,7 @@ public interface VoletsMedicaux {
      * de création). À appeler après le verrou de ligne de la séance (deux premières saisies simultanées se suivent).
      */
     void enregistrer(VoletMedical volet);
+
+    /** Efface le volet de la séance du centre (suppression de la séance, SE6 ; SE7f) ; sans effet s'il n'existe pas. */
+    void effacer(CentreId centre, SeanceId seance);
 }

@@ -2,7 +2,7 @@ package com.hemodialyse.backend.characterization.patientcouverture.pc1;
 
 import com.hemodialyse.backend.contexts.absencespatients.application.PatientsAttendus;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -56,6 +56,11 @@ public class VoletsMedicauxJdbc implements VoletsMedicaux {
                 o.conclusionMedicale(), horodatage(v.creeLe()), horodatage(v.modifieLe()));
     }
 
+    @Override
+    public void effacer(CentreId centre, SeanceId seance) {
+        jdbc.update("DELETE FROM volet_medical WHERE seance_id = ? AND center_id = ?", seance.valeur(), centre.valeur());
+    }
+
     private static Instant instant(Timestamp t) {
         return t == null ? null : t.toInstant();
     }

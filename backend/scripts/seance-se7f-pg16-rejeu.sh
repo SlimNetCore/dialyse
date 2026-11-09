@@ -14,6 +14,9 @@
 #   F6  ResultatAnalyseJpaRepository.findByPatientIdAndCenterIdOrderByDatePrelevementDesc (derivee) : analyses du patient AU CENTRE, date
 #       decroissante ; a date egale, ordre NON defini (KB-SEA-96) : observe, non impose
 # Numerotation = celle de l'audit .ddd/safety-net/seance-se7f.md section 2.
+# Lots A-E (ADR 0100) : le script rejoue ensuite les 5 detections SELECT de la section 65 de verifications-production.md, puis lance les
+# contrats PostgreSQL des adapters repris (VoletsParamedicauxPostgresContractIT, LecturesReprisesDeLaPlateformePostgresContractIT dans
+# contexts/seance ; DerniereCreatininePostgresContractIT dans contexts/dossier-medical) contre la base jetable (schema Flyway reel).
 # A lancer en arriere-plan avec un log : backend/scripts/seance-se7f-pg16-rejeu.sh 55550
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Mot de passe du cluster jetable : variable d'environnement
 # SEANCE_PG16_PASSWORD (tiree au hasard ici si absente), jamais en argument. Code de sortie : 0 si tout est conforme.
@@ -111,6 +114,35 @@ verifier "F6 derniere creatinine non nulle du centre A sans les lignes du 03-01 
 PREMIERE="$(sql "SELECT id FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' ORDER BY date_prelevement DESC LIMIT 1")"
 echo "F6 a date egale (2026-03-01, deux lignes), PostgreSQL 16 sert d'abord : $PREMIERE (ordre NON defini, KB-SEA-96 : observe, non impose)"
 verifier "F6 les deux analyses du 03-01 sont servies" "$(sql "SELECT COUNT(*) FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' AND date_prelevement = '2026-03-01'")" "2"
+
+echo "=== Section 65 de verifications-production.md (ADR 0100, SELECT seulement) : detections rejouees a l'identique ==="
+verifier "65.1 KB-SEA-94 : volets poses dans un autre centre que leur seance (un paramedical et un medical du centre B sur la seance SA du centre A)" \
+  "$(sql "SELECT 'volet_paramedical' AS volet, s.center_id, v.center_id AS centre_du_volet, count(*) FROM volet_paramedical v JOIN seances s ON s.id = v.seance_id WHERE v.center_id <> s.center_id GROUP BY s.center_id, v.center_id
+UNION ALL
+SELECT 'volet_medical', s.center_id, v.center_id, count(*) FROM volet_medical v JOIN seances s ON s.id = v.seance_id WHERE v.center_id <> s.center_id GROUP BY s.center_id, v.center_id" | lignes)" \
+  "volet_paramedical|$A|$B|1;volet_medical|$A|$B|1"
+verifier "65.2 KB-SEA-95 : seances hors planning un jour ferie (aucune : le scan administrateur n'est pas rejoue en SQL)" \
+  "$(sql "SELECT s.center_id, s.motif_hors_planning, count(*) FROM seances s JOIN center_holiday h ON h.center_id = s.center_id AND h.day_date = s.date_seance WHERE s.hors_planning = TRUE GROUP BY s.center_id, s.motif_hors_planning" | lignes)" ""
+verifier "65.3 KB-SEA-96 : patients dont la derniere creatinine vaut 0 malgre une mesure positive (aucun dans ce jeu)" \
+  "$(sql "SELECT r.center_id, r.patient_id, max(r.date_prelevement) AS derniere FROM resultats_analyses r WHERE r.creatinine_mg_dl IS NOT NULL GROUP BY r.center_id, r.patient_id HAVING max(CASE WHEN r.creatinine_mg_dl = 0 THEN r.date_prelevement END) = max(r.date_prelevement) AND max(CASE WHEN r.creatinine_mg_dl > 0 THEN r.date_prelevement END) IS NOT NULL" | lignes)" ""
+verifier "65.4 KB-SEA-96 : deux creatinines du meme patient au centre le meme jour (PA au centre A le 2026-03-01)" \
+  "$(sql "SELECT center_id, patient_id, date_prelevement, count(*) FROM resultats_analyses WHERE creatinine_mg_dl IS NOT NULL GROUP BY center_id, patient_id, date_prelevement HAVING count(*) > 1 LIMIT 100" | lignes)" \
+  "$A|$PA|2026-03-01|2"
+verifier "65.5 volets orphelins (aucun)" \
+  "$(sql "SELECT 'volet_paramedical' AS volet, count(*) FROM volet_paramedical v WHERE NOT EXISTS (SELECT 1 FROM seances s WHERE s.id = v.seance_id)
+UNION ALL
+SELECT 'volet_medical', count(*) FROM volet_medical v WHERE NOT EXISTS (SELECT 1 FROM seances s WHERE s.id = v.seance_id)" | lignes)" \
+  "volet_paramedical|0;volet_medical|0"
+
+echo "=== Contrats PostgreSQL des adapters repris par SE7f (ADR 0100) : volets paramedicaux, lectures reprises de la plateforme (Seance), derniere creatinine (Dossier medical) ==="
+export SEANCE_PG16_PASSWORD="$PW"
+URL="jdbc:postgresql://127.0.0.1:$PORT/hemo_test"
+cd "$RACINE/backend" || exit 3
+./mvnw -o -pl contexts/seance,contexts/dossier-medical test \
+  -Dtest="com.hemodialyse.backend.contexts.seance.contrat.VoletsParamedicauxPostgresContractIT,com.hemodialyse.backend.contexts.seance.contrat.LecturesReprisesDeLaPlateformePostgresContractIT,com.hemodialyse.backend.contexts.dossiermedical.contrat.DerniereCreatininePostgresContractIT" \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dseance.pg16.url="$URL" -Dseance.pg16.user=seance_test -Dseance.pg16.password="$PW" \
+  -Ddossiermedical.pg16.url="$URL" -Ddossiermedical.pg16.user=seance_test -Ddossiermedical.pg16.password="$PW" || RC=1
 
 echo "=== Fin du rejeu : code $RC (0 = tout conforme) ==="
 exit $RC

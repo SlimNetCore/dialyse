@@ -64,6 +64,21 @@ abstract class VoletsMedicauxContrat {
     }
 
     @Test
+    void should_erase_the_volet_of_the_session_in_the_centre_only_and_ignore_a_missing_one() {
+        var v = volets();
+        v.enregistrer(VoletMedical.ouvrir(new UUID(8, 1), A, SEANCE, complet(), T0));
+        v.enregistrer(VoletMedical.ouvrir(new UUID(8, 2), A, new SeanceId(new UUID(2, 2)), complet(), T0));
+
+        v.effacer(B, SEANCE);
+        assertThat(v.deLaSeance(A, SEANCE)).isPresent();
+        v.effacer(A, SEANCE);
+        v.effacer(A, SEANCE);
+
+        assertThat(v.deLaSeance(A, SEANCE)).isEmpty();
+        assertThat(v.deLaSeance(A, new SeanceId(new UUID(2, 2)))).isPresent();
+    }
+
+    @Test
     void should_keep_a_very_long_text_untouched_the_column_being_unbounded() {
         var v = volets();
         String long100000 = "x".repeat(100_000);

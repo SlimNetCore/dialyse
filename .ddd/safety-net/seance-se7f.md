@@ -1,6 +1,6 @@
 ---
 slice: seance-se7f-retrait-bc-seance-et-garde
-status: characterized (audit vérifié sur le code et les tests réels, filet complété le 2026-11-08 ; aucun code de production modifié, aucune suppression)
+status: characterized puis built (audit vérifié sur le code et les tests réels, filet complété le 2026-11-08 ; lots A à E livrés le 2026-11-08, ADR 0100 : `bc-seance` et ses 17 utilisateurs retirés, parité des 6 goldens SE7f et de DM1, DM7, P6, SE1 à SE7e vérifiée, voir la fiche de slice)
 date: 2026-11-08
 context: seance (résidu legacy `backend/bc-seance` et ses 17 utilisateurs dans `backend/platform/src/main`)
 sources: [.ddd/migration/slices/seance-se7f-retrait-bc-seance-et-garde.md, .ddd/safety-net/seance-se7e.md, .ddd/safety-net/dossier-medical-dm1-constantes.md, TableDesSeancesTest (6 entrées), filets SE1, SE2, SE6, SE7a, P6, DM1, DM7, contrats LecturesDeLaSeanceContrat]

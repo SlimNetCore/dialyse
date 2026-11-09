@@ -2,9 +2,8 @@ package com.hemodialyse.backend.characterization.patientcouverture.pc3;
 
 import com.hemodialyse.backend.characterization.patientcouverture.CouvertureCharacterizationSupport;
 import com.hemodialyse.backend.contexts.absencespatients.application.ForfaitsDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,8 +24,13 @@ class LecteursDeLaPriseEnChargeCharacterizationIntegrationTest extends Couvertur
 
     @Autowired
     private ForfaitsDesPatients forfaits;
+    /**
+     * SE7f (ADR 0100) : le port legacy {@code SeanceBillingEligibilityPort} et son ACL (code mort, KB-SEA-97) sont retirés ; la cause est lue
+     * par le langage publié de Patient et couverture, et traduite ici dans les libellés du legacy que figent les goldens (même table de
+     * correspondance que l'ACL retirée et que {@code contexts/seance/.../EligibiliteParLaCouverture}).
+     */
     @Autowired
-    private SeanceBillingEligibilityPort eligibilite;
+    private CouvertureDesPatients couverture;
 
     @Override
     protected String racine() {
@@ -45,7 +49,11 @@ class LecteursDeLaPriseEnChargeCharacterizationIntegrationTest extends Couvertur
     }
 
     private String causeDe(UUID patient, LocalDate date) {
-        return eligibilite.causeNonFacturable(CenterId.of(CENTRE_A), patient, date).map(Enum::name).orElse("facturable");
+        return couverture.causeDeNonFacturation(CENTRE_A, patient, date).map(cause -> switch (cause) {
+            case AUCUNE_PEC_COUVRANTE -> "PRISE_EN_CHARGE";
+            case PEC_NON_VALIDEE -> "PRISE_EN_CHARGE_NON_VALIDEE";
+            case ATTESTATION_ABSENTE -> "ATTESTATION_DROITS";
+        }).orElse("facturable");
     }
 
     @Test

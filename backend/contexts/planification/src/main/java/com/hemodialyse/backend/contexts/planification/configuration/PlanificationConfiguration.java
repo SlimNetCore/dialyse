@@ -750,6 +750,13 @@ public class PlanificationConfiguration {
                 presence);
     }
 
+    /** SE7f (ADR 0100) : la capacité théorique quitte bc-seance ; la Direction la lit par ce port (générateurs en service fournis par la GMAO). */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres planificationCapaciteTheoriqueDesCentres(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.BaseDeLaCapaciteTheorique base) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLaCapaciteTheorique(base);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.planification.application.SeriesDuCentre planificationSeriesDuCentre(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacyorganisation.SeriesDuCentreJdbc(jdbc);

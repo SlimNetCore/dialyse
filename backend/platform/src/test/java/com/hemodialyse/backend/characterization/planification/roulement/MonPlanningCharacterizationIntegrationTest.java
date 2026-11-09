@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.planification.roulement;
 
 import com.hemodialyse.backend.characterization.planification.RoulementCharacterizationSupport;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;

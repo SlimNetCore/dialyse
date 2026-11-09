@@ -308,6 +308,15 @@ public final class Seance {
         exigerNonFacturee();
     }
 
+    /**
+     * Garde de l'écriture du volet paramédical (SE7f, DM1) : seule la séance {@code FACTUREE} est refusée (422
+     * {@code SEANCE_FACTUREE_NON_MODIFIABLE}) ; {@code CREE}, {@code VALIDEE}, {@code SIGNEE} et le reliquat {@code ABSENT} sont acceptés
+     * (reproduit : les constantes se saisissent avant la validation).
+     */
+    public void exigerUnVoletParamedical() {
+        exigerNonFacturee();
+    }
+
     /** Refuse (422) la séance facturée : à appeler avant de construire l'auteur, pour garder l'ordre des refus du legacy. */
     public void exigerNonFacturee() {
         if (statut == StatutDeSeance.FACTUREE) {

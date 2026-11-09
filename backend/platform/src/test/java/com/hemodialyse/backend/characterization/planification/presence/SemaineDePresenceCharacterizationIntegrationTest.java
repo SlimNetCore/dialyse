@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.planification.presence;
 
 import com.hemodialyse.backend.characterization.planification.PresenceCharacterizationSupport;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;

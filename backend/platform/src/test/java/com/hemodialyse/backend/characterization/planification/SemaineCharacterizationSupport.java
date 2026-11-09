@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.characterization.planification;
 
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDate;

@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.characterization.planification;
 
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.mock.web.MockHttpServletResponse;

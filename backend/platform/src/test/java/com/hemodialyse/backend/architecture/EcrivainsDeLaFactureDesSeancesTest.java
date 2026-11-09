@@ -53,10 +53,8 @@ class EcrivainsDeLaFactureDesSeancesTest {
         // Séance : le SEUL écrivain voulu, appelé par la Facturation via LiaisonDesSeancesAUneFacturePubliee (ADR 0097, lot c2b).
         ecrivain("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/LiaisonDesSeancesJdbc.java",
                 "rattachement des séances à leur facture à l'émission (SET statut = 'FACTUREE', facture_id = ?), ARGENT", SANS_ECHEANCE_DE_RETRAIT);
-        // Hors Séance : écrivains legacy révélés par la garde (2026-11-08), décrits dans la fiche de slice SE7c2, non masqués.
-        ecrivain("platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceRepositoryAdapter.java",
-                "réécriture JPA de la ligne entière : toJpa ne porte pas factureId, facture_id redevient NULL (KB-SEA-49, changement de date legacy "
-                        + "SeanceDomainService.updateDate, route non reprise)", RETRAIT_DU_PILOTAGE_LEGACY);
+        // Hors Séance : écrivains legacy révélés par la garde (2026-11-08), décrits dans la fiche de slice SE7c2, non masqués. SE7f (ADR 0100) :
+        // SeanceRepositoryAdapter (réécriture JPA de la ligne entière, KB-SEA-49) est retiré avec bc-seance ; KB-SEA-49 est clos.
         ecrivain("platform/src/main/resources/db/seed.sql",
                 "jeu d'amorçage de développement : rattache les séances FACTUREE aux factures AUTO- du mois (jamais sur une base partagée)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
@@ -160,11 +158,11 @@ class EcrivainsDeLaFactureDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_3_ecrivains_dont_1_de_la_seance_et_aucun_de_la_facturation() {
+    void la_liste_blanche_compte_2_ecrivains_dont_1_de_la_seance_et_aucun_de_la_facturation() {
         assertThat(ECRIVAINS_CONNUS)
-                .as("3 écrivains de seances.facture_id : LiaisonDesSeancesJdbc (Séance), SeanceRepositoryAdapter (JPA legacy, KB-SEA-49) et "
-                        + "db/seed.sql (amorçage) ; toute entrée ajoutée ou retirée est décidée, datée et reportée dans la fiche de SE7c2")
-                .hasSize(3);
+                .as("2 écrivains de seances.facture_id : LiaisonDesSeancesJdbc (Séance) et db/seed.sql (amorçage) ; SeanceRepositoryAdapter (JPA "
+                        + "legacy, KB-SEA-49) est retiré par SE7f ; toute entrée ajoutée ou retirée est décidée, datée et reportée dans la fiche de SE7c2")
+                .hasSize(2);
         assertThat(ECRIVAINS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/seance/")).count()).as("dont 1 de la Séance")
                 .isEqualTo(1);
         assertThat(ECRIVAINS_CONNUS.keySet()).as("aucun de la Facturation (ADR 0097)").noneMatch(c -> c.startsWith("contexts/facturation/"));

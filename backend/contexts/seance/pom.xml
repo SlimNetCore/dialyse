@@ -98,6 +98,12 @@
             <artifactId>contexts-absences-patients</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de la Planification : PlacesDesPatients (place habituelle du patient à la validation), SE7f, ADR 0100. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-planification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Exports du tableau de bord mensuel (CSV, XLSX, PDF), SE7b, ADR 0095 : mêmes bibliothèques et versions que la plateforme. -->
         <dependency>
             <groupId>com.openhtmltopdf</groupId>

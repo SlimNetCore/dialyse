@@ -11,8 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
 
 /**
  * Harnais de la slice P7 (libération des places : cron 04:00 {@code LiberationPlacesScheduler}, {@code LiberationPlacesService},

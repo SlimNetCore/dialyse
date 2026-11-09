@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
 
 /**
  * Filet de caractérisation P6 : les six conflits de la semaine (générateur réservé deux fois, salle surchargée, générateur

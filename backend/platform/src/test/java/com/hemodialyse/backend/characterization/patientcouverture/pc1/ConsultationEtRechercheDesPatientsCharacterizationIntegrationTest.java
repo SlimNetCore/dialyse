@@ -115,10 +115,10 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
         lecture("fiche_generateur_supprime", lireLaFiche(id, CENTRE_A, adminA()));
     }
 
-    private com.hemodialyse.backend.domain.planning.model.JourSemaine[] semaineLundiMercredi() {
-        return new com.hemodialyse.backend.domain.planning.model.JourSemaine[]{
-                com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI,
-                com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI};
+    private com.hemodialyse.backend.characterization.planification.JourSemaine[] semaineLundiMercredi() {
+        return new com.hemodialyse.backend.characterization.planification.JourSemaine[]{
+                com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI,
+                com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI};
     }
 
     @Test

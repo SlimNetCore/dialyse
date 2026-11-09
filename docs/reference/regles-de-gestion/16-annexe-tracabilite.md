@@ -40,7 +40,7 @@
 | `TableauDeBordDesSeancesControleur`                                               | `GET /api/v1/seances/dashboard`, `/dashboard/details`, `/dashboard/export` (tableau de bord mensuel, module `seance`, SE7b, ADR 0095)                  | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                                                                                                                               | RG-SEA-051, RG-SEA-059, RG-ABS-060 à 062                                       |
 | `SeancesControleur` (suite SE6)                                                   | `PUT /api/v1/seances/{id}` (changement de jour), `DELETE /api/v1/seances/{id}` (suppression motivée) (module `seance`, SE6, ADR 0093)                   | `ADMIN` seul                                                                                                                                                                | RG-SEA-002, 050, 057                                                           |
 | `RoutesResiduellesControleur`                                                     | `GET /api/v1/seances/journal`, `GET`, `POST` et `DELETE /api/v1/seances/calendar/...`, `PUT /api/v1/seances/{id}/volet-medical`, `GET /api/v1/seances/patient/{id}/recentes` (module `seance`, SE7a, ADR 0094) | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` (journal, calendrier), `ADMIN` (écriture du calendrier), `ADMIN`, `MEDECIN` (volet médical), `ADMIN`, `INFIRMIER`, `MEDECIN` (récentes) | RG-SEA-026, 028, 029, 031, 058                                                     |
-| `VoletParamedicalRestController`                                                  | `/api/v1/seances/{id}/volet-paramedical`                                                                                                                | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                                                                                                                                          | RG-SEA-030                                                                     |
+| `VoletParamedicalControleur` (contexte `seance`, slice SE7f)                      | `/api/v1/seances/{id}/volet-paramedical`                                                                                                                | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                                                                                                                                          | RG-SEA-030, RG-SEA-069, 070                                                    |
 | `MoisDAbsencesControleur`                                                         | `/api/v1/absences-patients/mois` (états des mois, clôture, réouverture) — contexte `absences-patients`, slice A6                                        | `ADMIN` (clôturer, rouvrir) ; `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` (lire)                                                                                          | RG-ABS-070 à 078                                                               |
 | `DetectionControleur`                                                             | `/api/v1/absences-patients/rattrapage-detection` (détection d'une période passée) — contexte `absences-patients`, slice A3                              | `ADMIN` (détection d'une période)                                                                                                                                           | RG-ABS-001 à 046                                                               |
 | `AbsencesEcrituresControleur`                                                     | `/api/v1/absences-patients` (déclaration, qualification, rattrapage, annulation) — contexte `absences-patients`, slice A2                               | `ADMIN`, `SECRETAIRE`, `INFIRMIER` (déclaration) ; `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER` (qualification, annulation) ; `ADMIN`, `MEDECIN` (rattrapage, corrections) | RG-ABS-003, 010 à 025, 054 à 057 (annulation refusée pour une exclusion : 057) |
@@ -140,11 +140,23 @@ SE7e (ADR 0099) n'ajoute aucune route : le pilotage de la Direction (`/api/v1/di
 `SeancesRealiseesDesCentresPubliees`, `StatistiquesDesSeancesPubliees`, `SeancesDuCahierPubliees`, `SeancesDeLaReprisePubliees` (seul port
 d'écriture hors de la Séance, réservé à la reprise) et `ForfaitsImposesAuxSeancesPublies`, injectés directement (la plateforme dépend du
 module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068.
-Les 6 lecteurs SQL de `seances` hors du contexte Séance qui restent (Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d,
-lecteurs Java du pilotage, des statistiques, du cahier, de la reprise et du référentiel : 0 depuis SE7e ; plateforme : 2 fournisseurs du
-langage publié `seance.v1` et 3 scripts de données, à traiter en SE7f, et l'état Jasper du cahier de dialyse, modèle personnalisable gardé
-avec sa requête, ADR 0099) sont inscrits dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir
-propre à chacun). Depuis SE7e, la garde voit aussi les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92).
+SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`
+passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes ; règle : RG-SEA-069) ;
+les lectures que la plateforme fournissait à la Séance (planning, place, forfaits, historique, générateurs, référentiel des forfaits, jour du
+centre, volets) sont reprises mot pour mot dans le module (RG-SEA-070) ; les ports publiés `VoletsFournis`, `PlanningFourni`, `PlaceFournie`,
+`ForfaitsFournis`, `HistoriqueFourni`, `GenerateursFournis`, `ReferentielDeForfaitsFourni` et `JourDuCentreFourni` disparaissent du langage
+publié ; restent fournis `FichesFournies`, `DiffusionsFournies` (+ `voletParamedicalEnregistre`), `RappelsFournis` et `SaisiesDeSeanceFournies`
+(administrations de traitement seulement). `GET /api/v1/patients/{id}/greffe/kdigo` lit la dernière créatinine par `DerniereCreatininePubliee`
+(Dossier médical) et `GET /api/v1/direction/capacite` calcule la capacité théorique par `CapaciteTheoriqueDesCentres` (Planification) ;
+règle : RG-SEA-071.
+Les 6 lecteurs SQL des tables de la Séance (`seances`, `volet_paramedical`, `volet_medical` depuis SE7f) hors du contexte Séance qui restent
+(Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d, lecteurs Java du pilotage, des statistiques, du cahier, de la reprise et du
+référentiel sur `seances` : 0 depuis SE7e, fournisseurs de `seance.v1` et entités JPA : 0 depuis SE7f ; plateforme : l'annulation d'un lot de
+reprise qui lit les volets, le schéma H2 `db/schema.sql`, 3 scripts de données et l'état Jasper du cahier de dialyse, modèle personnalisable
+gardé avec sa requête, ADR 0099) sont inscrits dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir
+propre à chacun). Les 8 lecteurs de `resultats_analyses` hors du Dossier médical sont inscrits dans `TableDesAnalysesTest`. Depuis SE7e, la
+garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-SEA-92) ; depuis SE7f, les entités JPA (`@Table`) et les
+`CREATE TABLE IF NOT EXISTS` (KB-SEA-98).
 
 ## 16.2 Tâches planifiées
 

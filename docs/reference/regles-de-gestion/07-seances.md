@@ -352,6 +352,51 @@
   que le centre du lot. **Reproduits sans correction, à confirmer au plus tard le 2026-12-15** : KB-SEA-89, 90.
   *Source :* `SeancesDeLaReprisePubliees`, `SeancesDeLaRepriseJdbc`, `HistoricalRecordJdbcAdapter`, `MigrationRollbackJdbcAdapter`.
 
+- **RG-SEA-069** — **Volet paramédical : les constantes de la séance appartiennent à la Séance** (slice SE7f, ADR 0100 ; même route
+  `PUT /api/v1/seances/{seanceId}/volet-paramedical`, mêmes rôles `ADMIN`, `INFIRMIER`, `SECRETAIRE`, mêmes champs, aucune migration ;
+  comportement inchangé). Le volet porte **dix mesures** : poids avant et après (kg), tension avant et après, durée (min), débit sang
+  (ml/min), ultrafiltration (ml), anticoagulant, type de dialysat, incidents. La saisie **remplace le volet en entier** : une mesure absente
+  du corps efface la valeur déjà saisie (RG-SEA-030). Un poids présent est **strictement positif et au plus 500 kg** (sinon 422
+  `BUSINESS_ERROR`, « Le poids doit être strictement positif » / « Le poids dépasse la borne plausible (500 kg) ») ; une tension présente
+  est lue « systolique/diastolique », la notation en cmHg (« 12/8 », « 11,5/7 ») est convertie en mmHg, les valeurs sont bornées de 20 à
+  400 mmHg et la systolique est au moins égale à la diastolique (sinon 422 `BUSINESS_ERROR`, messages du legacy) ; une tension vide est
+  gardée telle quelle ; durée, débit et ultrafiltration ne sont pas bornés. Ordre des refus : centre du corps (403 avant tout 400), séance
+  inconnue du centre (400 « Seance introuvable »), séance **facturée** (422 `SEANCE_FACTUREE_NON_MODIFIABLE` ; `CREE`, `VALIDEE`,
+  `SIGNEE` et le reliquat `ABSENT` sont acceptés), mesures. Deux saisies simultanées se suivent (séance lue sous verrou de ligne ; 409
+  `ECRITURE_CONCURRENTE` au-delà du délai). La réponse rend `id`, `seanceId`, `updatedAt` ; deux diffusions suivent (volet enregistré
+  pour les infirmiers et secrétaires du centre, saisie de l'infirmier de type `PARAMEDICAL` pour les médecins). Le volet est **effacé avec
+  la séance** (RG-SEA-054) et relu par le détail et les séances récentes **au centre de la séance seulement**.
+  **Reproduits sans correction, à confirmer au plus tard le 2026-12-15** : KB-SEA-93 (le volet est écrit puis la réponse est 400 « Patient
+  introuvable » quand la fiche est hors du centre, sans diffusion), KB-SEA-94 (un volet posé sous un autre centre est invisible et bloque la
+  saisie : 500 `DATA_ACCESS_ERROR`), un corps illisible répond 500 `INTERNAL_ERROR` (comme le legacy).
+  *Source :* `VoletParamedical`, `MesuresDeSeance`, `Poids`, `TensionArterielle`, `Seance.exigerUnVoletParamedical`,
+  `RenseignerLeVoletParamedical`, `VoletsParamedicauxJdbc`, `VoletParamedicalControleur`, `ErreursDuVoletParamedicalAdvice`.
+
+- **RG-SEA-070** — **Lectures reprises de la plateforme par la Séance** (slice SE7f, ADR 0100 ; aucune route, aucune migration,
+  comportement inchangé). Le planning du patient (jours de dialyse, sommeil, état et dates de la fiche AU CENTRE ; centre fermé = jour
+  férié OU fermeture exceptionnelle à la date, additionnés : KB-SEA-95 reproduit), la place du patient à la validation (déplacement
+  temporaire du jour, sinon place de la fiche publiée par la Planification ; vide sans salle ou créneau), le forfait courant (imposé, puis
+  prise en charge couvrant le jour, effective avant demandée, puis la plus récente portant un forfait), l'historique des séances (jointure
+  séances-fiches, filtres, tris, pagination, statuts illisibles exclus et journalisés), le générateur du patient (équipement GMAO du centre,
+  hors supprimé), le référentiel des forfaits du centre et le **jour du centre** (fuseau `centers.fuseau_horaire`, défaut de la plateforme)
+  sont lus par la Séance elle-même, requêtes **reprises mot pour mot** des fournisseurs retirés de la plateforme. Restent fournis par la
+  plateforme : les fiches des patients, les diffusions, le rappel de régularisation et l'effacement des administrations de traitement.
+  *Source :* `PlanningDesPatientsJdbc`, `PlaceDuPatientJdbc`, `ForfaitsDeSeanceJdbc`, `HistoriqueDesSeancesJdbc`, `GenerateursDesPatientsJdbc`,
+  `ForfaitsDuCentreJdbc`, `JourDuCentreJdbc`, `SaisiesParLeLegacy`.
+
+- **RG-SEA-071** — **Retrait du module legacy `bc-seance` et gardes des tables de la Séance** (slice SE7f, ADR 0100). Le module Maven
+  `backend/bc-seance` et ses dix-sept utilisateurs de la plateforme sont retirés ; la **dernière créatinine** de l'évaluation KDIGO est lue
+  par le langage publié du Dossier médical (`DerniereCreatininePubliee` : analyses du patient au centre, date de prélèvement décroissante,
+  première créatinine non nulle ; **KB-SEA-96 reproduit, à confirmer par les médecins au plus tard le 2026-12-15** : ordre non défini à date
+  égale, une créatinine à 0 est retenue) et la **capacité théorique** des centres par le langage publié de la Planification
+  (`CapaciteTheoriqueDesCentres` : un générateur de secours pour huit, capacité = postes actifs x séries x patients par poste et par série,
+  seuil de proximité 90 %, même résultat). Les tables `seances`, `volet_paramedical` et `volet_medical` ne sont lues ou écrites hors de la
+  Séance que par une **liste blanche nominative datée** (`TableDesSeancesTest`, 6 entrées : l'annulation d'un lot de reprise pour les
+  volets, le schéma H2, l'état Jasper du cahier et trois scripts de données) ; `resultats_analyses` hors du Dossier médical de même
+  (`TableDesAnalysesTest`, 8 entrées) ; les entités JPA sont détectées. **KB-SEA-49 est clos** (le code qui effaçait `facture_id` n'existe plus).
+  *Source :* `KdigoGreffeQueryService`, `DerniereCreatinineJdbc`, `DirectionCapaciteQueryService`, `ConsulterLaCapaciteTheorique`,
+  `CapaciteTheorique`, `TableDesSeancesTest`, `TableDesAnalysesTest`, `FrontieresDesContextesTest`.
+
 - **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre

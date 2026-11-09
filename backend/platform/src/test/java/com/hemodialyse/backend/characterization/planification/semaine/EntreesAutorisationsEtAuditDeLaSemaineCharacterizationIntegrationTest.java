@@ -7,8 +7,8 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
 
 /**
  * Filet de caractérisation P6 : entrées (date et centre illisibles, méthodes HTTP), garde de centre, matrice des onze profils et de

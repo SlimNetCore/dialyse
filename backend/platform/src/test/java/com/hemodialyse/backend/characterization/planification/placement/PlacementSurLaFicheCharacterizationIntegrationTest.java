@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
 
 /**
  * Filet de caractérisation P5 : contrôle d'un placement enregistré sur la fiche patient ({@code POST} et {@code PUT /api/v1/patients},

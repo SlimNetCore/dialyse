@@ -128,6 +128,11 @@ final class Banc {
             }
 
             @Override
+            public void voletParamedicalEnregistre(CentreId centre, Seance seance, FicheDuPatient patient) {
+                diffusionsRecues.add("SEANCE_PARAMEDICAL_SAVED:" + patient.nom());
+            }
+
+            @Override
             public void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient) {
                 diffusionsRecues.add("SEANCE_DEVERROUILLEE:" + patient.nom());
             }

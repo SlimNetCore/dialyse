@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
 
 /**
  * DM4, lot 4 : effet d'une sérologie sur la Planification (P5), observé par le placement du patient après l'écriture. Lecteur

@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
 
 /**
  * Filet de caractérisation P5 : profils autorisés sur les routes du placement (aide au placement, vue des salles, enregistrement

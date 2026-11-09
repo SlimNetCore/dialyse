@@ -31,17 +31,20 @@ class TraducteursDeLaSuppressionTest {
     private static final SeanceId SEANCE = new SeanceId(new UUID(2, 1));
     private static final PatientId PATIENT = new PatientId(new UUID(1, 1));
 
+    /** SE7f (ADR 0100) : les administrations restent fournies par la plateforme, les deux volets sont effacés par les dépôts de la Séance. */
     @Test
     void should_erase_the_administrations_then_the_paramedical_then_the_medical_entry_of_the_session() {
         var fournies = Mockito.mock(SaisiesDeSeanceFournies.class);
+        var paramedicaux = Mockito.mock(com.hemodialyse.backend.contexts.seance.domain.VoletsParamedicaux.class);
+        var medicaux = Mockito.mock(com.hemodialyse.backend.contexts.seance.domain.VoletsMedicaux.class);
 
-        new SaisiesParLeLegacy(fournies).effacer(CENTRE, SEANCE);
+        new SaisiesParLeLegacy(fournies, paramedicaux, medicaux).effacer(CENTRE, SEANCE);
 
-        InOrder ordre = Mockito.inOrder(fournies);
+        InOrder ordre = Mockito.inOrder(fournies, paramedicaux, medicaux);
         ordre.verify(fournies).effacerLesAdministrations(CENTRE.valeur(), SEANCE.valeur());
-        ordre.verify(fournies).effacerLeVoletParamedical(CENTRE.valeur(), SEANCE.valeur());
-        ordre.verify(fournies).effacerLeVoletMedical(CENTRE.valeur(), SEANCE.valeur());
-        Mockito.verifyNoMoreInteractions(fournies);
+        ordre.verify(paramedicaux).effacer(CENTRE, SEANCE);
+        ordre.verify(medicaux).effacer(CENTRE, SEANCE);
+        Mockito.verifyNoMoreInteractions(fournies, paramedicaux, medicaux);
     }
 
     @Test

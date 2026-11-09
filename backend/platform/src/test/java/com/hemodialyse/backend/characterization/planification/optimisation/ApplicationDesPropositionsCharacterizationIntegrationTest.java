@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.planification.optimisation;
 
 import com.hemodialyse.backend.characterization.planification.OptimisationCharacterizationSupport;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;

@@ -12,8 +12,11 @@ public interface DiffusionsFournies {
 
     void seanceValidee(UUID centre, UUID seance, UUID patient, String nom, String prenom, String jour);
 
-    /** {@code type} vaut {@code SEANCE_CREEE} ou {@code SEANCE_VALIDEE}. */
+    /** {@code type} vaut {@code SEANCE_CREEE}, {@code SEANCE_VALIDEE} ou {@code PARAMEDICAL} (SE7f). */
     void saisieDeLInfirmier(UUID centre, String type, UUID patient, String nom, String prenom, String auteur, String jour);
+
+    /** SE7f (ADR 0100) : le volet paramédical de la séance vient d'être enregistré ({@code SEANCE_PARAMEDICAL_SAVED}). */
+    void voletParamedicalEnregistre(UUID centre, UUID seance, UUID patient, String nom, String prenom, String jour);
 
     /** SE2 : une séance d'un jour passé vient d'être déverrouillée pour régularisation. */
     void seanceDeverrouillee(UUID centre, UUID seance, String nom, String prenom, String jour);

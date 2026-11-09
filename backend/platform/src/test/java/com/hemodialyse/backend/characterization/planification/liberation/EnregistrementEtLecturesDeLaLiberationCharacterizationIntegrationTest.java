@@ -3,7 +3,7 @@ package com.hemodialyse.backend.characterization.planification.liberation;
 import com.hemodialyse.backend.characterization.planification.LiberationCharacterizationSupport;
 import com.hemodialyse.backend.contexts.absencespatients.application.PatientsAttendus;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
 
 /**
  * Filet de caractérisation P7 : libération à l'enregistrement d'une fiche (échéance jugée à J-1, {@code libererALEnregistrement}), lecture du

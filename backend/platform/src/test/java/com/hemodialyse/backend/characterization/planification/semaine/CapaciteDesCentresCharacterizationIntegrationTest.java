@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
 
 /**
  * Filet de caractérisation P6 : capacité théorique des centres lue par la Direction ({@code GET /api/v1/direction/capacite},

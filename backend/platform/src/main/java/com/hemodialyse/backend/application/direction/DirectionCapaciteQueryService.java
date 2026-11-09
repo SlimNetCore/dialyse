@@ -1,11 +1,10 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursInstalles;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.BaseDeLaCapaciteTheorique;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Capacite;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Niveau;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
-import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator;
-import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator.Niveau;
-import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator.Resultat;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,12 @@ import java.util.UUID;
 
 /**
  * Capacité théorique des centres d'une société et taux d'occupation de leur file active sur la période choisie : par
- * centre et consolidés. Méthode : voir {@link CapaciteTheoriqueCalculator} (postes actifs = générateurs − secours,
- * capacité = postes × séries par jour × patients par poste et par série, paramétrable par centre).
+ * centre et consolidés. Méthode : celle de la Planification ({@link CapaciteTheoriqueDesCentres}, SE7f, ADR 0100 : postes actifs =
+ * générateurs − secours, capacité = postes × séries par jour × patients par poste et par série, paramétrable par centre).
  * <ul>
  *   <li>Générateurs : les seuls générateurs EN SERVICE installés au plus tard à la fin de la période (GMAO, KB-PLN-76).</li>
- *   <li>Séries, patients par poste et série, file active : lectures publiées de la planification ({@link BaseDeLaCapaciteTheorique}).
- *   La file active est celle de la présence unique des patients (RG-PLN-045) : hors sommeil, hors patients déjà sortis.</li>
+ *   <li>Séries, patients par poste et série, file active et calcul : lecture publiée de la Planification. La file active est celle
+ *   de la présence unique des patients (RG-PLN-045) : hors sommeil, hors patients déjà sortis.</li>
  * </ul>
  * Agrégats uniquement ; une file active comprise entre 1 et 4 patients est masquée ({@link AnonymityPolicy}) et son taux
  * avec elle, et ce centre est exclu du total consolidé (KB-PLN-75, champ {@code centresMasques}).
@@ -40,21 +39,21 @@ public class DirectionCapaciteQueryService {
     private final DirectionDashboardQueryService dashboard;
     /** Les générateurs en service de chaque centre viennent de la lecture publiée par le module GMAO. */
     private final GenerateursInstalles installes;
-    /** Séries, patients par poste et série, file active : lectures publiées par le module Planification (P6). */
-    private final BaseDeLaCapaciteTheorique base;
+    /** Capacité théorique (séries, patients par poste et série, file active, calcul) : lecture publiée par le module Planification. */
+    private final CapaciteTheoriqueDesCentres capacites;
     /** Fuseau du jour par défaut de la période : celui de la planification (une société consolidée n'a pas un seul centre). */
     private final ZoneId fuseau;
 
     public DirectionCapaciteQueryService(DirectionDashboardQueryService dashboard, GenerateursInstalles installes,
-                                         BaseDeLaCapaciteTheorique base,
+                                         CapaciteTheoriqueDesCentres capacites,
                                          @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
         this.installes = installes;
         this.dashboard = dashboard;
-        this.base = base;
+        this.capacites = capacites;
         this.fuseau = ZoneId.of(fuseauParDefaut);
     }
 
-    private static Ligne ligne(Resultat r) {
+    private static Ligne ligne(Capacite r) {
         Long fileMasquee = AnonymityPolicy.mask(r.fileActive());
         boolean masquee = fileMasquee == null;
         // Revue P6 : pour une file masquée, la capacité, le niveau et « atteinte » la bornent (capacité 2 + ATTEINTE = file de 2 à 4) :
@@ -73,13 +72,11 @@ public class DirectionCapaciteQueryService {
         if (start.plusYears(MAX_YEARS).isBefore(end)) {
             throw new BusinessException("PERIODE_TROP_LONGUE", "La période ne peut pas dépasser " + MAX_YEARS + " ans");
         }
-        Regle regle = new Regle(CapaciteTheoriqueCalculator.GENERATEURS_PAR_SECOURS,
-                CapaciteTheoriqueCalculator.SEUIL_PROCHE_POURCENT);
+        Regle regle = new Regle(CapaciteTheoriqueDesCentres.GENERATEURS_PAR_SECOURS, CapaciteTheoriqueDesCentres.SEUIL_PROCHE_POURCENT);
         OffsetDateTime maintenant = OffsetDateTime.now(ZoneOffset.UTC);
         List<CentreInfo> centres = dashboard.societe(societeId).centres();
         if (centres.isEmpty()) {
-            return new CapaciteOverview(societeId, start, end, maintenant, regle,
-                    ligne(CapaciteTheoriqueCalculator.agreger(List.of())), List.of(), 0);
+            return new CapaciteOverview(societeId, start, end, maintenant, regle, ligne(capacites.consolidee(List.of())), List.of(), 0);
         }
         List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
         // seuls les générateurs EN SERVICE comptent (KB-PLN-76, décision du 27/10 : comme le planning de la semaine)
@@ -87,13 +84,11 @@ public class DirectionCapaciteQueryService {
 
         // KB-PLN-75 (décision du 27/10 : « masquer par centre », comme les Absences) : un centre dont la file active est de 1 à 4
         // est masqué ET exclu du total consolidé ; sinon la différence entre le total et les centres publiés le redonnerait.
-        List<Resultat> publies = new ArrayList<>();
+        List<Capacite> publies = new ArrayList<>();
         List<CentreCapacite> lignes = new ArrayList<>();
         int centresMasques = 0;
         for (CentreInfo c : centres) {
-            BaseDeLaCapaciteTheorique.Base b = base.duCentre(c.id(), start, end);
-            Resultat r = CapaciteTheoriqueCalculator.calculer(generateurs.getOrDefault(c.id(), 0L).intValue(), b.creneaux(),
-                    b.patientsParPosteEtSerie(), b.fileActive());
+            Capacite r = capacites.duCentre(c.id(), generateurs.getOrDefault(c.id(), 0L).intValue(), start, end);
             lignes.add(new CentreCapacite(c.id(), c.nom(), c.actif(), ligne(r)));
             if (AnonymityPolicy.mask(r.fileActive()) == null) {
                 centresMasques++;
@@ -101,8 +96,7 @@ public class DirectionCapaciteQueryService {
                 publies.add(r);
             }
         }
-        return new CapaciteOverview(societeId, start, end, maintenant, regle,
-                ligne(CapaciteTheoriqueCalculator.agreger(publies)), lignes, centresMasques);
+        return new CapaciteOverview(societeId, start, end, maintenant, regle, ligne(capacites.consolidee(publies)), lignes, centresMasques);
     }
 
     /**

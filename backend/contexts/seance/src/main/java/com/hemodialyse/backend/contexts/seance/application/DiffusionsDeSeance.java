@@ -12,8 +12,11 @@ public interface DiffusionsDeSeance {
 
     void seanceValidee(CentreId centre, Seance seance, FicheDuPatient patient);
 
-    /** Saisie de l'infirmier : {@code type} vaut {@code SEANCE_CREEE} ou {@code SEANCE_VALIDEE}. */
+    /** Saisie de l'infirmier : {@code type} vaut {@code SEANCE_CREEE}, {@code SEANCE_VALIDEE} ou {@code PARAMEDICAL} (SE7f). */
     void saisieDeLInfirmier(CentreId centre, String type, Seance seance, FicheDuPatient patient, String auteur);
+
+    /** SE7f : le volet paramédical de la séance vient d'être enregistré ({@code SEANCE_PARAMEDICAL_SAVED}, infirmiers et secrétaires). */
+    void voletParamedicalEnregistre(CentreId centre, Seance seance, FicheDuPatient patient);
 
     /** SE2 : la séance d'un jour passé vient d'être déverrouillée pour régularisation (les infirmiers du centre en sont prévenus). */
     void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient);

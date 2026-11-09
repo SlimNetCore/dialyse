@@ -26,10 +26,6 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>bc-seance</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-medical</artifactId>
         </dependency>
         <dependency>

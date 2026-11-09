@@ -3,12 +3,9 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.acl;
 import com.hemodialyse.backend.contexts.seance.application.ConsommationRefusee;
 import com.hemodialyse.backend.contexts.seance.application.ConsommationsALaValidation;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
-import com.hemodialyse.backend.contexts.seance.domain.PlaceDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlaceParLePlanning;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsALaValidationDuStock;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlaceFournie;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ArticleDuCatalogue;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
@@ -34,19 +31,6 @@ class TraducteursDeLaValidationTest {
     private static final PatientId PATIENT = new PatientId(new UUID(1, 1));
     private static final LocalDate JOUR = LocalDate.of(2026, 6, 15);
     private static final Seance SEANCE = Seance.creer(new SeanceId(new UUID(2, 1)), CENTRE, PATIENT, JOUR, Instant.parse("2026-06-15T08:00:00Z"));
-
-    @Test
-    void should_translate_the_published_place_with_or_without_generator() {
-        UUID salle = new UUID(3, 1);
-        UUID creneau = new UUID(4, 1);
-        var avec = new PlaceParLePlanning((c, p, j) -> Optional.of(new PlaceFournie.Place(salle, creneau, new UUID(5, 1))));
-        var sans = new PlaceParLePlanning((c, p, j) -> Optional.of(new PlaceFournie.Place(salle, creneau, null)));
-        var aucune = new PlaceParLePlanning((c, p, j) -> Optional.empty());
-
-        assertThat(avec.placeLe(CENTRE, PATIENT, JOUR)).contains(new PlaceDeSeance(salle, creneau, new UUID(5, 1)));
-        assertThat(sans.placeLe(CENTRE, PATIENT, JOUR)).contains(new PlaceDeSeance(salle, creneau, null));
-        assertThat(aucune.placeLe(CENTRE, PATIENT, JOUR)).isEmpty();
-    }
 
     @Test
     void should_translate_the_catalogue_article_into_code_and_active_flag() {

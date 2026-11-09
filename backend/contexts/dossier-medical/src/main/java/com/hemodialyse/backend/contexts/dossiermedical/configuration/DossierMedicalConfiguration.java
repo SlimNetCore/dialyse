@@ -190,6 +190,12 @@ public class DossierMedicalConfiguration {
         return new com.hemodialyse.backend.contexts.dossiermedical.application.GardeDePatientDuCentre(patients);
     }
 
+    /** Langage publié SE7f (ADR 0100) : la dernière créatinine du patient au centre pour l'évaluation KDIGO de la plateforme (KB-SEA-96 reproduit). */
+    @Bean
+    com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee derniereCreatininePubliee(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.DerniereCreatinineJdbc(jdbc);
+    }
+
     @Bean
     HistoriqueDesConstantes historiqueDesConstantes(
             com.hemodialyse.backend.contexts.seance.publishedlanguage.ConstantesDesSeancesPubliees seances) {

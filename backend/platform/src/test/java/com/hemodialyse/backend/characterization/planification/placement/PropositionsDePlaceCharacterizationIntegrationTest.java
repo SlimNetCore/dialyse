@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.planification.placement;
 
 import com.hemodialyse.backend.characterization.planification.PlacementCharacterizationSupport;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 
@@ -10,10 +10,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.VENDREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.VENDREDI;
 
 /**
  * Filet de caractérisation P5 : {@code GET /api/v1/planning/affectations} (aide au placement : propositions de place classées de 0 à

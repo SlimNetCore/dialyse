@@ -27,7 +27,6 @@
         <module>shared-kernel</module>
         <module>bc-patient</module>
         <module>bc-assure</module>
-        <module>bc-seance</module>
         <module>bc-medical</module>
         <module>contexts/shared-kernel</module>
         <module>contexts/gmao</module>
@@ -62,11 +61,6 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-assure</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hemodialyse</groupId>
-                <artifactId>bc-seance</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

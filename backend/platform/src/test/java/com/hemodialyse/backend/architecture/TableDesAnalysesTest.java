@@ -1,0 +1,188 @@
+package com.hemodialyse.backend.architecture;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * La table {@code resultats_analyses} appartient au contexte Dossier médical (ADR 0100, décision 2 : écrite par {@code AnalysesJdbc} et
+ * {@code BilansBiologiquesJdbc}, lue pour la dernière créatinine par {@code DerniereCreatinineJdbc}). Garde écrite par SE7f (KB-SEA-98) sur
+ * le modèle de {@link TableDesSeancesTest} : elle scanne TOUT le code de production (plateforme, anciens modules, autres contextes, entités
+ * JPA comprises : un {@code @Table(name = "resultats_analyses")} est un lecteur), sauf le contexte Dossier médical. Les lecteurs actuels sont
+ * une liste blanche NOMMÉE, DATÉE, avec une revue au plus tard le {@link #REVUE} et un BUTOIR PROPRE à chaque entrée : un lecteur hors
+ * liste ou une entrée morte fait échouer le test.
+ */
+class TableDesAnalysesTest {
+
+    private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
+    private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
+    private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
+
+    private record Lecteur(String nature, LocalDate butoir) {
+    }
+
+    /** Lecteurs SQL connus hors du contexte Dossier médical (chemin depuis {@code backend/}) : 2026-11-08, SE7f (ADR 0100). */
+    private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>();
+
+    private static void lecteur(String chemin, String nature, LocalDate butoir) {
+        LECTEURS_CONNUS.put(chemin, new Lecteur(nature, butoir));
+    }
+
+    static {
+        String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
+        lecteur(plateforme + "application/direction/DirectionIndicatorsQueryService.java",
+                "indicateurs cliniques du pilotage de la Direction (lecture, agrégats par centre) ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
+        lecteur(plateforme + "application/query/PatientStatsQueryService.java",
+                "statistiques biologiques du patient (lecture) ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
+        lecteur(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
+                "reprise de données (ÉCRIT des analyses historiques, descripteur TABLES) ; échéance : reprise par le module", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
+                "annulation d'un lot de reprise (SUPPRIME les analyses du lot) ; échéance : reprise par le module", RETRAIT_DU_PILOTAGE_LEGACY);
+        String ressources = "platform/src/main/resources/";
+        lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des analyses ; rejoué HORS profil prod seulement, voir TableDesSeancesTest)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des analyses)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des analyses ; jamais sur une base partagée)", RETRAIT_DU_PILOTAGE_LEGACY);
+        lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS ; SE7f : remplace "
+                + "l'entité JPA retirée) ; aucune lecture ni écriture de données", RETRAIT_DU_PILOTAGE_LEGACY);
+    }
+
+    private static final Set<String> TABLES = Set.of("resultats_analyses");
+
+    private static final Pattern LECTURE_SQL = Pattern.compile(
+            "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:public\\.)?([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LISTE_DE_TABLES = Pattern.compile(
+            "\\bFROM\\s+[^;()\"]{0,160}?,\\s*(?:public\\.)?resultats_analyses\\b", Pattern.CASE_INSENSITIVE);
+    /** Entité JPA déclarée sur la table (KB-SEA-98 : la garde des séances ne voyait pas les accès JPA). */
+    private static final Pattern ENTITE_JPA = Pattern.compile("@Table\\s*\\(\\s*name\\s*=\\s*\"(?:public\\.)?resultats_analyses\"", Pattern.CASE_INSENSITIVE);
+    private static final Set<String> EXTENSIONS_DE_RESSOURCES = Set.of(".sql", ".jrxml", ".xml");
+
+    private static Path backend() {
+        return Path.of("..").toAbsolutePath().normalize();
+    }
+
+    private static String chemin(Path p) {
+        return p.toString().replace('\\', '/');
+    }
+
+    private static String relatif(Path p) {
+        return chemin(backend().relativize(p));
+    }
+
+    /** Tous les sources de production (le contexte Dossier médical excepté), entités JPA COMPRISES. */
+    static List<Path> sourcesDeProduction(Path racine) throws IOException {
+        List<Path> trouves = new ArrayList<>();
+        try (Stream<Path> modules = Stream.concat(Files.list(racine), Files.list(racine.resolve("contexts")))) {
+            for (Path module : modules.toList()) {
+                Path java = module.resolve("src/main/java");
+                if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/dossier-medical")) continue;
+                try (Stream<Path> fichiers = Files.walk(java)) {
+                    fichiers.filter(p -> p.toString().endsWith(".java")).forEach(trouves::add);
+                }
+                Path ressources = module.resolve("src/main/resources");
+                if (Files.isDirectory(ressources)) {
+                    try (Stream<Path> fichiers = Files.walk(ressources)) {
+                        fichiers.filter(Files::isRegularFile).filter(p -> !chemin(p).contains("/db/migration/"))
+                                .filter(p -> EXTENSIONS_DE_RESSOURCES.stream().anyMatch(e -> p.toString().endsWith(e)))
+                                .forEach(trouves::add);
+                    }
+                }
+            }
+        }
+        return trouves;
+    }
+
+    static boolean mentionneLaTable(Path source) {
+        try {
+            String texte = Files.readString(source);
+            Matcher m = LECTURE_SQL.matcher(texte);
+            while (m.find()) {
+                if (TABLES.contains(m.group(2).toLowerCase())) return true;
+            }
+            if (LISTE_DE_TABLES.matcher(texte).find()) return true;
+            if (ENTITE_JPA.matcher(texte).find()) return true;
+            return NomsDeTableCalcules.contientLeLitteral(texte, TABLES) && NomsDeTableCalcules.construitUneRequete(texte);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Set<String> lecteurs(List<Path> sources) {
+        Set<String> lecteurs = new TreeSet<>();
+        for (Path source : sources) {
+            if (mentionneLaTable(source)) lecteurs.add(relatif(source));
+        }
+        NomsDeTableCalcules.lecteursIndirects(sources, TABLES).forEach(p -> lecteurs.add(relatif(p)));
+        return lecteurs;
+    }
+
+    @Test
+    void aucun_nouveau_lecteur_sql_de_la_table_des_analyses_hors_de_la_liste_blanche() throws IOException {
+        Set<String> nouveaux = new TreeSet<>(lecteurs(sourcesDeProduction(backend())));
+        nouveaux.removeAll(LECTEURS_CONNUS.keySet());
+        assertThat(nouveaux)
+                .as("nouveaux lecteurs de resultats_analyses (SQL, nom de table calculé ou entité JPA) : passer par dossier-medical.v1 ou les inscrire (nommés, datés, butoir)")
+                .isEmpty();
+    }
+
+    @Test
+    void aucune_entree_morte_dans_la_liste_blanche() throws IOException {
+        Set<String> lecteurs = lecteurs(sourcesDeProduction(backend()));
+        Set<String> morts = new TreeSet<>();
+        for (String chemin : LECTEURS_CONNUS.keySet()) {
+            if (!Files.isRegularFile(backend().resolve(chemin)) || !lecteurs.contains(chemin)) morts.add(chemin);
+        }
+        assertThat(morts).as("entrées qui ne lisent plus resultats_analyses : les retirer").isEmpty();
+    }
+
+    @Test
+    void la_plateforme_n_a_plus_d_entite_jpa_ni_d_adaptateur_bc_seance_sur_les_analyses() throws IOException {
+        List<String> disparus = List.of("platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/ResultatAnalyseJpaEntity.java",
+                "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/ResultatAnalyseJpaRepository.java",
+                "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/ResultatAnalyseRepositoryAdapter.java",
+                "platform/src/main/java/com/hemodialyse/backend/application/query/KdigoGreffeQueryService.java");
+        assertThat(disparus.subList(0, 3)).as("retirés par SE7f").noneMatch(c -> Files.isRegularFile(backend().resolve(c)));
+        assertThat(lecteurs(sourcesDeProduction(backend()))).as("KDIGO lit la créatinine par DerniereCreatininePubliee").doesNotContain(disparus.get(3));
+    }
+
+    @Test
+    void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
+        assertThat(LECTEURS_CONNUS).hasSize(8);
+        LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
+            assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
+            assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
+        });
+        assertThat(LECTEURS_CONNUS.keySet()).noneMatch(c -> c.startsWith("contexts/"));
+    }
+
+    @Test
+    void la_garde_detecte_une_entite_jpa_et_une_lecture_directe() throws IOException {
+        Path bac = Files.createTempDirectory("garde-analyses-se7f");
+        Path entite = bac.resolve("Entite.java");
+        Files.writeString(entite, "@Entity\n@Table(name = \"resultats_analyses\", indexes = @Index(name = \"i\", columnList = \"patient_id\"))\nclass Entite { }");
+        Path lecture = bac.resolve("Lecture.java");
+        Files.writeString(lecture, "class Lecture { String s = \"SELECT creatinine_mg_dl FROM resultats_analyses WHERE patient_id = ?\"; }");
+        Path creation = bac.resolve("schema.sql");
+        Files.writeString(creation, "CREATE TABLE IF NOT EXISTS resultats_analyses (id UUID PRIMARY KEY);");
+        Path propre = bac.resolve("Propre.java");
+        Files.writeString(propre, "class Propre { String s = \"SELECT id FROM analyses_externes\"; }");
+
+        assertThat(mentionneLaTable(entite)).as("entité JPA").isTrue();
+        assertThat(mentionneLaTable(lecture)).as("lecture SQL").isTrue();
+        assertThat(mentionneLaTable(creation)).as("CREATE TABLE IF NOT EXISTS").isTrue();
+        assertThat(mentionneLaTable(propre)).as("autre table").isFalse();
+    }
+}

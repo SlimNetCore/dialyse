@@ -12,9 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 import java.util.UUID;
 
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
-import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MARDI;
+import static com.hemodialyse.backend.characterization.planification.JourSemaine.MERCREDI;
 
 /**
  * Filet de caractérisation P6 : lecture de la place par la Séance ({@code SeancePlaceJdbcAdapter}) au moment de la validation d'une

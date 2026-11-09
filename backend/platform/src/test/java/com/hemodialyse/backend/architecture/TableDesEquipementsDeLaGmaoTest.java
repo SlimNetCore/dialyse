@@ -25,9 +25,10 @@ class TableDesEquipementsDeLaGmaoTest {
     private static final Pattern TABLE = Pattern.compile("\\bgmao_equipements\\b", Pattern.CASE_INSENSITIVE);
 
     private static final Map<String, String> JALONS = Map.of(
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/GenerateursFournisLegacy.java",
-            "2026-11-07 : générateur du patient d'une séance (SE1, ADR 0088), lecture d'une ligne par identifiant et centre, reprise à l'identique "
-                    + "du legacy ; échéance : lecture publiée de la GMAO (générateur d'un centre), revue au plus tard le 2026-12-15",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacygmao/GenerateursDesPatientsJdbc.java",
+            "2026-11-08 (déplacée de platform acl/seance/GenerateursFournisLegacy, SE7f, ADR 0100) : générateur du patient d'une séance (SE1, "
+                    + "ADR 0088), lecture d'une ligne par identifiant et centre, reprise à l'identique ; échéance : lecture publiée de la GMAO portant "
+                    + "le fabricant (GenerateursDuCentre ne le porte pas), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacygmao/"
                     + "GenerateursDuCentreJdbc.java",
             "2026-11-07 : ACL de Patient et couverture vers la GMAO (générateurs du centre) ; échéance : lecture publiée de la GMAO",
@@ -79,7 +80,7 @@ class TableDesEquipementsDeLaGmaoTest {
     @Test
     void chaque_jalon_porte_une_date_et_une_echeance() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            assertThat(raison).matches("^2026-11-07 : .*");
+            assertThat(raison).matches("^2026-11-0[78] (\\(.*\\) )?: .*");
             assertThat(raison).contains("échéance");
         });
     }

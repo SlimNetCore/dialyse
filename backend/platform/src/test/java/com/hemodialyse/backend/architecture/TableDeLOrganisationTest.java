@@ -58,6 +58,10 @@ class TableDeLOrganisationTest {
             // 2026-11-04, PC4 : fuseau du centre (centers.fuseau_horaire) pour le tableau de bord et la séance sans date : lecture
             // seule. RETRAIT : à l'échéance de organisation.v1 (jalon O4), au plus tard avec PC5 (lectures publiées).
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/centres/JourDuCentreLegacy.java",
+            // 2026-11-08, SE7f (ADR 0100) : fuseau du centre (centers.fuseau_horaire) pour le jour du centre de la Séance (scan, création sans
+            // date, séances récentes), repris de JourDuCentreLegacy que le fournisseur JourDuCentreFourniLegacy (retiré) enveloppait ; lecture
+            // seule. RETRAIT : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacyorganisation/JourDuCentreJdbc.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/CentresActifsLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacycentres/HorlogeDesCentresLegacy.java",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacyorganisation/CreneauxDuCentreJdbc.java",

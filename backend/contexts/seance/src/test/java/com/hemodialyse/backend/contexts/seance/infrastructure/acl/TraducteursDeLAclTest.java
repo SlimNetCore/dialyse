@@ -3,10 +3,7 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.acl;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import com.hemodialyse.backend.contexts.seance.application.AccesRefuse;
 import com.hemodialyse.backend.contexts.seance.domain.CauseDeNonFacturation;
-import com.hemodialyse.backend.contexts.seance.domain.ForfaitId;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ForfaitsDuCentreParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.ReferentielDeForfaitsFourni;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.EligibiliteParLaCouverture;
@@ -80,28 +77,6 @@ class TraducteursDeLAclTest {
         assertThat(lignes.getFirst().libelle()).isEqualTo("Dialyseur");
         assertThat(lignes.getFirst().totalValorise()).isEqualByComparingTo("21.00");
         assertThat(lignes.get(1).valeurUnitaire()).isNull();
-    }
-
-    @Test
-    void should_translate_the_forfaits_of_the_referential_turning_the_libelle_into_the_name_and_keeping_the_price_as_is() {
-        UUID forfait = UUID.randomUUID();
-        var referentiel = Mockito.mock(ReferentielDeForfaitsFourni.class);
-        Mockito.when(referentiel.forfait(CENTRE.valeur(), forfait)).thenReturn(
-                Optional.of(new ReferentielDeForfaitsFourni.Forfait(forfait, "F1", "Libelle du forfait", new BigDecimal("12.500"))));
-        UUID sansPrix = UUID.randomUUID();
-        Mockito.when(referentiel.forfait(CENTRE.valeur(), sansPrix)).thenReturn(
-                Optional.of(new ReferentielDeForfaitsFourni.Forfait(sansPrix, null, "Sans prix", null)));
-        UUID inconnu = UUID.randomUUID();
-        Mockito.when(referentiel.forfait(CENTRE.valeur(), inconnu)).thenReturn(Optional.empty());
-        var acl = new ForfaitsDuCentreParLeLegacy(referentiel);
-
-        var traduit = acl.trouver(CENTRE, new ForfaitId(forfait)).orElseThrow();
-        assertThat(traduit.id()).isEqualTo(new ForfaitId(forfait));
-        assertThat(traduit.code()).isEqualTo("F1");
-        assertThat(traduit.nom()).isEqualTo("Libelle du forfait");
-        assertThat(traduit.prix()).isEqualTo(new BigDecimal("12.500")); // aucune normalisation d'échelle ni arrondi
-        assertThat(acl.trouver(CENTRE, new ForfaitId(sansPrix)).orElseThrow().prix()).isNull();
-        assertThat(acl.trouver(CENTRE, new ForfaitId(inconnu))).isEmpty();
     }
 
     /** Principal de test : le legacy expose {@code getCenterId()} (texte). */

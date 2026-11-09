@@ -403,6 +403,105 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_center ON audit_log (center_id, occurre
 CREATE INDEX IF NOT EXISTS idx_audit_log_societe ON audit_log (societe_id, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_log_user ON audit_log (user_id, occurred_at DESC);
 
+-- ═══ Séance : séances et volets (contexte Séance, SE7f, ADR 0100) ; résultats d'analyses (Dossier médical) ═══
+-- Jusqu'à SE7f ces quatre tables H2 étaient générées par les entités JPA de la plateforme (retirées avec bc-seance) :
+-- mêmes colonnes, mêmes types et mêmes contraintes que ces entités (et que Flyway V1, V21, V23, V26, V39 pour seances).
+
+CREATE TABLE IF NOT EXISTS seances
+(
+    id                              UUID PRIMARY KEY,
+    patient_id                      UUID         NOT NULL,
+    center_id                       UUID         NOT NULL,
+    date_seance                     DATE         NOT NULL,
+    statut                          VARCHAR(255) NOT NULL,
+    created_at                      TIMESTAMP WITH TIME ZONE,
+    validated_at                    TIMESTAMP WITH TIME ZONE,
+    signed_infirmier_at             TIMESTAMP WITH TIME ZONE,
+    signed_infirmier_by             VARCHAR(100),
+    signed_medecin_at               TIMESTAMP WITH TIME ZONE,
+    signed_medecin_by               VARCHAR(100),
+    facture_id                      UUID,
+    forfait_override_id             UUID,
+    forfait_override_code           VARCHAR(50),
+    forfait_override_nom            VARCHAR(255),
+    forfait_override_prix           NUMERIC(14, 2),
+    forfait_override_updated_at     TIMESTAMP WITH TIME ZONE,
+    forfait_override_updated_by     VARCHAR(100),
+    regularisation_deverrouillee_at TIMESTAMP WITH TIME ZONE,
+    regularisation_deverrouillee_by VARCHAR(100),
+    hors_planning                   BOOLEAN DEFAULT FALSE NOT NULL,
+    motif_hors_planning             VARCHAR(20),
+    precision_hors_planning         VARCHAR(255),
+    salle_id                        UUID,
+    creneau_id                      UUID,
+    generateur_id                   UUID,
+    statut_avant_exclusion          VARCHAR(20),
+    exclusion_absence_id            UUID
+);
+CREATE INDEX IF NOT EXISTS idx_seances_center_date ON seances (center_id, date_seance);
+CREATE INDEX IF NOT EXISTS idx_seances_center_patient_date ON seances (center_id, patient_id, date_seance);
+
+CREATE TABLE IF NOT EXISTS volet_paramedical
+(
+    id                 UUID PRIMARY KEY,
+    seance_id          UUID NOT NULL UNIQUE,
+    center_id          UUID NOT NULL,
+    poids_avant_kg     NUMERIC(38, 2),
+    poids_apres_kg     NUMERIC(38, 2),
+    ta_avant           VARCHAR(30),
+    ta_apres           VARCHAR(30),
+    duree_minutes      INTEGER,
+    debit_sang_ml_min  INTEGER,
+    ultrafiltration_ml NUMERIC(38, 2),
+    anticoagulant      VARCHAR(100),
+    type_dialysat      VARCHAR(100),
+    incidents          TEXT,
+    created_at         TIMESTAMP WITH TIME ZONE,
+    updated_at         TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS volet_medical
+(
+    id                         UUID PRIMARY KEY,
+    seance_id                  UUID NOT NULL UNIQUE,
+    center_id                  UUID NOT NULL,
+    prescription               TEXT,
+    tolerance_seance           TEXT,
+    examen_clinique            TEXT,
+    resultats_biologiques      TEXT,
+    ajustements_therapeutiques TEXT,
+    conclusion_medicale        TEXT,
+    created_at                 TIMESTAMP WITH TIME ZONE,
+    updated_at                 TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS resultats_analyses
+(
+    id                  UUID PRIMARY KEY,
+    patient_id          UUID NOT NULL,
+    center_id           UUID NOT NULL,
+    date_prelevement    DATE NOT NULL,
+    hb_g_dl             NUMERIC(38, 2),
+    ht_pct              NUMERIC(38, 2),
+    plaquettes          INTEGER,
+    ferritine_ng_ml     NUMERIC(38, 2),
+    cstf_pct            NUMERIC(38, 2),
+    epo_endogene_mui_ml NUMERIC(38, 2),
+    uree_pre_mg_dl      NUMERIC(38, 2),
+    uree_post_mg_dl     NUMERIC(38, 2),
+    creatinine_mg_dl    NUMERIC(38, 2),
+    kt_v_mensuel        NUMERIC(38, 2),
+    phosphore_mg_dl     NUMERIC(38, 2),
+    calcium_mg_dl       NUMERIC(38, 2),
+    pth_pg_ml           NUMERIC(38, 2),
+    albumine_g_dl       NUMERIC(38, 2),
+    proteines_g_dl      NUMERIC(38, 2),
+    crp_mg_l            NUMERIC(38, 2),
+    created_at          TIMESTAMP WITH TIME ZONE,
+    updated_at          TIMESTAMP WITH TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS idx_resultats_patient_date ON resultats_analyses (patient_id, date_prelevement);
+
 -- ═══ Calendrier centre (jours fériés / fermetures) ═══
 
 CREATE TABLE IF NOT EXISTS center_holiday

@@ -35,6 +35,12 @@ public class DiffusionsParLeLegacy implements DiffusionsDeSeance {
     }
 
     @Override
+    public void voletParamedicalEnregistre(CentreId centre, Seance seance, FicheDuPatient patient) {
+        diffusions.voletParamedicalEnregistre(centre.valeur(), seance.id().valeur(), seance.patient().valeur(), patient.nom(), patient.prenom(),
+                jour(seance));
+    }
+
+    @Override
     public void seanceDeverrouillee(CentreId centre, Seance seance, FicheDuPatient patient) {
         diffusions.seanceDeverrouillee(centre.valeur(), seance.id().valeur(), patient.nom(), patient.prenom(), jour(seance));
     }

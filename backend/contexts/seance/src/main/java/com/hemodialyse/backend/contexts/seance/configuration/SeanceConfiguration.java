@@ -38,6 +38,20 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.S
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsAnnuleesParLeStock;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.JournalDesSuppressionsJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SaisiesDeSeanceFournies;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients;
+import com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletParamedical;
+import com.hemodialyse.backend.contexts.seance.domain.VoletsParamedicaux;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyorganisation.JourDuCentreJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyreferentiel.ForfaitsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsDeLaSeanceJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsParamedicauxJdbc;
+import org.springframework.beans.factory.annotation.Value;
+import java.time.ZoneId;
 import com.hemodialyse.backend.contexts.seance.application.ConsommationsDeLaSeance;
 import com.hemodialyse.backend.contexts.seance.application.ConsulterUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.CreerUneSeance;
@@ -59,26 +73,13 @@ import com.hemodialyse.backend.contexts.seance.application.VoletsDeLaSeance;
 import com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.Seances;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ForfaitsDuCentreParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.ReferentielDeForfaitsFourni;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.ForfaitsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.GenerateursParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.HistoriqueParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlanningDesPatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.VoletsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsFournis;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.GenerateursFournis;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.HistoriqueFourni;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesPublieesDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.FacturationDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LiaisonDesSeancesJdbc;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.JourDuCentreFourni;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlanningFourni;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.VoletsFournis;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.EligibiliteParLaCouverture;
@@ -91,9 +92,7 @@ import com.hemodialyse.backend.contexts.seance.application.DeverrouillerUneSeanc
 import com.hemodialyse.backend.contexts.seance.application.PlaceDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.SignerUneSeance;
 import com.hemodialyse.backend.contexts.seance.application.ValiderUneSeance;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PlaceParLePlanning;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsALaValidationDuStock;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.PlaceFournie;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.CatalogueDArticles;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import com.hemodialyse.backend.contexts.seance.application.AjouterUnConsommable;
@@ -227,9 +226,10 @@ public class SeanceConfiguration {
         return new SessionLegacy();
     }
 
+    /** Le jour du centre est lu par la Séance elle-même depuis SE7f (ADR 0100) : fuseau de {@code centers}, défaut de la plateforme. */
     @Bean
-    HorlogeDuCentre horlogeDeLaSeance(JourDuCentreFourni jourDuCentre) {
-        return new HorlogeDuCentre(Clock.systemUTC(), jourDuCentre::aujourdhui);
+    HorlogeDuCentre horlogeDeLaSeance(JdbcTemplate jdbc, @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+        return new HorlogeDuCentre(Clock.systemUTC(), new JourDuCentreJdbc(jdbc, Clock.systemUTC(), ZoneId.of(fuseauParDefaut)));
     }
 
     @Bean
@@ -252,12 +252,46 @@ public class SeanceConfiguration {
         return new ConsommationsDeLaSeanceDuStock(stock);
     }
 
-    // ---- ACL du legacy : traduisent les langages publiés fournis par la plateforme (ADR 0088)
+    // ---- Lectures tenues par la Séance depuis SE7f (ADR 0100 : requêtes des anciens fournisseurs de la plateforme, reprises mot pour mot)
 
     @Bean
-    PlanningDesPatients planningDesPatientsDeLaSeance(PlanningFourni planning) {
-        return new PlanningDesPatientsParLeLegacy(planning);
+    PlanningDesPatients planningDesPatientsDeLaSeance(JdbcTemplate jdbc) {
+        return new PlanningDesPatientsJdbc(jdbc);
     }
+
+    @Bean
+    GenerateursDesPatients generateursDesPatientsDeLaSeance(JdbcTemplate jdbc) {
+        return new GenerateursDesPatientsJdbc(jdbc);
+    }
+
+    @Bean
+    VoletsParamedicaux voletsParamedicauxDeLaSeance(JdbcTemplate jdbc) {
+        return new VoletsParamedicauxJdbc(jdbc);
+    }
+
+    @Bean
+    VoletsDeLaSeance voletsDeLaSeance(@Qualifier("voletsParamedicauxDeLaSeance") VoletsParamedicaux paramedicaux,
+                                      @Qualifier("voletsMedicauxDeLaSeance") VoletsMedicaux medicaux) {
+        return new VoletsDeLaSeanceJdbc(paramedicaux, medicaux);
+    }
+
+    @Bean
+    ForfaitsDeSeance forfaitsDeLaSeance(JdbcTemplate jdbc) {
+        return new ForfaitsDeSeanceJdbc(jdbc);
+    }
+
+    @Bean
+    HistoriqueDesSeances historiqueDesSeances(JdbcTemplate jdbc) {
+        return new HistoriqueDesSeancesJdbc(jdbc);
+    }
+
+    /** Place habituelle par le langage publié de la Planification ; déplacement temporaire du jour lu par la Séance (transitoire). */
+    @Bean
+    PlaceDuPatient placeDuPatientDeLaSeance(JdbcTemplate jdbc, PlacesDesPatients places) {
+        return new PlaceDuPatientJdbc(jdbc, places);
+    }
+
+    // ---- ACL du legacy : traduisent les langages publiés encore fournis par la plateforme (ADR 0088, 0100 : fiches, diffusions, rappels)
 
     @Bean
     PatientsParLeLegacy patientsDeLaSeance(FichesFournies fiches) {
@@ -265,33 +299,22 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    GenerateursDesPatients generateursDesPatientsDeLaSeance(GenerateursFournis generateurs) {
-        return new GenerateursParLeLegacy(generateurs);
-    }
-
-    @Bean
-    VoletsDeLaSeance voletsDeLaSeance(VoletsFournis volets) {
-        return new VoletsParLeLegacy(volets);
-    }
-
-    @Bean
-    ForfaitsDeSeance forfaitsDeLaSeance(ForfaitsFournis forfaits) {
-        return new ForfaitsParLeLegacy(forfaits);
-    }
-
-    @Bean
-    HistoriqueDesSeances historiqueDesSeances(HistoriqueFourni historique) {
-        return new HistoriqueParLeLegacy(historique);
-    }
-
-    @Bean
     DiffusionsDeSeance diffusionsDeLaSeance(DiffusionsFournies diffusions) {
         return new DiffusionsParLeLegacy(diffusions);
     }
 
+    // ---- SE7f : saisie du volet paramédical (ADR 0100)
+
     @Bean
-    PlaceDuPatient placeDuPatientDeLaSeance(PlaceFournie places) {
-        return new PlaceParLePlanning(places);
+    RenseignerLeVoletParamedical renseignerLeVoletParamedical(@Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+                                                              @Qualifier("seancesDuContexteSeance") Seances seances,
+                                                              @Qualifier("voletsParamedicauxDeLaSeance") VoletsParamedicaux volets,
+                                                              @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+                                                              @Qualifier("uniteDeTravailDeLaSeance") UniteDeTravail uniteDeTravail,
+                                                              @Qualifier("generateurDIdentifiantsDeLaSeance") GenerateurDIdentifiants identifiants,
+                                                              @Qualifier("horlogeDeLaSeance") HorlogeDuCentre horloge,
+                                                              @Qualifier("diffusionsDeLaSeance") DiffusionsDeSeance diffusions) {
+        return new RenseignerLeVoletParamedical(session, seances, volets, patients, uniteDeTravail, identifiants, horloge, diffusions);
     }
 
     @Bean
@@ -404,8 +427,8 @@ public class SeanceConfiguration {
     // ---- SE5 : imposition d'un forfait à une séance (ADR 0092)
 
     @Bean
-    ForfaitsDuCentre forfaitsDuCentreDeLaSeance(ReferentielDeForfaitsFourni referentiel) {
-        return new ForfaitsDuCentreParLeLegacy(referentiel);
+    ForfaitsDuCentre forfaitsDuCentreDeLaSeance(JdbcTemplate jdbc) {
+        return new ForfaitsDuCentreJdbc(jdbc);
     }
 
     @Bean
@@ -426,8 +449,10 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    SaisiesDeLaSeance saisiesDeLaSeance(SaisiesDeSeanceFournies saisies) {
-        return new SaisiesParLeLegacy(saisies);
+    SaisiesDeLaSeance saisiesDeLaSeance(SaisiesDeSeanceFournies administrations,
+                                        @Qualifier("voletsParamedicauxDeLaSeance") VoletsParamedicaux voletsParamedicaux,
+                                        @Qualifier("voletsMedicauxDeLaSeance") VoletsMedicaux voletsMedicaux) {
+        return new SaisiesParLeLegacy(administrations, voletsParamedicaux, voletsMedicaux);
     }
 
     @Bean

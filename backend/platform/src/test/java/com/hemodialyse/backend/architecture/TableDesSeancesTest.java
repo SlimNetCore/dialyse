@@ -19,10 +19,11 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * La table {@code seances} appartient au contexte Séance. Garde réécrite par SE7c1 (ADR 0096) : elle remplace la garde désactivée depuis
- * SE1. Elle scanne TOUT le code de production (plateforme, anciens modules, autres contextes, ACL et adapters de persistance compris),
- * sauf le contexte Séance et les entités JPA. Les lecteurs actuels sont une liste blanche NOMMÉE, DATÉE, avec une revue au plus tard le
- * {@link #REVUE} et un BUTOIR PROPRE à chaque entrée :
+ * Les tables {@code seances}, {@code volet_paramedical} et {@code volet_medical} appartiennent au contexte Séance (ADR 0100, décision 1 :
+ * les volets suivent le cycle de vie de la séance). Garde réécrite par SE7c1 (ADR 0096), étendue par SE7f aux volets et aux entités JPA
+ * (KB-SEA-98 : un {@code @Table(name = "seances")} est un lecteur ; le dossier {@code /entity/} n'est plus exclu). Elle scanne TOUT le code
+ * de production (plateforme, anciens modules, autres contextes, ACL et adapters de persistance compris), sauf le contexte Séance. Les lecteurs
+ * actuels sont une liste blanche NOMMÉE, DATÉE, avec une revue au plus tard le {@link #REVUE} et un BUTOIR PROPRE à chaque entrée :
  * <ul>
  *   <li>un nouveau lecteur, ou un lecteur qui n'est pas listé, fait échouer le test ;</li>
  *   <li>une entrée qui ne lit plus {@code seances} (fichier disparu ou migré) est une entrée morte : le test échoue, la liste doit
@@ -63,13 +64,19 @@ class TableDesSeancesTest {
         // par seance.v1 (SeancesRealiseesPubliees, LiensDExclusionPublies, SeancesRealiseesAvecLeurPlacePubliees, ConstantesDesSeancesPubliees).
         // Plateforme : plus aucun lecteur du pilotage, des statistiques, du cahier (service), de la reprise ni du référentiel depuis SE7e
         // (ADR 0099, 2026-11-08) : ils passent par SeancesRealiseesDesCentresPubliees, StatistiquesDesSeancesPubliees, SeancesDuCahierPubliees,
-        // SeancesDeLaReprisePubliees, ForfaitsImposesAuxSeancesPublies. Restent les fournisseurs de seance.v1 (SE7f), l'état Jasper (justifié)
-        // et les scripts de données (SE7f).
+        // SeancesDeLaReprisePubliees, ForfaitsImposesAuxSeancesPublies. Plus aucun fournisseur de seance.v1 ni aucun adaptateur de bc-seance
+        // depuis SE7f (ADR 0100, 2026-11-08) : HistoriqueFourniLegacy et ForfaitsFournisLegacy sont repris dans contexts/seance ; les entités
+        // JPA SeanceJpaEntity, VoletParamedicalJpaEntity, VoletMedicalJpaEntity sont retirées. Restent l'état Jasper (justifié), les scripts de
+        // données, le schéma H2 et les deux lecteurs des volets de la reprise (résidu E-R6).
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
-        lecteur(plateforme + "infrastructure/acl/seance/HistoriqueFourniLegacy.java", "historique des séances fourni à la Séance (lecture ; SE7f)", LECTURES_PUBLIEES);
-        lecteur(plateforme + "infrastructure/acl/seance/ForfaitsFournisLegacy.java", "forfaits fournis à la Séance (lecture ; SE7f)", LECTURES_PUBLIEES);
+        lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
+                "annulation d'un lot de reprise : lit volet_medical et volet_paramedical pour « complétée » (résidu E-R6, ADR 0099 ; SE7f : "
+                        + "visible depuis que les volets sont gardés) ; échéance : lecture publiée de la Séance ou reprise par le module", LECTURES_PUBLIEES);
         // Ressources SQL de production hors Flyway, révélées par le durcissement de la garde (revue SE7c1, 2026-11-08).
         String ressources = "platform/src/main/resources/";
+        lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS seances, volet_paramedical, "
+                        + "volet_medical ; SE7f : remplace les entités JPA retirées) ; aucune lecture ni écriture de données",
+                RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
                         + "de document PERSONNALISABLE par centre, dont la requête unique est embarquée (ADR 0099, décision 3, résidu E-R3)",
                 CAHIER_PERSONNALISABLE);
@@ -87,14 +94,19 @@ class TableDesSeancesTest {
                         + "figurent plus (SE7e) : la chaîne n'atteint aucune requête");
     }
 
-    private static final Set<String> TABLES_DE_LA_SEANCE = Set.of("seances");
+    /** Les trois tables de la Séance (ADR 0100 : les volets suivent la séance ; {@code resultats_analyses} est au Dossier médical). */
+    private static final Set<String> TABLES_DE_LA_SEANCE = Set.of("seances", "volet_paramedical", "volet_medical");
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
-            "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+(?:public\\.)?([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
+            "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:public\\.)?([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
 
     /** Jointure à l'ancienne dans une même chaîne SQL : {@code FROM patients p, seances s} (la table n'est pas juste après FROM). */
     private static final Pattern LISTE_DE_TABLES = Pattern.compile(
-            "\\bFROM\\s+[^;()\"]{0,160}?,\\s*(?:public\\.)?seances\\b", Pattern.CASE_INSENSITIVE);
+            "\\bFROM\\s+[^;()\"]{0,160}?,\\s*(?:public\\.)?(?:seances|volet_paramedical|volet_medical)\\b", Pattern.CASE_INSENSITIVE);
+
+    /** Entité JPA déclarée sur une table de la Séance (KB-SEA-98 : la garde ne voyait ni les requêtes dérivées ni les entités). */
+    private static final Pattern ENTITE_JPA = Pattern.compile(
+            "@Table\\s*\\(\\s*name\\s*=\\s*\"(?:public\\.)?(?:seances|volet_paramedical|volet_medical)\"", Pattern.CASE_INSENSITIVE);
 
     /** Ressources SQL de production hors Flyway (états Jasper, requêtes en fichier) : lues comme les sources Java. */
     private static final Set<String> EXTENSIONS_DE_RESSOURCES = Set.of(".sql", ".jrxml", ".xml");
@@ -111,7 +123,7 @@ class TableDesSeancesTest {
         return chemin(backend().relativize(p));
     }
 
-    /** Tous les sources de production de {@code racine} (le contexte Séance et les entités JPA exceptés). */
+    /** Tous les sources de production de {@code racine} (le contexte Séance excepté), entités JPA COMPRISES (SE7f, KB-SEA-98). */
     private static List<Path> sourcesDeProduction(Path racine) throws IOException {
         List<Path> trouves = new ArrayList<>();
         try (Stream<Path> modules = Stream.concat(Files.list(racine), Files.list(racine.resolve("contexts")))) {
@@ -119,7 +131,7 @@ class TableDesSeancesTest {
                 Path java = module.resolve("src/main/java");
                 if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/seance")) continue;
                 try (Stream<Path> fichiers = Files.walk(java)) {
-                    fichiers.filter(p -> p.toString().endsWith(".java")).filter(p -> !chemin(p).contains("/entity/")).forEach(trouves::add);
+                    fichiers.filter(p -> p.toString().endsWith(".java")).forEach(trouves::add);
                 }
                 Path ressources = module.resolve("src/main/resources");
                 if (Files.isDirectory(ressources)) {
@@ -146,6 +158,7 @@ class TableDesSeancesTest {
                 if (TABLES_DE_LA_SEANCE.contains(m.group(2).toLowerCase())) return true;
             }
             if (LISTE_DE_TABLES.matcher(texte).find()) return true;
+            if (ENTITE_JPA.matcher(texte).find()) return true;
             return NomsDeTableCalcules.contientLeLitteral(texte, TABLES_DE_LA_SEANCE) && NomsDeTableCalcules.construitUneRequete(texte);
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -204,10 +217,28 @@ class TableDesSeancesTest {
                 plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminTables.java");
         assertThat(se7e).as("les 9 fichiers de SE7e existent").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
-        Set<String> lecteurs = lecteurs(sourcesDeProduction(backend()));
-        assertThat(se7e.stream().filter(lecteurs::contains).toList())
+        // Sur la seule table seances (la garde des volets, SE7f, inscrit MigrationRollbackJdbcAdapter pour volet_medical / volet_paramedical, E-R6).
+        Set<String> lecteursDeSeances = new TreeSet<>();
+        for (Path source : sourcesDeProduction(backend())) {
+            if (mentionne(source, Set.of("seances"))) lecteursDeSeances.add(relatif(source));
+        }
+        assertThat(se7e.stream().filter(lecteursDeSeances::contains).toList())
                 .as("ces fichiers passent par les ports publiés de la Séance (ADR 0099, SE7e), sans SQL ni nom de table calculé sur seances")
                 .isEmpty();
+    }
+
+    /** Lecture littérale d'une des {@code tables} dans un fichier (même détection que {@link #mentionneLaTableDeLaSeance}, tables choisies). */
+    private static boolean mentionne(Path source, Set<String> tables) {
+        try {
+            String texte = Files.readString(source);
+            Matcher m = LECTURE_SQL.matcher(texte);
+            while (m.find()) {
+                if (tables.contains(m.group(2).toLowerCase())) return true;
+            }
+            return NomsDeTableCalcules.contientLeLitteral(texte, tables) && NomsDeTableCalcules.construitUneRequete(texte);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Test
@@ -297,26 +328,46 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_6_lecteurs_ceux_de_se7f_et_l_etat_jasper_justifie() {
+    void la_liste_blanche_compte_6_lecteurs_l_annulation_de_la_reprise_le_schema_h2_et_les_ressources_justifiees() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs de seances compte 6 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis SE7d, "
-                        + "0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel depuis SE7e ; restent 2 "
-                        + "fournisseurs de seance.v1 et 3 scripts de données, tous de SE7f, et l'état Jasper du cahier, justifié) : toute entrée "
-                        + "ajoutée ou retirée doit être décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
+                .as("la liste blanche des lecteurs des tables de la Séance compte 6 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis "
+                        + "SE7d, 0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel sur seances depuis SE7e, "
+                        + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f ; restent l'annulation de la reprise qui lit les VOLETS (E-R6), "
+                        + "le schéma H2, l'état Jasper du cahier (justifié) et 3 scripts de données) : toute entrée ajoutée ou retirée doit être "
+                        + "décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
                 .hasSize(6);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).count())
                 .as("dont 0 d'un autre contexte (SE7d)").isZero();
-        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/")).count())
-                .as("dont 6 de la plateforme").isEqualTo(6);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/java/")))
-                .as("dont 2 sources Java, les fournisseurs de seance.v1 (SE7f)")
-                .containsExactlyInAnyOrder("platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/HistoriqueFourniLegacy.java",
-                        "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/ForfaitsFournisLegacy.java");
+                .as("dont 1 source Java, l'annulation d'un lot de reprise qui lit les volets (aucun ne touche seances)")
+                .containsExactlyInAnyOrder(
+                        "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java");
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
-                .as("dont 4 ressources SQL (l'état Jasper et 3 scripts de données)").isEqualTo(4);
+                .as("dont 5 ressources SQL (le schéma H2, l'état Jasper et 3 scripts de données)").isEqualTo(5);
         assertThat(MENTIONS_NON_SQL).as("1 faux positif nommé de la détection des noms calculés").hasSize(1);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
                 .as("dont 0 de la Facturation (SE7c2)").isZero();
+    }
+
+    /** SE7f (ADR 0100) : la plateforme n'a plus ni entité JPA ni adaptateur de bc-seance sur les tables de la Séance ; aucun fournisseur de seance.v1 n'y touche. */
+    @Test
+    void la_plateforme_n_a_plus_d_entite_jpa_ni_de_fournisseur_sur_les_tables_de_la_seance() throws IOException {
+        String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
+        List<String> retires = List.of(plateforme + "infrastructure/persistence/entity/SeanceJpaEntity.java",
+                plateforme + "infrastructure/persistence/entity/VoletParamedicalJpaEntity.java",
+                plateforme + "infrastructure/persistence/entity/VoletMedicalJpaEntity.java",
+                plateforme + "infrastructure/persistence/repository/SeanceJpaRepository.java",
+                plateforme + "infrastructure/persistence/adapter/SeanceRepositoryAdapter.java",
+                plateforme + "infrastructure/acl/seance/HistoriqueFourniLegacy.java",
+                plateforme + "infrastructure/acl/seance/ForfaitsFournisLegacy.java",
+                plateforme + "infrastructure/acl/seance/VoletsFournisLegacy.java");
+        assertThat(retires).as("retirés par SE7f").noneMatch(c -> Files.isRegularFile(backend().resolve(c)));
+        Set<String> lecteurs = lecteurs(sourcesDeProduction(backend()));
+        assertThat(lecteurs.stream().filter(c -> c.startsWith(plateforme + "infrastructure/acl/seance/")).toList())
+                .as("les fournisseurs restants de seance.v1 (fiches, diffusions, rappels, administrations) n'ont aucun SQL sur les tables de la Séance")
+                .isEmpty();
+        assertThat(lecteurs.stream().filter(c -> c.contains("/entity/") || c.contains("/repository/")).toList())
+                .as("plus aucune entité ni dépôt JPA sur seances, volet_paramedical, volet_medical").isEmpty();
     }
 
     @Test
@@ -424,7 +475,24 @@ class TableDesSeancesTest {
                     void appel(java.util.List<String> patients, java.util.List<String> seances) { }
                 }
                 """);
+        Path entite = bac.resolve("VoletJpaEntity.java");
+        Files.writeString(entite, """
+                @Entity
+                @Table(name = "volet_paramedical")
+                class VoletJpaEntity { }
+                """);
+        Path volet = bac.resolve("LectureDuVolet.java");
+        Files.writeString(volet, """
+                class LectureDuVolet {
+                    String lecture = "SELECT v.id FROM volet_medical v WHERE v.seance_id = ?";
+                }
+                """);
+        Path creation = bac.resolve("schema.sql");
+        Files.writeString(creation, "CREATE TABLE IF NOT EXISTS seances (id UUID PRIMARY KEY);");
 
+        assertThat(mentionneLaTableDeLaSeance(entite)).as("entité JPA sur une table de la Séance (SE7f, KB-SEA-98)").isTrue();
+        assertThat(mentionneLaTableDeLaSeance(volet)).as("lecture d'un volet (SE7f)").isTrue();
+        assertThat(mentionneLaTableDeLaSeance(creation)).as("CREATE TABLE IF NOT EXISTS (schéma H2)").isTrue();
         assertThat(mentionneLaTableDeLaSeance(liste)).as("FROM a, seances").isTrue();
         assertThat(mentionneLaTableDeLaSeance(qualifiee)).as("public.seances").isTrue();
         assertThat(mentionneLaTableDeLaSeance(ressource)).as("ressource SQL").isTrue();

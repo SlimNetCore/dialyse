@@ -64,15 +64,16 @@ class FrontieresDesContextesTest {
 
     private static final java.util.Set<String> PORTS_RESIDUELS_DU_DOSSIER_MEDICAL = java.util.Set.of(
             "com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort",
-            "com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort",
-            "com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort");
+            "com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort");
     private static final java.util.Set<String> METHODES_RESIDUELLES_DU_DOSSIER_MEDICAL = java.util.Set.of(
             "save", "deleteById", "findById", "findPagedByPatientId");
 
     /**
-     * Slice DM8 (ADR 0087) : les trois ports legacy qui restent lus par KDIGO et le PDF de greffe (antécédents, sérologies, résultats
-     * d'analyse) n'ont plus d'appelant d'écriture, de lecture unitaire ni de lecture paginée, que ce soit par le port ou par le type de ses
-     * adapters ; seule {@code findByPatientId} reste permise. Aucun nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15).
+     * Slice DM8 (ADR 0087) : les deux ports legacy qui restent lus par KDIGO et le PDF de greffe (antécédents, sérologies) n'ont plus
+     * d'appelant d'écriture, de lecture unitaire ni de lecture paginée, que ce soit par le port ou par le type de ses adapters ; seule
+     * {@code findByPatientId} reste permise. Aucun nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15). Le troisième,
+     * {@code ResultatAnalyseRepositoryPort} (bc-seance), est retiré par SE7f (ADR 0100) : KDIGO lit la dernière créatinine par le langage
+     * publié du Dossier médical.
      */
     @ArchTest
     static final ArchRule plus_aucun_appelant_des_ecritures_legacy_du_dossier_medical = noClasses()
@@ -87,56 +88,45 @@ class FrontieresDesContextesTest {
             })
             .because("l'écriture et la lecture du dossier médical vivent dans contexts/dossier-medical (ADR 0087) ; ces méthodes seront retirées");
 
-    private static final java.util.Set<String> METHODES_RESIDUELLES_DE_LA_CREATION_DE_SEANCE = java.util.Set.of(
-            "create", "createFromQr", "scanAndValidate");
-    private static final java.util.Set<String> CLASSES_PORTEUSES_DE_LA_CREATION_DE_SEANCE = java.util.Set.of(
-            "com.hemodialyse.backend.application.seance.SeanceApplicationService",
-            "com.hemodialyse.backend.domain.seance.service.SeanceDomainService");
-
     /**
-     * Slice SE1 (ADR 0088) : la création, le scan et la consultation des séances vivent dans {@code contexts/seance}. Les méthodes
-     * résiduelles {@code create}, {@code createFromQr} et {@code scanAndValidate} de {@code SeanceUseCase} n'ont plus d'autre appelant
-     * que leur propre chaîne de délégation (service applicatif et service de domaine) ; aucun nouvel appelant avant leur retrait
-     * (revue au plus tard le 2026-12-15).
+     * SE7f (ADR 0100) : le module Maven {@code bc-seance} est retiré ; aucune classe du dépôt ne doit réintroduire ses paquets legacy
+     * {@code domain.seance} (agrégat, ports, services) et {@code domain.planning} (paramétrage, capacité théorique), ni le service
+     * applicatif {@code application.seance} de la plateforme. Remplace les verrous de SE1, SE2, SE5 et SE6 sur les méthodes résiduelles de
+     * {@code SeanceUseCase}, {@code Seance} et {@code SeanceRepositoryPort} (classes disparues : le compilateur interdit tout retour).
      */
     @ArchTest
-    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_de_la_creation_de_seance = noClasses()
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "cible une méthode résiduelle de SeanceUseCase depuis hors de sa chaîne de délégation") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.port.SeanceUseCase")
-                            && METHODES_RESIDUELLES_DE_LA_CREATION_DE_SEANCE.contains(appel.getName())
-                            && !CLASSES_PORTEUSES_DE_LA_CREATION_DE_SEANCE.contains(appel.getOriginOwner().getName());
-                }
-            })
-            .because("la création, le scan et la consultation des séances vivent dans contexts/seance (ADR 0088) ; ces méthodes seront retirées");
+    static final ArchRule plus_aucune_classe_ne_depend_des_paquets_legacy_de_la_seance_ni_du_planning = noClasses()
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.domain.seance..",
+                    "com.hemodialyse.backend.domain.planning..", "com.hemodialyse.backend.application.seance..")
+            .allowEmptyShould(true)
+            .because("bc-seance est retiré depuis SE7f (ADR 0100) : la Séance vit dans contexts/seance, la capacité théorique dans contexts/planification");
 
-    private static final java.util.Set<String> METHODES_RESIDUELLES_DE_LA_VALIDATION_DE_SEANCE = java.util.Set.of(
-            "validerParInfirmier", "signerParMedecin", "deverrouillerPourRegularisation", "memoriserPlace");
-    private static final java.util.Set<String> CLASSES_PORTEUSES_DE_LA_VALIDATION_DE_SEANCE = java.util.Set.of(
-            "com.hemodialyse.backend.domain.seance.model.Seance",
-            "com.hemodialyse.backend.domain.seance.service.SeanceDomainService");
-
-    /**
-     * Slice SE2 (ADR 0089) : la validation, la signature et le déverrouillage des séances vivent dans {@code contexts/seance}
-     * ({@code ValiderUneSeance}, {@code SignerUneSeance}, {@code DeverrouillerUneSeance}). {@code SeanceUseCase.validate},
-     * {@code signByMedecin} et {@code unlockForRegularisation} sont retirés ; les quatre méthodes de l'entité legacy {@code Seance} qui
-     * restent n'ont plus d'appelant de production hors d'elle-même et du scan résiduel de SE1 ({@code SeanceDomainService}) ; aucun
-     * nouvel appelant avant leur retrait (revue au plus tard le 2026-12-15).
-     */
+    /** SE7f (ADR 0100) : le contrôleur legacy du volet paramédical ne doit pas réapparaître (une seule route, celle du module Séance). */
     @ArchTest
-    static final ArchRule plus_aucun_appelant_des_ecritures_legacy_de_la_validation_de_seance = noClasses()
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "cible une méthode résiduelle de l'entité Seance depuis hors de sa chaîne résiduelle") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.model.Seance")
-                            && METHODES_RESIDUELLES_DE_LA_VALIDATION_DE_SEANCE.contains(appel.getName())
-                            && !CLASSES_PORTEUSES_DE_LA_VALIDATION_DE_SEANCE.contains(appel.getOriginOwner().getName());
-                }
-            })
-            .because("la validation, la signature et le déverrouillage des séances vivent dans contexts/seance (ADR 0089) ; ces méthodes seront retirées");
+    static final ArchRule le_controleur_legacy_du_volet_paramedical_a_disparu = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.VoletParamedicalRestController")
+            .because("PUT /api/v1/seances/{seanceId}/volet-paramedical est servi par contexts/seance (VoletParamedicalControleur, SE7f, ADR 0100)");
+
+    /** SE7f (ADR 0100) : une seule entrée pour la saisie du volet paramédical, le contrôleur du module. */
+    @ArchTest
+    static final ArchRule seul_contexts_seance_renseigne_le_volet_paramedical = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletParamedical")
+            .because("la saisie du volet paramédical vit dans contexts/seance (ADR 0100)");
+
+    /** SE7f (ADR 0100) : KDIGO lit la dernière créatinine du patient par le langage publié du Dossier médical (KB-SEA-96 reproduit). */
+    @ArchTest
+    static final ArchRule kdigo_lit_la_derniere_creatinine_par_le_langage_publie_du_dossier_medical = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.KdigoGreffeQueryService")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee")
+            .because("la dernière créatinine vient de dossier-medical.v1 (ADR 0100, SE7f), plus de bc-seance");
+
+    /** SE7f (ADR 0100) : la Direction calcule la capacité théorique par le langage publié de la Planification. */
+    @ArchTest
+    static final ArchRule la_direction_calcule_la_capacite_theorique_par_le_langage_publie_de_la_planification = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres")
+            .because("la méthode de la capacité théorique appartient à la Planification (ADR 0100, SE7f), plus à bc-seance");
 
     /**
      * Slice SE3 (ADR 0090) : la déclaration, la modification et le retrait des consommables d'une séance, ainsi que les raccourcis,
@@ -245,26 +235,7 @@ class FrontieresDesContextesTest {
     @ArchTest
     static final ArchRule le_controleur_historique_de_la_seance_a_disparu = noClasses()
             .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.SeanceRestController")
-            .because("SeanceRestController est supprimé (SE7b, ADR 0095) : ses routes sont dans contexts/seance (le PUT du volet paramédical reste dans son contrôleur, DM1)");
-
-    /**
-     * SE6 (KB-SEA-49) : le legacy réécrivait TOUTE la ligne de la séance au changement de jour et effaçait {@code facture_id}. L'écriture
-     * de la ligne entière ({@code SeanceRepositoryPort.save}) n'a plus qu'un appelant : {@code SeanceDomainService} (création et validation
-     * par scan, résidus SE1/SE2 sans appelant de production hors création legacy) ; plus aucun contrôleur, service d'application ou
-     * adaptateur ne la rappelle.
-     */
-    @ArchTest
-    static final ArchRule seul_le_service_de_domaine_legacy_ecrit_la_ligne_entiere_de_la_seance = noClasses()
-            .that().doNotHaveFullyQualifiedName("com.hemodialyse.backend.domain.seance.service.SeanceDomainService")
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "réécrit la ligne entière d'une séance (SeanceRepositoryPort.save)") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort")
-                            && appel.getName().equals("save");
-                }
-            })
-            .because("la réécriture de la ligne entière effaçait facture_id (KB-SEA-49) ; les écritures ciblées vivent dans contexts/seance");
+            .because("SeanceRestController est supprimé (SE7b, ADR 0095) : ses routes sont dans contexts/seance (le PUT du volet paramédical l'a rejoint en SE7f)");
 
     /**
      * SE6 (revue, KB-SEA-50) : les surcharges courtes de {@code Seance.restituer} (sans {@code FactureId}) posent la facture à nul ; un
@@ -283,23 +254,6 @@ class FrontieresDesContextesTest {
                 }
             })
             .because("une surcharge sans FactureId ferait d'une séance facturée une séance libre : la garde KB-SEA-50 s'ouvrirait en silence");
-
-    private static final java.util.Set<String> CLASSES_AUTORISEES_A_ECRIRE_LE_FORFAIT_SURCHARGE_LEGACY = java.util.Set.of(
-            "com.hemodialyse.backend.domain.seance.model.Seance",
-            "com.hemodialyse.backend.infrastructure.persistence.adapter.SeanceRepositoryAdapter");
-
-    @ArchTest
-    static final ArchRule plus_aucun_appelant_des_setters_legacy_du_forfait_surcharge = noClasses()
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "écrit un champ forfaitOverride de l'entité Seance legacy depuis hors de son adaptateur de persistance") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.domain.seance.model.Seance")
-                            && appel.getName().startsWith("setForfaitOverride")
-                            && !CLASSES_AUTORISEES_A_ECRIRE_LE_FORFAIT_SURCHARGE_LEGACY.contains(appel.getOriginOwner().getName());
-                }
-            })
-            .because("l'imposition d'un forfait vit dans contexts/seance (Seance.imposerUnForfait, ADR 0092) ; ces setters seront retirés");
 
     /**
      * Revue SE3 : les deux autres écritures de la même consommation ont chacune un seul appelant légitime. {@code enregistrerALaValidation}
@@ -378,11 +332,12 @@ class FrontieresDesContextesTest {
             .because("bc-stock et bc-article sont retirés depuis S8 : le Stock vit dans contexts/stock");
 
     /**
-     * Slice S8 : la Séance ne connaît du Stock que son langage publié ({@code ConsommationsDeSeance}, {@code CatalogueDArticles}).
+     * Slice S8 (puis SE7f, ADR 0100 : {@code domain.seance} et {@code application.seance} du legacy sont retirés) : la Séance ne connaît
+     * du Stock que son langage publié ({@code ConsommationsDeSeance}, {@code CatalogueDArticles}).
      */
     @ArchTest
     static final ArchRule la_seance_n_utilise_le_stock_que_par_son_langage_publie = noClasses()
-            .that().resideInAnyPackage("com.hemodialyse.backend.domain.seance..", "com.hemodialyse.backend.application.seance..")
+            .that().resideInAPackage("com.hemodialyse.backend.contexts.seance..")
             .should().dependOnClassesThat().resideInAnyPackage(
                     STOCK + ".domain..", STOCK + ".application..", STOCK + ".infrastructure..", STOCK + ".interfaces..",
                     STOCK + ".configuration..")
@@ -431,21 +386,6 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.domain.infirmier..")
             .allowEmptyShould(true)
             .because("domain.infirmier est retiré depuis P9 : la présence et le roulement vivent dans contexts/planification");
-
-    /**
-     * Slice P9 : il ne reste du paquet legacy {@code domain.planning} (module bc-seance) que quatre classes de dette, consommées par
-     * une liste fermée de sources (jalons dans {@code roadmap.md}, « Dette de P9 ») : {@code JourSemaine} (fiche patient),
-     * {@code PlanningParametres} et son port (paramétrage lu par la fiche patient), {@code CapaciteTheoriqueCalculator} (tableau de
-     * bord de la Direction). Toute nouvelle dépendance échoue.
-     */
-    @ArchTest
-    static final ArchRule le_paquet_legacy_du_planning_n_a_que_les_consommateurs_de_la_dette_de_p9 = noClasses()
-            .that().resideOutsideOfPackage("com.hemodialyse.backend.domain.planning..")
-            .and().haveNameNotMatching(
-                    ".*\\.(PlacementDeLaFiche|PlanningParametresDuContexte|PatientRestController|DirectionCapaciteQueryService)(\\$.*)?")
-            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.domain.planning..")
-            .allowEmptyShould(true)
-            .because("domain.planning est en voie de retrait (P9) : liste fermée des consommateurs restants");
 
     /**
      * Contexte Seance (ADR 0062, 0088) : le legacy ne l'utilise que par son langage publie. Les ports fournis par la plateforme

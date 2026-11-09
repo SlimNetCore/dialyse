@@ -2,7 +2,7 @@ package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CentreCapacite;
-import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator.Niveau;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Niveau;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

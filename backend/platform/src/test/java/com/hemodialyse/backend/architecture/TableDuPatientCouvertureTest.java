@@ -86,7 +86,10 @@ class TableDuPatientCouvertureTest {
             "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE + " : six tables de Facturation, KB-FAC-49",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionBreakdownQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
             "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionDashboardQueryService.java", JOINTURE + " : agrégats de la Direction avec le prédicat d'effectif",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeancePlanningJdbcAdapter.java", PLACE + " (jours de dialyse)",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PlanningDesPatientsJdbc.java",
+            "2026-11-08 (déplacée de platform/.../persistence/adapter/SeancePlanningJdbcAdapter, SE7f, ADR 0100) : jours de dialyse, sommeil, état et "
+                    + "dates de la fiche AU CENTRE pour le scan (requête reprise mot pour mot ; KB-SEA-95) ; " + PLACE + " (jours de dialyse) ; "
+                    + "échéance : lecture publiée du Patient (programmation et situation d'une fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
             "2026-11-04 : outil de migration, écrit/supprime en bloc (patients, assure, assure_patient) ; à lancer hors activité du centre (ADR 0077 point 12, ADR 0078 point 10) ; échéance : reprise de la migration par le module",
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
@@ -96,9 +99,10 @@ class TableDuPatientCouvertureTest {
             "2026-11-05 : descripteurs des référentiels (forfait, créneau, salle, médecin…) dont les « usages » nomment prise_en_charge et patients ; "
                     + "ReferentialAdminJdbcAdapter les lit en COUNT dynamique (« SELECT COUNT(*) FROM » + table) pour refuser la suppression d'un "
                     + "référentiel utilisé ; échéance : reprise du référentiel d'administration (organisation.v1) ou port d'usage publié",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/HistoriqueFourniLegacy.java",
-            "2026-11-07 : historique des séances (SE1, ADR 0088) : jointure séances-patients avec filtre, tri et pagination en SQL (la découper changerait "
-                    + "le résultat) ; reprend la lecture de SeanceRepositoryAdapter ; échéance : reprise de Patient et couverture ou lecture publiée jointe, revue au plus tard le 2026-12-15",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/HistoriqueDesSeancesJdbc.java",
+            "2026-11-08 (déplacée de platform/.../acl/seance/HistoriqueFourniLegacy, SE7f, ADR 0100) : historique des séances (SE1, ADR 0088) : jointure "
+                    + "séances-patients avec filtre, tri et pagination en SQL (la découper changerait le résultat), requête reprise mot pour mot ; "
+                    + "échéance : lecture publiée jointe du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PatientsDuJourJdbc.java",
             "2026-11-08 : journal du jour (SE7a, ADR 0094, résidu R2) : jointure séances-patients (code, nom, prénom) avec tri nom/prénom en SQL (la "
                     + "découper changerait l'ordre rendu : collation de la base), reprise à l'identique de SeanceRestController (parité) ; "
@@ -108,11 +112,10 @@ class TableDuPatientCouvertureTest {
                     + "centre, jointure séances-patients des présents (sans filtre du centre du patient : KB-SEA-64, reproduit), identités du détail "
                     + "nominatif (KB-SEA-66) ; reprise à l'identique de SeanceRestController (parité) ; échéance : lecture publiée du Patient (effectif "
                     + "et programmation d'un mois), revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/ForfaitsFournisLegacy.java",
-            "2026-11-07 : forfait courant d'une séance (SE1, ADR 0088) : prise en charge couvrant le jour, repris à l'identique de SeanceRestController "
-                    + "(parité) ; échéance : lecture publiée de la couverture (CouvertureDesPatients), revue au plus tard le 2026-12-15",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/SeanceRepositoryAdapter.java",
-            "2026-11-05 : recherche des séances en JPA Criteria sur PatientJpaEntity (jointure séances-patients) ; échéance : reprise du contexte Séance",
+            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java",
+            "2026-11-08 (déplacée de platform/.../acl/seance/ForfaitsFournisLegacy, SE7f, ADR 0100) : forfait courant d'une séance (SE1, ADR 0088) : "
+                    + "prise en charge couvrant le jour, requête reprise mot pour mot ; échéance : lecture publiée de la couverture "
+                    + "(CouvertureDesPatients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java", JPA,
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssureJpaEntity.java", JPA + " (migrateurs d'assurés)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssurePatientJpaEntity.java", JPA + " (migrateurs d'affectations)",

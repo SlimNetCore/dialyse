@@ -2,7 +2,7 @@ package com.hemodialyse.backend.characterization.seance.se7d;
 
 import com.hemodialyse.backend.contexts.planification.application.SeancesRealisees;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.characterization.planification.JourSemaine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
