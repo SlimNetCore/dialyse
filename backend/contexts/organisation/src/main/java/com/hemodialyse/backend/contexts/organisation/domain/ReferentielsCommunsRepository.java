@@ -19,6 +19,4 @@ public interface ReferentielsCommunsRepository {
     List<EntreeReferentiel> agences(CentreId centreId);
 
     List<EntreeReferentiel> caisses(CentreId centreId);
-
-    List<EntreeReferentiel> forfaits(CentreId centreId);
 }

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsImposesAuxSeancesPublies;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
@@ -42,14 +42,14 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     private final JdbcTemplate jdbc;
     private final ReferentialCacheEvictor cacheEvictor;
-    private final ForfaitsImposesAuxSeancesPublies forfaitsImposes;
     private final Transporteurs transporteurs;
+    private final ForfaitsDuCentre forfaits;
 
-    public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor,
-                                       ForfaitsImposesAuxSeancesPublies forfaitsImposes, Transporteurs transporteurs) {
+    public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor, Transporteurs transporteurs,
+                                       ForfaitsDuCentre forfaits) {
         this.jdbc = jdbc;
         this.cacheEvictor = cacheEvictor;
-        this.forfaitsImposes = forfaitsImposes;
+        this.forfaits = forfaits;
         this.transporteurs = transporteurs;
     }
 
@@ -161,6 +161,16 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
             return transporteurs.lister(centerId.value()).stream()
                     .map(t -> new ReferentialEntry(t.id(), java.util.Collections.singletonMap("nom", t.nom()), Map.of())).toList();
         }
+        if (kind == ReferentialKind.FORFAIT) {
+            // RF2 (ADR 0124) : le catalogue de forfaits appartient à patient-couverture ; la reprise de l'historique les retrouve par leur code.
+            return forfaits.lister(centerId.value()).stream().map(f -> {
+                Map<String, String> valeurs = new LinkedHashMap<>();
+                valeurs.put("code", f.code());
+                valeurs.put("libelle", f.libelle());
+                valeurs.put("prix", f.prix() == null ? null : f.prix().toPlainString());
+                return new ReferentialEntry(f.id(), valeurs, Map.of());
+            }).toList();
+        }
         Table table = ReferentialAdminTables.of(kind);
         return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?" + actifSeulement(table), mapper(table), centerId.value());
     }
@@ -209,11 +219,6 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         long total = 0;
         for (Usage usage : ReferentialAdminTables.of(kind).usages()) {
             try {
-                if (usage.publie() == ReferentialAdminTables.UsagePublie.FORFAIT_IMPOSE_A_UNE_SEANCE) {
-                    // forfait imposé à une séance : langage publié de la Séance (SE7e, ADR 0099), même comptage
-                    total += forfaitsImposes.nombreDeSeancesQuiImposentLeForfait(id);
-                    continue;
-                }
                 Long count = jdbc.queryForObject(
                         "SELECT COUNT(*) FROM " + usage.table() + " WHERE " + usage.column() + " = ?", Long.class, id);
                 total += count == null ? 0 : count;

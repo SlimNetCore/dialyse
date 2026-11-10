@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Contrat du forfait appliqué sur un PostgreSQL 16 RÉEL (schéma Flyway V1..Vn) : {@code ForfaitsDuCentreJdbc} (type {@code numeric} du prix)
+ * Contrat du forfait appliqué sur un PostgreSQL 16 RÉEL (schéma Flyway V1..Vn) : {@code ForfaitsDuCentreParLeCatalogue} (RF2 ; type {@code numeric} du prix)
  * et la politique de forfait avec le vrai {@code CouvertureDesPatientsJdbc} (revue SE7c2, constat m1). Rejoué par
  * {@code backend/scripts/seance-se7c2-pg16-rejeu.sh}. Base JETABLE uniquement : {@code -Dfacturation.pg16.url=jdbc:postgresql://…}, mot de
  * passe par la variable d'environnement {@code FACTURATION_PG16_PASSWORD}.

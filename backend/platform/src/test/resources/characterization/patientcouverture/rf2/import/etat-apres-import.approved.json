@@ -1,0 +1,21 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-CONV",
+  "libelle" : "Hemodialyse conventionnelle",
+  "prix" : "5600.50"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-NEW",
+  "libelle" : "Nouveau",
+  "prix" : "0.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "hd-prem",
+  "libelle" : "Hemodialyse premium",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "HD-PREM",
+  "libelle" : "Forfait du centre B",
+  "prix" : "2.00"
+} ]

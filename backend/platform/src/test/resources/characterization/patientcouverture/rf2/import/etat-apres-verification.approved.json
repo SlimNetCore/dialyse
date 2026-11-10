@@ -1,0 +1,11 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-CONV",
+  "libelle" : "Ancien libelle",
+  "prix" : "1.00"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "HD-PREM",
+  "libelle" : "Forfait du centre B",
+  "prix" : "2.00"
+} ]

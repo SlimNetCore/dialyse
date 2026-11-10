@@ -1,0 +1,20 @@
+{
+  "centre B par son administrateur" : "200 | {\"id\":\"<FB>\",\"references\":{},\"values\":{\"code\":\"HD-B2\",\"libelle\":\"Forfait B2\",\"prix\":\"101.00\"}}",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "code omis" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "code vide" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "donner un prix a un forfait sans prix" : "200 | {\"id\":\"<F2>\",\"references\":{},\"values\":{\"code\":\"HD-PREM\",\"libelle\":\"Hemodialyse premium\",\"prix\":\"9000.00\"}}",
+  "forfait d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Forfaits » pour ce centre.",
+  "garder son propre code a la casse pres" : "200 | {\"id\":\"<F1>\",\"references\":{},\"values\":{\"code\":\"hd-conv2\",\"libelle\":\"Hemodialyse conventionnelle\",\"prix\":\"5700.50\"}}",
+  "identifiant illisible" : "500 INTERNAL_ERROR | <message technique non verrouille>",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Forfaits » pour ce centre.",
+  "libelle vide" : "422 REFERENTIAL_VALIDATION | « Libellé » est obligatoire. | REQUIRED/libelle/ligne 0 {}",
+  "memes valeurs" : "200 | {\"id\":\"<F1>\",\"references\":{},\"values\":{\"code\":\"HD-CONV2\",\"libelle\":\"Hemodialyse conventionnelle\",\"prix\":\"5700.50\"}}",
+  "prendre le code d'un autre" : "422 REFERENTIAL_VALIDATION | Un élément de « Forfaits » avec ce code existe déjà. | ALREADY_EXISTS/code/ligne 0 {}",
+  "prix a trois decimales" : "200 | {\"id\":\"<F1>\",\"references\":{},\"values\":{\"code\":\"HD-CONV2\",\"libelle\":\"Hemodialyse conventionnelle\",\"prix\":\"12.35\"}}",
+  "prix negatif" : "422 REFERENTIAL_VALIDATION | « Prix » ne peut pas être négatif. | NEGATIVE_NUMBER/prix/ligne 0 {\"value\":\"-3\"}",
+  "prix omis efface le prix" : "200 | {\"id\":\"<F1>\",\"references\":{},\"values\":{\"code\":\"HD-CONV2\",\"libelle\":\"Hemodialyse conventionnelle\",\"prix\":null}}",
+  "prix remis a zero" : "200 | {\"id\":\"<F1>\",\"references\":{},\"values\":{\"code\":\"HD-CONV2\",\"libelle\":\"Hemodialyse conventionnelle\",\"prix\":\"0.00\"}}",
+  "renommer le code et changer le prix" : "200 | {\"id\":\"<F1>\",\"references\":{},\"values\":{\"code\":\"HD-CONV2\",\"libelle\":\"Hemodialyse conventionnelle\",\"prix\":\"5700.50\"}}",
+  "sans values" : "400 VALIDATION_ERROR | Invalid request content."
+}

@@ -124,7 +124,9 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/ModeleDocumentProvisioner.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/referential/admin/service/ReferentialAdminDomainService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/referential/admin/port/ReferentialAdminDelegate.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/TransporteursParPatientCouverture.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/TransporteursParPatientCouverture.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/ForfaitsParPatientCouverture.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/referential/admin/port/ReferentialAdminDelegates.java"
   ],
   "seamAllowed": []
 }

@@ -46,7 +46,6 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.J
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyreferentiel.ForfaitsDuCentreJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsDeLaSeanceJdbc;
@@ -429,8 +428,16 @@ public class SeanceConfiguration {
     // ---- SE5 : imposition d'un forfait à une séance (ADR 0092)
 
     @Bean
-    ForfaitsDuCentre forfaitsDuCentreDeLaSeance(JdbcTemplate jdbc) {
-        return new ForfaitsDuCentreJdbc(jdbc);
+    ForfaitsDuCentre forfaitsDuCentreDeLaSeance(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre catalogue) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue(catalogue);
+    }
+
+    /** RF2 (ADR 0124) : les séances qui imposent un forfait comptent dans son usage ; le catalogue additionne les usages. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.UsageDuForfait usageDuForfaitParLesSeances(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsImposesAuxSeancesPublies imposes) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.UsageDuForfaitParLesSeances(imposes);
     }
 
     @Bean

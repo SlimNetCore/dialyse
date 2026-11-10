@@ -1,0 +1,136 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+  "libelle" : "Code cinquante",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-1D",
+  "libelle" : "Forfait une decimale",
+  "prix" : "5600.50"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-3D-B",
+  "libelle" : "Forfait trois decimales bas",
+  "prix" : "10.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-3D-H",
+  "libelle" : "Forfait trois decimales haut",
+  "prix" : "10.01"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-AUTRE",
+  "libelle" : "Hemodialyse conventionnelle",
+  "prix" : "5600.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-CONV",
+  "libelle" : "Hemodialyse conventionnelle",
+  "prix" : "5600.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-ENT",
+  "libelle" : "Forfait entier",
+  "prix" : "5600.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-ESP",
+  "libelle" : "Forfait prix espaces",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-EXP",
+  "libelle" : "Forfait scientifique",
+  "prix" : "1000.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-INC",
+  "libelle" : "Inconnu",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-INS",
+  "libelle" : "Forfait insecable",
+  "prix" : "5600.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-L255",
+  "libelle" : "LLLLLLLLLL...[255]",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-MAX",
+  "libelle" : "Forfait borne",
+  "prix" : "99999999.99"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-MAX2",
+  "libelle" : "Forfait borne arrondie",
+  "prix" : "99999999.99"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-MIL",
+  "libelle" : "Forfait milliers",
+  "prix" : "5600.50"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-MIN",
+  "libelle" : "Forfait minuscule",
+  "prix" : "0.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-MZERO",
+  "libelle" : "Forfait moins zero",
+  "prix" : "0.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-NUM",
+  "libelle" : "Numerique",
+  "prix" : "123.46"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-NUM2",
+  "libelle" : "Numerique entier",
+  "prix" : "7.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-PLUS",
+  "libelle" : "Forfait plus",
+  "prix" : "12.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-SANS",
+  "libelle" : "Forfait sans prix",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-TRIM",
+  "libelle" : "Forfait espaces",
+  "prix" : "1.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-VIDE",
+  "libelle" : "Forfait prix vide",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-VIR",
+  "libelle" : "Forfait virgule",
+  "prix" : "5600.50"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-ZERO",
+  "libelle" : "Forfait gratuit",
+  "prix" : "0.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "HD-ZERO2",
+  "libelle" : "Forfait gratuit bis",
+  "prix" : "0.00"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "HD-CONV",
+  "libelle" : "Hemodialyse conventionnelle",
+  "prix" : "5600.00"
+} ]

@@ -1,0 +1,7 @@
+{
+  "prix lettres" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"INVALID_NUMBER\",\"field\":\"prix\",\"message\":\"« Prix » : « abc » n'est pas un nombre (ex. 5600 ou 5600,50).\",\"params\":{\"value\":\"abc\"},\"row\":2}],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "prix negatif" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"NEGATIVE_NUMBER\",\"field\":\"prix\",\"message\":\"« Prix » ne peut pas être négatif.\",\"params\":{\"value\":\"-1\"},\"row\":2}],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "prix trop grand" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"NUMBER_TOO_LARGE\",\"field\":\"prix\",\"message\":\"« Prix » est trop grand (maximum 99999999.99).\",\"params\":{\"max\":\"99999999.99\",\"value\":\"100000000\"},\"row\":2}],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "prix valides, import" : "200 | {\"applied\":true,\"created\":6,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":6,\"updated\":0,\"valid\":true}",
+  "prix valides, verification" : "200 | {\"applied\":false,\"created\":6,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":6,\"updated\":0,\"valid\":true}"
+}

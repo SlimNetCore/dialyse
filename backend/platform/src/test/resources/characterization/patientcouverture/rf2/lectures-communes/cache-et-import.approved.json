@@ -1,0 +1,9 @@
+{
+  "1. premiere lecture" : "200 | [{\"adresse\":null,\"code\":\"F-1\",\"gereParLot\":null,\"id\":\"<EXISTANT>\",\"libelle\":\"100.00\",\"nom\":\"Premier\",\"prenom\":null}]",
+  "2. liste inchangee" : "200 | [{\"adresse\":null,\"code\":\"F-1\",\"gereParLot\":null,\"id\":\"<EXISTANT>\",\"libelle\":\"100.00\",\"nom\":\"Premier\",\"prenom\":null}]",
+  "2. verification de l'import" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "3. import refuse" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"INVALID_NUMBER\",\"field\":\"prix\",\"message\":\"« Prix » : « abc » n'est pas un nombre (ex. 5600 ou 5600,50).\",\"params\":{\"value\":\"abc\"},\"row\":2}],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "3. liste toujours perimee" : "200 | [{\"adresse\":null,\"code\":\"F-1\",\"gereParLot\":null,\"id\":\"<EXISTANT>\",\"libelle\":\"100.00\",\"nom\":\"Premier\",\"prenom\":null}]",
+  "4. import reussi" : "200 | {\"applied\":true,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "4. liste renouvelee" : "200 | [{\"adresse\":null,\"code\":\"F-1\",\"gereParLot\":null,\"id\":\"<EXISTANT>\",\"libelle\":\"100.00\",\"nom\":\"Premier\",\"prenom\":null},{\"adresse\":null,\"code\":\"F-2\",\"gereParLot\":null,\"id\":\"<UUID_GENERE_1>\",\"libelle\":\"20.00\",\"nom\":\"Second\",\"prenom\":null},{\"adresse\":null,\"code\":\"F-DIR\",\"gereParLot\":null,\"id\":\"<DIRECT>\",\"libelle\":null,\"nom\":\"Ajoute en base\",\"prenom\":null}]"
+}

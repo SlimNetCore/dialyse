@@ -96,6 +96,58 @@ class ReferentialAdminDelegationTest {
     }
 
     @Test
+    void les_delegues_assembles_confient_chaque_referentiel_au_delegue_qui_le_prend() {
+        List<String> vus = new ArrayList<>();
+        ReferentialAdminDelegate forfaits = unDelegue(ReferentialKind.FORFAIT, "forfaits", vus);
+        ReferentialAdminDelegate transporteurs = unDelegue(ReferentialKind.TRANSPORTEUR, "transporteurs", vus);
+        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(repo,
+                new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of(transporteurs, forfaits)));
+
+        assemble.create(CENTER, ReferentialKind.FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
+        assemble.create(CENTER, ReferentialKind.TRANSPORTEUR, Map.of("nom", "Taxi"));
+        assemble.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+
+        assertThat(vus).containsExactly("forfaits", "transporteurs");
+        assertThat(repo.of(CENTER, ReferentialKind.SALLE)).hasSize(1);
+        assertThat(repo.of(CENTER, ReferentialKind.FORFAIT)).isEmpty();
+    }
+
+    private static ReferentialAdminDelegate unDelegue(ReferentialKind pris, String nom, List<String> vus) {
+        return new ReferentialAdminDelegate() {
+            @Override
+            public boolean prend(ReferentialKind kind) {
+                return kind == pris;
+            }
+
+            @Override
+            public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+                vus.add(nom);
+                return new ReferentialEntry(UUID.randomUUID(), values, Map.of());
+            }
+
+            @Override
+            public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
+    @Test
     void les_autres_referentiels_restent_geres_par_le_service_generique() {
         service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 

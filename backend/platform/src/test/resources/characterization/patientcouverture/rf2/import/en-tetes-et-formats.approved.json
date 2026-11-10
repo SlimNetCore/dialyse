@@ -1,0 +1,15 @@
+{
+  "alias code forfait, description et tarif" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[\"Commentaire\"],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "alias designation et montant, casse et accents" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "champ entre guillemets avec virgule" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "colonne code absente" : "200 | {\"applied\":false,\"created\":0,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[\"code\"],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "colonne code en double ignoree" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[\"Code\"],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "colonne libelle absente" : "200 | {\"applied\":false,\"created\":0,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[\"libelle\"],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "colonnes code et libelle absentes" : "200 | {\"applied\":false,\"created\":0,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[\"code\",\"libelle\"],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "colonnes obligatoires seules" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "en-tetes seuls" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"NO_DATA\",\"field\":null,\"message\":\"Le fichier ne contient aucune ligne de données sous les en-têtes.\",\"params\":{},\"row\":0}],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":0,\"updated\":0,\"valid\":false}",
+  "fichier d'un seul retour a la ligne" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"EMPTY_FILE\",\"field\":null,\"message\":\"Le fichier est vide : la première ligne doit contenir les en-têtes de colonnes.\",\"params\":{},\"row\":0}],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":0,\"updated\":0,\"valid\":false}",
+  "fichier vide" : "422 IMPORT_EMPTY_FILE | Le fichier est vide.",
+  "lignes vides ignorees" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "separateur point-virgule" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"forfaits\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}"
+}

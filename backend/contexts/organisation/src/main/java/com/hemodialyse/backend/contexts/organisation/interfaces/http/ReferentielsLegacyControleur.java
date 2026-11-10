@@ -73,11 +73,7 @@ public class ReferentielsLegacyControleur {
     }
 
     // /transporteurs et /categories-transport : servis par patient-couverture (RF1, ADR 0122), mêmes URLs et même JSON.
-
-    @GetMapping("/forfaits")
-    public ResponseEntity<?> forfaits(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(communs.forfaits(session.centre(centerId)));
-    }
+    // /forfaits : servi par patient-couverture (RF2, ADR 0124), même URL et même JSON.
 
     @GetMapping("/etats-patients")
     public ResponseEntity<?> etatsPatients() {

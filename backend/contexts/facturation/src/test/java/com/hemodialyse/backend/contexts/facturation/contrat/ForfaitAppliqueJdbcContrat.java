@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApp
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.PriseEnChargeTarifee;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SeancesFacturables;
-import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.ForfaitsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.SeancesFacturablesPubliees;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesAFacturerFournies;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc;
@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Le contrat du forfait appliqué exécuté contre les adapters JDBC RÉELS (revue SE7c2, constat m1) : {@link ForfaitsDuCentreJdbc} (table
- * {@code forfait}) et la politique de forfait de bout en bout avec le vrai {@link CouvertureDesPatientsJdbc} (table {@code prise_en_charge}).
+ * Le contrat du forfait appliqué exécuté contre les adapters JDBC RÉELS (revue SE7c2, constat m1) : {@link ForfaitsDuCentreParLeCatalogue} (catalogue
+ * de forfaits de Patient et couverture, table {@code forfait}) et la politique de forfait de bout en bout avec le vrai {@link CouvertureDesPatientsJdbc} (table {@code prise_en_charge}).
  * Aucun SQL sur {@code seances} : la Facturation ne touche plus cette table (ADR 0097). Les séances arrivent par le port
  * {@link SeancesAFacturerFournies}, que la plateforme implémente avec le traducteur {@code SeancesFacturablesParLaSeance} (lecture prouvée sur
  * H2 et PostgreSQL 16 par le contrat de la Séance) ; le module Facturation ne peut pas dépendre de la Séance (cycle Maven) : un double de ce
@@ -53,7 +53,8 @@ public abstract class ForfaitAppliqueJdbcContrat extends ForfaitAppliqueContrat 
 
     @Override
     protected ForfaitsDuCentre forfaits() {
-        return new ForfaitsDuCentreJdbc(jdbc());
+        return new ForfaitsDuCentreParLeCatalogue(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ForfaitsJdbc(jdbc(), centre -> { }));
     }
 
     @Override

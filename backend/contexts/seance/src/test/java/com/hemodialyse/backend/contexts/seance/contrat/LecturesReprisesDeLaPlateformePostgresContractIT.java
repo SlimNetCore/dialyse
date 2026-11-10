@@ -10,7 +10,7 @@ import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyreferentiel.ForfaitsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
 import org.junit.jupiter.api.AfterAll;
@@ -67,7 +67,8 @@ class LecturesReprisesDeLaPlateformePostgresContractIT extends LecturesReprisesD
 
     @Override
     ForfaitsDuCentre referentiel() {
-        return new ForfaitsDuCentreJdbc(connexion());
+        return new ForfaitsDuCentreParLeCatalogue(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ForfaitsJdbc(connexion(), centre -> { }));
     }
 
     @Override

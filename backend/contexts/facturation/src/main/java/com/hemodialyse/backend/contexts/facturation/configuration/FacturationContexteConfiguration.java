@@ -65,7 +65,6 @@ import com.hemodialyse.backend.contexts.facturation.domain.simulation.SeancesFac
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SequenceDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.TauxDeTvaComptabilite;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyidentite.SessionLegacy;
-import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.ForfaitsDuCentreJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.LiaisonDesSeancesPubliee;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.SeancesDeFacturationPubliees;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.SeancesFacturablesPubliees;
@@ -147,8 +146,15 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    ForfaitsDuCentre facturationForfaitsDuCentre(JdbcTemplate jdbc) {
-        return new ForfaitsDuCentreJdbc(jdbc);
+    ForfaitsDuCentre facturationForfaitsDuCentre(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre catalogue) {
+        return new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue(catalogue);
+    }
+
+    /** RF2 (ADR 0124) : les lignes de facture comptent dans l'usage d'un forfait ; le catalogue additionne les usages. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.UsageDuForfait usageDuForfaitParLesFactures(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.UsageDuForfaitParLesFactures(jdbc);
     }
 
     @Bean

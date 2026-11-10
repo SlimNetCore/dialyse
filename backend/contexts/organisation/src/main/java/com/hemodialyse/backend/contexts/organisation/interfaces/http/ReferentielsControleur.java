@@ -177,11 +177,7 @@ public class ReferentielsControleur {
     }
 
     // /transporteurs et /categories-transport : servis par patient-couverture (RF1, ADR 0122), mêmes URLs et même JSON.
-
-    @GetMapping("/forfaits")
-    public List<EntreeReferentiel> listerForfaits(@RequestParam(required = false) UUID centreId) {
-        return communs.forfaits(session.centre(centreId));
-    }
+    // /forfaits : servi par patient-couverture (RF2, ADR 0124), même URL et même JSON.
 
     @GetMapping("/etats-patients")
     public List<EntreeReferentiel> listerEtatsPatients() {

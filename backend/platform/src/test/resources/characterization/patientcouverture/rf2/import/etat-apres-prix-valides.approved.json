@@ -1,0 +1,31 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "P1",
+  "libelle" : "Prix entier",
+  "prix" : "5600.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "P2",
+  "libelle" : "Prix virgule",
+  "prix" : "5600.50"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "P3",
+  "libelle" : "Prix vide",
+  "prix" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "P4",
+  "libelle" : "Prix zero",
+  "prix" : "0.00"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "P5",
+  "libelle" : "Prix trois decimales",
+  "prix" : "10.01"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "P6",
+  "libelle" : "Prix milliers",
+  "prix" : "5600.50"
+} ]

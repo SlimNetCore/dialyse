@@ -506,10 +506,11 @@ class FrontieresDesContextesTest {
             .because("le refus CAHIER_VIDE compte les séances par seance.v1 (ADR 0099, SE7e)");
 
     @ArchTest
-    static final ArchRule le_referentiel_compte_les_forfaits_imposes_par_le_langage_publie = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.referential.ReferentialAdminJdbcAdapter")
+    static final ArchRule le_catalogue_de_forfaits_compte_les_forfaits_imposes_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.UsageDuForfaitParLesSeances")
             .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "ForfaitsImposesAuxSeancesPublies")
-            .because("l'usage d'un forfait imposé à une séance est compté par seance.v1 (ADR 0099, SE7e)");
+            .because("l'usage d'un forfait imposé à une séance est compté par seance.v1 (ADR 0099, SE7e), additionné par le catalogue de "
+                    + "forfaits de Patient et couverture (RF2, ADR 0124 : ce n'est plus l'administration générique qui le compte)");
 
     /**
      * SE7e (ADR 0099) : {@code SeancesDeLaReprisePubliees} est le SEUL port, hors de la Séance, qui ÉCRIT et SUPPRIME des séances. Il est

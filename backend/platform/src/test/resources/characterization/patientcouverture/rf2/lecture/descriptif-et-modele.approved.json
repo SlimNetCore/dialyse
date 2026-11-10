@@ -1,0 +1,52 @@
+{
+  "descriptif" : {
+    "forfaits" : {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "HD-CONV",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Hémodialyse conventionnelle",
+        "key" : "libelle",
+        "label" : "Libellé",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "5600.00",
+        "key" : "prix",
+        "label" : "Prix",
+        "maxLength" : 0,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "DECIMAL"
+      } ],
+      "importOrder" : 1,
+      "label" : "Forfaits",
+      "naturalKey" : [ "code" ],
+      "slug" : "forfaits"
+    },
+    "slugs dans l'ordre d'import" : [ "forfaits", "creneaux", "salles", "medecins", "caisses", "transporteurs", "agences", "centres-payeurs" ],
+    "statut" : 200
+  },
+  "modele csv" : "200 text/csv | <BOM>Code;Libellé;Prix\\nHD-CONV;Hémodialyse conventionnelle;5600.00\\n",
+  "modele csv en majuscules" : "200 text/csv | <BOM>Code;Libellé;Prix\\nHD-CONV;Hémodialyse conventionnelle;5600.00\\n",
+  "modele format inconnu" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | <classeur>",
+  "modele xlsx" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | <classeur>",
+  "modele xlsx par defaut" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | <classeur>",
+  "referentiel inconnu" : "400 BAD_REQUEST | Référentiel inconnu : forfait"
+}

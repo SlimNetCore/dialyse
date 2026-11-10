@@ -10,7 +10,7 @@ import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyreferentiel.ForfaitsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,7 +39,8 @@ class LecturesReprisesDeLaPlateformeH2ContratTest extends LecturesReprisesDeLaPl
 
     @Override
     ForfaitsDuCentre referentiel() {
-        return new ForfaitsDuCentreJdbc(jdbc);
+        return new ForfaitsDuCentreParLeCatalogue(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ForfaitsJdbc(jdbc, centre -> { }));
     }
 
     @Override

@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-rf2-forfaits
-status: planned
+status: built
 date: 2026-11-10
 order: 7
 context: patient-couverture
@@ -48,3 +48,17 @@ Retour arrière : revert Git.
 2. **« Forfait » a trois sens** : de PEC (PC), appliqué (Facturation), du centre (Séance) ; terme « Catalogue de forfaits » proposé pour le catalogue ; à valider.
 3. Pas de validité temporelle du prix : hypothèse à vérifier (un changement de prix s'applique-t-il aux PEC en cours ?).
 4. Sens commercial (« tarif », synonyme interdit en PC) dans un contexte clinique : à trancher avec les experts.
+5. Corriger KB-RF2-01 (500 -> 400) et KB-RF2-02 (compte d'usage borné au centre), comme RF1c (ADR 0123) ? Reproduits en RF2 (aucune correction silencieuse).
+6. Doublons historiques de `lower(trim(code))` par centre en production ? (KB-RF2-03.)
+
+## Réalisation (2026-11-10, ADR 0124)
+| Étape | Résultat |
+|---|---|
+| Filet legacy (avant tout changement de production) | 16 tests HTTP MockMvc/H2, 28 goldens approuvés un par un (lecture du `.received`) : `backend/platform/src/test/java/.../characterization/patientcouverture/rf2/` (saisie 4, import 5, lecture et droits 4, lectures communes et caches 3) ; verts sur le legacy |
+| Tests du nouveau code d'abord | rouge vérifié (compilation : types absents, ~190 symboles) puis vert : `ForfaitTest`, `GererLeCatalogueDeForfaitsTest`, contrat double mémoire + H2 (`ForfaitsContrat`), PG16 (12 tests), `ForfaitsParPatientCouvertureTest` (6), `ReferentialAdminDelegationTest` (+1), `TableDesForfaitsTest` (5) |
+| Code | PC : domaine `Forfait`, application `GererLeCatalogueDeForfaits`/`ConsulterLesForfaits`, langage publié `ForfaitsDuCentre`/`GestionDuCatalogueDeForfaits`/`RefusDeForfait`/`UsageDuForfait`, `ForfaitsJdbc`/`UsageDuForfaitParLesPec`, `ForfaitsControleur`, cache et invalidation ; plateforme : ACL `ForfaitsParPatientCouverture`, assembleur `ReferentialAdminDelegates`, `HistoryRules` via le langage publié ; Séance et Facturation : traducteurs `ForfaitsDuCentreParLeCatalogue` + `UsageDuForfaitParLes...`, les deux `ForfaitsDuCentreJdbc` supprimés ; Organisation : lectures retirées |
+| Parité | 16/16 tests, goldens RF2 inchangés sur le nouveau code ; goldens Séance, Facturation, Absences, pilotage, reporting inchangés ; aucun `_nouveau_code`, aucune archive `_ecarts-legacy` |
+| Rejeu PostgreSQL 16 | `backend/scripts/patient-couverture-rf2-pg16-rejeu.sh` (port 55792) : vert (colonnes, type `numeric(10,2)`, 6 requêtes, contrat 12 tests) |
+| Condition de retrait 1 à 4 | 1 oui ; 2 partiel (RF2-R1 : le descripteur `ReferentialKind.FORFAIT` reste, comme RF1-R1) ; 3 oui ; 4 voir l'ADR 0124 |
+
+Résiduels nominatifs : RF2-R1 à RF2-R5 (voir l'ADR 0124), dont RF2-R2 (jointure `prise_en_charge` -> `forfait` de la Séance, gardée par `TableDesForfaitsTest`, effectif 1). Façade, flag, plan de bascule : sans objet (refactoring sur place).

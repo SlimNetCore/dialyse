@@ -41,11 +41,6 @@ public class ReferentielsCommunsService implements ReferentielsCommunsUseCases {
     }
 
     @Override
-    public List<EntreeReferentiel> forfaits(CentreId centreId) {
-        return referentiels.forfaits(centreId);
-    }
-
-    @Override
     public List<EntreeReferentiel> etatsPatients() {
         return List.of(
                 new EntreeReferentiel("PERMANENT", "PERMANENT", "PERMANENT", null, null, null, null),

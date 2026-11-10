@@ -43,11 +43,6 @@ class ReferentielsCommunsServiceTest {
     }
 
     @Test
-    void lister_forfaits_du_centre() {
-        assertEquals(1, nouveauService().forfaits(CENTRE).size());
-    }
-
-    @Test
     void lister_centres_payeurs_details() {
         List<DetailPayeur> details = nouveauService().centresPayeursDetails(CENTRE);
         assertEquals(1, details.size());
@@ -81,11 +76,6 @@ class ReferentielsCommunsServiceTest {
         @Override
         public List<EntreeReferentiel> caisses(CentreId centreId) {
             return List.of(entree("CA1"));
-        }
-
-        @Override
-        public List<EntreeReferentiel> forfaits(CentreId centreId) {
-            return List.of(entree("F001"));
         }
     }
 }

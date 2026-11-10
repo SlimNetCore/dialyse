@@ -67,12 +67,4 @@ public class ReferentielsCommunsJdbc implements ReferentielsCommunsRepository {
                         + "WHERE center_id = ? ORDER BY nom",
                 (rs, i) -> ligne(rs), centreId.valeur());
     }
-
-    @Override
-    @Cacheable(cacheNames = "ref.forfaits", key = "#centreId.valeur().toString()")
-    public List<EntreeReferentiel> forfaits(CentreId centreId) {
-        return jdbc.query("SELECT id, code, libelle, null, null, CAST(prix AS VARCHAR), null FROM forfait "
-                        + "WHERE center_id = ? ORDER BY code",
-                (rs, i) -> ligne(rs), centreId.valeur());
-    }
 }

@@ -314,4 +314,47 @@ public class PatientCouvertureConfiguration {
             com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesTransports consulter) {
         return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDeTransportEnCache(consulter);
     }
+
+    // ---- catalogue de forfaits (RF2, ADR 0124) : même table forfait, langage publié ForfaitsDuCentre
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDeLaListeDesForfaits invalidationDeLaListeDesForfaits(
+            org.springframework.cache.CacheManager caches) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDeLaListeDesForfaits(caches);
+    }
+
+    /** Un seul adaptateur pour le catalogue, la page d'administration et le langage publié {@code ForfaitsDuCentre}. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ForfaitsJdbc forfaitsJdbc(
+            JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDeLaListeDesForfaits invalidation) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ForfaitsJdbc(jdbc, invalidation);
+    }
+
+    /** Ce que les prises en charge retiennent d'un forfait ; les autres contextes ajoutent leur propre {@code UsageDuForfait}. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.UsageDuForfait usageDuForfaitParLesPec(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.UsageDuForfaitParLesPec(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.GererLeCatalogueDeForfaits gererLeCatalogueDeForfaits(
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ForfaitsJdbc forfaits,
+            java.util.List<com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.UsageDuForfait> usages,
+            Identifiants identifiants, UniteDeTravail unite) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.GererLeCatalogueDeForfaits(forfaits, forfaits, usages,
+                identifiants, unite);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesForfaits consulterLesForfaits(
+            SessionCourante session, com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre forfaits) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesForfaits(session, forfaits);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListeDesForfaitsEnCache listeDesForfaitsEnCache(
+            com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesForfaits consulter) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListeDesForfaitsEnCache(consulter);
+    }
 }
