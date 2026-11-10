@@ -1,6 +1,6 @@
 ---
 slice: organisation-o5-retrait-bc-referential
-status: in-progress
+status: built
 date: 2026-11-02
 order: 5
 context: organisation
@@ -64,11 +64,10 @@ plus d'approbation.
 ## Reste à faire
 
 - [x] KB-ORG-02 et KB-ORG-03 décidés (voir ci-dessus).
-- [ ] Slice O4 (lectures publiées `organisation.v1`) : `planned`, constat consigné (aucun consommateur) ; `TableDeLOrganisationTest` liste
-      30 lecteurs SQL directs (liste blanche datée 2026-11-02, un lecteur migré fait échouer le test tant que l'entrée n'est pas retirée).
+- [x] Slice O4 (lectures publiées `organisation.v1`) : `built` (2026-11-09, lots A à E, ADR 0107 à 0111) ; `TableDeLOrganisationTest` ne liste plus que 7 résiduels nominatifs (O4-R9 à O4-R13), butoir 2027-03-31.
 - [x] Référentiels orphelins (payeurs, agences, caisses, transporteurs, forfaits) : propriétaire DÉCIDÉ le 2026-11-10, ADR 0121 (Patient & couverture ; à confirmer métiers <= 2026-12-15). FAIT (2026-11-10) : `patient-couverture-rf1-transporteurs`, `rf2-forfaits` et `rf3-payeurs` (RF3c, ADR 0128) sont `built` ; les lectures `/referentials/{transporteurs,categories-transport,forfaits,caisses,agences,centres-payeurs,centres-payeurs-details}` (et leurs doublons `/organisation/referentiels/...`) sont servies par Patient & couverture ; `ReferentielsCommunsJdbc`, son port et `DetailPayeur` sont retirés d'Organisation (il ne reste que les états patient, liste statique). Résiduels : voir les ADR 0122, 0124, 0128.
 - [ ] `SocieteJpaEntity` et `CenterJpaEntity` (auth, licence) conservées, hors périmètre.
-- [ ] Cache `ref.*` : invalider à la bascule (clés incluant `centerId`).
+- [x] Cache `ref.*` : sans objet (refactoring sur place, aucune bascule ; ADR 0024) ; les caches `ref.*` sont invalidés après commit par le propriétaire de chaque référentiel (Organisation, Patient & couverture).
 - [x] Filet étendu au logo et au pied de page imprimés dans les documents (`DocumentIdentityProvider`, 4 goldens) et à l'import CSV de
       l'admin générique (vérification, import, rejeu, refus ; à parité avec le legacy).
 - [x] Goldens legacy prouvés exacts : `backend/scripts/organisation-rejeu-legacy.sh` (worktree jetable sur `b365a63a^`, filet en mode

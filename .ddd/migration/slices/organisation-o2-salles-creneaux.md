@@ -1,6 +1,6 @@
 ---
 slice: organisation-o2-salles-creneaux
-status: in-progress
+status: built
 date: 2026-11-02
 order: 2
 context: organisation
