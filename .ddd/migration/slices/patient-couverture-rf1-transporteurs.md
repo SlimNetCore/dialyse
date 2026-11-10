@@ -40,6 +40,7 @@ Usage à la suppression : lecture interne (les patients sont à PC) : aucun port
 3. Lectures `/referentials/transporteurs` et `/categories-transport` servies depuis PC ; code Organisation correspondant retiré ; entrées retirées de `TableDeLOrganisationTest` si présentes.
 4. Garde RF1 verte (effectif asserté), build complet vert, `check-arch` 0 violation, confirmation métier ou ADR 0121 toujours `accepted`.
 Retour arrière : revert Git.
+RF5 (2026-11-10, ADR 0131, revue complémentaire) : le 400 de `ErreursDesTransportsAdvice` ne renvoie plus un message brut (liste blanche ou « Requête invalide », KB-RF5-03) ; garde `TableDesTransporteursTest` vérifiée (butoirs exécutables via `ButoirsDesGardesDeTables`, RF4) ; goldens inchangés. Diffs RF1 (0081ed66) non relus par la revue : voir l'ADR 0131.
 
 ## Effort
 1 slice, environ 1 session (2 tables simples, aucune règle métier, aucun cycle). Risque faible.

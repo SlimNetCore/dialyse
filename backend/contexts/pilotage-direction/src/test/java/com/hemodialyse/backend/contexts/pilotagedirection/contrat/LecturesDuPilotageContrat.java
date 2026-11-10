@@ -182,6 +182,44 @@ abstract class LecturesDuPilotageContrat {
     }
 
     @Test
+    void les_patients_par_caisse_sont_listes_par_centre_puis_code_quel_que_soit_l_ordre_des_centres_demandes_rf5() {
+        UUID payeurZz = payeur(C1, "ZZ");
+        UUID payeurCnas = payeur(C1, "CNAS");
+        UUID payeurAa = payeur(C2, "AA");
+        patient(C2, "M", "PERMANENT", null, ADMIS, false, payeurAa);
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, payeurZz);
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, payeurCnas);
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, null);
+
+        var caisses = lecteurDesPatients().parCaisse(List.of(C2, C1), SEPTEMBRE);
+
+        assertThat(caisses).as("RF5 (revue complémentaire, constat 1) : ordre garanti = centre (texte de l'identifiant), puis code")
+                .extracting("centreId", "code").containsExactly(org.assertj.core.groups.Tuple.tuple(C1, ""),
+                        org.assertj.core.groups.Tuple.tuple(C1, "CNAS"), org.assertj.core.groups.Tuple.tuple(C1, "ZZ"),
+                        org.assertj.core.groups.Tuple.tuple(C2, "AA"));
+    }
+
+    @Test
+    void deux_caisses_de_meme_code_dans_un_centre_se_regroupent_sous_le_plus_grand_nom_rf5() {
+        UUID premier = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+        for (String[] caisse : new String[][]{{"Zeta"}, {"Alpha"}}) {
+            UUID caisseId = UUID.randomUUID();
+            UUID agence = UUID.randomUUID();
+            UUID payeur = caisse[0].equals("Zeta") ? premier : second;
+            jdbc().update("INSERT INTO caisse_assurance (id, center_id, code, nom) VALUES (?, ?, ?, ?)", caisseId, C1, "CNAS", caisse[0]);
+            jdbc().update("INSERT INTO agence (id, center_id, caisse_id, code, nom) VALUES (?, ?, ?, ?, ?)", agence, C1, caisseId, "AG-" + caisse[0], "Agence");
+            jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, ?, ?)", payeur, C1, agence, "CP-" + caisse[0], "Payeur");
+        }
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, premier);
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, second);
+
+        assertThat(lecteurDesPatients().parCaisse(List.of(C1), SEPTEMBRE)).extracting("code", "nom", "patients")
+                .as("RF5 (constat 2) : nom le plus grand dans l'ordre des chaînes (collation de la base non reproduite, KB-RF5-01)")
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("CNAS", "Zeta", 2L));
+    }
+
+    @Test
     void les_prescriptions_de_l_anemie_comptent_les_patients_sous_epo_de_l_effectif() {
         patient(C1, "M", "PERMANENT", null, ADMIS, false);   // epo_enabled = vrai pour le sexe M dans ce jeu
         patient(C1, "F", "PERMANENT", null, ADMIS, false);

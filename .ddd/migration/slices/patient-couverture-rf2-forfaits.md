@@ -39,6 +39,7 @@ UN SEUL `ForfaitsDuCentre` (`lister(centre)`, `parCode(centre, code)`, `prix(cen
 3. Les deux ACL JDBC dupliquées supprimées ; lecture `/referentials/forfaits` servie par PC ; code Organisation retiré.
 4. Garde RF2 verte, build complet vert, `check-arch` 0 violation, PG16 rejoué.
 Retour arrière : revert Git.
+RF5 (2026-11-10, ADR 0131, revue complémentaire) : le 400 de `ErreursDesForfaitsAdvice` ne renvoie plus un message brut (liste blanche ou « Requête invalide », KB-RF5-03) ; butoir de `ForfaitsDeSeanceJdbc` exécutable (RF4) ; goldens inchangés. Diffs RF2 (dec36883) non relus par la revue : voir l'ADR 0131.
 
 ## Effort
 2 sessions : (a) CRUD + import + usages publiés ; (b) langage publié unique + remplacement des deux ACL + retrait Organisation. Risque moyen (argent reproduit, trois lecteurs).

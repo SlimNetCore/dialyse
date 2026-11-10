@@ -181,7 +181,61 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
                 .containsExactly(new MoisRealisePublie(CENTRE_A, 2026, 2, 1));
     }
 
+    @Test
+    void should_list_the_months_by_centre_then_year_then_month_whatever_the_order_of_the_centres_and_of_the_seances_rf5() {
+        patient(PA1, CENTRE_A, null);
+        patient(PB, CENTRE_B, null);
+        seance(CENTRE_B, PB, "2026-02-20", "VALIDEE");
+        seance(CENTRE_A, PA1, "2026-02-15", "VALIDEE");
+        seance(CENTRE_A, PA1, "2026-01-10", "VALIDEE");
+        seance(CENTRE_A, PA1, "2025-12-31", "VALIDEE");
+        seance(CENTRE_B, PB, "2026-01-11", "VALIDEE");
+
+        assertThat(pilotage().parMois(List.of(CENTRE_B, CENTRE_A), le("2025-12-01"), le("2026-03-01")))
+                .as("RF5 (revue complémentaire, constat 1) : ordre garanti = centre (texte de l'identifiant), année, mois")
+                .containsExactly(new MoisRealisePublie(CENTRE_A, 2025, 12, 1), new MoisRealisePublie(CENTRE_A, 2026, 1, 1),
+                        new MoisRealisePublie(CENTRE_A, 2026, 2, 1), new MoisRealisePublie(CENTRE_B, 2026, 1, 1),
+                        new MoisRealisePublie(CENTRE_B, 2026, 2, 1));
+    }
+
     // ---- E4 : répartition par caisse
+
+    @Test
+    void should_list_the_insurance_funds_by_centre_then_code_whatever_the_order_of_the_centres_and_of_the_seances_rf5() {
+        UUID autrePayeurDuCentreA = UUID.randomUUID();
+        payeur(PAYEUR_B, CAISSE_B, CENTRE_B, "AA", "AA du centre B");
+        payeur(PAYEUR_A, CAISSE_A, CENTRE_A, "ZZ", "ZZ du centre A");
+        payeur(autrePayeurDuCentreA, UUID.randomUUID(), CENTRE_A, "CNAS", "CNAS du centre A");
+        patient(PB, CENTRE_B, PAYEUR_B);
+        patient(PA1, CENTRE_A, PAYEUR_A);
+        patient(PA3, CENTRE_A, autrePayeurDuCentreA);
+        patient(PA2, CENTRE_A, null);
+        seance(CENTRE_B, PB, "2026-02-02", "VALIDEE");
+        seance(CENTRE_A, PA1, "2026-02-01", "VALIDEE");
+        seance(CENTRE_A, PA3, "2026-02-01", "VALIDEE");
+        seance(CENTRE_A, PA2, "2026-02-01", "VALIDEE");
+
+        assertThat(pilotage().parCaisse(List.of(CENTRE_B, CENTRE_A), le("2026-02-01"), le("2026-02-28")))
+                .as("RF5 (revue complémentaire, constat 1) : ordre garanti = centre (texte de l'identifiant), puis code ; la caisse vide d'abord")
+                .extracting(CaisseRealiseePubliee::centre, CaisseRealiseePubliee::codeCaisse)
+                .containsExactly(tuple(CENTRE_A, ""), tuple(CENTRE_A, "CNAS"), tuple(CENTRE_A, "ZZ"), tuple(CENTRE_B, "AA"));
+    }
+
+    @Test
+    void should_name_a_fund_shared_by_two_payers_with_the_greatest_name_whatever_the_order_of_the_seances_rf5() {
+        payeur(PAYEUR_A, CAISSE_A, CENTRE_A, "CNAS", "Zeta");
+        payeur(PAYEUR_B, CAISSE_B, CENTRE_A, "CNAS", "Alpha");
+        patient(PA1, CENTRE_A, PAYEUR_A);
+        patient(PA2, CENTRE_A, PAYEUR_B);
+        seance(CENTRE_A, PA1, "2026-02-01", "VALIDEE");
+        seance(CENTRE_A, PA2, "2026-02-01", "VALIDEE");
+
+        assertThat(pilotage().parCaisse(List.of(CENTRE_A), le("2026-02-01"), le("2026-02-28")))
+                .as("RF5 (constat 2) : deux caisses de même code dans un centre (aucune contrainte en base) : un seul regroupement, nom le plus "
+                        + "grand dans l'ordre des chaînes (collation de la base non reproduite, KB-RF5-01), jamais « le dernier lu »")
+                .extracting(CaisseRealiseePubliee::codeCaisse, CaisseRealiseePubliee::nomCaisse, CaisseRealiseePubliee::nombre)
+                .containsExactly(tuple("CNAS", "Zeta", 2L));
+    }
 
     @Test
     void should_count_the_realised_seances_by_insurance_fund_only_when_the_patient_record_is_in_the_centre_of_the_seance() {

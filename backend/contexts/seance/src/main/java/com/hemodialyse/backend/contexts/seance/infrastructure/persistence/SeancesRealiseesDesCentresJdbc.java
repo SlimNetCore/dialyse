@@ -8,6 +8,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,13 +74,20 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
                 rs -> {
                     mois.add(new MoisRealisePublie(rs.getObject("center_id", UUID.class), rs.getInt("y"), rs.getInt("m"), rs.getLong("n")));
                 }, params(centres, du, au));
+        // RF5 (revue complémentaire, constat 1) : le GROUP BY n'ordonne rien ; tri final en Java, identique sur H2 et PostgreSQL
+        mois.sort(Comparator.comparing((MoisRealisePublie m) -> m.centre().toString()).thenComparingInt(MoisRealisePublie::annee)
+                .thenComparingInt(MoisRealisePublie::mois));
         return mois;
     }
 
     /**
      * Séances par caisse. La fiche est jointe en {@code LEFT JOIN} (centre de la séance) et regroupée par centre payeur ; la caisse du centre
      * payeur vient de l'annuaire des payeurs (RF3b, ADR 0127), bornée au centre, et les compteurs sont additionnés par code de caisse
-     * (code vide sans caisse, nom nul sans caisse, plus grand nom sinon : comme le {@code MAX(ca.nom)} d'avant).
+     * (code vide sans caisse, nom nul sans caisse). Nom de la caisse : le plus grand dans l'ordre des chaînes Java ({@code compareTo},
+     * unités UTF-16), indépendant de la base. Le {@code MAX(ca.nom)} d'avant suivait la collation du SGBD (binaire sous H2, celle de la base
+     * sous PostgreSQL), que le code ne définissait pas : ce résultat peut donc différer À COLLATION PRÈS, et seulement quand deux caisses d'un
+     * même centre partagent un code mais pas de nom (aucune contrainte d'unicité en base : KB-RF5-01). Ordre de sortie garanti (RF5) :
+     * centre (texte de l'identifiant), puis code de caisse ({@code compareTo}).
      */
     @Override
     public List<CaisseRealiseePubliee> parCaisse(List<UUID> centres, LocalDate du, LocalDate au) {
@@ -108,6 +116,7 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
         }
         List<CaisseRealiseePubliee> caisses = new ArrayList<>();
         nombres.forEach((cle, nombre) -> caisses.add(new CaisseRealiseePubliee(cle.centre(), cle.code(), noms.get(cle), nombre[0])));
+        caisses.sort(Comparator.comparing((CaisseRealiseePubliee c) -> c.centre().toString()).thenComparing(CaisseRealiseePubliee::codeCaisse));
         return caisses;
     }
 }

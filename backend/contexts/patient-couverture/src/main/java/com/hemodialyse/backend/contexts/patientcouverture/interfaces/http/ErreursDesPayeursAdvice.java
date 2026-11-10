@@ -19,6 +19,6 @@ class ErreursDesPayeursAdvice {
 
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail identifiantIllisible(IllegalArgumentException erreur) {
-        return ErreursDeLaFicheAdvice.probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
+        return RefusDeParametre.reponse(erreur);   // RF5 : liste blanche de messages attendus, sinon texte neutre
     }
 }

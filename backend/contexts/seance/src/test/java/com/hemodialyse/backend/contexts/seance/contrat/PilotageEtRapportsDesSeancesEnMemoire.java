@@ -147,7 +147,9 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
         Map<List<Object>, Long> n = new LinkedHashMap<>();
         realisees(centres, du, au).forEach(l -> n.merge(List.of(l.centre, l.date.getYear(), l.date.getMonthValue()), 1L, Long::sum));
         return n.entrySet().stream().map(e -> new MoisRealisePublie((UUID) e.getKey().get(0), (Integer) e.getKey().get(1),
-                (Integer) e.getKey().get(2), e.getValue())).toList();
+                (Integer) e.getKey().get(2), e.getValue()))
+                .sorted(Comparator.comparing((MoisRealisePublie m) -> m.centre().toString()).thenComparingInt(MoisRealisePublie::annee)
+                        .thenComparingInt(MoisRealisePublie::mois)).toList();
     }
 
     @Override
@@ -161,10 +163,12 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
             if (c != null && (!c.centre().equals(l.centre) || !c.centreDeLAgence().equals(l.centre))) c = null;
             List<Object> cle = List.of(l.centre, c == null ? "" : c.code());
             n.merge(cle, 1L, Long::sum);
-            if (c != null) noms.put(cle, c.nom());
+            if (c != null && c.nom() != null) noms.merge(cle, c.nom(), (a, b) -> a.compareTo(b) >= 0 ? a : b);
         });
         return n.entrySet().stream().map(e -> new CaisseRealiseePubliee((UUID) e.getKey().get(0), (String) e.getKey().get(1),
-                noms.get(e.getKey()), e.getValue())).toList();
+                noms.get(e.getKey()), e.getValue()))
+                .sorted(Comparator.comparing((CaisseRealiseePubliee c) -> c.centre().toString()).thenComparing(CaisseRealiseePubliee::codeCaisse))
+                .toList();
     }
 
     // ---- statistiques

@@ -22,14 +22,17 @@ public interface SeancesRealiseesDesCentresPubliees {
     /** Le total des centres sur la période (E2). */
     long auTotal(List<UUID> centres, LocalDate du, LocalDate au);
 
-    /** Le nombre de séances réalisées par centre et par mois civil, sans ordre défini (E3). */
+    /**
+     * Le nombre de séances réalisées par centre et par mois civil (E3). Ordre garanti (RF5) : centre (texte de l'identifiant), année, mois.
+     */
     List<MoisRealisePublie> parMois(List<UUID> centres, LocalDate du, LocalDate au);
 
     /**
      * Le nombre de séances réalisées par centre et par caisse de la fiche du patient (E4). La séance n'est comptée que si la fiche du
      * patient est DANS le centre de la séance (KB-SEA-83, reproduit : une séance sur une fiche d'un autre centre disparaît) ; la chaîne
      * payeur, agence, caisse est suivie SANS contrôle de centre (KB-SEA-84). Code de caisse vide ({@code ""}) et nom nul sans caisse.
-     * Ordre des lignes : celui du SGBD (aucun tri, KB-SEA-84).
+     * Ordre des lignes garanti (RF5, revue complémentaire constat 1) : centre (texte de l'identifiant), puis code de caisse. Le nom d'une
+     * caisse partagée par deux caisses de même code est le plus grand dans l'ordre des chaînes (KB-RF5-01).
      */
     List<CaisseRealiseePubliee> parCaisse(List<UUID> centres, LocalDate du, LocalDate au);
 

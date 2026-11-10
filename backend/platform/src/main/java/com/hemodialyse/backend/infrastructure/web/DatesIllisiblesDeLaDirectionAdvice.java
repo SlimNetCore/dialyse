@@ -110,7 +110,11 @@ class DatesIllisiblesDeLaDirectionAdvice {
      * ({@code /api/v1/admin/referentials} et ses sous-routes, quel que soit le référentiel : résiduel RF1-R4 clos).
      */
     private static boolean estUneRouteDeLAdministrationGenerique(HttpServletRequest requete) {
-        return ADMINISTRATION_GENERIQUE.matcher(requete.getRequestURI()).find();
+        // RF5 (revue complémentaire, constat 6) : ancré au début du chemin SANS le contexte applicatif (plus de find() sur l'URI complète)
+        String uri = requete.getRequestURI();
+        String contexte = requete.getContextPath();
+        String chemin = contexte != null && !contexte.isEmpty() && uri.startsWith(contexte) ? uri.substring(contexte.length()) : uri;
+        return ADMINISTRATION_GENERIQUE.matcher(chemin).lookingAt();
     }
 
     /** Les statistiques médicales et les indicateurs médicaux de la Direction : le 403 passe avant le 400 (les autres routes gardent leur 400). */
@@ -126,10 +130,13 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     /** Évalue l'expression {@code @PreAuthorize} de la route avec la racine d'expressions de Spring Security (403 avant 400). */
     private static boolean droitsSuffisants(HttpServletRequest requete) {
-        if (!(requete.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE) instanceof HandlerMethod methode)) return true;
+        // RF5 (revue complémentaire, constat 5) : sur l'administration générique, pas de garde connue = refus (403), jamais 400 ; le test
+        // d'architecture RoutesDeLAdministrationGeneriqueGardeesTest garantit qu'aucune route réelle n'est dans ce cas
+        boolean parDefautRefuse = estUneRouteDeLAdministrationGenerique(requete);
+        if (!(requete.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE) instanceof HandlerMethod methode)) return !parDefautRefuse;
         PreAuthorize garde = methode.getMethodAnnotation(PreAuthorize.class);
         if (garde == null) garde = org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation(methode.getBeanType(), PreAuthorize.class);
-        if (garde == null) return true;
+        if (garde == null) return !parDefautRefuse;
         Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
         if (authentification == null) return false;
         SecurityExpressionRoot<Object> racine = new SecurityExpressionRoot<Object>(authentification) {

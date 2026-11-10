@@ -36,4 +36,4 @@ Aucun golden n'a changé : les goldens `saisie-*/suppressions` (données d'un se
 
 ## Questions ouvertes
 - Confirmation métier du compte d'usage borné au centre avant le 2026-12-15.
-- Revue complémentaire `revue-RF1-RF3d-complement.md` : constats 1 (ordre de `parCaisse` / `parMois`), 2 (collation), 4 et 5 (advice des payeurs, `@PreAuthorize`) non traités par RF4.
+- Revue complémentaire `revue-RF1-RF3d-complement.md` : constats 1 (ordre de `parCaisse` / `parMois`), 2 (collation), 4 et 5 (advice des payeurs, `@PreAuthorize`) non traités par RF4 : TRAITÉS par RF5 (ADR 0131, qui liste aussi les points de la revue restés non traités).

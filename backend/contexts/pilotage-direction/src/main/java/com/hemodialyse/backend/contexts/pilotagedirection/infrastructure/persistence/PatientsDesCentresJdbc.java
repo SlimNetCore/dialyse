@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,8 +70,10 @@ public final class PatientsDesCentresJdbc implements EffectifsDesPatients {
 
     /**
      * Patients par caisse : regroupés par centre payeur en SQL, puis par caisse. La caisse du centre payeur vient de l'annuaire des payeurs
-     * (RF3b, ADR 0127), bornée au centre du patient (KB-SEA-84) ; code vide et nom nul sans caisse, plus grand nom sinon (comme le
-     * {@code MAX(ca.nom)} d'avant).
+     * (RF3b, ADR 0127), bornée au centre du patient (KB-SEA-84) ; code vide et nom nul sans caisse. Nom : le plus grand dans l'ordre des
+     * chaînes Java ({@code compareTo}), indépendant de la base ; le {@code MAX(ca.nom)} d'avant suivait la collation du SGBD (non définie
+     * par le code), le résultat peut donc différer À COLLATION PRÈS, seulement si deux caisses d'un centre partagent un code sans partager
+     * leur nom (aucune contrainte en base : KB-RF5-01). Ordre de sortie garanti (RF5) : centre (texte de l'identifiant), puis code.
      */
     @Override
     public List<PatientsDeLaCaisse> parCaisse(List<UUID> centres, Periode periode) {
@@ -100,6 +103,8 @@ public final class PatientsDesCentresJdbc implements EffectifsDesPatients {
         }
         List<PatientsDeLaCaisse> parCaisse = new ArrayList<>();
         nombres.forEach((cle, nombre) -> parCaisse.add(new PatientsDeLaCaisse(cle.centre(), cle.code(), noms.get(cle), nombre[0])));
+        // RF5 (revue complémentaire, constat 1) : le GROUP BY n'ordonne rien ; tri final en Java, identique sur H2 et PostgreSQL
+        parCaisse.sort(Comparator.comparing((PatientsDeLaCaisse c) -> c.centreId().toString()).thenComparing(PatientsDeLaCaisse::code));
         return parCaisse;
     }
 
