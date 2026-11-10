@@ -124,6 +124,26 @@ class RepartitionDeLaSocieteTest {
     }
 
     @Test
+    void a_chiffre_daffaires_egal_les_caisses_sont_departagees_par_code_quel_que_soit_lordre_des_lectures_kb_sea_84_corrige() {
+        var cnas = new ChiffreDeLaCaisse(A, "CNAS", "CNAS", new BigDecimal("40.00"));
+        var casnos = new ChiffreDeLaCaisse(A, "CASNOS", "CASNOS", new BigDecimal("40.00"));
+        var sansCaisse = new ChiffreDeLaCaisse(A, "", null, new BigDecimal("40.00"));
+        var cnasB = new ChiffreDeLaCaisse(B, "CNAS", "CNAS", new BigDecimal("40.00"));
+        var casnosB = new ChiffreDeLaCaisse(B, "CASNOS", "CASNOS", new BigDecimal("40.00"));
+
+        var directe = repartir(annabaEtBlida(), List.of(), List.of(), List.of(), List.of(cnas, casnos, sansCaisse, cnasB, casnosB));
+        var inverse = repartir(annabaEtBlida(), List.of(), List.of(), List.of(), List.of(casnosB, cnasB, sansCaisse, casnos, cnas));
+
+        assertThat(directe.caisses()).extracting(l -> l.centre() + "/" + l.code())
+                .containsExactly("Annaba/", "Annaba/CASNOS", "Annaba/CNAS", "blida/CASNOS", "blida/CNAS");
+        assertThat(inverse.caisses()).extracting(l -> l.centre() + "/" + l.code()).isEqualTo(directe.caisses().stream()
+                .map(l -> l.centre() + "/" + l.code()).toList());
+        // totaux de la société : CASNOS et CNAS à 80 (égalité départagée par le code), la caisse vide à 40
+        assertThat(directe.caissesDeLaSociete()).extracting(c -> c.code()).containsExactly("CASNOS", "CNAS", "");
+        assertThat(inverse.caissesDeLaSociete()).extracting(c -> c.code()).containsExactly("CASNOS", "CNAS", "");
+    }
+
+    @Test
     void les_totaux_par_caisse_sont_tries_par_chiffre_daffaires_decroissant_et_additionnent_les_bruts_sans_les_publier_masques_kb_dir_01_corrige() {
         var patients = List.of(new PatientsDeLaCaisse(A, "CNAS", "CNAS", 3), new PatientsDeLaCaisse(B, "CNAS", "CNAS", 4),
                 new PatientsDeLaCaisse(A, "CASNOS", "CASNOS", 2));

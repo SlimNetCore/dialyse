@@ -31,9 +31,11 @@ import static org.assertj.core.api.Assertions.tuple;
  * H2 et sur PostgreSQL 16 jetable. Il décrit les DIX-SEPT requêtes reprises à l'identique (E1 à E17 de {@code .ddd/safety-net/seance-se7e.md},
  * E11, l'état Jasper, excepté : il reste dans le modèle de document). Lot L5a (ADR 0117) : ordre intra-jour déterministe et clés en
  * minuscules (KB-SEA-86), moyennes comparées à 10 décimales (KB-SEA-87 clos), une séance ANNULEE ne bloque plus la reprise (KB-SEA-89).
- * Reste reproduit : casse et blancs du statut (KB-SEA-83), séance sur une fiche d'un autre centre absente des caisses (KB-SEA-83),
- * chaîne de caisse sans centre et ordre du SGBD (KB-SEA-84), statistiques de tous statuts avec le volet d'un autre centre (KB-SEA-85),
- * séances du patient et facture sans centre (KB-SEA-90), forfait imposé de n'importe quel centre ou statut (KB-SEA-91).
+ * Lot L5b (ADR 0118) : un seul prédicat pour la vue d'ensemble et les caisses (une séance sur une fiche d'un autre centre reste comptée sous la
+ * caisse vide : KB-DIR-05, KB-SEA-83), centre payeur borné au centre de la fiche (KB-SEA-84), statistiques des séances RÉALISÉES seulement et
+ * volet borné au centre de la séance (KB-SEA-85).
+ * Reste voulu (prudence, KB-SEA-90 et 91 CLOS par documentation) : séances du patient et facture sans borne de centre, forfait imposé de
+ * n'importe quel centre ou statut. Reste reproduit : casse et blancs du statut (KB-SEA-82).
  */
 public abstract class PilotageEtRapportsDesSeancesContrat {
 
@@ -190,15 +192,34 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
         seance(CENTRE_B, PB, "2026-02-02", "VALIDEE");
 
         assertThat(pilotage().parCaisse(List.of(CENTRE_A, CENTRE_B), le("2026-02-01"), le("2026-02-28")))
-                .as("ordre du SGBD (KB-SEA-84) : ensemble seulement ; la séance de PX (fiche au centre B) disparaît (KB-SEA-83) ; la caisse du "
-                        + "centre B est suivie depuis une fiche du centre A (KB-SEA-84) ; sans caisse : code vide, nom nul")
+                .as("ensemble seulement (ordre du SGBD) ; KB-DIR-05 et KB-SEA-83 corrigés : la séance de PX (fiche au centre B) reste comptée, "
+                        + "sous la caisse vide ; KB-SEA-84 corrigé : la chaîne payeur du centre B posée sur une fiche du centre A tombe sur la "
+                        + "caisse vide ; sans caisse : code vide, nom nul")
                 .extracting(CaisseRealiseePubliee::centre, CaisseRealiseePubliee::codeCaisse, CaisseRealiseePubliee::nomCaisse,
                         CaisseRealiseePubliee::nombre)
-                .containsExactlyInAnyOrder(tuple(CENTRE_A, "CNAS", "CNAS du centre A", 2L), tuple(CENTRE_A, "", null, 1L),
-                        tuple(CENTRE_A, "CNAS-B", "CNAS du centre B", 1L), tuple(CENTRE_B, "CNAS-B", "CNAS du centre B", 1L));
+                .containsExactlyInAnyOrder(tuple(CENTRE_A, "CNAS", "CNAS du centre A", 2L), tuple(CENTRE_A, "", null, 3L),
+                        tuple(CENTRE_B, "CNAS-B", "CNAS du centre B", 1L));
         assertThat(pilotage().parCentre(List.of(CENTRE_A), le("2026-02-01"), le("2026-02-28")))
-                .as("la vue d'ensemble compte la séance de PX : les deux comptes ne concordent pas (KB-SEA-83)")
                 .containsExactly(Map.entry(CENTRE_A, 5L));
+    }
+
+    @Test
+    void should_count_the_same_seances_in_the_overview_and_in_the_insurance_fund_breakdown_whatever_the_record_or_payer_centre() {
+        payeur(PAYEUR_B, CAISSE_B, CENTRE_B, "CNAS-B", "CNAS du centre B");
+        patient(PA1, CENTRE_A, PAYEUR_B);
+        patient(PB, CENTRE_B, PAYEUR_B);
+        seance(CENTRE_A, PA1, "2026-02-01", "VALIDEE");
+        seance(CENTRE_A, PB, "2026-02-02", "SIGNEE");
+        seance(CENTRE_A, PB, "2026-02-03", "FACTUREE");
+        seance(CENTRE_B, PB, "2026-02-04", "VALIDEE");
+
+        long vueDEnsemble = pilotage().parCentre(List.of(CENTRE_A, CENTRE_B), le("2026-02-01"), le("2026-02-28")).get(CENTRE_A);
+        long caisses = pilotage().parCaisse(List.of(CENTRE_A, CENTRE_B), le("2026-02-01"), le("2026-02-28")).stream()
+                .filter(c -> c.centre().equals(CENTRE_A)).mapToLong(CaisseRealiseePubliee::nombre).sum();
+
+        assertThat(caisses).as("la somme des caisses d'un centre égale sa vue d'ensemble (KB-DIR-05, KB-SEA-83)").isEqualTo(vueDEnsemble).isEqualTo(3);
+        assertThat(pilotage().parCaisse(List.of(CENTRE_A), le("2026-02-01"), le("2026-02-28")))
+                .extracting(CaisseRealiseePubliee::codeCaisse, CaisseRealiseePubliee::nombre).containsExactly(tuple("", 3L));
     }
 
     // ---- E6 à E9 : statistiques du patient
@@ -215,6 +236,8 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
         stats.put("S6", seance(CENTRE_A, PA1, "2026-02-05", "SIGNEE"));
         stats.put("S8", seance(CENTRE_A, PA1, "2026-03-02", "VALIDEE"));
         stats.put("S7", seance(CENTRE_B, PA1, "2026-02-05", "VALIDEE"));
+        stats.put("S9", seance(CENTRE_A, PA1, "2026-03-05", "FACTUREE"));
+        volet(CENTRE_B, stats.get("S9"), d("90.00"), d("80.00"), "99/99", d("8000"));
         volet(CENTRE_A, stats.get("S1"), d("70.50"), d("68.00"), "130/80", d("2500"));
         volet(CENTRE_A, stats.get("S2"), d("72.00"), d("70.00"), "13/8", null);
         volet(CENTRE_B, stats.get("S4"), d("80.00"), d("77.50"), " 140 - 90 ", null);
@@ -228,29 +251,34 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     }
 
     @Test
-    void should_count_every_seance_of_the_patient_in_the_centre_whatever_its_status_with_an_optional_period() {
+    void should_count_only_the_realised_seances_of_the_patient_in_the_centre_with_an_optional_period() {
         jeuDesStatistiques();
 
-        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, null, null)).as("tous statuts, centre B exclu (KB-SEA-85)").isEqualTo(7);
-        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-05"))).isEqualTo(6);
-        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, null, le("2026-02-04"))).as("au seul").isEqualTo(4);
-        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, le("2026-03-01"), null)).as("du seul").isEqualTo(1);
+        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, null, null))
+                .as("VALIDEE, SIGNEE, FACTUREE seulement (KB-SEA-85 b corrigé) : ANNULEE, CREE et 'validee' sortent ; centre B exclu")
+                .isEqualTo(5);
+        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-05"))).isEqualTo(3);
+        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, null, le("2026-02-04"))).as("au seul").isEqualTo(1);
+        assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, le("2026-03-01"), null)).as("du seul").isEqualTo(2);
         assertThat(statistiques().nombreDeSeances(CENTRE_A, PA1, le("2026-02-06"), le("2026-02-28"))).isZero();
     }
 
     @Test
-    void should_average_the_measures_including_a_volet_of_another_centre_within_the_guaranteed_precision() {
+    void should_average_the_measures_of_the_realised_seances_with_the_volet_of_their_own_centre_only() {
         jeuDesStatistiques();
 
         assertThat(statistiques().moyenneDuPoidsAvant(CENTRE_A, PA1, null, le("2026-02-04")))
-                .as("70.50, 72.00 et 80.00 (volet du centre B, KB-SEA-85) ; 10 décimales garanties (KB-SEA-87)")
-                .isCloseTo(moyenne("222.50", 3), PRECISION_DES_MOYENNES);
-        assertThat(statistiques().moyenneDuPoidsApres(CENTRE_A, PA1, null, le("2026-02-04")))
-                .isCloseTo(moyenne("215.50", 3), PRECISION_DES_MOYENNES);
+                .as("seule S1 est réalisée : S2 (ANNULEE) et S4 (CREE) sortent (KB-SEA-85 b) ; 10 décimales garanties (KB-SEA-87)")
+                .isCloseTo(70.5, PRECISION_DES_MOYENNES);
+        assertThat(statistiques().moyenneDuPoidsApres(CENTRE_A, PA1, null, le("2026-02-04"))).isCloseTo(68.0, PRECISION_DES_MOYENNES);
         assertThat(statistiques().moyenneDeLUltrafiltration(CENTRE_A, PA1, null, le("2026-02-04")))
-                .as("2500 saisie, 2000 et 2500 recalculées (perte de poids x 1000)").isCloseTo(moyenne("7000", 3), PRECISION_DES_MOYENNES);
+                .as("2500 saisie").isCloseTo(2500.0, PRECISION_DES_MOYENNES);
+        assertThat(statistiques().moyenneDuPoidsAvant(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-28")))
+                .as("S1, S5, S6 sans volet : 70.50 et 69.25").isCloseTo(moyenne("139.75", 2), PRECISION_DES_MOYENNES);
         assertThat(statistiques().moyenneDuPoidsAvant(CENTRE_A, PA1, le("2026-02-06"), le("2026-02-28"))).as("aucune mesure").isNull();
-        assertThat(statistiques().moyenneDeLUltrafiltration(CENTRE_A, PA1, le("2026-03-01"), null)).as("séance sans volet").isNull();
+        assertThat(statistiques().moyenneDuPoidsAvant(CENTRE_A, PA1, le("2026-03-01"), null))
+                .as("le volet de S9 est posé sous le centre B : ignoré (KB-SEA-85 a corrigé)").isNull();
+        assertThat(statistiques().moyenneDeLUltrafiltration(CENTRE_A, PA1, le("2026-03-01"), null)).as("séance sans volet du centre").isNull();
     }
 
     @Test
@@ -259,7 +287,7 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
 
         List<Map<String, Object>> lignes = statistiques().evolutionDuPoids(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-05"));
 
-        assertThat(lignes).hasSize(6);
+        assertThat(lignes).as("réalisées seulement (KB-SEA-85 b)").hasSize(3);
         assertThat(lignes.get(0).keySet()).as("clés en minuscules sur H2 comme sur PostgreSQL (KB-SEA-86 corrigé)").containsExactly("date_seance",
                 "poids_avant_kg", "poids_apres_kg", "poids_sec_cible_kg", "uf_reelle_ml");
         List<LocalDate> dates = lignes.stream().map(l -> ((java.sql.Date) l.get("date_seance")).toLocalDate()).toList();
@@ -269,8 +297,7 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
             resume.add(l.get("date_seance") + "|" + texte(l.get("poids_sec_cible_kg")) + "|" + texte(l.get("uf_reelle_ml")));
         }
         assertThat(resume).as("poids sec en vigueur au centre (le plus récemment mis à jour à date égale), UF saisie ou recalculée")
-                .containsExactlyInAnyOrder("2026-02-01|66|2500", "2026-02-02|66|2000", "2026-02-03|68|null", "2026-02-04|68|2500",
-                        "2026-02-05|68|1500", "2026-02-05|68|null");
+                .containsExactlyInAnyOrder("2026-02-01|66|2500", "2026-02-05|68|1500", "2026-02-05|68|null");
     }
 
     @Test
@@ -306,11 +333,15 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     void should_return_the_raw_blood_pressures_of_each_seance_ordered_by_date() {
         jeuDesStatistiques();
 
-        assertThat(statistiques().evolutionDeLaTension(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-04")))
-                .containsExactly(new TensionsDeSeancePubliees(le("2026-02-01"), "130/80", null),
-                        new TensionsDeSeancePubliees(le("2026-02-02"), "13/8", null),
-                        new TensionsDeSeancePubliees(le("2026-02-03"), null, null),
-                        new TensionsDeSeancePubliees(le("2026-02-04"), " 140 - 90 ", null));
+        List<TensionsDeSeancePubliees> fevrier = statistiques().evolutionDeLaTension(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-28"));
+        assertThat(fevrier).as("réalisées seulement (KB-SEA-85 b)").hasSize(3);
+        assertThat(fevrier.get(0)).isEqualTo(new TensionsDeSeancePubliees(le("2026-02-01"), "130/80", null));
+        assertThat(fevrier.subList(1, 3)).as("deux séances du même jour, même création : l'ordre dépend de l'identifiant tiré au hasard")
+                .containsExactlyInAnyOrder(new TensionsDeSeancePubliees(le("2026-02-05"), "120/70", null),
+                        new TensionsDeSeancePubliees(le("2026-02-05"), null, null));
+        assertThat(statistiques().evolutionDeLaTension(CENTRE_A, PA1, le("2026-03-01"), null))
+                .containsExactly(new TensionsDeSeancePubliees(le("2026-03-02"), null, null),
+                        new TensionsDeSeancePubliees(le("2026-03-05"), null, null));
         assertThat(statistiques().evolutionDeLaTension(CENTRE_A, PA1, le("2026-04-01"), null)).isEmpty();
     }
 

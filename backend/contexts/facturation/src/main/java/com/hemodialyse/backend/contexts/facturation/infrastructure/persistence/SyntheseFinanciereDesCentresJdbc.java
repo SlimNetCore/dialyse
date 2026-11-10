@@ -74,7 +74,8 @@ public class SyntheseFinanciereDesCentresJdbc implements SyntheseFinanciereDesCe
         }
         jdbc.query("SELECT f.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, "
                         + "COALESCE(SUM(f.total_ht), 0) AS ht FROM factures f "
-                        + "LEFT JOIN agence ag ON ag.id = f.agence_id_snapshot "
+                        // KB-SEA-84 (ADR 0118) : agence bornée au centre de la facture, comme le centre payeur des séances et des patients
+                        + "LEFT JOIN agence ag ON ag.id = f.agence_id_snapshot AND ag.center_id = f.center_id "
                         + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id "
                         + "WHERE f.center_id IN (" + marques(centres) + ") AND f.date_facturation BETWEEN ? AND ? "
                         + "GROUP BY f.center_id, COALESCE(ca.code, '')",

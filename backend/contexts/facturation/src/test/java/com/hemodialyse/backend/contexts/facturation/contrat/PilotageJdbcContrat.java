@@ -7,6 +7,7 @@ import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.L
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.LectureDuTableauDeBordJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.SyntheseFinanciereDesCentresJdbc;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
+import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -14,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Le contrat des lectures de pilotage exécuté contre les adaptateurs JDBC. Les variantes H2 et PostgreSQL 16 ne diffèrent que
@@ -77,6 +80,28 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
     protected void poserLaSeance(UUID centre, UUID facture, LocalDate date, String statut) {
         jdbc().update("INSERT INTO seances (id, center_id, patient_id, date_seance, statut, facture_id) VALUES (?, ?, ?, ?, ?, ?)",
                 UUID.randomUUID(), centre, PATIENT_1, Date.valueOf(date), statut, facture);
+    }
+
+    @Test
+    void should_put_in_the_empty_fund_an_invoice_whose_agency_snapshot_belongs_to_another_centre_kb_sea_84() {
+        facture(CENTRE_B, PATIENT_3, "2026-02-05", "10.00", "0.00", "10.00", "CNAS", "CNAS du centre B", null);
+        UUID agenceDuCentreB = derive("agence:" + CENTRE_B.valeur() + ":CNAS");
+        facture(CENTRE_A, PATIENT_1, "2026-02-10", "100.00", "0.00", "100.00", "CNAS", "CNAS du centre A", null);
+        UUID etrangere = UUID.randomUUID();
+        jdbc().update("INSERT INTO factures (id, center_id, patient_id, numero_facture, patient_status_snapshot, agence_id_snapshot, "
+                        + "period_start, period_end, date_facturation, tva_rate, total_ht, total_tva, total_ttc) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, ?)",
+                etrangere, CENTRE_A.valeur(), PATIENT_2, "FAC-F5-X-" + etrangere, null, agenceDuCentreB, Date.valueOf("2026-02-11"),
+                Date.valueOf("2026-02-11"), Date.valueOf("2026-02-11"), new BigDecimal("40.00"), new BigDecimal("40.00"));
+
+        var caisses = finance().chiffreDAffairesParCaisse(java.util.List.of(CENTRE_A.valeur()), LocalDate.of(2026, 2, 1),
+                LocalDate.of(2026, 2, 28));
+
+        assertThat(caisses).hasSize(2);
+        assertThat(caisses).filteredOn(c -> c.codeCaisse().equals("CNAS")).singleElement()
+                .satisfies(c -> assertThat(c.chiffreDAffairesHt()).isEqualByComparingTo("100.00"));
+        assertThat(caisses).filteredOn(c -> c.codeCaisse().isEmpty()).singleElement()
+                .satisfies(c -> assertThat(c.chiffreDAffairesHt()).isEqualByComparingTo("40.00"));
     }
 
     @Override

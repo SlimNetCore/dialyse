@@ -148,7 +148,10 @@ SE7e (ADR 0099) n'ajoute aucune route : le pilotage de la Direction (`/api/v1/di
 d'écriture hors de la Séance, réservé à la reprise) et `ForfaitsImposesAuxSeancesPublies`, injectés directement (la plateforme dépend du
 module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068. Lot L5a (ADR 0117, 2026-11-10) : tri déterministe et clés d'évolution du poids en
 minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87), cahier de dialyse : forfait du référentiel à défaut du code recopié
-(KB-SEA-88), séance annulée n'empêchant plus la reprise (KB-SEA-89).
+(KB-SEA-88), séance annulée n'empêchant plus la reprise (KB-SEA-89). Lot L5b (ADR 0118, 2026-11-10) : un seul prédicat pour la vue d'ensemble, les
+absences et la répartition par caisse, centre payeur borné au centre de la fiche, tri des caisses départagé par le code (KB-DIR-05, KB-SEA-83, 84),
+statistiques des séances réalisées seulement, volet borné au centre, compte entier dans le PDF (KB-SEA-85) ; KB-SEA-75, 80, 90, 91 clos sans
+changement de comportement.
 SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`
 passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
 ADR 0116 : fiche vérifiée avant l'écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;

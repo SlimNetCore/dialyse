@@ -80,7 +80,7 @@
         "caisse" : null,
         "caisseCode" : "",
         "patients" : null,
-        "seances" : 2
+        "seances" : 3
       }, {
         "caHt" : 50.0,
         "caisse" : "CASNOS Independants",
@@ -119,7 +119,7 @@
         "centerId" : "<CENTRE_B>",
         "centre" : "Centre B",
         "patients" : 13,
-        "seances" : 1
+        "seances" : 2
       } ],
       "from" : "<D+0>",
       "generatedAt" : "<HORODATAGE>",

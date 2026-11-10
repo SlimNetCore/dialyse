@@ -16,13 +16,16 @@ import java.util.UUID;
  * Lecture publiée des séances réalisées des centres pour le pilotage de la Direction (ADR 0099, SE7e), lecture seule. Requêtes reprises
  * MOT POUR MOT de la plateforme : E1 et E5 ({@code DirectionDashboardQueryService.overview}, {@code DirectionAbsencesQueryService.absences},
  * texte identique), E2 ({@code previousPeriodTotals}), E3 ({@code monthly}), E4 ({@code DirectionBreakdownQueryService.loadCaisseSeances},
- * avec sa jointure {@code patients} sur l'identifiant ET le centre et sa chaîne payeur / agence / caisse sans centre : KB-SEA-83, 84).
- * Paramètres de date passés en {@link Date} comme avant.
+ * avec sa jointure {@code patients} sur l'identifiant ET le centre).
+ * Paramètres de date passés en {@link Date} comme avant. Corrigé le 2026-11-10 (lot L5b, ADR 0118) : UN prédicat pour les trois vues, celui de la
+ * séance elle-même : la répartition par caisse joint la fiche en {@code LEFT JOIN} (une séance sur une fiche d'un autre centre reste comptée sous
+ * la caisse vide : KB-DIR-05, KB-SEA-83) et le centre payeur est borné au centre de la fiche (KB-SEA-84).
  */
 public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentresPubliees {
 
+    /** Centre payeur borné au centre de la fiche (KB-SEA-84, ADR 0118) : une chaîne payeur d'un autre centre tombe sur la caisse vide. */
     private static final String CAISSE_JOIN =
-            "LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id "
+            "LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id "
                     + "LEFT JOIN agence ag ON ag.id = cp.agence_id "
                     + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id ";
 
@@ -78,7 +81,7 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
     public List<CaisseRealiseePubliee> parCaisse(List<UUID> centres, LocalDate du, LocalDate au) {
         List<CaisseRealiseePubliee> caisses = new ArrayList<>();
         jdbc.query("SELECT s.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, COUNT(*) AS n "
-                        + "FROM seances s INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id "
+                        + "FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id "
                         + CAISSE_JOIN + "WHERE s.center_id IN (" + placeholders(centres.size()) + ") AND s.date_seance BETWEEN ? AND ? "
                         + "AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, COALESCE(ca.code, '')",
                 rs -> {

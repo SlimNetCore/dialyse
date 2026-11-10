@@ -1,0 +1,15 @@
+{
+  "caisseTotaux (tries par le test)" : [ "code= | patients=null | seances=2", "code=CNAS | patients=null | seances=3", "code=CNAS-B | patients=null | seances=3" ],
+  "caisses (triees par le test : a chiffre d'affaires egal, l'ordre servi suit l'ordre SQL)" : [ "Centre Alpha SE7e | code= |  | patients=null | seances=2", "Centre Alpha SE7e | code=CNAS | CNAS du centre A | patients=null | seances=3", "Centre Alpha SE7e | code=CNAS-B | CNAS du centre B | patients=null | seances=1", "Centre Beta SE7e | code=CNAS-B | CNAS du centre B | patients=null | seances=2" ],
+  "from" : "<D+30>",
+  "to" : "<D+59>",
+  "vue d'ensemble sur la meme periode (sans jointure patients)" : {
+    "centres (ordre servi)" : [ "Centre Alpha SE7e | <CENTRE_A> | seances=7", "Centre Beta SE7e | <CENTRE_B> | seances=2" ],
+    "from" : "<D+30>",
+    "mensuel (ordre servi)" : [ "2026-01 | <CENTRE_A> | seances=1", "2026-02 | <CENTRE_A> | seances=5", "2026-02 | <CENTRE_B> | seances=1", "2026-03 | <CENTRE_A> | seances=1", "2026-03 | <CENTRE_B> | seances=1" ],
+    "periodePrecedente" : "<D+0> -> <D+29> | seances=3",
+    "status" : 200,
+    "to" : "<D+59>",
+    "totaux.seances" : 9
+  }
+}

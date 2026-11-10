@@ -91,5 +91,13 @@ Restent en liste blanche pour SE7f (butoirs de `TableDesSeancesTest`) : `Histori
 | KB-SEA-89 (E12) | toute séance du jour bloque la reprise | une séance `ANNULEE` ne bloque plus ; tous les autres statuts bloquent | contrat, rejeu PG16 E12 |
 Détections : `verifications-production.md` §79.3 ; un modèle de document personnalisé du cahier (§64.8, E-R3) garde sa propre requête (donc l'ancien comportement). Flag / bascule : aucun (ADR 0024).
 
+## Lot L5b (2026-11-10, ADR 0118) : KB-DIR-05, KB-SEA-83, 84, 85 CORRIGÉS ; KB-SEA-75, 80, 90, 91 CLOS (écarts de parité DÉCIDÉS, à confirmer par les métiers et le DPO au plus tard le 2026-12-15)
+| Écart | Avant | Après | Preuve |
+|---|---|---|---|
+| KB-DIR-05, KB-SEA-83 (E4) | `INNER JOIN patients` : une séance sur une fiche d'un autre centre disparaît des caisses | `LEFT JOIN patients` : comptée sous la caisse vide ; somme des caisses = vue d'ensemble (E1, E5 inchangés) | contrat `PilotageEtRapportsDesSeancesContrat`, golden `pilotage/repartition_par_caisse`, rejeu PG16 E4 |
+| KB-SEA-84 (E4) | chaîne payeur sans centre ; tri Java sur le chiffre d'affaires | `AND cp.center_id = p.center_id` (séances, patients) et `AND ag.center_id = f.center_id` (chiffre d'affaires) ; départage par le code | contrats, `RepartitionDeLaSocieteTest`, rejeu PG16 D2, D3, D4 |
+| KB-SEA-85 (E6 à E9) | tous statuts, volet sans centre, `Seances: 6.00` | séances réalisées seulement, `AND vp.center_id = s.center_id`, `Seances: 3` | contrat, goldens `statistiques/*`, `dm1/*`, rejeu PG16 E6 à E8 |
+Clos sans changement : KB-SEA-75 (deux définitions conservées, test d'équivalence sur données saines), KB-SEA-80 (fiche d'un autre centre invisible), KB-SEA-90 et 91 (blocages voulus, déjà figés par le contrat). Détections : `verifications-production.md` §80. Flag / bascule : aucun (ADR 0024).
+
 ## Reste à faire
 Résidus E-R1 à E-R9 ; SE7f (fournisseurs `seance.v1`, scripts de données, retrait de bc-seance, garde finale) ; `/ddd-verify seance-se7e-lectures-pilotage-et-rapports`.

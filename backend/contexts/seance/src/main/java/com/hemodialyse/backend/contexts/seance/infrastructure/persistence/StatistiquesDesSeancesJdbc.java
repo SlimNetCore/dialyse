@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Lecture publiée des séances et de leur volet paramédical pour les statistiques du patient (ADR 0099, SE7e), lecture seule. Requêtes
  * reprises MOT POUR MOT de {@code PatientStatsQueryService.getParamedicalStats} (plateforme) (E6 à E9 de {@code .ddd/safety-net/seance-se7e.md}) :
- * volet joint sur la séance SEULE (KB-SEA-85), aucun statut, dates de période écrites en LITTÉRAL ISO dans la requête comme avant (valeurs
+ * (corrigées par le lot L5b, ADR 0118 : séances RÉALISÉES seulement et volet borné au centre de la séance, KB-SEA-85), dates de période écrites en LITTÉRAL ISO dans la requête comme avant (valeurs
  * {@link LocalDate}, jamais une saisie libre), {@code AVG} rendu en {@code Double} par le pilote (KB-SEA-87 : précision dépendante du SGBD,
  * non corrigeable en code, seules 10 décimales sont garanties). Corrigé le 2026-11-10 (lot L5a, ADR 0117) : tri déterministe date, création
  * connue d'abord puis identifiant, et clés des lignes de l'évolution du poids toutes en minuscules (KB-SEA-86).
@@ -54,8 +54,9 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
     }
 
     private static String baseFrom(LocalDate from, LocalDate to) {
-        return " FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id "
-                + "WHERE s.center_id = ? AND s.patient_id = ? " + buildSeanceDateFilter(from, to);
+        return " FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id AND vp.center_id = s.center_id "
+                + "WHERE s.center_id = ? AND s.patient_id = ? AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') "
+                + buildSeanceDateFilter(from, to);
     }
 
     @Override

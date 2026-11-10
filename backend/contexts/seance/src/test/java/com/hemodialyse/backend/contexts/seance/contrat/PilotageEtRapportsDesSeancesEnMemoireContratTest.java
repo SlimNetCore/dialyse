@@ -43,7 +43,7 @@ class PilotageEtRapportsDesSeancesEnMemoireContratTest extends PilotageEtRapport
 
     @Override
     protected void payeur(UUID payeur, UUID caisse, UUID centre, String codeCaisse, String nomCaisse) {
-        seances.payeur(payeur, codeCaisse, nomCaisse);
+        seances.payeur(payeur, centre, codeCaisse, nomCaisse);
     }
 
     @Override
@@ -59,7 +59,7 @@ class PilotageEtRapportsDesSeancesEnMemoireContratTest extends PilotageEtRapport
     @Override
     protected void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant,
                          BigDecimal ultrafiltration) {
-        seances.volet(seance, poidsAvant, poidsApres, tensionAvant, ultrafiltration);
+        seances.volet(centre, seance, poidsAvant, poidsApres, tensionAvant, ultrafiltration);
     }
 
     @Override

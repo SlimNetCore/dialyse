@@ -247,9 +247,13 @@ public abstract class Dm8CharacterizationSupport extends SemaineCharacterization
                 id, patient, centre, statut, date(greffe), CREATION_FIXE, CREATION_FIXE);
     }
 
-    /** Séance du patient avec son volet paramédical (poids avant / après, TA) : lue par le PDF des statistiques. */
+    /**
+     * Séance RÉALISÉE du patient avec son volet paramédical (poids avant / après, TA) : lue par le PDF des statistiques. Lot L5b (ADR 0118,
+     * KB-SEA-85 b) : seules les séances réalisées comptent dans les statistiques ; la séance était posée au statut « TERMINEE », qui n'est pas un
+     * statut de séance, et sortirait désormais du tableau (le golden perdrait ce qu'il couvre).
+     */
     protected void seanceAvecVolet(UUID centre, UUID patient, LocalDate jour, String poidsAvant, String poidsApres, String taAvant, String ufMl) {
-        UUID seance = seance(centre, patient, jour, "TERMINEE", null, null, null);
+        UUID seance = seance(centre, patient, jour, "VALIDEE", null, null, null);
         jdbc.update("INSERT INTO volet_paramedical (id, seance_id, center_id, poids_avant_kg, poids_apres_kg, ta_avant, ultrafiltration_ml, created_at, "
                         + "updated_at) VALUES (?,?,?,?,?,?,?,?,?)", UUID.randomUUID(), seance, centre, new BigDecimal(poidsAvant),
                 new BigDecimal(poidsApres), taAvant, ufMl == null ? null : new BigDecimal(ufMl), CREATION_FIXE, CREATION_FIXE);

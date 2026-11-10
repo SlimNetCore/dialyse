@@ -43,6 +43,9 @@ Décisions en vigueur = reproduction à l'identique ; détail dans `.ddd/safety-
 | KB-DIR-07 | Alertes de stock à la date de fin de période | Date de référence ? | Métiers |
 | KB-DIR-08 | Sexe par initiale, âges, caisse à zéro, en-têtes PDF coupés | Confirmer | Métiers |
 
+## Lot L5b (2026-11-10, ADR 0118)
+KB-DIR-05 CORRIGÉ avec KB-SEA-83 et 84 : la répartition par caisse compte les mêmes séances que la vue d'ensemble (la séance sur une fiche d'un autre centre reste comptée sous la caisse vide), le centre payeur (patients, séances) et l'agence figée des factures (chiffre d'affaires) sont bornés au centre, les caisses sont départagées par le code (`RepartitionDeLaSociete`). Goldens `pd1/.../breakdown_nouveau_code`, `pd4/.../rapport_en_direct_nouveau_code` ré-approuvés (archives `*_avant_l5b.legacy.json`). Rejeu PG16 `pilotage-direction-pg16-rejeu.sh` : code 0 ; son ClassNotFound (jar Organisation périmé du dépôt Maven local) corrigé par `-am`. À confirmer par les métiers et le DPO au plus tard le 2026-12-15.
+
 ## Plan de bascule
 Sans objet (refactoring sur place, pas de façade ni de flag). Retour arrière : revert du commit ; aucune donnée touchée.
 

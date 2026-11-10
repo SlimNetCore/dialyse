@@ -134,7 +134,7 @@ public class PatientStatsQueryService {
 
         sb.append("<h2>Statistiques paramedicales</h2>")
                 .append("<div class='kpis'>")
-                .append("<div class='kpi'>Seances: ").append(safeNumber(paramedical.get("seanceCount"))).append("</div>")
+                .append("<div class='kpi'>Seances: ").append(safeCount(paramedical.get("seanceCount"))).append("</div>")
                 .append("<div class='kpi'>Poids avant moyen (kg): ").append(safeNumber(paramedical.get("avgPoidsAvantKg"))).append("</div>")
                 .append("<div class='kpi'>Poids apres moyen (kg): ").append(safeNumber(paramedical.get("avgPoidsApresKg"))).append("</div>")
                 .append("<div class='kpi'>UF reelle moyenne (mL): ").append(safeNumber(paramedical.get("avgUfReelleMl"))).append("</div>")
@@ -204,6 +204,17 @@ public class PatientStatsQueryService {
             value = row.get(keyB);
         }
         return value == null ? "" : String.valueOf(value);
+    }
+
+    /** Un nombre de séances s'affiche en entier (KB-SEA-85 c corrigé, ADR 0118) : « 6 » et non « 6.00 ». */
+    private String safeCount(Object value) {
+        if (value == null) {
+            return "0";
+        }
+        if (value instanceof Number n) {
+            return String.valueOf(n.longValue());
+        }
+        return Objects.toString(value, "0");
     }
 
     private String safeNumber(Object value) {

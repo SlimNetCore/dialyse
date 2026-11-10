@@ -96,11 +96,17 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
         }
         lignes.sort((x, y) -> {
             int parCentre = String.valueOf(x.centre()).compareToIgnoreCase(String.valueOf(y.centre()));
-            return parCentre != 0 ? parCentre : y.caHt().compareTo(x.caHt());
+            if (parCentre != 0) return parCentre;
+            int parChiffre = y.caHt().compareTo(x.caHt());
+            // KB-SEA-84 corrigé (ADR 0118) : à chiffre d'affaires égal, le code de la caisse départage (ordre indépendant de la lecture)
+            return parChiffre != 0 ? parChiffre : String.valueOf(x.code()).compareTo(String.valueOf(y.code()));
         });
         List<CaisseDeLaSociete> parSociete = totaux.values().stream()
                 .map(t -> new CaisseDeLaSociete(t.code, t.nom, t.patients, t.seances, t.caHt, t.composeDeMasques))
-                .sorted((x, y) -> y.caHt().compareTo(x.caHt())).toList();
+                .sorted((x, y) -> {
+                    int parChiffre = y.caHt().compareTo(x.caHt());
+                    return parChiffre != 0 ? parChiffre : String.valueOf(x.code()).compareTo(String.valueOf(y.code()));
+                }).toList();
         return new RepartitionDeLaSociete(societe, periode, genereLe, profilsDesCentres, lignes, parSociete, anemies);
     }
 

@@ -261,7 +261,10 @@
   chaque séance `VALIDEE` ou `SIGNEE` non facturée du centre passe à `FACTUREE` et porte l'identité de sa facture ; si une seule n'est plus
   éligible, toute l'émission est annulée (« Une ou plusieurs seances ne sont plus eligibles a la validation », 422) : l'émission reste dans
   UNE SEULE transaction, non scindée, sans compensation. **Comptages** : deux définitions de « séance facturée » conservées (tableau de
-  bord : statut `FACTUREE` et date de séance dans le mois ; synthèse et répartitions : séances rattachées aux factures du mois ; KB-SEA-75).
+  bord : statut `FACTUREE` et date de séance dans le mois ; synthèse et répartitions : séances rattachées aux factures du mois ;
+  **KB-SEA-75 CLOS le 2026-11-10 (lot L5b, ADR 0118) sans unifier** : les deux définitions ne mesurent pas la même chose (la date de la séance
+  contre la facture du mois) et coïncident sur des données saines dont les séances sont du mois de leur facture ; un test du contrat fige les
+  deux définitions, leur équivalence dans ce cas et leur écart quand une facture du mois porte une séance d'un mois antérieur).
   **Seul écart décidé (à confirmer métiers, KB-SEA-71)** : le port publié refuse désormais de lier une absence à une séance déjà rattachée
   à une facture (garde `facture_id IS NULL`, comme la réinclusion). C'est une **défense en profondeur sur le port**, observée au niveau du
   port (golden et contrat), **sans effet aujourd'hui sur le trafic HTTP** : l'exclusion d'une séance, seul appelant, exclut d'abord la
@@ -303,8 +306,10 @@
   Planification compose le nom « prénom nom ». Tri par **date, puis création (la plus ancienne créée d'abord, création inconnue en dernier), puis
   identifiant** : deux séances réalisées d'un même patient le même jour sortent dans un ordre déterministe et la grille garde la première, la
   plus ancienne créée (KB-SEA-78 corrigé le 2026-11-10, lot L5a, ADR 0117). Une séance réalisée n'est lue que si **la fiche du patient est
-  dans le centre de la séance** (KB-SEA-80 : un patient dont la fiche a changé de centre perd ses séances passées dans la grille).
-  **Reproduits sans correction, à confirmer par les métiers au plus tard le 2026-12-15** : KB-SEA-80, 82.
+  dans le centre de la séance** : un patient dont la fiche est dans un autre centre reste invisible dans la grille (cloisonnement voulu ;
+  **KB-SEA-80 CLOS le 2026-11-10, lot L5b, ADR 0118, sans changement de comportement** : aucune lecture d'une fiche d'un autre centre, et le
+  dépôt ne contient aucun code de transfert qui ferait changer le centre d'une fiche ; détection §80 de `verifications-production.md`).
+  **Reproduit sans correction, à confirmer par les métiers au plus tard le 2026-12-15** : KB-SEA-82.
   *Source :* `SeancesRealiseesAvecLeurPlacePubliees`, `LecturesDesSeancesRealiseesJdbc`, `SeancesRealiseesAvecLeurPlaceParLaSeance`,
   `SeancesRealiseesAvecLeurPlaceFournies`, `SeancesRealiseesPubliees` (Planification).
 
@@ -323,26 +328,34 @@
   aucune migration, lecture seule, comportement inchangé). La vue d'ensemble, la période précédente, l'évolution mensuelle, la
   répartition par caisse, le rapport PDF, l'instantané et le taux d'absentéisme de la Direction comptent les séances par le langage
   publié de la Séance. Une séance compte quand son statut est `VALIDEE`, `SIGNEE` ou `FACTUREE` en **casse exacte et sans blanc** et
-  que sa date est dans la période, bornes incluses, pour les seuls centres de la société. **Deux comptes qui ne concordent pas**
-  (KB-SEA-83) : la vue d'ensemble et le taux d'absentéisme comptent toutes ces séances ; la répartition par caisse ne compte que celles
-  dont **la fiche du patient est dans le centre de la séance**, et suit la caisse de la fiche **sans contrôle de centre** ; à chiffre
-  d'affaires égal, l'ordre des caisses n'est pas défini (KB-SEA-84). Agrégats seulement, aucune ligne de patient. **Reproduits sans
-  correction, à confirmer par les métiers au plus tard le 2026-12-15** : KB-SEA-83, 84. Détection : `verifications-production.md` §64.
+  que sa date est dans la période, bornes incluses, pour les seuls centres de la société. **Un seul prédicat pour les trois vues**, celui de
+  la séance elle-même (KB-DIR-05 et KB-SEA-83 corrigés le 2026-11-10, lot L5b, ADR 0118) : la vue d'ensemble, le taux d'absentéisme et la
+  répartition par caisse comptent les mêmes séances ; une séance dont la fiche du patient est dans un autre centre reste comptée dans la
+  caisse « sans code » du centre de la séance (la somme des caisses d'un centre égale sa vue d'ensemble). **Chaîne payeur bornée au centre**
+  (KB-SEA-84 corrigé, lot L5b) : le centre payeur d'une fiche n'est suivi que s'il est du centre de la fiche, sinon la séance, le patient et
+  le chiffre d'affaires (agence figée de la facture, borne `ag.center_id = f.center_id`) tombent sur la caisse vide ; à chiffre d'affaires égal,
+  les lignes de caisse sont départagées par le code (ordre indépendant de la lecture). Agrégats seulement, aucune ligne de patient.
+  **À confirmer par les métiers (Direction, Comptabilité) et le DPO au plus tard le 2026-12-15** : KB-DIR-05, KB-SEA-83, 84 corrigés (la ligne
+  « caisse non renseignée » grossit, l'historique est recalculé en direct, les instantanés figés gardent l'ancienne valeur). Détection :
+  `verifications-production.md` §64 et §80.
   *Source :* `SeancesRealiseesDesCentresPubliees`, `SeancesRealiseesDesCentresJdbc`, `DirectionDashboardQueryService`,
   `DirectionBreakdownQueryService`, `DirectionAbsencesQueryService`.
 
 - **RG-SEA-066** — **Lecture publiée des séances pour les statistiques du patient** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
-  lecture seule, comportement inchangé). Les statistiques paramédicales (écran et export PDF) lisent par le langage publié de la Séance
-  **toutes les séances du patient dans le centre, quel que soit leur statut** (annulées et non réalisées comprises), avec les mesures du
-  **volet paramédical rattaché à la séance, même posé dans un autre centre** (KB-SEA-85) : nombre de séances, moyennes des poids avant et
+  lecture seule). Les statistiques paramédicales (écran et export PDF) lisent par le langage publié de la Séance
+  **les seules séances réalisées du patient dans le centre** (`VALIDEE`, `SIGNEE`, `FACTUREE` en casse exacte : une séance annulée, créée ou
+  planifiée sort du compte et des moyennes, comme dans les autres lectures ; KB-SEA-85 b corrigé le 2026-11-10, lot L5b, ADR 0118), avec les
+  mesures du **volet paramédical du centre de la séance seulement** (un volet posé sous un autre centre n'est plus lu : KB-SEA-85 a corrigé) ;
+  le compte s'affiche **en entier** dans le PDF (« Seances: 3 », KB-SEA-85 c corrigé) : nombre de séances, moyennes des poids avant et
   après et de l'ultrafiltration réelle (saisie, sinon perte de poids x 1000 ; une moyenne sans mesure vaut `0.0`), évolution du poids avec
   le **poids sec en vigueur** le jour de la séance (dernière prescription du patient au centre portant un poids sec, la plus récemment
   modifiée à date égale) et évolution de la tension. Ordre par **date, puis création (la plus ancienne créée d'abord, création inconnue en
   dernier), puis identifiant** ; les clés des lignes de l'évolution du poids sont **toutes en minuscules** quelle que soit la base (KB-SEA-86
   corrigé le 2026-11-10, lot L5a, ADR 0117 : c'est le contrat servi en production, l'écran et le PDF lisent les deux casses). La précision des
   moyennes dépend de la base (KB-SEA-87, **close sans changement de code** : seules 10 décimales sont garanties, comparaison à tolérance dans
-  les tests, le PDF arrondit à 2 décimales). **KB-SEA-85 reproduit sans correction, à confirmer au plus tard le 2026-12-15** (DPO : mêmes
-  mesures, mêmes rôles `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` ; export `ADMIN`).
+  les tests, le PDF arrondit à 2 décimales). **KB-SEA-85 corrigé, à confirmer par les métiers (infirmier référent, médecins) et le DPO au plus tard
+  le 2026-12-15** (mêmes rôles `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` ; export `ADMIN` ; les moyennes ne portent plus sur les séances non
+  réalisées, ni sur un volet d'un autre centre).
   *Source :* `StatistiquesDesSeancesPubliees`, `StatistiquesDesSeancesJdbc`, `PatientStatsQueryService`.
 
 - **RG-SEA-067** — **Cahier de dialyse et usage d'un forfait : comptages publiés** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
@@ -352,8 +365,9 @@
   séance imprime désormais le code et le libellé du forfait du référentiel du même centre, le prix restant celui de la surcharge : KB-SEA-88
   corrigé le 2026-11-10, lot L5a, ADR 0117), mise en page inchangée. La suppression d'un forfait du référentiel est refusée (`REFERENTIAL_IN_USE`) tant
   qu'une séance **de n'importe quel centre et de n'importe quel statut** l'impose (KB-SEA-91), compté par le même langage publié.
-  **À confirmer au plus tard le 2026-12-15** (infirmier référent, pour le libellé du forfait imprimé) : KB-SEA-88 corrigé ; **KB-SEA-91
-  reproduit sans correction** (prudence voulue).
+  **À confirmer au plus tard le 2026-12-15** (infirmier référent, pour le libellé du forfait imprimé) : KB-SEA-88 corrigé ; **KB-SEA-91 CLOS
+  par documentation le 2026-11-10 (lot L5b, ADR 0118)** : le blocage sans borne de centre ni de statut est voulu (prudence : aucune référence
+  orpheline), figé par le contrat `should_count_the_seances_imposing_a_package_in_any_centre_and_any_status`.
   *Source :* `SeancesDuCahierPubliees`, `ForfaitsImposesAuxSeancesPublies`, `SeancesDuCahierEtForfaitsImposesJdbc`,
   `CahierDialyseReportService`, `ReferentialAdminJdbcAdapter`, `ReferentialAdminTables`.
 
@@ -365,8 +379,10 @@
   séance est créée `FACTUREE` (facturée dans l'ancien logiciel) ou `SIGNEE`. Seuls la date, le statut et le patient sont acceptés. À
   l'annulation, un patient repris ne se supprime pas tant qu'il a une séance **dans n'importe quel centre** qui n'a pas été créée par le
   lot (KB-SEA-90) ; une séance reprise ne se supprime pas si elle est facturée ou complétée dans la plateforme ; la suppression ne vise
-  que le centre du lot. **À confirmer au plus tard le 2026-12-15** : KB-SEA-89 corrigé ; **KB-SEA-90 reproduit sans correction** (prudence
-  voulue : une séance d'un autre centre empêche la suppression du patient).
+  que le centre du lot. **À confirmer au plus tard le 2026-12-15** : KB-SEA-89 corrigé ; **KB-SEA-90 CLOS par documentation le 2026-11-10
+  (lot L5b, ADR 0118)** : règle voulue « bloquant sans borne de centre » (une séance d'un autre centre empêche la suppression du patient, sinon
+  séance orpheline inter-centres puisque la suppression est bornée au centre du lot), figée par le contrat
+  `should_list_the_seances_and_the_invoice_without_the_centre_and_remove_only_in_the_centre_of_the_batch`.
   *Source :* `SeancesDeLaReprisePubliees`, `SeancesDeLaRepriseJdbc`, `HistoricalRecordJdbcAdapter`, `MigrationRollbackJdbcAdapter`.
 
 - **RG-SEA-069** — **Volet paramédical : les constantes de la séance appartiennent à la Séance** (slice SE7f, ADR 0100 ; même route

@@ -27,8 +27,9 @@ import java.util.UUID;
  */
 public final class PatientsDesCentresJdbc implements EffectifsDesPatients {
 
+    /** Centre payeur borné au centre du patient (KB-SEA-84, ADR 0118), comme les séances par caisse : une chaîne d'un autre centre = caisse vide. */
     private static final String CAISSE_JOIN =
-            "LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id "
+            "LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id "
                     + "LEFT JOIN agence ag ON ag.id = cp.agence_id "
                     + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id ";
 

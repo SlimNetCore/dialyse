@@ -108,10 +108,11 @@ class LesSeancesLuesParLesStatistiquesDuPatientCharacterizationIntegrationTest e
     }
 
     @Test
-    void les_statistiques_paramedicales_comptent_toutes_les_seances_du_patient_dans_le_centre_quel_que_soit_le_statut() throws Exception {
+    void les_statistiques_paramedicales_comptent_les_seances_realisees_du_patient_dans_le_centre_avec_le_volet_du_centre() throws Exception {
         jeuDesStatistiques();
 
-        arbre("tous_statuts_et_volet_d_un_autre_centre_nouveau_code", statistiques(stats("&from=" + fixe(31) + "&to=" + fixe(35))));
+        // KB-SEA-85 corrigé (lot L5b, ADR 0118) : VALIDEE, SIGNEE, FACTUREE seulement ; un volet posé sous un autre centre n'est pas lu
+        arbre("seances_realisees_et_volet_du_centre_nouveau_code", statistiques(stats("&from=" + fixe(31) + "&to=" + fixe(35))));
     }
 
     @Test
@@ -124,13 +125,13 @@ class LesSeancesLuesParLesStatistiquesDuPatientCharacterizationIntegrationTest e
         m.put("to seul (D+32)", statistiques(stats("&to=" + fixe(32))));
         m.put("un seul jour (D+35, deux seances)", statistiques(stats("&from=" + fixe(35) + "&to=" + fixe(35))));
         m.put("periode sans seance (D+36 a D+59)", statistiques(stats("&from=" + fixe(36) + "&to=" + fixe(59))));
-        m.put("to seul (D+34) : trois volets, moyennes periodiques (precision H2 de 12 decimales, 10 garanties : KB-SEA-87 clos)",
+        m.put("to seul (D+34) : seule S1 est realisee (S2 annulee et S4 creee sortent, KB-SEA-85 b) ; precision H2 de 12 decimales, 10 garanties (KB-SEA-87 clos)",
                 statistiques(stats("&to=" + fixe(34))));
         arbre("bornes_de_periode_nouveau_code", m);
     }
 
     @Test
-    void l_export_pdf_reprend_le_compte_et_les_poids_de_toutes_les_seances_de_la_periode() throws Exception {
+    void l_export_pdf_reprend_le_compte_et_les_poids_des_seances_realisees_de_la_periode_avec_un_compte_entier() throws Exception {
         jeuDesStatistiques();
 
         MockHttpServletResponse r = binaire(PATIENTS_API + "/" + patient + "/stats/export?centerId=" + CENTRE_A + "&format=pdf&from=" + fixe(31)
@@ -153,6 +154,6 @@ class LesSeancesLuesParLesStatistiquesDuPatientCharacterizationIntegrationTest e
         rangees.sort(Comparator.naturalOrder());
         m.put("texte (partie paramedicale, en-tete et pagination)", lignes);
         m.put("rangees du tableau des poids (triees par le test)", rangees);
-        arbre("export_pdf", m);
+        arbre("export_pdf_nouveau_code", m);
     }
 }

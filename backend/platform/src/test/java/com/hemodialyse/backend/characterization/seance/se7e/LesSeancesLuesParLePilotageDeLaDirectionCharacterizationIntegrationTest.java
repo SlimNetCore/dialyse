@@ -129,7 +129,7 @@ class LesSeancesLuesParLePilotageDeLaDirectionCharacterizationIntegrationTest ex
     }
 
     @Test
-    void la_repartition_par_caisse_ne_compte_que_les_seances_dont_la_fiche_est_dans_le_centre_de_la_seance() throws Exception {
+    void la_repartition_par_caisse_ne_compte_pas_moins_de_seances_que_la_vue_d_ensemble_meme_sur_une_fiche_d_un_autre_centre() throws Exception {
         jeuDuPilotage();
         UUID pa1 = UUID.nameUUIDFromBytes(("se1-patient-PA1-" + CENTRE_A).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         UUID pa3 = patientSe1(CENTRE_A, "PA3");
@@ -137,7 +137,7 @@ class LesSeancesLuesParLePilotageDeLaDirectionCharacterizationIntegrationTest ex
         UUID payeurA = payeur(CENTRE_A, "CNAS", "CNAS du centre A");
         UUID payeurB = payeur(CENTRE_B, "CNAS-B", "CNAS du centre B");
         jdbc.update("UPDATE patients SET centre_payeur_id = ? WHERE id = ?", payeurA, pa1);
-        // fiche du centre A rattachée à un centre payeur du centre B (aucun contrôle de centre sur la chaîne payeur, agence, caisse)
+        // fiche du centre A rattachée à un centre payeur du centre B : bornée au centre (KB-SEA-84 corrigé, lot L5b), elle tombe sur la caisse vide
         jdbc.update("UPDATE patients SET centre_payeur_id = ? WHERE id = ?", payeurB, pa3);
         jdbc.update("UPDATE patients SET centre_payeur_id = ? WHERE id = ?", payeurB, pb1);
         seanceEnBase(CENTRE_A, pa3, "A_PAYEUR_DU_CENTRE_B", fixe(49), "VALIDEE");
@@ -158,9 +158,9 @@ class LesSeancesLuesParLePilotageDeLaDirectionCharacterizationIntegrationTest ex
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("from", r.path("from").asString());
         m.put("to", r.path("to").asString());
-        m.put("caisses (triees par le test : a chiffre d'affaires egal, l'ordre servi suit l'ordre SQL)", caisses);
+        m.put("caisses (triees par le test)", caisses);
         m.put("caisseTotaux (tries par le test)", totaux);
-        m.put("vue d'ensemble sur la meme periode (sans jointure patients)", seancesDeLaVue(doGet(DIRECTION_API + "/overview" + chemin, directionSe7e())));
+        m.put("vue d'ensemble sur la meme periode (meme predicat : la seance elle-meme, KB-DIR-05 et KB-SEA-83 corriges)", seancesDeLaVue(doGet(DIRECTION_API + "/overview" + chemin, directionSe7e())));
         arbre("repartition_par_caisse", m);
     }
 

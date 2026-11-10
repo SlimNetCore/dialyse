@@ -24,7 +24,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- * Double en mémoire des ports publiés SE7e (ADR 0099, corrigé par l'ADR 0117), fidèle au contrat : statut réalisé en casse exacte, bornes
+ * Double en mémoire des ports publiés SE7e (ADR 0099, corrigé par les ADR 0117 et 0118 : caisses sur le même prédicat que la vue d'ensemble,
+ * centre payeur et volet bornés au centre, statistiques des séances réalisées), fidèle au contrat : statut réalisé en casse exacte, bornes
  * incluses, clés de l'évolution du poids en minuscules, moyennes à 12 décimales (10 garanties), tri date, création connue d'abord puis
  * identifiant (KB-SEA-86), séance annulée ignorée par la recherche d'une séance déjà présente (KB-SEA-89).
  */
@@ -57,10 +58,10 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     private record Fiche(UUID centre, UUID payeur) {
     }
 
-    private record Caisse(String code, String nom) {
+    private record Caisse(UUID centre, String code, String nom) {
     }
 
-    private record Volet(BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, BigDecimal ultrafiltration) {
+    private record Volet(UUID centre, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, BigDecimal ultrafiltration) {
     }
 
     private record Prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
@@ -70,12 +71,18 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     private final Map<UUID, Fiche> fiches = new HashMap<>();
     private final Map<UUID, Caisse> payeurs = new HashMap<>();
     private final Map<UUID, Volet> volets = new HashMap<>();
+
+    /** Le volet d'une séance, seulement s'il est posé sous le centre de la séance (KB-SEA-85 a). */
+    private Volet voletDe(Ligne l) {
+        Volet v = volets.get(l.id);
+        return v != null && v.centre().equals(l.centre) ? v : null;
+    }
     private final List<Prescription> prescriptions = new ArrayList<>();
 
     // ---- semis et inspection
 
-    public void payeur(UUID payeur, String codeCaisse, String nomCaisse) {
-        payeurs.put(payeur, new Caisse(codeCaisse, nomCaisse));
+    public void payeur(UUID payeur, UUID centre, String codeCaisse, String nomCaisse) {
+        payeurs.put(payeur, new Caisse(centre, codeCaisse, nomCaisse));
     }
 
     public void patient(UUID id, UUID centre, UUID payeur) {
@@ -86,8 +93,8 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
         seances.put(id, new Ligne(id, centre, patient, date, statut, creeLe));
     }
 
-    public void volet(UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, BigDecimal ultrafiltration) {
-        volets.put(seance, new Volet(poidsAvant, poidsApres, tensionAvant, ultrafiltration));
+    public void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, BigDecimal ultrafiltration) {
+        volets.put(seance, new Volet(centre, poidsAvant, poidsApres, tensionAvant, ultrafiltration));
     }
 
     public void prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
@@ -144,8 +151,9 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
         Map<List<Object>, String> noms = new HashMap<>();
         realisees(centres, du, au).forEach(l -> {
             Fiche f = fiches.get(l.patient);
-            if (f == null || !f.centre().equals(l.centre)) return;
-            Caisse c = f.payeur() == null ? null : payeurs.get(f.payeur());
+            boolean ficheDuCentre = f != null && f.centre().equals(l.centre);
+            Caisse c = ficheDuCentre && f.payeur() != null ? payeurs.get(f.payeur()) : null;
+            if (c != null && !c.centre().equals(l.centre)) c = null;
             List<Object> cle = List.of(l.centre, c == null ? "" : c.code());
             n.merge(cle, 1L, Long::sum);
             if (c != null) noms.put(cle, c.nom());
@@ -157,7 +165,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     // ---- statistiques
 
     private List<Ligne> duPatient(UUID centre, UUID patient, LocalDate du, LocalDate au) {
-        return seances.values().stream().filter(l -> l.centre.equals(centre) && l.patient.equals(patient))
+        return seances.values().stream().filter(l -> l.centre.equals(centre) && l.patient.equals(patient) && REALISES.contains(l.statut))
                 .filter(l -> (du == null || !l.date.isBefore(du)) && (au == null || !l.date.isAfter(au)))
                 .sorted(Comparator.<Ligne, LocalDate>comparing(l -> l.date)
                         .thenComparing(l -> l.creeLe, Comparator.nullsLast(Comparator.<Instant>naturalOrder()))
@@ -173,7 +181,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     }
 
     private Double moyenne(UUID centre, UUID patient, LocalDate du, LocalDate au, Function<Volet, BigDecimal> mesure) {
-        List<BigDecimal> valeurs = duPatient(centre, patient, du, au).stream().map(l -> volets.get(l.id))
+        List<BigDecimal> valeurs = duPatient(centre, patient, du, au).stream().map(this::voletDe)
                 .map(v -> v == null ? null : mesure.apply(v)).filter(Objects::nonNull).toList();
         if (valeurs.isEmpty()) return null;
         BigDecimal somme = valeurs.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -210,7 +218,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     public List<Map<String, Object>> evolutionDuPoids(UUID centre, UUID patient, LocalDate du, LocalDate au) {
         List<Map<String, Object>> lignes = new ArrayList<>();
         for (Ligne l : duPatient(centre, patient, du, au)) {
-            Volet v = volets.get(l.id);
+            Volet v = voletDe(l);
             Map<String, Object> ligne = new LinkedHashMap<>();
             ligne.put("date_seance", java.sql.Date.valueOf(l.date));
             ligne.put("poids_avant_kg", v == null ? null : v.poidsAvant());
@@ -225,7 +233,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     @Override
     public List<TensionsDeSeancePubliees> evolutionDeLaTension(UUID centre, UUID patient, LocalDate du, LocalDate au) {
         return duPatient(centre, patient, du, au).stream().map(l -> {
-            Volet v = volets.get(l.id);
+            Volet v = voletDe(l);
             return new TensionsDeSeancePubliees(l.date, v == null ? null : v.tensionAvant(), null);
         }).toList();
     }

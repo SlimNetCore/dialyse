@@ -19,7 +19,7 @@
 # Numerotation = celle de l'audit .ddd/safety-net/seance-se7e.md section 1 (E1 a E17). NON rejoues ici comme verifications : E13 (INSERT),
 # update et E16 (DELETE) ; les ecritures sur seances de ce script ne sont que le jeu de donnees (fonction seance, UPDATE forfait_override).
 # E13, update et E16 sont verifies sur PostgreSQL par le contrat PilotageEtRapportsDesSeancesPostgresContractIT lance en fin de script
-# (depuis 4cd1ab8a) : 19 verifications SELECT ici (E1-E12, E14, E15, E17), les ecritures par le contrat.
+# (depuis 4cd1ab8a) : 20 verifications SELECT ici (E1-E12, E14, E15, E17 ; E4 compte aussi la somme des caisses, lot L5b), les ecritures par le contrat.
 # Puis les requetes de detection (SELECT seule) de la section 64 de .ddd/migration/verifications-production.md (ADR 0099, annexe), dont
 # la verification de flyway_schema_history (table tenue ici par le script, une ligne par fichier applique, avec le DDL de Flyway), le
 # comportement de db/seed.sql sur PostgreSQL (question ouverte SE7e) et le contrat PostgreSQL PilotageEtRapportsDesSeancesPostgresContractIT
@@ -162,28 +162,29 @@ verifier "E2 total" "$(sql "SELECT COUNT(*) FROM seances WHERE center_id IN ('$A
 echo "=== E3 DirectionDashboardQueryService:183 : par mois (EXTRACT numerique en PostgreSQL, lu par getInt) ==="
 verifier "E3 mois" "$(sql "SELECT center_id, EXTRACT(YEAR FROM date_seance) AS y, EXTRACT(MONTH FROM date_seance) AS m, COUNT(*) AS n FROM seances WHERE center_id IN ('$A','$B') AND date_seance BETWEEN '2026-01-31' AND '2026-03-01' AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id, y, m" | sort | lignes)" \
   "$A|2026|1|1;$A|2026|2|5;$A|2026|3|1;$B|2026|2|1;$B|2026|3|1"
-echo "=== E4 DirectionBreakdownQueryService:190 : seances par caisse (la seance du centre A sur la fiche du centre B disparait, KB-SEA-83) ==="
-CAISSE_JOIN="LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id LEFT JOIN agence ag ON ag.id = cp.agence_id LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id "
-verifier "E4 caisses" "$(sql "SELECT s.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, COUNT(*) AS n FROM seances s INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id ${CAISSE_JOIN}WHERE s.center_id IN ('$A','$B') AND s.date_seance BETWEEN '2026-01-31' AND '2026-03-01' AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, COALESCE(ca.code, '')" | sort | lignes)" \
-  "$A|CNAS-B|CNAS du centre B|1;$A|CNAS|CNAS du centre A|3;$A|||2;$B|CNAS-B|CNAS du centre B|2"
+echo "=== E4 SeancesRealiseesDesCentresJdbc.parCaisse : seances par caisse (lot L5b, ADR 0118 : LEFT JOIN de la fiche, la seance du centre A sur la fiche du centre B reste comptee sous la caisse vide ; centre payeur borne au centre de la fiche, KB-DIR-05, KB-SEA-83, KB-SEA-84) ==="
+CAISSE_JOIN="LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id LEFT JOIN agence ag ON ag.id = cp.agence_id LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id "
+verifier "E4 caisses" "$(sql "SELECT s.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, COUNT(*) AS n FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id ${CAISSE_JOIN}WHERE s.center_id IN ('$A','$B') AND s.date_seance BETWEEN '2026-01-31' AND '2026-03-01' AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, COALESCE(ca.code, '')" | sort | lignes)" \
+  "$A|CNAS|CNAS du centre A|3;$A|||4;$B|CNAS-B|CNAS du centre B|2"
+verifier "E4 somme des caisses du centre A = vue d'ensemble (E1)" "$(sql "SELECT COUNT(*) FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id ${CAISSE_JOIN}WHERE s.center_id = '$A' AND s.date_seance BETWEEN '2026-01-31' AND '2026-03-01' AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE')")" "7"
 echo "=== E5 DirectionAbsencesQueryService:115 : seances realisees de fevrier 2026 (denominateur du taux) ==="
 verifier "E5 par centre" "$(sql "SELECT center_id, COUNT(*) AS n FROM seances WHERE center_id IN ('$A','$B') AND date_seance BETWEEN '2026-02-01' AND '2026-02-28' AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id" | sort | lignes)" \
   "$A|5;$B|1"
 
-BASE=" FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id WHERE s.center_id = '$D' AND s.patient_id = '$PS' "
+BASE=" FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id AND vp.center_id = s.center_id WHERE s.center_id = '$D' AND s.patient_id = '$PS' AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') "
 UF="COALESCE(vp.ultrafiltration_ml, (vp.poids_avant_kg - vp.poids_apres_kg) * 1000)"
 POIDS_SEC="(SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm WHERE pm.patient_id = s.patient_id AND pm.center_id = s.center_id AND pm.poids_sec_cible_kg IS NOT NULL AND pm.date_prescription <= s.date_seance ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1)"
-echo "=== E6 PatientStatsQueryService:297 : compte sans predicat de statut (ANNULEE, validee, CREE comptes ; centre B exclu) ==="
-verifier "E6 compte du 2026-02-01 au 2026-02-05" "$(sql "SELECT COUNT(1)${BASE} AND s.date_seance BETWEEN '2026-02-01' AND '2026-02-05'")" "6"
-echo "=== E7 PatientStatsQueryService:298-300 : AVG d'un NUMERIC (H2 : 74.166666666667 ; PostgreSQL : precision du NUMERIC, KB-SEA-87) ==="
+echo "=== E6 StatistiquesDesSeancesJdbc : compte des seances REALISEES seulement (lot L5b, KB-SEA-85 : ANNULEE, validee, CREE sortent ; centre B exclu) ==="
+verifier "E6 compte du 2026-02-01 au 2026-02-05" "$(sql "SELECT COUNT(1)${BASE} AND s.date_seance BETWEEN '2026-02-01' AND '2026-02-05'")" "3"
+echo "=== E7 StatistiquesDesSeancesJdbc : AVG d'un NUMERIC (H2 : 12 decimales ; PostgreSQL : precision du NUMERIC, KB-SEA-87) ; volet borne au centre de la seance ==="
 R="$(sql "SELECT AVG(vp.poids_avant_kg), AVG(vp.poids_apres_kg), AVG($UF)${BASE} AND s.date_seance <= '2026-02-04'")"
-echo "valeurs servies par PostgreSQL 16 (to = 2026-02-04, trois volets dont un du centre B) : $R"
-verifier "E7 moyennes (texte PostgreSQL)" "$R" "74.1666666666666667|71.8333333333333333|2333.3333333333333333"
+echo "valeurs servies par PostgreSQL 16 (to = 2026-02-04, seule S1 est realisee) : $R"
+verifier "E7 moyennes (texte PostgreSQL)" "$R" "70.5000000000000000|68.0000000000000000|2500.0000000000000000"
 verifier "E7 moyennes exactes du golden H2 (sans periode)" "$(sql "SELECT AVG(vp.poids_avant_kg), AVG(vp.poids_apres_kg), AVG($UF)${BASE}")" \
-  "72.9375000000000000|70.8125000000000000|2125.0000000000000000"
-echo "=== E8 PatientStatsQueryService:302 : poids sec en vigueur a la seance (meme jour : mise a jour la plus recente) ==="
+  "69.8750000000000000|67.8750000000000000|2000.0000000000000000"
+echo "=== E8 StatistiquesDesSeancesJdbc : poids sec en vigueur a la seance (meme jour : mise a jour la plus recente) ==="
 verifier "E8 evolution (date, poids sec, UF)" "$(sql "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, ${POIDS_SEC} AS poids_sec_cible_kg, ${UF} AS uf_reelle_ml${BASE} AND s.date_seance BETWEEN '2026-02-01' AND '2026-02-05' ORDER BY s.date_seance, s.created_at NULLS LAST, s.id" | cut -d'|' -f1,4,5 | sort | lignes)" \
-  "2026-02-01|66.00|2500.00;2026-02-02|66.00|2000.00;2026-02-03|68.00|;2026-02-04|68.00|2500.00;2026-02-05|68.00|;2026-02-05|68.00|1500.00"
+  "2026-02-01|66.00|2500.00;2026-02-05|68.00|;2026-02-05|68.00|1500.00"
 echo "=== E9 libelles de colonnes servis par PostgreSQL (cles JSON de poidsEvolution ; H2 : majuscules, KB-SEA-86) ==="
 verifier "E9 libelles" "$(entete "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, ${POIDS_SEC} AS poids_sec_cible_kg, ${UF} AS uf_reelle_ml${BASE} ORDER BY s.date_seance, s.created_at NULLS LAST, s.id")" \
   "date_seance|poids_avant_kg|poids_apres_kg|poids_sec_cible_kg|uf_reelle_ml"

@@ -539,4 +539,31 @@ public abstract class FacturationDesSeancesContrat {
         assertThat(facturees().nombreDeSeancesFactureesEntre(CENTRE_A, DEBUT, FIN)).isEqualTo(2L);
         assertThat(facturees().nombreDeSeancesFactureesEntre(CENTRE_A, LocalDate.of(2027, 1, 1), LocalDate.of(2027, 1, 31))).isZero();
     }
+
+    /**
+     * KB-SEA-75 CLOS (ADR 0118) : les deux définitions de « séance facturée » ne sont PAS unifiées, parce qu'elles ne mesurent pas la même
+     * chose (la date de la SÉANCE contre la facture du MOIS) : ce test fige leur équivalence sur des données saines dont les séances sont du mois
+     * de leur facture, et le cas sain où elles divergent (séance d'un mois antérieur facturée dans une facture du mois).
+     */
+    @Test
+    void should_keep_both_definitions_of_an_invoiced_seance_equal_on_healthy_data_and_apart_when_the_invoice_is_of_a_later_month() {
+        decor();
+        UUID f1 = UUID.randomUUID();
+        UUID f2 = UUID.randomUUID();
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 8, 2), "FACTUREE", f1);
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 8, 20), "FACTUREE", f1);
+        seance(UUID.randomUUID(), CENTRE_A, BELKACEM, LocalDate.of(2026, 8, 31), "FACTUREE", f2);
+        seance(UUID.randomUUID(), CENTRE_A, BELKACEM, LocalDate.of(2026, 8, 5), "VALIDEE", null);
+
+        long parLaFacture = facturees().nombreParFacture(CENTRE_A, List.of(f1, f2)).values().stream().mapToLong(Long::longValue).sum();
+        long parLaDate = facturees().nombreDeSeancesFactureesEntre(CENTRE_A, DEBUT, FIN);
+
+        assertThat(parLaFacture).as("données saines : même chiffre").isEqualTo(parLaDate).isEqualTo(3L);
+
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 7, 28), "FACTUREE", f2);
+
+        assertThat(facturees().nombreParFacture(CENTRE_A, List.of(f1, f2)).values().stream().mapToLong(Long::longValue).sum())
+                .as("facture du mois : la séance de juillet y est rattachée").isEqualTo(4L);
+        assertThat(facturees().nombreDeSeancesFactureesEntre(CENTRE_A, DEBUT, FIN)).as("par la date de la séance : août seulement").isEqualTo(3L);
+    }
 }

@@ -42,18 +42,38 @@ abstract class LecturesDuPilotageContrat {
 
     protected void nettoyer() {
         jdbc().update("DELETE FROM patients WHERE center_id IN (?,?)", C1, C2);
+        for (String table : List.of("centre_payeur", "agence", "caisse_assurance")) {
+            jdbc().update("DELETE FROM " + table + " WHERE center_id IN (?,?)", C1, C2);
+        }
         jdbc().update("DELETE FROM centers WHERE code LIKE 'ZT-PD5%'");
         jdbc().update("DELETE FROM societes WHERE code LIKE 'ZT-PD5%'");
     }
 
     private void patient(UUID centre, String sexe, String etat, LocalDate evenement, LocalDate admission, boolean sousKt) {
+        patient(centre, sexe, etat, evenement, admission, sousKt, null);
+    }
+
+    private void patient(UUID centre, String sexe, String etat, LocalDate evenement, LocalDate admission, boolean sousKt, UUID payeur) {
         UUID id = UUID.randomUUID();
         jdbc().update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_naissance, numero_assurance, "
                         + "date_admission, type_patient, etat_patient, date_evenement_etat, qualite_assure, sous_kt, epo_enabled, "
-                        + "created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
+                        + "centre_payeur_id, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
                 id, centre, "PD-" + id.toString().substring(0, 8), "NOM", "Prenom", sexe, Date.valueOf("1970-05-05"),
                 "ASS-" + id.toString().substring(0, 8), admission == null ? null : Date.valueOf(admission), "NON_VACANCIER", etat,
-                evenement == null ? null : Date.valueOf(evenement), "ASSURE", sousKt, "M".equals(sexe));
+                evenement == null ? null : Date.valueOf(evenement), "ASSURE", sousKt, "M".equals(sexe), payeur);
+    }
+
+    /** Une caisse, son agence et un centre payeur rattaché, tous du centre donné. */
+    private UUID payeur(UUID centre, String codeCaisse) {
+        UUID caisse = UUID.randomUUID();
+        UUID agence = UUID.randomUUID();
+        UUID payeur = UUID.randomUUID();
+        jdbc().update("INSERT INTO caisse_assurance (id, center_id, code, nom) VALUES (?, ?, ?, ?)", caisse, centre, codeCaisse, "Caisse " + codeCaisse);
+        jdbc().update("INSERT INTO agence (id, center_id, caisse_id, code, nom) VALUES (?, ?, ?, ?, ?)", agence, centre, caisse, "AG-" + codeCaisse,
+                "Agence");
+        jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, ?, ?)", payeur, centre, agence,
+                "CP-" + codeCaisse, "Payeur");
+        return payeur;
     }
 
     @Test
@@ -123,6 +143,20 @@ abstract class LecturesDuPilotageContrat {
         assertThat(caisses).hasSize(1);
         assertThat(caisses.getFirst().code()).isEmpty();
         assertThat(caisses.getFirst().patients()).isEqualTo(2);
+    }
+
+    @Test
+    void un_patient_dont_le_centre_payeur_est_d_un_autre_centre_tombe_sur_la_caisse_vide_comme_ses_seances_kb_sea_84_corrige() {
+        UUID payeurDuC1 = payeur(C1, "CNAS");
+        UUID payeurDuC2 = payeur(C2, "CASNOS");
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, payeurDuC1);
+        patient(C1, "F", "PERMANENT", null, ADMIS, false, payeurDuC2);   // chaîne payeur du centre C2 : caisse vide
+        patient(C1, "F", "PERMANENT", null, ADMIS, false, null);
+
+        var caisses = new PatientsDesCentresJdbc(jdbc()).parCaisse(List.of(C1), SEPTEMBRE);
+
+        assertThat(caisses).extracting("code", "patients").containsExactlyInAnyOrder(
+                org.assertj.core.groups.Tuple.tuple("CNAS", 1L), org.assertj.core.groups.Tuple.tuple("", 2L));
     }
 
     @Test
