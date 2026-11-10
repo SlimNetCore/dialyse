@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Lecture du journal {@code mouvement_patient} : même requête, même ordre et mêmes jointures que la liste actuelle (un
  * mouvement dont le patient n'est pas du centre est masqué ; salle, créneau et générateur sont facultatifs). Le nom de la salle et le
- * libellé du créneau viennent du langage publié d'Organisation (O4 lot C, ADR 0109), lus par lot, bornés au centre du mouvement (KB-ORG-10 corrigé, ADR 0115).
+ * libellé du créneau viennent du langage publié d'Organisation (O4 lot C, ADR 0109), lus par lot, bornés au centre demandé, qui est celui du mouvement (KB-ORG-10 corrigé, ADR 0115).
  */
 public class LectureDesMouvementsJdbc implements LectureDesMouvements {
 
@@ -59,8 +59,9 @@ public class LectureDesMouvementsJdbc implements LectureDesMouvements {
         argsPage.add(size);
         argsPage.add((long) page * size);
         // Le nom de la salle et le libellé du créneau ne sont plus joints : ils sont lus par lot dans le langage publié d'Organisation
-        // (O4 lot C, ADR 0109), BORNÉS au centre du mouvement (KB-ORG-10 corrigé, ADR 0115) : une salle ou un créneau d'un autre centre
-        // rend un libellé vide, comme un libellé disparu. Ni l'ordre ni le nombre de lignes ne changent.
+        // (O4 lot C, ADR 0109), BORNÉS au centre DEMANDÉ (KB-ORG-10 corrigé, ADR 0115) : la requête ci-dessous ne lit que les mouvements de ce
+        // centre ({@code m.center_id = ?}), donc centre demandé = centre du mouvement ; une salle ou un créneau d'un autre centre rend un
+        // libellé vide, comme un libellé disparu. Ni l'ordre ni le nombre de lignes ne changent.
         List<Object[]> brutes = jdbc.query("SELECT m.id, m.patient_id, m.type, m.date_effet, m.etat_precedent, m.etat_nouveau, "
                 + "m.jours_dialyse, m.automatique, m.cree_le, p.nom, p.prenom, p.code_patient, m.salle_id, "
                 + "m.position_id, g.code AS generateur_code" + DEPUIS + ou

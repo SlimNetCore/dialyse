@@ -67,3 +67,6 @@ brut `observanceEnRetard` qui sert l'alerte de la Direction (RG-DIR-105).
 - Les ADR 0087, 0101, 0102, 0103, 0106 restent historiques (comportement reproduit à l'époque) ; ce document les remplace pour ce point.
 - Question ouverte pour le DPO : valider la suppression complémentaire (option 9.1(a)), le masquage à la lecture des instantanés anciens, et le traitement des résiduels 1 et 2.
 - Retour arrière : revert du lot (aucune donnée n'est modifiée) ; les goldens `_avant_l1.legacy.json` décrivent l'ancien comportement.
+
+## Addendum du 2026-11-10 (lot L8, ADR 0120)
+L'intitulé « KB-DIR-01 corrigé » est BORNÉ aux **totaux**. Le recoupement « effectif réel d'un centre moins la ventilation sexe / âge / caisse publiée » reste un **résiduel OUVERT** : **condition de mise en production avec avis du DPO** (2026-12-15), à ne pas lever sans réponse. « L'effectif n'est plus déductible » ne vaut que pour la différence « total moins somme des centres ». Détail et règle unique : ADR 0120.

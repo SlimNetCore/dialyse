@@ -2369,6 +2369,8 @@ Recette AVANT bascule (mêmes réponses qu'avant le déploiement, sur une copie)
 
 Phase FILET : aucune migration, aucune table ni colonne, aucune route nouvelle, aucun code de production modifié (`.ddd/safety-net/dossier-medical-dm9.md`). Les cinq requêtes détectent en production les situations figées par les goldens DM9 et consignées en KB-MED-104 et KB-MED-106 à 109 ; elles éclairent les décisions du DPO et des médecins (section 9 de l'audit) AVANT la reprise. À exécuter sur une COPIE ou en lecture seule. Aucun `UPDATE`, `DELETE` ni `DROP`.
 
+**Note de réconciliation (L8, revue L1-L2, constat 7)** : la requête 1 ci-dessous est HISTORIQUE (état AVANT la correction L2 / KB-MED-106) : elle garde le positif strictement antérieur (`<`) et ne regarde pas un NEGATIF intercalé ; elle SUR-ESTIME la liste. La liste de référence des patients qui ENTRENT en isolement est la requête **75.1** (positif `<=` à la date du douteux, dernière sérologie CONCLUSIVE positive) : seule 75.1 est à faire valider par les médecins. Ne pas comparer les deux listes ligne à ligne : l'écart est voulu (NEGATIF intercalé ; positif de même date).
+
 Rejeu effectué le 2026-11-09 par `backend/scripts/dossier-medical-dm9-pg16-rejeu.sh 55551` (PostgreSQL 16 JETABLE, chaîne Flyway réelle de 51 fichiers, jeu FICTIF de l'audit ; mot de passe par `DM9_PG16_PASSWORD`, jamais le port 5432) : les cinq requêtes ci-dessous y sont exécutées **à l'identique** après les vérifications M1 à M6 des requêtes de production ; sur ce jeu fictif elles donnent : 1. deux patients (douteux, en cours) ; 2. un patient (égalité totale) ; 3. deux sérologies positives posées au centre B pour des fiches du centre A ; 4. un patient avec deux bilans le même jour ; 5. un centre à 3 patients évalués (masqué, déductible). Le rejeu prouve que les requêtes s'exécutent sur le schéma réel et détectent les cas posés ; il ne dit RIEN de l'état des données de production.
 ```sql
 -- 1. KB-MED-106 : patients dont le DERNIER résultat d'un marqueur à risque est DOUTEUX ou EN_COURS alors qu'un POSITIF antérieur existe (sortis de l'isolement sans résultat négatif).
@@ -2467,6 +2469,8 @@ SELECT id, societe_id, center_id, code, first_seen_at, resolved_at FROM directio
 
 ## 72. Organisation O4, lot B (Stock : ports fournis, centre « actif » au sens strict, ADR 0108, KB-ORG-09) : détection de données (2026-11-09) — SELECT seulement
 
+> **REMPLACÉ PAR §77 (ADR 0115) puis §82 (ADR 0120).** KB-ORG-09 est CORRIGÉ (V56) : la consigne ci-dessous « ne rien corriger avant décision » est caduque. Ne pas l'exécuter comme telle ; suivre §77.1 et §82.
+
 Refactoring sur place : aucune migration, aucune colonne. Le Stock lit « centre actif » AU SENS STRICT (`actif = TRUE` : un état NULL est exclu du contrôle de nuit des péremptions) alors que tous les autres consommateurs lisent `COALESCE(actif, TRUE)` (NULL = actif). Le lot B reproduit chaque comportement (`actifsAuSensStrict()` pour le Stock, `actifs()` pour les autres) ; ce contrôle dit si l'écart a un effet réel. À exécuter sur une copie avant la mise en production ; résultat à joindre à la décision métiers/DPO du 2026-12-15.
 
 ```sql
@@ -2477,6 +2481,8 @@ SELECT count(*) FILTER (WHERE actif IS NULL) AS nuls, count(*) FILTER (WHERE act
 **Recette (lecture seule, sur une copie)** : (a) le contrôle de nuit des péremptions et la comptabilisation de nuit parcourent les mêmes centres qu'avant (goldens et tests du Stock inchangés) ; (b) la clôture d'un inventaire « centre entier » verrouille toujours la ligne du centre. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
 
 ## 73. Organisation O4, lot C (libellés de salle, de créneau et de médecin, ADR 0109, KB-ORG-10) : détection de données (2026-11-09) — SELECT seulement
+
+> **REMPLACÉ PAR §77 (ADR 0115).** KB-ORG-10 est CORRIGÉ (lecture bornée au centre) : la consigne ci-dessous « ne rien corriger avant décision » est caduque. Suivre §77.2.
 
 Refactoring sur place : aucune migration, aucune colonne. Le journal des mouvements de Patient et couverture joint la salle et le créneau SANS borne de centre ; le lot C reproduit ce comportement (`nomsDesSalles`, `libellesDesCreneaux`). Ce contrôle dit si l'absence de borne a un effet réel. À exécuter sur une copie ; résultat à joindre à la décision métiers/DPO du 2026-12-15.
 
@@ -2528,6 +2534,7 @@ SELECT s.center_id, s.statut, count(*) AS seances FROM seances s WHERE s.statut 
 -- 76.2 Orphelins de facture (préalable de VALIDATE CONSTRAINT fk_seances_facture ; 62.2 y ajoute les factures d'un autre centre, que la clé ne vise pas).
 SELECT s.center_id, s.id, s.statut, s.facture_id FROM seances s LEFT JOIN factures f ON f.id = s.facture_id WHERE s.facture_id IS NOT NULL AND f.id IS NULL ORDER BY 1, 2;
 ```
+**PRÉREQUIS BLOQUANT DU DÉPLOIEMENT (L8, décision A)** : **76.1 doit rendre 0 ligne AVANT de déployer V55** (résultat joint à la checklist de mise en production). Un `CHECK ... NOT VALID` n'est pas ignoré par PostgreSQL : il est évalué à CHAQUE `UPDATE` d'une ligne, quelle que soit la colonne modifiée. Une séance de production au statut non canonique (`validee`, `VALIDEE `) deviendrait NON MODIFIABLE (500 à la consommation, la signature, l'exclusion...). Si `76.1 > 0` : normaliser par décision écrite statut par statut AVANT V55, ou différer V55. Même statut pour **77.1** (V56) et **78.1** (volets d'un autre centre) : voir ces sections et §82.
 **Interprétation** : `0` ligne partout : on peut valider les deux contraintes (`ALTER TABLE seances VALIDATE CONSTRAINT …`, hors Flyway). `> 0` en 76.1 : ces séances ne sont plus modifiables en base (le CHECK `NOT VALID` refuse toute mise à jour de leur ligne) tant que leur statut n'est pas normalisé statut par statut par décision écrite (un `facturee` normalisé en `FACTUREE` change les comptes du tableau de bord et du Stock, KB-SEA-70). `> 0` en 76.2 : restaurer la facture, ou remettre `facture_id` à NULL et le statut à `VALIDEE`, par décision écrite ; la contrainte `NOT VALID` refuse déjà tout NOUVEL identifiant orphelin. Les requêtes 62.6 (mémoires blanches : ces séances ne sont plus réincluses ni liées à une absence par le port) et 62.2 restent à lire. SELECT rejouées sous forme équivalente sur PostgreSQL 16 jetable (`backend/scripts/seance-se7c2-pg16-rejeu.sh`, schéma Flyway V1 à V55) ; ne disent RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : simuler puis valider la facturation d'un mois : mêmes séances, mêmes totaux, séances `FACTUREE` portant la facture ; exclure puis réinclure une séance validée : statut et mémoire rétablis ; `SELECT convalidated FROM pg_constraint WHERE conname IN ('fk_seances_facture', 'ck_seances_statut_canonique')` rend `f` tant que les contraintes ne sont pas validées. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
 
@@ -2543,12 +2550,13 @@ SELECT count(*) FILTER (WHERE s.id IS NOT NULL AND s.center_id <> m.center_id) A
        count(*) FILTER (WHERE c.id IS NOT NULL AND c.center_id <> m.center_id) AS creneaux_d_un_autre_centre
 FROM mouvement_patient m LEFT JOIN salle s ON s.id = m.salle_id LEFT JOIN position_creneau c ON c.id = m.position_id;
 ```
+**PRÉREQUIS BLOQUANT DU DÉPLOIEMENT (L8, décision A)** : 77.1 est exécuté et son résultat joint à la checklist AVANT V56 ; `nuls > 0` impose la décision écrite ci-dessous et le comptage détaillé de §82. 
 **Interprétation** : `0` partout : V56 n'ajoute que la contrainte et la borne est sans effet visible. `nuls > 0` : prévenir les métiers Stock (et confirmer que ces centres sont bien en service ; sinon `UPDATE centers SET actif = FALSE` par décision écrite AVANT V56). `> 0` en 77.2 : lister les lignes (`m.id`, `m.center_id`, `s.center_id`) et décider par écrit : remapper l'identifiant vers la salle ou le créneau du centre du mouvement, ou accepter le libellé vide ; ne pas rouvrir la lecture non bornée. SELECT NON rejoués sur PostgreSQL 16 (O4-R7) ; ne disent RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : après V56, `SELECT is_nullable, column_default FROM information_schema.columns WHERE table_name = 'centers' AND column_name = 'actif'` rend `NO` et `true` ; le journal des mouvements d'un centre n'affiche plus que les salles et créneaux de ce centre. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
 
 ## 78. Séance L4 (écriture du volet paramédical, ADR 0116, KB-SEA-93, 94 et 99 CORRIGÉS) : détection et réparation MANUELLE du centre des volets (2026-11-10) — SELECT seulement pour la détection
 
-AUCUNE migration Flyway, AUCUN `UPDATE` automatique. Le code corrigé cherche le volet par la séance : la saisie ne bloque plus sur un volet posé sous un autre centre (le volet est remplacé, son centre reste). La réparation ci-dessous n'est donc plus nécessaire à la saisie ; elle reste utile aux lectures bornées au centre (détail de la séance, séances récentes, volet médical), qui ne voient toujours pas ces volets. Décision du responsable des données (question 9 de `corrections-kb-2026-11-09.md`).
+AUCUNE migration Flyway, AUCUN `UPDATE` automatique. Le code corrigé cherche le volet par la séance : la saisie ne bloque plus sur un volet posé sous un autre centre (le volet est remplacé, son centre reste). La réparation ci-dessous n'est donc plus nécessaire à la saisie ; **depuis L8 (ADR 0120, décision B) le détail de la séance et les séances récentes lisent aussi le volet PARAMÉDICAL par la séance, comme la saisie** (l'utilisateur revoit ce qu'il vient d'enregistrer) ; elle reste utile au volet MÉDICAL, toujours borné au centre, et à la cohérence des données (le centre du volet reste celui d'origine). **78.1 est un PRÉREQUIS BLOQUANT du déploiement** (résultat joint à la checklist ; `> 0` : décision écrite sur la réparation ci-dessous). Décision du responsable des données (question 9 de `corrections-kb-2026-11-09.md`).
 
 ```sql
 -- 78.1 = 65.1 : volets posés sous un autre centre que leur séance (par centre de la séance et centre du volet). Détection, SELECT seulement.
@@ -2627,3 +2635,17 @@ SELECT p.center_id, count(*) AS patients FROM patients p WHERE p.date_naissance 
 ```
 **Interprétation** : `81.1 > 0` : les écrans qui ouvrent ces mois affichent un refus lisible au lieu d'une erreur interne ; la donnée est à réparer (hors périmètre). `81.2` : à rapprocher des crons de nuit passés ; une capture est rejouable (POST d'un mois écoulé, idempotent). `81.3` donne un ordre de grandeur : pour une période passée, les tranches d'âge déplacent ces patients. Les instantanés déjà figés gardent leurs tranches d'avant (au jour de leur capture). SELECT NON rejoués sur PostgreSQL 16 ; ne disent RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : `GET /api/v1/direction/overview?from=hier` répond 400 (pas 500) ; `POST /api/v1/direction/overview` répond 405 avec `Allow: GET, HEAD` ; la lecture d'un instantané au contenu illisible répond 422 `INSTANTANE_ILLISIBLE` ; la répartition d'une période passée classe un patient né après la fin de la période en `INCONNU` et un patient de 18 ans révolus le dernier jour en `18_29`. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 82. Revue des lots L1 à L7, lot L8 (ADR 0120) : préalables de déploiement et effet de V56 sur les péremptions (2026-11-10) — SELECT seulement
+
+AUCUNE migration, AUCUN `UPDATE`. **Checklist de mise en production (résultats à joindre, dans cet ordre)** : (1) **76.1 = 0 ligne** (V55 ; sinon décision écrite AVANT V55 ou V55 différée) ; (2) **77.1** (V56) puis 82.1 ci-dessous si `nuls > 0` ; (3) **78.1** (volets d'un autre centre : décision écrite sur la réparation §78) ; (4) 75.1 validée par les médecins ; (5) avis du DPO sur KB-DIR-01 (résiduel de recoupement, ADR 0112 et 0120). Un `CHECK NOT VALID` (V55) est appliqué à chaque `UPDATE` d'une ligne : 76.1 n'est PAS une simple consigne de confort.
+
+```sql
+-- 82.1 V56 (KB-ORG-09) : effet sur le contrôle de nuit des péremptions du Stock. Les centres dont « actif » est NULL passent à TRUE et ENTRENT dans le contrôle ; ce compte donne, par centre, les lots avec du stock restant périmés ou périmant dans 30 jours (borne HAUTE du nombre de nouvelles notifications le premier soir : la règle exacte de signalement, 30 jours puis rappel périodique des périmés, en retient une partie). Lecture seule.
+SELECT c.id AS centre, c.name AS nom, count(l.id) AS lots_a_signaler_au_plus
+FROM centers c JOIN lots l ON l.center_id = c.id
+WHERE c.actif IS NULL AND l.quantite_restante > 0 AND l.date_peremption <= current_date + 30
+GROUP BY c.id, c.name ORDER BY 1;
+```
+**Interprétation** : `0` ligne (ou 77.1 `nuls = 0`) : V56 n'ajoute aucune notification. `> 0` : ces centres recevront des notifications de péremption qu'ils ne recevaient pas ; prévenir les responsables Stock avant le déploiement, ou fixer `actif = FALSE` des centres hors service PAR DÉCISION ÉCRITE AVANT V56. SELECT NON rejoué sur PostgreSQL 16 (noms de colonnes `lots.quantite_restante`, `date_peremption`, `centers.name` relevés dans les adaptateurs du Stock et de l'Organisation ; à vérifier sur la copie) ; ne dit RIEN de l'état de la production.
+**Recette (lecture seule, sur une copie)** : le détail d'une séance dont le volet paramédical est posé sous un autre centre affiche ce volet (L8) ; la suppression d'une facture de reprise reste possible alors qu'une autre facture du patient est liée à une séance (contrat PostgreSQL 16 `RepriseDesSoldesPostgresContractIT`, à lancer avec `-Dfacturation.pg16.url`). Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

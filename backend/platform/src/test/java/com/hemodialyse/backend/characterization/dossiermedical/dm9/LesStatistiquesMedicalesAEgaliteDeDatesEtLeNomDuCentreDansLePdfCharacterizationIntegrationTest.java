@@ -104,7 +104,7 @@ class LesStatistiquesMedicalesAEgaliteDeDatesEtLeNomDuCentreDansLePdfCharacteriz
             } else {
                 m.put("04 refus", refusBrut(r.getStatus(), r.getContentAsString(StandardCharsets.UTF_8)));
             }
-            arbre("nom_du_centre", m);
+            arbre("nom_du_centre_nouveau_code", m);
         } finally {
             if (existants.isEmpty()) {
                 jdbc.update("DELETE FROM centers WHERE id = ?", CENTRE_A);

@@ -204,17 +204,22 @@ public final class ConstituerLeRapportDeSynthese {
         return new Repartitions(sexe, ages, caisses(r, centres), anemie);
     }
 
+    private static String cleDeCaisse(String code) {
+        return (code == null ? ABSENT : code).replace(ABSENT, "");
+    }
+
     private static Caisses caisses(Repartition r, List<CentreDeLaMatrice> centres) {
         if (r.caisseTotaux() == null || r.caisseTotaux().isEmpty()) return null;
         List<CelluleDeCaisse> cellules = new ArrayList<>();
         if (r.caisses() != null) {
             r.caisses().forEach(c -> cellules.add(new CelluleDeCaisse(c.centerId() == null ? ABSENT : c.centerId().toString(),
-                    (c.caisseCode() == null ? ABSENT : c.caisseCode()).replace(ABSENT, ""), c.patients(), c.seances(), c.caHt())));
+                    cleDeCaisse(c.caisseCode()), c.patients(), c.seances(), c.caHt())));
         }
         // Suppression complémentaire (KB-DIR-01, corrigé le 2026-11-09) : le total d'une caisse est imprimé masqué si l'une de ses cellules l'est.
+        // Clé de comparaison unique des deux côtés (L8, constat 4) : un code nul ou « — » vaut « » pour la cellule comme pour le total.
         List<TotalDeCaisse> totaux = r.caisseTotaux().stream().map(t -> new TotalDeCaisse(t.caisseCode() == null ? ABSENT : t.caisseCode(),
                 t.caisse(), SeuilDAnonymat.totalPublieDepuis(t.patients(), cellules.stream()
-                        .filter(c -> (t.caisseCode() == null ? ABSENT : t.caisseCode()).equals(c.code())).map(CelluleDeCaisse::patients).toList()),
+                        .filter(c -> cleDeCaisse(t.caisseCode()).equals(c.code())).map(CelluleDeCaisse::patients).toList()),
                 t.seances(), t.caHt())).toList();
         List<LigneDeCaisse> lignes = MatriceDesCaisses.constituer(centres, cellules, totaux).stream()
                 .map(l -> new LigneDeCaisse(l.caisse(), l.patients(), l.totalPatients(), l.seances(), l.totalSeances(), l.caHt(),

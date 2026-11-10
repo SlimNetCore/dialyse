@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-09 (RG-SEA-069 à 071 ajoutées à la main ; PDF et DOCX à régénérer)<br>619 règles de gestion · 16 domaines · 500 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-10<br>665 règles de gestion · 16 domaines · 527 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>616</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>665</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -159,7 +159,7 @@ chaque
 </div></div>
 <div class="rule" id="RG-TRV-061"><div class="rid">RG-TRV-061</div><div class="rtxt"><p>Chaque évènement de centre signale aussi au tableau de bord de la direction qu&#39;une donnée a changé
 (rafraîchissement
-temps réel). <em>Source :</em> <code>NotificationService.send</code> → <code>TempsReelDeLaDirection.unCentreAChange</code> (Pilotage direction).</p>
+temps réel). <em>Source :</em> <code>NotificationService.send</code> → <code>TempsReelDeLaDirection.unCentreAChange</code> (Pilotage direction, RG-DIR-106).</p>
 </div></div>
 <div class="rule" id="RG-TRV-062"><div class="rid">RG-TRV-062</div><div class="rtxt"><p>La connexion WebSocket est permise sans authentification (les canaux de centre ne changent pas) ;
 seuls les
@@ -835,7 +835,10 @@ file active de la capacité écarte en plus les patients « en sommeil » (RG-PA
 <div class="rule" id="RG-PAT-035"><div class="rid">RG-PAT-035</div><div class="rtxt"><p>Le suivi des mouvements est consultable en <strong>liste paginée</strong> (page 0, taille 20 par défaut,
 100 maximum : une page négative ou une taille hors de 1 à 100 est refusée en 400), du plus récent au plus ancien,
 filtrable par patient, type et période de date d&#39;effet, <strong>limitée au centre courant</strong>, pour les profils <code>ADMIN</code>,
-<code>SECRETAIRE</code>, <code>MEDECIN</code> et <code>INFIRMIER</code> ; un paramètre illisible répond 400.</p>
+<code>SECRETAIRE</code>, <code>MEDECIN</code> et <code>INFIRMIER</code> ; un paramètre illisible répond 400. <strong>KB-ORG-10 CORRIGÉ le 2026-11-09 (lot L7, ADR 0115, à confirmer
+par les métiers et le DPO avant le 2026-12-15)</strong> : le nom de la salle et le libellé du créneau d&#39;un mouvement sont lus DANS le centre du
+mouvement ; une salle ou un créneau d&#39;un autre centre (ou disparu) s&#39;affiche vide, l&#39;identifiant restant dans la ligne. <em>(Avant : le libellé
+d&#39;un autre centre était affiché.)</em></p>
 </div></div>
 <div class="rule" id="RG-PAT-038"><div class="rid">RG-PAT-038</div><div class="rtxt"><p>Le <strong>numéro d&#39;assurance</strong> du patient est <strong>unique par centre</strong>, comparé après retrait des espaces de
 bord et sans tenir compte de la casse, à la création <strong>et à la modification</strong> (422 <code>BUSINESS_RULE_VIOLATION</code>). Aucune
@@ -1990,9 +1993,9 @@ réouverture. Les événements d&#39;intégration
 <section class="part" id="p07"><h1><span class="n">Partie 7</span>Séances de dialyse (cahier de dialyse)</h1>
 <figure><img src="img/cahier-dialyse.png" alt="Cahier de dialyse"><figcaption>Cahier de dialyse</figcaption></figure><blockquote>
 <p>Préfixe <code>RG-SEA</code>. Sources : <code>Seance</code>, <code>SeanceStatus</code>, <code>SeanceDomainService</code>, <code>SeanceApplicationService</code>,
-<code>SeanceBillingEligibilityJdbcAdapter</code>, <code>VoletParamedicalDomainService</code>, <code>VoletMedicalDomainService</code>,
+<code>SeanceBillingEligibilityJdbcAdapter</code>, <code>VoletParamedicalDomainService</code>, <code>RenseignerLeVoletMedical</code>,
 <code>TensionArterielle</code>,
-<code>TableauDeBordDesSeancesControleur</code>, <code>VoletMedicalRestController</code>, <code>VoletParamedicalControleur</code> (contexte Séance), <code>BonSortieService</code>.</p>
+<code>SeancesControleur</code>, <code>RoutesResiduellesControleur</code>, <code>TableauDeBordDesSeancesControleur</code>, <code>VoletParamedicalRestController</code>, <code>BonSortieService</code>.</p>
 </blockquote>
 <h2>7.1 Cycle de vie</h2>
 <div class="rule" id="RG-SEA-001"><div class="rid">RG-SEA-001</div><div class="rtxt"><p>Statuts d&#39;une séance : <code>CREE</code> → <code>VALIDEE</code> (validation infirmière) → <code>SIGNEE</code> (signature médecin) →
@@ -2018,7 +2021,9 @@ Effets : les consommables et administrations EPO/fer sortis du stock pour la sé
 recrédités, mouvements et bons de sortie supprimés, PMP recalculé) ; les volets paramédical et médical et les
 administrations EPO/fer de la séance sont effacés ; la séance est supprimée. La suppression est <strong>journalisée</strong>
 (séance, patient, date, statut, motif, auteur, horodatage — table <code>seance_suppression</code>) en plus du journal d&#39;audit
-(RG-SEC-050), et notifiée en temps réel (<code>SEANCE_SUPPRIMEE</code>) pour rafraîchir les écrans. Irréversible.</p>
+(RG-SEC-050), et notifiée en temps réel (<code>SEANCE_SUPPRIMEE</code>) pour rafraîchir les écrans. Irréversible. Reprise dans le module
+<code>seance</code> : RG-SEA-057 (qui <strong>refuse aussi</strong> toute séance rattachée à une facture, et <strong>ne restitue aucun stock</strong> : lire « restitués »
+ci-dessus à la lumière de KB-SEA-51).</p>
 </div></div>
 <h2>7.2 Création</h2>
 <div class="rule" id="RG-SEA-010"><div class="rid">RG-SEA-010</div><div class="rtxt"><p>Création : <code>ADMIN</code> ou <code>INFIRMIER</code>. Le patient doit exister dans le centre. La date par défaut est
@@ -2055,7 +2060,383 @@ avertir l&#39;équipe d&#39;un générateur indisponible.</p>
 </div></div>
 <div class="rule" id="RG-SEA-014"><div class="rid">RG-SEA-014</div><div class="rtxt"><p>Modification de la date d&#39;une séance : <code>ADMIN</code> seul, interdite si facturée ; sans date, aujourd&#39;hui.</p>
 </div></div>
+<div class="rule" id="RG-SEA-052"><div class="rid">RG-SEA-052</div><div class="rtxt"><p><strong>Création, scan et consultation reprises dans le module <code>seance</code></strong> (slice SE1, ADR 0088 ;
+<code>POST /api/v1/seances</code>, <code>POST /api/v1/seances/scan</code>, <code>GET /api/v1/seances/{id}</code>, <code>GET /api/v1/seances</code>, mêmes URLs, mêmes
+rôles que RG-SEA-010, 012 et 029, mêmes tables). Décisions de la reprise : <strong>corrigés</strong> — (KB-SEA-01) « aujourd&#39;hui »
+est le <strong>jour du centre</strong> (fuseau du centre, <code>Africa/Algiers</code> par défaut), pour la création sans date et pour le scan seulement (la liste des séances récentes d&#39;un patient du poste infirmier et la modification de date lisent encore la date du
+serveur : à corriger avec SE4 et SE7 ; la validation et le déverrouillage lisent le jour du centre depuis SE2, RG-SEA-053) ;
+(KB-SEA-02) plusieurs séances ce jour-là pour le patient lors d&#39;un scan : 409 <code>SEANCE_DU_JOUR_AMBIGUE</code> au lieu d&#39;un
+500 ; (KB-SEA-04) une requête mal formée répond 400 et non 500 (<code>BAD_REQUEST</code>, <code>VALIDATION_ERROR</code>, <code>centerId</code> absent du détail
+et de la liste, précision de motif
+au-delà de 255 caractères), un refus de droits 403 <code>ACCESS_DENIED</code> passe avant le 400, une écriture concurrente répond
+409 <code>ECRITURE_CONCURRENTE</code> ; une création sans centre répond 400 « Centre requis » ; (KB-SEA-06) un QR sans caractère
+alphanumérique est refusé en 400 ; un patient inconnu ou d&#39;un autre centre répond 404 <code>PATIENT_INTROUVABLE</code> ; (KB-SEA-07)
+une séance au statut illisible n&#39;empêche plus la liste (ligne ignorée, avertissement journalisé avec l&#39;identifiant) et
+son détail est refusé sans exposer de nom de classe. <strong>Reproduits</strong> (à décider avec les métiers) — (KB-SEA-03) la
+création manuelle ne contrôle pas le planning (RG-SEA-048 ne vise que le scan) ; (KB-SEA-05) le drapeau <code>created</code> du
+scan de la secrétaire reste faux et la diffusion est refaite à chaque scan tant que la séance est <code>CREE</code> ; (KB-SEA-08)
+l&#39;audit ne couvre que la création et le scan, sans identifiant d&#39;entité ; (KB-SEA-09) l&#39;auteur de la création n&#39;est pas
+conservé ; (KB-SEA-10) l&#39;éligibilité de prise en charge reste cumulative (RG-SEA-011, code générique
+<code>BUSINESS_RULE_VIOLATION</code>). Plusieurs séances par patient et par jour restent créables à la main (unicité à décider).
+<strong>Diffusions</strong> : un échec de diffusion en temps réel après l&#39;enregistrement est journalisé et n&#39;annule ni ne fait échouer la
+séance (le legacy répondait 500 après l&#39;écriture) ; à confirmer avec les métiers.
+<em>Source :</em> <code>SeancesControleur</code>, <code>ErreursDeSeanceAdvice</code>, <code>HorlogeDuCentre</code>.</p>
+</div></div>
 <h2>7.3 Validation infirmière et consommables</h2>
+<div class="rule" id="RG-SEA-053"><div class="rid">RG-SEA-053</div><div class="rtxt"><p><strong>Validation, signature du médecin et déverrouillage de régularisation reprises dans le module <code>seance</code></strong>
+(slice SE2, ADR 0089 ; <code>POST /api/v1/seances/{id}/valider</code> <code>ADMIN</code>, <code>INFIRMIER</code> ; <code>POST /api/v1/seances/{id}/signer-medecin</code>
+<code>ADMIN</code>, <code>MEDECIN</code> ; <code>POST /api/v1/seances/{id}/deverrouiller-regularisation?centerId=</code> <code>ADMIN</code> ; mêmes URLs, mêmes rôles, mêmes
+tables, mêmes matrices de statuts et mêmes messages que RG-SEA-020, 021, 046 et 049). Le scan de l&#39;infirmier (RG-SEA-012) valide
+par la même règle. <strong>Corrigés</strong> — (KB-SEA-18) la séance est lue sous verrou avant d&#39;être modifiée : un verrou non obtenu répond
+409 <code>ECRITURE_CONCURRENTE</code> ; (KB-SEA-16) un corps illisible, absent, nul ou en tableau, un <code>centerId</code> ou un identifiant de séance
+absent ou illisible, une ligne de consommable nulle répondent 400 <code>BAD_REQUEST</code> sans message technique (le refus de droits 403 passe
+avant le 400) ; un signataire de plus de 100 caractères répond 400 (et non 500) sans rien écrire ; une séance inconnue ou d&#39;un autre
+centre répond 400 « Seance introuvable », un patient disparu 404 <code>PATIENT_INTROUVABLE</code>, un article inconnu ou inactif 400, un statut
+illisible en base 400 sans nom de classe interne ; le « jour passé » du verrou de validation (RG-SEA-046) et du déverrouillage est le
+<strong>jour du centre</strong> et non plus celui du serveur (KB-SEA-01, 13e écart décidé de SE2 à confirmer avec les métiers : entre minuit du
+centre et minuit du serveur, une séance d&#39;« hier » au sens du centre est verrouillée pour l&#39;infirmier). <strong>Reproduits, à confirmer avant la mise en production</strong> — (KB-SEA-11) le signataire est lu dans le corps
+de la requête et non dans la session : un compte peut valider ou signer au nom d&#39;un autre, <strong>risque d&#39;imputation d&#39;une signature
+médicale (décision juridique et DPO)</strong> ; (KB-SEA-12) une séance à venir se valide sans limite ; (KB-SEA-13) la fenêtre de 7 jours de
+RG-SEA-046 ne borne pas le déverrouillage (elle ne concerne que le rappel) ; (KB-SEA-15) les consommables relevés se <strong>cumulent</strong> à
+chaque validation répétée. <strong>Reproduits sans alerte</strong> — (KB-SEA-14) rediffusion à chaque appel ; (KB-SEA-17) l&#39;audit des trois routes
+porte l&#39;action <code>SEANCES_CREATION</code> avec l&#39;identifiant de la séance ; (KB-SEA-19) aucun cache à invalider ; (KB-SEA-20) un seul message
+pour toute séance non signable ; (KB-SEA-21) les droits (le <code>SUPERADMIN</code> reste refusé en 403 <code>ROLE_SCOPE</code>) et la place figée est la place
+courante de la fiche du patient, le déplacement temporaire du jour prioritaire. Un refus du Stock à la validation (stock insuffisant,
+article inactif) annule toute la validation (statut, place, consommations).
+<em>Source :</em> <code>ValiderUneSeance</code>, <code>SignerUneSeance</code>, <code>DeverrouillerUneSeance</code>, <code>Seance</code>, <code>SeancesControleur</code>, <code>ErreursDeSeanceAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-054"><div class="rid">RG-SEA-054</div><div class="rtxt"><p><strong>Consommables déclarés d&#39;une séance et raccourcis de consommables du centre repris dans le module <code>seance</code></strong>
+(slice SE3, ADR 0090 ; <code>POST /api/v1/seances/{id}/consommables</code>, <code>PUT /api/v1/seances/{id}/consommables/{articleId}</code>,
+<code>DELETE /api/v1/seances/{id}/consommables/{articleId}</code> <code>ADMIN</code>, <code>INFIRMIER</code> ; <code>GET /api/v1/seances/raccourcis-consommables</code>
+<code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code> ; <code>PUT /api/v1/seances/raccourcis-consommables</code> <code>ADMIN</code> ; mêmes URLs, mêmes rôles, mêmes tables,
+même cache <code>seance.raccourcis</code>, mêmes messages que RG-SEA-022, 025 et 027). La Séance <strong>déclare</strong>, le Stock impute (langage publié
+<code>ConsommationsDeSeance</code>). <strong>Corrigés, à confirmer avec les métiers</strong> — (KB-SEA-26) un corps illisible, une quantité ou un identifiant
+illisible répondent 400 <code>BAD_REQUEST</code> au lieu de 500, le refus de droits 403 passant avant le 400 ; (KB-SEA-27) la lecture du patient, la
+vérification du statut et l&#39;écriture se font dans une seule unité de travail : un patient disparu répond 404 <code>PATIENT_INTROUVABLE</code> sans
+rien écrire (comme SE1 et SE2) ; (KB-SEA-25) un seul statut par cause : article inconnu, d&#39;un autre centre ou inactif et quantité
+invalide répondent 400 <code>BAD_REQUEST</code> sur les trois routes (les refus du Stock pour séance facturée ou pièce rapprochée restent 422 avec le
+code du Stock) ; écritures concurrentes : la séance est lue sous verrou (<code>FOR UPDATE</code>), le remplacement des raccourcis sous verrou
+consultatif du centre, verrou non obtenu en 5 s : 409 <code>ECRITURE_CONCURRENTE</code>. <strong>Reproduits, à confirmer avant la mise en production</strong> —
+(KB-SEA-33) l&#39;auteur de la saisie n&#39;est pas conservé par le Stock : <strong>risque médico-légal de traçabilité</strong>, à valider avec le DPO ;
+(KB-SEA-22) aucune sortie de stock n&#39;est créée à la déclaration malgré la Javadoc FEFO ; (KB-SEA-24) la modification et le retrait sont
+acceptés sur une séance <code>CREE</code> ou <code>ABSENT</code> ; (KB-SEA-31) <code>PUT</code> des raccourcis avec un corps vide <strong>efface tous les raccourcis du centre</strong>.
+<strong>Reproduits sans alerte</strong> — (KB-SEA-23, 28, 30, 32, 34) ; (KB-SEA-29) l&#39;audit porte <code>SEANCES_CREATION</code> (POST), <code>SEANCES_MODIFICATION</code>
+(PUT) et <code>SEANCES_SUPPRESSION</code> (DELETE) et, pour les raccourcis, <code>SEANCES_MODIFICATION</code> sans identifiant d&#39;entité ; les droits par
+route. L&#39;ajout exige une séance <code>VALIDEE</code> ou <code>SIGNEE</code> et non facturée ; les raccourcis sont limités à 12 articles actifs du centre,
+sans doublon, dans l&#39;ordre choisi (liste nulle = liste vide).
+<em>Source :</em> <code>AjouterUnConsommable</code>, <code>ModifierLaQuantiteDUnConsommable</code>, <code>RetirerUnConsommable</code>, <code>ConsulterLesRaccourcis</code>,
+<code>RemplacerLesRaccourcis</code>, <code>RaccourcisDeConsommables</code>, <code>Seance</code>, <code>SeancesControleur</code>, <code>ErreursDeSeanceAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-055"><div class="rid">RG-SEA-055</div><div class="rtxt"><p><strong>Rappel quotidien des séances à régulariser repris dans le module <code>seance</code></strong> (slice SE4, ADR 0091 ; aucune route,
+aucune table ajoutée ; suite de RG-SEA-046 et 053). Chaque jour à <strong>07:00</strong> (<code>app.seance.fuseau-par-defaut</code>), pour <strong>tous</strong> les
+centres, <code>RappelerLesSeancesARegulariser</code> compte les séances <code>CREE</code> des <strong>sept jours passés du centre</strong> (la veille comprise, le jour du
+centre exclu) <strong>non déverrouillées</strong>, avec la date de la plus ancienne, et envoie à l&#39;administrateur la notification
+<code>SEANCES_A_REGULARISER</code> (<code>ADMIN</code> seul, journal durable) ; rien n&#39;est envoyé s&#39;il n&#39;y en a aucune ; un centre en erreur n&#39;arrête pas
+les autres. <strong>Il n&#39;existe pas d&#39;agrégat « dérogation de régularisation »</strong> : la dérogation est le déverrouillage
+(<code>regularisation_deverrouillee_at/by</code>, RG-SEA-053), sans motif ni autorité ; la table <code>derogations_regularisation</code> (V50) n&#39;est jamais
+écrite (KB-SEA-40, conservée, vide). <strong>Corrigés, à confirmer avec les métiers</strong> — (KB-SEA-35) <strong>un seul rappel par centre et par jour du
+centre</strong> (identifiant déterministe dans le journal existant ; pour deux instances, <strong>le verrou consultatif par centre et jour est la garantie</strong>, sans repli sur la violation de clé du journal, et le scénario à deux instances n&#39;est pas prouvé de bout en bout) : un second
+passage du même jour n&#39;émet rien et le rappel du jour reste figé à son premier passage ; (KB-SEA-36) « aujourd&#39;hui » est le jour du
+fuseau du centre, plus le jour UTC. <strong>Reproduit, à confirmer avant la mise en production</strong> — (KB-SEA-37) <strong>la fenêtre est de 7 jours
+alors que le verrou des jours passés n&#39;a aucune borne</strong> : une séance oubliée depuis 8 jours ou plus reste bloquée pour l&#39;infirmier, n&#39;est
+plus jamais rappelée et le patient reste compté absent (décision métier prioritaire). <strong>Reproduits sans alerte</strong> — (KB-SEA-38) une
+séance <code>CREE</code> dont le patient a disparu est comptée par le rappel mais refusée au déverrouillage et à la validation ; (KB-SEA-39) le
+détail d&#39;une séance ne porte pas l&#39;indicateur de déverrouillage ; droits et libellés inchangés. Le planificateur est actif dès le
+déploiement, sans indicateur d&#39;activation : une seule instance du planificateur ou le verrou consultatif vérifié.
+<em>Source :</em> <code>RappelerLesSeancesARegulariser</code>, <code>FenetreDeRegularisation</code>, <code>SeancesARegulariser</code>, <code>RappelDeRegularisation</code>,
+<code>RappelDesRegularisationsPlanifie</code>, <code>VerrousDesRappelsJdbc</code>, <code>RappelsFournisLegacy</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-056"><div class="rid">RG-SEA-056</div><div class="rtxt"><p><strong>Surcharge du forfait d&#39;une séance reprise dans le module <code>seance</code></strong> (slice SE5, ADR 0092 ; <code>PUT /api/v1/seances/{id}/forfait</code> <code>ADMIN</code> seul ; mêmes URL, mêmes champs JSON <code>centerId</code>, <code>forfaitId</code>, <code>userId</code>, mêmes tables et colonnes
+<code>seances.forfait_override_*</code>, aucune migration ; suite de RG-SEA-033). Intention « imposer un forfait » : la séance copie le <strong>code,
+le nom et le prix</strong> du forfait du référentiel du centre (instantané jamais rafraîchi quand le référentiel change), l&#39;instant et
+l&#39;auteur, et le forfait imposé <strong>prime</strong> sur celui de la prise en charge (détail et liste à sept clés) ; une nouvelle imposition remplace
+tout, sans historique. Ordre des refus : centre du corps différent de la session 403, séance introuvable 400, forfait introuvable pour
+le centre 400, séance facturée 422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code>. Aucun montant n&#39;est recalculé : ni TVA ni arrondi. <strong>Corrigés, à
+confirmer avec les métiers</strong> — (KB-SEA-44) un identifiant de forfait, de centre ou de séance illisible, un corps illisible ou absent et un
+auteur de plus de 100 caractères répondent 400 <code>BAD_REQUEST</code> au lieu de 500, le refus de droits passant avant le 400 ; deux impositions
+simultanées de la même séance se suivent sous le verrou de ligne (<code>FOR UPDATE</code>), verrou non obtenu en 5 s : 409 <code>ECRITURE_CONCURRENTE</code>
+(l&#39;ancien code écrasait en silence) ; un statut illisible répond 400 sans nom de classe. <strong>Reproduits, RISQUES D&#39;ARGENT à confirmer
+avant la mise en production</strong> — (KB-SEA-41) un forfait sans prix ou à 0.00 est imposé sans alerte ; (KB-SEA-43) seul le statut
+<code>FACTUREE</code> est refusé : une séance <code>CREE</code> ou <code>ABSENT</code> reçoit un forfait et <code>facture_id</code> n&#39;est pas regardé ; (KB-SEA-46) le forfait courant
+ignore le statut de la prise en charge (une PEC refusée, annulée ou en brouillon fournit le forfait affiché) ; (KB-SEA-47) la
+Facturation (<code>poserLeForfait</code>, hors périmètre, non corrigée) n&#39;écrit pas <code>forfait_override_code</code> ; (KB-SEA-42) l&#39;auteur est un champ libre
+du corps, jamais le compte de session. <strong>Reproduits sans alerte</strong> — (KB-SEA-45) aucun historique, audit réduit à <code>SEANCES_MODIFICATION</code>,
+la route et le statut ; (KB-SEA-48) droits : seul <code>ADMIN</code> (<code>DIRECTION</code> et <code>SUPERADMIN</code> : 403 <code>ROLE_SCOPE</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>,
+<code>INFIRMIER</code> : 403 <code>ACCESS_DENIED</code>). Le verrou de ligne ne couvre pas la Facturation (résidu daté, ADR 0092).
+<em>Source :</em> <code>ImposerUnForfait</code>, <code>Seance.imposerUnForfait</code>, <code>ForfaitImpose</code>, <code>AuteurDuForfaitImpose</code>, <code>ForfaitsDuCentreParLeLegacy</code>,
+<code>ReferentielDeForfaitsFourniLegacy</code>, <code>SeancesJdbc</code>, <code>SeancesControleur</code>, <code>ErreursDeSeanceAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-057"><div class="rid">RG-SEA-057</div><div class="rtxt"><p><strong>Changement de jour et suppression d&#39;une séance repris dans le module <code>seance</code></strong> (slice SE6, ADR 0093 ; <code>PUT /api/v1/seances/{id}</code> et <code>DELETE /api/v1/seances/{id}?centerId=</code> <code>ADMIN</code> seul ; mêmes URL, mêmes champs JSON (<code>centerId</code>, <code>dateSeance</code>,
+<code>motif</code>), mêmes tables et colonnes (<code>seances.date_seance</code>, <code>seance_suppression</code>), aucune migration ; suite de RG-SEA-002 et RG-SEA-050).
+<em>Changer de jour</em> : seule la séance <strong>facturée</strong> est refusée (422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code>) ; l&#39;absence de date, <code>null</code> et la
+chaîne vide valent « le jour du centre » (<code>HorlogeDuCentre</code>, jamais l&#39;horloge de la JVM) ; la réponse est <code>{id, status, dateSeance}</code>.
+<em>Supprimer</em> : ordre des gardes reproduit (centre de la session 403, séance du centre 422 <code>SEANCE_INTROUVABLE</code>, motif de 5 à 500
+caractères 422, statut <code>FACTUREE</code> 422 <code>SEANCE_FACTUREE_NON_SUPPRIMABLE</code>) ; puis, tout ou rien dans une seule unité de travail : consommations
+imputées annulées par le Stock, administrations et volets effacés, séance supprimée, trace écrite dans <code>seance_suppression</code> ; la diffusion
+<code>SEANCE_SUPPRIMEE</code> part APRÈS la validation (un échec de diffusion ne défait jamais la suppression). <strong>Corrigés, à confirmer avec les
+métiers</strong> — (KB-SEA-49) le changement de jour n&#39;écrit que <code>date_seance</code> : la facture, le forfait imposé, les signatures et la place sont
+conservés (le legacy effaçait <code>facture_id</code> d&#39;une séance non facturée) ; (KB-SEA-50) <strong>toute séance qui porte une facture est refusée à la
+suppression, quel que soit son statut</strong> (422 <code>SEANCE_RATTACHEE_A_UNE_FACTURE_NON_SUPPRIMABLE</code> : annuler d&#39;abord la facture) ; (KB-SEA-52)
+identifiant, centre ou JSON illisibles, corps absent, motif en tableau : 400 au lieu de 500, <code>centerId</code> absent de la suppression : 400
+« Centre requis », droits avant 400 ; (KB-SEA-56, partielle) date illisible ou nombre : 400 « Date de séance illisible » (aucune règle de
+calendrier ajoutée) ; deux écritures simultanées se suivent sous verrou de ligne, verrou non obtenu en 5 s : 409 <code>ECRITURE_CONCURRENTE</code>.
+<strong>Reproduits, RISQUES À CONFIRMER avant la mise en production</strong> — (KB-SEA-54) le jour d&#39;une séance validée ou signée reste modifiable
+alors que le jour détermine la période de facturation ; (KB-SEA-55) le changement de jour contourne le verrou des jours passés
+(RG-SEA-053) sans trace de déverrouillage ; (KB-SEA-51) <strong>aucun stock n&#39;est restitué</strong> à la suppression malgré les mots « restitution » du
+legacy (RG-SEA-050 est à lire ainsi), et les <code>bons_sortie</code> / <code>stock_movements</code> de la séance restent sans séance (aucune clé étrangère) ;
+(D10) une séance rattachée à une facture mais non <code>FACTUREE</code> peut changer de jour (et sortir de la période de sa facture) alors que sa
+suppression est refusée. <strong>Écart gardé, à confirmer</strong> — (D9) un échec de diffusion de <code>SEANCE_SUPPRIMEE</code> est journalisé et n&#39;empêche
+pas la suppression (le legacy renvoyait une 500 après l&#39;effacement). <strong>Reproduits sans alerte</strong> — (KB-SEA-53) la suppression ne regarde ni le jour, ni la signature du
+médecin, ni le patient ; droits, audit (<code>SEANCES_MODIFICATION</code>, <code>SEANCES_SUPPRESSION</code>), diffusion, libellés. Aucun montant n&#39;est recalculé.
+<em>Source :</em> <code>ChangerLeJourDUneSeance</code>, <code>SupprimerUneSeance</code>, <code>Seance.changerDeJour</code>, <code>Seance.exigerSupprimable</code>, <code>MotifDeSuppression</code>,
+<code>SuppressionDeSeance</code>, <code>FactureId</code>, <code>SeancesJdbc</code>, <code>JournalDesSuppressionsJdbc</code>, <code>SaisiesDeSeanceFourniesLegacy</code>, <code>SeancesControleur</code>,
+<code>ErreursDeSeanceAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-058"><div class="rid">RG-SEA-058</div><div class="rtxt"><p><strong>Journal du jour, calendrier du centre, volet médical et séances récentes repris dans le module <code>seance</code></strong> (slice
+SE7a, ADR 0094 ; mêmes URL, mêmes champs JSON, mêmes droits, mêmes tables <code>seances</code>, <code>patients</code> (lecture), <code>center_holiday</code>,
+<code>center_closure_day</code>, <code>volet_medical</code>, aucune migration ; suite de RG-SEA-026, 028 et 031). <em>Journal</em> (<code>GET /seances/journal</code>, <code>ADMIN</code>,
+<code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>) : les patients ayant une séance ce jour-là, tous statuts, triés par nom puis prénom, et les articles
+sortis du stock ce jour-là (bons de sortie du Stock, pas les consommables déclarés). <em>Calendrier</em> (<code>GET /seances/calendar</code> mêmes profils ;
+<code>POST</code> et <code>DELETE /seances/calendar/holiday</code> et <code>/closure</code>, <code>ADMIN</code> seul) : jours fériés et fermetures exceptionnelles, deux tables,
+deux routes ; le calendrier <strong>reste dans la Séance</strong> (décision par délégation, à confirmer ; transfert à l&#39;Organisation en résidu daté).
+<em>Volet médical</em> (<code>PUT /seances/{id}/volet-medical</code>, <code>ADMIN</code>, <code>MEDECIN</code>) : refus 422 des séances absentes, créées ou facturées ; la séance est
+lue sous verrou, deux saisies simultanées se suivent (409 <code>ECRITURE_CONCURRENTE</code> après 5 s). <em>Séances récentes</em>
+(<code>GET /seances/patient/{id}/recentes</code>) : au plus 10 séances STRICTEMENT antérieures au jour (par défaut le jour du centre, <code>HorlogeDuCentre</code>),
+<code>limit</code> ramené à 1..10. <strong>Corrigés, à confirmer avec les métiers</strong> — (KB-SEA-57) paramètre ou corps absent, illisible ou hors bornes (mois
+0 ou 13, journal sans date, identifiant illisible) : 400 <code>BAD_REQUEST</code> au lieu de 500, 403 avant 400 ; (KB-SEA-58, partielle) un second
+jour férié ou une seconde fermeture à la même date : 409 <code>JOUR_DEJA_AU_CALENDRIER</code> au lieu de 500, date absente ou libellé de plus de 255
+caractères : 400 ; centre absent d&#39;un corps : 400 « Centre requis » ; une séance au statut illisible ne cite plus de nom de classe.
+<strong>Reproduits, RISQUES À CONFIRMER avant la mise en production (médecins et DPO)</strong> — (KB-SEA-59) le volet médical est <strong>remplacé en entier</strong> :
+un champ absent efface la valeur déjà saisie, la route reste ouverte sur une séance signée, <code>ADMIN</code> peut écrire des observations, aucun
+plafond de taille (colonnes <code>text</code>) ; (KB-SEA-60) les constantes des séances <code>CREE</code> (non validées) sont servies par les séances récentes.
+<strong>Reproduits avec signalement</strong> — (KB-SEA-58) le retrait d&#39;un jour inexistant répond toujours 200 <code>{deleted:true}</code> ; aucun contrôle de
+cohérence avec les séances déjà posées ; l&#39;an 1900 est accepté. <strong>Reproduits sans alerte</strong> — (KB-SEA-61) droits, libellés, audit générique
+des écritures (route et statut), aucune diffusion ni notification. Limite assumée : le golden d&#39;audit n&#39;a pas été rejoué contre le legacy
+retiré (le filtre d&#39;audit est générique, non modifié).
+<em>Source :</em> <code>ConsulterLeJournalDuJour</code>, <code>ConsulterLeCalendrier</code>, <code>AjouterUnJourAuCalendrier</code>, <code>RetirerUnJourDuCalendrier</code>,
+<code>RenseignerLeVoletMedical</code>, <code>ConsulterLesSeancesRecentes</code>, <code>JourDuCalendrier</code>, <code>MoisDuCalendrier</code>, <code>VoletMedical</code>, <code>ObservationsMedicales</code>,
+<code>CalendrierDuCentreJdbc</code>, <code>VoletsMedicauxJdbc</code>, <code>PatientsDuJourJdbc</code>, <code>RoutesResiduellesControleur</code>, <code>ErreursDeSeanceAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-059"><div class="rid">RG-SEA-059</div><div class="rtxt"><p><strong>Tableau de bord mensuel des séances, détail nominatif et exports repris dans le module <code>seance</code></strong> (slice SE7b,
+ADR 0095 ; mêmes URL <code>/seances/dashboard</code>, <code>/dashboard/details</code>, <code>/dashboard/export</code>, mêmes champs JSON, mêmes droits <code>ADMIN</code>,
+<code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>, mêmes tables <code>seances</code>, <code>patients</code> (lecture), <code>center_holiday</code>, <code>center_closure_day</code>, aucune
+migration ; suite de RG-SEA-043 et 051, la garde de centre reste celle de RG-SEA-051). Le jour du centre vient de <code>HorlogeDuCentre</code>.
+Aucun montant n&#39;est exposé. Les exports CSV, PDF et XLSX gardent les mêmes octets (CSV <code>text/plain</code> sans charset). <strong>Corrigés, à
+confirmer avec les métiers</strong> — (KB-SEA-63) année ou mois absent ou illisible, centre illisible, <code>kind</code> absent : 400 <code>BAD_REQUEST</code> au
+lieu de 500, 403 avant 400. <strong>Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers et DPO)</strong> — (KB-SEA-66) le détail
+nominatif sert nom, prénom, identifiant et présence ou absence à tous les profils autorisés, et ses lectures ne sont PAS auditées
+(décision DPO requise) ; (KB-SEA-64) les compteurs ne se recoupent pas avec le détail et l&#39;effectif du mois est contaminé par des
+patients d&#39;un autre centre ; (KB-SEA-65) un patient peut être compté présent et absent le même jour ; (KB-SEA-62) les clés françaises
+de <code>expectedByWeekday</code> restent à 0, les comptes sont sur les clés anglaises. <strong>Écart décidé, à confirmer</strong> — les absences sont bornées
+au jour du fuseau de chaque centre (et non plus du fuseau par défaut). <strong>Reproduits sans alerte</strong> — (KB-SEA-67) tri du détail
+sensible à la casse, droits, libellés. Un échec de lecture du calendrier est avalé avec un WARN portant le seul identifiant du centre.
+<em>Source :</em> <code>ConsulterLeTableauDeBord</code>, <code>ConsulterLeDetailDuTableauDeBord</code>, <code>ExporterLeTableauDeBord</code>, <code>MoisDuTableauDeBord</code>,
+<code>SeancesAttendues</code>, <code>EffectifDuMois</code>, <code>FinDeLaPriseEnCharge</code>, <code>TrancheDAge</code>, <code>LigneDuDetail</code>, <code>FormatDExport</code>, <code>SeancesRealiseesJdbc</code>,
+<code>PatientsDuTableauDeBordJdbc</code>, <code>AbsencesDuCentreParLePilotage</code>, <code>ExportsDuTableauDeBordCsvPdfXlsx</code>, <code>TableauDeBordDesSeancesControleur</code>,
+<code>ErreursDeSeanceAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-060"><div class="rid">RG-SEA-060</div><div class="rtxt"><p><strong>Lectures publiées de la Séance pour le Stock</strong> (slice SE7c1, ADR 0096 ; aucune route, aucune migration, aucun
+montant, lecture seule). Le Stock ne lit plus la table <code>seances</code> : il demande à la Séance, par son langage publié, si une séance est
+<strong>facturée</strong> et quelle est sa <strong>place</strong> (code de la salle, code et libellé du créneau). Une séance est facturée quand son statut est
+<code>FACTUREE</code>, sans tenir compte de la casse (KB-SEA-70) ; une séance inconnue ou d&#39;un autre centre n&#39;est pas facturée et n&#39;a pas de place
+(le Stock retombe alors sur la sortie « journée »). La salle et le créneau ne sont lus que dans le centre de la séance (sinon aucun,
+KB-SEA-69). Le Stock déduit la demi-journée du code ou du libellé du créneau (KB-SEA-68 : « matin », « après-midi », « midi »,
+« soir »). <strong>Reproduit tel quel, RISQUES À CONFIRMER avant la mise en production (métiers, revue au plus tard le 2026-12-15)</strong> :
+KB-SEA-68, 69 et 70.
+<em>Source :</em> <code>FacturationDesSeancesPubliee</code>, <code>PlacesDesSeancesPubliees</code>, <code>LecturesPublieesDesSeancesJdbc</code>,
+<code>StatutDesSeancesParLaSeance</code>, <code>PerimetreDesSeancesParLaSeance</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-061"><div class="rid">RG-SEA-061</div><div class="rtxt"><p><strong>Écritures et lectures publiées de la Séance pour la Facturation (ARGENT)</strong> (slice SE7c2, ADR 0097 ; aucune route,
+aucune migration, aucune clé étrangère ajoutée, aucun montant, prix, TVA ni arrondi recalculé : les valeurs financières sont copiées à
+l&#39;identique). La Facturation n&#39;écrit ni ne lit plus la table <code>seances</code> : elle passe par quatre ports publiés de la Séance. <strong>Séances à
+facturer</strong> : statut <code>VALIDEE</code> ou <code>SIGNEE</code> (casse exacte, KB-FAC-17), non rattachée à une facture, date dans la période (bornes
+incluses), patient du même centre ; tri nom, prénom, date. <strong>Exclusion</strong> : la séance au statut attendu et non facturée passe à <code>ABSENT</code>
+en mémorisant son statut ; <strong>réinclusion</strong> : elle retrouve ce statut ; <strong>forfait imposé</strong> : id, nom, prix, date et auteur de la surcharge
+sont écrits sur une séance <code>VALIDEE</code> ou <code>SIGNEE</code> non facturée, <strong>sans écrire le code du forfait</strong> (KB-SEA-47, reproduit). <strong>Liaison</strong> :
+chaque séance <code>VALIDEE</code> ou <code>SIGNEE</code> non facturée du centre passe à <code>FACTUREE</code> et porte l&#39;identité de sa facture ; si une seule n&#39;est plus
+éligible, toute l&#39;émission est annulée (« Une ou plusieurs seances ne sont plus eligibles a la validation », 422) : l&#39;émission reste dans
+UNE SEULE transaction, non scindée, sans compensation. <strong>Comptages</strong> : deux définitions de « séance facturée » conservées (tableau de
+bord : statut <code>FACTUREE</code> et date de séance dans le mois ; synthèse et répartitions : séances rattachées aux factures du mois ;
+<strong>KB-SEA-75 CLOS le 2026-11-10 (lot L5b, ADR 0118) sans unifier</strong> : les deux définitions ne mesurent pas la même chose (la date de la séance
+contre la facture du mois) et coïncident sur des données saines dont les séances sont du mois de leur facture ; un test du contrat fige les
+deux définitions, leur équivalence dans ce cas et leur écart quand une facture du mois porte une séance d&#39;un mois antérieur).
+<strong>Seul écart décidé (à confirmer métiers, KB-SEA-71)</strong> : le port publié refuse désormais de lier une absence à une séance déjà rattachée
+à une facture (garde <code>facture_id IS NULL</code>, comme la réinclusion). C&#39;est une <strong>défense en profondeur sur le port</strong>, observée au niveau du
+port (golden et contrat), <strong>sans effet aujourd&#39;hui sur le trafic HTTP</strong> : l&#39;exclusion d&#39;une séance, seul appelant, exclut d&#39;abord la
+séance, ce qui exige déjà qu&#39;elle soit non facturée, puis lie l&#39;absence dans la même transaction ; le refus visible par l&#39;utilisateur
+reste celui de l&#39;exclusion. <strong>Corrigés le 2026-11-09 (lot L3, ADR 0114, à confirmer par les métiers avant le 2026-12-15)</strong> :
+(KB-SEA-72) la <strong>mémoire d&#39;exclusion</strong> n&#39;est « présente » que si elle contient au moins un caractère hors espace, pour la lecture comme pour
+la liaison à une absence et la réinclusion, qui refusent une mémoire blanche ; (KB-SEA-73) l&#39;<strong>exclusion</strong> d&#39;une séance n&#39;est acceptée par le
+port que si elle est exactement <code>VALIDEE</code> ou <code>SIGNEE</code> (le port redit la règle du domaine), même appelée avec son propre statut ; (KB-SEA-74)
+une séance ne se <strong>lie</strong> qu&#39;à une facture qui existe et appartient au même centre (garde de l&#39;écriture) ; en production PostgreSQL, une clé
+étrangère <code>seances.facture_id</code> vers <code>factures</code> (migration V54, <code>NOT VALID</code>) refuse tout nouvel identifiant orphelin et la suppression d&#39;une
+facture encore liée, sans empêcher le démarrage sur des données sales ; (KB-SEA-82) en production, un CHECK de statut canonique
+(<code>UPPER(TRIM(statut))</code>, migration V55, <code>NOT VALID</code>) refuse tout statut écrit en minuscules ou avec un blanc ; les lecteurs restent en casse
+exacte (KB-FAC-17). Les deux contraintes se valident à la main après nettoyage (<code>VALIDATE CONSTRAINT</code>). <strong>Clos</strong> : KB-SEA-71 (déjà corrigé).
+<strong>Reproduits, RISQUES À CONFIRMER avant la mise en production (métiers, DPO, DBA, revue au plus tard le 2026-12-15)</strong> : KB-SEA-47 (code du
+forfait non écrit), KB-SEA-75 (deux définitions). Requêtes de détection : <code>verifications-production.md</code> sections 62 et 76.
+<em>Source :</em> <code>SeancesAFacturerPubliees</code>, <code>ExclusionsEtForfaitsDesSeancesPublies</code>, <code>LiaisonDesSeancesAUneFacturePubliee</code>,
+<code>SeancesDesFacturesPubliees</code>, <code>FacturationDesSeancesJdbc</code>, <code>LiaisonDesSeancesJdbc</code>, <code>SeancesFacturablesParLaSeance</code>,
+<code>SeancesDeFacturationParLaSeance</code>, <code>LiaisonDesSeancesParLaSeance</code>, <code>SeancesDesFacturesParLaSeance</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-062"><div class="rid">RG-SEA-062</div><div class="rtxt"><p><strong>Lectures publiées de la Séance pour les Absences de patients</strong> (slice SE7d, ADR 0098 ; aucune route, aucune
+migration, lecture seule, comportement inchangé). Les Absences ne lisent plus la table <code>seances</code> : elles demandent à la Séance, par son
+langage publié, les <strong>séances réalisées</strong> et le <strong>lien d&#39;exclusion</strong>. Une séance est <strong>réalisée</strong> quand son statut est <code>VALIDEE</code>,
+<code>SIGNEE</code> ou <code>FACTUREE</code>, en <strong>casse exacte et sans blanc</strong> (<code>validee</code>, <code>VALIDEE </code> ne comptent pas, KB-SEA-82) ; tout est borné au centre,
+bornes de dates incluses (des bornes inversées ne donnent rien). Quatre lectures : la <strong>semaine</strong> (une ligne par patient et par jour
+réalisé, dates croissantes puis patient à date égale, ordre déterministe : KB-SEA-77 corrigé), les <strong>jours d&#39;un patient</strong> (jours
+distincts croissants, rattrapage), la <strong>séance réalisée un jour</strong> (déclaration, rattrapage, réconciliation de nuit) et les <strong>patients
+ayant une séance réalisée un jour</strong> (patients écartés de la détection de nuit). <strong>Lien d&#39;exclusion</strong> : une absence vient d&#39;une exclusion
+tant qu&#39;une séance <strong>du centre réellement exclue (statut <code>ABSENT</code>)</strong> garde le lien vers elle (KB-SEA-81 corrigé : un lien résiduel resté sur
+une séance revenue à un autre statut ne bloque plus l&#39;annulation de l&#39;absence ; le lien reste en base, aucun nettoyage automatique) ; un lien
+porté par une séance d&#39;un autre centre est ignoré. <strong>Corrigés le 2026-11-10 (lot L5a, ADR 0117), à confirmer par les métiers au plus tard le
+2026-12-15</strong> : KB-SEA-77, 81. <strong>Reproduit sans correction</strong> : KB-SEA-82. Requêtes de détection : <code>verifications-production.md</code> section 63.
+<em>Source :</em> <code>SeancesRealiseesPubliees</code>, <code>LiensDExclusionPublies</code>, <code>LecturesDesSeancesRealiseesJdbc</code>, <code>SeancesRealiseesParLaSeance</code>,
+<code>LiensDExclusionParLaSeance</code>, <code>SeancesRealiseesFournies</code>, <code>LiensDExclusionFournis</code>, <code>ExclusionsDeSeancesPubliees</code>, <code>PatientsAttendusJdbc</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-063"><div class="rid">RG-SEA-063</div><div class="rtxt"><p><strong>Lecture publiée des séances réalisées avec leur place pour la Planification</strong> (slice SE7d, ADR 0098 ; aucune route,
+aucune migration, lecture seule, comportement inchangé). La grille de la semaine du planning (et l&#39;empreinte de l&#39;optimisation) lit
+par le langage publié de la Séance les séances réalisées (statuts exacts, KB-SEA-82) de la période avec la <strong>place figée à leur
+validation</strong> (salle, créneau, générateur ; aucune si elle n&#39;a pas été figée, RG-SEA-049) et le <strong>nom et le prénom de la fiche</strong> ; la
+Planification compose le nom « prénom nom ». Tri par <strong>date, puis création (la plus ancienne créée d&#39;abord, création inconnue en dernier), puis
+identifiant</strong> : deux séances réalisées d&#39;un même patient le même jour sortent dans un ordre déterministe et la grille garde la première, la
+plus ancienne créée (KB-SEA-78 corrigé le 2026-11-10, lot L5a, ADR 0117). Une séance réalisée n&#39;est lue que si <strong>la fiche du patient est
+dans le centre de la séance</strong> : un patient dont la fiche est dans un autre centre reste invisible dans la grille (cloisonnement voulu ;
+<strong>KB-SEA-80 CLOS le 2026-11-10, lot L5b, ADR 0118, sans changement de comportement</strong> : aucune lecture d&#39;une fiche d&#39;un autre centre, et le
+dépôt ne contient aucun code de transfert qui ferait changer le centre d&#39;une fiche ; détection §80 de <code>verifications-production.md</code>).
+<strong>Reproduit sans correction, à confirmer par les métiers au plus tard le 2026-12-15</strong> : KB-SEA-82.
+<em>Source :</em> <code>SeancesRealiseesAvecLeurPlacePubliees</code>, <code>LecturesDesSeancesRealiseesJdbc</code>, <code>SeancesRealiseesAvecLeurPlaceParLaSeance</code>,
+<code>SeancesRealiseesAvecLeurPlaceFournies</code>, <code>SeancesRealiseesPubliees</code> (Planification).</p>
+</div></div>
+<div class="rule" id="RG-SEA-064"><div class="rid">RG-SEA-064</div><div class="rtxt"><p><strong>Lecture publiée des constantes des séances pour le Dossier médical</strong> (slice SE7d, ADR 0098 ; aucune route, aucune
+migration, lecture seule, comportement inchangé). L&#39;historique des constantes du patient (<code>GET /api/v1/patients/{id}/constantes</code>)
+lit par le langage publié de la Séance <strong>toutes les séances du patient dans le centre, quel que soit leur statut</strong>, avec les sept
+mesures du <strong>volet paramédical du même centre</strong> (poids avant et après, tension avant et après, débit sang, ultrafiltration, durée ;
+toutes vides sans volet ou si le volet est rattaché à un autre centre) ; aucune lecture de la fiche du patient. Le total est lu avant
+la page. Ordre : date de séance décroissante, puis création décroissante, puis identifiant décroissant. Une séance <strong>sans date de
+création</strong> se classe <strong>en premier</strong> (<code>NULLS FIRST</code> écrit explicitement, identique sur H2 et PostgreSQL, ce qui conserve l&#39;ordre servi en
+production : KB-SEA-79 corrigé le 2026-11-10, lot L5a, ADR 0117, à confirmer au plus tard le 2026-12-15). Mêmes mesures et mêmes
+destinataires <code>MEDECIN</code>, <code>ADMIN</code> (DPO : inchangés).
+<em>Source :</em> <code>ConstantesDesSeancesPubliees</code>, <code>ConstantesDesSeancesJdbc</code>, <code>HistoriqueDesConstantesPublie</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-065"><div class="rid">RG-SEA-065</div><div class="rtxt"><p><strong>Lecture publiée des séances réalisées pour le pilotage de la Direction</strong> (slice SE7e, ADR 0099 ; aucune route,
+aucune migration, lecture seule, comportement inchangé). La vue d&#39;ensemble, la période précédente, l&#39;évolution mensuelle, la
+répartition par caisse, le rapport PDF, l&#39;instantané et le taux d&#39;absentéisme de la Direction comptent les séances par le langage
+publié de la Séance. Une séance compte quand son statut est <code>VALIDEE</code>, <code>SIGNEE</code> ou <code>FACTUREE</code> en <strong>casse exacte et sans blanc</strong> et
+que sa date est dans la période, bornes incluses, pour les seuls centres de la société. <strong>Un seul prédicat pour les trois vues</strong>, celui de
+la séance elle-même (KB-DIR-05 et KB-SEA-83 corrigés le 2026-11-10, lot L5b, ADR 0118) : la vue d&#39;ensemble, le taux d&#39;absentéisme et la
+répartition par caisse comptent les mêmes séances ; une séance dont la fiche du patient est dans un autre centre reste comptée dans la
+caisse « sans code » du centre de la séance (la somme des caisses d&#39;un centre égale sa vue d&#39;ensemble). <strong>Chaîne payeur bornée au centre</strong>
+(KB-SEA-84 corrigé, lot L5b) : le centre payeur d&#39;une fiche n&#39;est suivi que s&#39;il est du centre de la fiche, sinon la séance, le patient et
+le chiffre d&#39;affaires (agence figée de la facture, borne <code>ag.center_id = f.center_id</code>) tombent sur la caisse vide ; à chiffre d&#39;affaires égal,
+les lignes de caisse sont départagées par le code (ordre indépendant de la lecture). Agrégats seulement, aucune ligne de patient.
+<strong>À confirmer par les métiers (Direction, Comptabilité) et le DPO au plus tard le 2026-12-15</strong> : KB-DIR-05, KB-SEA-83, 84 corrigés (la ligne
+« caisse non renseignée » grossit, l&#39;historique est recalculé en direct, les instantanés figés gardent l&#39;ancienne valeur). Détection :
+<code>verifications-production.md</code> §64 et §80.
+<em>Source :</em> <code>SeancesRealiseesDesCentresPubliees</code>, <code>SeancesRealiseesDesCentresJdbc</code>, <code>DirectionDashboardQueryService</code>,
+<code>DirectionBreakdownQueryService</code>, <code>DirectionAbsencesQueryService</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-066"><div class="rid">RG-SEA-066</div><div class="rtxt"><p><strong>Lecture publiée des séances pour les statistiques du patient</strong> (slice SE7e, ADR 0099 ; aucune route, aucune migration,
+lecture seule). Les statistiques paramédicales (écran et export PDF) lisent par le langage publié de la Séance
+<strong>les seules séances réalisées du patient dans le centre</strong> (<code>VALIDEE</code>, <code>SIGNEE</code>, <code>FACTUREE</code> en casse exacte : une séance annulée, créée ou
+planifiée sort du compte et des moyennes, comme dans les autres lectures ; KB-SEA-85 b corrigé le 2026-11-10, lot L5b, ADR 0118), avec les
+mesures du <strong>volet paramédical du centre de la séance seulement</strong> (un volet posé sous un autre centre n&#39;est plus lu : KB-SEA-85 a corrigé) ;
+le compte s&#39;affiche <strong>en entier</strong> dans le PDF (« Seances: 3 », KB-SEA-85 c corrigé) : nombre de séances, moyennes des poids avant et
+après et de l&#39;ultrafiltration réelle (saisie, sinon perte de poids x 1000 ; une moyenne sans mesure vaut <code>0.0</code>), évolution du poids avec
+le <strong>poids sec en vigueur</strong> le jour de la séance (dernière prescription du patient au centre portant un poids sec, la plus récemment
+modifiée à date égale) et évolution de la tension. Ordre par <strong>date, puis création (la plus ancienne créée d&#39;abord, création inconnue en
+dernier), puis identifiant</strong> ; les clés des lignes de l&#39;évolution du poids sont <strong>toutes en minuscules</strong> quelle que soit la base (KB-SEA-86
+corrigé le 2026-11-10, lot L5a, ADR 0117 : c&#39;est le contrat servi en production, l&#39;écran et le PDF lisent les deux casses). La précision des
+moyennes dépend de la base (KB-SEA-87, <strong>close sans changement de code</strong> : seules 10 décimales sont garanties, comparaison à tolérance dans
+les tests, le PDF arrondit à 2 décimales). <strong>KB-SEA-85 corrigé, à confirmer par les métiers (infirmier référent, médecins) et le DPO au plus tard
+le 2026-12-15</strong> (mêmes rôles <code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> ; export <code>ADMIN</code> ; les moyennes ne portent plus sur les séances non
+réalisées, ni sur un volet d&#39;un autre centre).
+<em>Source :</em> <code>StatistiquesDesSeancesPubliees</code>, <code>StatistiquesDesSeancesJdbc</code>, <code>PatientStatsQueryService</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-067"><div class="rid">RG-SEA-067</div><div class="rtxt"><p><strong>Cahier de dialyse et usage d&#39;un forfait : comptages publiés</strong> (slice SE7e, ADR 0099 ; aucune route, aucune migration,
+lecture seule, comportement inchangé). Le refus <code>CAHIER_VIDE</code> compte par le langage publié de la Séance les séances du patient au
+centre, <code>VALIDEE</code>, <code>SIGNEE</code> ou <code>FACTUREE</code> en casse exacte, dans la période (par défaut du 1900-01-01 au 2999-12-31) ; le <strong>contenu</strong> du
+cahier reste lu par le <strong>modèle de document du centre</strong> (personnalisable, une requête embarquée ; un forfait imposé sans code recopié sur la
+séance imprime désormais le code et le libellé du forfait du référentiel du même centre, le prix restant celui de la surcharge : KB-SEA-88
+corrigé le 2026-11-10, lot L5a, ADR 0117), mise en page inchangée. La suppression d&#39;un forfait du référentiel est refusée (<code>REFERENTIAL_IN_USE</code>) tant
+qu&#39;une séance <strong>de n&#39;importe quel centre et de n&#39;importe quel statut</strong> l&#39;impose (KB-SEA-91), compté par le même langage publié.
+<strong>À confirmer au plus tard le 2026-12-15</strong> (infirmier référent, pour le libellé du forfait imprimé) : KB-SEA-88 corrigé ; <strong>KB-SEA-91 CLOS
+par documentation le 2026-11-10 (lot L5b, ADR 0118)</strong> : le blocage sans borne de centre ni de statut est voulu (prudence : aucune référence
+orpheline), figé par le contrat <code>should_count_the_seances_imposing_a_package_in_any_centre_and_any_status</code>.
+<em>Source :</em> <code>SeancesDuCahierPubliees</code>, <code>ForfaitsImposesAuxSeancesPublies</code>, <code>SeancesDuCahierEtForfaitsImposesJdbc</code>,
+<code>CahierDialyseReportService</code>, <code>ReferentialAdminJdbcAdapter</code>, <code>ReferentialAdminTables</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-068"><div class="rid">RG-SEA-068</div><div class="rtxt"><p><strong>Séances reprises de l&#39;ancien logiciel : écritures publiées</strong> (slice SE7e, ADR 0099 ; aucune route, aucune migration,
+comportement inchangé). L&#39;import des séances d&#39;un lot de reprise et l&#39;annulation du lot passent par le <strong>seul</strong> port publié qui écrit
+et supprime des séances hors de la Séance, réservé à la reprise. Une séance <strong>déjà présente</strong> le même jour pour le patient dans le
+centre du lot, <strong>quel que soit son statut sauf annulée</strong> (une séance <code>ANNULEE</code> n&#39;est pas une séance tenue et ne bloque plus la reprise :
+KB-SEA-89 corrigé le 2026-11-10, lot L5a, ADR 0117), est conservée et la ligne n&#39;est pas reprise ; sinon la
+séance est créée <code>FACTUREE</code> (facturée dans l&#39;ancien logiciel) ou <code>SIGNEE</code>. Seuls la date, le statut et le patient sont acceptés. À
+l&#39;annulation, un patient repris ne se supprime pas tant qu&#39;il a une séance <strong>dans n&#39;importe quel centre</strong> qui n&#39;a pas été créée par le
+lot (KB-SEA-90) ; une séance reprise ne se supprime pas si elle est facturée ou complétée dans la plateforme ; la suppression ne vise
+que le centre du lot. <strong>À confirmer au plus tard le 2026-12-15</strong> : KB-SEA-89 corrigé ; <strong>KB-SEA-90 CLOS par documentation le 2026-11-10
+(lot L5b, ADR 0118)</strong> : règle voulue « bloquant sans borne de centre » (une séance d&#39;un autre centre empêche la suppression du patient, sinon
+séance orpheline inter-centres puisque la suppression est bornée au centre du lot), figée par le contrat
+<code>should_list_the_seances_and_the_invoice_without_the_centre_and_remove_only_in_the_centre_of_the_batch</code>.
+<em>Source :</em> <code>SeancesDeLaReprisePubliees</code>, <code>SeancesDeLaRepriseJdbc</code>, <code>HistoricalRecordJdbcAdapter</code>, <code>MigrationRollbackJdbcAdapter</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-069"><div class="rid">RG-SEA-069</div><div class="rtxt"><p><strong>Volet paramédical : les constantes de la séance appartiennent à la Séance</strong> (slice SE7f, ADR 0100 ; même route
+<code>PUT /api/v1/seances/{seanceId}/volet-paramedical</code>, mêmes rôles <code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code>, mêmes champs, aucune migration ;
+comportement inchangé sauf les trois corrections du lot L4 ci-dessous). Le volet porte <strong>dix mesures</strong> : poids avant et après (kg), tension avant et après, durée (min), débit sang
+(ml/min), ultrafiltration (ml), anticoagulant, type de dialysat, incidents. La saisie <strong>remplace le volet en entier</strong> : une mesure absente
+du corps efface la valeur déjà saisie (RG-SEA-030). Un poids présent est <strong>strictement positif et au plus 500 kg</strong> (sinon 422
+<code>BUSINESS_ERROR</code>, « Le poids doit être strictement positif » / « Le poids dépasse la borne plausible (500 kg) ») ; une tension présente
+est lue « systolique/diastolique », la notation en cmHg (« 12/8 », « 11,5/7 ») est convertie en mmHg, les valeurs sont bornées de 20 à
+400 mmHg et la systolique est au moins égale à la diastolique (sinon 422 <code>BUSINESS_ERROR</code>, messages du legacy) ; une tension vide est
+gardée telle quelle ; durée, débit et ultrafiltration ne sont pas bornés. Ordre des refus : centre du corps (403 avant tout 400), séance
+inconnue du centre (400 « Seance introuvable »), séance <strong>facturée</strong> (422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> ; <code>CREE</code>, <code>VALIDEE</code>,
+<code>SIGNEE</code> et le reliquat <code>ABSENT</code> sont acceptés), mesures, fiche du patient absente du centre (400). <strong>Écart assumé sous concurrence, à confirmer par les métiers au plus tard
+le 2026-12-15</strong> (ADR 0100, « Parité attendue ») : deux saisies simultanées de la même séance se suivent (séance lue sous verrou de ligne,
+la seconde attend la première puis écrit) ; si la première tient le verrou plus de 5 s, la seconde répond 409 <code>ECRITURE_CONCURRENTE</code>
+(relire puis recommencer), là où le legacy écrivait deux fois sans verrou (deux 200, la dernière écriture écrasait l&#39;autre). La réponse rend <code>id</code>, <code>seanceId</code>, <code>updatedAt</code> ; deux diffusions suivent (volet enregistré
+pour les infirmiers et secrétaires du centre, saisie de l&#39;infirmier de type <code>PARAMEDICAL</code> pour les médecins). Le volet est <strong>effacé avec
+la séance</strong> (RG-SEA-054) et relu par le détail et les séances récentes <strong>par la séance</strong> (L8 ; le volet médical : au centre).
+<strong>Corrigé le 2026-11-10 (lot L4, ADR 0116), à confirmer par les métiers au plus tard le 2026-12-15</strong> : (KB-SEA-93) la fiche du patient est
+vérifiée <strong>avant</strong> l&#39;écriture : fiche hors du centre, 400 « Patient introuvable », <strong>rien n&#39;est écrit ni diffusé</strong> (avant : le volet était écrit
+puis la réponse échouait) ; une mesure refusée (422) passe toujours avant ; (KB-SEA-94) le volet d&#39;une séance est cherché <strong>par la séance</strong> :
+un volet posé sous un autre centre est <strong>remplacé</strong> (200) sans changer son centre, au lieu de bloquer toute saisie (500 <code>DATA_ACCESS_ERROR</code>) ;
+<strong>depuis le lot L8 (ADR 0120)</strong> le détail de la séance et les séances récentes relisent le volet paramédical <strong>par la séance, comme la saisie</strong>
+(la séance est déjà bornée au centre) : l&#39;utilisateur revoit ce qu&#39;il vient d&#39;enregistrer, même si le volet est resté posé sous un autre centre ;
+le volet médical reste borné au centre ; la réparation du centre des volets reste une décision manuelle du responsable des données (jamais
+automatique, <code>verifications-production.md</code> §78, prérequis 78.1) ; (KB-SEA-99) un corps illisible ou absent, un champ mal typé (durée en texte ou hors
+entier) ou un identifiant de séance illisible répondent <strong>400 <code>BAD_REQUEST</code></strong> sans message technique (avant : 500 <code>INTERNAL_ERROR</code>), le 403
+restant prioritaire pour un profil sans droit.
+<em>Source :</em> <code>VoletParamedical</code>, <code>MesuresDeSeance</code>, <code>Poids</code>, <code>TensionArterielle</code>, <code>Seance.exigerUnVoletParamedical</code>,
+<code>RenseignerLeVoletParamedical</code>, <code>VoletsParamedicauxJdbc</code>, <code>VoletParamedicalControleur</code>, <code>ErreursDuVoletParamedicalAdvice</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-070"><div class="rid">RG-SEA-070</div><div class="rtxt"><p><strong>Lectures reprises de la plateforme par la Séance</strong> (slice SE7f, ADR 0100 ; aucune route, aucune migration,
+comportement inchangé). Le planning du patient (jours de dialyse, sommeil, état et dates de la fiche AU CENTRE ; centre fermé = jour
+férié OU fermeture exceptionnelle à la date, additionnés : KB-SEA-95 reproduit), la place du patient à la validation (déplacement
+temporaire du jour, sinon place de la fiche publiée par la Planification ; vide sans salle ou créneau), le forfait courant (imposé, puis
+prise en charge couvrant le jour, effective avant demandée, puis la plus récente portant un forfait), l&#39;historique des séances (jointure
+séances-fiches, filtres, tris, pagination, statuts illisibles exclus et journalisés), le générateur du patient (équipement GMAO du centre,
+hors supprimé), le référentiel des forfaits du centre et le <strong>jour du centre</strong> (fuseau <code>centers.fuseau_horaire</code>, défaut de la plateforme)
+sont lus par la Séance elle-même, requêtes <strong>reprises mot pour mot</strong> des fournisseurs retirés de la plateforme. Restent fournis par la
+plateforme : les fiches des patients, les diffusions, le rappel de régularisation et l&#39;effacement des administrations de traitement.
+<em>Source :</em> <code>PlanningDesPatientsJdbc</code>, <code>PlaceDuPatientJdbc</code>, <code>ForfaitsDeSeanceJdbc</code>, <code>HistoriqueDesSeancesJdbc</code>, <code>GenerateursDesPatientsJdbc</code>,
+<code>ForfaitsDuCentreJdbc</code>, <code>JourDuCentreJdbc</code>, <code>SaisiesParLeLegacy</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEA-071"><div class="rid">RG-SEA-071</div><div class="rtxt"><p><strong>Retrait du module legacy <code>bc-seance</code> et gardes des tables de la Séance</strong> (slice SE7f, ADR 0100). Le module Maven
+<code>backend/bc-seance</code> et ses dix-sept utilisateurs de la plateforme sont retirés ; la <strong>dernière créatinine</strong> de l&#39;évaluation KDIGO est lue
+par le langage publié du Dossier médical (<code>DerniereCreatininePubliee</code> : analyses du patient au centre, date de prélèvement décroissante,
+première créatinine non nulle ; <strong>KB-SEA-96 (a) corrigé le 2026-11-10, lot L5a, ADR 0117, à confirmer par les médecins au plus tard le
+2026-12-15</strong> : à date de prélèvement égale, la dernière saisie fait foi (création la plus récente, création inconnue en dernier, puis
+identifiant), au lieu de l&#39;ordre du SGBD ; <strong>(b) clos sans changement</strong> : une créatinine à 0 reste retenue et le calcul de la fonction rénale la
+juge non évaluable (aucun stade faux), le refus du 0 à la saisie étant une décision médicale. Ancien texte : ordre non défini à date
+égale, une créatinine à 0 est retenue) et la <strong>capacité théorique</strong> des centres par le langage publié de la Planification
+(<code>CapaciteTheoriqueDesCentres</code> : un générateur de secours pour huit, capacité = postes actifs x séries x patients par poste et par série,
+seuil de proximité 90 %, même résultat). Les tables <code>seances</code>, <code>volet_paramedical</code> et <code>volet_medical</code> ne sont lues ou écrites hors de la
+Séance que par une <strong>liste blanche nominative datée</strong> (<code>TableDesSeancesTest</code>, 6 entrées : l&#39;annulation d&#39;un lot de reprise pour les
+volets, le schéma H2, l&#39;état Jasper du cahier et trois scripts de données) ; <code>resultats_analyses</code> hors du Dossier médical de même
+(<code>TableDesAnalysesTest</code>, 8 entrées) ; les entités JPA sont détectées. <strong>KB-SEA-49 est clos</strong> (le code qui effaçait <code>facture_id</code> n&#39;existe plus).
+<em>Source :</em> <code>KdigoGreffeQueryService</code>, <code>DerniereCreatinineJdbc</code>, <code>DirectionCapaciteQueryService</code>, <code>ConsulterLaCapaciteTheorique</code>,
+<code>CapaciteTheorique</code>, <code>TableDesSeancesTest</code>, <code>TableDesAnalysesTest</code>, <code>FrontieresDesContextesTest</code>.</p>
+</div></div>
 <div class="rule" id="RG-SEA-020"><div class="rid">RG-SEA-020</div><div class="rtxt"><p>La validation (<code>ADMIN</code>, <code>INFIRMIER</code>) fait passer la séance de <code>CREE</code> à <code>VALIDEE</code>, date la validation
 et enregistre la signature de l&#39;infirmier. Une
 séance déjà validée ou signée n&#39;est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
@@ -2075,17 +2456,19 @@ la validation est refusée avec la quantité manquante (« Stock insuffisant pou
 valorisé au PMP est créé (motif SEANCE), de façon atomique avec
 le changement de statut.</p>
 </div></div>
-<div class="rule" id="RG-SEA-022"><div class="rid">RG-SEA-022</div><div class="rtxt"><p>Retirer un consommable d&#39;une séance (<code>ADMIN</code>, <code>INFIRMIER</code>) restitue le stock ; modifier sa quantité
-(positive) met à jour la ligne du <strong>bon de sortie unique de la séance</strong> (RG-SEA-025), dont les lots sont
-resélectionnés
-au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.</p>
+<div class="rule" id="RG-SEA-022"><div class="rid">RG-SEA-022</div><div class="rtxt"><p>Modifier la quantité (positive) d&#39;un consommable déclaré ou le retirer (<code>ADMIN</code>, <code>INFIRMIER</code>) <strong>met à jour
+la consommation imputée par le Stock</strong> sur la sortie pour séances du jour (le retrait fixe la quantité à zéro) : <strong>aucun
+mouvement de stock, aucune restitution et aucune sélection de lots FEFO n&#39;ont lieu à la déclaration</strong> (KB-SEA-22, voir
+RG-SEA-054) ; le stock physique est décrémenté par la sortie pour séances (RG-STK, ADR 0045) et par la validation
+(RG-SEA-021). Interdit si la séance est facturée. Chaque changement notifie le centre.</p>
 </div></div>
-<div class="rule" id="RG-SEA-025"><div class="rid">RG-SEA-025</div><div class="rtxt"><p><strong>Une séance = un seul bon de sortie « SEANCE »</strong> : à la validation (RG-SEA-021) ou, pour une
-séance déjà validée, dès le <strong>premier article ajouté</strong> (<code>ADMIN</code>, <code>INFIRMIER</code> ; <code>POST /seances/{id}/consommables</code>),
-le bon est créé avec son numéro de pièce ; chaque ajout, modification de quantité ou retrait <strong>met à jour ce même
-bon</strong> (lignes, lots et mouvements recalculés par FEFO, stock rendu restitué) au lieu de créer une sortie par article.
-Article actif exigé pour une quantité qui augmente, quantité d&#39;ajout strictement positive ; autorisé pour une séance
-<code>VALIDEE</code> ou <code>SIGNEE</code>, refusé si facturée (« La seance facturee ne peut plus etre modifiee ») ou non validée.
+<div class="rule" id="RG-SEA-025"><div class="rid">RG-SEA-025</div><div class="rtxt"><p><strong>Déclaration d&#39;un consommable sur une séance déjà validée</strong> (<code>ADMIN</code>, <code>INFIRMIER</code> ;
+<code>POST /seances/{id}/consommables</code>) : la quantité est <strong>imputée par le Stock</strong> sur la sortie pour séances du jour (alertes
+<code>AUCUNE_PIECE</code>, <code>DEPASSEMENT_DE_LA_SORTIE</code>, <code>ARTICLE_HORS_PIECE</code>) ; elle s&#39;ajoute à celle déjà déclarée pour l&#39;article
+(cumul, KB-SEA-23) ; <strong>aucun bon de sortie n&#39;est créé ni mis à jour, aucun mouvement ni lot n&#39;est touché</strong> (KB-SEA-22). Le
+bon de sortie « SEANCE » unique de la séance n&#39;est créé qu&#39;à la validation (RG-SEA-021). Article actif exigé, quantité
+d&#39;ajout strictement positive ; autorisé pour une séance <code>VALIDEE</code> ou <code>SIGNEE</code>, refusé si facturée (« La seance facturee ne
+peut plus etre modifiee ») ou non validée. Reprise dans le module <code>seance</code> : RG-SEA-054.
 Les administrations EPO/fer gardent leur propre bon numéroté (poste « ADMINISTRATION »). Chaque saisie notifie le
 médecin (RG-NOT-004).</p>
 </div></div>
@@ -2115,10 +2498,11 @@ idempotente et notifie les infirmiers (<code>SEANCE_DEVERROUILLEE</code>) ; (2) 
 l&#39; <strong>infirmier</strong> dans son bloc « À régulariser » (il ne voit que celles-là, jamais les autres) et il peut la valider.
 L&#39;infirmier ne valide librement que les séances <strong>du jour</strong> : valider une séance d&#39;un jour passé non déverrouillée est
 refusé par le serveur (<code>SEANCE_REGULARISATION_NON_DEVERROUILLEE</code>) ; l&#39;administrateur valide toujours. La secrétaire
-ne voit pas le bloc. Un <strong>rappel</strong> est envoyé chaque jour à <strong>07:00</strong> (<code>SeanceRegularisationScheduler</code>, après la
-détection des absences de 02:30) à l&#39;administrateur de chaque centre qui a de telles séances <strong>pas encore
-déverrouillées</strong> : nombre et date de la plus ancienne (notification <code>SEANCES_A_REGULARISER</code>, <code>ADMIN</code> seul ; rien
-n&#39;est envoyé s&#39;il n&#39;y en a aucune). Une fois validée, la séance compte comme réalisée et
+ne voit pas le bloc. Un <strong>rappel</strong> est envoyé chaque jour à <strong>07:00</strong> (<code>RappelDesRegularisationsPlanifie</code>, après la
+détection des absences de 02:30, au jour du fuseau de chaque centre) à l&#39;administrateur de chaque centre qui a de
+telles séances <strong>pas encore déverrouillées</strong> : nombre et date de la plus ancienne (notification
+<code>SEANCES_A_REGULARISER</code>, <code>ADMIN</code> seul ; rien n&#39;est envoyé s&#39;il n&#39;y en a aucune ; <strong>un seul rappel par centre et par
+jour</strong>). Une fois validée, la séance compte comme réalisée et
 l&#39;absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance réalisée à
 cette date »). Au-delà de 7 jours, la séance reste consultable dans l&#39;historique (RG-SEA-029).</p>
 </div></div>
@@ -2166,7 +2550,7 @@ actifs du centre, ordre de sélection conservé) les articles proposés en un to
 (<code>PUT /seances/raccourcis-consommables</code>) ; la lecture est ouverte à <code>ADMIN</code>, <code>INFIRMIER</code> et <code>SECRETAIRE</code>. Sans
 raccourci configuré, l&#39;écran propose les articles les plus sortis du jour (6 au plus). La liste est propre au centre
 (isolation stricte), mise en cache par centre et purgée à chaque modification. Un article inconnu, d&#39;un autre centre ou <strong>inactif</strong> est refusé en 400 (<code>BAD_REQUEST</code>, KB-STK-56 corrigé ; c&#39;était 422 pour l&#39;inactif) ; de même pour l&#39;ajout d&#39;un consommable et pour la <strong>validation de la séance</strong> avec consommations (KB-STK-57). <em>Source :</em>
-<code>SeanceRaccourciDomainService</code>, <code>SeanceRaccourciApplicationService</code>.</p>
+<code>RaccourcisDeConsommables</code>, <code>ConsulterLesRaccourcis</code>, <code>RemplacerLesRaccourcis</code> (module <code>seance</code>, RG-SEA-054).</p>
 </div></div>
 <div class="rule" id="RG-SEA-028"><div class="rid">RG-SEA-028</div><div class="rtxt"><p><strong>Rappel des dernières séances</strong> (<code>GET /seances/patient/{id}/recentes</code>, <code>ADMIN</code>, <code>INFIRMIER</code>,
 <code>MEDECIN</code>) : les 3 dernières séances du patient antérieures à la séance ouverte (10 au plus, de la plus récente à
@@ -2201,7 +2585,7 @@ facturée.</p>
 <div class="rule" id="RG-SEA-033"><div class="rid">RG-SEA-033</div><div class="rtxt"><p>Forfait de la séance : par défaut celui de la prise en charge ; l&#39;administrateur (<code>ADMIN</code> seul —
 l&#39;infirmier ne le modifie pas) peut le <strong>surcharger</strong> par un forfait du
 centre actif (« Forfait introuvable pour le centre actif » sinon), avec enregistrement de l&#39;auteur et de
-l&#39;horodatage ; interdit si facturée.</p>
+l&#39;horodatage ; interdit si facturée. Reprise dans le module <code>seance</code> : RG-SEA-056.</p>
 </div></div>
 <h2>7.5 Consultation, journal, tableau de bord et calendrier</h2>
 <div class="rule" id="RG-SEA-040"><div class="rid">RG-SEA-040</div><div class="rtxt"><p>La liste des séances est paginée et peut être filtrée par mois ; accès <code>ADMIN</code>, <code>INFIRMIER</code>,
@@ -2252,62 +2636,6 @@ médical de la séance : prescription, tolérance, examen clinique, résultats b
 information absente est imprimée « - ». Chaque page porte l&#39;en-tête (logo, société, centre, identité du patient) et
 le pied de page (édition, pagination, centre, pied de page société) du centre. Refus : patient hors du centre
 (<code>PATIENT_INTROUVABLE</code>), aucune séance à imprimer (<code>CAHIER_VIDE</code>), début après la fin (<code>CAHIER_PERIODE_INVALIDE</code>).</p>
-</div></div>
-<h2>7.7 Volet paramédical dans la Séance, lectures reprises et retrait du module legacy (slice SE7f, ADR 0100)</h2>
-<div class="rule" id="RG-SEA-069"><div class="rid">RG-SEA-069</div><div class="rtxt"><p><strong>Volet paramédical : les constantes de la séance appartiennent à la Séance</strong> (slice SE7f, ADR 0100 ; même route
-<code>PUT /api/v1/seances/{seanceId}/volet-paramedical</code>, mêmes rôles <code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code>, mêmes champs, aucune migration ;
-comportement inchangé sauf les trois corrections du lot L4 ci-dessous). Le volet porte <strong>dix mesures</strong> : poids avant et après (kg), tension avant et après, durée (min), débit sang
-(ml/min), ultrafiltration (ml), anticoagulant, type de dialysat, incidents. La saisie <strong>remplace le volet en entier</strong> : une mesure absente
-du corps efface la valeur déjà saisie (RG-SEA-030). Un poids présent est <strong>strictement positif et au plus 500 kg</strong> (sinon 422
-<code>BUSINESS_ERROR</code>, « Le poids doit être strictement positif » / « Le poids dépasse la borne plausible (500 kg) ») ; une tension présente
-est lue « systolique/diastolique », la notation en cmHg (« 12/8 », « 11,5/7 ») est convertie en mmHg, les valeurs sont bornées de 20 à
-400 mmHg et la systolique est au moins égale à la diastolique (sinon 422 <code>BUSINESS_ERROR</code>, messages du legacy) ; une tension vide est
-gardée telle quelle ; durée, débit et ultrafiltration ne sont pas bornés. Ordre des refus : centre du corps (403 avant tout 400), séance
-inconnue du centre (400 « Seance introuvable »), séance <strong>facturée</strong> (422 <code>SEANCE_FACTUREE_NON_MODIFIABLE</code> ; <code>CREE</code>, <code>VALIDEE</code>,
-<code>SIGNEE</code> et le reliquat <code>ABSENT</code> sont acceptés), mesures, fiche du patient absente du centre (400). <strong>Écart assumé sous concurrence, à confirmer par les métiers au plus tard
-le 2026-12-15</strong> (ADR 0100, « Parité attendue ») : deux saisies simultanées de la même séance se suivent (séance lue sous verrou de ligne,
-la seconde attend la première puis écrit) ; si la première tient le verrou plus de 5 s, la seconde répond 409 <code>ECRITURE_CONCURRENTE</code>
-(relire puis recommencer), là où le legacy écrivait deux fois sans verrou (deux 200, la dernière écriture écrasait l&#39;autre). La réponse rend
-<code>id</code>, <code>seanceId</code>, <code>updatedAt</code> ; deux diffusions suivent (volet enregistré pour les infirmiers et secrétaires du centre, saisie de
-l&#39;infirmier de type <code>PARAMEDICAL</code> pour les médecins). Le volet est <strong>effacé avec la séance</strong> (RG-SEA-054) et relu par le détail et les
-séances récentes <strong>au centre de la séance seulement</strong>. <strong>Corrigé le 2026-11-10 (lot L4, ADR 0116), à confirmer par les métiers au plus tard le 2026-12-15</strong> :
-(KB-SEA-93) la fiche du patient est vérifiée <strong>avant</strong> l&#39;écriture : fiche hors du centre, 400 « Patient introuvable », <strong>rien n&#39;est écrit ni diffusé</strong>
-(avant : le volet était écrit puis la réponse échouait) ; une mesure refusée (422) passe toujours avant ; (KB-SEA-94) le volet d&#39;une séance est cherché
-<strong>par la séance</strong> : un volet posé sous un autre centre est <strong>remplacé</strong> (200) sans changer son centre, au lieu de bloquer toute saisie
-(500 <code>DATA_ACCESS_ERROR</code>) ; le détail de la séance ne relit toujours que les volets du centre de la séance, la réparation du centre des volets restant
-une décision manuelle du responsable des données (jamais automatique) ; (KB-SEA-99) un corps illisible ou absent, un champ mal typé (durée en texte ou hors entier)
-ou un identifiant de séance illisible répondent <strong>400 <code>BAD_REQUEST</code></strong> sans message technique (avant : 500 <code>INTERNAL_ERROR</code>),
-le 403 restant prioritaire pour un profil sans droit.</p>
-<p><em>Source :</em> <code>VoletParamedical</code>, <code>MesuresDeSeance</code>, <code>Poids</code>, <code>TensionArterielle</code>, <code>Seance.exigerUnVoletParamedical</code>,
-<code>RenseignerLeVoletParamedical</code>, <code>VoletsParamedicauxJdbc</code>, <code>VoletParamedicalControleur</code>, <code>ErreursDuVoletParamedicalAdvice</code>.</p>
-</div></div>
-<div class="rule" id="RG-SEA-070"><div class="rid">RG-SEA-070</div><div class="rtxt"><p><strong>Lectures reprises de la plateforme par la Séance</strong> (slice SE7f, ADR 0100 ; aucune route, aucune migration,
-comportement inchangé). Le planning du patient (jours de dialyse, sommeil, état et dates de la fiche AU CENTRE ; centre fermé = jour
-férié OU fermeture exceptionnelle à la date, additionnés : KB-SEA-95 reproduit), la place du patient à la validation (déplacement
-temporaire du jour, sinon place de la fiche publiée par la Planification ; vide sans salle ou créneau), le forfait courant (imposé, puis
-prise en charge couvrant le jour, effective avant demandée, puis la plus récente portant un forfait), l&#39;historique des séances (jointure
-séances-fiches, filtres, tris, pagination, statuts illisibles exclus et journalisés), le générateur du patient (équipement GMAO du centre,
-hors supprimé), le référentiel des forfaits du centre et le <strong>jour du centre</strong> (fuseau <code>centers.fuseau_horaire</code>, défaut de la plateforme)
-sont lus par la Séance elle-même, requêtes <strong>reprises mot pour mot</strong> des fournisseurs retirés de la plateforme. Restent fournis par la
-plateforme : les fiches des patients, les diffusions, le rappel de régularisation et l&#39;effacement des administrations de traitement.</p>
-<p><em>Source :</em> <code>PlanningDesPatientsJdbc</code>, <code>PlaceDuPatientJdbc</code>, <code>ForfaitsDeSeanceJdbc</code>, <code>HistoriqueDesSeancesJdbc</code>, <code>GenerateursDesPatientsJdbc</code>,
-<code>ForfaitsDuCentreJdbc</code>, <code>JourDuCentreJdbc</code>, <code>SaisiesParLeLegacy</code>.</p>
-</div></div>
-<div class="rule" id="RG-SEA-071"><div class="rid">RG-SEA-071</div><div class="rtxt"><p><strong>Retrait du module legacy <code>bc-seance</code> et gardes des tables de la Séance</strong> (slice SE7f, ADR 0100). Le module Maven
-<code>backend/bc-seance</code> et ses dix-sept utilisateurs de la plateforme sont retirés ; la <strong>dernière créatinine</strong> de l&#39;évaluation KDIGO est lue
-par le langage publié du Dossier médical (<code>DerniereCreatininePubliee</code> : analyses du patient au centre, date de prélèvement décroissante,
-première créatinine non nulle ; <strong>KB-SEA-96 (a) corrigé le 2026-11-10, lot L5a, ADR 0117, à confirmer par les médecins au plus tard le
-2026-12-15</strong> : à date de prélèvement égale, la dernière saisie fait foi (création la plus récente, création inconnue en dernier, puis
-identifiant), au lieu de l&#39;ordre du SGBD ; <strong>(b) clos sans changement</strong> : une créatinine à 0 reste retenue et le calcul de la fonction rénale la
-juge non évaluable (aucun stade faux), le refus du 0 à la saisie étant une décision médicale. Ancien texte : ordre non défini à date
-égale, une créatinine à 0 est retenue) et la <strong>capacité théorique</strong> des centres par le langage publié de la Planification
-(<code>CapaciteTheoriqueDesCentres</code> : un générateur de secours pour huit, capacité = postes actifs x séries x patients par poste et par série,
-seuil de proximité 90 %, même résultat). Les tables <code>seances</code>, <code>volet_paramedical</code> et <code>volet_medical</code> ne sont lues ou écrites hors de la
-Séance que par une <strong>liste blanche nominative datée</strong> (<code>TableDesSeancesTest</code>, 6 entrées : l&#39;annulation d&#39;un lot de reprise pour les
-volets, le schéma H2, l&#39;état Jasper du cahier et trois scripts de données) ; <code>resultats_analyses</code> hors du Dossier médical de même
-(<code>TableDesAnalysesTest</code>, 8 entrées) ; les entités JPA sont détectées. <strong>KB-SEA-49 est clos</strong> (le code qui effaçait <code>facture_id</code> n&#39;existe plus).</p>
-<p><em>Source :</em> <code>EvaluerLeCandidatALaGreffe</code> (contexte Dossier médical, depuis DM9), <code>DerniereCreatinineJdbc</code>, <code>DirectionCapaciteQueryService</code>, <code>ConsulterLaCapaciteTheorique</code>,
-<code>CapaciteTheorique</code>, <code>TableDesSeancesTest</code>, <code>TableDesAnalysesTest</code>, <code>FrontieresDesContextesTest</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p08"><h1><span class="n">Partie 8</span>Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</h1>
@@ -2543,7 +2871,10 @@ chaque centre) : pour chaque centre <strong>actif</strong>, les lots contenant d
 (J+1, J+8, J+15…, sans état conservé) ; un lot <strong>reçu déjà périmé</strong> est signalé au premier contrôle qui suit sa réception ; si le contrôle de J+1 est manqué, le rappel suivant est J+8. Le signalement est une <strong>alerte durable unique par centre et par jour</strong> (identifiant
 déterministe, sûre en multi-instance) destinée à <code>ADMIN</code> et <code>PHARMACIEN</code> (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord), et un événement
 d&#39;intégration <code>LotProcheExpiration</code> v1 par lot (registre Spring Modulith, consommateurs idempotents sur son identifiant). Un centre en
-échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. <em>(Avant S8 : journal technique seul,
+échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. <strong>« Centre actif » a le même sens
+pour le Stock que pour tous les contextes (KB-ORG-09 CORRIGÉ le 2026-11-09, lot L7, ADR 0115, à confirmer par les métiers Stock avant le
+2026-12-15)</strong> : seul un centre désactivé est exclu ; l&#39;état d&#39;un centre n&#39;est plus jamais vide (migration V56, défaut « actif »), donc un centre
+jamais renseigné, jusque-là ignoré de ce contrôle, y entre. <em>(Avant S8 : journal technique seul,
 tous les centres, KB-STK-53.)</em> <em>Source :</em> <code>ControlerLesPeremptions</code>, <code>RegleDesPeremptions</code>, <code>NotificationsDesPeremptionsLegacy</code>.</p>
 </div></div>
 <div class="rule" id="RG-STK-062"><div class="rid">RG-STK-062</div><div class="rtxt"><p><strong>Traçabilité par lot</strong> : de l&#39;entrée (bon de réception, fournisseur) aux sorties (séances, patients)
@@ -3087,13 +3418,13 @@ rien à la saisie manuelle du roulement.</p>
 les évaluations KDIGO sont recalculées à la demande. Le système
 <strong>compare</strong> chaque résultat aux cibles KDIGO, <strong>contrôle chaque jour</strong> l&#39;observance des traitements EPO/fer, <strong>replace
 en isolement</strong> un patient devenu à risque et <strong>alerte</strong> le médecin.
-Sources : agrégats du contexte <code>dossier-medical</code> (<code>Allergie</code>, <code>Antecedent</code>, <code>Serologie</code>, <code>DemandeExamen</code>, <code>ObservationBiologique</code>,
-<code>Ordonnance</code>, <code>AdministrationDeTraitement</code>,
-<code>AlerteDObservance</code>, <code>BilanPreGreffe</code>, <code>EtapeDeBilan</code>, <code>DonneurVivant</code>, <code>DecisionRcp</code> ; le module legacy <code>bc-medical</code> est retiré depuis DM9), <code>CiblesKdigo</code>, <code>EvaluationKdigoDuCandidat</code>, <code>RisqueInfectieux</code>, <code>EffectifMasque</code>,
-<code>PrescrireUnTraitement</code> (DM2), <code>ResultatAnalyseDomainService</code>,
-<code>DossierMedicalPatientDomainService</code>, <code>AbordVasculaireDomainService</code>, <code>ControleDeNuitDeLObservance</code>,
+Sources : agrégats de <code>bc-medical</code> (<code>Allergie</code>, <code>Antecedent</code>, <code>Serologie</code>, <code>DemandeExamen</code>, <code>ObservationBiologique</code>,
+<code>Ordonnance</code>, <code>AdministrationTraitement</code>,
+<code>AlerteObservance</code>, <code>BilanPreGreffe</code>, <code>EtapeBilanPreGreffe</code>, <code>DonneurVivant</code>, <code>DecisionRcp</code>), <code>Kdigo*Policy</code>,
+<code>PrescrireUnTraitement</code> (DM2), <code>Analyse</code> et <code>ObservationBiologique</code> (DM6, contexte <code>dossier-medical</code>),
+<code>EnregistrerLeDossierMedicalDeBase</code> et <code>ExporterLeDossierMedical</code> (DM8), <code>ControleDeNuitDeLObservance</code>,
 <code>PeriodeDObservance</code>, <code>ConsulterLeSuiviDeLAnemie</code>,
-<code>EvaluationKdigoControleur</code> (contexte Dossier médical, depuis DM9), <code>FhirExportService</code>, contrôleurs du dossier.</p>
+<code>KdigoGreffeQueryService</code>, contrôleurs du dossier.</p>
 </blockquote>
 <h2>11.1 Principes d&#39;accès</h2>
 <div class="rule" id="RG-MED-001"><div class="rid">RG-MED-001</div><div class="rtxt"><p><strong>Écriture réservée au médecin</strong> (rôle <code>MEDECIN</code>) pour : antécédents, allergies, sérologies, demandes
@@ -3130,6 +3461,30 @@ existe déjà pour ce patient »).</p>
 <div class="rule" id="RG-MED-012"><div class="rid">RG-MED-012</div><div class="rtxt"><p>« Résoudre » fixe la date de fin et le statut <code>RESOLU</code> ; un antécédent déjà résolu ne se résout pas
 deux fois (<code>ANTECEDENT_DEJA_RESOLU</code>).</p>
 </div></div>
+<div class="rule" id="RG-MED-035"><div class="rid">RG-MED-035</div><div class="rtxt"><p><em>Antécédents, reprise sur place DM5 (contexte <code>dossier-medical</code>, <code>AntecedentsControleur</code>, ADR 0084 ;
+décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent, le MEDECIN seul écrit ; l&#39;INFIRMIER n&#39;a aucun accès (reproduit, à confirmer) ;
+DIRECTION et SUPERADMIN 403 <code>ROLE_SCOPE</code> ; garde de centre sur les 5 routes ;
+(b) <strong>patient</strong> : un patient inconnu ou d&#39;un autre centre est refusé en 404 <code>PATIENT_INTROUVABLE</code> à l&#39;enregistrement
+(avant : une fiche orpheline était créée) ; les lectures d&#39;un tel patient restent une page vide en 200 (reproduit) ;
+(c) <strong>entrées illisibles</strong> : corps, type, système de codage, statut, date, identifiant, <code>centerId</code>, <code>page</code>/<code>size</code>
+absents ou illisibles : 400 stable <code>BAD_REQUEST</code> sans nom de classe interne (avant : 500), et 403 avant 400 pour un profil
+sans droit ; code sans système : 400 ;
+(d) <strong>bornes de colonne</strong> : sévérité 50 caractères, libellé libre et affichage du code 255, code 20 : 400 stable
+(avant : 500) ;
+(e) <strong>diagnostic</strong> : tous les systèmes CIM10, LOINC, ATC et LOCAL sont acceptés avec un simple contrôle de forme (CIM-10
+et LOINC), code mis en majuscules (reproduit) ; l&#39;unicité du diagnostic actif est protégée par un verrou de transaction
+pendant l&#39;enregistrement et la correction, sans contrainte en base ; une écriture qui n&#39;obtient pas le verrou en 5 s
+répond 409 <code>ANTECEDENT_ECRITURE_CONCURRENTE</code> ; jamais d&#39;unicité pour un libellé libre (reproduit) ;
+(f) <strong>correction</strong> : elle remplace diagnostic, libellé, dates, sévérité et note (absents = effacés), ignore le type,
+conserve le statut s&#39;il est absent, ne contrôle pas le futur et peut poser <code>RESOLU</code> sans fin ou rouvrir un antécédent
+(reproduit, à confirmer) ; antécédent introuvable : 400 <code>BAD_REQUEST</code> (reproduit) ;
+(g) <strong>résolution</strong> : la date peut être absente ou future (reproduit) ;
+(h) <strong>suppression</strong> : un antécédent inexistant répond toujours 204 (reproduit) mais n&#39;est plus inscrit au journal
+d&#39;audit ; aucun événement « antécédent ajouté / résolu » n&#39;est publié (reproduit, rien inventé) ; les lectures ne sont
+pas tracées (à décider avec le DPO) ;
+(i) <strong>jour</strong> : la limite « pas dans le futur » lit le jour UTC de la JVM (reproduit, à confirmer : jour du centre).</p>
+</div></div>
 <h2>11.3 Allergies</h2>
 <div class="rule" id="RG-MED-020"><div class="rid">RG-MED-020</div><div class="rtxt"><p>Catégories : médicament, aliment, environnement, biologique ; criticité <code>BASSE</code> ou <code>HAUTE</code> ; type de
 réaction allergie ou intolérance ; vérification <code>SUSPECTEE</code> (défaut),
@@ -3138,7 +3493,27 @@ de constatation par défaut aujourd&#39;hui, jamais future (<code>ALLERGIE_DATE_
 </div></div>
 <div class="rule" id="RG-MED-021"><div class="rid">RG-MED-021</div><div class="rtxt"><p>Une allergie de criticité <strong>haute</strong> doit décrire ses manifestations
 (<code>ALLERGIE_MANIFESTATIONS_REQUISES</code>) ; déclarer ou passer une allergie en criticité haute émet l&#39;événement
-« allergie critique déclarée ». Une consultation dédiée liste les allergies critiques du patient.</p>
+« allergie critique déclarée ». Une consultation dédiée liste les allergies critiques du patient. (Reprise DM5 :
+l&#39;événement n&#39;est plus levé, le legacy ne le publiait jamais, voir RG-MED-036 g.)</p>
+</div></div>
+<div class="rule" id="RG-MED-036"><div class="rid">RG-MED-036</div><div class="rtxt"><p><em>Allergies, reprise sur place DM5 (contexte <code>dossier-medical</code>, <code>AllergiesControleur</code>, ADR 0084 ;
+décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent (liste et <code>critiques</code>), le MEDECIN seul écrit ; l&#39;INFIRMIER est refusé partout,
+y compris sur <code>critiques</code> (reproduit, à confirmer : bandeau d&#39;allergie pour l&#39;infirmier ?) ; garde de centre ;
+(b) <strong>patient</strong> : inconnu ou d&#39;un autre centre : 404 <code>PATIENT_INTROUVABLE</code> à la déclaration (avant : fiche orpheline) ;
+lectures : page ou liste vide en 200 (reproduit) ;
+(c) <strong>entrées illisibles</strong> : corps, système de codage, catégorie, criticité, type de réaction, statut, date, identifiant
+absents ou illisibles : 400 stable sans nom de classe interne (avant : 500), 403 avant 400 pour un profil sans droit ;
+code absent : 422 <code>CONCEPT_CODE_REQUIRED</code> (reproduit) ;
+(d) <strong>bornes de colonne</strong> : code de la substance 20 caractères, affichage 255 : 400 (avant : 500) ;
+(e) <strong>déclaration</strong> : aucune unicité, la même substance peut être déclarée plusieurs fois (reproduit, à décider) ;
+(f) <strong>correction</strong> : seuls la criticité (obligatoire), les manifestations (remplacées, même absentes : une criticité basse
+les efface) et le statut (conservé s&#39;il est absent) se corrigent ; substance, catégorie, type et date sont immuables ;
+allergie introuvable : 400 (reproduit) ; écriture concurrente : 409 <code>ALLERGIE_ECRITURE_CONCURRENTE</code> ;
+(g) <strong>bandeau « critiques »</strong> : toute criticité haute, y compris une allergie réfutée (reproduit, à confirmer) ; aucun
+événement « allergie déclarée » ni « allergie critique déclarée » n&#39;est publié (reproduit, rien inventé) ;
+(h) <strong>suppression</strong> : une allergie inexistante répond toujours 204 (reproduit) sans ligne d&#39;audit ; lectures non tracées ;
+codes FHIR d&#39;allergie inchangés (DM8).</p>
 </div></div>
 <h2>11.4 Sérologies</h2>
 <div class="rule" id="RG-MED-030"><div class="rid">RG-MED-030</div><div class="rtxt"><p>Marqueurs : VIH (Ac), AgHBs, AcHBs, AcHBc, AcVHC, ARN VHC, TPHA, CMV IgG/IgM, toxoplasmose IgG/IgM,
@@ -3156,7 +3531,39 @@ résultat de chaque marqueur</strong>.</p>
 <div class="rule" id="RG-MED-033"><div class="rid">RG-MED-033</div><div class="rtxt"><p><strong>Conséquence automatique</strong> : après enregistrement ou correction d&#39;une sérologie, le patient est
 évalué « à risque infectieux » (dernier résultat positif pour AgHBs, anti-VHC,
 ARN VHC ou VIH, RG-PLN-012) et, si besoin, <strong>replacé en salle d&#39;isolement</strong> ou signalé à l&#39;administration
-(RG-PLN-053). Un positif émet l&#39;événement « sérologie positive détectée ».</p>
+(RG-PLN-053), dans la <strong>même transaction</strong> que la sérologie (un patient inconnu du centre ou un verrou non obtenu annule
+aussi la sérologie). Aucun événement « sérologie positive détectée » n&#39;est publié : le legacy le levait sans jamais le
+diffuser et la reprise n&#39;en invente pas (RG-MED-034 e).</p>
+</div></div>
+<div class="rule" id="RG-MED-034"><div class="rid">RG-MED-034</div><div class="rtxt"><p><em>Sérologies, reprise sur place DM4 (contexte <code>dossier-medical</code>, <code>SerologiesControleur</code>, ADR 0083 ;
+décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent (liste, synthèse), le MEDECIN seul écrit (enregistrer, corriger, supprimer) ;
+l&#39;ADMIN ne peut pas écrire ; l&#39;INFIRMIER n&#39;a aucun accès au statut sérologique (reproduit, à confirmer) ; DIRECTION et
+SUPERADMIN 403 <code>ROLE_SCOPE</code> ; garde de centre sur les 5 routes ;
+(b) <strong>entrées illisibles</strong> : corps absent ou mal formé, marqueur ou résultat absent ou inconnu, <code>titre</code> non numérique,
+date illisible ou impossible, identifiant, <code>centerId</code>, <code>page</code>/<code>size</code> illisibles : 400 stable <code>BAD_REQUEST</code> sans nom de
+classe interne (avant : 500, ou le nom d&#39;une classe interne dans le détail), et 403 avant 400 pour un profil sans
+droit ;
+(c) <strong>bornes de colonne</strong> : unité au plus 20 caractères, laboratoire 255, titre arrondi à 3 décimales et d&#39;au plus
+7 chiffres entiers : 400 stable (avant : 500) ; reproduit : titre négatif, prochain contrôle antérieur au prélèvement,
+date très ancienne et conduite sans limite acceptés ;
+(d) <strong>règle de positivité</strong> : seul POSITIF impose une conduite à tenir non blanche (<code>SEROLOGIE_CONDUITE_REQUISE</code>) ;
+DOUTEUX et EN_COURS passent sans conduite (reproduit, à confirmer) ; la règle de risque infectieux de la Planification
+(derniers résultats de AgHBs, anti-VHC, ARN VHC, VIH) et celle de la Direction restent séparées (non unifiées ici) ;
+(e) <strong>événement</strong> : <code>SerologiePositiveDetectee</code> n&#39;est pas publié (reproduit, rien inventé) ;
+(f) <strong>correction</strong> : seuls le résultat et la conduite à tenir se corrigent ; la conduite du corps remplace l&#39;ancienne,
+même absente (reproduit, à confirmer) ; sérologie introuvable (inconnue, d&#39;un autre patient ou d&#39;un autre centre) : 400
+<code>BAD_REQUEST</code> (reproduit) ;
+(g) <strong>suppression</strong> : une sérologie inexistante répond toujours 204 (reproduit) mais n&#39;est plus inscrite au journal
+d&#39;audit <code>SEROLOGIE_SUPPRIMEE</code> ; la suppression ne réévalue pas la place du patient (reproduit) ;
+(h) <strong>lectures</strong> : patient inconnu ou d&#39;un autre centre = page ou liste vide en 200 (reproduit) ; les lectures ne sont
+pas tracées dans le journal d&#39;audit et l&#39;audit des écritures désigne le patient (reproduit, à décider avec le DPO) ;
+(i) <strong>concurrence</strong> : l&#39;unicité (patient, marqueur, date) est protégée par un verrou consultatif de transaction posé
+pendant l&#39;enregistrement, sans contrainte en base (aucune migration) ; une écriture qui n&#39;obtient pas le verrou de la
+sérologie ou du couple en 5 s répond 409 <code>SEROLOGIE_ECRITURE_CONCURRENTE</code> ; ordre global des verrous : centre,
+fiches, <code>app_user</code>, verrous consultatifs ; les doublons déjà en base sont à relever (<code>verifications-production.md</code> §48) ;
+(j) <strong>jour</strong> : la date de prélèvement par défaut et la limite « pas dans le futur » lisent le jour UTC de la JVM, comme
+les demandes d&#39;examen (reproduit, à confirmer : jour du centre).</p>
 </div></div>
 <h2>11.5 Demandes d&#39;examen et observations biologiques</h2>
 <div class="rule" id="RG-MED-040"><div class="rid">RG-MED-040</div><div class="rtxt"><p>Une demande d&#39;examen a une catégorie (biologie, imagerie, fonctionnel, anapath), un caractère urgent
@@ -3164,13 +3571,39 @@ ARN VHC ou VIH, RG-PLN-012) et, si besoin, <strong>replacé en salle d&#39;isole
 patient, centre et catégorie obligatoires (<code>DEMANDE_EXAMEN_CHAMPS_REQUIS</code>) ; date non future
 (<code>DEMANDE_EXAMEN_DATE_FUTURE</code>).</p>
 </div></div>
-<div class="rule" id="RG-MED-040b"><div class="rid">RG-MED-040b</div><div class="rtxt"><p>Chaque ligne d&#39;une demande d&#39;examen exige un code LOINC ou, à défaut, un libellé
-(<code>LIGNE_DEMANDE_EXAMEN_REQUISE</code>).</p>
+<div class="rule" id="RG-MED-040b"><div class="rid">RG-MED-040b</div><div class="rtxt"><p>Chaque ligne d&#39;une demande d&#39;examen exige un code d&#39;examen (nomenclature LOINC, CIM10, ATC ou LOCAL) ou,
+à défaut, un libellé (<code>LIGNE_DEMANDE_EXAMEN_REQUISE</code>).</p>
 </div></div>
 <div class="rule" id="RG-MED-041"><div class="rid">RG-MED-041</div><div class="rtxt"><p><strong>Machine à états</strong> : <code>DEMANDE → PRELEVE → RESULTAT_DISPONIBLE → VALIDE</code> ; <code>ANNULE</code> possible
 <strong>uniquement avant</strong> que le résultat soit disponible ; <code>VALIDE</code> et <code>ANNULE</code> sont
 terminaux. Toute autre transition : <code>DEMANDE_EXAMEN_TRANSITION_INVALIDE</code>. La validation enregistre la conclusion du
 médecin.</p>
+</div></div>
+<div class="rule" id="RG-MED-045"><div class="rid">RG-MED-045</div><div class="rtxt"><p><em>Demandes d&#39;examen, reprise sur place DM3 (contexte <code>dossier-medical</code>, <code>DemandesDExamenControleur</code>,
+ADR 0082 ; décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : le MEDECIN écrit (demander, prélever, résultat disponible, valider, annuler), MEDECIN et ADMIN
+lisent ; l&#39;ADMIN ne peut pas écrire (reproduit, à confirmer) ; tout autre profil 403 ; garde de centre sur les
+6 routes ;
+(b) <strong>patient</strong> : demander un examen pour un patient inconnu ou d&#39;un autre centre est refusé en 404
+<code>PATIENT_INTROUVABLE</code> (avant : demande orpheline) ; la liste d&#39;un patient inconnu reste une page vide en 200 ;
+(c) <strong>introuvable</strong> : une demande inconnue, d&#39;un autre patient ou d&#39;un autre centre reste un 400 <code>BAD_REQUEST</code> (contrat
+conservé, à confirmer) ; une demande dont le statut, la catégorie ou une ligne (nomenclature inconnue, code mal formé)
+est illisible en base est ignorée par la liste (elle ne la casse plus ; avertissement dans le journal avec son seul
+identifiant ; sa transition reste 400 « introuvable ») ; le total de la page compte les demandes aux statut et
+catégorie lisibles, il peut donc dépasser le nombre d&#39;éléments listés (limite consignée) ;
+(d) <strong>entrées illisibles</strong> : corps absent ou mal formé, date illisible, identifiant, <code>centerId</code>, <code>page</code>/<code>size</code>,
+catégorie ou <code>urgent</code> absents, nomenclature inconnue ou absente, texte plus long que sa colonne : 400 stable (avant :
+500), et 403 avant 400 pour un profil sans droit ;
+(e) <strong>codes d&#39;examen</strong> : la nomenclature n&#39;est pas limitée à LOINC (CIM10, ATC, LOCAL acceptés), le code est mis en
+majuscules, seuls CIM10 et LOINC ont un format (422 <code>CONCEPT_CODE_INVALID_*</code>) ; un code blanc est ignoré ; conclusion
+non obligatoire ni contrôlée, prescripteur libre, aucune date minimale, aucune idempotence (reproduit, à confirmer) ;
+(f) <strong>statut</strong> : « résultat disponible » est une action manuelle du médecin ; la saisie d&#39;une observation liée à la
+demande ne change jamais le statut et aucun événement n&#39;est publié (reproduit, à confirmer) ;
+(g) <strong>concurrence</strong> : deux écritures sur la même demande se suivent (verrou de la demande, délai de 5 s sur
+PostgreSQL, au-delà 409 <code>DEMANDE_EXAMEN_ECRITURE_CONCURRENTE</code>) ; une transition ne réécrit plus les lignes ;
+lignes lues dans un ordre déterministe (libellé, code, commentaire, identifiant) ;
+(h) <strong>jour</strong> : date par défaut et limite « pas dans le futur » = jour de la JVM (UTC), reproduit ; audit sous
+<code>PATIENTS_*</code>, lectures non tracées (reproduit, à confirmer DPO).</p>
 </div></div>
 <div class="rule" id="RG-MED-042"><div class="rid">RG-MED-042</div><div class="rtxt"><p>Une <strong>observation biologique</strong> est codée <strong>LOINC</strong> (<code>OBSERVATION_ANALYTE_NON_LOINC</code>), porte une
 valeur <strong>numérique avec unité</strong> (<code>VALEUR_MESUREE_REQUISE</code>,
@@ -3182,10 +3615,53 @@ dérivée d&#39;un bilan.</p>
 <div class="rule" id="RG-MED-043"><div class="rid">RG-MED-043</div><div class="rtxt"><p>Corriger une observation passe son statut à « corrigé » ; une observation <strong>dérivée automatiquement
 d&#39;un bilan est immuable</strong> (<code>OBSERVATION_DERIVEE_IMMUABLE</code>).</p>
 </div></div>
+<div class="rule" id="RG-MED-038"><div class="rid">RG-MED-038</div><div class="rtxt"><p><em>Observations biologiques, reprise sur place DM6 (contexte <code>dossier-medical</code>,
+<code>ObservationsBiologiquesControleur</code>, ADR 0085 ; décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent, le MEDECIN seul écrit (reproduit) ; garde de centre sur les 5 routes ;
+(b) <strong>patient</strong> : enregistrer pour un patient inconnu ou d&#39;un autre centre est refusé en 404 <code>PATIENT_INTROUVABLE</code>
+(avant : observation orpheline) ; la liste d&#39;un patient inconnu reste une page vide en 200 ;
+(c) <strong>entrées illisibles et bornes</strong> : corps absent ou mal formé, date, identifiant, pagination, statut ou système de
+codage inconnu ou absent, valeur au-delà de 10 chiffres entiers et 4 décimales, unité au-delà de 20 caractères, texte
+au-delà de 500, libellé du code au-delà de 255 : 400 stable sans nom de classe interne (avant : 500), et 403 avant 400
+pour un profil sans droit ;
+(d) <strong>correction</strong> : seule la valeur change (code, date, statut et demande du corps sont ignorés) ; une observation
+inconnue, d&#39;un autre patient ou d&#39;un autre centre reste un 400 <code>BAD_REQUEST</code> « Observation introuvable » (contrat
+conservé, à confirmer) ; deux écritures sur la même observation se suivent (délai de 5 s sur PostgreSQL, au-delà 409
+<code>OBSERVATION_ECRITURE_CONCURRENTE</code>) ;
+(e) <strong>suppression</strong> : toujours 204, même sans effet (reproduit), mais une suppression qui n&#39;a rien supprimé n&#39;est plus
+inscrite au journal d&#39;audit ; une observation dérivée d&#39;un bilan reste supprimable (reproduit) ;
+(f) <strong>lecture par demande d&#39;examen</strong> : la demande doit appartenir au centre ET au patient de l&#39;URL, sinon la réponse est
+une liste vide en 200 (avant : les observations de n&#39;importe quel patient de la demande, KB-MED-44) ;
+(g) <strong>reproduit, à confirmer</strong> : aucune règle de plausibilité de valeur, deux envois identiques créent deux
+observations, la référence de demande n&#39;est pas contrôlée à l&#39;écriture et la saisie ne change jamais le statut de la
+demande, aucun événement, jour de la JVM (UTC) pour la limite « pas dans le futur », liste triée du prélèvement le plus
+récent au plus ancien, filtre de code par égalité stricte, page négative = 0, taille nulle ou négative = 20, plafond
+200, lectures non tracées ; une ligne dont le statut, la source ou le système est illisible en base, ou dont la valeur
+numérique n&#39;a pas d&#39;unité, est ignorée par les lectures (avertissement dans le journal avec son seul identifiant).</p>
+</div></div>
 <div class="rule" id="RG-MED-044"><div class="rid">RG-MED-044</div><div class="rtxt"><p>Les <strong>résultats d&#39;analyse</strong> (bilan biologique à colonnes fixes : Hb, Ht, plaquettes, ferritine, CST,
 EPO endogène, urée pré/post, créatinine, Kt/V mensuel, phosphore, calcium,
 PTH, albumine, protéines, CRP) portent une date de prélèvement (aujourd&#39;hui par défaut) ; ils alimentent le suivi de
 l&#39;anémie, l&#39;évaluation KDIGO et les statistiques. La recherche est paginée.</p>
+</div></div>
+<div class="rule" id="RG-MED-039"><div class="rid">RG-MED-039</div><div class="rtxt"><p><em>Analyses, reprise sur place DM6 (contexte <code>dossier-medical</code>, <code>AnalysesControleur</code>, ADR 0085 ;
+décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent et recherchent, le MEDECIN seul écrit (reproduit) ; garde de centre ;
+(b) <strong>patient</strong> : enregistrer pour un patient inconnu ou d&#39;un autre centre est refusé en 404 <code>PATIENT_INTROUVABLE</code> ;
+(c) <strong>modifier n&#39;est plus créer</strong> : une analyse inconnue, d&#39;un autre patient ou d&#39;un autre centre est refusée en 404
+<code>ANALYSE_INTROUVABLE</code> ; elle n&#39;est jamais créée par la modification ni réaffectée à un autre patient ou centre
+(avant : trou de sécurité) ; la modification remplace le bilan en entier (une mesure absente est effacée, la date
+absente redevient le jour) et réinitialise la date de création (reproduit, à confirmer) ;
+(d) <strong>entrées illisibles et bornes</strong> : corps, date, identifiant, pagination, plaquettes hors entier ou en texte, mesure
+au-delà de 36 chiffres entiers et 2 décimales : 400 stable (avant : 500), 403 avant 400 ; la recherche (<code>POST /analyses/search</code>) sans page ni taille : 400 « La page et la taille sont obligatoires », page négative, taille hors de
+1 à 200, patient ou centre absent : 400 <code>VALIDATION_ERROR</code> « Invalid request content. » (reproduit) ;
+(e) <strong>suppression</strong> : toujours 204, même sans effet (reproduit), sans ligne d&#39;audit quand rien n&#39;est supprimé ;
+écriture concurrente : 409 <code>ANALYSE_ECRITURE_CONCURRENTE</code> ;
+(f) <strong>reproduit, à confirmer</strong> : aucune règle de valeur (négative, nulle, démesurée, date dans le futur acceptées),
+plusieurs bilans le même jour, aucun événement, aucune interprétation normal / anormal (elle vit chez les lecteurs :
+suivi de l&#39;anémie, KDIGO, statistiques, export CSV et FHIR, inchangés) ; la recherche est une lecture que le journal
+d&#39;audit inscrit comme une création ; les observations (RG-MED-038) et les analyses sont deux modèles qui coexistent
+sans projection de l&#39;un vers l&#39;autre.</p>
 </div></div>
 <h2>11.6 Ordonnances</h2>
 <div class="rule" id="RG-MED-050"><div class="rid">RG-MED-050</div><div class="rtxt"><p>Une ordonnance exige un patient et un centre (<code>ORDONNANCE_CHAMPS_REQUIS</code>) et au moins <strong>une ligne</strong>
@@ -3230,6 +3706,24 @@ prescription datée au plus tard ce jour-là.</p>
 <div class="rule" id="RG-MED-062"><div class="rid">RG-MED-062</div><div class="rtxt"><p>Un <strong>abord vasculaire</strong> (type, côté, localisation, dates, actif, complications) ne peut être retiré
 avant d&#39;avoir été créé (<code>ABORD_DATE_FIN_ANTERIEURE</code>) ; actif par défaut ; la
 liste est paginée (taille par défaut 20, plafond 200).</p>
+</div></div>
+<div class="rule" id="RG-MED-037"><div class="rid">RG-MED-037</div><div class="rtxt"><p><em>Abords vasculaires, reprise sur place DM5 (contexte <code>dossier-medical</code>, <code>AbordsVasculairesControleur</code>,
+ADR 0084 ; décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN, ADMIN et INFIRMIER lisent (c&#39;est l&#39;infirmier qui ponctionne l&#39;abord), le MEDECIN seul écrit
+(reproduit) ; garde de centre ;
+(b) <strong>patient</strong> : inconnu ou d&#39;un autre centre : 404 <code>PATIENT_INTROUVABLE</code> à l&#39;enregistrement (avant : ligne orpheline) ;
+(c) <strong>le PUT n&#39;est plus un « enregistrer »</strong> : un identifiant inconnu, ou l&#39;abord d&#39;un autre patient ou d&#39;un autre centre,
+est refusé en 404 <code>ABORD_VASCULAIRE_INTROUVABLE</code> ; l&#39;abord n&#39;est jamais créé par un PUT ni réaffecté à un autre patient
+ou centre (avant : trou de sécurité) ;
+(d) <strong>remplacement</strong> : tous les champs sont remplacés (absents = effacés), <code>actif</code> absent = actif (réactive un abord
+terminé), la date d&#39;enregistrement (rendue comme <code>updatedAt</code>) est réécrite (reproduit, à confirmer) ;
+(e) <strong>type libre</strong> : le type est un texte libre obligatoire (vide accepté) ; la Planification n&#39;exige la compétence
+<code>CATHETER</code> que pour <code>KT_AIGU</code> et <code>KT_TUNNELISE</code> en majuscules, abord actif et non terminé (RG-PLN-097, inchangée) ; aucune
+cohérence entre « actif » et la date de fin, aucune limite de date (reproduit, à confirmer : liste fermée partagée) ;
+(f) <strong>entrées illisibles et bornes</strong> : corps, <code>actif</code>, dates, identifiants, pagination illisibles, type absent, type
+au-delà de 20 caractères, côté 10, localisation 255, complications 500 : 400 stable (avant : 500), 403 avant 400 ;
+(g) <strong>suppression</strong> : un abord inexistant répond toujours 204 (reproduit) sans ligne d&#39;audit ; écriture concurrente : 409
+<code>ABORD_VASCULAIRE_ECRITURE_CONCURRENTE</code> ; liste triée de la création la plus récente, les abords sans date en dernier.</p>
 </div></div>
 <div class="rule" id="RG-MED-063"><div class="rid">RG-MED-063</div><div class="rtxt"><p>Le <strong>dossier médical</strong> du patient (néphropathie initiale, date de mise en dialyse, statuts hépatite
 B/C, observation globale, conclusion) est unique par patient (création puis mise
@@ -3341,6 +3835,153 @@ bilan <code>CANDIDAT</code> (défaut), <code>BILAN_EN_COURS</code>, <code>COMPAT
 </div></div>
 <div class="rule" id="RG-MED-095"><div class="rid">RG-MED-095</div><div class="rtxt"><p><strong>Dossier de synthèse greffe</strong> exportable en PDF (receveur + donneurs candidats) pour le centre de
 transplantation (<code>MEDECIN</code>).</p>
+</div></div>
+<div class="rule" id="RG-MED-046"><div class="rid">RG-MED-046</div><div class="rtxt"><p><em>Bilan pré-greffe, reprise sur place DM7 (contexte <code>dossier-medical</code>, <code>BilanPreGreffeControleur</code>, ADR 0086 ;
+décisions déléguées, à confirmer avec les métiers et le DPO)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent, le MEDECIN seul écrit (reproduit) ; garde de centre ;
+(b) <strong>patient</strong> : un patient inconnu ou d&#39;un autre centre est refusé en 404 <code>PATIENT_INTROUVABLE</code> sur toutes les routes du
+bilan, et la lecture n&#39;ouvre alors AUCUN bilan (avant : la lecture écrivait une ligne orpheline) ; pour un patient valide,
+la première lecture ouvre un bilan <code>NON_DEBUTE</code> (la lecture écrit, reproduit, à confirmer) ;
+(c) <strong>un seul bilan par patient</strong> : l&#39;ouverture est sérialisée par un verrou consultatif (aucun changement de schéma) ; un
+doublon déjà présent en base est lu sans erreur (le plus ancien l&#39;emporte, avertissement avec son seul identifiant) ;
+(d) <strong>concurrence</strong> : les écritures du bilan se suivent (délai de 5 s sur PostgreSQL, au-delà 409
+<code>BILAN_PRE_GREFFE_ECRITURE_CONCURRENTE</code>) ; les décisions de RCP ne sont plus perdues ; un statut illisible en base répond
+422 <code>BILAN_PRE_GREFFE_ILLISIBLE</code> ;
+(e) <strong>entrées illisibles et bornes</strong> : corps, statut, avis, date, identifiant absents ou inconnus, groupe sanguin
+au-delà de 5 caractères, typage au-delà de 500, PRA au-delà de 3 chiffres entiers et 2 décimales : 400 stable sans nom de
+classe interne (avant : 500) ; 403 avant 400 pour un profil sans droit ;
+(f) <strong>reproduit, à confirmer</strong> : machine à états (RG-MED-090), dates d&#39;inscription et de greffe réécrites à chaque appel du
+même statut, jour de la JVM (UTC), PUT immunologique et notes qui remplacent tout (champ absent effacé), aucune règle de
+valeur sur le PRA (négatif, supérieur à 100 acceptés), décisions de RCP en doublon et revue antérieure acceptées, audit
+pauvre <code>PATIENTS_*</code>, lectures non tracées, aucun événement ni notification.</p>
+</div></div>
+<div class="rule" id="RG-MED-047"><div class="rid">RG-MED-047</div><div class="rtxt"><p><em>Étapes du bilan, reprise sur place DM7 (<code>EtapesDeBilanControleur</code>, ADR 0086)</em> :
+(a) <strong>droits</strong> : lecture MEDECIN, ADMIN et INFIRMIER ; création, génération et mise à jour MEDECIN et INFIRMIER ;
+suppression MEDECIN seul (reproduit) ;
+(b) <strong>patient</strong> : 404 <code>PATIENT_INTROUVABLE</code> à la création et à la génération ; <strong>une étape inconnue, d&#39;un autre patient ou
+d&#39;un autre centre est refusée en 404 <code>ETAPE_BILAN_INTROUVABLE</code></strong> (avant : 400) ;
+(c) <strong>suppression</strong> : toujours 204, même sans effet (reproduit), sans ligne d&#39;audit quand rien n&#39;est supprimé ;
+(d) <strong>génération</strong> : deux générations simultanées ne doublent plus les étapes (verrou consultatif du patient) ; une ligne
+existante, lisible ou non, n&#39;est jamais recréée ; une écriture qui n&#39;obtient pas le verrou répond 409
+<code>ETAPE_BILAN_ECRITURE_CONCURRENTE</code> ;
+(e) <strong>lecture robuste</strong> : une ligne dont la catégorie ou le statut est illisible en base est ignorée par les lectures
+(avertissement avec son seul identifiant) au lieu de faire échouer toute la liste (avant : 400) ; elle reste supprimable ;
+(f) <strong>entrées et bornes</strong> : catégorie, statut, corps, identifiants illisibles ou absents, libellé au-delà de 255
+caractères : 400 stable (avant : 500) ; 403 avant 400 ;
+(g) <strong>reproduit, à confirmer</strong> : la mise à jour remplace tous les champs, une date de réalisation est acceptée pour tout
+statut, les références d&#39;examen et de sérologie ne sont pas contrôlées, deux étapes identiques sont permises.</p>
+</div></div>
+<div class="rule" id="RG-MED-048"><div class="rid">RG-MED-048</div><div class="rtxt"><p><em>Donneurs vivants, reprise sur place DM7 (<code>DonneursVivantsControleur</code>, ADR 0086)</em> :
+(a) <strong>droits</strong> : MEDECIN et ADMIN lisent, MEDECIN seul écrit (reproduit) ;
+(b) <strong>patient</strong> : 404 <code>PATIENT_INTROUVABLE</code> à l&#39;enregistrement (avant : donneur orphelin ou croisé entre centres) ; <strong>un
+donneur inconnu, d&#39;un autre patient ou d&#39;un autre centre est refusé en 404 <code>DONNEUR_VIVANT_INTROUVABLE</code></strong> (avant : 400) ;
+(c) <strong>suppression</strong> : 204 même sans effet, sans ligne d&#39;audit quand rien n&#39;est supprimé ;
+(d) <strong>concurrence</strong> : 409 <code>DONNEUR_VIVANT_ECRITURE_CONCURRENTE</code> après le délai de 5 s ;
+(e) <strong>entrées et bornes</strong> : lien de parenté, statut de bilan ou crossmatch absents ou inconnus (y compris le crossmatch
+absent à la mise à jour, avant : 500), nom et prénom au-delà de 100 caractères, téléphone de 30, groupe sanguin de 5,
+typage de 500 : 400 stable ; 403 avant 400 ; une ligne illisible en base est ignorée par la liste, reste supprimable et ne
+peut plus être mise à jour (404) ;
+(f) <strong>reproduit, à confirmer</strong> : la mise à jour remplace tout, aucune règle croisée (statut retenu avec crossmatch positif,
+naissance dans le futur, crossmatch positif sans date acceptés).</p>
+</div></div>
+<div class="rule" id="RG-MED-049"><div class="rid">RG-MED-049</div><div class="rtxt"><p><em>Évaluation KDIGO et dossier de synthèse PDF, garde DM7 (<code>EvaluationKdigoControleur</code> depuis DM9, auparavant
+<code>KdigoGreffeRestController</code> ; <code>GreffeExportRestController</code>, ADR 0086)</em> : un patient inconnu ou d&#39;un autre centre est refusé en 404 <code>PATIENT_INTROUVABLE</code>
+(avant : 200 avec une évaluation « non évaluable » ou un PDF sans en-tête) ; aucune lecture n&#39;ouvre de bilan. <strong>Reproduit
+et signalé comme risque clinique prioritaire (KB-MED-94, à confirmer par les médecins et le DPO)</strong> : pour un même
+marqueur sérologique, le résultat le plus ANCIEN l&#39;emporte dans l&#39;évaluation KDIGO ; le calcul de la fonction rénale, du
+risque immunologique et le contenu du PDF sont inchangés ; le PDF reste réservé au MEDECIN.</p>
+</div></div>
+<div class="rule" id="RG-MED-049b"><div class="rid">RG-MED-049b</div><div class="rtxt"><p><em>Dossier médical de base, reprise sur place DM8 (contexte <code>dossier-medical</code>,
+<code>DossierMedicalDeBaseControleur</code>, ADR 0087 ; complète RG-MED-063)</em> :
+(a) <strong>droits</strong> : lecture MEDECIN, ADMIN, INFIRMIER ; écriture (POST et PUT, mêmes effets : remplacement complet) MEDECIN
+seul (reproduit) ; garde de centre inchangée ; 403 avant 400 ;
+(b) <strong>patient</strong> : un patient inconnu ou d&#39;un autre centre est refusé en 404 <code>PATIENT_INTROUVABLE</code> à l&#39;écriture (avant :
+dossier orphelin ou écrit pour un patient d&#39;un autre centre) ; la lecture d&#39;un patient sans dossier reste un 404 sans corps ;
+(c) <strong>un seul dossier par patient</strong> (unicité globale de la base) : un conflit sur l&#39;unicité ou un verrou non obtenu en 5 s
+répond 409 <code>DOSSIER_MEDICAL_ECRITURE_CONCURRENTE</code> (avant : 500) ; un doublon déjà en base est lu sans erreur (le plus ancien) ;
+(d) <strong>bornes</strong> : néphropathie initiale au-delà de 255 caractères, statut d&#39;hépatite B ou C au-delà de 20 : 400
+<code>VALIDATION_ERROR</code> ; date illisible ou inexistante, corps absent ou illisible : 400 <code>BAD_REQUEST</code> (avant : 500) ;
+(e) <strong>reproduit, à confirmer</strong> : les statuts d&#39;hépatite restent libres (aucune énumération) ; audit inégal (seule la lecture
+du dossier est tracée, KB-MED-100).</p>
+</div></div>
+<div class="rule" id="RG-MED-049c"><div class="rid">RG-MED-049c</div><div class="rtxt"><p><em>Export FHIR du dossier, reprise sur place DM8 (<code>ExportFhirControleur</code>, ADR 0087 ; complète RG-MED-102)</em> :
+(a) <strong>patient</strong> : inconnu ou d&#39;un autre centre : 404 <code>PATIENT_INTROUVABLE</code> ; droit MEDECIN seul ; aucune trace d&#39;audit
+(reproduit, KB-MED-100, à confirmer avec le DPO) ;
+(b) <strong>contenu inchangé</strong> : mêmes ressources, mêmes codes, même ordre (Patient, Condition, AllergyIntolerance, Observation,
+MedicationRequest, Procedure) ; abords vasculaires triés de la création la plus récente, ceux sans date en dernier, à
+égalité par horodatage de création puis identifiant (ordre déterministe, prouvé sur PostgreSQL 16) ;
+(c) <strong>RISQUE CLINIQUE reproduit (KB-MED-101, à confirmer par les médecins et le DPO)</strong> : seules les 500 observations et les
+500 ordonnances les plus récentes sont exportées, sans aucune indication de troncature ;
+(d) <strong>ligne illisible, RISQUE CLINIQUE à trancher par les médecins (KB-MED-102)</strong> : une allergie, une observation, un
+antécédent ou une ordonnance dont la lecture échoue est ignorée EN SILENCE pour le destinataire (journalisée côté serveur
+avec son seul identifiant) au lieu de rendre tout l&#39;export impossible (avant : 400 ou 422 pour tout l&#39;export) ; un antécédent au code
+CIM-10 mal formé est exporté tel quel (le module ne valide pas le code à la lecture).</p>
+</div></div>
+<div class="rule" id="RG-MED-049d"><div class="rid">RG-MED-049d</div><div class="rtxt"><p><em>Statistiques médicales du patient et leur export, garde DM8 (<code>stats/medical</code>, <code>stats/export</code>, y compris
+les POST de recherche, ADR 0087 ; complète RG-MED-101)</em> : calculs, clés de tendance en MAJUSCULES, moyennes à 0.0, formats
+CSV et PDF et droits <strong>inchangés</strong> (reproduit) ; date illisible, paramètre <code>format</code> absent ou corps de recherche illisible :
+400 (avant : 500) ; 403 avant 400 ; les POST de recherche restent journalisés <code>PATIENTS_CREATION</code> (libellé trompeur
+reproduit, KB-MED-100, à confirmer avec le DPO).</p>
+</div></div>
+<div class="rule" id="RG-MED-049e"><div class="rid">RG-MED-049e</div><div class="rtxt"><p><em>Indicateurs Direction, période et totaux (<code>/api/v1/direction/indicators</code>, ADR 0087)</em> : <code>from</code> ou <code>to</code>
+illisible : 400 (avant : 500) ; 403 avant 400. <strong>KB-MED-104 CORRIGÉ le 2026-11-09 (lot L1, RG-MED-049g, validation DPO attendue au plus
+tard le 2026-12-15)</strong> : les effectifs inférieurs à 5 sont masqués par centre ; avant, les totaux additionnaient les valeurs non masquées et
+la différence entre le total et les centres visibles révélait l&#39;effectif masqué ; désormais un consolidé est supprimé dès qu&#39;un centre est
+masqué. Seuil, formes, règles de comptage des sérologies et droits inchangés.</p>
+</div></div>
+<div class="rule" id="RG-MED-049f"><div class="rid">RG-MED-049f</div><div class="rtxt"><p><em>Reprise sur place DM9 du calcul médical restant et retrait du module legacy <code>bc-medical</code> (ADR 0101 ; décisions
+déléguées, à confirmer par les médecins, les métiers et le DPO au plus tard le 2026-12-15)</em> :
+(a) <strong>le contexte <code>dossier-medical</code> possède tout le calcul, la plateforme ne garde que la présentation</strong> : statistiques médicales du
+patient (<code>StatistiquesMedicalesPubliees</code> : moyennes, tendances, lignes d&#39;export, poids sec en vigueur ; JSON, CSV et PDF toujours
+rendus par la plateforme, mêmes URL, mêmes rôles), indicateurs cliniques de la Direction (<code>IndicateursCliniquesPublies</code>, déjà masqués
+par <code>EffectifMasque</code>, seuil 5), administrations de l&#39;anémie du Pilotage (<code>TraitementDeLAnemiePublie</code>), dossier de synthèse greffe
+(<code>DossierDeGreffePublie</code>, PDF rendu par la plateforme) ; <strong>plus aucune requête SQL de la plateforme ni d&#39;un autre contexte sur les
+dix-sept tables du Dossier médical</strong> (garde <code>TableDuDossierMedicalTest</code>, liste blanche nominative et datée) ;
+(b) <strong>évaluation KDIGO du candidat</strong> (<code>EvaluationKdigoControleur</code>, contexte <code>dossier-medical</code>, mêmes URL, champs et droits) : cibles
+et seuils de RG-MED-081 et 082 repris à l&#39;identique dans <code>CiblesKdigo</code> et <code>EvaluationKdigoDuCandidat</code> (valeurs <strong>non validées
+médicalement</strong>, à confirmer) ; la garde du patient (404) est dans le cas d&#39;usage, pour l&#39;évaluation comme pour le PDF ; le résultat
+sérologique le plus ancien l&#39;emporte toujours (KB-MED-94, reproduit) ;
+(c) <strong>risque infectieux et cathéters lus par la Planification</strong> (<code>RisquesInfectieuxPublies</code>, <code>AbordsVasculairesPublies</code>, fournis à la
+Planification par la plateforme : <code>RisquesInfectieuxFournis</code>, <code>AbordsVasculairesFournis</code>) : même règle (RG-PLN-012, RG-PLN-097) ;
+<strong>KB-MED-106 CORRIGÉ le 2026-11-09 (lot L2, RG-MED-049h, RISQUE CLINIQUE, validation médicale attendue ≤ 2026-12-15)</strong> : avant, un
+résultat DOUTEUX ou EN_COURS plus récent qu&#39;un positif levait le risque infectieux sans résultat négatif ; désormais seule la dernière
+sérologie conclusive (positive ou négative) décide ; reproduits : à égalité totale le positif l&#39;emporte
+(KB-MED-107), lecture par le centre de la sérologie ou de l&#39;abord et non de la fiche (KB-MED-108) ;
+(d) <strong>reproduits, à confirmer</strong> : KB-MED-104 (CORRIGÉ depuis le 2026-11-09, voir RG-MED-049g), KB-MED-100 (audit inégal, trois <code>POST stats/*/search</code> sans appelant
+frontend conservés), KB-MED-109 (ordre non défini à date égale dans les tendances, le CSV et le PDF ; double comptage des taux de la
+Direction) ;
+(e) <strong>effacement des administrations d&#39;une séance supprimée</strong> fourni à la Séance par le Dossier médical
+(<code>Administrations.effacerCellesDeLaSeance</code>, même unité de travail que la suppression, RG-SEA) ;
+(f) <strong>écart assumé (KB-MED-110, à confirmer avec les métiers)</strong> : le PDF de greffe et l&#39;évaluation KDIGO d&#39;un patient dont une étape
+ou un bilan porte une valeur illisible en base répondaient 400 avec le nom qualifié d&#39;une classe Java du module retiré ; le contexte
+ignore l&#39;étape illisible (le PDF est rendu sans elle, avertissement serveur avec son seul identifiant) et refuse un bilan illisible en
+422 <code>BILAN_PRE_GREFFE_ILLISIBLE</code> (règles de RG-MED-046 d et 047 e) ; de même, une <strong>sérologie ou un antécédent illisible</strong> en base
+(marqueur, résultat, type, statut ou système de codage hors des valeurs connues) faisait échouer tout le PDF et l&#39;évaluation KDIGO en
+400 dans le legacy ; le contexte ignore la ligne illisible (avertissement serveur) et rend les lignes lisibles du patient (règles des
+lecteurs DM4/DM5) ; <strong>à confirmer par les médecins (ignorer ou refuser une sérologie illisible)</strong>.</p>
+</div></div>
+<div class="rule" id="RG-MED-049g"><div class="rid">RG-MED-049g</div><div class="rtxt"><p><em>Suppression complémentaire des consolidés cliniques (KB-MED-104, <strong>CORRIGÉ le 2026-11-09</strong>, lot L1, ADR 0112 ; à la
+demande de l&#39;utilisateur, <strong>validation du DPO attendue au plus tard le 2026-12-15</strong>)</em> : <code>IndicateursCliniquesPublies.desCentres</code> masque par
+centre tout effectif de 1 à 4 (<code>EffectifMasque</code>, zéro reste zéro, 5 exactement publié) ; le <strong>consolidé</strong> de la société est publié nul dès qu&#39;au
+moins un centre porte l&#39;effectif masqué, <strong>champ par champ</strong> : porteurs AgHBs, anti-VHC et VIH positifs, patients en retard d&#39;observance,
+inscrits en liste d&#39;attente, bilans de greffe en cours, greffes de la période ; pour chacun des cinq marqueurs (Kt/V, hémoglobine, phosphore,
+PTH, albumine), les patients évalués et les trois taux consolidés sont supprimés ensemble (le taux d&#39;un total dont un centre est masqué
+permettrait la même déduction). Le booléen « observance en retard » (valeur brute servant l&#39;alerte de la Direction, RG-DIR-105) est inchangé.
+Une société sans centre garde des consolidés à zéro. Avant la correction, les consolidés étaient la somme des valeurs brutes puis masquées.
+<em>Source :</em> <code>CalculerLesIndicateursCliniques</code>, <code>EffectifMasque.consolider</code>. Règle commune : RG-DIR-111.</p>
+</div></div>
+<div class="rule" id="RG-MED-049h"><div class="rid">RG-MED-049h</div><div class="rtxt"><p><em>Dernière sérologie conclusive du risque infectieux (KB-MED-106, <strong>CORRIGÉ le 2026-11-09</strong>, lot L2, ADR 0113 ; à la demande
+de l&#39;utilisateur, RISQUE CLINIQUE, <strong>validation médicale attendue au plus tard le 2026-12-15</strong>)</em> : seul un résultat <strong>POSITIF ou NEGATIF est
+conclusif</strong>. Pour chaque patient et chaque marqueur surveillé (AgHBs, anti-VHC, ARN du VHC, VIH ; centre de la sérologie), le risque est décidé
+par la <strong>dernière sérologie conclusive</strong> (date de prélèvement, puis horodatage de saisie ; à égalité totale le positif l&#39;emporte, KB-MED-107) :
+le patient est à risque si elle est positive. Un résultat DOUTEUX ou EN_COURS plus récent <strong>n&#39;efface plus</strong> un positif antérieur ; un
+DOUTEUX ou EN_COURS seul, ou précédé d&#39;un seul négatif, ne crée aucun risque ; positif, négatif puis douteux : pas de risque ; les marqueurs
+sont indépendants. La casse reste stricte (un résultat ou un marqueur en casse inattendue n&#39;est ni positif ni conclusif). Même règle sur tous les
+chemins qui décident de l&#39;isolement (placement d&#39;un patient, réaffectation après une sérologie, propositions de place, semaine : RG-PLN-012).
+<strong>Effet</strong> : des patients aujourd&#39;hui hors isolement parce qu&#39;un douteux ou un en cours a succédé à un positif y reviennent (liste à faire valider
+par les médecins avant mise en production : détection §75.1 de <code>verifications-production.md</code>). <strong>Non modifié</strong> : la règle propre de l&#39;indicateur
+Direction des porteurs positifs (RG-MED-049e, KB-MED-105), où un douteux plus récent compte encore « non positif ».
+<em>Source :</em> <code>RisqueInfectieux</code>, <code>PatientsARisqueInfectieuxJdbc</code>.</p>
 </div></div>
 <h2>11.11 Constantes, statistiques et export interopérable</h2>
 <div class="rule" id="RG-MED-100"><div class="rid">RG-MED-100</div><div class="rtxt"><p>Les <strong>constantes</strong> (poids, tension, débit, UF, durée) sont une vue longitudinale <strong>en lecture seule</strong>
@@ -3495,8 +4136,8 @@ le même profil (<code>ADMIN</code> ou <code>SECRETAIRE</code> ; <code>MEDECIN</
 <div class="rule" id="RG-FAC-026"><div class="rid">RG-FAC-026</div><div class="rtxt"><p>La <strong>part financière du pilotage de la Direction</strong> (vue d&#39;ensemble, répartition par caisse, absences)
 lit la Facturation par son langage publié <code>SyntheseFinanciereDesCentres</code> : chiffre d&#39;affaires HT et TTC (totaux enregistrés),
 nombre de factures, <strong>encaissé</strong> (somme signée des règlements de toutes dates des factures émises dans la période),
-chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture). <em>Source :</em> <code>ConsulterLaVueDEnsemble</code>,
-<code>ConsulterLaRepartition</code> (contexte Pilotage direction), <code>DirectionAbsencesQueryService</code> (plateforme).</p>
+chiffre d&#39;affaires par mois et HT par caisse (agence figée sur la facture). <em>Source :</em> <code>DirectionDashboardQueryService</code>,
+<code>DirectionBreakdownQueryService</code>, <code>DirectionAbsencesQueryService</code> (plateforme).</p>
 </div></div>
 <h2>12.4 Validation de la facturation</h2>
 <div class="rule" id="RG-FAC-030"><div class="rid">RG-FAC-030</div><div class="rtxt"><p>La <strong>validation</strong> (<code>POST /api/v1/facturation/validate</code>, <code>ADMIN</code> ; le centre du corps doit être celui
@@ -3868,10 +4509,10 @@ du 2026-10-21 (KB-FAC-67).</p>
 <p>Préfixe <code>RG-DIR</code>. La direction voit <strong>tous les centres de sa société</strong> sans jamais voir un patient : le système
 <strong>consolide</strong>, <strong>compare</strong> à la période précédente, <strong>lève des alertes</strong> et <strong>diffuse
 les changements en temps réel</strong>. Sources : <code>DirectionDashboardRestController</code>, <code>DirectionSnapshotRestController</code>,
-<code>AnonymityPolicy</code> (effectifs de la plateforme) et <code>EffectifMasque</code> / <code>IndicateursCliniquesPublies</code> (indicateurs cliniques publiés par le Dossier médical, DM9), <code>Direction*QueryService</code>, <code>DirectionReportPdfService</code>, <code>DirectionAccessGuard</code> et, dans le contexte Pilotage direction,
-<code>PolitiqueDAlertes</code>, <code>RapprochementDesAlertes</code>, <code>EnregistrerLesAlertes</code>, <code>ConsulterLHistoriqueDesAlertes</code>,
-<code>ConstatDesIndicateurs</code>, <code>SuivreLeTempsReel</code>, <code>TempsReelPlanifie</code>, <code>ConsulterLesIndicateursDeLaDirection</code>,
-<code>IndicateursDeLaSociete</code>, <code>StockDuCentre</code>.</p>
+<code>AnonymityPolicy</code>, <code>Direction*QueryService</code>, <code>DirectionReportPdfService</code>, <code>DirectionAccessGuard</code>, et, dans le contexte Pilotage
+direction : <code>PolitiqueDAlertes</code>, <code>RapprochementDesAlertes</code>, <code>EnregistrerLesAlertes</code>, <code>ConsulterLHistoriqueDesAlertes</code>,
+<code>ConstatDesIndicateurs</code>, <code>SuivreLeTempsReel</code>, <code>TempsReelPlanifie</code> (ex <code>DirectionAlertPolicy</code>, <code>DirectionAlertHistoryService</code>,
+<code>DashboardDiff</code>, <code>DirectionRealtimeService</code>, <code>DirectionRealtimeScheduler</code>, retirés).</p>
 </blockquote>
 <h2>13.1 Périmètre et accès</h2>
 <div class="rule" id="RG-DIR-001"><div class="rid">RG-DIR-001</div><div class="rtxt"><p>Les routes <code>/api/v1/direction/**</code> sont réservées au rôle <code>DIRECTION</code>, en <strong>lecture seule</strong> ; la
@@ -4049,7 +4690,7 @@ instantané porte trois horodatages (la capture, la vue d&#39;ensemble, les indi
 </div></div>
 <h2>13.14 Alertes et temps réel (contexte Pilotage direction)</h2>
 <p>Les règles RG-DIR-031, RG-DIR-032 et RG-DIR-100 à RG-DIR-102 sont désormais portées par le contexte <strong>Pilotage direction</strong> (lot C, PD3, ADR 0104)
-sans changement de comportement ; les quatre règles ci-dessous précisent ce que le fonctionnement antérieur faisait sans l&#39;écrire. Tous les
+sans changement de comportement ; les cinq règles ci-dessous (RG-DIR-105 à RG-DIR-109) précisent ce que le fonctionnement antérieur faisait sans l&#39;écrire. Tous les
 points marqués « statu quo » sont <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
 <div class="rule" id="RG-DIR-105"><div class="rid">RG-DIR-105</div><div class="rtxt"><p>La <strong>politique d&#39;alertes</strong> (<code>PolitiqueDAlertes</code>, langage publié <code>AlertesDeLaDirection</code>) lève, par centre et dans cet ordre,
 les six codes de RG-DIR-031. Les seuils de taux sont <strong>inclusifs du minimum</strong> (Kt/V exactement 80 %, hémoglobine exactement 50 % : aucune
@@ -4063,7 +4704,7 @@ les 10 secondes), <strong>seulement si au moins une direction y est abonnée</st
 référence (rien n&#39;est diffusé) ; le dernier abonné parti, le constat est oublié ; un échec de lecture est journalisé et ignoré (rien n&#39;est écrit,
 ni historique ni diffusion) ; un échec de <strong>diffusion</strong> survient après l&#39;écriture de l&#39;historique et le rangement du constat : l&#39;historique
 est écrit et le changement est perdu, jamais rediffusé (statu quo) ; la diffusion est plafonnée à 60 changements. Un signal pour un centre inconnu est ignoré. Le suivi des
-abonnements STOMP reste dans la plateforme (PD5). <em>Source :</em> <code>SuivreLeTempsReel</code>.</p>
+abonnements STOMP reste dans la plateforme (RG-DIR-109). <em>Source :</em> <code>SuivreLeTempsReel</code>.</p>
 </div></div>
 <div class="rule" id="RG-DIR-107"><div class="rid">RG-DIR-107</div><div class="rtxt"><p>L&#39;<strong>historique des alertes</strong> est alimenté par chaque recalcul. L&#39;identité d&#39;une alerte ouverte est le couple <strong>(centre,
 code)</strong>, sans notion de jour : tant qu&#39;elle est ouverte, sa valeur, sa gravité et le nom du centre restent <strong>figés à la première
@@ -4091,7 +4732,7 @@ d&#39;une société pose son constat de référence au prochain passage rapide (
 un redémarrage du serveur oublie les abonnements (les clients se réabonnent). <em>Source :</em> <code>DirectionSubscriptionTracker</code> (plateforme, filet :
 <code>LesAbonnementsDeLaDirectionCharacterizationTest</code>).</p>
 </div></div>
-<h2>13.15Composition des indicateurs de la direction (contexte Pilotage direction)</h2>
+<h2>13.15 Composition des indicateurs de la direction (contexte Pilotage direction)</h2>
 <p>Les indicateurs servis par <code>GET /api/v1/direction/indicators</code> (RG-DIR-030, RG-DIR-031) sont désormais <strong>composés par le contexte Pilotage
 direction</strong> (PD6, ADR 0106, langage publié <code>IndicateursDeLaDirection</code>) à partir des indicateurs cliniques du Dossier médical et du stock du
 Stock, sans changement de comportement. Les points marqués « statu quo » sont <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
@@ -4113,25 +4754,39 @@ synthèse et le temps réel (RG-DIR-106). <em>Source :</em> <code>ConsulterLesIn
 <div class="rule" id="RG-DIR-111"><div class="rid">RG-DIR-111</div><div class="rtxt"><p><em>Suppression complémentaire des totaux (KB-DIR-01 et KB-MED-104, <strong>CORRIGÉS le 2026-11-09</strong>, lot L1, ADR 0112 ; correction
 faite à la demande de l&#39;utilisateur, <strong>validation du DPO attendue au plus tard le 2026-12-15</strong>)</em> : un effectif de patients de 1 à 4 est masqué
 par centre (RG-DIR-030) ; un <strong>total</strong> est désormais publié <strong>nul</strong> (« &lt; seuil » à l&#39;écran et dans le PDF) dès qu&#39;<strong>au moins un</strong> des effectifs
-qui le composent est masqué, de sorte que « total moins somme des centres publiés » ne révèle plus l&#39;effectif masqué. Règle unique appliquée aux
-totaux de patients de la vue d&#39;ensemble, au total par caisse de la répartition (selon les centres qui portent <strong>cette</strong> caisse), aux sept effectifs
-cliniques consolidés (RG-MED-049g) et, pour chaque marqueur, aux patients évalués et aux taux consolidés, ainsi qu&#39;au rapport PDF (synthèse, « Total société »,
-total de chaque caisse, qualité des soins). Zéro reste zéro ; un effectif de 5 exactement n&#39;est pas masqué ; une société à un seul centre masqué n&#39;a pas de
-total. Les séances, le chiffre d&#39;affaires, les factures et les administrations sont inchangés. <strong>Instantanés déjà figés</strong> (RG-DIR-090) : ils sont
-<strong>masqués à la lecture</strong> (y compris pour le rapport PDF d&#39;un instantané ancien) sans <strong>jamais réécrire</strong> leur contenu stocké. <strong>Résiduels
-non traités (DPO)</strong> : effectif d&#39;un centre moins la somme de sa ventilation par sexe, âge ou caisse ; pourcentages cliniques d&#39;un petit échantillon ; une
-société dont un centre est petit n&#39;a plus jamais de total patients (effet voulu).</p>
+qui le composent est masqué, de sorte que « total moins somme des centres publiés » ne révèle plus l&#39;effectif masqué. Règle unique appliquée à :
+<code>totaux.patients</code> et <code>totaux.patientsSousKt</code> de la vue d&#39;ensemble ; <code>caisseTotaux[].patients</code> de la répartition (un total par caisse, selon les
+centres qui portent <strong>cette</strong> caisse) ; les sept effectifs cliniques consolidés (RG-MED-049g) et, pour chacun des cinq marqueurs, les patients
+évalués <strong>et</strong> les taux consolidés ; la synthèse, la ligne « Total société » et le total de chaque caisse du rapport PDF ; la qualité des soins
+du rapport. Zéro reste zéro ; un effectif de 5 exactement n&#39;est pas masqué ; une société à un seul centre masqué n&#39;a pas de total. Les séances,
+le chiffre d&#39;affaires, les factures et les administrations (RG-DIR-030) ne sont pas des effectifs de patients : inchangés. <strong>Instantanés déjà
+figés</strong> (RG-DIR-090) : ils contiennent des totaux bruts d&#39;avant la correction ; ils sont <strong>masqués à la lecture</strong> (règle relue du JSON publié :
+total nul si une valeur de centre de la même colonne est nulle, y compris pour le rapport PDF d&#39;un instantané ancien) sans <strong>jamais réécrire</strong>
+<code>direction_snapshot.payload</code> ; un instantané capturé après la correction est déjà conforme. <strong>Résiduels de confidentialité non traités (DPO)</strong> :
+effectif d&#39;un centre moins la somme de sa ventilation sexe, âge ou caisse (une seule cellule masquée se déduit de l&#39;effectif publié du centre) ;
+pourcentages cliniques d&#39;un petit échantillon ; une société dont un centre est petit n&#39;a plus jamais de total patients (effet voulu).
+<strong>Précision du lot L8 (ADR 0120, revue L1-L2)</strong> : « corrigé » ne vaut que pour les <strong>totaux</strong> ; le recoupement « effectif réel d&#39;un centre moins la
+ventilation publiée » reste un <strong>résiduel OUVERT</strong>, <strong>condition de mise en production avec avis du DPO</strong> (2026-12-15). La règle a une seule
+définition dans le domaine (<code>SeuilDAnonymat.totalPublie</code> sur effectifs bruts ; <code>totalPublieDepuis</code> en est la lecture sur valeurs déjà publiées, test
+de parité) ; un champ absent ou illisible d&#39;un centre d&#39;un instantané figé est lu « masqué » (le total est supprimé : choix prudent, le payload
+figé ne sert plus de preuve du total brut) ; dans le PDF, le total d&#39;une caisse sans code et celui d&#39;une caisse au code vide se comparent à la
+même clé (code nul ou « — » = vide). <strong>Question ouverte médecins</strong> : <code>porteursPositifs</code> (RG-DIR-110, <code>MAX(date)</code>) peut différer de
+l&#39;isolement (RG-PLN-012, dernier résultat conclusif) ; règle NON changée.
+<em>Source :</em> <code>BilanDuCentre.consolider</code>, <code>RepartitionDeLaSociete</code> (<code>CaisseDeLaSociete</code>), <code>SeuilDAnonymat.totalPublie</code>, <code>SeuilDAnonymat.totalPublieDepuis</code>,
+<code>MasqueDesTotauxFiges</code>, <code>ConstituerLeRapportDeSynthese</code>.</p>
 </div></div>
 <h2>13.16 Qualité d&#39;API, horloge et âge (lot L6, 2026-11-10, ADR 0119)</h2>
 <p>Corrections faites à la demande de l&#39;utilisateur, <strong>à confirmer métiers / DPO au plus tard le 2026-12-15</strong>.</p>
 <div class="rule" id="RG-DIR-112"><div class="rid">RG-DIR-112</div><div class="rtxt"><p><em>Erreurs de requête de l&#39;API de la Direction (KB-DIR-02 et KB-DIR-06 e, <strong>CORRIGÉS le 2026-11-10</strong>)</em> : une valeur illisible d&#39;un
-paramètre (date <code>from</code> ou <code>to</code>, entier <code>limit</code>) répond <strong>400 <code>BAD_REQUEST</code></strong> (« Paramètre illisible : &lt;nom&gt; ») sur <strong>toutes</strong> les routes de la
+paramètre (date <code>from</code> ou <code>to</code>, entier <code>limit</code>) répond <strong>400 <code>BAD_REQUEST</code></strong> (« Paramètre illisible : <nom> ») sur <strong>toutes</strong> les routes de la
 Direction : <code>/overview</code>, <code>/breakdown</code>, <code>/report</code>, <code>/gmao</code>, <code>/alerts/history</code>, <code>/indicators</code>, <code>/absences</code>, <code>/stock-groupes</code>, <code>/capacite</code> (avant,
 500 sur les cinq premières). Sur les routes ajoutées, le <strong>403</strong> d&#39;un profil sans droit passe <strong>avant</strong> le 400. Une <strong>méthode non supportée</strong>
 sous <code>/api/v1/direction/</code> répond <strong>405 <code>METHOD_NOT_ALLOWED</code></strong> avec l&#39;en-tête <code>Allow</code>, sans le message technique du serveur (avant, 500) ; le reste
 de l&#39;application garde sa réponse. Un instantané mensuel dont le contenu stocké est <strong>illisible</strong> répond <strong>422 <code>INSTANTANE_ILLISIBLE</code></strong> à la
 lecture (route de lecture, rapport PDF du mois, capture d&#39;un mois déjà figé), sans détail technique ; il <strong>reste listé</strong> (la liste n&#39;ouvre pas le
-contenu) et la donnée n&#39;est jamais réécrite (sa réparation est hors périmètre). <em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>
+contenu) et la donnée n&#39;est jamais réécrite (sa réparation est hors périmètre). <strong>Résiduel documenté (L8, ADR 0120)</strong> : le 405 n&#39;est pas précédé du
+contrôle des droits (l&#39;erreur survient avant le choix du contrôleur) : un profil authentifié sans droit reçoit 405 + <code>Allow</code>, jamais 403 ; sans
+authentification, 401 comme partout (<code>anyRequest().authenticated()</code>). <em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>
 (et son gestionnaire de méthode non supportée), <code>InstantanesMensuelsPublies</code>, <code>ErreursDuPilotageAdvice</code>.</p>
 </div></div>
 <div class="rule" id="RG-DIR-113"><div class="rid">RG-DIR-113</div><div class="rtxt"><p><em>Horloge et âge (KB-DIR-03 et KB-DIR-08, <strong>CORRIGÉS le 2026-11-10</strong>)</em> : « aujourd&#39;hui » du Pilotage (fin de période par défaut,
@@ -4143,7 +4798,10 @@ centre »</strong> : une société peut porter des centres de fuseaux différent
 société n&#39;est pas tenté ici. Les tranches d&#39;âge de la répartition (et du rapport) sont l&#39;âge révolu au <strong>dernier jour de la période demandée</strong>
 (avant, au jour de l&#39;appel, même pour une période passée) : une naissance postérieure à ce jour ou absente reste <code>INCONNU</code>. Le <strong>sexe</strong> reste lu à
 l&#39;initiale (<code>M</code>, <code>F</code>, la casse et les blancs ignorés ; <code>&#39;&#39;</code>, <code>X</code> et absent = « autre ») : tolérance existante, <strong>documentée sans changement</strong>
-(KB-DIR-08, à confirmer métiers). <em>Source :</em> <code>HorlogeDuPilotage</code>, <code>PilotageDirectionConfiguration</code>, <code>CaptureDuMoisEcoulePlanifiee</code>,
+(KB-DIR-08, à confirmer métiers). <strong>Notes L8 (ADR 0120)</strong> : (1) les tranches d&#39;âge d&#39;un instantané déjà figé gardent « l&#39;âge au jour de la capture »,
+celles des instantanés nouveaux sont « à la fin de période » : le contenu figé n&#39;a pas de marqueur de version, ne pas comparer les deux
+populations (question ouverte Direction) ; (2) la route <code>/gmao</code> calcule encore sa fin de période par défaut avec le fuseau de la JVM
+(<code>DirectionGmaoQueryService</code>) : résiduel déclaré, à traiter avec le fuseau par centre. <em>Source :</em> <code>HorlogeDuPilotage</code>, <code>PilotageDirectionConfiguration</code>, <code>CaptureDuMoisEcoulePlanifiee</code>,
 <code>ConsulterLaRepartition</code>, <code>TrancheDAge</code>.</p>
 </div></div>
 </section>
@@ -4312,7 +4970,7 @@ est journalisée (fichier, lignes, créations, mises à jour, anomalies, auteur,
 <p>Préfixe <code>RG-NOT</code>. Ce chapitre <strong>recense, en un seul endroit, tout ce que le système surveille et signale</strong>, avec son
 déclencheur, son destinataire et le chapitre qui en détaille la règle. Sources :
 <code>NotificationService</code>, <code>WebSocketStockEventPublisher</code>, <code>WebSocketInventaireEventPublisher</code>,
-<code>WebSocketDirectionPublisher</code>, <code>SuivreLeTempsReel</code> (Pilotage direction), schedulers.</p>
+<code>WebSocketDirectionPublisher</code>, <code>SuivreLeTempsReel</code> (Pilotage direction, RG-DIR-106), schedulers.</p>
 </blockquote>
 <h2>15.1 Mécanisme</h2>
 <div class="rule" id="RG-NOT-001"><div class="rid">RG-NOT-001</div><div class="rtxt"><p>Les évènements d&#39;un centre sont poussés sur <code>/topic/center/{centerId}/events</code> (STOMP sur <code>/ws</code>) avec
@@ -4822,7 +5480,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PatientStatsRestController</code></td>
 <td><code>/api/v1/patients/.../stats</code></td>
 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> (export <code>ADMIN</code>)</td>
-<td>RG-MED-101</td>
+<td>RG-MED-101, 049d</td>
 </tr>
 <tr>
 <td><code>CahierDialyseRestController</code></td>
@@ -4855,34 +5513,52 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-PEC-010</td>
 </tr>
 <tr>
+<td><code>SeancesControleur</code></td>
+<td><code>POST /api/v1/seances</code>, <code>POST /api/v1/seances/scan</code>, <code>GET /api/v1/seances/{id}</code>, <code>GET /api/v1/seances</code> (module <code>seance</code>, SE1)</td>
+<td><code>ADMIN</code>, <code>INFIRMIER</code> (création), <code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code> (scan), profils de centre (lecture)</td>
+<td>RG-SEA-010 à 013, 029, 048, 052</td>
+</tr>
+<tr>
+<td><code>SeancesControleur</code> (suite)</td>
+<td><code>POST /api/v1/seances/{id}/valider</code>, <code>POST /api/v1/seances/{id}/signer-medecin</code>, <code>POST /api/v1/seances/{id}/deverrouiller-regularisation</code> (module <code>seance</code>, SE2)</td>
+<td><code>ADMIN</code>, <code>INFIRMIER</code> (validation), <code>ADMIN</code>, <code>MEDECIN</code> (signature), <code>ADMIN</code> (déverrouillage)</td>
+<td>RG-SEA-020, 021, 046, 049, 053</td>
+</tr>
+<tr>
+<td><code>SeancesControleur</code> (suite SE3)</td>
+<td><code>POST /api/v1/seances/{id}/consommables</code>, <code>PUT</code> et <code>DELETE /api/v1/seances/{id}/consommables/{articleId}</code>, <code>GET</code> et <code>PUT /api/v1/seances/raccourcis-consommables</code> (module <code>seance</code>, SE3)</td>
+<td><code>ADMIN</code>, <code>INFIRMIER</code> (consommables), <code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code> (lecture des raccourcis), <code>ADMIN</code> (écriture)</td>
+<td>RG-SEA-022, 025, 027, 054</td>
+</tr>
+<tr>
+<td><code>SeancesControleur</code> (suite SE5)</td>
+<td><code>PUT /api/v1/seances/{id}/forfait</code> (module <code>seance</code>, SE5, ADR 0092)</td>
+<td><code>ADMIN</code> seul</td>
+<td>RG-SEA-002, 033, 056</td>
+</tr>
+<tr>
 <td><code>TableauDeBordDesSeancesControleur</code></td>
-<td><code>/api/v1/seances</code></td>
-<td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> selon l&#39;action</td>
-<td>RG-SEA-001 à 044, 051, RG-ABS-060 à 062</td>
+<td><code>GET /api/v1/seances/dashboard</code>, <code>/dashboard/details</code>, <code>/dashboard/export</code> (tableau de bord mensuel, module <code>seance</code>, SE7b, ADR 0095)</td>
+<td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code></td>
+<td>RG-SEA-051, RG-SEA-059, RG-ABS-060 à 062</td>
 </tr>
 <tr>
-<td><code>SeanceSuppressionRestController</code></td>
-<td><code>/api/v1/seances/{id}</code> (<code>DELETE</code>)</td>
-<td><code>ADMIN</code></td>
-<td>RG-SEA-050</td>
+<td><code>SeancesControleur</code> (suite SE6)</td>
+<td><code>PUT /api/v1/seances/{id}</code> (changement de jour), <code>DELETE /api/v1/seances/{id}</code> (suppression motivée) (module <code>seance</code>, SE6, ADR 0093)</td>
+<td><code>ADMIN</code> seul</td>
+<td>RG-SEA-002, 050, 057</td>
 </tr>
 <tr>
-<td><code>SeanceStationRestController</code></td>
-<td><code>/api/v1/seances/raccourcis-consommables</code>, <code>/patient/{id}/recentes</code></td>
-<td><code>ADMIN</code> (écriture), <code>INFIRMIER</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code> selon l&#39;action</td>
-<td>RG-SEA-026 à 029</td>
+<td><code>RoutesResiduellesControleur</code></td>
+<td><code>GET /api/v1/seances/journal</code>, <code>GET</code>, <code>POST</code> et <code>DELETE /api/v1/seances/calendar/...</code>, <code>PUT /api/v1/seances/{id}/volet-medical</code>, <code>GET /api/v1/seances/patient/{id}/recentes</code> (module <code>seance</code>, SE7a, ADR 0094)</td>
+<td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> (journal, calendrier), <code>ADMIN</code> (écriture du calendrier), <code>ADMIN</code>, <code>MEDECIN</code> (volet médical), <code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code> (récentes)</td>
+<td>RG-SEA-026, 028, 029, 031, 058</td>
 </tr>
 <tr>
-<td><code>VoletParamedicalControleur</code> (contexte Séance)</td>
+<td><code>VoletParamedicalControleur</code> (contexte <code>seance</code>, slice SE7f)</td>
 <td><code>/api/v1/seances/{id}/volet-paramedical</code></td>
 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
-<td>RG-SEA-030, 069</td>
-</tr>
-<tr>
-<td><code>VoletMedicalRestController</code></td>
-<td><code>/api/v1/seances/{id}/volet-medical</code></td>
-<td><code>ADMIN</code>, <code>MEDECIN</code></td>
-<td>RG-SEA-031</td>
+<td>RG-SEA-030, RG-SEA-069, 070</td>
 </tr>
 <tr>
 <td><code>MoisDAbsencesControleur</code></td>
@@ -4987,46 +5663,46 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-INF-032, 033</td>
 </tr>
 <tr>
-<td><code>DossierMedicalPatientRestController</code></td>
-<td><code>/api/v1/patients/{id}/dossier-medical</code></td>
-<td><code>MEDECIN</code> (écriture), <code>ADMIN</code>/<code>INFIRMIER</code> (lecture)</td>
-<td>RG-MED-063</td>
+<td><code>DossierMedicalDeBaseControleur</code></td>
+<td><code>/api/v1/patients/{id}/dossier-medical</code> — contexte <code>dossier-medical</code>, slice DM8</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code>/<code>INFIRMIER</code> (lecture) ; garde de centre</td>
+<td>RG-MED-063, 049b</td>
 </tr>
 <tr>
-<td><code>AntecedentRestController</code></td>
-<td><code>/api/v1/patients/{id}/antecedents</code></td>
-<td><code>MEDECIN</code> (écriture), <code>ADMIN</code> (lecture)</td>
-<td>RG-MED-010 à 012</td>
+<td><code>AntecedentsControleur</code></td>
+<td><code>/api/v1/patients/{id}/antecedents</code> — contexte <code>dossier-medical</code>, slice DM5</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture) ; garde de centre</td>
+<td>RG-MED-010 à 012, 035</td>
 </tr>
 <tr>
-<td><code>AllergieRestController</code></td>
-<td><code>/api/v1/patients/{id}/allergies</code></td>
-<td>idem</td>
-<td>RG-MED-020, 021</td>
+<td><code>AllergiesControleur</code></td>
+<td><code>/api/v1/patients/{id}/allergies</code> — contexte <code>dossier-medical</code>, slice DM5</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture, y compris <code>critiques</code>) ; garde de centre</td>
+<td>RG-MED-020, 021, 036</td>
 </tr>
 <tr>
-<td><code>SerologieRestController</code></td>
-<td><code>/api/v1/patients/{id}/serologies</code></td>
-<td>idem</td>
-<td>RG-MED-030 à 033</td>
+<td><code>SerologiesControleur</code></td>
+<td><code>/api/v1/patients/{id}/serologies</code> — contexte <code>dossier-medical</code>, slice DM4</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture) ; garde de centre</td>
+<td>RG-MED-030 à 034</td>
 </tr>
 <tr>
-<td><code>DemandeExamenRestController</code></td>
-<td><code>/api/v1/patients/{id}/demandes-examen</code></td>
-<td>idem</td>
-<td>RG-MED-040 à 041</td>
+<td><code>DemandesDExamenControleur</code></td>
+<td><code>/api/v1/patients/{id}/demandes-examen</code> — contexte <code>dossier-medical</code>, slice DM3</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture) ; garde de centre</td>
+<td>RG-MED-040, 040b, 041, 045</td>
 </tr>
 <tr>
-<td><code>ObservationBiologiqueRestController</code></td>
-<td><code>/api/v1/patients/{id}/observations</code></td>
-<td>idem</td>
-<td>RG-MED-042, 043</td>
+<td><code>ObservationsBiologiquesControleur</code></td>
+<td><code>/api/v1/patients/{id}/observations</code> — contexte <code>dossier-medical</code>, slice DM6</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture) ; garde de centre</td>
+<td>RG-MED-042, 043, 038</td>
 </tr>
 <tr>
-<td><code>ResultatAnalyseRestController</code></td>
-<td><code>/api/v1/patients/{id}/analyses</code></td>
-<td>idem</td>
-<td>RG-MED-044</td>
+<td><code>AnalysesControleur</code></td>
+<td><code>/api/v1/patients/{id}/analyses</code>, <code>/api/v1/patients/analyses/search</code> — contexte <code>dossier-medical</code>, slice DM6</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture et recherche) ; garde de centre</td>
+<td>RG-MED-044, 039</td>
 </tr>
 <tr>
 <td><code>OrdonnancesControleur</code></td>
@@ -5041,10 +5717,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-060, 061, 053, 054</td>
 </tr>
 <tr>
-<td><code>AbordVasculaireRestController</code></td>
-<td><code>/api/v1/patients/{id}/abords-vasculaires</code></td>
-<td><code>MEDECIN</code> (écriture)</td>
-<td>RG-MED-062</td>
+<td><code>AbordsVasculairesControleur</code></td>
+<td><code>/api/v1/patients/{id}/abords-vasculaires</code> — contexte <code>dossier-medical</code>, slice DM5</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code>/<code>INFIRMIER</code> (lecture) ; garde de centre</td>
+<td>RG-MED-062, 037</td>
 </tr>
 <tr>
 <td><code>ConstantesControleur</code></td>
@@ -5077,40 +5753,40 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-MED-080, 081</td>
 </tr>
 <tr>
-<td><code>EvaluationKdigoControleur</code> (contexte <code>dossier-medical</code>, DM9)</td>
-<td><code>/api/v1/patients/{id}/greffe/kdigo</code> — garde de patient 404</td>
+<td><code>EvaluationKdigoControleur</code></td>
+<td><code>/api/v1/patients/{id}/greffe/kdigo</code> — contexte <code>dossier-medical</code>, slice DM9 ; garde de patient 404 dans le cas d&#39;usage</td>
 <td><code>MEDECIN</code>, <code>ADMIN</code></td>
 <td>RG-MED-082, 049, 049f</td>
 </tr>
 <tr>
-<td><code>BilanPreGreffeRestController</code></td>
-<td><code>/api/v1/patients/{id}/greffe/bilan</code></td>
-<td><code>MEDECIN</code> (écriture)</td>
-<td>RG-MED-090 à 092</td>
+<td><code>BilanPreGreffeControleur</code></td>
+<td><code>/api/v1/patients/{id}/greffe/bilan</code> — contexte <code>dossier-medical</code>, slice DM7</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture) ; garde de centre</td>
+<td>RG-MED-090 à 092, 046</td>
 </tr>
 <tr>
-<td><code>EtapeBilanPreGreffeRestController</code></td>
-<td><code>/api/v1/patients/{id}/greffe/etapes</code></td>
-<td><code>MEDECIN</code>, <code>INFIRMIER</code></td>
-<td>RG-MED-093</td>
+<td><code>EtapesDeBilanControleur</code></td>
+<td><code>/api/v1/patients/{id}/greffe/etapes</code> — contexte <code>dossier-medical</code>, slice DM7</td>
+<td><code>MEDECIN</code>, <code>INFIRMIER</code> (création, génération, mise à jour), <code>MEDECIN</code> (suppression), lecture <code>MEDECIN</code>/<code>ADMIN</code>/<code>INFIRMIER</code> ; garde de centre</td>
+<td>RG-MED-093, 047</td>
 </tr>
 <tr>
-<td><code>DonneurVivantRestController</code></td>
-<td><code>/api/v1/patients/{id}/greffe/donneurs</code></td>
-<td><code>MEDECIN</code> (écriture)</td>
-<td>RG-MED-094</td>
+<td><code>DonneursVivantsControleur</code></td>
+<td><code>/api/v1/patients/{id}/greffe/donneurs</code> — contexte <code>dossier-medical</code>, slice DM7</td>
+<td><code>MEDECIN</code> (écriture), <code>MEDECIN</code>/<code>ADMIN</code> (lecture) ; garde de centre</td>
+<td>RG-MED-094, 048</td>
 </tr>
 <tr>
 <td><code>GreffeExportRestController</code></td>
-<td><code>/api/v1/patients/{id}/greffe/export-pdf</code></td>
+<td><code>/api/v1/patients/{id}/greffe/export-pdf</code> — garde de patient 404 (DM7) par <code>DossierDeGreffePublie</code> (contexte <code>dossier-medical</code>, DM9) ; PDF rendu par la plateforme</td>
 <td><code>MEDECIN</code></td>
-<td>RG-MED-095</td>
+<td>RG-MED-095, 049, 049f</td>
 </tr>
 <tr>
-<td><code>FhirExportRestController</code></td>
-<td><code>/api/v1/patients/{id}/dossier-medical/export-fhir</code></td>
-<td><code>MEDECIN</code></td>
-<td>RG-MED-102</td>
+<td><code>ExportFhirControleur</code></td>
+<td><code>/api/v1/patients/{id}/dossier-medical/export-fhir</code> — contexte <code>dossier-medical</code>, slice DM8</td>
+<td><code>MEDECIN</code> ; garde de centre</td>
+<td>RG-MED-102, 049c</td>
 </tr>
 <tr>
 <td><code>ReferentielStockControleur</code> (contexte <code>stock</code>)</td>
@@ -5308,13 +5984,13 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>DirectionDashboardRestController</code></td>
 <td><code>/api/v1/direction</code></td>
 <td><code>DIRECTION</code></td>
-<td>RG-DIR-001 à 080, 100 à 102, RG-ABS-060 à 062</td>
+<td>RG-DIR-001 à 080, 100 à 103, 112, 113, RG-ABS-060 à 062</td>
 </tr>
 <tr>
 <td><code>DirectionSnapshotRestController</code></td>
 <td><code>/api/v1/direction/snapshots</code></td>
 <td><code>DIRECTION</code></td>
-<td>RG-DIR-090 à 092</td>
+<td>RG-DIR-090 à 092, 104, 112</td>
 </tr>
 <tr>
 <td><code>ReferentielsControleur</code> (contexte <code>organisation</code>, slice O3)</td>
@@ -5347,6 +6023,90 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-REF-004, RG-REF-012</td>
 </tr>
 </tbody></table>
+<p>Sans contrôleur : SE7c1 (ADR 0096) n&#39;ajoute aucune route. Les lectures publiées de la Séance (<code>FacturationDesSeancesPubliee</code>,
+<code>PlacesDesSeancesPubliees</code>) sont appelées par le Stock (traducteurs <code>StatutDesSeancesParLaSeance</code>, <code>PerimetreDesSeancesParLaSeance</code> de la
+plateforme) depuis les routes de sortie pour séances et de consommation de séance déjà listées au chapitre Stock ; règle : RG-SEA-060.
+SE7c2 (ADR 0097, ARGENT) n&#39;ajoute aucune route non plus : les écritures et lectures de la Facturation sur la table des séances (séances à
+facturer, exclusion, réinclusion, forfait imposé, liaison séance -&gt; facture, comptages de la synthèse et du tableau de bord) passent par les
+ports publiés <code>SeancesAFacturerPubliees</code>, <code>ExclusionsEtForfaitsDesSeancesPublies</code>, <code>LiaisonDesSeancesAUneFacturePubliee</code> et
+<code>SeancesDesFacturesPubliees</code> de la Séance, fournis à la Facturation par les traducteurs de la plateforme
+(<code>infrastructure/acl/facturation/</code>) depuis les routes de Facturation déjà listées au chapitre Facturation ; règle : RG-SEA-061.
+Le lot L3 (ADR 0114, 2026-11-09) n&#39;ajoute aucune route non plus : il corrige KB-SEA-72, 73, 74 et 82 dans les mêmes ports publiés (mémoire
+d&#39;exclusion, garde de l&#39;exclusion, liaison à une facture existante du même centre) et pose deux contraintes PostgreSQL <code>NOT VALID</code>
+(migrations V54 clé étrangère <code>seances.facture_id</code>, V55 CHECK du statut) ; règle : RG-SEA-061 (mise à jour).
+Le lot L7 (ADR 0115, 2026-11-09) n&#39;ajoute aucune route non plus : il corrige KB-ORG-09 (un seul sens de « centre actif », Stock compris ;
+migration V56 <code>centers.actif</code> NOT NULL DEFAULT TRUE ; règle RG-STK-061 mise à jour) et KB-ORG-10 (le journal des mouvements lit la salle et le
+créneau dans le centre du mouvement ; règle RG-PAT-035 mise à jour) dans le langage publié <code>organisation.v1</code>.
+SE7d (ADR 0098) n&#39;ajoute aucune route : les lectures des Absences de patients (<code>/api/v1/absences-patients/semaine</code>,
+<code>/{id}/seances-rattrapage</code>, déclaration, rattrapage, annulation, <code>ControleDeNuitDesAbsences</code>), de la Planification
+(<code>/api/v1/planning/semaine</code>, optimisations) et du Dossier médical (<code>/api/v1/patients/{id}/constantes</code>) déjà listées passent par les ports
+publiés <code>SeancesRealiseesPubliees</code>, <code>LiensDExclusionPublies</code>, <code>SeancesRealiseesAvecLeurPlacePubliees</code> (fournis par les traducteurs
+<code>infrastructure/acl/absences/</code> et <code>infrastructure/acl/planification/</code> de la plateforme) et <code>ConstantesDesSeancesPubliees</code> (dépendance
+directe du Dossier médical) ; règles : RG-SEA-062, 063, 064. Lot L5a (ADR 0117, 2026-11-10) : tris déterministes (KB-SEA-77, 78, 79), lien
+d&#39;exclusion bloquant seulement sur une séance <code>ABSENT</code> (KB-SEA-81).
+SE7e (ADR 0099) n&#39;ajoute aucune route : le pilotage de la Direction (<code>/api/v1/direction/overview</code>, <code>/breakdown</code>, <code>/absences</code>, <code>/report</code>,
+<code>/snapshots</code>), les statistiques du patient (<code>/api/v1/patients/{id}/stats/paramedical</code>, <code>/stats/export</code>, recherches), le cahier de dialyse
+(<code>/api/v1/cahier-dialyse/{id}/imprimer</code>, refus <code>CAHIER_VIDE</code>), la reprise de données (<code>/api/v1/admin/migration/batches/{id}/import/seances</code>,
+<code>/cancel</code>) et la suppression d&#39;un forfait (<code>/api/v1/admin/referentials/forfaits/{id}</code>) déjà listés passent par les ports publiés
+<code>SeancesRealiseesDesCentresPubliees</code>, <code>StatistiquesDesSeancesPubliees</code>, <code>SeancesDuCahierPubliees</code>, <code>SeancesDeLaReprisePubliees</code> (seul port
+d&#39;écriture hors de la Séance, réservé à la reprise) et <code>ForfaitsImposesAuxSeancesPublies</code>, injectés directement (la plateforme dépend du
+module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068. Lot L5a (ADR 0117, 2026-11-10) : tri déterministe et clés d&#39;évolution du poids en
+minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87), cahier de dialyse : forfait du référentiel à défaut du code recopié
+(KB-SEA-88), séance annulée n&#39;empêchant plus la reprise (KB-SEA-89). Lot L5b (ADR 0118, 2026-11-10) : un seul prédicat pour la vue d&#39;ensemble, les
+absences et la répartition par caisse, centre payeur borné au centre de la fiche, tri des caisses départagé par le code (KB-DIR-05, KB-SEA-83, 84),
+statistiques des séances réalisées seulement, volet borné au centre, compte entier dans le PDF (KB-SEA-85) ; KB-SEA-75, 80, 90, 91 clos sans
+changement de comportement.
+SE7f (ADR 0100) retire le module legacy <code>bc-seance</code> et ses dix-sept utilisateurs de la plateforme. La route <code>PUT /api/v1/seances/{id}/volet-paramedical</code>
+passe au contrôleur <code>VoletParamedicalControleur</code> du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
+ADR 0116 : fiche vérifiée avant l&#39;écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;
+les lectures que la plateforme fournissait à la Séance (planning, place, forfaits, historique, générateurs, référentiel des forfaits, jour du
+centre, volets) sont reprises mot pour mot dans le module (RG-SEA-070) ; les ports publiés <code>VoletsFournis</code>, <code>PlanningFourni</code>, <code>PlaceFournie</code>,
+<code>ForfaitsFournis</code>, <code>HistoriqueFourni</code>, <code>GenerateursFournis</code>, <code>ReferentielDeForfaitsFourni</code> et <code>JourDuCentreFourni</code> disparaissent du langage
+publié ; restent fournis <code>FichesFournies</code>, <code>DiffusionsFournies</code> (+ <code>voletParamedicalEnregistre</code>), <code>RappelsFournis</code> et <code>SaisiesDeSeanceFournies</code>
+(administrations de traitement seulement). <code>GET /api/v1/patients/{id}/greffe/kdigo</code> lit la dernière créatinine par <code>DerniereCreatininePubliee</code>
+(Dossier médical) et <code>GET /api/v1/direction/capacite</code> calcule la capacité théorique par <code>CapaciteTheoriqueDesCentres</code> (Planification) ;
+règle : RG-SEA-071 (lot L5a, ADR 0117 : départage déterministe à date égale de la dernière créatinine, KB-SEA-96 a ; le zéro est clos sans changement).
+Les 6 lecteurs SQL des tables de la Séance (<code>seances</code>, <code>volet_paramedical</code>, <code>volet_medical</code> depuis SE7f) hors du contexte Séance qui restent
+(Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d, lecteurs Java du pilotage, des statistiques, du cahier, de la reprise et du
+référentiel sur <code>seances</code> : 0 depuis SE7e, fournisseurs de <code>seance.v1</code> et entités JPA : 0 depuis SE7f ; plateforme : l&#39;annulation d&#39;un lot de
+reprise qui lit les volets, le schéma H2 <code>db/schema.sql</code>, 3 scripts de données et l&#39;état Jasper du cahier de dialyse, modèle personnalisable
+gardé avec sa requête, ADR 0099) sont inscrits dans la liste blanche datée de <code>TableDesSeancesTest</code> (revue au plus tard le 2026-12-15, butoir
+propre à chacun). Les 8 lecteurs de <code>resultats_analyses</code> hors du Dossier médical sont inscrits dans <code>TableDesAnalysesTest</code>.
+PD1 et PD4 (ADR 0102, contexte <code>pilotage-direction</code>) n&#39;ajoutent aucune route : <code>/api/v1/direction/societe</code>, <code>/overview</code>, <code>/breakdown</code> et <code>/report</code>
+restent servies par <code>DirectionDashboardRestController</code> (qui garde le jeton et la garde de société, et héberge les routes caractérisées par leurs
+contextes) mais calculent par le langage publié <code>TableauDeBordDeLaDirection</code> et <code>RapportDeSyntheseDeLaDirection</code> du Pilotage direction ;
+<code>DirectionReportPdfService</code> ne fait plus que le rendu HTML vers PDF. Les refus de période (<code>PERIODE_INVALIDE</code>, <code>PERIODE_TROP_LONGUE</code>) sont
+produits par le module (422, mêmes codes) ; règle : RG-DIR-103. PD2 (ADR 0103, lot B) n&#39;ajoute aucune route non plus : <code>/api/v1/direction/snapshots</code>
+reste servie par <code>DirectionSnapshotRestController</code> (jeton, garde de société, rendu PDF) mais lit et fige par le langage publié
+<code>InstantanesMensuelsDeLaDirection</code> du Pilotage direction (règle : RG-DIR-104) ; <code>DirectionSnapshotService</code> et <code>DirectionSnapshotScheduler</code> sont retirés.
+PD3 (ADR 0104, lot C) n&#39;ajoute aucune route non plus : <code>/api/v1/direction/alerts/history</code> reste servie par <code>DirectionDashboardRestController</code>
+mais lit par le langage publié <code>AlertesDeLaDirection</code> ; la politique d&#39;alertes, l&#39;historique et le temps réel (détection, diffusion, cadences)
+sont dans le contexte (règles : RG-DIR-105 à RG-DIR-108), la plateforme gardant le canal STOMP (<code>WebSocketDirectionPublisher</code>), le suivi des
+abonnements (<code>DirectionSubscriptionTracker</code>, règle RG-DIR-109) et les indicateurs ; <code>DirectionAlertPolicy</code>, <code>DirectionAlertHistoryService</code>,
+<code>DirectionRealtimeService</code>, <code>DirectionRealtimePort</code>, <code>DashboardDiff</code> et <code>DirectionRealtimeScheduler</code> sont retirés.
+PD5 (ADR 0105, clôture du Pilotage) ne retire ni n&#39;ajoute aucune classe ni route : elle caractérise le suivi des abonnements STOMP
+(<code>DirectionSubscriptionTracker</code>, restée dans la plateforme avec <code>WebSocketAuthentication</code>), inscrit la liste nominative de ce qui reste dans
+<code>application/direction</code> (rendu PDF, comptes de l&#39;Organisation / IAM, services de lecture d&#39;Absences, Planification, GMAO, Stock, Dossier
+médical : <code>TableDuPilotageTest</code>) et consigne les résiduels PD5-R1 à R6.
+PD6 (ADR 0106, composition des indicateurs) n&#39;ajoute aucune route : <code>/api/v1/direction/indicators</code> reste servie par
+<code>DirectionDashboardRestController</code> mais lit par le langage publié <code>IndicateursDeLaDirection</code> du Pilotage direction (règle : RG-DIR-110) ;
+<code>DirectionIndicatorsQueryService</code> et les trois traducteurs qui le fournissaient au module (instantanés, rapport, temps réel) sont retirés ;
+il ne reste dans <code>application/direction</code> que le rendu PDF, les comptes et les services de lecture des autres contextes.
+Le lot L1 (2026-11-09, ADR 0112) n&#39;ajoute aucune route ni tâche : il change le contenu de <code>/overview</code>, <code>/breakdown</code>, <code>/indicators</code>, <code>/report</code>,
+<code>/snapshots/{mois}</code> et <code>/snapshots/{mois}/report</code> (totaux de patients supprimés dès qu&#39;un centre est masqué, y compris à la relecture d&#39;un
+instantané ancien ; règles : RG-DIR-111 et RG-MED-049g).
+Le lot L6 (2026-11-10, ADR 0119) n&#39;ajoute aucune route ni tâche : une valeur illisible sur les routes <code>/overview</code>, <code>/breakdown</code>, <code>/report</code>, <code>/gmao</code> et
+<code>/alerts/history</code> répond 400, une méthode non supportée sous <code>/api/v1/direction/</code> répond 405, un instantané au contenu illisible répond 422
+<code>INSTANTANE_ILLISIBLE</code> ; « aujourd&#39;hui », le mois écoulé et le cron du 1er du mois suivent le fuseau de référence Africa/Algiers ; les tranches d&#39;âge
+sont celles du dernier jour de la période (règles : RG-DIR-112 et RG-DIR-113).
+Le lot L2 (2026-11-09, ADR 0113) n&#39;ajoute aucune route ni tâche : il change le résultat du risque infectieux lu par la Planification pour
+l&#39;isolement (placement d&#39;un patient, réaffectation après une sérologie, propositions de place, lecture de la semaine) : seule la dernière
+sérologie conclusive (positive ou négative) d&#39;un marqueur décide, un résultat douteux ou en cours plus récent n&#39;efface plus un positif
+(règles : RG-PLN-012 et RG-MED-049h).
+Les tables <code>direction_snapshot</code> et <code>direction_alert_history</code> ont chacune pour seul propriétaire un adaptateur JDBC du module
+(<code>InstantanesMensuelsJdbc</code>, <code>HistoriqueDesAlertesJdbc</code>), inscrits dans <code>TableDuPilotageTest</code>. Depuis SE7e, la
+garde voit les noms de table calculés ou indirects (<code>NomsDeTableCalcules</code>, KB-SEA-92) ; depuis SE7f, les entités JPA (<code>@Table</code>) et les
+<code>CREATE TABLE IF NOT EXISTS</code> (KB-SEA-98).</p>
 <h2>16.2 Tâches planifiées</h2>
 <table>
 <thead>
@@ -5362,9 +6122,9 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-ABS-040 à 046</td>
 </tr>
 <tr>
-<td><code>SeanceRegularisationScheduler</code></td>
+<td><code>RappelDesRegularisationsPlanifie</code></td>
 <td>07:00 chaque jour</td>
-<td>RG-SEA-046</td>
+<td>RG-SEA-046, 055</td>
 </tr>
 <tr>
 <td><code>AuditScheduler</code></td>
@@ -5374,12 +6134,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <tr>
 <td><code>TempsReelPlanifie</code></td>
 <td>1 s et 10 s</td>
-<td>RG-DIR-100, RG-DIR-101</td>
+<td>RG-DIR-100, RG-DIR-101, RG-DIR-106</td>
 </tr>
 <tr>
 <td><code>CaptureDuMoisEcoulePlanifiee</code></td>
-<td>02:30 le 1er du mois</td>
-<td>RG-DIR-090</td>
+<td>02:30 le 1er du mois (fuseau de référence Africa/Algiers, propriété <code>app.pilotage.fuseau-par-defaut</code>)</td>
+<td>RG-DIR-090, RG-DIR-104, RG-DIR-113</td>
 </tr>
 <tr>
 <td><code>ControleDesPeremptionsPlanifie</code></td>

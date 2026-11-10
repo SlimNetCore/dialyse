@@ -26,7 +26,7 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
     /** Centre payeur borné au centre de la fiche (KB-SEA-84, ADR 0118) : une chaîne payeur d'un autre centre tombe sur la caisse vide. */
     private static final String CAISSE_JOIN =
             "LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id "
-                    + "LEFT JOIN agence ag ON ag.id = cp.agence_id "
+                    + "LEFT JOIN agence ag ON ag.id = cp.agence_id AND ag.center_id = cp.center_id "
                     + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id ";
 
     private final JdbcTemplate jdbc;

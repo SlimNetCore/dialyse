@@ -258,7 +258,14 @@ Stock, sans changement de comportement. Les points marqués « statu quo » sont
   `direction_snapshot.payload` ; un instantané capturé après la correction est déjà conforme. **Résiduels de confidentialité non traités (DPO)** :
   effectif d'un centre moins la somme de sa ventilation sexe, âge ou caisse (une seule cellule masquée se déduit de l'effectif publié du centre) ;
   pourcentages cliniques d'un petit échantillon ; une société dont un centre est petit n'a plus jamais de total patients (effet voulu).
-  *Source :* `BilanDuCentre.consolider`, `RepartitionDeLaSociete` (`CaisseDeLaSociete`), `SeuilDAnonymat.totalPublieDepuis`,
+  **Précision du lot L8 (ADR 0120, revue L1-L2)** : « corrigé » ne vaut que pour les **totaux** ; le recoupement « effectif réel d'un centre moins la
+  ventilation publiée » reste un **résiduel OUVERT**, **condition de mise en production avec avis du DPO** (2026-12-15). La règle a une seule
+  définition dans le domaine (`SeuilDAnonymat.totalPublie` sur effectifs bruts ; `totalPublieDepuis` en est la lecture sur valeurs déjà publiées, test
+  de parité) ; un champ absent ou illisible d'un centre d'un instantané figé est lu « masqué » (le total est supprimé : choix prudent, le payload
+  figé ne sert plus de preuve du total brut) ; dans le PDF, le total d'une caisse sans code et celui d'une caisse au code vide se comparent à la
+  même clé (code nul ou « — » = vide). **Question ouverte médecins** : `porteursPositifs` (RG-DIR-110, `MAX(date)`) peut différer de
+  l'isolement (RG-PLN-012, dernier résultat conclusif) ; règle NON changée.
+  *Source :* `BilanDuCentre.consolider`, `RepartitionDeLaSociete` (`CaisseDeLaSociete`), `SeuilDAnonymat.totalPublie`, `SeuilDAnonymat.totalPublieDepuis`,
   `MasqueDesTotauxFiges`, `ConstituerLeRapportDeSynthese`.
 
 ## 13.16 Qualité d'API, horloge et âge (lot L6, 2026-11-10, ADR 0119)
@@ -272,7 +279,9 @@ Corrections faites à la demande de l'utilisateur, **à confirmer métiers / DPO
   sous `/api/v1/direction/` répond **405 `METHOD_NOT_ALLOWED`** avec l'en-tête `Allow`, sans le message technique du serveur (avant, 500) ; le reste
   de l'application garde sa réponse. Un instantané mensuel dont le contenu stocké est **illisible** répond **422 `INSTANTANE_ILLISIBLE`** à la
   lecture (route de lecture, rapport PDF du mois, capture d'un mois déjà figé), sans détail technique ; il **reste listé** (la liste n'ouvre pas le
-  contenu) et la donnée n'est jamais réécrite (sa réparation est hors périmètre). *Source :* `DatesIllisiblesDeLaDirectionAdvice`
+  contenu) et la donnée n'est jamais réécrite (sa réparation est hors périmètre). **Résiduel documenté (L8, ADR 0120)** : le 405 n'est pas précédé du
+  contrôle des droits (l'erreur survient avant le choix du contrôleur) : un profil authentifié sans droit reçoit 405 + `Allow`, jamais 403 ; sans
+  authentification, 401 comme partout (`anyRequest().authenticated()`). *Source :* `DatesIllisiblesDeLaDirectionAdvice`
   (et son gestionnaire de méthode non supportée), `InstantanesMensuelsPublies`, `ErreursDuPilotageAdvice`.
 - **RG-DIR-113** — *Horloge et âge (KB-DIR-03 et KB-DIR-08, **CORRIGÉS le 2026-11-10**)* : « aujourd'hui » du Pilotage (fin de période par défaut,
   RG-DIR-003 ; mois courant et mois écoulé des instantanés, RG-DIR-104 ; capture du 1er du mois à 02:30) est le **jour du fuseau de référence
@@ -283,5 +292,8 @@ Corrections faites à la demande de l'utilisateur, **à confirmer métiers / DPO
   société n'est pas tenté ici. Les tranches d'âge de la répartition (et du rapport) sont l'âge révolu au **dernier jour de la période demandée**
   (avant, au jour de l'appel, même pour une période passée) : une naissance postérieure à ce jour ou absente reste `INCONNU`. Le **sexe** reste lu à
   l'initiale (`M`, `F`, la casse et les blancs ignorés ; `''`, `X` et absent = « autre ») : tolérance existante, **documentée sans changement**
-  (KB-DIR-08, à confirmer métiers). *Source :* `HorlogeDuPilotage`, `PilotageDirectionConfiguration`, `CaptureDuMoisEcoulePlanifiee`,
+  (KB-DIR-08, à confirmer métiers). **Notes L8 (ADR 0120)** : (1) les tranches d'âge d'un instantané déjà figé gardent « l'âge au jour de la capture »,
+  celles des instantanés nouveaux sont « à la fin de période » : le contenu figé n'a pas de marqueur de version, ne pas comparer les deux
+  populations (question ouverte Direction) ; (2) la route `/gmao` calcule encore sa fin de période par défaut avec le fuseau de la JVM
+  (`DirectionGmaoQueryService`) : résiduel déclaré, à traiter avec le fuseau par centre. *Source :* `HorlogeDuPilotage`, `PilotageDirectionConfiguration`, `CaptureDuMoisEcoulePlanifiee`,
   `ConsulterLaRepartition`, `TrancheDAge`.

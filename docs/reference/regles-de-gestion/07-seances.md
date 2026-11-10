@@ -400,13 +400,15 @@
   la seconde attend la première puis écrit) ; si la première tient le verrou plus de 5 s, la seconde répond 409 `ECRITURE_CONCURRENTE`
   (relire puis recommencer), là où le legacy écrivait deux fois sans verrou (deux 200, la dernière écriture écrasait l'autre). La réponse rend `id`, `seanceId`, `updatedAt` ; deux diffusions suivent (volet enregistré
   pour les infirmiers et secrétaires du centre, saisie de l'infirmier de type `PARAMEDICAL` pour les médecins). Le volet est **effacé avec
-  la séance** (RG-SEA-054) et relu par le détail et les séances récentes **au centre de la séance seulement**.
+  la séance** (RG-SEA-054) et relu par le détail et les séances récentes **par la séance** (L8 ; le volet médical : au centre).
   **Corrigé le 2026-11-10 (lot L4, ADR 0116), à confirmer par les métiers au plus tard le 2026-12-15** : (KB-SEA-93) la fiche du patient est
   vérifiée **avant** l'écriture : fiche hors du centre, 400 « Patient introuvable », **rien n'est écrit ni diffusé** (avant : le volet était écrit
   puis la réponse échouait) ; une mesure refusée (422) passe toujours avant ; (KB-SEA-94) le volet d'une séance est cherché **par la séance** :
   un volet posé sous un autre centre est **remplacé** (200) sans changer son centre, au lieu de bloquer toute saisie (500 `DATA_ACCESS_ERROR`) ;
-  le détail de la séance continue de ne relire que les volets du centre de la séance, la réparation du centre des volets restant une décision
-  manuelle du responsable des données (jamais automatique) ; (KB-SEA-99) un corps illisible ou absent, un champ mal typé (durée en texte ou hors
+  **depuis le lot L8 (ADR 0120)** le détail de la séance et les séances récentes relisent le volet paramédical **par la séance, comme la saisie**
+  (la séance est déjà bornée au centre) : l'utilisateur revoit ce qu'il vient d'enregistrer, même si le volet est resté posé sous un autre centre ;
+  le volet médical reste borné au centre ; la réparation du centre des volets reste une décision manuelle du responsable des données (jamais
+  automatique, `verifications-production.md` §78, prérequis 78.1) ; (KB-SEA-99) un corps illisible ou absent, un champ mal typé (durée en texte ou hors
   entier) ou un identifiant de séance illisible répondent **400 `BAD_REQUEST`** sans message technique (avant : 500 `INTERNAL_ERROR`), le 403
   restant prioritaire pour un profil sans droit.
   *Source :* `VoletParamedical`, `MesuresDeSeance`, `Poids`, `TensionArterielle`, `Seance.exigerUnVoletParamedical`,

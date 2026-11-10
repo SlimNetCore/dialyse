@@ -63,8 +63,14 @@ class PilotageEtRapportsDesSeancesEnMemoireContratTest extends PilotageEtRapport
     }
 
     @Override
-    protected void prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
-        seances.prescription(centre, patient, date, poidsSec, majLe);
+    protected void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
+        seances.prescription(id, centre, patient, date, poidsSec, majLe);
+    }
+
+    @Override
+    protected void payeurDontLAgenceEstDUnAutreCentre(UUID payeur, UUID caisse, UUID centreDuPayeur, UUID centreDeLAgence, String codeCaisse,
+                                                      String nomCaisse) {
+        seances.payeurDontLAgenceEstDUnAutreCentre(payeur, centreDuPayeur, centreDeLAgence, codeCaisse, nomCaisse);
     }
 
     @Override

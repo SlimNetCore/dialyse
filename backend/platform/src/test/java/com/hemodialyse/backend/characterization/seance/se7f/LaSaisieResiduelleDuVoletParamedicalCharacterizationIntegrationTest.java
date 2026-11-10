@@ -57,7 +57,7 @@ class LaSaisieResiduelleDuVoletParamedicalCharacterizationIntegrationTest extend
     }
 
     @Test
-    void le_detail_de_la_seance_relit_les_volets_au_centre_de_la_seance_seulement() throws Exception {
+    void le_detail_de_la_seance_relit_les_volets_le_paramedical_par_la_seance_comme_la_saisie_et_le_medical_au_centre() throws Exception {
         UUID patient = patientSe1(CENTRE_A, "PAT_A");
         UUID seance = seanceEnBase(CENTRE_A, patient, "SEANCE_A", fixe(10), "VALIDEE");
         voletParamedical(CENTRE_B, seance, "80.00", "77.50", "140/90", "1500");
@@ -74,6 +74,6 @@ class LaSaisieResiduelleDuVoletParamedicalCharacterizationIntegrationTest extend
         Resp apres = doGet(detailApi(seance, CENTRE_A), infirmierA());
         m.put("03 volets du detail quand les deux volets sont sous le centre A", Map.of("paramedical", corps(apres).path("paramedical"),
                 "medical", corps(apres).path("medical")));
-        arbre("detail_volets_au_centre", m);
+        arbre("detail_volets_au_centre_nouveau_code", m);
     }
 }

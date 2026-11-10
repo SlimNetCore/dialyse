@@ -21,6 +21,16 @@ public final class SeuilDAnonymat {
     }
 
     /**
+     * LA règle de suppression complémentaire (KB-DIR-01, revue L8) sur des effectifs BRUTS : le total publié est {@code null} si le total
+     * lui-même ou l'un de ses composants est masqué, sinon le total. {@link #totalPublieDepuis} en est la lecture sur des valeurs déjà
+     * masquées (un composant publié {@code null} est un composant masqué) ; les deux donnent le même résultat sur un même jeu (test de parité).
+     */
+    public static Long totalPublie(long totalBrut, java.util.Collection<Long> composantsBruts) {
+        boolean composeDeMasques = composantsBruts.stream().anyMatch(c -> c != null && estMasque(c));
+        return composeDeMasques ? null : masquer(totalBrut);
+    }
+
+    /**
      * Suppression complémentaire appliquée à un contenu DÉJÀ publié (instantané mensuel figé avant la correction de KB-DIR-01) : le total
      * est conservé seulement si lui-même et chacun de ses centres sont publiés ; un centre publié {@code null} (masqué) supprime le total.
      * La règle se lit sur les valeurs publiées, sans jamais réécrire le contenu figé.

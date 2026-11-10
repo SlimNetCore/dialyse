@@ -78,7 +78,16 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     protected abstract void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant,
                                   BigDecimal ultrafiltration);
 
-    protected abstract void prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe);
+    /** Un centre payeur du centre {@code centreDuPayeur} dont l'agence (et la caisse) est posée sous un AUTRE centre (L8, KB-SEA-84 : agence bornée). */
+    protected abstract void payeurDontLAgenceEstDUnAutreCentre(UUID payeur, UUID caisse, UUID centreDuPayeur, UUID centreDeLAgence,
+                                                              String codeCaisse, String nomCaisse);
+
+    protected void prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
+        prescription(UUID.randomUUID(), centre, patient, date, poidsSec, majLe);
+    }
+
+    /** Une prescription d'identifiant imposé ({@code majLe} peut être nul : la colonne est nullable). */
+    protected abstract void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe);
 
     protected abstract void forfaitImpose(UUID seance, UUID forfait);
 
@@ -222,6 +231,17 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
                 .extracting(CaisseRealiseePubliee::codeCaisse, CaisseRealiseePubliee::nombre).containsExactly(tuple("", 3L));
     }
 
+    @Test
+    void should_count_a_patient_whose_payer_centre_agency_is_in_another_centre_under_the_empty_fund_l8() {
+        payeurDontLAgenceEstDUnAutreCentre(PAYEUR_A, CAISSE_A, CENTRE_A, CENTRE_B, "CNAS-B", "CNAS du centre B");
+        patient(PA1, CENTRE_A, PAYEUR_A);
+        seance(CENTRE_A, PA1, "2026-02-01", "VALIDEE");
+
+        assertThat(pilotage().parCaisse(List.of(CENTRE_A), le("2026-02-01"), le("2026-02-28")))
+                .as("centre payeur du centre A, agence du centre B : caisse vide (aligné sur la facturation, ag.center_id borné)")
+                .extracting(CaisseRealiseePubliee::codeCaisse, CaisseRealiseePubliee::nombre).containsExactly(tuple("", 1L));
+    }
+
     // ---- E6 à E9 : statistiques du patient
 
     private final Map<String, UUID> stats = new LinkedHashMap<>();
@@ -323,6 +343,23 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
         assertThat(poids.subList(1, 5)).as("la plus ancienne créée d'abord, création inconnue en dernier, identifiant en dernier ressort (KB-SEA-86)")
                 .extracting(l -> texte(l.get("poids_avant_kg"))).containsExactly("71", "72", "73", "74");
         assertThat(tensions.subList(1, 5)).extracting(TensionsDeSeancePubliees::tensionAvant).containsExactly("11/8", "12/8", "13/8", "14/8");
+    }
+
+    @Test
+    void should_pick_the_dry_weight_with_a_known_update_before_an_unknown_one_then_the_highest_identifier_l8() {
+        patient(PA3, CENTRE_A, null);
+        seance(CENTRE_A, PA3, "2026-02-10", "VALIDEE");
+        seance(CENTRE_A, PA3, "2026-04-10", "VALIDEE");
+        // février : mise à jour inconnue (nulle) contre connue : la connue l'emporte, sur H2 comme sur PostgreSQL
+        prescription(UUID.fromString("5e7ec700-0000-0000-0000-0000000000f1"), CENTRE_A, PA3, le("2026-02-01"), d("60.00"), null);
+        prescription(UUID.fromString("5e7ec700-0000-0000-0000-000000000001"), CENTRE_A, PA3, le("2026-02-01"), d("61.00"), DIX_HEURES);
+        // avril : même date, même mise à jour : l'identifiant le plus élevé l'emporte
+        prescription(UUID.fromString("5e7ec700-0000-0000-0000-000000000002"), CENTRE_A, PA3, le("2026-04-01"), d("70.00"), MIDI);
+        prescription(UUID.fromString("5e7ec700-0000-0000-0000-000000000003"), CENTRE_A, PA3, le("2026-04-01"), d("71.00"), MIDI);
+
+        List<Map<String, Object>> lignes = statistiques().evolutionDuPoids(CENTRE_A, PA3, le("2026-02-01"), le("2026-04-30"));
+
+        assertThat(lignes).extracting(l -> texte(l.get("poids_sec_cible_kg"))).containsExactly("61", "71");
     }
 
     private static String texte(Object valeur) {

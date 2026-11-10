@@ -1,0 +1,40 @@
+{
+  "01 statut" : 200,
+  "02 volets du detail quand les deux volets sont sous le centre B" : {
+    "medical" : null,
+    "paramedical" : {
+      "anticoagulant" : null,
+      "debitSangMlMin" : null,
+      "dureeMinutes" : null,
+      "incidents" : null,
+      "poidsApresKg" : 77.5,
+      "poidsAvantKg" : 80.0,
+      "taApres" : null,
+      "taAvant" : "140/90",
+      "typeDialysat" : null,
+      "ultrafiltrationMl" : 1500.0
+    }
+  },
+  "03 volets du detail quand les deux volets sont sous le centre A" : {
+    "medical" : {
+      "ajustementsTherapeutiques" : null,
+      "conclusionMedicale" : null,
+      "examenClinique" : null,
+      "prescription" : "Prescription posee au centre A",
+      "resultatsBiologiques" : null,
+      "toleranceSeance" : null
+    },
+    "paramedical" : {
+      "anticoagulant" : null,
+      "debitSangMlMin" : null,
+      "dureeMinutes" : null,
+      "incidents" : null,
+      "poidsApresKg" : 68.0,
+      "poidsAvantKg" : 70.5,
+      "taApres" : null,
+      "taAvant" : "130/80",
+      "typeDialysat" : null,
+      "ultrafiltrationMl" : 2000.0
+    }
+  }
+}

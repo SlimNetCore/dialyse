@@ -58,13 +58,14 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     private record Fiche(UUID centre, UUID payeur) {
     }
 
-    private record Caisse(UUID centre, String code, String nom) {
+    /** {@code centre} : celui du centre payeur ; {@code centreDeLAgence} : celui de l'agence et de la caisse (L8). */
+    private record Caisse(UUID centre, UUID centreDeLAgence, String code, String nom) {
     }
 
     private record Volet(UUID centre, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, BigDecimal ultrafiltration) {
     }
 
-    private record Prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
+    private record Prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
     }
 
     private final Map<UUID, Ligne> seances = new LinkedHashMap<>();
@@ -82,7 +83,11 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     // ---- semis et inspection
 
     public void payeur(UUID payeur, UUID centre, String codeCaisse, String nomCaisse) {
-        payeurs.put(payeur, new Caisse(centre, codeCaisse, nomCaisse));
+        payeurs.put(payeur, new Caisse(centre, centre, codeCaisse, nomCaisse));
+    }
+
+    public void payeurDontLAgenceEstDUnAutreCentre(UUID payeur, UUID centreDuPayeur, UUID centreDeLAgence, String codeCaisse, String nomCaisse) {
+        payeurs.put(payeur, new Caisse(centreDuPayeur, centreDeLAgence, codeCaisse, nomCaisse));
     }
 
     public void patient(UUID id, UUID centre, UUID payeur) {
@@ -97,8 +102,8 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
         volets.put(seance, new Volet(centre, poidsAvant, poidsApres, tensionAvant, ultrafiltration));
     }
 
-    public void prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
-        prescriptions.add(new Prescription(centre, patient, date, poidsSec, majLe));
+    public void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
+        prescriptions.add(new Prescription(id, centre, patient, date, poidsSec, majLe));
     }
 
     public void forfaitImpose(UUID seance, UUID forfait) {
@@ -153,7 +158,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
             Fiche f = fiches.get(l.patient);
             boolean ficheDuCentre = f != null && f.centre().equals(l.centre);
             Caisse c = ficheDuCentre && f.payeur() != null ? payeurs.get(f.payeur()) : null;
-            if (c != null && !c.centre().equals(l.centre)) c = null;
+            if (c != null && (!c.centre().equals(l.centre) || !c.centreDeLAgence().equals(l.centre))) c = null;
             List<Object> cle = List.of(l.centre, c == null ? "" : c.code());
             n.merge(cle, 1L, Long::sum);
             if (c != null) noms.put(cle, c.nom());
@@ -211,7 +216,10 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     private BigDecimal poidsSec(Ligne l) {
         return prescriptions.stream().filter(p -> p.patient().equals(l.patient) && p.centre().equals(l.centre) && p.poidsSec() != null)
                 .filter(p -> !p.date().isAfter(l.date))
-                .max(Comparator.comparing(Prescription::date).thenComparing(Prescription::majLe)).map(Prescription::poidsSec).orElse(null);
+                .max(Comparator.comparing(Prescription::date)
+                        .thenComparing(Prescription::majLe, Comparator.nullsFirst(Comparator.<Instant>naturalOrder()))
+                        .thenComparing((x, y) -> SeancesRealiseesEtConstantesEnMemoire.enOctetsNonSignes(x.id(), y.id())))
+                .map(Prescription::poidsSec).orElse(null);
     }
 
     @Override

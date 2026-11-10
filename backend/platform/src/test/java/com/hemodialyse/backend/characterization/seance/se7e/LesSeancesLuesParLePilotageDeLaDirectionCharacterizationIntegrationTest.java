@@ -161,7 +161,7 @@ class LesSeancesLuesParLePilotageDeLaDirectionCharacterizationIntegrationTest ex
         m.put("caisses (triees par le test)", caisses);
         m.put("caisseTotaux (tries par le test)", totaux);
         m.put("vue d'ensemble sur la meme periode (meme predicat : la seance elle-meme, KB-DIR-05 et KB-SEA-83 corriges)", seancesDeLaVue(doGet(DIRECTION_API + "/overview" + chemin, directionSe7e())));
-        arbre("repartition_par_caisse", m);
+        arbre("repartition_par_caisse_nouveau_code", m);
     }
 
     private UUID payeur(UUID centre, String code, String nom) {

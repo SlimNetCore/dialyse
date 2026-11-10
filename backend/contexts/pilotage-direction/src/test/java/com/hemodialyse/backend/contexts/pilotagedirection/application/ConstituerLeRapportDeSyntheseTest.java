@@ -204,6 +204,28 @@ class ConstituerLeRapportDeSyntheseTest {
     }
 
     @Test
+    void le_total_d_une_caisse_sans_code_est_masque_comme_celui_d_une_caisse_au_code_vide_si_une_cellule_l_est_l8() {
+        var centres = List.of(new RepartitionParSexe(A, "Annaba", 6L, 0L, 0L), new RepartitionParSexe(B, "Blida", 6L, 0L, 0L));
+        // Ancien instantané : code nul (et non vide) sur la cellule masquée et sur le total, total brut 12 porté par la source.
+        var sansCode = new Repartition(SOCIETE, DEBUT, FIN, OffsetDateTime.parse("2026-04-01T00:00:00Z"), 5, centres, List.of(),
+                List.of(new CaisseDuCentre(A, "Annaba", null, null, null, 4L, new BigDecimal("10.00")),
+                        new CaisseDuCentre(B, "Blida", null, null, 9L, 4L, new BigDecimal("10.00"))),
+                List.of(new CaisseDeLaSociete(null, null, 12L, 8L, new BigDecimal("20.00"))), List.of());
+        var videAussi = new Repartition(SOCIETE, DEBUT, FIN, OffsetDateTime.parse("2026-04-01T00:00:00Z"), 5, centres, List.of(),
+                List.of(new CaisseDuCentre(A, "Annaba", "", "", null, 4L, new BigDecimal("10.00")),
+                        new CaisseDuCentre(B, "Blida", "", "", 9L, 4L, new BigDecimal("10.00"))),
+                List.of(new CaisseDeLaSociete("", "", 12L, 8L, new BigDecimal("20.00"))), List.of());
+
+        var totalSansCode = cas(null, SANS_INDICATEUR).constituer(new SourceDuRapport("t", MAINTENANT.atOffset(ZoneOffset.UTC),
+                vue(List.of(), null, List.of()), null, sansCode)).repartitions().caisses().lignes().getFirst().totalPatients();
+        var totalCodeVide = cas(null, SANS_INDICATEUR).constituer(new SourceDuRapport("t", MAINTENANT.atOffset(ZoneOffset.UTC),
+                vue(List.of(), null, List.of()), null, videAussi)).repartitions().caisses().lignes().getFirst().totalPatients();
+
+        assertThat(totalCodeVide).as("référence : code vide, cellule masquée").isNull();
+        assertThat(totalSansCode).as("code nul : même règle, même résultat").isEqualTo(totalCodeVide);
+    }
+
+    @Test
     void le_total_clinique_sans_effectif_masque_dans_un_centre_est_imprime_masque_champ_par_champ_kb_med_104_corrige() {
         var centreA = new IndicateursDeLaDirectionFournis.IndicateursDuCentre("Annaba",
                 new IndicateursDeLaDirectionFournis.Clinique(null, null, null, null, null, 50L, 8L, 0L, 5L, null, null, null), null);

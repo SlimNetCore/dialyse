@@ -116,10 +116,21 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
     }
 
     @Override
-    protected void prescription(UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
+    protected void payeurDontLAgenceEstDUnAutreCentre(UUID payeur, UUID caisse, UUID centreDuPayeur, UUID centreDeLAgence, String codeCaisse,
+                                                      String nomCaisse) {
+        UUID agence = UUID.randomUUID();
+        jdbc().update("INSERT INTO caisse_assurance (id, center_id, code, nom) VALUES (?, ?, ?, ?)", caisse, centreDeLAgence, codeCaisse, nomCaisse);
+        jdbc().update("INSERT INTO agence (id, center_id, caisse_id, code, nom) VALUES (?, ?, ?, ?, ?)", agence, centreDeLAgence, caisse,
+                "AG-" + codeCaisse, "Agence");
+        jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, ?, ?)", payeur, centreDuPayeur, agence,
+                "CP-" + codeCaisse, "Payeur");
+    }
+
+    @Override
+    protected void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
         jdbc().update("INSERT INTO prescriptions_medicales (id, center_id, patient_id, date_prescription, poids_sec_cible_kg, created_at, "
-                        + "updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)", UUID.randomUUID(), centre, patient, Date.valueOf(date), poidsSec,
-                Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")), Timestamp.from(majLe));
+                        + "updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)", id, centre, patient, Date.valueOf(date), poidsSec,
+                Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")), majLe == null ? null : Timestamp.from(majLe));
     }
 
     @Override

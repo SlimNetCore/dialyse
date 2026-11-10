@@ -160,6 +160,21 @@ abstract class LecturesDuPilotageContrat {
     }
 
     @Test
+    void un_patient_dont_l_agence_est_d_un_autre_centre_que_son_centre_payeur_tombe_sur_la_caisse_vide_l8() {
+        UUID caisseDuC2 = UUID.randomUUID();
+        UUID agenceDuC2 = UUID.randomUUID();
+        UUID payeur = UUID.randomUUID();
+        jdbc().update("INSERT INTO caisse_assurance (id, center_id, code, nom) VALUES (?, ?, ?, ?)", caisseDuC2, C2, "CASNOS", "Caisse");
+        jdbc().update("INSERT INTO agence (id, center_id, caisse_id, code, nom) VALUES (?, ?, ?, ?, ?)", agenceDuC2, C2, caisseDuC2, "AG", "Agence");
+        jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, ?, ?)", payeur, C1, agenceDuC2, "CP", "Payeur");
+        patient(C1, "M", "PERMANENT", null, ADMIS, false, payeur);   // centre payeur du C1, agence du C2 : caisse vide
+
+        var caisses = new PatientsDesCentresJdbc(jdbc()).parCaisse(List.of(C1), SEPTEMBRE);
+
+        assertThat(caisses).extracting("code", "patients").containsExactly(org.assertj.core.groups.Tuple.tuple("", 1L));
+    }
+
+    @Test
     void les_prescriptions_de_l_anemie_comptent_les_patients_sous_epo_de_l_effectif() {
         patient(C1, "M", "PERMANENT", null, ADMIS, false);   // epo_enabled = vrai pour le sexe M dans ce jeu
         patient(C1, "F", "PERMANENT", null, ADMIS, false);

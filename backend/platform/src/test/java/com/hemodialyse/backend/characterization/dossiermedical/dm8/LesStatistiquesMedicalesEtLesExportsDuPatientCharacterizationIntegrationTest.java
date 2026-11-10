@@ -238,7 +238,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         m.put("06 texte sur une periode", texte(periode.getContentAsByteArray()));
         m.put("07 patient sans donnee", texte(binaire(exportApi(sans, CENTRE_A, "pdf", ""), adminA2()).getContentAsByteArray()));
         m.put("08 aucune ecriture", empreinteLecteurs().equals(avant));
-        arbre("pdf", m);
+        arbre("pdf_nouveau_code", m);
     }
 
     @Test

@@ -35,7 +35,7 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
             "(SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm "
                     + "WHERE pm.patient_id = s.patient_id AND pm.center_id = s.center_id "
                     + "AND pm.poids_sec_cible_kg IS NOT NULL AND pm.date_prescription <= s.date_seance "
-                    + "ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1)";
+                    + "ORDER BY pm.date_prescription DESC, pm.updated_at DESC NULLS LAST, pm.id DESC LIMIT 1)";   // L8 : colonne nullable, NULLS explicite + identifiant
 
     /** Ordre déterministe (KB-SEA-86) : date, création connue d'abord (la plus ancienne créée), puis identifiant. */
     private static final String ORDRE_DES_SEANCES = " ORDER BY s.date_seance, s.created_at NULLS LAST, s.id";
