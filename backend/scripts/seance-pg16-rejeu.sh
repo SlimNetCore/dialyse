@@ -29,18 +29,9 @@ echo "Chaine Flyway appliquee"
 RC=0
 scalaire() { "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "$1" | tr -d '\r'; }
 
-ENT="$RACINE/backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity"
-echo "=== Entite JPA Seance contre information_schema (equivalent de ddl-auto: validate) ==="
-fichier="$ENT/SeanceJpaEntity.java"
-table="$(grep -m1 -oE '@Table\(name = "[a-z_]+"' "$fichier" | sed -E 's/.*"([a-z_]+)"/\1/')"
-[ "$table" = "seances" ] || { echo "ATTENDU : @Table seances, trouve '$table'"; RC=1; }
-NB_COLONNES=0
-for col in $(grep -hoE '@(Column|JoinColumn)\((name = )?"[a-z_]+"' "$fichier" | sed -E 's/.*"([a-z_]+)"/\1/' | sort -u); do
-  NB_COLONNES=$((NB_COLONNES + 1))
-  [ "$(scalaire "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='seances' AND column_name='$col'")" = "1" ] \
-    || { echo "COLONNE ABSENTE : seances.$col"; RC=1; }
-done
-echo "ok : seances ($NB_COLONNES colonnes declarees par SeanceJpaEntity)"
+echo "=== Table seances dans information_schema (SeanceJpaEntity n'existe plus : retiree par la migration ; le schema reel fait foi) ==="
+NB_COLONNES="$(scalaire "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='seances'")"
+echo "ok : seances ($NB_COLONNES colonnes dans le schema reel)"
 [ "$NB_COLONNES" -ge 20 ] || { echo "ATTENDU : au moins 20 colonnes, trouve $NB_COLONNES"; RC=1; }
 
 echo "=== Colonnes et tables lues par le legacy, Planification, Absences, Facturation, Stock ==="
