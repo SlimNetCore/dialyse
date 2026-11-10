@@ -22,11 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * ADR 0126 : la chaîne des payeurs ; propriété décidée par l'ADR 0121, décision 2). Hors de ce contexte (et des entités JPA), aucun
  * nouveau code de production ne les nomme, ni en SQL, ni comme nom de table d'une description de table
  * ({@code new Table("agence", …)}). Les lecteurs d'aujourd'hui, hors de PC, forment la liste blanche NOMMÉE et DATÉE
- * ({@link #LECTEURS_CONNUS}) : ils migrent vers le langage publié {@code PayeursDuCentre} (RF3b : annuaire, RF3c : Comptabilité,
- * Facturation, lectures communes de l'Organisation). La gestion (CRUD, import) passe désormais par {@code GestionDesPayeurs}
- * (RF3a) : l'administration générique ne nomme plus aucune des trois tables.
+ * ({@link #LECTEURS_CONNUS}) : après RF3c, seules quatre jointures de la Facturation sur l'instantané figé de la facture restent (ADR 0128,
+ * RF3c-J1), chacune avec sa raison et son butoir ; les autres lisent le langage publié {@code PayeursDuCentre} (RF3b : annuaire ;
+ * RF3c : Comptabilité, reprise des soldes) ou sont servies par Patient et couverture (lectures communes). La gestion (CRUD, import)
+ * passe par {@code GestionDesPayeurs} (RF3a) : l'administration générique ne nomme plus aucune des trois tables.
  * <ul>
- *   <li>liste blanche NOMMÉE et DATÉE, effectif asserté : 11 à l'ouverture de la garde (RF3a, 2026-11-10) ;</li>
+ *   <li>liste blanche NOMMÉE et DATÉE, effectif asserté : 11 à l'ouverture de la garde (RF3a, 2026-11-10), 4 après RF3c ;</li>
  *   <li>une entrée qui ne nomme plus aucune des trois tables est une entrée morte : le test échoue.</li>
  * </ul>
  */
@@ -34,25 +35,31 @@ class TableDesPayeursTest {
 
     private static final Set<String> TABLES = Set.of("caisse_assurance", "agence", "centre_payeur");
 
-    private static final String JOINTURE = "2026-11-10 (RF3c) : jointure de facturation (agrégation GROUP BY sur la chaîne caisse -> agence -> "
-            + "centre payeur) à ne pas découper ; à reprendre en jalons datés par la Facturation via PayeursDuCentre.";
+    private static final String BUTOIR = " Butoir : revue de l'ADR 0128 au 2027-03-31 (sinon reconduction motivée).";
 
-    /** Lecteurs connus hors du contexte patient-couverture (chemin depuis {@code backend/}) : onze à l'ouverture, sept après RF3b (2026-11-10). */
+    /**
+     * RF3c-J1 : l'agence et le centre payeur d'une facture sont des INSTANTANÉS figés à l'émission (agence_id_snapshot,
+     * centre_payeur_id_snapshot), pas des lectures du référentiel ; la caisse n'est atteinte que par jointure sur l'agence figée.
+     */
+    private static final String INSTANTANE = "2026-11-10 (RF3c) : jointure sur l'instantané figé de la facture (agence_id_snapshot / "
+            + "centre_payeur_id_snapshot, ADR 0128 RF3c-J1) avec agrégation GROUP BY / filtre SQL sur la chaîne ; le découper en lectures "
+            + "publiées déplacerait tri, filtre et pagination dans Java sans preuve de parité hors H2." + BUTOIR;
+
+    /** Lecteurs connus hors du contexte patient-couverture (chemin depuis {@code backend/}) : onze à l'ouverture, sept après RF3b, quatre après RF3c (2026-11-10). */
     private static final Map<String, String> LECTEURS_CONNUS = new TreeMap<>();
 
     static {
         String ctx = "contexts/";
-        LECTEURS_CONNUS.put(ctx + "comptabilite/src/main/java/com/hemodialyse/backend/contexts/comptabilite/infrastructure/persistence/PayeursDuCentreJdbc.java",
-                "2026-11-10 (RF3c) : ACL de Comptabilité vers les tables des payeurs, nominative (ADR 0121, décision 3) ; remplacée par la "
-                        + "lecture du langage publié PayeursDuCentre quand le lien comptabilite -> patient-couverture sera ajouté.");
-        LECTEURS_CONNUS.put(ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDeLaSyntheseJdbc.java", JOINTURE);
-        LECTEURS_CONNUS.put(ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/LectureDuTableauDeBordJdbc.java", JOINTURE);
-        LECTEURS_CONNUS.put(ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/RepriseDesSoldesJdbc.java", JOINTURE);
-        LECTEURS_CONNUS.put(ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE);
-        LECTEURS_CONNUS.put(ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SyntheseFinanciereDesCentresJdbc.java", JOINTURE);
-        LECTEURS_CONNUS.put(ctx + "organisation/src/main/java/com/hemodialyse/backend/contexts/organisation/infrastructure/persistence/ReferentielsCommunsJdbc.java",
-                "2026-11-10 (RF3c) : lectures communes /referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}, servies "
-                        + "comme avant en RF3a (caches ref.* invalidés par PC) ; à déplacer vers PC avec retrait du code Organisation.");
+        String facturation = ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/";
+        LECTEURS_CONNUS.put(facturation + "LectureDeLaSyntheseJdbc.java", INSTANTANE
+                .replace("sans preuve de parité hors H2", "(ORDER BY du code et du libellé de la caisse selon la collation de la base)"));
+        LECTEURS_CONNUS.put(facturation + "LectureDuTableauDeBordJdbc.java", INSTANTANE
+                .replace("sans preuve de parité hors H2", "(jointures NON bornées au centre, KB-FAC-65, que l'annuaire borne)"));
+        LECTEURS_CONNUS.put(facturation + "SituationsDesFacturesJdbc.java", INSTANTANE
+                .replace("sans preuve de parité hors H2", "(COALESCE instantané / payeur courant du patient, filtres par identité de caisse, agence "
+                        + "et centre payeur, COUNT DISTINCT et LIMIT / OFFSET sur la chaîne)"));
+        LECTEURS_CONNUS.put(facturation + "SyntheseFinanciereDesCentresJdbc.java", INSTANTANE
+                .replace("sans preuve de parité hors H2", "(somme par caisse de plusieurs centres en une requête, MAX(nom), caisse non bornée)"));
     }
 
     private static final Pattern NOMMEE = Pattern.compile(
@@ -122,8 +129,9 @@ class TableDesPayeursTest {
 
     @Test
     void l_effectif_des_lecteurs_connus_est_asserte() {
-        assertThat(LECTEURS_CONNUS).as("RF3b : 7 lecteurs restent hors patient-couverture (11 à l'ouverture de la garde en RF3a, 4 lecteurs "
-                + "« annuaire » migrés vers PayeursDuCentre le 2026-11-10)").hasSize(7);
+        assertThat(LECTEURS_CONNUS).as("RF3c : 4 lecteurs restent hors patient-couverture, les jointures sur l'instantané de la facture "
+                + "(11 à l'ouverture de la garde en RF3a, 4 lecteurs « annuaire » migrés en RF3b, puis Comptabilité, reprise des soldes et "
+                + "lectures communes de l'Organisation migrées ou déplacées en RF3c, le 2026-11-10)").hasSize(4);
     }
 
     @Test

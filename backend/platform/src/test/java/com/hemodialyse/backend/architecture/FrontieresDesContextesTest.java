@@ -522,6 +522,9 @@ class FrontieresDesContextesTest {
             .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ChaineDesPayeursParLAnnuaire")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.CaissesParLAnnuaireDesPayeurs")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.patientcouverture.CaissesDesAgencesParLAnnuaire")
+            // RF3c (ADR 0128) : Comptabilité (payeurs et leur compte client) et Facturation (agence figée à la reprise des soldes)
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.patientcouverture.PayeursParLAnnuaire")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.AgenceDuPayeurParLAnnuaire")
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre")
             .because("la caisse d'un centre payeur est lue dans l'annuaire des payeurs de Patient et couverture (RF3b, ADR 0127)");
 

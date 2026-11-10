@@ -10,7 +10,6 @@ import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.CreerPr
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierMachineRequete;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierMedecinRequete;
 import com.hemodialyse.backend.contexts.organisation.interfaces.http.dto.ModifierProtocoleRequete;
-import com.hemodialyse.backend.contexts.organisation.domain.DetailPayeur;
 import com.hemodialyse.backend.contexts.organisation.domain.EntreeReferentiel;
 import com.hemodialyse.backend.contexts.organisation.domain.MachineId;
 import com.hemodialyse.backend.contexts.organisation.domain.MedecinId;
@@ -156,26 +155,7 @@ public class ReferentielsControleur {
         return lectures.listerGenerateurs(session.centre(centreId));
     }
 
-    @GetMapping("/centres-payeurs")
-    public List<EntreeReferentiel> listerCentresPayeurs(@RequestParam(required = false) UUID centreId) {
-        return communs.centresPayeurs(session.centre(centreId));
-    }
-
-    @GetMapping("/centres-payeurs-details")
-    public List<DetailPayeur> listerCentresPayeursDetails(@RequestParam(required = false) UUID centreId) {
-        return communs.centresPayeursDetails(session.centre(centreId));
-    }
-
-    @GetMapping("/agences")
-    public List<EntreeReferentiel> listerAgences(@RequestParam(required = false) UUID centreId) {
-        return communs.agences(session.centre(centreId));
-    }
-
-    @GetMapping("/caisses")
-    public List<EntreeReferentiel> listerCaisses(@RequestParam(required = false) UUID centreId) {
-        return communs.caisses(session.centre(centreId));
-    }
-
+    // /centres-payeurs, /centres-payeurs-details, /agences et /caisses : servis par patient-couverture (RF3c, ADR 0128), mêmes URLs et même JSON.
     // /transporteurs et /categories-transport : servis par patient-couverture (RF1, ADR 0122), mêmes URLs et même JSON.
     // /forfaits : servi par patient-couverture (RF2, ADR 0124), même URL et même JSON.
 

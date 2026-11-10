@@ -66,7 +66,7 @@ plus d'approbation.
 - [x] KB-ORG-02 et KB-ORG-03 décidés (voir ci-dessus).
 - [ ] Slice O4 (lectures publiées `organisation.v1`) : `planned`, constat consigné (aucun consommateur) ; `TableDeLOrganisationTest` liste
       30 lecteurs SQL directs (liste blanche datée 2026-11-02, un lecteur migré fait échouer le test tant que l'entrée n'est pas retirée).
-- [x] Référentiels orphelins (payeurs, agences, caisses, transporteurs, forfaits) : propriétaire DÉCIDÉ le 2026-11-10, ADR 0121 (Patient & couverture ; à confirmer métiers <= 2026-12-15). Reste à faire : slices `patient-couverture-rf1-transporteurs`, `rf2-forfaits`, `rf3-payeurs` (`planned`), puis retrait des lectures `/referentials/*` correspondantes d'Organisation.
+- [x] Référentiels orphelins (payeurs, agences, caisses, transporteurs, forfaits) : propriétaire DÉCIDÉ le 2026-11-10, ADR 0121 (Patient & couverture ; à confirmer métiers <= 2026-12-15). FAIT (2026-11-10) : `patient-couverture-rf1-transporteurs`, `rf2-forfaits` et `rf3-payeurs` (RF3c, ADR 0128) sont `built` ; les lectures `/referentials/{transporteurs,categories-transport,forfaits,caisses,agences,centres-payeurs,centres-payeurs-details}` (et leurs doublons `/organisation/referentiels/...`) sont servies par Patient & couverture ; `ReferentielsCommunsJdbc`, son port et `DetailPayeur` sont retirés d'Organisation (il ne reste que les états patient, liste statique). Résiduels : voir les ADR 0122, 0124, 0128.
 - [ ] `SocieteJpaEntity` et `CenterJpaEntity` (auth, licence) conservées, hors périmètre.
 - [ ] Cache `ref.*` : invalider à la bascule (clés incluant `centerId`).
 - [x] Filet étendu au logo et au pied de page imprimés dans les documents (`DocumentIdentityProvider`, 4 goldens) et à l'import CSV de

@@ -5,7 +5,6 @@ import com.hemodialyse.backend.contexts.organisation.application.OrganisationSer
 import com.hemodialyse.backend.contexts.organisation.application.OrganisationUseCases;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsService;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsUseCases;
-import com.hemodialyse.backend.contexts.organisation.domain.ReferentielsCommunsRepository;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureService;
 import com.hemodialyse.backend.contexts.organisation.application.ReferentielsLectureUseCases;
 import com.hemodialyse.backend.contexts.organisation.domain.CentreRepository;
@@ -22,7 +21,6 @@ import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.MachinesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.MedecinsJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.ProtocolesJdbc;
-import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.ReferentielsCommunsJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SallesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.SocietesJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.GenerateursDuCentreMisEnCache;
@@ -119,11 +117,6 @@ public class OrganisationConfiguration {
         return new ReferentielsLectureService(catalogue, generateurs);
     }
 
-    @Bean
-    public ReferentielsCommunsRepository referentielsCommunsRepository(JdbcTemplate jdbc) {
-        return new ReferentielsCommunsJdbc(jdbc);
-    }
-
     /** Langage publié organisation.v1 (O4 lot A, ADR 0107) : lecture des centres pour les autres contextes. */
     @Bean
     public com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres annuaireDesCentres(JdbcTemplate jdbc) {
@@ -167,7 +160,7 @@ public class OrganisationConfiguration {
     }
 
     @Bean
-    public ReferentielsCommunsUseCases referentielsCommunsUseCases(ReferentielsCommunsRepository referentiels) {
-        return new ReferentielsCommunsService(referentiels);
+    public ReferentielsCommunsUseCases referentielsCommunsUseCases() {
+        return new ReferentielsCommunsService();
     }
 }

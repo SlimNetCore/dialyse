@@ -103,23 +103,5 @@ public class ReferentielsLegacyControleur {
                 .toList());
     }
 
-    @GetMapping("/centres-payeurs")
-    public ResponseEntity<?> centresPayeurs(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(communs.centresPayeurs(session.centre(centerId)));
-    }
-
-    @GetMapping("/centres-payeurs-details")
-    public ResponseEntity<?> centresPayeursDetails(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(communs.centresPayeursDetails(session.centre(centerId)));
-    }
-
-    @GetMapping("/caisses")
-    public ResponseEntity<?> caisses(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(communs.caisses(session.centre(centerId)));
-    }
-
-    @GetMapping("/agences")
-    public ResponseEntity<?> agences(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(communs.agences(session.centre(centerId)));
-    }
+    // /centres-payeurs, /centres-payeurs-details, /caisses et /agences : servis par patient-couverture (RF3c, ADR 0128), mêmes URLs et même JSON.
 }

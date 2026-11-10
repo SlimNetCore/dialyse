@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.patientcouverture.contrat;
 
+import com.hemodialyse.backend.contexts.patientcouverture.application.ChoixDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.application.UsageDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Agence;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /**
  * Contrat de la chaîne des payeurs (RF3a) : les trois ports, la lecture paginée de l'administration et l'usage. Le double en mémoire
@@ -345,5 +347,47 @@ abstract class PayeursContrat {
         assertThat(publie().existe(CENTRE.valeur(), UUID.randomUUID())).isFalse();
         assertThat(publie().existe(CENTRE.valeur(), null)).isFalse();
         assertThat(publie().existe(CENTRE.valeur(), a.id())).isFalse();
+    }
+
+    // ---- listes de choix des écrans (RF3c : /referentials/{caisses,agences,centres-payeurs,centres-payeurs-details})
+
+    /** Les listes de choix servies aux écrans (RF3c), lues sur les mêmes données. */
+    protected abstract ChoixDesPayeurs choix();
+
+    @Test
+    void les_listes_de_choix_sont_triees_par_nom_et_bornees_au_centre() {
+        CaisseDAssurance cb = caisse(CENTRE, "CB", "Caisse B", "VACANCIER");
+        CaisseDAssurance ca = caisse(CENTRE, "CA", "Caisse A", "STANDARD");
+        Agence agB = agence(CENTRE, cb, "AGB", "Agence B");
+        Agence agA = agence(CENTRE, ca, "AGA", "Agence A");
+        centre(CENTRE, agB, "CPB", "Centre B", "Rue B");
+        centre(CENTRE, agA, "CPA", "Centre A", null);
+        CaisseDAssurance etrangere = caisse(AUTRE, "CE", "Caisse etrangere", null);
+        centre(AUTRE, agence(AUTRE, etrangere, "AGE", "Agence etrangere"), "CPE", "Centre etranger", null);
+
+        assertThat(choix().choixDeCaisses(CENTRE.valeur())).extracting(ChoixDesPayeurs.ChoixDePayeur::nom, ChoixDesPayeurs.ChoixDePayeur::type)
+                .containsExactly(tuple("Caisse A", "STANDARD"), tuple("Caisse B", "VACANCIER"));
+        assertThat(choix().choixDAgences(CENTRE.valeur())).extracting(ChoixDesPayeurs.ChoixDePayeur::code).containsExactly("AGA", "AGB");
+        assertThat(choix().choixDeCentresPayeurs(CENTRE.valeur())).extracting(ChoixDesPayeurs.ChoixDePayeur::nom, ChoixDesPayeurs.ChoixDePayeur::adresse)
+                .containsExactly(tuple("Centre A", null), tuple("Centre B", "Rue B"));
+        assertThat(choix().choixDeCaisses(UUID.randomUUID())).isEmpty();
+        assertThat(choix().choixDAgences(UUID.randomUUID())).isEmpty();
+        assertThat(choix().choixDeCentresPayeurs(UUID.randomUUID())).isEmpty();
+        assertThat(choix().detailsDesCentresPayeurs(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void le_detail_d_un_centre_payeur_porte_son_agence_et_sa_caisse_par_nom() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse nationale", null);
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CentrePayeur cp2 = centre(CENTRE, a, "CP-2", "Zeta", "Rue 2");
+        CentrePayeur cp1 = centre(CENTRE, a, "CP-1", "Alpha", null);
+        centre(AUTRE, agence(AUTRE, caisse(AUTRE, "CE", "Caisse etrangere", null), "AGE", "Agence etrangere"), "CPE", "Etranger", null);
+
+        List<ChoixDesPayeurs.DetailDeCentrePayeur> details = choix().detailsDesCentresPayeurs(CENTRE.valeur());
+
+        assertThat(details).extracting(ChoixDesPayeurs.DetailDeCentrePayeur::id).containsExactly(cp1.id(), cp2.id());
+        assertThat(details.get(1)).isEqualTo(new ChoixDesPayeurs.DetailDeCentrePayeur(cp2.id(), "CP-2", "Zeta", "Rue 2", "AG-1", "Agence 1",
+                "CNAS", "Caisse nationale"));
     }
 }

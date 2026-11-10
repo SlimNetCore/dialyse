@@ -55,7 +55,6 @@ import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.MappingComptableRepositoryJpa;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.MappingComptableSpringData;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.RegleTvaRepositoryJdbc;
-import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.PayeursDuCentreJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.UsagesDuParametrageJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.transaction.UniteDeTravailSpring;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.export.Sage100ExportAdapter;
@@ -129,8 +128,9 @@ public class ComptabiliteConfiguration {
     }
 
     @Bean
-    LectureDesPayeurs comptabilitePayeurs(JdbcTemplate jdbc) {
-        return new PayeursDuCentreJdbc(jdbc);
+    LectureDesPayeurs comptabilitePayeurs(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.patientcouverture.PayeursParLAnnuaire(annuaire, jdbc);
     }
 
     @Bean

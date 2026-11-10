@@ -26,7 +26,12 @@ final class SchemaDesFacturesH2 {
                 + "center_id UUID NOT NULL, montant DECIMAL(14,2) NOT NULL, date_reglement DATE NOT NULL, saisi_par VARCHAR(120), "
                 + "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, code_reglement VARCHAR(30), "
                 + "mode_reglement VARCHAR(30))");
-        jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID, "
+                + "code VARCHAR(255), nom VARCHAR(255), adresse VARCHAR(255))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS agence (id UUID PRIMARY KEY, center_id UUID NOT NULL, caisse_id UUID, "
+                + "code VARCHAR(255), nom VARCHAR(255))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(255), "
+                + "nom VARCHAR(255), type_caisse VARCHAR(50))");
     }
 
     static void vider(JdbcTemplate jdbc, Object... centres) {

@@ -358,6 +358,25 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListeDesForfaitsEnCache(consulter);
     }
 
+    // ---- listes de choix des payeurs (RF3c, ADR 0128) : /referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.ChoixDesPayeurs choixDesPayeurs(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ChoixDesPayeursJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesPayeurs consulterLesPayeurs(
+            SessionCourante session, com.hemodialyse.backend.contexts.patientcouverture.application.ChoixDesPayeurs choix) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesPayeurs(session, choix);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDePayeursEnCache listesDePayeursEnCache(
+            com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesPayeurs consulter) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDePayeursEnCache(consulter);
+    }
+
     // ---- chaîne des payeurs (RF3a, ADR 0126) : mêmes tables caisse_assurance, agence, centre_payeur
 
     @Bean

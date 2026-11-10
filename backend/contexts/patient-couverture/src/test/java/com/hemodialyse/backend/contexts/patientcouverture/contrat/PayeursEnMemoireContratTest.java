@@ -37,6 +37,11 @@ class PayeursEnMemoireContratTest extends PayeursContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.application.ChoixDesPayeurs choix() {
+        return memoire;
+    }
+
+    @Override
     protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre publie() {
         return memoire;
     }

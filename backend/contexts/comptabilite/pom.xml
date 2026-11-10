@@ -27,6 +27,13 @@
             <artifactId>contexts-stock</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- RF3c (ADR 0128, ADR 0121 decision 3 revisee) : patientcouverture.v1 (PayeursDuCentre : les payeurs d'un centre). contexts-patient-couverture
+             ne depend que de shared-kernel, organisation, planification (et par eux de stock et gmao) : ni de ce module ni de la Facturation : aucun cycle. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-patient-couverture</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

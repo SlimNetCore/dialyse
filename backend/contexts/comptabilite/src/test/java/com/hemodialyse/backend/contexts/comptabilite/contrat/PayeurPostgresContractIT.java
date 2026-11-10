@@ -6,7 +6,7 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.CompteClientD
 import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.PayeurId;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.CompteClientDuPayeurRepositoryJpa;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.ComptePayeurSpringData;
-import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.PayeursDuCentreJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.patientcouverture.PayeursParLAnnuaire;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,13 +47,12 @@ class PayeurPostgresContractIT extends PayeurContrat {
 
     @BeforeEach
     void creerLesAdaptateursEtViderLesTables() {
-        // centre_payeur est tenu hors de la comptabilité : la table est créée ici (en production elle vient des migrations)
-        jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID, "
-                + "code VARCHAR(255), nom VARCHAR(255), adresse VARCHAR(255))");
+        // les tables des payeurs sont tenues par Patient et couverture (migrations Flyway du rejeu) : on ne vide que centre_payeur
         jdbc.update("DELETE FROM centre_payeur");
         donnees.deleteAll();
         comptesClients = new CompteClientDuPayeurRepositoryJpa(donnees);
-        lecture = new PayeursDuCentreJdbc(jdbc);
+        lecture = new PayeursParLAnnuaire(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .PayeursDuCentreJdbc(jdbc), jdbc);
     }
 
     @Override

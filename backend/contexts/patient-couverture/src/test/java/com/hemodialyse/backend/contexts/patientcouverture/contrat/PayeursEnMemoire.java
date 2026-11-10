@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.patientcouverture.contrat;
 
+import com.hemodialyse.backend.contexts.patientcouverture.application.ChoixDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.application.LectureDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.application.UsageDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Agence;
@@ -29,7 +30,7 @@ import java.util.UUID;
  * Double en mémoire des trois ports de la chaîne des payeurs, de leur lecture paginée et de leur usage (même jeu de tests de contrat
  * que les tables réelles). Les patients ne sont pas modélisés : leur nombre par centre payeur se règle à la main.
  */
-public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs,
+public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs, ChoixDesPayeurs,
         com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre {
 
     private final Map<UUID, CaisseDAssurance> caisses = new LinkedHashMap<>();
@@ -165,6 +166,38 @@ public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs,
     @Override
     public boolean existe(UUID centre, UUID centrePayeur) {
         return detail(centre, centrePayeur).isPresent();
+    }
+
+    // ---- listes de choix des écrans (RF3c)
+
+    private static final Comparator<Payeur> PAR_NOM = Comparator.comparing(Payeur::nom).thenComparing(Payeur::code);
+
+    @Override
+    public List<ChoixDePayeur> choixDeCaisses(UUID centre) {
+        return caisses.values().stream().filter(c -> c.centre().valeur().equals(centre)).sorted(PAR_NOM)
+                .map(c -> new ChoixDePayeur(c.id(), c.code(), c.nom(), null, c.type())).toList();
+    }
+
+    @Override
+    public List<ChoixDePayeur> choixDAgences(UUID centre) {
+        return agences.values().stream().filter(a -> a.centre().valeur().equals(centre)).sorted(PAR_NOM)
+                .map(a -> new ChoixDePayeur(a.id(), a.code(), a.nom(), null, null)).toList();
+    }
+
+    @Override
+    public List<ChoixDePayeur> choixDeCentresPayeurs(UUID centre) {
+        return centres.values().stream().filter(c -> c.centre().valeur().equals(centre)).sorted(PAR_NOM)
+                .map(c -> new ChoixDePayeur(c.id(), c.code(), c.nom(), c.adresse(), null)).toList();
+    }
+
+    @Override
+    public List<DetailDeCentrePayeur> detailsDesCentresPayeurs(UUID centre) {
+        return centres.values().stream().filter(c -> c.centre().valeur().equals(centre)).sorted(PAR_NOM).map(c -> {
+            Agence agence = agences.get(c.agence());
+            CaisseDAssurance caisse = agence == null ? null : caisses.get(agence.caisse());
+            return new DetailDeCentrePayeur(c.id(), c.code(), c.nom(), c.adresse(), agence == null ? null : agence.code(),
+                    agence == null ? null : agence.nom(), caisse == null ? null : caisse.code(), caisse == null ? null : caisse.nom());
+        }).toList();
     }
 
     // ---- lecture paginée

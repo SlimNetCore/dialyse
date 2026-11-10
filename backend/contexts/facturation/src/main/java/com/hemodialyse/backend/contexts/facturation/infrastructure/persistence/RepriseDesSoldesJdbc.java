@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.facturation.application.payeur.AgenceDuPayeur;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -18,8 +19,11 @@ public class RepriseDesSoldesJdbc implements RepriseDesSoldes {
 
     private final JdbcTemplate jdbc;
 
-    public RepriseDesSoldesJdbc(JdbcTemplate jdbc) {
+    private final AgenceDuPayeur payeurs;
+
+    public RepriseDesSoldesJdbc(JdbcTemplate jdbc, AgenceDuPayeur payeurs) {
         this.jdbc = jdbc;
+        this.payeurs = payeurs;
     }
 
     @Override
@@ -90,7 +94,6 @@ public class RepriseDesSoldesJdbc implements RepriseDesSoldes {
 
     private UUID agenceDuPayeur(UUID centre, UUID centrePayeur) {
         if (centrePayeur == null) return null;
-        return jdbc.queryForList("SELECT agence_id FROM centre_payeur WHERE id = ? AND center_id = ?", UUID.class,
-                centrePayeur, centre).stream().findFirst().orElse(null);
+        return payeurs.agenceDuCentrePayeur(centre, centrePayeur).orElse(null);
     }
 }

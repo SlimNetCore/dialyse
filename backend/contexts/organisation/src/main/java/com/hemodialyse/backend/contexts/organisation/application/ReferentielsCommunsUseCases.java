@@ -1,24 +1,14 @@
 package com.hemodialyse.backend.contexts.organisation.application;
 
-import com.hemodialyse.backend.contexts.organisation.domain.DetailPayeur;
 import com.hemodialyse.backend.contexts.organisation.domain.EntreeReferentiel;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 
 /**
- * Port d'entrée (use cases) des référentiels partagés orphelins (slice O5).
- * Lecture seule pour listes déroulantes, toujours filtrée par centre.
+ * Port d'entrée (use cases) des référentiels partagés orphelins (slice O5) qui restent à l'Organisation : les états patient. Les
+ * payeurs (RF3c, ADR 0128), les transporteurs (RF1) et les forfaits (RF2) sont servis par Patient et couverture.
  */
 public interface ReferentielsCommunsUseCases {
-
-    List<EntreeReferentiel> centresPayeurs(CentreId centreId);
-
-    List<DetailPayeur> centresPayeursDetails(CentreId centreId);
-
-    List<EntreeReferentiel> agences(CentreId centreId);
-
-    List<EntreeReferentiel> caisses(CentreId centreId);
 
     List<EntreeReferentiel> etatsPatients();
 }

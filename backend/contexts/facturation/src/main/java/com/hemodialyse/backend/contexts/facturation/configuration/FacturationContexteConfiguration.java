@@ -278,8 +278,10 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    RepriseDesSoldes facturationRepriseDesSoldes(JdbcTemplate jdbc) {
-        return new RepriseDesSoldesJdbc(jdbc);
+    RepriseDesSoldes facturationRepriseDesSoldes(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new RepriseDesSoldesJdbc(jdbc,
+                new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.AgenceDuPayeurParLAnnuaire(annuaire));
     }
 
     /** Fournis à la Comptabilité, qui publie les ports dont elle a besoin (la Facturation la connaît, pas l'inverse). */

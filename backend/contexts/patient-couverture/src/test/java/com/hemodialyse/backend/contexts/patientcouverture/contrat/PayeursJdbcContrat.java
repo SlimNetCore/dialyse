@@ -85,6 +85,11 @@ abstract class PayeursJdbcContrat extends PayeursContrat {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc());
     }
 
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.application.ChoixDesPayeurs choix() {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ChoixDesPayeursJdbc(jdbc());
+    }
+
     @Test
     void chaque_ecriture_signale_le_centre_de_son_niveau_pour_l_invalidation_du_cache_et_pas_les_lectures() {
         CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse", null);

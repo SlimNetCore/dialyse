@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-rf3-payeurs
-status: in-progress (RF3a et RF3b built, RF3c planned)
+status: built (RF3a, RF3b et RF3c built ; résiduels nommés : ADR 0128 ; confirmation métier avant 2026-12-15)
 date: 2026-11-10
 order: 8
 context: patient-couverture
@@ -42,12 +42,14 @@ Environ 45 (3 tables x CRUD, hiérarchie, doublons, suppressions refusées par n
 |---|---|---|
 | RF3a | **built** (2026-11-10, ADR 0126) | Filet HTTP : 24 tests, 45 goldens, verts sur le legacy AVANT tout changement, puis à parité SANS golden modifié (aucun `_nouveau_code`, aucune archive `_ecarts-legacy`). Domaine pur (`CaisseDAssurance`, `Agence`, `CentrePayeur`, `Payeur`), cas d'usage `GererLesPayeurs`, langage publié `GestionDesPayeurs` + `RefusDePayeur`, JDBC `CaissesJdbc`/`AgencesJdbc`/`CentresPayeursJdbc`/`LectureDesPayeursJdbc` sur les MÊMES tables, invalidation par niveau après commit, ACL `PayeursParPatientCouverture`. Garde `TableDesPayeursTest` (effectif 11). Contrat unique fake / H2 / PG16 (rejeu `backend/scripts/patient-couverture-rf3-pg16-rejeu.sh`). KB-RF3-01 à 05 reproduits. |
 | RF3b | **built** (2026-11-10, ADR 0127) | Langage publié `PayeursDuCentre` (`caisses`, `agences`, `centresPayeurs`, `detail`, `chaines`, `existe` ; ajusté : voir ADR 0127 décision 2), adaptateur `PayeursDuCentreJdbc`, contrat unique double en mémoire / H2 / PG16 (6 cas, rouge vérifié avant le code). Lecteurs migrés (aucun golden modifié) : Séance `SeancesRealiseesDesCentresJdbc` et `FacturationDesSeancesJdbc` (agence du centre payeur), Pilotage `PatientsDesCentresJdbc`, impression `FacturationSyntheseMensuelleReportService`. Absences : aucune entrée dans la liste blanche, rien à migrer. Garde `TableDesPayeursTest` : effectif 11 -> 7. Les lectures `/referentials/*` d'Organisation restent à RF3c. |
-| RF3c | planned | Comptabilité, Facturation (jointures `GROUP BY`), retrait du code Organisation, inventaire des entités JPA. Reste dans la garde (7 entrées, jalon RF3c daté) : Comptabilité `PayeursDuCentreJdbc`, Facturation `SituationsDesFacturesJdbc`, `LectureDeLaSyntheseJdbc`, `LectureDuTableauDeBordJdbc`, `SyntheseFinanciereDesCentresJdbc`, `RepriseDesSoldesJdbc`, Organisation `ReferentielsCommunsJdbc` |
+| RF3c | **built** (2026-11-10, ADR 0128) | Aucun cycle Maven (preuve dans l'ADR, `validate` du réacteur). Comptabilité : `PayeursDuCentreJdbc` remplacé par l'ACL `PayeursParLAnnuaire` (contrat `PayeurContrat` inchangé : double / H2 / PG16). Facturation : `RepriseDesSoldesJdbc` migré (port `AgenceDuPayeur`, ACL `AgenceDuPayeurParLAnnuaire`, 2 cas de contrat ajoutés) ; quatre lecteurs `GROUP BY` / instantané MAINTENUS (`SituationsDesFacturesJdbc`, `LectureDeLaSyntheseJdbc`, `LectureDuTableauDeBordJdbc`, `SyntheseFinanciereDesCentresJdbc`, RF3c-J1, butoir 2027-03-31). Organisation : lectures `/referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}` et doublons `/organisation/referentiels/...` servies par PC (`PayeursControleur`, `ChoixDesPayeursJdbc`, mêmes requêtes, mêmes caches `ref.*`) ; `ReferentielsCommunsJdbc` et son port retirés. Garde `TableDesPayeursTest` : 7 -> 4. Aucun golden modifié. Entités JPA : conservées (RF3c-R2). `ReferentialKind` : descripteurs conservés (RF3-R1). |
 
-Résiduels RF3b : voir l'ADR 0127 (RF3b-R1 à R5). Résiduels RF3a : voir l'ADR 0126 (RF3-R1 à R5). Les 500 du legacy ne sont pas corrigés (décision de l'utilisateur requise).
+Résiduels RF3c : voir l'ADR 0128 (RF3c-J1, R1 à R4). Résiduels RF3b : voir l'ADR 0127 (RF3b-R1 à R5). Résiduels RF3a : voir l'ADR 0126 (RF3-R1 à R5). Les 500 du legacy ne sont pas corrigés (décision de l'utilisateur requise).
 
 ## Garde de table nominative
 `TableDesPayeursTest` : tables `caisse_assurance`, `agence`, `centre_payeur` ; scanne tout le code de production hors PC (entités JPA exceptées, à inventorier en RF3c) ; liste blanche nominative et DATÉE, effectif asserté, échec sur entrée morte. Entrées attendues à l'ouverture : Facturation (`SituationsDesFacturesJdbc`, `LectureDeLaSyntheseJdbc`, `LectureDuTableauDeBordJdbc`, `SyntheseFinanciereDesCentresJdbc`, `RepriseDesSoldesJdbc`), Séance (2), Pilotage (1), platform reporting (1), **Comptabilité `PayeursDuCentreJdbc` (ACL décidée par l'ADR 0121, décision 3, nominative et datée)**, `ReferentialAdminJdbcAdapter`, `ReferentielsCommunsJdbc`. Cible : seules Comptabilité (ACL) et les jointures `GROUP BY` de Facturation restent, chacune avec raison et butoir.
+
+État de la garde après RF3c (2026-11-10) : 4 entrées, toutes des jointures de la Facturation sur l'instantané figé de la facture, chacune avec raison et butoir 2027-03-31 (ADR 0128). La Comptabilité (ACL) a disparu de la liste : elle lit `PayeursDuCentre`.
 
 ## Conditions de retrait du CRUD générique pour ces types
 1. Filet RF3 vert (CRUD, hiérarchie, import ordonné à parité).
@@ -57,6 +59,8 @@ Résiduels RF3b : voir l'ADR 0127 (RF3b-R1 à R5). Résiduels RF3a : voir l'ADR 
 5. Confirmation métier de la décision 2 (ou ADR 0121 reconduit).
 Retour arrière : revert Git.
 
+Bilan RF3c (2026-11-10) : conditions 1, 3 et 4 tenues (jointures `GROUP BY` : jalons datés, voir ADR 0128) ; condition 2 PARTIELLE : `ReferentialAdminTables` ne nomme plus les trois tables (RF3a), mais `ReferentialKind.CAISSE/AGENCE/CENTRE_PAYEUR` restent comme descripteurs de fichiers d'import et pour la reprise des patients (RF3-R1, comme `TRANSPORTEUR` et `FORFAIT`) ; condition 5 (confirmation métier) EN ATTENTE, échéance 2026-12-15.
+
 ## Effort
 3 sous-slices (environ 3 sessions). Risque élevé : plus gros nombre de lecteurs, jointures `GROUP BY` à ne pas découper, trois tables chaînées.
 
@@ -64,4 +68,5 @@ Retour arrière : revert Git.
 1. Le centre payeur est-il vraiment un attribut du patient (PC) et non de la facture ? Le glossaire Facturation dit l'inverse (`facturation.md:17-18`) ; correction `proposed` ajoutée.
 2. Comptabilité : TRANCHÉE le 2026-11-10 (utilisateur) : `PayeursDuCentre` publié (ADR 0121, écart de vérification : aucun cycle Maven).
 3. Termes « Caisse d'assurance », « Agence », « Centre payeur » à ajouter au glossaire de PC (`proposed`) ; homonyme « centre » seul (Organisation) à garder distinct (`organisation.md:31`).
-4. `CentrePayeurJpaEntity` et `CaisseAssuranceJpaEntity` : usages à inventorier (RF3c).
+4. `CentrePayeurJpaEntity` et `CaisseAssuranceJpaEntity` : INVENTORIÉES en RF3c, aucune référence mais conservées (elles définissent le DDL H2 sous `ddl-auto=update` : RF3c-R2, ADR 0128) ; `AgenceJpaEntity` idem.
+5. La Facturation doit-elle lire la chaîne payeur par un langage publié groupé (RF3c-J1, butoir 2027-03-31) ?
