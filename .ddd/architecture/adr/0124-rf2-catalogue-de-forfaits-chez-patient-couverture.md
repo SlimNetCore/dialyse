@@ -31,7 +31,7 @@ Aucun. Les comportements du legacy sont REPRODUITS et consignés (KB-RF2-01 à 0
 ## Résiduels nominatifs
 | ID | Résiduel | Raison / retrait |
 |---|---|---|
-| RF2-R1 | `ReferentialKind.FORFAIT` (descripteur : champs, alias d'en-têtes, modèle d'import, libellé) reste dans l'administration générique | lecteur de fichiers et modèles communs aux référentiels ; retiré avec l'admin générique (butoir : fin de RF3) |
+| RF2-R1 | `ReferentialKind.FORFAIT` (descripteur : champs, alias d'en-têtes, modèle d'import, libellé) reste dans l'administration générique | lecteur de fichiers et modèles communs aux référentiels ; retiré avec l'admin générique (butoir : 2027-03-31, à confirmer par les métiers ; le « butoir fin de RF3 » est périmé, RF3 étant clos ; verrouillé par `DescripteursResiduelsDeLAdministrationGeneriqueTest`) |
 | RF2-R2 | `ForfaitsDeSeanceJdbc` (Séance) joint `prise_en_charge` à `forfait` pour le forfait courant d'une séance | requête reprise mot pour mot (SE7f, ADR 0100) ; c'est une lecture de la prise en charge, pas du catalogue ; à porter dans le langage publié de la couverture avec le retrait de la lecture `prise_en_charge` par la Séance |
 | RF2-R3 | `CouvertureDesPatientsJdbc` (PC) garde la jointure du prix de PEC | même contexte ; parité du prix (PC5) |
 | RF2-R4 | Le tri `ORDER BY code` suit la collation de la base : binaire sous H2 (`B-50%, D-HD, G_MED, Z-HD, a-hd`), celle du cluster sous PostgreSQL | inchangé par rapport au legacy ; non testé sous collation linguistique |

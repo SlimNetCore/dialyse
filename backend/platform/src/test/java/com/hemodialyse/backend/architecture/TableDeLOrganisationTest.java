@@ -35,7 +35,8 @@ class TableDeLOrganisationTest {
     private static final Set<String> TABLES_DE_L_ORGANISATION = Set.of(
             "societes", "centers", "medecin", "machine", "protocole", "salle", "position_creneau");
 
-    private static final String LECTURE_DIRECTE = "2026-11-02 : lecture SQL directe, à remplacer par organisation.v1 (O4 planned)";
+    private static final String LECTURE_DIRECTE = "2026-11-02 : lecture SQL directe, à remplacer par organisation.v1 (O4 planned)."
+            + " Butoir : retrait à l'échéance de organisation.v1 (jalon O4) au 2027-03-31 (sinon reconduction motivée).";
 
     /** Lecteurs SQL connus hors du contexte Organisation (chemin depuis {@code backend/}) : 2026-11-02, revue O1-O5. */
     private static final Map<String, String> LECTEURS_CONNUS = lecteurs(
@@ -83,7 +84,7 @@ class TableDeLOrganisationTest {
                 if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/organisation")) continue;
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !chemin(p).contains("/entity/"))
+                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
                 }
             }
@@ -140,6 +141,34 @@ class TableDeLOrganisationTest {
     @Test
     void le_nombre_de_lecteurs_connus_est_le_critere_d_avancement_de_o4() {
         assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot E de O4 : 9 -> 7)").hasSize(7);
+    }
+
+    /**
+     * Les entités JPA des tables de l'Organisation (chemins depuis {@code backend/}) : seules exclues de la garde (revue globale
+     * 2026-11-10, constat mineur : l'exclusion du dossier {@code /entity/} entier cachait toute autre entité).
+     */
+    private static final Set<String> ENTITES_JPA_CONNUES = Set.of(
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/SocieteJpaEntity.java",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CenterJpaEntity.java");
+
+    @Test
+    void chaque_lecteur_connu_porte_un_butoir_lisible_et_aucun_n_est_depasse_a_la_date_du_jour() {
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, java.time.LocalDate.of(2026, 11, 10)))
+                .as("chaque lecteur connu porte un butoir lisible (date ISO après « Butoir : »)").isEmpty();
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, java.time.LocalDate.now()))
+                .as("butoir (2027-03-31) dépassé : migrer le lecteur vers organisation.v1, ou reconduire AVEC une raison motivée "
+                        + "et une nouvelle date").isEmpty();
+        assertThat(LECTEURS_CONNUS.values()).allSatisfy(raison ->
+                assertThat(ButoirsDesGardesDeTables.butoir(raison)).contains(java.time.LocalDate.of(2027, 3, 31)));
+    }
+
+    @Test
+    void l_exclusion_est_nominative_les_autres_entites_jpa_sont_scannees() throws IOException {
+        List<String> scannes = sourcesDeProduction(backend()).stream().map(TableDeLOrganisationTest::relatif).toList();
+        assertThat(ENTITES_JPA_CONNUES).allSatisfy(entite -> assertThat(Files.isRegularFile(backend().resolve(entite))).as(entite).isTrue());
+        assertThat(scannes).doesNotContainAnyElementsOf(ENTITES_JPA_CONNUES);
+        assertThat(scannes).as("une entité JPA non nommée est scannée").anyMatch(s -> s.contains("/entity/"));
+        assertThat(ButoirsDesGardesDeTables.estUneEntiteJpaConnue("platform/src/main/java/x/entity/Inconnue.java", ENTITES_JPA_CONNUES)).isFalse();
     }
 
     @Test

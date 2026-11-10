@@ -2707,3 +2707,27 @@ GROUP BY p.center_id, cp.center_id, cp.id, cp.code ORDER BY 1, 2, 3;
 ```
 **Interprétation** : `0` ligne aux trois requêtes : la correction ne change aucun cas réel. `> 0` : ces payeurs deviennent supprimables alors que des lignes d'un autre centre les référencent encore ; corriger ces lignes (réaffectation par un administrateur du centre concerné) AVANT de supprimer, ou prévenir les métiers. Les colonnes (`agence.center_id`, `caisse_id`, `centre_payeur.center_id`, `agence_id`, `patients.center_id`, `centre_payeur_id`) sont vérifiées sur le schéma PostgreSQL 16 réel par le rejeu RF3 ; les requêtes elles-mêmes n'y sont PAS rejouées et n'ont PAS été exécutées sur la production : elles ne disent RIEN de son état.
 **Recette (lecture seule, sur une copie)** : l'impression de la synthèse mensuelle d'un centre dont une caisse porte un code contenant `]]>` ou `$P{...}` aboutit (montants rattachés à la colonne de cette caisse) ; la suppression d'un payeur utilisé par une ligne du MÊME centre répond toujours 422 `REFERENTIAL_IN_USE`. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 86. Patient & couverture RF1 à RF3 (KB-RF1-04, KB-RF2-03, KB-RF3-04) : doublons historiques de clé naturelle par centre (2026-11-10) — SELECT seulement
+
+AUCUNE migration, AUCUN `UPDATE`. L'unicité de la clé (nom du transporteur, code du forfait, code d'une caisse, d'une agence ou d'un centre payeur ; casse et espaces répétés ignorés) n'est contrôlée qu'à l'écriture, sans contrainte en base. La mise à jour d'une ligne déjà en doublon se comporte différemment du legacy (le legacy comparait au PREMIER homonyme lu, le nouveau code refuse si UN AUTRE porte la même clé). Ces détections listent les doublons historiques éventuels (revue globale 2026-11-10, constat 4).
+
+```sql
+-- 86.1 Transporteurs en doublon de nom dans un même centre (KB-RF1-04). Attendu : 0 ligne. Lecture seule.
+SELECT center_id, regexp_replace(lower(trim(nom)), '\s+', ' ', 'g') AS cle, count(*) AS lignes, array_agg(id) AS identifiants
+FROM transporteur
+GROUP BY center_id, regexp_replace(lower(trim(nom)), '\s+', ' ', 'g') HAVING count(*) > 1 ORDER BY 1, 2;
+
+-- 86.2 Forfaits en doublon de code dans un même centre (KB-RF2-03). Attendu : 0 ligne. Lecture seule.
+SELECT center_id, regexp_replace(lower(trim(code)), '\s+', ' ', 'g') AS cle, count(*) AS lignes, array_agg(id) AS identifiants
+FROM forfait
+GROUP BY center_id, regexp_replace(lower(trim(code)), '\s+', ' ', 'g') HAVING count(*) > 1 ORDER BY 1, 2;
+
+-- 86.3 Payeurs en doublon de code dans un même centre et un même niveau (KB-RF3-04). Attendu : 0 ligne. Lecture seule.
+SELECT niveau, center_id, regexp_replace(lower(trim(code)), '\s+', ' ', 'g') AS cle, count(*) AS lignes, array_agg(id) AS identifiants
+FROM (SELECT 'caisse' AS niveau, id, center_id, code FROM caisse_assurance
+      UNION ALL SELECT 'agence', id, center_id, code FROM agence
+      UNION ALL SELECT 'centre payeur', id, center_id, code FROM centre_payeur) payeurs
+GROUP BY niveau, center_id, regexp_replace(lower(trim(code)), '\s+', ' ', 'g') HAVING count(*) > 1 ORDER BY 1, 2, 3;
+```
+**Interprétation** : `0` ligne aux trois requêtes : aucun doublon historique, le comportement de RF1 à RF3 est identique à celui du legacy. `> 0` : fusionner ou renommer les doublons PAR DÉCISION ÉCRITE d'un administrateur du centre concerné AVANT la bascule (la modification d'une des lignes en doublon sera refusée par le nouveau code). Colonnes (`transporteur.nom`, `forfait.code`, `caisse_assurance.code`, `agence.code`, `centre_payeur.code`, `center_id`, `id`) relevées dans les requêtes §83 à §85 ; les requêtes elles-mêmes n'ont PAS été rejouées sur PostgreSQL 16 ni exécutées sur la production : elles ne disent RIEN de son état. Les identifiants sont supposés de même type dans l'`UNION ALL` (non vérifié ; `array_agg(id)` n'en dépend pas).

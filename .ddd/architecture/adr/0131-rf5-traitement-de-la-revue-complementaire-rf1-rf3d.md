@@ -33,7 +33,7 @@ La revue complémentaire s'est arrêtée faute de tours (section « Non traité 
 1. Honnêteté des résiduels face au code : RF1-R1 et R2, RF2-R1 à R5, RF3b-R1 à R5, RF3c-J1 et R1 à R4, RF3d-R1 et R2. Seule RF2-R2 recoupée (l'entrée nommée existe).
 2. Diffs de code RF1 (0081ed66) et RF2 (dec36883) : domaine pur, ports, ACL, cache et invalidation après commit. Non lus.
 3. Lecteur Comptabilité de RF3b (`PayeurJpaContratTest` / `PayeurPostgresContractIT`). Non lu.
-4. `TableDesPayeursTest` et §80 de `verifications-production.md` : hors périmètre de la revue complémentaire (RF4 a traité `TableDesPayeursTest`).
+4. `TableDesPayeursTest` et §85 de `verifications-production.md` : hors périmètre de la revue complémentaire (RF4 a traité `TableDesPayeursTest`).
 
 ## Conséquences
 - Retour arrière : revert Git. Aucun seam (`seamAllowed` reste `[]`), aucun flag. Aucune règle de gestion ne change (référentiel et documentation fonctionnelle non régénérés).
