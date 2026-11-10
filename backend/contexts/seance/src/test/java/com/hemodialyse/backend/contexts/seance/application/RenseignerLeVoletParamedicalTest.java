@@ -134,9 +134,9 @@ class RenseignerLeVoletParamedicalTest {
         assertThat(banc.diffusionsRecues).isEmpty();
     }
 
-    /** KB-SEA-93, reproduit : la fiche hors du centre est découverte APRÈS l'écriture ; le volet reste, rien n'est diffusé. */
+    /** KB-SEA-93, corrigé (L4, 2026-11-10) : la fiche est gardée AVANT l'écriture ; fiche hors centre : 400, rien d'écrit, rien de diffusé. */
     @Test
-    void should_keep_the_written_sheet_and_answer_patient_not_found_without_diffusion_when_the_record_is_in_another_centre() {
+    void should_write_nothing_and_publish_nothing_when_the_record_is_in_another_centre() {
         var ficheAilleurs = banc.patient(CENTRE_B, 3, "P003", "C1");
         var s = banc.ligne(CENTRE_A, ficheAilleurs, 7, StatutDeSeance.VALIDEE);
         banc.seances.semer(s);
@@ -144,25 +144,39 @@ class RenseignerLeVoletParamedicalTest {
         assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), s.id().valeur(), RenseignerLeVoletParamedicalTest::completes))
                 .isInstanceOf(SaisieInvalide.class).hasMessage("Patient introuvable");
 
-        assertThat(volets.deLaSeance(CENTRE_A, s.id())).isPresent();
+        assertThat(volets.nombre()).isZero();
         assertThat(banc.diffusionsRecues).isEmpty();
         assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), s.id().valeur(),
                 () -> MesuresDeSeance.saisies(new BigDecimal("71"), null, null, null, null, null, null, null, null, null)))
                 .isInstanceOf(SaisieInvalide.class);
-        assertThat(volets.deLaSeance(CENTRE_A, s.id()).orElseThrow().mesures().poidsAvantKg()).isEqualByComparingTo("71");
+        assertThat(volets.nombre()).isZero();
     }
 
-    /** KB-SEA-94, reproduit : un volet posé sous un autre centre est invisible ; l'insertion échoue sur l'unicité par séance. */
+    /** KB-SEA-93 : l'ordre des refus est conservé, une mesure refusée (422) précède toujours la fiche absente (400). */
     @Test
-    void should_fail_on_the_uniqueness_by_session_when_a_sheet_of_another_centre_already_exists() {
+    void should_keep_the_measure_refusal_before_the_missing_record_refusal() {
+        var ficheAilleurs = banc.patient(CENTRE_B, 3, "P003", "C1");
+        var s = banc.ligne(CENTRE_A, ficheAilleurs, 7, StatutDeSeance.VALIDEE);
+        banc.seances.semer(s);
+
+        assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), s.id().valeur(),
+                () -> MesuresDeSeance.saisies(BigDecimal.ZERO, null, null, null, null, null, null, null, null, null)))
+                .isInstanceOf(SeanceRefusee.class);
+        assertThat(volets.nombre()).isZero();
+    }
+
+    /** KB-SEA-94, corrigé (L4) : le volet de la séance posé sous un autre centre est trouvé par la séance et remplacé, sans doublon. */
+    @Test
+    void should_replace_the_sheet_of_the_session_even_when_it_was_laid_under_another_centre() {
         var s = semer(1, StatutDeSeance.VALIDEE);
         volets.enregistrer(VoletParamedical.ouvrir(new UUID(8, 9), CENTRE_B, s.id(), MesuresDeSeance.aucune(), MAINTENANT));
 
-        assertThatThrownBy(() -> cas().executer(CENTRE_A.valeur(), s.id().valeur(), RenseignerLeVoletParamedicalTest::completes))
-                .isInstanceOf(VoletsParamedicauxEnMemoire.UniciteParSeanceViolee.class);
+        var volet = cas().executer(CENTRE_A.valeur(), s.id().valeur(), RenseignerLeVoletParamedicalTest::completes);
+
+        assertThat(volet.id()).isEqualTo(new UUID(8, 9));
         assertThat(volets.nombre()).isEqualTo(1);
-        assertThat(volets.deLaSeance(CENTRE_A, s.id())).isEmpty();
-        assertThat(banc.diffusionsRecues).isEmpty();
+        assertThat(volets.deLaSeance(CENTRE_A, s.id()).orElseThrow().mesures()).isEqualTo(completes());
+        assertThat(banc.diffusionsRecues).containsExactly("SEANCE_PARAMEDICAL_SAVED:Nom1", "PARAMEDICAL:u-infirmier");
     }
 
     @Test

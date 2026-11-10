@@ -1,0 +1,37 @@
+{
+  "01 volets avant" : [ {
+    "anticoagulant" : null,
+    "center_id" : "<CENTRE_B>",
+    "debit_sang_ml_min" : null,
+    "duree_minutes" : null,
+    "incidents" : null,
+    "poids_apres_kg" : "77.50",
+    "poids_avant_kg" : "80.00",
+    "ta_apres" : null,
+    "ta_avant" : "140/90",
+    "type_dialysat" : null,
+    "ultrafiltration_ml" : null
+  } ],
+  "02 reponse (infirmier du centre A, corps centre A)" : {
+    "corps" : {
+      "id" : "<UUID_GENERE_1>",
+      "seanceId" : "<SEANCE_A>",
+      "updatedAt" : "<HORODATAGE>"
+    },
+    "status" : 200
+  },
+  "03 volets apres (une seule ligne, remplacee ; son centre n'est PAS reecrit)" : [ {
+    "anticoagulant" : "HEPARINE",
+    "center_id" : "<CENTRE_B>",
+    "debit_sang_ml_min" : "300",
+    "duree_minutes" : "240",
+    "incidents" : "RAS",
+    "poids_apres_kg" : "68.00",
+    "poids_avant_kg" : "70.50",
+    "ta_apres" : "120/70",
+    "ta_avant" : "130/80",
+    "type_dialysat" : "STANDARD",
+    "ultrafiltration_ml" : "2000.00"
+  } ],
+  "04 notifications" : [ ]
+}

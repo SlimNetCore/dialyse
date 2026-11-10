@@ -1,0 +1,73 @@
+{
+  "JSON mal forme" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps ou paramètre illisible",
+      "instance" : "/api/v1/seances/<SEANCE_1>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "centerId illisible" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps ou paramètre illisible",
+      "instance" : "/api/v1/seances/<SEANCE_1>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "centerId null" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "CenterId cannot be null",
+      "instance" : "/api/v1/seances/<SEANCE_1>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "corps absent" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps ou paramètre illisible",
+      "instance" : "/api/v1/seances/<SEANCE_1>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "corps vide {}" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "CenterId cannot be null",
+      "instance" : "/api/v1/seances/<SEANCE_1>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "identifiant de seance illisible" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps ou paramètre illisible",
+      "instance" : "/api/v1/seances/xx/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "seance inconnue" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Seance introuvable",
+      "instance" : "/api/v1/seances/<UUID_GENERE_1>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "statut" : "400 BAD_REQUEST"
+  },
+  "volets en base" : 0
+}

@@ -14,7 +14,8 @@ import java.util.Optional;
 /**
  * Lecture des deux volets d'une séance pour le détail et les séances récentes (SE7f, ADR 0100) : remplace le fournisseur de plateforme
  * {@code VoletsFournisLegacy}. Mêmes dépôts que les saisies, donc même cloisonnement : un volet posé sous un autre centre que la séance
- * n'est pas vu (KB-SEA-94, reproduit, golden {@code detail_volets_au_centre}).
+ * n'est pas vu par cette lecture (KB-SEA-94 : la saisie le retrouve désormais, pas la lecture ; golden {@code detail_volets_au_centre}
+ * inchangé ; le volet médical reste borné au centre, hors périmètre de L4).
  */
 public class VoletsDeLaSeanceJdbc implements VoletsDeLaSeance {
 
@@ -32,7 +33,9 @@ public class VoletsDeLaSeanceJdbc implements VoletsDeLaSeance {
 
     @Override
     public Optional<VoletParamedical> paramedical(CentreId centre, SeanceId seance) {
-        return paramedicaux.deLaSeance(centre, seance).map(v -> {
+        // KB-SEA-94 (L4) : seule la SAISIE cherche le volet par la séance ; la lecture reste bornée au centre (golden inchangé) tant que la
+        // donnée n'est pas réparée (§78 de verifications-production.md)
+        return paramedicaux.deLaSeance(centre, seance).filter(v -> v.centre().equals(centre)).map(v -> {
             MesuresDeSeance m = v.mesures();
             return new VoletParamedical(m.poidsAvantKg(), m.poidsApresKg(), m.tensionAvant(), m.tensionApres(), m.dureeMinutes(),
                     m.debitSangMlMin(), m.ultrafiltrationMl(), m.anticoagulant(), m.typeDeDialysat(), m.incidents());

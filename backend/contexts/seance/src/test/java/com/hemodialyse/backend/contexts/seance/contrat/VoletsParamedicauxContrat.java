@@ -34,12 +34,41 @@ abstract class VoletsParamedicauxContrat {
     }
 
     @Test
-    void should_find_nothing_for_a_session_without_a_sheet_or_for_a_sheet_of_another_centre() {
+    void should_find_nothing_for_a_session_without_a_sheet() {
         var v = volets();
         v.enregistrer(VoletParamedical.ouvrir(new UUID(8, 1), A, SEANCE, completes(), T0));
 
         assertThat(v.deLaSeance(A, new SeanceId(new UUID(2, 2)))).isEmpty();
-        assertThat(v.deLaSeance(B, SEANCE)).isEmpty();
+    }
+
+    /** KB-SEA-94, corrigé (L4) : le volet est cherché PAR SÉANCE ; un volet posé sous un autre centre est trouvé et garde son centre. */
+    @Test
+    void should_find_the_sheet_by_the_session_even_when_it_is_laid_under_another_centre() {
+        var v = volets();
+        v.enregistrer(VoletParamedical.ouvrir(new UUID(8, 1), B, SEANCE, completes(), T0));
+
+        var lu = v.deLaSeance(A, SEANCE).orElseThrow();
+        assertThat(lu.id()).isEqualTo(new UUID(8, 1));
+        assertThat(lu.centre()).isEqualTo(B);
+        assertThat(lu.mesures()).isEqualTo(completes());
+    }
+
+    /** KB-SEA-94, corrigé (L4) : lu par la séance puis remplacé, le volet d'un autre centre est mis à jour sans violer l'unicité. */
+    @Test
+    void should_update_the_sheet_found_under_another_centre_without_creating_a_second_one_nor_moving_it() {
+        var v = volets();
+        v.enregistrer(VoletParamedical.ouvrir(new UUID(8, 1), B, SEANCE, completes(), T0));
+        var lu = v.deLaSeance(A, SEANCE).orElseThrow();
+        var seulement = MesuresDeSeance.saisies(new BigDecimal("71.20"), null, null, null, null, null, null, null, null, null);
+        lu.remplacerLesMesures(seulement, T1);
+        v.enregistrer(lu);
+
+        var apres = v.deLaSeance(A, SEANCE).orElseThrow();
+        assertThat(apres.id()).isEqualTo(new UUID(8, 1));
+        assertThat(apres.centre()).isEqualTo(B);
+        assertThat(apres.mesures()).isEqualTo(seulement);
+        assertThat(apres.creeLe()).isEqualTo(T0);
+        assertThat(apres.modifieLe()).isEqualTo(T1);
     }
 
     @Test
@@ -70,7 +99,7 @@ abstract class VoletsParamedicauxContrat {
         assertThat(apres.modifieLe()).isEqualTo(T1);
     }
 
-    /** KB-SEA-94, reproduit : l'unicité par séance ne regarde pas le centre. */
+    /** KB-SEA-94 : l'unicité par séance ne regarde pas le centre (un SECOND volet reste refusé, c'est la donnée qui est gardée). */
     @Test
     void should_refuse_a_second_sheet_for_the_same_session_even_under_another_centre_and_leave_the_first_intact() {
         var v = volets();
@@ -79,7 +108,7 @@ abstract class VoletsParamedicauxContrat {
 
         assertThatThrownBy(() -> v.enregistrer(VoletParamedical.ouvrir(new UUID(8, 2), A, SEANCE, completes(), T0))).isInstanceOf(violationDUnicite());
 
-        assertThat(v.deLaSeance(A, SEANCE)).isEmpty();
+        assertThat(v.deLaSeance(A, SEANCE).orElseThrow().id()).isEqualTo(new UUID(8, 1));
         assertThat(v.deLaSeance(B, SEANCE).orElseThrow().mesures().poidsAvantKg()).isEqualByComparingTo("80.00");
     }
 

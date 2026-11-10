@@ -26,7 +26,8 @@ public class VoletsParamedicauxEnMemoire implements VoletsParamedicaux {
 
     @Override
     public Optional<VoletParamedical> deLaSeance(CentreId centre, SeanceId seance) {
-        return volets.stream().filter(v -> v.centre().equals(centre) && v.seance().equals(seance)).findFirst().map(VoletsParamedicauxEnMemoire::copie);
+        // KB-SEA-94 (corrigé, L4) : par la séance seule, comme la table ; le volet garde son centre
+        return volets.stream().filter(v -> v.seance().equals(seance)).findFirst().map(VoletsParamedicauxEnMemoire::copie);
     }
 
     @Override

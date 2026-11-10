@@ -85,9 +85,19 @@ Lancée le 2026-11-09 à 00 h 02 UTC (`-pl platform -Dtest=SeanceScanIntegration
 | F-R7 | Écart assumé sous concurrence (409 `ECRITURE_CONCURRENTE`, ADR 0100 « Parité attendue ») : rejoué sur PG16 par F7 du script (chemin SQL du PUT : `FOR UPDATE` + `lock_timeout`, deux processus), PAS en HTTP (le script ne démarre pas l'application) ; couverture / mutation non mesurées ; HTML mis à jour à la main le 2026-11-09, PDF et DOCX de la documentation fonctionnelle (RG-SEA-063 à 071) à la prochaine régénération ordinaire | 2026-12-15 | 2027-03-31 |
 | F-R8 | `db/seed.sql`, `renadial-seed.sql`, `renadial-purge.sql` (données, rejoués hors profil `prod` : question ouverte SE7e maintenue) ; `cahier_dialyse.jrxml` (E-R3) ; `db/schema.sql` (schéma H2, inscrit) | 2026-12-15 | 2027-06-30 |
 
+## Lot L4 (2026-11-10, ADR 0116) : KB-SEA-93, 94 et 99 CORRIGÉS (écarts de parité DÉCIDÉS, à confirmer par les métiers au plus tard le 2026-12-15)
+Le comportement change volontairement (demande de l'utilisateur) : les lignes « reproduit » ci-dessus pour KB-SEA-93 et 94 et la ligne « Codes HTTP du volet » ne décrivent plus le code actuel.
+| Écart | Avant | Après | Preuve |
+|---|---|---|---|
+| KB-SEA-93 | volet écrit puis 400 « Patient introuvable » | fiche gardée avant l'écriture : 400, rien d'écrit, rien de diffusé | test d'application, golden `volet/fiche_hors_centre_nouveau_code` |
+| KB-SEA-94 | 500 `DATA_ACCESS_ERROR` (unicité par séance) | volet cherché par la séance, remplacé sous son centre actuel (200) ; aucune réécriture de donnée ; lectures du détail inchangées | contrat mémoire / H2 / PG16, golden `volet/volet_d_un_autre_centre_nouveau_code`, rejeu PG16 F8 |
+| KB-SEA-99 | 500 `INTERNAL_ERROR` | 400 `BAD_REQUEST` (403 avant 400 conservé) | goldens DM1 `erreurs_nouveau_code` (4 cas), `autres_mesures_nouveau_code` (2 cas) |
+Goldens remplacés : anciens archivés sous `_ecarts-legacy/**/*_avant_l4.legacy.json`. Détection et réparation MANUELLE du centre des volets : `verifications-production.md` §78 (aucune migration). Flag / bascule : aucun (ADR 0024).
+
 ## Questions ouvertes
-- KB-SEA-93 : une seule transaction (écriture et diffusions) ou garde de la fiche avant l'écriture ?
-- KB-SEA-94 : réparer les volets posés sous un autre centre que leur séance et contraindre, ou lire par séance seule ? (§65.1 sur une copie avant bascule)
+- KB-SEA-93 : RÉSOLUE par L4 (garde de la fiche avant l'écriture), confirmation métiers attendue.
+- KB-SEA-94 : code RÉSOLU par L4 (lecture par la séance) ; reste la réparation du `center_id` des volets (§78, décision écrite du responsable des données) et le volet médical, même anomalie, hors périmètre.
+- Texte trop long pour sa colonne (anticoagulant, type de dialysat : 500 `DATA_ACCESS_ERROR`) : observé en L4, non traité ; faut-il un 422 ?
 - KB-SEA-95 : motif « jour férié » pour le scan de l'administrateur ?
 - KB-SEA-96 : départage à date égale, traitement de la créatinine à 0 (médecins).
 - Les 45 champs non persistés du volet legacy (dont la signature de l'infirmier et l'abord vasculaire) : fonction attendue ?

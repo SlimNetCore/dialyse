@@ -16,13 +16,14 @@ import java.util.function.Supplier;
 /**
  * Saisie du volet paramédical d'une séance (PUT /api/v1/seances/{id}/volet-paramedical, administrateur, infirmier ou secrétaire ; SE7f,
  * ADR 0100, parité DM1). REMPLACE les dix mesures en entier. Ordre des refus du legacy : centre (403), séance introuvable (400), séance
- * facturée (422), mesures (422). Deux écritures simultanées se suivent (séance lue sous verrou de ligne ; verrou non obtenu : 409).
+ * facturée (422), mesures (422), fiche du patient absente du centre (400). Deux écritures simultanées se suivent (séance lue sous verrou
+ * de ligne ; verrou non obtenu : 409).
  * <p>
- * REPRODUIT (KB-SEA-93, à décider au plus tard le 2026-12-15) : le volet est ÉCRIT ET VALIDÉ dans sa propre unité de travail, PUIS la
- * fiche du patient est relue pour les diffusions ; une fiche hors du centre de la séance rend 400 « Patient introuvable » alors que le
- * volet est en base, et rien n'est diffusé. REPRODUIT (KB-SEA-94) : un volet de la même séance posé sous un autre centre est invisible
- * et fait échouer l'insertion (unicité par séance). Les deux diffusions du legacy sont émises dans le même ordre (volet enregistré, puis
- * saisie de l'infirmier de type {@code PARAMEDICAL}).
+ * CORRIGÉ (L4, 2026-11-10, ADR 0116, à confirmer par les métiers avant le 2026-12-15) : KB-SEA-93, la fiche du patient est gardée dans
+ * l'unité de travail AVANT l'écriture du volet (refus 400 « Patient introuvable » : rien d'écrit, rien de diffusé ; avant, le volet était
+ * écrit puis la réponse échouait) ; KB-SEA-94, le volet de la séance est cherché par la séance (le centre de la séance, déjà gardé, fait
+ * foi) : un volet posé sous un autre centre est remplacé sans changer son centre (aucune réécriture de donnée). Les deux diffusions du
+ * legacy sont émises dans le même ordre (volet enregistré, puis saisie de l'infirmier de type {@code PARAMEDICAL}).
  */
 public class RenseignerLeVoletParamedical {
 
@@ -55,10 +56,13 @@ public class RenseignerLeVoletParamedical {
         CentreId centre = session.centre(centreDemande); // 403 avant tout 400
         SeanceId id = new SeanceId(seance);
         Seance[] trouvee = new Seance[1];
+        FicheDuPatient[] fiche = new FicheDuPatient[1];
         VoletParamedical volet = uniteDeTravail.executer(() -> {
             trouvee[0] = seances.trouverPourModifier(centre, id).orElseThrow(SeanceIntrouvable::new);
             trouvee[0].exigerUnVoletParamedical();
             MesuresDeSeance mesures = mesuresDemandees.get();
+            // KB-SEA-93 (corrigé, L4) : la fiche est gardée AVANT toute écriture ; absente du centre : 400, rien d'écrit
+            fiche[0] = patients.fiche(centre, trouvee[0].patient()).orElseThrow(() -> new SaisieInvalide("Patient introuvable"));
             var maintenant = horloge.maintenant();
             VoletParamedical existant = volets.deLaSeance(centre, id).orElse(null);
             if (existant == null) {
@@ -69,10 +73,8 @@ public class RenseignerLeVoletParamedical {
             volets.enregistrer(existant);
             return existant;
         });
-        // KB-SEA-93 (reproduit) : la fiche est relue APRÈS la validation de l'écriture ; absente du centre : 400, aucune diffusion.
-        FicheDuPatient fiche = patients.fiche(centre, trouvee[0].patient()).orElseThrow(() -> new SaisieInvalide("Patient introuvable"));
-        diffusions.voletParamedicalEnregistre(centre, trouvee[0], fiche);
-        diffusions.saisieDeLInfirmier(centre, TYPE_DE_SAISIE, trouvee[0], fiche, session.utilisateur());
+        diffusions.voletParamedicalEnregistre(centre, trouvee[0], fiche[0]);
+        diffusions.saisieDeLInfirmier(centre, TYPE_DE_SAISIE, trouvee[0], fiche[0], session.utilisateur());
         return volet;
     }
 }

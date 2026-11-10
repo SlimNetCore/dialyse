@@ -19,9 +19,9 @@ import java.util.UUID;
  * Adapter entrant HTTP du volet paramédical (SE7f, ADR 0100) : MÊME URL, MÊMES champs JSON, MÊMES droits (administrateur, infirmier,
  * secrétaire) et MÊMES codes que {@code VoletParamedicalRestController} (plateforme, retiré) : 403 avant 400 (centre du corps), 400
  * « Seance introuvable » / « Patient introuvable » / « CenterId cannot be null », 422 (facturée, mesures), 500 {@code DATA_ACCESS_ERROR}
- * (unicité par séance, KB-SEA-94 ; colonne trop courte) et 500 {@code INTERNAL_ERROR} sur un corps illisible (reproduit : les erreurs de
- * lecture du corps ne sont PAS reprises par {@link ErreursDuVoletParamedicalAdvice}, parité DM1). Routé depuis SE7f : le handler legacy est
- * retiré (refactoring sur place, ADR 0024).
+ * (colonne trop courte) ; ÉCART DÉCIDÉ (L4, ADR 0116) : un corps illisible est un 400 {@code BAD_REQUEST} (KB-SEA-99, avant : 500
+ * {@code INTERNAL_ERROR}), un volet posé sous un autre centre est remplacé (KB-SEA-94, avant : 500 {@code DATA_ACCESS_ERROR}) et une fiche
+ * hors centre est refusée avant l'écriture (KB-SEA-93). Routé depuis SE7f : le handler legacy est retiré (refactoring sur place, ADR 0024).
  */
 @RestController
 @RequestMapping("/api/v1/seances")

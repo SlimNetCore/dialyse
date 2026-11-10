@@ -15,11 +15,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Les volets paramédicaux sur la table RÉELLE {@code volet_paramedical} (aucune colonne ajoutée ; SE7f, ADR 0100). Lecture et effacement
- * bornés au centre, comme la requête dérivée {@code findBySeanceIdAndCenterId} du legacy : un volet de la même séance posé sous un autre
- * centre est invisible et l'INSERT échoue alors sur {@code UNIQUE (seance_id)} (Flyway V1 ; KB-SEA-94, reproduit). La mise à jour remplace
- * les dix mesures et {@code updated_at}, jamais {@code created_at}. Les bornes des colonnes (varchar 30 et 100) refusent les textes trop
- * longs par une erreur d'accès aux données (reproduit, DM1).
+ * Les volets paramédicaux sur la table RÉELLE {@code volet_paramedical} (aucune colonne ajoutée ; SE7f, ADR 0100). Lecture PAR LA SÉANCE
+ * (KB-SEA-94, corrigé en L4, ADR 0116 : le volet posé sous un autre centre est trouvé, garde son {@code center_id} et est mis à jour sans
+ * violer {@code UNIQUE (seance_id)}, aucune donnée réécrite) ; effacement borné au centre. La mise à jour remplace les dix mesures et
+ * {@code updated_at}, jamais {@code created_at}. Les bornes des colonnes (varchar 30 et 100) refusent les textes trop longs par une
+ * erreur d'accès aux données (reproduit, DM1).
  */
 public class VoletsParamedicauxJdbc implements VoletsParamedicaux {
 
@@ -34,15 +34,16 @@ public class VoletsParamedicauxJdbc implements VoletsParamedicaux {
 
     @Override
     public Optional<VoletParamedical> deLaSeance(CentreId centre, SeanceId seance) {
-        return jdbc.query("SELECT " + COLONNES + " FROM volet_paramedical WHERE seance_id = ? AND center_id = ? "
+        // KB-SEA-94 (corrigé, L4) : par la séance seule ; UNIQUE (seance_id) garantit au plus une ligne ; le volet garde SON centre
+        return jdbc.query("SELECT center_id, " + COLONNES + " FROM volet_paramedical WHERE seance_id = ? "
                         + "ORDER BY created_at ASC NULLS LAST, id ASC",
-                (rs, i) -> VoletParamedical.restituer(rs.getObject("id", UUID.class), centre, seance,
+                (rs, i) -> VoletParamedical.restituer(rs.getObject("id", UUID.class), new CentreId(rs.getObject("center_id", UUID.class)), seance,
                         MesuresDeSeance.restituees(rs.getBigDecimal("poids_avant_kg"), rs.getBigDecimal("poids_apres_kg"), rs.getString("ta_avant"),
                                 rs.getString("ta_apres"), entier(rs.getObject("duree_minutes")), entier(rs.getObject("debit_sang_ml_min")),
                                 rs.getBigDecimal("ultrafiltration_ml"), rs.getString("anticoagulant"), rs.getString("type_dialysat"),
                                 rs.getString("incidents")),
                         instant(rs.getTimestamp("created_at")), instant(rs.getTimestamp("updated_at"))),
-                seance.valeur(), centre.valeur()).stream().findFirst();
+                seance.valeur()).stream().findFirst();
     }
 
     @Override

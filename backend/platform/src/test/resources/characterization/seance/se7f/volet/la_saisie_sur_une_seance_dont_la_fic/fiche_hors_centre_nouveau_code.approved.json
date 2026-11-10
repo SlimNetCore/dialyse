@@ -1,0 +1,25 @@
+{
+  "01 reponse (infirmier du centre A, corps centre A)" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Patient introuvable",
+      "instance" : "/api/v1/seances/<SEANCE_A_FICHE_B>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "02 volets en base apres la reponse (aucun : la fiche est gardee avant l'ecriture)" : [ ],
+  "03 notifications" : [ ],
+  "04 seconde saisie (meme refus, toujours rien d'ecrit)" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Patient introuvable",
+      "instance" : "/api/v1/seances/<SEANCE_A_FICHE_B>/volet-paramedical",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "status" : 400
+  },
+  "05 volets en base (toujours aucun)" : [ ]
+}

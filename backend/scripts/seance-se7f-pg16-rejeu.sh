@@ -9,8 +9,12 @@
 #   F2  SeancePlanningJdbcAdapter.java:46-48 : colonne du jour de la semaine, sommeil, etat, dates du patient AU CENTRE
 #   F3  SeancePlaceJdbcAdapter.java:33-34 : deplacement temporaire du jour, au centre
 #   F4  VoletParamedicalJpaRepository.findBySeanceIdAndCenterId (derivee) : volet pose sous un autre centre invisible au centre de la seance
+#       (LEGACY et lecture du detail ; la SAISIE corrigee en L4 lit par la seance, voir F8)
 #   F5  V1 : contrainte UNIQUE (seance_id) de volet_paramedical et volet_medical : un second volet pour la meme seance, meme sous un autre
-#       centre, est refuse par la base (golden volet_d_un_autre_centre : 500 DATA_ACCESS_ERROR)
+#       centre, est refuse par la base (avant L4 : golden volet_d_un_autre_centre, 500 DATA_ACCESS_ERROR ; depuis L4 la saisie ne tente plus
+#       cet INSERT, elle met a jour le volet de la seance)
+#   F8  (L4, 2026-11-10, KB-SEA-94, ADR 0116) chemin SQL de la saisie corrigee : lecture du volet PAR LA SEANCE (le volet du centre B est
+#       trouve), UPDATE par la seance : une seule ligne, centre B inchange, aucun INSERT, aucune reecriture de center_id
 #   F6  ResultatAnalyseJpaRepository.findByPatientIdAndCenterIdOrderByDatePrelevementDesc (derivee) : analyses du patient AU CENTRE, date
 #       decroissante ; a date egale, ordre NON defini (KB-SEA-96) : observe, non impose
 #   F7  (revue SE7f m5, 2026-11-09) deux ecritures concurrentes du volet paramedical de la meme seance, chemin SQL du PUT du nouveau code
@@ -107,6 +111,12 @@ ERREUR="$("${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "INSERT INTO volet_
 verifier "F5 second volet (centre A) refuse par la cle d'unicite" "$(echo "$ERREUR" | grep -c 'duplicate key value violates unique constraint')" "1"
 verifier "F5 le volet du centre B est intact, aucun volet au centre A" "$(sql "SELECT center_id FROM volet_paramedical WHERE seance_id = '$SA' ORDER BY center_id" | lignes)" "$B"
 
+echo "=== F8 (L4, KB-SEA-94) saisie corrigee : lecture PAR LA SEANCE puis UPDATE par la seance, le volet du centre B est remplace sans INSERT ==="
+verifier "F8 le volet de la seance SA est trouve par la seance seule (centre du volet : B)" "$(sql "SELECT center_id FROM volet_paramedical WHERE seance_id = '$SA' ORDER BY created_at ASC NULLS LAST, id ASC")" "$B"
+verifier "F8 UPDATE par la seance : une ligne mise a jour, centre inchange" "$(sql "WITH m AS (UPDATE volet_paramedical SET poids_avant_kg = 81.00, updated_at = now() WHERE id = (SELECT id FROM volet_paramedical WHERE seance_id = '$SA') AND center_id = '$B' RETURNING center_id, poids_avant_kg) SELECT count(*), min(center_id::text), min(poids_avant_kg) FROM m")" "1|$B|81.00"
+verifier "F8 toujours un seul volet pour la seance, sous le centre B (aucune reecriture de center_id)" "$(sql "SELECT count(*), min(center_id::text) FROM volet_paramedical WHERE seance_id = '$SA'")" "1|$B"
+sql "UPDATE volet_paramedical SET poids_avant_kg = 80.00 WHERE seance_id = '$SA'" || exit 3
+
 echo "=== F6 ResultatAnalyseJpaRepository...OrderByDatePrelevementDesc (SQL equivalent) : analyses du patient AU CENTRE, date decroissante ==="
 verifier "F6 ordre au centre A (creatinine : 1.0 et 9.0 du 03-01, nulle du 01-31, 9.0 du 01-21, 1.0 du 01-11 ; le centre B absent)" \
   "$(sql "SELECT date_prelevement, creatinine_mg_dl FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' ORDER BY date_prelevement DESC, creatinine_mg_dl" | lignes)" \
@@ -120,11 +130,11 @@ verifier "F6 les deux analyses du 03-01 sont servies" "$(sql "SELECT COUNT(*) FR
 # F7 (revue SE7f m5, 2026-11-09 ; ADR 0100 "Parite attendue", ecart assume sous concurrence) : deux ecritures CONCURRENTES du volet
 # paramedical de la MEME seance, chemin SQL du PUT /api/v1/seances/{id}/volet-paramedical tel que l'executent UniteDeTravailSpring
 # (SET LOCAL lock_timeout = 5000), SeancesJdbc.trouverPourModifier (SELECT ... FROM seances WHERE id AND center_id FOR UPDATE) et
-# VoletsParamedicauxJdbc (lecture au centre puis UPDATE, sinon INSERT ; ici l'equivalent SQL : UPDATE au centre, INSERT si aucun).
+# VoletsParamedicauxJdbc (lecture par la seance puis UPDATE, sinon INSERT ; ici l'equivalent SQL : UPDATE par la seance, INSERT si aucun).
 # Ce n'est PAS un appel HTTP : le script ne demarre pas l'application ; "ECRIT" vaut 200, "lock timeout" (SQLSTATE 55P03) vaut 409.
 # Deux processus psql (& puis wait) ; le premier garde le verrou pendant ATTENTE secondes (pg_sleep) avant d'ecrire et de valider.
 ecriture_du_volet() { # fichier attente poids identifiant_du_nouveau_volet
-  "${PSQL[@]}" -d hemo_test -qtA -c "BEGIN; SET LOCAL lock_timeout = 5000; SELECT id FROM seances WHERE id = '$SF' AND center_id = '$A' FOR UPDATE; SELECT pg_sleep($2); UPDATE volet_paramedical SET poids_avant_kg = $3, updated_at = now() WHERE seance_id = '$SF' AND center_id = '$A'; INSERT INTO volet_paramedical (id, center_id, seance_id, poids_avant_kg, created_at, updated_at) SELECT '$4', '$A', '$SF', $3, now(), now() WHERE NOT EXISTS (SELECT 1 FROM volet_paramedical WHERE seance_id = '$SF' AND center_id = '$A'); COMMIT; SELECT 'ECRIT';" 2>&1 | tr -d '\r' | dd of="$1" status=none
+  "${PSQL[@]}" -d hemo_test -qtA -c "BEGIN; SET LOCAL lock_timeout = 5000; SELECT id FROM seances WHERE id = '$SF' AND center_id = '$A' FOR UPDATE; SELECT pg_sleep($2); UPDATE volet_paramedical SET poids_avant_kg = $3, updated_at = now() WHERE seance_id = '$SF'; INSERT INTO volet_paramedical (id, center_id, seance_id, poids_avant_kg, created_at, updated_at) SELECT '$4', '$A', '$SF', $3, now(), now() WHERE NOT EXISTS (SELECT 1 FROM volet_paramedical WHERE seance_id = '$SF'); COMMIT; SELECT 'ECRIT';" 2>&1 | tr -d '\r' | dd of="$1" status=none
 }
 resultat_f7() { # fichier -> ECRIT | 409 (lock timeout, 55P03) | AUTRE
   if grep -q '^ECRIT$' "$1"; then echo "ECRIT"; elif grep -qi 'lock timeout' "$1"; then echo "409 lock timeout"; else echo "AUTRE : $(paste -sd ' ' "$1")"; fi

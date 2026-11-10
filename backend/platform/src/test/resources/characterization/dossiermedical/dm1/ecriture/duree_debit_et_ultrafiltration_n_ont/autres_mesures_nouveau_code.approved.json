@@ -1,0 +1,58 @@
+{
+  "\"anticoagulant\":\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..." : {
+    "enBase" : "[]",
+    "statut" : "500 DATA_ACCESS_ERROR"
+  },
+  "\"debitSangMlMin\":-1" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=null, DEBIT_SANG_ML_MIN=-1, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"debitSangMlMin\":100000" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=null, DEBIT_SANG_ML_MIN=100000, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"dureeMinutes\":\"abc\"" : {
+    "enBase" : "[]",
+    "statut" : "400 BAD_REQUEST"
+  },
+  "\"dureeMinutes\":-5" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=-5, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"dureeMinutes\":0" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=0, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"dureeMinutes\":1.5" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=1, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"dureeMinutes\":99999" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=99999, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"dureeMinutes\":99999999999" : {
+    "enBase" : "[]",
+    "statut" : "400 BAD_REQUEST"
+  },
+  "\"poidsAvantKg\":60,\"poidsApresKg\":90" : {
+    "enBase" : "[{POIDS_AVANT_KG=60.00, POIDS_APRES_KG=90.00, DUREE_MINUTES=null, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=null, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"typeDialysat\":\"YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY..." : {
+    "enBase" : "[]",
+    "statut" : "500 DATA_ACCESS_ERROR"
+  },
+  "\"ultrafiltrationMl\":-100" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=null, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=-100.00, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"ultrafiltrationMl\":2000.555" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=null, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=2000.56, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  },
+  "\"ultrafiltrationMl\":99999999999999" : {
+    "enBase" : "[{POIDS_AVANT_KG=null, POIDS_APRES_KG=null, DUREE_MINUTES=null, DEBIT_SANG_ML_MIN=null, ULTRAFILTRATION_ML=99999999999999.00, L_ANTICOAG=0, L_DIALYSAT=0}]",
+    "statut" : "200"
+  }
+}

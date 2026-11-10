@@ -147,7 +147,8 @@ SE7e (ADR 0099) n'ajoute aucune route : le pilotage de la Direction (`/api/v1/di
 d'écriture hors de la Séance, réservé à la reprise) et `ForfaitsImposesAuxSeancesPublies`, injectés directement (la plateforme dépend du
 module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068.
 SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`
-passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes ; règle : RG-SEA-069) ;
+passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
+ADR 0116 : fiche vérifiée avant l'écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;
 les lectures que la plateforme fournissait à la Séance (planning, place, forfaits, historique, générateurs, référentiel des forfaits, jour du
 centre, volets) sont reprises mot pour mot dans le module (RG-SEA-070) ; les ports publiés `VoletsFournis`, `PlanningFourni`, `PlaceFournie`,
 `ForfaitsFournis`, `HistoriqueFourni`, `GenerateursFournis`, `ReferentielDeForfaitsFourni` et `JourDuCentreFourni` disparaissent du langage

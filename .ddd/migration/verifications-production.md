@@ -2545,3 +2545,32 @@ FROM mouvement_patient m LEFT JOIN salle s ON s.id = m.salle_id LEFT JOIN positi
 ```
 **Interprétation** : `0` partout : V56 n'ajoute que la contrainte et la borne est sans effet visible. `nuls > 0` : prévenir les métiers Stock (et confirmer que ces centres sont bien en service ; sinon `UPDATE centers SET actif = FALSE` par décision écrite AVANT V56). `> 0` en 77.2 : lister les lignes (`m.id`, `m.center_id`, `s.center_id`) et décider par écrit : remapper l'identifiant vers la salle ou le créneau du centre du mouvement, ou accepter le libellé vide ; ne pas rouvrir la lecture non bornée. SELECT NON rejoués sur PostgreSQL 16 (O4-R7) ; ne disent RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : après V56, `SELECT is_nullable, column_default FROM information_schema.columns WHERE table_name = 'centers' AND column_name = 'actif'` rend `NO` et `true` ; le journal des mouvements d'un centre n'affiche plus que les salles et créneaux de ce centre. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 78. Séance L4 (écriture du volet paramédical, ADR 0116, KB-SEA-93, 94 et 99 CORRIGÉS) : détection et réparation MANUELLE du centre des volets (2026-11-10) — SELECT seulement pour la détection
+
+AUCUNE migration Flyway, AUCUN `UPDATE` automatique. Le code corrigé cherche le volet par la séance : la saisie ne bloque plus sur un volet posé sous un autre centre (le volet est remplacé, son centre reste). La réparation ci-dessous n'est donc plus nécessaire à la saisie ; elle reste utile aux lectures bornées au centre (détail de la séance, séances récentes, volet médical), qui ne voient toujours pas ces volets. Décision du responsable des données (question 9 de `corrections-kb-2026-11-09.md`).
+
+```sql
+-- 78.1 = 65.1 : volets posés sous un autre centre que leur séance (par centre de la séance et centre du volet). Détection, SELECT seulement.
+SELECT 'volet_paramedical' AS volet, s.center_id AS centre_de_la_seance, v.center_id AS centre_du_volet, count(*) AS volets
+FROM volet_paramedical v JOIN seances s ON s.id = v.seance_id WHERE v.center_id <> s.center_id GROUP BY s.center_id, v.center_id
+UNION ALL
+SELECT 'volet_medical', s.center_id, v.center_id, count(*)
+FROM volet_medical v JOIN seances s ON s.id = v.seance_id WHERE v.center_id <> s.center_id GROUP BY s.center_id, v.center_id ORDER BY 1, 2, 3;
+-- 78.2 KB-SEA-93 : volets écrits sur une séance dont la fiche du patient est dans un autre centre (écrits par l'ancien défaut ; jamais supprimés par ce lot).
+SELECT s.center_id, s.id AS seance, v.id AS volet, p.center_id AS centre_de_la_fiche
+FROM volet_paramedical v JOIN seances s ON s.id = v.seance_id JOIN patients p ON p.id = s.patient_id AND p.center_id <> s.center_id ORDER BY 1, 2;
+-- 78.3 Séances elles-mêmes au mauvais centre (KB-SEA-69) : la réparation ci-dessous PROPAGERAIT l'erreur ; à lire AVANT toute exécution (voir §64, §65).
+SELECT s.center_id, count(*) AS seances_sans_fiche_au_centre FROM seances s WHERE NOT EXISTS (SELECT 1 FROM patients p WHERE p.id = s.patient_id AND p.center_id = s.center_id) GROUP BY s.center_id;
+```
+**Réparation (COMMENTÉE, NE PAS EXÉCUTER sans accord).** À exécuter SEULEMENT après validation écrite du responsable des données, sur COPIE d'abord (comparer les comptes de 78.1 avant et après, qui doivent tomber à 0, puis relire le détail d'une séance concernée), puis sur la production en transaction, hors Flyway. Aucun `DELETE`.
+```sql
+-- BEGIN;
+-- UPDATE volet_paramedical v SET center_id = (SELECT s.center_id FROM seances s WHERE s.id = v.seance_id)
+--  WHERE EXISTS (SELECT 1 FROM seances s WHERE s.id = v.seance_id AND s.center_id <> v.center_id);
+-- UPDATE volet_medical v SET center_id = (SELECT s.center_id FROM seances s WHERE s.id = v.seance_id)
+--  WHERE EXISTS (SELECT 1 FROM seances s WHERE s.id = v.seance_id AND s.center_id <> v.center_id);
+-- -- contrôler : rejouer 78.1 (0 ligne attendue), puis COMMIT; sinon ROLLBACK;
+```
+**Interprétation** : `0` ligne en 78.1 : rien à réparer, les volets sont au centre de leur séance. `> 0` : la saisie fonctionne déjà (volet remplacé sous son centre actuel) ; réparer pour que les lectures bornées voient le volet. `78.2 > 0` : informer les métiers Soins (volets écrits sans diffusion, par l'ancien défaut) ; ne pas les supprimer. `78.3 > 0` : décider d'abord du sort de ces séances (KB-SEA-69). SELECT de détection rejouées sous forme équivalente sur PostgreSQL 16 jetable pour 78.1 (`backend/scripts/seance-se7f-pg16-rejeu.sh`, 65.1) ; 78.2 et 78.3 NON rejouées ; ne disent RIEN de l'état de la production.
+**Recette (lecture seule, sur une copie)** : un `PUT /api/v1/seances/{id}/volet-paramedical` sur une séance dont le volet est sous un autre centre répond 200 et met à jour la ligne existante (centre inchangé) ; sur une séance dont la fiche est hors centre il répond 400 « Patient introuvable » et ne crée aucune ligne ; un corps JSON illisible répond 400 `BAD_REQUEST`. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

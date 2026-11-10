@@ -120,6 +120,9 @@ class EnregistrementDesConstantesDeSeanceCharacterizationIntegrationTest extends
                 "\"anticoagulant\":\"" + "X".repeat(101) + "\"", "\"typeDialysat\":\"" + "Y".repeat(101) + "\""}) {
             jdbc.update("DELETE FROM volet_paramedical WHERE seance_id = ?", seance);
             Resp r = put(seance, corpsVolet(CENTRE_A, champs), infirmier());
+            if (champs.startsWith("\"dureeMinutes\":\"abc\"") || champs.equals("\"dureeMinutes\":99999999999")) {
+                assertThat(r.status()).as(champs).isEqualTo(400); // KB-SEA-99 (corrigé, L4)
+            }
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("statut", statutEtCode(r));
             m.put("enBase", jdbc.queryForList("SELECT poids_avant_kg, poids_apres_kg, duree_minutes, debit_sang_ml_min, ultrafiltration_ml, "
@@ -127,7 +130,7 @@ class EnregistrementDesConstantesDeSeanceCharacterizationIntegrationTest extends
                     + "FROM volet_paramedical WHERE seance_id = ?", seance).toString());
             cas.put(champs.length() > 60 ? champs.substring(0, 60) + "..." : champs, m);
         }
-        arbre("autres_mesures", cas);
+        arbre("autres_mesures_nouveau_code", cas);
     }
 
     @Test
@@ -155,11 +158,18 @@ class EnregistrementDesConstantesDeSeanceCharacterizationIntegrationTest extends
         cas.put("corps vide {}", reponse(put(seance, "{}", infirmier())));
         cas.put("centerId null", reponse(put(seance, corpsVolet(null, COMPLET), infirmier())));
         cas.put("centerId illisible", reponse(put(seance, "{\"centerId\":\"xx\"}", infirmier())));
-        cas.put("JSON mal forme", reponse(put(seance, "{", infirmier())));
-        cas.put("corps absent", reponse(doPut(SEANCES_API + "/" + seance + "/volet-paramedical", "", infirmier())));
-        cas.put("identifiant de seance illisible", reponse(doPut(SEANCES_API + "/xx/volet-paramedical", corpsVolet(CENTRE_A, COMPLET), infirmier())));
+        Resp malForme = put(seance, "{", infirmier());
+        Resp absent = doPut(SEANCES_API + "/" + seance + "/volet-paramedical", "", infirmier());
+        Resp identifiantIllisible = doPut(SEANCES_API + "/xx/volet-paramedical", corpsVolet(CENTRE_A, COMPLET), infirmier());
+        cas.put("JSON mal forme", reponse(malForme));
+        cas.put("corps absent", reponse(absent));
+        cas.put("identifiant de seance illisible", reponse(identifiantIllisible));
         cas.put("volets en base", nombreDeVolets(seance));
-        arbre("erreurs", cas);
+        // KB-SEA-99 (corrigé, L4) : un corps ou un identifiant illisible est un 400 BAD_REQUEST, plus un 500
+        assertThat(malForme.status()).isEqualTo(400);
+        assertThat(absent.status()).isEqualTo(400);
+        assertThat(identifiantIllisible.status()).isEqualTo(400);
+        arbre("erreurs_nouveau_code", cas);
     }
 
     private Object reponse(Resp r) {
