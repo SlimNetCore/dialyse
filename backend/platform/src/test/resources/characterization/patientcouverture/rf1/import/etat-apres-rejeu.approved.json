@@ -1,0 +1,17 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Ambulances Rouiba",
+  "telephone" : "0795 00 61 36"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Nouveau",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "taxi medical",
+  "telephone" : "021 12 34 56"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "nom" : "Transport Nouveau",
+  "telephone" : null
+} ]

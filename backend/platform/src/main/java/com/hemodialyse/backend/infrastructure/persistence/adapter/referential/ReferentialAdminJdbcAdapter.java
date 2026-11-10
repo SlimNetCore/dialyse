@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsImposesAuxSeancesPublies;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
@@ -42,12 +43,14 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     private final JdbcTemplate jdbc;
     private final ReferentialCacheEvictor cacheEvictor;
     private final ForfaitsImposesAuxSeancesPublies forfaitsImposes;
+    private final Transporteurs transporteurs;
 
     public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor,
-                                       ForfaitsImposesAuxSeancesPublies forfaitsImposes) {
+                                       ForfaitsImposesAuxSeancesPublies forfaitsImposes, Transporteurs transporteurs) {
         this.jdbc = jdbc;
         this.cacheEvictor = cacheEvictor;
         this.forfaitsImposes = forfaitsImposes;
+        this.transporteurs = transporteurs;
     }
 
     private static String select(Table table) {
@@ -153,6 +156,11 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     @Override
     public List<ReferentialEntry> findAllForMatching(CenterId centerId, ReferentialKind kind) {
+        if (kind == ReferentialKind.TRANSPORTEUR) {
+            // RF1 (ADR 0122) : les transporteurs appartiennent à patient-couverture ; la reprise des patients les retrouve par leur nom.
+            return transporteurs.lister(centerId.value()).stream()
+                    .map(t -> new ReferentialEntry(t.id(), java.util.Collections.singletonMap("nom", t.nom()), Map.of())).toList();
+        }
         Table table = ReferentialAdminTables.of(kind);
         return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?" + actifSeulement(table), mapper(table), centerId.value());
     }

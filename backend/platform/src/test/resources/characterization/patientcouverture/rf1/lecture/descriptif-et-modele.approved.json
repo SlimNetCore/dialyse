@@ -1,0 +1,41 @@
+{
+  "descriptif" : {
+    "slugs dans l'ordre d'import" : [ "forfaits", "creneaux", "salles", "medecins", "caisses", "transporteurs", "agences", "centres-payeurs" ],
+    "statut" : 200,
+    "transporteurs" : {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Ambulances Rouiba",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "0795006136",
+        "key" : "telephone",
+        "label" : "Téléphone",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "PHONE"
+      } ],
+      "importOrder" : 1,
+      "label" : "Transporteurs",
+      "naturalKey" : [ "nom" ],
+      "slug" : "transporteurs"
+    }
+  },
+  "modele csv" : "200 text/csv | <BOM>Nom;Téléphone\\nAmbulances Rouiba;0795006136\\n",
+  "modele csv en majuscules" : "200 text/csv | <BOM>Nom;Téléphone\\nAmbulances Rouiba;0795006136\\n",
+  "modele format inconnu" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | <classeur>",
+  "modele xlsx" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | <classeur>",
+  "modele xlsx par defaut" : "200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | <classeur>",
+  "referentiel inconnu" : "400 BAD_REQUEST | Référentiel inconnu : transporteur"
+}

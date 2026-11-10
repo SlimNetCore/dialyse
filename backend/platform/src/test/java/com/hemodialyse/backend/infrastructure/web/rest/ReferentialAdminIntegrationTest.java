@@ -1,8 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.contexts.organisation.application.ReferentielsCommunsUseCases;
-import com.hemodialyse.backend.contexts.organisation.domain.EntreeReferentiel;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDeTransportEnCache;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +50,7 @@ class ReferentialAdminIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private ReferentielsCommunsUseCases referentials;
+    private ListesDeTransportEnCache referentials;
     private MockMvc mockMvc;
 
     private static UserPrincipal principal(String role, UUID centerId) {
@@ -160,8 +158,8 @@ class ReferentialAdminIntegrationTest {
 
     @Test
     void writesEvictTheReferentialCacheOfTheCenterOnly() throws Exception {
-        CentreId centreA = new CentreId(CENTRE_A);
-        CentreId centreB = new CentreId(CENTRE_B);
+        UUID centreA = CENTRE_A;
+        UUID centreB = CENTRE_B;
         jdbc.update("INSERT INTO transporteur (id, center_id, nom) VALUES (?, ?, 'Transport B')", UUID.randomUUID(), CENTRE_B);
         assertThat(referentials.transporteurs(centreA)).isEmpty();          // mis en cache (vide)
         assertThat(referentials.transporteurs(centreB)).hasSize(1);         // mis en cache
@@ -171,7 +169,7 @@ class ReferentialAdminIntegrationTest {
                         .content("{\"values\":{\"nom\":\"Ambulances Rouiba\",\"telephone\":\"0795 00 61 36\"}}"))
                 .andExpect(status().isCreated());
 
-        assertThat(referentials.transporteurs(centreA)).extracting(EntreeReferentiel::nom).containsExactly("Ambulances Rouiba");
+        assertThat(referentials.transporteurs(centreA)).extracting(ListesDeTransportEnCache.ChoixDeTransport::nom).containsExactly("Ambulances Rouiba");
         // Le cache du centre B n'est pas touché : une écriture directe en base n'y apparaît pas.
         jdbc.update("INSERT INTO transporteur (id, center_id, nom) VALUES (?, ?, 'Transport B2')", UUID.randomUUID(), CENTRE_B);
         assertThat(referentials.transporteurs(centreB)).hasSize(1);

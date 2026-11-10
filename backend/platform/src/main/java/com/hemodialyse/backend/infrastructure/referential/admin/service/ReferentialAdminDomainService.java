@@ -7,6 +7,7 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Referentia
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
+import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegate;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminUseCase;
 import com.hemodialyse.backend.domain.shared.PagedResult;
@@ -41,10 +42,23 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     private static final int MAX_PAGE_SIZE = 100;
 
     private final ReferentialAdminRepositoryPort repo;
+    private final ReferentialAdminDelegate delegate;
     private final ReferentialValuesValidator validator = new ReferentialValuesValidator();
 
     public ReferentialAdminDomainService(ReferentialAdminRepositoryPort repo) {
+        this(repo, null);
+    }
+
+    /**
+     * @param delegate gestionnaire des référentiels dont un contexte est propriétaire (RF1 : les transporteurs) ; {@code null} : aucun
+     */
+    public ReferentialAdminDomainService(ReferentialAdminRepositoryPort repo, ReferentialAdminDelegate delegate) {
         this.repo = repo;
+        this.delegate = delegate;
+    }
+
+    private boolean delegated(ReferentialKind kind) {
+        return delegate != null && delegate.prend(kind);
     }
 
     private static String naturalKeyLabel(ReferentialKind kind) {
@@ -76,11 +90,13 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
         int safePage = Math.max(page, 0);
         int safeSize = size <= 0 ? 20 : Math.min(size, MAX_PAGE_SIZE);
         String term = search == null || search.isBlank() ? null : search.trim();
+        if (delegated(kind)) return delegate.list(centerId, kind, term, safePage, safeSize);
         return repo.findPaged(centerId, kind, term, safePage, safeSize);
     }
 
     @Override
     public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+        if (delegated(kind)) return delegate.create(centerId, kind, values);
         Map<String, String> normalized = validateForSave(centerId, kind, values, null);
         UUID id = repo.insert(centerId, kind, normalized);
         return repo.findById(centerId, kind, id).orElseThrow();
@@ -88,6 +104,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
 
     @Override
     public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+        if (delegated(kind)) return delegate.update(centerId, kind, id, values);
         requireExisting(centerId, kind, id);
         Map<String, String> normalized = validateForSave(centerId, kind, values, id);
         repo.update(centerId, kind, id, normalized);
@@ -96,6 +113,10 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
 
     @Override
     public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+        if (delegated(kind)) {
+            delegate.delete(centerId, kind, id);
+            return;
+        }
         requireExisting(centerId, kind, id);
         long usages = repo.countUsages(centerId, kind, id);
         if (usages > 0) {
@@ -146,6 +167,19 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
                     "Le fichier contient " + dataRows.size() + " lignes : le maximum est " + MAX_IMPORT_ROWS
                             + " par import. Découpez-le en plusieurs fichiers.",
                     Map.of("count", String.valueOf(dataRows.size()), "max", String.valueOf(MAX_IMPORT_ROWS)))));
+        }
+
+        if (delegated(kind)) {
+            List<ReferentialAdminDelegate.Row> rows = new ArrayList<>();
+            for (ImportTable.Row row : dataRows) {
+                Map<String, String> raw = new HashMap<>();
+                columns.forEach((index, field) -> raw.put(field.key(), row.cell(index)));
+                rows.add(new ReferentialAdminDelegate.Row(row.lineNumber(), raw));
+            }
+            ReferentialAdminDelegate.Outcome outcome = delegate.importRows(centerId, kind, rows, dryRun);
+            List<ValidationIssue> reported = outcome.errors().isEmpty() ? List.of() : truncate(outcome.errors());
+            return new ImportReport(kind.slug(), dataRows.size(), outcome.toCreate(), outcome.toUpdate(), List.of(), ignored,
+                    reported, outcome.applied());
         }
 
         // 2. Lignes → valeurs validées, doublons, création ou mise à jour.

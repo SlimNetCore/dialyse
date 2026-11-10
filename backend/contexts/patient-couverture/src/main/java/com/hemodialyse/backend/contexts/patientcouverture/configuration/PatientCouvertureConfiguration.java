@@ -271,4 +271,47 @@ public class PatientCouvertureConfiguration {
                                     AssuresDuCentre assures, UniteDeTravail unite, VerrouDuCentre verrou) {
         return new GererLesAssures(session, horloge, patients, assures, unite, verrou);
     }
+
+    // ---- transporteurs et catégories de transport (RF1, ADR 0122) : mêmes tables, langage publié patientcouverture.v1
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDeTransport invalidationDesListesDeTransport(
+            org.springframework.cache.CacheManager caches) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDeTransport(caches);
+    }
+
+    /** Un seul adaptateur pour le carnet, la page d'administration et le langage publié {@code Transporteurs}. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.TransporteursJdbc transporteursJdbc(
+            JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDeTransport invalidation) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.TransporteursJdbc(jdbc, invalidation);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CategoriesDeTransport categoriesDeTransport(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CategoriesDeTransportJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.GererLesTransporteurs gererLesTransporteurs(
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.TransporteursJdbc transporteurs,
+            Identifiants identifiants, UniteDeTravail unite) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.GererLesTransporteurs(transporteurs, transporteurs,
+                identifiants, unite);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesTransports consulterLesTransports(
+            SessionCourante session, com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs transporteurs,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CategoriesDeTransport categories) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesTransports(session, transporteurs,
+                categories);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDeTransportEnCache listesDeTransportEnCache(
+            com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesTransports consulter) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListesDeTransportEnCache(consulter);
+    }
 }

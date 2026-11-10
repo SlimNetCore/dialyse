@@ -1,0 +1,9 @@
+{
+  "DELETE dans le centre B" : "403 ACCESS_DENIED",
+  "GET du centre B" : "403 ACCESS_DENIED",
+  "admin sans centre, GET avec centerId" : "403 ACCESS_DENIED",
+  "admin sans centre, GET sans centerId" : "403 ACCESS_DENIED",
+  "import dans le centre B" : "403 ACCESS_DENIED",
+  "super administrateur sans centre, GET sans centerId" : "403 ROLE_SCOPE",
+  "super administrateur, GET du centre B" : "403 ROLE_SCOPE"
+}

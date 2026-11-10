@@ -42,8 +42,10 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 | Terme métier | Définition | Identifiant du code | Notes | Statut |
 |---|---|---|---|---|
 | Catalogue de forfaits | Liste des forfaits (code, libellé, prix HT) d'un centre dont les PEC choisissent leur forfait | table `forfait` ; port cible `ForfaitsDuCentre` | « forfait » a trois sens : de PEC (ci-dessus), appliqué (Facturation), du centre (Séance) ; prix nul : sens à définir | proposed |
-| Transporteur | Prestataire de transport du patient (aller, retour) | table `transporteur`, `patients.transporteur_aller_id`, `transporteur_retour_id` | clé : nom, unique par centre | proposed |
-| Catégorie de transport | Classe de transport du patient | table `categorie_transport` | lien patient à confirmer | proposed |
+| Transporteur | Prestataire de transport du patient (aller, retour) | `Transporteur` (domaine, RF1), `GestionDesTransporteurs`, `Transporteurs` (langage publié) ; table `transporteur`, `patients.transporteur_aller_id`, `transporteur_retour_id` | clé : nom (sans casse ni espaces répétés), unique par centre ; téléphone facultatif | proposed |
+| Catégorie de transport | Classe de transport du patient | `CategoriesDeTransport` (langage publié, lecture seule) ; table `categorie_transport` | lien patient à confirmer ; aucun écrivain (KB-RF1-02) | proposed |
+| Référencer un transporteur | Inscrire un transporteur dans le carnet d'un centre | `Transporteur.referencer` | impératif du domaine ; saisie refusée avec toutes ses anomalies | proposed |
+| Carnet de transporteurs | Les transporteurs d'un centre | port `CarnetDeTransporteurs` | — | proposed |
 | Caisse d'assurance | Organisme d'assurance (STANDARD ou VACANCIER), niveau 1 de la chaîne payeur | table `caisse_assurance` | appartient à PC (ADR 0121), pas à Facturation | proposed |
 | Agence | Antenne d'une caisse, niveau 2 | table `agence` | idem | proposed |
 | Centre payeur | Payeur rattaché à une agence, attribut du patient ; ≠ « centre » (Organisation) | table `centre_payeur`, `patients.centre_payeur_id` | Facturation en fige l'agence et le centre à l'émission | proposed |

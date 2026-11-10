@@ -102,7 +102,8 @@
     "seance-se7f-retrait-bc-seance-et-garde": "built",
     "seance-se7c1-lectures-stock": "built",
     "seance-se7c2-ecritures-facturation": "built",
-    "pilotage-direction-pd6-composition-des-indicateurs": "built"
+    "pilotage-direction-pd6-composition-des-indicateurs": "built",
+    "patient-couverture-rf1-transporteurs": "built"
   },
   "contexts": {
     "gmao": "architected",

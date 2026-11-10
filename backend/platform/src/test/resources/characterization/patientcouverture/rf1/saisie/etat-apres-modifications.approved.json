@@ -1,0 +1,13 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Ambulances Rouiba Est",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Taxi Medical",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_B>",
+  "nom" : "Transport B2",
+  "telephone" : null
+} ]

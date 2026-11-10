@@ -1,0 +1,8 @@
+{
+  "admin du centre A vise le centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "admin du centre A vise son centre" : "201 | {\"id\":\"<UUID_GENERE_1>\",\"references\":{},\"values\":{\"nom\":\"Transport A\",\"telephone\":null}}",
+  "anonyme" : "403",
+  "centre illisible" : "500 INTERNAL_ERROR | <message technique non verrouille>",
+  "secretaire" : "403 ACCESS_DENIED | Access Denied",
+  "super administrateur vise le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+}

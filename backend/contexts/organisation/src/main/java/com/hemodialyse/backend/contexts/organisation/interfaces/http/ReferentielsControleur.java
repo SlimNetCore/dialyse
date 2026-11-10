@@ -176,15 +176,7 @@ public class ReferentielsControleur {
         return communs.caisses(session.centre(centreId));
     }
 
-    @GetMapping("/transporteurs")
-    public List<EntreeReferentiel> listerTransporteurs(@RequestParam(required = false) UUID centreId) {
-        return communs.transporteurs(session.centre(centreId));
-    }
-
-    @GetMapping("/categories-transport")
-    public List<EntreeReferentiel> listerCategoriesTransport(@RequestParam(required = false) UUID centreId) {
-        return communs.categoriesTransport(session.centre(centreId));
-    }
+    // /transporteurs et /categories-transport : servis par patient-couverture (RF1, ADR 0122), mêmes URLs et même JSON.
 
     @GetMapping("/forfaits")
     public List<EntreeReferentiel> listerForfaits(@RequestParam(required = false) UUID centreId) {

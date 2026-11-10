@@ -1,0 +1,13 @@
+{
+  "alias raison sociale et mobile" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[\"Commentaire\"],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "alias transporteur et tel, casse et accents" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "champ entre guillemets avec virgule" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "colonne nom absente" : "200 | {\"applied\":false,\"created\":0,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[\"nom\"],\"totalRows\":1,\"updated\":0,\"valid\":false}",
+  "colonne nom en double ignoree" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[\"Nom\"],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "colonne nom seule" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "en-tetes seuls" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"NO_DATA\",\"field\":null,\"message\":\"Le fichier ne contient aucune ligne de données sous les en-têtes.\",\"params\":{},\"row\":0}],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":0,\"updated\":0,\"valid\":false}",
+  "fichier d'un seul retour a la ligne" : "200 | {\"applied\":false,\"created\":0,\"errors\":[{\"code\":\"EMPTY_FILE\",\"field\":null,\"message\":\"Le fichier est vide : la première ligne doit contenir les en-têtes de colonnes.\",\"params\":{},\"row\":0}],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":0,\"updated\":0,\"valid\":false}",
+  "fichier vide" : "422 IMPORT_EMPTY_FILE | Le fichier est vide.",
+  "lignes vides ignorees" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}",
+  "separateur point-virgule" : "200 | {\"applied\":false,\"created\":1,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":1,\"updated\":0,\"valid\":true}"
+}

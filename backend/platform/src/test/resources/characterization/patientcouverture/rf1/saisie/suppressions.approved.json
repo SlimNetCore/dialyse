@@ -1,0 +1,15 @@
+{
+  "centre B par le super administrateur" : "204",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "deja supprime" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Transporteurs » pour ce centre.",
+  "identifiant illisible" : "500 INTERNAL_ERROR | <message technique non verrouille>",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Transporteurs » pour ce centre.",
+  "l'aller libere, le retour de P2 et de P3 utilisent encore" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Transporteurs » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "libre" : "204",
+  "tout libere" : "204",
+  "transporteur d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Transporteurs » pour ce centre.",
+  "utilise a l'aller" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Transporteurs » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise au retour" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Transporteurs » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise par un patient d'un autre centre" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Transporteurs » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise trois fois" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Transporteurs » est encore utilisé (3 référence(s) : patients, prises en charge, séances ou autres référentiels)."
+}

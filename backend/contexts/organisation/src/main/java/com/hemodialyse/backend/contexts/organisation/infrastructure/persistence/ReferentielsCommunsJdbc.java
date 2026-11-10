@@ -69,22 +69,6 @@ public class ReferentielsCommunsJdbc implements ReferentielsCommunsRepository {
     }
 
     @Override
-    @Cacheable(cacheNames = "ref.transporteurs", key = "#centreId.valeur().toString()")
-    public List<EntreeReferentiel> transporteurs(CentreId centreId) {
-        return jdbc.query("SELECT id, null, nom, null, null, null, null FROM transporteur "
-                        + "WHERE center_id = ? ORDER BY nom",
-                (rs, i) -> ligne(rs), centreId.valeur());
-    }
-
-    @Override
-    @Cacheable(cacheNames = "ref.categoriesTransport", key = "#centreId.valeur().toString()")
-    public List<EntreeReferentiel> categoriesTransport(CentreId centreId) {
-        return jdbc.query("SELECT id, null, null, null, null, libelle, null FROM categorie_transport "
-                        + "WHERE center_id = ? ORDER BY libelle",
-                (rs, i) -> ligne(rs), centreId.valeur());
-    }
-
-    @Override
     @Cacheable(cacheNames = "ref.forfaits", key = "#centreId.valeur().toString()")
     public List<EntreeReferentiel> forfaits(CentreId centreId) {
         return jdbc.query("SELECT id, code, libelle, null, null, CAST(prix AS VARCHAR), null FROM forfait "

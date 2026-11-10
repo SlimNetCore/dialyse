@@ -20,10 +20,6 @@ public interface ReferentielsCommunsUseCases {
 
     List<EntreeReferentiel> caisses(CentreId centreId);
 
-    List<EntreeReferentiel> transporteurs(CentreId centreId);
-
-    List<EntreeReferentiel> categoriesTransport(CentreId centreId);
-
     List<EntreeReferentiel> forfaits(CentreId centreId);
 
     List<EntreeReferentiel> etatsPatients();

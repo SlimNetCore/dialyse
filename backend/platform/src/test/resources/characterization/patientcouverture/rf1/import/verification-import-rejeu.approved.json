@@ -1,0 +1,6 @@
+{
+  "1. verification" : "200 | {\"applied\":false,\"created\":2,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":3,\"updated\":1,\"valid\":true}",
+  "2. import" : "200 | {\"applied\":true,\"created\":2,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":3,\"updated\":1,\"valid\":true}",
+  "3. rejeu" : "200 | {\"applied\":true,\"created\":0,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":3,\"updated\":3,\"valid\":true}",
+  "4. verification explicite" : "200 | {\"applied\":false,\"created\":0,\"errors\":[],\"ignoredColumns\":[],\"kind\":\"transporteurs\",\"missingColumns\":[],\"totalRows\":3,\"updated\":3,\"valid\":true}"
+}

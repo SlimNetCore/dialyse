@@ -1,0 +1,53 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "123",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Ambulances Rouiba",
+  "telephone" : "0795 00 61 36"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Autre Nom",
+  "telephone" : "0795 00 61 36"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "NNNNNNNNNN...[255]",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Taxi Medical",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Cinquante",
+  "telephone" : "1111111111...[50]"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Espaces",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Inconnu",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Signes",
+  "telephone" : "+213 (0)21-12.34/56"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Six",
+  "telephone" : "123456"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Sud",
+  "telephone" : "021 12 34 56"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Transport Vide",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_B>",
+  "nom" : "Ambulances Rouiba",
+  "telephone" : null
+} ]

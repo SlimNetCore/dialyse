@@ -66,18 +66,17 @@ final class ReferentialAdminTables {
                 List.of(new Usage("patients", "centre_payeur_id")),
                 List.of("ref.centresPayeurs", "ref.centresPayeursDetails")));
 
-        TABLES.put(ReferentialKind.TRANSPORTEUR, new Table("transporteur",
-                List.of(text("nom", "nom"), text("telephone", "telephone")),
-                List.of(), List.of("t.nom", "t.telephone"), "t.nom",
-                List.of(new Usage("patients", "transporteur_aller_id"), new Usage("patients", "transporteur_retour_id")),
-                List.of("ref.transporteurs")));
+        // ReferentialKind.TRANSPORTEUR : retiré (RF1, ADR 0122) ; la table appartient à patient-couverture, le descripteur du
+        // référentiel (champs, alias d'en-têtes, modèle d'import) reste à l'administration générique.
     }
 
     private ReferentialAdminTables() {
     }
 
     static Table of(ReferentialKind kind) {
-        return TABLES.get(kind);
+        Table table = TABLES.get(kind);
+        if (table == null) throw new IllegalStateException("Référentiel géré par un contexte propriétaire : " + kind);
+        return table;
     }
 
     /**

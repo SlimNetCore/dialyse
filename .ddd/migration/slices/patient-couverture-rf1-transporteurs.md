@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-rf1-transporteurs
-status: planned
+status: built
 date: 2026-11-10
 order: 6
 context: patient-couverture
@@ -47,4 +47,17 @@ Retour arrière : revert Git.
 ## Questions ouvertes
 - Terme absent des glossaires : « Transporteur », « Catégorie de transport » ajoutés en `proposed` (glossaire Patient & couverture).
 - Faut-il refuser la désactivation plutôt que la suppression d'un transporteur utilisé ? (comportement actuel : refus ; inchangé.)
-- `categorie_transport` : lien avec les patients non vérifié ; à confirmer au relevé de la slice.
+- `categorie_transport` : lien avec les patients non vérifié ; à confirmer au relevé de la slice. Relevé RF1 : aucun écrivain, `patients.categorie_transport_id` n'est validée par aucun code (KB-RF1-02).
+- Corriger KB-RF1-01 (500 -> 400) et KB-RF1-03 (compte d'usage borné au centre) ? Reproduits en attendant la décision (ADR 0122).
+- Doublons historiques de `lower(trim(nom))` par centre en production ? (KB-RF1-04.)
+
+## Réalisation (2026-11-10, ADR 0122)
+| Étape | Résultat |
+|---|---|
+| Filet legacy (avant tout changement de production) | 16 tests HTTP MockMvc/H2, 27 goldens approuvés un par un : `backend/platform/src/test/java/.../characterization/patientcouverture/rf1/` (saisie, lecture, import, lectures communes et caches) ; verts sur le legacy |
+| Tests du nouveau code d'abord | rouge vérifié (compilation : types absents) puis vert : `TransporteurTest` (10), `GererLesTransporteursTest` (11), contrat double/H2 (10 + 11), PG16 (11), `ReferentialAdminDelegationTest` (5), `TableDesTransporteursTest` (5) |
+| Code | PC : domaine `Transporteur`, application `GererLesTransporteurs`/`ConsulterLesTransports`, langage publié `Transporteurs`/`CategoriesDeTransport`/`GestionDesTransporteurs`, `TransporteursJdbc`/`CategoriesDeTransportJdbc`, `TransportsControleur`, cache et invalidation ; plateforme : délégué + ACL ; Organisation : lectures retirées |
+| Parité | 27/27 goldens RF1 inchangés ; goldens Organisation et gardes d'architecture verts ; aucun `_nouveau_code` |
+| Rejeu PostgreSQL 16 | `backend/scripts/patient-couverture-rf1-pg16-rejeu.sh` : vert (colonnes, 4 requêtes, contrat 11 tests) |
+
+Résiduels nominatifs : RF1-R1 (descripteur `ReferentialKind.TRANSPORTEUR`), RF1-R2 (chemin générique des autres référentiels) : voir l'ADR 0122. Condition 2 ci-dessus adaptée : `ReferentialKind.CATEGORIE_TRANSPORT` n'a jamais existé ; `TRANSPORTEUR` reste comme descripteur (lecture de fichier et modèles communs). Façade, flag, plan de bascule : sans objet (refactoring sur place).

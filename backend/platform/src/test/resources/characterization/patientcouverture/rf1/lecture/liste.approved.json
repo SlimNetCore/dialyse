@@ -1,0 +1,23 @@
+{
+  "centre B par le super administrateur" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "centre B par son administrateur" : "200 | Transport du centre B / - ; total=1 page=0 size=20",
+  "centre illisible" : "500 INTERNAL_ERROR | <message technique non verrouille>",
+  "liste par defaut" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; alpha ambulances / - ; total=5 page=0 size=20",
+  "page 0 taille 2" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; total=5 page=0 size=2",
+  "page 1 taille 2" : "200 | Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; total=5 page=1 size=2",
+  "page 2 taille 2" : "200 | alpha ambulances / - ; total=5 page=2 size=2",
+  "page hors limite" : "200 | total=5 page=99 size=2",
+  "page illisible" : "500 INTERNAL_ERROR | <message technique non verrouille>",
+  "page negative" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; alpha ambulances / - ; total=5 page=0 size=20",
+  "recherche du joker pourcent" : "200 | Beta 50% Taxi / 021 11 22 33 ; total=1 page=0 size=20",
+  "recherche du pourcent litteral" : "200 | Beta 50% Taxi / 021 11 22 33 ; total=1 page=0 size=20",
+  "recherche du souligne litteral" : "200 | Gamma_Med / 0555 55 55 55 ; total=1 page=0 size=20",
+  "recherche entouree d'espaces" : "200 | Zebra Transport / 0795006136 ; total=1 page=0 size=20",
+  "recherche sans resultat" : "200 | total=0 page=0 size=20",
+  "recherche sur le nom sans tenir compte de la casse" : "200 | alpha ambulances / - ; total=1 page=0 size=20",
+  "recherche sur le telephone" : "200 | Zebra Transport / 0795006136 ; total=1 page=0 size=20",
+  "recherche vide" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; alpha ambulances / - ; total=5 page=0 size=20",
+  "taille 1000" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; alpha ambulances / - ; total=5 page=0 size=100",
+  "taille negative" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; alpha ambulances / - ; total=5 page=0 size=20",
+  "taille zero" : "200 | Beta 50% Taxi / 021 11 22 33 ; Delta / +213 6 61 61 61 61 ; Gamma_Med / 0555 55 55 55 ; Zebra Transport / 0795006136 ; alpha ambulances / - ; total=5 page=0 size=20"
+}

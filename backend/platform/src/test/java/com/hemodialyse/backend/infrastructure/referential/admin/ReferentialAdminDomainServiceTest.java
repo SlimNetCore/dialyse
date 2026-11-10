@@ -220,8 +220,8 @@ class ReferentialAdminDomainServiceTest {
         List<List<String>> rows = new ArrayList<>();
         for (int i = 0; i <= ReferentialAdminDomainService.MAX_IMPORT_ROWS; i++) rows.add(List.of("T" + i, "Nom " + i));
 
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.TRANSPORTEUR,
-                tableOf(List.of("nom", "telephone"), rows), false);
+        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE,
+                tableOf(List.of("code", "nom"), rows), false);
 
         assertEquals(List.of("TOO_MANY_ROWS"), report.errors().stream().map(ValidationIssue::code).toList());
     }

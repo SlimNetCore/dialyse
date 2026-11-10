@@ -1,0 +1,6 @@
+{
+  "1. premiere lecture" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]",
+  "2. apres ecriture directe" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]",
+  "3. apres une ecriture de l'API sur les transporteurs" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]",
+  "4. apres vidage des caches" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<TAXI>\",\"libelle\":\"Taxi\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]"
+}

@@ -43,16 +43,6 @@ class ReferentielsCommunsServiceTest {
     }
 
     @Test
-    void lister_transporteurs_du_centre() {
-        assertEquals(1, nouveauService().transporteurs(CENTRE).size());
-    }
-
-    @Test
-    void lister_categories_transport_du_centre() {
-        assertEquals(1, nouveauService().categoriesTransport(CENTRE).size());
-    }
-
-    @Test
     void lister_forfaits_du_centre() {
         assertEquals(1, nouveauService().forfaits(CENTRE).size());
     }
@@ -91,16 +81,6 @@ class ReferentielsCommunsServiceTest {
         @Override
         public List<EntreeReferentiel> caisses(CentreId centreId) {
             return List.of(entree("CA1"));
-        }
-
-        @Override
-        public List<EntreeReferentiel> transporteurs(CentreId centreId) {
-            return List.of(entree("T1"));
-        }
-
-        @Override
-        public List<EntreeReferentiel> categoriesTransport(CentreId centreId) {
-            return List.of(entree("AMBULANCE"));
         }
 
         @Override
