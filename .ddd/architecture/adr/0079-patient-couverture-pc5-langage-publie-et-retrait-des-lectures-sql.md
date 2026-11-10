@@ -42,6 +42,7 @@ Après PC1 à PC4, le module `contexts/patient-couverture` possède les six tabl
 | `ReferentialAdminTables` + `ReferentialAdminJdbcAdapter` (COUNT dynamique sur `prise_en_charge` et `patients`) | contrôle d'usage d'un référentiel avant suppression | `organisation.v1` ou port d'usage publié |
 | `SeanceRepositoryAdapter` (JPA Criteria sur `PatientJpaEntity`) | recherche de séances avec jointure patient | reprise de la Séance |
 | Types historiques non SQL : entités JPA `PatientJpaEntity`, `AssureJpaEntity`, `AssurePatientJpaEntity`, `PatientRepositoryAdapter`, `PatientMapper`, `bc-patient` (utilisés par la Séance, FHIR, le cahier de dialyse, KDIGO…) | le modèle patient historique reste le modèle de lecture de ces contextes | reprise de ces contextes |
+| `bc-patient` — mise à jour 2026-11-10 (ADR 0133, S1) | le code mort (`MouvementPatient`, `MouvementLigne`, `TypeMouvementPatient`, `MouvementsPatient`, `FinOccupation` et leurs 2 tests) est supprimé ; la mention « Séance, FHIR, KDIGO » est **périmée** (aucun import de `domain.patient.` / `domain.assure.` côté Séance, FHIR, KDIGO ; `SeanceJpaEntity` supprimée) ; restent F1 migration historique, F2 adapters/mapper JPA, F3 quatre lecteurs de `Patient` | plan S2-S6 de l'ADR 0133 |
 
 ## Alternatives écartées
 - Migrer aussi la Planification en déplaçant les interfaces publiées vers un module partagé : refactoring de réacteur hors périmètre.

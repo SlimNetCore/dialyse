@@ -8,8 +8,8 @@
     "tactical": "done",
     "architecture": "done",
     "plan": "done",
-    "slices": "done",
-    "verify": "done"
+    "slices": "in-progress",
+    "verify": "in-progress"
   },
   "gates": {
     "strategic": "approved",

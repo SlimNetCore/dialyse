@@ -1,0 +1,41 @@
+---
+status: accepted
+date: 2026-11-10
+review-by: 2026-12-15
+decision-makers: [utilisateur (« à confirmer <= 2026-12-15 »), architecte]
+context-scope: platform, bc-patient, bc-assure, patient-couverture
+related: ADR 0024, 0073, 0077, 0078, 0079 ; inventaire `.ddd/migration/reviews/inventaire-bc-patient-bc-assure.md`
+---
+
+# 0133 - Retrait de bc-patient / bc-assure : plan S1-S6
+
+Refactoring sur place (ADR 0024) : mêmes tables, mêmes URLs, pas de Strangler. Aucun golden modifié.
+
+## Contexte
+Les modules `backend/bc-patient` et `backend/bc-assure` sont des reliquats du modèle patient historique. Aucun utilisateur dans `backend/contexts` ; seul `backend/platform` les consomme (migration historique, adapters/mapper JPA, 4 lecteurs de `Patient`). L'ADR 0079 les disait utilisés par Séance, FHIR, KDIGO : périmé.
+
+## Décision
+Retirer les deux modules en 6 slices, chacune un comportement, livrée et vérifiée seule.
+
+| # | Slice | Risque | Statut |
+|---|---|---|---|
+| S1 | Supprimer le calcul des mouvements mort de bc-patient (5 classes, 2 tests) | faible | **faite** (2026-11-10) |
+| S2 | Notification de saisie infirmière : nom/prénom via `FichesDesPatients` | faible | à faire |
+| S3 | Cahier de dialyse : identité/assurance via le langage publié | moyen | à faire |
+| S4 | PDF greffe (`GreffePdfService`) : idem | moyen | à faire |
+| S5 | ACL Séance `FichesFournieLegacy` : fiches depuis `FichesDesPatients` | moyen | à faire |
+| S6 | Outil de migration historique réécrit dans `patient-couverture`, puis retrait des adapters/entités/mapper JPA et des deux modules | élevé | à faire, à confirmer |
+
+S2-S5 sont indépendantes. Critère de retrait final : inventaire §7 (0 import `domain.(patient|assure).`, plus d'entités JPA patient/assuré, poms nettoyés, build complet vert).
+
+## Décision utilisateur
+La migration historique reste utilisée en production : S6 est une **réécriture** dans `patient-couverture` (cas d'usage `AdmettreUnPatient` / `GererLesAssures` ou SQL du contexte), pas une suppression. **À confirmer <= 2026-12-15** (verrou du centre ou SQL direct hors activité, ADR 0077 pt 12).
+
+## S1 : preuve
+- 0 référence Java hors bc-patient aux 5 classes (seules mentions : commentaires dans `PredicatDEffectif`, tests de caractérisation, script pg16, golden `type_inconnu.legacy.json` : texte, pas de dépendance).
+- Équivalents dans `contexts/patient-couverture` : `PatientTest` (date requise l.117-123, avant admission l.125-130, `dernierJourOccupe` l.364-371, type de mouvement par état l.168-173, reprise l.186, séjour l.229).
+- `Patient.libererPlacement` (bc-patient) n'a plus d'appelant ; sa libération vit dans `contexts/planification` (P7). À retirer avec F2/S6.
+
+## Conséquences
+- 251 LOC main et 213 LOC test en moins, aucun changement de comportement.
+- Les références documentaires à `FinOccupation` / `MouvementsPatient` restent comme historique.
