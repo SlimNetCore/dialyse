@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 /** Contrat de la dernière créatinine sur la table réelle (H2 et PostgreSQL 16 : sous-classes). */
 abstract class DerniereCreatinineJdbcContrat extends DerniereCreatinineContrat {
-    private static final OffsetDateTime T0 = OffsetDateTime.of(2026, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC);
+    private static final OffsetDateTime T0_DECALE = OffsetDateTime.of(2026, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC);
 
     protected abstract JdbcTemplate jdbc();
 
@@ -29,9 +30,10 @@ abstract class DerniereCreatinineJdbcContrat extends DerniereCreatinineContrat {
     }
 
     @Override
-    protected void analyse(UUID centre, LocalDate prelevement, String creatinine) {
+    protected void analyse(UUID id, UUID centre, LocalDate prelevement, String creatinine, Instant creeLe) {
+        OffsetDateTime cree = creeLe == null ? null : creeLe.atOffset(ZoneOffset.UTC);
         jdbc().update("INSERT INTO resultats_analyses (id, patient_id, center_id, date_prelevement, creatinine_mg_dl, created_at, updated_at) "
-                        + "VALUES (?,?,?,?,?,?,?)", UUID.randomUUID(), PATIENT, centre, Date.valueOf(prelevement),
-                creatinine == null ? null : new BigDecimal(creatinine), T0, T0);
+                        + "VALUES (?,?,?,?,?,?,?)", id, PATIENT, centre, Date.valueOf(prelevement),
+                creatinine == null ? null : new BigDecimal(creatinine), cree, T0_DECALE);
     }
 }

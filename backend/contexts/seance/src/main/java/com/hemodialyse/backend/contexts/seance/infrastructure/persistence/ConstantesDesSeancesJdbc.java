@@ -10,8 +10,9 @@ import java.util.UUID;
 /**
  * Lecture publiée des constantes des séances pour le Dossier médical (ADR 0098, SE7d), sur {@code seances} et {@code volet_paramedical}
  * (tables de la Séance), lecture seule. Requêtes reprises MOT POUR MOT de {@code dossiermedical/.../HistoriqueDesConstantesJdbc} (D1 total,
- * D2 page) : volet joint par {@code seance_id} ET {@code center_id} ; ordre {@code date_seance DESC, created_at DESC, id DESC} sans
- * {@code NULLS FIRST/LAST} (KB-SEA-79, reproduit : la création nulle se classe selon le SGBD). Aucune jointure de la fiche du patient.
+ * D2 page) : volet joint par {@code seance_id} ET {@code center_id} ; ordre {@code date_seance DESC, created_at DESC NULLS FIRST, id DESC}
+ * (KB-SEA-79 corrigé le 2026-11-10, ADR 0117 : la sémantique est écrite, H2 et PostgreSQL classent la création nulle en premier, ce qui
+ * conserve l'ordre de production). Aucune jointure de la fiche du patient.
  */
 public class ConstantesDesSeancesJdbc implements ConstantesDesSeancesPubliees {
 
@@ -21,7 +22,7 @@ public class ConstantesDesSeancesJdbc implements ConstantesDesSeancesPubliees {
             FROM seances s
             LEFT JOIN volet_paramedical v ON v.seance_id = s.id AND v.center_id = s.center_id
             WHERE s.center_id = ? AND s.patient_id = ?
-            ORDER BY s.date_seance DESC, s.created_at DESC, s.id DESC
+            ORDER BY s.date_seance DESC, s.created_at DESC NULLS FIRST, s.id DESC
             LIMIT ? OFFSET ?
             """;
     private static final String TOTAL = "SELECT count(*) FROM seances WHERE center_id = ? AND patient_id = ?";

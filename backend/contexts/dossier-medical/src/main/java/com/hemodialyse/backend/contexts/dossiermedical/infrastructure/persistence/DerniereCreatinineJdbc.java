@@ -4,22 +4,18 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Dernier
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Dernière créatinine du patient au centre sur la table réelle {@code resultats_analyses} (SE7f, ADR 0100). Reproduit MOT POUR MOT le
- * chemin du legacy ({@code ResultatAnalyseJpaRepository.findByPatientIdAndCenterIdOrderByDatePrelevementDesc} puis
- * {@code KdigoGreffeQueryService.dernierCreatinine} : {@code filter(creatinine != null).max(date)}) : toutes les analyses du patient au
- * centre, triées par date de prélèvement décroissante SEULEMENT, puis en Java la créatinine non nulle de date maximale, la première lue
- * l'emportant à date égale (ordre du SGBD, non défini : KB-SEA-96, reproduit). Aucune autre colonne lue.
+ * Dernière créatinine du patient au centre sur la table réelle {@code resultats_analyses} (SE7f, ADR 0100). Reproduit le chemin du legacy
+ * ({@code ResultatAnalyseJpaRepository.findByPatientIdAndCenterIdOrderByDatePrelevementDesc} puis
+ * {@code KdigoGreffeQueryService.dernierCreatinine} : la créatinine non nulle de date de prélèvement maximale) avec UNE correction, datée
+ * du 2026-11-10 (lot L5a, ADR 0117, KB-SEA-96 a) : à date de prélèvement égale l'ordre n'est plus celui du SGBD, la dernière saisie fait foi
+ * ({@code created_at DESC NULLS LAST, id DESC}), puis la première ligne dont la créatinine n'est pas nulle est retenue. Une créatinine à 0
+ * reste une valeur lue (KB-SEA-96 b, close sans changement : le domaine la juge non évaluable). Aucune autre colonne lue.
  */
 public class DerniereCreatinineJdbc implements DerniereCreatininePubliee {
-
-    private record Mesure(LocalDate prelevement, BigDecimal creatinine) {
-    }
 
     private final JdbcTemplate jdbc;
 
@@ -29,12 +25,8 @@ public class DerniereCreatinineJdbc implements DerniereCreatininePubliee {
 
     @Override
     public Optional<BigDecimal> duPatient(UUID centre, UUID patient) {
-        return jdbc.query("SELECT date_prelevement, creatinine_mg_dl FROM resultats_analyses WHERE patient_id = ? AND center_id = ? "
-                        + "ORDER BY date_prelevement DESC",
-                        (rs, i) -> new Mesure(rs.getObject("date_prelevement", LocalDate.class), rs.getBigDecimal("creatinine_mg_dl")),
-                        patient, centre).stream()
-                .filter(m -> m.creatinine() != null)
-                .max(Comparator.comparing(Mesure::prelevement))
-                .map(Mesure::creatinine);
+        return jdbc.query("SELECT creatinine_mg_dl FROM resultats_analyses WHERE patient_id = ? AND center_id = ? "
+                                + "AND creatinine_mg_dl IS NOT NULL ORDER BY date_prelevement DESC, created_at DESC NULLS LAST, id DESC LIMIT 1",
+                        (rs, i) -> rs.getBigDecimal("creatinine_mg_dl"), patient, centre).stream().findFirst();
     }
 }

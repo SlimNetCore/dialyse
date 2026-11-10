@@ -37,14 +37,4 @@ class PilotageEtRapportsDesSeancesJdbcContratTest extends PilotageEtRapportsDesS
     protected JdbcTemplate jdbc() {
         return jdbc;
     }
-
-    @Override
-    protected boolean libellesEnMajuscules() {
-        return true;
-    }
-
-    @Override
-    protected int decimalesDesMoyennes() {
-        return 12;
-    }
 }

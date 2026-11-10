@@ -14,8 +14,10 @@ import java.util.UUID;
  *   <li>TOUTES les séances du patient dans le centre, QUEL QUE SOIT leur statut (ANNULEE, CREE, {@code validee} comprises) ; le volet est
  *   joint sur la séance SEULE, sans le centre (un volet posé dans un autre centre est lu) : KB-SEA-85 ;</li>
  *   <li>période optionnelle : {@code du} et {@code au} nuls = sans borne ; bornes incluses ;</li>
- *   <li>moyennes : {@code null} si aucune mesure ; précision du SGBD (12 décimales sur H2, celle du NUMERIC sur PostgreSQL) : KB-SEA-87 ;</li>
- *   <li>ordre par date de séance SEULE : deux séances du même jour sortent dans l'ordre du SGBD (KB-SEA-86).</li>
+ *   <li>moyennes : {@code null} si aucune mesure ; précision du SGBD (12 décimales sur H2, celle du NUMERIC sur PostgreSQL) : seules 10
+ *   décimales sont GARANTIES (KB-SEA-87, clos le 2026-11-10, ADR 0117) ;</li>
+ *   <li>ordre par date de séance, puis création (la plus ancienne d'abord, création inconnue en dernier), puis identifiant : déterministe
+ *   (KB-SEA-86 corrigé le 2026-11-10, ADR 0117).</li>
  * </ul>
  */
 public interface StatistiquesDesSeancesPubliees {
@@ -35,8 +37,8 @@ public interface StatistiquesDesSeancesPubliees {
     /**
      * L'évolution du poids, une ligne par séance (E8) : date de séance, poids avant et après, poids sec en vigueur le jour de la séance
      * (dernière prescription du patient AU centre portant un poids sec, datée au plus tard du jour, la plus récemment mise à jour à date
-     * égale), ultrafiltration réelle. Lignes BRUTES du SGBD : les clés sont les libellés de colonnes tels que le pilote JDBC les rend
-     * (MAJUSCULES sur H2, minuscules sur PostgreSQL : KB-SEA-86, reproduit), les valeurs gardent leur type JDBC. Cette forme est servie
+     * égale), ultrafiltration réelle. Lignes du SGBD : les clés sont TOUJOURS en minuscules, sur H2 comme sur PostgreSQL (contrat de production,
+     * KB-SEA-86 corrigé le 2026-11-10, ADR 0117), les valeurs gardent leur type JDBC. Cette forme est servie
      * telle quelle en JSON par la plateforme : la changer changerait le contrat HTTP.
      */
     List<Map<String, Object>> evolutionDuPoids(UUID centre, UUID patient, LocalDate du, LocalDate au);

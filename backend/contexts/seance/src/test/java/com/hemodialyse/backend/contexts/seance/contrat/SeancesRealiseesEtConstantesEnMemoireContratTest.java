@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** Le double en mémoire passe le même contrat que l'adapter réel (création nulle classée comme sur H2). */
+/** Le double en mémoire passe le même contrat que l'adapter réel (création nulle classée en premier en tri décroissant, KB-SEA-79 corrigé). */
 class SeancesRealiseesEtConstantesEnMemoireContratTest extends SeancesRealiseesEtConstantesContrat {
 
     private final SeancesRealiseesEtConstantesEnMemoire seances = new SeancesRealiseesEtConstantesEnMemoire();
@@ -64,10 +64,5 @@ class SeancesRealiseesEtConstantesEnMemoireContratTest extends SeancesRealiseesE
     protected void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, String tensionApres,
                          Integer debit, BigDecimal ultrafiltration, Integer duree) {
         seances.volet(centre, seance, poidsAvant, poidsApres, tensionAvant, tensionApres, debit, ultrafiltration, duree);
-    }
-
-    @Override
-    protected boolean creationNulleEnPremier() {
-        return false;
     }
 }

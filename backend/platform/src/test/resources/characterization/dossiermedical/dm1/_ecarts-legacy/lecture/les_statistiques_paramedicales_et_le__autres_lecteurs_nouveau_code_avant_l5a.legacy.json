@@ -1,0 +1,145 @@
+{
+  "detail de seance du centre A" : {
+    "cles" : [ "consommables", "consommablesTotalValorise", "seance", "patient", "paramedical", "medical", "forfait" ],
+    "paramedical" : {
+      "anticoagulant" : null,
+      "debitSangMlMin" : 280,
+      "dureeMinutes" : 235,
+      "incidents" : null,
+      "poidsApresKg" : 67.5,
+      "poidsAvantKg" : 69.99,
+      "taApres" : "11,5/7",
+      "taAvant" : "12/8",
+      "typeDialysat" : null,
+      "ultrafiltrationMl" : 2500.0
+    },
+    "statut" : "200"
+  },
+  "detail de seance du centre B lu par la session A" : {
+    "statut" : "403 ACCESS_DENIED"
+  },
+  "stats MEDECIN seul" : "200",
+  "stats du centre" : {
+    "corps" : {
+      "avgPoidsApresKg" : 44.166666666667,
+      "avgPoidsAvantKg" : 52.8725,
+      "avgUfReelleMl" : 1466.666666666667,
+      "poidsEvolution" : [ {
+        "DATE_SEANCE" : "<J-9>",
+        "POIDS_APRES_KG" : 68.0,
+        "POIDS_AVANT_KG" : 70.5,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : 2000.0
+      }, {
+        "DATE_SEANCE" : "<J-6>",
+        "POIDS_APRES_KG" : null,
+        "POIDS_AVANT_KG" : 71.0,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : null
+      }, {
+        "DATE_SEANCE" : "<J-3>",
+        "POIDS_APRES_KG" : null,
+        "POIDS_AVANT_KG" : null,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : null
+      }, {
+        "DATE_SEANCE" : "<J-3>",
+        "POIDS_APRES_KG" : -3.0,
+        "POIDS_AVANT_KG" : 0.0,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : -100.0
+      }, {
+        "DATE_SEANCE" : "<J-1>",
+        "POIDS_APRES_KG" : 67.5,
+        "POIDS_AVANT_KG" : 69.99,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : 2500.0
+      } ],
+      "poidsSecCibleKg" : null,
+      "seanceCount" : 5,
+      "taEvolution" : [ {
+        "date_seance" : "<J-9>",
+        "ta_diastolique_apres" : 70,
+        "ta_diastolique_avant" : 80,
+        "ta_systolique_apres" : 120,
+        "ta_systolique_avant" : 130
+      }, {
+        "date_seance" : "<J-6>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      }, {
+        "date_seance" : "<J-3>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      }, {
+        "date_seance" : "<J-3>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      }, {
+        "date_seance" : "<J-1>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      } ]
+    },
+    "statut" : "200"
+  },
+  "stats du patient d'un autre centre (centerId du centre B, session A)" : {
+    "statut" : "403 ACCESS_DENIED"
+  },
+  "stats filtrees" : {
+    "corps" : {
+      "avgPoidsApresKg" : -3.0,
+      "avgPoidsAvantKg" : 35.5,
+      "avgUfReelleMl" : -100.0,
+      "poidsEvolution" : [ {
+        "DATE_SEANCE" : "<J-6>",
+        "POIDS_APRES_KG" : null,
+        "POIDS_AVANT_KG" : 71.0,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : null
+      }, {
+        "DATE_SEANCE" : "<J-3>",
+        "POIDS_APRES_KG" : null,
+        "POIDS_AVANT_KG" : null,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : null
+      }, {
+        "DATE_SEANCE" : "<J-3>",
+        "POIDS_APRES_KG" : -3.0,
+        "POIDS_AVANT_KG" : 0.0,
+        "POIDS_SEC_CIBLE_KG" : null,
+        "UF_REELLE_ML" : -100.0
+      } ],
+      "poidsSecCibleKg" : null,
+      "seanceCount" : 3,
+      "taEvolution" : [ {
+        "date_seance" : "<J-6>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      }, {
+        "date_seance" : "<J-3>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      }, {
+        "date_seance" : "<J-3>",
+        "ta_diastolique_apres" : null,
+        "ta_diastolique_avant" : null,
+        "ta_systolique_apres" : null,
+        "ta_systolique_avant" : null
+      } ]
+    },
+    "statut" : "200"
+  }
+}

@@ -19,9 +19,10 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Double en mémoire des lectures publiées SE7d (ADR 0098), fidèle au contrat : statut réalisé en casse exacte, bornes incluses, tri par date
- * seule (ordre d'insertion pour une même date : non défini côté base), création nulle classée comme H2 par défaut (en dernier) ou comme
- * PostgreSQL ({@code nullesEnPremier}), identifiants comparés en octets non signés.
+ * Double en mémoire des lectures publiées SE7d (ADR 0098, corrigé par l'ADR 0117), fidèle au contrat : statut réalisé en casse exacte, bornes
+ * incluses, jours réalisés triés par date puis patient (KB-SEA-77), séances avec leur place par date, création connue d'abord puis
+ * identifiant (KB-SEA-78), lien d'exclusion bloquant seulement sur une séance {@code ABSENT} (KB-SEA-81), page des constantes avec la création
+ * nulle en premier en tri décroissant (KB-SEA-79), identifiants comparés en octets non signés.
  */
 public final class SeancesRealiseesEtConstantesEnMemoire
         implements SeancesRealiseesPubliees, LiensDExclusionPublies, SeancesRealiseesAvecLeurPlacePubliees, ConstantesDesSeancesPubliees {
@@ -60,16 +61,6 @@ public final class SeancesRealiseesEtConstantesEnMemoire
     private final Map<UUID, Ligne> seances = new LinkedHashMap<>();
     private final Map<UUID, Fiche> fiches = new HashMap<>();
     private final Map<UUID, Volet> volets = new HashMap<>();
-    private final boolean nullesEnPremier;
-
-    public SeancesRealiseesEtConstantesEnMemoire() {
-        this(false);
-    }
-
-    public SeancesRealiseesEtConstantesEnMemoire(boolean nullesEnPremier) {
-        this.nullesEnPremier = nullesEnPremier;
-    }
-
     // ---- semis
 
     public void patient(UUID id, UUID centre, String nom, String prenom) {
@@ -115,7 +106,8 @@ public final class SeancesRealiseesEtConstantesEnMemoire
     public List<JourRealisePublie> joursRealisesDuCentre(UUID centre, LocalDate du, LocalDate au) {
         Set<JourRealisePublie> distincts = new LinkedHashSet<>();
         realiseesDuCentre(centre).stream().filter(l -> entre(l.date, du, au)).forEach(l -> distincts.add(new JourRealisePublie(l.patient, l.date)));
-        return distincts.stream().sorted(Comparator.comparing(JourRealisePublie::jour)).toList();
+        return distincts.stream().sorted(Comparator.comparing(JourRealisePublie::jour)
+                .thenComparing(JourRealisePublie::patient, SeancesRealiseesEtConstantesEnMemoire::enOctetsNonSignes)).toList();
     }
 
     @Override
@@ -136,19 +128,22 @@ public final class SeancesRealiseesEtConstantesEnMemoire
 
     @Override
     public boolean absenceLiee(UUID centre, UUID absence) {
-        return seances.values().stream().anyMatch(l -> l.centre.equals(centre) && absence.equals(l.absence));
+        return seances.values().stream().anyMatch(l -> l.centre.equals(centre) && absence.equals(l.absence) && "ABSENT".equals(l.statut));
     }
 
     @Override
     public List<SeanceRealiseeAvecPlacePubliee> duCentre(UUID centre, LocalDate du, LocalDate au) {
+        Comparator<Ligne> ordre = Comparator.<Ligne, LocalDate>comparing(l -> l.date)
+                .thenComparing(l -> l.creeLe, Comparator.nullsLast(Comparator.<Instant>naturalOrder()))
+                .thenComparing((x, y) -> enOctetsNonSignes(x.id, y.id));
         List<SeanceRealiseeAvecPlacePubliee> lues = new ArrayList<>();
-        for (Ligne l : realiseesDuCentre(centre)) {
+        for (Ligne l : realiseesDuCentre(centre).stream().sorted(ordre).toList()) {
             Fiche fiche = fiches.get(l.patient);
             if (fiche != null && fiche.centre().equals(l.centre) && entre(l.date, du, au)) {
                 lues.add(new SeanceRealiseeAvecPlacePubliee(l.patient, l.date, l.salle, l.creneau, l.generateur, fiche.nom(), fiche.prenom()));
             }
         }
-        return lues.stream().sorted(Comparator.comparing(SeanceRealiseeAvecPlacePubliee::date)).toList();
+        return lues;
     }
 
     @Override
@@ -164,9 +159,7 @@ public final class SeancesRealiseesEtConstantesEnMemoire
 
     @Override
     public List<ConstantesDeSeancePubliees> page(UUID centre, UUID patient, int taille, long rang) {
-        Comparator<Instant> creationDecroissante = nullesEnPremier
-                ? Comparator.nullsFirst(Comparator.<Instant>reverseOrder())
-                : Comparator.nullsLast(Comparator.<Instant>reverseOrder());
+        Comparator<Instant> creationDecroissante = Comparator.nullsFirst(Comparator.<Instant>reverseOrder());
         Comparator<Ligne> ordre = Comparator.<Ligne, LocalDate>comparing(l -> l.date, Comparator.reverseOrder())
                 .thenComparing(l -> l.creeLe, creationDecroissante)
                 .thenComparing((x, y) -> enOctetsNonSignes(y.id, x.id));

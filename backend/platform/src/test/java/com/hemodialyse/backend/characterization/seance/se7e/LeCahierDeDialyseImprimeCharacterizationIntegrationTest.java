@@ -22,6 +22,9 @@ import java.util.UUID;
  * Le PDF est décodé en texte (PDFBox) ; seules les lignes qui portent la séance (titre de page, statut, forfait, poids) sont gardées ; la
  * date d'édition est masquée. Complète {@code CahierDialyseReportIntegrationTest} (état Jasper rempli directement, sans HTTP) sur les bornes,
  * la casse, l'égalité de date, le centre, la surcharge de forfait.
+ * <p>Lot L5a (2026-11-10, ADR 0117, KB-SEA-88) : le golden {@code surcharge_de_forfait_nouveau_code} remplace {@code surcharge_de_forfait}
+ * (archivé sous {@code _ecarts-legacy/cahier/surcharge_de_forfait_avant_l5a.legacy.json}) : une surcharge sans code recopié imprime le code et le
+ * libellé du forfait du référentiel (même centre) au lieu de « Forfait : - » ; le prix reste celui de la surcharge.
  */
 class LeCahierDeDialyseImprimeCharacterizationIntegrationTest extends Se7eCharacterizationSupport {
 
@@ -100,7 +103,7 @@ class LeCahierDeDialyseImprimeCharacterizationIntegrationTest extends Se7eCharac
     }
 
     @Test
-    void la_surcharge_de_forfait_imprime_le_code_recopie_sur_la_seance() throws Exception {
+    void la_surcharge_de_forfait_imprime_le_code_recopie_sur_la_seance_ou_a_defaut_celui_du_referentiel() throws Exception {
         UUID patient = patientCouvert(CENTRE_A, "PSURCH");
         UUID surcharge = forfait(CENTRE_A, "FORFAIT_SURCHARGE", "SURCH", "150.00");
         UUID avecCode = seanceEnBase(CENTRE_A, patient, "F1_SURCHARGE_AVEC_CODE", fixe(31), "VALIDEE");
@@ -111,6 +114,6 @@ class LeCahierDeDialyseImprimeCharacterizationIntegrationTest extends Se7eCharac
         jdbc.update("UPDATE seances SET forfait_override_id = ?, forfait_override_code = NULL, forfait_override_nom = NULL, "
                 + "forfait_override_prix = NULL WHERE id = ?", surcharge, sansCode);
 
-        arbre("surcharge_de_forfait", cahier(patient, null, null));
+        arbre("surcharge_de_forfait_nouveau_code", cahier(patient, null, null));
     }
 }

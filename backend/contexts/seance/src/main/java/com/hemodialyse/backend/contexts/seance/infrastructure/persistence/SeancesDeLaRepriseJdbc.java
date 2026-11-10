@@ -19,8 +19,9 @@ import java.util.stream.Collectors;
  * E12 ({@code HistoricalRecordJdbcAdapter.findExisting}), E13 ({@code insert}), {@code update} (inatteignable), E14 et E15
  * ({@code MigrationRollbackJdbcAdapter.blockers}), E16 ({@code delete}). Mêmes gardes : liste blanche des champs (descripteur de table
  * {@code seances} : {@code patientId}, {@code dateSeance}, {@code statut} ; date de création posée, pas de date de mise à jour), centre du
- * lot sur la recherche, la modification et la suppression, AUCUN centre sur les séances du patient et la facture (KB-SEA-89, 90,
- * reproduits). Aucune transaction propre : participe à celle de l'import ou de l'annulation (même {@code JdbcTemplate}).
+ * lot sur la recherche, la modification et la suppression, AUCUN centre sur les séances du patient et la facture (KB-SEA-90, reproduit :
+ * prudence voulue). KB-SEA-89 corrigé le 2026-11-10 (ADR 0117) : la recherche d'une séance déjà présente ignore les séances
+ * {@code ANNULEE}, tous les autres statuts continuent de bloquer. Aucune transaction propre : participe à celle de l'import ou de l'annulation (même {@code JdbcTemplate}).
  */
 public class SeancesDeLaRepriseJdbc implements SeancesDeLaReprisePubliees {
 
@@ -48,7 +49,8 @@ public class SeancesDeLaRepriseJdbc implements SeancesDeLaReprisePubliees {
     @Override
     public Optional<UUID> seanceDejaPresente(UUID centre, Map<String, Object> cle) {
         List<Object> params = new ArrayList<>(List.of(centre));
-        StringBuilder where = new StringBuilder(" WHERE center_id = ?");
+        // KB-SEA-89 corrigé (ADR 0117) : une séance annulée n'est pas une séance tenue, elle ne bloque plus la reprise
+        StringBuilder where = new StringBuilder(" WHERE center_id = ? AND (statut IS NULL OR statut <> 'ANNULEE')");
         cle.forEach((field, value) -> {
             String column = column(field);
             if (value == null) {

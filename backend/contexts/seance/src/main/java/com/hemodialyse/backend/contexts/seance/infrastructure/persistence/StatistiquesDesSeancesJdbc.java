@@ -5,7 +5,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,8 +15,9 @@ import java.util.UUID;
  * Lecture publiée des séances et de leur volet paramédical pour les statistiques du patient (ADR 0099, SE7e), lecture seule. Requêtes
  * reprises MOT POUR MOT de {@code PatientStatsQueryService.getParamedicalStats} (plateforme) (E6 à E9 de {@code .ddd/safety-net/seance-se7e.md}) :
  * volet joint sur la séance SEULE (KB-SEA-85), aucun statut, dates de période écrites en LITTÉRAL ISO dans la requête comme avant (valeurs
- * {@link LocalDate}, jamais une saisie libre), tri par date seule (KB-SEA-86), {@code AVG} rendu en {@code Double} par le pilote (KB-SEA-87),
- * lignes de l'évolution du poids rendues telles que {@code queryForList} les donne (libellés du SGBD, KB-SEA-86).
+ * {@link LocalDate}, jamais une saisie libre), {@code AVG} rendu en {@code Double} par le pilote (KB-SEA-87 : précision dépendante du SGBD,
+ * non corrigeable en code, seules 10 décimales sont garanties). Corrigé le 2026-11-10 (lot L5a, ADR 0117) : tri déterministe date, création
+ * connue d'abord puis identifiant, et clés des lignes de l'évolution du poids toutes en minuscules (KB-SEA-86).
  */
 public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliees {
 
@@ -33,6 +36,9 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
                     + "WHERE pm.patient_id = s.patient_id AND pm.center_id = s.center_id "
                     + "AND pm.poids_sec_cible_kg IS NOT NULL AND pm.date_prescription <= s.date_seance "
                     + "ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1)";
+
+    /** Ordre déterministe (KB-SEA-86) : date, création connue d'abord (la plus ancienne créée), puis identifiant. */
+    private static final String ORDRE_DES_SEANCES = " ORDER BY s.date_seance, s.created_at NULLS LAST, s.id";
 
     private final JdbcTemplate jdbc;
 
@@ -75,14 +81,22 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
 
     @Override
     public List<Map<String, Object>> evolutionDuPoids(UUID centre, UUID patient, LocalDate du, LocalDate au) {
-        return jdbc.queryForList(
+        List<Map<String, Object>> lignes = jdbc.queryForList(
                 "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, "
                         + POIDS_SEC_A_LA_SEANCE_EXPR + " AS poids_sec_cible_kg, "
                         + UF_REELLE_EXPR + " AS uf_reelle_ml"
                         + baseFrom(du, au)
-                        + " ORDER BY s.date_seance ASC",
+                        + ORDRE_DES_SEANCES,
                 centre, patient
         );
+        // KB-SEA-86 corrigé (ADR 0117) : une seule casse de clé, les minuscules (contrat de production, PostgreSQL), quel que soit le SGBD
+        return lignes.stream().map(StatistiquesDesSeancesJdbc::enMinuscules).toList();
+    }
+
+    private static Map<String, Object> enMinuscules(Map<String, Object> ligne) {
+        Map<String, Object> normalisee = new LinkedHashMap<>();
+        ligne.forEach((cle, valeur) -> normalisee.put(cle.toLowerCase(Locale.ROOT), valeur));
+        return normalisee;
     }
 
     @Override
@@ -90,7 +104,7 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
         return jdbc.query(
                 "SELECT s.date_seance, vp.ta_avant, vp.ta_apres"
                         + baseFrom(du, au)
-                        + " ORDER BY s.date_seance ASC",
+                        + ORDRE_DES_SEANCES,
                 (rs, rowNum) -> {
                     Date date = rs.getDate("date_seance");
                     return new TensionsDeSeancePubliees(date == null ? null : date.toLocalDate(), rs.getString("ta_avant"),

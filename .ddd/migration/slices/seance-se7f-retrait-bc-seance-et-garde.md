@@ -94,7 +94,15 @@ Le comportement change volontairement (demande de l'utilisateur) : les lignes «
 | KB-SEA-99 | 500 `INTERNAL_ERROR` | 400 `BAD_REQUEST` (403 avant 400 conservé) | goldens DM1 `erreurs_nouveau_code` (4 cas), `autres_mesures_nouveau_code` (2 cas) |
 Goldens remplacés : anciens archivés sous `_ecarts-legacy/**/*_avant_l4.legacy.json`. Détection et réparation MANUELLE du centre des volets : `verifications-production.md` §78 (aucune migration). Flag / bascule : aucun (ADR 0024).
 
+## Lot L5a (2026-11-10, ADR 0117) : KB-SEA-96 (a) CORRIGÉ, (b) CLOS sans changement
+| Écart | Avant | Après | Preuve |
+|---|---|---|---|
+| KB-SEA-96 a (F6) | `ORDER BY date_prelevement DESC` seul, puis `max(date)` en Java : date égale = ordre du SGBD | `ORDER BY date_prelevement DESC, created_at DESC NULLS LAST, id DESC LIMIT 1` sur les lignes à créatinine non nulle : la dernière saisie fait foi (à confirmer par les médecins ; alternative : la plus haute) | contrat `DerniereCreatinineContrat` (mémoire, H2, PG16), rejeu PG16 F6 |
+| KB-SEA-96 b | créatinine à 0 : valeur retenue, non évaluable en KDIGO | CLOS : inchangé (comportement sûr, aucun stade faux) ; refuser le 0 à la saisie = décision médicale | Javadoc `EvaluationKdigoDuCandidat`, contrat |
+Détection : `verifications-production.md` §79.4.
+
 ## Questions ouvertes
+- KB-SEA-96 (a) : confirmation médecins « dernière saisie » (L5a) ; (b) refuser le 0 à la saisie (DM6) : ouverte.
 - KB-SEA-93 : RÉSOLUE par L4 (garde de la fiche avant l'écriture), confirmation métiers attendue.
 - KB-SEA-94 : code RÉSOLU par L4 (lecture par la séance) ; reste la réparation du `center_id` des volets (§78, décision écrite du responsable des données) et le volet médical, même anomalie, hors périmètre.
 - Texte trop long pour sa colonne (anticoagulant, type de dialysat : 500 `DATA_ACCESS_ERROR`) : observé en L4, non traité ; faut-il un 422 ?

@@ -21,6 +21,8 @@ import java.util.UUID;
  *   centre) ou complétée (volets), puis suppression ({@code :143}, {@code DELETE FROM seances WHERE id = ? AND center_id = ?}).</li>
  * </ul>
  * Observation : réponses HTTP (rapport d'import réduit aux compteurs et codes, refus d'annulation) et état SQL de la table réelle.
+ * <p>Lot L5a (2026-11-10, ADR 0117, KB-SEA-89) : {@code findExisting} ignore désormais les séances {@code ANNULEE} (golden
+ * {@code deja_presente_et_annulation_bloquee_nouveau_code}, ancien archivé sous {@code seance/se7e/_ecarts-legacy/reprise}).
  */
 class LesSeancesDeLaRepriseDeDonneesCharacterizationIntegrationTest extends Se7eCharacterizationSupport {
 
@@ -72,24 +74,25 @@ class LesSeancesDeLaRepriseDeDonneesCharacterizationIntegrationTest extends Se7e
     }
 
     @Test
-    void une_seance_deja_presente_le_meme_jour_dans_le_centre_est_conservee_quel_que_soit_son_statut() throws Exception {
+    void une_seance_deja_presente_le_meme_jour_dans_le_centre_est_conservee_sauf_si_elle_est_annulee() throws Exception {
         UUID lot = ouvrirUnLot();
         UUID p1 = patientRepris(lot);
-        // séances posées par la plateforme AVANT l'import : une ANNULEE au centre A le 5 janvier 2026, une VALIDEE au centre B le 7 janvier
+        // séances posées par la plateforme AVANT l'import : une ANNULEE au centre A le 5 janvier 2026, une VALIDEE au centre B le 7 janvier,
+        // une VALIDEE au centre A le 8 janvier (L5a, KB-SEA-89 : seule la séance tenue bloque la reprise du même jour)
         seanceEnBase(CENTRE_A, p1, "PLATEFORME_A_ANNULEE", fixe(4), "ANNULEE");
         seanceEnBase(CENTRE_B, p1, "PLATEFORME_B_VALIDEE", fixe(6), "VALIDEE");
+        seanceEnBase(CENTRE_A, p1, "PLATEFORME_A_VALIDEE", fixe(7), "VALIDEE");
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("import", rapport(importer(lot, "seances", "Patient;Date de séance;Facturée\n"
-                + "P1;05/01/2026;oui\n"     // même jour qu'une séance ANNULEE du centre A : conservée, pas d'import
+                + "P1;05/01/2026;oui\n"     // même jour qu'une séance ANNULEE du centre A : importée (une annulée n'est pas une séance tenue)
                 + "P1;07/01/2026;non\n"     // même jour qu'une séance du centre B : importée au centre A
-                + "P1;08/01/2026;oui\n"
+                + "P1;08/01/2026;oui\n"     // même jour qu'une séance VALIDEE du centre A : conservée, pas d'import
                 + "P1;30/09/2025;oui\n", adminA())));   // antérieure à la période reprise (depuis le 2025-10-01) : ignorée
-        fixe(7);
         m.put("seances apres import", etatDesSeances());
         m.put("annulation (une seance de la plateforme du patient repris bloque)", annulation(lot));
         m.put("seances apres annulation refusee", etatDesSeances());
-        arbre("deja_presente_et_annulation_bloquee", m);
+        arbre("deja_presente_et_annulation_bloquee_nouveau_code", m);
     }
 
     @Test

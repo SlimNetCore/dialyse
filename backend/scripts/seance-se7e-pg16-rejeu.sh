@@ -24,9 +24,10 @@
 # la verification de flyway_schema_history (table tenue ici par le script, une ligne par fichier applique, avec le DDL de Flyway), le
 # comportement de db/seed.sql sur PostgreSQL (question ouverte SE7e) et le contrat PostgreSQL PilotageEtRapportsDesSeancesPostgresContractIT
 # (Seance, 13 + 1 tests), dans la base jetable uniquement.
-# Points propres a PostgreSQL verifies : precision de AVG sur NUMERIC (H2 : 12 decimales, KB-SEA-87), libelles de colonnes en minuscules
-# (H2 : majuscules, cles JSON de poidsEvolution, KB-SEA-86), EXTRACT numerique, ordre des UUID a date egale (cahier), FETCH FIRST et CAST
-# du jrxml.
+# Points propres a PostgreSQL verifies : precision de AVG sur NUMERIC (H2 : 12 decimales ; close par tolerance, KB-SEA-87, ADR 0117), libelles de
+# colonnes en minuscules (le contrat de production, desormais aussi celui de H2, KB-SEA-86 corrige), EXTRACT numerique, ordre des UUID a date
+# egale (cahier), FETCH FIRST et CAST du jrxml (forfait du referentiel a defaut du code recopie, KB-SEA-88 corrige ; E12 sans les ANNULEE,
+# KB-SEA-89 corrige).
 # A lancer en arriere-plan avec un log : backend/scripts/seance-se7e-pg16-rejeu.sh 55549
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Mot de passe du cluster jetable : variable d'environnement
 # SEANCE_PG16_PASSWORD (tiree au hasard ici si absente), jamais en argument. Code de sortie : 0 si tout est conforme.
@@ -181,10 +182,10 @@ verifier "E7 moyennes (texte PostgreSQL)" "$R" "74.1666666666666667|71.833333333
 verifier "E7 moyennes exactes du golden H2 (sans periode)" "$(sql "SELECT AVG(vp.poids_avant_kg), AVG(vp.poids_apres_kg), AVG($UF)${BASE}")" \
   "72.9375000000000000|70.8125000000000000|2125.0000000000000000"
 echo "=== E8 PatientStatsQueryService:302 : poids sec en vigueur a la seance (meme jour : mise a jour la plus recente) ==="
-verifier "E8 evolution (date, poids sec, UF)" "$(sql "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, ${POIDS_SEC} AS poids_sec_cible_kg, ${UF} AS uf_reelle_ml${BASE} AND s.date_seance BETWEEN '2026-02-01' AND '2026-02-05' ORDER BY s.date_seance ASC" | cut -d'|' -f1,4,5 | sort | lignes)" \
+verifier "E8 evolution (date, poids sec, UF)" "$(sql "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, ${POIDS_SEC} AS poids_sec_cible_kg, ${UF} AS uf_reelle_ml${BASE} AND s.date_seance BETWEEN '2026-02-01' AND '2026-02-05' ORDER BY s.date_seance, s.created_at NULLS LAST, s.id" | cut -d'|' -f1,4,5 | sort | lignes)" \
   "2026-02-01|66.00|2500.00;2026-02-02|66.00|2000.00;2026-02-03|68.00|;2026-02-04|68.00|2500.00;2026-02-05|68.00|;2026-02-05|68.00|1500.00"
 echo "=== E9 libelles de colonnes servis par PostgreSQL (cles JSON de poidsEvolution ; H2 : majuscules, KB-SEA-86) ==="
-verifier "E9 libelles" "$(entete "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, ${POIDS_SEC} AS poids_sec_cible_kg, ${UF} AS uf_reelle_ml${BASE} ORDER BY s.date_seance ASC")" \
+verifier "E9 libelles" "$(entete "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, ${POIDS_SEC} AS poids_sec_cible_kg, ${UF} AS uf_reelle_ml${BASE} ORDER BY s.date_seance, s.created_at NULLS LAST, s.id")" \
   "date_seance|poids_avant_kg|poids_apres_kg|poids_sec_cible_kg|uf_reelle_ml"
 
 echo "=== E10 CahierDialyseReportService:84 : compte des seances imprimables (casse exacte) ==="
@@ -193,8 +194,8 @@ echo "=== E11 cahier_dialyse.jrxml:42-135 : requete de l'etat ENTIERE, parametre
 JRXML="SELECT CAST(s.id AS VARCHAR(36)) AS seance_id,
              s.date_seance AS date_seance,
              CASE s.statut WHEN 'VALIDEE' THEN 'Validée' WHEN 'SIGNEE' THEN 'Signée' WHEN 'FACTUREE' THEN 'Facturée' ELSE s.statut END AS statut,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_code ELSE f.code END AS forfait_code,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_nom ELSE f.libelle END AS forfait_nom,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN COALESCE(s.forfait_override_code, fo.code) ELSE f.code END AS forfait_code,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN COALESCE(s.forfait_override_nom, fo.libelle) ELSE f.libelle END AS forfait_nom,
              CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_prix ELSE f.prix END AS forfait_prix,
              COALESCE(CASE WHEN POSITION('.' IN CAST(v.poids_avant_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_avant_kg AS VARCHAR(40)))) ELSE CAST(v.poids_avant_kg AS VARCHAR(40)) END, '-') AS poids_avant,
              COALESCE(CASE WHEN POSITION('.' IN CAST(v.poids_apres_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_apres_kg AS VARCHAR(40)))) ELSE CAST(v.poids_apres_kg AS VARCHAR(40)) END, '-') AS poids_apres,
@@ -247,6 +248,7 @@ JRXML="SELECT CAST(s.id AS VARCHAR(36)) AS seance_id,
       LEFT JOIN volet_paramedical v ON v.seance_id = s.id AND v.center_id = s.center_id
       LEFT JOIN volet_medical vm ON vm.seance_id = s.id AND vm.center_id = s.center_id
       LEFT JOIN dossier_medical_patient d ON d.patient_id = s.patient_id AND d.center_id = s.center_id
+      LEFT JOIN forfait fo ON fo.id = s.forfait_override_id AND fo.center_id = s.center_id
       LEFT JOIN forfait f ON f.center_id = s.center_id AND f.id = COALESCE(
              (SELECT COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
                 FROM prise_en_charge p
@@ -286,12 +288,13 @@ JRXML="SELECT CAST(s.id AS VARCHAR(36)) AS seance_id,
       ORDER BY s.date_seance DESC, s.id, ac.code"
 verifier "E11 pages (date desc, puis identifiant croissant : 0e94... avant 4980...), statut, forfait, poids avant" \
   "$(sqlf "$JRXML" | cut -d'|' -f1-5,7 | lignes)" \
-  "5e7e3000-0000-0000-0000-000000000007|2026-03-01|Validée|||-;5e7e3000-0000-0000-0000-000000000006|2026-02-28|Validée|SURCH|Surcharge fictive|-;$C2|2026-02-10|Signée|FORFAIT_SE1|Forfait fictif|-;$C3|2026-02-10|Facturée|FORFAIT_SE1|Forfait fictif|-;5e7e3000-0000-0000-0000-000000000001|2026-02-01|Validée|FORFAIT_SE1|Forfait fictif|72.5"
+  "5e7e3000-0000-0000-0000-000000000007|2026-03-01|Validée|SURCH|Forfait SURCH|-;5e7e3000-0000-0000-0000-000000000006|2026-02-28|Validée|SURCH|Surcharge fictive|-;$C2|2026-02-10|Signée|FORFAIT_SE1|Forfait fictif|-;$C3|2026-02-10|Facturée|FORFAIT_SE1|Forfait fictif|-;5e7e3000-0000-0000-0000-000000000001|2026-02-01|Validée|FORFAIT_SE1|Forfait fictif|72.5"
 
-echo "=== E12 HistoricalRecordJdbcAdapter:94 : seance deja presente le meme jour au centre, quel que soit son statut (KB-SEA-89) ==="
-verifier "E12 findExisting 2026-01-05 (ANNULEE)" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND date_seance = '2026-01-05' AND patient_id = '$P1' ORDER BY created_at")" \
+echo "=== E12 HistoricalRecordJdbcAdapter:94 : seance deja presente le meme jour au centre, tout statut SAUF ANNULEE (KB-SEA-89 corrige, ADR 0117) ==="
+verifier "E12 findExisting 2026-01-05 (ANNULEE seule : ne bloque plus)" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND (statut IS NULL OR statut <> 'ANNULEE') AND date_seance = '2026-01-05' AND patient_id = '$P1' ORDER BY created_at")" ""
+verifier "E12 findExisting 2026-01-05 sans l'exclusion (ancien texte) : l'ANNULEE etait trouvee" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND date_seance = '2026-01-05' AND patient_id = '$P1' ORDER BY created_at")" \
   "5e7e4000-0000-0000-0000-000000000001"
-verifier "E12 findExisting 2026-01-07 (seance de l'autre centre : rien au centre du lot)" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND date_seance = '2026-01-07' AND patient_id = '$P1' ORDER BY created_at")" ""
+verifier "E12 findExisting 2026-01-07 (seance de l'autre centre : rien au centre du lot)" "$(sql "SELECT id FROM seances WHERE center_id = '$D' AND (statut IS NULL OR statut <> 'ANNULEE') AND date_seance = '2026-01-07' AND patient_id = '$P1' ORDER BY created_at")" ""
 echo "=== E13 (INSERT), update, E16 (DELETE) : non rejoues ici ; verifies par le contrat PostgreSQL en fin de script ==="
 echo "=== E14 MigrationRollbackJdbcAdapter:83 : seances du patient repris, SANS centre (KB-SEA-90) ==="
 verifier "E14 seances du patient" "$(sql "SELECT CAST(id AS VARCHAR(36)) FROM seances WHERE patient_id = '$P1'" | sort | lignes)" \

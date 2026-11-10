@@ -1,0 +1,11 @@
+{
+  "avgPoidsApresKg" : 70.8125,
+  "avgPoidsAvantKg" : 72.9375,
+  "avgUfReelleMl" : 2125.0,
+  "ordre servi des dates (poidsEvolution)" : [ "<D+31>", "<D+32>", "<D+33>", "<D+34>", "<D+35>", "<D+35>" ],
+  "poidsEvolution (lignes triees par le test)" : [ "date_seance=\"<D+31>\" poids_avant_kg=70.5 poids_apres_kg=68.0 poids_sec_cible_kg=66.0 uf_reelle_ml=2500.0", "date_seance=\"<D+32>\" poids_avant_kg=72.0 poids_apres_kg=70.0 poids_sec_cible_kg=66.0 uf_reelle_ml=2000.0", "date_seance=\"<D+33>\" poids_avant_kg=null poids_apres_kg=null poids_sec_cible_kg=68.0 uf_reelle_ml=null", "date_seance=\"<D+34>\" poids_avant_kg=80.0 poids_apres_kg=77.5 poids_sec_cible_kg=68.0 uf_reelle_ml=2500.0", "date_seance=\"<D+35>\" poids_avant_kg=69.25 poids_apres_kg=67.75 poids_sec_cible_kg=68.0 uf_reelle_ml=1500.0", "date_seance=\"<D+35>\" poids_avant_kg=null poids_apres_kg=null poids_sec_cible_kg=68.0 uf_reelle_ml=null" ],
+  "poidsSecCibleKg" : 68.0,
+  "seanceCount" : 6,
+  "status" : 200,
+  "taEvolution (lignes triees par le test)" : [ "date_seance=\"<D+31>\" ta_systolique_avant=130 ta_diastolique_avant=80 ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=\"<D+32>\" ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=\"<D+33>\" ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=\"<D+34>\" ta_systolique_avant=140 ta_diastolique_avant=90 ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=\"<D+35>\" ta_systolique_avant=120 ta_diastolique_avant=70 ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=\"<D+35>\" ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null" ]
+}

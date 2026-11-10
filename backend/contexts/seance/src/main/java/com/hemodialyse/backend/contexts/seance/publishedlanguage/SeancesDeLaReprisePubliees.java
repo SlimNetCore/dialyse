@@ -24,8 +24,9 @@ public interface SeancesDeLaReprisePubliees {
     String NATURE = "seances";
 
     /**
-     * La première séance (par date de création) du centre qui a ces valeurs de clé, QUEL QUE SOIT son statut : une séance ANNULEE déjà
-     * présente le même jour empêche la reprise (KB-SEA-89, reproduit) ; une valeur nulle se compare par {@code IS NULL} (E12).
+     * La première séance (par date de création) du centre qui a ces valeurs de clé, QUEL QUE SOIT son statut SAUF {@code ANNULEE} : une
+     * séance annulée n'est pas une séance tenue et n'empêche plus la reprise (KB-SEA-89 corrigé le 2026-11-10, ADR 0117) ; une valeur
+     * nulle se compare par {@code IS NULL} (E12).
      */
     Optional<UUID> seanceDejaPresente(UUID centre, Map<String, Object> cle);
 

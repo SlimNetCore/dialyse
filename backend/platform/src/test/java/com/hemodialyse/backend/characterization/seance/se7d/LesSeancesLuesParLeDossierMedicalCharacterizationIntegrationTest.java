@@ -15,8 +15,9 @@ import java.util.UUID;
  * par {@code GET /api/v1/patients/{id}/constantes}. Complète DM1 sur les égalités complètes (même date, même création), la création
  * nulle (colonne {@code seances.created_at} nullable), et le total quand la page coupe une égalité.
  * <p>
- * Le comportement de la création nulle DIFFÈRE entre H2 et PostgreSQL 16 (ordre des NULL en tri décroissant) : le golden fige H2 ; le
- * rejeu PostgreSQL 16 est fait par {@code backend/scripts/seance-se7d-pg16-rejeu.sh} (KB-SEA-79).
+ * Lot L5a (2026-11-10, ADR 0117, KB-SEA-79 corrigé) : la création nulle se classe EN PREMIER en tri décroissant (NULLS FIRST écrit), sur H2 comme
+ * sur PostgreSQL 16 ; l'ancien golden {@code creation_nulle_sur_h2} (H2 : en dernier) est archivé sous {@code _ecarts-legacy/dossier-medical}.
+ * Le rejeu PostgreSQL 16 est fait par {@code backend/scripts/seance-se7d-pg16-rejeu.sh}.
  */
 class LesSeancesLuesParLeDossierMedicalCharacterizationIntegrationTest extends Se7dCharacterizationSupport {
 
@@ -67,7 +68,7 @@ class LesSeancesLuesParLeDossierMedicalCharacterizationIntegrationTest extends S
     }
 
     @Test
-    void une_creation_nulle_se_classe_apres_les_creations_renseignees_du_meme_jour_sur_h2() throws Exception {
+    void une_creation_nulle_se_classe_en_premier_du_meme_jour_sur_toutes_les_bases() throws Exception {
         UUID patient = patientSe1(CENTRE_A, "P1");
         UUID sansCreation = seanceEnBase(CENTRE_A, patient, "CREATION_NULLE", fixe(5), "VALIDEE");
         seanceEnBase(CENTRE_A, patient, "CREATION_FIXE", fixe(5), "SIGNEE");
@@ -78,14 +79,14 @@ class LesSeancesLuesParLeDossierMedicalCharacterizationIntegrationTest extends S
 
         Resp r = constantesDuPatient(patient, null, as(CENTRE_A, "MEDECIN"));
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("H2 (ordre des NULL en tri decroissant : DIFFERE de PostgreSQL 16, voir KB-SEA-79)", page(r));
+        m.put("H2 comme PostgreSQL 16 (NULLS FIRST explicite en tri decroissant, KB-SEA-79 corrige)", page(r));
         List<String> mesures = new ArrayList<>();
         for (JsonNode i : mapper.readTree(r.raw()).path("items")) {
             mesures.add(aliasNommes.getOrDefault(i.path("seanceId").asString(), "?") + " poidsAvant=" + i.path("poidsAvantKg")
                     + " taAvant=" + i.path("taAvant") + " duree=" + i.path("dureeMinutes") + " uf=" + i.path("ultrafiltrationMl"));
         }
         m.put("mesures (le volet est joint malgre la creation nulle)", mesures);
-        arbre("creation_nulle_sur_h2", m);
+        arbre("creation_nulle_en_premier_nouveau_code", m);
     }
 
     @Test

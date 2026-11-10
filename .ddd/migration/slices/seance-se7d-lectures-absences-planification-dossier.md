@@ -74,5 +74,15 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, aucun flag, aucune
 | D-R7 | Concurrence (lecture pendant une validation, une exclusion) non rejouée ; couverture de branches et mutation non mesurées (PIT non lancé) | 2026-12-15 | 2027-03-31 |
 | D-R8 | **SOLDÉ (décision utilisateur, 2026-11-08, revue m1)**. Le HTML `docs/client/documentation-fonctionnelle.html:1889` cite la même source que `06-absences-patients.md:193-194` : l'ACL `ExclusionsDeSeancesPubliees` (`absencespatients/infrastructure/acl/seance`, câblée par `AbsencesPatientsContexteConfiguration:170`), et non plus `LiensDExclusionFournis`. Le PDF et le DOCX, ainsi que RG-SEA-062 à 064, suivront la prochaine régénération ordinaire (`docs/client/tools`), sans résidu ouvert | — | — |
 
+## Lot L5a (2026-11-10, ADR 0117) : KB-SEA-77, 78, 79 et 81 CORRIGÉS (écarts de parité DÉCIDÉS, à confirmer par les métiers au plus tard le 2026-12-15)
+Le comportement change volontairement (demande de l'utilisateur) : D-R4 ne décrit plus le code pour KB-SEA-81, et les lectures A1, P1, D2 ont désormais un tri déterministe.
+| Écart | Avant | Après | Preuve |
+|---|---|---|---|
+| KB-SEA-77 (A1) | `ORDER BY s.date_seance` | `ORDER BY s.date_seance, s.patient_id` | contrat `SeancesRealiseesEtConstantesContrat` (mémoire, H2, PG16), rejeu PG16 A1 |
+| KB-SEA-78 (P1) | `ORDER BY s.date_seance` ; la Planification garde la première lue | `ORDER BY s.date_seance, s.created_at NULLS LAST, s.id` : la première lue est la plus ancienne créée | contrat (4 séances le même jour dont une sans création), rejeu PG16 P1 |
+| KB-SEA-79 (D2) | `created_at DESC` : nulle en dernier sur H2, en premier sur PG16 | `created_at DESC NULLS FIRST` partout (ordre de production conservé) | contrat, rejeu PG16 D2 |
+| KB-SEA-81 (A4) | lien d'exclusion sans statut | `AND statut = 'ABSENT'` ; le lien résiduel reste en base, aucun nettoyage | contrat, rejeu PG16 A4 |
+Détections : `verifications-production.md` §79.1, 79.2. Flag / bascule : aucun (ADR 0024).
+
 ## Reste à faire
 Confirmation métiers / DPO de l'ADR 0098 (au plus tard 2026-12-15) ; exécuter les requêtes §63 sur une copie de production ; résidus D-R1 à D-R8 ; `/ddd-verify seance-se7d-lectures-absences-planification-dossier`.

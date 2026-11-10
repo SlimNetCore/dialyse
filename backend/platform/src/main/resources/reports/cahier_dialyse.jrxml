@@ -42,8 +42,8 @@
       SELECT CAST(s.id AS VARCHAR(36)) AS seance_id,
              s.date_seance AS date_seance,
              CASE s.statut WHEN 'VALIDEE' THEN 'Validée' WHEN 'SIGNEE' THEN 'Signée' WHEN 'FACTUREE' THEN 'Facturée' ELSE s.statut END AS statut,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_code ELSE f.code END AS forfait_code,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_nom ELSE f.libelle END AS forfait_nom,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN COALESCE(s.forfait_override_code, fo.code) ELSE f.code END AS forfait_code,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN COALESCE(s.forfait_override_nom, fo.libelle) ELSE f.libelle END AS forfait_nom,
              CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_prix ELSE f.prix END AS forfait_prix,
              COALESCE(CASE WHEN POSITION('.' IN CAST(v.poids_avant_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_avant_kg AS VARCHAR(40)))) ELSE CAST(v.poids_avant_kg AS VARCHAR(40)) END, '-') AS poids_avant,
              COALESCE(CASE WHEN POSITION('.' IN CAST(v.poids_apres_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_apres_kg AS VARCHAR(40)))) ELSE CAST(v.poids_apres_kg AS VARCHAR(40)) END, '-') AS poids_apres,
@@ -96,6 +96,7 @@
       LEFT JOIN volet_paramedical v ON v.seance_id = s.id AND v.center_id = s.center_id
       LEFT JOIN volet_medical vm ON vm.seance_id = s.id AND vm.center_id = s.center_id
       LEFT JOIN dossier_medical_patient d ON d.patient_id = s.patient_id AND d.center_id = s.center_id
+      LEFT JOIN forfait fo ON fo.id = s.forfait_override_id AND fo.center_id = s.center_id
       LEFT JOIN forfait f ON f.center_id = s.center_id AND f.id = COALESCE(
              (SELECT COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
                 FROM prise_en_charge p

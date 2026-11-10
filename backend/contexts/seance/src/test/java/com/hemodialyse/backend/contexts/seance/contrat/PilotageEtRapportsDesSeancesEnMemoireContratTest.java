@@ -86,14 +86,4 @@ class PilotageEtRapportsDesSeancesEnMemoireContratTest extends PilotageEtRapport
     protected UUID patientDe(UUID seance) {
         return seances.patientDe(seance);
     }
-
-    @Override
-    protected boolean libellesEnMajuscules() {
-        return true;
-    }
-
-    @Override
-    protected int decimalesDesMoyennes() {
-        return 12;
-    }
 }

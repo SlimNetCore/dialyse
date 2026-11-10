@@ -117,7 +117,7 @@ class LesSeancesLuesParLesAbsencesCharacterizationIntegrationTest extends Se7dCh
     }
 
     @Test
-    void l_annulation_ne_regarde_que_le_lien_d_exclusion_porte_par_une_seance_du_centre_quel_que_soit_son_statut() throws Exception {
+    void l_annulation_ne_regarde_que_le_lien_d_exclusion_porte_par_une_seance_du_centre_reellement_exclue() throws Exception {
         referentielDesCentres();
         UUID p1 = patientSe1(CENTRE_A, "P1");
         UUID p2 = patientSe1(CENTRE_A, "P2");
@@ -146,7 +146,8 @@ class LesSeancesLuesParLesAbsencesCharacterizationIntegrationTest extends Se7dCh
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("port ExclusionsDeSeances (centre A)", port);
         m.put("PUT /annulation ADMIN du centre A", http);
-        arbre("annulation_et_lien_d_exclusion", m);
+        // L5a (2026-11-10, ADR 0117, KB-SEA-81) : seule une séance réellement ABSENT bloque ; ancien golden archivé sous _ecarts-legacy
+        arbre("annulation_et_lien_d_exclusion_nouveau_code", m);
     }
 
     @Test

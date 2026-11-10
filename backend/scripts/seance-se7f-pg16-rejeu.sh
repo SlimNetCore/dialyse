@@ -123,8 +123,8 @@ verifier "F6 ordre au centre A (creatinine : 1.0 et 9.0 du 03-01, nulle du 01-31
   "2026-03-01|1.00;2026-03-01|9.00;2026-01-31|;2026-01-21|9.00;2026-01-11|1.00"
 verifier "F6 derniere creatinine non nulle du centre A sans les lignes du 03-01 (golden cloisonnement 03 : 9.0 du 01-21)" \
   "$(sql "SELECT creatinine_mg_dl FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' AND creatinine_mg_dl IS NOT NULL AND date_prelevement < '2026-03-01' ORDER BY date_prelevement DESC LIMIT 1")" "9.00"
-PREMIERE="$(sql "SELECT id FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' ORDER BY date_prelevement DESC LIMIT 1")"
-echo "F6 a date egale (2026-03-01, deux lignes), PostgreSQL 16 sert d'abord : $PREMIERE (ordre NON defini, KB-SEA-96 : observe, non impose)"
+verifier "F6 (L5a, KB-SEA-96 a corrige, ADR 0117) a date egale (2026-03-01, creation egale) : identifiant decroissant, la creatinine non nulle de e2 (9.00)" \
+  "$(sql "SELECT creatinine_mg_dl FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' AND creatinine_mg_dl IS NOT NULL ORDER BY date_prelevement DESC, created_at DESC NULLS LAST, id DESC LIMIT 1")" "9.00"
 verifier "F6 les deux analyses du 03-01 sont servies" "$(sql "SELECT COUNT(*) FROM resultats_analyses WHERE patient_id = '$PA' AND center_id = '$A' AND date_prelevement = '2026-03-01'")" "2"
 
 # F7 (revue SE7f m5, 2026-11-09 ; ADR 0100 "Parite attendue", ecart assume sous concurrence) : deux ecritures CONCURRENTES du volet

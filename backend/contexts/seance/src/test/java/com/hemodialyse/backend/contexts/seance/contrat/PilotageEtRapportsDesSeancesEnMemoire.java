@@ -24,8 +24,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- * Double en mémoire des ports publiés SE7e (ADR 0099), fidèle au contrat et calé sur H2 (filet de la plateforme) : statut réalisé en casse
- * exacte, bornes incluses, libellés de l'évolution du poids en MAJUSCULES, moyennes à 12 décimales, ordre d'insertion pour une même date.
+ * Double en mémoire des ports publiés SE7e (ADR 0099, corrigé par l'ADR 0117), fidèle au contrat : statut réalisé en casse exacte, bornes
+ * incluses, clés de l'évolution du poids en minuscules, moyennes à 12 décimales (10 garanties), tri date, création connue d'abord puis
+ * identifiant (KB-SEA-86), séance annulée ignorée par la recherche d'une séance déjà présente (KB-SEA-89).
  */
 public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesRealiseesDesCentresPubliees, StatistiquesDesSeancesPubliees,
         SeancesDuCahierPubliees, ForfaitsImposesAuxSeancesPublies, SeancesDeLaReprisePubliees {
@@ -158,7 +159,10 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     private List<Ligne> duPatient(UUID centre, UUID patient, LocalDate du, LocalDate au) {
         return seances.values().stream().filter(l -> l.centre.equals(centre) && l.patient.equals(patient))
                 .filter(l -> (du == null || !l.date.isBefore(du)) && (au == null || !l.date.isAfter(au)))
-                .sorted(Comparator.comparing(l -> l.date)).toList();
+                .sorted(Comparator.<Ligne, LocalDate>comparing(l -> l.date)
+                        .thenComparing(l -> l.creeLe, Comparator.nullsLast(Comparator.<Instant>naturalOrder()))
+                        .thenComparing((x, y) -> SeancesRealiseesEtConstantesEnMemoire.enOctetsNonSignes(x.id, y.id)))
+                .toList();
     }
 
     private static BigDecimal uf(Volet v) {
@@ -208,11 +212,11 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
         for (Ligne l : duPatient(centre, patient, du, au)) {
             Volet v = volets.get(l.id);
             Map<String, Object> ligne = new LinkedHashMap<>();
-            ligne.put("DATE_SEANCE", java.sql.Date.valueOf(l.date));
-            ligne.put("POIDS_AVANT_KG", v == null ? null : v.poidsAvant());
-            ligne.put("POIDS_APRES_KG", v == null ? null : v.poidsApres());
-            ligne.put("POIDS_SEC_CIBLE_KG", poidsSec(l));
-            ligne.put("UF_REELLE_ML", uf(v));
+            ligne.put("date_seance", java.sql.Date.valueOf(l.date));
+            ligne.put("poids_avant_kg", v == null ? null : v.poidsAvant());
+            ligne.put("poids_apres_kg", v == null ? null : v.poidsApres());
+            ligne.put("poids_sec_cible_kg", poidsSec(l));
+            ligne.put("uf_reelle_ml", uf(v));
             lignes.add(ligne);
         }
         return lignes;
@@ -257,7 +261,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     @Override
     public Optional<UUID> seanceDejaPresente(UUID centre, Map<String, Object> cle) {
         verifier(cle);
-        return seances.values().stream().filter(l -> l.centre.equals(centre))
+        return seances.values().stream().filter(l -> l.centre.equals(centre)).filter(l -> !"ANNULEE".equals(l.statut))
                 .filter(l -> cle.entrySet().stream().allMatch(e -> Objects.equals(valeur(l, e.getKey()), e.getValue())))
                 .min(Comparator.comparing(l -> l.creeLe)).map(l -> l.id);
     }

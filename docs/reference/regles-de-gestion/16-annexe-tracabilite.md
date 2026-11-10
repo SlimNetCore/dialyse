@@ -138,14 +138,17 @@ SE7d (ADR 0098) n'ajoute aucune route : les lectures des Absences de patients (`
 (`/api/v1/planning/semaine`, optimisations) et du Dossier médical (`/api/v1/patients/{id}/constantes`) déjà listées passent par les ports
 publiés `SeancesRealiseesPubliees`, `LiensDExclusionPublies`, `SeancesRealiseesAvecLeurPlacePubliees` (fournis par les traducteurs
 `infrastructure/acl/absences/` et `infrastructure/acl/planification/` de la plateforme) et `ConstantesDesSeancesPubliees` (dépendance
-directe du Dossier médical) ; règles : RG-SEA-062, 063, 064.
+directe du Dossier médical) ; règles : RG-SEA-062, 063, 064. Lot L5a (ADR 0117, 2026-11-10) : tris déterministes (KB-SEA-77, 78, 79), lien
+d'exclusion bloquant seulement sur une séance `ABSENT` (KB-SEA-81).
 SE7e (ADR 0099) n'ajoute aucune route : le pilotage de la Direction (`/api/v1/direction/overview`, `/breakdown`, `/absences`, `/report`,
 `/snapshots`), les statistiques du patient (`/api/v1/patients/{id}/stats/paramedical`, `/stats/export`, recherches), le cahier de dialyse
 (`/api/v1/cahier-dialyse/{id}/imprimer`, refus `CAHIER_VIDE`), la reprise de données (`/api/v1/admin/migration/batches/{id}/import/seances`,
 `/cancel`) et la suppression d'un forfait (`/api/v1/admin/referentials/forfaits/{id}`) déjà listés passent par les ports publiés
 `SeancesRealiseesDesCentresPubliees`, `StatistiquesDesSeancesPubliees`, `SeancesDuCahierPubliees`, `SeancesDeLaReprisePubliees` (seul port
 d'écriture hors de la Séance, réservé à la reprise) et `ForfaitsImposesAuxSeancesPublies`, injectés directement (la plateforme dépend du
-module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068.
+module Séance, aucun cycle) ; règles : RG-SEA-065, 066, 067, 068. Lot L5a (ADR 0117, 2026-11-10) : tri déterministe et clés d'évolution du poids en
+minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87), cahier de dialyse : forfait du référentiel à défaut du code recopié
+(KB-SEA-88), séance annulée n'empêchant plus la reprise (KB-SEA-89).
 SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`
 passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
 ADR 0116 : fiche vérifiée avant l'écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;
@@ -155,7 +158,7 @@ centre, volets) sont reprises mot pour mot dans le module (RG-SEA-070) ; les por
 publié ; restent fournis `FichesFournies`, `DiffusionsFournies` (+ `voletParamedicalEnregistre`), `RappelsFournis` et `SaisiesDeSeanceFournies`
 (administrations de traitement seulement). `GET /api/v1/patients/{id}/greffe/kdigo` lit la dernière créatinine par `DerniereCreatininePubliee`
 (Dossier médical) et `GET /api/v1/direction/capacite` calcule la capacité théorique par `CapaciteTheoriqueDesCentres` (Planification) ;
-règle : RG-SEA-071.
+règle : RG-SEA-071 (lot L5a, ADR 0117 : départage déterministe à date égale de la dernière créatinine, KB-SEA-96 a ; le zéro est clos sans changement).
 Les 6 lecteurs SQL des tables de la Séance (`seances`, `volet_paramedical`, `volet_medical` depuis SE7f) hors du contexte Séance qui restent
 (Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d, lecteurs Java du pilotage, des statistiques, du cahier, de la reprise et du
 référentiel sur `seances` : 0 depuis SE7e, fournisseurs de `seance.v1` et entités JPA : 0 depuis SE7f ; plateforme : l'annulation d'un lot de

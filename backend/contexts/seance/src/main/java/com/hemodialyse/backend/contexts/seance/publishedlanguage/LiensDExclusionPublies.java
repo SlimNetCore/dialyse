@@ -9,8 +9,8 @@ import java.util.UUID;
 public interface LiensDExclusionPublies {
 
     /**
-     * Vrai si au moins une séance du centre porte un lien vers cette absence, QUEL QUE SOIT son statut (KB-SEA-81, reproduit) ; le lien
-     * porté par une séance d'un autre centre est ignoré.
+     * Vrai si au moins une séance du centre au statut {@code ABSENT} porte un lien vers cette absence ; le lien résiduel d'une séance
+     * d'un autre statut est ignoré (KB-SEA-81 corrigé le 2026-11-10, ADR 0117), de même que celui d'une séance d'un autre centre.
      */
     boolean absenceLiee(UUID centre, UUID absence);
 }

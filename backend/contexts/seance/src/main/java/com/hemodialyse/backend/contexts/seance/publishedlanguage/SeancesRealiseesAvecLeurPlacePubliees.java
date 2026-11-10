@@ -20,8 +20,10 @@ public interface SeancesRealiseesAvecLeurPlacePubliees {
     }
 
     /**
-     * Les séances réalisées du centre entre ces deux dates incluses, triées par date SEULE (deux séances d'une même date : ordre NON
-     * défini, KB-SEA-78). Une séance n'est lue que si la fiche de son patient est dans le centre de la séance (KB-SEA-80, reproduit).
+     * Les séances réalisées du centre entre ces deux dates incluses, triées par date, puis création (la plus ancienne créée
+     * d'abord, création inconnue en dernier), puis identifiant : deux séances d'un même patient le même jour sortent dans un ordre
+     * déterministe et la première lue (celle que garde la Planification) est la plus ancienne créée (KB-SEA-78 corrigé le 2026-11-10,
+     * ADR 0117). Une séance n'est lue que si la fiche de son patient est dans le centre de la séance (KB-SEA-80, reproduit).
      */
     List<SeanceRealiseeAvecPlacePubliee> duCentre(UUID centre, LocalDate du, LocalDate au);
 }

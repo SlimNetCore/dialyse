@@ -37,9 +37,4 @@ class SeancesRealiseesEtConstantesJdbcContratTest extends SeancesRealiseesEtCons
     protected JdbcTemplate jdbc() {
         return jdbc;
     }
-
-    @Override
-    protected boolean creationNulleEnPremier() {
-        return false;
-    }
 }

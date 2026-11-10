@@ -2574,3 +2574,20 @@ SELECT s.center_id, count(*) AS seances_sans_fiche_au_centre FROM seances s WHER
 ```
 **Interprétation** : `0` ligne en 78.1 : rien à réparer, les volets sont au centre de leur séance. `> 0` : la saisie fonctionne déjà (volet remplacé sous son centre actuel) ; réparer pour que les lectures bornées voient le volet. `78.2 > 0` : informer les métiers Soins (volets écrits sans diffusion, par l'ancien défaut) ; ne pas les supprimer. `78.3 > 0` : décider d'abord du sort de ces séances (KB-SEA-69). SELECT de détection rejouées sous forme équivalente sur PostgreSQL 16 jetable pour 78.1 (`backend/scripts/seance-se7f-pg16-rejeu.sh`, 65.1) ; 78.2 et 78.3 NON rejouées ; ne disent RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : un `PUT /api/v1/seances/{id}/volet-paramedical` sur une séance dont le volet est sous un autre centre répond 200 et met à jour la ligne existante (centre inchangé) ; sur une séance dont la fiche est hors centre il répond 400 « Patient introuvable » et ne crée aucune ligne ; un corps JSON illisible répond 400 `BAD_REQUEST`. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 79. Séance L5a (tris déterministes, lectures, ADR 0117, KB-SEA-77, 78, 79, 81, 86, 88, 89, 96 a CORRIGÉS ; KB-SEA-87 et 96 b CLOS) : détections (2026-11-10) — SELECT seulement
+
+AUCUNE migration, AUCUN `UPDATE`. Ces SELECT mesurent ce que les corrections changent ; aucun n'est un préalable bloquant. À exécuter en lecture seule ou sur copie.
+
+```sql
+-- 79.1 KB-SEA-81 : liens d'exclusion résiduels (la séance liée n'est plus ABSENT). Avant : ils bloquaient l'annulation de l'absence ; maintenant non. Les liens restent en base.
+SELECT s.center_id, s.statut, count(*) AS liens_residuels FROM seances s WHERE s.exclusion_absence_id IS NOT NULL AND s.statut <> 'ABSENT' GROUP BY s.center_id, s.statut ORDER BY 1, 2;
+-- 79.2 KB-SEA-79 : séances sans date de création (leur place dans l'historique des constantes ne change pas en production : NULLS FIRST = ordre PostgreSQL ; 0 ligne = choix indifférent).
+SELECT center_id, count(*) AS sans_creation FROM seances WHERE created_at IS NULL GROUP BY center_id ORDER BY 1;
+-- 79.3 KB-SEA-88 : séances à forfait imposé sans code recopié (leur cahier imprimera désormais le code et le libellé du référentiel au lieu de « Forfait : - »).
+SELECT center_id, count(*) AS surcharges_sans_code FROM seances WHERE forfait_override_id IS NOT NULL AND forfait_override_code IS NULL GROUP BY center_id ORDER BY 1;
+-- 79.4 KB-SEA-96 a : patients dont deux analyses de même date de prélèvement portent des créatinines différentes (le stade suit désormais la dernière saisie).
+SELECT a.center_id, a.patient_id, a.date_prelevement, count(DISTINCT a.creatinine_mg_dl) AS valeurs_distinctes FROM resultats_analyses a WHERE a.creatinine_mg_dl IS NOT NULL GROUP BY a.center_id, a.patient_id, a.date_prelevement HAVING count(DISTINCT a.creatinine_mg_dl) > 1 ORDER BY 1, 2, 3;
+```
+**Interprétation** : `0` ligne partout : aucun résultat visible ne change (les tris deviennent seulement déterministes). `79.1 > 0` : valider avec le métier Absences que ces absences peuvent désormais être annulées ; ne PAS effacer les liens sans décision écrite. `79.3 > 0` : valider avec l'infirmier référent que le code et le libellé du référentiel conviennent (le prix reste celui de la surcharge, souvent vide). `79.4 > 0` : faire valider le choix « dernière saisie » par les médecins (alternative : la créatinine la plus haute). KB-SEA-89 (une séance annulée n'empêche plus la reprise) et KB-SEA-86 (clés en minuscules, contrat de production) n'ont pas de SELECT utile. SELECT NON rejoués sur PostgreSQL 16 ; ne disent RIEN de l'état de la production.
+**Recette (lecture seule, sur une copie)** : annuler une absence dont le seul lien est sur une séance `VALIDEE` réussit ; l'historique des constantes d'un patient garde son ordre ; l'import d'une séance reprise un jour où seule une séance `ANNULEE` existe crée la séance ; `GET .../stats/paramedical` rend des clés en minuscules. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

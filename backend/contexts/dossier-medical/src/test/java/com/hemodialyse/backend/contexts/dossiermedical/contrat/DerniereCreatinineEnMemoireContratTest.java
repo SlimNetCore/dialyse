@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.dossiermedical.contrat;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -17,7 +18,8 @@ class DerniereCreatinineEnMemoireContratTest extends DerniereCreatinineContrat {
     }
 
     @Override
-    protected void analyse(UUID centre, LocalDate prelevement, String creatinine) {
-        analyses.ajouter(new DerniereCreatinineEnMemoire.Analyse(centre, PATIENT, prelevement, creatinine == null ? null : new BigDecimal(creatinine)));
+    protected void analyse(UUID id, UUID centre, LocalDate prelevement, String creatinine, Instant creeLe) {
+        analyses.ajouter(new DerniereCreatinineEnMemoire.Analyse(id, centre, PATIENT, prelevement,
+                creatinine == null ? null : new BigDecimal(creatinine), creeLe));
     }
 }

@@ -16,8 +16,8 @@ public interface SeancesRealiseesPubliees {
     }
 
     /**
-     * Une ligne par patient et par jour réalisé du centre entre ces deux dates incluses, dates croissantes. L'ordre des patients d'une
-     * même date n'est PAS défini (KB-SEA-77, reproduit).
+     * Une ligne par patient et par jour réalisé du centre entre ces deux dates incluses, dates croissantes, puis patient (octets non signés de
+     * l'identifiant) à date égale : ordre déterministe (KB-SEA-77 corrigé le 2026-11-10, ADR 0117).
      */
     List<JourRealisePublie> joursRealisesDuCentre(UUID centre, LocalDate du, LocalDate au);
 

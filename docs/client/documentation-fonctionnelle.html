@@ -2296,7 +2296,10 @@ plateforme : les fiches des patients, les diffusions, le rappel de régularisati
 <div class="rule" id="RG-SEA-071"><div class="rid">RG-SEA-071</div><div class="rtxt"><p><strong>Retrait du module legacy <code>bc-seance</code> et gardes des tables de la Séance</strong> (slice SE7f, ADR 0100). Le module Maven
 <code>backend/bc-seance</code> et ses dix-sept utilisateurs de la plateforme sont retirés ; la <strong>dernière créatinine</strong> de l&#39;évaluation KDIGO est lue
 par le langage publié du Dossier médical (<code>DerniereCreatininePubliee</code> : analyses du patient au centre, date de prélèvement décroissante,
-première créatinine non nulle ; <strong>KB-SEA-96 reproduit, à confirmer par les médecins au plus tard le 2026-12-15</strong> : ordre non défini à date
+première créatinine non nulle ; <strong>KB-SEA-96 (a) corrigé le 2026-11-10, lot L5a, ADR 0117, à confirmer par les médecins au plus tard le
+2026-12-15</strong> : à date de prélèvement égale, la dernière saisie fait foi (création la plus récente, création inconnue en dernier, puis
+identifiant), au lieu de l&#39;ordre du SGBD ; <strong>(b) clos sans changement</strong> : une créatinine à 0 reste retenue et le calcul de la fonction rénale la
+juge non évaluable (aucun stade faux), le refus du 0 à la saisie étant une décision médicale. Ancien texte : ordre non défini à date
 égale, une créatinine à 0 est retenue) et la <strong>capacité théorique</strong> des centres par le langage publié de la Planification
 (<code>CapaciteTheoriqueDesCentres</code> : un générateur de secours pour huit, capacité = postes actifs x séries x patients par poste et par série,
 seuil de proximité 90 %, même résultat). Les tables <code>seances</code>, <code>volet_paramedical</code> et <code>volet_medical</code> ne sont lues ou écrites hors de la

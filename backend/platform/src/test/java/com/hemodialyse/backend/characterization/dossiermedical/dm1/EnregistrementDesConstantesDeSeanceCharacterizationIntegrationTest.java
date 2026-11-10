@@ -259,6 +259,7 @@ class EnregistrementDesConstantesDeSeanceCharacterizationIntegrationTest extends
         JsonNode p = corps(detail).path("paramedical");
         arbre("detail_seance_paramedical", mapper.readTree(dates(p.toString())));
         Resp stats = doGet(PATIENTS_API + "/" + patientA + "/stats/paramedical?centerId=" + CENTRE_A, infirmier());
-        arbre("stats", mapper.readTree(dates(datesDeLaStatistique(stats.raw()))));
+        // L5a (2026-11-10, ADR 0117, KB-SEA-86) : clés de poidsEvolution toujours en minuscules ; ancien golden archivé sous _ecarts-legacy
+        arbre("stats_nouveau_code", mapper.readTree(dates(datesDeLaStatistique(stats.raw()))));
     }
 }

@@ -22,8 +22,8 @@ public interface ConstantesDesSeancesPubliees {
 
     /**
      * Une page de {@code taille} séances à partir du rang {@code rang} (0 = la première), ordonnées par date de séance décroissante, puis
-     * création décroissante, puis identifiant décroissant (octets non signés). Une création nulle se classe selon le SGBD (KB-SEA-79,
-     * reproduit) : en DERNIER sur H2, en PREMIER sur PostgreSQL.
+     * création décroissante, puis identifiant décroissant (octets non signés). Une création nulle se classe EN PREMIER sur H2 comme sur
+     * PostgreSQL ({@code NULLS FIRST} écrit : KB-SEA-79 corrigé le 2026-11-10, ADR 0117 ; ordre de production conservé).
      */
     List<ConstantesDeSeancePubliees> page(UUID centre, UUID patient, int taille, long rang);
 }

@@ -50,7 +50,11 @@ public final class EvaluationKdigoDuCandidat {
         return new RisqueImmunologique("PRA", pire, "%", niveau, REFERENCE_CANDIDAT);
     }
 
-    /** CKD-EPI 2021 (sans coefficient ethnique) ; non évaluable sans créatinine strictement positive, âge ou sexe. */
+    /**
+     * CKD-EPI 2021 (sans coefficient ethnique) ; non évaluable sans créatinine strictement positive, âge ou sexe. KB-SEA-96 b (clos le
+     * 2026-11-10, ADR 0117, aucun changement) : une créatinine à 0 reste non évaluable, ce qui ne produit aucun stade faux ; sauter la
+     * valeur nulle ferait staguer le patient sur une mesure ancienne. Refuser le 0 à la saisie : décision médicale, à valider avant le 2026-12-15.
+     */
     public static FonctionRenale fonctionRenale(BigDecimal creatinineMgDl, Integer age, String sexe) {
         if (creatinineMgDl == null || creatinineMgDl.signum() <= 0 || age == null || sexe == null) {
             return new FonctionRenale(null, StadeDeMaladieRenale.NON_EVALUABLE, REFERENCE_CKD_EPI);

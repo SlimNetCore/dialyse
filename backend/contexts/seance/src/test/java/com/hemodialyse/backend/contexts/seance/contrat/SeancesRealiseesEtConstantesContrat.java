@@ -21,10 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Contrat commun des lectures publiées de la Séance pour les Absences de patients, la Planification et le Dossier médical (ADR 0098, SE7d) :
  * joué par le double en mémoire, l'adapter JDBC sur H2 et sur PostgreSQL 16 jetable. Il décrit les HUIT requêtes reprises à l'identique
- * (A1 à A5, P1, D1, D2 de {@code .ddd/safety-net/seance-se7d.md}), y compris ce qui n'est PAS corrigé : casse et blancs du statut
- * (KB-SEA-82), ordre non défini entre lignes d'une même date (KB-SEA-77, 78 : seuls l'ordre des dates et l'ensemble sont attendus),
- * création nulle classée selon le SGBD (KB-SEA-79), jointure de la fiche au centre de la séance (KB-SEA-80), lien d'exclusion sans statut
- * (KB-SEA-81). Le jeu de données reprend celui de {@code seance-se7d-pg16-rejeu.sh}.
+ * (A1 à A5, P1, D1, D2 de {@code .ddd/safety-net/seance-se7d.md}). Lot L5a (ADR 0117) : tris déterministes (KB-SEA-77, 78), création nulle
+ * en premier sur toutes les bases (KB-SEA-79), lien d'exclusion borné aux séances ABSENT (KB-SEA-81). Reste reproduit : casse et blancs du
+ * statut (KB-SEA-82), jointure de la fiche au centre de la séance (KB-SEA-80). Le jeu de données reprend celui de
+ * {@code seance-se7d-pg16-rejeu.sh}.
  */
 public abstract class SeancesRealiseesEtConstantesContrat {
 
@@ -74,9 +74,6 @@ public abstract class SeancesRealiseesEtConstantesContrat {
     protected abstract void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant,
                                   String tensionApres, Integer debit, BigDecimal ultrafiltration, Integer duree);
 
-    /** Classement d'une création nulle en tri décroissant : {@code false} sur H2 (en dernier), {@code true} sur PostgreSQL 16 (en premier). */
-    protected abstract boolean creationNulleEnPremier();
-
     private UUID seance(UUID centre, UUID patient, LocalDate date, String statut) {
         UUID id = UUID.randomUUID();
         seance(id, centre, patient, date, statut, DIX_HEURES);
@@ -107,10 +104,10 @@ public abstract class SeancesRealiseesEtConstantesContrat {
         List<JourRealisePublie> semaine = realisees().joursRealisesDuCentre(CENTRE_A, DIMANCHE, DIMANCHE.plusDays(6));
 
         assertThat(semaine).extracting(JourRealisePublie::jour).isSortedAccordingTo(Comparator.naturalOrder());
-        assertThat(semaine).as("ordre intra-jour NON verrouillé (KB-SEA-77) : ensemble seulement").containsExactlyInAnyOrder(
-                new JourRealisePublie(P1, le("2026-03-03")), new JourRealisePublie(P1, le("2026-03-07")),
-                new JourRealisePublie(P2, le("2026-03-02")), new JourRealisePublie(P2, le("2026-03-03")),
-                new JourRealisePublie(P3, le("2026-03-03")));
+        assertThat(semaine).as("date puis patient, déterministe (KB-SEA-77 corrigé)").containsExactly(
+                new JourRealisePublie(P2, le("2026-03-02")), new JourRealisePublie(P1, le("2026-03-03")),
+                new JourRealisePublie(P2, le("2026-03-03")), new JourRealisePublie(P3, le("2026-03-03")),
+                new JourRealisePublie(P1, le("2026-03-07")));
     }
 
     @Test
@@ -164,7 +161,7 @@ public abstract class SeancesRealiseesEtConstantesContrat {
     // ---- A4 : lien d'exclusion (KB-SEA-81)
 
     @Test
-    void should_see_an_absence_linked_to_an_exclusion_whatever_the_status_of_the_seance_but_only_in_its_centre() {
+    void should_see_an_absence_as_linked_only_when_the_seance_carrying_the_link_is_really_excluded_and_only_in_its_centre() {
         UUID absenceSurValidee = UUID.fromString("ab5dc000-0000-0000-0000-000000000001");
         UUID absenceSurAbsente = UUID.fromString("ab5dc000-0000-0000-0000-000000000002");
         UUID absenceDuCentreB = UUID.fromString("ab5dc000-0000-0000-0000-000000000003");
@@ -174,7 +171,8 @@ public abstract class SeancesRealiseesEtConstantesContrat {
         lienDExclusion(seance(CENTRE_B, PB, le("2026-01-20"), "ABSENT"), absenceDuCentreB);
         seance(CENTRE_A, P3, le("2026-01-20"), "ABSENT");
 
-        assertThat(liens().absenceLiee(CENTRE_A, absenceSurValidee)).as("lien resté sur une séance VALIDEE").isTrue();
+        assertThat(liens().absenceLiee(CENTRE_A, absenceSurValidee)).as("lien résiduel sur une séance VALIDEE : ne bloque plus (KB-SEA-81 corrigé)")
+                .isFalse();
         assertThat(liens().absenceLiee(CENTRE_A, absenceSurAbsente)).isTrue();
         assertThat(liens().absenceLiee(CENTRE_A, absenceDuCentreB)).as("lien porté par une séance du centre B").isFalse();
         assertThat(liens().absenceLiee(CENTRE_B, absenceDuCentreB)).isTrue();
@@ -237,18 +235,32 @@ public abstract class SeancesRealiseesEtConstantesContrat {
     }
 
     @Test
-    void should_keep_two_realised_seances_of_a_patient_on_the_same_day_without_defining_their_order() {
+    void should_order_two_realised_seances_of_a_patient_on_the_same_day_by_creation_then_identifier_with_unknown_creation_last() {
         LocalDate mardi = le("2026-04-07");
         patient(P1, CENTRE_A, "Nom07", "Pre");
-        place(seance(CENTRE_A, P1, mardi, "VALIDEE"), SALLE_1, CRENEAU, GENERATEUR);
-        place(seance(CENTRE_A, P1, mardi, "SIGNEE"), SALLE_2, CRENEAU, GENERATEUR);
+        UUID salle3 = UUID.fromString("5e7dc002-0000-0000-0000-000000000003");
+        UUID salle4 = UUID.fromString("5e7dc002-0000-0000-0000-000000000004");
+        // insérées dans l'ordre inverse de l'ordre attendu : récente, sans création, égale à l'ancienne (départage par identifiant)
+        UUID recente = UUID.fromString("5e7dc600-0000-0000-0000-000000000001");
+        UUID sansCreation = UUID.fromString("5e7dc600-0000-0000-0000-000000000002");
+        UUID ancienneB = UUID.fromString("5e7dc600-0000-0000-0000-000000000004");
+        UUID ancienneA = UUID.fromString("5e7dc600-0000-0000-0000-000000000003");
+        seance(recente, CENTRE_A, P1, mardi, "VALIDEE", DIX_HEURES.plusSeconds(60));
+        place(recente, SALLE_2, CRENEAU, GENERATEUR);
+        seance(sansCreation, CENTRE_A, P1, mardi, "SIGNEE", null);
+        place(sansCreation, salle4, CRENEAU, GENERATEUR);
+        seance(ancienneB, CENTRE_A, P1, mardi, "VALIDEE", DIX_HEURES);
+        place(ancienneB, salle3, CRENEAU, GENERATEUR);
+        seance(ancienneA, CENTRE_A, P1, mardi, "VALIDEE", DIX_HEURES);
+        place(ancienneA, SALLE_1, CRENEAU, GENERATEUR);
         seance(CENTRE_A, P1, mardi.minusDays(1), "VALIDEE");
 
         List<SeanceRealiseeAvecPlacePubliee> seances = avecPlace().duCentre(CENTRE_A, mardi.minusDays(1), mardi);
 
-        assertThat(seances).extracting(SeanceRealiseeAvecPlacePubliee::date).containsExactly(mardi.minusDays(1), mardi, mardi);
-        assertThat(seances.subList(1, 3)).as("ordre des deux séances du mardi NON verrouillé (KB-SEA-78)")
-                .extracting(SeanceRealiseeAvecPlacePubliee::salle).containsExactlyInAnyOrder(SALLE_1, SALLE_2);
+        assertThat(seances).extracting(SeanceRealiseeAvecPlacePubliee::date)
+                .containsExactly(mardi.minusDays(1), mardi, mardi, mardi, mardi);
+        assertThat(seances.subList(1, 5)).as("la plus ancienne créée d'abord, création inconnue en dernier, identifiant en dernier ressort (KB-SEA-78 corrigé)")
+                .extracting(SeanceRealiseeAvecPlacePubliee::salle).containsExactly(SALLE_1, salle3, SALLE_2, salle4);
     }
 
     @Test
@@ -300,7 +312,7 @@ public abstract class SeancesRealiseesEtConstantesContrat {
     }
 
     @Test
-    void should_rank_a_null_creation_last_on_h2_and_first_on_postgresql() {
+    void should_rank_a_null_creation_first_in_descending_order_on_every_database() {
         UUID nulle = UUID.fromString("5e7dc200-0000-0000-0000-000000000001");
         UUID fixe = UUID.fromString("5e7dc200-0000-0000-0000-000000000002");
         UUID tard = UUID.fromString("5e7dc200-0000-0000-0000-000000000003");
@@ -310,7 +322,7 @@ public abstract class SeancesRealiseesEtConstantesContrat {
 
         List<UUID> ordre = constantes().page(CENTRE_A, P5, 20, 0).stream().map(ConstantesDeSeancePubliees::seance).toList();
 
-        assertThat(ordre).as("KB-SEA-79").containsExactlyElementsOf(creationNulleEnPremier() ? List.of(nulle, tard, fixe) : List.of(tard, fixe, nulle));
+        assertThat(ordre).as("KB-SEA-79 corrigé : NULLS FIRST explicite, H2 aligné sur PostgreSQL 16").containsExactly(nulle, tard, fixe);
     }
 
     @Test

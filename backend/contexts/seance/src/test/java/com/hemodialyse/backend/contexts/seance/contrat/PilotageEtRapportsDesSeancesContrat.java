@@ -8,6 +8,7 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealisee
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees.MoisRealisePublie;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees.TensionsDeSeancePubliees;
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -28,11 +29,11 @@ import static org.assertj.core.api.Assertions.tuple;
 /**
  * Contrat commun des ports publiés de la Séance pour la plateforme (ADR 0099, SE7e) : joué par le double en mémoire, l'adapter JDBC sur
  * H2 et sur PostgreSQL 16 jetable. Il décrit les DIX-SEPT requêtes reprises à l'identique (E1 à E17 de {@code .ddd/safety-net/seance-se7e.md},
- * E11, l'état Jasper, excepté : il reste dans le modèle de document) y compris ce qui n'est PAS corrigé : casse et blancs du statut
- * (KB-SEA-83, 88), séance sur une fiche d'un autre centre absente des caisses (KB-SEA-83), chaîne de caisse sans centre et ordre du SGBD
- * (KB-SEA-84), statistiques de tous statuts avec le volet d'un autre centre (KB-SEA-85), ordre intra-jour et libellés de colonnes du SGBD
- * (KB-SEA-86), précision des moyennes du SGBD (KB-SEA-87), séance déjà présente de n'importe quel statut (KB-SEA-89), séances du patient
- * et facture sans centre (KB-SEA-90), forfait imposé de n'importe quel centre ou statut (KB-SEA-91).
+ * E11, l'état Jasper, excepté : il reste dans le modèle de document). Lot L5a (ADR 0117) : ordre intra-jour déterministe et clés en
+ * minuscules (KB-SEA-86), moyennes comparées à 10 décimales (KB-SEA-87 clos), une séance ANNULEE ne bloque plus la reprise (KB-SEA-89).
+ * Reste reproduit : casse et blancs du statut (KB-SEA-83), séance sur une fiche d'un autre centre absente des caisses (KB-SEA-83),
+ * chaîne de caisse sans centre et ordre du SGBD (KB-SEA-84), statistiques de tous statuts avec le volet d'un autre centre (KB-SEA-85),
+ * séances du patient et facture sans centre (KB-SEA-90), forfait imposé de n'importe quel centre ou statut (KB-SEA-91).
  */
 public abstract class PilotageEtRapportsDesSeancesContrat {
 
@@ -86,11 +87,11 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
 
     protected abstract UUID patientDe(UUID seance);
 
-    /** Libellés de colonnes du SGBD : MAJUSCULES sur H2 (et le double), minuscules sur PostgreSQL (KB-SEA-86). */
-    protected abstract boolean libellesEnMajuscules();
-
-    /** Décimales de {@code AVG} sur un NUMERIC : 12 sur H2 (et le double), 16 sur PostgreSQL 16 pour ces données (KB-SEA-87). */
-    protected abstract int decimalesDesMoyennes();
+    /**
+     * Précision garantie des moyennes (KB-SEA-87, clôture documentée, ADR 0117) : {@code AVG} d'un NUMERIC rend 12 décimales sur H2 et 16 sur
+     * PostgreSQL 16, ce qu'aucun code ne peut unifier sans changer le contrat ; seules 10 décimales sont garanties, comparées avec cette tolérance.
+     */
+    private static final Offset<Double> PRECISION_DES_MOYENNES = Offset.offset(1e-10);
 
     private UUID seance(UUID centre, UUID patient, String date, String statut) {
         UUID id = UUID.randomUUID();
@@ -107,11 +108,7 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     }
 
     private double moyenne(String somme, int nombre) {
-        return d(somme).divide(BigDecimal.valueOf(nombre), decimalesDesMoyennes(), RoundingMode.HALF_UP).doubleValue();
-    }
-
-    private String libelle(String colonne) {
-        return libellesEnMajuscules() ? colonne.toUpperCase() : colonne;
+        return d(somme).divide(BigDecimal.valueOf(nombre), 12, RoundingMode.HALF_UP).doubleValue();
     }
 
     // ---- E1, E2, E3, E5 : pilotage de la Direction
@@ -242,36 +239,63 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     }
 
     @Test
-    void should_average_the_measures_including_a_volet_of_another_centre_with_the_precision_of_the_database() {
+    void should_average_the_measures_including_a_volet_of_another_centre_within_the_guaranteed_precision() {
         jeuDesStatistiques();
 
         assertThat(statistiques().moyenneDuPoidsAvant(CENTRE_A, PA1, null, le("2026-02-04")))
-                .as("70.50, 72.00 et 80.00 (volet du centre B, KB-SEA-85) ; précision du SGBD (KB-SEA-87)").isEqualTo(moyenne("222.50", 3));
-        assertThat(statistiques().moyenneDuPoidsApres(CENTRE_A, PA1, null, le("2026-02-04"))).isEqualTo(moyenne("215.50", 3));
+                .as("70.50, 72.00 et 80.00 (volet du centre B, KB-SEA-85) ; 10 décimales garanties (KB-SEA-87)")
+                .isCloseTo(moyenne("222.50", 3), PRECISION_DES_MOYENNES);
+        assertThat(statistiques().moyenneDuPoidsApres(CENTRE_A, PA1, null, le("2026-02-04")))
+                .isCloseTo(moyenne("215.50", 3), PRECISION_DES_MOYENNES);
         assertThat(statistiques().moyenneDeLUltrafiltration(CENTRE_A, PA1, null, le("2026-02-04")))
-                .as("2500 saisie, 2000 et 2500 recalculées (perte de poids x 1000)").isEqualTo(moyenne("7000", 3));
+                .as("2500 saisie, 2000 et 2500 recalculées (perte de poids x 1000)").isCloseTo(moyenne("7000", 3), PRECISION_DES_MOYENNES);
         assertThat(statistiques().moyenneDuPoidsAvant(CENTRE_A, PA1, le("2026-02-06"), le("2026-02-28"))).as("aucune mesure").isNull();
         assertThat(statistiques().moyenneDeLUltrafiltration(CENTRE_A, PA1, le("2026-03-01"), null)).as("séance sans volet").isNull();
     }
 
     @Test
-    void should_return_the_weight_evolution_as_raw_rows_labelled_by_the_database_with_the_dry_weight_in_force() {
+    void should_return_the_weight_evolution_as_rows_with_lower_case_labels_on_every_database_with_the_dry_weight_in_force() {
         jeuDesStatistiques();
 
         List<Map<String, Object>> lignes = statistiques().evolutionDuPoids(CENTRE_A, PA1, le("2026-02-01"), le("2026-02-05"));
 
         assertThat(lignes).hasSize(6);
-        assertThat(lignes.get(0).keySet()).as("libellés du SGBD (KB-SEA-86)").containsExactly(libelle("date_seance"),
-                libelle("poids_avant_kg"), libelle("poids_apres_kg"), libelle("poids_sec_cible_kg"), libelle("uf_reelle_ml"));
-        List<LocalDate> dates = lignes.stream().map(l -> ((java.sql.Date) l.get(libelle("date_seance"))).toLocalDate()).toList();
-        assertThat(dates).as("tri par date seule ; ordre intra-jour non verrouillé (KB-SEA-86)").isSortedAccordingTo(Comparator.naturalOrder());
+        assertThat(lignes.get(0).keySet()).as("clés en minuscules sur H2 comme sur PostgreSQL (KB-SEA-86 corrigé)").containsExactly("date_seance",
+                "poids_avant_kg", "poids_apres_kg", "poids_sec_cible_kg", "uf_reelle_ml");
+        List<LocalDate> dates = lignes.stream().map(l -> ((java.sql.Date) l.get("date_seance")).toLocalDate()).toList();
+        assertThat(dates).isSortedAccordingTo(Comparator.naturalOrder());
         List<String> resume = new ArrayList<>();
         for (Map<String, Object> l : lignes) {
-            resume.add(l.get(libelle("date_seance")) + "|" + texte(l.get(libelle("poids_sec_cible_kg"))) + "|" + texte(l.get(libelle("uf_reelle_ml"))));
+            resume.add(l.get("date_seance") + "|" + texte(l.get("poids_sec_cible_kg")) + "|" + texte(l.get("uf_reelle_ml")));
         }
         assertThat(resume).as("poids sec en vigueur au centre (le plus récemment mis à jour à date égale), UF saisie ou recalculée")
                 .containsExactlyInAnyOrder("2026-02-01|66|2500", "2026-02-02|66|2000", "2026-02-03|68|null", "2026-02-04|68|2500",
                         "2026-02-05|68|1500", "2026-02-05|68|null");
+    }
+
+    @Test
+    void should_order_the_seances_of_a_same_day_by_creation_then_identifier_with_unknown_creation_last_in_both_evolutions() {
+        patient(PA3, CENTRE_A, null);
+        UUID tardive = UUID.fromString("5e7ec600-0000-0000-0000-000000000001");
+        UUID sansCreation = UUID.fromString("5e7ec600-0000-0000-0000-000000000002");
+        UUID ancienneB = UUID.fromString("5e7ec600-0000-0000-0000-000000000004");
+        UUID ancienneA = UUID.fromString("5e7ec600-0000-0000-0000-000000000003");
+        seance(tardive, CENTRE_A, PA3, le("2026-02-05"), "VALIDEE", MIDI);
+        seance(sansCreation, CENTRE_A, PA3, le("2026-02-05"), "VALIDEE", null);
+        seance(ancienneB, CENTRE_A, PA3, le("2026-02-05"), "VALIDEE", DIX_HEURES);
+        seance(ancienneA, CENTRE_A, PA3, le("2026-02-05"), "VALIDEE", DIX_HEURES);
+        seance(UUID.randomUUID(), CENTRE_A, PA3, le("2026-02-04"), "VALIDEE", MIDI);
+        volet(CENTRE_A, tardive, d("73.00"), d("71.00"), "13/8", null);
+        volet(CENTRE_A, sansCreation, d("74.00"), d("71.00"), "14/8", null);
+        volet(CENTRE_A, ancienneB, d("72.00"), d("71.00"), "12/8", null);
+        volet(CENTRE_A, ancienneA, d("71.00"), d("71.00"), "11/8", null);
+
+        List<Map<String, Object>> poids = statistiques().evolutionDuPoids(CENTRE_A, PA3, le("2026-02-01"), le("2026-02-28"));
+        List<TensionsDeSeancePubliees> tensions = statistiques().evolutionDeLaTension(CENTRE_A, PA3, le("2026-02-01"), le("2026-02-28"));
+
+        assertThat(poids.subList(1, 5)).as("la plus ancienne créée d'abord, création inconnue en dernier, identifiant en dernier ressort (KB-SEA-86)")
+                .extracting(l -> texte(l.get("poids_avant_kg"))).containsExactly("71", "72", "73", "74");
+        assertThat(tensions.subList(1, 5)).extracting(TensionsDeSeancePubliees::tensionAvant).containsExactly("11/8", "12/8", "13/8", "14/8");
     }
 
     private static String texte(Object valeur) {
@@ -323,18 +347,39 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     // ---- E12 à E16 : reprise de données
 
     @Test
-    void should_find_an_already_present_seance_of_the_centre_whatever_its_status_the_first_created() {
+    void should_find_an_already_present_seance_of_the_centre_whatever_its_status_but_a_cancelled_one_the_first_created() {
         patient(PA1, CENTRE_A, null);
         UUID annulee = UUID.randomUUID();
+        UUID tenue = UUID.randomUUID();
         seance(annulee, CENTRE_A, PA1, le("2026-01-05"), "ANNULEE", DIX_HEURES);
-        seance(UUID.randomUUID(), CENTRE_A, PA1, le("2026-01-05"), "VALIDEE", MIDI);
+        seance(tenue, CENTRE_A, PA1, le("2026-01-05"), "VALIDEE", MIDI);
         seance(UUID.randomUUID(), CENTRE_B, PA1, le("2026-01-07"), "VALIDEE", DIX_HEURES);
 
-        assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(le("2026-01-05"), PA1))).as("KB-SEA-89").contains(annulee);
+        assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(le("2026-01-05"), PA1)))
+                .as("la séance annulée n'est pas une séance tenue : seule la tenue bloque (KB-SEA-89 corrigé)").contains(tenue);
         assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(le("2026-01-07"), PA1))).as("séance d'un autre centre").isEmpty();
         assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(null, PA1))).as("valeur nulle : IS NULL").isEmpty();
         assertThatThrownBy(() -> reprise().seanceDejaPresente(CENTRE_A, Map.of("salleId", PA1)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessage("Champ non autorisé pour seances : salleId");
+    }
+
+    @Test
+    void should_let_a_cancelled_seance_alone_not_block_the_takeover_while_every_other_status_still_does() {
+        patient(PA2, CENTRE_A, null);
+        seance(UUID.randomUUID(), CENTRE_A, PA2, le("2026-01-05"), "ANNULEE", DIX_HEURES);
+        String[] bloquants = {"CREE", "PLANIFIEE", "ABSENT", "VALIDEE", "SIGNEE", "FACTUREE"};
+        UUID[] ids = new UUID[bloquants.length];
+        for (int i = 0; i < bloquants.length; i++) {
+            ids[i] = UUID.randomUUID();
+            seance(ids[i], CENTRE_A, PA2, le("2026-01-06").plusDays(i), bloquants[i], DIX_HEURES);
+        }
+        seance(UUID.randomUUID(), CENTRE_B, PA2, le("2026-01-20"), "ANNULEE", DIX_HEURES);
+
+        assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(le("2026-01-05"), PA2))).as("annulée seule : n'empêche plus la reprise (KB-SEA-89)").isEmpty();
+        for (int i = 0; i < bloquants.length; i++) {
+            assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(le("2026-01-06").plusDays(i), PA2))).as("statut " + bloquants[i]).contains(ids[i]);
+        }
+        assertThat(reprise().seanceDejaPresente(CENTRE_A, cle(le("2026-01-20"), PA2))).as("annulée d'un autre centre").isEmpty();
     }
 
     private static Map<String, Object> cle(LocalDate date, UUID patient) {

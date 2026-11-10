@@ -50,16 +50,6 @@ class PilotageEtRapportsDesSeancesPostgresContractIT extends PilotageEtRapportsD
         return jdbc;
     }
 
-    @Override
-    protected boolean libellesEnMajuscules() {
-        return false;
-    }
-
-    @Override
-    protected int decimalesDesMoyennes() {
-        return 16;
-    }
-
     @Test
     void la_base_est_bien_postgresql_16() {
         assertThat(jdbc.queryForObject("SELECT version()", String.class)).startsWith("PostgreSQL 16");

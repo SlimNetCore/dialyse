@@ -1,0 +1,10 @@
+{
+  "H2 comme PostgreSQL 16 (NULLS FIRST explicite en tri decroissant, KB-SEA-79 corrige)" : {
+    "ordre" : [ "<CREATION_NULLE>", "<CREATION_PLUS_TARD>", "<CREATION_FIXE>" ],
+    "page" : 0,
+    "size" : 20,
+    "status" : 200,
+    "total" : 3
+  },
+  "mesures (le volet est joint malgre la creation nulle)" : [ "<CREATION_NULLE> poidsAvant=70.5 taAvant=\"13/8\" duree=240 uf=2500.0", "<CREATION_PLUS_TARD> poidsAvant=null taAvant=null duree=null uf=null", "<CREATION_FIXE> poidsAvant=null taAvant=null duree=null uf=null" ]
+}

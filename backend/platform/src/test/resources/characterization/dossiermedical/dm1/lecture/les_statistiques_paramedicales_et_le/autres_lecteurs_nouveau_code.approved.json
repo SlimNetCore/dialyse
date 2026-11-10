@@ -25,35 +25,35 @@
       "avgPoidsAvantKg" : 52.8725,
       "avgUfReelleMl" : 1466.666666666667,
       "poidsEvolution" : [ {
-        "DATE_SEANCE" : "<J-9>",
-        "POIDS_APRES_KG" : 68.0,
-        "POIDS_AVANT_KG" : 70.5,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : 2000.0
+        "date_seance" : "<J-9>",
+        "poids_apres_kg" : 68.0,
+        "poids_avant_kg" : 70.5,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : 2000.0
       }, {
-        "DATE_SEANCE" : "<J-6>",
-        "POIDS_APRES_KG" : null,
-        "POIDS_AVANT_KG" : 71.0,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : null
+        "date_seance" : "<J-6>",
+        "poids_apres_kg" : null,
+        "poids_avant_kg" : 71.0,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : null
       }, {
-        "DATE_SEANCE" : "<J-3>",
-        "POIDS_APRES_KG" : null,
-        "POIDS_AVANT_KG" : null,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : null
+        "date_seance" : "<J-3>",
+        "poids_apres_kg" : null,
+        "poids_avant_kg" : null,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : null
       }, {
-        "DATE_SEANCE" : "<J-3>",
-        "POIDS_APRES_KG" : -3.0,
-        "POIDS_AVANT_KG" : 0.0,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : -100.0
+        "date_seance" : "<J-3>",
+        "poids_apres_kg" : -3.0,
+        "poids_avant_kg" : 0.0,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : -100.0
       }, {
-        "DATE_SEANCE" : "<J-1>",
-        "POIDS_APRES_KG" : 67.5,
-        "POIDS_AVANT_KG" : 69.99,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : 2500.0
+        "date_seance" : "<J-1>",
+        "poids_apres_kg" : 67.5,
+        "poids_avant_kg" : 69.99,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : 2500.0
       } ],
       "poidsSecCibleKg" : null,
       "seanceCount" : 5,
@@ -100,23 +100,23 @@
       "avgPoidsAvantKg" : 35.5,
       "avgUfReelleMl" : -100.0,
       "poidsEvolution" : [ {
-        "DATE_SEANCE" : "<J-6>",
-        "POIDS_APRES_KG" : null,
-        "POIDS_AVANT_KG" : 71.0,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : null
+        "date_seance" : "<J-6>",
+        "poids_apres_kg" : null,
+        "poids_avant_kg" : 71.0,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : null
       }, {
-        "DATE_SEANCE" : "<J-3>",
-        "POIDS_APRES_KG" : null,
-        "POIDS_AVANT_KG" : null,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : null
+        "date_seance" : "<J-3>",
+        "poids_apres_kg" : null,
+        "poids_avant_kg" : null,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : null
       }, {
-        "DATE_SEANCE" : "<J-3>",
-        "POIDS_APRES_KG" : -3.0,
-        "POIDS_AVANT_KG" : 0.0,
-        "POIDS_SEC_CIBLE_KG" : null,
-        "UF_REELLE_ML" : -100.0
+        "date_seance" : "<J-3>",
+        "poids_apres_kg" : -3.0,
+        "poids_avant_kg" : 0.0,
+        "poids_sec_cible_kg" : null,
+        "uf_reelle_ml" : -100.0
       } ],
       "poidsSecCibleKg" : null,
       "seanceCount" : 3,

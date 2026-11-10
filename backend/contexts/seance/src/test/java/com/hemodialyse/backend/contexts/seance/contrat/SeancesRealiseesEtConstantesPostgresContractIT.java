@@ -50,11 +50,6 @@ class SeancesRealiseesEtConstantesPostgresContractIT extends SeancesRealiseesEtC
         return jdbc;
     }
 
-    @Override
-    protected boolean creationNulleEnPremier() {
-        return true;
-    }
-
     @Test
     void la_base_est_bien_postgresql_16() {
         assertThat(jdbc.queryForObject("SELECT version()", String.class)).startsWith("PostgreSQL 16");

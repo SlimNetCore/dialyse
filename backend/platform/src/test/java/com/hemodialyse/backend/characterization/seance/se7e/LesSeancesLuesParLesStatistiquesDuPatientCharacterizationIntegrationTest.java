@@ -21,7 +21,12 @@ import java.util.UUID;
  * {@code GET /api/v1/patients/{id}/stats/export?format=pdf} (ADMIN). Complète DM1 et DM8 (dates relatives, statuts réalisés seulement).
  * <p>
  * Les moyennes (AVG d'un NUMERIC) n'ont pas la même précision sur H2 et PostgreSQL 16 : le golden fige H2, le rejeu
- * {@code backend/scripts/seance-se7e-pg16-rejeu.sh} fige PostgreSQL 16 (KB-SEA-87).
+ * {@code backend/scripts/seance-se7e-pg16-rejeu.sh} fige PostgreSQL 16 (KB-SEA-87, clos le 2026-11-10 : non corrigeable en code, 10 décimales
+ * garanties, contrat comparé à tolérance, ADR 0117).
+ * <p>
+ * Lot L5a (2026-11-10, ADR 0117, KB-SEA-86) : les clés des lignes de l'évolution du poids sont TOUJOURS en minuscules (contrat de production) ;
+ * les goldens {@code bornes_de_periode} et {@code tous_statuts_et_volet_d_un_autre_centre} deviennent {@code _nouveau_code}, anciens archivés
+ * sous {@code seance/se7e/_ecarts-legacy/statistiques}.
  */
 class LesSeancesLuesParLesStatistiquesDuPatientCharacterizationIntegrationTest extends Se7eCharacterizationSupport {
 
@@ -106,7 +111,7 @@ class LesSeancesLuesParLesStatistiquesDuPatientCharacterizationIntegrationTest e
     void les_statistiques_paramedicales_comptent_toutes_les_seances_du_patient_dans_le_centre_quel_que_soit_le_statut() throws Exception {
         jeuDesStatistiques();
 
-        arbre("tous_statuts_et_volet_d_un_autre_centre", statistiques(stats("&from=" + fixe(31) + "&to=" + fixe(35))));
+        arbre("tous_statuts_et_volet_d_un_autre_centre_nouveau_code", statistiques(stats("&from=" + fixe(31) + "&to=" + fixe(35))));
     }
 
     @Test
@@ -119,8 +124,9 @@ class LesSeancesLuesParLesStatistiquesDuPatientCharacterizationIntegrationTest e
         m.put("to seul (D+32)", statistiques(stats("&to=" + fixe(32))));
         m.put("un seul jour (D+35, deux seances)", statistiques(stats("&from=" + fixe(35) + "&to=" + fixe(35))));
         m.put("periode sans seance (D+36 a D+59)", statistiques(stats("&from=" + fixe(36) + "&to=" + fixe(59))));
-        m.put("to seul (D+34) : trois volets, moyennes periodiques (precision H2, KB-SEA-87)", statistiques(stats("&to=" + fixe(34))));
-        arbre("bornes_de_periode", m);
+        m.put("to seul (D+34) : trois volets, moyennes periodiques (precision H2 de 12 decimales, 10 garanties : KB-SEA-87 clos)",
+                statistiques(stats("&to=" + fixe(34))));
+        arbre("bornes_de_periode_nouveau_code", m);
     }
 
     @Test
