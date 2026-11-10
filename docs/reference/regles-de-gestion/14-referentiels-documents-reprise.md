@@ -37,8 +37,11 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   2026-12-15). Sur les routes d'administration des transporteurs, un corps ou un paramètre illisible répond **400**
   `BAD_REQUEST` (et non plus 500) ; le refus de droits (403) passe avant (KB-RF1-01 corrigé).
   Pour un **forfait** (catalogue de forfaits de Patient et couverture, RF2, ADR 0124), le refus compte les prises en
-  charge (forfait demandé ou effectif) **de tous les centres**, les lignes de facture et les séances qui imposent le
-  forfait (KB-RF2-02, comportement conservé, à confirmer par les métiers). Le **prix** d'un forfait est facultatif :
+  charge (forfait demandé ou effectif) **du centre du forfait** (une prise en charge d'un autre centre ne bloque pas la
+  suppression), ainsi que les lignes de facture et les séances qui imposent le forfait (KB-RF2-02 corrigé, ADR 0125, à
+  confirmer par les métiers avant le 2026-12-15). Sur les routes d'administration des forfaits, un corps ou un paramètre
+  illisible répond **400** `BAD_REQUEST` (et non plus 500), de même qu'un `centerId` absent de la liste de choix ; le refus
+  de droits (403) passe avant (KB-RF2-01 corrigé). Le **prix** d'un forfait est facultatif :
   un prix omis à la modification **efface** le prix ; le sens d'un prix absent reste à définir (KB-RF2-04).
 - **RG-REF-006** — La capacité d'une salle (en générateurs) limite l'affectation de générateurs (RG-PLN-061) ; la
   modifier **ne contrôle pas rétroactivement** les générateurs déjà affectés. L'indicateur

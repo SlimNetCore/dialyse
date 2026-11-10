@@ -86,6 +86,8 @@ class SaisieDesForfaitsCharacterizationIntegrationTest extends ForfaitsCharacter
         m.set("super administrateur vise le centre B", vue(doPost(ADMIN, forfaitB, superadmin())));
         m.set("centre illisible", vue(doPost(ADMIN, "{'centerId':'pas-un-uuid','values':{'code':'X','libelle':'X'}}", admin)));
         m.set("secretaire", vue(doPost(ADMIN, forfaitA, as(CENTRE_A, "SECRETAIRE"))));
+        // RF2c (KB-RF2-01) : le refus de droits passe AVANT le 400 d'un corps illisible
+        m.set("secretaire, corps illisible", vue(doPost(ADMIN, "{'values':", as(CENTRE_A, "SECRETAIRE"))));
         m.set("anonyme", vue(doPost(ADMIN, forfaitA, null)));
         goldenNode("creations-gardees", m);
         etatDesForfaits("etat-apres-creations-gardees");

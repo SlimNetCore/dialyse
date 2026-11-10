@@ -31,6 +31,7 @@ class GererLeCatalogueDeForfaitsTest {
 
     private final ForfaitsEnMemoire catalogue = new ForfaitsEnMemoire();
     private final AtomicInteger sequence = new AtomicInteger();
+    private final List<UUID> centresInterroges = new java.util.ArrayList<>();
     private final Map<UUID, Long> parLesPec = new HashMap<>();
     private final Map<UUID, Long> parLesFactures = new HashMap<>();
     private final Map<UUID, Long> parLesSeances = new HashMap<>();
@@ -52,7 +53,10 @@ class GererLeCatalogueDeForfaitsTest {
         }
     };
     private final List<UsageDuForfait> usages = List.of(
-            id -> parLesPec.getOrDefault(id, 0L), id -> parLesFactures.getOrDefault(id, 0L), id -> parLesSeances.getOrDefault(id, 0L));
+            (centre, id) -> {
+                centresInterroges.add(centre);
+                return parLesPec.getOrDefault(id, 0L);
+            }, (centre, id) -> parLesFactures.getOrDefault(id, 0L), (centre, id) -> parLesSeances.getOrDefault(id, 0L));
     private final GererLeCatalogueDeForfaits gerer = new GererLeCatalogueDeForfaits(catalogue, catalogue, usages, identifiants, unite);
 
     private RefusDeForfait refus(Runnable action) {
@@ -152,6 +156,16 @@ class GererLeCatalogueDeForfaitsTest {
         gerer.supprimer(CENTRE.valeur(), libre);
         assertThat(catalogue.trouver(CENTRE, libre)).isEmpty();
         assertThat(motifDe(() -> gerer.supprimer(CENTRE.valeur(), libre))).isEqualTo(Motif.INTROUVABLE);
+    }
+
+    @Test
+    void le_compte_d_usage_est_demande_pour_le_centre_du_forfait() {
+        // KB-RF2-02 corrigé (ADR 0125) : les propriétaires des prises en charge ne comptent que celles du centre du forfait
+        UUID libre = gerer.creer(AUTRE.valeur(), "LIBRE", "Libre", null).id();
+
+        gerer.supprimer(AUTRE.valeur(), libre);
+
+        assertThat(centresInterroges).containsExactly(AUTRE.valeur());
     }
 
     @Test

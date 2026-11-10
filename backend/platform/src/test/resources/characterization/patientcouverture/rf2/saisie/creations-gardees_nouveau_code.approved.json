@@ -1,0 +1,9 @@
+{
+  "admin du centre A vise le centre B" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "admin du centre A vise son centre" : "201 | {\"id\":\"<UUID_GENERE_1>\",\"references\":{},\"values\":{\"code\":\"F-A\",\"libelle\":\"Forfait A\",\"prix\":null}}",
+  "anonyme" : "403",
+  "centre illisible" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "secretaire" : "403 ACCESS_DENIED | Access Denied",
+  "secretaire, corps illisible" : "403 ACCESS_DENIED | Accès refusé",
+  "super administrateur vise le centre B" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+}

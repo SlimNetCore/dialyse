@@ -3,8 +3,8 @@
 # en sortie. Chaine Flyway V1..Vn (psql), verification que TOUTES les colonnes lues ou ecrites par les adapters (forfait,
 # prise_en_charge, facture_lignes, seances) existent dans le schema reel, execution des requetes de lecture sur le schema reel, puis le
 # contrat PostgreSQL du catalogue de forfaits : le meme jeu de tests que le double en memoire et que H2 (ForfaitsPostgresContractIT :
-# ecritures, page triee, recherche avec jokers litteraux, prix numeric(10,2), compte des references des prises en charge SANS regarder
-# le centre (KB-RF2-02), langage publie, prix nul).
+# ecritures, page triee, recherche avec jokers litteraux, prix numeric(10,2), compte des references des prises en charge DU SEUL
+# centre du forfait (KB-RF2-02 corrige, ADR 0125), langage publie, prix nul).
 # A lancer en arriere-plan avec un log : backend/scripts/patient-couverture-rf2-pg16-rejeu.sh 55792 (sortie dans le log du lanceur)
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Code de sortie : 0 si tout est vert, 1 sinon.
 set -uo pipefail
@@ -53,7 +53,7 @@ req() { SORTIE="$("${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$2" 2>&1)"
 req "liste des forfaits d'un centre" "SELECT id, code, libelle, prix FROM forfait WHERE center_id = gen_random_uuid() ORDER BY code"
 req "forfait d'un centre par identifiant" "SELECT id, code, libelle, prix FROM forfait WHERE center_id = gen_random_uuid() AND id = gen_random_uuid()"
 req "page d'administration avec recherche litterale" "SELECT t.id, t.code, t.libelle, t.prix FROM forfait t WHERE t.center_id = gen_random_uuid() AND (LOWER(COALESCE(t.code, '')) LIKE '%\\%%' ESCAPE '\\' OR LOWER(COALESCE(t.libelle, '')) LIKE '%\\_%' ESCAPE '\\') ORDER BY t.code, t.id LIMIT 20 OFFSET 0"
-req "references d'un forfait par les prises en charge (demande puis effectif, sans centre : KB-RF2-02)" "SELECT (SELECT count(*) FROM prise_en_charge WHERE forfait_demande_id = gen_random_uuid()) + (SELECT count(*) FROM prise_en_charge WHERE forfait_effectif_id = gen_random_uuid())"
+req "references d'un forfait par les prises en charge (demande puis effectif, bornees au centre du forfait : KB-RF2-02 corrige, ADR 0125)" "SELECT (SELECT count(*) FROM prise_en_charge WHERE forfait_demande_id = gen_random_uuid() AND center_id = gen_random_uuid()) + (SELECT count(*) FROM prise_en_charge WHERE forfait_effectif_id = gen_random_uuid() AND center_id = gen_random_uuid())"
 req "references d'un forfait par les lignes de facture" "SELECT count(*) FROM facture_lignes WHERE forfait_id = gen_random_uuid()"
 req "references d'un forfait imposé a une seance" "SELECT count(*) FROM seances WHERE forfait_override_id = gen_random_uuid()"
 

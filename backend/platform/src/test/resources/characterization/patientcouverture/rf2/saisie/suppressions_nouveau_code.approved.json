@@ -1,0 +1,20 @@
+{
+  "centre B par son administrateur" : "204",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "deja supprime" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Forfaits » pour ce centre.",
+  "forfait d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Forfaits » pour ce centre.",
+  "identifiant illisible" : "400 BAD_REQUEST | Paramètre illisible : id",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Forfaits » pour ce centre.",
+  "impose a une seance" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Forfaits » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "la PEC liberee, le forfait demande est supprimable" : "204",
+  "la ligne de facture liberee" : "204",
+  "la seance liberee" : "204",
+  "libre" : "204",
+  "tout libere" : "204",
+  "utilise encore par les PEC et la facture" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Forfaits » est encore utilisé (4 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise par une PEC d'un autre centre" : "204",
+  "utilise par une PEC demandee" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Forfaits » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise par une PEC effective" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Forfaits » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise par une ligne de facture" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Forfaits » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilise partout (demande, effectif, facture, seance)" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Forfaits » est encore utilisé (5 référence(s) : patients, prises en charge, séances ou autres référentiels)."
+}

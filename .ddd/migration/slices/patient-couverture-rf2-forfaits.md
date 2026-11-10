@@ -48,7 +48,7 @@ Retour arrière : revert Git.
 2. **« Forfait » a trois sens** : de PEC (PC), appliqué (Facturation), du centre (Séance) ; terme « Catalogue de forfaits » proposé pour le catalogue ; à valider.
 3. Pas de validité temporelle du prix : hypothèse à vérifier (un changement de prix s'applique-t-il aux PEC en cours ?).
 4. Sens commercial (« tarif », synonyme interdit en PC) dans un contexte clinique : à trancher avec les experts.
-5. Corriger KB-RF2-01 (500 -> 400) et KB-RF2-02 (compte d'usage borné au centre), comme RF1c (ADR 0123) ? Reproduits en RF2 (aucune correction silencieuse).
+5. ~~Corriger KB-RF2-01 et KB-RF2-02 comme RF1c ?~~ Corrigés le 2026-11-10 (RF2c, ADR 0125, à confirmer métiers <= 2026-12-15) ; le prix nul / omis est GARDÉ tel quel (décision de l'utilisateur) ; reste RF1-R4 : étendre le 400 aux 7 autres référentiels.
 6. Doublons historiques de `lower(trim(code))` par centre en production ? (KB-RF2-03.)
 
 ## Réalisation (2026-11-10, ADR 0124)
@@ -60,5 +60,14 @@ Retour arrière : revert Git.
 | Parité | 16/16 tests, goldens RF2 inchangés sur le nouveau code ; goldens Séance, Facturation, Absences, pilotage, reporting inchangés ; aucun `_nouveau_code`, aucune archive `_ecarts-legacy` |
 | Rejeu PostgreSQL 16 | `backend/scripts/patient-couverture-rf2-pg16-rejeu.sh` (port 55792) : vert (colonnes, type `numeric(10,2)`, 6 requêtes, contrat 12 tests) |
 | Condition de retrait 1 à 4 | 1 oui ; 2 partiel (RF2-R1 : le descripteur `ReferentialKind.FORFAIT` reste, comme RF1-R1) ; 3 oui ; 4 voir l'ADR 0124 |
+
+## RF2c (2026-11-10, ADR 0125) : corrections KB-RF2-01 et KB-RF2-02
+| Étape | Résultat |
+|---|---|
+| Tests d'abord, ROUGE vérifié | contrat JDBC (H2) : 2 échecs (attendu 4 et 0 pour les PEC du centre, obtenu 5 et 1) ; filet RF2 : 6 échecs sur 16 tests (500 au lieu de 400, 422 au lieu de 204, scénario « secretaire, corps illisible » absent) |
+| Code | `DatesIllisiblesDeLaDirectionAdvice` (route `admin/referentials/(transporteurs\|forfaits)`) ; `ForfaitsControleur` (`centerId` absent) ; port publié `UsageDuForfait.nombreDeReferences(centre, forfait)` : `UsageDuForfaitParLesPec` borne `prise_en_charge.center_id` ; Facturation et Séance acceptent le centre et l'ignorent (compte inchangé, KB-SEA-91) |
+| Goldens | 7 re-approuvés à la main en `*_nouveau_code.approved.json` (saisie : creations, creations-gardees [+ « secretaire, corps illisible »], modifications, suppressions, etat-apres-suppressions ; lecture/liste ; lectures-communes/forfaits) ; anciens dans `_ecarts-legacy/**/*_avant_rf2c.legacy.json` ; 21 autres inchangés ; goldens Séance, Facturation, Absences, Pilotage, reporting inchangés |
+| Contrat | double mémoire + H2 + PostgreSQL 16 (`patient-couverture-rf2-pg16-rejeu.sh`, port 55793) |
+| Hors périmètre | prix nul / omis (KB-RF2-04) et KB-RF2-03, 05, 06 : reproduits ; RF1-R4 : 400 non étendu aux 7 autres référentiels |
 
 Résiduels nominatifs : RF2-R1 à RF2-R5 (voir l'ADR 0124), dont RF2-R2 (jointure `prise_en_charge` -> `forfait` de la Séance, gardée par `TableDesForfaitsTest`, effectif 1). Façade, flag, plan de bascule : sans objet (refactoring sur place).

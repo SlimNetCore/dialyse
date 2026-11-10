@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * Les refus de la liste de choix des forfaits, au format commun de la plateforme. Un identifiant de centre illisible
  * ({@code IllegalArgumentException} de la conversion) répond 400 {@code BAD_REQUEST} avec le message de la conversion, comme quand
- * cette route était servie par l'Organisation (RF2 : réponse inchangée). Limité à ce contrôleur.
+ * cette route était servie par l'Organisation (RF2 : réponse inchangée). KB-RF2-01 (RF2c, ADR 0125) : un {@code centerId} absent de
+ * {@code /api/v1/referentials/forfaits} répond aussi 400 {@code BAD_REQUEST} (même exception, levée par le contrôleur). Limité à ce
+ * contrôleur.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = ForfaitsControleur.class)

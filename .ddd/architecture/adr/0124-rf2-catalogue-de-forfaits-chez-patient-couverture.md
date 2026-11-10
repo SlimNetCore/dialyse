@@ -35,7 +35,7 @@ Aucun. Les comportements du legacy sont REPRODUITS et consignés (KB-RF2-01 à 0
 | RF2-R2 | `ForfaitsDeSeanceJdbc` (Séance) joint `prise_en_charge` à `forfait` pour le forfait courant d'une séance | requête reprise mot pour mot (SE7f, ADR 0100) ; c'est une lecture de la prise en charge, pas du catalogue ; à porter dans le langage publié de la couverture avec le retrait de la lecture `prise_en_charge` par la Séance |
 | RF2-R3 | `CouvertureDesPatientsJdbc` (PC) garde la jointure du prix de PEC | même contexte ; parité du prix (PC5) |
 | RF2-R4 | Le tri `ORDER BY code` suit la collation de la base : binaire sous H2 (`B-50%, D-HD, G_MED, Z-HD, a-hd`), celle du cluster sous PostgreSQL | inchangé par rapport au legacy ; non testé sous collation linguistique |
-| RF2-R5 | Le 500 sur corps/identifiant/`centerId` illisibles (KB-RF2-01) | décision de correction à prendre (comme RF1c) |
+| RF2-R5 | ~~Le 500 sur corps/identifiant/`centerId` illisibles (KB-RF2-01)~~ CORRIGÉ le 2026-11-10 (RF2c, ADR 0125) avec KB-RF2-02 | décision de l'utilisateur, à confirmer métiers <= 2026-12-15 |
 
 ## Conséquences
 - Fichiers de la plateforme touchés (filet RF2 vert, inscrits dans `covered.json`) : `ReferentialAdminTables`, `ReferentialAdminJdbcAdapter`, `DomainServiceConfig`, `ForfaitsParPatientCouverture` (nouveau), `ReferentialAdminDelegates` (nouveau). Aucun seam (`seamAllowed` reste `[]`).
@@ -48,4 +48,4 @@ Aucun. Les comportements du legacy sont REPRODUITS et consignés (KB-RF2-01 à 0
 - « Forfait » a trois sens (de PEC, appliqué, du centre) ; « Catalogue de forfaits » désigne le référentiel : à valider.
 - Pas de validité temporelle du prix : un changement de prix s'applique-t-il aux PEC en cours ?
 - « Tarif » (synonyme) dans un contexte clinique : à trancher avec les experts.
-- Faut-il corriger KB-RF2-01 (500 -> 400) et KB-RF2-02 (compte d'usage borné au centre), comme RF1c ?
+- ~~Faut-il corriger KB-RF2-01 et KB-RF2-02 comme RF1c ?~~ Oui, fait le 2026-11-10 : voir l'ADR 0125 (le prix nul est gardé).

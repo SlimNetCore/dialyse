@@ -2665,3 +2665,19 @@ GROUP BY p.center_id, t.center_id, t.id, t.nom ORDER BY 1, 2, 3;
 ```
 **Interprétation** : `0` ligne : la correction ne change aucun cas réel. `> 0` : ces transporteurs deviennent supprimables alors que des fiches d'un autre centre les référencent encore ; corriger les fiches (réaffectation par un administrateur du centre concerné) AVANT de supprimer, ou prévenir les métiers. Les colonnes (`patients.center_id`, `transporteur_aller_id`, `transporteur_retour_id`, `transporteur.center_id`) sont vérifiées sur le schéma PostgreSQL 16 réel par le rejeu RF1 ; la requête elle-même n'y est PAS rejouée et n'a PAS été exécutée sur la production : elle ne dit RIEN de son état.
 **Recette (lecture seule, sur une copie)** : `POST /api/v1/admin/referentials/transporteurs` avec un corps non JSON répond 400 `BAD_REQUEST` (et non 500) ; `GET /api/v1/referentials/transporteurs` sans `centerId` répond 400. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 84. Patient & couverture RF2c (ADR 0125, KB-RF2-01 et KB-RF2-02 CORRIGÉS) : forfaits supprimables malgré des prises en charge d'un autre centre (2026-11-10) — SELECT seulement
+
+AUCUNE migration, AUCUN `UPDATE`. Seule donnée touchée par la correction : la suppression d'un forfait n'est plus bloquée par les prises en charge d'UN AUTRE centre (les lignes de facture et les séances qui imposent le forfait continuent de le bloquer, sans regard au centre). Cette détection liste les cas où le comportement change (avant : 422 `REFERENTIAL_IN_USE`, après : suppression possible, avec des prises en charge d'un autre centre qui gardent un identifiant de forfait orphelin).
+
+```sql
+-- 84.1 Prises en charge dont le forfait (demandé ou effectif) appartient à un AUTRE centre que la prise en charge. Attendu : 0 ligne (les identifiants sont des UUID propres à un centre). Lecture seule.
+SELECT p.center_id AS centre_de_la_pec, f.center_id AS centre_du_forfait, f.id AS forfait, f.code,
+       count(*) FILTER (WHERE p.forfait_demande_id = f.id) AS demande,
+       count(*) FILTER (WHERE p.forfait_effectif_id = f.id) AS effectif
+FROM prise_en_charge p JOIN forfait f ON f.id IN (p.forfait_demande_id, p.forfait_effectif_id)
+WHERE f.center_id <> p.center_id
+GROUP BY p.center_id, f.center_id, f.id, f.code ORDER BY 1, 2, 3;
+```
+**Interprétation** : `0` ligne : la correction ne change aucun cas réel. `> 0` : ces forfaits deviennent supprimables alors que des prises en charge d'un autre centre les référencent encore ; corriger les prises en charge (réaffectation par un administrateur du centre concerné) AVANT de supprimer, ou prévenir les métiers. Les colonnes (`prise_en_charge.center_id`, `forfait_demande_id`, `forfait_effectif_id`, `forfait.center_id`, `forfait.code`) sont vérifiées sur le schéma PostgreSQL 16 réel par le rejeu RF2 ; la requête elle-même n'y est PAS rejouée et n'a PAS été exécutée sur la production : elle ne dit RIEN de son état.
+**Recette (lecture seule, sur une copie)** : `POST /api/v1/admin/referentials/forfaits` avec un corps non JSON répond 400 `BAD_REQUEST` (et non 500) ; `GET /api/v1/referentials/forfaits` sans `centerId` répond 400. Le prix nul ou omis d'un forfait reste accepté (KB-RF2-04, inchangé). Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

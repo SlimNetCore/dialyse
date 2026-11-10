@@ -100,7 +100,7 @@ public class GererLeCatalogueDeForfaits implements GestionDuCatalogueDeForfaits 
         CentreId centreId = new CentreId(centre);
         unite.executer(() -> {
             catalogue.trouver(centreId, id).orElseThrow(RefusDeForfait::introuvable);
-            long references = usages.stream().mapToLong(u -> u.nombreDeReferences(id)).sum();
+            long references = usages.stream().mapToLong(u -> u.nombreDeReferences(centre, id)).sum();
             if (references > 0) throw RefusDeForfait.utilise(references);
             catalogue.supprimer(centreId, id);
             return null;

@@ -75,18 +75,27 @@ abstract class ForfaitsJdbcContrat extends ForfaitsContrat {
     }
 
     @Test
-    void les_prises_en_charge_retiennent_le_forfait_demande_et_effectif_sans_distinction_de_centre() {
-        // ARGENT, reproduit (KB-RF2-02) : le compte d'usage du legacy ne regarde pas le centre de la prise en charge
+    void les_prises_en_charge_retiennent_le_forfait_demande_et_effectif_des_seules_pec_du_centre_du_forfait() {
+        // KB-RF2-02 corrigé (ADR 0125) : les prises en charge d'un autre centre ne comptent plus
         Forfait f = enregistre(CENTRE, "A", "Alpha", null);
         Forfait libre = enregistre(CENTRE, "B", "Beta", null);
         pec(CENTRE, f.id(), null);
         pec(CENTRE, null, f.id());
         pec(CENTRE, f.id(), f.id());
         pec(AUTRE, f.id(), null);
+        pec(AUTRE, null, f.id());
 
         UsageDuForfaitParLesPec usage = new UsageDuForfaitParLesPec(jdbc());
-        assertThat(usage.nombreDeReferences(f.id())).isEqualTo(5);
-        assertThat(usage.nombreDeReferences(libre.id())).isZero();
-        assertThat(usage.nombreDeReferences(UUID.randomUUID())).isZero();
+        assertThat(usage.nombreDeReferences(CENTRE.valeur(), f.id())).isEqualTo(4);
+        assertThat(usage.nombreDeReferences(CENTRE.valeur(), libre.id())).isZero();
+        assertThat(usage.nombreDeReferences(CENTRE.valeur(), UUID.randomUUID())).isZero();
+    }
+
+    @Test
+    void un_forfait_utilise_seulement_par_des_pec_d_un_autre_centre_n_a_aucune_reference() {
+        Forfait f = enregistre(CENTRE, "A", "Alpha", null);
+        pec(AUTRE, f.id(), f.id());
+
+        assertThat(new UsageDuForfaitParLesPec(jdbc()).nombreDeReferences(CENTRE.valeur(), f.id())).isZero();
     }
 }

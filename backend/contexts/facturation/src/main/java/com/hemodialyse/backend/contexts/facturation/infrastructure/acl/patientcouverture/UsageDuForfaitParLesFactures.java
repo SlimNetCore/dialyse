@@ -20,7 +20,7 @@ public class UsageDuForfaitParLesFactures implements UsageDuForfait {
     }
 
     @Override
-    public long nombreDeReferences(UUID forfait) {
+    public long nombreDeReferences(UUID centre, UUID forfait) {
         try {
             Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM facture_lignes WHERE forfait_id = ?", Long.class, forfait);
             return nombre == null ? 0 : nombre;

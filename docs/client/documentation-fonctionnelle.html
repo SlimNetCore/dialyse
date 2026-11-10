@@ -4845,7 +4845,14 @@ charge, séances, équipements, autres référentiels) ; élément inconnu :
 Pour un <strong>transporteur</strong>, seuls comptent les patients <strong>du centre du transporteur</strong> (aller ou retour), un patient d&#39;un
 autre centre ne bloque pas la suppression (KB-RF1-03 corrigé, ADR 0123, à confirmer par les métiers avant le
 2026-12-15). Sur les routes d&#39;administration des transporteurs, un corps ou un paramètre illisible répond <strong>400</strong>
-<code>BAD_REQUEST</code> (et non plus 500) ; le refus de droits (403) passe avant (KB-RF1-01 corrigé).</p>
+<code>BAD_REQUEST</code> (et non plus 500) ; le refus de droits (403) passe avant (KB-RF1-01 corrigé).
+Pour un <strong>forfait</strong> (catalogue de forfaits de Patient et couverture, RF2, ADR 0124), le refus compte les prises en
+charge (forfait demandé ou effectif) <strong>du centre du forfait</strong> (une prise en charge d&#39;un autre centre ne bloque pas la
+suppression), ainsi que les lignes de facture et les séances qui imposent le forfait (KB-RF2-02 corrigé, ADR 0125, à
+confirmer par les métiers avant le 2026-12-15). Sur les routes d&#39;administration des forfaits, un corps ou un paramètre
+illisible répond <strong>400</strong> <code>BAD_REQUEST</code> (et non plus 500), de même qu&#39;un <code>centerId</code> absent de la liste de choix ; le refus
+de droits (403) passe avant (KB-RF2-01 corrigé). Le <strong>prix</strong> d&#39;un forfait est facultatif :
+un prix omis à la modification <strong>efface</strong> le prix ; le sens d&#39;un prix absent reste à définir (KB-RF2-04).</p>
 </div></div>
 <div class="rule" id="RG-REF-006"><div class="rid">RG-REF-006</div><div class="rtxt"><p>La capacité d&#39;une salle (en générateurs) limite l&#39;affectation de générateurs (RG-PLN-061) ; la
 modifier <strong>ne contrôle pas rétroactivement</strong> les générateurs déjà affectés. L&#39;indicateur
@@ -5515,6 +5522,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/referentials/{transporteurs,categories-transport}</code> et <code>/api/v1/organisation/referentiels/{transporteurs,categories-transport}</code> — contexte <code>patient-couverture</code>, slice RF1</td>
 <td>tout utilisateur authentifié (lecture, mise en cache) ; garde de centre ; DIRECTION et SUPERADMIN refusés</td>
 <td>RG-REF-001, RG-REF-002</td>
+</tr>
+<tr>
+<td><code>ForfaitsControleur</code></td>
+<td><code>/api/v1/referentials/forfaits</code> et <code>/api/v1/organisation/referentiels/forfaits</code> — contexte <code>patient-couverture</code>, slice RF2 (catalogue de forfaits, ADR 0124)</td>
+<td>tout utilisateur authentifié (lecture, mise en cache) ; garde de centre ; DIRECTION et SUPERADMIN refusés</td>
+<td>RG-REF-001, RG-REF-002, RG-REF-005</td>
 </tr>
 <tr>
 <td><code>DashboardRestController</code></td>

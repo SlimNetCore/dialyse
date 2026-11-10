@@ -8,8 +8,8 @@ import java.util.UUID;
 
 /**
  * Ce que les prises en charge (table {@code prise_en_charge}) retiennent d'un forfait (RF2) : le forfait demandé et le forfait
- * effectif comptent chacun, sans regarder le centre (comme le contrôle du legacy, KB-RF2-02). Une table absente d'un schéma allégé
- * est ignorée, comme avant.
+ * effectif comptent chacun, mais seules les prises en charge DU CENTRE du forfait comptent (KB-RF2-02 corrigé, ADR 0125). Une table
+ * absente d'un schéma allégé est ignorée, comme avant.
  */
 public class UsageDuForfaitParLesPec implements UsageDuForfait {
 
@@ -20,11 +20,12 @@ public class UsageDuForfaitParLesPec implements UsageDuForfait {
     }
 
     @Override
-    public long nombreDeReferences(UUID forfait) {
+    public long nombreDeReferences(UUID centre, UUID forfait) {
         long total = 0;
         for (String colonne : new String[]{"forfait_demande_id", "forfait_effectif_id"}) {
             try {
-                Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM prise_en_charge WHERE " + colonne + " = ?", Long.class, forfait);
+                Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM prise_en_charge WHERE " + colonne + " = ? AND center_id = ?",
+                        Long.class, forfait, centre);
                 total += nombre == null ? 0 : nombre;
             } catch (DataAccessException schemaAllege) {
                 // table absente d'un schéma allégé : le contrôle est ignoré, comme avant

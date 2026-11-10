@@ -19,7 +19,7 @@ public class UsageDuForfaitParLesSeances implements UsageDuForfait {
     }
 
     @Override
-    public long nombreDeReferences(UUID forfait) {
+    public long nombreDeReferences(UUID centre, UUID forfait) {
         return imposes.nombreDeSeancesQuiImposentLeForfait(forfait);
     }
 }

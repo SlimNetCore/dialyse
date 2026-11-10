@@ -14,7 +14,7 @@ import java.util.UUID;
  * Adapter entrant HTTP de la liste de choix des forfaits (RF2) : MÊMES URLs et même JSON qu'avant, servies jusque-là par
  * l'Organisation ({@code /api/v1/referentials/forfaits} avec {@code centerId} obligatoire, et
  * {@code /api/v1/organisation/referentiels/forfaits} avec {@code centreId} facultatif). Lecture : tout utilisateur authentifié,
- * bornée au centre de la session (403 sinon). Un {@code centerId} absent reste une erreur 500, comme avant (KB-RF2-01).
+ * bornée au centre de la session (403 sinon). Un {@code centerId} absent répond 400 {@code BAD_REQUEST} (KB-RF2-01 corrigé, RF2c, ADR 0125 ; c'était un 500).
  */
 @RestController
 public class ForfaitsControleur {
@@ -28,7 +28,9 @@ public class ForfaitsControleur {
     }
 
     @GetMapping("/api/v1/referentials/forfaits")
-    public ResponseEntity<List<ChoixDeForfait>> forfaitsLegacy(@RequestParam UUID centerId) {
+    public ResponseEntity<List<ChoixDeForfait>> forfaitsLegacy(@RequestParam(required = false) UUID centerId) {
+        // KB-RF2-01 corrigé (ADR 0125) : un centerId absent répond 400 BAD_REQUEST (c'était un 500)
+        if (centerId == null) throw new IllegalArgumentException("Paramètre obligatoire absent : centerId");
         return ResponseEntity.ok(liste.forfaits(consulter.centreDeLaLecture(centerId)));
     }
 
