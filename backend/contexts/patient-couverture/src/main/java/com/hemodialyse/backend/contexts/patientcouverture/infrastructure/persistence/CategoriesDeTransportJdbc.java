@@ -17,7 +17,7 @@ public class CategoriesDeTransportJdbc implements CategoriesDeTransport {
 
     @Override
     public List<CategorieDeTransportPubliee> lister(UUID centre) {
-        return jdbc.query("SELECT id, libelle FROM categorie_transport WHERE center_id = ? ORDER BY libelle",
+        return jdbc.query("SELECT id, libelle FROM categorie_transport WHERE center_id = ? ORDER BY libelle, id",
                 (rs, n) -> new CategorieDeTransportPubliee(rs.getObject("id", UUID.class), rs.getString("libelle")), centre);
     }
 }

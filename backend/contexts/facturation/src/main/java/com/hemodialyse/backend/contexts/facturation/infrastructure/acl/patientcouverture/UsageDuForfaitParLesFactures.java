@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.UsageDuForfait;
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.UUID;
@@ -24,7 +24,7 @@ public class UsageDuForfaitParLesFactures implements UsageDuForfait {
         try {
             Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM facture_lignes WHERE forfait_id = ?", Long.class, forfait);
             return nombre == null ? 0 : nombre;
-        } catch (DataAccessException schemaAllege) {
+        } catch (BadSqlGrammarException schemaAllege) {
             return 0;
         }
     }

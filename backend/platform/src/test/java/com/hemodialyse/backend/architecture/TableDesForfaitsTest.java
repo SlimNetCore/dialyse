@@ -54,6 +54,9 @@ class TableDesForfaitsTest {
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)|\\bTable\\(\"(forfait)\"",
             Pattern.CASE_INSENSITIVE);
 
+    /** Jointure par virgule : {@code FROM prise_en_charge p, forfait f} (la table n'est pas le premier nom après FROM). */
+    private static final Pattern PAR_VIRGULE = Pattern.compile("\\bFROM\\s+[^\"();]*?,\\s*forfait\\b", Pattern.CASE_INSENSITIVE);
+
     private static Path backend() {
         return Path.of("..").toAbsolutePath().normalize();
     }
@@ -85,7 +88,9 @@ class TableDesForfaitsTest {
 
     private static boolean nommeLaTableDesForfaits(Path source) {
         try {
-            Matcher m = NOMMEE.matcher(Files.readString(source));
+            String texte = Files.readString(source);
+            if (PAR_VIRGULE.matcher(texte).find()) return true;
+            Matcher m = NOMMEE.matcher(texte);
             while (m.find()) {
                 String table = m.group(2) != null ? m.group(2) : m.group(3);
                 if (TABLE_DES_FORFAITS.equalsIgnoreCase(table)) return true;
@@ -142,6 +147,10 @@ class TableDesForfaitsTest {
         Files.writeString(sql, "class Sql { String s = \"SELECT id FROM forfait WHERE center_id = ?\"; }");
         Path jointure = bac.resolve("Jointure.java");
         Files.writeString(jointure, "class Jointure { String s = \"SELECT 1 FROM prise_en_charge p INNER JOIN forfait f ON f.id = p.x\"; }");
+        Path virgule = bac.resolve("Virgule.java");
+        Files.writeString(virgule, "class Virgule { String s = \"SELECT 1 FROM prise_en_charge p, forfait f WHERE f.id = p.x\"; }");
+        Path virguleLongue = bac.resolve("VirguleLongue.java");
+        Files.writeString(virguleLongue, "class VirguleLongue { String s = \"SELECT 1 FROM a x,\\n b y ,  FORFAIT f WHERE 1 = 1\"; }");
         Path litteral = bac.resolve("Litteral.java");
         Files.writeString(litteral, "class Litteral { Object t = new Table(\"forfait\", List.of()); }");
         Path propre = bac.resolve("Propre.java");
@@ -150,6 +159,8 @@ class TableDesForfaitsTest {
 
         assertThat(nommeLaTableDesForfaits(sql)).isTrue();
         assertThat(nommeLaTableDesForfaits(jointure)).isTrue();
+        assertThat(nommeLaTableDesForfaits(virgule)).isTrue();
+        assertThat(nommeLaTableDesForfaits(virguleLongue)).isTrue();
         assertThat(nommeLaTableDesForfaits(litteral)).isTrue();
         assertThat(nommeLaTableDesForfaits(propre)).isFalse();
     }

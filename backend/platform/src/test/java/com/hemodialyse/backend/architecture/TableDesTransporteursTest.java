@@ -43,6 +43,10 @@ class TableDesTransporteursTest {
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)|\\bTable\\(\"(transporteur|categorie_transport)\"",
             Pattern.CASE_INSENSITIVE);
 
+    /** Jointure par virgule : {@code FROM patients p, transporteur t} (la table n'est pas le premier nom après FROM). */
+    private static final Pattern PAR_VIRGULE = Pattern.compile(
+            "\\bFROM\\s+[^\"();]*?,\\s*(?:transporteur|categorie_transport)\\b", Pattern.CASE_INSENSITIVE);
+
     private static Path backend() {
         return Path.of("..").toAbsolutePath().normalize();
     }
@@ -74,7 +78,9 @@ class TableDesTransporteursTest {
 
     private static boolean nommeUneTableDesTransporteurs(Path source) {
         try {
-            Matcher m = NOMMEE.matcher(Files.readString(source));
+            String texte = Files.readString(source);
+            if (PAR_VIRGULE.matcher(texte).find()) return true;
+            Matcher m = NOMMEE.matcher(texte);
             while (m.find()) {
                 String table = m.group(2) != null ? m.group(2) : m.group(3);
                 if (TABLES_DES_TRANSPORTEURS.contains(table.toLowerCase())) return true;
@@ -123,6 +129,8 @@ class TableDesTransporteursTest {
         Path bac = Files.createTempDirectory("garde-transporteurs");
         Path sql = bac.resolve("Sql.java");
         Files.writeString(sql, "class Sql { String s = \"SELECT id FROM transporteur WHERE center_id = ?\"; }");
+        Path virgule = bac.resolve("Virgule.java");
+        Files.writeString(virgule, "class Virgule { String s = \"SELECT 1 FROM patients p, transporteur t WHERE t.id = p.x\"; }");
         Path litteral = bac.resolve("Litteral.java");
         Files.writeString(litteral, "class Litteral { Object t = new Table(\"categorie_transport\", List.of()); }");
         Path propre = bac.resolve("Propre.java");
@@ -130,6 +138,7 @@ class TableDesTransporteursTest {
                 + "String alias = \"transporteur\"; }");
 
         assertThat(nommeUneTableDesTransporteurs(sql)).isTrue();
+        assertThat(nommeUneTableDesTransporteurs(virgule)).isTrue();
         assertThat(nommeUneTableDesTransporteurs(litteral)).isTrue();
         assertThat(nommeUneTableDesTransporteurs(propre)).isFalse();
     }

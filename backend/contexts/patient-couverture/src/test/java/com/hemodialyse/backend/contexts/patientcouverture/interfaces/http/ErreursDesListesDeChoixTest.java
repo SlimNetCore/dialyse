@@ -49,8 +49,11 @@ class ErreursDesListesDeChoixTest {
         for (var advice : ADVICES) {
             assertThat(advice.apply(new IllegalArgumentException("Invalid UUID string: pas-un-uuid")).getDetail())
                     .isEqualTo("Invalid UUID string: pas-un-uuid");
-            assertThat(advice.apply(new IllegalArgumentException("Paramètre obligatoire absent : centerId")).getDetail())
+            assertThat(advice.apply(new ParametreObligatoireAbsent("centerId")).getDetail())
                     .isEqualTo("Paramètre obligatoire absent : centerId");
+            // le paramètre absent se reconnaît à son TYPE : le même texte dans une exception ordinaire est neutralisé
+            assertThat(advice.apply(new IllegalArgumentException("Paramètre obligatoire absent : centerId")).getDetail())
+                    .isEqualTo("Requête invalide");
             assertThat(advice.apply(new IllegalArgumentException("Invalid UUID string: pas-un-uuid")).getStatus())
                     .isEqualTo(HttpStatus.BAD_REQUEST.value());
         }

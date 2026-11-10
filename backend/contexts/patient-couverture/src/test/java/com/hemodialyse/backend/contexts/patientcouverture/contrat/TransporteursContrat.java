@@ -179,6 +179,17 @@ abstract class TransporteursContrat {
     }
 
     @Test
+    void des_homonymes_historiques_sont_toujours_rendus_dans_l_ordre_nom_puis_identite() {
+        UUID bas = UUID.fromString("99997700-0000-0000-0000-000000000101");
+        UUID haut = UUID.fromString("99997700-0000-0000-0000-000000000102");
+        carnet().enregistrer(Transporteur.referencer(haut, CENTRE, "Alpha", null));
+        carnet().enregistrer(Transporteur.referencer(bas, CENTRE, "Alpha", null));
+
+        assertThat(carnet().duCentre(CENTRE)).extracting(Transporteur::id).containsExactly(bas, haut);
+        assertThat(publie().lister(CENTRE.valeur())).extracting(Transporteurs.TransporteurPublie::id).containsExactly(bas, haut);
+    }
+
+    @Test
     void les_categories_de_transport_sont_listees_par_libelle_pour_le_seul_centre() {
         UUID vsl = categorie(CENTRE, "VSL");
         UUID ambulance = categorie(CENTRE, "Ambulance");

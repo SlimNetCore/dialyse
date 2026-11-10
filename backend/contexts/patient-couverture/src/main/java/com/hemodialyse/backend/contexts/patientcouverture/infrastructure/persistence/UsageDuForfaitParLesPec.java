@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.UsageDuForfait;
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.UUID;
@@ -27,8 +27,8 @@ public class UsageDuForfaitParLesPec implements UsageDuForfait {
                 Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM prise_en_charge WHERE " + colonne + " = ? AND center_id = ?",
                         Long.class, forfait, centre);
                 total += nombre == null ? 0 : nombre;
-            } catch (DataAccessException schemaAllege) {
-                // table absente d'un schéma allégé : le contrôle est ignoré, comme avant
+            } catch (BadSqlGrammarException schemaAllege) {
+                // table absente d'un schéma allégé : le contrôle est ignoré, comme avant ; tout autre échec SQL se propage
             }
         }
         return total;

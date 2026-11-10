@@ -53,7 +53,8 @@ public class TransporteursEnMemoire implements CarnetDeTransporteurs, LectureDes
 
     @Override
     public List<Transporteur> duCentre(CentreId centre) {
-        return lignes.values().stream().filter(t -> t.centre().equals(centre)).toList();
+        return lignes.values().stream().filter(t -> t.centre().equals(centre))
+                .sorted(Comparator.comparing(Transporteur::nom).thenComparing(Transporteur::id)).toList();
     }
 
     @Override
@@ -91,7 +92,7 @@ public class TransporteursEnMemoire implements CarnetDeTransporteurs, LectureDes
 
     @Override
     public List<TransporteurPublie> lister(UUID centre) {
-        return duCentre(new CentreId(centre)).stream().sorted(Comparator.comparing(Transporteur::nom))
+        return duCentre(new CentreId(centre)).stream().sorted(Comparator.comparing(Transporteur::nom).thenComparing(Transporteur::id))
                 .map(t -> new TransporteurPublie(t.id(), t.nom())).toList();
     }
 

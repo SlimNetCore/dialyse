@@ -33,7 +33,8 @@ public class ForfaitsEnMemoire implements CatalogueDeForfaits, LectureDuCatalogu
 
     @Override
     public List<Forfait> duCentre(CentreId centre) {
-        return lignes.values().stream().filter(f -> f.centre().equals(centre)).toList();
+        return lignes.values().stream().filter(f -> f.centre().equals(centre))
+                .sorted(Comparator.comparing(Forfait::code).thenComparing(Forfait::id)).toList();
     }
 
     @Override
@@ -72,7 +73,7 @@ public class ForfaitsEnMemoire implements CatalogueDeForfaits, LectureDuCatalogu
 
     @Override
     public List<ForfaitPublie> lister(UUID centre) {
-        return duCentre(new CentreId(centre)).stream().sorted(Comparator.comparing(Forfait::code)).map(ForfaitsEnMemoire::publie).toList();
+        return duCentre(new CentreId(centre)).stream().sorted(Comparator.comparing(Forfait::code).thenComparing(Forfait::id)).map(ForfaitsEnMemoire::publie).toList();
     }
 
     @Override

@@ -30,8 +30,7 @@ public class ForfaitsControleur {
     @GetMapping("/api/v1/referentials/forfaits")
     public ResponseEntity<List<ChoixDeForfait>> forfaitsLegacy(@RequestParam(required = false) UUID centerId) {
         // KB-RF2-01 corrigé (ADR 0125) : un centerId absent répond 400 BAD_REQUEST (c'était un 500)
-        if (centerId == null) throw new IllegalArgumentException("Paramètre obligatoire absent : centerId");
-        return ResponseEntity.ok(liste.forfaits(consulter.centreDeLaLecture(centerId)));
+        return ResponseEntity.ok(liste.forfaits(consulter.centreDeLaLecture(ParametreObligatoireAbsent.centreObligatoire(centerId))));
     }
 
     @GetMapping("/api/v1/organisation/referentiels/forfaits")

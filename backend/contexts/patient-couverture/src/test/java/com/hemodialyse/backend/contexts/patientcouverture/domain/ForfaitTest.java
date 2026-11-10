@@ -105,6 +105,16 @@ class ForfaitTest {
     }
 
     @Test
+    void un_prix_a_l_exposant_demesure_ou_trop_long_est_refuse_vite_comme_un_nombre_invalide() {
+        for (String demesure : new String[]{"1e999999999", "1E-999999999", "0e999999999", "1".repeat(33), "0." + "0".repeat(40) + "1"}) {
+            assertThat(org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(java.time.Duration.ofSeconds(2),
+                    () -> anomalies("F", "Forfait", demesure))).extracting(AnomalieDeSaisie::code).containsExactly("INVALID_NUMBER");
+        }
+        assertThat(forfait("F", "Forfait", "1e5").prix()).hasToString("100000.00");
+        assertThat(anomalies("F", "Forfait", "1e9")).extracting(AnomalieDeSaisie::code).containsExactly("NUMBER_TOO_LARGE");
+    }
+
+    @Test
     void toutes_les_anomalies_sont_rendues_ensemble_dans_l_ordre_code_libelle_prix() {
         assertThat(anomalies("", "", "-5")).extracting(AnomalieDeSaisie::champ, AnomalieDeSaisie::code).containsExactly(
                 org.assertj.core.groups.Tuple.tuple("code", "REQUIRED"), org.assertj.core.groups.Tuple.tuple("libelle", "REQUIRED"),

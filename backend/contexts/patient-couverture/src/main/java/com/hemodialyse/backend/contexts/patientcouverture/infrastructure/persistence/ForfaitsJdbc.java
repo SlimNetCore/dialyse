@@ -49,7 +49,7 @@ public class ForfaitsJdbc implements CatalogueDeForfaits, LectureDuCatalogueDeFo
 
     @Override
     public List<Forfait> duCentre(CentreId centre) {
-        return jdbc.query(FORFAIT + " WHERE center_id = ?", LIGNE, centre.valeur());
+        return jdbc.query(FORFAIT + " WHERE center_id = ? ORDER BY code, id", LIGNE, centre.valeur());
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ForfaitsJdbc implements CatalogueDeForfaits, LectureDuCatalogueDeFo
 
     @Override
     public List<ForfaitPublie> lister(UUID centre) {
-        return jdbc.query("SELECT id, code, libelle, prix FROM forfait WHERE center_id = ? ORDER BY code", PUBLIE, centre);
+        return jdbc.query("SELECT id, code, libelle, prix FROM forfait WHERE center_id = ? ORDER BY code, id", PUBLIE, centre);
     }
 
     @Override
@@ -112,9 +112,8 @@ public class ForfaitsJdbc implements CatalogueDeForfaits, LectureDuCatalogueDeFo
     @Override
     public Optional<ForfaitPublie> parCode(UUID centre, String code) {
         if (code == null) return Optional.empty();
-        String cle = code.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
-        return lister(centre).stream()
-                .filter(f -> f.code() != null && f.code().trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT).equals(cle)).findFirst();
+        String cle = Forfait.cleDe(code);
+        return lister(centre).stream().filter(f -> f.code() != null && Forfait.cleDe(f.code()).equals(cle)).findFirst();
     }
 
     @Override

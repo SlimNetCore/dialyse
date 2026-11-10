@@ -179,6 +179,18 @@ abstract class ForfaitsContrat {
     }
 
     @Test
+    void des_homonymes_historiques_sont_toujours_rendus_dans_l_ordre_code_puis_identite() {
+        UUID bas = UUID.fromString("99997700-0000-0000-0000-000000000101");
+        UUID haut = UUID.fromString("99997700-0000-0000-0000-000000000102");
+        catalogue().enregistrer(Forfait.referencer(haut, CENTRE, "HD-CONV", "Second", null));
+        catalogue().enregistrer(Forfait.referencer(bas, CENTRE, " HD-CONV", "Premier", null));
+
+        assertThat(catalogue().duCentre(CENTRE)).extracting(Forfait::id).containsExactly(bas, haut);
+        assertThat(publie().lister(CENTRE.valeur())).extracting(ForfaitPublie::id).containsExactly(bas, haut);
+        assertThat(publie().parCode(CENTRE.valeur(), "HD-CONV").map(ForfaitPublie::id)).contains(bas);
+    }
+
+    @Test
     void le_langage_publie_retrouve_un_forfait_par_son_code_dans_le_seul_centre_sans_tenir_compte_de_la_casse() {
         Forfait f = enregistre(CENTRE, "HD-CONV", "Hémodialyse", "1");
         enregistre(AUTRE, "HD-AUTRE", "Autre", null);

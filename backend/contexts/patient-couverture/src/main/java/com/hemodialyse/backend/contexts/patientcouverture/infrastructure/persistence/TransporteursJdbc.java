@@ -7,7 +7,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Gest
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesTransporteurs.PageDeTransporteurs;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -46,7 +46,7 @@ public class TransporteursJdbc implements CarnetDeTransporteurs, LectureDesTrans
 
     @Override
     public List<Transporteur> duCentre(CentreId centre) {
-        return jdbc.query(TRANSPORTEUR + " WHERE center_id = ?", LIGNE, centre.valeur());
+        return jdbc.query(TRANSPORTEUR + " WHERE center_id = ? ORDER BY nom, id", LIGNE, centre.valeur());
     }
 
     @Override
@@ -77,8 +77,8 @@ public class TransporteursJdbc implements CarnetDeTransporteurs, LectureDesTrans
                 Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM patients WHERE " + colonne + " = ? AND center_id = ?",
                         Long.class, id, centre.valeur());
                 total += nombre == null ? 0 : nombre;
-            } catch (DataAccessException schemaAllege) {
-                // table absente d'un schéma allégé : le contrôle est ignoré, comme avant
+            } catch (BadSqlGrammarException schemaAllege) {
+                // table absente d'un schéma allégé : le contrôle est ignoré, comme avant ; tout autre échec SQL se propage
             }
         }
         return total;
@@ -109,7 +109,7 @@ public class TransporteursJdbc implements CarnetDeTransporteurs, LectureDesTrans
 
     @Override
     public List<TransporteurPublie> lister(UUID centre) {
-        return jdbc.query("SELECT id, nom FROM transporteur WHERE center_id = ? ORDER BY nom",
+        return jdbc.query("SELECT id, nom FROM transporteur WHERE center_id = ? ORDER BY nom, id",
                 (rs, n) -> new TransporteurPublie(rs.getObject("id", UUID.class), rs.getString("nom")), centre);
     }
 

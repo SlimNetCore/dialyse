@@ -51,8 +51,7 @@ public class PayeursControleur {
 
     /** KB-RF3-03 corrigé (RF3d, ADR 0129) : un {@code centerId} absent répond 400 {@code BAD_REQUEST} (c'était un 500). */
     private static UUID obligatoire(UUID centerId) {
-        if (centerId == null) throw new IllegalArgumentException("Paramètre obligatoire absent : centerId");
-        return centerId;
+        return ParametreObligatoireAbsent.centreObligatoire(centerId);
     }
 
     @GetMapping("/api/v1/organisation/referentiels/centres-payeurs")

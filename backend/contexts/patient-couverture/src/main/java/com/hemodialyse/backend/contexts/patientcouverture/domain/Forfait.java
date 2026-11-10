@@ -21,6 +21,8 @@ public final class Forfait {
 
     private static final int CODE_MAX = 50;
     private static final int LIBELLE_MAX = 255;
+    private static final int PRIX_TEXTE_MAX = 32;
+    private static final int PRIX_ECHELLE_MAX = 32;
     private static final BigDecimal PRIX_MAX = new BigDecimal("99999999.99");
 
     private final UUID id;
@@ -65,6 +67,11 @@ public final class Forfait {
 
     /** Clé naturelle dans le centre : le code sans casse ni espaces répétés. */
     public String cle() {
+        return cleDe(code);
+    }
+
+    /** La clé naturelle d'un code saisi ou lu : sans espaces en tête, en queue ou répétés, sans casse. */
+    public static String cleDe(String code) {
         return code.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
@@ -118,7 +125,10 @@ public final class Forfait {
         String compact = saisi.replaceAll("[\\s\\u00A0\\u202F]", "").replace(',', '.');
         BigDecimal nombre;
         try {
+            // Borne avant tout calcul : un exposant démesuré (1e999999999) ferait mettre à l'échelle un nombre de 10^9 chiffres.
+            if (compact.length() > PRIX_TEXTE_MAX) throw new NumberFormatException("texte trop long");
             nombre = new BigDecimal(compact);
+            if (Math.abs((long) nombre.scale()) > PRIX_ECHELLE_MAX) throw new NumberFormatException("exposant démesuré");
         } catch (NumberFormatException illisible) {
             anomalies.add(new AnomalieDeSaisie("prix", "INVALID_NUMBER",
                     "« Prix » : « " + saisi + " » n'est pas un nombre (ex. 5600 ou 5600,50).", Map.of("value", saisi)));
