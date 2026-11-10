@@ -82,13 +82,13 @@ public class LectureDesPayeursJdbc implements LectureDesPayeurs, UsageDesPayeurs
     }
 
     @Override
-    public long nombreDeReferences(NiveauDePayeur niveau, UUID id) {
+    public long nombreDeReferences(CentreId centre, NiveauDePayeur niveau, UUID id) {
         String sql = switch (niveau) {
-            case CAISSE -> "SELECT COUNT(*) FROM agence WHERE caisse_id = ?";
-            case AGENCE -> "SELECT COUNT(*) FROM centre_payeur WHERE agence_id = ?";
-            case CENTRE_PAYEUR -> "SELECT COUNT(*) FROM patients WHERE centre_payeur_id = ?";
+            case CAISSE -> "SELECT COUNT(*) FROM agence WHERE caisse_id = ? AND center_id = ?";
+            case AGENCE -> "SELECT COUNT(*) FROM centre_payeur WHERE agence_id = ? AND center_id = ?";
+            case CENTRE_PAYEUR -> "SELECT COUNT(*) FROM patients WHERE centre_payeur_id = ? AND center_id = ?";
         };
-        Long nombre = jdbc.queryForObject(sql, Long.class, id);
+        Long nombre = jdbc.queryForObject(sql, Long.class, id, centre.valeur());
         return nombre == null ? 0 : nombre;
     }
 }

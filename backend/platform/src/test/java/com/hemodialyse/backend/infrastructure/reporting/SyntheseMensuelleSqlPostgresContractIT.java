@@ -40,7 +40,9 @@ class SyntheseMensuelleSqlPostgresContractIT {
     private static final UUID CAISSE_MUTUELLE = UUID.fromString("99996700-0000-0000-0000-0000000000c2");
     private static final UUID AGENCE_CNAS = UUID.fromString("99996700-0000-0000-0000-0000000000a1");
     private static final UUID AGENCE_MUTUELLE = UUID.fromString("99996700-0000-0000-0000-0000000000a2");
-    private static final Pattern PARAMETRE = Pattern.compile("\\$P\\{(CENTER_ID|PERIOD_START|PERIOD_END)}");
+    private static final Pattern PARAMETRE = Pattern.compile("\\$P\\{(\\w+)}");
+    /** RF4 : les codes de caisse du gabarit dynamique sont des paramètres liés (CODE_CAISSE_i, CODE_AGENCE_i), pas du texte. */
+    private static final Map<String, Object> CODES_LIES = new java.util.HashMap<>();
 
     @Test
     void les_deux_requetes_donnent_les_memes_montants_sur_h2_et_sur_postgresql_16() throws Exception {
@@ -143,6 +145,9 @@ class SyntheseMensuelleSqlPostgresContractIT {
             @Override
             public byte[] generateReport(String jrxmlPath, Map<String, Object> params, String format) throws java.io.IOException {
                 capture[0] = Files.readString(Path.of(jrxmlPath));
+                params.forEach((nom, valeur) -> {
+                    if (nom.startsWith("CODE_")) CODES_LIES.put(nom, valeur);
+                });
                 return new byte[0];
             }
         };
@@ -174,7 +179,15 @@ class SyntheseMensuelleSqlPostgresContractIT {
 
     private static List<Map<String, BigDecimal>> lire(Connection base, String requete) throws SQLException {
         try (PreparedStatement ps = base.prepareStatement(avecDesPoints(requete))) {
-            lier(ps);
+            Matcher m = PARAMETRE.matcher(requete);
+            for (int i = 1; m.find(); i++) {
+                switch (m.group(1)) {
+                    case "CENTER_ID" -> ps.setString(i, CENTRE.toString());
+                    case "PERIOD_START" -> ps.setString(i, "2026-02-01");
+                    case "PERIOD_END" -> ps.setString(i, "2026-02-28");
+                    default -> ps.setString(i, (String) CODES_LIES.get(m.group(1)));
+                }
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 List<Map<String, BigDecimal>> lignes = new ArrayList<>();
                 int colonnes = rs.getMetaData().getColumnCount();

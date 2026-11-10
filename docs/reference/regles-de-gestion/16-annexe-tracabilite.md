@@ -162,6 +162,9 @@ RF3c (ADR 0128, 2026-11-10) : les lectures `GET /api/v1/referentials/{caisses,ag
 sur `centerId` illisible, 400 aussi sur `centerId` absent depuis RF3d, ADR 0129 : KB-RF3-03 corrigé) ; Comptabilité lit les payeurs par `PayeursDuCentre` (`GET /payeurs` : mêmes tri
 et recherche, KB-RF3-06) ; la reprise des soldes de la Facturation fige l'agence du centre payeur par `PayeursDuCentre` ; quatre lecteurs de la Facturation
 restent sur les tables des payeurs (KB-RF3-07, butoir 2027-03-31).
+RF4 (ADR 0130, 2026-11-10, revue indépendante RF1-RF3d) : le compte d'usage à la suppression d'un payeur est limité au centre (RG-REF-005, KB-RF3-05) ;
+l'impression de la synthèse mensuelle lit le code de caisse comme une valeur (un code contenant `]]>` ou `$P{..}` ne la casse plus, KB-RF4-01) ;
+le tri des payeurs de Comptabilité est départagé par identifiant (KB-RF4-03) ; aucune route ni aucun rôle ne change.
 SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`
 passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
 ADR 0116 : fiche vérifiée avant l'écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;

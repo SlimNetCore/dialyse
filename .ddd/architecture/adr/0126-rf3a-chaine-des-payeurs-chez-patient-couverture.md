@@ -13,6 +13,11 @@ Refactoring SUR PLACE : mêmes tables (`caisse_assurance`, `agence`, `centre_pay
 
 Parité : 24 tests de caractérisation HTTP (45 goldens, écrits et verts sur le legacy AVANT tout changement de production) passent sans un seul golden modifié ; aucun golden `_nouveau_code`, aucune archive `_ecarts-legacy`. Les goldens existants de la Séance, de la Facturation, de la Comptabilité, du pilotage, des Absences, du reporting et d'Organisation sont inchangés.
 
+Addendum du 2026-11-10 (RF4, constats 5 et 6 de la revue indépendante RF1-RF3d, `.ddd/migration/reviews/revue-RF1-RF3d.md`) :
+- **Dérogation tracée** : contrairement à la règle des ADR 0086 à 0120 (« jamais `-Dcharacterization.approve=true` »), les 45 goldens de RF3a ont été GÉNÉRÉS avec `-Dcharacterization.approve=true` en une seule passe sur le legacy, puis RELUS un par un et comparés au code legacy (tri `code, id`, comptes d'usage, messages d'import et de suppression) avant tout changement de production. Dérogation de l'architecte lors de l'ouverture de RF3a, non consignée à l'époque ; l'écart de procédure est reconnu ici. Aucune autre slice RF n'a utilisé `approve=true`.
+- **Renvoi vers l'ADR 0129** : « aucun golden `_nouveau_code` » ne vaut QUE pour RF3a à sa livraison. Depuis RF3d (2026-11-10, ADR 0129), 9 goldens des payeurs sont `_nouveau_code` (400 au lieu de 500), anciens archivés dans `_ecarts-legacy/**/*_avant_rf3d.legacy.json`. RF4 (ADR 0130) n'en change aucun.
+- **Décision 3, compte d'usage** : borné au centre depuis RF4 (ADR 0130, KB-RF3-05 corrigé) ; le texte d'origine ci-dessous décrit RF3a.
+
 ## Décisions
 | N° | Décision | Raison |
 |---|---|---|

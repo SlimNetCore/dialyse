@@ -40,13 +40,13 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
         for (SyntheseMensuelle.Caisse caisse : synthese.colonnes()) {
             caisses.add(new CaisseColumn(caisse.code(), caisse.libelle(), "HT_" + caisses.size(), "TTC_" + caisses.size()));
         }
-        String jrxml = buildDynamicTemplate(caisses, caissesDesAgences.codesParAgence(synthese.centre()));
+        Map<String, Object> params = new HashMap<>();
+        String jrxml = buildDynamicTemplate(caisses, caissesDesAgences.codesParAgence(synthese.centre()), params);
 
         Path tempJrxml = null;
         try {
             tempJrxml = Files.createTempFile("synthese-facturation-", ".jrxml");
             Files.writeString(tempJrxml, jrxml, StandardCharsets.UTF_8);
-            Map<String, Object> params = new HashMap<>();
             params.put("CENTER_ID", synthese.centre().toString());
             params.put("PERIOD_START", synthese.debut().toString());
             params.put("PERIOD_END", synthese.fin().toString());
@@ -82,19 +82,25 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
     /**
      * Le code de la caisse de l'agence de l'instantané de la facture, sans jointure sur les tables des payeurs (RF3b, ADR 0127) : une
      * expression {@code CASE} dont les agences et les codes viennent de l'annuaire des payeurs du centre (bornés au centre, comme la
-     * jointure d'avant). Agence inconnue du centre, sans caisse du centre ou instantané absent : valeur nulle (code {@code INCONNU}).
+     * jointure d'avant). Chaque code est un PARAMÈTRE Jasper lié (RF4, constat 1 de la revue : un code contenant {@code ]]>} ou {@code $P!{…}}
+     * ne casse plus le gabarit). Agence inconnue du centre, sans caisse du centre ou instantané absent : valeur nulle (code {@code INCONNU}).
      */
-    private static String codeDeLaCaisse(Map<UUID, String> codesParAgence) {
+    private static String codeDeLaCaisse(Map<UUID, String> codesParAgence, Map<String, Object> params) {
         if (codesParAgence.isEmpty()) {
             return "CAST(NULL AS VARCHAR(255))";
         }
         StringBuilder expression = new StringBuilder("CASE f.agence_id_snapshot");
-        new java.util.TreeMap<>(codesParAgence).forEach((agence, code) -> expression.append(" WHEN CAST('").append(agence)
-                .append("' AS UUID) THEN '").append(code.replace("'", "''")).append("'"));
+        int rang = 0;
+        for (Map.Entry<UUID, String> agence : new java.util.TreeMap<>(codesParAgence).entrySet()) {
+            // RF4 : le code saisi par un administrateur est une VALEUR (paramètre lié), jamais du texte du gabarit
+            String nom = "CODE_AGENCE_" + rang++;
+            params.put(nom, agence.getValue());
+            expression.append(" WHEN CAST('").append(agence.getKey()).append("' AS UUID) THEN CAST($P{").append(nom).append("} AS VARCHAR(255))");
+        }
         return expression.append(" ELSE NULL END").toString();
     }
 
-    private String buildDynamicTemplate(List<CaisseColumn> caisses, Map<UUID, String> codesParAgence) {
+    private String buildDynamicTemplate(List<CaisseColumn> caisses, Map<UUID, String> codesParAgence, Map<String, Object> params) {
         int left = 20;
         int right = 20;
         int firstCol = 170;
@@ -108,14 +114,14 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
         queryBuilder.append("SELECT src.forfait_label AS forfait_label,\n");
         for (int i = 0; i < caisses.size(); i++) {
             CaisseColumn column = caisses.get(i);
-            queryBuilder.append("       SUM(CASE WHEN src.caisse_code = '")
-                    .append(sqlLiteral(column.code()))
-                    .append("' THEN src.line_ht ELSE 0 END) AS ")
+            String parametreCode = "CODE_CAISSE_" + i;
+            params.put(parametreCode, column.code());
+            queryBuilder.append("       SUM(CASE WHEN src.caisse_code = CAST($P{").append(parametreCode)
+                    .append("} AS VARCHAR(255)) THEN src.line_ht ELSE 0 END) AS ")
                     .append(column.htField())
                     .append(",\n");
-            queryBuilder.append("       SUM(CASE WHEN src.caisse_code = '")
-                    .append(sqlLiteral(column.code()))
-                    .append("' THEN src.line_ttc ELSE 0 END) AS ")
+            queryBuilder.append("       SUM(CASE WHEN src.caisse_code = CAST($P{").append(parametreCode)
+                    .append("} AS VARCHAR(255)) THEN src.line_ttc ELSE 0 END) AS ")
                     .append(column.ttcField())
                     .append(",\n");
         }
@@ -123,7 +129,7 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
                 .append("       SUM(src.line_ttc) AS total_ttc\n")
                 .append("FROM (\n")
                 .append("    SELECT fl.forfait_label,\n")
-                .append("           COALESCE(NULLIF(TRIM(").append(codeDeLaCaisse(codesParAgence)).append("), ''), 'INCONNU') AS caisse_code,\n")
+                .append("           COALESCE(NULLIF(TRIM(").append(codeDeLaCaisse(codesParAgence, params)).append("), ''), 'INCONNU') AS caisse_code,\n")
                 .append("           fl.line_ht AS line_ht,\n")
                 .append("           (CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END) AS line_ttc\n")
                 .append("    FROM facture_lignes fl\n")
@@ -151,7 +157,10 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
                 .append("    <parameter name=\"TOTAL_FACTURES\" class=\"java.lang.Long\"/>\n")
                 .append("    <parameter name=\"TOTAL_HT_FACTURES\" class=\"java.math.BigDecimal\"/>\n")
                 .append("    <parameter name=\"TOTAL_TVA_FACTURES\" class=\"java.math.BigDecimal\"/>\n")
-                .append("    <parameter name=\"TOTAL_TTC_FACTURES\" class=\"java.math.BigDecimal\"/>\n\n")
+                .append("    <parameter name=\"TOTAL_TTC_FACTURES\" class=\"java.math.BigDecimal\"/>\n");
+        new java.util.TreeSet<>(params.keySet()).forEach(nom ->
+                xml.append("    <parameter name=\"").append(nom).append("\" class=\"java.lang.String\"/>\n"));
+        xml.append("\n")
                 .append("    <queryString>\n")
                 .append("        <![CDATA[\n")
                 .append(queryBuilder)
@@ -367,10 +376,6 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
                 + "<textElement" + align + "><font size=\"8\"/></textElement>"
                 + "<textFieldExpression><![CDATA[" + expression + "]]></textFieldExpression>"
                 + "</textField>\n";
-    }
-
-    private String sqlLiteral(String value) {
-        return value.replace("'", "''");
     }
 
     private String cdataSafe(String value) {

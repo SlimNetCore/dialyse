@@ -2681,3 +2681,29 @@ GROUP BY p.center_id, f.center_id, f.id, f.code ORDER BY 1, 2, 3;
 ```
 **Interprétation** : `0` ligne : la correction ne change aucun cas réel. `> 0` : ces forfaits deviennent supprimables alors que des prises en charge d'un autre centre les référencent encore ; corriger les prises en charge (réaffectation par un administrateur du centre concerné) AVANT de supprimer, ou prévenir les métiers. Les colonnes (`prise_en_charge.center_id`, `forfait_demande_id`, `forfait_effectif_id`, `forfait.center_id`, `forfait.code`) sont vérifiées sur le schéma PostgreSQL 16 réel par le rejeu RF2 ; la requête elle-même n'y est PAS rejouée et n'a PAS été exécutée sur la production : elle ne dit RIEN de son état.
 **Recette (lecture seule, sur une copie)** : `POST /api/v1/admin/referentials/forfaits` avec un corps non JSON répond 400 `BAD_REQUEST` (et non 500) ; `GET /api/v1/referentials/forfaits` sans `centerId` répond 400. Le prix nul ou omis d'un forfait reste accepté (KB-RF2-04, inchangé). Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 85. Patient & couverture RF4 (ADR 0130, KB-RF3-05 CORRIGÉ) : payeurs supprimables malgré des lignes d'un autre centre (2026-11-10) — SELECT seulement
+
+AUCUNE migration, AUCUN `UPDATE`. Seule donnée touchée par la correction : la suppression d'une caisse d'assurance, d'une agence ou d'un centre payeur n'est plus bloquée par les agences, centres payeurs ou patients d'UN AUTRE centre. Ces détections listent les cas où le comportement change (avant : 422 `REFERENTIAL_IN_USE`, après : suppression possible, avec des lignes d'un autre centre qui gardent un identifiant de payeur orphelin).
+
+```sql
+-- 85.1 Agences dont la caisse appartient à un AUTRE centre que l'agence. Attendu : 0 ligne (les identifiants sont des UUID propres à un centre). Lecture seule.
+SELECT a.center_id AS centre_de_l_agence, c.center_id AS centre_de_la_caisse, c.id AS caisse, c.code, count(*) AS agences
+FROM agence a JOIN caisse_assurance c ON c.id = a.caisse_id
+WHERE c.center_id <> a.center_id
+GROUP BY a.center_id, c.center_id, c.id, c.code ORDER BY 1, 2, 3;
+
+-- 85.2 Centres payeurs dont l'agence appartient à un AUTRE centre que le centre payeur. Attendu : 0 ligne. Lecture seule.
+SELECT cp.center_id AS centre_du_centre_payeur, a.center_id AS centre_de_l_agence, a.id AS agence, a.code, count(*) AS centres_payeurs
+FROM centre_payeur cp JOIN agence a ON a.id = cp.agence_id
+WHERE a.center_id <> cp.center_id
+GROUP BY cp.center_id, a.center_id, a.id, a.code ORDER BY 1, 2, 3;
+
+-- 85.3 Patients dont le centre payeur appartient à un AUTRE centre que le patient. Attendu : 0 ligne. Lecture seule.
+SELECT p.center_id AS centre_du_patient, cp.center_id AS centre_du_centre_payeur, cp.id AS centre_payeur, cp.code, count(*) AS patients
+FROM patients p JOIN centre_payeur cp ON cp.id = p.centre_payeur_id
+WHERE cp.center_id <> p.center_id
+GROUP BY p.center_id, cp.center_id, cp.id, cp.code ORDER BY 1, 2, 3;
+```
+**Interprétation** : `0` ligne aux trois requêtes : la correction ne change aucun cas réel. `> 0` : ces payeurs deviennent supprimables alors que des lignes d'un autre centre les référencent encore ; corriger ces lignes (réaffectation par un administrateur du centre concerné) AVANT de supprimer, ou prévenir les métiers. Les colonnes (`agence.center_id`, `caisse_id`, `centre_payeur.center_id`, `agence_id`, `patients.center_id`, `centre_payeur_id`) sont vérifiées sur le schéma PostgreSQL 16 réel par le rejeu RF3 ; les requêtes elles-mêmes n'y sont PAS rejouées et n'ont PAS été exécutées sur la production : elles ne disent RIEN de son état.
+**Recette (lecture seule, sur une copie)** : l'impression de la synthèse mensuelle d'un centre dont une caisse porte un code contenant `]]>` ou `$P{...}` aboutit (montants rattachés à la colonne de cette caisse) ; la suppression d'un payeur utilisé par une ligne du MÊME centre répond toujours 422 `REFERENTIAL_IN_USE`. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

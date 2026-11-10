@@ -224,12 +224,15 @@ abstract class PayeursContrat {
         centre(CENTRE, a1, "CP-1", "Centre 1", null);
         centre(CENTRE, a1, "CP-2", "Centre 2", null);
 
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.CAISSE, utilisee.id())).isEqualTo(2);
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.CAISSE, libre.id())).isEqualTo(1);
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.CAISSE, UUID.randomUUID())).isZero();
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.AGENCE, a1.id())).isEqualTo(2);
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.AGENCE, a2.id())).isZero();
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.AGENCE, agenceLibre.id())).isZero();
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CAISSE, utilisee.id())).isEqualTo(2);
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CAISSE, libre.id())).isEqualTo(1);
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CAISSE, UUID.randomUUID())).isZero();
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.AGENCE, a1.id())).isEqualTo(2);
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.AGENCE, a2.id())).isZero();
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.AGENCE, agenceLibre.id())).isZero();
+        // RF4 : l'usage est borné au centre ; un autre centre ne voit aucune référence à ces payeurs
+        assertThat(usage().nombreDeReferences(AUTRE, NiveauDePayeur.CAISSE, utilisee.id())).isZero();
+        assertThat(usage().nombreDeReferences(AUTRE, NiveauDePayeur.AGENCE, a1.id())).isZero();
     }
 
     // ---- le langage publié PayeursDuCentre (RF3b, ADR 0127) : lecture « annuaire », toujours bornée au centre indiqué

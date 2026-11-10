@@ -258,7 +258,7 @@ public class GererLesPayeurs implements GestionDesPayeurs {
         Voie<?, ?> voie = voie(niveau);
         unite.executer(() -> {
             voie.payeurs.trouver(centreId, id).orElseThrow(RefusDePayeur::introuvable);
-            long references = usage.nombreDeReferences(niveauDuDomaine(niveau), id);
+            long references = usage.nombreDeReferences(centreId, niveauDuDomaine(niveau), id);
             if (references > 0) throw RefusDePayeur.utilise(references);
             voie.payeurs.supprimer(centreId, id);
             return null;

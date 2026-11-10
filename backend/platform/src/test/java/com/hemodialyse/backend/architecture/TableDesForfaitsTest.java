@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,12 @@ class TableDesForfaitsTest {
                 "2026-11-10 (RF2-R2) : le forfait courant d'une séance suit la prise en charge qui couvre le jour ; la jointure "
                         + "prise_en_charge -> forfait (même centre) est reprise MOT POUR MOT du legacy (SE7f, ADR 0100). C'est une lecture de la "
                         + "prise en charge (déjà inscrite dans TableDuPatientCouvertureTest), pas un accès au catalogue : à porter dans le langage "
-                        + "publié de la couverture quand la Séance cessera de lire prise_en_charge.");
+                        + "publié de la couverture quand la Séance cessera de lire prise_en_charge. "
+                        + "Butoir : revue de l'ADR 0124 au 2027-03-31 (sinon reconduction motivée).");
     }
+
+    /** Aucune entité JPA connue ne porte la table {@code forfait} : l'exclusion nominative est vide (RF4, constat 3 de la revue). */
+    private static final Set<String> ENTITES_JPA_CONNUES = Set.of();
 
     private static final Pattern NOMMEE = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)|\\bTable\\(\"(forfait)\"",
@@ -69,7 +74,8 @@ class TableDesForfaitsTest {
                 if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/patient-couverture")) continue;
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !chemin(p).contains("/entity/"))
+                            // RF4 : aucune entité JPA ne porte cette table ; plus d'exclusion du dossier /entity/ entier
+                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
                 }
             }
@@ -114,6 +120,19 @@ class TableDesForfaitsTest {
     @Test
     void l_effectif_des_lecteurs_connus_est_asserte() {
         assertThat(LECTEURS_CONNUS).as("RF2 : 1 lecteur hors patient-couverture (RF2-R2)").hasSize(1);
+    }
+
+    @Test
+    void le_butoir_du_lecteur_connu_est_une_date_lue_et_comparee_a_l_horloge() {
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.now()))
+                .as("butoir (2027-03-31) dépassé : reconduire avec une raison motivée et une nouvelle date, ou porter la lecture dans le langage publié")
+                .isEmpty();
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.of(2027, 4, 1))).isEqualTo(LECTEURS_CONNUS.keySet());
+    }
+
+    @Test
+    void les_entites_jpa_ne_sont_plus_exclues_en_bloc() throws IOException {
+        assertThat(sourcesDeProduction(backend()).stream().map(TableDesForfaitsTest::relatif)).anyMatch(s -> s.contains("/entity/"));
     }
 
     @Test

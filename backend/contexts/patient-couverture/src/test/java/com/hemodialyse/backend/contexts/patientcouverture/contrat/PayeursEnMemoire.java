@@ -113,10 +113,10 @@ public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs, Cho
     // ---- usage
 
     @Override
-    public long nombreDeReferences(NiveauDePayeur niveau, UUID id) {
+    public long nombreDeReferences(CentreId centre, NiveauDePayeur niveau, UUID id) {
         return switch (niveau) {
-            case CAISSE -> agences.values().stream().filter(a -> a.caisse().equals(id)).count();
-            case AGENCE -> centres.values().stream().filter(c -> c.agence().equals(id)).count();
+            case CAISSE -> agences.values().stream().filter(a -> a.centre().equals(centre) && a.caisse().equals(id)).count();
+            case AGENCE -> centres.values().stream().filter(c -> c.centre().equals(centre) && c.agence().equals(id)).count();
             case CENTRE_PAYEUR -> patients.getOrDefault(id, 0L);
         };
     }

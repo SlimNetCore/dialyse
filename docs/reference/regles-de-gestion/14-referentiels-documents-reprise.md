@@ -45,7 +45,8 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   un prix omis à la modification **efface** le prix ; le sens d'un prix absent reste à définir (KB-RF2-04).
   Pour une **caisse d'assurance**, une **agence** et un **centre payeur** (chaîne des payeurs de Patient et couverture,
   RF3a, ADR 0126), le refus compte les agences d'une caisse, les centres payeurs d'une agence et les patients d'un centre
-  payeur (comptés par identité, comme avant). Sur **toutes** les routes d'administration des référentiels (caisses,
+  payeur (comptés par identité **et limités au centre** : une ligne d'un autre centre ne retient jamais un payeur,
+  KB-RF3-05 corrigé, ADR 0130, à confirmer par les métiers avant le 2026-12-15). Sur **toutes** les routes d'administration des référentiels (caisses,
   agences, centres payeurs, mais aussi forfaits, transporteurs, créneaux, salles, médecins et générateurs), un corps, un
   identifiant, un centre ou une page illisible répond **400** `BAD_REQUEST` (et non plus 500), de même qu'un `centerId`
   absent des listes de choix des payeurs et des catégories de transport ; le refus de droits (403) passe avant

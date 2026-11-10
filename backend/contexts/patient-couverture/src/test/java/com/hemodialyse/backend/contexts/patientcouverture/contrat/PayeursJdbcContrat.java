@@ -128,8 +128,28 @@ abstract class PayeursJdbcContrat extends PayeursContrat {
         patient(CENTRE, utilise.id());
         patient(CENTRE, null);
 
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.CENTRE_PAYEUR, utilise.id())).isEqualTo(2);
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.CENTRE_PAYEUR, libre.id())).isZero();
-        assertThat(usage().nombreDeReferences(NiveauDePayeur.CENTRE_PAYEUR, UUID.randomUUID())).isZero();
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CENTRE_PAYEUR, utilise.id())).isEqualTo(2);
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CENTRE_PAYEUR, libre.id())).isZero();
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CENTRE_PAYEUR, UUID.randomUUID())).isZero();
+    }
+
+    /**
+     * RF4, constat 7 : des lignes d'un AUTRE centre qui pointent (par identité, donnée anormale posée en SQL brut) vers un payeur de ce
+     * centre ne le retiennent pas : le compte d'usage est borné au centre, comme RF1c (transporteurs) et RF2c (forfaits).
+     */
+    @Test
+    void les_lignes_d_un_autre_centre_ne_retiennent_pas_un_payeur_du_centre() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse", null);
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CentrePayeur cp = centre(CENTRE, a, "CP-1", "Centre 1", null);
+        jdbc().update("INSERT INTO agence (id, center_id, caisse_id, code, nom) VALUES (?, ?, ?, 'AG-X', 'Agence X')",
+                UUID.randomUUID(), AUTRE.valeur(), c.id());
+        jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, 'CP-X', 'Centre X')",
+                UUID.randomUUID(), AUTRE.valeur(), a.id());
+        patient(AUTRE, cp.id());
+
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CAISSE, c.id())).isEqualTo(1);
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.AGENCE, a.id())).isEqualTo(1);
+        assertThat(usage().nombreDeReferences(CENTRE, NiveauDePayeur.CENTRE_PAYEUR, cp.id())).isZero();
     }
 }

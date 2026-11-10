@@ -21,7 +21,8 @@ import java.util.regex.Pattern;
 /**
  * ACL vers le langage publié de Patient et couverture ({@link PayeursDuCentre}, RF3c, ADR 0128 ; ADR 0121, décision 3 révisée) : les payeurs
  * d'un centre sont les centres payeurs lus dans l'annuaire, jamais dans la table {@code centre_payeur}. Le compte client propre à chaque
- * payeur reste lu dans {@code comptes_payeurs}, table de la Comptabilité. Tri par nom puis code ; recherche sur le code et le nom sans casse
+ * payeur reste lu dans {@code comptes_payeurs}, table de la Comptabilité. Tri par nom puis code puis identifiant (RF4). L'annuaire du centre est chargé
+ * en entier à chaque page (volume maximal de centres payeurs par centre non mesuré, consigné KB-RF4-03 ; à revoir s'il croît) ; recherche sur le code et le nom sans casse
  * avec les jokers SQL non échappés ({@code %}, {@code _}, KB-CPT-05), reproduits ici puisque le filtrage n'est plus fait par la base.
  */
 public final class PayeursParLAnnuaire implements LectureDesPayeurs {
@@ -29,7 +30,9 @@ public final class PayeursParLAnnuaire implements LectureDesPayeurs {
     private static final Comparator<String> TEXTE = Comparator.nullsLast(Comparator.<String>naturalOrder());
     private static final Comparator<PayeursDuCentre.CentrePayeurPublie> PAR_NOM_PUIS_CODE =
             Comparator.comparing(PayeursDuCentre.CentrePayeurPublie::nom, TEXTE)
-                    .thenComparing(PayeursDuCentre.CentrePayeurPublie::code, TEXTE);
+                    .thenComparing(PayeursDuCentre.CentrePayeurPublie::code, TEXTE)
+                    // RF4 (constat 4 de la revue) : départage final déterministe, indépendant de l'ordre de l'annuaire
+                    .thenComparing(PayeursDuCentre.CentrePayeurPublie::id, Comparator.nullsLast(Comparator.<UUID>naturalOrder()));
 
     private final PayeursDuCentre annuaire;
     private final JdbcTemplate jdbc;

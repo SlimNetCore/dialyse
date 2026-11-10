@@ -4855,7 +4855,8 @@ de droits (403) passe avant (KB-RF2-01 corrigé). Le <strong>prix</strong> d&#39
 un prix omis à la modification <strong>efface</strong> le prix ; le sens d&#39;un prix absent reste à définir (KB-RF2-04).
 Pour une <strong>caisse d&#39;assurance</strong>, une <strong>agence</strong> et un <strong>centre payeur</strong> (chaîne des payeurs de Patient et couverture,
 RF3a, ADR 0126), le refus compte les agences d&#39;une caisse, les centres payeurs d&#39;une agence et les patients d&#39;un centre
-payeur (comptés par identité, comme avant). Sur <strong>toutes</strong> les routes d&#39;administration des référentiels (caisses,
+payeur (comptés par identité <strong>et limités au centre</strong> : une ligne d&#39;un autre centre ne retient jamais un payeur,
+KB-RF3-05 corrigé, ADR 0130, à confirmer par les métiers avant le 2026-12-15). Sur <strong>toutes</strong> les routes d&#39;administration des référentiels (caisses,
 agences, centres payeurs, mais aussi forfaits, transporteurs, créneaux, salles, médecins et générateurs), un corps, un
 identifiant, un centre ou une page illisible répond <strong>400</strong> <code>BAD_REQUEST</code> (et non plus 500), de même qu&#39;un <code>centerId</code>
 absent des listes de choix des payeurs et des catégories de transport ; le refus de droits (403) passe avant
@@ -6094,6 +6095,9 @@ RF3c (ADR 0128, 2026-11-10) : les lectures <code>GET /api/v1/referentials/{caiss
 sur <code>centerId</code> illisible, 400 aussi sur <code>centerId</code> absent depuis RF3d, ADR 0129 : KB-RF3-03 corrigé) ; Comptabilité lit les payeurs par <code>PayeursDuCentre</code> (<code>GET /payeurs</code> : mêmes tri
 et recherche, KB-RF3-06) ; la reprise des soldes de la Facturation fige l&#39;agence du centre payeur par <code>PayeursDuCentre</code> ; quatre lecteurs de la Facturation
 restent sur les tables des payeurs (KB-RF3-07, butoir 2027-03-31).
+RF4 (ADR 0130, 2026-11-10, revue indépendante RF1-RF3d) : le compte d&#39;usage à la suppression d&#39;un payeur est limité au centre (RG-REF-005, KB-RF3-05) ;
+l&#39;impression de la synthèse mensuelle lit le code de caisse comme une valeur (un code contenant <code>]]&gt;</code> ou <code>$P{..}</code> ne la casse plus, KB-RF4-01) ;
+le tri des payeurs de Comptabilité est départagé par identifiant (KB-RF4-03) ; aucune route ni aucun rôle ne change.
 SE7f (ADR 0100) retire le module legacy <code>bc-seance</code> et ses dix-sept utilisateurs de la plateforme. La route <code>PUT /api/v1/seances/{id}/volet-paramedical</code>
 passe au contrôleur <code>VoletParamedicalControleur</code> du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
 ADR 0116 : fiche vérifiée avant l&#39;écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;

@@ -36,6 +36,9 @@ class TableDesTransporteursTest {
     /** Lecteurs connus hors du contexte patient-couverture (chemin depuis {@code backend/}) : aucun depuis RF1 (2026-11-10). */
     private static final Map<String, String> LECTEURS_CONNUS = new TreeMap<>();
 
+    /** Aucune entité JPA connue ne porte ces tables : l'exclusion nominative est vide (RF4, constat 3 de la revue). */
+    private static final Set<String> ENTITES_JPA_CONNUES = Set.of();
+
     private static final Pattern NOMMEE = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)|\\bTable\\(\"(transporteur|categorie_transport)\"",
             Pattern.CASE_INSENSITIVE);
@@ -60,7 +63,8 @@ class TableDesTransporteursTest {
                 if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/patient-couverture")) continue;
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !chemin(p).contains("/entity/"))
+                            // RF4 : aucune entité JPA ne porte ces tables ; plus d'exclusion du dossier /entity/ entier
+                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
                 }
             }
@@ -105,6 +109,13 @@ class TableDesTransporteursTest {
     @Test
     void l_effectif_des_lecteurs_connus_est_asserte() {
         assertThat(LECTEURS_CONNUS).as("RF1 : 0 lecteur hors patient-couverture").hasSize(0);
+    }
+
+    @Test
+    void aucun_butoir_n_est_a_comparer_et_les_entites_jpa_ne_sont_plus_exclues_en_bloc() throws IOException {
+        // Liste blanche vide : rien à reconduire. Si une entrée apparaît, elle devra porter un butoir lisible et non dépassé.
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, java.time.LocalDate.now())).isEmpty();
+        assertThat(sourcesDeProduction(backend()).stream().map(TableDesTransporteursTest::relatif)).anyMatch(s -> s.contains("/entity/"));
     }
 
     @Test

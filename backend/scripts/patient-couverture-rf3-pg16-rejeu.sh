@@ -51,9 +51,9 @@ req "agences d'un centre" "SELECT id, center_id, code, nom, caisse_id FROM agenc
 req "centres payeurs d'un centre" "SELECT id, center_id, code, nom, adresse, agence_id FROM centre_payeur WHERE center_id = gen_random_uuid() ORDER BY code, id"
 req "page des agences avec recherche litterale et caisse du meme centre" "SELECT t.id, t.code, t.nom, t.caisse_id AS parent_id, CONCAT(r.code, ' ' || chr(183) || ' ', r.nom) AS parent_libelle FROM agence t LEFT JOIN caisse_assurance r ON r.id = t.caisse_id AND r.center_id = t.center_id WHERE t.center_id = gen_random_uuid() AND (LOWER(COALESCE(t.code, '')) LIKE '%\\%%' ESCAPE '\\' OR LOWER(COALESCE(r.nom, '')) LIKE '%\\_%' ESCAPE '\\') ORDER BY t.code, t.id LIMIT 20 OFFSET 0"
 req "page des centres payeurs avec agence du meme centre" "SELECT t.id, t.code, t.nom, t.adresse, t.agence_id AS parent_id, CONCAT(r.code, ' ' || chr(183) || ' ', r.nom) AS parent_libelle FROM centre_payeur t LEFT JOIN agence r ON r.id = t.agence_id AND r.center_id = t.center_id WHERE t.center_id = gen_random_uuid() ORDER BY t.code, t.id LIMIT 20 OFFSET 0"
-req "references d'une caisse (agences)" "SELECT COUNT(*) FROM agence WHERE caisse_id = gen_random_uuid()"
-req "references d'une agence (centres payeurs)" "SELECT COUNT(*) FROM centre_payeur WHERE agence_id = gen_random_uuid()"
-req "references d'un centre payeur (patients)" "SELECT COUNT(*) FROM patients WHERE centre_payeur_id = gen_random_uuid()"
+req "references d'une caisse (agences), bornees au centre (RF4)" "SELECT COUNT(*) FROM agence WHERE caisse_id = gen_random_uuid() AND center_id = gen_random_uuid()"
+req "references d'une agence (centres payeurs), bornees au centre (RF4)" "SELECT COUNT(*) FROM centre_payeur WHERE agence_id = gen_random_uuid() AND center_id = gen_random_uuid()"
+req "references d'un centre payeur (patients), bornees au centre (RF4)" "SELECT COUNT(*) FROM patients WHERE centre_payeur_id = gen_random_uuid() AND center_id = gen_random_uuid()"
 
 echo "=== RF3b : requetes de l'annuaire PayeursDuCentre executables sur le schema reel, SELECT seulement ==="
 req "annuaire : caisses du centre" "SELECT id, code, nom, type_caisse FROM caisse_assurance WHERE center_id = gen_random_uuid() ORDER BY code, id"
@@ -63,7 +63,7 @@ req "annuaire : chaine bornee a chaque etage (detail et chaines)" "SELECT cp.id,
 req "annuaire : existence d'un centre payeur du centre" "SELECT COUNT(*) FROM centre_payeur WHERE id = gen_random_uuid() AND center_id = gen_random_uuid()"
 req "lecteur des patients par centre payeur (pilotage)" "SELECT p.center_id, p.centre_payeur_id, COUNT(*) AS n FROM patients p WHERE p.center_id IN (gen_random_uuid()) GROUP BY p.center_id, p.centre_payeur_id"
 req "lecteur des seances par centre payeur (seance)" "SELECT s.center_id, p.centre_payeur_id, COUNT(*) AS n FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id WHERE s.center_id IN (gen_random_uuid()) AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, p.centre_payeur_id"
-req "synthese mensuelle : expression CASE d'une agence vers un code de caisse" "SELECT COALESCE(NULLIF(TRIM(CASE f.agence_id_snapshot WHEN CAST('99996700-0000-0000-0000-0000000000a1' AS UUID) THEN 'CNAS' ELSE NULL END), ''), 'INCONNU') FROM factures f WHERE f.center_id = gen_random_uuid()"
+req "synthese mensuelle : expression CASE d'une agence vers un code de caisse" "SELECT COALESCE(NULLIF(TRIM(CASE f.agence_id_snapshot WHEN CAST('99996700-0000-0000-0000-0000000000a1' AS UUID) THEN CAST('CNAS' AS VARCHAR(255)) ELSE NULL END), ''), 'INCONNU') FROM factures f WHERE f.center_id = gen_random_uuid()"
 
 cd "$RACINE/backend"
 P=com.hemodialyse.backend.contexts.patientcouverture.contrat

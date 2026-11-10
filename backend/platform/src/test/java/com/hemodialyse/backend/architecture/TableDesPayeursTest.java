@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Les tables {@code caisse_assurance}, {@code agence} et {@code centre_payeur} appartiennent au contexte patient-couverture (slice RF3,
- * ADR 0126 : la chaîne des payeurs ; propriété décidée par l'ADR 0121, décision 2). Hors de ce contexte (et des entités JPA), aucun
+ * ADR 0126 : la chaîne des payeurs ; propriété décidée par l'ADR 0121, décision 2). La garde scanne le Java ET les gabarits {@code .jrxml}
+ * (RF4) ; les butoirs sont des dates comparées à l'horloge (RF4, {@link ButoirsDesGardesDeTables}). Hors de ce contexte (et des trois entités JPA NOMMÉES), aucun
  * nouveau code de production ne les nomme, ni en SQL, ni comme nom de table d'une description de table
  * ({@code new Table("agence", …)}). Les lecteurs d'aujourd'hui, hors de PC, forment la liste blanche NOMMÉE et DATÉE
  * ({@link #LECTEURS_CONNUS}) : après RF3c, seules quatre jointures de la Facturation sur l'instantané figé de la facture restent (ADR 0128,
@@ -60,7 +62,22 @@ class TableDesPayeursTest {
                         + "et centre payeur, COUNT DISTINCT et LIMIT / OFFSET sur la chaîne)"));
         LECTEURS_CONNUS.put(facturation + "SyntheseFinanciereDesCentresJdbc.java", INSTANTANE
                 .replace("sans preuve de parité hors H2", "(somme par caisse de plusieurs centres en une requête, MAX(nom), caisse non bornée)"));
+        // RF4 (revue RF1-RF3d, constat 2) : le gabarit JRXML statique de l'impression de la synthèse lit encore les deux tables (RF3c-J1).
+        LECTEURS_CONNUS.put("platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml", INSTANTANE
+                .replace("avec agrégation GROUP BY / filtre SQL sur la chaîne", "avec agrégation GROUP BY par forfait et classement CNAS / CASNOS / "
+                        + "CAMSSP / autres par préfixe du code de caisse (ModeleDocumentCatalog, gabarit statique, impression de la synthèse)")
+                .replace("sans preuve de parité hors H2", "(le gabarit dynamique du même document lit déjà l'annuaire ; ce gabarit statique reste en "
+                        + "SQL, KB-RF4-02)"));
     }
+
+    /**
+     * Les trois entités JPA qui portent ces tables (chemins depuis {@code backend/}) : seules exclues de la garde (RF4, constat 3 : l'exclusion
+     * du dossier {@code /entity/} entier cachait toute autre entité).
+     */
+    private static final Set<String> ENTITES_JPA_CONNUES = Set.of(
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CaisseAssuranceJpaEntity.java",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AgenceJpaEntity.java",
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CentrePayeurJpaEntity.java");
 
     private static final Pattern NOMMEE = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)|\\bTable\\(\"([a-z_]+)\"", Pattern.CASE_INSENSITIVE);
@@ -85,8 +102,15 @@ class TableDesPayeursTest {
                 if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/patient-couverture")) continue;
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !chemin(p).contains("/entity/"))
+                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
+                }
+                // RF4 : les gabarits JRXML portent du SQL (jointures de l'impression) : ils sont scannés comme le code Java
+                Path ressources = module.resolve("src/main/resources");
+                if (Files.isDirectory(ressources)) {
+                    try (Stream<Path> gabarits = Files.walk(ressources)) {
+                        gabarits.filter(p -> p.toString().endsWith(".jrxml")).forEach(trouves::add);
+                    }
                 }
             }
         }
@@ -129,14 +153,51 @@ class TableDesPayeursTest {
 
     @Test
     void l_effectif_des_lecteurs_connus_est_asserte() {
-        assertThat(LECTEURS_CONNUS).as("RF3c : 4 lecteurs restent hors patient-couverture, les jointures sur l'instantané de la facture "
+        assertThat(LECTEURS_CONNUS).as("RF3c : 4 lecteurs Java restent hors patient-couverture, les jointures sur l'instantané de la facture "
                 + "(11 à l'ouverture de la garde en RF3a, 4 lecteurs « annuaire » migrés en RF3b, puis Comptabilité, reprise des soldes et "
-                + "lectures communes de l'Organisation migrées ou déplacées en RF3c, le 2026-11-10)").hasSize(4);
+                + "lectures communes de l'Organisation migrées ou déplacées en RF3c, le 2026-11-10) ; RF4 : + le gabarit JRXML statique de "
+                + "l'impression de la synthèse (constat 2 de la revue), soit 5").hasSize(5);
     }
 
     @Test
     void chaque_lecteur_connu_porte_sa_raison_datee_et_son_butoir() {
         assertThat(LECTEURS_CONNUS.values()).allSatisfy(raison -> assertThat(raison).startsWith("2026-11-10 (RF3").contains(")"));
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.of(2026, 11, 10)))
+                .as("chaque lecteur connu porte un butoir lisible (date ISO après « Butoir : »)").isEmpty();
+    }
+
+    @Test
+    void aucun_butoir_n_est_depasse_a_la_date_du_jour() {
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.now()))
+                .as("butoir (2027-03-31) dépassé : reconduire AVEC une raison motivée et une nouvelle date, ou migrer le lecteur "
+                        + "(revue de l'ADR 0128)").isEmpty();
+    }
+
+    @Test
+    void la_garde_des_butoirs_echoue_apres_la_date_et_pas_avant_et_exige_une_date_lisible() {
+        Map<String, String> lecteurs = Map.of("a.java", INSTANTANE, "b.java", "2026-11-10 (RF3c) : sans butoir chiffré.");
+        assertThat(ButoirsDesGardesDeTables.butoir(INSTANTANE)).contains(LocalDate.of(2027, 3, 31));
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(lecteurs, LocalDate.of(2027, 3, 31))).containsExactly("b.java");
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(lecteurs, LocalDate.of(2027, 4, 1))).containsExactly("a.java", "b.java");
+    }
+
+    @Test
+    void l_exclusion_est_nominative_les_autres_entites_jpa_sont_scannees() throws IOException {
+        List<String> scannes = sourcesDeProduction(backend()).stream().map(TableDesPayeursTest::relatif).toList();
+        assertThat(ENTITES_JPA_CONNUES).allSatisfy(entite -> assertThat(Files.isRegularFile(backend().resolve(entite))).as(entite).isTrue());
+        assertThat(scannes).doesNotContainAnyElementsOf(ENTITES_JPA_CONNUES);
+        assertThat(scannes).as("une entité JPA non nommée est scannée").anyMatch(s -> s.contains("/entity/"));
+        assertThat(ButoirsDesGardesDeTables.estUneEntiteJpaConnue("platform/src/main/java/x/entity/Inconnue.java", ENTITES_JPA_CONNUES)).isFalse();
+    }
+
+    @Test
+    void la_garde_detecte_une_table_nommee_dans_un_gabarit_jrxml() throws IOException {
+        Path bac = Files.createTempDirectory("garde-payeurs-jrxml");
+        Path gabarit = bac.resolve("g.jrxml");
+        Files.writeString(gabarit, "<queryString><![CDATA[SELECT 1 FROM factures f LEFT JOIN agence a ON a.id = f.agence_id_snapshot]]></queryString>");
+        assertThat(nommeUneTableDesPayeurs(gabarit)).isTrue();
+        assertThat(sourcesDeProduction(backend()).stream().map(TableDesPayeursTest::relatif))
+                .contains("platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
     }
 
     @Test
