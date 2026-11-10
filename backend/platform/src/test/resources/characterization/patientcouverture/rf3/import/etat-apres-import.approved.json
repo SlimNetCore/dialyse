@@ -1,0 +1,57 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-1",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 1",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-2",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 2",
+  "parent" : "CASNOS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-3",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 3",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CASNOS",
+  "detail" : "VACANCIER",
+  "niveau" : "caisse",
+  "nom" : "Caisse des non-salaries",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CVAC",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse sans type",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CP-1",
+  "detail" : "12 rue Didouche Mourad, Alger",
+  "niveau" : "centre payeur",
+  "nom" : "Centre payeur 1",
+  "parent" : "AG-1"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CP-2",
+  "detail" : "-",
+  "niveau" : "centre payeur",
+  "nom" : "Centre payeur 2",
+  "parent" : "AG-2"
+} ]

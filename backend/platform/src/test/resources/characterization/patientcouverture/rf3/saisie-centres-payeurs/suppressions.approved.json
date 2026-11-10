@@ -1,0 +1,10 @@
+{
+  "centre B par son administrateur" : "204",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "centre payeur d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Centres payeurs » pour ce centre.",
+  "deja supprime" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Centres payeurs » pour ce centre.",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Centres payeurs » pour ce centre.",
+  "les patients liberes" : "204",
+  "libre" : "204",
+  "utilise par deux patients" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Centres payeurs » est encore utilisé (2 référence(s) : patients, prises en charge, séances ou autres référentiels)."
+}

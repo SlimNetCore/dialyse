@@ -1,0 +1,15 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "CB",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse B",
+  "parent" : "-"
+} ]

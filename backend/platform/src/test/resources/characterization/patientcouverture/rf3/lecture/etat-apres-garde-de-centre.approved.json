@@ -1,0 +1,22 @@
+[ {
+  "center_id" : "<CENTRE_B>",
+  "code" : "B-AG",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence B",
+  "parent" : "B-CA"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "B-CA",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse B",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "B-CP",
+  "detail" : "1 rue B",
+  "niveau" : "centre payeur",
+  "nom" : "Centre payeur B",
+  "parent" : "B-AG"
+} ]

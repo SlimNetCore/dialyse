@@ -104,7 +104,8 @@
     "seance-se7c2-ecritures-facturation": "built",
     "pilotage-direction-pd6-composition-des-indicateurs": "built",
     "patient-couverture-rf1-transporteurs": "built",
-    "patient-couverture-rf2-forfaits": "built"
+    "patient-couverture-rf2-forfaits": "built",
+    "patient-couverture-rf3-payeurs": "built"
   },
   "contexts": {
     "gmao": "architected",

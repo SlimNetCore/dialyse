@@ -357,4 +357,47 @@ public class PatientCouvertureConfiguration {
             com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesForfaits consulter) {
         return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.http.ListeDesForfaitsEnCache(consulter);
     }
+
+    // ---- chaîne des payeurs (RF3a, ADR 0126) : mêmes tables caisse_assurance, agence, centre_payeur
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CaissesJdbc caissesJdbc(
+            JdbcTemplate jdbc, org.springframework.cache.CacheManager caches) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CaissesJdbc(jdbc,
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDePayeurs(caches,
+                        com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDePayeurs.CAISSES));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AgencesJdbc agencesJdbc(
+            JdbcTemplate jdbc, org.springframework.cache.CacheManager caches) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AgencesJdbc(jdbc,
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDePayeurs(caches,
+                        com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDePayeurs.AGENCES));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CentresPayeursJdbc centresPayeursJdbc(
+            JdbcTemplate jdbc, org.springframework.cache.CacheManager caches) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CentresPayeursJdbc(jdbc,
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDePayeurs(caches,
+                        com.hemodialyse.backend.contexts.patientcouverture.infrastructure.cache.InvalidationDesListesDePayeurs.CENTRES_PAYEURS));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesPayeursJdbc lectureDesPayeursJdbc(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesPayeursJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPayeurs gererLesPayeurs(
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CaissesJdbc caisses,
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AgencesJdbc agences,
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CentresPayeursJdbc centresPayeurs,
+            com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesPayeursJdbc lecture,
+            Identifiants identifiants, UniteDeTravail unite) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPayeurs(caisses, agences, centresPayeurs,
+                lecture, lecture, identifiants, unite);
+    }
 }

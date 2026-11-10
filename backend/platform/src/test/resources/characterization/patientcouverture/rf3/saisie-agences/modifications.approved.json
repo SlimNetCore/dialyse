@@ -1,0 +1,15 @@
+{
+  "agence d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Agences » pour ce centre.",
+  "caisse d'un autre centre" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » : « CNAS-B » est introuvable dans « Caisses » — créez-le d'abord (ou importez d'abord le fichier « Caisses »). | REFERENCE_NOT_FOUND/caisse/ligne 0 {\"target\":\"caisses\",\"value\":\"CNAS-B\"}",
+  "caisse inconnue" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » : « NULLE-PART » est introuvable dans « Caisses » — créez-le d'abord (ou importez d'abord le fichier « Caisses »). | REFERENCE_NOT_FOUND/caisse/ligne 0 {\"target\":\"caisses\",\"value\":\"NULLE-PART\"}",
+  "caisse omise" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » est obligatoire. | REQUIRED/caisse/ligne 0 {}",
+  "centre B par son administrateur" : "200 | {\"id\":\"<AB>\",\"references\":{\"caisse\":\"CB2 · Caisse B2\"},\"values\":{\"caisse\":\"<CB2>\",\"code\":\"AG-B2\",\"nom\":\"Agence B2\"}}",
+  "changer de caisse par son code" : "200 | {\"id\":\"<A1>\",\"references\":{\"caisse\":\"CASNOS · Caisse des non-salaries\"},\"values\":{\"caisse\":\"<CASNOS>\",\"code\":\"AG-1B\",\"nom\":\"Agence 1 renommee\"}}",
+  "changer de caisse par son identifiant" : "200 | {\"id\":\"<A1>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"AG-1B\",\"nom\":\"Agence 1 renommee\"}}",
+  "code vide" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "garder son propre code a la casse pres" : "200 | {\"id\":\"<A1>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"ag-1b\",\"nom\":\"Agence 1 renommee\"}}",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Agences » pour ce centre.",
+  "prendre le code d'une autre" : "422 REFERENTIAL_VALIDATION | Un élément de « Agences » avec ce code existe déjà. | ALREADY_EXISTS/code/ligne 0 {}",
+  "renommer le code et le nom" : "200 | {\"id\":\"<A1>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"AG-1B\",\"nom\":\"Agence 1 renommee\"}}",
+  "sans values" : "400 VALIDATION_ERROR | Invalid request content."
+}

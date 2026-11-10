@@ -1,0 +1,85 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-DEF",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Type omis",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-ESP",
+  "detail" : "VACANCIER",
+  "niveau" : "caisse",
+  "nom" : "Type espaces",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-INC2",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Inconnu",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-MIN",
+  "detail" : "VACANCIER",
+  "niveau" : "caisse",
+  "nom" : "Type minuscules",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-N255",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-TRIM",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Nom espaces",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-VAC",
+  "detail" : "VACANCIER",
+  "niveau" : "caisse",
+  "nom" : "Caisse vacancier",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "C-VIDE",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Type vide",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Code cinquante",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS2",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale",
+  "parent" : "-"
+} ]

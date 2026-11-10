@@ -39,26 +39,8 @@ final class ReferentialAdminTables {
                 List.of(new Usage("patients", "medecin_traitant_id"), new Usage("prescriptions_medicales", "medecin_id")),
                 List.of("ref.medecins")));
 
-        TABLES.put(ReferentialKind.CAISSE, new Table("caisse_assurance",
-                List.of(text("code", "code"), text("nom", "nom"), text("typeCaisse", "type_caisse")),
-                List.of(), List.of("t.code", "t.nom"), "t.code",
-                List.of(new Usage("agence", "caisse_id")),
-                List.of("ref.caisses", "ref.centresPayeursDetails")));
-
-        TABLES.put(ReferentialKind.AGENCE, new Table("agence",
-                List.of(text("code", "code"), text("nom", "nom"), new Column("caisse", "caisse_id", ColumnType.UUID)),
-                List.of(new Reference("caisse", "caisse_assurance", "CONCAT(r_caisse.code, ' · ', r_caisse.nom)")),
-                List.of("t.code", "t.nom", "r_caisse.code", "r_caisse.nom"), "t.code",
-                List.of(new Usage("centre_payeur", "agence_id")),
-                List.of("ref.agences", "ref.centresPayeursDetails")));
-
-        TABLES.put(ReferentialKind.CENTRE_PAYEUR, new Table("centre_payeur",
-                List.of(text("code", "code"), text("nom", "nom"), text("adresse", "adresse"),
-                        new Column("agence", "agence_id", ColumnType.UUID)),
-                List.of(new Reference("agence", "agence", "CONCAT(r_agence.code, ' · ', r_agence.nom)")),
-                List.of("t.code", "t.nom", "t.adresse", "r_agence.code", "r_agence.nom"), "t.code",
-                List.of(new Usage("patients", "centre_payeur_id")),
-                List.of("ref.centresPayeurs", "ref.centresPayeursDetails")));
+        // ReferentialKind.CAISSE, AGENCE, CENTRE_PAYEUR : retirés (RF3a, ADR 0126) ; les tables caisse_assurance, agence et centre_payeur
+        // appartiennent à patient-couverture (chaîne des payeurs), les descripteurs des référentiels restent à l'administration générique.
 
         // ReferentialKind.TRANSPORTEUR : retiré (RF1, ADR 0122) ; la table appartient à patient-couverture, le descripteur du
         // référentiel (champs, alias d'en-têtes, modèle d'import) reste à l'administration générique.

@@ -112,6 +112,58 @@ class ReferentialAdminDelegationTest {
         assertThat(repo.of(CENTER, ReferentialKind.FORFAIT)).isEmpty();
     }
 
+    @Test
+    void les_trois_niveaux_des_payeurs_sont_confies_au_delegue_des_payeurs_et_la_chaine_n_est_plus_geree_par_le_depot_generique() {
+        List<String> vus = new ArrayList<>();
+        ReferentialAdminDelegate payeurs = new ReferentialAdminDelegate() {
+            @Override
+            public boolean prend(ReferentialKind kind) {
+                return kind == ReferentialKind.CAISSE || kind == ReferentialKind.AGENCE || kind == ReferentialKind.CENTRE_PAYEUR;
+            }
+
+            @Override
+            public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+                vus.add("list:" + kind);
+                return PagedResult.of(List.of(), 0, page, size);
+            }
+
+            @Override
+            public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+                vus.add("create:" + kind);
+                return new ReferentialEntry(UUID.randomUUID(), values, Map.of());
+            }
+
+            @Override
+            public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+                vus.add("update:" + kind);
+                return new ReferentialEntry(id, values, Map.of());
+            }
+
+            @Override
+            public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+                vus.add("delete:" + kind);
+            }
+
+            @Override
+            public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+                vus.add("import:" + kind);
+                return new Outcome(0, 0, List.of(), !dryRun);
+            }
+        };
+        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(repo,
+                new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of(payeurs)));
+        UUID id = UUID.randomUUID();
+
+        assemble.create(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "Caisse"));
+        assemble.update(CENTER, ReferentialKind.AGENCE, id, Map.of("code", "AG", "nom", "Agence", "caisse", "CNAS"));
+        assemble.delete(CENTER, ReferentialKind.CENTRE_PAYEUR, id);
+        assemble.list(CENTER, ReferentialKind.AGENCE, null, 0, 20);
+        assemble.importEntries(CENTER, ReferentialKind.CAISSE, table(List.of("code", "nom"), List.of(List.of("CNAS", "Caisse"))), true);
+
+        assertThat(vus).containsExactly("create:CAISSE", "update:AGENCE", "delete:CENTRE_PAYEUR", "list:AGENCE", "import:CAISSE");
+        assertThat(repo.writes).isZero();
+    }
+
     private static ReferentialAdminDelegate unDelegue(ReferentialKind pris, String nom, List<String> vus) {
         return new ReferentialAdminDelegate() {
             @Override

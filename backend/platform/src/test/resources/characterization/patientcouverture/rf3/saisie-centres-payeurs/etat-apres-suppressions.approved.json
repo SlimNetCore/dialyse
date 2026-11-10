@@ -1,0 +1,29 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "A-AG",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence A",
+  "parent" : "A-CA"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "B-AG",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence B",
+  "parent" : "B-CA"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "A-CA",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse A",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "B-CA",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse B",
+  "parent" : "-"
+} ]

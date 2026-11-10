@@ -1,0 +1,22 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-A",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence A",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse B",
+  "parent" : "-"
+} ]

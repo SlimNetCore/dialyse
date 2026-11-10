@@ -1,0 +1,10 @@
+{
+  "agence d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Agences » pour ce centre.",
+  "centre B par son administrateur" : "204",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "deja supprimee" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Agences » pour ce centre.",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Agences » pour ce centre.",
+  "le centre payeur libere" : "204",
+  "libre" : "204",
+  "utilisee par un centre payeur" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Agences » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels)."
+}

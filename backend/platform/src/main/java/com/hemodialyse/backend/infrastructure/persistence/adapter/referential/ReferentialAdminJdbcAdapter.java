@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
@@ -44,10 +45,12 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     private final ReferentialCacheEvictor cacheEvictor;
     private final Transporteurs transporteurs;
     private final ForfaitsDuCentre forfaits;
+    private final GestionDesPayeurs payeurs;
 
     public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor, Transporteurs transporteurs,
-                                       ForfaitsDuCentre forfaits) {
+                                       ForfaitsDuCentre forfaits, GestionDesPayeurs payeurs) {
         this.jdbc = jdbc;
+        this.payeurs = payeurs;
         this.cacheEvictor = cacheEvictor;
         this.forfaits = forfaits;
         this.transporteurs = transporteurs;
@@ -169,6 +172,23 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
                 valeurs.put("libelle", f.libelle());
                 valeurs.put("prix", f.prix() == null ? null : f.prix().toPlainString());
                 return new ReferentialEntry(f.id(), valeurs, Map.of());
+            }).toList();
+        }
+        if (kind == ReferentialKind.CAISSE || kind == ReferentialKind.AGENCE || kind == ReferentialKind.CENTRE_PAYEUR) {
+            // RF3a (ADR 0126) : la chaîne des payeurs appartient à patient-couverture ; la reprise des patients retrouve un payeur par son code.
+            GestionDesPayeurs.Niveau niveau = kind == ReferentialKind.CAISSE ? GestionDesPayeurs.Niveau.CAISSE
+                    : kind == ReferentialKind.AGENCE ? GestionDesPayeurs.Niveau.AGENCE : GestionDesPayeurs.Niveau.CENTRE_PAYEUR;
+            return payeurs.toutes(centerId.value(), niveau).stream().map(p -> {
+                Map<String, String> valeurs = new LinkedHashMap<>();
+                valeurs.put("code", p.code());
+                valeurs.put("nom", p.nom());
+                if (kind == ReferentialKind.CAISSE) valeurs.put("typeCaisse", p.typeCaisse());
+                if (kind == ReferentialKind.AGENCE) valeurs.put("caisse", p.parent() == null ? null : p.parent().toString());
+                if (kind == ReferentialKind.CENTRE_PAYEUR) {
+                    valeurs.put("adresse", p.adresse());
+                    valeurs.put("agence", p.parent() == null ? null : p.parent().toString());
+                }
+                return new ReferentialEntry(p.id(), valeurs, Map.of());
             }).toList();
         }
         Table table = ReferentialAdminTables.of(kind);

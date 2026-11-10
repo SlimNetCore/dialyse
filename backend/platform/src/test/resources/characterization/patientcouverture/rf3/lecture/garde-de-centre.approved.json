@@ -1,0 +1,23 @@
+{
+  "agences : DELETE dans le centre B" : "403 ACCESS_DENIED",
+  "agences : GET du centre B" : "403 ACCESS_DENIED",
+  "agences : admin sans centre, GET avec centerId" : "403 ACCESS_DENIED",
+  "agences : admin sans centre, GET sans centerId" : "403 ACCESS_DENIED",
+  "agences : import dans le centre B" : "403 ACCESS_DENIED",
+  "agences : super administrateur sans centre, GET sans centerId" : "403 ROLE_SCOPE",
+  "agences : super administrateur, GET du centre B" : "403 ROLE_SCOPE",
+  "caisses : DELETE dans le centre B" : "403 ACCESS_DENIED",
+  "caisses : GET du centre B" : "403 ACCESS_DENIED",
+  "caisses : admin sans centre, GET avec centerId" : "403 ACCESS_DENIED",
+  "caisses : admin sans centre, GET sans centerId" : "403 ACCESS_DENIED",
+  "caisses : import dans le centre B" : "403 ACCESS_DENIED",
+  "caisses : super administrateur sans centre, GET sans centerId" : "403 ROLE_SCOPE",
+  "caisses : super administrateur, GET du centre B" : "403 ROLE_SCOPE",
+  "centres-payeurs : DELETE dans le centre B" : "403 ACCESS_DENIED",
+  "centres-payeurs : GET du centre B" : "403 ACCESS_DENIED",
+  "centres-payeurs : admin sans centre, GET avec centerId" : "403 ACCESS_DENIED",
+  "centres-payeurs : admin sans centre, GET sans centerId" : "403 ACCESS_DENIED",
+  "centres-payeurs : import dans le centre B" : "403 ACCESS_DENIED",
+  "centres-payeurs : super administrateur sans centre, GET sans centerId" : "403 ROLE_SCOPE",
+  "centres-payeurs : super administrateur, GET du centre B" : "403 ROLE_SCOPE"
+}

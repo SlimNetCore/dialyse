@@ -1,0 +1,23 @@
+{
+  "caisse absente" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » est obligatoire. | REQUIRED/caisse/ligne 0 {}",
+  "caisse d'un autre centre par son code" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » : « CNAS-B » est introuvable dans « Caisses » — créez-le d'abord (ou importez d'abord le fichier « Caisses »). | REFERENCE_NOT_FOUND/caisse/ligne 0 {\"target\":\"caisses\",\"value\":\"CNAS-B\"}",
+  "caisse d'un autre centre par son identifiant" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » : « <CAISSE-B> » est introuvable dans « Caisses » — créez-le d'abord (ou importez d'abord le fichier « Caisses »). | REFERENCE_NOT_FOUND/caisse/ligne 0 {\"target\":\"caisses\",\"value\":\"<CAISSE-B>\"}",
+  "caisse inconnue" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » : « NULLE-PART » est introuvable dans « Caisses » — créez-le d'abord (ou importez d'abord le fichier « Caisses »). | REFERENCE_NOT_FOUND/caisse/ligne 0 {\"target\":\"caisses\",\"value\":\"NULLE-PART\"}",
+  "caisse par son code" : "201 | {\"id\":\"<UUID_GENERE_1>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"AG-1\",\"nom\":\"Agence 1\"}}",
+  "caisse par son code a la casse et aux espaces pres" : "201 | {\"id\":\"<UUID_GENERE_2>\",\"references\":{\"caisse\":\"CASNOS · Caisse des non-salaries\"},\"values\":{\"caisse\":\"<CASNOS>\",\"code\":\"AG-2\",\"nom\":\"Agence 2\"}}",
+  "caisse par son identifiant" : "201 | {\"id\":\"<UUID_GENERE_3>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"AG-3\",\"nom\":\"Agence 3\"}}",
+  "caisse vide" : "422 REFERENTIAL_VALIDATION | « Caisse (code) » est obligatoire. | REQUIRED/caisse/ligne 0 {}",
+  "champ inconnu ignore" : "201 | {\"id\":\"<UUID_GENERE_4>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"AG-INC\",\"nom\":\"Inconnu\"}}",
+  "code absent" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "code de 50 caracteres" : "201 | {\"id\":\"<UUID_GENERE_5>\",\"references\":{\"caisse\":\"CNAS · Caisse nationale\"},\"values\":{\"caisse\":\"<CNAS>\",\"code\":\"<50 x A>\",\"nom\":\"Code cinquante\"}}",
+  "code de 51 caracteres" : "422 REFERENTIAL_VALIDATION | « Code » dépasse 50 caractères (51). | TOO_LONG/code/ligne 0 {\"length\":\"51\",\"max\":\"50\"}",
+  "code vide" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "corps illisible" : "500 INTERNAL_ERROR | <message technique non verrouille>",
+  "corps sans values" : "400 VALIDATION_ERROR | Invalid request content.",
+  "doublon du code a la casse et aux espaces pres" : "422 REFERENTIAL_VALIDATION | Un élément de « Agences » avec ce code existe déjà. | ALREADY_EXISTS/code/ligne 0 {}",
+  "doublon exact du code" : "422 REFERENTIAL_VALIDATION | Un élément de « Agences » avec ce code existe déjà. | ALREADY_EXISTS/code/ligne 0 {}",
+  "meme code dans un autre centre" : "201 | {\"id\":\"<UUID_GENERE_6>\",\"references\":{\"caisse\":\"CNAS-B · Caisse B\"},\"values\":{\"caisse\":\"<CAISSE-B>\",\"code\":\"AG-1\",\"nom\":\"Agence 1\"}}",
+  "nom absent" : "422 REFERENTIAL_VALIDATION | « Nom » est obligatoire. | REQUIRED/nom/ligne 0 {}",
+  "nom de 256 caracteres" : "422 REFERENTIAL_VALIDATION | « Nom » dépasse 255 caractères (256). | TOO_LONG/nom/ligne 0 {\"length\":\"256\",\"max\":\"255\"}",
+  "trois anomalies ensemble" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. « Nom » est obligatoire. « Caisse (code) » : « NULLE-PART » est introuvable dans « Caisses » — créez-le d'abord (ou importez d'abord le fichier « Caisses »). | REQUIRED/code/ligne 0 {} | REQUIRED/nom/ligne 0 {} | REFERENCE_NOT_FOUND/caisse/ligne 0 {\"target\":\"caisses\",\"value\":\"NULLE-PART\"}"
+}

@@ -1,0 +1,64 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Code cinquante",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-1",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 1",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-2",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 2",
+  "parent" : "CASNOS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-3",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 3",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "AG-INC",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Inconnu",
+  "parent" : "CNAS"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "AG-1",
+  "detail" : "-",
+  "niveau" : "agence",
+  "nom" : "Agence 1",
+  "parent" : "CNAS-B"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CASNOS",
+  "detail" : "VACANCIER",
+  "niveau" : "caisse",
+  "nom" : "Caisse des non-salaries",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "CNAS-B",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse B",
+  "parent" : "-"
+} ]

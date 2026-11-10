@@ -1,0 +1,22 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CASNOS",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse des non-salaries",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_A>",
+  "code" : "CNAS2",
+  "detail" : "VACANCIER",
+  "niveau" : "caisse",
+  "nom" : "Caisse nationale renommee",
+  "parent" : "-"
+}, {
+  "center_id" : "<CENTRE_B>",
+  "code" : "CNAS-B2",
+  "detail" : "STANDARD",
+  "niveau" : "caisse",
+  "nom" : "Caisse B2",
+  "parent" : "-"
+} ]

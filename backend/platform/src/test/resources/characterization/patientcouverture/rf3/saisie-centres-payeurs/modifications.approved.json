@@ -1,0 +1,16 @@
+{
+  "adresse omise efface l'adresse" : "200 | {\"id\":\"<A-CP>\",\"references\":{\"agence\":\"A-AG · Agence A\"},\"values\":{\"adresse\":null,\"agence\":\"<A-AGENCE>\",\"code\":\"A-CP2\",\"nom\":\"Centre renomme\"}}",
+  "agence d'un autre centre" : "422 REFERENTIAL_VALIDATION | « Agence (code) » : « B-AG » est introuvable dans « Agences » — créez-le d'abord (ou importez d'abord le fichier « Agences »). | REFERENCE_NOT_FOUND/agence/ligne 0 {\"target\":\"agences\",\"value\":\"B-AG\"}",
+  "agence inconnue" : "422 REFERENTIAL_VALIDATION | « Agence (code) » : « NULLE-PART » est introuvable dans « Agences » — créez-le d'abord (ou importez d'abord le fichier « Agences »). | REFERENCE_NOT_FOUND/agence/ligne 0 {\"target\":\"agences\",\"value\":\"NULLE-PART\"}",
+  "agence omise" : "422 REFERENTIAL_VALIDATION | « Agence (code) » est obligatoire. | REQUIRED/agence/ligne 0 {}",
+  "centre B par son administrateur" : "200 | {\"id\":\"<B-CP>\",\"references\":{\"agence\":\"B-AG · Agence B\"},\"values\":{\"adresse\":null,\"agence\":\"<B-AGENCE>\",\"code\":\"B-CP2\",\"nom\":\"Centre B2\"}}",
+  "centre payeur d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Centres payeurs » pour ce centre.",
+  "changer d'agence par son code" : "200 | {\"id\":\"<A-CP>\",\"references\":{\"agence\":\"A-AG2 · Agence 2\"},\"values\":{\"adresse\":\"Nouvelle adresse\",\"agence\":\"<A-AG2>\",\"code\":\"A-CP2\",\"nom\":\"Centre renomme\"}}",
+  "changer d'agence par son identifiant" : "200 | {\"id\":\"<A-CP>\",\"references\":{\"agence\":\"A-AG · Agence A\"},\"values\":{\"adresse\":\"Nouvelle adresse\",\"agence\":\"<A-AGENCE>\",\"code\":\"A-CP2\",\"nom\":\"Centre renomme\"}}",
+  "code vide" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "garder son propre code a la casse pres" : "200 | {\"id\":\"<A-CP>\",\"references\":{\"agence\":\"A-AG · Agence A\"},\"values\":{\"adresse\":null,\"agence\":\"<A-AGENCE>\",\"code\":\"a-cp2\",\"nom\":\"Centre renomme\"}}",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Centres payeurs » pour ce centre.",
+  "prendre le code d'un autre" : "422 REFERENTIAL_VALIDATION | Un élément de « Centres payeurs » avec ce code existe déjà. | ALREADY_EXISTS/code/ligne 0 {}",
+  "renommer le code, le nom et l'adresse" : "200 | {\"id\":\"<A-CP>\",\"references\":{\"agence\":\"A-AG · Agence A\"},\"values\":{\"adresse\":\"Nouvelle adresse\",\"agence\":\"<A-AGENCE>\",\"code\":\"A-CP2\",\"nom\":\"Centre renomme\"}}",
+  "sans values" : "400 VALIDATION_ERROR | Invalid request content."
+}

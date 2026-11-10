@@ -154,6 +154,9 @@ minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87)
 absences et la répartition par caisse, centre payeur borné au centre de la fiche, tri des caisses départagé par le code (KB-DIR-05, KB-SEA-83, 84),
 statistiques des séances réalisées seulement, volet borné au centre, compte entier dans le PDF (KB-SEA-85) ; KB-SEA-75, 80, 90, 91 clos sans
 changement de comportement.
+RF3a (ADR 0126, 2026-11-10) n'ajoute aucune route : `/api/v1/admin/referentials/{caisses,agences,centres-payeurs}` (`ReferentialAdminRestController`, déjà listé)
+délègue la chaîne des payeurs à Patient et couverture par `GestionDesPayeurs` (traducteur `infrastructure/acl/patientcouverture/PayeursParPatientCouverture`) ;
+mêmes URLs, mêmes rôles, mêmes codes et messages ; règles : RG-REF-002, 003, 005 (500 sur corps ou identifiant illisible reproduit, KB-RF3-01 à 03).
 SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`
 passe au contrôleur `VoletParamedicalControleur` du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
 ADR 0116 : fiche vérifiée avant l'écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;

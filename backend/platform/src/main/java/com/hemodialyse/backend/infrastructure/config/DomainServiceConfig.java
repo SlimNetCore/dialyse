@@ -32,13 +32,21 @@ public class DomainServiceConfig {
         return new com.hemodialyse.backend.infrastructure.acl.patientcouverture.ForfaitsParPatientCouverture(forfaits);
     }
 
+    /** RF3a (ADR 0126) : la chaîne des payeurs (caisses, agences, centres payeurs) est gérée par patient-couverture. */
+    @Bean
+    public com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture payeursParPatientCouverture(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs payeurs) {
+        return new com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture(payeurs);
+    }
+
     @Bean
     public com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(
             com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort repo,
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.TransporteursParPatientCouverture transporteurs,
-            com.hemodialyse.backend.infrastructure.acl.patientcouverture.ForfaitsParPatientCouverture forfaits) {
+            com.hemodialyse.backend.infrastructure.acl.patientcouverture.ForfaitsParPatientCouverture forfaits,
+            com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture payeurs) {
         return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(repo,
                 new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(
-                        java.util.List.of(transporteurs, forfaits)));
+                        java.util.List.of(transporteurs, forfaits, payeurs)));
     }
 }
