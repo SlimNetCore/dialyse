@@ -1,0 +1,47 @@
+{
+  "absences cinq ans et un jour" : {
+    "code" : "PERIODE_TROP_LONGUE",
+    "detail" : "La période ne peut pas dépasser 5 ans",
+    "status" : 422
+  },
+  "absences debut apres fin" : {
+    "code" : "PERIODE_INVALIDE",
+    "detail" : "La date de début doit précéder la date de fin",
+    "status" : 422
+  },
+  "breakdown cinq ans et un jour" : {
+    "code" : "PERIODE_TROP_LONGUE",
+    "detail" : "La période ne peut pas dépasser 5 ans",
+    "status" : 422
+  },
+  "breakdown debut apres fin" : {
+    "code" : "PERIODE_INVALIDE",
+    "detail" : "La date de début doit précéder la date de fin",
+    "status" : 422
+  },
+  "cinq ans et un jour" : {
+    "code" : "PERIODE_TROP_LONGUE",
+    "detail" : "La période ne peut pas dépasser 5 ans",
+    "status" : 422
+  },
+  "cinq ans exactement" : {
+    "from" : "2021-02-28",
+    "status" : 200,
+    "to" : "2026-02-28"
+  },
+  "date illisible" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Paramètre illisible : from",
+    "status" : 400
+  },
+  "debut apres fin" : {
+    "code" : "PERIODE_INVALIDE",
+    "detail" : "La date de début doit précéder la date de fin",
+    "status" : 422
+  },
+  "seulement from futur" : {
+    "code" : "PERIODE_INVALIDE",
+    "detail" : "La date de début doit précéder la date de fin",
+    "status" : 422
+  }
+}

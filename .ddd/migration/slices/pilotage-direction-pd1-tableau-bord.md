@@ -36,5 +36,9 @@ Goldens PD1 (6 tests), PD2, PD3, PD4, SE7e, PC4, PC5, DM8/DM9 : inchangés, aucu
 - **PD1-R4 (n3)** : `RepartitionDeLaSociete.ProfilDuCentre.ages` (une `Map` mutable) n'est pas copiée par le record : sans effet (jamais modifiée après construction) ; correction (`Map.copyOf`) reportée car elle touche `src/main` (hors périmètre de la revue).
 - **PD1-R5 (n4)** : le contrat `parCaisse` n'exerce que le cas sans caisse ; la jointure à une vraie caisse est verrouillée par le golden PD1 et le rejeu PG16 D2 (CNAS, sans caisse). Résidu : une caisse dans `LecturesDuPilotageContrat` (H2 + PG16).
 
+## Lot L6 (2026-11-10, ADR 0119) : KB-DIR-02, 03, 08 CORRIGÉS
+
+Écarts de parité VOLONTAIRES (à confirmer métiers/DPO ≤ 2026-12-15) : `from=hier` (et `limit=abc`) sur `/overview`, `/breakdown`, `/report`, `/gmao`, `/alerts/history` répondent 400 (au lieu de 500), `POST` sous `/api/v1/direction/` répond 405 + `Allow` (KB-DIR-02) ; « aujourd'hui » est le jour d'`Africa/Algiers` via une horloge injectée (`InstantsDuPilotage`, KB-DIR-03 ; résiduel « fuseau par centre ») ; tranches d'âge au dernier jour de la période (KB-DIR-08). Goldens `bornes_nouveau_code`, `droits_nouveau_code`, `breakdown_nouveau_code` (anciens : `_ecarts-legacy/tableau_de_bord/*_avant_l6.legacy.json`). RG-DIR-003, 103, 112, 113.
+
 ## Lot L1 (2026-11-09, ADR 0112) : KB-DIR-01 CORRIGÉ
 Comportement CHANGÉ à la demande de l'utilisateur (pas une parité) : `totaux.patients`, `totaux.patientsSousKt` et `caisseTotaux[].patients` sont `null` dès qu'un centre composant est masqué (RG-DIR-111). Goldens `overview` et `breakdown` : anciens archivés dans `pd1/_ecarts-legacy/tableau_de_bord/*_avant_l1.legacy.json`, nouveaux `*_nouveau_code`. Validation DPO attendue ≤ 2026-12-15 ; résiduels (effectif d'un centre vs sa ventilation) non traités.

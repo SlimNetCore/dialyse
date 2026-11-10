@@ -53,7 +53,8 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
 
     @org.junit.jupiter.api.BeforeEach
     void construireLeTempsReel() {
-        HorlogeDuPilotage horloge = new HorlogeDuPilotage(java.time.Clock.systemUTC());
+        // KB-DIR-03 (lot L6) : horloge injectee et figee (fuseau de reference), jamais l'heure reelle
+        HorlogeDuPilotage horloge = HorlogeDuPilotage.auFuseauDeReference(java.time.Clock.fixed(INSTANT_FIXE, java.time.ZoneOffset.UTC), FUSEAU_DE_REFERENCE);
         tempsReel = new SuivreLeTempsReel(new ConstatsDuTableauDeBordParLeTableauDeBord(tableau, indicateurs),
                 new EnregistrerLesAlertes(new HistoriqueDesAlertesJdbc(jdbc), horloge), new SocieteDUnCentrePublie(new AnnuaireDesSocietesJdbc(jdbc)),
                 new DiffusionParLeCanalFourni(diffuseur), horloge);
@@ -120,7 +121,7 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
         m.put("06 limit=abc", refus(direction("/alerts/history?limit=abc")));
         m.put("07 forme d'une entree", corps(direction("/alerts/history?limit=1")).get(0));
         m.put("08 autre societe : ses alertes seules", entrees(doGet(DIRECTION + "/alerts/history", directionAutre()), libelles));
-        arbrePd("historique", m);
+        arbrePd("historique_nouveau_code", m);
     }
 
     @Test
@@ -187,7 +188,7 @@ class LesAlertesDeLaDirectionCharacterizationIntegrationTest extends PilotageDir
 
     @Test
     void le_recalcul_temps_reel_journalise_les_alertes_de_stock_les_diffuse_a_la_direction_connectee_puis_les_resout() throws Exception {
-        LocalDate aujourdhui = LocalDate.now();
+        LocalDate aujourdhui = AUJOURDHUI_DU_PILOTAGE; // le jour de l'horloge injectee du Pilotage (KB-DIR-03, lot L6), jamais l'heure reelle
         tempsReel.abonneAjoute(SOCIETE);
         try {
             Map<String, Object> m = new LinkedHashMap<>();

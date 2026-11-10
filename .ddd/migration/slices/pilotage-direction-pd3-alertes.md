@@ -31,6 +31,10 @@ R2 option (a) reproduite : identité (centre, code) des lignes ouvertes, sans jo
 ## Résiduels (revue 2026-12-15, butoir 2027-03-31)
 PD3-R1 `DirectionSubscriptionTracker` sans filet, réservé PD5 · PD3-R2 aucune contrainte d'unicité de l'alerte ouverte (course ; verrouillée par le test de contrat `deux_ouvertures_de_la_meme_cle_donnent_deux_lignes_ouvertes_statu_quo_PD3_R2`, mémoire et JDBC) · PD3-R3 indicateurs fournis par la plateforme jusqu'à PD5 · PD3-R4 contrôleur et jeton en plateforme · PD3-R5 `centers` lu en SQL (jalon O4) · PD3-R6 `AlertesDeLaDirection.evaluer` prend 8 paramètres primitifs (ordre des `long` fragile) : introduire un enregistrement publié au passage PD5, non refactoré ici · PD3-R7 `GraviteDAlerte` et `AlertesDeLaDirection.Gravite` traduites par `valueOf(name())` : gardées par `GravitesDAlerteConcordentTest` · PD3-R8 un échec de diffusion laisse l'historique écrit et perd le changement (statu quo, RG-DIR-106) · `unCentreAChange` : `get`+`put` conservé (non strictement équivalent à `computeIfAbsent`, SQL hors calcul de la map).
 
+## Lot L6 (2026-11-10, ADR 0119) : KB-DIR-04 CLOS-DOCUMENTÉ ; KB-DIR-02 (`limit=abc` : 400) et KB-DIR-03 (horodatages sur l'horloge injectée) CORRIGÉS
+
+KB-DIR-04 : aucun changement de comportement ni de golden. L'historique est une trace d'OUVERTURE et de résolution, pas un suivi de valeur : valeur, gravité et nom figés à l'ouverture, réapparition = nouvelle ligne, alimentation seulement pendant qu'une direction est connectée. Alternatives : mettre la valeur à jour à chaud (réécrit des valeurs historiques) ; une ligne par jour (change le volume). Question métier : valeur à l'ouverture ou la plus récente (≤ 2026-12-15). Golden `historique_nouveau_code` : seul `limit=abc` change (400). RG-DIR-107, 108, 112.
+
 ## Questions ouvertes
 Historique hors connexion · fuseau de l'horodatage · `limit` illisible en 400 · date de référence des alertes de stock · contrainte d'unicité (ADR 0104).
 

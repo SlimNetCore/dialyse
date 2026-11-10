@@ -1,0 +1,34 @@
+{
+  "01 autre societe : liste vide, lecture et rapport introuvables" : "[] | 422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois | 422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois",
+  "02 instantane ancien sans 'breakdown' (anterieur aux repartitions) : servi avec breakdown absent/null tel que le legacy le serialise" : {
+    "breakdown" : "null",
+    "cles" : [ "mois", "generatedAt", "overview", "indicators", "breakdown" ],
+    "generatedAt" : "<HORODATAGE>",
+    "indicators.cles" : [ "centres" ],
+    "indicators.totaux.stock" : "absent",
+    "mois" : "<M-2>",
+    "overview.centres" : 0,
+    "overview.from .. to" : " .. ",
+    "overview.periodePrecedente" : " .. ",
+    "overview.totaux.patients" : "12",
+    "statut" : "200 ok"
+  },
+  "03 corps brut servi pour l'ancien instantane" : {
+    "breakdown" : null,
+    "generatedAt" : "<HORODATAGE>",
+    "indicators" : {
+      "centres" : [ ]
+    },
+    "mois" : "<M-2>",
+    "overview" : {
+      "societeNom" : "Ancien instantane",
+      "totaux" : {
+        "patients" : 12
+      }
+    }
+  },
+  "04 payload illisible en base : lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+  "05 liste : du plus recent au plus ancien, l'illisible compris" : [ "<M-1> genere <HORODATAGE>", "<M-2> genere <HORODATAGE>", "<M-3> genere <HORODATAGE>" ],
+  "06 second instantane du meme mois pour la meme societe, insere en base" : "refuse par la contrainte d'unicite (societe_id, mois)",
+  "07 capture du meme mois pour l'autre societe : independante" : "200 ok | lignes de l'autre societe : 1"
+}

@@ -111,7 +111,7 @@ class LecturesFinancieresDirectionCharacterizationIntegrationTest extends Pilota
         cas.put("breakdown cinq ans et un jour", resume(doGet(DIRECTION + "/breakdown?from=2021-02-28&to=2026-03-01", direction())));
         cas.put("absences debut apres fin", resume(doGet(DIRECTION + "/absences?from=2026-03-01&to=2026-02-01", direction())));
         cas.put("absences cinq ans et un jour", resume(doGet(DIRECTION + "/absences?from=2021-02-28&to=2026-03-01", direction())));
-        goldenNode("periodes", mapper.valueToTree(cas));
+        goldenNode("periodes_nouveau_code", mapper.valueToTree(cas));
     }
 
     @Test

@@ -208,7 +208,7 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
             }
             lignes.add(p + " -> " + (r.status == 200 ? "200 from=" + du + " to=" + au : resume(r)));
         }
-        goldenLignes("direction_gmao_controle_de_la_periode", lignes);
+        goldenLignes("direction_gmao_controle_de_la_periode_nouveau_code", lignes);
     }
 
     @Test
@@ -269,7 +269,7 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
         jdbc.update("DELETE FROM app_user_societe WHERE user_id = ?", DIRECTEUR);
         lignes.add("DIRECTION détachée de sa société -> " + resume(get(GMAO_DIRECTION + PERIODE, direction())));
         lignes.add("méthode POST -> " + resume(call(org.springframework.http.HttpMethod.POST, GMAO_DIRECTION, null, direction())));
-        goldenLignes("direction_gmao_autorisations", lignes);
+        goldenLignes("direction_gmao_autorisations_nouveau_code", lignes);
     }
 
     @Test

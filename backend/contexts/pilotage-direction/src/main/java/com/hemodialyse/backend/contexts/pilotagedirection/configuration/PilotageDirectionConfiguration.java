@@ -61,27 +61,35 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Indi
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Clock;
+import java.time.ZoneId;
 
 /**
  * Composition du lot A (PD1 + PD4, ADR 0102) : le tableau de bord et le rapport de synthèse de la direction, publiés. Mêmes tables
  * ({@code societes}, {@code centers}, {@code patients}) et mêmes URL (servies par la plateforme) que le legacy ; aucun flag, aucune
- * façade. L'horloge est le fuseau de la JVM (KB-DIR-03, statu quo). Les indicateurs (cliniques du Dossier médical, stock du Stock) sont
+ * façade. L'horloge est celle du fuseau de référence Africa/Algiers (KB-DIR-03, lot L6). Les indicateurs (cliniques du Dossier médical, stock du Stock) sont
  * COMPOSÉS par le Pilotage depuis PD6 (ADR 0106) : {@link IndicateursDeLaDirection} ; le rapport les lit par
  * {@link IndicateursDeLaDirectionFournis}, dont l'adaptateur est du module.
  */
 @Configuration(proxyBeanMethods = false)
 public class PilotageDirectionConfiguration {
 
+    /**
+     * KB-DIR-03 corrigé (lot L6, ADR 0119) : « aujourd'hui » est le jour du fuseau de référence {@code Africa/Algiers} (propriété
+     * {@code app.pilotage.fuseau-par-defaut}), et non celui de la JVM. Les instants viennent d'une {@link Clock} INJECTÉE, celle du bean
+     * {@link InstantsDuPilotage} s'il existe (les tests le remplacent par une horloge fixe), sinon l'horloge système en UTC.
+     */
     @Bean
-    HorlogeDuPilotage horlogeDuPilotage() {
-        // BackendApplication fixe le fuseau par défaut de la JVM à UTC : Clock.systemUTC() est donc identique au LocalDate.now() du legacy
-        // (KB-DIR-03, statu quo), et satisfait la règle « aucune horloge ni fuseau du système » de FrontieresDesContextesTest.
-        return new HorlogeDuPilotage(Clock.systemUTC());
+    HorlogeDuPilotage horlogeDuPilotage(ObjectProvider<InstantsDuPilotage> instants,
+                                        @Value(HorlogeDuPilotage.PROPRIETE_DU_FUSEAU) String fuseau) {
+        Clock horloge = instants.getIfAvailable(() -> new InstantsDuPilotage(Clock.systemUTC())).horloge();
+        return HorlogeDuPilotage.auFuseauDeReference(horloge, ZoneId.of(fuseau));
     }
 
     @Bean

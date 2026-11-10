@@ -70,14 +70,16 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
     @Test
     void la_repartition_detaille_sexe_age_caisse_et_anemie_par_centre_avec_masquage_nouveau_code() throws Exception {
         jeuComplet();
-        LocalDate aujourdhui = LocalDate.now();
+        // KB-DIR-08 (lot L6) : l'age est celui du DERNIER JOUR DE LA PERIODE demandee (<D+100>), pas celui du jour de l'appel
+        // (2026-11-11 pour le Pilotage : ces 5 patients ont deja 18 ans ce jour-la, mais pas encore le dernier jour de la periode).
+        LocalDate finDeLaPeriode = fixe(100);
         for (int i = 0; i < 5; i++) {
-            patientPd(CENTRE_B, "B_18_ANS_AUJOURDHUI_" + i, "M", aujourdhui.minusYears(18), false, false, false, null);
-            patientPd(CENTRE_B, "B_18_ANS_DEMAIN_" + i, "M", aujourdhui.minusYears(18).plusDays(1), false, false, false, null);
+            patientPd(CENTRE_B, "B_18_ANS_LE_DERNIER_JOUR_" + i, "M", finDeLaPeriode.minusYears(18), false, false, false, null);
+            patientPd(CENTRE_B, "B_18_ANS_LE_LENDEMAIN_" + i, "M", finDeLaPeriode.minusYears(18).plusDays(1), false, false, false, null);
         }
         Resp r = direction("/breakdown" + periode());
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("01 reponse complete (sexe par initiale M/F sinon autre ; tranches d'age au jour de l'appel ; caisses triees par centre puis CA HT decroissant ; "
+        m.put("01 reponse complete (sexe par initiale M/F sinon autre ; tranches d'age au dernier jour de la periode (KB-DIR-08 corrige, lot L6) ; caisses triees par centre puis CA HT decroissant ; "
                 + "anemie ; KB-DIR-01 corrige (lot L1) : le total de la caisse sans code est supprime car le centre B y est masque)", reponse(r));
         Map<String, Object> ages = new LinkedHashMap<>();
         for (JsonNode ligne : corps(r).path("ages")) {
@@ -85,7 +87,8 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
                 for (JsonNode tr : ligne.path("tranches")) ages.put(tr.path("code").asString(), tr.path("count").isNull() ? "masque" : tr.path("count").asString());
             }
         }
-        m.put("02 centre B (13 patients : 3 nes en 1960 masques, 5 de 18 ans aujourd'hui, 5 qui auront 18 ans demain) : 18 ans revolus = 18_29, la veille = 0_17", ages);
+        m.put("02 centre B (13 patients : 3 nes en 1960 masques, 5 qui ont 18 ans le dernier jour de la periode, 5 qui les auront le lendemain, "
+                + "deja 18 ans le jour de l'appel) : 18 ans revolus le dernier jour = 18_29, la veille = 0_17", ages);
         arbrePd("breakdown_nouveau_code", m);
     }
 
@@ -108,11 +111,15 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
             cas.put("fin seule : debut = 1er janvier de l'annee de la fin", refus(toSeul) + " | from=" + corps(toSeul).path("from").asString()
                     + " | to=" + corps(toSeul).path("to").asString());
             Resp fromSeul = direction(route + "?from=" + d0);
-            cas.put("debut seul : fin = aujourd'hui (JVM, pas le fuseau du centre)", refus(fromSeul) + " | to est aujourd'hui de la JVM : "
-                    + LocalDate.now().toString().equals(corps(fromSeul).path("to").asString()));
+            // KB-DIR-03 (lot L6) : « aujourd'hui » est le jour de l'horloge injectee du Pilotage au fuseau de reference Africa/Algiers
+            // (horloge figee a 23:30 UTC le 2026-11-10 : il est deja le 2026-11-11 a Alger), et non celui de la JVM (UTC : le 2026-11-10).
+            cas.put("debut seul : fin = aujourd'hui du Pilotage (horloge injectee, fuseau de reference Africa/Algiers : le lendemain de la date UTC)",
+                    refus(fromSeul) + " | to est aujourd'hui du Pilotage : " + AUJOURDHUI_DU_PILOTAGE.toString().equals(corps(fromSeul).path("to").asString())
+                            + " | to n'est pas la date UTC de l'instant : " + !AUJOURDHUI_DU_PILOTAGE.minusDays(1).toString().equals(corps(fromSeul).path("to").asString()));
             Resp sansRien = direction(route);
-            cas.put("sans parametre : du 1er janvier de l'annee courante a aujourd'hui", refus(sansRien) + " | from est le 1er janvier de cette annee : "
-                    + LocalDate.of(LocalDate.now().getYear(), 1, 1).toString().equals(corps(sansRien).path("from").asString()));
+            cas.put("sans parametre : du 1er janvier de l'annee courante a aujourd'hui du Pilotage", refus(sansRien) + " | from est le 1er janvier de cette annee : "
+                    + LocalDate.of(AUJOURDHUI_DU_PILOTAGE.getYear(), 1, 1).toString().equals(corps(sansRien).path("from").asString())
+                    + " | to est aujourd'hui du Pilotage : " + AUJOURDHUI_DU_PILOTAGE.toString().equals(corps(sansRien).path("to").asString()));
             Resp societeParam = direction(route + periode() + "&societeId=" + AUTRE_SOCIETE);
             cas.put("societeId en parametre : ignore, perimetre du jeton", refus(societeParam) + " | societeId=" + corps(societeParam).path("societeId").asString());
             m.put(route, cas);
@@ -121,8 +128,15 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
         for (String route : List.of("/overview", "/breakdown", "/report", "/indicators", "/capacite", "/absences", "/gmao", "/stock-groupes")) {
             illisible.put(route, refus(direction(route + "?from=hier")));
         }
-        m.put("date illisible selon la route (advice limite a 4 routes : KB)", illisible);
-        arbrePd("bornes", m);
+        m.put("date illisible selon la route (KB-DIR-02 corrige, lot L6 : 400 sur les 8 routes, c'etait un 500 sur /overview, /breakdown, /report, /gmao)", illisible);
+        Map<String, Object> sansDroit = new LinkedHashMap<>();
+        for (String route : List.of("/overview", "/breakdown", "/report", "/gmao", "/alerts/history", "/indicators")) {
+            String illisibleSurCetteRoute = route.equals("/alerts/history") ? "?limit=abc" : "?from=hier";
+            sansDroit.put(route, refus(doGet(DIRECTION + route + illisibleSurCetteRoute, as(CENTRE_A, "MEDECIN"))));
+        }
+        m.put("date illisible par un profil sans droit : 403 avant le 400 (KB-DIR-02, lot L6)", sansDroit);
+        m.put("valeur illisible de limit sur l'historique des alertes (KB-DIR-02, lot L6 : 400, c'etait un 500)", refus(direction("/alerts/history?limit=abc")));
+        arbrePd("bornes_nouveau_code", m);
     }
 
     @Test
@@ -169,6 +183,6 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
         directions.put("role DIRECTION porte par une session de centre (sans societe)", refus(doGet(DIRECTION + "/overview" + periode(), as(CENTRE_A, "DIRECTION"))));
         directions.put("ecriture refusee : POST /overview", refus(doPost(DIRECTION + "/overview", "{}", direction())));
         m.put("02 revérification en base et perimetre du jeton", directions);
-        arbrePd("droits", m);
+        arbrePd("droits_nouveau_code", m);
     }
 }

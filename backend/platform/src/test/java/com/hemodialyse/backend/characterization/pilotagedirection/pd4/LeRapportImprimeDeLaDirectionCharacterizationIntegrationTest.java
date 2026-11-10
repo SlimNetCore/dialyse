@@ -124,6 +124,6 @@ class LeRapportImprimeDeLaDirectionCharacterizationIntegrationTest extends Pilot
         m.put("03 onze profils et l'anonyme sur le rapport, les instantanes et l'historique", profils);
         m.put("04 lignes direction_snapshot creees par la matrice (seule la DIRECTION ecrit)",
                 jdbc.queryForList("SELECT mois FROM direction_snapshot WHERE societe_id = ?", String.class, SOCIETE));
-        arbrePd("en_tete_et_bornes", m);
+        arbrePd("en_tete_et_bornes_nouveau_code", m);
     }
 }

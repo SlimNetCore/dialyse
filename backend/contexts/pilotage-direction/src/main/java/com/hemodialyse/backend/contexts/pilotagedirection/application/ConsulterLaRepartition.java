@@ -38,7 +38,8 @@ public final class ConsulterLaRepartition {
             return RepartitionDeLaSociete.sansCentre(societe, periode, horloge.maintenant());
         }
         List<UUID> centres = societe.identifiantsDesCentres();
-        return RepartitionDeLaSociete.constituer(societe, periode, horloge.aujourdhui(), horloge.maintenant(),
+        // KB-DIR-08 corrigé (lot L6, ADR 0119) : l'âge est celui du DERNIER JOUR DE LA PÉRIODE demandée (et non du jour de l'appel).
+        return RepartitionDeLaSociete.constituer(societe, periode, periode.fin(), horloge.maintenant(),
                 effectifs.profils(centres, periode), effectifs.parCaisse(centres, periode), seances.parCaisse(centres, periode),
                 facturation.parCaisse(centres, periode), anemie.parCentre(centres, periode),
                 effectifs.prescriptionsDeLAnemie(centres, periode));

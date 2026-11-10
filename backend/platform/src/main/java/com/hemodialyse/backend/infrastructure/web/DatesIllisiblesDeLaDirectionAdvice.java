@@ -5,8 +5,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +36,12 @@ import org.springframework.web.servlet.HandlerMapping;
 class DatesIllisiblesDeLaDirectionAdvice {
 
     private static final java.util.Set<String> ROUTES = java.util.Set.of("/api/v1/direction/absences", "/api/v1/direction/stock-groupes",
-            "/api/v1/direction/capacite", "/api/v1/direction/indicators");
+            "/api/v1/direction/capacite", "/api/v1/direction/indicators", "/api/v1/direction/overview", "/api/v1/direction/breakdown",
+            "/api/v1/direction/report", "/api/v1/direction/gmao", "/api/v1/direction/alerts/history");
+    /** KB-DIR-02 (lot L6) : les routes ajoutées renvoient le 403 du profil sans droit AVANT le 400 (les quatre routes d'origine gardent leur 400). */
+    private static final java.util.Set<String> ROUTES_AVEC_DROITS_A_VERIFIER = java.util.Set.of("/api/v1/direction/indicators",
+            "/api/v1/direction/overview", "/api/v1/direction/breakdown", "/api/v1/direction/report", "/api/v1/direction/gmao",
+            "/api/v1/direction/alerts/history");
     private static final java.util.List<String> FRAGMENTS_DES_STATISTIQUES = java.util.List.of("/stats/medical", "/stats/export");
 
     private final ApiExceptionHandler gestionnaireCommun;
@@ -88,7 +96,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     /** Les statistiques médicales et les indicateurs médicaux de la Direction : le 403 passe avant le 400 (les autres routes gardent leur 400). */
     private static boolean estUneRouteAvecDroitsAVerifier(HttpServletRequest requete) {
-        return estUneRouteDesStatistiques(requete) || requete.getRequestURI().endsWith("/api/v1/direction/indicators");
+        return estUneRouteDesStatistiques(requete) || ROUTES_AVEC_DROITS_A_VERIFIER.stream().anyMatch(requete.getRequestURI()::endsWith);
     }
 
     private static boolean estUneRouteReprise(HttpServletRequest requete) {
@@ -107,5 +115,41 @@ class DatesIllisiblesDeLaDirectionAdvice {
         };
         Boolean accord = new SpelExpressionParser().parseExpression(garde.value()).getValue(new StandardEvaluationContext(racine), Boolean.class);
         return Boolean.TRUE.equals(accord);
+    }
+
+    /**
+     * KB-DIR-02 (lot L6, ADR 0119) : une méthode non supportée sur l'API de la Direction ({@code /api/v1/direction/**}) répond 405
+     * {@code METHOD_NOT_ALLOWED} avec l'en-tête {@code Allow} (c'était un 500 du gestionnaire commun), sans le message technique de Spring.
+     * Limité à ce préfixe : ailleurs la réponse reste celle du gestionnaire commun, auquel on délègue. Classe imbriquée et SANS restriction
+     * de paquetage : l'erreur est levée avant le choix d'un contrôleur, donc l'advice ci-dessus (limité aux contrôleurs) ne la reçoit pas.
+     */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @RestControllerAdvice
+    static class MethodesNonSupporteesDeLaDirectionAdvice {
+
+        private static final String PREFIXE = "/api/v1/direction/";
+
+        private final ApiExceptionHandler gestionnaireCommun;
+
+        MethodesNonSupporteesDeLaDirectionAdvice(ApiExceptionHandler gestionnaireCommun) {
+            this.gestionnaireCommun = gestionnaireCommun;
+        }
+
+        @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+        ResponseEntity<ProblemDetail> methodeNonSupportee(HttpRequestMethodNotSupportedException erreur, HttpServletRequest requete) {
+            if (!requete.getRequestURI().startsWith(PREFIXE)) {
+                ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
+                return ResponseEntity.status(commun.getStatus()).body(commun);
+            }
+            ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.METHOD_NOT_ALLOWED);
+            probleme.setTitle("Methode non supportee");
+            probleme.setDetail("Méthode non supportée sur cette route");
+            probleme.setProperty("code", "METHOD_NOT_ALLOWED");
+            ResponseEntity.BodyBuilder reponse = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED);
+            if (erreur.getSupportedHttpMethods() != null && !erreur.getSupportedHttpMethods().isEmpty()) {
+                reponse.allow(erreur.getSupportedHttpMethods().toArray(new HttpMethod[0]));
+            }
+            return reponse.body(probleme);
+        }
     }
 }

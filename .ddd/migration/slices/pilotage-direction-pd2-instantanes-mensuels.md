@@ -40,6 +40,10 @@ Aucune (refactoring sur place) : pas de flag, pas de paliers, pas de métriques.
 | PD2-R8 | TICKET SÉPARÉ (hors lot, préexistant) : 1 échec + 25 erreurs de la suite complète en ordre aléatoire (pollution d'état entre classes, 8 classes), identiques sur HEAD~1 |
 | PD2-R9 | Détections 70.1 à 70.4 non rejouées sur PostgreSQL 16 (70.4 : `to_char(date_trunc(...))`) : à rejouer avant la revue du 2026-12-15 |
 
+## Lot L6 (2026-11-10, ADR 0119) : KB-DIR-06 (e), KB-DIR-03 CORRIGÉS ; KB-DIR-06 (a à d) CLOS-DOCUMENTÉS
+
+Écarts VOLONTAIRES (à confirmer ≤ 2026-12-15) : un contenu illisible répond 422 `INSTANTANE_ILLISIBLE` à la lecture (au lieu de 500), reste listé, jamais réécrit (golden `cloisonnement_et_anciens_nouveau_code`, ancien : `pd2/_ecarts-legacy/instantanes/cloisonnement_et_anciens_avant_l6.legacy.json`) ; le mois courant, le mois écoulé et le cron du 1er (02:30) suivent le fuseau `Africa/Algiers` (horloge injectée figée dans les filets, `@Scheduled(zone = …)`). (a) `breakdown` nul d'un ancien instantané, (b) mois futur en lecture `SNAPSHOT_INTROUVABLE`, (c) société sans centre figée vide, (d) trois horodatages : inchangés, documentés (RG-DIR-104). RG-DIR-112, 113.
+
 ## Lot L1 (2026-11-09, ADR 0112) : instantanés relus masqués
 Les instantanés figés avant la correction de KB-DIR-01 / KB-MED-104 portent des totaux bruts : ils sont masqués À LA LECTURE (`MasqueDesTotauxFiges` dans `InstantanesMensuelsPublies`) ; `direction_snapshot.payload` n'est JAMAIS réécrit (RG-DIR-090). Nouveau golden `ancien_instantane_masque_a_la_lecture_nouveau_code`. Détection §74.
 

@@ -8,8 +8,8 @@ import java.time.temporal.ChronoUnit;
  * pas dépasser 5 ans » ; 5 ans pile est accepté, 5 ans et un jour est refusé).
  * <p>
  * Défauts du legacy, reproduits : fin absente = aujourd'hui, début absent = le 1er janvier de l'année de la fin. « Aujourd'hui » est la date
- * du serveur dans le fuseau de la JVM (KB-DIR-03, statu quo : la décision société / centre / Africa-Algiers est une question ouverte de
- * l'ADR 0102) ; il est PASSÉ au constructeur, jamais lu ici.
+ * dans le fuseau de référence de l'application, Africa/Algiers (KB-DIR-03 corrigé, lot L6, ADR 0119 : plus celui de la JVM) ; il est
+ * PASSÉ au constructeur, jamais lu ici.
  */
 public record Periode(LocalDate debut, LocalDate fin) {
 

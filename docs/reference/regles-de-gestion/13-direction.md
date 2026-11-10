@@ -15,7 +15,8 @@
   appel (RG-SEC-021, RG-SEC-030). Aucune requête n'est exécutée hors des centres de la société (filtre
   `center_id IN (centres de la société)`).
 - **RG-DIR-002** — Toutes les réponses sont sans mise en cache (`no-store`).
-- **RG-DIR-003** — **Période** : par défaut du 1er janvier de l'année en cours à aujourd'hui ; la date de début doit
+- **RG-DIR-003** — **Période** : par défaut du 1er janvier de l'année en cours à aujourd'hui (« aujourd'hui » = le jour du fuseau de
+  référence `Africa/Algiers`, **CORRIGÉ le 2026-11-10**, KB-DIR-03, RG-DIR-113) ; la date de début doit
   précéder la date de fin (`PERIODE_INVALIDE`) et l'amplitude ne dépasse pas **5 ans**
   (`PERIODE_TROP_LONGUE`). Tous les chiffres d'un écran (sauf mention contraire) sont ceux de la période choisie.
   Le tableau de bord s'ouvre sur le **mois en cours** (du 1er du mois à aujourd'hui) : le raccourci actif (« Ce mois »,
@@ -151,11 +152,12 @@
   ne fait que garder le jeton, porter les routes et rendre le PDF (HTML vers PDF). Règles reproduites à l'identique du fonctionnement
   antérieur : la période par défaut et ses refus (RG-DIR-003, réponse 422 avec le même code) sont contrôlés **avant** toute lecture ;
   la période précédente (même durée) n'est pas soumise à la limite de 5 ans ; l'effectif d'une période est celui de RG-PAT-037 ;
-  l'âge d'une tranche est l'âge révolu **au jour de l'appel** ; **CORRIGÉ le 2026-11-09 (KB-DIR-01, lot L1, ADR 0112, validation DPO
+  l'âge d'une tranche est l'âge révolu **au dernier jour de la période demandée** (**CORRIGÉ le 2026-11-10**, KB-DIR-08, lot L6, ADR 0119,
+  RG-DIR-113 ; avant, c'était le jour de l'appel) ; **CORRIGÉ le 2026-11-09 (KB-DIR-01, lot L1, ADR 0112, validation DPO
   attendue au plus tard le 2026-12-15)** : un total de patients (société, total d'une caisse, total du rapport) est publié nul dès que l'un
   des centres qui le composent est masqué (RG-DIR-111) ; avant, les totaux étaient calculés sur les effectifs bruts et la différence avec la
-  somme des centres publiés révélait l'effectif masqué ; « aujourd'hui » est la date du serveur (UTC, KB-DIR-03, question ouverte : société, centre
-  ou Africa/Algiers). Le rapport mensuel imprime l'instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
+  somme des centres publiés révélait l'effectif masqué ; « aujourd'hui » est le jour du fuseau de référence `Africa/Algiers` (**CORRIGÉ le
+  2026-11-10**, KB-DIR-03, RG-DIR-113 ; avant, la date du serveur en UTC). Le rapport mensuel imprime l'instantané figé (RG-DIR-090) et le rapport de la période le calcul en direct, avec
   les mêmes libellés d'alerte ; un code d'alerte inconnu est imprimé tel quel. *Source :* `ConsulterLaVueDEnsemble`,
   `ConsulterLaRepartition`, `ConstituerLeRapportDeSynthese`.
 
@@ -169,10 +171,14 @@
   **idempotente** (un instantané existant n'est ni recalculé ni remplacé, même `generated_at` ; une capture simultanée perdue est ignorée) ;
   la **lecture** d'un mois futur répond `SNAPSHOT_INTROUVABLE` (aucun contrôle du futur en lecture, KB-DIR-06 b) ; un instantané antérieur
   aux répartitions est servi avec `breakdown` nul (KB-DIR-06 a) ; l'horodatage de capture est celui de la base (KB-DIR-06 c) ; un contenu
-  illisible en base est **listé** mais sa lecture répond 500 (KB-DIR-06 e) ; la tâche du 1er du mois à 02:30 fige le mois précédent de chaque
+  illisible en base est **listé** mais sa lecture répond **422 `INSTANTANE_ILLISIBLE`** sans détail technique (**CORRIGÉ le 2026-11-10**, KB-DIR-06 e,
+  RG-DIR-112 ; avant, 500) ; la tâche du 1er du mois à 02:30 (fuseau de référence, RG-DIR-113) fige le mois précédent de chaque
   société **active**, société sans centre comprise (instantané à zéro, KB-DIR-06 d), ignore l'inactive, est rejouable, et un échec sur une
-  société n'empêche pas les suivantes. « Mois courant » = date du serveur (UTC, KB-DIR-03, statu quo à confirmer métiers/DPO au plus tard le
-  2026-12-15). *Source :* `MoisDInstantane`, `InstantaneMensuel`, `CapturerUnInstantaneMensuel`, `ConsulterUnInstantane`,
+  société n'empêche pas les suivantes. « Mois courant » = le mois du jour du fuseau de référence `Africa/Algiers` (**CORRIGÉ le 2026-11-10**,
+  KB-DIR-03, RG-DIR-113 ; avant, la date du serveur en UTC, à confirmer métiers/DPO au plus tard le 2026-12-15). Comportements **clos par
+  documentation, sans changement** (KB-DIR-06 a à d, à confirmer métiers/DPO au plus tard le 2026-12-15) : l'ancien instantané sans répartition
+  est servi avec `breakdown` nul ; la lecture d'un mois futur répond `SNAPSHOT_INTROUVABLE` ; une société active sans centre est figée vide ; un
+  instantané porte trois horodatages (la capture, la vue d'ensemble, les indicateurs). *Source :* `MoisDInstantane`, `InstantaneMensuel`, `CapturerUnInstantaneMensuel`, `ConsulterUnInstantane`,
   `ListerLesInstantanes`, `CapturerLesInstantanesDuMoisEcoule`.
 
 ## 13.14 Alertes et temps réel (contexte Pilotage direction)
@@ -196,12 +202,17 @@ points marqués « statu quo » sont **à confirmer métiers / DPO au plus tard 
 - **RG-DIR-107** — L'**historique des alertes** est alimenté par chaque recalcul. L'identité d'une alerte ouverte est le couple **(centre,
   code)**, sans notion de jour : tant qu'elle est ouverte, sa valeur, sa gravité et le nom du centre restent **figés à la première
   apparition** (stock sous seuil 3 puis 7 : reste 3) ; si elle disparaît, elle est résolue ; si elle réapparaît (même le jour même), c'est une
-  **nouvelle ligne** ; une alerte du centre A n'affecte jamais celle du centre B ni une autre société (KB-DIR-04, option (a) de R2, statu quo).
-  Aucune contrainte d'unicité en base : deux recalculs simultanés peuvent ouvrir deux lignes (résiduel PD3-R2). L'horodatage est celui de la
-  JVM (KB-DIR-03, statu quo). *Source :* `RapprochementDesAlertes`, `EnregistrerLesAlertes`.
+  **nouvelle ligne** ; une alerte du centre A n'affecte jamais celle du centre B ni une autre société (KB-DIR-04, option (a) de R2). **KB-DIR-04
+  CLOS par documentation le 2026-11-10, sans changement de comportement** : l'historique est une trace d'**ouverture et de résolution** d'une
+  alerte, pas un suivi de sa valeur ; la valeur, la gravité et le nom figés sont ceux de l'ouverture, et l'historique n'est alimenté que
+  pendant qu'une direction est connectée (une apparition hors connexion n'est pas datée). Question métier ouverte : garder la valeur à
+  l'ouverture ou la plus récente (à confirmer métiers/DPO au plus tard le 2026-12-15). Aucune contrainte d'unicité en base : deux recalculs
+  simultanés peuvent ouvrir deux lignes (résiduel PD3-R2). L'horodatage est un instant en UTC pris sur l'horloge injectée du Pilotage
+  (KB-DIR-03, RG-DIR-113). *Source :* `RapprochementDesAlertes`, `EnregistrerLesAlertes`.
 - **RG-DIR-108** — La **consultation** de l'historique (`GET /api/v1/direction/alerts/history`) rend les entrées de la société de la session, de la
   plus récemment active (`COALESCE(résolue, vue)`) à la plus ancienne ; `limit` vaut 50 par défaut, est **ramené** à 1 (0 ou négatif) ou à 200
-  (au-delà) sans refus ; un `limit` illisible répond 500 (KB-DIR-02, statu quo). Le contexte est le seul propriétaire de la table
+  (au-delà) sans refus ; un `limit` illisible répond **400 `BAD_REQUEST`** (**CORRIGÉ le 2026-11-10**, KB-DIR-02, RG-DIR-112 ; avant, 500).
+  Le contexte est le seul propriétaire de la table
   `direction_alert_history`. *Source :* `ConsulterLHistoriqueDesAlertes`, `LimiteDHistorique`.
 - **RG-DIR-109** — Une société est **suivie** (RG-DIR-106) tant qu'au moins un abonnement de direction au canal
   `/topic/societe/{id}/…` subsiste. Chaque couple (session, abonnement) n'est compté **qu'une fois** (un abonnement répété ne double pas le
@@ -221,7 +232,10 @@ Stock, sans changement de comportement. Les points marqués « statu quo » sont
 - **RG-DIR-110** — La période est contrôlée **avant** toute lecture (RG-DIR-003, 422 `PERIODE_INVALIDE` ou `PERIODE_TROP_LONGUE`). Les
   indicateurs cliniques de chaque centre et leur consolidé sont ceux du Dossier médical, **déjà masqués** (effectif de 1 à 4 publié nul, zéro
   reste zéro) ; **CORRIGÉ le 2026-11-09 (KB-MED-104, lot L1, RG-MED-049g)** : un consolidé est publié nul dès qu'un centre le porte masqué, et le
-  Pilotage ne le recalcule jamais à partir des centres publiés. Le **stock** de chaque centre est évalué à la **date de fin** de la période (KB-DIR-07, statu quo) ;
+  Pilotage ne le recalcule jamais à partir des centres publiés. Le **stock** de chaque centre est évalué à la **date de fin** de la période
+  (KB-DIR-07, **CLOS par documentation le 2026-11-10, sans changement** : c'est la sémantique d'un rapport de période, une vue historique
+  cohérente ; une consultation d'une période passée montre donc des lots périmés et des alertes relatifs à cette date ; question ouverte
+  « rétrospectif ou état courant », à confirmer métiers/DPO au plus tard le 2026-12-15) ;
   sa valeur est la quantité en stock multipliée par le prix moyen pondéré (un article sans prix vaut zéro), arrondie au centime (demi supérieur)
   **par centre**, tandis que les **totaux de la société additionnent les valeurs non arrondies** des centres puis arrondissent une seule fois
   (0,003 et 0,003 donnent 0,00 et 0,00 par centre mais 0,01 au total). Un centre **inactif** est servi comme les autres ; un centre inconnu du
@@ -246,3 +260,28 @@ Stock, sans changement de comportement. Les points marqués « statu quo » sont
   pourcentages cliniques d'un petit échantillon ; une société dont un centre est petit n'a plus jamais de total patients (effet voulu).
   *Source :* `BilanDuCentre.consolider`, `RepartitionDeLaSociete` (`CaisseDeLaSociete`), `SeuilDAnonymat.totalPublieDepuis`,
   `MasqueDesTotauxFiges`, `ConstituerLeRapportDeSynthese`.
+
+## 13.16 Qualité d'API, horloge et âge (lot L6, 2026-11-10, ADR 0119)
+
+Corrections faites à la demande de l'utilisateur, **à confirmer métiers / DPO au plus tard le 2026-12-15**.
+
+- **RG-DIR-112** — *Erreurs de requête de l'API de la Direction (KB-DIR-02 et KB-DIR-06 e, **CORRIGÉS le 2026-11-10**)* : une valeur illisible d'un
+  paramètre (date `from` ou `to`, entier `limit`) répond **400 `BAD_REQUEST`** (« Paramètre illisible : <nom> ») sur **toutes** les routes de la
+  Direction : `/overview`, `/breakdown`, `/report`, `/gmao`, `/alerts/history`, `/indicators`, `/absences`, `/stock-groupes`, `/capacite` (avant,
+  500 sur les cinq premières). Sur les routes ajoutées, le **403** d'un profil sans droit passe **avant** le 400. Une **méthode non supportée**
+  sous `/api/v1/direction/` répond **405 `METHOD_NOT_ALLOWED`** avec l'en-tête `Allow`, sans le message technique du serveur (avant, 500) ; le reste
+  de l'application garde sa réponse. Un instantané mensuel dont le contenu stocké est **illisible** répond **422 `INSTANTANE_ILLISIBLE`** à la
+  lecture (route de lecture, rapport PDF du mois, capture d'un mois déjà figé), sans détail technique ; il **reste listé** (la liste n'ouvre pas le
+  contenu) et la donnée n'est jamais réécrite (sa réparation est hors périmètre). *Source :* `DatesIllisiblesDeLaDirectionAdvice`
+  (et son gestionnaire de méthode non supportée), `InstantanesMensuelsPublies`, `ErreursDuPilotageAdvice`.
+- **RG-DIR-113** — *Horloge et âge (KB-DIR-03 et KB-DIR-08, **CORRIGÉS le 2026-11-10**)* : « aujourd'hui » du Pilotage (fin de période par défaut,
+  RG-DIR-003 ; mois courant et mois écoulé des instantanés, RG-DIR-104 ; capture du 1er du mois à 02:30) est le **jour du fuseau de référence
+  `Africa/Algiers`** (le défaut que les autres contextes appliquent à un centre sans fuseau ; propriété `app.pilotage.fuseau-par-defaut`), et non
+  celui de la machine ; l'horloge est **injectée** (les tests la figent) ; les horodatages (alertes, génération) sont des instants en UTC. Entre
+  23 h et minuit UTC, il est déjà le lendemain à Alger : la fin par défaut et le mois écoulé suivent Alger. **Résiduel nommé « fuseau par
+  centre »** : une société peut porter des centres de fuseaux différents et la table `societes` n'a pas de fuseau ; un fuseau par centre ou par
+  société n'est pas tenté ici. Les tranches d'âge de la répartition (et du rapport) sont l'âge révolu au **dernier jour de la période demandée**
+  (avant, au jour de l'appel, même pour une période passée) : une naissance postérieure à ce jour ou absente reste `INCONNU`. Le **sexe** reste lu à
+  l'initiale (`M`, `F`, la casse et les blancs ignorés ; `''`, `X` et absent = « autre ») : tolérance existante, **documentée sans changement**
+  (KB-DIR-08, à confirmer métiers). *Source :* `HorlogeDuPilotage`, `PilotageDirectionConfiguration`, `CaptureDuMoisEcoulePlanifiee`,
+  `ConsulterLaRepartition`, `TrancheDAge`.

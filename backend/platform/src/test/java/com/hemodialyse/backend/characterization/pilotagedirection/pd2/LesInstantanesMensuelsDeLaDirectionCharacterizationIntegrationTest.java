@@ -17,8 +17,9 @@ import java.util.UUID;
  * PD2 : instantanés mensuels ({@code GET/POST /api/v1/direction/snapshots[/{mois}]}, table {@code direction_snapshot}, tâche du 1er du mois à
  * 02:30) : filet écrit sur le legacy ({@code DirectionSnapshotService}, retiré), exécuté depuis le lot B contre le contexte Pilotage direction
  * ({@code InstantanesMensuelsDeLaDirection}, ADR 0103) avec les MÊMES goldens : un mois écoulé est figé une fois (payload JSON
- * {@code overview + indicators + breakdown}), jamais recalculé ; mois contrôlés au fuseau de la JVM ({@code YearMonth.now()}, pas le fuseau du
- * centre) ; cloisonnement par société ; instantanés anciens sans répartition. Rien n'est corrigé.
+ * {@code overview + indicators + breakdown}), jamais recalculé ; mois contrôlés à l'horloge injectée du Pilotage au fuseau de référence Africa/Algiers
+ * (KB-DIR-03 corrigé, lot L6 ; jamais le fuseau du centre) ; cloisonnement par société ; instantanés anciens sans répartition. Lot L6 : un
+ * contenu illisible est refusé en 422 {@code INSTANTANE_ILLISIBLE} (KB-DIR-06 e), le reste est reproduit.
  */
 class LesInstantanesMensuelsDeLaDirectionCharacterizationIntegrationTest extends PilotageDirectionCharacterizationSupport {
 
@@ -163,7 +164,7 @@ class LesInstantanesMensuelsDeLaDirectionCharacterizationIntegrationTest extends
         m.put("06 second instantane du meme mois pour la meme societe, insere en base", doublon);
         m.put("07 capture du meme mois pour l'autre societe : independante", instantane(doPost(SNAPSHOTS + "/" + m1, "", directionAutre())).get("statut")
                 + " | lignes de l'autre societe : " + jdbc.queryForObject("SELECT COUNT(*) FROM direction_snapshot WHERE societe_id = ?", Integer.class, AUTRE_SOCIETE));
-        arbrePd("cloisonnement_et_anciens", m);
+        arbrePd("cloisonnement_et_anciens_nouveau_code", m);
     }
 
     @Test

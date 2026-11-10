@@ -1,0 +1,155 @@
+{
+  "01 reponse complete (sexe par initiale M/F sinon autre ; tranches d'age au jour de l'appel ; caisses triees par centre puis CA HT decroissant ; anemie ; KB-DIR-01 corrige (lot L1) : le total de la caisse sans code est supprime car le centre B y est masque)" : {
+    "body" : {
+      "ages" : [ {
+        "centerId" : "<CENTRE_A>",
+        "nom" : "Centre A",
+        "tranches" : [ {
+          "code" : "0_17",
+          "count" : null
+        }, {
+          "code" : "18_29",
+          "count" : 0
+        }, {
+          "code" : "30_44",
+          "count" : null
+        }, {
+          "code" : "45_59",
+          "count" : null
+        }, {
+          "code" : "60_PLUS",
+          "count" : null
+        }, {
+          "code" : "INCONNU",
+          "count" : null
+        } ]
+      }, {
+        "centerId" : "<CENTRE_B>",
+        "nom" : "Centre B",
+        "tranches" : [ {
+          "code" : "0_17",
+          "count" : 5
+        }, {
+          "code" : "18_29",
+          "count" : 5
+        }, {
+          "code" : "30_44",
+          "count" : 0
+        }, {
+          "code" : "45_59",
+          "count" : 0
+        }, {
+          "code" : "60_PLUS",
+          "count" : null
+        }, {
+          "code" : "INCONNU",
+          "count" : 0
+        } ]
+      } ],
+      "anemie" : [ {
+        "administreesEpo" : 5,
+        "administreesFer" : 2,
+        "centerId" : "<CENTRE_A>",
+        "nom" : "Centre A",
+        "nonAdministrees" : 1,
+        "patientsEpo" : 5,
+        "patientsFer" : null,
+        "patientsSousEpo" : 6,
+        "patientsSousFer" : null,
+        "tauxAdministration" : 87.5
+      }, {
+        "administreesEpo" : 0,
+        "administreesFer" : 0,
+        "centerId" : "<CENTRE_B>",
+        "nom" : "Centre B",
+        "nonAdministrees" : 0,
+        "patientsEpo" : 0,
+        "patientsFer" : 0,
+        "patientsSousEpo" : 0,
+        "patientsSousFer" : 0,
+        "tauxAdministration" : null
+      } ],
+      "caisseTotaux" : [ {
+        "caHt" : 1500.0,
+        "caisse" : "CNAS Nationale",
+        "caisseCode" : "CNAS",
+        "patients" : 5,
+        "seances" : 3
+      }, {
+        "caHt" : 200.0,
+        "caisse" : null,
+        "caisseCode" : "",
+        "patients" : null,
+        "seances" : 3
+      }, {
+        "caHt" : 50.0,
+        "caisse" : "CASNOS Independants",
+        "caisseCode" : "CASNOS",
+        "patients" : 0,
+        "seances" : 0
+      } ],
+      "caisses" : [ {
+        "caHt" : 1500.0,
+        "caisse" : "CNAS Nationale",
+        "caisseCode" : "CNAS",
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "patients" : 5,
+        "seances" : 3
+      }, {
+        "caHt" : 200.0,
+        "caisse" : null,
+        "caisseCode" : "",
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "patients" : null,
+        "seances" : 1
+      }, {
+        "caHt" : 50.0,
+        "caisse" : "CASNOS Independants",
+        "caisseCode" : "CASNOS",
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "patients" : 0,
+        "seances" : 0
+      }, {
+        "caHt" : 0.0,
+        "caisse" : null,
+        "caisseCode" : "",
+        "centerId" : "<CENTRE_B>",
+        "centre" : "Centre B",
+        "patients" : 13,
+        "seances" : 2
+      } ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "sexe" : [ {
+        "autre" : null,
+        "centerId" : "<CENTRE_A>",
+        "feminin" : null,
+        "masculin" : null,
+        "nom" : "Centre A"
+      }, {
+        "autre" : 0,
+        "centerId" : "<CENTRE_B>",
+        "feminin" : 0,
+        "masculin" : 13,
+        "nom" : "Centre B"
+      } ],
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 centre B (13 patients : 3 nes en 1960 masques, 5 de 18 ans aujourd'hui, 5 qui auront 18 ans demain) : 18 ans revolus = 18_29, la veille = 0_17" : {
+    "0_17" : "5",
+    "18_29" : "5",
+    "30_44" : "0",
+    "45_59" : "0",
+    "60_PLUS" : "masque",
+    "INCONNU" : "0"
+  }
+}

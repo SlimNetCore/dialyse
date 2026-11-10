@@ -40,6 +40,10 @@ Sans objet (refactoring sur place). Retour arrière : revert du commit.
 ## Résiduels
 PD6-R1 à R4 : voir ADR 0106 (nom du port `IndicateursDeLaDirectionFournis`, deux copies du seuil 5, KB-DIR-01/07 à confirmer, HTML client édité à la main).
 
+## Lot L6 (2026-11-10, ADR 0119) : KB-DIR-07 CLOS-DOCUMENTÉ
+
+Aucun changement de code ni de golden : le stock reste évalué à la date de FIN de la période demandée (sémantique d'un rapport de période, vue historique cohérente ; alternative « état courant » écartée : alertes différentes selon la période consultée). Goldens `pd6/indicateurs/date_de_fin` et `pd3/alertes/seuils` inchangés. Question ouverte « rétrospectif ou état courant » et PMP absent = 0 (≤ 2026-12-15). RG-DIR-105, 110.
+
 ## Lot L1 (2026-11-09, ADR 0112)
 KB-DIR-01 et KB-MED-104 CORRIGÉS : les consolidés cliniques publiés par le Dossier médical sont supprimés dès qu'un centre est masqué (RG-MED-049g) ; le Pilotage les passe tels quels (aucune modification de `ConsulterLesIndicateursDeLaDirection`). Goldens `pd6/indicateurs/*` inchangés.
 

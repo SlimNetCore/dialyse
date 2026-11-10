@@ -100,6 +100,29 @@ class LesInstantanesMensuelsTest {
         assertThat(constitutions).hasSize(2);
     }
 
+    /**
+     * KB-DIR-03 (lot L6) : le 1er novembre à 00:30 à Alger est encore le 31 octobre 23:30 en UTC ; le mois écoulé est octobre (et non
+     * septembre, comme avec l'ancienne horloge de la JVM en UTC).
+     */
+    @Test
+    void le_mois_ecoule_est_celui_du_fuseau_de_reference_au_passage_du_mois() {
+        var alger = HorlogeDuPilotage.auFuseauDeReference(Clock.fixed(Instant.parse("2026-10-31T23:30:00Z"), ZoneOffset.UTC),
+                java.time.ZoneId.of("Africa/Algiers"));
+        var tache = new CapturerLesInstantanesDuMoisEcoule(() -> List.of(SOCIETE), instantanes, contenu, alger);
+
+        assertThat(tache.execute()).isEqualTo(1);
+        assertThat(instantanes.lister(SOCIETE)).extracting(InstantanesMensuels.InstantaneListe::mois).containsExactly("2026-10");
+    }
+
+    @Test
+    void la_capture_du_mois_qui_vient_de_finir_a_alger_est_acceptee_a_00h30_le_premier() {
+        var alger = HorlogeDuPilotage.auFuseauDeReference(Clock.fixed(Instant.parse("2026-10-31T23:30:00Z"), ZoneOffset.UTC),
+                java.time.ZoneId.of("Africa/Algiers"));
+
+        assertThat(new CapturerUnInstantaneMensuel(instantanes, contenu, alger).execute(SOCIETE, "2026-10").mois()).isEqualTo("2026-10");
+        assertThat(codeDuRefus(() -> new CapturerUnInstantaneMensuel(instantanes, contenu, alger).execute(SOCIETE, "2026-11"))).isEqualTo("MOIS_NON_TERMINE");
+    }
+
     @Test
     void l_echec_d_une_societe_n_empeche_pas_les_suivantes() {
         UUID enPanne = UUID.randomUUID();

@@ -1,12 +1,16 @@
 package com.hemodialyse.backend.characterization.pilotagedirection;
 
 import com.hemodialyse.backend.characterization.planification.SemaineCharacterizationSupport;
+import com.hemodialyse.backend.contexts.pilotagedirection.configuration.InstantsDuPilotage;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -14,6 +18,7 @@ import tools.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -39,12 +44,32 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * caractérisé, aucun seam, aucun code de production modifié ; le module parallèle gelé {@code contexts/pilotage-direction} n'est pas exercé.
  * <p>
  * Non-déterminisme : dates FIXES nommées {@code <D+n>} (2026-01-01 + n) pour toute l'activité ; mois RELATIFS nommés {@code <M-1>} (mois
- * écoulé au fuseau de la JVM, comme le legacy : {@code YearMonth.now()}) pour les instantanés, avec leurs bornes {@code <M-1.DEBUT>} et
+ * écoulé de l'horloge INJECTÉE et figée du Pilotage, au fuseau de référence Africa/Algiers : lot L6, KB-DIR-03) pour les instantanés, avec leurs bornes {@code <M-1.DEBUT>} et
  * {@code <M-1.FIN>} ; horodatages masqués {@code <HORODATAGE>} ; identifiants par alias. Les fixtures sont toutes antérieures au mois
  * écoulé (repère 2026-01-01, exécution à partir du 2026-11-09) : un instantané du mois écoulé ne contient jamais d'activité.
  * DONNÉES DE SANTÉ : fictives (« Patient &lt;alias&gt; », valeurs rondes).
  */
+@Import(PilotageDirectionCharacterizationSupport.HorlogeFixeDuPilotage.class)
 public abstract class PilotageDirectionCharacterizationSupport extends SemaineCharacterizationSupport {
+
+    /**
+     * KB-DIR-03 (lot L6, ADR 0119) : l'horloge du Pilotage est INJECTÉE et figée à 23:30 UTC le 2026-11-10, soit 00:30 le 2026-11-11 à Alger
+     * (fuseau de référence). Les tests ne dépendent plus de l'heure réelle, et l'écart d'un jour entre UTC et Alger rend la règle visible.
+     */
+    protected static final Instant INSTANT_FIXE = Instant.parse("2026-11-10T23:30:00Z");
+    protected static final ZoneId FUSEAU_DE_REFERENCE = ZoneId.of("Africa/Algiers");
+    /** « Aujourd'hui » du Pilotage (à Alger) : le lendemain de la date UTC de {@link #INSTANT_FIXE}. */
+    protected static final LocalDate AUJOURDHUI_DU_PILOTAGE = LocalDate.of(2026, 11, 11);
+    protected static final YearMonth MOIS_COURANT_DU_PILOTAGE = YearMonth.from(AUJOURDHUI_DU_PILOTAGE);
+
+    /** Les instants du Pilotage : le bean que la composition du module préfère à l'horloge système (aucune {@code Clock} nue exposée). */
+    @TestConfiguration(proxyBeanMethods = false)
+    public static class HorlogeFixeDuPilotage {
+        @Bean
+        InstantsDuPilotage instantsDuPilotage() {
+            return new InstantsDuPilotage(Clock.fixed(INSTANT_FIXE, ZoneOffset.UTC));
+        }
+    }
 
     protected static final String DIRECTION = "/api/v1/direction";
     protected static final LocalDate REPERE = LocalDate.of(2026, 1, 1);
@@ -227,7 +252,7 @@ public abstract class PilotageDirectionCharacterizationSupport extends SemaineCh
 
     /** Mois relatif au mois courant de la JVM ({@code <M-1>} = mois écoulé), avec ses bornes nommées {@code <M-1.DEBUT>}, {@code <M-1.FIN>}. */
     protected YearMonth mois(int decalage) {
-        YearMonth m = YearMonth.now().plusMonths(decalage);
+        YearMonth m = MOIS_COURANT_DU_PILOTAGE.plusMonths(decalage);
         String alias = "<M" + (decalage < 0 ? decalage : "+" + decalage) + ">";
         moisNommes.put(m.toString(), alias);
         alias(m.atDay(1), alias.replace(">", ".DEBUT>"));

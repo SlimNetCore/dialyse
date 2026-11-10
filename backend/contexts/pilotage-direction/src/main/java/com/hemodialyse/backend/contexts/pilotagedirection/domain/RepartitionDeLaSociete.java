@@ -40,6 +40,7 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
     }
 
     /**
+     * @param dateDeReferenceDeLAge le dernier jour de la période demandée (KB-DIR-08, lot L6)
      * @param profils             un élément par patient de l'effectif de la période (sexe et naissance, sans identité)
      * @param patientsParCaisse   patients de l'effectif par centre et par caisse
      * @param seancesParCaisse    séances réalisées par centre et par caisse
@@ -47,7 +48,7 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
      * @param administrations     administrations de l'anémie par centre
      * @param prescriptions       patients sous EPO / fer prescrits par centre
      */
-    public static RepartitionDeLaSociete constituer(SocieteSuivie societe, Periode periode, LocalDate aujourdhui, OffsetDateTime genereLe,
+    public static RepartitionDeLaSociete constituer(SocieteSuivie societe, Periode periode, LocalDate dateDeReferenceDeLAge, OffsetDateTime genereLe,
                                                     List<ProfilDUnPatient> profils, List<PatientsDeLaCaisse> patientsParCaisse,
                                                     List<SeancesDeLaCaisse> seancesParCaisse, List<ChiffreDeLaCaisse> chiffreParCaisse,
                                                     Map<UUID, AdministrationsDeLAnemie> administrations,
@@ -57,7 +58,7 @@ public record RepartitionDeLaSociete(SocieteSuivie societe, Periode periode, Off
         for (ProfilDUnPatient p : profils) {
             sexes.computeIfAbsent(p.centreId(), k -> new long[3])[p.indiceDuSexe()]++;
             ages.computeIfAbsent(p.centreId(), k -> new EnumMap<>(TrancheDAge.class))
-                    .merge(TrancheDAge.de(p.naissance(), aujourdhui), 1L, Long::sum);
+                    .merge(TrancheDAge.de(p.naissance(), dateDeReferenceDeLAge), 1L, Long::sum);
         }
 
         Map<String, Cellule> cellules = new LinkedHashMap<>();

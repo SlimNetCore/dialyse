@@ -1,0 +1,7 @@
+{
+  "cinq ans et un jour" : "422 {\"detail\":\"La période ne peut pas dépasser 5 ans\",\"instance\":\"/api/v1/direction/absences\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"PERIODE_TROP_LONGUE\"}",
+  "cinq ans pile" : 200,
+  "date illisible" : 400,
+  "date illisible sur une autre route" : 500,
+  "debut apres fin" : "422 {\"detail\":\"La date de début doit précéder la date de fin\",\"instance\":\"/api/v1/direction/absences\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"PERIODE_INVALIDE\"}"
+}

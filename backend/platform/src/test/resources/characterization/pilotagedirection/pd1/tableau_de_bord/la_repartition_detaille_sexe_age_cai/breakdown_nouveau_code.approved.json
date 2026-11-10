@@ -1,5 +1,5 @@
 {
-  "01 reponse complete (sexe par initiale M/F sinon autre ; tranches d'age au jour de l'appel ; caisses triees par centre puis CA HT decroissant ; anemie ; KB-DIR-01 corrige (lot L1) : le total de la caisse sans code est supprime car le centre B y est masque)" : {
+  "01 reponse complete (sexe par initiale M/F sinon autre ; tranches d'age au dernier jour de la periode (KB-DIR-08 corrige, lot L6) ; caisses triees par centre puis CA HT decroissant ; anemie ; KB-DIR-01 corrige (lot L1) : le total de la caisse sans code est supprime car le centre B y est masque)" : {
     "body" : {
       "ages" : [ {
         "centerId" : "<CENTRE_A>",
@@ -144,7 +144,7 @@
     "contentType" : "application/json",
     "status" : 200
   },
-  "02 centre B (13 patients : 3 nes en 1960 masques, 5 de 18 ans aujourd'hui, 5 qui auront 18 ans demain) : 18 ans revolus = 18_29, la veille = 0_17" : {
+  "02 centre B (13 patients : 3 nes en 1960 masques, 5 qui ont 18 ans le dernier jour de la periode, 5 qui les auront le lendemain, deja 18 ans le jour de l'appel) : 18 ans revolus le dernier jour = 18_29, la veille = 0_17" : {
     "0_17" : "5",
     "18_29" : "5",
     "30_44" : "0",
