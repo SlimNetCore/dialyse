@@ -4841,7 +4841,11 @@ accents et casse tolérés (<code>INVALID_VALUE</code>).</p>
 </div></div>
 <div class="rule" id="RG-REF-005"><div class="rid">RG-REF-005</div><div class="rtxt"><p><strong>Suppression</strong> : refusée tant que l&#39;élément est utilisé (<code>REFERENTIAL_IN_USE</code> : patients, prises en
 charge, séances, équipements, autres référentiels) ; élément inconnu :
-<code>REFERENTIAL_NOT_FOUND</code>. Les salles servent aux patients et équipements ; les forfaits aux PEC et séances ; etc.</p>
+<code>REFERENTIAL_NOT_FOUND</code>. Les salles servent aux patients et équipements ; les forfaits aux PEC et séances ; etc.
+Pour un <strong>transporteur</strong>, seuls comptent les patients <strong>du centre du transporteur</strong> (aller ou retour), un patient d&#39;un
+autre centre ne bloque pas la suppression (KB-RF1-03 corrigé, ADR 0123, à confirmer par les métiers avant le
+2026-12-15). Sur les routes d&#39;administration des transporteurs, un corps ou un paramètre illisible répond <strong>400</strong>
+<code>BAD_REQUEST</code> (et non plus 500) ; le refus de droits (403) passe avant (KB-RF1-01 corrigé).</p>
 </div></div>
 <div class="rule" id="RG-REF-006"><div class="rid">RG-REF-006</div><div class="rtxt"><p>La capacité d&#39;une salle (en générateurs) limite l&#39;affectation de générateurs (RG-PLN-061) ; la
 modifier <strong>ne contrôle pas rétroactivement</strong> les générateurs déjà affectés. L&#39;indicateur
@@ -5505,6 +5509,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/pec</code> (prise en charge) — contexte <code>patient-couverture</code>, slice PC3</td>
 <td>validation <code>ADMIN</code> ; autres routes tout utilisateur authentifié ; garde de centre</td>
 <td>RG-PEC-001 à 013</td>
+</tr>
+<tr>
+<td><code>TransportsControleur</code></td>
+<td><code>/api/v1/referentials/{transporteurs,categories-transport}</code> et <code>/api/v1/organisation/referentiels/{transporteurs,categories-transport}</code> — contexte <code>patient-couverture</code>, slice RF1</td>
+<td>tout utilisateur authentifié (lecture, mise en cache) ; garde de centre ; DIRECTION et SUPERADMIN refusés</td>
+<td>RG-REF-001, RG-REF-002</td>
 </tr>
 <tr>
 <td><code>DashboardRestController</code></td>

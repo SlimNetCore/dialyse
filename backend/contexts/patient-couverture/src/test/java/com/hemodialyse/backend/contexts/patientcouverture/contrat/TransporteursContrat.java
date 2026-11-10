@@ -100,16 +100,26 @@ abstract class TransporteursContrat {
     }
 
     @Test
-    void les_references_comptent_l_aller_et_le_retour_de_tous_les_patients_quel_que_soit_leur_centre() {
+    void les_references_comptent_l_aller_et_le_retour_des_seuls_patients_du_centre_du_transporteur() {
+        // KB-RF1-03 corrigé (ADR 0123) : les patients d'un autre centre ne comptent plus
         Transporteur t = enregistre(CENTRE, "Alpha", null);
         Transporteur libre = enregistre(CENTRE, "Beta", null);
         patientUtilisant(CENTRE, t.id(), null);
         patientUtilisant(CENTRE, null, t.id());
         patientUtilisant(CENTRE, t.id(), t.id());
         patientUtilisant(AUTRE, t.id(), null);
+        patientUtilisant(AUTRE, null, t.id());
 
-        assertThat(carnet().nombreDeReferences(t.id())).isEqualTo(5);
-        assertThat(carnet().nombreDeReferences(libre.id())).isZero();
+        assertThat(carnet().nombreDeReferences(CENTRE, t.id())).isEqualTo(4);
+        assertThat(carnet().nombreDeReferences(CENTRE, libre.id())).isZero();
+    }
+
+    @Test
+    void un_transporteur_utilise_seulement_par_des_patients_d_un_autre_centre_n_a_aucune_reference() {
+        Transporteur t = enregistre(CENTRE, "Alpha", null);
+        patientUtilisant(AUTRE, t.id(), t.id());
+
+        assertThat(carnet().nombreDeReferences(CENTRE, t.id())).isZero();
     }
 
     @Test

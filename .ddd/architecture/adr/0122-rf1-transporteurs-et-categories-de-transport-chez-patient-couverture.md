@@ -40,5 +40,5 @@ Aucun. Les défauts du legacy sont REPRODUITS et consignés (KB-RF1-01 : 500 sur
 
 ## Questions ouvertes
 - Confirmation métier de la propriété (ADR 0121, décision 4) avant le 2026-12-15.
-- Faut-il corriger KB-RF1-01 (500 -> 400) et KB-RF1-03 (compte d'usage borné au centre) ? Comportement actuel conservé.
+- ~~Faut-il corriger KB-RF1-01 (500 -> 400) et KB-RF1-03 (compte d'usage borné au centre) ?~~ Corrigés le 2026-11-10 sur décision de l'utilisateur : ADR 0123 (le corps de cet ADR décrit l'état à l'ouverture de RF1).
 - Les doublons historiques de `lower(trim(nom))` par centre existent-ils en production ? (KB-RF1-04.)

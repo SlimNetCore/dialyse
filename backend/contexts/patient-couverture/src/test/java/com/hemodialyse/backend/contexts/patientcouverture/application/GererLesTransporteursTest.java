@@ -127,13 +127,19 @@ class GererLesTransporteursTest {
     void supprimer_refuse_un_transporteur_inconnu_ou_utilise_en_donnant_le_nombre_de_references() {
         UUID libre = gerer.creer(CENTRE.valeur(), "Libre", null).id();
         UUID utilise = gerer.creer(CENTRE.valeur(), "Utilise", null).id();
-        carnet.utiliser(utilise, 3);
+        UUID utiliseAilleurs = gerer.creer(CENTRE.valeur(), "Utilise ailleurs", null).id();
+        carnet.utiliser(CENTRE, utilise, 3);
+        carnet.utiliser(AUTRE, utiliseAilleurs, 2);
 
         assertThat(motifDe(() -> gerer.supprimer(CENTRE.valeur(), UUID.randomUUID()))).isEqualTo(Motif.INTROUVABLE);
         RefusDeTransporteur refus = refus(() -> gerer.supprimer(CENTRE.valeur(), utilise));
         assertThat(refus.motif()).isEqualTo(Motif.UTILISE);
         assertThat(refus.references()).isEqualTo(3);
         assertThat(carnet.trouver(CENTRE, utilise)).isPresent();
+
+        // KB-RF1-03 corrigé : seuls les patients du centre du transporteur le retiennent
+        gerer.supprimer(CENTRE.valeur(), utiliseAilleurs);
+        assertThat(carnet.trouver(CENTRE, utiliseAilleurs)).isEmpty();
 
         gerer.supprimer(CENTRE.valeur(), libre);
         assertThat(carnet.trouver(CENTRE, libre)).isEmpty();

@@ -94,7 +94,7 @@ public class GererLesTransporteurs implements GestionDesTransporteurs {
         CentreId centreId = new CentreId(centre);
         unite.executer(() -> {
             carnet.trouver(centreId, id).orElseThrow(RefusDeTransporteur::introuvable);
-            long references = carnet.nombreDeReferences(id);
+            long references = carnet.nombreDeReferences(centreId, id);
             if (references > 0) throw RefusDeTransporteur.utilise(references);
             carnet.supprimer(centreId, id);
             return null;

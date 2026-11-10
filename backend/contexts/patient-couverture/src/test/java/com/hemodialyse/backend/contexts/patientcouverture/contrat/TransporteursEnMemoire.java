@@ -26,15 +26,18 @@ import java.util.UUID;
 public class TransporteursEnMemoire implements CarnetDeTransporteurs, LectureDesTransporteurs, Transporteurs {
 
     private final Map<UUID, Transporteur> lignes = new LinkedHashMap<>();
-    private final Map<UUID, Long> references = new HashMap<>();
+    private final Map<ReferenceDePatient, Long> references = new HashMap<>();
     private final Map<UUID, CategorieEnBase> categories = new LinkedHashMap<>();
 
     private record CategorieEnBase(UUID centre, String libelle) {
     }
 
-    /** Un patient (de n'importe quel centre) utilise ce transporteur {@code fois} fois (aller et retour comptent chacun). */
-    public void utiliser(UUID transporteur, int fois) {
-        references.merge(transporteur, (long) fois, Long::sum);
+    private record ReferenceDePatient(CentreId centreDuPatient, UUID transporteur) {
+    }
+
+    /** Un patient du centre donné utilise ce transporteur {@code fois} fois (aller et retour comptent chacun). */
+    public void utiliser(CentreId centreDuPatient, UUID transporteur, int fois) {
+        references.merge(new ReferenceDePatient(centreDuPatient, transporteur), (long) fois, Long::sum);
     }
 
     public UUID categorie(UUID centre, String libelle) {
@@ -69,8 +72,8 @@ public class TransporteursEnMemoire implements CarnetDeTransporteurs, LectureDes
     }
 
     @Override
-    public long nombreDeReferences(UUID id) {
-        return references.getOrDefault(id, 0L);
+    public long nombreDeReferences(CentreId centre, UUID id) {
+        return references.getOrDefault(new ReferenceDePatient(centre, id), 0L);
     }
 
     @Override

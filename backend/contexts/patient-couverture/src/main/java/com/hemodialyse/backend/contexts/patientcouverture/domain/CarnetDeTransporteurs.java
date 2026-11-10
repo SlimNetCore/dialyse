@@ -20,6 +20,9 @@ public interface CarnetDeTransporteurs {
 
     void supprimer(CentreId centre, UUID id);
 
-    /** Patients (de n'importe quel centre) qui utilisent ce transporteur à l'aller ou au retour : l'aller et le retour comptent chacun. */
-    long nombreDeReferences(UUID id);
+    /**
+     * Patients DU CENTRE du transporteur qui l'utilisent à l'aller ou au retour : l'aller et le retour comptent chacun (KB-RF1-03
+     * corrigé, ADR 0123 : les patients des autres centres ne comptent plus).
+     */
+    long nombreDeReferences(CentreId centre, UUID id);
 }

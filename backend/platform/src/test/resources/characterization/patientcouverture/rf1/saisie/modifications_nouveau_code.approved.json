@@ -1,0 +1,15 @@
+{
+  "centre B par le super administrateur" : "200 | {\"id\":\"<TB>\",\"references\":{},\"values\":{\"nom\":\"Transport B2\",\"telephone\":null}}",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "effacer le telephone" : "200 | {\"id\":\"<T1>\",\"references\":{},\"values\":{\"nom\":\"Ambulances Rouiba Est\",\"telephone\":null}}",
+  "garder son propre nom a la casse pres" : "200 | {\"id\":\"<T1>\",\"references\":{},\"values\":{\"nom\":\"ambulances rouiba est\",\"telephone\":\"0795 00 61 37\"}}",
+  "identifiant illisible" : "400 BAD_REQUEST | Paramètre illisible : id",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Transporteurs » pour ce centre.",
+  "memes valeurs" : "200 | {\"id\":\"<T1>\",\"references\":{},\"values\":{\"nom\":\"Ambulances Rouiba Est\",\"telephone\":\"0795 00 61 37\"}}",
+  "nom vide" : "422 REFERENTIAL_VALIDATION | « Nom » est obligatoire. | REQUIRED/nom/ligne 0 {}",
+  "prendre le nom d'un autre" : "422 REFERENTIAL_VALIDATION | Un élément de « Transporteurs » avec ce nom existe déjà. | ALREADY_EXISTS/nom/ligne 0 {}",
+  "renommer" : "200 | {\"id\":\"<T1>\",\"references\":{},\"values\":{\"nom\":\"Ambulances Rouiba Est\",\"telephone\":\"0795 00 61 37\"}}",
+  "sans values" : "400 VALIDATION_ERROR | Invalid request content.",
+  "telephone invalide" : "422 REFERENTIAL_VALIDATION | « Téléphone » : « abc » n'est pas un numéro de téléphone valide. | INVALID_PHONE/telephone/ligne 0 {\"value\":\"abc\"}",
+  "transporteur d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Transporteurs » pour ce centre."
+}

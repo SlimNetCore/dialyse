@@ -40,7 +40,7 @@ class TransporteursEnMemoireContratTest extends TransporteursContrat {
 
     @Override
     protected void patientUtilisant(CentreId centreDuPatient, UUID aller, UUID retour) {
-        if (aller != null) memoire.utiliser(aller, 1);
-        if (retour != null) memoire.utiliser(retour, 1);
+        if (aller != null) memoire.utiliser(centreDuPatient, aller, 1);
+        if (retour != null) memoire.utiliser(centreDuPatient, retour, 1);
     }
 }

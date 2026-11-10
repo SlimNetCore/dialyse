@@ -32,6 +32,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 - **RG-REF-005** — **Suppression** : refusée tant que l'élément est utilisé (`REFERENTIAL_IN_USE` : patients, prises en
   charge, séances, équipements, autres référentiels) ; élément inconnu :
   `REFERENTIAL_NOT_FOUND`. Les salles servent aux patients et équipements ; les forfaits aux PEC et séances ; etc.
+  Pour un **transporteur**, seuls comptent les patients **du centre du transporteur** (aller ou retour), un patient d'un
+  autre centre ne bloque pas la suppression (KB-RF1-03 corrigé, ADR 0123, à confirmer par les métiers avant le
+  2026-12-15). Sur les routes d'administration des transporteurs, un corps ou un paramètre illisible répond **400**
+  `BAD_REQUEST` (et non plus 500) ; le refus de droits (403) passe avant (KB-RF1-01 corrigé).
 - **RG-REF-006** — La capacité d'une salle (en générateurs) limite l'affectation de générateurs (RG-PLN-061) ; la
   modifier **ne contrôle pas rétroactivement** les générateurs déjà affectés. L'indicateur
   d'isolement est une propriété de la salle (RG-PLN-004).

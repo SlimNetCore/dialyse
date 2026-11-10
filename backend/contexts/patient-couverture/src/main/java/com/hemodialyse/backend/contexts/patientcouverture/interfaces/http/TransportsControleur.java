@@ -28,7 +28,9 @@ public class TransportsControleur {
     }
 
     @GetMapping("/api/v1/referentials/transporteurs")
-    public ResponseEntity<List<ChoixDeTransport>> transporteursLegacy(@RequestParam UUID centerId) {
+    public ResponseEntity<List<ChoixDeTransport>> transporteursLegacy(@RequestParam(required = false) UUID centerId) {
+        // KB-RF1-01 corrigé (ADR 0123) : un centerId absent répond 400 BAD_REQUEST (c'était un 500) ; les catégories gardent leur 500
+        if (centerId == null) throw new IllegalArgumentException("Paramètre obligatoire absent : centerId");
         return ResponseEntity.ok(listes.transporteurs(consulter.centreDeLaLecture(centerId)));
     }
 

@@ -1,0 +1,9 @@
+[ {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Utilise a l'aller",
+  "telephone" : null
+}, {
+  "center_id" : "<CENTRE_A>",
+  "nom" : "Utilise au retour",
+  "telephone" : null
+} ]

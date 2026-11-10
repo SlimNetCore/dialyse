@@ -48,7 +48,7 @@ Retour arrière : revert Git.
 - Terme absent des glossaires : « Transporteur », « Catégorie de transport » ajoutés en `proposed` (glossaire Patient & couverture).
 - Faut-il refuser la désactivation plutôt que la suppression d'un transporteur utilisé ? (comportement actuel : refus ; inchangé.)
 - `categorie_transport` : lien avec les patients non vérifié ; à confirmer au relevé de la slice. Relevé RF1 : aucun écrivain, `patients.categorie_transport_id` n'est validée par aucun code (KB-RF1-02).
-- Corriger KB-RF1-01 (500 -> 400) et KB-RF1-03 (compte d'usage borné au centre) ? Reproduits en attendant la décision (ADR 0122).
+- ~~Corriger KB-RF1-01 et KB-RF1-03 ?~~ Corrigés le 2026-11-10 (RF1c, ADR 0123, à confirmer métiers <= 2026-12-15) ; reste RF1-R4 : étendre le 400 aux 8 autres référentiels et à `categories-transport`.
 - Doublons historiques de `lower(trim(nom))` par centre en production ? (KB-RF1-04.)
 
 ## Réalisation (2026-11-10, ADR 0122)
@@ -59,5 +59,14 @@ Retour arrière : revert Git.
 | Code | PC : domaine `Transporteur`, application `GererLesTransporteurs`/`ConsulterLesTransports`, langage publié `Transporteurs`/`CategoriesDeTransport`/`GestionDesTransporteurs`, `TransporteursJdbc`/`CategoriesDeTransportJdbc`, `TransportsControleur`, cache et invalidation ; plateforme : délégué + ACL ; Organisation : lectures retirées |
 | Parité | 27/27 goldens RF1 inchangés ; goldens Organisation et gardes d'architecture verts ; aucun `_nouveau_code` |
 | Rejeu PostgreSQL 16 | `backend/scripts/patient-couverture-rf1-pg16-rejeu.sh` : vert (colonnes, 4 requêtes, contrat 11 tests) |
+
+## RF1c (2026-11-10, ADR 0123) : corrections KB-RF1-01 et KB-RF1-03
+| Étape | Résultat |
+|---|---|
+| Tests d'abord, ROUGE vérifié | contrat du carnet (double + H2) : 4 échecs (4 attendu / 5 obtenu, 0 / 1) ; filet RF1 : 6 échecs sur 16 tests (500 au lieu de 400, 422 au lieu de 204) |
+| Code | `DatesIllisiblesDeLaDirectionAdvice` (route des transporteurs de l'administration) ; `TransportsControleur` (`centerId` absent) ; `CarnetDeTransporteurs.nombreDeReferences(centre, id)` + `TransporteursJdbc` |
+| Goldens | 7 re-approuvés à la main en `*_nouveau_code.approved.json` (saisie : creations, creations-gardees [+ scénario « secretaire, corps illisible »], modifications, suppressions, etat-apres-suppressions ; lecture/liste ; lectures-communes/transporteurs) ; anciens dans `_ecarts-legacy/**/*_avant_rf1c.legacy.json` ; 20 autres inchangés |
+| Contrat | double mémoire + H2 + PostgreSQL 16 (12 tests, `patient-couverture-rf1-pg16-rejeu.sh` port 55791, vert) |
+| Résiduel | RF1-R4 : 400 non étendu aux 8 autres référentiels ni à `categories-transport` (500 conservé) |
 
 Résiduels nominatifs : RF1-R1 (descripteur `ReferentialKind.TRANSPORTEUR`), RF1-R2 (chemin générique des autres référentiels) : voir l'ADR 0122. Condition 2 ci-dessus adaptée : `ReferentialKind.CATEGORIE_TRANSPORT` n'a jamais existé ; `TRANSPORTEUR` reste comme descripteur (lecture de fichier et modèles communs). Façade, flag, plan de bascule : sans objet (refactoring sur place).

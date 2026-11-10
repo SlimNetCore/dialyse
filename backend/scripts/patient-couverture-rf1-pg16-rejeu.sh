@@ -3,7 +3,7 @@
 # temporaire detruit en sortie. Chaine Flyway V1..Vn (psql), verification que TOUTES les colonnes lues ou ecrites par les adapters
 # (transporteur, categorie_transport, patients) existent dans le schema reel, puis le contrat PostgreSQL du carnet de transporteurs : le
 # meme jeu de tests que le double en memoire et que H2 (TransporteursPostgresContractIT : ecritures, page triee, recherche avec jokers
-# litteraux, compte des references aller et retour de tous les centres, langage publie, categories).
+# litteraux, compte des references aller et retour des seuls patients du centre du transporteur (ADR 0123), langage publie, categories).
 # A lancer en arriere-plan avec un log : backend/scripts/patient-couverture-rf1-pg16-rejeu.sh 55465 > rejeu-rf1.log 2>&1 &
 # JAMAIS le service PostgreSQL de la machine : le port 5432 est refuse. Code de sortie : 0 si tout est vert, 1 sinon.
 set -uo pipefail
@@ -44,7 +44,7 @@ echo "=== RF1 : requetes de lecture executables sur le schema reel, SELECT seule
 req() { "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -qtAc "$2" >/dev/null && echo "requete $1 executable" || { echo "ATTENDU : requete $1 executable"; RC=1; }; }
 req "liste des transporteurs d'un centre" "SELECT id, nom FROM transporteur WHERE center_id = gen_random_uuid() ORDER BY nom"
 req "page d'administration avec recherche litterale" "SELECT t.id, t.nom, t.telephone FROM transporteur t WHERE t.center_id = gen_random_uuid() AND (LOWER(COALESCE(t.nom, '')) LIKE '%\\%%' ESCAPE '\\' OR LOWER(COALESCE(t.telephone, '')) LIKE '%\\_%' ESCAPE '\\') ORDER BY t.nom, t.id LIMIT 20 OFFSET 0"
-req "references d'un transporteur (aller et retour, tous centres)" "SELECT (SELECT count(*) FROM patients WHERE transporteur_aller_id = gen_random_uuid()) + (SELECT count(*) FROM patients WHERE transporteur_retour_id = gen_random_uuid())"
+req "references d'un transporteur (aller et retour, patients du centre du transporteur seulement : KB-RF1-03 corrige, ADR 0123)" "SELECT (SELECT count(*) FROM patients WHERE transporteur_aller_id = gen_random_uuid() AND center_id = gen_random_uuid()) + (SELECT count(*) FROM patients WHERE transporteur_retour_id = gen_random_uuid() AND center_id = gen_random_uuid())"
 req "categories de transport d'un centre" "SELECT id, libelle FROM categorie_transport WHERE center_id = gen_random_uuid() ORDER BY libelle"
 
 cd "$RACINE/backend"

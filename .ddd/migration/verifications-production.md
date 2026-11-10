@@ -2649,3 +2649,19 @@ GROUP BY c.id, c.name ORDER BY 1;
 ```
 **Interprétation** : `0` ligne (ou 77.1 `nuls = 0`) : V56 n'ajoute aucune notification. `> 0` : ces centres recevront des notifications de péremption qu'ils ne recevaient pas ; prévenir les responsables Stock avant le déploiement, ou fixer `actif = FALSE` des centres hors service PAR DÉCISION ÉCRITE AVANT V56. SELECT NON rejoué sur PostgreSQL 16 (noms de colonnes `lots.quantite_restante`, `date_peremption`, `centers.name` relevés dans les adaptateurs du Stock et de l'Organisation ; à vérifier sur la copie) ; ne dit RIEN de l'état de la production.
 **Recette (lecture seule, sur une copie)** : le détail d'une séance dont le volet paramédical est posé sous un autre centre affiche ce volet (L8) ; la suppression d'une facture de reprise reste possible alors qu'une autre facture du patient est liée à une séance (contrat PostgreSQL 16 `RepriseDesSoldesPostgresContractIT`, à lancer avec `-Dfacturation.pg16.url`). Rien n'est activé : aucun flag, aucune bascule (ADR 0024).
+
+## 83. Patient & couverture RF1c (ADR 0123, KB-RF1-01 et KB-RF1-03 CORRIGÉS) : transporteurs supprimables malgré des fiches d'un autre centre (2026-11-10) — SELECT seulement
+
+AUCUNE migration, AUCUN `UPDATE`. Seule donnée touchée par la correction : la suppression d'un transporteur n'est plus bloquée par les patients d'UN AUTRE centre. Cette détection liste les cas où le comportement change (avant : 422 `REFERENTIAL_IN_USE`, après : suppression possible, avec des fiches d'un autre centre qui gardent un identifiant de transporteur orphelin).
+
+```sql
+-- 83.1 Fiches dont le transporteur (aller ou retour) appartient à un AUTRE centre que la fiche. Attendu : 0 ligne (les identifiants sont des UUID propres à un centre). Lecture seule.
+SELECT p.center_id AS centre_de_la_fiche, t.center_id AS centre_du_transporteur, t.id AS transporteur, t.nom,
+       count(*) FILTER (WHERE p.transporteur_aller_id = t.id) AS aller,
+       count(*) FILTER (WHERE p.transporteur_retour_id = t.id) AS retour
+FROM patients p JOIN transporteur t ON t.id IN (p.transporteur_aller_id, p.transporteur_retour_id)
+WHERE t.center_id <> p.center_id
+GROUP BY p.center_id, t.center_id, t.id, t.nom ORDER BY 1, 2, 3;
+```
+**Interprétation** : `0` ligne : la correction ne change aucun cas réel. `> 0` : ces transporteurs deviennent supprimables alors que des fiches d'un autre centre les référencent encore ; corriger les fiches (réaffectation par un administrateur du centre concerné) AVANT de supprimer, ou prévenir les métiers. Les colonnes (`patients.center_id`, `transporteur_aller_id`, `transporteur_retour_id`, `transporteur.center_id`) sont vérifiées sur le schéma PostgreSQL 16 réel par le rejeu RF1 ; la requête elle-même n'y est PAS rejouée et n'a PAS été exécutée sur la production : elle ne dit RIEN de son état.
+**Recette (lecture seule, sur une copie)** : `POST /api/v1/admin/referentials/transporteurs` avec un corps non JSON répond 400 `BAD_REQUEST` (et non 500) ; `GET /api/v1/referentials/transporteurs` sans `centerId` répond 400. Rien n'est activé : aucun flag, aucune bascule (ADR 0024).

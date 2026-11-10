@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 /**
  * Les transporteurs sur la table actuelle {@code transporteur} (RF1, refonte sur place : mêmes colonnes) : carnet, page de
  * l'administration et langage publié. Chaque requête est bornée à {@code center_id} ; chaque écriture signale son centre
- * ({@code ecritures}) pour que les lectures en cache soient invalidées après le commit. Le nombre de références compte les
- * patients de TOUS les centres (comportement conservé, KB-RF1-03).
+ * ({@code ecritures}) pour que les lectures en cache soient invalidées après le commit. Le nombre de références ne compte que
+ * les patients du centre du transporteur (KB-RF1-03 corrigé, ADR 0123).
  */
 public class TransporteursJdbc implements CarnetDeTransporteurs, LectureDesTransporteurs, Transporteurs {
 
@@ -70,11 +70,12 @@ public class TransporteursJdbc implements CarnetDeTransporteurs, LectureDesTrans
     }
 
     @Override
-    public long nombreDeReferences(UUID id) {
+    public long nombreDeReferences(CentreId centre, UUID id) {
         long total = 0;
         for (String colonne : new String[]{"transporteur_aller_id", "transporteur_retour_id"}) {
             try {
-                Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM patients WHERE " + colonne + " = ?", Long.class, id);
+                Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM patients WHERE " + colonne + " = ? AND center_id = ?",
+                        Long.class, id, centre.valeur());
                 total += nombre == null ? 0 : nombre;
             } catch (DataAccessException schemaAllege) {
                 // table absente d'un schéma allégé : le contrôle est ignoré, comme avant

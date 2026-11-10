@@ -66,6 +66,8 @@ class SaisieDesTransporteursCharacterizationIntegrationTest extends Transporteur
         m.set("super administrateur vise le centre B", vue(doPost(ADMIN, nomB, superadmin())));
         m.set("centre illisible", vue(doPost(ADMIN, "{'centerId':'pas-un-uuid','values':{'nom':'X'}}", admin)));
         m.set("secretaire", vue(doPost(ADMIN, nomA, as(CENTRE_A, "SECRETAIRE"))));
+        // RF1c (KB-RF1-01) : le refus de droits passe AVANT le 400 d'un corps illisible
+        m.set("secretaire, corps illisible", vue(doPost(ADMIN, "{'values':", as(CENTRE_A, "SECRETAIRE"))));
         m.set("anonyme", vue(doPost(ADMIN, nomA, null)));
         goldenNode("creations-gardees", m);
         etatDesTransporteurs("etat-apres-creations-gardees");
