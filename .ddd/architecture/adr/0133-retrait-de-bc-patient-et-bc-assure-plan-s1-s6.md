@@ -22,7 +22,7 @@ Retirer les deux modules en 6 slices, chacune un comportement, livrée et vérif
 | S1 | Supprimer le calcul des mouvements mort de bc-patient (5 classes, 2 tests) | faible | **faite** (2026-11-10) |
 | S2 | Notification de saisie infirmière : nom/prénom via `FichesDesPatients` | faible | **faite** (2026-11-10) |
 | S3 | Cahier de dialyse : identité/assurance via le langage publié | moyen | **faite** (2026-11-10) |
-| S4 | PDF greffe (`GreffePdfService`) : idem | moyen | à faire |
+| S4 | PDF greffe (`GreffePdfService`) : idem | moyen | **faite** (2026-11-10) |
 | S5 | ACL Séance `FichesFournieLegacy` : fiches depuis `FichesDesPatients` | moyen | à faire |
 | S6 | Outil de migration historique réécrit dans `patient-couverture`, puis retrait des adapters/entités/mapper JPA et des deux modules | élevé | à faire, à confirmer |
 
@@ -45,6 +45,10 @@ La migration historique reste utilisée en production : S6 est une **réécritur
 - `CahierDialyseReportService` n'utilisait que `PatientRepositoryPort.findById(patient, centre)` pour `getPrenom/getNom/getCodePatient/getSexe/getDateNaissance/getGroupeSanguin/getNumeroAssurance/getTelMobile` (ligne d'identité du PDF). Aucun équivalent publié ne portait code, groupe sanguin et mobile : ajout ADDITIF `FichesDesPatients.carte(centre, patient)` -> `CarteDuPatient` (`FichesPublieesJdbc` : une requête sur `patients` bornée au centre ; double en mémoire ; test de contrat commun double + H2). Patient absent ou d'un autre centre : vide, donc `PATIENT_INTROUVABLE` comme avant.
 - Paramètres Jasper et jrxml inchangés (`PATIENT_ID`, `PATIENT_LIGNE`, dates, `EDITE_*`) : le PDF est identique. Seul écart de bord : un numéro d'assurance vide en base levait `IllegalArgumentException` au chargement, il est maintenant omis de la ligne.
 - Tests : `CahierDialyseReportServiceTest` réécrit d'abord (rouge de compilation vu), puis vert ; le double anonyme de `IsolementDesPatientsParLaPlanificationTest` reçoit la nouvelle méthode.
+
+## S4 : preuve
+- `GreffePdfService` n'utilisait que `PatientRepositoryPort.findById(patient, centre)` pour `getNom/getPrenom/getCodePatient/getGroupeSanguin` (ligne « Patient : ... » du PDF). Tous portés par `FichesDesPatients.carte(centre, patient)` (S3) : aucun ajout au langage publié, aucune dépendance Maven nouvelle. Patient absent ou d'un autre centre : vide, ligne omise comme avant (le 404 reste porté par `DossierDeGreffePublie.duPatient`).
+- Aucun test n'existait : `GreffePdfServiceTest` ajouté d'abord (rouge de compilation vu : constructeur sur `PatientRepositoryPort`), puis vert ; il capture le HTML décoré (ligne patient, groupe sanguin absent = `-`, carte absente = pas de ligne). HTML et PDF identiques.
 
 ## Conséquences
 - 251 LOC main et 213 LOC test en moins, aucun changement de comportement.

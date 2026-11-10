@@ -8,9 +8,8 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Dossier
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.DossierDeGreffe;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Etape;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Serologie;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.CarteDuPatient;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.springframework.stereotype.Service;
@@ -31,20 +30,21 @@ public class GreffePdfService {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private final PatientRepositoryPort patientRepository;
+    /** Identité du patient : langage publié de Patient &amp; couverture (patientcouverture.v1, ADR 0133 S4). */
+    private final FichesDesPatients fiches;
     private final DossierDeGreffePublie dossiers;
     private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
 
-    public GreffePdfService(PatientRepositoryPort patientRepository, DossierDeGreffePublie dossiers,
+    public GreffePdfService(FichesDesPatients fiches, DossierDeGreffePublie dossiers,
                             com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity) {
-        this.patientRepository = patientRepository;
+        this.fiches = fiches;
         this.dossiers = dossiers;
         this.identity = identity;
     }
 
     public byte[] exportPdf(CenterId centerId, UUID patientId) {
         DossierDeGreffe dossier = dossiers.duPatient(centerId.value(), patientId);
-        Patient patient = patientRepository.findById(PatientId.of(patientId), centerId).orElse(null);
+        CarteDuPatient patient = fiches.carte(centerId.value(), patientId).orElse(null);
 
         String html = identity.decorateHtml(buildHtml(patient, dossier), centerId.value());
         try {
@@ -60,7 +60,7 @@ public class GreffePdfService {
         }
     }
 
-    private String buildHtml(Patient patient, DossierDeGreffe dossier) {
+    private String buildHtml(CarteDuPatient patient, DossierDeGreffe dossier) {
         Bilan bilan = dossier.bilan();
         List<Etape> etapes = dossier.etapes();
         List<Serologie> serologies = dossier.serologies();
@@ -78,9 +78,9 @@ public class GreffePdfService {
 
         sb.append("<h1>Dossier de préparation à la greffe rénale</h1>");
         if (patient != null) {
-            sb.append("<div class='muted'>Patient : ").append(escapeHtml(patient.getNom() + " " + patient.getPrenom()))
-                    .append(" (").append(escapeHtml(patient.getCodePatient())).append(")")
-                    .append(" — Groupe sanguin déclaré : ").append(escapeHtml(nullToDash(patient.getGroupeSanguin())))
+            sb.append("<div class='muted'>Patient : ").append(escapeHtml(patient.nom() + " " + patient.prenom()))
+                    .append(" (").append(escapeHtml(patient.code())).append(")")
+                    .append(" — Groupe sanguin déclaré : ").append(escapeHtml(nullToDash(patient.groupeSanguin())))
                     .append("</div>");
         }
 
