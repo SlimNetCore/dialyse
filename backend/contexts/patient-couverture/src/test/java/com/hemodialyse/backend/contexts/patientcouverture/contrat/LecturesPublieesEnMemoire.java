@@ -72,6 +72,15 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
     }
 
     @Override
+    public Optional<CarteDuPatient> carte(UUID centre, UUID patient) {
+        return patient(centre, patient).map(p -> new CarteDuPatient(p.code(), p.fiche().identite().nom(),
+                p.fiche().identite().prenom(), p.fiche().identite().sexe(), p.fiche().identite().dateNaissance(),
+                p.fiche().identite().groupeSanguin(),
+                p.fiche().couverture().numeroAssurance() == null ? null : p.fiche().couverture().numeroAssurance().valeur(),
+                p.fiche().coordonnees().telMobile()));
+    }
+
+    @Override
     public Situation situation(UUID centre, UUID patient) {
         return patient(centre, patient).map(p -> p.etat().sortie() ? Situation.SORTI : Situation.EN_SUIVI)
                 .orElse(Situation.INTROUVABLE);

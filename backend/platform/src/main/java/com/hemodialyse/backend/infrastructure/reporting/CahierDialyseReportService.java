@@ -1,11 +1,9 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDuCahierPubliees;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.CarteDuPatient;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import net.sf.jasperreports.engine.JRParameter;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +36,14 @@ public class CahierDialyseReportService {
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRANCE);
 
     private final ModeleDocumentPrinter printer;
-    private final PatientRepositoryPort patients;
+    /** Identité du patient : langage publié de Patient &amp; couverture (patientcouverture.v1, ADR 0133 S3). */
+    private final FichesDesPatients fiches;
     /** Compte des séances imprimables : langage publié de la Séance (SE7e, ADR 0099). */
     private final SeancesDuCahierPubliees seances;
 
-    public CahierDialyseReportService(ModeleDocumentPrinter printer, PatientRepositoryPort patients, SeancesDuCahierPubliees seances) {
+    public CahierDialyseReportService(ModeleDocumentPrinter printer, FichesDesPatients fiches, SeancesDuCahierPubliees seances) {
         this.printer = printer;
-        this.patients = patients;
+        this.fiches = fiches;
         this.seances = seances;
     }
 
@@ -55,23 +54,24 @@ public class CahierDialyseReportService {
     /**
      * Ligne d'identité imprimée sous le titre : patient, code, sexe, naissance, groupe sanguin, assurance, téléphone.
      */
-    static String ligneIdentite(Patient p) {
+    static String ligneIdentite(CarteDuPatient p) {
         List<String> parts = new ArrayList<>();
-        String nom = ((p.getPrenom() == null ? "" : p.getPrenom() + " ") + (p.getNom() == null ? "" : p.getNom())).trim();
+        String nom = ((p.prenom() == null ? "" : p.prenom() + " ") + (p.nom() == null ? "" : p.nom())).trim();
         parts.add("Patient : " + nom);
-        parts.add(ligneDe("Code", p.getCodePatient()));
-        parts.add(ligneDe("Sexe", p.getSexe()));
-        parts.add(p.getDateNaissance() == null ? null : "Né(e) le " + JOUR.format(p.getDateNaissance()));
-        parts.add(ligneDe("Groupe", p.getGroupeSanguin()));
-        parts.add(p.getNumeroAssurance() == null ? null : ligneDe("N° assurance", p.getNumeroAssurance().value()));
-        parts.add(ligneDe("Tél", p.getTelMobile()));
+        parts.add(ligneDe("Code", p.code()));
+        parts.add(ligneDe("Sexe", p.sexe()));
+        parts.add(p.dateNaissance() == null ? null : "Né(e) le " + JOUR.format(p.dateNaissance()));
+        parts.add(ligneDe("Groupe", p.groupeSanguin()));
+        parts.add(ligneDe("N° assurance", p.numeroAssurance()));
+        parts.add(ligneDe("Tél", p.telMobile()));
         return String.join("  ·  ", parts.stream().filter(s -> s != null && !s.isBlank()).toList());
     }
 
-    static Map<String, Object> params(Patient patient, LocalDate from, LocalDate to, ZoneId zone, String editePar) {
+    static Map<String, Object> params(UUID patientId, CarteDuPatient patient, LocalDate from, LocalDate to, ZoneId zone,
+                                      String editePar) {
         Map<String, Object> p = new HashMap<>();
         p.put(JRParameter.REPORT_LOCALE, Locale.FRANCE);
-        p.put("PATIENT_ID", patient.getId().value().toString());
+        p.put("PATIENT_ID", patientId.toString());
         p.put("DATE_DEBUT", Date.valueOf(from == null ? DEBUT_PAR_DEFAUT : from));
         p.put("DATE_FIN", Date.valueOf(to == null ? FIN_PAR_DEFAUT : to));
         p.put("PATIENT_LIGNE", ligneIdentite(patient));
@@ -99,11 +99,11 @@ public class CahierDialyseReportService {
         if (from != null && to != null && from.isAfter(to)) {
             throw new BusinessException("CAHIER_PERIODE_INVALIDE", "Période invalide : le début doit précéder la fin");
         }
-        Patient patient = patients.findById(PatientId.of(patientId), CenterId.of(centreId))
+        CarteDuPatient patient = fiches.carte(centreId, patientId)
                 .orElseThrow(() -> new BusinessException("PATIENT_INTROUVABLE", "Patient introuvable"));
         if (nombreSeances(centreId, patientId, from, to) == 0) {
             throw new BusinessException("CAHIER_VIDE", "Aucune séance validée à imprimer pour ce patient");
         }
-        return printer.print(centreId, ModeleDocumentCatalog.CAHIER_DIALYSE, params(patient, from, to, zone, editePar));
+        return printer.print(centreId, ModeleDocumentCatalog.CAHIER_DIALYSE, params(patientId, patient, from, to, zone, editePar));
     }
 }

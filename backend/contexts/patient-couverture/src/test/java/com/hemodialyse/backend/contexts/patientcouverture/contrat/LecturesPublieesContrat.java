@@ -123,6 +123,26 @@ public abstract class LecturesPublieesContrat {
     }
 
     @Test
+    void should_rendre_la_carte_d_identite_du_patient_du_centre_seulement() {
+        Patient p = patient(CENTRE);
+        Patient autreCentre = patient(AUTRE);
+
+        var carte = fiches().carte(CENTRE.valeur(), p.id().valeur());
+
+        assertThat(carte).isPresent();
+        assertThat(carte.get().code()).isEqualTo(p.code());
+        assertThat(carte.get().prenom()).isEqualTo("Karim");
+        assertThat(carte.get().nom()).isEqualTo("Benali");
+        assertThat(carte.get().sexe()).isEqualTo("M");
+        assertThat(carte.get().dateNaissance()).isEqualTo(LocalDate.of(1970, 5, 17));
+        assertThat(carte.get().groupeSanguin()).isEqualTo("O+");
+        assertThat(carte.get().numeroAssurance()).isEqualTo(p.fiche().couverture().numeroAssurance().valeur());
+        assertThat(carte.get().telMobile()).isNull();
+        assertThat(fiches().carte(CENTRE.valeur(), autreCentre.id().valeur())).isEmpty();
+        assertThat(fiches().carte(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
     void should_situer_le_patient_inconnu_suivi_ou_parti() {
         Patient permanent = patient(CENTRE);
         Patient vacancier = patient(CENTRE, EtatDuPatient.VACANCIER_LOCAL, LocalDate.of(2026, 12, 1), Fiches.ADMISSION);

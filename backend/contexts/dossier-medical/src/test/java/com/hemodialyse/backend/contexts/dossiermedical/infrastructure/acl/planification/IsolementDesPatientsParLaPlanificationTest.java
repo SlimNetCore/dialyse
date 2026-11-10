@@ -43,6 +43,11 @@ class IsolementDesPatientsParLaPlanificationTest {
         }
 
         @Override
+        public java.util.Optional<CarteDuPatient> carte(UUID centre, UUID patient) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public Situation situation(UUID centre, UUID patient) {
             throw new UnsupportedOperationException();
         }

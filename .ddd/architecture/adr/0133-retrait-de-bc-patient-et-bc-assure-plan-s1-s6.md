@@ -21,7 +21,7 @@ Retirer les deux modules en 6 slices, chacune un comportement, livrée et vérif
 |---|---|---|---|
 | S1 | Supprimer le calcul des mouvements mort de bc-patient (5 classes, 2 tests) | faible | **faite** (2026-11-10) |
 | S2 | Notification de saisie infirmière : nom/prénom via `FichesDesPatients` | faible | **faite** (2026-11-10) |
-| S3 | Cahier de dialyse : identité/assurance via le langage publié | moyen | à faire |
+| S3 | Cahier de dialyse : identité/assurance via le langage publié | moyen | **faite** (2026-11-10) |
 | S4 | PDF greffe (`GreffePdfService`) : idem | moyen | à faire |
 | S5 | ACL Séance `FichesFournieLegacy` : fiches depuis `FichesDesPatients` | moyen | à faire |
 | S6 | Outil de migration historique réécrit dans `patient-couverture`, puis retrait des adapters/entités/mapper JPA et des deux modules | élevé | à faire, à confirmer |
@@ -40,6 +40,11 @@ La migration historique reste utilisée en production : S6 est une **réécritur
 - `SaisieInfirmierNotifier` n'utilisait que `PatientRepositoryPort.findById(patient, centre)` pour `getNom()` / `getPrenom()` ; il lit maintenant `FichesDesPatients.noms(centre, [patient])` (même table, même borne de centre, patient absent ou d'un autre centre = pas de nom, valeurs nulles conservées). Aucun ajout au langage publié, bean `fichesDesPatients` déjà câblé, aucune dépendance Maven nouvelle.
 - Test `NotificationServiceSaisieInfirmierTest` adapté d'abord (rouge de compilation vu), puis vert.
 - Décision utilisateur : `SaisieInfirmierNotifier.java` inscrit dans `.ddd/safety-net/covered.json` (filet = ce test) pour lever le hook ; `seamAllowed` reste vide.
+
+## S3 : preuve
+- `CahierDialyseReportService` n'utilisait que `PatientRepositoryPort.findById(patient, centre)` pour `getPrenom/getNom/getCodePatient/getSexe/getDateNaissance/getGroupeSanguin/getNumeroAssurance/getTelMobile` (ligne d'identité du PDF). Aucun équivalent publié ne portait code, groupe sanguin et mobile : ajout ADDITIF `FichesDesPatients.carte(centre, patient)` -> `CarteDuPatient` (`FichesPublieesJdbc` : une requête sur `patients` bornée au centre ; double en mémoire ; test de contrat commun double + H2). Patient absent ou d'un autre centre : vide, donc `PATIENT_INTROUVABLE` comme avant.
+- Paramètres Jasper et jrxml inchangés (`PATIENT_ID`, `PATIENT_LIGNE`, dates, `EDITE_*`) : le PDF est identique. Seul écart de bord : un numéro d'assurance vide en base levait `IllegalArgumentException` au chargement, il est maintenant omis de la ligne.
+- Tests : `CahierDialyseReportServiceTest` réécrit d'abord (rouge de compilation vu), puis vert ; le double anonyme de `IsolementDesPatientsParLaPlanificationTest` reçoit la nouvelle méthode.
 
 ## Conséquences
 - 251 LOC main et 213 LOC test en moins, aucun changement de comportement.

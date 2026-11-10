@@ -29,6 +29,16 @@ public interface FichesDesPatients {
      */
     java.util.Optional<IdentiteDuPatient> identite(UUID centre, UUID patient);
 
+    /**
+     * Carte d'identité du patient du centre, telle que saisie (champs nuls ou vides possibles) : code, état civil, groupe
+     * sanguin, numéro d'assurance et téléphone mobile (Cahier de dialyse). Un patient inconnu ou d'un autre centre : vide.
+     */
+    java.util.Optional<CarteDuPatient> carte(UUID centre, UUID patient);
+
+    record CarteDuPatient(String code, String nom, String prenom, String sexe, java.time.LocalDate dateNaissance,
+                          String groupeSanguin, String numeroAssurance, String telMobile) {
+    }
+
     record NomDuPatient(String prenom, String nom) {
     }
 
