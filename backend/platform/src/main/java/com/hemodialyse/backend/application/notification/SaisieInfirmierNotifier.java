@@ -1,14 +1,13 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.infrastructure.security.CurrentUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -21,9 +20,9 @@ public class SaisieInfirmierNotifier {
     private static final Logger log = LoggerFactory.getLogger(SaisieInfirmierNotifier.class);
 
     private final NotificationService notifications;
-    private final PatientRepositoryPort patients;
+    private final FichesDesPatients patients;
 
-    public SaisieInfirmierNotifier(NotificationService notifications, PatientRepositoryPort patients) {
+    public SaisieInfirmierNotifier(NotificationService notifications, FichesDesPatients patients) {
         this.notifications = notifications;
         this.patients = patients;
     }
@@ -38,10 +37,10 @@ public class SaisieInfirmierNotifier {
             String nom = null;
             String prenom = null;
             if (patientId != null) {
-                var patient = patients.findById(PatientId.of(patientId), CenterId.of(centerId)).orElse(null);
-                if (patient != null) {
-                    nom = patient.getNom();
-                    prenom = patient.getPrenom();
+                var fiche = patients.noms(centerId, List.of(patientId)).get(patientId);
+                if (fiche != null) {
+                    nom = fiche.nom();
+                    prenom = fiche.prenom();
                 }
             }
             notifications.notifySaisieInfirmier(centerId, type, patientId, nom, prenom, CurrentUser.username(),

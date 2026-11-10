@@ -1,9 +1,7 @@
 package com.hemodialyse.backend.application.notification;
 
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -155,12 +153,10 @@ class NotificationServiceSaisieInfirmierTest {
     @Test
     void the_notifier_resolves_the_patient_and_never_breaks_the_entry_it_accompanies() {
         NotificationService notifications = mock(NotificationService.class);
-        PatientRepositoryPort patients = mock(PatientRepositoryPort.class);
-        Patient patient = new Patient();
-        patient.setNom("Dupont");
-        patient.setPrenom("Jean");
+        FichesDesPatients patients = mock(FichesDesPatients.class);
         UUID patientId = UUID.randomUUID();
-        when(patients.findById(any(), eq(CenterId.of(centre)))).thenReturn(Optional.of(patient));
+        when(patients.noms(eq(centre), eq(java.util.List.of(patientId))))
+                .thenReturn(Map.of(patientId, new FichesDesPatients.NomDuPatient("Jean", "Dupont")));
         SaisieInfirmierNotifier notifier = new SaisieInfirmierNotifier(notifications, patients);
 
         notifier.saisie(centre, "ABSENCE", patientId, LocalDate.of(2026, 10, 4));
