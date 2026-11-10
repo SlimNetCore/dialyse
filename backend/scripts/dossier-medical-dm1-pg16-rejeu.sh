@@ -29,24 +29,20 @@ echo "Chaine Flyway appliquee"
 RC=0
 scalaire() { "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "$1" | tr -d '\r'; }
 
-ENT="$RACINE/backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity"
 TABLES="allergies_patient antecedents_medicaux bilans_pre_greffe demandes_examen dossier_medical_patient etapes_bilan_pre_greffe lignes_demande_examen lignes_ordonnance observations_biologiques ordonnances prescriptions_medicales serologies_patient volet_medical volet_paramedical"
-echo "=== Entites JPA medicales contre information_schema (equivalent de ddl-auto: validate) ==="
+# Les 14 entites JPA medicales ont ete retirees par DM9 (adapters JDBC du contexte, ADR 0101) : il n'y a plus d'@Table a lire.
+# On verifie donc que les 14 tables medicales existent dans le schema reel (les colonnes sont verifiees par les adapters JDBC ci-dessous
+# et par les contrats PostgreSQL des contextes).
+echo "=== Tables medicales contre information_schema ==="
 NB_ENTITES=0
-for fichier in "$ENT"/*.java; do
-  table="$(grep -m1 -oE '@Table\(name = "[a-z_]+"' "$fichier" | sed -E 's/.*"([a-z_]+)"/\1/')"
-  [ -n "$table" ] || continue
-  case " $TABLES " in *" $table "*) ;; *) continue ;; esac
-  NB_ENTITES=$((NB_ENTITES + 1))
-  [ "$(scalaire "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='$table'")" = "1" ] \
-    || { echo "TABLE ABSENTE : $table ($(basename "$fichier"))"; RC=1; continue; }
-  for col in $(grep -oE '@(Column|JoinColumn)\((name = )?"[a-z_]+"' "$fichier" | sed -E 's/.*"([a-z_]+)"/\1/' | sort -u); do
-    [ "$(scalaire "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='$table' AND column_name='$col'")" = "1" ] \
-      || { echo "COLONNE ABSENTE : $table.$col ($(basename "$fichier"))"; RC=1; }
-  done
-  echo "ok : $table ($(basename "$fichier"))"
+for table in $TABLES; do
+  if [ "$(scalaire "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='$table'")" = "1" ]; then
+    NB_ENTITES=$((NB_ENTITES + 1)); echo "ok : $table"
+  else
+    echo "TABLE ABSENTE : $table"; RC=1
+  fi
 done
-[ "$NB_ENTITES" -eq 14 ] && echo "14 entites medicales verifiees" || { echo "ATTENDU : 14 entites, trouve $NB_ENTITES"; RC=1; }
+[ "$NB_ENTITES" -eq 14 ] && echo "14 tables medicales verifiees" || { echo "ATTENDU : 14 tables, trouve $NB_ENTITES"; RC=1; }
 
 echo "=== Colonnes lues par l'adapter JDBC de DM1 (schema reel) ==="
 verifier_colonnes() { # $1 = table, reste = colonnes
