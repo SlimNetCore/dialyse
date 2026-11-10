@@ -1,0 +1,12 @@
+{
+  "caisse d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Caisses » pour ce centre.",
+  "centre B par son administrateur" : "204",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "deja supprimee" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Caisses » pour ce centre.",
+  "identifiant illisible" : "400 BAD_REQUEST | Paramètre illisible : id",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Caisses » pour ce centre.",
+  "libre" : "204",
+  "toutes les agences liberees" : "204",
+  "une agence liberee, l'autre retient encore" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Caisses » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+  "utilisee par deux agences" : "422 REFERENTIAL_IN_USE | Suppression impossible : cet élément de « Caisses » est encore utilisé (2 référence(s) : patients, prises en charge, séances ou autres référentiels)."
+}

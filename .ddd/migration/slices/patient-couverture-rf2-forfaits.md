@@ -48,7 +48,7 @@ Retour arrière : revert Git.
 2. **« Forfait » a trois sens** : de PEC (PC), appliqué (Facturation), du centre (Séance) ; terme « Catalogue de forfaits » proposé pour le catalogue ; à valider.
 3. Pas de validité temporelle du prix : hypothèse à vérifier (un changement de prix s'applique-t-il aux PEC en cours ?).
 4. Sens commercial (« tarif », synonyme interdit en PC) dans un contexte clinique : à trancher avec les experts.
-5. ~~Corriger KB-RF2-01 et KB-RF2-02 comme RF1c ?~~ Corrigés le 2026-11-10 (RF2c, ADR 0125, à confirmer métiers <= 2026-12-15) ; le prix nul / omis est GARDÉ tel quel (décision de l'utilisateur) ; reste RF1-R4 : étendre le 400 aux 7 autres référentiels.
+5. ~~Corriger KB-RF2-01 et KB-RF2-02 comme RF1c ?~~ Corrigés le 2026-11-10 (RF2c, ADR 0125, à confirmer métiers <= 2026-12-15) ; le prix nul / omis est GARDÉ tel quel (décision de l'utilisateur) ; RF1-R4 (étendre le 400 aux 7 autres référentiels) SOLDÉ le 2026-11-10 par RF3d (ADR 0129).
 6. Doublons historiques de `lower(trim(code))` par centre en production ? (KB-RF2-03.)
 
 ## Réalisation (2026-11-10, ADR 0124)
@@ -68,6 +68,6 @@ Retour arrière : revert Git.
 | Code | `DatesIllisiblesDeLaDirectionAdvice` (route `admin/referentials/(transporteurs\|forfaits)`) ; `ForfaitsControleur` (`centerId` absent) ; port publié `UsageDuForfait.nombreDeReferences(centre, forfait)` : `UsageDuForfaitParLesPec` borne `prise_en_charge.center_id` ; Facturation et Séance acceptent le centre et l'ignorent (compte inchangé, KB-SEA-91) |
 | Goldens | 7 re-approuvés à la main en `*_nouveau_code.approved.json` (saisie : creations, creations-gardees [+ « secretaire, corps illisible »], modifications, suppressions, etat-apres-suppressions ; lecture/liste ; lectures-communes/forfaits) ; anciens dans `_ecarts-legacy/**/*_avant_rf2c.legacy.json` ; 21 autres inchangés ; goldens Séance, Facturation, Absences, Pilotage, reporting inchangés |
 | Contrat | double mémoire + H2 + PostgreSQL 16 (`patient-couverture-rf2-pg16-rejeu.sh`, port 55793) |
-| Hors périmètre | prix nul / omis (KB-RF2-04) et KB-RF2-03, 05, 06 : reproduits ; RF1-R4 : 400 non étendu aux 7 autres référentiels |
+| Hors périmètre | prix nul / omis (KB-RF2-04) et KB-RF2-03, 05, 06 : reproduits ; RF1-R4 (400 étendu aux 7 autres référentiels) SOLDÉ par RF3d (ADR 0129) |
 
 Résiduels nominatifs : RF2-R1 à RF2-R5 (voir l'ADR 0124), dont RF2-R2 (jointure `prise_en_charge` -> `forfait` de la Séance, gardée par `TableDesForfaitsTest`, effectif 1). Façade, flag, plan de bascule : sans objet (refactoring sur place).

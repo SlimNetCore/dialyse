@@ -48,7 +48,7 @@ Aucun observé par les goldens. Nuances de modèle consignées : RF3c-R1 (ordre 
 | RF3c-R2 | Entités JPA `CentrePayeurJpaEntity`, `CaisseAssuranceJpaEntity`, `AgenceJpaEntity` conservées | définissent le DDL H2/Hibernate (`agence_id` nullable comme en production) ; retrait avec l'alignement de `schema.sql` sur Flyway (butoir : fin de l'administration générique) |
 | RF3c-R3 | `PayeursDuCentre.detail` borne l'agence et la caisse au centre ; l'ancienne lecture de Comptabilité ne lisait que `centre_payeur` | sans effet sur les champs lus (code, nom) ; même contrôle que RF3b-R1 avant la bascule |
 | RF3-R1 | `ReferentialKind.CAISSE/AGENCE/CENTRE_PAYEUR` restent dans l'administration générique (descripteurs : champs, alias d'en-têtes, modèles d'import, libellés ; `PatientMigrator` y résout un centre payeur) ; `ReferentialAdminTables` ne nomme plus aucune des trois tables depuis RF3a | modèle RF1/RF2 (`TRANSPORTEUR`, `FORFAIT` restent) ; retrait avec l'administration générique |
-| RF3-R3 | Les 500 du legacy (KB-RF3-01 à 03) ne sont pas corrigés | décision de l'utilisateur requise |
+| RF3-R3 | **SOLDÉ le 2026-11-10 par RF3d (ADR 0129).** Texte d'origine : Les 500 du legacy (KB-RF3-01 à 03) ne sont pas corrigés | décision de l'utilisateur requise |
 | RF3c-R4 | Le lien Maven `comptabilite -> patient-couverture` couple la construction : le script `comptabilite-pg16-rejeu.sh` (`-pl contexts/comptabilite`, hors ligne) lit patient-couverture dans le dépôt Maven local | `./mvnw -o install -DskipTests -pl contexts/patient-couverture` avant le rejeu, ou ajouter `-am` |
 
 ## Conséquences

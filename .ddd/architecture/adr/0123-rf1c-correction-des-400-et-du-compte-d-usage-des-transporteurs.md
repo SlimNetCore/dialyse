@@ -21,7 +21,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URLs, mêmes rôles. De
 ## Périmètre et résiduels
 | ID | Résiduel | Raison |
 |---|---|---|
-| RF1-R4 | L'advice n'est PAS étendu aux 8 autres référentiels de l'administration générique (forfaits, créneaux, salles, médecins, caisses, agences, centres payeurs, plus tout nouveau) ni à `GET /api/v1/referentials/categories-transport` sans `centerId` (500 conservé) | limité aux transporteurs par prudence ; l'extension changerait des goldens d'autres contextes (RF2, RF3, Organisation) et relève d'une décision par référentiel. La numérotation RF1-R3 était déjà prise (ADR 0122) |
+| RF1-R4 | **SOLDÉ le 2026-11-10 par RF3d (ADR 0129)** : 400 étendu à toute l'administration générique et à `categories-transport`. Texte d'origine : L'advice n'est PAS étendu aux 8 autres référentiels de l'administration générique (forfaits, créneaux, salles, médecins, caisses, agences, centres payeurs, plus tout nouveau) ni à `GET /api/v1/referentials/categories-transport` sans `centerId` (500 conservé) | limité aux transporteurs par prudence ; l'extension changerait des goldens d'autres contextes (RF2, RF3, Organisation) et relève d'une décision par référentiel. La numérotation RF1-R3 était déjà prise (ADR 0122) |
 
 ## Preuves
 - Rouge vérifié AVANT le code : contrat double et H2, 4 échecs (attendu 4 et 0, obtenu 5 et 1) ; filet RF1, 6 échecs sur 16 tests (500 au lieu de 400 ; 422 au lieu de 204).

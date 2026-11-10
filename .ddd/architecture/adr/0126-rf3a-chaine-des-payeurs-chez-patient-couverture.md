@@ -34,7 +34,7 @@ Aucun. Les comportements du legacy, 500 compris, sont REPRODUITS et consignés (
 |---|---|---|
 | RF3-R1 | `ReferentialKind.CAISSE/AGENCE/CENTRE_PAYEUR` (descripteurs : champs, alias d'en-têtes, modèles d'import, libellés) restent dans l'administration générique | lecteur de fichiers commun ; retrait avec l'administration générique (butoir : fin de RF3) |
 | RF3-R2 | Les lectures `/referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}` restent servies par Organisation (`ReferentielsCommunsJdbc`, caches `ref.*`) | RF3b/RF3c |
-| RF3-R3 | Les 500 du legacy (KB-RF3-01 à 03) ne sont PAS corrigés ; l'advice 400 de RF1c/RF2c n'est pas étendu aux payeurs | décision de l'utilisateur requise (modèle RF1c/RF2c) |
+| RF3-R3 | **SOLDÉ le 2026-11-10 par RF3d (ADR 0129) : KB-RF3-01 à 03 corrigés, 400 étendu à toute l'administration générique.** Texte d'origine : Les 500 du legacy (KB-RF3-01 à 03) ne sont PAS corrigés ; l'advice 400 de RF1c/RF2c n'est pas étendu aux payeurs | décision de l'utilisateur requise (modèle RF1c/RF2c) |
 | RF3-R4 | Tri `ORDER BY code` selon la collation de la base (binaire sous H2) | inchangé par rapport au legacy |
 | RF3-R5 | Les lecteurs des autres contextes (liste blanche de `TableDesPayeursTest`) lisent encore les trois tables | RF3b (annuaire) et RF3c (Comptabilité, jointures `GROUP BY` de Facturation) |
 

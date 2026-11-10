@@ -156,10 +156,10 @@ statistiques des séances réalisées seulement, volet borné au centre, compte 
 changement de comportement.
 RF3a (ADR 0126, 2026-11-10) n'ajoute aucune route : `/api/v1/admin/referentials/{caisses,agences,centres-payeurs}` (`ReferentialAdminRestController`, déjà listé)
 délègue la chaîne des payeurs à Patient et couverture par `GestionDesPayeurs` (traducteur `infrastructure/acl/patientcouverture/PayeursParPatientCouverture`) ;
-mêmes URLs, mêmes rôles, mêmes codes et messages ; règles : RG-REF-002, 003, 005 (500 sur corps ou identifiant illisible reproduit, KB-RF3-01 à 03).
+mêmes URLs, mêmes rôles, mêmes codes et messages ; règles : RG-REF-002, 003, 005 (400 sur corps ou identifiant illisible depuis RF3d, ADR 0129 : KB-RF3-01 et 02 corrigés, étendu à toute l'administration générique).
 RF3c (ADR 0128, 2026-11-10) : les lectures `GET /api/v1/referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}` et leurs doublons
 `/api/v1/organisation/referentiels/{...}` passent au contrôleur `PayeursControleur` de Patient et couverture (mêmes URLs, même JSON, 403 hors centre, 400
-sur `centerId` illisible, 500 sur `centerId` absent : KB-RF3-03) ; Comptabilité lit les payeurs par `PayeursDuCentre` (`GET /payeurs` : mêmes tri
+sur `centerId` illisible, 400 aussi sur `centerId` absent depuis RF3d, ADR 0129 : KB-RF3-03 corrigé) ; Comptabilité lit les payeurs par `PayeursDuCentre` (`GET /payeurs` : mêmes tri
 et recherche, KB-RF3-06) ; la reprise des soldes de la Facturation fige l'agence du centre payeur par `PayeursDuCentre` ; quatre lecteurs de la Facturation
 restent sur les tables des payeurs (KB-RF3-07, butoir 2027-03-31).
 SE7f (ADR 0100) retire le module legacy `bc-seance` et ses dix-sept utilisateurs de la plateforme. La route `PUT /api/v1/seances/{id}/volet-paramedical`

@@ -45,8 +45,11 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   un prix omis à la modification **efface** le prix ; le sens d'un prix absent reste à définir (KB-RF2-04).
   Pour une **caisse d'assurance**, une **agence** et un **centre payeur** (chaîne des payeurs de Patient et couverture,
   RF3a, ADR 0126), le refus compte les agences d'une caisse, les centres payeurs d'une agence et les patients d'un centre
-  payeur (comptés par identité, comme avant). Sur les routes d'administration de ces trois référentiels, un corps, un
-  identifiant ou un centre illisible répond encore **500** (KB-RF3-01 à 03, reproduit, non corrigé).
+  payeur (comptés par identité, comme avant). Sur **toutes** les routes d'administration des référentiels (caisses,
+  agences, centres payeurs, mais aussi forfaits, transporteurs, créneaux, salles, médecins et générateurs), un corps, un
+  identifiant, un centre ou une page illisible répond **400** `BAD_REQUEST` (et non plus 500), de même qu'un `centerId`
+  absent des listes de choix des payeurs et des catégories de transport ; le refus de droits (403) passe avant
+  (KB-RF3-01 à 03 corrigés, ADR 0129, à confirmer par les métiers avant le 2026-12-15).
 - **RG-REF-006** — La capacité d'une salle (en générateurs) limite l'affectation de générateurs (RG-PLN-061) ; la
   modifier **ne contrôle pas rétroactivement** les générateurs déjà affectés. L'indicateur
   d'isolement est une propriété de la salle (RG-PLN-004).

@@ -4852,7 +4852,14 @@ suppression), ainsi que les lignes de facture et les séances qui imposent le fo
 confirmer par les métiers avant le 2026-12-15). Sur les routes d&#39;administration des forfaits, un corps ou un paramètre
 illisible répond <strong>400</strong> <code>BAD_REQUEST</code> (et non plus 500), de même qu&#39;un <code>centerId</code> absent de la liste de choix ; le refus
 de droits (403) passe avant (KB-RF2-01 corrigé). Le <strong>prix</strong> d&#39;un forfait est facultatif :
-un prix omis à la modification <strong>efface</strong> le prix ; le sens d&#39;un prix absent reste à définir (KB-RF2-04).</p>
+un prix omis à la modification <strong>efface</strong> le prix ; le sens d&#39;un prix absent reste à définir (KB-RF2-04).
+Pour une <strong>caisse d&#39;assurance</strong>, une <strong>agence</strong> et un <strong>centre payeur</strong> (chaîne des payeurs de Patient et couverture,
+RF3a, ADR 0126), le refus compte les agences d&#39;une caisse, les centres payeurs d&#39;une agence et les patients d&#39;un centre
+payeur (comptés par identité, comme avant). Sur <strong>toutes</strong> les routes d&#39;administration des référentiels (caisses,
+agences, centres payeurs, mais aussi forfaits, transporteurs, créneaux, salles, médecins et générateurs), un corps, un
+identifiant, un centre ou une page illisible répond <strong>400</strong> <code>BAD_REQUEST</code> (et non plus 500), de même qu&#39;un <code>centerId</code>
+absent des listes de choix des payeurs et des catégories de transport ; le refus de droits (403) passe avant
+(KB-RF3-01 à 03 corrigés, ADR 0129, à confirmer par les métiers avant le 2026-12-15).</p>
 </div></div>
 <div class="rule" id="RG-REF-006"><div class="rid">RG-REF-006</div><div class="rtxt"><p>La capacité d&#39;une salle (en générateurs) limite l&#39;affectation de générateurs (RG-PLN-061) ; la
 modifier <strong>ne contrôle pas rétroactivement</strong> les générateurs déjà affectés. L&#39;indicateur
@@ -6079,6 +6086,14 @@ minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87)
 absences et la répartition par caisse, centre payeur borné au centre de la fiche, tri des caisses départagé par le code (KB-DIR-05, KB-SEA-83, 84),
 statistiques des séances réalisées seulement, volet borné au centre, compte entier dans le PDF (KB-SEA-85) ; KB-SEA-75, 80, 90, 91 clos sans
 changement de comportement.
+RF3a (ADR 0126, 2026-11-10) n&#39;ajoute aucune route : <code>/api/v1/admin/referentials/{caisses,agences,centres-payeurs}</code> (<code>ReferentialAdminRestController</code>, déjà listé)
+délègue la chaîne des payeurs à Patient et couverture par <code>GestionDesPayeurs</code> (traducteur <code>infrastructure/acl/patientcouverture/PayeursParPatientCouverture</code>) ;
+mêmes URLs, mêmes rôles, mêmes codes et messages ; règles : RG-REF-002, 003, 005 (400 sur corps ou identifiant illisible depuis RF3d, ADR 0129 : KB-RF3-01 et 02 corrigés, étendu à toute l&#39;administration générique).
+RF3c (ADR 0128, 2026-11-10) : les lectures <code>GET /api/v1/referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}</code> et leurs doublons
+<code>/api/v1/organisation/referentiels/{...}</code> passent au contrôleur <code>PayeursControleur</code> de Patient et couverture (mêmes URLs, même JSON, 403 hors centre, 400
+sur <code>centerId</code> illisible, 400 aussi sur <code>centerId</code> absent depuis RF3d, ADR 0129 : KB-RF3-03 corrigé) ; Comptabilité lit les payeurs par <code>PayeursDuCentre</code> (<code>GET /payeurs</code> : mêmes tri
+et recherche, KB-RF3-06) ; la reprise des soldes de la Facturation fige l&#39;agence du centre payeur par <code>PayeursDuCentre</code> ; quatre lecteurs de la Facturation
+restent sur les tables des payeurs (KB-RF3-07, butoir 2027-03-31).
 SE7f (ADR 0100) retire le module legacy <code>bc-seance</code> et ses dix-sept utilisateurs de la plateforme. La route <code>PUT /api/v1/seances/{id}/volet-paramedical</code>
 passe au contrôleur <code>VoletParamedicalControleur</code> du module Séance (même URL, mêmes rôles, mêmes champs, mêmes codes sauf les corrections du lot L4,
 ADR 0116 : fiche vérifiée avant l&#39;écriture, volet cherché par la séance, corps illisible en 400 ; règle : RG-SEA-069) ;

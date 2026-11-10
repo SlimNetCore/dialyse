@@ -1,0 +1,18 @@
+{
+  "caisse d'un autre centre" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Caisses » pour ce centre.",
+  "centre B par son administrateur" : "200 | {\"id\":\"<CB>\",\"references\":{},\"values\":{\"code\":\"CNAS-B2\",\"nom\":\"Caisse B2\",\"typeCaisse\":\"STANDARD\"}}",
+  "centre B vise par l'admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "code omis" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "code vide" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. | REQUIRED/code/ligne 0 {}",
+  "garder son propre code a la casse pres" : "200 | {\"id\":\"<C1>\",\"references\":{},\"values\":{\"code\":\"cnas2\",\"nom\":\"Caisse nationale renommee\",\"typeCaisse\":\"STANDARD\"}}",
+  "identifiant illisible" : "400 BAD_REQUEST | Paramètre illisible : id",
+  "identifiant inconnu" : "422 REFERENTIAL_NOT_FOUND | Élément introuvable dans « Caisses » pour ce centre.",
+  "memes valeurs" : "200 | {\"id\":\"<C1>\",\"references\":{},\"values\":{\"code\":\"CNAS2\",\"nom\":\"Caisse nationale renommee\",\"typeCaisse\":\"STANDARD\"}}",
+  "nom vide" : "422 REFERENTIAL_VALIDATION | « Nom » est obligatoire. | REQUIRED/nom/ligne 0 {}",
+  "passer en vacancier" : "200 | {\"id\":\"<C1>\",\"references\":{},\"values\":{\"code\":\"CNAS2\",\"nom\":\"Caisse nationale renommee\",\"typeCaisse\":\"VACANCIER\"}}",
+  "prendre le code d'une autre" : "422 REFERENTIAL_VALIDATION | Un élément de « Caisses » avec ce code existe déjà. | ALREADY_EXISTS/code/ligne 0 {}",
+  "renommer le code et le nom" : "200 | {\"id\":\"<C1>\",\"references\":{},\"values\":{\"code\":\"CNAS2\",\"nom\":\"Caisse nationale renommee\",\"typeCaisse\":\"STANDARD\"}}",
+  "sans values" : "400 VALIDATION_ERROR | Invalid request content.",
+  "type inconnu" : "422 REFERENTIAL_VALIDATION | « Type de caisse » : « PREMIUM » n'est pas une valeur autorisée (STANDARD, VACANCIER). | INVALID_VALUE/typeCaisse/ligne 0 {\"allowed\":\"STANDARD, VACANCIER\",\"value\":\"PREMIUM\"}",
+  "type omis revient a STANDARD" : "200 | {\"id\":\"<C2>\",\"references\":{},\"values\":{\"code\":\"CASNOS\",\"nom\":\"Caisse des non-salaries\",\"typeCaisse\":\"STANDARD\"}}"
+}

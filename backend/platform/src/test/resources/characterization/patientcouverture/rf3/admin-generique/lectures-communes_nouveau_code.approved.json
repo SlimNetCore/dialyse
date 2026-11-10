@@ -1,0 +1,9 @@
+{
+  "agences : doublon, centreId illisible" : "400 BAD_REQUEST | Invalid UUID string: pas-un-uuid",
+  "caisses : doublon, centreId illisible" : "400 BAD_REQUEST | Invalid UUID string: pas-un-uuid",
+  "categories-transport : anonyme sans centerId" : "403",
+  "categories-transport : centerId absent" : "400 BAD_REQUEST | Paramètre obligatoire absent : centerId",
+  "categories-transport : centerId illisible" : "400 BAD_REQUEST | Invalid UUID string: pas-un-uuid",
+  "centres-payeurs : doublon, centreId illisible" : "400 BAD_REQUEST | Invalid UUID string: pas-un-uuid",
+  "centres-payeurs-details : doublon, centreId illisible" : "400 BAD_REQUEST | Invalid UUID string: pas-un-uuid"
+}

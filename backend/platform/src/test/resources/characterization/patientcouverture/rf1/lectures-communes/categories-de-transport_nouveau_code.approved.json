@@ -1,0 +1,9 @@
+{
+  "lecture canonique avec centre" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<AMBULANCE>\",\"libelle\":\"Ambulance\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<TAXI>\",\"libelle\":\"Taxi conventionne\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]",
+  "lecture canonique sans centre" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<AMBULANCE>\",\"libelle\":\"Ambulance\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<TAXI>\",\"libelle\":\"Taxi conventionne\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]",
+  "lecture commune" : "200 | [{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<AMBULANCE>\",\"libelle\":\"Ambulance\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<TAXI>\",\"libelle\":\"Taxi conventionne\",\"nom\":null,\"prenom\":null},{\"adresse\":null,\"code\":null,\"gereParLot\":null,\"id\":\"<VSL>\",\"libelle\":\"VSL\",\"nom\":null,\"prenom\":null}]",
+  "lecture commune anonyme" : "403",
+  "lecture commune du centre B par le super administrateur" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+  "lecture commune du centre B par un admin du centre A" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "lecture commune sans centerId" : "400 BAD_REQUEST | Paramètre obligatoire absent : centerId"
+}

@@ -60,6 +60,8 @@ class SaisieDesCaissesCharacterizationIntegrationTest extends PayeursCharacteriz
         m.set("super administrateur vise le centre B", vue(doPost(CAISSES, caisseB, superadmin())));
         m.set("centre illisible", vue(doPost(CAISSES, "{'centerId':'pas-un-uuid','values':{'code':'X','nom':'X'}}", admin)));
         m.set("secretaire", vue(doPost(CAISSES, caisseA, as(CENTRE_A, "SECRETAIRE"))));
+        // RF3d (KB-RF3-01) : le refus de droits passe AVANT le 400 d'un corps illisible
+        m.set("secretaire, corps illisible", vue(doPost(CAISSES, "{'values':", as(CENTRE_A, "SECRETAIRE"))));
         m.set("anonyme", vue(doPost(CAISSES, caisseA, null)));
         goldenNode("creations-gardees", m);
         etatDesPayeurs("etat-apres-creations-gardees");

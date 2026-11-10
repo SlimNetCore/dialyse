@@ -22,7 +22,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URLs, mêmes rôles. De
 ## Périmètre et résiduels
 | ID | Résiduel | Raison |
 |---|---|---|
-| RF1-R4 (réduit) | L'advice n'est étendu ni aux 7 autres référentiels de l'administration générique (créneaux, salles, médecins, caisses, agences, centres payeurs, plus tout nouveau) ni à `categories-transport` | changerait des goldens d'autres contextes ; décision par référentiel |
+| RF1-R4 (réduit) | **SOLDÉ le 2026-11-10 par RF3d (ADR 0129)**. Texte d'origine : L'advice n'est étendu ni aux 7 autres référentiels de l'administration générique (créneaux, salles, médecins, caisses, agences, centres payeurs, plus tout nouveau) ni à `categories-transport` | changerait des goldens d'autres contextes ; décision par référentiel |
 | RF2c-R1 | Le compte des lignes de facture et des séances n'est pas borné au centre | hors décision ; KB-SEA-91 |
 
 ## Preuves

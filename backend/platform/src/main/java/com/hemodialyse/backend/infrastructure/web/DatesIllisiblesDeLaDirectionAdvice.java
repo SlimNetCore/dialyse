@@ -36,6 +36,9 @@ import org.springframework.web.servlet.HandlerMapping;
  * illisibles) ; le 403 du profil sans droit passe AVANT le 400.
  * <p>
  * RF2c (KB-RF2-01, ADR 0125) : étendu aux FORFAITS ({@code /api/v1/admin/referentials/forfaits/**}), mêmes règles.
+ * <p>
+ * RF3d (KB-RF3-01 à 03, ADR 0129) : étendu à TOUTE l'administration générique ({@code /api/v1/admin/referentials/**} : caisses,
+ * agences, centres payeurs, créneaux, salles, médecins, générateurs), mêmes règles (résiduel RF1-R4 clos).
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(basePackages = "com.hemodialyse.backend.infrastructure.web.rest")
@@ -48,8 +51,8 @@ class DatesIllisiblesDeLaDirectionAdvice {
     private static final java.util.Set<String> ROUTES_AVEC_DROITS_A_VERIFIER = java.util.Set.of("/api/v1/direction/indicators",
             "/api/v1/direction/overview", "/api/v1/direction/breakdown", "/api/v1/direction/report", "/api/v1/direction/gmao",
             "/api/v1/direction/alerts/history");
-    private static final java.util.regex.Pattern TRANSPORTEURS_ET_FORFAITS_ADMIN =
-            java.util.regex.Pattern.compile("/api/v1/admin/referentials/(transporteurs|forfaits)(/|$)");
+    private static final java.util.regex.Pattern ADMINISTRATION_GENERIQUE =
+            java.util.regex.Pattern.compile("/api/v1/admin/referentials(/|$)");
     private static final java.util.List<String> FRAGMENTS_DES_STATISTIQUES = java.util.List.of("/stats/medical", "/stats/export");
 
     private final ApiExceptionHandler gestionnaireCommun;
@@ -68,7 +71,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     ProblemDetail parametreAbsent(MissingServletRequestParameterException erreur, HttpServletRequest requete) {
-        if (!estUneRouteDesStatistiques(requete) && !estUneRouteDesTransporteursOuForfaitsDeLAdministration(requete)) {
+        if (!estUneRouteDesStatistiques(requete) && !estUneRouteDeLAdministrationGenerique(requete)) {
             return gestionnaireCommun.handleUnexpected(erreur);
         }
         return reponse(erreur, requete, "Paramètre obligatoire absent : " + erreur.getParameterName());
@@ -76,7 +79,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ProblemDetail corpsIllisible(HttpMessageNotReadableException erreur, HttpServletRequest requete) {
-        if (!estUneRouteDesStatistiques(requete) && !estUneRouteDesTransporteursOuForfaitsDeLAdministration(requete)) {
+        if (!estUneRouteDesStatistiques(requete) && !estUneRouteDeLAdministrationGenerique(requete)) {
             return gestionnaireCommun.handleUnexpected(erreur);
         }
         return reponse(erreur, requete, "Corps de la requête illisible");
@@ -103,23 +106,22 @@ class DatesIllisiblesDeLaDirectionAdvice {
     }
 
     /**
-     * KB-RF1-01 (RF1c, ADR 0123) et KB-RF2-01 (RF2c, ADR 0125) : l'administration des TRANSPORTEURS et des FORFAITS
-     * ({@code /api/v1/admin/referentials/transporteurs|forfaits} et leurs sous-routes). Limitée à ces deux référentiels : les sept
-     * autres gardent leur 500 (résiduel RF1-R4).
+     * KB-RF1-01 (RF1c), KB-RF2-01 (RF2c) et KB-RF3-01 à 03 (RF3d, ADR 0129) : TOUTE l'administration générique des référentiels
+     * ({@code /api/v1/admin/referentials} et ses sous-routes, quel que soit le référentiel : résiduel RF1-R4 clos).
      */
-    private static boolean estUneRouteDesTransporteursOuForfaitsDeLAdministration(HttpServletRequest requete) {
-        return TRANSPORTEURS_ET_FORFAITS_ADMIN.matcher(requete.getRequestURI()).find();
+    private static boolean estUneRouteDeLAdministrationGenerique(HttpServletRequest requete) {
+        return ADMINISTRATION_GENERIQUE.matcher(requete.getRequestURI()).find();
     }
 
     /** Les statistiques médicales et les indicateurs médicaux de la Direction : le 403 passe avant le 400 (les autres routes gardent leur 400). */
     private static boolean estUneRouteAvecDroitsAVerifier(HttpServletRequest requete) {
-        return estUneRouteDesStatistiques(requete) || estUneRouteDesTransporteursOuForfaitsDeLAdministration(requete)
+        return estUneRouteDesStatistiques(requete) || estUneRouteDeLAdministrationGenerique(requete)
                 || ROUTES_AVEC_DROITS_A_VERIFIER.stream().anyMatch(requete.getRequestURI()::endsWith);
     }
 
     private static boolean estUneRouteReprise(HttpServletRequest requete) {
         return ROUTES.stream().anyMatch(requete.getRequestURI()::endsWith) || estUneRouteDesStatistiques(requete)
-                || estUneRouteDesTransporteursOuForfaitsDeLAdministration(requete);
+                || estUneRouteDeLAdministrationGenerique(requete);
     }
 
     /** Évalue l'expression {@code @PreAuthorize} de la route avec la racine d'expressions de Spring Security (403 avant 400). */
