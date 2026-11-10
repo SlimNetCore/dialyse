@@ -37,6 +37,17 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 | Garde de centre | Toute lecture et toute écriture se font dans le centre du jeton | `SessionCourante` | 403 sinon |
 | Jour du centre | « Aujourd'hui » au fuseau du centre, y compris pour le tableau de bord et la séance sans date (PC4) ; jamais le jour de la JVM | `HorlogeDesCentres` (module), `JourDuCentre` / `JourDuCentreLegacy` (plateforme, PC4) | clé `app.planification.fuseau-par-defaut`, `centers.fuseau_horaire` |
 
+## Termes ajoutés par l'ADR 0121 (2026-11-10, référentiels orphelins ; statut `proposed`, à confirmer métiers <= 2026-12-15)
+
+| Terme métier | Définition | Identifiant du code | Notes | Statut |
+|---|---|---|---|---|
+| Catalogue de forfaits | Liste des forfaits (code, libellé, prix HT) d'un centre dont les PEC choisissent leur forfait | table `forfait` ; port cible `ForfaitsDuCentre` | « forfait » a trois sens : de PEC (ci-dessus), appliqué (Facturation), du centre (Séance) ; prix nul : sens à définir | proposed |
+| Transporteur | Prestataire de transport du patient (aller, retour) | table `transporteur`, `patients.transporteur_aller_id`, `transporteur_retour_id` | clé : nom, unique par centre | proposed |
+| Catégorie de transport | Classe de transport du patient | table `categorie_transport` | lien patient à confirmer | proposed |
+| Caisse d'assurance | Organisme d'assurance (STANDARD ou VACANCIER), niveau 1 de la chaîne payeur | table `caisse_assurance` | appartient à PC (ADR 0121), pas à Facturation | proposed |
+| Agence | Antenne d'une caisse, niveau 2 | table `agence` | idem | proposed |
+| Centre payeur | Payeur rattaché à une agence, attribut du patient ; ≠ « centre » (Organisation) | table `centre_payeur`, `patients.centre_payeur_id` | Facturation en fige l'agence et le centre à l'émission | proposed |
+
 ## Termes ajoutés par la reprise PC5 (2026-11-04, ADR 0079)
 
 | Terme métier | Définition | Identifiant du code | Notes | Statut |

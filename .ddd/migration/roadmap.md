@@ -303,6 +303,11 @@ Fondation multi-centre (OHS). Squelette existant. Refonte sur place.
 | PC3   | Prise en charge (PEC)                            | moyen  | built   | slices/patient-couverture-pc3-pec.md                 |
 | PC4   | Attestations de droits                           | faible | built   | slices/patient-couverture-pc4-attestations.md        |
 | PC5   | Lectures publiees et retrait du legacy           | eleve  | built   | slices/patient-couverture-pc5-lectures-publiees.md   |
+| RF1   | Transporteurs et categories de transport (referentiel orphelin, ADR 0121) | faible | planned | slices/patient-couverture-rf1-transporteurs.md |
+| RF2   | Catalogue de forfaits (referentiel orphelin, ADR 0121)                    | moyen  | planned | slices/patient-couverture-rf2-forfaits.md      |
+| RF3   | Caisses, agences, centres payeurs (3 tables, ADR 0121)                    | eleve  | planned | slices/patient-couverture-rf3-payeurs.md       |
+
+> **ADR 0121 (accepted 2026-11-10, a confirmer metiers <= 2026-12-15)** : les 5 referentiels orphelins (6 tables) appartiennent a Patient et couverture (forfait = accord de PEC ; centre payeur = attribut du patient ; transporteurs) ; Comptabilite garde une ACL SQL nominative sur `centre_payeur` ; ordre RF1 -> RF2 -> RF3 ; aucun changement de code a ce stade.
 
 > **PC5 `built` le 2026-11-04 (ADR 0079, accepted)** : langage publié `patientcouverture.v1` (`FichesDesPatients`, `CouvertureDesPatients`, `CompteursDeCouverture`, contrat sur le double, H2 et PostgreSQL 16) ; six lecteurs migrés (Absences ×3, partie PEC de Facturation, éligibilité à la facturation de la Séance, tableau de bord) avec parité stricte (aucun golden modifié, build complet vert) ; garde `TableDuPatientCouvertureTest` réactivée avec une liste blanche DATÉE des 18 jalons (cycle Maven Planification, colonnes de place, jointures `GROUP BY`, Séance, Direction, migration + `bc-assure`, types historiques `bc-patient`/JPA). Le module patient-couverture est entièrement repris (PC1 à PC5) ; la dette restante est la liste blanche.
 >
