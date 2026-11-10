@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Impression de la synthèse mensuelle de facturation : adaptateur du port {@link ImpressionDeLaSynthese} du module Facturation
@@ -26,9 +27,11 @@ import java.util.Map;
 public class FacturationSyntheseMensuelleReportService implements ImpressionDeLaSynthese {
 
     private final JasperReportService jasperReportService;
+    private final CaissesDesAgences caissesDesAgences;
 
-    public FacturationSyntheseMensuelleReportService(JasperReportService jasperReportService) {
+    public FacturationSyntheseMensuelleReportService(JasperReportService jasperReportService, CaissesDesAgences caissesDesAgences) {
         this.jasperReportService = jasperReportService;
+        this.caissesDesAgences = caissesDesAgences;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
         for (SyntheseMensuelle.Caisse caisse : synthese.colonnes()) {
             caisses.add(new CaisseColumn(caisse.code(), caisse.libelle(), "HT_" + caisses.size(), "TTC_" + caisses.size()));
         }
-        String jrxml = buildDynamicTemplate(caisses);
+        String jrxml = buildDynamicTemplate(caisses, caissesDesAgences.codesParAgence(synthese.centre()));
 
         Path tempJrxml = null;
         try {
@@ -76,7 +79,22 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
         }
     }
 
-    private String buildDynamicTemplate(List<CaisseColumn> caisses) {
+    /**
+     * Le code de la caisse de l'agence de l'instantané de la facture, sans jointure sur les tables des payeurs (RF3b, ADR 0127) : une
+     * expression {@code CASE} dont les agences et les codes viennent de l'annuaire des payeurs du centre (bornés au centre, comme la
+     * jointure d'avant). Agence inconnue du centre, sans caisse du centre ou instantané absent : valeur nulle (code {@code INCONNU}).
+     */
+    private static String codeDeLaCaisse(Map<UUID, String> codesParAgence) {
+        if (codesParAgence.isEmpty()) {
+            return "CAST(NULL AS VARCHAR(255))";
+        }
+        StringBuilder expression = new StringBuilder("CASE f.agence_id_snapshot");
+        new java.util.TreeMap<>(codesParAgence).forEach((agence, code) -> expression.append(" WHEN CAST('").append(agence)
+                .append("' AS UUID) THEN '").append(code.replace("'", "''")).append("'"));
+        return expression.append(" ELSE NULL END").toString();
+    }
+
+    private String buildDynamicTemplate(List<CaisseColumn> caisses, Map<UUID, String> codesParAgence) {
         int left = 20;
         int right = 20;
         int firstCol = 170;
@@ -105,13 +123,11 @@ public class FacturationSyntheseMensuelleReportService implements ImpressionDeLa
                 .append("       SUM(src.line_ttc) AS total_ttc\n")
                 .append("FROM (\n")
                 .append("    SELECT fl.forfait_label,\n")
-                .append("           COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS caisse_code,\n")
+                .append("           COALESCE(NULLIF(TRIM(").append(codeDeLaCaisse(codesParAgence)).append("), ''), 'INCONNU') AS caisse_code,\n")
                 .append("           fl.line_ht AS line_ht,\n")
                 .append("           (CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END) AS line_ttc\n")
                 .append("    FROM facture_lignes fl\n")
                 .append("    INNER JOIN factures f ON f.id = fl.facture_id AND f.center_id = fl.center_id\n")
-                .append("    LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id\n")
-                .append("    LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id AND ca.center_id = f.center_id\n")
                 .append("    WHERE f.center_id = CAST($P{CENTER_ID} AS UUID)\n")
                 .append("      AND f.date_facturation BETWEEN CAST($P{PERIOD_START} AS DATE) AND CAST($P{PERIOD_END} AS DATE)\n")
                 .append(") src\n")

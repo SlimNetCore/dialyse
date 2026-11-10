@@ -32,6 +32,13 @@ abstract class LecturesDuPilotageContrat {
 
     protected abstract JdbcTemplate jdbc();
 
+    /** RF3b (ADR 0127) : la caisse d'un centre payeur est lue dans l'annuaire des payeurs de Patient et couverture, sur les mêmes tables. */
+    private PatientsDesCentresJdbc lecteurDesPatients() {
+        return new PatientsDesCentresJdbc(jdbc(), new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture
+                .CaissesParLAnnuaireDesPayeurs(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .PayeursDuCentreJdbc(jdbc())));
+    }
+
     protected void preparer() {
         nettoyer();
         jdbc().update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,TRUE,CURRENT_TIMESTAMP)",
@@ -100,7 +107,7 @@ abstract class LecturesDuPilotageContrat {
         patient(C1, "M", "TRANSFERE", LocalDate.of(2026, 9, 1), ADMIS, true);    // transfert le premier jour : compte
         patient(C1, "M", "TRANSFERE", LocalDate.of(2026, 12, 1), ADMIS, false);  // sortie après la période : compte
 
-        var effectifs = new PatientsDesCentresJdbc(jdbc()).parCentre(List.of(C1, C2), SEPTEMBRE);
+        var effectifs = lecteurDesPatients().parCentre(List.of(C1, C2), SEPTEMBRE);
 
         assertThat(effectifs).containsOnlyKeys(C1);
         assertThat(effectifs.get(C1).patients()).isEqualTo(4);
@@ -116,7 +123,7 @@ abstract class LecturesDuPilotageContrat {
         patient(C1, "M", "GUERRI", premier, ADMIS, false);
         patient(C1, "M", "TRANSFERE", premier, ADMIS, false);
 
-        assertThat(new PatientsDesCentresJdbc(jdbc()).parCentre(List.of(C1), SEPTEMBRE).get(C1).patients()).isEqualTo(3);
+        assertThat(lecteurDesPatients().parCentre(List.of(C1), SEPTEMBRE).get(C1).patients()).isEqualTo(3);
     }
 
     @Test
@@ -127,7 +134,7 @@ abstract class LecturesDuPilotageContrat {
         patient(C1, "M", "OCCASIONNEL", LocalDate.of(2026, 8, 31), ADMIS, false);   // fin de séjour avant le début : exclu
         patient(C1, "M", "OCCASIONNEL", LocalDate.of(2026, 9, 1), ADMIS, false);    // fin de séjour incluse : compte
 
-        assertThat(new PatientsDesCentresJdbc(jdbc()).parCentre(List.of(C1), SEPTEMBRE).get(C1).patients()).isEqualTo(2);
+        assertThat(lecteurDesPatients().parCentre(List.of(C1), SEPTEMBRE).get(C1).patients()).isEqualTo(2);
     }
 
     @Test
@@ -136,7 +143,7 @@ abstract class LecturesDuPilotageContrat {
         patient(C1, "F", "PERMANENT", null, ADMIS, false);
         patient(C1, "F", "DECEDE", LocalDate.of(2026, 3, 1), ADMIS, false);       // sorti : exclu
 
-        var lecture = new PatientsDesCentresJdbc(jdbc());
+        var lecture = lecteurDesPatients();
 
         assertThat(lecture.profils(List.of(C1), SEPTEMBRE)).hasSize(2).allMatch(p -> p.centreId().equals(C1));
         var caisses = lecture.parCaisse(List.of(C1), SEPTEMBRE);
@@ -153,7 +160,7 @@ abstract class LecturesDuPilotageContrat {
         patient(C1, "F", "PERMANENT", null, ADMIS, false, payeurDuC2);   // chaîne payeur du centre C2 : caisse vide
         patient(C1, "F", "PERMANENT", null, ADMIS, false, null);
 
-        var caisses = new PatientsDesCentresJdbc(jdbc()).parCaisse(List.of(C1), SEPTEMBRE);
+        var caisses = lecteurDesPatients().parCaisse(List.of(C1), SEPTEMBRE);
 
         assertThat(caisses).extracting("code", "patients").containsExactlyInAnyOrder(
                 org.assertj.core.groups.Tuple.tuple("CNAS", 1L), org.assertj.core.groups.Tuple.tuple("", 2L));
@@ -169,7 +176,7 @@ abstract class LecturesDuPilotageContrat {
         jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, ?, ?)", payeur, C1, agenceDuC2, "CP", "Payeur");
         patient(C1, "M", "PERMANENT", null, ADMIS, false, payeur);   // centre payeur du C1, agence du C2 : caisse vide
 
-        var caisses = new PatientsDesCentresJdbc(jdbc()).parCaisse(List.of(C1), SEPTEMBRE);
+        var caisses = lecteurDesPatients().parCaisse(List.of(C1), SEPTEMBRE);
 
         assertThat(caisses).extracting("code", "patients").containsExactly(org.assertj.core.groups.Tuple.tuple("", 1L));
     }
@@ -179,7 +186,7 @@ abstract class LecturesDuPilotageContrat {
         patient(C1, "M", "PERMANENT", null, ADMIS, false);   // epo_enabled = vrai pour le sexe M dans ce jeu
         patient(C1, "F", "PERMANENT", null, ADMIS, false);
 
-        var prescriptions = new PatientsDesCentresJdbc(jdbc()).prescriptionsDeLAnemie(List.of(C1), SEPTEMBRE);
+        var prescriptions = lecteurDesPatients().prescriptionsDeLAnemie(List.of(C1), SEPTEMBRE);
 
         assertThat(prescriptions.get(C1).sousEpo()).isEqualTo(1);
     }

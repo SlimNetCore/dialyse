@@ -34,12 +34,10 @@ class TableDesPayeursTest {
 
     private static final Set<String> TABLES = Set.of("caisse_assurance", "agence", "centre_payeur");
 
-    private static final String ANNUAIRE = "2026-11-10 (RF3b) : lecture « annuaire » du libellé de la chaîne des payeurs par jointure SQL ; "
-            + "à remplacer par le langage publié PayeursDuCentre.";
     private static final String JOINTURE = "2026-11-10 (RF3c) : jointure de facturation (agrégation GROUP BY sur la chaîne caisse -> agence -> "
             + "centre payeur) à ne pas découper ; à reprendre en jalons datés par la Facturation via PayeursDuCentre.";
 
-    /** Lecteurs connus hors du contexte patient-couverture (chemin depuis {@code backend/}) : onze à l'ouverture (2026-11-10). */
+    /** Lecteurs connus hors du contexte patient-couverture (chemin depuis {@code backend/}) : onze à l'ouverture, sept après RF3b (2026-11-10). */
     private static final Map<String, String> LECTEURS_CONNUS = new TreeMap<>();
 
     static {
@@ -55,10 +53,6 @@ class TableDesPayeursTest {
         LECTEURS_CONNUS.put(ctx + "organisation/src/main/java/com/hemodialyse/backend/contexts/organisation/infrastructure/persistence/ReferentielsCommunsJdbc.java",
                 "2026-11-10 (RF3c) : lectures communes /referentials/{caisses,agences,centres-payeurs,centres-payeurs-details}, servies "
                         + "comme avant en RF3a (caches ref.* invalidés par PC) ; à déplacer vers PC avec retrait du code Organisation.");
-        LECTEURS_CONNUS.put(ctx + "pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/PatientsDesCentresJdbc.java", ANNUAIRE);
-        LECTEURS_CONNUS.put(ctx + "seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/FacturationDesSeancesJdbc.java", ANNUAIRE);
-        LECTEURS_CONNUS.put(ctx + "seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/SeancesRealiseesDesCentresJdbc.java", ANNUAIRE);
-        LECTEURS_CONNUS.put("platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/FacturationSyntheseMensuelleReportService.java", ANNUAIRE);
     }
 
     private static final Pattern NOMMEE = Pattern.compile(
@@ -128,7 +122,8 @@ class TableDesPayeursTest {
 
     @Test
     void l_effectif_des_lecteurs_connus_est_asserte() {
-        assertThat(LECTEURS_CONNUS).as("RF3a : 11 lecteurs hors patient-couverture à l'ouverture de la garde (2026-11-10)").hasSize(11);
+        assertThat(LECTEURS_CONNUS).as("RF3b : 7 lecteurs restent hors patient-couverture (11 à l'ouverture de la garde en RF3a, 4 lecteurs "
+                + "« annuaire » migrés vers PayeursDuCentre le 2026-11-10)").hasSize(7);
     }
 
     @Test

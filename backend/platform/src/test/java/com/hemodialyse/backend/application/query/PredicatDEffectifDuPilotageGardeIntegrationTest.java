@@ -80,7 +80,7 @@ class PredicatDEffectifDuPilotageGardeIntegrationTest {
         centres.add(unPatient(rang++, "PERMANENT", null, FIN.plusDays(1)));
 
         Map<UUID, Long> duPilotage = new HashMap<>();
-        new PatientsDesCentresJdbc(jdbc).parCentre(centres, new Periode(DEBUT, FIN))
+        new PatientsDesCentresJdbc(jdbc, centre -> java.util.Map.of()).parCentre(centres, new Periode(DEBUT, FIN))
                 .forEach((centre, effectif) -> duPilotage.put(centre, effectif.patients()));
 
         var reference = EffectifDeReference.presentSur("p", DEBUT, FIN);

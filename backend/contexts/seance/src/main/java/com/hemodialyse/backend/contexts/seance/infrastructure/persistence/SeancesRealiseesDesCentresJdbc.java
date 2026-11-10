@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,16 +25,13 @@ import java.util.UUID;
  */
 public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentresPubliees {
 
-    /** Centre payeur borné au centre de la fiche (KB-SEA-84, ADR 0118) : une chaîne payeur d'un autre centre tombe sur la caisse vide. */
-    private static final String CAISSE_JOIN =
-            "LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id "
-                    + "LEFT JOIN agence ag ON ag.id = cp.agence_id AND ag.center_id = cp.center_id "
-                    + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id ";
-
     private final JdbcTemplate jdbc;
+    private final ChaineDesPayeursDuCentre payeurs;
 
-    public SeancesRealiseesDesCentresJdbc(JdbcTemplate jdbc) {
+    /** {@code payeurs} : la chaîne des payeurs de Patient et couverture (borne du centre payeur au centre de la fiche : KB-SEA-84, ADR 0118). */
+    public SeancesRealiseesDesCentresJdbc(JdbcTemplate jdbc, ChaineDesPayeursDuCentre payeurs) {
         this.jdbc = jdbc;
+        this.payeurs = payeurs;
     }
 
     private static String placeholders(int n) {
@@ -77,17 +76,38 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
         return mois;
     }
 
+    /**
+     * Séances par caisse. La fiche est jointe en {@code LEFT JOIN} (centre de la séance) et regroupée par centre payeur ; la caisse du centre
+     * payeur vient de l'annuaire des payeurs (RF3b, ADR 0127), bornée au centre, et les compteurs sont additionnés par code de caisse
+     * (code vide sans caisse, nom nul sans caisse, plus grand nom sinon : comme le {@code MAX(ca.nom)} d'avant).
+     */
     @Override
     public List<CaisseRealiseePubliee> parCaisse(List<UUID> centres, LocalDate du, LocalDate au) {
-        List<CaisseRealiseePubliee> caisses = new ArrayList<>();
-        jdbc.query("SELECT s.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, COUNT(*) AS n "
+        record Cle(UUID centre, String code) {
+        }
+        List<Object[]> lignes = new ArrayList<>();
+        jdbc.query("SELECT s.center_id, p.centre_payeur_id, COUNT(*) AS n "
                         + "FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id "
-                        + CAISSE_JOIN + "WHERE s.center_id IN (" + placeholders(centres.size()) + ") AND s.date_seance BETWEEN ? AND ? "
-                        + "AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, COALESCE(ca.code, '')",
+                        + "WHERE s.center_id IN (" + placeholders(centres.size()) + ") AND s.date_seance BETWEEN ? AND ? "
+                        + "AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, p.centre_payeur_id",
                 rs -> {
-                    caisses.add(new CaisseRealiseePubliee(rs.getObject("center_id", UUID.class), rs.getString("code"), rs.getString("nom"),
-                            rs.getLong("n")));
+                    lignes.add(new Object[]{rs.getObject("center_id", UUID.class), rs.getObject("centre_payeur_id", UUID.class),
+                            rs.getLong("n")});
                 }, params(centres, du, au));
+        Map<UUID, Map<UUID, ChaineDesPayeursDuCentre.CaisseDuPayeur>> caissesParCentre = new HashMap<>();
+        Map<Cle, long[]> nombres = new LinkedHashMap<>();
+        Map<Cle, String> noms = new HashMap<>();
+        for (Object[] ligne : lignes) {
+            UUID centre = (UUID) ligne[0];
+            UUID centrePayeur = (UUID) ligne[1];
+            ChaineDesPayeursDuCentre.CaisseDuPayeur caisse = centrePayeur == null ? null
+                    : caissesParCentre.computeIfAbsent(centre, payeurs::caissesDesCentresPayeurs).get(centrePayeur);
+            Cle cle = new Cle(centre, caisse == null ? "" : caisse.code());
+            nombres.computeIfAbsent(cle, k -> new long[1])[0] += (Long) ligne[2];
+            if (caisse != null && caisse.nom() != null) noms.merge(cle, caisse.nom(), (a, b) -> a.compareTo(b) >= 0 ? a : b);
+        }
+        List<CaisseRealiseePubliee> caisses = new ArrayList<>();
+        nombres.forEach((cle, nombre) -> caisses.add(new CaisseRealiseePubliee(cle.centre(), cle.code(), noms.get(cle), nombre[0])));
         return caisses;
     }
 }

@@ -157,8 +157,9 @@ public class SeanceConfiguration {
      * Aucune transaction propre : elles participent à celle de l'émission (même {@code JdbcTemplate}).
      */
     @Bean
-    FacturationDesSeancesJdbc facturationDesSeances(JdbcTemplate jdbc) {
-        return new FacturationDesSeancesJdbc(jdbc);
+    FacturationDesSeancesJdbc facturationDesSeances(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre payeurs) {
+        return new FacturationDesSeancesJdbc(jdbc, payeurs);
     }
 
     @Bean
@@ -188,8 +189,15 @@ public class SeanceConfiguration {
      */
     @Bean
     com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees seancesRealiseesDesCentresPubliees(
-            JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesDesCentresJdbc(jdbc);
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre payeurs) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesDesCentresJdbc(jdbc, payeurs);
+    }
+
+    /** RF3b (ADR 0127) : la chaîne des payeurs est lue dans l'annuaire de Patient et couverture, plus par jointure SQL. */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre chaineDesPayeursDeLaSeance(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ChaineDesPayeursParLAnnuaire(annuaire);
     }
 
     @Bean

@@ -127,6 +127,8 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/TransporteursParPatientCouverture.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/ForfaitsParPatientCouverture.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/PayeursParPatientCouverture.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/CaissesDesAgencesParLAnnuaire.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/CaissesDesAgences.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/referential/admin/port/ReferentialAdminDelegates.java"
   ],
   "seamAllowed": []

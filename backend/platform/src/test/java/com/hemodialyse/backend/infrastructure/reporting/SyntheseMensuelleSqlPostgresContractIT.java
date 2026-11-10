@@ -149,7 +149,8 @@ class SyntheseMensuelleSqlPostgresContractIT {
         SyntheseMensuelle synthese = new SyntheseMensuelle(CENTRE, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28),
                 List.of(new SyntheseMensuelle.Caisse("CNAS", "CNAS"), new SyntheseMensuelle.Caisse("MUT", "Mutuelle")),
                 List.of(), List.of(), 0, 0, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
-        new FacturationSyntheseMensuelleReportService(capteur).imprimer(synthese, FormatDImpression.PDF);
+        // RF3b (ADR 0127) : les codes de caisse viennent de l'annuaire des payeurs ; ici les deux agences du jeu d'essai (mêmes codes que les tables).
+        new FacturationSyntheseMensuelleReportService(capteur, centre -> Map.of(AGENCE_CNAS, "CNAS", AGENCE_MUTUELLE, "mutuelle")).imprimer(synthese, FormatDImpression.PDF);
         return requeteDuGabarit(capture[0]);
     }
 

@@ -11,6 +11,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.domain.CentresPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.NiveauDePayeur;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs.FicheDePayeur;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs.PageDePayeurs;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,9 @@ abstract class PayeursContrat {
     protected abstract LectureDesPayeurs lecture();
 
     protected abstract UsageDesPayeurs usage();
+
+    /** Le langage publié {@code PayeursDuCentre} (RF3b) lu sur les mêmes données. */
+    protected abstract PayeursDuCentre publie();
 
     protected CaisseDAssurance caisse(CentreId centre, String code, String nom, String type) {
         CaisseDAssurance c = CaisseDAssurance.referencer(UUID.randomUUID(), centre, code, nom, type);
@@ -224,5 +228,122 @@ abstract class PayeursContrat {
         assertThat(usage().nombreDeReferences(NiveauDePayeur.AGENCE, a1.id())).isEqualTo(2);
         assertThat(usage().nombreDeReferences(NiveauDePayeur.AGENCE, a2.id())).isZero();
         assertThat(usage().nombreDeReferences(NiveauDePayeur.AGENCE, agenceLibre.id())).isZero();
+    }
+
+    // ---- le langage publié PayeursDuCentre (RF3b, ADR 0127) : lecture « annuaire », toujours bornée au centre indiqué
+
+    @Test
+    void l_annuaire_rend_les_caisses_les_agences_et_les_centres_payeurs_du_centre_par_code_et_jamais_ceux_d_un_autre() {
+        CaisseDAssurance c2 = caisse(CENTRE, "C-2", "Seconde", "VACANCIER");
+        CaisseDAssurance c1 = caisse(CENTRE, "C-1", "Premiere", null);
+        CaisseDAssurance cb = caisse(AUTRE, "C-B", "Autre centre", null);
+        Agence a2 = agence(CENTRE, c1, "AG-2", "Agence 2");
+        Agence a1 = agence(CENTRE, c2, "AG-1", "Agence 1");
+        Agence ab = agence(AUTRE, cb, "AG-B", "Agence B");
+        centre(CENTRE, a1, "CP-2", "Centre 2", null);
+        centre(CENTRE, a2, "CP-1", "Centre 1", "12 rue Didouche Mourad");
+        centre(AUTRE, ab, "CP-B", "Centre B", null);
+
+        assertThat(publie().caisses(CENTRE.valeur())).extracting(PayeursDuCentre.CaissePubliee::code, PayeursDuCentre.CaissePubliee::nom,
+                PayeursDuCentre.CaissePubliee::type, PayeursDuCentre.CaissePubliee::id)
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("C-1", "Premiere", "STANDARD", c1.id()),
+                        org.assertj.core.groups.Tuple.tuple("C-2", "Seconde", "VACANCIER", c2.id()));
+        assertThat(publie().agences(CENTRE.valeur())).extracting(PayeursDuCentre.AgencePubliee::code, PayeursDuCentre.AgencePubliee::caisse)
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("AG-1", c2.id()), org.assertj.core.groups.Tuple.tuple("AG-2", c1.id()));
+        assertThat(publie().centresPayeurs(CENTRE.valeur())).extracting(PayeursDuCentre.CentrePayeurPublie::code,
+                PayeursDuCentre.CentrePayeurPublie::adresse, PayeursDuCentre.CentrePayeurPublie::agence)
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("CP-1", "12 rue Didouche Mourad", a2.id()),
+                        org.assertj.core.groups.Tuple.tuple("CP-2", null, a1.id()));
+        assertThat(publie().caisses(AUTRE.valeur())).extracting(PayeursDuCentre.CaissePubliee::code).containsExactly("C-B");
+        assertThat(publie().caisses(UUID.randomUUID())).isEmpty();
+        assertThat(publie().agences(UUID.randomUUID())).isEmpty();
+        assertThat(publie().centresPayeurs(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void le_detail_d_un_centre_payeur_donne_son_agence_et_sa_caisse() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse nationale", "VACANCIER");
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CentrePayeur cp = centre(CENTRE, a, "CP-1", "Centre 1", "adresse");
+
+        PayeursDuCentre.ChaineDuPayeur detail = publie().detail(CENTRE.valeur(), cp.id()).orElseThrow();
+
+        assertThat(detail.centrePayeur()).isEqualTo(new PayeursDuCentre.CentrePayeurPublie(cp.id(), "CP-1", "Centre 1", "adresse", a.id()));
+        assertThat(detail.agence()).isEqualTo(new PayeursDuCentre.AgencePubliee(a.id(), "AG-1", "Agence 1", c.id()));
+        assertThat(detail.caisse()).isEqualTo(new PayeursDuCentre.CaissePubliee(c.id(), "CNAS", "Caisse nationale", "VACANCIER"));
+    }
+
+    @Test
+    void le_detail_est_vide_pour_un_centre_payeur_inconnu_ou_d_un_autre_centre() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse", null);
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CentrePayeur cp = centre(CENTRE, a, "CP-1", "Centre 1", null);
+
+        assertThat(publie().detail(AUTRE.valeur(), cp.id())).isEmpty();
+        assertThat(publie().detail(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
+        assertThat(publie().detail(CENTRE.valeur(), null)).isEmpty();
+    }
+
+    @Test
+    void la_chaine_est_bornee_a_chaque_etage_une_agence_ou_une_caisse_d_un_autre_centre_n_est_jamais_suivie() {
+        CaisseDAssurance etrangere = caisse(AUTRE, "C-B", "Caisse etrangere", null);
+        Agence agenceEtrangere = agence(AUTRE, etrangere, "AG-B", "Agence etrangere");
+        Agence agenceVersCaisseEtrangere = Agence.reconstituer(UUID.randomUUID(), CENTRE, "AG-X", "Agence vers caisse etrangere", etrangere.id());
+        agences().enregistrer(agenceVersCaisseEtrangere);
+        CentrePayeur versAgenceEtrangere = CentrePayeur.reconstituer(UUID.randomUUID(), CENTRE, "CP-1", "Vers agence etrangere", null,
+                agenceEtrangere.id());
+        centresPayeurs().enregistrer(versAgenceEtrangere);
+        CentrePayeur versCaisseEtrangere = CentrePayeur.reconstituer(UUID.randomUUID(), CENTRE, "CP-2", "Vers caisse etrangere", null,
+                agenceVersCaisseEtrangere.id());
+        centresPayeurs().enregistrer(versCaisseEtrangere);
+        CentrePayeur versAgenceInconnue = CentrePayeur.reconstituer(UUID.randomUUID(), CENTRE, "CP-3", "Vers agence inconnue", null,
+                UUID.randomUUID());
+        centresPayeurs().enregistrer(versAgenceInconnue);
+
+        PayeursDuCentre.ChaineDuPayeur a = publie().detail(CENTRE.valeur(), versAgenceEtrangere.id()).orElseThrow();
+        assertThat(a.centrePayeur().agence()).isEqualTo(agenceEtrangere.id());
+        assertThat(a.agence()).isNull();
+        assertThat(a.caisse()).isNull();
+        PayeursDuCentre.ChaineDuPayeur b = publie().detail(CENTRE.valeur(), versCaisseEtrangere.id()).orElseThrow();
+        assertThat(b.agence()).isNotNull();
+        assertThat(b.agence().caisse()).isEqualTo(etrangere.id());
+        assertThat(b.caisse()).isNull();
+        PayeursDuCentre.ChaineDuPayeur inconnue = publie().detail(CENTRE.valeur(), versAgenceInconnue.id()).orElseThrow();
+        assertThat(inconnue.agence()).isNull();
+        assertThat(inconnue.caisse()).isNull();
+    }
+
+    @Test
+    void les_chaines_du_centre_rendent_chaque_centre_payeur_par_code_avec_sa_chaine_bornee() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse", null);
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CentrePayeur cp2 = centre(CENTRE, a, "CP-2", "Centre 2", null);
+        CentrePayeur cp1 = centre(CENTRE, a, "CP-1", "Centre 1", null);
+        CaisseDAssurance cb = caisse(AUTRE, "C-B", "Caisse B", null);
+        Agence ab = agence(AUTRE, cb, "AG-B", "Agence B");
+        centre(AUTRE, ab, "CP-B", "Centre B", null);
+        CentrePayeur orphelin = CentrePayeur.reconstituer(UUID.randomUUID(), CENTRE, "CP-3", "Orphelin", null, ab.id());
+        centresPayeurs().enregistrer(orphelin);
+
+        List<PayeursDuCentre.ChaineDuPayeur> chaines = publie().chaines(CENTRE.valeur());
+
+        assertThat(chaines).extracting(ch -> ch.centrePayeur().id()).containsExactly(cp1.id(), cp2.id(), orphelin.id());
+        assertThat(chaines).extracting(ch -> ch.agence() == null ? null : ch.agence().code()).containsExactly("AG-1", "AG-1", null);
+        assertThat(chaines).extracting(ch -> ch.caisse() == null ? null : ch.caisse().code()).containsExactly("CNAS", "CNAS", null);
+        assertThat(publie().chaines(AUTRE.valeur())).extracting(ch -> ch.caisse().code()).containsExactly("C-B");
+        assertThat(publie().chaines(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void un_centre_payeur_existe_dans_son_centre_seulement() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse", null);
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CentrePayeur cp = centre(CENTRE, a, "CP-1", "Centre 1", null);
+
+        assertThat(publie().existe(CENTRE.valeur(), cp.id())).isTrue();
+        assertThat(publie().existe(AUTRE.valeur(), cp.id())).isFalse();
+        assertThat(publie().existe(CENTRE.valeur(), UUID.randomUUID())).isFalse();
+        assertThat(publie().existe(CENTRE.valeur(), null)).isFalse();
+        assertThat(publie().existe(CENTRE.valeur(), a.id())).isFalse();
     }
 }

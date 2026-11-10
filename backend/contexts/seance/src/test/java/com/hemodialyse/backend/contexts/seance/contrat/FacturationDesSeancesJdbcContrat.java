@@ -25,7 +25,11 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
                 + "nom VARCHAR(255), prenom VARCHAR(255), sexe VARCHAR(10), date_admission DATE, numero_assurance VARCHAR(100), "
                 + "type_patient VARCHAR(50), etat_patient VARCHAR(50), centre_payeur_id UUID)");
         jdbc().execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID, "
-                + "code VARCHAR(50), nom VARCHAR(255))");
+                + "code VARCHAR(50), nom VARCHAR(255), adresse VARCHAR(500))");
+        jdbc().execute("CREATE TABLE IF NOT EXISTS agence (id UUID PRIMARY KEY, center_id UUID NOT NULL, caisse_id UUID, code VARCHAR(50), "
+                + "nom VARCHAR(255))");
+        jdbc().execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50), "
+                + "nom VARCHAR(255), type_caisse VARCHAR(50) DEFAULT 'STANDARD')");
         jdbc().execute("CREATE TABLE IF NOT EXISTS factures (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "
                 + "numero_facture VARCHAR(120) NOT NULL, period_start DATE NOT NULL, period_end DATE NOT NULL, date_facturation DATE NOT NULL, "
                 + "tva_rate DECIMAL(5,2) NOT NULL, total_ht DECIMAL(14,2) NOT NULL, total_tva DECIMAL(14,2) NOT NULL, "
@@ -69,19 +73,26 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
         assertThat(jdbc().queryForObject("SELECT exclusion_absence_id FROM seances WHERE id = ?", UUID.class, id)).isEqualTo(absence);
     }
 
+    /** RF3b (ADR 0127) : l'agence du centre payeur est lue dans l'annuaire des payeurs de Patient et couverture, sur les mêmes tables. */
+    private FacturationDesSeancesJdbc lecture() {
+        return new FacturationDesSeancesJdbc(jdbc(), new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
+                .ChaineDesPayeursParLAnnuaire(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .PayeursDuCentreJdbc(jdbc())));
+    }
+
     @Override
     protected SeancesAFacturerPubliees aFacturer() {
-        return new FacturationDesSeancesJdbc(jdbc());
+        return lecture();
     }
 
     @Override
     protected ExclusionsEtForfaitsDesSeancesPublies exclusions() {
-        return new FacturationDesSeancesJdbc(jdbc());
+        return lecture();
     }
 
     @Override
     protected SeancesDesFacturesPubliees facturees() {
-        return new FacturationDesSeancesJdbc(jdbc());
+        return lecture();
     }
 
     @Override

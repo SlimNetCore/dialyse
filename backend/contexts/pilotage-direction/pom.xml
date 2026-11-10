@@ -85,6 +85,13 @@
             <artifactId>contexts-dossier-medical</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- RF3b (ADR 0127) : patientcouverture.v1 (PayeursDuCentre : la caisse d'un centre payeur). contexts-patient-couverture ne depend
+             ni de ce module ni de la Seance ni de la Facturation : aucun cycle. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-patient-couverture</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- PD6 (ADR 0106) : stock.v1 (IndicateursDuStock, S9). contexts-stock ne depend que de contexts-shared-kernel : aucun cycle. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

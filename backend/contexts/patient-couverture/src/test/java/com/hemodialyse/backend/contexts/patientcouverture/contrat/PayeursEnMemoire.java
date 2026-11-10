@@ -29,7 +29,8 @@ import java.util.UUID;
  * Double en mémoire des trois ports de la chaîne des payeurs, de leur lecture paginée et de leur usage (même jeu de tests de contrat
  * que les tables réelles). Les patients ne sont pas modélisés : leur nombre par centre payeur se règle à la main.
  */
-public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs {
+public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs,
+        com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre {
 
     private final Map<UUID, CaisseDAssurance> caisses = new LinkedHashMap<>();
     private final Map<UUID, Agence> agences = new LinkedHashMap<>();
@@ -117,6 +118,53 @@ public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs {
             case AGENCE -> centres.values().stream().filter(c -> c.agence().equals(id)).count();
             case CENTRE_PAYEUR -> patients.getOrDefault(id, 0L);
         };
+    }
+
+    // ---- langage publié PayeursDuCentre (RF3b)
+
+    private static final Comparator<Payeur> PAR_CODE = Comparator.comparing(Payeur::code).thenComparing(Payeur::id);
+
+    @Override
+    public List<CaissePubliee> caisses(UUID centre) {
+        return caisses.values().stream().filter(c -> c.centre().valeur().equals(centre)).sorted(PAR_CODE)
+                .map(c -> new CaissePubliee(c.id(), c.code(), c.nom(), c.type())).toList();
+    }
+
+    @Override
+    public List<AgencePubliee> agences(UUID centre) {
+        return agences.values().stream().filter(a -> a.centre().valeur().equals(centre)).sorted(PAR_CODE)
+                .map(a -> new AgencePubliee(a.id(), a.code(), a.nom(), a.caisse())).toList();
+    }
+
+    @Override
+    public List<CentrePayeurPublie> centresPayeurs(UUID centre) {
+        return centres.values().stream().filter(c -> c.centre().valeur().equals(centre)).sorted(PAR_CODE)
+                .map(c -> new CentrePayeurPublie(c.id(), c.code(), c.nom(), c.adresse(), c.agence())).toList();
+    }
+
+    private ChaineDuPayeur chaine(CentrePayeur cp) {
+        Agence agence = Optional.ofNullable(agences.get(cp.agence())).filter(a -> a.centre().equals(cp.centre())).orElse(null);
+        CaisseDAssurance caisse = agence == null ? null
+                : Optional.ofNullable(caisses.get(agence.caisse())).filter(c -> c.centre().equals(cp.centre())).orElse(null);
+        return new ChaineDuPayeur(new CentrePayeurPublie(cp.id(), cp.code(), cp.nom(), cp.adresse(), cp.agence()),
+                agence == null ? null : new AgencePubliee(agence.id(), agence.code(), agence.nom(), agence.caisse()),
+                caisse == null ? null : new CaissePubliee(caisse.id(), caisse.code(), caisse.nom(), caisse.type()));
+    }
+
+    @Override
+    public Optional<ChaineDuPayeur> detail(UUID centre, UUID centrePayeur) {
+        if (centre == null || centrePayeur == null) return Optional.empty();
+        return Optional.ofNullable(centres.get(centrePayeur)).filter(c -> c.centre().valeur().equals(centre)).map(this::chaine);
+    }
+
+    @Override
+    public List<ChaineDuPayeur> chaines(UUID centre) {
+        return centres.values().stream().filter(c -> c.centre().valeur().equals(centre)).sorted(PAR_CODE).map(this::chaine).toList();
+    }
+
+    @Override
+    public boolean existe(UUID centre, UUID centrePayeur) {
+        return detail(centre, centrePayeur).isPresent();
     }
 
     // ---- lecture paginée

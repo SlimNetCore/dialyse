@@ -513,6 +513,19 @@ class FrontieresDesContextesTest {
                     + "forfaits de Patient et couverture (RF2, ADR 0124 : ce n'est plus l'administration générique qui le compte)");
 
     /**
+     * RF3b (ADR 0127) : les lecteurs « annuaire » de la chaîne des payeurs (séance, pilotage de la direction, impressions) la lisent par le
+     * langage publié {@code PayeursDuCentre}, jamais par les tables {@code caisse_assurance}, {@code agence} et {@code centre_payeur}
+     * (garde de tables : {@code TableDesPayeursTest}).
+     */
+    @ArchTest
+    static final ArchRule les_lecteurs_annuaire_des_payeurs_passent_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ChaineDesPayeursParLAnnuaire")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.CaissesParLAnnuaireDesPayeurs")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.patientcouverture.CaissesDesAgencesParLAnnuaire")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre")
+            .because("la caisse d'un centre payeur est lue dans l'annuaire des payeurs de Patient et couverture (RF3b, ADR 0127)");
+
+    /**
      * SE7e (ADR 0099) : {@code SeancesDeLaReprisePubliees} est le SEUL port, hors de la Séance, qui ÉCRIT et SUPPRIME des séances. Il est
      * réservé aux deux adapters de la reprise de données (import et annulation d'un lot) ; aucune autre classe ne peut l'utiliser.
      */

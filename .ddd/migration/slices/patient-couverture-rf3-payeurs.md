@@ -1,6 +1,6 @@
 ---
 slice: patient-couverture-rf3-payeurs
-status: in-progress
+status: in-progress (RF3a et RF3b built, RF3c planned)
 date: 2026-11-10
 order: 8
 context: patient-couverture
@@ -41,10 +41,10 @@ Environ 45 (3 tables x CRUD, hiérarchie, doublons, suppressions refusées par n
 | Sous-slice | État | Détail |
 |---|---|---|
 | RF3a | **built** (2026-11-10, ADR 0126) | Filet HTTP : 24 tests, 45 goldens, verts sur le legacy AVANT tout changement, puis à parité SANS golden modifié (aucun `_nouveau_code`, aucune archive `_ecarts-legacy`). Domaine pur (`CaisseDAssurance`, `Agence`, `CentrePayeur`, `Payeur`), cas d'usage `GererLesPayeurs`, langage publié `GestionDesPayeurs` + `RefusDePayeur`, JDBC `CaissesJdbc`/`AgencesJdbc`/`CentresPayeursJdbc`/`LectureDesPayeursJdbc` sur les MÊMES tables, invalidation par niveau après commit, ACL `PayeursParPatientCouverture`. Garde `TableDesPayeursTest` (effectif 11). Contrat unique fake / H2 / PG16 (rejeu `backend/scripts/patient-couverture-rf3-pg16-rejeu.sh`). KB-RF3-01 à 05 reproduits. |
-| RF3b | planned | `PayeursDuCentre` + lecteurs « annuaire » ; lectures `/referentials/*` d'Organisation |
-| RF3c | planned | Comptabilité, Facturation (jointures `GROUP BY`), retrait du code Organisation, inventaire des entités JPA |
+| RF3b | **built** (2026-11-10, ADR 0127) | Langage publié `PayeursDuCentre` (`caisses`, `agences`, `centresPayeurs`, `detail`, `chaines`, `existe` ; ajusté : voir ADR 0127 décision 2), adaptateur `PayeursDuCentreJdbc`, contrat unique double en mémoire / H2 / PG16 (6 cas, rouge vérifié avant le code). Lecteurs migrés (aucun golden modifié) : Séance `SeancesRealiseesDesCentresJdbc` et `FacturationDesSeancesJdbc` (agence du centre payeur), Pilotage `PatientsDesCentresJdbc`, impression `FacturationSyntheseMensuelleReportService`. Absences : aucune entrée dans la liste blanche, rien à migrer. Garde `TableDesPayeursTest` : effectif 11 -> 7. Les lectures `/referentials/*` d'Organisation restent à RF3c. |
+| RF3c | planned | Comptabilité, Facturation (jointures `GROUP BY`), retrait du code Organisation, inventaire des entités JPA. Reste dans la garde (7 entrées, jalon RF3c daté) : Comptabilité `PayeursDuCentreJdbc`, Facturation `SituationsDesFacturesJdbc`, `LectureDeLaSyntheseJdbc`, `LectureDuTableauDeBordJdbc`, `SyntheseFinanciereDesCentresJdbc`, `RepriseDesSoldesJdbc`, Organisation `ReferentielsCommunsJdbc` |
 
-Résiduels RF3a : voir l'ADR 0126 (RF3-R1 à R5). Les 500 du legacy ne sont pas corrigés (décision de l'utilisateur requise).
+Résiduels RF3b : voir l'ADR 0127 (RF3b-R1 à R5). Résiduels RF3a : voir l'ADR 0126 (RF3-R1 à R5). Les 500 du legacy ne sont pas corrigés (décision de l'utilisateur requise).
 
 ## Garde de table nominative
 `TableDesPayeursTest` : tables `caisse_assurance`, `agence`, `centre_payeur` ; scanne tout le code de production hors PC (entités JPA exceptées, à inventorier en RF3c) ; liste blanche nominative et DATÉE, effectif asserté, échec sur entrée morte. Entrées attendues à l'ouverture : Facturation (`SituationsDesFacturesJdbc`, `LectureDeLaSyntheseJdbc`, `LectureDuTableauDeBordJdbc`, `SyntheseFinanciereDesCentresJdbc`, `RepriseDesSoldesJdbc`), Séance (2), Pilotage (1), platform reporting (1), **Comptabilité `PayeursDuCentreJdbc` (ACL décidée par l'ADR 0121, décision 3, nominative et datée)**, `ReferentialAdminJdbcAdapter`, `ReferentielsCommunsJdbc`. Cible : seules Comptabilité (ACL) et les jointures `GROUP BY` de Facturation restent, chacune avec raison et butoir.

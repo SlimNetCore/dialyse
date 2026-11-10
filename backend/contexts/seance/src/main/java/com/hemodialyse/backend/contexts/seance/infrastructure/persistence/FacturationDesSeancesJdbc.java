@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ExclusionsEtForfaitsDesSeancesPublies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesAFacturerPubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDesFacturesPubliees;
@@ -26,7 +27,7 @@ import java.util.UUID;
  * l'appelant (une seule transaction d'émission). ÉCARTS DÉCIDÉS : KB-SEA-71 (ADR 0097) : {@code lierALAbsence} porte la garde
  * {@code facture_id IS NULL}, comme {@code reinclure} ; lot L3 (ADR 0114, corrections demandées) : KB-SEA-72 (une seule définition de
  * « mémoire présente », {@code MEMOIRE_PRESENTE}, lue et écrite) et KB-SEA-73 ({@code exclure} n'accepte qu'une séance exactement validée
- * ou signée), qui remplacent le « mot pour mot » ci-dessus pour ces points. La jointure {@code patients} / {@code centre_payeur} est celle d'origine (résidu C2-R6).
+ * ou signée), qui remplacent le « mot pour mot » ci-dessus pour ces points. La jointure {@code patients} / {@code centre_payeur} d'origine (résidu C2-R6) est remplacée en RF3b (ADR 0127) par l'annuaire des payeurs.
  */
 public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, ExclusionsEtForfaitsDesSeancesPublies, SeancesDesFacturesPubliees {
 
@@ -35,23 +36,26 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
     private static final int TAILLE_DU_LOT = 500;
 
     private final JdbcTemplate jdbc;
+    private final ChaineDesPayeursDuCentre payeurs;
 
-    public FacturationDesSeancesJdbc(JdbcTemplate jdbc) {
+    public FacturationDesSeancesJdbc(JdbcTemplate jdbc, ChaineDesPayeursDuCentre payeurs) {
         this.jdbc = jdbc;
+        this.payeurs = payeurs;
     }
 
     // ---- séances à facturer
 
     @Override
     public List<SeanceAFacturerPubliee> dansLaPeriode(UUID centre, LocalDate debut, LocalDate fin) {
+        // RF3b (ADR 0127) : l'agence du centre payeur vient de l'annuaire des payeurs (bornée au centre de la fiche), une lecture par centre payeur.
+        Map<UUID, Optional<UUID>> agences = new HashMap<>();
         return jdbc.query("""
                         SELECT s.id AS seance_id, s.patient_id, s.date_seance, s.statut,
                                s.forfait_override_id, s.forfait_override_nom, s.forfait_override_prix,
                                p.code_patient, p.nom, p.prenom, p.etat_patient,
-                               p.numero_assurance, p.centre_payeur_id, cp.agence_id
+                               p.numero_assurance, p.centre_payeur_id
                         FROM seances s
                         INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id
-                        LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id
                         WHERE s.center_id = ?
                           AND s.date_seance BETWEEN ? AND ?
                           AND s.statut IN ('VALIDEE', 'SIGNEE')
@@ -65,8 +69,13 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
                         new PatientDeLaSeancePublie(rs.getObject("patient_id", UUID.class), rs.getString("code_patient"),
                                 rs.getString("nom"), rs.getString("prenom"), rs.getString("etat_patient"),
                                 rs.getString("numero_assurance"), rs.getObject("centre_payeur_id", UUID.class),
-                                rs.getObject("agence_id", UUID.class))),
+                                agenceDuCentrePayeur(centre, rs.getObject("centre_payeur_id", UUID.class), agences))),
                 centre, Date.valueOf(debut), Date.valueOf(fin));
+    }
+
+    private UUID agenceDuCentrePayeur(UUID centre, UUID centrePayeur, Map<UUID, Optional<UUID>> dejaLues) {
+        if (centrePayeur == null) return null;
+        return dejaLues.computeIfAbsent(centrePayeur, id -> payeurs.agenceDuCentrePayeur(centre, id)).orElse(null);
     }
 
     // ---- exclusion, réinclusion, forfait imposé

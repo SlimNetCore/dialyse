@@ -390,6 +390,12 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LectureDesPayeursJdbc(jdbc);
     }
 
+    /** Langage publié {@code PayeursDuCentre} (RF3b, ADR 0127) : l'annuaire des payeurs lu par les autres contextes. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre payeursDuCentre(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPayeurs gererLesPayeurs(
             com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CaissesJdbc caisses,

@@ -37,11 +37,12 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
         jdbc().execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, code_patient VARCHAR(50), "
                 + "nom VARCHAR(255) NOT NULL, prenom VARCHAR(255) NOT NULL, sexe VARCHAR(255) NOT NULL, date_admission DATE NOT NULL, "
                 + "numero_assurance VARCHAR(255) NOT NULL, type_patient VARCHAR(255) NOT NULL, centre_payeur_id UUID)");
-        jdbc().execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50), nom VARCHAR(255))");
+        jdbc().execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50), nom VARCHAR(255), "
+                + "type_caisse VARCHAR(50) DEFAULT 'STANDARD')");
         jdbc().execute("CREATE TABLE IF NOT EXISTS agence (id UUID PRIMARY KEY, center_id UUID NOT NULL, caisse_id UUID, code VARCHAR(50), "
                 + "nom VARCHAR(255))");
         jdbc().execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID, code VARCHAR(50), "
-                + "nom VARCHAR(255))");
+                + "nom VARCHAR(255), adresse VARCHAR(500))");
         jdbc().execute("CREATE TABLE IF NOT EXISTS volet_paramedical (id UUID PRIMARY KEY, anticoagulant VARCHAR(100), "
                 + "center_id UUID NOT NULL, created_at TIMESTAMP WITH TIME ZONE, debit_sang_ml_min INTEGER, duree_minutes INTEGER, "
                 + "incidents TEXT, poids_apres_kg NUMERIC(38, 2), poids_avant_kg NUMERIC(38, 2), seance_id UUID NOT NULL UNIQUE, "
@@ -61,7 +62,9 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
 
     @Override
     protected SeancesRealiseesDesCentresPubliees pilotage() {
-        return new SeancesRealiseesDesCentresJdbc(jdbc());
+        return new SeancesRealiseesDesCentresJdbc(jdbc(), new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
+                .ChaineDesPayeursParLAnnuaire(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .PayeursDuCentreJdbc(jdbc())));
     }
 
     @Override

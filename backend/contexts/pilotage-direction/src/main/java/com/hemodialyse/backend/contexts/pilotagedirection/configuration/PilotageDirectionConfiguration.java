@@ -167,8 +167,16 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    EffectifsDesPatients effectifsDesPatients(JdbcTemplate jdbc) {
-        return new PatientsDesCentresJdbc(jdbc);
+    EffectifsDesPatients effectifsDesPatients(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.pilotagedirection.application.CaissesDesCentresPayeurs caisses) {
+        return new PatientsDesCentresJdbc(jdbc, caisses);
+    }
+
+    /** RF3b (ADR 0127) : la caisse d'un centre payeur est lue dans l'annuaire de Patient et couverture, plus par jointure SQL. */
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.CaissesDesCentresPayeurs caissesDesCentresPayeurs(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.CaissesParLAnnuaireDesPayeurs(annuaire);
     }
 
     @Bean

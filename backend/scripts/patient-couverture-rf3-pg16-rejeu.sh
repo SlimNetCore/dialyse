@@ -1,5 +1,5 @@
 #!/bin/bash
-# Rejeu de la slice RF3a (chaine des payeurs : caisses d'assurance, agences, centres payeurs) de patient-couverture sur un PostgreSQL 16
+# Rejeu des slices RF3a et RF3b (chaine des payeurs : caisses d'assurance, agences, centres payeurs ; annuaire PayeursDuCentre) de patient-couverture sur un PostgreSQL 16
 # REEL et JETABLE : cluster temporaire detruit en sortie. Chaine Flyway V1..Vn (psql), verification que TOUTES les colonnes lues ou
 # ecrites par les adapters (caisse_assurance, agence, centre_payeur, patients.centre_payeur_id) existent dans le schema reel, execution
 # des requetes de lecture sur le schema reel, puis le contrat PostgreSQL de la chaine des payeurs : le meme jeu de tests que le double
@@ -55,9 +55,19 @@ req "references d'une caisse (agences)" "SELECT COUNT(*) FROM agence WHERE caiss
 req "references d'une agence (centres payeurs)" "SELECT COUNT(*) FROM centre_payeur WHERE agence_id = gen_random_uuid()"
 req "references d'un centre payeur (patients)" "SELECT COUNT(*) FROM patients WHERE centre_payeur_id = gen_random_uuid()"
 
+echo "=== RF3b : requetes de l'annuaire PayeursDuCentre executables sur le schema reel, SELECT seulement ==="
+req "annuaire : caisses du centre" "SELECT id, code, nom, type_caisse FROM caisse_assurance WHERE center_id = gen_random_uuid() ORDER BY code, id"
+req "annuaire : agences du centre" "SELECT id, code, nom, caisse_id FROM agence WHERE center_id = gen_random_uuid() ORDER BY code, id"
+req "annuaire : centres payeurs du centre" "SELECT id, code, nom, adresse, agence_id FROM centre_payeur WHERE center_id = gen_random_uuid() ORDER BY code, id"
+req "annuaire : chaine bornee a chaque etage (detail et chaines)" "SELECT cp.id, cp.code, cp.nom, cp.adresse, cp.agence_id, ag.id AS ag_id, ag.code AS ag_code, ag.nom AS ag_nom, ag.caisse_id AS ag_caisse_id, ca.id AS ca_id, ca.code AS ca_code, ca.nom AS ca_nom, ca.type_caisse AS ca_type FROM centre_payeur cp LEFT JOIN agence ag ON ag.id = cp.agence_id AND ag.center_id = cp.center_id LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id AND ca.center_id = cp.center_id WHERE cp.center_id = gen_random_uuid() AND cp.id = gen_random_uuid() ORDER BY cp.code, cp.id"
+req "annuaire : existence d'un centre payeur du centre" "SELECT COUNT(*) FROM centre_payeur WHERE id = gen_random_uuid() AND center_id = gen_random_uuid()"
+req "lecteur des patients par centre payeur (pilotage)" "SELECT p.center_id, p.centre_payeur_id, COUNT(*) AS n FROM patients p WHERE p.center_id IN (gen_random_uuid()) GROUP BY p.center_id, p.centre_payeur_id"
+req "lecteur des seances par centre payeur (seance)" "SELECT s.center_id, p.centre_payeur_id, COUNT(*) AS n FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id WHERE s.center_id IN (gen_random_uuid()) AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, p.centre_payeur_id"
+req "synthese mensuelle : expression CASE d'une agence vers un code de caisse" "SELECT COALESCE(NULLIF(TRIM(CASE f.agence_id_snapshot WHEN CAST('99996700-0000-0000-0000-0000000000a1' AS UUID) THEN 'CNAS' ELSE NULL END), ''), 'INCONNU') FROM factures f WHERE f.center_id = gen_random_uuid()"
+
 cd "$RACINE/backend"
 P=com.hemodialyse.backend.contexts.patientcouverture.contrat
-echo "=== Contrat PostgreSQL de la chaine des payeurs ==="
+echo "=== Contrat PostgreSQL de la chaine des payeurs et de l'annuaire PayeursDuCentre (RF3a et RF3b : meme classe de contrat) ==="
 ./mvnw -o -pl contexts/patient-couverture -am test \
   -Dtest="$P.PayeursPostgresContractIT" \
   -Dsurefire.failIfNoSpecifiedTests=false \
