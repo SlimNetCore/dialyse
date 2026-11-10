@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.acl.seance;
 
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
@@ -12,18 +13,22 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Fournit à la Séance le langage publié {@link FichesFournies} (ACL vers les patients legacy, {@link PatientRepositoryPort}). Toute
+ * Fournit à la Séance le langage publié {@link FichesFournies}. Hybride (ADR 0133) : les recherches et références (S5a) lisent le
+ * langage publié {@link FichesDesPatients} ; la fiche (S5b) lit encore les patients legacy ({@link PatientRepositoryPort}). Toute
  * lecture est bornée au centre demandé.
  */
 @Component
 public class FichesFournieLegacy implements FichesFournies {
 
     private final PatientRepositoryPort patients;
+    private final FichesDesPatients publiees;
 
-    public FichesFournieLegacy(PatientRepositoryPort patients) {
+    public FichesFournieLegacy(PatientRepositoryPort patients, FichesDesPatients publiees) {
         this.patients = patients;
+        this.publiees = publiees;
     }
 
+    /** S5b : reste lue dans les patients historiques (jointure avec la planification et le générateur). */
     @Override
     public Optional<Fiche> fiche(UUID centre, UUID patient) {
         return patients.findById(PatientId.of(patient), CenterId.of(centre)).map(FichesFournieLegacy::fiche);
@@ -31,24 +36,23 @@ public class FichesFournieLegacy implements FichesFournies {
 
     @Override
     public Optional<UUID> parIdentifiant(UUID centre, UUID identifiant) {
-        return patients.findById(PatientId.of(identifiant), CenterId.of(centre)).map(p -> p.getId().value());
+        return publiees.existe(centre, identifiant) ? Optional.of(identifiant) : Optional.empty();
     }
 
     @Override
     public Optional<UUID> parCode(UUID centre, String code) {
-        return patients.findByCodePatient(CenterId.of(centre), code).map(p -> p.getId().value());
+        return publiees.parCode(centre, code);
     }
 
     @Override
     public Optional<UUID> parNumeroDAssurance(UUID centre, String numero) {
-        return patients.findByNumeroAssurance(CenterId.of(centre), numero).map(p -> p.getId().value());
+        return publiees.parNumeroDAssurance(centre, numero);
     }
 
     @Override
     public List<References> tous(UUID centre) {
-        return patients.findAllByCenter(CenterId.of(centre)).stream()
-                .filter(p -> p != null)
-                .map(p -> new References(p.getId().value(), p.getCodePatient(), numero(p), p.getAssureNumeroAssurance()))
+        return publiees.references(centre).stream()
+                .map(r -> new References(r.patient(), r.code(), r.numeroAssurance(), r.numeroAssuranceDeLAssure()))
                 .toList();
     }
 

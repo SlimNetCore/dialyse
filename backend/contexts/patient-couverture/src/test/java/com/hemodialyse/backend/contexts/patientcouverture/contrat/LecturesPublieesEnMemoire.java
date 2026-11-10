@@ -80,6 +80,33 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
                 p.fiche().coordonnees().telMobile()));
     }
 
+    private static final Comparator<Patient> PAR_IDENTIFIANT = Comparator.comparing((Patient p) -> p.id().valeur().toString());
+
+    private List<Patient> duCentre(UUID centre) {
+        return patients.get().stream().filter(p -> p.centre().valeur().equals(centre)).sorted(PAR_IDENTIFIANT).toList();
+    }
+
+    private static String numeroDe(Patient p) {
+        return p.fiche().couverture().numeroAssurance() == null ? null : p.fiche().couverture().numeroAssurance().valeur();
+    }
+
+    @Override
+    public Optional<UUID> parCode(UUID centre, String code) {
+        return duCentre(centre).stream().filter(p -> p.code() != null && p.code().equals(code)).map(p -> p.id().valeur()).findFirst();
+    }
+
+    @Override
+    public Optional<UUID> parNumeroDAssurance(UUID centre, String numero) {
+        return duCentre(centre).stream().filter(p -> numeroDe(p) != null && numeroDe(p).equals(numero)).map(p -> p.id().valeur())
+                .findFirst();
+    }
+
+    @Override
+    public List<ReferencesDuPatient> references(UUID centre) {
+        return duCentre(centre).stream().map(p -> new ReferencesDuPatient(p.id().valeur(), p.code(), numeroDe(p),
+                p.fiche().couverture().assureNumeroAssurance())).toList();
+    }
+
     @Override
     public Situation situation(UUID centre, UUID patient) {
         return patient(centre, patient).map(p -> p.etat().sortie() ? Situation.SORTI : Situation.EN_SUIVI)

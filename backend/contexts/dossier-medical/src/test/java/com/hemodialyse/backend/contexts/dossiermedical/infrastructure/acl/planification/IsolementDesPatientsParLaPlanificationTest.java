@@ -48,6 +48,21 @@ class IsolementDesPatientsParLaPlanificationTest {
         }
 
         @Override
+        public java.util.Optional<UUID> parCode(UUID centre, String code) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public java.util.Optional<UUID> parNumeroDAssurance(UUID centre, String numero) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<ReferencesDuPatient> references(UUID centre) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public Situation situation(UUID centre, UUID patient) {
             throw new UnsupportedOperationException();
         }

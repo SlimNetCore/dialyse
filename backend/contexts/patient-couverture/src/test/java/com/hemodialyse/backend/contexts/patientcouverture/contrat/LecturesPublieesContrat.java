@@ -160,6 +160,64 @@ public abstract class LecturesPublieesContrat {
         }
     }
 
+    // ---- FichesDesPatients : recherches et références (Séance, S5a)
+
+    private Patient patientDontLAssureEst(CentreId centre, String numeroAssure) {
+        Patient p = Patient.admettre(new PatientId(UUID.randomUUID()), "PAT-" + String.format("%08X", SEQUENCE.incrementAndGet()),
+                centre, Fiches.tiers("LP-" + SEQUENCE.incrementAndGet(), numeroAssure), JOUR, T0, UUID::randomUUID);
+        patients().enregistrer(p);
+        return p;
+    }
+
+    @Test
+    void should_retrouver_un_patient_par_son_code_dans_le_centre_seulement_sans_tolerance_de_casse_ni_d_espaces() {
+        Patient p = patient(CENTRE);
+        Patient autreCentre = patient(AUTRE);
+
+        assertThat(fiches().parCode(CENTRE.valeur(), p.code())).contains(p.id().valeur());
+        assertThat(fiches().parCode(CENTRE.valeur(), p.code().toLowerCase())).as("comparaison exacte, casse comprise").isEmpty();
+        assertThat(fiches().parCode(CENTRE.valeur(), " " + p.code())).as("aucune normalisation des espaces").isEmpty();
+        assertThat(fiches().parCode(CENTRE.valeur(), autreCentre.code())).as("code d'un autre centre").isEmpty();
+        assertThat(fiches().parCode(CENTRE.valeur(), "PAT-INCONNU")).isEmpty();
+    }
+
+    @Test
+    void should_retrouver_un_patient_par_son_numero_d_assurance_dans_le_centre_seulement_sans_tolerance_de_casse() {
+        Patient p = patient(CENTRE);
+        Patient autreCentre = patient(AUTRE);
+        String numero = p.fiche().couverture().numeroAssurance().valeur();
+
+        assertThat(fiches().parNumeroDAssurance(CENTRE.valeur(), numero)).contains(p.id().valeur());
+        assertThat(fiches().parNumeroDAssurance(CENTRE.valeur(), numero.toLowerCase())).as("comparaison exacte, casse comprise")
+                .isEmpty();
+        assertThat(fiches().parNumeroDAssurance(CENTRE.valeur(), " " + numero)).as("aucune normalisation des espaces").isEmpty();
+        assertThat(fiches().parNumeroDAssurance(CENTRE.valeur(), autreCentre.fiche().couverture().numeroAssurance().valeur()))
+                .as("numéro d'un autre centre").isEmpty();
+        assertThat(fiches().parNumeroDAssurance(CENTRE.valeur(), "INCONNU-0")).isEmpty();
+    }
+
+    @Test
+    void should_rendre_les_references_de_tous_les_patients_du_centre_par_identifiant_croissant() {
+        Patient lui = patient(CENTRE);
+        Patient tiers = patientDontLAssureEst(CENTRE, "AS-9");
+        Patient autreCentre = patient(AUTRE);
+
+        var references = fiches().references(CENTRE.valeur());
+
+        assertThat(references).extracting(FichesDesPatients.ReferencesDuPatient::patient)
+                .containsExactlyElementsOf(java.util.stream.Stream.of(lui, tiers).map(x -> x.id().valeur())
+                        .sorted(java.util.Comparator.comparing(UUID::toString)).toList())
+                .doesNotContain(autreCentre.id().valeur());
+        var deLui = references.stream().filter(r -> r.patient().equals(lui.id().valeur())).findFirst().orElseThrow();
+        assertThat(deLui.code()).isEqualTo(lui.code());
+        assertThat(deLui.numeroAssurance()).isEqualTo(lui.fiche().couverture().numeroAssurance().valeur());
+        assertThat(deLui.numeroAssuranceDeLAssure()).as("l'assuré est le patient : son propre numéro")
+                .isEqualTo(deLui.numeroAssurance());
+        var duTiers = references.stream().filter(r -> r.patient().equals(tiers.id().valeur())).findFirst().orElseThrow();
+        assertThat(duTiers.numeroAssuranceDeLAssure()).isEqualTo("AS-9");
+        assertThat(fiches().references(UUID.randomUUID())).isEmpty();
+    }
+
     // ---- CouvertureDesPatients : forfait applicable
 
     @Test

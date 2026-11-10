@@ -23,7 +23,8 @@ Retirer les deux modules en 6 slices, chacune un comportement, livrée et vérif
 | S2 | Notification de saisie infirmière : nom/prénom via `FichesDesPatients` | faible | **faite** (2026-11-10) |
 | S3 | Cahier de dialyse : identité/assurance via le langage publié | moyen | **faite** (2026-11-10) |
 | S4 | PDF greffe (`GreffePdfService`) : idem | moyen | **faite** (2026-11-10) |
-| S5 | ACL Séance `FichesFournieLegacy` : fiches depuis `FichesDesPatients` | moyen | à faire |
+| S5a | ACL Séance `FichesFournieLegacy` : `parIdentifiant`, `parCode`, `parNumeroDAssurance`, `tous` depuis `FichesDesPatients` | moyen | **faite** (2026-11-10) |
+| S5b | ACL Séance `FichesFournieLegacy.fiche` (jointure planification/générateur) | moyen | à faire |
 | S6 | Outil de migration historique réécrit dans `patient-couverture`, puis retrait des adapters/entités/mapper JPA et des deux modules | élevé | à faire, à confirmer |
 
 S2-S5 sont indépendantes. Critère de retrait final : inventaire §7 (0 import `domain.(patient|assure).`, plus d'entités JPA patient/assuré, poms nettoyés, build complet vert).
@@ -49,6 +50,13 @@ La migration historique reste utilisée en production : S6 est une **réécritur
 ## S4 : preuve
 - `GreffePdfService` n'utilisait que `PatientRepositoryPort.findById(patient, centre)` pour `getNom/getPrenom/getCodePatient/getGroupeSanguin` (ligne « Patient : ... » du PDF). Tous portés par `FichesDesPatients.carte(centre, patient)` (S3) : aucun ajout au langage publié, aucune dépendance Maven nouvelle. Patient absent ou d'un autre centre : vide, ligne omise comme avant (le 404 reste porté par `DossierDeGreffePublie.duPatient`).
 - Aucun test n'existait : `GreffePdfServiceTest` ajouté d'abord (rouge de compilation vu : constructeur sur `PatientRepositoryPort`), puis vert ; il capture le HTML décoré (ligne patient, groupe sanguin absent = `-`, carte absente = pas de ligne). HTML et PDF identiques.
+
+## S5 : découpée (décision) et S5a : preuve
+- Décision : S5 est découpée en S5a (4 recherches/références) et S5b (`fiche`, qui joint planification et générateur). `FichesFournieLegacy` est hybride jusqu'à S5b : S5a lit le publié, `fiche` garde `PatientRepositoryPort`.
+- Sémantique legacy relevée (`PatientRepositoryAdapter` + `PatientJpaRepository`, requêtes dérivées sur `patients`) : bornée au centre ; `parCode` et `parNumeroDAssurance` = égalité EXACTE (casse et espaces comptent ; la clé de cache met le numéro en minuscules mais la requête reste exacte) ; `findAllByCenter` sans ORDER BY (ordre indéfini, `ResoudreLePatientScanne` prend le premier correspondant) ; numéro d'assurance de l'assuré = colonne `assure_numero_assurance` (propre numéro si assuré lui-même, numéro du tiers sinon). Le `CodeScanne` fournit déjà le jeton en majuscules et jamais nul.
+- Ajouts ADDITIFS à `FichesDesPatients` : `parCode`, `parNumeroDAssurance`, `references` + record `ReferencesDuPatient` (`FichesPublieesJdbc`, SQL borné au centre, `ORDER BY id` : ordre hexadécimal de l'UUID, premier retenu). `parIdentifiant` réutilise `existe` (aucun ajout). Contrat commun double + H2 (+ PG16 hérité de `LecturesPublieesJdbcContrat`, non rejoué ici : base jetable requise) : rouge de compilation vu d'abord, puis vert (19 tests chacun).
+- Test d'ACL `FichesFournieLegacyTest` ajouté d'abord (rouge de compilation vu : constructeur), puis vert ; il vérifie aussi que `fiche` reste lue dans le legacy.
+- Écarts de bord, tous sur données hors invariants (le legacy y lève) : (1) deux patients du même centre au même code ou numéro : le legacy lève `IncorrectResultSizeDataAccessException`, le publié rend le premier par identifiant (aucune contrainte unique en base) ; (2) une ligne dont `type_patient` est inconnu ou le numéro d'assurance vide : le legacy lève au mapping (y compris dans `tous`), le publié la lit telle quelle ; (3) `tous` : l'ordre devient déterministe (identifiant croissant) au lieu d'indéfini. Aucun golden modifié.
 
 ## Conséquences
 - 251 LOC main et 213 LOC test en moins, aucun changement de comportement.

@@ -65,6 +65,25 @@ public class FichesPublieesJdbc implements FichesDesPatients {
     }
 
     @Override
+    public java.util.Optional<UUID> parCode(UUID centre, String code) {
+        return jdbc.query("SELECT id FROM patients WHERE center_id = ? AND code_patient = ? ORDER BY id",
+                (rs, i) -> rs.getObject("id", UUID.class), centre, code).stream().findFirst();
+    }
+
+    @Override
+    public java.util.Optional<UUID> parNumeroDAssurance(UUID centre, String numero) {
+        return jdbc.query("SELECT id FROM patients WHERE center_id = ? AND numero_assurance = ? ORDER BY id",
+                (rs, i) -> rs.getObject("id", UUID.class), centre, numero).stream().findFirst();
+    }
+
+    @Override
+    public List<ReferencesDuPatient> references(UUID centre) {
+        return jdbc.query("SELECT id, code_patient, numero_assurance, assure_numero_assurance FROM patients WHERE center_id = ? ORDER BY id",
+                (rs, i) -> new ReferencesDuPatient(rs.getObject("id", UUID.class), rs.getString("code_patient"),
+                        rs.getString("numero_assurance"), rs.getString("assure_numero_assurance")), centre);
+    }
+
+    @Override
     public Situation situation(UUID centre, UUID patient) {
         List<String> etats = jdbc.query("SELECT COALESCE(etat_patient, '') AS etat FROM patients WHERE center_id = ? AND id = ?",
                 (rs, i) -> rs.getString("etat"), centre, patient);

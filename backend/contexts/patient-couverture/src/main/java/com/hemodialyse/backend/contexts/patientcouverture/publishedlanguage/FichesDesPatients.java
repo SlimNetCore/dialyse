@@ -35,6 +35,25 @@ public interface FichesDesPatients {
      */
     java.util.Optional<CarteDuPatient> carte(UUID centre, UUID patient);
 
+    /**
+     * Le patient du centre portant ce code, par comparaison EXACTE (casse et espaces comptent : ni majuscules ni retrait appliqués).
+     * Aucun ne correspond, ou celui d'un autre centre : vide. Si plusieurs patients portent le même code (aucune contrainte en base),
+     * le premier par identifiant croissant (ordre hexadécimal de l'UUID).
+     */
+    java.util.Optional<UUID> parCode(UUID centre, String code);
+
+    /** Idem {@link #parCode} pour le numéro d'assurance du patient (comparaison exacte, premier par identifiant croissant). */
+    java.util.Optional<UUID> parNumeroDAssurance(UUID centre, String numero);
+
+    /**
+     * Les références de TOUS les patients du centre (sans filtre d'état), par identifiant croissant (ordre hexadécimal de l'UUID).
+     * Valeurs telles que saisies (le code et le numéro de l'assuré peuvent être nuls).
+     */
+    java.util.List<ReferencesDuPatient> references(UUID centre);
+
+    record ReferencesDuPatient(UUID patient, String code, String numeroAssurance, String numeroAssuranceDeLAssure) {
+    }
+
     record CarteDuPatient(String code, String nom, String prenom, String sexe, java.time.LocalDate dateNaissance,
                           String groupeSanguin, String numeroAssurance, String telMobile) {
     }
