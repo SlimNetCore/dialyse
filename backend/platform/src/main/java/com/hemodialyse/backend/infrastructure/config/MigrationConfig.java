@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.config;
 
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
-import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.infrastructure.acl.gmao.GenerateursDeRepriseGmao;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
@@ -37,7 +37,7 @@ public class MigrationConfig {
     @Bean
     public MigrationDomainService migrationDomainService(MigrationBatchRepositoryPort batches, IdMappingPort ids,
                                                          ValueMappingPort values, MigrationRollbackPort rollback,
-                                                         PatientRepositoryPort patients, AssureRepositoryPort assures,
+                                                         PatientRepositoryPort patients, RepriseDesAssures assures,
                                                          AssurePatientRepositoryPort assignments,
                                                          ReferentialAdminRepositoryPort referentials,
                                                          GenerateursDuCentre generateurs,

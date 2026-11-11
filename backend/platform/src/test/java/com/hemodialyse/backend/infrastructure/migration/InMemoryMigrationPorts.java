@@ -1,9 +1,8 @@
 package com.hemodialyse.backend.infrastructure.migration;
 
-import com.hemodialyse.backend.domain.assure.model.Assure;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
-import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
@@ -171,28 +170,24 @@ final class InMemoryMigrationPorts {
         }
     }
 
-    static final class Assures implements AssureRepositoryPort {
-        final Map<String, Assure> rows = new LinkedHashMap<>();
+    /** Assurés du langage publié de Patient et couverture (la fusion des valeurs est testée dans le contexte). */
+    static final class Assures implements RepriseDesAssures {
+        final Map<String, AssureConnu> rows = new LinkedHashMap<>();
+        final Map<String, ReportDeLAssure> reports = new LinkedHashMap<>();
 
-        static Assure of(String numero, CenterId center) {
-            Assure a = new Assure();
-            a.setNumeroAssurance(numero);
-            a.setCenterId(center.value());
-            a.setNom("ASSURE");
-            return a;
+        void ajouter(String numero, CenterId center) {
+            rows.put(numero, new AssureConnu(numero, center.value()));
         }
 
-        public Assure save(Assure assure) {
-            rows.put(assure.getNumeroAssurance(), assure);
-            return assure;
-        }
-
-        public Optional<Assure> findByNumeroAssurance(String numeroAssurance) {
+        @Override
+        public Optional<AssureConnu> trouver(String numeroAssurance) {
             return Optional.ofNullable(rows.get(numeroAssurance));
         }
 
-        public List<Assure> searchByCenter(CenterId centerId, String query) {
-            return rows.values().stream().filter(a -> centerId.value().equals(a.getCenterId())).toList();
+        @Override
+        public void reprendre(UUID centre, ReportDeLAssure report) {
+            rows.put(report.numeroAssurance(), new AssureConnu(report.numeroAssurance(), centre));
+            reports.put(report.numeroAssurance(), report);
         }
     }
 

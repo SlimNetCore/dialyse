@@ -121,13 +121,10 @@ class TableDuPatientCouvertureTest {
                     + "prise en charge couvrant le jour, requête reprise mot pour mot ; échéance : lecture publiée de la couverture "
                     + "(CouvertureDesPatients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java", JPA,
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssureJpaEntity.java", JPA + " (migrateurs d'assurés)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssurePatientJpaEntity.java", JPA + " (migrateurs d'affectations)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PatientJpaRepository.java", JPA,
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AssureJpaRepository.java", JPA + " (migrateurs d'assurés)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AssurePatientJpaRepository.java", JPA + " (migrateurs d'affectations)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/PatientRepositoryAdapter.java", JPA + " : PatientRepositoryPort de la Séance, de FHIR, du cahier de dialyse et de KDIGO",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/AssureRepositoryAdapter.java", JPA + " (migrateurs d'assurés)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/AssurePatientRepositoryAdapter.java", JPA + " (migrateurs d'affectations)",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/mapper/PatientMapper.java", JPA + " (modèle patient historique de bc-patient)");
 

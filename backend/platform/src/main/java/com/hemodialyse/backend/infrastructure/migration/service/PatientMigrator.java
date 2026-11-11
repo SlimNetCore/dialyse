@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.infrastructure.migration.service;
 
-import com.hemodialyse.backend.domain.assure.model.Assure;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures.AssureConnu;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
-import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeReprise;
 import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeReprise.GenerateurRepris;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
@@ -47,12 +47,12 @@ public class PatientMigrator implements EntityMigrator {
     private static final Set<String> ETATS_AVEC_DATE = Set.of("TRANSFERE", "DECEDE", "GREFFE", "GUERRI");
 
     private final PatientRepositoryPort patients;
-    private final AssureRepositoryPort assures;
+    private final RepriseDesAssures assures;
     private final AssurePatientRepositoryPort assignments;
     private final ReferentialAdminRepositoryPort referentials;
     private final GenerateursDeReprise generateurs;
 
-    public PatientMigrator(PatientRepositoryPort patients, AssureRepositoryPort assures,
+    public PatientMigrator(PatientRepositoryPort patients, RepriseDesAssures assures,
                            AssurePatientRepositoryPort assignments, ReferentialAdminRepositoryPort referentials,
                            GenerateursDeReprise generateurs) {
         this.patients = patients;
@@ -260,8 +260,8 @@ public class PatientMigrator implements EntityMigrator {
                     "« N° d'assurance de l'assuré » est obligatoire quand le patient n'est pas l'assuré lui-même.", Map.of()));
             return;
         }
-        Optional<Assure> assure = assures.findByNumeroAssurance(numeroAssure);
-        if (assure.isEmpty() || !ctx.centerId().value().equals(assure.get().getCenterId())) {
+        Optional<AssureConnu> assure = assures.trouver(numeroAssure);
+        if (assure.isEmpty() || !ctx.centerId().value().equals(assure.get().centre())) {
             errors.add(issue(row.line(), "assureNumeroAssurance", "ASSURE_NOT_FOUND",
                     "Assuré « " + numeroAssure + " » introuvable dans le centre : importez d'abord le fichier des assurés.",
                     Map.of("value", numeroAssure)));

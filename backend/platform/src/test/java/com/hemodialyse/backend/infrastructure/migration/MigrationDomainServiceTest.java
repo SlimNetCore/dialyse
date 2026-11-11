@@ -218,7 +218,7 @@ class MigrationDomainServiceTest {
 
     @Test
     void assureOfAnotherCenterIsRefused() {
-        assures.save(InMemoryMigrationPorts.Assures.of("999", OTHER));
+        assures.ajouter("999", OTHER);
         MigrationBatch batch = service.open(CENTER, "Reprise", null, null, "admin");
 
         EntityRun run = service.importEntity(CENTER, batch.getId(), MigrationEntity.ASSURES, "assures.csv",

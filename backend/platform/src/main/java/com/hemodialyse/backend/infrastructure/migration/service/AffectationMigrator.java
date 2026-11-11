@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.infrastructure.migration.service;
 
-import com.hemodialyse.backend.domain.assure.model.Assure;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures.AssureConnu;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
-import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.domain.patient.model.Patient;
@@ -31,10 +31,10 @@ import static com.hemodialyse.backend.infrastructure.migration.service.EntityMig
 public class AffectationMigrator implements EntityMigrator {
 
     private final PatientRepositoryPort patients;
-    private final AssureRepositoryPort assures;
+    private final RepriseDesAssures assures;
     private final AssurePatientRepositoryPort assignments;
 
-    public AffectationMigrator(PatientRepositoryPort patients, AssureRepositoryPort assures,
+    public AffectationMigrator(PatientRepositoryPort patients, RepriseDesAssures assures,
                                AssurePatientRepositoryPort assignments) {
         this.patients = patients;
         this.assures = assures;
@@ -79,8 +79,8 @@ public class AffectationMigrator implements EntityMigrator {
                         "Patient « " + patientLegacy + " » inconnu : importez d'abord le fichier des patients.",
                         Map.of("value", patientLegacy)));
             }
-            Optional<Assure> assure = assures.findByNumeroAssurance(numero);
-            if (assure.isEmpty() || !center.value().equals(assure.get().getCenterId())) {
+            Optional<AssureConnu> assure = assures.trouver(numero);
+            if (assure.isEmpty() || !center.value().equals(assure.get().centre())) {
                 errors.add(issue(row.line(), "assureNumeroAssurance", "ASSURE_NOT_FOUND",
                         "Assuré « " + numero + " » introuvable dans le centre : importez d'abord le fichier des assurés.",
                         Map.of("value", numero)));

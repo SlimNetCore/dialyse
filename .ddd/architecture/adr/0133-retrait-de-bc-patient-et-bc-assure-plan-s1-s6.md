@@ -64,6 +64,11 @@ La migration historique reste utilisée en production : S6 est une **réécritur
 - `FichesFournieLegacy` supprimée, remplacée par `FichesFourniesParPatientCouverture` (`FichesDesPatients` + `PlacesDesPatients`, plus de `PatientRepositoryPort`) ; test d'ACL rouge de compilation vu d'abord, 9 tests verts. Aucune dépendance Maven nouvelle, aucun golden modifié.
 - Écarts de bord (données hors invariants, le legacy y levait) : type de patient inconnu ou numéro d'assurance vide au mapping legacy : la fiche est maintenant rendue telle que lue (déjà relevé en S3/S5a).
 
+## S6 : avancement (ADR 0134)
+- S6a (filet, 18 goldens) : faite (2026-11-11).
+- S6b-1 assurés : faite (2026-11-11). `AssureMigrator` écrit par `RepriseDesAssures` (langage publié, cas d'usage `ReprendreLesAssures`) ; `AssureRepositoryAdapter`, `AssureJpaRepository`, `AssureJpaEntity` retirés ; goldens inchangés. Aucun bug KB corrigé (leur code est en S6b-3).
+- S6b-2 patients, S6b-3 affectations / soldes / annulation / corrections KB-S6a-1, 2, 3, 5 : à faire.
+
 ## Conséquences
 - 251 LOC main et 213 LOC test en moins, aucun changement de comportement.
 - Les références documentaires à `FinOccupation` / `MouvementsPatient` restent comme historique.
