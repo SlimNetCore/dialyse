@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Les tables {@code caisse_assurance}, {@code agence} et {@code centre_payeur} appartiennent au contexte patient-couverture (slice RF3,
  * ADR 0126 : la chaîne des payeurs ; propriété décidée par l'ADR 0121, décision 2). La garde scanne le Java ET les gabarits {@code .jrxml}
- * (RF4) ; les butoirs sont des dates comparées à l'horloge (RF4, {@link ButoirsDesGardesDeTables}). Hors de ce contexte (et des trois entités JPA NOMMÉES), aucun
+ * (RF4) ; les butoirs sont des dates comparées à l'horloge (RF4, {@link ButoirsDesGardesDeTables}). Hors de ce contexte (les trois entités JPA ont été retirées en PL1), aucun
  * nouveau code de production ne les nomme, ni en SQL, ni comme nom de table d'une description de table
  * ({@code new Table("agence", …)}). Les lecteurs d'aujourd'hui, hors de PC, forment la liste blanche NOMMÉE et DATÉE
  * ({@link #LECTEURS_CONNUS}) : après RF3c, seules quatre jointures de la Facturation sur l'instantané figé de la facture restent (ADR 0128,
@@ -71,13 +71,10 @@ class TableDesPayeursTest {
     }
 
     /**
-     * Les trois entités JPA qui portent ces tables (chemins depuis {@code backend/}) : seules exclues de la garde (RF4, constat 3 : l'exclusion
-     * du dossier {@code /entity/} entier cachait toute autre entité).
+     * PL1 (a) : les trois entités JPA des payeurs sont retirées (les tables ont leur {@code CREATE TABLE} dans {@code db/schema.sql}) : plus
+     * aucune exclusion, toute entité JPA est scannée (RF4, constat 3).
      */
-    private static final Set<String> ENTITES_JPA_CONNUES = Set.of(
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CaisseAssuranceJpaEntity.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AgenceJpaEntity.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CentrePayeurJpaEntity.java");
+    private static final Set<String> ENTITES_JPA_CONNUES = Set.of();
 
     private static final Pattern NOMMEE = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)|\\bTable\\(\"([a-z_]+)\"", Pattern.CASE_INSENSITIVE);
@@ -182,11 +179,12 @@ class TableDesPayeursTest {
     }
 
     @Test
-    void l_exclusion_est_nominative_les_autres_entites_jpa_sont_scannees() throws IOException {
+    void aucune_exclusion_toutes_les_entites_jpa_sont_scannees() throws IOException {
         List<String> scannes = sourcesDeProduction(backend()).stream().map(TableDesPayeursTest::relatif).toList();
-        assertThat(ENTITES_JPA_CONNUES).allSatisfy(entite -> assertThat(Files.isRegularFile(backend().resolve(entite))).as(entite).isTrue());
-        assertThat(scannes).doesNotContainAnyElementsOf(ENTITES_JPA_CONNUES);
-        assertThat(scannes).as("une entité JPA non nommée est scannée").anyMatch(s -> s.contains("/entity/"));
+        assertThat(ENTITES_JPA_CONNUES).isEmpty();
+        assertThat(scannes).as("une entité JPA est scannée").anyMatch(s -> s.contains("/entity/"));
+        assertThat(scannes).as("les trois entités des payeurs n'existent plus (PL1 a)")
+                .noneMatch(s -> s.endsWith("/AgenceJpaEntity.java") || s.endsWith("/CaisseAssuranceJpaEntity.java") || s.endsWith("/CentrePayeurJpaEntity.java"));
         assertThat(ButoirsDesGardesDeTables.estUneEntiteJpaConnue("platform/src/main/java/x/entity/Inconnue.java", ENTITES_JPA_CONNUES)).isFalse();
     }
 

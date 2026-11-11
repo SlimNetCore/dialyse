@@ -67,29 +67,217 @@ CREATE TABLE IF NOT EXISTS patients (
     type_patient            VARCHAR(255) NOT NULL
 );
 
+-- PL1 (a) : les trois entités JPA des payeurs sont retirées ; ce DDL reproduit EXACTEMENT ce que Hibernate (ddl-auto: update) créait
+-- (colonnes nullables et longueurs 255 : l'ancien DDL, jamais appliqué car Hibernate passait avant, disait 50 / 500 / NOT NULL).
 CREATE TABLE IF NOT EXISTS caisse_assurance (
-    id UUID PRIMARY KEY,
+    id UUID NOT NULL PRIMARY KEY,
     center_id UUID NOT NULL,
-    code VARCHAR(50) NOT NULL,
-    nom VARCHAR(255) NOT NULL,
-    type_caisse VARCHAR(50) NOT NULL DEFAULT 'STANDARD'
+    code VARCHAR(255),
+    nom VARCHAR(255),
+    type_caisse VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS agence (
-    id UUID PRIMARY KEY,
+    id UUID NOT NULL PRIMARY KEY,
+    caisse_id UUID,
     center_id UUID NOT NULL,
-    caisse_id UUID NOT NULL,
-    code VARCHAR(50) NOT NULL,
-    nom VARCHAR(255) NOT NULL
+    code VARCHAR(255),
+    nom VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS centre_payeur (
-    id UUID PRIMARY KEY,
+    id UUID NOT NULL PRIMARY KEY,
+    adresse VARCHAR(255),
+    agence_id UUID,
     center_id UUID NOT NULL,
-    agence_id UUID NOT NULL,
-    code VARCHAR(50) NOT NULL,
-    nom VARCHAR(255) NOT NULL,
-    adresse VARCHAR(500)
+    code VARCHAR(255),
+    nom VARCHAR(255)
+);
+
+-- PL1 (b) : tables du stock, lues et écrites en JDBC par le contexte stock. Les cinq entités JPA (Article, Lot, StockMovement, Emplacement,
+-- Fournisseur) sont retirées ; ce DDL reproduit EXACTEMENT ce que Hibernate (ddl-auto: update) créait (comparé par INFORMATION_SCHEMA avant /
+-- après : colonnes, types, longueurs, nullabilité, défauts, clés, index). Doit rester AVANT les ALTER de stock_movements (inventaire_id, saisi_le).
+CREATE TABLE IF NOT EXISTS emplacements (
+    id UUID NOT NULL PRIMARY KEY,
+    actif BOOLEAN NOT NULL,
+    center_id UUID NOT NULL,
+    code VARCHAR(255),
+    libelle VARCHAR(255) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_emplacement_center ON emplacements (center_id);
+
+CREATE TABLE IF NOT EXISTS fournisseurs (
+    id UUID NOT NULL PRIMARY KEY,
+    actif BOOLEAN NOT NULL,
+    center_id UUID NOT NULL,
+    code VARCHAR(255),
+    contact VARCHAR(255),
+    email VARCHAR(255),
+    raison_sociale VARCHAR(255) NOT NULL,
+    telephone VARCHAR(255)
+);
+CREATE INDEX IF NOT EXISTS idx_fournisseur_center ON fournisseurs (center_id);
+
+CREATE TABLE IF NOT EXISTS articles (
+    id UUID NOT NULL PRIMARY KEY,
+    active BOOLEAN NOT NULL,
+    center_id UUID NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    code_barres VARCHAR(64),
+    coefficient_achat NUMERIC(14, 4),
+    compte_charge VARCHAR(20),
+    compte_stock VARCHAR(20),
+    condition_conservation VARCHAR(20),
+    created_at TIMESTAMP WITH TIME ZONE,
+    dci VARCHAR(150),
+    dechet_dasri BOOLEAN DEFAULT FALSE NOT NULL,
+    dosage_par_unite NUMERIC(14, 4),
+    forme_galenique VARCHAR(80),
+    fournisseur_id UUID,
+    gere_par_lot BOOLEAN NOT NULL,
+    libelle VARCHAR(255) NOT NULL,
+    peremption_obligatoire BOOLEAN DEFAULT FALSE NOT NULL,
+    pmp_courant NUMERIC(38, 2),
+    prix_achat NUMERIC(14, 4),
+    produit_dangereux BOOLEAN DEFAULT FALSE NOT NULL,
+    reference_fabricant VARCHAR(80),
+    seuil_alerte NUMERIC(38, 2) NOT NULL,
+    stock_max NUMERIC(14, 4),
+    stock_quantity NUMERIC(38, 2) NOT NULL,
+    tva_type_id UUID,
+    type_traitement_anemie VARCHAR(20),
+    unite VARCHAR(255) NOT NULL,
+    unite_achat VARCHAR(30),
+    unite_dosage VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS lots (
+    id UUID NOT NULL PRIMARY KEY,
+    article_id UUID NOT NULL,
+    bon_reception_id UUID,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    date_peremption DATE,
+    emplacement_id UUID,
+    numero_lot VARCHAR(255) NOT NULL,
+    pmp NUMERIC(38, 2),
+    quantite_initiale NUMERIC(38, 2) NOT NULL,
+    quantite_restante NUMERIC(38, 2) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_lot_article_peremption ON lots (article_id, date_peremption);
+CREATE INDEX IF NOT EXISTS idx_lot_article ON lots (article_id);
+CREATE INDEX IF NOT EXISTS idx_lot_center ON lots (center_id);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+    id UUID NOT NULL PRIMARY KEY,
+    article_id UUID NOT NULL,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    created_by VARCHAR(255),
+    lot_id UUID,
+    mouvement_type VARCHAR(255) NOT NULL,
+    pmp_apres NUMERIC(38, 2),
+    prix_unitaire NUMERIC(38, 2),
+    quantite NUMERIC(38, 2) NOT NULL,
+    seance_id UUID
+);
+CREATE INDEX IF NOT EXISTS idx_stock_mvt_article_date ON stock_movements (article_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_stock_mvt_lot ON stock_movements (lot_id);
+CREATE INDEX IF NOT EXISTS idx_stock_mvt_seance ON stock_movements (seance_id);
+CREATE INDEX IF NOT EXISTS idx_stock_mvt_center_date ON stock_movements (center_id, created_at);
+
+-- PL1 (c) : bons de commande, de réception et de sortie et leurs lignes (même méthode que (b) ; entités et six dépôts JPA retirés).
+CREATE TABLE IF NOT EXISTS bons_commande (
+    id UUID NOT NULL PRIMARY KEY,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    created_by VARCHAR(255),
+    fournisseur_id UUID,
+    reference VARCHAR(255) NOT NULL,
+    statut VARCHAR(255) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_bl_center ON bons_commande (center_id);
+CREATE INDEX IF NOT EXISTS idx_bl_reference ON bons_commande (center_id, reference);
+
+CREATE TABLE IF NOT EXISTS bons_commande_lignes (
+    id UUID NOT NULL PRIMARY KEY,
+    article_id UUID NOT NULL,
+    bon_commande_id UUID NOT NULL,
+    prix_unitaire NUMERIC(38, 2),
+    quantite NUMERIC(38, 2) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_bl_ligne_bon ON bons_commande_lignes (bon_commande_id);
+
+CREATE TABLE IF NOT EXISTS bons_reception (
+    id UUID NOT NULL PRIMARY KEY,
+    bon_commande_id UUID,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    created_by VARCHAR(255),
+    date_reception DATE,
+    fournisseur_id UUID,
+    reference VARCHAR(255) NOT NULL,
+    statut VARCHAR(255) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_br_center ON bons_reception (center_id);
+CREATE INDEX IF NOT EXISTS idx_br_reference ON bons_reception (center_id, reference);
+
+CREATE TABLE IF NOT EXISTS bons_reception_lignes (
+    id UUID NOT NULL PRIMARY KEY,
+    article_id UUID NOT NULL,
+    bon_reception_id UUID NOT NULL,
+    date_peremption DATE,
+    emplacement_id UUID,
+    lot_id UUID,
+    numero_lot VARCHAR(255),
+    prix_unitaire NUMERIC(38, 2),
+    quantite NUMERIC(38, 2) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_br_ligne_bon ON bons_reception_lignes (bon_reception_id);
+
+CREATE TABLE IF NOT EXISTS bons_sortie (
+    id UUID NOT NULL PRIMARY KEY,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    created_by VARCHAR(255),
+    date_sortie DATE,
+    patient_id UUID,
+    poste VARCHAR(255),
+    reference VARCHAR(255) NOT NULL,
+    seance_id UUID NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_bs_center ON bons_sortie (center_id);
+CREATE INDEX IF NOT EXISTS idx_bs_seance ON bons_sortie (seance_id);
+CREATE INDEX IF NOT EXISTS idx_bs_reference ON bons_sortie (center_id, reference);
+
+CREATE TABLE IF NOT EXISTS bons_sortie_lignes (
+    id UUID NOT NULL PRIMARY KEY,
+    article_id UUID NOT NULL,
+    bon_sortie_id UUID NOT NULL,
+    lot_id UUID,
+    pmp_applique NUMERIC(38, 2),
+    quantite NUMERIC(38, 2) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_bs_ligne_bon ON bons_sortie_lignes (bon_sortie_id);
+CREATE INDEX IF NOT EXISTS idx_bs_ligne_lot ON bons_sortie_lignes (lot_id);
+
+-- PL1 (d) : compteurs de numérotation des pièces (JDBC : SequenceDesNumerosDePiecesJdbc) et affectations utilisateur / centre / rôle
+-- (lues par seed.sql). Entités AppSetting, AppSettingId et UserCenterAssignment retirées.
+CREATE TABLE IF NOT EXISTS app_settings (
+    center_id UUID NOT NULL,
+    cle VARCHAR(50) NOT NULL,
+    dernier_compteur BIGINT NOT NULL,
+    prefixe VARCHAR(20) NOT NULL,
+    PRIMARY KEY (center_id, cle)
+);
+
+CREATE TABLE IF NOT EXISTS user_center_assignment (
+    id UUID NOT NULL PRIMARY KEY,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    role_code VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    UNIQUE (user_id, center_id, role_code)
 );
 
 CREATE TABLE IF NOT EXISTS medecin (
