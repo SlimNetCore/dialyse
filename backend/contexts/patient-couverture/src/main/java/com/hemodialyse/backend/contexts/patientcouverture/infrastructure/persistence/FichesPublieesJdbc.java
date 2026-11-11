@@ -65,6 +65,13 @@ public class FichesPublieesJdbc implements FichesDesPatients {
     }
 
     @Override
+    public java.util.Optional<UUID> medecinTraitant(UUID centre, UUID patient) {
+        return jdbc.query("SELECT medecin_traitant_id FROM patients WHERE center_id = ? AND id = ?",
+                (rs, i) -> java.util.Optional.ofNullable(rs.getObject("medecin_traitant_id", UUID.class)), centre, patient)
+                .stream().findFirst().flatMap(m -> m);
+    }
+
+    @Override
     public java.util.Optional<UUID> parCode(UUID centre, String code) {
         return jdbc.query("SELECT id FROM patients WHERE center_id = ? AND code_patient = ? ORDER BY id",
                 (rs, i) -> rs.getObject("id", UUID.class), centre, code).stream().findFirst();

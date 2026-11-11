@@ -1,8 +1,10 @@
 package com.hemodialyse.backend.contexts.patientcouverture.contrat;
 
+import com.hemodialyse.backend.contexts.patientcouverture.domain.Affectation;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.EtatDuPatient;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.Fiche;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Fiches;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Patient;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
@@ -140,6 +142,23 @@ public abstract class LecturesPublieesContrat {
         assertThat(carte.get().telMobile()).isNull();
         assertThat(fiches().carte(CENTRE.valeur(), autreCentre.id().valeur())).isEmpty();
         assertThat(fiches().carte(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void should_rendre_le_medecin_traitant_du_patient_du_centre_seulement_et_rien_sans_medecin() {
+        UUID medecin = UUID.randomUUID();
+        Fiche nominale = Fiches.nominale();
+        Patient avec = Patient.admettre(new PatientId(UUID.randomUUID()), "PAT-" + String.format("%08X", SEQUENCE.incrementAndGet()),
+                CENTRE, new Fiche(nominale.identite(), nominale.coordonnees(), nominale.suivi(), nominale.couverture(),
+                        new Affectation(medecin, null, null, null, null, null, null, null), nominale.dateAdmission(), null, null),
+                JOUR, T0, UUID::randomUUID);
+        patients().enregistrer(avec);
+        Patient sans = patient(CENTRE);
+
+        assertThat(fiches().medecinTraitant(CENTRE.valeur(), avec.id().valeur())).contains(medecin);
+        assertThat(fiches().medecinTraitant(AUTRE.valeur(), avec.id().valeur())).as("patient d'un autre centre").isEmpty();
+        assertThat(fiches().medecinTraitant(CENTRE.valeur(), sans.id().valeur())).as("aucun médecin renseigné").isEmpty();
+        assertThat(fiches().medecinTraitant(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
     }
 
     @Test

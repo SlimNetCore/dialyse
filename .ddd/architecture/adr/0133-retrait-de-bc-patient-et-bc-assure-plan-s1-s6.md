@@ -24,7 +24,7 @@ Retirer les deux modules en 6 slices, chacune un comportement, livrée et vérif
 | S3 | Cahier de dialyse : identité/assurance via le langage publié | moyen | **faite** (2026-11-10) |
 | S4 | PDF greffe (`GreffePdfService`) : idem | moyen | **faite** (2026-11-10) |
 | S5a | ACL Séance `FichesFournieLegacy` : `parIdentifiant`, `parCode`, `parNumeroDAssurance`, `tous` depuis `FichesDesPatients` | moyen | **faite** (2026-11-10) |
-| S5b | ACL Séance `FichesFournieLegacy.fiche` (jointure planification/générateur) | moyen | à faire |
+| S5b | ACL Séance `fiche` (carte + médecin traitant + place publiée) ; classe renommée `FichesFourniesParPatientCouverture` | moyen | **faite** (2026-11-11) |
 | S6 | Outil de migration historique réécrit dans `patient-couverture`, puis retrait des adapters/entités/mapper JPA et des deux modules | élevé | à faire, à confirmer |
 
 S2-S5 sont indépendantes. Critère de retrait final : inventaire §7 (0 import `domain.(patient|assure).`, plus d'entités JPA patient/assuré, poms nettoyés, build complet vert).
@@ -57,6 +57,12 @@ La migration historique reste utilisée en production : S6 est une **réécritur
 - Ajouts ADDITIFS à `FichesDesPatients` : `parCode`, `parNumeroDAssurance`, `references` + record `ReferencesDuPatient` (`FichesPublieesJdbc`, SQL borné au centre, `ORDER BY id` : ordre hexadécimal de l'UUID, premier retenu). `parIdentifiant` réutilise `existe` (aucun ajout). Contrat commun double + H2 (+ PG16 hérité de `LecturesPublieesJdbcContrat`, non rejoué ici : base jetable requise) : rouge de compilation vu d'abord, puis vert (19 tests chacun).
 - Test d'ACL `FichesFournieLegacyTest` ajouté d'abord (rouge de compilation vu : constructeur), puis vert ; il vérifie aussi que `fiche` reste lue dans le legacy.
 - Écarts de bord, tous sur données hors invariants (le legacy y lève) : (1) deux patients du même centre au même code ou numéro : le legacy lève `IncorrectResultSizeDataAccessException`, le publié rend le premier par identifiant (aucune contrainte unique en base) ; (2) une ligne dont `type_patient` est inconnu ou le numéro d'assurance vide : le legacy lève au mapping (y compris dans `tous`), le publié la lit telle quelle ; (3) `tous` : l'ordre devient déterministe (identifiant croissant) au lieu d'indéfini. Aucun golden modifié.
+
+## S5b : preuve (S5 close)
+- Sources par champ de `FichesFournies.Fiche` : code, nom, prénom, sexe, naissance, assurance, groupe sanguin, mobile = `FichesDesPatients.carte` (S3) ; `medecinTraitant` = ajout ADDITIF `FichesDesPatients.medecinTraitant(centre, patient)` -> `Optional<UUID>` (colonne `medecin_traitant_id`, borne de centre, vide si patient absent/autre centre/sans médecin ; `FichesPublieesJdbc`, double en mémoire, contrat commun double + H2 : rouge de compilation vu d'abord, puis 20 tests verts chacun) ; `salle`, `position`, `generateur` = `PlacesDesPatients.deLaFiche` de la Planification (propriétaire des colonnes de place, ADR 0052/0079) : lit les mêmes colonnes `salle_id`/`position_id`/`generateur_id` sans filtre, place vide = trois nuls comme avant.
+- `generateurNom`, `generateurMarque`, `generateurEtat` : le legacy ne les a JAMAIS fournis (`PatientMapper` ne renseigne que `generateurId` ; setters sans appelant) : la fiche portait trois nuls, puis la Séance précise par la GMAO (`Generateurs.preciser`, `GenerateursDesPatientsJdbc`). Aucune lecture GMAO dans l'ACL, donc aucune sémantique à aligner ; la fiche garde trois nuls (test dédié).
+- `FichesFournieLegacy` supprimée, remplacée par `FichesFourniesParPatientCouverture` (`FichesDesPatients` + `PlacesDesPatients`, plus de `PatientRepositoryPort`) ; test d'ACL rouge de compilation vu d'abord, 9 tests verts. Aucune dépendance Maven nouvelle, aucun golden modifié.
+- Écarts de bord (données hors invariants, le legacy y levait) : type de patient inconnu ou numéro d'assurance vide au mapping legacy : la fiche est maintenant rendue telle que lue (déjà relevé en S3/S5a).
 
 ## Conséquences
 - 251 LOC main et 213 LOC test en moins, aucun changement de comportement.

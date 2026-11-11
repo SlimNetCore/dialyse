@@ -53,6 +53,11 @@ class IsolementDesPatientsParLaPlanificationTest {
         }
 
         @Override
+        public java.util.Optional<UUID> medecinTraitant(UUID centre, UUID patient) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public java.util.Optional<UUID> parNumeroDAssurance(UUID centre, String numero) {
             throw new UnsupportedOperationException();
         }

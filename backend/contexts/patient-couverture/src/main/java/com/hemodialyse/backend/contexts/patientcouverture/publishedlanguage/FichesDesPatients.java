@@ -36,6 +36,12 @@ public interface FichesDesPatients {
     java.util.Optional<CarteDuPatient> carte(UUID centre, UUID patient);
 
     /**
+     * Le médecin traitant renseigné sur la fiche du patient du centre (identifiant tel que saisi, aucun contrôle d'existence du
+     * médecin). Patient inconnu, d'un autre centre ou sans médecin traitant : vide.
+     */
+    java.util.Optional<UUID> medecinTraitant(UUID centre, UUID patient);
+
+    /**
      * Le patient du centre portant ce code, par comparaison EXACTE (casse et espaces comptent : ni majuscules ni retrait appliqués).
      * Aucun ne correspond, ou celui d'un autre centre : vide. Si plusieurs patients portent le même code (aucune contrainte en base),
      * le premier par identifiant croissant (ordre hexadécimal de l'UUID).

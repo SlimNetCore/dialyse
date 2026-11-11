@@ -80,6 +80,11 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
                 p.fiche().coordonnees().telMobile()));
     }
 
+    @Override
+    public Optional<UUID> medecinTraitant(UUID centre, UUID patient) {
+        return patient(centre, patient).map(p -> p.fiche().affectation().medecinTraitantId());
+    }
+
     private static final Comparator<Patient> PAR_IDENTIFIANT = Comparator.comparing((Patient p) -> p.id().valeur().toString());
 
     private List<Patient> duCentre(UUID centre) {
