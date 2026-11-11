@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,21 +26,9 @@ public class CacheConfig {
     @Value("${app.cache.ttl.stock-valorisation:PT30M}")
     private Duration stockValorisationTtl;
 
-    @Value("${app.cache.ttl.patient-count:PT3M}")
-    private Duration patientCountTtl;
-
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager manager = new CaffeineCacheManager() {
-            @Override
-            protected org.springframework.cache.Cache adaptCaffeineCache(String name,
-                                                                         com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
-                if ("patient.assure.byNumero".equals(name) || "patient.byNumeroAssurance".equals(name)) {
-                    return new CaffeineCache(name, cache, true);
-                }
-                return super.adaptCaffeineCache(name, cache);
-            }
-        };
+        CaffeineCacheManager manager = new CaffeineCacheManager();
         manager.setAllowNullValues(false);
 
         // Referential caches
@@ -59,18 +46,9 @@ public class CacheConfig {
         register(manager, "seance.raccourcis", referentialTtl);
 
         // Patient caches
-        register(manager, "patient.byId", patientDetailTtl);
-        register(manager, "patient.byNumeroAssurance", patientDetailTtl);
-        register(manager, "patient.byCenter", patientListTtl);
         register(manager, "patient.list.summary", patientListTtl);
         register(manager, "patient.list.summary.details", patientListTtl);
-        register(manager, "patient.countByCenter", patientCountTtl);
-        register(manager, "patient.assure.byNumero", patientDetailTtl);
-        register(manager, "patient.assure.searchByCenter", patientListTtl);
-        register(manager, "patient.assignment.primary", patientDetailTtl);
-        register(manager, "patient.assignment.history", patientListTtl);
         register(manager, "patient.attestation.byPatient", patientDetailTtl);
-        register(manager, "patient.pec.byId", patientDetailTtl);
         register(manager, "patient.pec.byPatient", patientDetailTtl);
         register(manager, "patient.pec.byCenter", patientListTtl);
 

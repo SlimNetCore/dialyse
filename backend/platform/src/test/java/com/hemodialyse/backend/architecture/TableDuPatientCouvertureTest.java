@@ -53,8 +53,6 @@ class TableDuPatientCouvertureTest {
             + "contexts-planification) ; échéance : extraction des interfaces publiées dans un module d'API partagé (le port est prêt)";
     private static final String HORS_VERROU = "2026-11-05 : écrivain hors module et hors verrou du centre, à lancer hors activité du centre "
             + "(ADR 0077 point 12, ADR 0078 point 10) ; échéance : reprise de la migration par le module";
-    private static final String JPA = "2026-11-05 : entité ou dépôt JPA historique du patient / de l'assuré, modèle de lecture de la Séance, "
-            + "de FHIR, du cahier de dialyse, de KDIGO et des migrateurs ; échéance : reprise de ces contextes (retrait de bc-patient et bc-assure)";
     private static final String JOINTURE ="2026-11-04 : jointure avec les tables du contexte consommateur dans un GROUP BY / un tri "
             + "(la découper changerait le résultat) ; échéance : reprise du contexte consommateur";
 
@@ -119,9 +117,7 @@ class TableDuPatientCouvertureTest {
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java",
             "2026-11-08 (déplacée de platform/.../acl/seance/ForfaitsFournisLegacy, SE7f, ADR 0100) : forfait courant d'une séance (SE1, ADR 0088) : "
                     + "prise en charge couvrant le jour, requête reprise mot pour mot ; échéance : lecture publiée de la couverture "
-                    + "(CouvertureDesPatients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java",
-            JPA + " : plus aucun utilisateur (S6b-3) ; gardée seulement parce que Hibernate crée la table patients du H2 de test (schema.sql n'a pas de CREATE TABLE patients) ; retrait en S6c avec ce DDL");
+                    + "(CouvertureDesPatients), revue au plus tard le 2026-12-15, butoir 2027-03-31");
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();

@@ -16,4 +16,4 @@ Colonnes et états inexistants (`patients.date_sortie` absente de Flyway ; état
 ## État actuel
 - Le module vit dans le réacteur, la plateforme et le `Dockerfile`. Aucune exclusion de compilation.
 - `TableDuPatientCouvertureTest` est ACTIF : liste blanche DATÉE des accès aux tables du patient restant hors du module (raison et échéance par entrée, ADR 0079). La dette est cette liste.
-- Dette restante hors module : voir l'ADR 0079 (cycle Maven avec la Planification, colonnes de place de la Planification, jointures `GROUP BY` de Facturation et de la Direction, `SeanceRestController`, `PecValidationJdbc` code mort, outil de migration et `bc-assure`, types historiques `bc-patient` et JPA du patient).
+- Dette restante hors module : voir l'ADR 0079 (cycle Maven avec la Planification, colonnes de place de la Planification, jointures `GROUP BY` de Facturation et de la Direction, `SeanceRestController`, `PecValidationJdbc` code mort, outil de migration ; les modules `bc-patient` et `bc-assure` et les types JPA du patient ont été retirés en S6c, ADR 0133).

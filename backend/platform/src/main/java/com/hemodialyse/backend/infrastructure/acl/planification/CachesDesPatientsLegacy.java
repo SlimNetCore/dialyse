@@ -10,8 +10,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.UUID;
 
 /**
- * Évince les caches de la fiche du patient (fiche, recherche par numéro d'assurance, liste du centre, comptage, listes de synthèse)
- * quand la Planification libère une place : mêmes caches que ceux évincés par l'enregistrement d'une fiche. L'éviction a lieu APRÈS
+ * Évince les listes de synthèse des patients (caches {@code patient.list.summary} et {@code patient.list.summary.details}, produits
+ * par le contexte patient-couverture) quand la Planification libère une place. Les anciens caches de la fiche (fiche, numéro
+ * d'assurance, liste et comptage du centre) n'ont plus de producteur depuis S6c (ADR 0133). L'éviction a lieu APRÈS
  * la validation de la transaction quand il y en a une (sinon tout de suite).
  */
 @Component
@@ -38,18 +39,8 @@ public class CachesDesPatientsLegacy implements CachesDesPatients {
     }
 
     private void vider(UUID centre, UUID patient) {
-        String c = centre.toString();
-        retirer("patient.byId", c + ':' + patient);
-        retirer("patient.byCenter", c);
-        retirer("patient.countByCenter", c);
-        toutVider("patient.byNumeroAssurance");
         toutVider("patient.list.summary");
         toutVider("patient.list.summary.details");
-    }
-
-    private void retirer(String nom, String cle) {
-        Cache cache = caches.getCache(nom);
-        if (cache != null) cache.evict(cle);
     }
 
     private void toutVider(String nom) {

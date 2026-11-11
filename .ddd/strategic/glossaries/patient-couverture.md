@@ -14,7 +14,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §2]
 | État du patient | Situation administrative (permanent, occasionnel, vacancier, transféré, décédé, greffé, guéri) | `EtatPatient` | `etat`, `PatientType` | statut, type | unification avec `PatientType` à décider (H5) | proposed |
 | Mouvement de patient | Événement de vie administrative | `MouvementPatient` | `TypeMouvementPatient` | — | « place libérée » sort vers Planification (ADR 0005) | proposed |
 | Sortie | Fin de prise en charge dans le centre (transfert, décès, greffe, guérison) | `Patient.declarerSortie()` / `PatientSorti` | `updatePatient` | — | date d'évènement exigée (RG-PAT-031) | proposed |
-| Assuré | Titulaire des droits d'assurance rattaché au patient | `Assure` | `bc-assure` | — | un seul assuré principal à la fois | proposed |
+| Assuré | Titulaire des droits d'assurance rattaché au patient | `Assure` | `bc-assure` (retiré, S6c) | — | un seul assuré principal à la fois | proposed |
 | Prise en charge (PEC) | Accord d'un payeur couvrant une période et un forfait | `PriseEnCharge` | `PriseEnCharge`, `PecStatus` | — | `CREE → VALIDEE → CLOTUREE` ; période demandée vs effective | proposed |
 | Forfait de PEC | Prix HT de la séance prévu par la PEC | `ForfaitPec` | `forfaitId` | tarif | — | proposed |
 | Attestation de droits | Justificatif de droits du patient : période, début et fin comprises, pendant laquelle les droits sont ouverts | `AttestationDroit` (PC4 ; `bc-insurance` retiré le 2026-11-04) | `ATTESTATION_DROITS` (cause de non-facturation) | — | absente ⇒ cause de non-facturation ; entité simple, aucun contrôle entre attestations (à décider avec les métiers) | proposed |

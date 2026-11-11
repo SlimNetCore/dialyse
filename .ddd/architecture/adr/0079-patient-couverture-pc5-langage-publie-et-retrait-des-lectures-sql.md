@@ -36,13 +36,13 @@ Après PC1 à PC4, le module `contexts/patient-couverture` possède les six tabl
 | Direction `DirectionDashboardQueryService`, `DirectionBreakdownQueryService` | agrégats avec le prédicat d'effectif dans des `GROUP BY` | reprise du Pilotage |
 | `SeanceRestController` (1300 lignes) | contrôleur de la Séance (tableau de bord, journal) hors ports | reprise de la Séance |
 | `contexts/seance` `PecValidationJdbc` | code MORT : module gelé et hors réacteur (ADR 0074) ; le port `pecValidee` est prêt | reprise ou suppression de la Séance |
-| `MigrationRollbackJdbcAdapter` (+ `HistoricalRecordJdbcAdapter`, migrateurs, `bc-assure`) | outil de migration, écrit en bloc hors verrou du centre, à lancer hors activité (ADR 0077 point 12, ADR 0078 point 10) | reprise de la migration par le module (décision (3) : `bc-assure` reste tant que les migrateurs JPA le référencent) |
+| `MigrationRollbackJdbcAdapter` (+ `HistoricalRecordJdbcAdapter`, migrateurs) | outil de migration, écrit en bloc hors verrou du centre, à lancer hors activité (ADR 0077 point 12, ADR 0078 point 10) | reprise de la migration par le module (`bc-assure` retiré en S6c, ADR 0133) |
 | `JourDuCentreLegacy` (hors tables du patient) | `organisation.v1` ne publie pas de lecture du fuseau (liste blanche de `TableDeLOrganisationTest`) | `organisation.v1` |
 | `HistoricalRecordJdbcAdapter` (INSERT construit sur `attestation_droit` et `prise_en_charge`) | import de la migration historique, hors verrou du centre, à lancer hors activité (ADR 0078 point 10) | reprise de la migration par le module |
 | `ReferentialAdminTables` + `ReferentialAdminJdbcAdapter` (COUNT dynamique sur `prise_en_charge` et `patients`) | contrôle d'usage d'un référentiel avant suppression | `organisation.v1` ou port d'usage publié |
-| `SeanceRepositoryAdapter` (JPA Criteria sur `PatientJpaEntity`) | recherche de séances avec jointure patient | reprise de la Séance |
-| Types historiques non SQL : entités JPA `PatientJpaEntity`, `AssureJpaEntity`, `AssurePatientJpaEntity`, `PatientRepositoryAdapter`, `PatientMapper`, `bc-patient` (utilisés par la Séance, FHIR, le cahier de dialyse, KDIGO…) | le modèle patient historique reste le modèle de lecture de ces contextes | reprise de ces contextes |
-| `bc-patient` — mise à jour 2026-11-10 (ADR 0133, S1) | le code mort (`MouvementPatient`, `MouvementLigne`, `TypeMouvementPatient`, `MouvementsPatient`, `FinOccupation` et leurs 2 tests) est supprimé ; la mention « Séance, FHIR, KDIGO » est **périmée** (aucun import de `domain.patient.` / `domain.assure.` côté Séance, FHIR, KDIGO ; `SeanceJpaEntity` supprimée) ; restent F1 migration historique, F2 adapters/mapper JPA, F3 quatre lecteurs de `Patient` | plan S2-S6 de l'ADR 0133 |
+| ~~`SeanceRepositoryAdapter` (JPA Criteria sur `PatientJpaEntity`)~~ | **SOLDÉ** : adapter et entité supprimés (SE7, S6c) | - |
+| ~~Types historiques non SQL : entités JPA `PatientJpaEntity`, `AssureJpaEntity`, `AssurePatientJpaEntity`, `PatientRepositoryAdapter`, `PatientMapper`, `bc-patient`~~ | **SOLDÉ le 2026-11-11 (ADR 0133, S6c)** : entités, adapters, mapper et modules `bc-patient` / `bc-assure` supprimés ; la table `patients` du H2 vient de `schema.sql` | - |
+| ~~`bc-patient` — mise à jour 2026-11-10 (ADR 0133, S1)~~ | **SOLDÉ** (voir ligne précédente) : plan S1-S6 de l'ADR 0133 clos | - |
 
 ## Alternatives écartées
 - Migrer aussi la Planification en déplaçant les interfaces publiées vers un module partagé : refactoring de réacteur hors périmètre.
