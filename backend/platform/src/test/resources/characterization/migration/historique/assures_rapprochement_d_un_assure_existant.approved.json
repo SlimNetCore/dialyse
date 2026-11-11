@@ -1,0 +1,74 @@
+{
+  "1_verification" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : true,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "MATCHED_EXISTING",
+        "field" : "numeroAssurance",
+        "message" : "Assuré déjà présent (n° « ZA600 ») : il sera mis à jour et rapproché.",
+        "params" : {
+          "value" : "ZA600"
+        },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "assures" : [ {
+      "adresse" : "Adresse conservee",
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1962-03-15",
+      "groupe_sanguin" : "A+",
+      "nom" : "NOUVEAU-NOM",
+      "numero_assurance" : "ZA600",
+      "prenom" : "Prenom-conserve",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "UPDATED",
+      "target_id" : "ZA600"
+    } ]
+  },
+  "2_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "MATCHED_EXISTING",
+        "field" : "numeroAssurance",
+        "message" : "Assuré déjà présent (n° « ZA600 ») : il sera mis à jour et rapproché.",
+        "params" : {
+          "value" : "ZA600"
+        },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  }
+}

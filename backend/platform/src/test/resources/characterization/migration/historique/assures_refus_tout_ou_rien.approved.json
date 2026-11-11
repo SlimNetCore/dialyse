@@ -1,0 +1,154 @@
+{
+  "1_doublons_et_autre_centre" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "legacyId",
+        "message" : "Doublon : même identifiant d'origine qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "numeroAssurance",
+        "message" : "Doublon : même n° d'assurance qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 4
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "numeroAssurance",
+        "message" : "Doublon : même n° d'assurance qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 5
+      }, {
+        "code" : "OTHER_CENTER",
+        "field" : "numeroAssurance",
+        "message" : "Le n° d'assurance « ZA-AUTRE » est déjà rattaché à un autre centre.",
+        "params" : {
+          "value" : "ZA-AUTRE"
+        },
+        "row" : 6
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 5,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat" : { },
+  "2_etat" : { },
+  "2_formats_invalides" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "sexe",
+        "message" : "« Sexe » : la valeur « X » n'est pas reconnue — associez-la à une valeur (M, F).",
+        "params" : {
+          "allowed" : "M, F",
+          "source" : "X",
+          "value" : "X"
+        },
+        "row" : 2
+      }, {
+        "code" : "INVALID_DATE",
+        "field" : "dateNaissance",
+        "message" : "« Date de naissance » : « 31/02/2020 » n'est pas une date (JJ/MM/AAAA).",
+        "params" : {
+          "value" : "31/02/2020"
+        },
+        "row" : 3
+      }, {
+        "code" : "INVALID_PHONE",
+        "field" : "telPersonnel",
+        "message" : "« Téléphone personnel » : « abc » n'est pas un numéro de téléphone valide.",
+        "params" : {
+          "value" : "abc"
+        },
+        "row" : 4
+      }, {
+        "code" : "REQUIRED",
+        "field" : "legacyId",
+        "message" : "« Identifiant d'origine » est obligatoire.",
+        "params" : { },
+        "row" : 5
+      }, {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 6
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 5,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_conflit_identifiant_d_origine" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ {
+        "code" : "LEGACY_ID_CONFLICT",
+        "field" : "numeroAssurance",
+        "message" : "L'identifiant d'origine « A20 » a déjà été repris avec le n° « ZA500 ».",
+        "params" : {
+          "value" : "ZA500"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "PREMIER",
+      "numero_assurance" : "ZA500",
+      "prenom" : "Karim",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A20",
+      "operation" : "CREATED",
+      "target_id" : "ZA500"
+    } ]
+  }
+}

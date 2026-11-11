@@ -1,0 +1,138 @@
+{
+  "1_etat" : {
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P0",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZC000>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P00",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZC001>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P10",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZC200>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P11",
+      "operation" : "UPDATED",
+      "target_id" : "<PATIENT_ZC001>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P12",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZC202>"
+    } ],
+    "patients" : [ {
+      "assure_date_naissance" : "1960-01-01",
+      "assure_nom" : "DUPONT",
+      "assure_numero_assurance" : "ZC000",
+      "assure_prenom" : "Jean",
+      "assure_sexe" : "M",
+      "code_patient" : "C-0",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1960-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "DUPONT",
+      "numero_assurance" : "ZC000",
+      "prenom" : "Jean",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1961-02-02",
+      "assure_nom" : "MARTIN-RENOMMEE",
+      "assure_numero_assurance" : "ZC001",
+      "assure_prenom" : "Anne",
+      "assure_sexe" : "F",
+      "code_patient" : "C-1",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1961-02-02",
+      "etat_patient" : "PERMANENT",
+      "nom" : "MARTIN-RENOMMEE",
+      "numero_assurance" : "ZC001",
+      "prenom" : "Anne",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "F",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1960-01-01",
+      "assure_nom" : "DUPONT",
+      "assure_numero_assurance" : "ZC200",
+      "assure_prenom" : "Jean",
+      "assure_sexe" : "M",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1960-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "DUPONT",
+      "numero_assurance" : "ZC200",
+      "prenom" : "Jean",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1955-05-05",
+      "assure_nom" : "LEFEBVRE",
+      "assure_numero_assurance" : "ZC202",
+      "assure_prenom" : "Marc",
+      "assure_sexe" : "M",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1955-05-05",
+      "etat_patient" : "DECEDE",
+      "nom" : "LEFEBVRE",
+      "numero_assurance" : "ZC202",
+      "prenom" : "Marc",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "1_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 2,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "POSSIBLE_DUPLICATE",
+        "field" : "nom",
+        "message" : "Doublon possible : un patient du centre porte les mêmes nom, prénom et date de naissance (n° ZC000).",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "MATCHED_EXISTING",
+        "field" : "numeroAssurance",
+        "message" : "Patient déjà présent (MARTIN Anne) : il sera mis à jour et rapproché.",
+        "params" : {
+          "value" : "ZC001"
+        },
+        "row" : 3
+      }, {
+        "code" : "EVENT_DATE_MISSING",
+        "field" : "dateEvenementEtat",
+        "message" : "État « DECEDE » sans date d'événement.",
+        "params" : { },
+        "row" : 4
+      } ]
+    },
+    "http" : 200
+  }
+}

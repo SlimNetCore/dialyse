@@ -1,0 +1,232 @@
+{
+  "0_etat_avant" : {
+    "affectations" : [ {
+      "assure" : "ZR1",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2018-01-01",
+      "date_fin_affectation" : "2018-12-31",
+      "is_primary" : false,
+      "patient" : "ZR111"
+    }, {
+      "assure" : "ZR2",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZR111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "MIS-A-JOUR",
+      "numero_assurance" : "ZR1"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "NOUVEAU",
+      "numero_assurance" : "ZR2",
+      "prenom" : "Karim",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZR1|2018-01-01",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZR111_ZR1_2018-01-01_false>"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "UPDATED",
+      "target_id" : "ZR1"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "ZR2"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZR111>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P2",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZR222>"
+    }, {
+      "entity" : "SOLDES_OUVERTURE",
+      "legacy_id" : "F1",
+      "operation" : "CREATED",
+      "target_id" : "<FACTURE_REPRISE-F1>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZR2",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZR111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1970-05-20",
+      "assure_nom" : "KACI",
+      "assure_numero_assurance" : "ZR222",
+      "assure_prenom" : "Nadia",
+      "assure_sexe" : "F",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2020-06-01",
+      "date_naissance" : "1970-05-20",
+      "etat_patient" : "PERMANENT",
+      "nom" : "KACI",
+      "numero_assurance" : "ZR222",
+      "prenom" : "Nadia",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "F",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "0_factures_avant" : {
+    "factures" : [ {
+      "date_facturation" : "2026-01-31",
+      "numero_facture" : "REPRISE-F1",
+      "numero_immatriculation_snapshot" : "ZR111",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "BENALI Karim",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-01-31",
+      "period_start" : "2026-01-31",
+      "total_ht" : "1000.00",
+      "total_ttc" : "1000.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    } ],
+    "lignes" : [ {
+      "forfait_label" : "Solde d'ouverture — reprise F1",
+      "line_ht" : "1000.00",
+      "numero_facture" : "REPRISE-F1",
+      "seance_count" : "1",
+      "unit_price_ht" : "1000.00"
+    } ],
+    "reglements" : [ {
+      "date_reglement" : "2026-01-31",
+      "montant" : "200.00",
+      "numero_facture" : "REPRISE-F1",
+      "saisi_par" : "REPRISE"
+    } ]
+  },
+  "1_annulation" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "1_etat" : {
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "MIS-A-JOUR",
+      "numero_assurance" : "ZR1"
+    } ]
+  },
+  "1_factures" : {
+    "factures" : [ ],
+    "lignes" : [ ],
+    "reglements" : [ ]
+  },
+  "1_lots" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "ANNULE"
+  } ],
+  "2_etat" : {
+    "affectations" : [ {
+      "assure" : "ZR2",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZR111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "MIS-A-JOUR",
+      "numero_assurance" : "ZR1"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "NOUVEAU",
+      "numero_assurance" : "ZR2",
+      "prenom" : "Karim",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "ZR2"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZR111>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZR2",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZR111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "2_reprise_apres_annulation_assures" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_reprise_apres_annulation_patients" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

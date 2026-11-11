@@ -1,0 +1,197 @@
+{
+  "colonne_inconnue_ignoree" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : true,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ "colonneInconnue" ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "colonnes_obligatoires_absentes" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ "numeroAssurance", "prenom", "sexe", "dateNaissance", "dateAdmission" ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "donnee_inconnue" : {
+    "corps" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Donnée de reprise inconnue : inconnu",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/import/inconnu",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "http" : 400
+  },
+  "en_tetes_seuls" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ {
+        "code" : "NO_DATA",
+        "field" : null,
+        "message" : "Le fichier ne contient aucune ligne de données.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 0,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "etat_final" : { },
+  "extension_txt" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : true,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.txt",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "fichier_vide" : {
+    "corps" : {
+      "code" : "IMPORT_EMPTY_FILE",
+      "detail" : "Le fichier est vide.",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/import/patients",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "lot_cloture_puis_import" : {
+    "close" : {
+      "corps" : {
+        "closedAt" : "<HORODATAGE>",
+        "createdAt" : "<HORODATAGE>",
+        "createdBy" : "u-<ADMIN_A>",
+        "dateDebutReprise" : null,
+        "id" : "<LOT>",
+        "libelle" : "Reprise S6a",
+        "sourceSystem" : "AncienLogiciel",
+        "status" : "TERMINE"
+      },
+      "http" : 200
+    },
+    "import" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_CLOSED",
+        "detail" : "Ce lot de reprise est terminé : plus aucun import n'est possible.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/assures",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    }
+  },
+  "lot_deja_ouvert" : {
+    "corps" : {
+      "code" : "MIGRATION_BATCH_ALREADY_OPEN",
+      "detail" : "Un lot de reprise est déjà en cours pour ce centre (« Reprise S6a ») : terminez-le ou annulez-le d'abord.",
+      "instance" : "/api/v1/admin/migration/batches",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "lot_liste" : {
+    "corps" : {
+      "items" : [ {
+        "closedAt" : null,
+        "createdAt" : "<HORODATAGE>",
+        "createdBy" : "u-<ADMIN_A>",
+        "dateDebutReprise" : null,
+        "id" : "<LOT>",
+        "libelle" : "Reprise S6a",
+        "sourceSystem" : "AncienLogiciel",
+        "status" : "EN_COURS"
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "http" : 200
+  },
+  "lot_sans_libelle" : {
+    "corps" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/admin/migration/batches",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "http" : 400
+  },
+  "lots_finaux" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "TERMINE"
+  } ],
+  "trop_de_lignes" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : true,
+      "entity" : "assures",
+      "errors" : [ {
+        "code" : "TOO_MANY_ROWS",
+        "field" : null,
+        "message" : "Le fichier contient 5001 lignes : maximum 5000 par fichier.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 5001,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

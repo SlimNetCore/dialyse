@@ -1,0 +1,233 @@
+{
+  "1_etat" : {
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP900",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "KACI",
+      "numero_assurance" : "ZP901",
+      "prenom" : "Omar",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZP900"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "ZP901"
+    } ]
+  },
+  "1_verification" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 2,
+      "dryRun" : true,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP900",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "KACI",
+      "numero_assurance" : "ZP901",
+      "prenom" : "Omar",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZP900"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "ZP901"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P2",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP222>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZP900",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1970-05-20",
+      "assure_nom" : "KACI",
+      "assure_numero_assurance" : "ZP222",
+      "assure_prenom" : "Nadia",
+      "assure_sexe" : "F",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2020-06-01",
+      "date_naissance" : "1970-05-20",
+      "etat_patient" : "PERMANENT",
+      "nom" : "KACI",
+      "numero_assurance" : "ZP222",
+      "prenom" : "Nadia",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "F",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "2_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 2,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP900",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "KACI",
+      "numero_assurance" : "ZP901",
+      "prenom" : "Omar",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZP900"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "ZP901"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P2",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP222>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZP900",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1970-05-20",
+      "assure_nom" : "KACI",
+      "assure_numero_assurance" : "ZP222",
+      "assure_prenom" : "Nadia",
+      "assure_sexe" : "F",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2020-06-01",
+      "date_naissance" : "1970-05-20",
+      "etat_patient" : "PERMANENT",
+      "nom" : "KACI",
+      "numero_assurance" : "ZP222",
+      "prenom" : "Nadia",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "F",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "3_rejeu" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 2,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

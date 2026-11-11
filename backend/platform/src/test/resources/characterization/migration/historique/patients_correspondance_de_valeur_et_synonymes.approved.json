@@ -1,0 +1,158 @@
+{
+  "1_valeur_inconnue" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 2,
+      "dryRun" : true,
+      "entity" : "patients",
+      "errors" : [ {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "etatPatient",
+        "message" : "« État du patient » : la valeur « D » n'est pas reconnue — associez-la à une valeur (PERMANENT, OCCASIONNEL, VACANCIER_LOCAL, VACANCIER_ETRANGER, TRANSFERE, DECEDE, GREFFE, GUERRI).",
+        "params" : {
+          "allowed" : "PERMANENT, OCCASIONNEL, VACANCIER_LOCAL, VACANCIER_ETRANGER, TRANSFERE, DECEDE, GREFFE, GUERRI",
+          "source" : "D",
+          "value" : "D"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ {
+        "code" : "EVENT_DATE_MISSING",
+        "field" : "dateEvenementEtat",
+        "message" : "État « DECEDE » sans date d'événement.",
+        "params" : { },
+        "row" : 4
+      } ]
+    },
+    "http" : 200
+  },
+  "2_enregistrement" : {
+    "corps" : null,
+    "http" : 204
+  },
+  "3_liste" : {
+    "corps" : [ {
+      "column" : "etatPatient",
+      "source" : "D",
+      "target" : "DECEDE"
+    } ],
+    "http" : 200
+  },
+  "4_etat" : {
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZM100>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P2",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZM101>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P3",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZM102>"
+    } ],
+    "patients" : [ {
+      "assure_date_naissance" : "1962-03-15",
+      "assure_nom" : "N1",
+      "assure_numero_assurance" : "ZM100",
+      "assure_prenom" : "P",
+      "assure_sexe" : "M",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "DECEDE",
+      "nom" : "N1",
+      "numero_assurance" : "ZM100",
+      "prenom" : "P",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1962-03-15",
+      "assure_nom" : "N2",
+      "assure_numero_assurance" : "ZM101",
+      "assure_prenom" : "P",
+      "assure_sexe" : "F",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "N2",
+      "numero_assurance" : "ZM101",
+      "prenom" : "P",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "F",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1962-03-15",
+      "assure_nom" : "N3",
+      "assure_numero_assurance" : "ZM102",
+      "assure_prenom" : "P",
+      "assure_sexe" : "M",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "DECEDE",
+      "nom" : "N3",
+      "numero_assurance" : "ZM102",
+      "prenom" : "P",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "4_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 3,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "EVENT_DATE_MISSING",
+        "field" : "dateEvenementEtat",
+        "message" : "État « DECEDE » sans date d'événement.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "EVENT_DATE_MISSING",
+        "field" : "dateEvenementEtat",
+        "message" : "État « DECEDE » sans date d'événement.",
+        "params" : { },
+        "row" : 4
+      } ]
+    },
+    "http" : 200
+  },
+  "5_suppression" : {
+    "corps" : null,
+    "http" : 204
+  },
+  "6_liste" : {
+    "corps" : [ ],
+    "http" : 200
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "1_etat" : {
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P0",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZC000>"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P00",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZC001>"
+    } ],
+    "patients" : [ {
+      "assure_date_naissance" : "1960-01-01",
+      "assure_nom" : "DUPONT",
+      "assure_numero_assurance" : "ZC000",
+      "assure_prenom" : "Jean",
+      "assure_sexe" : "M",
+      "code_patient" : "C-0",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1960-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "DUPONT",
+      "numero_assurance" : "ZC000",
+      "prenom" : "Jean",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_date_naissance" : "1961-02-02",
+      "assure_nom" : "MARTIN",
+      "assure_numero_assurance" : "ZC001",
+      "assure_prenom" : "Anne",
+      "assure_sexe" : "F",
+      "code_patient" : "C-1",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1961-02-02",
+      "etat_patient" : "PERMANENT",
+      "nom" : "MARTIN",
+      "numero_assurance" : "ZC001",
+      "prenom" : "Anne",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "F",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "1_refus" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ {
+        "code" : "DATE_IN_FUTURE",
+        "field" : "dateNaissance",
+        "message" : "La date de naissance est dans le futur.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateAdmission",
+        "message" : "La date d'admission est antérieure à la date de naissance.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "legacyId",
+        "message" : "Doublon : même identifiant d'origine qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "codePatient",
+        "message" : "Doublon : même code patient qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 4
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "numeroAssurance",
+        "message" : "Doublon : même n° d'assurance qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 5
+      }, {
+        "code" : "NUMERO_USED_BY_OTHER",
+        "field" : "numeroAssurance",
+        "message" : "Le n° d'assurance « ZC001 » appartient déjà à un autre patient du centre (MARTIN Anne).",
+        "params" : {
+          "value" : "ZC001"
+        },
+        "row" : 6
+      }, {
+        "code" : "CODE_ALREADY_USED",
+        "field" : "codePatient",
+        "message" : "Le code patient « C-1 » est déjà attribué à un autre patient.",
+        "params" : {
+          "value" : "C-1"
+        },
+        "row" : 7
+      }, {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateEvenementEtat",
+        "message" : "La date de l'événement est antérieure à la date d'admission.",
+        "params" : { },
+        "row" : 8
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 7,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

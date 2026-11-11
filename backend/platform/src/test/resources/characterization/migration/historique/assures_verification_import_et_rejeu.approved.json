@@ -1,0 +1,220 @@
+{
+  "1_etat" : { },
+  "1_verification" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 2,
+      "dryRun" : true,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "assures" : [ {
+      "adresse" : "12 rue Didouche Mourad",
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1962-03-15",
+      "groupe_sanguin" : "O+",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZA100",
+      "prenom" : "Ahmed",
+      "sexe" : "M",
+      "tel_mobile" : "0661123456",
+      "tel_personnel" : "0550123456"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1970-05-20",
+      "nom" : "KACI",
+      "numero_assurance" : "za200",
+      "prenom" : "Nadia",
+      "sexe" : "F"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZA100"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "za200"
+    } ]
+  },
+  "2_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 2,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "assures" : [ {
+      "adresse" : "12 rue Didouche Mourad",
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1962-03-15",
+      "groupe_sanguin" : "O+",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZA100",
+      "prenom" : "Ahmed",
+      "sexe" : "M",
+      "tel_mobile" : "0661123456",
+      "tel_personnel" : "0550123456"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1970-05-20",
+      "nom" : "KACI",
+      "numero_assurance" : "za200",
+      "prenom" : "Nadia",
+      "sexe" : "F"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZA100"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "za200"
+    } ]
+  },
+  "3_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 2,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "assures" : [ {
+      "adresse" : "12 rue Didouche Mourad",
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1962-03-15",
+      "groupe_sanguin" : "O+",
+      "nom" : "BENALI-MODIFIE",
+      "numero_assurance" : "ZA100",
+      "prenom" : "Ahmed",
+      "sexe" : "M",
+      "tel_mobile" : "0771000000",
+      "tel_personnel" : "0550123456"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "date_naissance" : "1970-05-20",
+      "nom" : "KACI",
+      "numero_assurance" : "za200",
+      "prenom" : "Nadia",
+      "sexe" : "F"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZA100"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "za200"
+    } ]
+  },
+  "4_rejeu_modifie" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "assures",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "5_executions" : [ {
+    "applied" : true,
+    "created_count" : "0",
+    "dry_run" : false,
+    "entity" : "assures",
+    "error_count" : "0",
+    "executed_by" : "u-<ADMIN_A>",
+    "file_name" : "import.csv",
+    "total_rows" : "1",
+    "updated_count" : "1",
+    "warning_count" : "0"
+  }, {
+    "applied" : true,
+    "created_count" : "0",
+    "dry_run" : false,
+    "entity" : "assures",
+    "error_count" : "0",
+    "executed_by" : "u-<ADMIN_A>",
+    "file_name" : "import.csv",
+    "total_rows" : "2",
+    "updated_count" : "2",
+    "warning_count" : "0"
+  }, {
+    "applied" : true,
+    "created_count" : "2",
+    "dry_run" : false,
+    "entity" : "assures",
+    "error_count" : "0",
+    "executed_by" : "u-<ADMIN_A>",
+    "file_name" : "import.csv",
+    "total_rows" : "2",
+    "updated_count" : "0",
+    "warning_count" : "0"
+  }, {
+    "applied" : false,
+    "created_count" : "2",
+    "dry_run" : true,
+    "entity" : "assures",
+    "error_count" : "0",
+    "executed_by" : "u-<ADMIN_A>",
+    "file_name" : "import.csv",
+    "total_rows" : "2",
+    "updated_count" : "0",
+    "warning_count" : "0"
+  } ]
+}

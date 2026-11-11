@@ -1,0 +1,61 @@
+{
+  "1_import_centre_A" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat_centre_A" : {
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZI100>"
+    } ],
+    "patients" : [ {
+      "assure_date_naissance" : "1960-01-01",
+      "assure_nom" : "DU-CENTRE-B",
+      "assure_numero_assurance" : "ZI100",
+      "assure_prenom" : "Paul",
+      "assure_sexe" : "M",
+      "code_patient" : "C-B",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1960-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "DU-CENTRE-B",
+      "numero_assurance" : "ZI100",
+      "prenom" : "Paul",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "2_etat_centre_B" : {
+    "patients" : [ {
+      "code_patient" : "C-B",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "date_naissance" : "1960-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "DU-CENTRE-B",
+      "numero_assurance" : "ZI100",
+      "prenom" : "Paul",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "1_formats" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "etatPatient",
+        "message" : "« État du patient » : la valeur « Inconnu » n'est pas reconnue — associez-la à une valeur (PERMANENT, OCCASIONNEL, VACANCIER_LOCAL, VACANCIER_ETRANGER, TRANSFERE, DECEDE, GREFFE, GUERRI).",
+        "params" : {
+          "allowed" : "PERMANENT, OCCASIONNEL, VACANCIER_LOCAL, VACANCIER_ETRANGER, TRANSFERE, DECEDE, GREFFE, GUERRI",
+          "source" : "INCONNU",
+          "value" : "Inconnu"
+        },
+        "row" : 2
+      }, {
+        "code" : "INVALID_DATE",
+        "field" : "dateNaissance",
+        "message" : "« Date de naissance » : « pas une date » n'est pas une date (JJ/MM/AAAA).",
+        "params" : {
+          "value" : "pas une date"
+        },
+        "row" : 3
+      }, {
+        "code" : "INVALID_PHONE",
+        "field" : "telMobile",
+        "message" : "« Téléphone mobile » : « 12 » n'est pas un numéro de téléphone valide.",
+        "params" : {
+          "value" : "12"
+        },
+        "row" : 4
+      }, {
+        "code" : "INVALID_EMAIL",
+        "field" : "email",
+        "message" : "« E-mail » : « pas-un-mail » n'est pas une adresse e-mail valide.",
+        "params" : {
+          "value" : "pas-un-mail"
+        },
+        "row" : 5
+      }, {
+        "code" : "INVALID_NUMBER",
+        "field" : "nombreEnfants",
+        "message" : "« Nombre d'enfants » : « trois » n'est pas un nombre entier.",
+        "params" : {
+          "value" : "trois"
+        },
+        "row" : 6
+      }, {
+        "code" : "INVALID_DAYS",
+        "field" : "joursDialyse",
+        "message" : "« Jours de dialyse » : « Xyz » — jours attendus : Lun, Mar, Mer, Jeu, Ven, Sam, Dim.",
+        "params" : {
+          "value" : "Xyz"
+        },
+        "row" : 7
+      }, {
+        "code" : "TOO_LONG",
+        "field" : "groupeSanguin",
+        "message" : "« Groupe sanguin » dépasse 20 caractères.",
+        "params" : {
+          "max" : "20"
+        },
+        "row" : 9
+      }, {
+        "code" : "REQUIRED",
+        "field" : "numeroAssurance",
+        "message" : "« N° d'assurance » est obligatoire.",
+        "params" : { },
+        "row" : 10
+      }, {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 10
+      }, {
+        "code" : "REQUIRED",
+        "field" : "prenom",
+        "message" : "« Prénom » est obligatoire.",
+        "params" : { },
+        "row" : 10
+      }, {
+        "code" : "REQUIRED",
+        "field" : "sexe",
+        "message" : "« Sexe » est obligatoire.",
+        "params" : { },
+        "row" : 10
+      }, {
+        "code" : "REQUIRED",
+        "field" : "dateNaissance",
+        "message" : "« Date de naissance » est obligatoire.",
+        "params" : { },
+        "row" : 10
+      }, {
+        "code" : "REQUIRED",
+        "field" : "dateAdmission",
+        "message" : "« Date d'admission » est obligatoire.",
+        "params" : { },
+        "row" : 10
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 9,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_assures" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "assureNumeroAssurance",
+        "message" : "« N° d'assurance de l'assuré » est obligatoire quand le patient n'est pas l'assuré lui-même.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "ASSURE_NOT_FOUND",
+        "field" : "assureNumeroAssurance",
+        "message" : "Assuré « ZX-INCONNU » introuvable dans le centre : importez d'abord le fichier des assurés.",
+        "params" : {
+          "value" : "ZX-INCONNU"
+        },
+        "row" : 3
+      }, {
+        "code" : "ASSURE_NOT_FOUND",
+        "field" : "assureNumeroAssurance",
+        "message" : "Assuré « ZX-B » introuvable dans le centre : importez d'abord le fichier des assurés.",
+        "params" : {
+          "value" : "ZX-B"
+        },
+        "row" : 4
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : { }
+}

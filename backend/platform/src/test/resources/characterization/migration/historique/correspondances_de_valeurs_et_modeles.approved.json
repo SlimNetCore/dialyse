@@ -1,0 +1,70 @@
+{
+  "cible_invalide" : {
+    "corps" : {
+      "code" : "MIGRATION_MAPPING_TARGET_INVALID",
+      "detail" : "« XYZ » n'est pas une valeur possible de « État du patient » (PERMANENT, OCCASIONNEL, VACANCIER_LOCAL, VACANCIER_ETRANGER, TRANSFERE, DECEDE, GREFFE, GUERRI).",
+      "instance" : "/api/v1/admin/migration/value-mappings",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "colonne_non_enumeree" : {
+    "corps" : {
+      "code" : "MIGRATION_MAPPING_COLUMN_INVALID",
+      "detail" : "Aucune correspondance de valeurs possible pour la colonne « nom ».",
+      "instance" : "/api/v1/admin/migration/value-mappings",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "corps_incomplet" : {
+    "corps" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/admin/migration/value-mappings",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "http" : 400
+  },
+  "enregistrement_normalise_la_source" : {
+    "corps" : null,
+    "http" : 204
+  },
+  "liste" : {
+    "corps" : [ {
+      "column" : "qualiteAssure",
+      "source" : "AYANT_DROIT_FILS",
+      "target" : "ENFANT"
+    } ],
+    "http" : 200
+  },
+  "modele_csv_affectations" : {
+    "http" : 200,
+    "texte" : "﻿Identifiant d'origine;Patient (identifiant d'origine);N° d'assurance de l'assuré;Date de début;Date de fin;Affectation principale\r\nAFF-0001;PAT-0001;851234567890;01/01/2020;;oui\r\n"
+  },
+  "modele_csv_assures" : {
+    "http" : 200,
+    "texte" : "﻿Identifiant d'origine;N° d'assurance;Nom;Prénom;Sexe;Date de naissance;Téléphone personnel;Téléphone mobile;Téléphone bureau;Adresse;Groupe sanguin\r\nASS-0001;851234567890;BENALI;Karim;M;15/03/1962;0550123456;0661123456;;12 rue Didouche Mourad, Alger;O+\r\n"
+  },
+  "modele_csv_patients" : {
+    "http" : 200,
+    "texte" : "﻿Identifiant d'origine;Code patient;N° d'assurance;Nom;Prénom;Sexe;Date de naissance;Date d'admission;Civilité;Lieu de naissance;Situation familiale;Nombre d'enfants;Profession;Adresse;Téléphone personnel;Téléphone mobile;Téléphone bureau;E-mail;Groupe sanguin;État du patient;Date de l'événement;Type de patient;Qualité de l'assuré;N° d'assurance de l'assuré;Centre payeur (code);Médecin traitant (nom prénom);Salle (code);Créneau (code);Générateur (numéro);Transporteur aller (nom);Transporteur retour (nom);Jours de dialyse;Observation\r\nPAT-0001;P0001;851234567890;BENALI;Karim;M;15/03/1962;02/01/2019;M.;Alger;Marié;3;Enseignant;12 rue Didouche Mourad, Alger;0550123456;0661123456;;;O+;PERMANENT;;NON_VACANCIER;ASSURE_LUI_MEME;;CP-ALG-01;OUARET Mustapha;S1;CR1;G01;Ambulances Rouiba;Ambulances Rouiba;Lun, Mer, Ven;\r\n"
+  },
+  "modele_csv_soldes-ouverture" : {
+    "http" : 200,
+    "texte" : "﻿N° de facture d'origine;Patient (identifiant d'origine);Date de facture;Période du;Période au;Montant TTC;Montant déjà réglé;Date du dernier règlement;Libellé\r\nF2026-0042;PAT-0001;31/01/2026;01/01/2026;31/01/2026;67200;20000;;Séances de janvier 2026\r\n"
+  },
+  "source_sans_caractere_utile" : {
+    "corps" : {
+      "code" : "MIGRATION_MAPPING_SOURCE_REQUIRED",
+      "detail" : "La valeur d'origine est obligatoire.",
+      "instance" : "/api/v1/admin/migration/value-mappings",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "1_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    } ],
+    "patients" : [ {
+      "adresse" : "12 rue X",
+      "assure_numero_assurance" : "ZP900",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "observation" : "Note initiale",
+      "qualite_assure" : "ENFANT",
+      "tel_mobile" : "0661123456"
+    } ]
+  },
+  "1_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    } ],
+    "patients" : [ {
+      "adresse" : "12 rue X",
+      "assure_numero_assurance" : "ZP900",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "observation" : "Note initiale",
+      "qualite_assure" : "ENFANT",
+      "tel_mobile" : "0661123456"
+    } ]
+  },
+  "2_rejeu_valeurs_vides" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_autre_assure" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZP111"
+    }, {
+      "assure" : "ZP901",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    } ],
+    "patients" : [ {
+      "adresse" : "12 rue X",
+      "assure_numero_assurance" : "ZP901",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "observation" : "Note initiale",
+      "qualite_assure" : "ENFANT",
+      "tel_mobile" : "0661123456"
+    } ]
+  },
+  "4_devient_assure_lui_meme" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZP111"
+    }, {
+      "assure" : "ZP901",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZP111"
+    } ],
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    } ],
+    "patients" : [ {
+      "adresse" : "12 rue X",
+      "assure_adresse" : "12 rue X",
+      "assure_nom" : "BENALI",
+      "assure_numero_assurance" : "ZP111",
+      "assure_tel_mobile" : "0661123456",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "observation" : "Note initiale",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "tel_mobile" : "0661123456"
+    } ]
+  },
+  "5_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "<ORPHELIN>"
+    }, {
+      "assure" : "ZP901",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "<ORPHELIN>"
+    }, {
+      "assure" : "ZP900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZP900",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "qualite_assure" : "ENFANT"
+    } ]
+  },
+  "5_rejeu_apres_suppression_du_patient" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

@@ -1,0 +1,336 @@
+{
+  "1_etat" : {
+    "factures" : [ ],
+    "lignes" : [ ],
+    "reglements" : [ ]
+  },
+  "1_refus" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "soldes-ouverture",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « P9 » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "P9"
+        },
+        "row" : 2
+      }, {
+        "code" : "INVALID_AMOUNT",
+        "field" : "montantTtc",
+        "message" : "Le montant de la facture doit être positif.",
+        "params" : { },
+        "row" : 3
+      }, {
+        "code" : "OVERPAID",
+        "field" : "montantRegle",
+        "message" : "Le montant réglé dépasse le montant de la facture.",
+        "params" : { },
+        "row" : 4
+      }, {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "periodeFin",
+        "message" : "La fin de période précède son début.",
+        "params" : { },
+        "row" : 5
+      }, {
+        "code" : "DATE_IN_FUTURE",
+        "field" : "dateFacture",
+        "message" : "La date est dans le futur.",
+        "params" : { },
+        "row" : 6
+      }, {
+        "code" : "NEGATIVE_NUMBER",
+        "field" : "montantTtc",
+        "message" : "« Montant TTC » ne peut pas être négatif.",
+        "params" : {
+          "value" : "-5"
+        },
+        "row" : 7
+      }, {
+        "code" : "INVALID_NUMBER",
+        "field" : "montantTtc",
+        "message" : "« Montant TTC » : « abc » n'est pas un nombre (ex. 5600 ou 5600,50).",
+        "params" : {
+          "value" : "abc"
+        },
+        "row" : 8
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "numeroFacture",
+        "message" : "Doublon : même n° de facture qu'à la ligne 9.",
+        "params" : {
+          "firstRow" : "9"
+        },
+        "row" : 10
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 9,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "factures" : [ ],
+    "lignes" : [ ],
+    "reglements" : [ ]
+  },
+  "2_verification" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 2,
+      "dryRun" : true,
+      "entity" : "soldes-ouverture",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "FULLY_PAID",
+        "field" : "montantRegle",
+        "message" : "Facture entièrement réglée dans l'ancien logiciel : rien à reprendre, ligne ignorée.",
+        "params" : { },
+        "row" : 4
+      } ]
+    },
+    "http" : 200
+  },
+  "3_correspondances" : [ {
+    "entity" : "SOLDES_OUVERTURE",
+    "legacy_id" : "F10",
+    "operation" : "CREATED",
+    "target_id" : "<FACTURE_REPRISE-F10>"
+  }, {
+    "entity" : "SOLDES_OUVERTURE",
+    "legacy_id" : "F11",
+    "operation" : "CREATED",
+    "target_id" : "<FACTURE_REPRISE-F11>"
+  } ],
+  "3_etat" : {
+    "factures" : [ {
+      "date_facturation" : "2026-01-31",
+      "numero_facture" : "REPRISE-F10",
+      "numero_immatriculation_snapshot" : "ZS1",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "BENALI Karim",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-01-31",
+      "period_start" : "2026-01-31",
+      "total_ht" : "67200.00",
+      "total_ttc" : "67200.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    }, {
+      "date_facturation" : "2026-02-28",
+      "numero_facture" : "REPRISE-F11",
+      "numero_immatriculation_snapshot" : "ZS2",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "KACI Nadia",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-02-28",
+      "period_start" : "2026-02-01",
+      "total_ht" : "5600.00",
+      "total_ttc" : "5600.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    } ],
+    "lignes" : [ {
+      "forfait_label" : "Solde d'ouverture — reprise F10",
+      "line_ht" : "67200.00",
+      "numero_facture" : "REPRISE-F10",
+      "seance_count" : "1",
+      "unit_price_ht" : "67200.00"
+    }, {
+      "forfait_label" : "Séances de février",
+      "line_ht" : "5600.00",
+      "numero_facture" : "REPRISE-F11",
+      "seance_count" : "1",
+      "unit_price_ht" : "5600.00"
+    } ],
+    "reglements" : [ {
+      "date_reglement" : "2026-01-31",
+      "montant" : "20000.00",
+      "numero_facture" : "REPRISE-F10",
+      "saisi_par" : "REPRISE"
+    } ]
+  },
+  "3_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 2,
+      "dryRun" : false,
+      "entity" : "soldes-ouverture",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "FULLY_PAID",
+        "field" : "montantRegle",
+        "message" : "Facture entièrement réglée dans l'ancien logiciel : rien à reprendre, ligne ignorée.",
+        "params" : { },
+        "row" : 4
+      } ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "factures" : [ {
+      "date_facturation" : "2026-01-31",
+      "numero_facture" : "REPRISE-F10",
+      "numero_immatriculation_snapshot" : "ZS1",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "BENALI Karim",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-01-31",
+      "period_start" : "2026-01-31",
+      "total_ht" : "70000.00",
+      "total_ttc" : "70000.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    }, {
+      "date_facturation" : "2026-02-28",
+      "numero_facture" : "REPRISE-F11",
+      "numero_immatriculation_snapshot" : "ZS2",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "KACI Nadia",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-02-28",
+      "period_start" : "2026-02-01",
+      "total_ht" : "5600.00",
+      "total_ttc" : "5600.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    } ],
+    "lignes" : [ {
+      "forfait_label" : "Solde d'ouverture — reprise F10",
+      "line_ht" : "70000.00",
+      "numero_facture" : "REPRISE-F10",
+      "seance_count" : "1",
+      "unit_price_ht" : "70000.00"
+    }, {
+      "forfait_label" : "Séances de février",
+      "line_ht" : "5600.00",
+      "numero_facture" : "REPRISE-F11",
+      "seance_count" : "1",
+      "unit_price_ht" : "5600.00"
+    } ],
+    "reglements" : [ {
+      "date_reglement" : "2026-01-31",
+      "montant" : "30000.00",
+      "numero_facture" : "REPRISE-F10",
+      "saisi_par" : "REPRISE"
+    } ]
+  },
+  "4_rejeu_montants_modifies" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "soldes-ouverture",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "5_etat" : {
+    "factures" : [ {
+      "date_facturation" : "2026-01-31",
+      "numero_facture" : "REPRISE-F10",
+      "numero_immatriculation_snapshot" : "ZS1",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "BENALI Karim",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-01-31",
+      "period_start" : "2026-01-31",
+      "total_ht" : "70000.00",
+      "total_ttc" : "70000.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    }, {
+      "date_facturation" : "2026-02-28",
+      "numero_facture" : "REPRISE-F11",
+      "numero_immatriculation_snapshot" : "ZS2",
+      "patient_code" : "<CODE_PATIENT_GENERE>",
+      "patient_full_name" : "KACI Nadia",
+      "patient_status_snapshot" : "PERMANENT",
+      "period_end" : "2026-02-28",
+      "period_start" : "2026-02-01",
+      "total_ht" : "5600.00",
+      "total_ttc" : "5600.00",
+      "total_tva" : "0.00",
+      "tva_rate" : "0.00"
+    } ],
+    "lignes" : [ {
+      "forfait_label" : "Solde d'ouverture — reprise F10",
+      "line_ht" : "70000.00",
+      "numero_facture" : "REPRISE-F10",
+      "seance_count" : "1",
+      "unit_price_ht" : "70000.00"
+    }, {
+      "forfait_label" : "Séances de février",
+      "line_ht" : "5600.00",
+      "numero_facture" : "REPRISE-F11",
+      "seance_count" : "1",
+      "unit_price_ht" : "5600.00"
+    } ],
+    "reglements" : [ {
+      "date_reglement" : "2026-01-31",
+      "montant" : "30000.00",
+      "numero_facture" : "REPRISE-F10",
+      "saisi_par" : "REPRISE"
+    } ]
+  },
+  "5_rejeu_devenu_solde" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "soldes-ouverture",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "FULLY_PAID",
+        "field" : "montantRegle",
+        "message" : "Facture entièrement réglée dans l'ancien logiciel : rien à reprendre, ligne ignorée.",
+        "params" : { },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  }
+}

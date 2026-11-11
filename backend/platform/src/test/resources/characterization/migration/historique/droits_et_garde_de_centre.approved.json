@@ -1,0 +1,93 @@
+{
+  "admin_A_vers_centre_B" : {
+    "GET batches?centerId=B" : 403,
+    "GET value-mappings?centerId=B" : 403,
+    "POST batches centerId=B" : 403,
+    "POST import centerId=B" : 403
+  },
+  "admin_B_sur_le_lot_de_A" : {
+    "GET lot" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "POST cancel" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "POST import" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/patients",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    }
+  },
+  "etat_apres_refus_des_roles" : { },
+  "etat_centre_A_intact" : { },
+  "infirmier" : {
+    "GET batches" : 403,
+    "GET entities" : 403,
+    "POST batches" : 403,
+    "POST cancel" : 403,
+    "POST close" : 403,
+    "POST import patients" : 403,
+    "PUT value-mappings" : 403
+  },
+  "lots_A" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "EN_COURS"
+  } ],
+  "lots_B" : [ ],
+  "superadmin" : {
+    "GET batches" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "POST batches centerId=B" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    }
+  },
+  "technicien" : {
+    "GET batches" : 403,
+    "GET entities" : 403,
+    "POST batches" : 403,
+    "POST cancel" : 403,
+    "POST close" : 403,
+    "POST import patients" : 403,
+    "PUT value-mappings" : 403
+  },
+  "technicien_corps_du_refus" : {
+    "corps" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/import/patients",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "http" : 403
+  }
+}

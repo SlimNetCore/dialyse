@@ -1,0 +1,162 @@
+{
+  "a_etat" : {
+    "affectations" : [ {
+      "assure" : "ZB1",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZB111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZB1",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZB1"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZB111>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZB1",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZB111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "a_prise_en_charge_du_patient" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (prise_en_charge)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "b_assure_rattache_a_un_patient_existant" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — assuré « ZB1 » (rattaché à un patient existant)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "b_etat" : {
+    "affectations" : [ {
+      "assure" : "ZB1",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZB111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZB1",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZB1"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZB111>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZB1",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "EXTERNE",
+      "numero_assurance" : "ZB-EXT",
+      "prenom" : "Paul",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    }, {
+      "assure_numero_assurance" : "ZB1",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZB111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "c_annulation" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "c_etat" : { },
+  "c_lots" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "ANNULE"
+  } ],
+  "d_annuler_un_lot_annule" : {
+    "corps" : {
+      "code" : "MIGRATION_BATCH_CLOSED",
+      "detail" : "Ce lot de reprise est annulé : plus aucun import n'est possible.",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "d_annuler_un_lot_inconnu" : {
+    "corps" : {
+      "code" : "MIGRATION_BATCH_NOT_FOUND",
+      "detail" : "Lot de reprise introuvable pour ce centre.",
+      "instance" : "/api/v1/admin/migration/batches/<UUID_GENERE_1>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "d_cloturer_un_lot_annule" : {
+    "corps" : {
+      "code" : "MIGRATION_BATCH_CLOSED",
+      "detail" : "Ce lot de reprise est annulé : plus aucun import n'est possible.",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/close",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  }
+}

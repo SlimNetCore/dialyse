@@ -1,0 +1,218 @@
+{
+  "1_etat" : {
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZR111>"
+    } ],
+    "patients" : [ {
+      "adresse" : "12 rue X",
+      "assure_adresse" : "12 rue X",
+      "assure_date_naissance" : "1950-01-02",
+      "assure_groupe_sanguin" : "O+",
+      "assure_nom" : "DUPONT",
+      "assure_numero_assurance" : "ZR111",
+      "assure_prenom" : "Jean",
+      "assure_sexe" : "M",
+      "assure_tel_bureau" : "0770123456",
+      "assure_tel_mobile" : "0661123456",
+      "assure_tel_personnel" : "0550123456",
+      "centre_payeur_id" : "<PAYEUR_1>",
+      "civilite" : "M.",
+      "code_patient" : "PC-001",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-05-06",
+      "date_evenement_etat" : "2021-02-03",
+      "date_naissance" : "1950-01-02",
+      "email" : "jean.dupont@example.org",
+      "etat_patient" : "GREFFE",
+      "groupe_sanguin" : "O+",
+      "jour_lundi" : true,
+      "jour_mercredi" : true,
+      "jour_vendredi" : true,
+      "lieu_naissance" : "Alger",
+      "medecin_traitant_id" : "<MEDECIN_1>",
+      "nom" : "DUPONT",
+      "nombre_enfants" : "3",
+      "numero_assurance" : "ZR111",
+      "observation" : "Observation de reprise",
+      "position_id" : "<CRENEAU_CR1>",
+      "prenom" : "Jean",
+      "profession1" : "Enseignant",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "salle_id" : "<SALLE_S1>",
+      "sexe" : "M",
+      "situation_familiale" : "Marié",
+      "tel_bureau" : "0770123456",
+      "tel_mobile" : "0661123456",
+      "tel_personnel" : "0550123456",
+      "transporteur_aller_id" : "<TRANSPORTEUR_1>",
+      "transporteur_retour_id" : "<TRANSPORTEUR_1>",
+      "type_patient" : "VACANCIER"
+    } ]
+  },
+  "1_import_complet" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "correspondances" : [ {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZR111>"
+    } ],
+    "patients" : [ {
+      "adresse" : "12 rue X",
+      "assure_adresse" : "12 rue X",
+      "assure_date_naissance" : "1950-01-02",
+      "assure_groupe_sanguin" : "O+",
+      "assure_nom" : "DUPONT",
+      "assure_numero_assurance" : "ZR111",
+      "assure_prenom" : "Jean",
+      "assure_sexe" : "M",
+      "assure_tel_bureau" : "0770123456",
+      "assure_tel_mobile" : "0661123456",
+      "assure_tel_personnel" : "0550123456",
+      "centre_payeur_id" : "<PAYEUR_1>",
+      "civilite" : "M.",
+      "code_patient" : "PC-001",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-05-06",
+      "date_evenement_etat" : "2021-02-03",
+      "date_naissance" : "1950-01-02",
+      "email" : "jean.dupont@example.org",
+      "etat_patient" : "GREFFE",
+      "groupe_sanguin" : "O+",
+      "jour_lundi" : true,
+      "jour_mercredi" : true,
+      "jour_vendredi" : true,
+      "lieu_naissance" : "Alger",
+      "medecin_traitant_id" : "<MEDECIN_1>",
+      "nom" : "DUPONT",
+      "nombre_enfants" : "3",
+      "numero_assurance" : "ZR111",
+      "observation" : "Observation de reprise",
+      "position_id" : "<CRENEAU_CR1>",
+      "prenom" : "Jean",
+      "profession1" : "Enseignant",
+      "qualite_assure" : "ASSURE_LUI_MEME",
+      "salle_id" : "<SALLE_S1>",
+      "sexe" : "M",
+      "situation_familiale" : "Marié",
+      "tel_bureau" : "0770123456",
+      "tel_mobile" : "0661123456",
+      "tel_personnel" : "0550123456",
+      "transporteur_aller_id" : "<TRANSPORTEUR_1>",
+      "transporteur_retour_id" : "<TRANSPORTEUR_1>",
+      "type_patient" : "VACANCIER"
+    } ]
+  },
+  "2_references_introuvables" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "patients",
+      "errors" : [ {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "salle",
+        "message" : "« S9 » est introuvable dans « Salles » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "salles",
+          "value" : "S9"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "generateur",
+        "message" : "« G-99 » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+        "params" : {
+          "target" : "gmao/equipements",
+          "value" : "G-99"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "centrePayeur",
+        "message" : "« CP-99 » est introuvable dans « Centres payeurs » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "centres-payeurs",
+          "value" : "CP-99"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "medecinTraitant",
+        "message" : "« Inconnu Docteur » est introuvable dans « Médecins traitants » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "medecins",
+          "value" : "Inconnu Docteur"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "creneau",
+        "message" : "« CR9 » est introuvable dans « Créneaux » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "creneaux",
+          "value" : "CR9"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "transporteurAller",
+        "message" : "« Taxi » est introuvable dans « Transporteurs » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "transporteurs",
+          "value" : "Taxi"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "transporteurRetour",
+        "message" : "« Taxi2 » est introuvable dans « Transporteurs » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "transporteurs",
+          "value" : "Taxi2"
+        },
+        "row" : 2
+      }, {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "salle",
+        "message" : "« SB » est introuvable dans « Salles » : créez-le ou importez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "salles",
+          "value" : "SB"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}
