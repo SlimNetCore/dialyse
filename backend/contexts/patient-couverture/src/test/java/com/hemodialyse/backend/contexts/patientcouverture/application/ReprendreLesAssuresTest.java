@@ -69,6 +69,20 @@ class ReprendreLesAssuresTest {
     }
 
     @Test
+    void l_etat_du_pire_cas_du_schema_est_memorise_puis_restaure_a_l_identique() {
+        String large = "€".repeat(255);
+        Assure origine = new Assure("ZR2", large, large, large, LocalDate.of(1970, 1, 1), large, large, large, large, large, CENTRE.valeur());
+        assures.mettreAJour(origine);
+        String memento = reprise.memoriser("ZR2").orElseThrow();
+        reprise.reprendre(CENTRE.valeur(), new ReportDeLAssure("ZR2", "AUTRE", "P", "F", null, "1", "2", "3", "A", "O+"));
+
+        reprise.restaurer(CENTRE.valeur(), "ZR2", memento);
+
+        assertThat(memento).hasSize(18467);
+        assertThat(assures.trouver("ZR2")).contains(origine);
+    }
+
+    @Test
     void un_assure_inconnu_n_a_pas_d_etat_a_memoriser_et_un_assure_d_un_autre_centre_n_est_jamais_restaure() {
         Assure autre = new Assure("ZA-AUTRE", "DU-CENTRE-B", null, null, null, null, null, null, null, null, AUTRE_CENTRE.valeur());
         assures.mettreAJour(autre);

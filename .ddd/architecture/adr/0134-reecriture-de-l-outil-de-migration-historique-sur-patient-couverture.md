@@ -116,6 +116,10 @@ affectations) sont dans `AffectationMigrator`, KB-S6a-2 (annulation d'un assuré
   garde l'état du premier lot ; celles d'avant V57 n'en ont pas, leur annulation ne restaure rien (comme avant). Golden
   `annulation_supprime_ce_que_le_lot_a_cree_nouveau_code` (ZR1 : `EXISTANT` au lieu de `MIS-A-JOUR` en `1_etat` et `2_etat`, 2 lignes seulement), ancien archivé dans
   `_ecarts-legacy/annulation/`. Chaîne Flyway V1..V57 rejouée sur PostgreSQL 16 jetable (`backend/scripts/patient-couverture-s6b3-pg16-rejeu.sh`, port 55851).
+  Taille du mémento (revue du 2026-11-11, constat 2) : la colonne est `TEXT`, pas `VARCHAR(4000)`. Pire cas du schéma `assure` : huit champs de 255 caractères,
+  chacun de trois octets UTF-8 (`%E2%82%AC` = 9 caractères encodés) = 8 x 2295 + clés + `v=1&dateNaissance=…` = **18 467 caractères** (test
+  `IdMappingEtatOrigineMaximalIntegrationTest` sur H2, rouge sur `VARCHAR(4000)` puis vert ; rejeu PG16 du script S6b-3). Réaliste : des champs accentués remplis à
+  plus de la moitié suffisent à dépasser 4000. V57 n'étant pas déployée, elle est modifiée en place.
   Historique de la conception (conservé) : `RepriseDesAssures.memoriser(numero)` (état de l'assuré, « mémento » v1 `application/x-www-form-urlencoded`, format décidé par le
   contexte) et `restaurer(centre, numero, memento)`, testés (`ReprendreLesAssuresTest`). Reste côté outil : mémoriser le mémento dans la correspondance d'identifiants
   (colonne **additive** nullable `migration_id_map.etat_origine`, Flyway V57 + `schema.sql` H2 + §87 de `verifications-production.md` en SELECT), le relire dans

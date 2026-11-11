@@ -193,7 +193,7 @@ allers-retours inutiles en base de données.
 
 - **Données à mettre en cache par défaut** : référentiels (médecins, machines, protocoles, centres…), détail patient,
   liste patient, comptages patient — voir les TTL déjà définis dans la table de configuration (section 11) :
-  `CACHE_TTL_REFERENTIALS`, `CACHE_TTL_PATIENT_DETAIL`, `CACHE_TTL_PATIENT_LIST`, `CACHE_TTL_PATIENT_COUNT`.
+  `CACHE_TTL_REFERENTIALS`, `CACHE_TTL_PATIENT_DETAIL`, `CACHE_TTL_PATIENT_LIST`.
 - **Données à ne pas mettre en cache (ou avec prudence)** : données très volatiles ou temps réel (statut de séance en
   cours, événements poussés en WebSocket), données financières sensibles nécessitant une fraîcheur garantie.
 - **Implémentation** :
@@ -395,7 +395,6 @@ Aucun rapport imprimé par l'application ne doit contourner les « Modèles de d
 | `CACHE_TTL_REFERENTIALS`       | `PT6H`                  | TTL des caches référentiels                                                                        |
 | `CACHE_TTL_PATIENT_DETAIL`     | `PT15M`                 | TTL des caches patient detail                                                                      |
 | `CACHE_TTL_PATIENT_LIST`       | `PT3M`                  | TTL des caches listes patient                                                                      |
-| `CACHE_TTL_PATIENT_COUNT`      | `PT3M`                  | TTL du cache de comptage patient                                                                   |
 | `CACHE_TTL_STOCK_VALORISATION` | `PT30M`                 | TTL du cache de valorisation du stock des groupes d'articles (vidé à chaque écriture de mouvement) |
 | `PLANNING_OPTIMISATION_WORKERS`| `2`                     | Calculs d'optimisation du planning (Timefold) exécutés en parallèle (un seul par centre à la fois) |
 | `STOCK_DEMO_DATA`              | `true`                  | Seed des données de démo stock                                                                     |

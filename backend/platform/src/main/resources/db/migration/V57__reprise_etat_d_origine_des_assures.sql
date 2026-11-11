@@ -4,5 +4,8 @@
 --
 -- Additive : une colonne nullable, aucune donnée lue ni modifiée, aucune contrainte, aucun risque pour le démarrage.
 -- Contrôle de lecture seule après déploiement : `.ddd/migration/verifications-production.md` §87.
+--
+-- TEXT et non VARCHAR(4000) : le mémento URL-encodé de neuf champs peut atteindre 18 467 caractères au pire cas du schéma `assure`
+-- (huit champs de 255 caractères de trois octets UTF-8, encodés en neuf caractères chacun) ; voir l'ADR 0134.
 
-ALTER TABLE public.migration_id_map ADD COLUMN IF NOT EXISTS etat_origine VARCHAR(4000);
+ALTER TABLE public.migration_id_map ADD COLUMN IF NOT EXISTS etat_origine TEXT;

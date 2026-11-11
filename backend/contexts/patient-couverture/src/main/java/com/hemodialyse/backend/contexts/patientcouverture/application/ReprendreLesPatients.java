@@ -16,8 +16,13 @@ import java.util.UUID;
 
 /**
  * Reprise des patients de l'outil de migration historique (ADR 0134, S6b-2) : mêmes tables {@code patients} et
- * {@code assure_patient}, mêmes colonnes. Une reprise n'efface jamais une donnée : seules les valeurs renseignées du fichier
- * remplacent celles de la fiche. L'assuré principal se rattache comme à l'écran : le patient assuré lui-même n'a aucune
+ * {@code assure_patient}, mêmes colonnes. Une reprise n'efface jamais une donnée FACULTATIVE (civilité, lieu de naissance,
+ * situation familiale, nombre d'enfants, profession, adresse, téléphones, e-mail, groupe sanguin, date de l'événement d'état,
+ * observation, centre payeur, médecin traitant, salle, créneau, générateur, transporteurs) : seule une valeur renseignée du
+ * fichier remplace celle de la fiche, et les jours de dialyse ne sont remplacés que si le fichier les fournit. En revanche les
+ * données OBLIGATOIRES de la fiche sont remplacées sans condition par celles du fichier, comme le faisait l'outil historique : le
+ * numéro d'assurance, le nom, le prénom, le sexe, la date de naissance, la date d'admission, le caractère vacancier, l'état et la
+ * qualité d'assuré (le code, lui, est conservé s'il n'est pas renseigné). L'assuré principal se rattache comme à l'écran : le patient assuré lui-même n'a aucune
  * affectation principale et recopie sa propre fiche d'assuré ; l'ayant droit a pour unique affectation principale celle de son
  * assuré (commençant à l'admission). Les contrôles du fichier (doublons, références, assuré connu) sont ceux de l'appelant.
  */

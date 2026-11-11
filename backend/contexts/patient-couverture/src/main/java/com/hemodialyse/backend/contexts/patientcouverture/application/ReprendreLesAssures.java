@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 
 /**
  * Reprise des assurés de l'outil de migration historique (ADR 0134) : mêmes tables {@code assure}, mêmes colonnes. Une reprise
- * n'efface jamais une donnée : seules les valeurs renseignées dans le fichier remplacent celles de l'assuré existant. La garde de
+ * n'efface jamais une donnée facultative (prénom, sexe, naissance, téléphones, adresse, groupe sanguin) : seule une valeur
+ * renseignée dans le fichier remplace celle de l'assuré existant ; le nom, lui, est toujours remplacé par celui du fichier. La garde de
  * centre (numéro d'un autre centre) est décidée par l'appelant, qui contrôle tout le fichier avant d'écrire.
  */
 public class ReprendreLesAssures implements RepriseDesAssures {

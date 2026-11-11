@@ -46,7 +46,6 @@ Ces comptes sont charges via `db/seed.sql` puis hashes au demarrage par
     - `CACHE_TTL_REFERENTIALS` (defaut `PT6H`)
     - `CACHE_TTL_PATIENT_DETAIL` (defaut `PT15M`)
     - `CACHE_TTL_PATIENT_LIST` (defaut `PT3M`)
-    - `CACHE_TTL_PATIENT_COUNT` (defaut `PT3M`)
 
 ```powershell
 Set-Location "C:\Users\TS-CONSULT\WebstormProjects\Hemodialyse\backend"

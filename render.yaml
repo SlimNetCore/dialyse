@@ -33,6 +33,4 @@ services:
         value: "PT15M"
       - key: CACHE_TTL_PATIENT_LIST
         value: "PT3M"
-      - key: CACHE_TTL_PATIENT_COUNT
-        value: "PT3M"
 
