@@ -1091,6 +1091,8 @@ CREATE TABLE IF NOT EXISTS migration_id_map
                              CONSTRAINT uk_migration_id_map UNIQUE (center_id, entity, legacy_id)
     );
 CREATE INDEX IF NOT EXISTS idx_migration_id_map_batch ON migration_id_map (batch_id);
+-- S6b-3 (ADR 0134, KB-S6a-2) : état d'un assuré rapproché avant la reprise, restauré à l'annulation du lot (ajout, nullable).
+ALTER TABLE IF EXISTS migration_id_map ADD COLUMN IF NOT EXISTS etat_origine VARCHAR(4000);
 
 CREATE TABLE IF NOT EXISTS migration_value_map
 (

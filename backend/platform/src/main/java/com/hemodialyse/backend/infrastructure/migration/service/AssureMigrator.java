@@ -101,10 +101,14 @@ public class AssureMigrator implements EntityMigrator {
         if (!errors.isEmpty() || !write) return new Outcome(created, updated, errors, warnings);
 
         for (Plan plan : plans) {
+            // État d'origine d'un assuré seulement rapproché (KB-S6a-2) : lu AVANT la reprise, et seulement à la première reprise de
+            // cet identifiant d'origine (une correspondance connue garde l'état mémorisé par le premier lot).
+            String etatOrigine = !mapped.containsKey(plan.legacyId()) && plan.existing() != null
+                    ? assures.memoriser(plan.numero()).orElse(null) : null;
             assures.reprendre(ctx.centerId().value(), report(plan.row()));
             IdMapping.Operation operation = mapped.containsKey(plan.legacyId()) ? IdMapping.Operation.UPDATED : plan.operation();
             ctx.ids().save(ctx.centerId(), ctx.batch().getId(),
-                    new IdMapping(entity(), plan.legacyId(), plan.numero(), operation));
+                    new IdMapping(entity(), plan.legacyId(), plan.numero(), operation, etatOrigine));
         }
         return new Outcome(created, updated, errors, warnings);
     }

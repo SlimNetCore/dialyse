@@ -99,7 +99,8 @@ class HistoriqueDroitsEtAnnulationCharacterizationIntegrationTest extends Histor
         r.set("2_reprise_apres_annulation_patients", rendu(importer(lot2, "patients",
                 fichier(ENTETE_PATIENTS, "P1;ZR111;BENALI;Karim;M;1962-03-15;2019-01-02;;Fils;ZR2"), false)));
         r.set("2_etat", etat());
-        golden("annulation_supprime_ce_que_le_lot_a_cree", r);
+        // KB-S6a-2 corrige (S6b-3, ADR 0134) : l'assure ZR1, seulement rapproche, retrouve son etat d'origine (ancien golden : _ecarts-legacy).
+        golden("annulation_supprime_ce_que_le_lot_a_cree_nouveau_code", r);
     }
 
     @Test

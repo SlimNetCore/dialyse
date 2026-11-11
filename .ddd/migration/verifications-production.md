@@ -2731,3 +2731,25 @@ FROM (SELECT 'caisse' AS niveau, id, center_id, code FROM caisse_assurance
 GROUP BY niveau, center_id, regexp_replace(lower(trim(code)), '\s+', ' ', 'g') HAVING count(*) > 1 ORDER BY 1, 2, 3;
 ```
 **Interprétation** : `0` ligne aux trois requêtes : aucun doublon historique, le comportement de RF1 à RF3 est identique à celui du legacy. `> 0` : fusionner ou renommer les doublons PAR DÉCISION ÉCRITE d'un administrateur du centre concerné AVANT la bascule (la modification d'une des lignes en doublon sera refusée par le nouveau code). Colonnes (`transporteur.nom`, `forfait.code`, `caisse_assurance.code`, `agence.code`, `centre_payeur.code`, `center_id`, `id`) relevées dans les requêtes §83 à §85 ; les requêtes elles-mêmes n'ont PAS été rejouées sur PostgreSQL 16 ni exécutées sur la production : elles ne disent RIEN de son état. Les identifiants sont supposés de même type dans l'`UNION ALL` (non vérifié ; `array_agg(id)` n'en dépend pas).
+
+## 87. Reprise historique S6b-3 (ADR 0134, KB-S6a-1, KB-S6a-2, KB-S6a-5 CORRIGÉS) : colonne `migration_id_map.etat_origine` et lots antérieurs (2026-11-11) — SELECT seulement
+Flyway V57 AJOUTE une colonne nullable `etat_origine` à `migration_id_map` (aucune donnée lue ni modifiée). Les correspondances d'assurés rapprochés des lots ANTÉRIEURS n'ont pas d'état d'origine : l'annulation d'un tel lot ne restaure rien (comme avant).
+```sql
+-- 87.1 La colonne existe après le déploiement (attendu : 1 ligne, is_nullable = YES). Lecture seule.
+SELECT column_name, data_type, is_nullable FROM information_schema.columns
+WHERE table_schema = 'public' AND table_name = 'migration_id_map' AND column_name = 'etat_origine';
+
+-- 87.2 Assurés rapprochés par un lot encore ouvert, SANS état d'origine (annulation sans restauration). Informatif. Lecture seule.
+SELECT m.center_id, m.batch_id, count(*) AS assures_rapproches_sans_etat
+FROM migration_id_map m JOIN migration_batch b ON b.id = m.batch_id
+WHERE m.entity = 'ASSURES' AND m.operation = 'UPDATED' AND m.etat_origine IS NULL AND b.status = 'EN_COURS'
+GROUP BY m.center_id, m.batch_id ORDER BY 1, 2;
+
+-- 87.3 KB-S6a-1 : patients non assurés eux-mêmes dont aucune affectation n'est principale (effet d'un ancien rejeu d'affectations). Informatif. Lecture seule.
+SELECT p.center_id, count(*) AS patients_sans_principale
+FROM patients p
+WHERE p.qualite_assure IS DISTINCT FROM 'ASSURE_LUI_MEME' AND p.assure_numero_assurance IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM assure_patient a WHERE a.patient_id = p.id AND a.center_id = p.center_id AND a.is_primary)
+GROUP BY p.center_id ORDER BY 1;
+```
+**Interprétation** : 87.1 renvoie 1 ligne (`character varying`, `YES`) ; sinon V57 n'a pas été appliquée. 87.2 : un lot ouvert listé n'aura pas de restauration à l'annulation (clôturer ou accepter). 87.3 `> 0` : un ancien rejeu a pu rétrograder l'affectation principale ; la corriger par une décision de l'administrateur du centre (le code corrigé ne le défait pas). La chaîne Flyway V1..V57 a été rejouée sur un PostgreSQL 16 jetable (`backend/scripts/patient-couverture-s6b3-pg16-rejeu.sh`) ; ces trois requêtes n'ont PAS été exécutées sur la production et ne disent RIEN de son état.

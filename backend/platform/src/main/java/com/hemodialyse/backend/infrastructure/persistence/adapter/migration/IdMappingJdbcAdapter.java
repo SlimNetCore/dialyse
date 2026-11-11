@@ -47,19 +47,21 @@ public class IdMappingJdbcAdapter implements IdMappingPort {
         int updated = jdbc.update("UPDATE migration_id_map SET target_id = ? WHERE center_id = ? AND entity = ? AND legacy_id = ?",
                 mapping.targetId(), centerId.value(), mapping.entity().name(), mapping.legacyId());
         if (updated == 0) {
-            jdbc.update("INSERT INTO migration_id_map (id, center_id, batch_id, entity, legacy_id, target_id, operation, created_at) "
-                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            // Une correspondance déjà connue garde son lot, son opération et son état d'origine (celui d'AVANT la première reprise).
+            jdbc.update("INSERT INTO migration_id_map (id, center_id, batch_id, entity, legacy_id, target_id, operation, created_at, "
+                            + "etat_origine) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     UUID.randomUUID(), centerId.value(), batchId, mapping.entity().name(), mapping.legacyId(),
-                    mapping.targetId(), mapping.operation().name(), OffsetDateTime.now());
+                    mapping.targetId(), mapping.operation().name(), OffsetDateTime.now(), mapping.etatOrigine());
         }
     }
 
     @Override
     public List<IdMapping> findByBatch(CenterId centerId, UUID batchId) {
-        return jdbc.query("SELECT entity, legacy_id, target_id, operation FROM migration_id_map WHERE center_id = ? AND batch_id = ? "
-                        + "ORDER BY created_at",
+        return jdbc.query("SELECT entity, legacy_id, target_id, operation, etat_origine FROM migration_id_map "
+                        + "WHERE center_id = ? AND batch_id = ? ORDER BY created_at",
                 (rs, i) -> new IdMapping(MigrationEntity.valueOf(rs.getString("entity")), rs.getString("legacy_id"),
-                        rs.getString("target_id"), IdMapping.Operation.valueOf(rs.getString("operation"))),
+                        rs.getString("target_id"), IdMapping.Operation.valueOf(rs.getString("operation")),
+                        rs.getString("etat_origine")),
                 centerId.value(), batchId);
     }
 

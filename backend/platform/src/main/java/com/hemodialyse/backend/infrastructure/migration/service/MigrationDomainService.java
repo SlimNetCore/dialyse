@@ -195,6 +195,9 @@ public class MigrationDomainService implements MigrationUseCase {
                     "Annulation impossible : des données reprises ont déjà été utilisées — " + String.join(" ; ", blockers));
         }
         rollback.delete(centerId, created);
+        // Un assuré seulement rapproché par ce lot retrouve son état d'origine (KB-S6a-2) ; sans état mémorisé, rien n'est restauré.
+        rollback.restore(centerId, ids.findByBatch(centerId, batchId).stream()
+                .filter(m -> m.operation() == IdMapping.Operation.UPDATED && m.etatOrigine() != null).toList());
         ids.deleteByBatch(centerId, batchId);
         batch.annuler(now());
         return batches.save(batch);

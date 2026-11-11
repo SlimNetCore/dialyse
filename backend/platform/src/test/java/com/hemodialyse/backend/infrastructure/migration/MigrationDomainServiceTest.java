@@ -310,6 +310,27 @@ class MigrationDomainServiceTest {
         assertTrue(ids.findByBatch(CENTER, batch.getId()).isEmpty());
     }
 
+    @Test
+    void cancelRestoresAnAssureOnlyMatchedByTheBatchFromItsOriginalState() {
+        assures.ajouter("ZR1", CENTER);
+        MigrationBatch batch = service.open(CENTER, "Reprise", null, null, "admin");
+        ImportTable fichier = table(List.of("legacy_id", "numero_assurance", "nom"), List.of("A1", "ZR1", "MIS-A-JOUR"),
+                List.of("A2", "ZR2", "NOUVEAU"));
+        service.importEntity(CENTER, batch.getId(), MigrationEntity.ASSURES, "assures.csv", fichier, false, "admin");
+        // Un rejeu ne remplace jamais l'état d'origine déjà mémorisé.
+        service.importEntity(CENTER, batch.getId(), MigrationEntity.ASSURES, "assures.csv", fichier, false, "admin");
+
+        List<IdMapping> mappings = ids.findByBatch(CENTER, batch.getId());
+        assertEquals("etat-de-ZR1", mappings.stream().filter(m -> m.targetId().equals("ZR1")).findFirst().orElseThrow().etatOrigine());
+        assertEquals(null, mappings.stream().filter(m -> m.targetId().equals("ZR2")).findFirst().orElseThrow().etatOrigine());
+
+        service.cancel(CENTER, batch.getId());
+
+        assertEquals(List.of("ZR2"), rollback.deleted.stream().map(IdMapping::targetId).toList());
+        assertEquals(List.of("ZR1"), rollback.restored.stream().map(IdMapping::targetId).toList());
+        assertEquals("etat-de-ZR1", rollback.restored.getFirst().etatOrigine());
+    }
+
     private EntityRun importPatients(MigrationBatch batch, boolean dryRun, List<String>... rows) {
         return service.importEntity(CENTER, batch.getId(), MigrationEntity.PATIENTS, "patients.csv",
                 table(PATIENT_HEADERS, rows), dryRun, "admin");

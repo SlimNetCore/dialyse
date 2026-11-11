@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
@@ -46,7 +47,12 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     /** Séances reprises : lues et supprimées par le langage publié de la Séance (SE7e, ADR 0099), mêmes requêtes qu'avant. */
     private final SeancesDeLaReprisePubliees seances;
 
-    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances) {
+    /** Assurés repris : l'état d'origine d'un assuré rapproché est mémorisé et restauré par Patient et couverture (KB-S6a-2). */
+    private final RepriseDesAssures assures;
+
+    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances,
+                                        RepriseDesAssures assures) {
+        this.assures = assures;
         this.reprise = reprise;
         this.jdbc = jdbc;
         this.seances = seances;
@@ -149,6 +155,15 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 case SEANCES -> seances.retirer(center, UUID.fromString(m.targetId()));
                 default -> jdbc.update("DELETE FROM " + HistoricalRecordJdbcAdapter.table(m.entity()).name()
                         + " WHERE id = ? AND center_id = ?", UUID.fromString(m.targetId()), center);
+            }
+        }
+    }
+
+    @Override
+    public void restore(CenterId centerId, List<IdMapping> updated) {
+        for (IdMapping m : updated) {
+            if (m.entity() == MigrationEntity.ASSURES && m.etatOrigine() != null) {
+                assures.restaurer(centerId.value(), m.targetId(), m.etatOrigine());
             }
         }
     }

@@ -90,7 +90,7 @@ final class InMemoryMigrationPorts {
             if (existing.isPresent()) {
                 rows.remove(existing.get());
                 rows.add(new Stored(centerId, existing.get().batchId(), new IdMapping(mapping.entity(), mapping.legacyId(),
-                        mapping.targetId(), existing.get().mapping().operation())));
+                        mapping.targetId(), existing.get().mapping().operation(), existing.get().mapping().etatOrigine())));
             } else {
                 rows.add(new Stored(centerId, batchId, mapping));
             }
@@ -134,6 +134,12 @@ final class InMemoryMigrationPorts {
 
         public void delete(CenterId centerId, List<IdMapping> created) {
             deleted.addAll(created);
+        }
+
+        final List<IdMapping> restored = new ArrayList<>();
+
+        public void restore(CenterId centerId, List<IdMapping> updated) {
+            restored.addAll(updated);
         }
     }
 
@@ -294,7 +300,7 @@ final class InMemoryMigrationPorts {
 
         @Override
         public Optional<String> memoriser(String numeroAssurance) {
-            return Optional.empty();
+            return rows.containsKey(numeroAssurance) ? Optional.of("etat-de-" + numeroAssurance) : Optional.empty();
         }
 
         @Override

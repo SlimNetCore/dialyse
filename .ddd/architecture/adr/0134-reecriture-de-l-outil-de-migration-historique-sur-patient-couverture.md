@@ -109,8 +109,14 @@ affectations) sont dans `AffectationMigrator`, KB-S6a-2 (annulation d'un assuré
 - **KB-S6a-1** : rejouer un fichier d'affectations ne rétrograde plus l'affectation principale (l'ancien chemin JPA retirait le caractère principal par
   une mise à jour en masse, puis réenregistrait une entité dont l'état en mémoire n'avait pas changé : aucune écriture). La ligne principale est écrite
   explicitement après le retrait du principal des autres lignes.
-- **KB-S6a-2 : NON CORRIGÉ dans S6b-3, EN ATTENTE D'APPROBATION (NEEDS_APPROVAL).** Décision de l'utilisateur : annuler un lot restaure un assuré seulement rapproché.
-  Conception prête côté contexte : `RepriseDesAssures.memoriser(numero)` (état de l'assuré, « mémento » v1 `application/x-www-form-urlencoded`, format décidé par le
+- **KB-S6a-2 : CORRIGÉ (2026-11-11, après S6b-3).** Annuler un lot restaure un assuré seulement rapproché : `AssureMigrator` lit l'état d'origine
+  (`RepriseDesAssures.memoriser`) AVANT la première reprise de l'identifiant d'origine et le range dans `IdMapping.etatOrigine` (colonne additive nullable
+  `migration_id_map.etat_origine`, V57, `schema.sql`, §87) ; `MigrationDomainService.cancel` relit les correspondances UPDATED du lot ayant un état et
+  `MigrationRollbackPort.restore` (adapter : `RepriseDesAssures.restaurer`) remet toutes les valeurs de l'assuré, `created_at` intact. Une correspondance déjà connue
+  garde l'état du premier lot ; celles d'avant V57 n'en ont pas, leur annulation ne restaure rien (comme avant). Golden
+  `annulation_supprime_ce_que_le_lot_a_cree_nouveau_code` (ZR1 : `EXISTANT` au lieu de `MIS-A-JOUR` en `1_etat` et `2_etat`, 2 lignes seulement), ancien archivé dans
+  `_ecarts-legacy/annulation/`. Chaîne Flyway V1..V57 rejouée sur PostgreSQL 16 jetable (`backend/scripts/patient-couverture-s6b3-pg16-rejeu.sh`, port 55851).
+  Historique de la conception (conservé) : `RepriseDesAssures.memoriser(numero)` (état de l'assuré, « mémento » v1 `application/x-www-form-urlencoded`, format décidé par le
   contexte) et `restaurer(centre, numero, memento)`, testés (`ReprendreLesAssuresTest`). Reste côté outil : mémoriser le mémento dans la correspondance d'identifiants
   (colonne **additive** nullable `migration_id_map.etat_origine`, Flyway V57 + `schema.sql` H2 + §87 de `verifications-production.md` en SELECT), le relire dans
   `MigrationDomainService.cancel` (qui ne passe aujourd'hui que les correspondances CREATED) et l'appliquer dans `MigrationRollbackJdbcAdapter`. Ce chemin exige de

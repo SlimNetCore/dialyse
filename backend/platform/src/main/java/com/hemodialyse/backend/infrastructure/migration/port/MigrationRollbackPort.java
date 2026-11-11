@@ -20,5 +20,10 @@ public interface MigrationRollbackPort {
      * Supprime les données créées, dans l'ordre inverse de leurs dépendances.
      */
     void delete(CenterId centerId, List<IdMapping> created);
+
+    /**
+     * Remet dans leur état d'origine les données seulement rapprochées par le lot (assurés UPDATED ayant un état d'origine mémorisé).
+     */
+    void restore(CenterId centerId, List<IdMapping> updated);
 }
 
