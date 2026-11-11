@@ -83,7 +83,8 @@ class MigrationDomainServiceTest {
         generateur = equipements.addGenerateur(CENTER, "G01", salle);
         service = new MigrationDomainService(batches, ids, values, rollback, List.of(
                 new AssureMigrator(assures),
-                new PatientMigrator(patients, assures, assignments, referentials, equipements),
+                new PatientMigrator(new InMemoryMigrationPorts.RepriseDesPatientsEnMemoire(patients, assignments), assures,
+                        referentials, equipements),
                 new AffectationMigrator(patients, assures, assignments)),
                 Clock.fixed(Instant.parse("2026-09-30T10:00:00Z"), ZoneOffset.UTC));
     }
@@ -155,6 +156,20 @@ class MigrationDomainServiceTest {
         assertEquals(1, replay.updated());
         assertEquals(1, patients.rows.size());
         assertEquals("BENALI-MODIFIE", patients.rows.values().iterator().next().getNom());
+    }
+
+    @Test
+    void aPatientDeletedOutsideTheToolIsRecreatedUnderItsFormerIdentifier() {
+        MigrationBatch batch = service.open(CENTER, "Reprise", null, null, "admin");
+        importPatients(batch, false, patientRow("P1", "111"));
+        String formerId = ids.findTarget(CENTER, MigrationEntity.PATIENTS, "P1").orElseThrow();
+        patients.rows.clear();
+
+        EntityRun replay = importPatients(batch, false, patientRow("P1", "111"));
+
+        assertEquals(1, replay.created());
+        assertEquals(formerId, ids.findTarget(CENTER, MigrationEntity.PATIENTS, "P1").orElseThrow());
+        assertEquals(List.of(UUID.fromString(formerId)), List.copyOf(patients.rows.keySet()));
     }
 
     @Test

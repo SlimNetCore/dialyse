@@ -278,6 +278,15 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.application.ReprendreLesAssures(assures);
     }
 
+    /** Langage publié {@code RepriseDesPatients} (S6b-2, ADR 0134) : la reprise des patients de l'outil de migration historique. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients repriseDesPatients(JdbcTemplate jdbc,
+            AssuresDuCentre assures, Identifiants identifiants, HorlogeDesCentres horloge) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.ReprendreLesPatients(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PatientsDeLaRepriseJdbc(jdbc),
+                assures, identifiants, horloge);
+    }
+
     // ---- transporteurs et catégories de transport (RF1, ADR 0122) : mêmes tables, langage publié patientcouverture.v1
 
     @Bean

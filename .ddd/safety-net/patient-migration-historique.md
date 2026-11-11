@@ -22,7 +22,7 @@ Fichiers : `backend/platform/src/test/java/com/hemodialyse/backend/characterizat
 | Patients | patients_avertissements_et_rapprochement_par_numero | POSSIBLE_DUPLICATE, MATCHED_EXISTING, EVENT_DATE_MISSING |
 | Patients | patients_formats_invalides_et_assures_manquants | erreurs de format ligne par ligne, assure obligatoire/introuvable/autre centre |
 | Patients | patients_correspondance_de_valeur_et_synonymes | correspondance de valeurs, synonymes, formats de date |
-| Patients | patients_rejeu_sans_effacement_et_changement_d_assure | rejeu, changement d'assure principal, patient supprime puis rejoue |
+| Patients | patients_rejeu_sans_effacement_et_changement_d_assure_nouveau_code | rejeu, changement d'assure principal, patient supprime puis rejoue (KB-S6a-3 CORRIGE en S6b-2 : fiche recreee sous son identifiant, plus d'affectation orpheline ; ancien golden archive dans `_ecarts-legacy/patients/`) |
 | Patients | patients_isolement_des_centres | aucun rapprochement inter-centres |
 | Affectations/soldes | affectations_controles_import_et_rejeu | controles, import, rejeu, rapprochement d'historique |
 | Affectations/soldes | soldes_ouverture_controles_et_remplacement | controles, creation, remplacement au rejeu, facture soldee ignoree |

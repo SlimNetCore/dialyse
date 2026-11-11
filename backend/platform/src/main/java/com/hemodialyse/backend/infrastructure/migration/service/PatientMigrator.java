@@ -2,29 +2,24 @@ package com.hemodialyse.backend.infrastructure.migration.service;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures.AssureConnu;
-import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
-import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients.PatientDuCentre;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients.ReportDuPatient;
 import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeReprise;
 import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeReprise.GenerateurRepris;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.model.PatientType;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.AssureInfo;
-import com.hemodialyse.backend.domain.patient.vo.JoursDialyse;
-import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,18 +41,15 @@ public class PatientMigrator implements EntityMigrator {
 
     private static final Set<String> ETATS_AVEC_DATE = Set.of("TRANSFERE", "DECEDE", "GREFFE", "GUERRI");
 
-    private final PatientRepositoryPort patients;
+    private final RepriseDesPatients patients;
     private final RepriseDesAssures assures;
-    private final AssurePatientRepositoryPort assignments;
     private final ReferentialAdminRepositoryPort referentials;
     private final GenerateursDeReprise generateurs;
 
-    public PatientMigrator(PatientRepositoryPort patients, RepriseDesAssures assures,
-                           AssurePatientRepositoryPort assignments, ReferentialAdminRepositoryPort referentials,
-                           GenerateursDeReprise generateurs) {
+    public PatientMigrator(RepriseDesPatients patients, RepriseDesAssures assures,
+                           ReferentialAdminRepositoryPort referentials, GenerateursDeReprise generateurs) {
         this.patients = patients;
         this.assures = assures;
-        this.assignments = assignments;
         this.referentials = referentials;
         this.generateurs = generateurs;
     }
@@ -84,55 +76,33 @@ public class PatientMigrator implements EntityMigrator {
         }
     }
 
-    private static Patient newPatient(CenterId center, Row row) {
-        Patient patient = Patient.creer(center, row.get("nom"), row.get("prenom"), row.get("sexe"),
-                date(row.get("dateAdmission")), date(row.get("dateNaissance")),
-                new NumeroAssurance(row.get("numeroAssurance")), PatientType.valueOf(row.get("typePatient")));
-        patient.setCreatedAt(OffsetDateTime.now());
-        return patient;
-    }
-
     /**
-     * Seules les valeurs renseignées dans le fichier sont reportées : une reprise n'efface jamais une donnée.
+     * Valeurs du fichier à reporter : seules celles renseignées seront reprises, une reprise n'efface jamais une donnée.
      */
-    private static void apply(Patient p, Row row, Refs refs) {
-        p.setNom(row.get("nom"));
-        p.setPrenom(row.get("prenom"));
-        p.setSexe(row.get("sexe"));
-        p.setDateNaissance(date(row.get("dateNaissance")));
-        p.setDateAdmission(date(row.get("dateAdmission")));
-        p.setNumeroAssurance(new NumeroAssurance(row.get("numeroAssurance")));
-        p.setTypePatient(PatientType.valueOf(row.get("typePatient")));
-        p.setEtatPatient(row.get("etatPatient"));
-        p.setQualiteAssure(row.get("qualiteAssure"));
-        if (row.get("codePatient") != null) p.setCodePatient(row.get("codePatient"));
-        if (row.get("civilite") != null) p.setCivilite(row.get("civilite"));
-        if (row.get("lieuNaissance") != null) p.setLieuNaissance(row.get("lieuNaissance"));
-        if (row.get("situationFamiliale") != null) p.setSituationFamiliale(row.get("situationFamiliale"));
-        if (row.get("nombreEnfants") != null) p.setNombreEnfants(Integer.parseInt(row.get("nombreEnfants")));
-        if (row.get("profession") != null) p.setProfession(row.get("profession"));
-        if (row.get("adresse") != null) p.setAdresse(row.get("adresse"));
-        if (row.get("telPersonnel") != null) p.setTelPersonnel(row.get("telPersonnel"));
-        if (row.get("telMobile") != null) p.setTelMobile(row.get("telMobile"));
-        if (row.get("telBureau") != null) p.setTelBureau(row.get("telBureau"));
-        if (row.get("email") != null) p.setEmail(row.get("email"));
-        if (row.get("groupeSanguin") != null) p.setGroupeSanguin(row.get("groupeSanguin"));
-        if (row.get("dateEvenementEtat") != null) p.setDateEvenementEtat(date(row.get("dateEvenementEtat")));
-        if (row.get("observation") != null) p.setObservation(row.get("observation"));
-        if (refs.centrePayeur() != null) p.setCentrePayeurId(refs.centrePayeur());
-        if (refs.medecin() != null) p.setMedecinTraitantId(refs.medecin());
-        if (refs.salle() != null) p.setSalleId(refs.salle());
-        if (refs.creneau() != null) p.setPositionId(refs.creneau());
-        if (refs.generateur() != null) p.setGenerateurId(refs.generateur());
-        if (refs.transporteurAller() != null) p.setTransporteurAllerId(refs.transporteurAller());
-        if (refs.transporteurRetour() != null) p.setTransporteurRetourId(refs.transporteurRetour());
-        if (row.get("joursDialyse") != null) p.setJoursDialyse(jours(row.get("joursDialyse")));
+    private static ReportDuPatient report(Row row, Refs refs) {
+        String enfants = row.get("nombreEnfants");
+        String jours = row.get("joursDialyse");
+        return new ReportDuPatient(row.get("numeroAssurance"), row.get("nom"), row.get("prenom"), row.get("sexe"),
+                date(row.get("dateNaissance")), date(row.get("dateAdmission")), "VACANCIER".equals(row.get("typePatient")),
+                row.get("etatPatient"), row.get("qualiteAssure"), row.get("codePatient"), row.get("civilite"),
+                row.get("lieuNaissance"), row.get("situationFamiliale"), enfants == null ? null : Integer.parseInt(enfants),
+                row.get("profession"), row.get("adresse"), row.get("telPersonnel"), row.get("telMobile"), row.get("telBureau"),
+                row.get("email"), row.get("groupeSanguin"), date(row.get("dateEvenementEtat")), row.get("observation"),
+                refs.centrePayeur(), refs.medecin(), refs.salle(), refs.creneau(), refs.generateur(), refs.transporteurAller(),
+                refs.transporteurRetour(), jours == null ? null : jours(jours), row.get("assureNumeroAssurance"));
     }
 
-    static JoursDialyse jours(String codes) {
+    static Set<DayOfWeek> jours(String codes) {
         List<String> days = List.of(codes.split(","));
-        return new JoursDialyse(days.contains("DIM"), days.contains("LUN"), days.contains("MAR"), days.contains("MER"),
-                days.contains("JEU"), days.contains("VEN"), days.contains("SAM"));
+        Set<DayOfWeek> jours = EnumSet.noneOf(DayOfWeek.class);
+        if (days.contains("DIM")) jours.add(DayOfWeek.SUNDAY);
+        if (days.contains("LUN")) jours.add(DayOfWeek.MONDAY);
+        if (days.contains("MAR")) jours.add(DayOfWeek.TUESDAY);
+        if (days.contains("MER")) jours.add(DayOfWeek.WEDNESDAY);
+        if (days.contains("JEU")) jours.add(DayOfWeek.THURSDAY);
+        if (days.contains("VEN")) jours.add(DayOfWeek.FRIDAY);
+        if (days.contains("SAM")) jours.add(DayOfWeek.SATURDAY);
+        return jours;
     }
 
     // ---- Contrôles -------------------------------------------------------------------------------------------
@@ -164,16 +134,15 @@ public class PatientMigrator implements EntityMigrator {
         Map<String, String> mapped = ctx.ids().findAll(center, entity());
         Lookups lookups = new Lookups(center);
 
-        List<Patient> existingPatients = patients.findAllByCenter(center);
-        Map<String, Patient> byNumero = new HashMap<>();
-        Map<String, Patient> byCode = new HashMap<>();
-        Map<String, Patient> byIdentity = new HashMap<>();
+        Map<String, PatientDuCentre> byNumero = new HashMap<>();
+        Map<String, PatientDuCentre> byCode = new HashMap<>();
+        Map<String, PatientDuCentre> byIdentity = new HashMap<>();
         Set<UUID> existingIds = new java.util.HashSet<>();
-        for (Patient p : existingPatients) {
-            existingIds.add(p.getId().value());
-            if (p.getNumeroAssurance() != null) byNumero.putIfAbsent(key(p.getNumeroAssurance().value()), p);
-            if (p.getCodePatient() != null) byCode.putIfAbsent(key(p.getCodePatient()), p);
-            byIdentity.putIfAbsent(identity(p.getNom(), p.getPrenom(), p.getDateNaissance()), p);
+        for (PatientDuCentre p : patients.duCentre(center.value())) {
+            existingIds.add(p.id());
+            if (p.numeroAssurance() != null) byNumero.putIfAbsent(key(p.numeroAssurance()), p);
+            if (p.code() != null) byCode.putIfAbsent(key(p.code()), p);
+            byIdentity.putIfAbsent(identity(p.nom(), p.prenom(), p.dateNaissance()), p);
         }
 
         Map<String, Integer> seenLegacy = new HashMap<>();
@@ -192,30 +161,36 @@ public class PatientMigrator implements EntityMigrator {
             }
 
             // Cible : déjà reprise (identifiant d'origine), sinon rapprochée par n° d'assurance, sinon nouvelle.
-            // Une correspondance vers un patient supprimé depuis est ignorée (le patient sera recréé).
+            // Une correspondance vers un patient supprimé depuis est ignorée : le patient est recréé sous le même identifiant
+            // (KB-S6a-3 corrigé : ses affectations déjà écrites ne restent pas orphelines, ADR 0134).
             UUID targetId = mapped.containsKey(legacy) ? UUID.fromString(mapped.get(legacy)) : null;
-            if (targetId != null && !existingIds.contains(targetId)) targetId = null;
-            Patient sameNumero = byNumero.get(key(numero));
-            if (targetId != null && sameNumero != null && !sameNumero.getId().value().equals(targetId)) {
+            UUID idARetrouver = null;
+            if (targetId != null && !existingIds.contains(targetId)) {
+                idARetrouver = targetId;
+                targetId = null;
+            }
+            PatientDuCentre sameNumero = byNumero.get(key(numero));
+            if (targetId != null && sameNumero != null && !sameNumero.id().equals(targetId)) {
                 errors.add(issue(row.line(), "numeroAssurance", "NUMERO_USED_BY_OTHER",
                         "Le n° d'assurance « " + numero + " » appartient déjà à un autre patient du centre ("
-                                + sameNumero.getNom() + " " + sameNumero.getPrenom() + ").", Map.of("value", numero)));
+                                + sameNumero.nom() + " " + sameNumero.prenom() + ").", Map.of("value", numero)));
             }
             IdMapping.Operation operation = IdMapping.Operation.CREATED;
             if (targetId != null) {
                 operation = IdMapping.Operation.UPDATED;
             } else if (sameNumero != null) {
-                targetId = sameNumero.getId().value();
+                targetId = sameNumero.id();
+                idARetrouver = null;
                 operation = IdMapping.Operation.UPDATED;
                 warnings.add(issue(row.line(), "numeroAssurance", "MATCHED_EXISTING",
-                        "Patient déjà présent (" + sameNumero.getNom() + " " + sameNumero.getPrenom()
+                        "Patient déjà présent (" + sameNumero.nom() + " " + sameNumero.prenom()
                                 + ") : il sera mis à jour et rapproché.", Map.of("value", numero)));
             }
 
             String code = row.get("codePatient");
             if (code != null) {
-                Patient owner = byCode.get(key(code));
-                if (owner != null && !owner.getId().value().equals(targetId)) {
+                PatientDuCentre owner = byCode.get(key(code));
+                if (owner != null && !owner.id().equals(targetId)) {
                     errors.add(issue(row.line(), "codePatient", "CODE_ALREADY_USED",
                             "Le code patient « " + code + " » est déjà attribué à un autre patient.", Map.of("value", code)));
                 }
@@ -225,15 +200,15 @@ public class PatientMigrator implements EntityMigrator {
             checkAssure(ctx, row, errors);
             Refs refs = lookups.resolve(row, errors, warnings);
 
-            Patient twin = byIdentity.get(identity(row.get("nom"), row.get("prenom"), date(row.get("dateNaissance"))));
-            if (twin != null && !twin.getId().value().equals(targetId)) {
+            PatientDuCentre twin = byIdentity.get(identity(row.get("nom"), row.get("prenom"), date(row.get("dateNaissance"))));
+            if (twin != null && !twin.id().equals(targetId)) {
                 warnings.add(issue(row.line(), "nom", "POSSIBLE_DUPLICATE",
                         "Doublon possible : un patient du centre porte les mêmes nom, prénom et date de naissance (n° "
-                                + (twin.getNumeroAssurance() != null ? twin.getNumeroAssurance().value() : "?") + ").",
+                                + (twin.numeroAssurance() != null ? twin.numeroAssurance() : "?") + ").",
                         Map.of()));
             }
             if (errors.size() > errorsBefore) continue;
-            plans.add(new Plan(row, legacy, targetId, refs, operation));
+            plans.add(new Plan(row, legacy, targetId, idARetrouver, refs, operation));
         }
 
         int created = (int) plans.stream().filter(p -> p.existingId() == null).count();
@@ -241,13 +216,9 @@ public class PatientMigrator implements EntityMigrator {
         if (!errors.isEmpty() || !write) return new Outcome(created, updated, errors, warnings);
 
         for (Plan plan : plans) {
-            Patient patient = plan.existingId() == null ? newPatient(center, plan.row())
-                    : patients.findById(PatientId.of(plan.existingId()), center).orElseThrow();
-            apply(patient, plan.row(), plan.refs());
-            linkAssure(center, patient, plan.row());
-            Patient saved = patients.save(patient);
-            ctx.ids().save(center, ctx.batch().getId(),
-                    new IdMapping(entity(), plan.legacyId(), saved.getId().value().toString(), plan.operation()));
+            UUID id = patients.reprendre(center.value(), plan.existingId() != null ? plan.existingId() : plan.idARetrouver(),
+                    report(plan.row(), plan.refs()));
+            ctx.ids().save(center, ctx.batch().getId(), new IdMapping(entity(), plan.legacyId(), id.toString(), plan.operation()));
         }
         return new Outcome(created, updated, errors, warnings);
     }
@@ -269,43 +240,17 @@ public class PatientMigrator implements EntityMigrator {
     }
 
     /**
-     * Même règle que la création d'un patient à l'écran : l'assuré principal est l'unique affectation principale.
-     */
-    private void linkAssure(CenterId center, Patient patient, Row row) {
-        UUID patientId = patient.getId().value();
-        if ("ASSURE_LUI_MEME".equals(row.get("qualiteAssure"))) {
-            assignments.clearPrimary(center, patientId);
-            patient.setAssureNumeroAssurance(row.get("numeroAssurance"));
-            patient.setAssureInfo(new AssureInfo(patient.getSexe(), patient.getNom(), patient.getPrenom(),
-                    patient.getDateNaissance() != null ? patient.getDateNaissance().toString() : null,
-                    patient.getTelPersonnel(), patient.getAdresse(), patient.getGroupeSanguin(),
-                    patient.getTelMobile(), patient.getTelBureau()));
-            return;
-        }
-        String numeroAssure = row.get("assureNumeroAssurance");
-        Optional<AssurePatientAssignment> primary = assignments.findPrimary(center, patientId);
-        if (primary.isEmpty() || !numeroAssure.equalsIgnoreCase(primary.get().getNumeroAssurance())) {
-            assignments.clearPrimary(center, patientId);
-            AssurePatientAssignment assignment = new AssurePatientAssignment();
-            assignment.setPatientId(patientId);
-            assignment.setNumeroAssurance(numeroAssure);
-            assignment.setCenterId(center.value());
-            assignment.setPrimary(true);
-            assignment.setDateAffectation(OffsetDateTime.now());
-            assignment.setDateDebutAffectation(patient.getDateAdmission());
-            assignments.save(assignment);
-        }
-        patient.setAssureNumeroAssurance(numeroAssure);
-    }
-
-    /**
      * Références résolues d'une ligne.
      */
     private record Refs(UUID centrePayeur, UUID medecin, UUID salle, UUID creneau, UUID generateur,
                         UUID transporteurAller, UUID transporteurRetour) {
     }
 
-    private record Plan(Row row, String legacyId, UUID existingId, Refs refs, IdMapping.Operation operation) {
+    /**
+     * @param existingId  patient du centre à mettre à jour (correspondance ou rapprochement), nul pour une création
+     * @param idARetrouver identifiant d'une correspondance vers un patient supprimé depuis (la fiche est recréée sous cet identifiant)
+     */
+    private record Plan(Row row, String legacyId, UUID existingId, UUID idARetrouver, Refs refs, IdMapping.Operation operation) {
     }
 
     // ---- Références aux référentiels ---------------------------------------------------------------------------

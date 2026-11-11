@@ -176,7 +176,9 @@ class HistoriquePatientsCharacterizationIntegrationTest extends HistoriquePatien
         r.set("5_rejeu_apres_suppression_du_patient", rendu(importer(lot, "patients", fichier(entete,
                 "P1;ZP111;BENALI;Karim;M;1962-03-15;2019-01-02;Fils;ZP900;;;"), false)));
         r.set("5_etat", suivi());
-        golden("patients_rejeu_sans_effacement_et_changement_d_assure", r);
+        // KB-S6a-3 CORRIGE (S6b-2, ADR 0134) : la fiche supprimee est recreee sous son identifiant, ses affectations ne restent plus
+        // orphelines. Ancien golden : _ecarts-legacy/patients/..._avant_s6.legacy.json.
+        golden("patients_rejeu_sans_effacement_et_changement_d_assure_nouveau_code", r);
     }
 
     @Test

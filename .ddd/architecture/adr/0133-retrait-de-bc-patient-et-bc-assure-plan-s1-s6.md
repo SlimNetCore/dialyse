@@ -67,7 +67,8 @@ La migration historique reste utilisée en production : S6 est une **réécritur
 ## S6 : avancement (ADR 0134)
 - S6a (filet, 18 goldens) : faite (2026-11-11).
 - S6b-1 assurés : faite (2026-11-11). `AssureMigrator` écrit par `RepriseDesAssures` (langage publié, cas d'usage `ReprendreLesAssures`) ; `AssureRepositoryAdapter`, `AssureJpaRepository`, `AssureJpaEntity` retirés ; goldens inchangés. Aucun bug KB corrigé (leur code est en S6b-3).
-- S6b-2 patients, S6b-3 affectations / soldes / annulation / corrections KB-S6a-1, 2, 3, 5 : à faire.
+- S6b-2 patients : faite (2026-11-11). `PatientMigrator` écrit par `RepriseDesPatients` (langage publié, cas d'usage `ReprendreLesPatients`, port `PatientsDeLaReprise`, adapter JDBC) ; plus aucun import `domain.patient.*` / `domain.assure.*` dans ce migrateur ; 17 goldens inchangés sur 18, KB-S6a-3 CORRIGÉ (golden `…_nouveau_code`, ancien archivé). Les colonnes de place sont écrites par la reprise (à confirmer, ADR 0134).
+- S6b-3 affectations / soldes / annulation / corrections KB-S6a-1, 2, 5 : à faire ; retrait de `PatientRepositoryAdapter` / `AssurePatientRepositoryAdapter` et des modules ensuite.
 
 ## Conséquences
 - 251 LOC main et 213 LOC test en moins, aucun changement de comportement.

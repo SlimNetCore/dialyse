@@ -170,6 +170,77 @@ final class InMemoryMigrationPorts {
         }
     }
 
+    /**
+     * Patients du langage publié de Patient et couverture, posés sur les mêmes mémoires que l'ancien port (le migrateur d'affectations,
+     * S6b-3, lit encore ces mémoires ; la fusion des valeurs est testée dans le contexte).
+     */
+    static final class RepriseDesPatientsEnMemoire implements com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients {
+        private final Patients patients;
+        private final Assignments assignments;
+
+        RepriseDesPatientsEnMemoire(Patients patients, Assignments assignments) {
+            this.patients = patients;
+            this.assignments = assignments;
+        }
+
+        @Override
+        public List<PatientDuCentre> duCentre(UUID centre) {
+            return patients.findAllByCenter(CenterId.of(centre)).stream().map(p -> new PatientDuCentre(p.getId().value(),
+                    p.getNumeroAssurance() == null ? null : p.getNumeroAssurance().value(), p.getCodePatient(), p.getNom(),
+                    p.getPrenom(), p.getDateNaissance())).toList();
+        }
+
+        @Override
+        public UUID reprendre(UUID centre, UUID patient, ReportDuPatient r) {
+            CenterId center = CenterId.of(centre);
+            Patient p = patient == null ? null : patients.findById(PatientId.of(patient), center).orElse(null);
+            if (p == null) {
+                p = Patient.creer(center, r.nom(), r.prenom(), r.sexe(), r.dateAdmission(), r.dateNaissance(),
+                        new com.hemodialyse.backend.domain.patient.vo.NumeroAssurance(r.numeroAssurance()),
+                        com.hemodialyse.backend.domain.patient.model.PatientType.NON_VACANCIER);
+                if (patient != null) p.setId(PatientId.of(patient));
+            }
+            p.setNom(r.nom());
+            p.setPrenom(r.prenom());
+            p.setSexe(r.sexe());
+            p.setDateNaissance(r.dateNaissance());
+            p.setDateAdmission(r.dateAdmission());
+            p.setNumeroAssurance(new com.hemodialyse.backend.domain.patient.vo.NumeroAssurance(r.numeroAssurance()));
+            p.setEtatPatient(r.etat());
+            p.setQualiteAssure(r.qualiteAssure());
+            if (r.salle() != null) p.setSalleId(r.salle());
+            if (r.generateur() != null) p.setGenerateurId(r.generateur());
+            if (r.jours() != null) {
+                java.util.Set<java.time.DayOfWeek> j = r.jours();
+                p.setJoursDialyse(new com.hemodialyse.backend.domain.patient.vo.JoursDialyse(
+                        j.contains(java.time.DayOfWeek.SUNDAY), j.contains(java.time.DayOfWeek.MONDAY),
+                        j.contains(java.time.DayOfWeek.TUESDAY), j.contains(java.time.DayOfWeek.WEDNESDAY),
+                        j.contains(java.time.DayOfWeek.THURSDAY), j.contains(java.time.DayOfWeek.FRIDAY),
+                        j.contains(java.time.DayOfWeek.SATURDAY)));
+            }
+            UUID id = p.getId().value();
+            if ("ASSURE_LUI_MEME".equals(r.qualiteAssure())) {
+                assignments.clearPrimary(center, id);
+                p.setAssureNumeroAssurance(r.numeroAssurance());
+            } else {
+                Optional<AssurePatientAssignment> primary = assignments.findPrimary(center, id);
+                if (primary.isEmpty() || !r.assureNumeroAssurance().equalsIgnoreCase(primary.get().getNumeroAssurance())) {
+                    assignments.clearPrimary(center, id);
+                    AssurePatientAssignment a = new AssurePatientAssignment();
+                    a.setPatientId(id);
+                    a.setNumeroAssurance(r.assureNumeroAssurance());
+                    a.setCenterId(centre);
+                    a.setPrimary(true);
+                    a.setDateDebutAffectation(r.dateAdmission());
+                    assignments.save(a);
+                }
+                p.setAssureNumeroAssurance(r.assureNumeroAssurance());
+            }
+            patients.save(p);
+            return id;
+        }
+    }
+
     /** Assurés du langage publié de Patient et couverture (la fusion des valeurs est testée dans le contexte). */
     static final class Assures implements RepriseDesAssures {
         final Map<String, AssureConnu> rows = new LinkedHashMap<>();

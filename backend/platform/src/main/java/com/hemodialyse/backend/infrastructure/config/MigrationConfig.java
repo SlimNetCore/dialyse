@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.config;
 
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.infrastructure.acl.gmao.GenerateursDeRepriseGmao;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
@@ -37,6 +38,7 @@ public class MigrationConfig {
     @Bean
     public MigrationDomainService migrationDomainService(MigrationBatchRepositoryPort batches, IdMappingPort ids,
                                                          ValueMappingPort values, MigrationRollbackPort rollback,
+                                                         RepriseDesPatients reprisePatients,
                                                          PatientRepositoryPort patients, RepriseDesAssures assures,
                                                          AssurePatientRepositoryPort assignments,
                                                          ReferentialAdminRepositoryPort referentials,
@@ -44,8 +46,7 @@ public class MigrationConfig {
                                                          HistoricalRecordPort records, OpeningBalancePort balances) {
         List<EntityMigrator> migrators = new ArrayList<>(List.of(
                 new AssureMigrator(assures),
-                new PatientMigrator(patients, assures, assignments, referentials,
-                        new GenerateursDeRepriseGmao(generateurs)),
+                new PatientMigrator(reprisePatients, assures, referentials, new GenerateursDeRepriseGmao(generateurs)),
                 new AffectationMigrator(patients, assures, assignments),
                 new OpeningBalanceMigrator(balances, patients)));
         HistoryRules.all(referentials).forEach(rules -> migrators.add(new PatientRecordMigrator(rules, records)));
