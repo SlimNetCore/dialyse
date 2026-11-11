@@ -287,6 +287,14 @@ public class PatientCouvertureConfiguration {
                 assures, identifiants, horloge);
     }
 
+    /** Langage publié {@code RepriseDesAffectations} (S6b-3, ADR 0134) : la reprise de l'historique des affectations d'assuré. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAffectations repriseDesAffectations(
+            JdbcTemplate jdbc, AssuresDuCentre assures) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.ReprendreLesAffectations(assures,
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PatientsDeLaRepriseJdbc(jdbc));
+    }
+
     // ---- transporteurs et catégories de transport (RF1, ADR 0122) : mêmes tables, langage publié patientcouverture.v1
 
     @Bean

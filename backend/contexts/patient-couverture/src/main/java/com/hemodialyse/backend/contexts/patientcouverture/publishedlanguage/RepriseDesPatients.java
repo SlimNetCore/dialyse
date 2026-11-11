@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +29,12 @@ public interface RepriseDesPatients {
      *                affectations retrouvent leur fiche) et sinon sous un nouvel identifiant
      */
     UUID reprendre(UUID centre, UUID patient, ReportDuPatient report);
+
+    /** Fiche reprise d'un patient du centre, telle que la facture de reprise des soldes la fige (S6b-3). */
+    Optional<PatientRepris> trouver(UUID centre, UUID patient);
+
+    record PatientRepris(UUID id, String code, String nom, String prenom, String etat, String numeroAssurance, UUID centrePayeur) {
+    }
 
     record PatientDuCentre(UUID id, String numeroAssurance, String code, String nom, String prenom, LocalDate dateNaissance) {
     }

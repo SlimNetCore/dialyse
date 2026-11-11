@@ -20,6 +20,21 @@ public interface RepriseDesAssures {
      */
     void reprendre(UUID centre, ReportDeLAssure report);
 
+    /**
+     * Le même assuré, numéro comparé sans casse (KB-S6a-5) ; {@link AssureConnu#numeroAssurance()} est le numéro canonique, celui
+     * qu'il faut écrire.
+     */
+    Optional<AssureConnu> trouverSansCasse(String numeroAssurance);
+
+    /**
+     * État actuel de l'assuré, à garder avant de le rapprocher pour pouvoir le restaurer (KB-S6a-2). Opaque pour l'appelant : seul
+     * {@link #restaurer} le comprend. Vide si l'assuré n'existe pas.
+     */
+    Optional<String> memoriser(String numeroAssurance);
+
+    /** Remet l'assuré du centre dans l'état mémorisé (toutes ses valeurs, y compris celles qui étaient vides). Sans effet s'il n'est pas du centre. */
+    void restaurer(UUID centre, String numeroAssurance, String memento);
+
     record AssureConnu(String numeroAssurance, UUID centre) {
     }
 

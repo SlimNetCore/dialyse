@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.migration;
 
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAffectations;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
-import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
-import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients;
 import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
@@ -11,15 +11,13 @@ import com.hemodialyse.backend.infrastructure.migration.port.IdMappingPort;
 import com.hemodialyse.backend.infrastructure.migration.port.MigrationBatchRepositoryPort;
 import com.hemodialyse.backend.infrastructure.migration.port.MigrationRollbackPort;
 import com.hemodialyse.backend.infrastructure.migration.port.ValueMappingPort;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeReprise.GenerateurRepris;
@@ -138,105 +137,137 @@ final class InMemoryMigrationPorts {
         }
     }
 
-    static final class Patients implements PatientRepositoryPort {
-        final Map<UUID, Patient> rows = new LinkedHashMap<>();
+    /**
+     * Patients et affectations de Patient et couverture, posés sur une même mémoire : langages publiés {@code RepriseDesPatients} et
+     * {@code RepriseDesAffectations} (la fusion des valeurs et les règles d'affectation sont testées dans le contexte).
+     */
+    static final class Patients implements RepriseDesPatients, RepriseDesAffectations {
+
+        /** Fiche telle que la reprise la laisse. */
+        static final class Fiche {
+            UUID id;
+            UUID centre;
+            String code;
+            String numeroAssurance;
+            String nom;
+            String prenom;
+            String sexe;
+            LocalDate dateNaissance;
+            LocalDate dateAdmission;
+            String etat;
+            String qualiteAssure;
+            String assureNumeroAssurance;
+            UUID centrePayeur;
+            UUID salle;
+            UUID generateur;
+            Set<DayOfWeek> jours = Set.of();
+        }
+
+        /** Ligne d'affectation. */
+        record Lien(UUID id, UUID patient, UUID centre, String numeroAssurance, boolean principale, LocalDate debut, LocalDate fin) {
+        }
+
+        final Map<UUID, Fiche> rows = new LinkedHashMap<>();
+        final List<Lien> liens = new ArrayList<>();
         int saves;
 
-        public Patient save(Patient patient) {
-            saves++;
-            rows.put(patient.getId().value(), patient);
-            return patient;
+        /** Un patient déjà présent dans le centre (saisi hors de la reprise). */
+        Fiche ajouter(CenterId centre, String nom, String prenom, String numeroAssurance, LocalDate dateNaissance) {
+            Fiche f = new Fiche();
+            f.id = UUID.randomUUID();
+            f.centre = centre.value();
+            f.code = "PAT-" + f.id.toString().substring(0, 8).toUpperCase();
+            f.numeroAssurance = numeroAssurance;
+            f.nom = nom;
+            f.prenom = prenom;
+            f.dateNaissance = dateNaissance;
+            f.etat = "PERMANENT";
+            rows.put(f.id, f);
+            return f;
         }
 
-        public Optional<Patient> findById(PatientId id, CenterId centerId) {
-            return Optional.ofNullable(rows.get(id.value())).filter(p -> p.getCenterId().equals(centerId));
+        Optional<Fiche> findByNumeroAssurance(CenterId centre, String numeroAssurance) {
+            return rows.values().stream()
+                    .filter(f -> f.centre.equals(centre.value()) && numeroAssurance.equals(f.numeroAssurance)).findFirst();
         }
 
-        public Optional<Patient> findByCodePatient(CenterId centerId, String codePatient) {
-            return findAllByCenter(centerId).stream().filter(p -> codePatient.equals(p.getCodePatient())).findFirst();
+        List<Lien> historique(CenterId centre, UUID patient) {
+            return liens.stream().filter(l -> l.centre().equals(centre.value()) && l.patient().equals(patient)).toList();
         }
 
-        public Optional<Patient> findByNumeroAssurance(CenterId centerId, String numeroAssurance) {
-            return findAllByCenter(centerId).stream()
-                    .filter(p -> p.getNumeroAssurance() != null && numeroAssurance.equals(p.getNumeroAssurance().value())).findFirst();
+        Optional<Lien> principal(CenterId centre, UUID patient) {
+            return historique(centre, patient).stream().filter(Lien::principale).findFirst();
         }
 
-        public List<Patient> findAllByCenter(CenterId centerId) {
-            return rows.values().stream().filter(p -> p.getCenterId().equals(centerId)).toList();
-        }
-
-        public long countByCenter(CenterId centerId) {
-            return findAllByCenter(centerId).size();
-        }
-    }
-
-    /**
-     * Patients du langage publié de Patient et couverture, posés sur les mêmes mémoires que l'ancien port (le migrateur d'affectations,
-     * S6b-3, lit encore ces mémoires ; la fusion des valeurs est testée dans le contexte).
-     */
-    static final class RepriseDesPatientsEnMemoire implements com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients {
-        private final Patients patients;
-        private final Assignments assignments;
-
-        RepriseDesPatientsEnMemoire(Patients patients, Assignments assignments) {
-            this.patients = patients;
-            this.assignments = assignments;
+        private void retirerLePrincipal(UUID centre, UUID patient) {
+            liens.replaceAll(l -> l.patient().equals(patient) && l.centre().equals(centre)
+                    ? new Lien(l.id(), l.patient(), l.centre(), l.numeroAssurance(), false, l.debut(), l.fin()) : l);
         }
 
         @Override
         public List<PatientDuCentre> duCentre(UUID centre) {
-            return patients.findAllByCenter(CenterId.of(centre)).stream().map(p -> new PatientDuCentre(p.getId().value(),
-                    p.getNumeroAssurance() == null ? null : p.getNumeroAssurance().value(), p.getCodePatient(), p.getNom(),
-                    p.getPrenom(), p.getDateNaissance())).toList();
+            return rows.values().stream().filter(f -> f.centre.equals(centre)).map(f -> new PatientDuCentre(f.id, f.numeroAssurance,
+                    f.code, f.nom, f.prenom, f.dateNaissance)).toList();
+        }
+
+        @Override
+        public Optional<PatientRepris> trouver(UUID centre, UUID patient) {
+            return Optional.ofNullable(rows.get(patient)).filter(f -> f.centre.equals(centre)).map(f -> new PatientRepris(f.id, f.code,
+                    f.nom, f.prenom, f.etat, f.numeroAssurance, f.centrePayeur));
         }
 
         @Override
         public UUID reprendre(UUID centre, UUID patient, ReportDuPatient r) {
-            CenterId center = CenterId.of(centre);
-            Patient p = patient == null ? null : patients.findById(PatientId.of(patient), center).orElse(null);
-            if (p == null) {
-                p = Patient.creer(center, r.nom(), r.prenom(), r.sexe(), r.dateAdmission(), r.dateNaissance(),
-                        new com.hemodialyse.backend.domain.patient.vo.NumeroAssurance(r.numeroAssurance()),
-                        com.hemodialyse.backend.domain.patient.model.PatientType.NON_VACANCIER);
-                if (patient != null) p.setId(PatientId.of(patient));
-            }
-            p.setNom(r.nom());
-            p.setPrenom(r.prenom());
-            p.setSexe(r.sexe());
-            p.setDateNaissance(r.dateNaissance());
-            p.setDateAdmission(r.dateAdmission());
-            p.setNumeroAssurance(new com.hemodialyse.backend.domain.patient.vo.NumeroAssurance(r.numeroAssurance()));
-            p.setEtatPatient(r.etat());
-            p.setQualiteAssure(r.qualiteAssure());
-            if (r.salle() != null) p.setSalleId(r.salle());
-            if (r.generateur() != null) p.setGenerateurId(r.generateur());
-            if (r.jours() != null) {
-                java.util.Set<java.time.DayOfWeek> j = r.jours();
-                p.setJoursDialyse(new com.hemodialyse.backend.domain.patient.vo.JoursDialyse(
-                        j.contains(java.time.DayOfWeek.SUNDAY), j.contains(java.time.DayOfWeek.MONDAY),
-                        j.contains(java.time.DayOfWeek.TUESDAY), j.contains(java.time.DayOfWeek.WEDNESDAY),
-                        j.contains(java.time.DayOfWeek.THURSDAY), j.contains(java.time.DayOfWeek.FRIDAY),
-                        j.contains(java.time.DayOfWeek.SATURDAY)));
-            }
-            UUID id = p.getId().value();
-            if ("ASSURE_LUI_MEME".equals(r.qualiteAssure())) {
-                assignments.clearPrimary(center, id);
-                p.setAssureNumeroAssurance(r.numeroAssurance());
-            } else {
-                Optional<AssurePatientAssignment> primary = assignments.findPrimary(center, id);
-                if (primary.isEmpty() || !r.assureNumeroAssurance().equalsIgnoreCase(primary.get().getNumeroAssurance())) {
-                    assignments.clearPrimary(center, id);
-                    AssurePatientAssignment a = new AssurePatientAssignment();
-                    a.setPatientId(id);
-                    a.setNumeroAssurance(r.assureNumeroAssurance());
-                    a.setCenterId(centre);
-                    a.setPrimary(true);
-                    a.setDateDebutAffectation(r.dateAdmission());
-                    assignments.save(a);
+            saves++;
+            Fiche f = patient == null ? null : rows.get(patient);
+            if (f == null || !f.centre.equals(centre)) {
+                f = ajouter(CenterId.of(centre), r.nom(), r.prenom(), r.numeroAssurance(), r.dateNaissance());
+                if (patient != null && !rows.containsKey(patient)) {
+                    rows.remove(f.id);
+                    f.id = patient;
+                    rows.put(patient, f);
                 }
-                p.setAssureNumeroAssurance(r.assureNumeroAssurance());
             }
-            patients.save(p);
+            f.nom = r.nom();
+            f.prenom = r.prenom();
+            f.sexe = r.sexe();
+            f.dateNaissance = r.dateNaissance();
+            f.dateAdmission = r.dateAdmission();
+            f.numeroAssurance = r.numeroAssurance();
+            f.etat = r.etat();
+            f.qualiteAssure = r.qualiteAssure();
+            if (r.salle() != null) f.salle = r.salle();
+            if (r.generateur() != null) f.generateur = r.generateur();
+            if (r.jours() != null) f.jours = r.jours();
+            if ("ASSURE_LUI_MEME".equals(r.qualiteAssure())) {
+                retirerLePrincipal(centre, f.id);
+                f.assureNumeroAssurance = r.numeroAssurance();
+            } else {
+                Optional<Lien> principal = principal(CenterId.of(centre), f.id);
+                if (principal.isEmpty() || !r.assureNumeroAssurance().equalsIgnoreCase(principal.get().numeroAssurance())) {
+                    retirerLePrincipal(centre, f.id);
+                    liens.add(new Lien(UUID.randomUUID(), f.id, centre, r.assureNumeroAssurance(), true, r.dateAdmission(), null));
+                }
+                f.assureNumeroAssurance = r.assureNumeroAssurance();
+            }
+            return f.id;
+        }
+
+        @Override
+        public List<AffectationConnue> historique(UUID centre, UUID patient) {
+            return historique(CenterId.of(centre), patient).stream()
+                    .map(l -> new AffectationConnue(l.id(), l.numeroAssurance(), l.debut())).toList();
+        }
+
+        @Override
+        public UUID reprendre(UUID centre, UUID patient, UUID affectation, ReportDeLAffectation r) {
+            if (r.principale()) retirerLePrincipal(centre, patient);
+            Lien existant = liens.stream().filter(l -> l.id().equals(affectation) && l.centre().equals(centre)).findFirst().orElse(null);
+            UUID id = existant == null ? UUID.randomUUID() : existant.id();
+            Lien nouveau = new Lien(id, patient, centre, r.numeroAssurance(), r.principale(), r.dateDebut(), r.dateFin());
+            if (existant == null) liens.add(nouveau);
+            else liens.set(liens.indexOf(existant), nouveau);
+            if (r.principale()) rows.get(patient).assureNumeroAssurance = r.numeroAssurance();
             return id;
         }
     }
@@ -256,41 +287,25 @@ final class InMemoryMigrationPorts {
         }
 
         @Override
+        public Optional<AssureConnu> trouverSansCasse(String numeroAssurance) {
+            return trouver(numeroAssurance).or(() -> rows.values().stream()
+                    .filter(a -> a.numeroAssurance().equalsIgnoreCase(numeroAssurance)).findFirst());
+        }
+
+        @Override
+        public Optional<String> memoriser(String numeroAssurance) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void restaurer(UUID centre, String numeroAssurance, String memento) {
+            // La restauration est testée dans le contexte (ReprendreLesAssuresTest).
+        }
+
+        @Override
         public void reprendre(UUID centre, ReportDeLAssure report) {
             rows.put(report.numeroAssurance(), new AssureConnu(report.numeroAssurance(), centre));
             reports.put(report.numeroAssurance(), report);
-        }
-    }
-
-    static final class Assignments implements AssurePatientRepositoryPort {
-        final List<AssurePatientAssignment> rows = new ArrayList<>();
-
-        public AssurePatientAssignment save(AssurePatientAssignment assignment) {
-            if (assignment.getId() == null) {
-                assignment.setId(UUID.randomUUID());
-                rows.add(assignment);
-            }
-            return assignment;
-        }
-
-        public void clearPrimary(CenterId centerId, UUID patientId) {
-            rows.stream().filter(a -> a.getPatientId().equals(patientId)).forEach(a -> a.setPrimary(false));
-        }
-
-        public void closePrimary(CenterId centerId, UUID patientId, LocalDate endDate) {
-            clearPrimary(centerId, patientId);
-        }
-
-        public Optional<AssurePatientAssignment> findPrimary(CenterId centerId, UUID patientId) {
-            return rows.stream().filter(a -> a.getPatientId().equals(patientId) && a.isPrimary()).findFirst();
-        }
-
-        public List<AssurePatientAssignment> findHistory(CenterId centerId, UUID patientId) {
-            return rows.stream().filter(a -> a.getPatientId().equals(patientId)).toList();
-        }
-
-        public Optional<AssurePatientAssignment> findById(UUID id) {
-            return rows.stream().filter(a -> a.getId().equals(id)).findFirst();
         }
     }
 

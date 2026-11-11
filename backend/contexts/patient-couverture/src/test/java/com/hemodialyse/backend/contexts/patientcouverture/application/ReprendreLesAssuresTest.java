@@ -46,6 +46,42 @@ class ReprendreLesAssuresTest {
     }
 
     @Test
+    void un_assure_est_retrouve_sans_tenir_compte_de_la_casse_sous_son_numero_canonique() {
+        assures.mettreAJour(new Assure("ZA901", "KACI", null, null, null, null, null, null, null, null, CENTRE.valeur()));
+
+        assertThat(reprise.trouverSansCasse("za901")).contains(new AssureConnu("ZA901", CENTRE.valeur()));
+        assertThat(reprise.trouverSansCasse("ZA901")).contains(new AssureConnu("ZA901", CENTRE.valeur()));
+        assertThat(reprise.trouverSansCasse("ZA-INCONNU")).isEmpty();
+    }
+
+    @Test
+    void l_etat_d_un_assure_est_memorise_puis_restaure_a_l_identique_y_compris_les_valeurs_vides_et_les_caracteres_speciaux() {
+        Assure origine = new Assure("ZR1", "EXISTANT & Fils", null, "M", LocalDate.of(1970, 1, 1), "05 50", null, null,
+                "12 rue de l'été = 3", null, CENTRE.valeur());
+        assures.mettreAJour(origine);
+        String memento = reprise.memoriser("ZR1").orElseThrow();
+        reprise.reprendre(CENTRE.valeur(), new ReportDeLAssure("ZR1", "MIS-A-JOUR", "Prenom", "F", LocalDate.of(1980, 2, 2), "0111",
+                "0661", "0772", "Autre adresse", "O+"));
+
+        reprise.restaurer(CENTRE.valeur(), "ZR1", memento);
+
+        assertThat(assures.trouver("ZR1")).contains(origine);
+    }
+
+    @Test
+    void un_assure_inconnu_n_a_pas_d_etat_a_memoriser_et_un_assure_d_un_autre_centre_n_est_jamais_restaure() {
+        Assure autre = new Assure("ZA-AUTRE", "DU-CENTRE-B", null, null, null, null, null, null, null, null, AUTRE_CENTRE.valeur());
+        assures.mettreAJour(autre);
+        String memento = reprise.memoriser("ZA-AUTRE").orElseThrow();
+        assures.mettreAJour(new Assure("ZA-AUTRE", "MODIFIE", null, null, null, null, null, null, null, null, AUTRE_CENTRE.valeur()));
+
+        reprise.restaurer(CENTRE.valeur(), "ZA-AUTRE", memento);
+
+        assertThat(reprise.memoriser("ZA-INCONNU")).isEmpty();
+        assertThat(assures.trouver("ZA-AUTRE").orElseThrow().nom()).isEqualTo("MODIFIE");
+    }
+
+    @Test
     void un_assure_est_retrouve_quel_que_soit_son_centre_et_un_numero_inconnu_est_absent() {
         assures.mettreAJour(new Assure("ZA-AUTRE", "DU-CENTRE-B", null, null, null, null, null, null, null, null,
                 AUTRE_CENTRE.valeur()));

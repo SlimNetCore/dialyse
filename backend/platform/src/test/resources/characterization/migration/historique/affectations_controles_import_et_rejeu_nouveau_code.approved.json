@@ -1,0 +1,401 @@
+{
+  "1_etat" : {
+    "affectations" : [ {
+      "assure" : "ZA900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZAP1"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZA900",
+      "numero_assurance" : "ZAP1"
+    } ]
+  },
+  "1_refus" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "affectations",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « P9 » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "P9"
+        },
+        "row" : 2
+      }, {
+        "code" : "ASSURE_NOT_FOUND",
+        "field" : "assureNumeroAssurance",
+        "message" : "Assuré « ZX-INCONNU » introuvable dans le centre : importez d'abord le fichier des assurés.",
+        "params" : {
+          "value" : "ZX-INCONNU"
+        },
+        "row" : 3
+      }, {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateFin",
+        "message" : "La date de fin précède la date de début.",
+        "params" : { },
+        "row" : 4
+      }, {
+        "code" : "PRIMARY_ENDED",
+        "field" : "principale",
+        "message" : "Une affectation principale ne peut pas être terminée : laissez la date de fin vide.",
+        "params" : { },
+        "row" : 5
+      }, {
+        "code" : "DUPLICATE_PRIMARY",
+        "field" : "principale",
+        "message" : "Ce patient a déjà une affectation principale à la ligne 5.",
+        "params" : {
+          "firstRow" : "5"
+        },
+        "row" : 6
+      }, {
+        "code" : "DUPLICATE_PRIMARY",
+        "field" : "principale",
+        "message" : "Ce patient a déjà une affectation principale à la ligne 5.",
+        "params" : {
+          "firstRow" : "5"
+        },
+        "row" : 7
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "legacyId",
+        "message" : "Doublon : même affectation qu'à la ligne 6.",
+        "params" : {
+          "firstRow" : "6"
+        },
+        "row" : 8
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "legacyId",
+        "message" : "Doublon : même affectation qu'à la ligne 9.",
+        "params" : {
+          "firstRow" : "9"
+        },
+        "row" : 10
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 9,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "affectations" : [ {
+      "assure" : "ZA900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZAP1"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZA900",
+      "numero_assurance" : "ZAP1"
+    } ]
+  },
+  "2_verification" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 3,
+      "dryRun" : true,
+      "entity" : "affectations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "affectations" : [ {
+      "assure" : "ZA900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2019-01-02",
+      "date_fin_affectation" : "2020-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2022-01-01",
+      "is_primary" : true,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA902",
+      "date_debut_affectation" : "2021-01-01",
+      "date_fin_affectation" : "2021-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    } ],
+    "correspondances" : [ {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF10",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2019-01-02_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF12",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2022-01-01_true>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA902|2021-01-01",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA902_2021-01-01_false>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZA901",
+      "numero_assurance" : "ZAP1"
+    } ]
+  },
+  "3_import" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 3,
+      "dryRun" : false,
+      "entity" : "affectations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "affectations" : [ {
+      "assure" : "ZA900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2019-01-02",
+      "date_fin_affectation" : "2020-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2022-01-01",
+      "is_primary" : true,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA902",
+      "date_debut_affectation" : "2021-01-01",
+      "date_fin_affectation" : "2021-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    } ],
+    "correspondances" : [ {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF10",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2019-01-02_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF12",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2022-01-01_true>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA902|2021-01-01",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA902_2021-01-01_false>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZA901",
+      "numero_assurance" : "ZAP1"
+    } ]
+  },
+  "4_rejeu" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "affectations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 3,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "5_etat" : {
+    "affectations" : [ {
+      "assure" : "ZA900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2019-01-02",
+      "date_fin_affectation" : "2020-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2022-01-01",
+      "is_primary" : true,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA902",
+      "date_debut_affectation" : "2021-01-01",
+      "date_fin_affectation" : "2021-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    } ],
+    "correspondances" : [ {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF10",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2019-01-02_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF12",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2022-01-01_true>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA900|2019-01-02",
+      "operation" : "UPDATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA900_2019-01-02_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA902|2021-01-01",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA902_2021-01-01_false>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZA901",
+      "numero_assurance" : "ZAP1"
+    } ]
+  },
+  "5_rapprochement_historique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "affectations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "6_assure_saisi_sans_la_casse" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "affectations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "6_etat" : {
+    "affectations" : [ {
+      "assure" : "ZA900",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2019-01-02",
+      "date_fin_affectation" : "2020-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA901",
+      "date_debut_affectation" : "2022-01-01",
+      "is_primary" : true,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA902",
+      "date_debut_affectation" : "2021-01-01",
+      "date_fin_affectation" : "2021-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    }, {
+      "assure" : "ZA902",
+      "date_debut_affectation" : "2025-01-01",
+      "date_fin_affectation" : "2025-12-31",
+      "is_primary" : false,
+      "patient" : "ZAP1"
+    } ],
+    "correspondances" : [ {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF10",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2019-01-02_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "AF12",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA901_2022-01-01_true>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA900|2019-01-02",
+      "operation" : "UPDATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA900_2019-01-02_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA902|2021-01-01",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA902_2021-01-01_false>"
+    }, {
+      "entity" : "AFFECTATIONS",
+      "legacy_id" : "P1|ZA902|2025-01-01",
+      "operation" : "CREATED",
+      "target_id" : "<AFFECTATION_ZAP1_ZA902_2025-01-01_false>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZA901",
+      "numero_assurance" : "ZAP1"
+    } ]
+  }
+}

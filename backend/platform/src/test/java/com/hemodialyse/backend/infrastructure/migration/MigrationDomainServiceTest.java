@@ -8,9 +8,6 @@ import com.hemodialyse.backend.infrastructure.migration.service.AffectationMigra
 import com.hemodialyse.backend.infrastructure.migration.service.AssureMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.MigrationDomainService;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientMigrator;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.model.PatientType;
-import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
@@ -47,7 +44,6 @@ class MigrationDomainServiceTest {
     private InMemoryMigrationPorts.Rollback rollback;
     private InMemoryMigrationPorts.Patients patients;
     private InMemoryMigrationPorts.Assures assures;
-    private InMemoryMigrationPorts.Assignments assignments;
     private InMemoryMigrationPorts.Referentials referentials;
     private InMemoryMigrationPorts.Generateurs equipements;
     private MigrationDomainService service;
@@ -76,16 +72,14 @@ class MigrationDomainServiceTest {
         rollback = new InMemoryMigrationPorts.Rollback();
         patients = new InMemoryMigrationPorts.Patients();
         assures = new InMemoryMigrationPorts.Assures();
-        assignments = new InMemoryMigrationPorts.Assignments();
         referentials = new InMemoryMigrationPorts.Referentials();
         equipements = new InMemoryMigrationPorts.Generateurs();
         salle = referentials.add(ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
         generateur = equipements.addGenerateur(CENTER, "G01", salle);
         service = new MigrationDomainService(batches, ids, values, rollback, List.of(
                 new AssureMigrator(assures),
-                new PatientMigrator(new InMemoryMigrationPorts.RepriseDesPatientsEnMemoire(patients, assignments), assures,
-                        referentials, equipements),
-                new AffectationMigrator(patients, assures, assignments)),
+                new PatientMigrator(patients, assures, referentials, equipements),
+                new AffectationMigrator(patients, assures)),
                 Clock.fixed(Instant.parse("2026-09-30T10:00:00Z"), ZoneOffset.UTC));
     }
 
@@ -134,13 +128,13 @@ class MigrationDomainServiceTest {
         EntityRun applied = importPatients(batch, false, patientRow("P1", "111"), patientRow("P2", "222"));
         assertTrue(applied.applied());
         assertEquals(2, patients.rows.size());
-        Patient p1 = patients.findByNumeroAssurance(CENTER, "111").orElseThrow();
-        assertEquals(salle, p1.getSalleId());
-        assertEquals(generateur, p1.getGenerateurId());
-        assertTrue(p1.getJoursDialyse().lundi() && p1.getJoursDialyse().mercredi() && p1.getJoursDialyse().vendredi());
-        assertEquals(LocalDate.of(1962, 3, 15), p1.getDateNaissance());
-        assertEquals("111", p1.getAssureNumeroAssurance());
-        assertEquals(p1.getId().value().toString(), ids.findTarget(CENTER, MigrationEntity.PATIENTS, "P1").orElseThrow());
+        InMemoryMigrationPorts.Patients.Fiche p1 = patients.findByNumeroAssurance(CENTER, "111").orElseThrow();
+        assertEquals(salle, p1.salle);
+        assertEquals(generateur, p1.generateur);
+        assertEquals(java.util.Set.of(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.WEDNESDAY, java.time.DayOfWeek.FRIDAY), p1.jours);
+        assertEquals(LocalDate.of(1962, 3, 15), p1.dateNaissance);
+        assertEquals("111", p1.assureNumeroAssurance);
+        assertEquals(p1.id.toString(), ids.findTarget(CENTER, MigrationEntity.PATIENTS, "P1").orElseThrow());
     }
 
     @Test
@@ -155,7 +149,7 @@ class MigrationDomainServiceTest {
         assertEquals(0, replay.created());
         assertEquals(1, replay.updated());
         assertEquals(1, patients.rows.size());
-        assertEquals("BENALI-MODIFIE", patients.rows.values().iterator().next().getNom());
+        assertEquals("BENALI-MODIFIE", patients.rows.values().iterator().next().nom);
     }
 
     @Test
@@ -174,9 +168,7 @@ class MigrationDomainServiceTest {
 
     @Test
     void existingPatientWithSameInsuranceNumberIsMatchedNotDuplicated() {
-        Patient existing = Patient.creer(CENTER, "BENALI", "Karim", "M", LocalDate.of(2019, 1, 2),
-                LocalDate.of(1962, 3, 15), new NumeroAssurance("111"), PatientType.NON_VACANCIER);
-        patients.save(existing);
+        patients.ajouter(CENTER, "BENALI", "Karim", "111", LocalDate.of(1962, 3, 15));
         MigrationBatch batch = service.open(CENTER, "Reprise", null, null, "admin");
 
         EntityRun run = importPatients(batch, false, patientRow("P1", "111"));
@@ -254,9 +246,9 @@ class MigrationDomainServiceTest {
         child.set(8, "Fils");
         child.set(9, "900");
         importPatients(batch, false, child);
-        Patient patient = patients.findByNumeroAssurance(CENTER, "111").orElseThrow();
-        assertEquals("900", patient.getAssureNumeroAssurance());
-        assertEquals("ENFANT", patient.getQualiteAssure());
+        InMemoryMigrationPorts.Patients.Fiche patient = patients.findByNumeroAssurance(CENTER, "111").orElseThrow();
+        assertEquals("900", patient.assureNumeroAssurance);
+        assertEquals("ENFANT", patient.qualiteAssure);
 
         EntityRun history = service.importEntity(CENTER, batch.getId(), MigrationEntity.AFFECTATIONS, "affectations.csv",
                 table(List.of("Patient", "N° d'assurance de l'assuré", "Date de début", "Date de fin", "Principale"),
@@ -272,15 +264,37 @@ class MigrationDomainServiceTest {
         assertTrue(applied.applied(), () -> applied.errors().toString());
         assertEquals(1, applied.created());
         assertEquals(1, applied.updated()); // l'affectation principale créée avec le patient est reconnue
-        assertEquals(2, assignments.findHistory(CENTER, patient.getId().value()).size());
-        assertEquals("900", assignments.findPrimary(CENTER, patient.getId().value()).orElseThrow().getNumeroAssurance());
+        assertEquals(2, patients.historique(CENTER, patient.id).size());
+        assertEquals("900", patients.principal(CENTER, patient.id).orElseThrow().numeroAssurance());
+    }
+
+    @Test
+    void replayingAPrimaryAffectationKeepsItPrimaryAndTheAssureIsFoundWithoutRegardToCase() {
+        MigrationBatch batch = service.open(CENTER, "Reprise", null, null, "admin");
+        service.importEntity(CENTER, batch.getId(), MigrationEntity.ASSURES, "assures.csv",
+                table(List.of("legacy_id", "numero_assurance", "nom"), List.of("A1", "ZA900", "BENALI"), List.of("A2", "ZA901", "KACI")),
+                false, "admin");
+        importPatients(batch, false, patientRow("P1", "111"));
+        InMemoryMigrationPorts.Patients.Fiche patient = patients.findByNumeroAssurance(CENTER, "111").orElseThrow();
+        List<String> entete = List.of("Patient", "N° d'assurance de l'assuré", "Date de début", "Date de fin", "Principale");
+        ImportTable fichier = table(entete, List.of("P1", "za901", "01/01/2022", "", "oui"), List.of("P1", "ZA900", "01/01/2019",
+                "31/12/2021", "non"));
+
+        service.importEntity(CENTER, batch.getId(), MigrationEntity.AFFECTATIONS, "affectations.csv", fichier, false, "admin");
+        EntityRun replay = service.importEntity(CENTER, batch.getId(), MigrationEntity.AFFECTATIONS, "affectations.csv", fichier, false,
+                "admin");
+
+        assertTrue(replay.applied(), () -> replay.errors().toString());
+        assertEquals(2, replay.updated());
+        assertEquals("ZA901", patients.principal(CENTER, patient.id).orElseThrow().numeroAssurance());
+        assertEquals("ZA901", patient.assureNumeroAssurance);
+        assertEquals(List.of("ZA900", "ZA901"), patients.historique(CENTER, patient.id).stream()
+                .map(InMemoryMigrationPorts.Patients.Lien::numeroAssurance).sorted().toList());
     }
 
     @Test
     void cancelDeletesOnlyCreatedDataAndIsRefusedWhenAlreadyUsed() {
-        Patient existing = Patient.creer(CENTER, "EXISTANT", "Patient", "F", LocalDate.of(2019, 1, 2),
-                LocalDate.of(1970, 1, 1), new NumeroAssurance("222"), PatientType.NON_VACANCIER);
-        patients.save(existing);
+        patients.ajouter(CENTER, "EXISTANT", "Patient", "222", LocalDate.of(1970, 1, 1));
         MigrationBatch batch = service.open(CENTER, "Reprise", null, null, "admin");
         importPatients(batch, false, patientRow("P1", "111"), patientRow("P2", "222"));
 

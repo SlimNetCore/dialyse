@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  * Filet S6a (ADR 0133), reprise des affectations assure-patient ({@code AffectationMigrator}) et des soldes d'ouverture
- * ({@code OpeningBalanceMigrator}, qui relit le patient par {@code PatientRepositoryPort}). Le nominal des soldes (factures,
+ * ({@code OpeningBalanceMigrator}, qui relit le patient par le langage publie {@code RepriseDesPatients}). Le nominal des soldes (factures,
  * lignes, reglements, payeur fige) est deja verrouille par {@code FacturesDeRepriseCharacterizationIntegrationTest} ; on
  * verrouille ici les controles de l'outil et le remplacement au rejeu.
  */
@@ -60,7 +60,12 @@ class HistoriqueAffectationsEtSoldesCharacterizationIntegrationTest extends Hist
         r.set("5_rapprochement_historique", rendu(importer(lot, "affectations", fichier(ENTETE_AFFECTATIONS,
                 ";P1;ZA900;2019-01-02;;non"), false)));
         r.set("5_etat", etat());
-        golden("affectations_controles_import_et_rejeu", r);
+        // KB-S6a-5 corrige (S6b-3, ADR 0134) : l'assure est cherche sans tenir compte de la casse, la ligne recoit son numero canonique.
+        r.set("6_assure_saisi_sans_la_casse", rendu(importer(lot, "affectations", fichier(ENTETE_AFFECTATIONS,
+                ";P1;za902;2025-01-01;2025-12-31;non"), false)));
+        r.set("6_etat", etat());
+        // Ancien golden (KB-S6a-1 : le rejeu retrogradait la principale ; KB-S6a-5 : za901 introuvable) : _ecarts-legacy.
+        golden("affectations_controles_import_et_rejeu_nouveau_code", r);
     }
 
     @Test

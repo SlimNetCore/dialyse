@@ -1,12 +1,11 @@
 package com.hemodialyse.backend.infrastructure.migration.service;
 
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients.PatientRepris;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort.OpeningInvoice;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
@@ -32,9 +31,9 @@ import static com.hemodialyse.backend.infrastructure.migration.service.RowValues
 public class OpeningBalanceMigrator implements EntityMigrator {
 
     private final OpeningBalancePort balances;
-    private final PatientRepositoryPort patients;
+    private final RepriseDesPatients patients;
 
-    public OpeningBalanceMigrator(OpeningBalancePort balances, PatientRepositoryPort patients) {
+    public OpeningBalanceMigrator(OpeningBalancePort balances, RepriseDesPatients patients) {
         this.balances = balances;
         this.patients = patients;
     }
@@ -59,8 +58,8 @@ public class OpeningBalanceMigrator implements EntityMigrator {
             AssureMigrator.duplicate(seen, legacyNumber.toLowerCase(Locale.ROOT), row, "numeroFacture", "n° de facture", errors);
 
             String patientTarget = migratedPatients.get(row.get("patient"));
-            Optional<Patient> patient = patientTarget == null ? Optional.empty()
-                    : patients.findById(PatientId.of(UUID.fromString(patientTarget)), center);
+            Optional<PatientRepris> patient = patientTarget == null ? Optional.empty()
+                    : patients.trouver(center.value(), UUID.fromString(patientTarget));
             if (patient.isEmpty()) {
                 errors.add(issue(row.line(), "patient", "PATIENT_NOT_MIGRATED",
                         "Patient « " + row.get("patient") + " » inconnu : importez d'abord le fichier des patients.",
@@ -100,12 +99,11 @@ public class OpeningBalanceMigrator implements EntityMigrator {
                         Map.of("value", legacyNumber)));
                 continue;
             }
-            Patient p = patient.get();
+            PatientRepris p = patient.get();
             LocalDate dateReglement = date(row, "dateDernierReglement") != null ? date(row, "dateDernierReglement") : dateFacture;
-            OpeningInvoice invoice = new OpeningInvoice(p.getId().value(), numero, dateFacture, debut, fin, montant, regle,
+            OpeningInvoice invoice = new OpeningInvoice(p.id(), numero, dateFacture, debut, fin, montant, regle,
                     dateReglement, row.get("libelle") != null ? row.get("libelle") : "Solde d'ouverture — reprise " + legacyNumber.trim(),
-                    p.getCodePatient(), (p.getNom() + " " + p.getPrenom()).trim(), p.getEtatPatient(),
-                    p.getNumeroAssurance() != null ? p.getNumeroAssurance().value() : null, p.getCentrePayeurId());
+                    p.code(), (p.nom() + " " + p.prenom()).trim(), p.etat(), p.numeroAssurance(), p.centrePayeur());
             plans.add(new Plan(legacyNumber.trim(), invoice, existing.orElse(null)));
         }
 

@@ -253,7 +253,8 @@ final class Doubles {
 
         @Override
         public List<Affectation> historique(CentreId centre, PatientId patient) {
-            return affectations.stream().filter(a -> a.patientId().equals(patient.valeur())).toList();
+            return affectations.stream().filter(a -> a.patientId().equals(patient.valeur()) && a.centre().equals(centre.valeur()))
+                    .toList();
         }
 
         @Override
@@ -316,6 +317,29 @@ final class Doubles {
             assures.removeIf(a -> a.numeroAssurance().equals(assure.numeroAssurance()));
             assures.add(new Assure(assure.numeroAssurance(), assure.nom(), assure.prenom(), assure.sexe(), naissance,
                     assure.telPersonnel(), assure.telMobile(), assure.telBureau(), assure.adresse(), assure.groupeSanguin(), centre));
+        }
+
+        @Override
+        public Optional<Assure> trouverSansCasse(String numero) {
+            return assures.stream().filter(a -> a.numeroAssurance().equalsIgnoreCase(numero)).findFirst();
+        }
+
+        @Override
+        public UUID ajouterUneAffectation(CentreId centre, PatientId patient, String numero, boolean principale, LocalDate debut,
+                                          LocalDate fin) {
+            UUID id = UUID.randomUUID();
+            affectations.add(new Affectation(id, patient.valeur(), numero, centre.valeur(), principale,
+                    java.time.OffsetDateTime.now().plusNanos(affectations.size()), debut, fin));
+            return id;
+        }
+
+        @Override
+        public void remplacerUneAffectation(CentreId centre, UUID affectation, String numero, boolean principale, LocalDate debut,
+                                            LocalDate fin) {
+            Affectation a = affectations.stream().filter(x -> x.id().equals(affectation) && x.centre().equals(centre.valeur()))
+                    .findFirst().orElseThrow();
+            affectations.set(affectations.indexOf(a), new Affectation(a.id(), a.patientId(), numero, a.centre(), principale,
+                    a.dateAffectation(), debut, fin));
         }
 
         @Override

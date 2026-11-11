@@ -87,6 +87,57 @@ affectations) sont dans `AffectationMigrator`, KB-S6a-2 (annulation d'un assuré
 - Recréation d'une fiche supprimée sous son ancien identifiant (KB-S6a-3) : si des lignes d'autres tables (mouvements, séances) pointent encore cet identifiant sans
   clé étrangère, elles se rattachent de nouveau à la fiche recréée ; alternative écartée : supprimer les affectations orphelines (efface une donnée).
 
+## S6b-3 : affectations, soldes d'ouverture, annulation d'un lot
+
+### Décision (conception, 2026-11-11)
+- **Affectations** : nouveau langage publié `RepriseDesAffectations` (`historique(centre, patient)` pour rapprocher une ligne d'historique ;
+  `reprendre(centre, patient, affectation, report)` écrit la ligne) et cas d'usage `ReprendreLesAffectations` (application) sur les ports existants
+  `AssuresDuCentre` (trois méthodes ajoutées : `trouverSansCasse`, `ajouterUneAffectation`, `remplacerUneAffectation`) et `PatientsDeLaReprise`
+  (colonne `patients.assure_numero_assurance` de l'assuré principal, réécrite par `mettreAJour` d'une fiche relue). `AffectationMigrator` garde les contrôles du
+  fichier (patient repris, assuré du centre, dates, principale unique) et la correspondance d'identifiants.
+- **Soldes d'ouverture** : `RepriseDesPatients.trouver(centre, patient)` rend le `PatientRepris` (code, nom, prénom, état, numéro d'assurance, centre payeur) que la
+  facture de reprise fige ; `OpeningBalanceMigrator` n'importe plus rien du patient.
+- **Annulation** : `MigrationRollbackJdbcAdapter` n'importait déjà aucune classe `domain.patient` / `domain.assure` ; ses suppressions (`assure_patient`,
+  `patients`, `assure`) et ses contrôles (liens et patients rattachés à un assuré) restent du SQL borné au centre, inchangé (reste à S6c, voir ADR 0133).
+  La restauration d'un assuré rapproché (KB-S6a-2) passera par le langage publié `RepriseDesAssures` (`memoriser`, `restaurer`) : en attente d'approbation, voir plus bas.
+- **Caches** : `PATIENT_CACHES` ne garde que les caches encore produits (listes de résumés, prises en charge, attestations) ; les caches `patient.byId`,
+  `patient.byNumeroAssurance`, `patient.byCenter`, `patient.countByCenter`, `patient.assure.*`, `patient.assignment.*`, `patient.pec.byId`, `patient.attestation.existsValidAt`
+  n'ont plus de producteur une fois `PatientRepositoryAdapter` et `AssurePatientRepositoryAdapter` retirés.
+- **Place** : colonnes `salle_id`, `position_id`, `generateur_id`, `jour_*` toujours écrites directement par la reprise (décision S6b-2, « à confirmer »).
+
+### Bugs corrigés (décisions de l'utilisateur, 2026-11-11)
+- **KB-S6a-1** : rejouer un fichier d'affectations ne rétrograde plus l'affectation principale (l'ancien chemin JPA retirait le caractère principal par
+  une mise à jour en masse, puis réenregistrait une entité dont l'état en mémoire n'avait pas changé : aucune écriture). La ligne principale est écrite
+  explicitement après le retrait du principal des autres lignes.
+- **KB-S6a-2 : NON CORRIGÉ dans S6b-3, EN ATTENTE D'APPROBATION (NEEDS_APPROVAL).** Décision de l'utilisateur : annuler un lot restaure un assuré seulement rapproché.
+  Conception prête côté contexte : `RepriseDesAssures.memoriser(numero)` (état de l'assuré, « mémento » v1 `application/x-www-form-urlencoded`, format décidé par le
+  contexte) et `restaurer(centre, numero, memento)`, testés (`ReprendreLesAssuresTest`). Reste côté outil : mémoriser le mémento dans la correspondance d'identifiants
+  (colonne **additive** nullable `migration_id_map.etat_origine`, Flyway V57 + `schema.sql` H2 + §87 de `verifications-production.md` en SELECT), le relire dans
+  `MigrationDomainService.cancel` (qui ne passe aujourd'hui que les correspondances CREATED) et l'appliquer dans `MigrationRollbackJdbcAdapter`. Ce chemin exige de
+  modifier `IdMapping.java`, `IdMappingJdbcAdapter.java` et `MigrationRollbackPort.java` (record, adapter et port de la correspondance d'identifiants), que le hook de sécurité
+  legacy refuse : absents de `.ddd/safety-net/covered.json` (ils sont pourtant exercés par les goldens `assures_*`, `annulation_*`). Les ajouter à `covered.json` demande l'accord
+  de l'utilisateur. Golden `annulation_supprime_ce_que_le_lot_a_cree` inchangé en attendant (KB-S6a-2 toujours consigné tel quel).
+- **KB-S6a-5** : la recherche de l'assuré d'une affectation ignore la casse (`za901` trouve `ZA901`) et la ligne d'affectation reçoit le numéro canonique de
+  l'assuré. Les autres recherches de l'outil (assurés, patients) restent exactes (non décidé).
+- Non corrigés (consignés) : KB-S6a-4 (jour « Lunch » accepté), KB-S6a-6 (SUPERADMIN refusé, 403 ROLE_SCOPE), KB-S6a-7.
+
+### Preuve (S6b-3)
+- Rouge vu : `ReprendreLesAffectationsTest` (7), nouveaux tests de `ReprendreLesAssuresTest` / `ReprendreLesPatientsTest` rouges sur un squelette (`UnsupportedOperationException`) ;
+  `MigrationDomainServiceTest.replayingAPrimaryAffectationKeepsItPrimaryAndTheAssureIsFoundWithoutRegardToCase` rouge (`ASSURE_NOT_FOUND` pour `za901`) avant le passage à
+  `trouverSansCasse`.
+- Écarts de golden (protocole : `.received` lu, copié à la main, jamais `-Dcharacterization.approve`) : `affectations_controles_import_et_rejeu` remplacé par
+  `…_nouveau_code` (ancien archivé dans `_ecarts-legacy/affectations/…_avant_s6.legacy.json`). Diff relu : (1) l'erreur `ASSURE_NOT_FOUND` de `za901` (ligne 10 de `1_refus`)
+  disparaît, la ligne reste refusée comme doublon ; (2) AF12 reste principale en `4_etat` / `5_etat` (et son alias `…_true`) ; (3) ajout d'une étape `6_` qui importe
+  `za902` et écrit `ZA902`. Les 17 autres goldens sont inchangés.
+- Retirés de `platform` : `PatientRepositoryAdapter`, `AssurePatientRepositoryAdapter`, `PatientMapper`, `PatientJpaRepository`, `AssurePatientJpaRepository`,
+  `AssurePatientJpaEntity` et deux tests (Grep : plus aucun utilisateur). `PatientJpaEntity` est GARDÉE : `schema.sql` n'a pas de `CREATE TABLE patients`, Hibernate (`ddl-auto: update`)
+  crée la table du H2 de test depuis cette entité ; la retirer demande d'écrire ce DDL (S6c). `AssurePatientJpaEntity` retirée : la table `assure_patient` du H2 vient maintenant de
+  `schema.sql` (`numero_assurance VARCHAR(100)` au lieu de 255 créé par Hibernate : sans effet sur les goldens, numéros de 3 à 10 caractères).
+
+### Écarts de bord assumés (non verrouillés par les goldens)
+- Le patient d'une affectation principale supprimé hors de l'outil entre-temps : l'ancien chemin levait `NoSuchElementException`, le nouveau lève `PatientIntrouvable`
+  (la transaction est annulée dans les deux cas).
+
 ## Conséquences
 - 5 fichiers legacy en moins, 1 interface publiée et 1 cas d'usage en plus ; `AssureRepositoryPort` / `Assure` de `bc-assure` n'ont plus d'utilisateur
   (retrait du module en fin de S6).

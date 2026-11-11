@@ -152,6 +152,33 @@ public class AssuresJdbc implements AssuresDuCentre {
     }
 
     @Override
+    public Optional<Assure> trouverSansCasse(String numeroAssurance) {
+        if (numeroAssurance == null || numeroAssurance.isBlank()) return Optional.empty();
+        return jdbc.query(ASSURE + " WHERE LOWER(numero_assurance) = ? ORDER BY CASE WHEN numero_assurance = ? THEN 0 ELSE 1 END, "
+                + "numero_assurance", LIGNE_ASSURE, numeroAssurance.toLowerCase(Locale.ROOT), numeroAssurance).stream().findFirst();
+    }
+
+    @Override
+    public UUID ajouterUneAffectation(CentreId centre, PatientId patient, String numeroAssurance, boolean principale,
+                                      LocalDate debut, LocalDate fin) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO assure_patient (id, patient_id, numero_assurance, center_id, is_primary, date_affectation, "
+                        + "date_debut_affectation, date_fin_affectation) VALUES (?,?,?,?,?,?,?,?)", id, patient.valeur(),
+                numeroAssurance, centre.valeur(), principale, OffsetDateTime.now(ZoneOffset.UTC),
+                debut == null ? null : Date.valueOf(debut), fin == null ? null : Date.valueOf(fin));
+        return id;
+    }
+
+    @Override
+    public void remplacerUneAffectation(CentreId centre, UUID affectation, String numeroAssurance, boolean principale,
+                                        LocalDate debut, LocalDate fin) {
+        jdbc.update("UPDATE assure_patient SET numero_assurance = ?, is_primary = ?, date_debut_affectation = ?, "
+                        + "date_fin_affectation = ?, date_affectation = COALESCE(date_affectation, ?) WHERE id = ? AND center_id = ?",
+                numeroAssurance, principale, debut == null ? null : Date.valueOf(debut), fin == null ? null : Date.valueOf(fin),
+                OffsetDateTime.now(ZoneOffset.UTC), affectation, centre.valeur());
+    }
+
+    @Override
     public void modifierLesDates(UUID affectation, LocalDate debut, LocalDate fin) {
         jdbc.update("UPDATE assure_patient SET date_debut_affectation = ?, date_fin_affectation = ? WHERE id = ?",
                 debut == null ? null : Date.valueOf(debut), fin == null ? null : Date.valueOf(fin), affectation);

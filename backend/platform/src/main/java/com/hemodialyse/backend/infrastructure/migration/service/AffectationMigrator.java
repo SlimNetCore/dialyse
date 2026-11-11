@@ -2,18 +2,15 @@ package com.hemodialyse.backend.infrastructure.migration.service;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures.AssureConnu;
-import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
-import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAffectations;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAffectations.AffectationConnue;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAffectations.ReportDeLAffectation;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,15 +27,12 @@ import static com.hemodialyse.backend.infrastructure.migration.service.EntityMig
  */
 public class AffectationMigrator implements EntityMigrator {
 
-    private final PatientRepositoryPort patients;
+    private final RepriseDesAffectations affectations;
     private final RepriseDesAssures assures;
-    private final AssurePatientRepositoryPort assignments;
 
-    public AffectationMigrator(PatientRepositoryPort patients, RepriseDesAssures assures,
-                               AssurePatientRepositoryPort assignments) {
-        this.patients = patients;
+    public AffectationMigrator(RepriseDesAffectations affectations, RepriseDesAssures assures) {
+        this.affectations = affectations;
         this.assures = assures;
-        this.assignments = assignments;
     }
 
     private static LocalDate date(String iso) {
@@ -59,7 +53,7 @@ public class AffectationMigrator implements EntityMigrator {
         Map<String, String> mapped = ctx.ids().findAll(center, entity());
         Map<String, Integer> seenKeys = new HashMap<>();
         Map<UUID, Integer> primaryByPatient = new HashMap<>();
-        Map<UUID, List<AssurePatientAssignment>> histories = new HashMap<>();
+        Map<UUID, List<AffectationConnue>> histories = new HashMap<>();
         List<Plan> plans = new ArrayList<>();
 
         for (Row row : rows) {
@@ -79,7 +73,7 @@ public class AffectationMigrator implements EntityMigrator {
                         "Patient « " + patientLegacy + " » inconnu : importez d'abord le fichier des patients.",
                         Map.of("value", patientLegacy)));
             }
-            Optional<AssureConnu> assure = assures.trouver(numero);
+            Optional<AssureConnu> assure = assures.trouverSansCasse(numero);
             if (assure.isEmpty() || !center.value().equals(assure.get().centre())) {
                 errors.add(issue(row.line(), "assureNumeroAssurance", "ASSURE_NOT_FOUND",
                         "Assuré « " + numero + " » introuvable dans le centre : importez d'abord le fichier des assurés.",
@@ -103,17 +97,17 @@ public class AffectationMigrator implements EntityMigrator {
             if (errors.size() > errorsBefore) continue;
 
             // Déjà reprise, ou déjà présente dans l'historique (même assuré, même date de début) : mise à jour.
+            String canonique = assure.get().numeroAssurance();
             UUID existingId = mapped.containsKey(legacy) ? UUID.fromString(mapped.get(legacy)) : null;
             if (existingId == null) {
-                existingId = histories.computeIfAbsent(patientId, id -> assignments.findHistory(center, id)).stream()
-                        .filter(a -> numero.equalsIgnoreCase(a.getNumeroAssurance())
-                                && Objects.equals(debut, a.getDateDebutAffectation()))
-                        .map(AssurePatientAssignment::getId)
+                existingId = histories.computeIfAbsent(patientId, id -> affectations.historique(center.value(), id)).stream()
+                        .filter(a -> canonique.equalsIgnoreCase(a.numeroAssurance()) && Objects.equals(debut, a.dateDebut()))
+                        .map(AffectationConnue::id)
                         .findFirst().orElse(null);
             }
             IdMapping.Operation operation = mapped.containsKey(legacy) || existingId == null
                     ? IdMapping.Operation.CREATED : IdMapping.Operation.UPDATED;
-            plans.add(new Plan(row, legacy, patientId, existingId, operation));
+            plans.add(new Plan(row, legacy, patientId, canonique, existingId, operation));
         }
 
         int created = (int) plans.stream().filter(p -> p.existingId() == null).count();
@@ -123,30 +117,15 @@ public class AffectationMigrator implements EntityMigrator {
         for (Plan plan : plans) {
             Row row = plan.row();
             boolean principale = Boolean.parseBoolean(row.get("principale"));
-            AssurePatientAssignment assignment = plan.existingId() == null ? new AssurePatientAssignment()
-                    : assignments.findById(plan.existingId()).orElseGet(AssurePatientAssignment::new);
-            if (principale) assignments.clearPrimary(center, plan.patientId());
-            assignment.setPatientId(plan.patientId());
-            assignment.setCenterId(center.value());
-            assignment.setNumeroAssurance(row.get("assureNumeroAssurance"));
-            assignment.setPrimary(principale);
-            assignment.setDateDebutAffectation(date(row.get("dateDebut")));
-            assignment.setDateFinAffectation(date(row.get("dateFin")));
-            if (assignment.getDateAffectation() == null) assignment.setDateAffectation(OffsetDateTime.now());
-            AssurePatientAssignment saved = assignments.save(assignment);
-
-            if (principale) {
-                Patient patient = patients.findById(PatientId.of(plan.patientId()), center).orElseThrow();
-                patient.setAssureNumeroAssurance(row.get("assureNumeroAssurance"));
-                patients.save(patient);
-            }
-            ctx.ids().save(center, ctx.batch().getId(),
-                    new IdMapping(entity(), plan.legacyId(), saved.getId().toString(), plan.operation()));
+            UUID id = affectations.reprendre(center.value(), plan.patientId(), plan.existingId(),
+                    new ReportDeLAffectation(plan.assure(), principale, date(row.get("dateDebut")), date(row.get("dateFin"))));
+            ctx.ids().save(center, ctx.batch().getId(), new IdMapping(entity(), plan.legacyId(), id.toString(), plan.operation()));
         }
         return new Outcome(created, updated, errors, warnings);
     }
 
-    private record Plan(Row row, String legacyId, UUID patientId, UUID existingId, IdMapping.Operation operation) {
+    /** {@code assure} : numéro canonique de l'assuré (celui de la plateforme, quelle que soit la casse saisie). */
+    private record Plan(Row row, String legacyId, UUID patientId, String assure, UUID existingId, IdMapping.Operation operation) {
     }
 }
 

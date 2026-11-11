@@ -9,9 +9,6 @@ import com.hemodialyse.backend.infrastructure.migration.service.HistoryRules;
 import com.hemodialyse.backend.infrastructure.migration.service.MigrationDomainService;
 import com.hemodialyse.backend.infrastructure.migration.service.OpeningBalanceMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientRecordMigrator;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.model.PatientType;
-import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
@@ -68,10 +65,7 @@ class HistoryMigrationTest {
                 new InMemoryMigrationPorts.Rollback(), migrators, Clock.fixed(Instant.parse("2026-09-30T10:00:00Z"), ZoneOffset.UTC));
 
         batch = service.open(CENTER, "Reprise", "Ancien", LocalDate.of(2023, 9, 30), "admin");
-        Patient patient = Patient.creer(CENTER, "BENALI", "Karim", "M", LocalDate.of(2019, 1, 2), LocalDate.of(1962, 3, 15),
-                new NumeroAssurance("111"), PatientType.NON_VACANCIER);
-        patients.save(patient);
-        patientId = patient.getId().value();
+        patientId = patients.ajouter(CENTER, "BENALI", "Karim", "111", LocalDate.of(1962, 3, 15)).id;
         ids.save(CENTER, batch.getId(), new IdMapping(MigrationEntity.PATIENTS, "P1", patientId.toString(), IdMapping.Operation.CREATED));
     }
 

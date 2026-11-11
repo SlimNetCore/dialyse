@@ -9,6 +9,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.application.PatientsDe
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientId;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.SaisieInvalide;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients.PatientDuCentre;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients.PatientRepris;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients.ReportDuPatient;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
@@ -177,6 +178,17 @@ class ReprendreLesPatientsTest {
     }
 
     @Test
+    void la_fiche_reprise_est_rendue_pour_les_soldes_d_ouverture_dans_son_centre_seulement() {
+        UUID payeur = UUID.randomUUID();
+        UUID id = reprise.reprendre(CENTRE.valeur(), null, new Report("ZP111", "BENALI").code("C-9").centrePayeur(payeur).build());
+
+        assertThat(reprise.trouver(CENTRE.valeur(), id)).contains(new PatientRepris(id, "C-9", "BENALI", "Karim", "PERMANENT", "ZP111",
+                payeur));
+        assertThat(reprise.trouver(AUTRE_CENTRE.valeur(), id)).isEmpty();
+        assertThat(reprise.trouver(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
     void un_nom_absent_est_refuse_sans_rien_ecrire() {
         assertThatThrownBy(() -> reprise.reprendre(CENTRE.valeur(), null, new Report("ZP111", " ").build()))
                 .isInstanceOf(SaisieInvalide.class);
@@ -201,6 +213,7 @@ class ReprendreLesPatientsTest {
         private String telMobile;
         private String groupeSanguin;
         private String observation;
+        private UUID centrePayeur;
         private UUID salle;
         private UUID generateur;
         private Set<DayOfWeek> jours;
@@ -276,6 +289,11 @@ class ReprendreLesPatientsTest {
             return this;
         }
 
+        Report centrePayeur(UUID v) {
+            centrePayeur = v;
+            return this;
+        }
+
         Report salle(UUID v) {
             salle = v;
             return this;
@@ -299,7 +317,7 @@ class ReprendreLesPatientsTest {
         ReportDuPatient build() {
             return new ReportDuPatient(numero, nom, prenom, sexe, NAISSANCE, ADMISSION, vacancier, etat, qualite, code, civilite,
                     null, null, nombreEnfants, null, adresse, telPersonnel, telMobile, null, null, groupeSanguin, null, observation,
-                    null, null, salle, null, generateur, null, null, jours, assure);
+                    centrePayeur, null, salle, null, generateur, null, null, jours, assure);
         }
     }
 

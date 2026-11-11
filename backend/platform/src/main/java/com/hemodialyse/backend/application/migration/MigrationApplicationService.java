@@ -27,13 +27,11 @@ import java.util.UUID;
 public class MigrationApplicationService {
 
     /**
-     * Caches alimentés par les données reprises (clés non préfixées par le centre : vidage complet).
+     * Caches alimentés par les données reprises (clés non préfixées par le centre : vidage complet). Seuls restent ceux que Patient et
+     * couverture produit encore : les caches des anciens adapters JPA du patient et de l'assuré (S6b-3, ADR 0134) n'ont plus de producteur.
      */
-    static final List<String> PATIENT_CACHES = List.of("patient.byId", "patient.byNumeroAssurance", "patient.byCenter",
-            "patient.countByCenter", "patient.list.summary", "patient.list.summary.details", "patient.assure.byNumero",
-            "patient.assure.searchByCenter", "patient.assignment.primary", "patient.assignment.history",
-            "patient.attestation.byPatient", "patient.attestation.existsValidAt", "patient.pec.byId", "patient.pec.byPatient",
-            "patient.pec.byCenter");
+    static final List<String> PATIENT_CACHES = List.of("patient.list.summary", "patient.list.summary.details",
+            "patient.attestation.byPatient", "patient.pec.byPatient", "patient.pec.byCenter");
 
     private final MigrationUseCase useCase;
     private final CacheManager cacheManager;

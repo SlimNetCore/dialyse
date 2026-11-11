@@ -63,4 +63,17 @@ public interface AssuresDuCentre {
 
     /** Ajoute une ligne d'affectation principale SANS dates (fiche) ; renvoie son identifiant. */
     UUID lierSansDates(CentreId centre, PatientId patient, String numeroAssurance);
+
+    // ---- reprise des affectations (outil de migration historique, ADR 0134 S6b-3)
+
+    /** Le même assuré, numéro comparé sans casse (un numéro exact est préféré s'il y en a plusieurs). */
+    Optional<Assure> trouverSansCasse(String numeroAssurance);
+
+    /** Ajoute une ligne d'affectation (principale ou non, dates facultatives) ; renvoie son identifiant. */
+    UUID ajouterUneAffectation(CentreId centre, PatientId patient, String numeroAssurance, boolean principale, LocalDate debut,
+                               LocalDate fin);
+
+    /** Remplace le numéro, le caractère principal et les dates d'une ligne du centre ; sa date d'affectation n'est posée que si elle manque. */
+    void remplacerUneAffectation(CentreId centre, UUID affectation, String numeroAssurance, boolean principale, LocalDate debut,
+                                 LocalDate fin);
 }

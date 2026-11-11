@@ -120,13 +120,8 @@ class TableDuPatientCouvertureTest {
             "2026-11-08 (déplacée de platform/.../acl/seance/ForfaitsFournisLegacy, SE7f, ADR 0100) : forfait courant d'une séance (SE1, ADR 0088) : "
                     + "prise en charge couvrant le jour, requête reprise mot pour mot ; échéance : lecture publiée de la couverture "
                     + "(CouvertureDesPatients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java", JPA,
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/AssurePatientJpaEntity.java", JPA + " (migrateurs d'affectations)",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PatientJpaRepository.java", JPA,
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/AssurePatientJpaRepository.java", JPA + " (migrateurs d'affectations)",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/PatientRepositoryAdapter.java", JPA + " : PatientRepositoryPort de la Séance, de FHIR, du cahier de dialyse et de KDIGO",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/AssurePatientRepositoryAdapter.java", JPA + " (migrateurs d'affectations)",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/mapper/PatientMapper.java", JPA + " (modèle patient historique de bc-patient)");
+            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PatientJpaEntity.java",
+            JPA + " : plus aucun utilisateur (S6b-3) ; gardée seulement parce que Hibernate crée la table patients du H2 de test (schema.sql n'a pas de CREATE TABLE patients) ; retrait en S6c avec ce DDL");
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();

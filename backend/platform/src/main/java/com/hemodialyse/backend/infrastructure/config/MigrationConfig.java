@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.config;
 
-import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAffectations;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesPatients;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
@@ -19,7 +19,6 @@ import com.hemodialyse.backend.infrastructure.migration.service.MigrationDomainS
 import com.hemodialyse.backend.infrastructure.migration.service.OpeningBalanceMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientRecordMigrator;
-import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,17 +37,16 @@ public class MigrationConfig {
     @Bean
     public MigrationDomainService migrationDomainService(MigrationBatchRepositoryPort batches, IdMappingPort ids,
                                                          ValueMappingPort values, MigrationRollbackPort rollback,
-                                                         RepriseDesPatients reprisePatients,
-                                                         PatientRepositoryPort patients, RepriseDesAssures assures,
-                                                         AssurePatientRepositoryPort assignments,
+                                                         RepriseDesPatients reprisePatients, RepriseDesAssures assures,
+                                                         RepriseDesAffectations repriseAffectations,
                                                          ReferentialAdminRepositoryPort referentials,
                                                          GenerateursDuCentre generateurs,
                                                          HistoricalRecordPort records, OpeningBalancePort balances) {
         List<EntityMigrator> migrators = new ArrayList<>(List.of(
                 new AssureMigrator(assures),
                 new PatientMigrator(reprisePatients, assures, referentials, new GenerateursDeRepriseGmao(generateurs)),
-                new AffectationMigrator(patients, assures, assignments),
-                new OpeningBalanceMigrator(balances, patients)));
+                new AffectationMigrator(repriseAffectations, assures),
+                new OpeningBalanceMigrator(balances, reprisePatients)));
         HistoryRules.all(referentials).forEach(rules -> migrators.add(new PatientRecordMigrator(rules, records)));
         return new MigrationDomainService(batches, ids, values, rollback, migrators, Clock.systemUTC());
     }

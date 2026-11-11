@@ -52,6 +52,12 @@ public class ReprendreLesPatients implements RepriseDesPatients {
     }
 
     @Override
+    public Optional<PatientRepris> trouver(UUID centre, UUID patient) {
+        return patients.trouver(new CentreId(centre), patient).map(f -> new PatientRepris(f.id(), f.code(), f.nom(), f.prenom(),
+                f.etat(), f.numeroAssurance(), f.centrePayeur()));
+    }
+
+    @Override
     public UUID reprendre(UUID centreDemande, UUID patient, ReportDuPatient report) {
         exiger(report.numeroAssurance(), "Numero assurance");
         exiger(report.nom(), "Nom");
