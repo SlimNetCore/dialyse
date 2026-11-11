@@ -6,7 +6,7 @@ import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.Absen
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

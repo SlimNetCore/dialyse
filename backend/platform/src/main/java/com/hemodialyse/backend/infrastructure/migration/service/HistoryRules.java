@@ -5,7 +5,7 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Referentia
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -107,7 +107,7 @@ public final class HistoryRules {
             return "dateFinDemande";
         }
 
-        public void begin(CenterId centerId) {
+        public void begin(CentreId centerId) {
             Map<String, UUID> codes = forfaits.get();
             codes.clear();
             for (ReferentialEntry e : referentials.findAllForMatching(centerId, ReferentialKind.FORFAIT)) {

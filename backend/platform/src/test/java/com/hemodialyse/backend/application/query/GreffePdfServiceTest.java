@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Dossier
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.DossierDeGreffe;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.CarteDuPatient;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,7 +34,7 @@ class GreffePdfServiceTest {
         DocumentIdentityProvider identity = mock(DocumentIdentityProvider.class);
         when(identity.decorateHtml(any(), eq(centre))).thenAnswer(i -> i.getArgument(0));
 
-        byte[] pdf = new GreffePdfService(fiches, dossiers, identity).exportPdf(CenterId.of(centre), patient);
+        byte[] pdf = new GreffePdfService(fiches, dossiers, identity).exportPdf(new CentreId(centre), patient);
 
         assertThat(pdf).startsWith("%PDF".getBytes());
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);

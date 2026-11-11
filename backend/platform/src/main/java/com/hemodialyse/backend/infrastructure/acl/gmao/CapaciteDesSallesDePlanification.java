@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.gmao.application.equipement.CapaciteDesS
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.EquipementId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.SalleId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.springframework.stereotype.Component;
 
 /**

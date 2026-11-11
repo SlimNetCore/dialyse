@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.domain.shared;
+package com.hemodialyse.backend.infrastructure.security;
 
 import java.util.Set;
 import java.util.UUID;
@@ -8,4 +8,3 @@ import java.util.UUID;
  */
 public record TenantScope(UUID centerId, String userId, Set<String> roles) {
 }
-

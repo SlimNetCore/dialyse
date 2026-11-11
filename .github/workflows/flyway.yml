@@ -46,7 +46,7 @@ jobs:
       # ------------------------------------------------------------
       # 1. Immutabilité : une migration publiée ne se modifie jamais
       #    (sinon checksum invalide -> Flyway refuse de démarrer en prod).
-      #    Seul l'archivage vers backend/db/migration-legacy est toléré.
+      #    Aucun déplacement ni renommage n'est toléré (l'archive migration-legacy a été supprimée, ADR 0136).
       # ------------------------------------------------------------
       - name: Vérifier l'immutabilité des migrations existantes
         env:
@@ -69,7 +69,7 @@ jobs:
           VIOLATIONS=$(git diff --name-status -M "$MERGE_BASE" HEAD \
             | awk -v dir="$MIGRATIONS_DIR/" '
                 ($1 == "M" || $1 == "D") && index($2, dir) == 1 { print }
-                $1 ~ /^R/ && index($2, dir) == 1 && index($3, "backend/db/migration-legacy/") != 1 { print }
+                $1 ~ /^R/ && index($2, dir) == 1 { print }
               ' || true)
           if [ -n "$VIOLATIONS" ]; then
             echo "::error::Migration(s) déjà publiée(s) modifiée(s) ou supprimée(s). Créez plutôt une nouvelle migration V<n+1>__description.sql"

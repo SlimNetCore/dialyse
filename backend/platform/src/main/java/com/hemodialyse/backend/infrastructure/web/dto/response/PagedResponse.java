@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.dto.response;
 
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 
 import java.util.List;
 import java.util.function.Function;

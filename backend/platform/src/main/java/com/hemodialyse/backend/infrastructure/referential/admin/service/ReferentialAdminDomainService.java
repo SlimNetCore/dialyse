@@ -10,9 +10,9 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Validation
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegate;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminUseCase;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -86,7 +86,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     }
 
     @Override
-    public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+    public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = size <= 0 ? 20 : Math.min(size, MAX_PAGE_SIZE);
         String term = search == null || search.isBlank() ? null : search.trim();
@@ -95,7 +95,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     }
 
     @Override
-    public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         if (delegated(kind)) return delegate.create(centerId, kind, values);
         Map<String, String> normalized = validateForSave(centerId, kind, values, null);
         UUID id = repo.insert(centerId, kind, normalized);
@@ -103,7 +103,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     }
 
     @Override
-    public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         if (delegated(kind)) return delegate.update(centerId, kind, id, values);
         requireExisting(centerId, kind, id);
         Map<String, String> normalized = validateForSave(centerId, kind, values, id);
@@ -112,7 +112,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         if (delegated(kind)) {
             delegate.delete(centerId, kind, id);
             return;
@@ -128,7 +128,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     }
 
     @Override
-    public ImportReport importEntries(CenterId centerId, ReferentialKind kind, ImportTable table, boolean dryRun) {
+    public ImportReport importEntries(CentreId centerId, ReferentialKind kind, ImportTable table, boolean dryRun) {
         if (table.headers().stream().allMatch(h -> h == null || h.isBlank())) {
             return rejected(kind, 0, List.of(), List.of(), List.of(fileIssue("EMPTY_FILE",
                     "Le fichier est vide : la première ligne doit contenir les en-têtes de colonnes.", Map.of())));
@@ -227,7 +227,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
         return new ImportReport(kind.slug(), dataRows.size(), toCreate, toUpdate, List.of(), ignored, List.of(), true);
     }
 
-    private Map<String, String> validateForSave(CenterId centerId, ReferentialKind kind, Map<String, String> values,
+    private Map<String, String> validateForSave(CentreId centerId, ReferentialKind kind, Map<String, String> values,
                                                 UUID currentId) {
         Matching matching = new Matching(centerId);
         ReferentialValuesValidator.Result result = validator.validate(kind, values, matching::resolve);
@@ -243,7 +243,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
         return result.values();
     }
 
-    private void requireExisting(CenterId centerId, ReferentialKind kind, UUID id) {
+    private void requireExisting(CentreId centerId, ReferentialKind kind, UUID id) {
         if (repo.findById(centerId, kind, id).isEmpty()) {
             throw new BusinessException("REFERENTIAL_NOT_FOUND",
                     "Élément introuvable dans « " + kind.label() + " » pour ce centre.");
@@ -260,10 +260,10 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
      * Index de clés naturelles chargés à la demande, une fois par opération, pour le centre courant.
      */
     private final class Matching {
-        private final CenterId centerId;
+        private final CentreId centerId;
         private final Map<ReferentialKind, KeyIndex> indexes = new EnumMap<>(ReferentialKind.class);
 
-        private Matching(CenterId centerId) {
+        private Matching(CentreId centerId) {
             this.centerId = centerId;
         }
 

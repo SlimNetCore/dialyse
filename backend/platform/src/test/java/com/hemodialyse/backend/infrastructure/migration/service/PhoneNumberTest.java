@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.domain.shared.vo;
+package com.hemodialyse.backend.infrastructure.migration.service;
 
 import org.junit.jupiter.api.Test;
 

@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Tabl
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationDuStock;
 import org.springframework.stereotype.Service;
 

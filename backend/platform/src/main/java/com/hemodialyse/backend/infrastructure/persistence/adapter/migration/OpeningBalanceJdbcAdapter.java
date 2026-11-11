@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes.SoldeDOuverture;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -29,22 +29,22 @@ public class OpeningBalanceJdbcAdapter implements OpeningBalancePort {
     }
 
     @Override
-    public Optional<UUID> findByNumero(CenterId centerId, String numero) {
-        return reprise.factureDuNumero(centerId.value(), numero);
+    public Optional<UUID> findByNumero(CentreId centerId, String numero) {
+        return reprise.factureDuNumero(centerId.valeur(), numero);
     }
 
     @Override
-    public long countPaymentsOutsideMigration(CenterId centerId, UUID factureId) {
-        return reprise.reglementsHorsReprise(centerId.value(), factureId);
+    public long countPaymentsOutsideMigration(CentreId centerId, UUID factureId) {
+        return reprise.reglementsHorsReprise(centerId.valeur(), factureId);
     }
 
     @Override
-    public UUID create(CenterId centerId, OpeningInvoice invoice) {
-        return reprise.ouvrir(centerId.value(), solde(invoice));
+    public UUID create(CentreId centerId, OpeningInvoice invoice) {
+        return reprise.ouvrir(centerId.valeur(), solde(invoice));
     }
 
     @Override
-    public void replace(CenterId centerId, UUID factureId, OpeningInvoice invoice) {
-        reprise.remplacer(centerId.value(), factureId, solde(invoice));
+    public void replace(CentreId centerId, UUID factureId, OpeningInvoice invoice) {
+        reprise.remplacer(centerId.valeur(), factureId, solde(invoice));
     }
 }

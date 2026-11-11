@@ -3,8 +3,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.migration.MigrationApplicationService;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.importer.MigrationTemplateWriter;
 import com.hemodialyse.backend.infrastructure.importer.TabularFileReader;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -104,7 +104,7 @@ public class MigrationRestController {
 
     @PostMapping("/batches")
     public ResponseEntity<BatchResponse> open(@RequestBody @Valid OpenBatchRequest request, Principal principal) {
-        CenterId center = centerAccessGuard.requireCenter(request.centerId());
+        CentreId center =centerAccessGuard.requireCenter(request.centerId());
         var batch = service.open(center, request.libelle(), request.sourceSystem(), request.dateDebutReprise(), user(principal));
         return ResponseEntity.status(HttpStatus.CREATED).body(BatchResponse.from(batch));
     }
@@ -124,7 +124,7 @@ public class MigrationRestController {
                                   @RequestParam(required = false) UUID centerId,
                                   @RequestParam(defaultValue = "true") boolean dryRun,
                                   Principal principal) {
-        CenterId center = centerAccessGuard.requireCenter(centerId);
+        CentreId center =centerAccessGuard.requireCenter(centerId);
         MigrationEntity e = MigrationEntity.fromSlug(entity);
         ImportTable table;
         try {

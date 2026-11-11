@@ -5,8 +5,8 @@ import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.MigrationUseCase;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -42,22 +42,22 @@ public class MigrationApplicationService {
     }
 
     @Transactional
-    public MigrationBatch open(CenterId centerId, String libelle, String sourceSystem, LocalDate dateDebutReprise, String user) {
+    public MigrationBatch open(CentreId centerId, String libelle, String sourceSystem, LocalDate dateDebutReprise, String user) {
         return useCase.open(centerId, libelle, sourceSystem, dateDebutReprise, user);
     }
 
     @Transactional(readOnly = true)
-    public PagedResult<MigrationBatch> list(CenterId centerId, int page, int size) {
+    public PagedResult<MigrationBatch> list(CentreId centerId, int page, int size) {
         return useCase.list(centerId, page, size);
     }
 
     @Transactional(readOnly = true)
-    public MigrationUseCase.BatchDetail get(CenterId centerId, UUID batchId) {
+    public MigrationUseCase.BatchDetail get(CentreId centerId, UUID batchId) {
         return useCase.get(centerId, batchId);
     }
 
     @Transactional
-    public EntityRun importEntity(CenterId centerId, UUID batchId, MigrationEntity entity, String fileName,
+    public EntityRun importEntity(CentreId centerId, UUID batchId, MigrationEntity entity, String fileName,
                                   ImportTable table, boolean dryRun, String user) {
         EntityRun run = useCase.importEntity(centerId, batchId, entity, fileName, table, dryRun, user);
         if (run.applied()) clearCachesAfterCommit();
@@ -65,29 +65,29 @@ public class MigrationApplicationService {
     }
 
     @Transactional
-    public MigrationBatch close(CenterId centerId, UUID batchId) {
+    public MigrationBatch close(CentreId centerId, UUID batchId) {
         return useCase.close(centerId, batchId);
     }
 
     @Transactional
-    public MigrationBatch cancel(CenterId centerId, UUID batchId) {
+    public MigrationBatch cancel(CentreId centerId, UUID batchId) {
         MigrationBatch batch = useCase.cancel(centerId, batchId);
         clearCachesAfterCommit();
         return batch;
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Map<String, String>> valueMappings(CenterId centerId) {
+    public Map<String, Map<String, String>> valueMappings(CentreId centerId) {
         return useCase.valueMappings(centerId);
     }
 
     @Transactional
-    public void saveValueMapping(CenterId centerId, String column, String source, String target) {
+    public void saveValueMapping(CentreId centerId, String column, String source, String target) {
         useCase.saveValueMapping(centerId, column, source, target);
     }
 
     @Transactional
-    public void deleteValueMapping(CenterId centerId, String column, String source) {
+    public void deleteValueMapping(CentreId centerId, String column, String source) {
         useCase.deleteValueMapping(centerId, column, source);
     }
 

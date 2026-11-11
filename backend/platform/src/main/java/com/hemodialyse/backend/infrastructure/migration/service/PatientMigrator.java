@@ -13,7 +13,7 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Referentia
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -128,7 +128,7 @@ public class PatientMigrator implements EntityMigrator {
 
     @Override
     public Outcome migrate(Context ctx, List<Row> rows, boolean write) {
-        CenterId center = ctx.centerId();
+        CentreId center =ctx.centerId();
         List<ValidationIssue> errors = new ArrayList<>();
         List<ValidationIssue> warnings = new ArrayList<>();
         Map<String, String> mapped = ctx.ids().findAll(center, entity());
@@ -138,7 +138,7 @@ public class PatientMigrator implements EntityMigrator {
         Map<String, PatientDuCentre> byCode = new HashMap<>();
         Map<String, PatientDuCentre> byIdentity = new HashMap<>();
         Set<UUID> existingIds = new java.util.HashSet<>();
-        for (PatientDuCentre p : patients.duCentre(center.value())) {
+        for (PatientDuCentre p : patients.duCentre(center.valeur())) {
             existingIds.add(p.id());
             if (p.numeroAssurance() != null) byNumero.putIfAbsent(key(p.numeroAssurance()), p);
             if (p.code() != null) byCode.putIfAbsent(key(p.code()), p);
@@ -216,7 +216,7 @@ public class PatientMigrator implements EntityMigrator {
         if (!errors.isEmpty() || !write) return new Outcome(created, updated, errors, warnings);
 
         for (Plan plan : plans) {
-            UUID id = patients.reprendre(center.value(), plan.existingId() != null ? plan.existingId() : plan.idARetrouver(),
+            UUID id = patients.reprendre(center.valeur(), plan.existingId() != null ? plan.existingId() : plan.idARetrouver(),
                     report(plan.row(), plan.refs()));
             ctx.ids().save(center, ctx.batch().getId(), new IdMapping(entity(), plan.legacyId(), id.toString(), plan.operation()));
         }
@@ -232,7 +232,7 @@ public class PatientMigrator implements EntityMigrator {
             return;
         }
         Optional<AssureConnu> assure = assures.trouver(numeroAssure);
-        if (assure.isEmpty() || !ctx.centerId().value().equals(assure.get().centre())) {
+        if (assure.isEmpty() || !ctx.centerId().valeur().equals(assure.get().centre())) {
             errors.add(issue(row.line(), "assureNumeroAssurance", "ASSURE_NOT_FOUND",
                     "Assuré « " + numeroAssure + " » introuvable dans le centre : importez d'abord le fichier des assurés.",
                     Map.of("value", numeroAssure)));
@@ -259,11 +259,11 @@ public class PatientMigrator implements EntityMigrator {
      * Index des référentiels du centre, chargés une fois par fichier.
      */
     private final class Lookups {
-        private final CenterId center;
+        private final CentreId center;
         private final Map<ReferentialKind, Map<String, ReferentialEntry>> indexes = new EnumMap<>(ReferentialKind.class);
-        private final Map<CenterId, Map<String, GenerateurRepris>> generateurIndex = new HashMap<>();
+        private final Map<CentreId, Map<String, GenerateurRepris>> generateurIndex = new HashMap<>();
 
-        Lookups(CenterId center) {
+        Lookups(CentreId center) {
             this.center = center;
         }
 
@@ -331,7 +331,7 @@ public class PatientMigrator implements EntityMigrator {
         private Map<String, GenerateurRepris> generateurIndex() {
             return generateurIndex.computeIfAbsent(center, c -> {
                 Map<String, GenerateurRepris> index = new HashMap<>();
-                for (GenerateurRepris e : generateurs.duCentre(c.value())) {
+                for (GenerateurRepris e : generateurs.duCentre(c.valeur())) {
                     index.putIfAbsent(key(LegacyValueParser.toCode(nz(e.code()))), e);
                 }
                 return index;

@@ -14,8 +14,8 @@ import com.hemodialyse.backend.infrastructure.migration.port.ValueMappingPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -47,25 +47,25 @@ final class InMemoryMigrationPorts {
             return batch;
         }
 
-        public Optional<MigrationBatch> findById(CenterId centerId, UUID batchId) {
+        public Optional<MigrationBatch> findById(CentreId centerId, UUID batchId) {
             return Optional.ofNullable(batches.get(batchId)).filter(b -> b.getCenterId().equals(centerId));
         }
 
-        public Optional<MigrationBatch> findActive(CenterId centerId) {
+        public Optional<MigrationBatch> findActive(CentreId centerId) {
             return batches.values().stream()
                     .filter(b -> b.getCenterId().equals(centerId) && b.getStatus() == MigrationBatch.Status.EN_COURS).findFirst();
         }
 
-        public PagedResult<MigrationBatch> findPaged(CenterId centerId, int page, int size) {
+        public PagedResult<MigrationBatch> findPaged(CentreId centerId, int page, int size) {
             List<MigrationBatch> all = batches.values().stream().filter(b -> b.getCenterId().equals(centerId)).toList();
             return PagedResult.of(all, all.size(), page, size);
         }
 
-        public void saveRun(CenterId centerId, UUID batchId, EntityRun run) {
+        public void saveRun(CentreId centerId, UUID batchId, EntityRun run) {
             runs.add(run);
         }
 
-        public List<EntityRun> findLatestRuns(CenterId centerId, UUID batchId) {
+        public List<EntityRun> findLatestRuns(CentreId centerId, UUID batchId) {
             return runs;
         }
     }
@@ -73,18 +73,18 @@ final class InMemoryMigrationPorts {
     static final class Ids implements IdMappingPort {
         final List<Stored> rows = new ArrayList<>();
 
-        public Optional<String> findTarget(CenterId centerId, MigrationEntity entity, String legacyId) {
+        public Optional<String> findTarget(CentreId centerId, MigrationEntity entity, String legacyId) {
             return Optional.ofNullable(findAll(centerId, entity).get(legacyId));
         }
 
-        public Map<String, String> findAll(CenterId centerId, MigrationEntity entity) {
+        public Map<String, String> findAll(CentreId centerId, MigrationEntity entity) {
             Map<String, String> out = new HashMap<>();
             rows.stream().filter(r -> r.centerId().equals(centerId) && r.mapping().entity() == entity)
                     .forEach(r -> out.put(r.mapping().legacyId(), r.mapping().targetId()));
             return out;
         }
 
-        public void save(CenterId centerId, UUID batchId, IdMapping mapping) {
+        public void save(CentreId centerId, UUID batchId, IdMapping mapping) {
             Optional<Stored> existing = rows.stream().filter(r -> r.centerId().equals(centerId)
                     && r.mapping().entity() == mapping.entity() && r.mapping().legacyId().equals(mapping.legacyId())).findFirst();
             if (existing.isPresent()) {
@@ -96,30 +96,30 @@ final class InMemoryMigrationPorts {
             }
         }
 
-        public List<IdMapping> findByBatch(CenterId centerId, UUID batchId) {
+        public List<IdMapping> findByBatch(CentreId centerId, UUID batchId) {
             return rows.stream().filter(r -> r.centerId().equals(centerId) && r.batchId().equals(batchId)).map(Stored::mapping).toList();
         }
 
-        public void deleteByBatch(CenterId centerId, UUID batchId) {
+        public void deleteByBatch(CentreId centerId, UUID batchId) {
             rows.removeIf(r -> r.centerId().equals(centerId) && r.batchId().equals(batchId));
         }
 
-        record Stored(CenterId centerId, UUID batchId, IdMapping mapping) {
+        record Stored(CentreId centerId, UUID batchId, IdMapping mapping) {
         }
     }
 
     static final class Values implements ValueMappingPort {
-        final Map<CenterId, Map<String, Map<String, String>>> maps = new HashMap<>();
+        final Map<CentreId, Map<String, Map<String, String>>> maps = new HashMap<>();
 
-        public Map<String, Map<String, String>> findAll(CenterId centerId) {
+        public Map<String, Map<String, String>> findAll(CentreId centerId) {
             return maps.getOrDefault(centerId, Map.of());
         }
 
-        public void save(CenterId centerId, String column, String normalizedSource, String target) {
+        public void save(CentreId centerId, String column, String normalizedSource, String target) {
             maps.computeIfAbsent(centerId, c -> new HashMap<>()).computeIfAbsent(column, c -> new HashMap<>()).put(normalizedSource, target);
         }
 
-        public void delete(CenterId centerId, String column, String normalizedSource) {
+        public void delete(CentreId centerId, String column, String normalizedSource) {
             maps.getOrDefault(centerId, Map.of()).getOrDefault(column, new HashMap<>()).remove(normalizedSource);
         }
     }
@@ -128,17 +128,17 @@ final class InMemoryMigrationPorts {
         final List<String> blockers = new ArrayList<>();
         final List<IdMapping> deleted = new ArrayList<>();
 
-        public List<String> blockers(CenterId centerId, List<IdMapping> created) {
+        public List<String> blockers(CentreId centerId, List<IdMapping> created) {
             return blockers;
         }
 
-        public void delete(CenterId centerId, List<IdMapping> created) {
+        public void delete(CentreId centerId, List<IdMapping> created) {
             deleted.addAll(created);
         }
 
         final List<IdMapping> restored = new ArrayList<>();
 
-        public void restore(CenterId centerId, List<IdMapping> updated) {
+        public void restore(CentreId centerId, List<IdMapping> updated) {
             restored.addAll(updated);
         }
     }
@@ -178,10 +178,10 @@ final class InMemoryMigrationPorts {
         int saves;
 
         /** Un patient déjà présent dans le centre (saisi hors de la reprise). */
-        Fiche ajouter(CenterId centre, String nom, String prenom, String numeroAssurance, LocalDate dateNaissance) {
+        Fiche ajouter(CentreId centre, String nom, String prenom, String numeroAssurance, LocalDate dateNaissance) {
             Fiche f = new Fiche();
             f.id = UUID.randomUUID();
-            f.centre = centre.value();
+            f.centre = centre.valeur();
             f.code = "PAT-" + f.id.toString().substring(0, 8).toUpperCase();
             f.numeroAssurance = numeroAssurance;
             f.nom = nom;
@@ -192,16 +192,16 @@ final class InMemoryMigrationPorts {
             return f;
         }
 
-        Optional<Fiche> findByNumeroAssurance(CenterId centre, String numeroAssurance) {
+        Optional<Fiche> findByNumeroAssurance(CentreId centre, String numeroAssurance) {
             return rows.values().stream()
-                    .filter(f -> f.centre.equals(centre.value()) && numeroAssurance.equals(f.numeroAssurance)).findFirst();
+                    .filter(f -> f.centre.equals(centre.valeur()) && numeroAssurance.equals(f.numeroAssurance)).findFirst();
         }
 
-        List<Lien> historique(CenterId centre, UUID patient) {
-            return liens.stream().filter(l -> l.centre().equals(centre.value()) && l.patient().equals(patient)).toList();
+        List<Lien> historique(CentreId centre, UUID patient) {
+            return liens.stream().filter(l -> l.centre().equals(centre.valeur()) && l.patient().equals(patient)).toList();
         }
 
-        Optional<Lien> principal(CenterId centre, UUID patient) {
+        Optional<Lien> principal(CentreId centre, UUID patient) {
             return historique(centre, patient).stream().filter(Lien::principale).findFirst();
         }
 
@@ -227,7 +227,7 @@ final class InMemoryMigrationPorts {
             saves++;
             Fiche f = patient == null ? null : rows.get(patient);
             if (f == null || !f.centre.equals(centre)) {
-                f = ajouter(CenterId.of(centre), r.nom(), r.prenom(), r.numeroAssurance(), r.dateNaissance());
+                f = ajouter(new CentreId(centre), r.nom(), r.prenom(), r.numeroAssurance(), r.dateNaissance());
                 if (patient != null && !rows.containsKey(patient)) {
                     rows.remove(f.id);
                     f.id = patient;
@@ -249,7 +249,7 @@ final class InMemoryMigrationPorts {
                 retirerLePrincipal(centre, f.id);
                 f.assureNumeroAssurance = r.numeroAssurance();
             } else {
-                Optional<Lien> principal = principal(CenterId.of(centre), f.id);
+                Optional<Lien> principal = principal(new CentreId(centre), f.id);
                 if (principal.isEmpty() || !r.assureNumeroAssurance().equalsIgnoreCase(principal.get().numeroAssurance())) {
                     retirerLePrincipal(centre, f.id);
                     liens.add(new Lien(UUID.randomUUID(), f.id, centre, r.assureNumeroAssurance(), true, r.dateAdmission(), null));
@@ -261,7 +261,7 @@ final class InMemoryMigrationPorts {
 
         @Override
         public List<AffectationConnue> historique(UUID centre, UUID patient) {
-            return historique(CenterId.of(centre), patient).stream()
+            return historique(new CentreId(centre), patient).stream()
                     .map(l -> new AffectationConnue(l.id(), l.numeroAssurance(), l.debut())).toList();
         }
 
@@ -283,8 +283,8 @@ final class InMemoryMigrationPorts {
         final Map<String, AssureConnu> rows = new LinkedHashMap<>();
         final Map<String, ReportDeLAssure> reports = new LinkedHashMap<>();
 
-        void ajouter(String numero, CenterId center) {
-            rows.put(numero, new AssureConnu(numero, center.value()));
+        void ajouter(String numero, CentreId center) {
+            rows.put(numero, new AssureConnu(numero, center.valeur()));
         }
 
         @Override
@@ -324,31 +324,31 @@ final class InMemoryMigrationPorts {
             return id;
         }
 
-        public PagedResult<ReferentialEntry> findPaged(CenterId c, ReferentialKind k, String s, int p, int size) {
+        public PagedResult<ReferentialEntry> findPaged(CentreId c, ReferentialKind k, String s, int p, int size) {
             throw new UnsupportedOperationException();
         }
 
-        public Optional<ReferentialEntry> findById(CenterId c, ReferentialKind k, UUID id) {
+        public Optional<ReferentialEntry> findById(CentreId c, ReferentialKind k, UUID id) {
             return rows.getOrDefault(k, List.of()).stream().filter(e -> e.id().equals(id)).findFirst();
         }
 
-        public List<ReferentialEntry> findAllForMatching(CenterId c, ReferentialKind k) {
+        public List<ReferentialEntry> findAllForMatching(CentreId c, ReferentialKind k) {
             return rows.getOrDefault(k, List.of());
         }
 
-        public UUID insert(CenterId c, ReferentialKind k, Map<String, String> v) {
+        public UUID insert(CentreId c, ReferentialKind k, Map<String, String> v) {
             throw new UnsupportedOperationException();
         }
 
-        public void update(CenterId c, ReferentialKind k, UUID id, Map<String, String> v) {
+        public void update(CentreId c, ReferentialKind k, UUID id, Map<String, String> v) {
             throw new UnsupportedOperationException();
         }
 
-        public void delete(CenterId c, ReferentialKind k, UUID id) {
+        public void delete(CentreId c, ReferentialKind k, UUID id) {
             throw new UnsupportedOperationException();
         }
 
-        public long countUsages(CenterId c, ReferentialKind k, UUID id) {
+        public long countUsages(CentreId c, ReferentialKind k, UUID id) {
             return 0;
         }
     }
@@ -359,9 +359,9 @@ final class InMemoryMigrationPorts {
         /**
          * Ajoute un générateur de dialyse de test et retourne son id.
          */
-        UUID addGenerateur(CenterId centerId, String code, UUID salleId) {
+        UUID addGenerateur(CentreId centerId, String code, UUID salleId) {
             GenerateurRepris generateur = new GenerateurRepris(UUID.randomUUID(), code, salleId);
-            parCentre.computeIfAbsent(centerId.value(), c -> new ArrayList<>()).add(generateur);
+            parCentre.computeIfAbsent(centerId.valeur(), c -> new ArrayList<>()).add(generateur);
             return generateur.id();
         }
 

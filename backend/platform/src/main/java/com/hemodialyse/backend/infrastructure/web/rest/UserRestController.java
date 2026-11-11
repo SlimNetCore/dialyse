@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.CompteLieAUneFicheActive;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AppUserJpaEntity;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.persistence.repository.AppUserJpaRepository;

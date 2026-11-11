@@ -1,7 +1,7 @@
 {
   "_comment": "Règles hexagonales des nouveaux contextes (backend/contexts). Ordre des couches = priorité de correspondance (première qui matche). Java : 'interface' est un mot réservé => couche 'interfaces' ; 'published-language' => package 'publishedlanguage'. Voir .ddd/architecture/layout.md et ADR 0011-0016 ; Timefold confiné à infrastructure (ADR 0050). Toute ouverture de règle exige un ADR.",
   "layers": {
-    "legacy": ["backend/bc-*/**", "backend/platform/**", "backend/shared-kernel/**"],
+    "legacy": ["backend/bc-*/**", "backend/platform/**"],
     "shared-kernel": ["backend/contexts/shared-kernel/**"],
     "published-language": ["backend/contexts/**/publishedlanguage/**"],
     "acl": ["backend/contexts/**/infrastructure/acl/**"],
@@ -49,7 +49,6 @@
   "exclude": [
     "backend/bc-*/**",
     "backend/platform/**",
-    "backend/shared-kernel/**",
     "frontend/**",
     "tools/**",
     "docs/**",

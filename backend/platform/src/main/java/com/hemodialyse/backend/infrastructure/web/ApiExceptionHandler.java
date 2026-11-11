@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web;
 
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,18 +53,6 @@ public class ApiExceptionHandler {
         return problem;
     }
 
-
-    /**
-     * Refus unique de toute modification touchant une séance facturée (slice F6, KB-FAC-70) : 422 et code stable.
-     */
-    @ExceptionHandler(SeanceFactureeNonModifiableException.class)
-    ProblemDetail handleSeanceFactureeNonModifiable(SeanceFactureeNonModifiableException ex) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
-        problem.setTitle("Regle metier violee");
-        problem.setDetail(ex.getMessage());
-        problem.setProperty("code", SeanceFactureeNonModifiableException.CODE);
-        return problem;
-    }
 
     /**
      * Refus d'une consommation de séance par le Stock (S6b) : 422 et code stable (séance facturée, pièce rapprochée…).

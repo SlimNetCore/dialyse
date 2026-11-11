@@ -3,8 +3,8 @@ package com.hemodialyse.backend.application.supervision;
 import com.hemodialyse.backend.application.supervision.port.AnalysePlanPort;
 import com.hemodialyse.backend.application.supervision.port.SanteBasePort;
 import com.hemodialyse.backend.application.supervision.port.StatistiquesRequetesPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

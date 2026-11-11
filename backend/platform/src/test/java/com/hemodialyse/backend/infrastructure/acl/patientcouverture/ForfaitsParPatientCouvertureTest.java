@@ -2,8 +2,8 @@ package com.hemodialyse.backend.infrastructure.acl.patientcouverture;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDuCatalogueDeForfaits;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RefusDeForfait;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /** RF2 : les valeurs de l'administration sont traduites vers le langage publié, les refus vers les erreurs de l'administration. */
 class ForfaitsParPatientCouvertureTest {
 
-    private static final CenterId CENTRE = CenterId.of(UUID.fromString("00000000-0000-0000-0000-0000000000a1"));
+    private static final CentreId CENTRE = new CentreId(UUID.fromString("00000000-0000-0000-0000-0000000000a1"));
     private static final UUID FORFAIT = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
 
     private RuntimeException aLever;

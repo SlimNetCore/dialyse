@@ -2,8 +2,6 @@ package com.hemodialyse.backend.infrastructure.migration.service;
 
 import com.hemodialyse.backend.infrastructure.migration.model.ColumnDef;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.Email;
-import com.hemodialyse.backend.domain.shared.vo.PhoneNumber;
 
 import java.text.Normalizer;
 import java.time.LocalDate;

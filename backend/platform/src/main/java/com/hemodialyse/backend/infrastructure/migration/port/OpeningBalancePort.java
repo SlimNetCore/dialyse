@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.migration.port;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,19 +24,19 @@ public interface OpeningBalancePort {
      */
     String MIGRATION_AUTHOR = "REPRISE";
 
-    Optional<UUID> findByNumero(CenterId centerId, String numero);
+    Optional<UUID> findByNumero(CentreId centerId, String numero);
 
     /**
      * Règlements saisis dans la plateforme (hors reprise) sur cette facture.
      */
-    long countPaymentsOutsideMigration(CenterId centerId, UUID factureId);
+    long countPaymentsOutsideMigration(CentreId centerId, UUID factureId);
 
-    UUID create(CenterId centerId, OpeningInvoice invoice);
+    UUID create(CentreId centerId, OpeningInvoice invoice);
 
     /**
      * Remplace montants, dates et règlement de reprise d'une facture de reprise non encore encaissée.
      */
-    void replace(CenterId centerId, UUID factureId, OpeningInvoice invoice);
+    void replace(CentreId centerId, UUID factureId, OpeningInvoice invoice);
 
     /**
      * @param patientStatus         état du patient à la date de reprise (instantané de facture)

@@ -8,7 +8,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Repr
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class AffectationMigrator implements EntityMigrator {
 
     @Override
     public Outcome migrate(Context ctx, List<Row> rows, boolean write) {
-        CenterId center = ctx.centerId();
+        CentreId center =ctx.centerId();
         List<ValidationIssue> errors = new ArrayList<>();
         List<ValidationIssue> warnings = new ArrayList<>();
         Map<String, String> migratedPatients = ctx.ids().findAll(center, MigrationEntity.PATIENTS);
@@ -74,7 +74,7 @@ public class AffectationMigrator implements EntityMigrator {
                         Map.of("value", patientLegacy)));
             }
             Optional<AssureConnu> assure = assures.trouverSansCasse(numero);
-            if (assure.isEmpty() || !center.value().equals(assure.get().centre())) {
+            if (assure.isEmpty() || !center.valeur().equals(assure.get().centre())) {
                 errors.add(issue(row.line(), "assureNumeroAssurance", "ASSURE_NOT_FOUND",
                         "Assuré « " + numero + " » introuvable dans le centre : importez d'abord le fichier des assurés.",
                         Map.of("value", numero)));
@@ -100,7 +100,7 @@ public class AffectationMigrator implements EntityMigrator {
             String canonique = assure.get().numeroAssurance();
             UUID existingId = mapped.containsKey(legacy) ? UUID.fromString(mapped.get(legacy)) : null;
             if (existingId == null) {
-                existingId = histories.computeIfAbsent(patientId, id -> affectations.historique(center.value(), id)).stream()
+                existingId = histories.computeIfAbsent(patientId, id -> affectations.historique(center.valeur(), id)).stream()
                         .filter(a -> canonique.equalsIgnoreCase(a.numeroAssurance()) && Objects.equals(debut, a.dateDebut()))
                         .map(AffectationConnue::id)
                         .findFirst().orElse(null);
@@ -117,7 +117,7 @@ public class AffectationMigrator implements EntityMigrator {
         for (Plan plan : plans) {
             Row row = plan.row();
             boolean principale = Boolean.parseBoolean(row.get("principale"));
-            UUID id = affectations.reprendre(center.value(), plan.patientId(), plan.existingId(),
+            UUID id = affectations.reprendre(center.valeur(), plan.patientId(), plan.existingId(),
                     new ReportDeLAffectation(plan.assure(), principale, date(row.get("dateDebut")), date(row.get("dateFin"))));
             ctx.ids().save(center, ctx.batch().getId(), new IdMapping(entity(), plan.legacyId(), id.toString(), plan.operation()));
         }

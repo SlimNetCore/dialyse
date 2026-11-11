@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
 import com.hemodialyse.backend.infrastructure.migration.port.ValueMappingPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,30 +22,30 @@ public class ValueMappingJdbcAdapter implements ValueMappingPort {
     }
 
     @Override
-    public Map<String, Map<String, String>> findAll(CenterId centerId) {
+    public Map<String, Map<String, String>> findAll(CentreId centerId) {
         Map<String, Map<String, String>> out = new HashMap<>();
         jdbc.query("SELECT column_key, source_value, target_value FROM migration_value_map WHERE center_id = ?",
                 rs -> {
                     out.computeIfAbsent(rs.getString("column_key"), k -> new HashMap<>())
                             .put(rs.getString("source_value"), rs.getString("target_value"));
-                }, centerId.value());
+                }, centerId.valeur());
         return out;
     }
 
     @Override
-    public void save(CenterId centerId, String column, String normalizedSource, String target) {
+    public void save(CentreId centerId, String column, String normalizedSource, String target) {
         int updated = jdbc.update("UPDATE migration_value_map SET target_value = ? WHERE center_id = ? AND column_key = ? AND source_value = ?",
-                target, centerId.value(), column, normalizedSource);
+                target, centerId.valeur(), column, normalizedSource);
         if (updated == 0) {
             jdbc.update("INSERT INTO migration_value_map (id, center_id, column_key, source_value, target_value) VALUES (?, ?, ?, ?, ?)",
-                    UUID.randomUUID(), centerId.value(), column, normalizedSource, target);
+                    UUID.randomUUID(), centerId.valeur(), column, normalizedSource, target);
         }
     }
 
     @Override
-    public void delete(CenterId centerId, String column, String normalizedSource) {
+    public void delete(CentreId centerId, String column, String normalizedSource) {
         jdbc.update("DELETE FROM migration_value_map WHERE center_id = ? AND column_key = ? AND source_value = ?",
-                centerId.value(), column, normalizedSource);
+                centerId.valeur(), column, normalizedSource);
     }
 }
 

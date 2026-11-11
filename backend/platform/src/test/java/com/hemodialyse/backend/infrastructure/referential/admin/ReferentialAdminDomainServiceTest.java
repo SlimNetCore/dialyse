@@ -7,8 +7,8 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Referentia
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReferentialAdminDomainServiceTest {
 
-    private static final CenterId CENTER = CenterId.of(UUID.fromString("00000000-0000-0000-0000-00000000000a"));
-    private static final CenterId OTHER = CenterId.of(UUID.fromString("00000000-0000-0000-0000-00000000000b"));
+    private static final CentreId CENTER = new CentreId(UUID.fromString("00000000-0000-0000-0000-00000000000a"));
+    private static final CentreId OTHER = new CentreId(UUID.fromString("00000000-0000-0000-0000-00000000000b"));
 
     private InMemoryReferentialAdminRepository repo;
     private ReferentialAdminDomainService service;

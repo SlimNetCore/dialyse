@@ -10,7 +10,6 @@ WORKDIR /workspace
 
 # Copier uniquement les descripteurs Maven pour maximiser le cache
 COPY pom.xml ./pom.xml
-COPY shared-kernel/pom.xml ./shared-kernel/pom.xml
 # Contextes refaits sur place (ADR 0024/0025) : un module Maven par contexte, déclaré dans le pom racine
 COPY contexts/shared-kernel/pom.xml ./contexts/shared-kernel/pom.xml
 COPY contexts/gmao/pom.xml ./contexts/gmao/pom.xml

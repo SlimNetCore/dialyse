@@ -62,7 +62,7 @@ public class CahierDialyseRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String tz,
             Authentication authentication) {
-        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        UUID centre = centerAccessGuard.requireCenter(centerId).valeur();
         String editePar = ((UserPrincipal) authentication.getPrincipal()).getUsername();
         ModeleDocumentPrinter.Document doc = rapport.imprimer(centre, patientId, from, to, zone(tz), editePar);
         String base = "cahier-dialyse-" + patientId.toString().substring(0, 8);

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class ReferentialCacheEvictor {
         this.cacheManager = cacheManager;
     }
 
-    public void evictAfterCommit(CenterId centerId, Collection<String> cacheNames) {
+    public void evictAfterCommit(CentreId centerId, Collection<String> cacheNames) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
@@ -38,8 +38,8 @@ public class ReferentialCacheEvictor {
         }
     }
 
-    void evictNow(CenterId centerId, Collection<String> cacheNames) {
-        String prefix = centerId.value().toString();
+    void evictNow(CentreId centerId, Collection<String> cacheNames) {
+        String prefix = centerId.valeur().toString();
         for (String name : cacheNames) {
             Cache cache = cacheManager.getCache(name);
             if (cache == null) continue;

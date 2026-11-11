@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.migration.port;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.Map;
 
@@ -13,10 +13,10 @@ public interface ValueMappingPort {
     /**
      * colonne → (valeur d'origine normalisée → valeur cible).
      */
-    Map<String, Map<String, String>> findAll(CenterId centerId);
+    Map<String, Map<String, String>> findAll(CentreId centerId);
 
-    void save(CenterId centerId, String column, String normalizedSource, String target);
+    void save(CentreId centerId, String column, String normalizedSource, String target);
 
-    void delete(CenterId centerId, String column, String normalizedSource);
+    void delete(CentreId centerId, String column, String normalizedSource);
 }
 

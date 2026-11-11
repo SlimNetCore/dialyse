@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.query.GreffePdfService;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SousLaGardeDuDossierMedical;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -40,7 +40,7 @@ public class GreffeExportRestController implements SousLaGardeDuDossierMedical {
     @GetMapping("/{patientId}/greffe/export-pdf")
     public ResponseEntity<byte[]> exportPdf(@PathVariable UUID patientId,
                                             @RequestParam(required = false) UUID centerId) {
-        CenterId center = centerAccessGuard.requireCenter(centerId);
+        CentreId center =centerAccessGuard.requireCenter(centerId);
         byte[] pdf = pdfService.exportPdf(center, patientId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dossier-greffe-" + patientId + ".pdf")

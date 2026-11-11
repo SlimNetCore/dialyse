@@ -2,9 +2,9 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.TenantScope;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
+import com.hemodialyse.backend.infrastructure.security.TenantScope;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +48,7 @@ public class NotificationRestController {
     public ResponseEntity<PagedResult<AlerteResponse>> lister(@RequestParam(required = false) UUID centerId,
                                                               @RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "50") int size) {
-        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        UUID centre = centerAccessGuard.requireCenter(centerId).valeur();
         TenantScope scope = centerAccessGuard.currentScope();
         PagedResult<Alerte> alertes = journal.lister(centre, scope.userId(), roles(scope), Math.max(page, 0),
                 Math.min(Math.max(size, 1), TAILLE_MAX));
@@ -61,14 +61,14 @@ public class NotificationRestController {
     @PostMapping("/lecture")
     public ResponseEntity<Void> marquerLues(@RequestParam(required = false) UUID centerId,
                                             @RequestBody LecturesRequest request) {
-        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        UUID centre = centerAccessGuard.requireCenter(centerId).valeur();
         journal.marquerLues(centre, centerAccessGuard.currentScope().userId(), request.ids());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/lecture-tout")
     public ResponseEntity<Void> toutMarquerLu(@RequestParam(required = false) UUID centerId) {
-        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        UUID centre = centerAccessGuard.requireCenter(centerId).valeur();
         TenantScope scope = centerAccessGuard.currentScope();
         journal.toutMarquerLu(centre, scope.userId(), roles(scope));
         return ResponseEntity.noContent().build();

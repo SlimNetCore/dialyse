@@ -4,7 +4,7 @@ import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +48,7 @@ public class PatientRecordMigrator implements EntityMigrator {
 
     @Override
     public Outcome migrate(Context ctx, List<Row> rows, boolean write) {
-        CenterId center = ctx.centerId();
+        CentreId center =ctx.centerId();
         List<ValidationIssue> errors = new ArrayList<>();
         List<ValidationIssue> warnings = new ArrayList<>();
         Map<String, String> patients = ctx.ids().findAll(center, MigrationEntity.PATIENTS);

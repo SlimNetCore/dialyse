@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 
 import java.time.Instant;
 import java.util.Collection;

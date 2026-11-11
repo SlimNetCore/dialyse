@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.reporting;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.CarteDuPatient;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDuCahierPubliees;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Date;

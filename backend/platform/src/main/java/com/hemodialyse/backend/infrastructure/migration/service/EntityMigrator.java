@@ -4,7 +4,7 @@ import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.IdMappingPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ public interface EntityMigrator {
     /**
      * Contexte d'exécution : centre, lot et correspondances d'identifiants.
      */
-    record Context(CenterId centerId, MigrationBatch batch, IdMappingPort ids) {
+    record Context(CentreId centerId, MigrationBatch batch, IdMappingPort ids) {
     }
 
     /**

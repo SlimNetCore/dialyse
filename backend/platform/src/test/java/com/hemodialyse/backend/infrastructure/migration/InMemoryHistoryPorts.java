@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.migration;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,28 +28,28 @@ final class InMemoryHistoryPorts {
             return rows.stream().filter(r -> r.entity() == entity).toList();
         }
 
-        UUID seed(CenterId centerId, MigrationEntity entity, Map<String, Object> values) {
+        UUID seed(CentreId centerId, MigrationEntity entity, Map<String, Object> values) {
             UUID id = UUID.randomUUID();
             rows.add(new Stored(centerId, entity, id, new LinkedHashMap<>(values)));
             return id;
         }
 
-        public Optional<UUID> findExisting(CenterId centerId, MigrationEntity entity, Map<String, Object> key) {
+        public Optional<UUID> findExisting(CentreId centerId, MigrationEntity entity, Map<String, Object> key) {
             return rows.stream()
                     .filter(r -> r.centerId().equals(centerId) && r.entity() == entity)
                     .filter(r -> key.entrySet().stream().allMatch(e -> Objects.equals(r.values().get(e.getKey()), e.getValue())))
                     .map(Stored::id).findFirst();
         }
 
-        public UUID insert(CenterId centerId, MigrationEntity entity, Map<String, Object> values) {
+        public UUID insert(CentreId centerId, MigrationEntity entity, Map<String, Object> values) {
             return seed(centerId, entity, values);
         }
 
-        public void update(CenterId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
+        public void update(CentreId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
             rows.stream().filter(r -> r.id().equals(id)).findFirst().orElseThrow().values().putAll(values);
         }
 
-        record Stored(CenterId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
+        record Stored(CentreId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
         }
     }
 
@@ -57,21 +57,21 @@ final class InMemoryHistoryPorts {
         final List<Stored> invoices = new ArrayList<>();
         final List<UUID> paidInPlatform = new ArrayList<>();
 
-        public Optional<UUID> findByNumero(CenterId centerId, String numero) {
+        public Optional<UUID> findByNumero(CentreId centerId, String numero) {
             return invoices.stream().filter(s -> s.invoice().numero().equals(numero)).map(Stored::id).findFirst();
         }
 
-        public long countPaymentsOutsideMigration(CenterId centerId, UUID factureId) {
+        public long countPaymentsOutsideMigration(CentreId centerId, UUID factureId) {
             return paidInPlatform.contains(factureId) ? 1 : 0;
         }
 
-        public UUID create(CenterId centerId, OpeningInvoice invoice) {
+        public UUID create(CentreId centerId, OpeningInvoice invoice) {
             UUID id = UUID.randomUUID();
             invoices.add(new Stored(id, invoice));
             return id;
         }
 
-        public void replace(CenterId centerId, UUID factureId, OpeningInvoice invoice) {
+        public void replace(CentreId centerId, UUID factureId, OpeningInvoice invoice) {
             invoices.removeIf(s -> s.id().equals(factureId));
             invoices.add(new Stored(factureId, invoice));
         }

@@ -14,10 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>shared-kernel</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
             <artifactId>contexts-gmao</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

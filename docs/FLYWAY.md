@@ -4,7 +4,7 @@
 
 - Scripts : `backend/platform/src/main/resources/db/migration/`
 - `V1__baseline_schema.sql` = schéma de production au 2026-09-30 (pg_dump). **Ne jamais le modifier.**
-- Anciennes migrations (jamais exécutées) : `backend/db/migration-legacy/`.
+- Les anciennes migrations H2 (jamais exécutées, `backend/db/migration-legacy/`) ont été supprimées (ADR 0136) ; leur historique reste dans git.
 
 ## Ajouter une migration
 

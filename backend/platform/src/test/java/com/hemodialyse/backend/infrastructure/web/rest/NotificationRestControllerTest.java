@@ -2,10 +2,10 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.TenantScope;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
+import com.hemodialyse.backend.infrastructure.security.TenantScope;
 import com.hemodialyse.backend.infrastructure.web.rest.NotificationRestController.LecturesRequest;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ class NotificationRestControllerTest {
     private final NotificationRestController controller = new NotificationRestController(journal, guard);
 
     NotificationRestControllerTest() {
-        when(guard.requireCenter(any())).thenReturn(CenterId.of(centre));
+        when(guard.requireCenter(any())).thenReturn(new CentreId(centre));
         when(guard.currentScope()).thenReturn(new TenantScope(centre, "user-7", Set.of("ROLE_ADMIN", "ROLE_MEDECIN")));
     }
 

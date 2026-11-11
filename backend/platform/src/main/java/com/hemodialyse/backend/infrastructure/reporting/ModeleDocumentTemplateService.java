@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.reporting;
 
 import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator;
 import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator.Violation;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ModeleDocumentVersionJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.ModeleDocumentVersionJpaRepository;
 import org.slf4j.Logger;

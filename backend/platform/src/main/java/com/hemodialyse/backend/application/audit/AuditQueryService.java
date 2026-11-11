@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.audit;
 
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 

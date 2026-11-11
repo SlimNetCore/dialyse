@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.migration.service;
 
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ public interface RecordRules {
     /**
      * Appelé une fois par fichier (chargement des référentiels utiles…).
      */
-    default void begin(CenterId centerId) {
+    default void begin(CentreId centerId) {
     }
 
     /**

@@ -48,7 +48,7 @@ class EquilibreEtImmutabiliteCharacterizationIntegrationTest extends EcrituresCh
                             .thenComparing(LigneEcriture::debit).thenComparing(LigneEcriture::credit))
                     .forEach(l -> lignes.add(l.compte() + " D=" + l.debit().toPlainString()
                             + " C=" + l.credit().toPlainString()));
-        } catch (com.hemodialyse.backend.domain.shared.exception.BusinessException b) {
+        } catch (com.hemodialyse.backend.application.erreur.BusinessException b) {
             o.put("resultat", "REFUS_METIER");
             o.put("code", b.getCode());
             o.put("message", b.getMessage());

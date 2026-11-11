@@ -47,7 +47,7 @@ public class PatientStatsRestController {
             return ResponseEntity.badRequest().body(Map.of("error", "dateFrom doit être <= dateTo", "code", "INVALID_DATE_RANGE"));
         }
         var centre = centerAccessGuard.requireCenter(criteria.centerId()); // KB-MED-02 : le centre RÉSOLU, jamais le seul corps
-        return ResponseEntity.ok(statsQueryService.getParamedicalStats(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
+        return ResponseEntity.ok(statsQueryService.getParamedicalStats(centre.valeur(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
@@ -70,7 +70,7 @@ public class PatientStatsRestController {
             return ResponseEntity.badRequest().body(Map.of("error", "dateFrom doit être <= dateTo", "code", "INVALID_DATE_RANGE"));
         }
         var centre = centerAccessGuard.requireCenter(criteria.centerId()); // revue DM1 : le centre RÉSOLU
-        return ResponseEntity.ok(statsQueryService.getMedicalStats(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
+        return ResponseEntity.ok(statsQueryService.getMedicalStats(centre.valeur(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -115,7 +115,7 @@ public class PatientStatsRestController {
         var centre = centerAccessGuard.requireCenter(criteria.centerId()); // revue DM1 : le centre RÉSOLU
         String normalized = criteria.format() == null ? "" : criteria.format().trim().toLowerCase();
         if ("csv".equals(normalized)) {
-            String csv = statsQueryService.exportCsv(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
+            String csv = statsQueryService.exportCsv(centre.valeur(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=patient-stats-" + criteria.patientId() + ".csv")
                     .contentType(MediaType.parseMediaType("text/csv"))
@@ -123,7 +123,7 @@ public class PatientStatsRestController {
         }
 
         if ("pdf".equals(normalized)) {
-            byte[] pdf = statsQueryService.exportPdf(centre.value(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
+            byte[] pdf = statsQueryService.exportPdf(centre.valeur(), criteria.patientId(), criteria.dateFrom(), criteria.dateTo());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=patient-stats-" + criteria.patientId() + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)

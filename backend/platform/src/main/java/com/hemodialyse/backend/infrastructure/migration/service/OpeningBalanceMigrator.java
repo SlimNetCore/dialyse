@@ -7,7 +7,7 @@ import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort.OpeningInvoice;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,7 +45,7 @@ public class OpeningBalanceMigrator implements EntityMigrator {
 
     @Override
     public Outcome migrate(Context ctx, List<Row> rows, boolean write) {
-        CenterId center = ctx.centerId();
+        CentreId center =ctx.centerId();
         List<ValidationIssue> errors = new ArrayList<>();
         List<ValidationIssue> warnings = new ArrayList<>();
         Map<String, String> migratedPatients = ctx.ids().findAll(center, MigrationEntity.PATIENTS);
@@ -59,7 +59,7 @@ public class OpeningBalanceMigrator implements EntityMigrator {
 
             String patientTarget = migratedPatients.get(row.get("patient"));
             Optional<PatientRepris> patient = patientTarget == null ? Optional.empty()
-                    : patients.trouver(center.value(), UUID.fromString(patientTarget));
+                    : patients.trouver(center.valeur(), UUID.fromString(patientTarget));
             if (patient.isEmpty()) {
                 errors.add(issue(row.line(), "patient", "PATIENT_NOT_MIGRATED",
                         "Patient « " + row.get("patient") + " » inconnu : importez d'abord le fichier des patients.",

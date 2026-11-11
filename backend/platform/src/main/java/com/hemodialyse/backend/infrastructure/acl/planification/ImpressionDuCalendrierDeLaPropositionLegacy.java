@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDuCalendrierDeLaProposition;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import net.sf.jasperreports.engine.JRParameter;

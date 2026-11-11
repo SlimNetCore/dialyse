@@ -7,7 +7,7 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.RegleMetierViolee;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.FactureAComptabiliser;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.ReglementAComptabiliser;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

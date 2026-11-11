@@ -7,7 +7,7 @@ import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryS
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService.StockGroupesOverview;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres.GroupeDArticlesPublie;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationDuStock;
 import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import org.junit.jupiter.api.Test;

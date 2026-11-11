@@ -12,7 +12,7 @@ import com.hemodialyse.backend.infrastructure.migration.service.PatientRecordMig
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class HistoryMigrationTest {
 
-    private static final CenterId CENTER = CenterId.of(UUID.fromString("00000000-0000-0000-0000-00000000000a"));
+    private static final CentreId CENTER = new CentreId(UUID.fromString("00000000-0000-0000-0000-00000000000a"));
 
     private InMemoryMigrationPorts.Ids ids;
     private InMemoryHistoryPorts.Records records;

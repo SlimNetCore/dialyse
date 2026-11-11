@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator.Violation;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService.ModeleInfo;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService.VersionView;
@@ -69,7 +69,7 @@ public class ModeleDocumentTemplateRestController {
                                                      @RequestParam(required = false) UUID centerId,
                                                      @RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "20") int size) {
-        UUID center = centerAccessGuard.requireCenter(centerId).value();
+        UUID center = centerAccessGuard.requireCenter(centerId).valeur();
         if (service.findModele(center, modeleId).isEmpty()) return ResponseEntity.notFound().build();
         PagedResult<VersionView> result = service.listVersions(center, modeleId, page, size);
         Integer active = service.activeCustom(center, modeleId)
@@ -86,7 +86,7 @@ public class ModeleDocumentTemplateRestController {
                                          @RequestParam(required = false) UUID centerId,
                                          @RequestParam(required = false) Integer version,
                                          @RequestParam(defaultValue = "false") boolean origine) {
-        UUID center = centerAccessGuard.requireCenter(centerId).value();
+        UUID center = centerAccessGuard.requireCenter(centerId).valeur();
         Optional<ModeleInfo> modele = service.findModele(center, modeleId);
         if (modele.isEmpty()) return ResponseEntity.notFound().build();
 
@@ -115,7 +115,7 @@ public class ModeleDocumentTemplateRestController {
                                     @RequestParam(required = false) UUID centerId,
                                     @RequestParam("file") MultipartFile file,
                                     @RequestParam(required = false) String commentaire) throws IOException {
-        UUID center = centerAccessGuard.requireCenter(centerId).value();
+        UUID center = centerAccessGuard.requireCenter(centerId).valeur();
         Optional<ModeleInfo> modele = service.findModele(center, modeleId);
         if (modele.isEmpty()) return ResponseEntity.notFound().build();
 
@@ -130,7 +130,7 @@ public class ModeleDocumentTemplateRestController {
     @PostMapping("/versions/{version}/activate")
     public ResponseEntity<VersionView> activate(@PathVariable UUID modeleId, @PathVariable int version,
                                                 @RequestParam(required = false) UUID centerId) {
-        UUID center = centerAccessGuard.requireCenter(centerId).value();
+        UUID center = centerAccessGuard.requireCenter(centerId).valeur();
         return service.activate(center, modeleId, version)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -138,7 +138,7 @@ public class ModeleDocumentTemplateRestController {
 
     @PostMapping("/reset")
     public ResponseEntity<Void> reset(@PathVariable UUID modeleId, @RequestParam(required = false) UUID centerId) {
-        UUID center = centerAccessGuard.requireCenter(centerId).value();
+        UUID center = centerAccessGuard.requireCenter(centerId).valeur();
         if (service.findModele(center, modeleId).isEmpty()) return ResponseEntity.notFound().build();
         service.reset(center, modeleId);
         return ResponseEntity.noContent().build();

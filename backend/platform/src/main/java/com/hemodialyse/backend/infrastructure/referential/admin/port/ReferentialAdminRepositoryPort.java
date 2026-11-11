@@ -2,8 +2,8 @@ package com.hemodialyse.backend.infrastructure.referential.admin.port;
 
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 import java.util.Map;
@@ -18,25 +18,25 @@ import java.util.UUID;
  */
 public interface ReferentialAdminRepositoryPort {
 
-    PagedResult<ReferentialEntry> findPaged(CenterId centerId, ReferentialKind kind, String search, int page, int size);
+    PagedResult<ReferentialEntry> findPaged(CentreId centerId, ReferentialKind kind, String search, int page, int size);
 
-    Optional<ReferentialEntry> findById(CenterId centerId, ReferentialKind kind, UUID id);
+    Optional<ReferentialEntry> findById(CentreId centerId, ReferentialKind kind, UUID id);
 
     /**
      * Toutes les lignes du centre, pour construire les index de clé naturelle (unicité, résolution des codes
      * référencés). Usage interne : les référentiels d'un centre restent de petite taille.
      */
-    List<ReferentialEntry> findAllForMatching(CenterId centerId, ReferentialKind kind);
+    List<ReferentialEntry> findAllForMatching(CentreId centerId, ReferentialKind kind);
 
-    UUID insert(CenterId centerId, ReferentialKind kind, Map<String, String> values);
+    UUID insert(CentreId centerId, ReferentialKind kind, Map<String, String> values);
 
-    void update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values);
+    void update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values);
 
-    void delete(CenterId centerId, ReferentialKind kind, UUID id);
+    void delete(CentreId centerId, ReferentialKind kind, UUID id);
 
     /**
      * Nombre de données (patients, PEC, séances, référentiels enfants…) qui pointent encore sur cette ligne.
      */
-    long countUsages(CenterId centerId, ReferentialKind kind, UUID id);
+    long countUsages(CentreId centerId, ReferentialKind kind, UUID id);
 }
 

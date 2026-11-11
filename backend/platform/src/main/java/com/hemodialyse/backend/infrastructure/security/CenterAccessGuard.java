@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.infrastructure.security;
 
-import com.hemodialyse.backend.domain.shared.TenantScope;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,7 +53,7 @@ public class CenterAccessGuard {
      * @return le centre du jeton, seule valeur digne de confiance
      * @throws AccessDeniedException si le client réclame un centre qui n'est pas le sien
      */
-    public CenterId requireCenter(UUID requestedCenterId) {
+    public CentreId requireCenter(UUID requestedCenterId) {
         TenantScope scope = currentScope();
 
         // Le SUPERADMIN (éditeur de la solution) est transverse aux centres, comme dans LicenseEnforcementFilter.
@@ -63,7 +62,7 @@ public class CenterAccessGuard {
             if (resolved == null) {
                 throw new AccessDeniedException("centerId requis pour un accès transverse");
             }
-            return CenterId.of(resolved);
+            return new CentreId(resolved);
         }
 
         UUID tokenCenterId = scope.centerId();
@@ -73,7 +72,7 @@ public class CenterAccessGuard {
         if (requestedCenterId != null && !requestedCenterId.equals(tokenCenterId)) {
             throw new AccessDeniedException("Accès refusé : le centre demandé ne correspond pas à la session");
         }
-        return CenterId.of(tokenCenterId);
+        return new CentreId(tokenCenterId);
     }
 
     private UUID parseCenterId(String rawCenterId) {

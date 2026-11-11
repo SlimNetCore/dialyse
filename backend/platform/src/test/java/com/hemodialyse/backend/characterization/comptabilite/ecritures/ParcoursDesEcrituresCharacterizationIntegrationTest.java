@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.comptabilite.ecritures;
 
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

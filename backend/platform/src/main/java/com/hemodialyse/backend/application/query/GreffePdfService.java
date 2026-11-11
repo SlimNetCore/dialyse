@@ -10,7 +10,7 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Dossier
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Serologie;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.CarteDuPatient;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.springframework.stereotype.Service;
 
@@ -42,11 +42,11 @@ public class GreffePdfService {
         this.identity = identity;
     }
 
-    public byte[] exportPdf(CenterId centerId, UUID patientId) {
-        DossierDeGreffe dossier = dossiers.duPatient(centerId.value(), patientId);
-        CarteDuPatient patient = fiches.carte(centerId.value(), patientId).orElse(null);
+    public byte[] exportPdf(CentreId centerId, UUID patientId) {
+        DossierDeGreffe dossier = dossiers.duPatient(centerId.valeur(), patientId);
+        CarteDuPatient patient = fiches.carte(centerId.valeur(), patientId).orElse(null);
 
-        String html = identity.decorateHtml(buildHtml(patient, dossier), centerId.value());
+        String html = identity.decorateHtml(buildHtml(patient, dossier), centerId.valeur());
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();

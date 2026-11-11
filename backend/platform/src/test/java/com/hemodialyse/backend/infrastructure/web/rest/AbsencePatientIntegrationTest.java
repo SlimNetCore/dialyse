@@ -6,7 +6,7 @@ import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryServi
 import com.hemodialyse.backend.contexts.absencespatients.application.DetectionAbsences;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodeDeDetection;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.infrastructure.security.RoleScopeFilter;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;

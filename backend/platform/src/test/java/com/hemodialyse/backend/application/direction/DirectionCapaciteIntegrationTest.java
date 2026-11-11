@@ -3,7 +3,7 @@ package com.hemodialyse.backend.application.direction;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CentreCapacite;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Niveau;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

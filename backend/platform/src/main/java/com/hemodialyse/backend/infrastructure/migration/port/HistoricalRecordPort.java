@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.migration.port;
 
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.Map;
 import java.util.Optional;
@@ -21,13 +21,13 @@ public interface HistoricalRecordPort {
     /**
      * Ligne du centre ayant exactement ces valeurs (ex. patient + date de séance), s'il y en a une.
      */
-    Optional<UUID> findExisting(CenterId centerId, MigrationEntity entity, Map<String, Object> key);
+    Optional<UUID> findExisting(CentreId centerId, MigrationEntity entity, Map<String, Object> key);
 
-    UUID insert(CenterId centerId, MigrationEntity entity, Map<String, Object> values);
+    UUID insert(CentreId centerId, MigrationEntity entity, Map<String, Object> values);
 
     /**
      * Met à jour les seuls champs fournis (une reprise n'efface jamais une valeur existante).
      */
-    void update(CenterId centerId, MigrationEntity entity, UUID id, Map<String, Object> values);
+    void update(CentreId centerId, MigrationEntity entity, UUID id, Map<String, Object> values);
 }
 

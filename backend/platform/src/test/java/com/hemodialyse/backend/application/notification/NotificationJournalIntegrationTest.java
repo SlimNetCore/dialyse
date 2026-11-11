@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.application.notification;
 
 import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

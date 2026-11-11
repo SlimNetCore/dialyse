@@ -77,7 +77,7 @@ public class AssureMigrator implements EntityMigrator {
             }
             Optional<AssureConnu> existing = assures.trouver(numero);
             if (existing.isPresent() && existing.get().centre() != null
-                    && !existing.get().centre().equals(ctx.centerId().value())) {
+                    && !existing.get().centre().equals(ctx.centerId().valeur())) {
                 errors.add(issue(row.line(), "numeroAssurance", "OTHER_CENTER",
                         "Le n° d'assurance « " + numero + " » est déjà rattaché à un autre centre.", Map.of("value", numero)));
             }
@@ -105,7 +105,7 @@ public class AssureMigrator implements EntityMigrator {
             // cet identifiant d'origine (une correspondance connue garde l'état mémorisé par le premier lot).
             String etatOrigine = !mapped.containsKey(plan.legacyId()) && plan.existing() != null
                     ? assures.memoriser(plan.numero()).orElse(null) : null;
-            assures.reprendre(ctx.centerId().value(), report(plan.row()));
+            assures.reprendre(ctx.centerId().valeur(), report(plan.row()));
             IdMapping.Operation operation = mapped.containsKey(plan.legacyId()) ? IdMapping.Operation.UPDATED : plan.operation();
             ctx.ids().save(ctx.centerId(), ctx.batch().getId(),
                     new IdMapping(entity(), plan.legacyId(), plan.numero(), operation, etatOrigine));

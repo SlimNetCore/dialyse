@@ -3,7 +3,7 @@ package com.hemodialyse.backend.application.supervision.port;
 import com.hemodialyse.backend.application.supervision.RequeteStatistique;
 import com.hemodialyse.backend.application.supervision.StatutStatistiques;
 import com.hemodialyse.backend.application.supervision.TriRequetes;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 
 /**
  * Port de sortie : statistiques d'exécution des requêtes de la base. L'adaptateur PostgreSQL lit

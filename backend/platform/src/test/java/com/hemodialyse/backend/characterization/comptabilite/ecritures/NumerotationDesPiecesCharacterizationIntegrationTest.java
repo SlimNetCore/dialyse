@@ -180,7 +180,7 @@ class NumerotationDesPiecesCharacterizationIntegrationTest extends EcrituresChar
     void un_refus_pour_periode_close_ne_consomme_pas_de_numero() throws Exception {
         assertEquals(200, doPost("/periodes/cloturer", json("{'annee':2026,'mois':3,'userId':'u'}"), adminA()).status());
         assertEquals("PERIODE_CLOTUREE", org.junit.jupiter.api.Assertions.assertThrows(
-                com.hemodialyse.backend.domain.shared.exception.BusinessException.class,
+                com.hemodialyse.backend.application.erreur.BusinessException.class,
                 () -> genererVente(1, "100.00", "0.00", "100.00", "2026-03-05")).getCode());
         genererVente(2, "100.00", "0.00", "100.00", "2026-04-05");
         goldenEcritures("refus_periode_close_sans_numero_consomme", CENTRE_A);
@@ -189,7 +189,7 @@ class NumerotationDesPiecesCharacterizationIntegrationTest extends EcrituresChar
     @Test
     void un_refus_pour_desequilibre_ne_consomme_pas_de_numero() throws Exception {
         assertEquals("ECRITURE_DESEQUILIBREE", org.junit.jupiter.api.Assertions.assertThrows(
-                com.hemodialyse.backend.domain.shared.exception.BusinessException.class,
+                com.hemodialyse.backend.application.erreur.BusinessException.class,
                 () -> genererVente(1, "100.00", "19.00", "118.99", "2026-03-05")).getCode());
         genererVente(2, "100.00", "0.00", "100.00", "2026-03-06");
         goldenEcritures("refus_desequilibre_sans_numero_consomme", CENTRE_A);

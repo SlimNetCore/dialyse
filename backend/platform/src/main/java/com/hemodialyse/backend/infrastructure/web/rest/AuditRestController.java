@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.audit.AuditQueryService;
 import com.hemodialyse.backend.application.audit.AuditQueryService.Entry;
 import com.hemodialyse.backend.application.audit.AuditQueryService.Search;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;

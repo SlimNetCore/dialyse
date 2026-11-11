@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.referential.admin.model;
 
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 
 import java.util.List;
 import java.util.stream.Collectors;

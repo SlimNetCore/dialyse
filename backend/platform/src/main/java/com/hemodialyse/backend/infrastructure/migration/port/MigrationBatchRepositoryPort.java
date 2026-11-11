@@ -2,8 +2,8 @@ package com.hemodialyse.backend.infrastructure.migration.port;
 
 import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,17 +16,17 @@ public interface MigrationBatchRepositoryPort {
 
     MigrationBatch save(MigrationBatch batch);
 
-    Optional<MigrationBatch> findById(CenterId centerId, UUID batchId);
+    Optional<MigrationBatch> findById(CentreId centerId, UUID batchId);
 
-    Optional<MigrationBatch> findActive(CenterId centerId);
+    Optional<MigrationBatch> findActive(CentreId centerId);
 
-    PagedResult<MigrationBatch> findPaged(CenterId centerId, int page, int size);
+    PagedResult<MigrationBatch> findPaged(CentreId centerId, int page, int size);
 
-    void saveRun(CenterId centerId, UUID batchId, EntityRun run);
+    void saveRun(CentreId centerId, UUID batchId, EntityRun run);
 
     /**
      * Dernier compte rendu de chaque donnée reprise du lot.
      */
-    List<EntityRun> findLatestRuns(CenterId centerId, UUID batchId);
+    List<EntityRun> findLatestRuns(CentreId centerId, UUID batchId);
 }
 

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.referential.admin;
 
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportReport;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ReferentialAdminDelegationTest {
 
-    private static final CenterId CENTER = CenterId.of(UUID.fromString("00000000-0000-0000-0000-00000000000a"));
+    private static final CentreId CENTER = new CentreId(UUID.fromString("00000000-0000-0000-0000-00000000000a"));
 
     private final List<String> appels = new ArrayList<>();
     private final List<ReferentialAdminDelegate.Row> lignesRecues = new ArrayList<>();
@@ -43,30 +43,30 @@ class ReferentialAdminDelegationTest {
             }
 
             @Override
-            public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+            public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
                 appels.add("list:" + search + ":" + page + ":" + size);
                 return PagedResult.of(List.of(), 0, page, size);
             }
 
             @Override
-            public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+            public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
                 appels.add("create:" + values.get("nom"));
                 return new ReferentialEntry(UUID.randomUUID(), values, Map.of());
             }
 
             @Override
-            public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+            public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
                 appels.add("update:" + id);
                 return new ReferentialEntry(id, values, Map.of());
             }
 
             @Override
-            public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+            public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
                 appels.add("delete:" + id);
             }
 
             @Override
-            public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+            public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
                 appels.add("import:" + rows.size() + ":" + dryRun);
                 lignesRecues.addAll(rows);
                 return new Outcome(1, 2, anomaliesRendues, anomaliesRendues.isEmpty() && !dryRun);
@@ -122,30 +122,30 @@ class ReferentialAdminDelegationTest {
             }
 
             @Override
-            public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+            public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
                 vus.add("list:" + kind);
                 return PagedResult.of(List.of(), 0, page, size);
             }
 
             @Override
-            public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+            public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
                 vus.add("create:" + kind);
                 return new ReferentialEntry(UUID.randomUUID(), values, Map.of());
             }
 
             @Override
-            public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+            public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
                 vus.add("update:" + kind);
                 return new ReferentialEntry(id, values, Map.of());
             }
 
             @Override
-            public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+            public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
                 vus.add("delete:" + kind);
             }
 
             @Override
-            public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+            public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
                 vus.add("import:" + kind);
                 return new Outcome(0, 0, List.of(), !dryRun);
             }
@@ -172,28 +172,28 @@ class ReferentialAdminDelegationTest {
             }
 
             @Override
-            public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+            public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+            public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
                 vus.add(nom);
                 return new ReferentialEntry(UUID.randomUUID(), values, Map.of());
             }
 
             @Override
-            public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+            public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+            public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+            public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
                 throw new UnsupportedOperationException();
             }
         };

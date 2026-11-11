@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -81,10 +81,10 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     }
 
     @Override
-    public Optional<UUID> findExisting(CenterId centerId, MigrationEntity entity, Map<String, Object> key) {
-        if (entity == MigrationEntity.SEANCES) return seances.seanceDejaPresente(centerId.value(), key);
+    public Optional<UUID> findExisting(CentreId centerId, MigrationEntity entity, Map<String, Object> key) {
+        if (entity == MigrationEntity.SEANCES) return seances.seanceDejaPresente(centerId.valeur(), key);
         Table table = table(entity);
-        List<Object> params = new ArrayList<>(List.of(centerId.value()));
+        List<Object> params = new ArrayList<>(List.of(centerId.valeur()));
         StringBuilder where = new StringBuilder(" WHERE center_id = ?");
         key.forEach((field, value) -> {
             String column = column(table, field);
@@ -100,13 +100,13 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     }
 
     @Override
-    public UUID insert(CenterId centerId, MigrationEntity entity, Map<String, Object> values) {
-        if (entity == MigrationEntity.SEANCES) return seances.reprendre(centerId.value(), values);
+    public UUID insert(CentreId centerId, MigrationEntity entity, Map<String, Object> values) {
+        if (entity == MigrationEntity.SEANCES) return seances.reprendre(centerId.valeur(), values);
         Table table = table(entity);
         UUID id = UUID.randomUUID();
         OffsetDateTime now = OffsetDateTime.now();
         List<String> columns = new ArrayList<>(List.of("id", "center_id"));
-        List<Object> params = new ArrayList<>(List.of(id, centerId.value()));
+        List<Object> params = new ArrayList<>(List.of(id, centerId.valeur()));
         values.forEach((field, value) -> {
             columns.add(column(table, field));
             params.add(value);
@@ -126,9 +126,9 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     }
 
     @Override
-    public void update(CenterId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
+    public void update(CentreId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
         if (entity == MigrationEntity.SEANCES) {
-            seances.modifier(centerId.value(), id, values);
+            seances.modifier(centerId.valeur(), id, values);
             return;
         }
         Table table = table(entity);
@@ -145,7 +145,7 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
         }
         if (assignments.isEmpty()) return;
         params.add(id);
-        params.add(centerId.value());
+        params.add(centerId.valeur());
         jdbc.update("UPDATE " + table.name() + " SET " + String.join(", ", assignments) + " WHERE id = ? AND center_id = ?",
                 params.toArray());
     }

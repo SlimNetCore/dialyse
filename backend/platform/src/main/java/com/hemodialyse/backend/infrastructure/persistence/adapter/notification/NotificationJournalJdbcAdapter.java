@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.notification;
 
 import com.hemodialyse.backend.application.notification.NotificationJournalPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;

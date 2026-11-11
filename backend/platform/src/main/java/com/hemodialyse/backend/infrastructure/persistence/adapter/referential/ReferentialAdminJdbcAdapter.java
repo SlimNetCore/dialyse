@@ -6,8 +6,8 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Tran
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.persistence.adapter.referential.ReferentialAdminTables.Column;
 import com.hemodialyse.backend.infrastructure.persistence.adapter.referential.ReferentialAdminTables.Reference;
 import com.hemodialyse.backend.infrastructure.persistence.adapter.referential.ReferentialAdminTables.Table;
@@ -79,8 +79,8 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         return "medecin".equals(table.name()) ? " AND t.actif = TRUE" : "";
     }
 
-    private static String where(Table table, CenterId centerId, String search, List<Object> params) {
-        params.add(centerId.value());
+    private static String where(Table table, CentreId centerId, String search, List<Object> params) {
+        params.add(centerId.valeur());
         if (search == null || search.isBlank()) return " WHERE t.center_id = ?" + actifSeulement(table);
         String like = "%" + search.trim().toLowerCase(Locale.ROOT)
                 .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
@@ -133,7 +133,7 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     }
 
     @Override
-    public PagedResult<ReferentialEntry> findPaged(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+    public PagedResult<ReferentialEntry> findPaged(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
         Table table = ReferentialAdminTables.of(kind);
         List<Object> params = new ArrayList<>();
         String where = where(table, centerId, search, params);
@@ -151,22 +151,22 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     // ---- SQL ---------------------------------------------------------------------------------------------------
 
     @Override
-    public Optional<ReferentialEntry> findById(CenterId centerId, ReferentialKind kind, UUID id) {
+    public Optional<ReferentialEntry> findById(CentreId centerId, ReferentialKind kind, UUID id) {
         Table table = ReferentialAdminTables.of(kind);
         return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ? AND t.id = ?" + actifSeulement(table),
-                mapper(table), centerId.value(), id).stream().findFirst();
+                mapper(table), centerId.valeur(), id).stream().findFirst();
     }
 
     @Override
-    public List<ReferentialEntry> findAllForMatching(CenterId centerId, ReferentialKind kind) {
+    public List<ReferentialEntry> findAllForMatching(CentreId centerId, ReferentialKind kind) {
         if (kind == ReferentialKind.TRANSPORTEUR) {
             // RF1 (ADR 0122) : les transporteurs appartiennent à patient-couverture ; la reprise des patients les retrouve par leur nom.
-            return transporteurs.lister(centerId.value()).stream()
+            return transporteurs.lister(centerId.valeur()).stream()
                     .map(t -> new ReferentialEntry(t.id(), java.util.Collections.singletonMap("nom", t.nom()), Map.of())).toList();
         }
         if (kind == ReferentialKind.FORFAIT) {
             // RF2 (ADR 0124) : le catalogue de forfaits appartient à patient-couverture ; la reprise de l'historique les retrouve par leur code.
-            return forfaits.lister(centerId.value()).stream().map(f -> {
+            return forfaits.lister(centerId.valeur()).stream().map(f -> {
                 Map<String, String> valeurs = new LinkedHashMap<>();
                 valeurs.put("code", f.code());
                 valeurs.put("libelle", f.libelle());
@@ -178,7 +178,7 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
             // RF3a (ADR 0126) : la chaîne des payeurs appartient à patient-couverture ; la reprise des patients retrouve un payeur par son code.
             GestionDesPayeurs.Niveau niveau = kind == ReferentialKind.CAISSE ? GestionDesPayeurs.Niveau.CAISSE
                     : kind == ReferentialKind.AGENCE ? GestionDesPayeurs.Niveau.AGENCE : GestionDesPayeurs.Niveau.CENTRE_PAYEUR;
-            return payeurs.toutes(centerId.value(), niveau).stream().map(p -> {
+            return payeurs.toutes(centerId.valeur(), niveau).stream().map(p -> {
                 Map<String, String> valeurs = new LinkedHashMap<>();
                 valeurs.put("code", p.code());
                 valeurs.put("nom", p.nom());
@@ -192,16 +192,16 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
             }).toList();
         }
         Table table = ReferentialAdminTables.of(kind);
-        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?" + actifSeulement(table), mapper(table), centerId.value());
+        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?" + actifSeulement(table), mapper(table), centerId.valeur());
     }
 
     @Override
-    public UUID insert(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public UUID insert(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         Table table = ReferentialAdminTables.of(kind);
         UUID id = UUID.randomUUID();
         String columns = table.columns().stream().map(Column::column).collect(Collectors.joining(", "));
         String placeholders = table.columns().stream().map(c -> "?").collect(Collectors.joining(", "));
-        List<Object> params = new ArrayList<>(List.of(id, centerId.value()));
+        List<Object> params = new ArrayList<>(List.of(id, centerId.valeur()));
         table.columns().forEach(c -> params.add(toSql(c, values.get(c.field()))));
 
         jdbc.update("INSERT INTO " + table.name() + " (id, center_id, " + columns + ") VALUES (?, ?, " + placeholders + ")",
@@ -211,31 +211,31 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     }
 
     @Override
-    public void update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public void update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         Table table = ReferentialAdminTables.of(kind);
         String assignments = table.columns().stream().map(c -> c.column() + " = ?").collect(Collectors.joining(", "));
         List<Object> params = new ArrayList<>();
         table.columns().forEach(c -> params.add(toSql(c, values.get(c.field()))));
         params.add(id);
-        params.add(centerId.value());
+        params.add(centerId.valeur());
 
         jdbc.update("UPDATE " + table.name() + " SET " + assignments + " WHERE id = ? AND center_id = ?", params.toArray());
         cacheEvictor.evictAfterCommit(centerId, table.caches());
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         Table table = ReferentialAdminTables.of(kind);
         if ("medecin".equals(table.name())) {
-            jdbc.update("UPDATE medecin SET actif = FALSE WHERE id = ? AND center_id = ?", id, centerId.value());
+            jdbc.update("UPDATE medecin SET actif = FALSE WHERE id = ? AND center_id = ?", id, centerId.valeur());
         } else {
-            jdbc.update("DELETE FROM " + table.name() + " WHERE id = ? AND center_id = ?", id, centerId.value());
+            jdbc.update("DELETE FROM " + table.name() + " WHERE id = ? AND center_id = ?", id, centerId.valeur());
         }
         cacheEvictor.evictAfterCommit(centerId, table.caches());
     }
 
     @Override
-    public long countUsages(CenterId centerId, ReferentialKind kind, UUID id) {
+    public long countUsages(CentreId centerId, ReferentialKind kind, UUID id) {
         long total = 0;
         for (Usage usage : ReferentialAdminTables.of(kind).usages()) {
             try {

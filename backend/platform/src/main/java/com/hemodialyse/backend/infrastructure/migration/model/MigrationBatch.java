@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.migration.model;
 
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -14,7 +14,7 @@ import java.util.UUID;
 public class MigrationBatch {
 
     private UUID id;
-    private CenterId centerId;
+    private CentreId centerId;
     private String libelle;
     private String sourceSystem;
     private LocalDate dateDebutReprise;
@@ -23,7 +23,7 @@ public class MigrationBatch {
     private OffsetDateTime createdAt;
     private OffsetDateTime closedAt;
 
-    public static MigrationBatch ouvrir(CenterId centerId, String libelle, String sourceSystem,
+    public static MigrationBatch ouvrir(CentreId centerId, String libelle, String sourceSystem,
                                         LocalDate dateDebutReprise, String createdBy, OffsetDateTime now) {
         if (libelle == null || libelle.isBlank()) {
             throw new BusinessException("MIGRATION_LABEL_REQUIRED", "Le libellé du lot de reprise est obligatoire.");
@@ -44,7 +44,7 @@ public class MigrationBatch {
         return batch;
     }
 
-    public static MigrationBatch restore(UUID id, CenterId centerId, String libelle, String sourceSystem,
+    public static MigrationBatch restore(UUID id, CentreId centerId, String libelle, String sourceSystem,
                                          LocalDate dateDebutReprise, Status status, String createdBy,
                                          OffsetDateTime createdAt, OffsetDateTime closedAt) {
         MigrationBatch batch = new MigrationBatch();
@@ -83,7 +83,7 @@ public class MigrationBatch {
         return id;
     }
 
-    public CenterId getCenterId() {
+    public CentreId getCenterId() {
         return centerId;
     }
 

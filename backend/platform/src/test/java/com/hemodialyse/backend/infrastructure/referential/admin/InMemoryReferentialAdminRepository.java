@@ -3,8 +3,8 @@ package com.hemodialyse.backend.infrastructure.referential.admin;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,58 +23,58 @@ class InMemoryReferentialAdminRepository implements ReferentialAdminRepositoryPo
     final Map<UUID, Long> usages = new HashMap<>();
     int writes;
 
-    UUID seed(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    UUID seed(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         UUID id = UUID.randomUUID();
         rows.add(new Stored(centerId, kind, id, new LinkedHashMap<>(values)));
         return id;
     }
 
-    List<Stored> of(CenterId centerId, ReferentialKind kind) {
+    List<Stored> of(CentreId centerId, ReferentialKind kind) {
         return rows.stream().filter(r -> r.centerId().equals(centerId) && r.kind() == kind).toList();
     }
 
     @Override
-    public PagedResult<ReferentialEntry> findPaged(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+    public PagedResult<ReferentialEntry> findPaged(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
         List<ReferentialEntry> all = findAllForMatching(centerId, kind);
         return PagedResult.of(all.stream().skip((long) page * size).limit(size).toList(), all.size(), page, size);
     }
 
     @Override
-    public Optional<ReferentialEntry> findById(CenterId centerId, ReferentialKind kind, UUID id) {
+    public Optional<ReferentialEntry> findById(CentreId centerId, ReferentialKind kind, UUID id) {
         return of(centerId, kind).stream().filter(r -> r.id().equals(id)).findFirst()
                 .map(r -> new ReferentialEntry(r.id(), r.values(), Map.of()));
     }
 
     @Override
-    public List<ReferentialEntry> findAllForMatching(CenterId centerId, ReferentialKind kind) {
+    public List<ReferentialEntry> findAllForMatching(CentreId centerId, ReferentialKind kind) {
         return of(centerId, kind).stream().map(r -> new ReferentialEntry(r.id(), r.values(), Map.of())).toList();
     }
 
     @Override
-    public UUID insert(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public UUID insert(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         writes++;
         return seed(centerId, kind, values);
     }
 
     @Override
-    public void update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public void update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         writes++;
         rows.replaceAll(r -> r.id().equals(id) && r.centerId().equals(centerId)
                 ? new Stored(centerId, kind, id, new LinkedHashMap<>(values)) : r);
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         writes++;
         rows.removeIf(r -> r.id().equals(id) && r.centerId().equals(centerId));
     }
 
     @Override
-    public long countUsages(CenterId centerId, ReferentialKind kind, UUID id) {
+    public long countUsages(CentreId centerId, ReferentialKind kind, UUID id) {
         return usages.getOrDefault(id, 0L);
     }
 
-    record Stored(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    record Stored(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
     }
 }
 

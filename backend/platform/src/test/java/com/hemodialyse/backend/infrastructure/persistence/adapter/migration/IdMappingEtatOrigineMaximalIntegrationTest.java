@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class IdMappingEtatOrigineMaximalIntegrationTest {
     @Test
     void le_memento_du_pire_cas_du_schema_est_memorise_puis_relu_a_l_identique() {
         IdMappingJdbcAdapter adapter = new IdMappingJdbcAdapter(jdbc);
-        CenterId centre = CenterId.of(UUID.randomUUID());
+        CentreId centre = new CentreId(UUID.randomUUID());
         UUID lot = UUID.randomUUID();
         String memento = pireMemento();
         assertThat(memento.length()).as("le pire cas dépasse l'ancienne borne de 4000").isGreaterThan(4000);

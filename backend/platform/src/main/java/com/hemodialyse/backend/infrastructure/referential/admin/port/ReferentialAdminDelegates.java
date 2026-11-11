@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.referential.admin.port;
 
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 
@@ -32,27 +32,27 @@ public class ReferentialAdminDelegates implements ReferentialAdminDelegate {
     }
 
     @Override
-    public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
+    public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
         return de(kind).list(centerId, kind, search, page, size);
     }
 
     @Override
-    public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         return de(kind).create(centerId, kind, values);
     }
 
     @Override
-    public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         return de(kind).update(centerId, kind, id, values);
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         de(kind).delete(centerId, kind, id);
     }
 
     @Override
-    public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+    public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
         return de(kind).importRows(centerId, kind, rows, dryRun);
     }
 }

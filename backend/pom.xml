@@ -24,7 +24,6 @@
         <org-apache-tomcat-embed.tomcat-embed-websocket.version>11.0.22</org-apache-tomcat-embed.tomcat-embed-websocket.version>
 	</properties>
     <modules>
-        <module>shared-kernel</module>
         <module>contexts/shared-kernel</module>
         <module>contexts/gmao</module>
         <module>contexts/comptabilite</module>
@@ -45,11 +44,6 @@
                 <groupId>ai.timefold.solver</groupId>
                 <artifactId>timefold-solver-core</artifactId>
                 <version>${timefold-solver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hemodialyse</groupId>
-                <artifactId>shared-kernel</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>

@@ -7,7 +7,7 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Tabl
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre.Synthese;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.PatientsAuxGenerateurs;
 import org.springframework.stereotype.Service;

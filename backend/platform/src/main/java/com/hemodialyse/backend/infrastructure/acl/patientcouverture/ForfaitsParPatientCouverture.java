@@ -6,9 +6,9 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Gest
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDuCatalogueDeForfaits.FicheDeForfait;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDuCatalogueDeForfaits.LigneAImporter;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RefusDeForfait;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
@@ -66,44 +66,44 @@ public class ForfaitsParPatientCouverture implements ReferentialAdminDelegate {
     }
 
     @Override
-    public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
-        var resultat = forfaits.lister(centerId.value(), search, page, size);
+    public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
+        var resultat = forfaits.lister(centerId.valeur(), search, page, size);
         return PagedResult.of(resultat.lignes().stream().map(ForfaitsParPatientCouverture::entree).toList(), resultat.total(),
                 resultat.page(), resultat.taille());
     }
 
     @Override
-    public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         try {
-            return entree(forfaits.creer(centerId.value(), values.get("code"), values.get("libelle"), values.get("prix")));
+            return entree(forfaits.creer(centerId.valeur(), values.get("code"), values.get("libelle"), values.get("prix")));
         } catch (RefusDeForfait refus) {
             throw traduire(refus);
         }
     }
 
     @Override
-    public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         try {
-            return entree(forfaits.modifier(centerId.value(), id, values.get("code"), values.get("libelle"), values.get("prix")));
+            return entree(forfaits.modifier(centerId.valeur(), id, values.get("code"), values.get("libelle"), values.get("prix")));
         } catch (RefusDeForfait refus) {
             throw traduire(refus);
         }
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         try {
-            forfaits.supprimer(centerId.value(), id);
+            forfaits.supprimer(centerId.valeur(), id);
         } catch (RefusDeForfait refus) {
             throw traduire(refus);
         }
     }
 
     @Override
-    public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+    public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
         List<LigneAImporter> lignes = rows.stream()
                 .map(r -> new LigneAImporter(r.lineNumber(), r.values().get("code"), r.values().get("libelle"), r.values().get("prix"))).toList();
-        BilanDImport bilan = forfaits.importer(centerId.value(), lignes, !dryRun);
+        BilanDImport bilan = forfaits.importer(centerId.valeur(), lignes, !dryRun);
         return new Outcome(bilan.aCreer(), bilan.aMettreAJour(),
                 bilan.anomalies().stream().map(ForfaitsParPatientCouverture::anomalie).toList(), bilan.appliquee());
     }

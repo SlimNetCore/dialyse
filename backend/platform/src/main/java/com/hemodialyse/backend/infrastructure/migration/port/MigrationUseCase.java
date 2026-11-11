@@ -4,8 +4,8 @@ import com.hemodialyse.backend.infrastructure.migration.model.EntityRun;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationBatch;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,37 +20,37 @@ public interface MigrationUseCase {
     /**
      * Ouvre le lot du centre (un seul lot en cours par centre).
      */
-    MigrationBatch open(CenterId centerId, String libelle, String sourceSystem, LocalDate dateDebutReprise, String user);
+    MigrationBatch open(CentreId centerId, String libelle, String sourceSystem, LocalDate dateDebutReprise, String user);
 
-    PagedResult<MigrationBatch> list(CenterId centerId, int page, int size);
+    PagedResult<MigrationBatch> list(CentreId centerId, int page, int size);
 
-    BatchDetail get(CenterId centerId, UUID batchId);
+    BatchDetail get(CentreId centerId, UUID batchId);
 
     /**
      * Vérifie ({@code dryRun}) ou importe un fichier. Rien n'est écrit tant que le fichier contient une anomalie ;
      * un fichier rejoué met à jour les lignes déjà reprises (identifiant d'origine).
      */
-    EntityRun importEntity(CenterId centerId, UUID batchId, MigrationEntity entity, String fileName,
+    EntityRun importEntity(CentreId centerId, UUID batchId, MigrationEntity entity, String fileName,
                            ImportTable table, boolean dryRun, String user);
 
     /**
      * Valide la reprise : le lot est figé.
      */
-    MigrationBatch close(CenterId centerId, UUID batchId);
+    MigrationBatch close(CentreId centerId, UUID batchId);
 
     /**
      * Supprime les données créées par le lot (refusé si elles sont déjà utilisées), puis l'annule.
      */
-    MigrationBatch cancel(CenterId centerId, UUID batchId);
+    MigrationBatch cancel(CentreId centerId, UUID batchId);
 
     /**
      * Correspondances de valeurs du centre : colonne → (valeur d'origine normalisée → valeur cible).
      */
-    Map<String, Map<String, String>> valueMappings(CenterId centerId);
+    Map<String, Map<String, String>> valueMappings(CentreId centerId);
 
-    void saveValueMapping(CenterId centerId, String column, String sourceValue, String targetValue);
+    void saveValueMapping(CentreId centerId, String column, String sourceValue, String targetValue);
 
-    void deleteValueMapping(CenterId centerId, String column, String sourceValue);
+    void deleteValueMapping(CentreId centerId, String column, String sourceValue);
 
     /**
      * Lot et dernier compte rendu de chaque donnée reprise.

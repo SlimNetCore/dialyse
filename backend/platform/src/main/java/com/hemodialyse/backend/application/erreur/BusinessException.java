@@ -1,11 +1,9 @@
-package com.hemodialyse.backend.domain.shared.exception;
+package com.hemodialyse.backend.application.erreur;
 
 /**
- * Base unchecked exception for domain (business rule) violations.
+ * Base unchecked exception for business rule violations of the platform (HTTP 422 via {@code ApiExceptionHandler}).
  * <p>
- * Belongs to the Shared Kernel (AGENTS.md §16): raised by aggregates, value
- * objects and domain services when an invariant is broken. Contains no
- * framework dependency so it stays usable from the pure {@code domain/} layer.
+ * Contains no framework dependency. Moved from the former {@code shared-kernel} module (ADR 0136).
  */
 public class BusinessException extends RuntimeException {
 
@@ -33,4 +31,3 @@ public class BusinessException extends RuntimeException {
         return code;
     }
 }
-

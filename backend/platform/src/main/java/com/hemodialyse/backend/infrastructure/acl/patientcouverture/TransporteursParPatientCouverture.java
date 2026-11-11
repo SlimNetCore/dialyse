@@ -6,9 +6,9 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Gest
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesTransporteurs.FicheDeTransporteur;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesTransporteurs.LigneAImporter;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RefusDeTransporteur;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
@@ -65,44 +65,44 @@ public class TransporteursParPatientCouverture implements ReferentialAdminDelega
     }
 
     @Override
-    public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
-        var resultat = transporteurs.lister(centerId.value(), search, page, size);
+    public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
+        var resultat = transporteurs.lister(centerId.valeur(), search, page, size);
         return PagedResult.of(resultat.lignes().stream().map(TransporteursParPatientCouverture::entree).toList(), resultat.total(),
                 resultat.page(), resultat.taille());
     }
 
     @Override
-    public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         try {
-            return entree(transporteurs.creer(centerId.value(), values.get("nom"), values.get("telephone")));
+            return entree(transporteurs.creer(centerId.valeur(), values.get("nom"), values.get("telephone")));
         } catch (RefusDeTransporteur refus) {
             throw traduire(refus);
         }
     }
 
     @Override
-    public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         try {
-            return entree(transporteurs.modifier(centerId.value(), id, values.get("nom"), values.get("telephone")));
+            return entree(transporteurs.modifier(centerId.valeur(), id, values.get("nom"), values.get("telephone")));
         } catch (RefusDeTransporteur refus) {
             throw traduire(refus);
         }
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         try {
-            transporteurs.supprimer(centerId.value(), id);
+            transporteurs.supprimer(centerId.valeur(), id);
         } catch (RefusDeTransporteur refus) {
             throw traduire(refus);
         }
     }
 
     @Override
-    public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+    public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
         List<LigneAImporter> lignes = rows.stream()
                 .map(r -> new LigneAImporter(r.lineNumber(), r.values().get("nom"), r.values().get("telephone"))).toList();
-        BilanDImport bilan = transporteurs.importer(centerId.value(), lignes, !dryRun);
+        BilanDImport bilan = transporteurs.importer(centerId.valeur(), lignes, !dryRun);
         return new Outcome(bilan.aCreer(), bilan.aMettreAJour(),
                 bilan.anomalies().stream().map(TransporteursParPatientCouverture::anomalie).toList(), bilan.appliquee());
     }

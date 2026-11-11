@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.referential.admin.port;
 
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
@@ -21,16 +21,16 @@ public interface ReferentialAdminDelegate {
     /** Ce référentiel est-il géré par le délégué ? */
     boolean prend(ReferentialKind kind);
 
-    PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size);
+    PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size);
 
-    ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values);
+    ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values);
 
-    ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values);
+    ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values);
 
-    void delete(CenterId centerId, ReferentialKind kind, UUID id);
+    void delete(CentreId centerId, ReferentialKind kind, UUID id);
 
     /** Contrôle (et, sauf vérification seule, écrit tout ou rien) les lignes lues du fichier. */
-    Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun);
+    Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun);
 
     /** Une ligne de données du fichier : son numéro et ses valeurs par clé de champ. */
     record Row(int lineNumber, Map<String, String> values) {

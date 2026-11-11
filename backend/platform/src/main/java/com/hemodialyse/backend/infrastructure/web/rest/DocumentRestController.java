@@ -92,7 +92,7 @@ public class DocumentRestController {
     @GetMapping("/modeles")
     public ResponseEntity<?> listModeles(@RequestParam UUID centerId,
                                          @RequestParam(required = false) String typeDocument) {
-        centerId = centerAccessGuard.requireCenter(centerId).value();
+        centerId = centerAccessGuard.requireCenter(centerId).valeur();
         String sql = "SELECT id, center_id, code, libelle, type_document, chemin_jrxml, " +
                 "format_impression, description, active FROM modele_document " +
                 "WHERE center_id = ? " +
@@ -135,7 +135,7 @@ public class DocumentRestController {
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/modeles")
     public ResponseEntity<?> createModele(@RequestBody ModeleDocumentDto req) {
-        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).value();
+        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).valeur();
         requireSafeTemplatePath(req.cheminJrxml());
         UUID id = req.id() != null ? req.id() : UUID.randomUUID();
         jdbc.update("INSERT INTO modele_document (id, center_id, code, libelle, type_document, " +
@@ -151,7 +151,7 @@ public class DocumentRestController {
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PutMapping("/modeles/{id}")
     public ResponseEntity<?> updateModele(@PathVariable UUID id, @RequestBody ModeleDocumentDto req) {
-        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).value();
+        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).valeur();
         requireSafeTemplatePath(req.cheminJrxml());
         jdbc.update("UPDATE modele_document SET code=?, libelle=?, type_document=?, " +
                         "chemin_jrxml=?, format_impression=?, description=?, active=? " +
@@ -168,7 +168,7 @@ public class DocumentRestController {
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @DeleteMapping("/modeles/{id}")
     public ResponseEntity<?> deleteModele(@PathVariable UUID id, @RequestParam UUID centerId) {
-        centerId = centerAccessGuard.requireCenter(centerId).value();
+        centerId = centerAccessGuard.requireCenter(centerId).valeur();
         if (templateService.findModele(centerId, id).isPresent()) {
             templateService.deleteAllVersions(id);
         }

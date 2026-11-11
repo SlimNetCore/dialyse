@@ -8,9 +8,9 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Gest
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs.Niveau;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs.SaisieDePayeur;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RefusDePayeur;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
@@ -98,43 +98,43 @@ public class PayeursParPatientCouverture implements ReferentialAdminDelegate {
     }
 
     @Override
-    public PagedResult<ReferentialEntry> list(CenterId centerId, ReferentialKind kind, String search, int page, int size) {
-        var resultat = payeurs.lister(centerId.value(), niveau(kind), search, page, size);
+    public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
+        var resultat = payeurs.lister(centerId.valeur(), niveau(kind), search, page, size);
         return PagedResult.of(resultat.lignes().stream().map(f -> entree(kind, f)).toList(), resultat.total(), resultat.page(),
                 resultat.taille());
     }
 
     @Override
-    public ReferentialEntry create(CenterId centerId, ReferentialKind kind, Map<String, String> values) {
+    public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
         try {
-            return entree(kind, payeurs.creer(centerId.value(), niveau(kind), saisie(kind, values)));
+            return entree(kind, payeurs.creer(centerId.valeur(), niveau(kind), saisie(kind, values)));
         } catch (RefusDePayeur refus) {
             throw traduire(kind, refus);
         }
     }
 
     @Override
-    public ReferentialEntry update(CenterId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
+    public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
         try {
-            return entree(kind, payeurs.modifier(centerId.value(), niveau(kind), id, saisie(kind, values)));
+            return entree(kind, payeurs.modifier(centerId.valeur(), niveau(kind), id, saisie(kind, values)));
         } catch (RefusDePayeur refus) {
             throw traduire(kind, refus);
         }
     }
 
     @Override
-    public void delete(CenterId centerId, ReferentialKind kind, UUID id) {
+    public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         try {
-            payeurs.supprimer(centerId.value(), niveau(kind), id);
+            payeurs.supprimer(centerId.valeur(), niveau(kind), id);
         } catch (RefusDePayeur refus) {
             throw traduire(kind, refus);
         }
     }
 
     @Override
-    public Outcome importRows(CenterId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
+    public Outcome importRows(CentreId centerId, ReferentialKind kind, List<Row> rows, boolean dryRun) {
         List<LigneAImporter> lignes = rows.stream().map(r -> new LigneAImporter(r.lineNumber(), saisie(kind, r.values()))).toList();
-        BilanDImport bilan = payeurs.importer(centerId.value(), niveau(kind), lignes, !dryRun);
+        BilanDImport bilan = payeurs.importer(centerId.valeur(), niveau(kind), lignes, !dryRun);
         return new Outcome(bilan.aCreer(), bilan.aMettreAJour(),
                 bilan.anomalies().stream().map(PayeursParPatientCouverture::anomalie).toList(), bilan.appliquee());
     }

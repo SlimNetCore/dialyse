@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.reporting.CahierDialyseReportService;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -37,7 +37,7 @@ class CahierDialyseRestControllerTest {
     private final CahierDialyseRestController controller = new CahierDialyseRestController(rapport, guard);
 
     CahierDialyseRestControllerTest() {
-        when(guard.requireCenter(any())).thenReturn(CenterId.of(centre));
+        when(guard.requireCenter(any())).thenReturn(new CentreId(centre));
     }
 
     private static Authentication auth() {

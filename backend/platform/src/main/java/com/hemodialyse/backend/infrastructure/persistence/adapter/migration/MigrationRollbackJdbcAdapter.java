@@ -7,7 +7,7 @@ import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.MigrationRollbackPort;
 import com.hemodialyse.backend.infrastructure.migration.port.OpeningBalancePort;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -78,7 +78,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     }
 
     @Override
-    public List<String> blockers(CenterId centerId, List<IdMapping> created) {
+    public List<String> blockers(CentreId centerId, List<IdMapping> created) {
         Map<String, Set<String>> createdByTable = createdByTable(created);
         Set<String> createdPatients = targets(created, MigrationEntity.PATIENTS);
         Set<String> createdAffectations = targets(created, MigrationEntity.AFFECTATIONS);
@@ -103,13 +103,13 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 }
                 case ASSURES -> {
                     long links = jdbc.queryForList("SELECT CAST(id AS VARCHAR(36)) AS id, CAST(patient_id AS VARCHAR(36)) AS patient_id "
-                                    + "FROM assure_patient WHERE center_id = ? AND numero_assurance = ?", centerId.value(), m.targetId())
+                                    + "FROM assure_patient WHERE center_id = ? AND numero_assurance = ?", centerId.valeur(), m.targetId())
                             .stream()
                             .filter(row -> !createdAffectations.contains(String.valueOf(row.get("id")))
                                     && !createdPatients.contains(String.valueOf(row.get("patient_id"))))
                             .count();
                     long patients = jdbc.queryForList("SELECT CAST(id AS VARCHAR(36)) FROM patients WHERE center_id = ? "
-                                    + "AND assure_numero_assurance = ?", String.class, centerId.value(), m.targetId())
+                                    + "AND assure_numero_assurance = ?", String.class, centerId.valeur(), m.targetId())
                             .stream().filter(id -> !createdPatients.contains(id)).count();
                     if (links + patients > 0)
                         blockers.add("assuré « " + m.targetId() + " » (rattaché à un patient existant)");
@@ -124,7 +124,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     }
                 }
                 case SOLDES_OUVERTURE -> {
-                    long payments = reprise.reglementsHorsReprise(centerId.value(), UUID.fromString(m.targetId()));
+                    long payments = reprise.reglementsHorsReprise(centerId.valeur(), UUID.fromString(m.targetId()));
                     if (payments > 0) {
                         blockers.add("facture « " + m.legacyId() + " » (encaissée dans la plateforme)");
                     }
@@ -138,8 +138,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     }
 
     @Override
-    public void delete(CenterId centerId, List<IdMapping> created) {
-        UUID center = centerId.value();
+    public void delete(CentreId centerId, List<IdMapping> created) {
+        UUID center = centerId.valeur();
         for (IdMapping m : created) {
             switch (m.entity()) {
                 case AFFECTATIONS -> jdbc.update("DELETE FROM assure_patient WHERE id = ? AND center_id = ?",
@@ -160,10 +160,10 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     }
 
     @Override
-    public void restore(CenterId centerId, List<IdMapping> updated) {
+    public void restore(CentreId centerId, List<IdMapping> updated) {
         for (IdMapping m : updated) {
             if (m.entity() == MigrationEntity.ASSURES && m.etatOrigine() != null) {
-                assures.restaurer(centerId.value(), m.targetId(), m.etatOrigine());
+                assures.restaurer(centerId.valeur(), m.targetId(), m.etatOrigine());
             }
         }
     }

@@ -14,9 +14,9 @@ import com.hemodialyse.backend.infrastructure.migration.port.ValueMappingPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.domain.shared.PagedResult;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -82,7 +82,7 @@ public class MigrationDomainService implements MigrationUseCase {
     }
 
     @Override
-    public MigrationBatch open(CenterId centerId, String libelle, String sourceSystem, LocalDate dateDebutReprise, String user) {
+    public MigrationBatch open(CentreId centerId, String libelle, String sourceSystem, LocalDate dateDebutReprise, String user) {
         batches.findActive(centerId).ifPresent(active -> {
             throw new BusinessException("MIGRATION_BATCH_ALREADY_OPEN",
                     "Un lot de reprise est déjà en cours pour ce centre (« " + active.getLibelle() + " ») : terminez-le ou annulez-le d'abord.");
@@ -91,18 +91,18 @@ public class MigrationDomainService implements MigrationUseCase {
     }
 
     @Override
-    public PagedResult<MigrationBatch> list(CenterId centerId, int page, int size) {
+    public PagedResult<MigrationBatch> list(CentreId centerId, int page, int size) {
         return batches.findPaged(centerId, Math.max(page, 0), size <= 0 ? 20 : Math.min(size, 100));
     }
 
     @Override
-    public BatchDetail get(CenterId centerId, UUID batchId) {
+    public BatchDetail get(CentreId centerId, UUID batchId) {
         MigrationBatch batch = require(centerId, batchId);
         return new BatchDetail(batch, batches.findLatestRuns(centerId, batchId));
     }
 
     @Override
-    public EntityRun importEntity(CenterId centerId, UUID batchId, MigrationEntity entity, String fileName,
+    public EntityRun importEntity(CentreId centerId, UUID batchId, MigrationEntity entity, String fileName,
                                   ImportTable table, boolean dryRun, String user) {
         MigrationBatch batch = require(centerId, batchId);
         batch.ensureOpen();
@@ -115,7 +115,7 @@ public class MigrationDomainService implements MigrationUseCase {
         return run;
     }
 
-    private EntityRun check(CenterId centerId, MigrationBatch batch, MigrationEntity entity, EntityMigrator migrator,
+    private EntityRun check(CentreId centerId, MigrationBatch batch, MigrationEntity entity, EntityMigrator migrator,
                             String fileName, ImportTable table, boolean dryRun, String user) {
         if (table.headers().stream().allMatch(h -> h == null || h.isBlank())) {
             return run(entity, fileName, 0, 0, 0, List.of(), List.of(),
@@ -175,14 +175,14 @@ public class MigrationDomainService implements MigrationUseCase {
     }
 
     @Override
-    public MigrationBatch close(CenterId centerId, UUID batchId) {
+    public MigrationBatch close(CentreId centerId, UUID batchId) {
         MigrationBatch batch = require(centerId, batchId);
         batch.terminer(now());
         return batches.save(batch);
     }
 
     @Override
-    public MigrationBatch cancel(CenterId centerId, UUID batchId) {
+    public MigrationBatch cancel(CentreId centerId, UUID batchId) {
         MigrationBatch batch = require(centerId, batchId);
         batch.ensureOpen();
         List<IdMapping> created = ids.findByBatch(centerId, batchId).stream()
@@ -206,12 +206,12 @@ public class MigrationDomainService implements MigrationUseCase {
     // ---- Utilitaires -------------------------------------------------------------------------------------------
 
     @Override
-    public Map<String, Map<String, String>> valueMappings(CenterId centerId) {
+    public Map<String, Map<String, String>> valueMappings(CentreId centerId) {
         return valueMappings.findAll(centerId);
     }
 
     @Override
-    public void saveValueMapping(CenterId centerId, String column, String sourceValue, String targetValue) {
+    public void saveValueMapping(CentreId centerId, String column, String sourceValue, String targetValue) {
         ColumnDef def = enumColumn(column);
         String source = LegacyValueParser.toCode(sourceValue);
         if (source.isEmpty()) {
@@ -226,12 +226,12 @@ public class MigrationDomainService implements MigrationUseCase {
     }
 
     @Override
-    public void deleteValueMapping(CenterId centerId, String column, String sourceValue) {
+    public void deleteValueMapping(CentreId centerId, String column, String sourceValue) {
         enumColumn(column);
         valueMappings.delete(centerId, column, LegacyValueParser.toCode(sourceValue));
     }
 
-    private MigrationBatch require(CenterId centerId, UUID batchId) {
+    private MigrationBatch require(CentreId centerId, UUID batchId) {
         return batches.findById(centerId, batchId).orElseThrow(() -> new BusinessException("MIGRATION_BATCH_NOT_FOUND",
                 "Lot de reprise introuvable pour ce centre."));
     }

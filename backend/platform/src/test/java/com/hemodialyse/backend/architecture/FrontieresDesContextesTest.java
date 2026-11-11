@@ -38,6 +38,13 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("bc-medical est retiré depuis DM9 (ADR 0101) : le Dossier médical vit dans contexts/dossier-medical");
 
+    /** PL15 (ADR 0136) : l'ancien noyau {@code backend/shared-kernel} est retiré ; plus aucune classe ne doit dépendre de son paquet. */
+    @ArchTest
+    static final ArchRule plus_aucune_classe_ne_depend_de_l_ancien_noyau_partage = noClasses()
+            .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.domain.shared..")
+            .allowEmptyShould(true)
+            .because("fin du double noyau (ADR 0136) : le noyau cible est contexts/shared-kernel (ADR 0010)");
+
     /** DM9 (ADR 0101) : le contrôleur legacy de l'évaluation KDIGO ne doit pas réapparaître (une seule route, celle du module). */
     @ArchTest
     static final ArchRule le_controleur_legacy_de_l_evaluation_kdigo_a_disparu = noClasses()

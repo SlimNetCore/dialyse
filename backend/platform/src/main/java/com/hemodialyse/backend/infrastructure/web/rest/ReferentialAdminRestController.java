@@ -3,8 +3,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.referential.ReferentialAdminApplicationService;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.importer.ReferentialTemplateWriter;
 import com.hemodialyse.backend.infrastructure.importer.TabularFileReader;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -84,7 +84,7 @@ public class ReferentialAdminRestController {
                                                         @RequestParam(required = false) String search,
                                                         @RequestParam(defaultValue = "0") int page,
                                                         @RequestParam(defaultValue = "20") int size) {
-        CenterId center = centerAccessGuard.requireCenter(centerId);
+        CentreId center =centerAccessGuard.requireCenter(centerId);
         return PagedResponse.from(service.list(center, ReferentialKind.fromSlug(kind), search, page, size),
                 ReferentialEntryResponse::from);
     }
@@ -92,7 +92,7 @@ public class ReferentialAdminRestController {
     @PostMapping("/{kind}")
     public ResponseEntity<ReferentialEntryResponse> create(@PathVariable String kind,
                                                            @RequestBody @Valid UpsertReferentialEntryRequest request) {
-        CenterId center = centerAccessGuard.requireCenter(request.centerId());
+        CentreId center =centerAccessGuard.requireCenter(request.centerId());
         var created = service.create(center, ReferentialKind.fromSlug(kind), request.values());
         return ResponseEntity.status(HttpStatus.CREATED).body(ReferentialEntryResponse.from(created));
     }
@@ -100,14 +100,14 @@ public class ReferentialAdminRestController {
     @PutMapping("/{kind}/{id}")
     public ReferentialEntryResponse update(@PathVariable String kind, @PathVariable UUID id,
                                            @RequestBody @Valid UpsertReferentialEntryRequest request) {
-        CenterId center = centerAccessGuard.requireCenter(request.centerId());
+        CentreId center =centerAccessGuard.requireCenter(request.centerId());
         return ReferentialEntryResponse.from(service.update(center, ReferentialKind.fromSlug(kind), id, request.values()));
     }
 
     @DeleteMapping("/{kind}/{id}")
     public ResponseEntity<Void> delete(@PathVariable String kind, @PathVariable UUID id,
                                        @RequestParam(required = false) UUID centerId) {
-        CenterId center = centerAccessGuard.requireCenter(centerId);
+        CentreId center =centerAccessGuard.requireCenter(centerId);
         service.delete(center, ReferentialKind.fromSlug(kind), id);
         return ResponseEntity.noContent().build();
     }
@@ -122,7 +122,7 @@ public class ReferentialAdminRestController {
                                            @RequestParam("file") MultipartFile file,
                                            @RequestParam(required = false) UUID centerId,
                                            @RequestParam(defaultValue = "true") boolean dryRun) {
-        CenterId center = centerAccessGuard.requireCenter(centerId);
+        CentreId center =centerAccessGuard.requireCenter(centerId);
         ReferentialKind referential = ReferentialKind.fromSlug(kind);
         ImportTable table;
         try {

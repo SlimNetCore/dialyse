@@ -4,7 +4,7 @@ import com.hemodialyse.backend.application.supervision.RequeteStatistique;
 import com.hemodialyse.backend.application.supervision.StatutStatistiques;
 import com.hemodialyse.backend.application.supervision.TriRequetes;
 import com.hemodialyse.backend.application.supervision.port.StatistiquesRequetesPort;
-import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
