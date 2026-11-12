@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 2,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-04-01 au 2026-04-30\nForfait\nCASNOS Centre 1 HT CASNOS Centre 1\nTTC\nCNAS Centre 1 HT CNAS Centre 1 TTC Total HT Total TTC\nForfait Arrondi 0,00 0,00 0,50 0,54 0,50 0,54\nForfait Arrondi 2 0,00 0,00 0,50 0,54 0,50 0,54\nForfait Centime 0,01 0,01 0,00 0,00 0,01 0,01\nForfait Gratuit 0,00 0,00 0,00 0,00 0,00 0,00\nForfait HD -39,00 -38,83 800000000000,00 952000000000,00 799999999961,00 951999999961,17\nForfait Transport 2,00 2,33 0,00 0,00 2,00 2,33\nVue d'ensemble mensuelle\nMontant HT\n799999999964,01\nMontant TTC\n951999999969,60\nMontant TVA\n152000000000,\nPatients\n3\nSeances\n0\nFactures\n6\nRepartition patients/seances par caisse Repartition patients/seances par situation patient\nCASNOS Centre 1\nP ########## 2 | S ---------- 0\nCNAS Centre 1\nP ########## 2 | S ---------- 0\nPERMANENT\nP ########## 3 | S ---------- 0\n"
+}
