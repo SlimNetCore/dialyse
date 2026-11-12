@@ -6,7 +6,6 @@ import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.Tabl
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.VueDEnsemble;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.EntreeDHistorique;
-import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Indicateurs;
 import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
@@ -54,7 +53,6 @@ public class DirectionDashboardRestController {
     private final DirectionAccessGuard guard;
     private final TableauDeBordDeLaDirection tableau;
     private final IndicateursDeLaDirection indicators;
-    private final DirectionReportPdfService reports;
     private final AlertesDeLaDirection alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
     private final DirectionStockGroupesQueryService stockGroupes;
@@ -63,7 +61,6 @@ public class DirectionDashboardRestController {
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, TableauDeBordDeLaDirection tableau,
                                             IndicateursDeLaDirection indicators,
-                                            DirectionReportPdfService reports,
                                             AlertesDeLaDirection alertHistory,
                                             DirectionGmaoQueryService gmaoQueries,
                                             DirectionStockGroupesQueryService stockGroupes,
@@ -72,7 +69,6 @@ public class DirectionDashboardRestController {
         this.capacites = capacites;
         this.absences = absences;
         this.stockGroupes = stockGroupes;
-        this.reports = reports;
         this.guard = guard;
         this.tableau = tableau;
         this.indicators = indicators;
@@ -171,22 +167,7 @@ public class DirectionDashboardRestController {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.repartition(societeId, from, to));
     }
 
-    /**
-     * Rapport imprimable (PDF) de la période : en-tête et pied de page de la société, puis toutes les statistiques
-     * du tableau de bord.
-     */
-    @GetMapping("/report")
-    public ResponseEntity<byte[]> report(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-                        .filename("rapport-direction.pdf").build().toString())
-                .body(reports.pdf(societeId, from, to));
-    }
+    // PL9 (ADR 0148) : GET /report est servi par le Pilotage direction (RapportDeLaDirectionControleur).
 
     /**
      * Historique récent des alertes (apparitions et résolutions), du plus récemment actif au plus ancien.

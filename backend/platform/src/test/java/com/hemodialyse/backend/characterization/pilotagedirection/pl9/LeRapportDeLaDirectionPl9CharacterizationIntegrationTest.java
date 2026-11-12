@@ -224,7 +224,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
         cloisonnement.put("le rapport de l'autre direction cite la societe A", duAutre.contains("Clinique Pilotage"));
         cloisonnement.put("l'autre direction : finances", sections(duAutre).get("Finances et activité par centre"));
         m.put("03 cloisonnement des societes", cloisonnement);
-        arbrePd("garde_de_societe_et_roles", m);
+        arbrePd("garde_de_societe_et_roles_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ contenu
@@ -249,7 +249,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
         facturePd(CENTRE_B, b, "B_MARS", fixe(70), "0.50", "0.50", null);
         facturePd(CENTRE_B, b, "B_AVRIL", fixe(100), "1.50", "1.50", null);
         article(CENTRE_A, "ART", "99999999", "10", "123456789.55");
-        arbrePd("montants_enormes_arrondis_et_textes", pdf(binaire(DIRECTION + "/report?from=" + fixe(0) + "&to=" + fixe(200), direction())));
+        arbrePd("montants_enormes_arrondis_et_textes_nouveau_code", pdf(binaire(DIRECTION + "/report?from=" + fixe(0) + "&to=" + fixe(200), direction())));
     }
 
     @Test
@@ -267,7 +267,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
         LinkedHashSet<String> total = new LinkedHashSet<>();
         while (pages.find()) total.add(pages.group(2));
         m.put("nombre de pages annoncees", total);
-        arbrePd("trente_deux_centres_trente_six_mois", m);
+        arbrePd("trente_deux_centres_trente_six_mois_nouveau_code", m);
     }
 
     @Test
@@ -288,7 +288,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
         m.put("05 logo de deux octets : ignore", enTeteEtImages(binaire(chemin, direction())));
         jdbc.update("UPDATE societes SET logo = NULL, pied_page = '   ', raison_sociale = '   ', nis = '  ', rc = NULL WHERE id = ?", SOCIETE);
         m.put("06 raison sociale et pied de page blancs", enTeteEtImages(binaire(chemin, direction())));
-        arbrePd("en_tete_complet_logo_et_mentions", m);
+        arbrePd("en_tete_complet_logo_et_mentions_nouveau_code", m);
     }
 
     private Map<String, Object> enTeteEtImages(MockHttpServletResponse r) throws Exception {
@@ -367,7 +367,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
             }
         }
         m.put("03 contenus figes atypiques", variantes);
-        arbrePd("rapport_mensuel_atypique", m);
+        arbrePd("rapport_mensuel_atypique_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ fuseau
@@ -388,7 +388,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
                         + "\",\"seuilAnonymat\":5,\"totaux\":null,\"centres\":null,\"mensuel\":null},\"indicators\":null}", SOCIETE, m1.toString());
         MockHttpServletResponse sansHorodatage = binaire(DIRECTION + "/snapshots/" + m1 + "/report", direction());
         m.put("03 instantane dont le contenu ne porte aucune date de generation", distincts(texteBrut(sansHorodatage.getContentAsByteArray())));
-        arbrePd("horodatages_et_fuseau", m);
+        arbrePd("horodatages_et_fuseau_nouveau_code", m);
     }
 
     private static List<String> distincts(String texte) {
@@ -420,7 +420,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
         ecrivainDAudit.flush();
         List<String> lignes = new ArrayList<>();
         lignes.add("GET /report suivi = " + AuditActionResolver.isTracked("GET", DIRECTION + "/report"));
-        lignes.add("GET /snapshots/{mois}/report suivi = " + AuditActionResolver.isTracked("GET", DIRECTION + "/snapshots/" + m1 + "/report"));
+        lignes.add("GET /snapshots/{mois}/report suivi = " + AuditActionResolver.isTracked("GET", DIRECTION + "/snapshots/{mois}/report"));
         lignes.add("POST /snapshots/{mois} suivi = " + AuditActionResolver.isTracked("POST", DIRECTION + "/snapshots/" + m1));
         for (Map<String, Object> row : jdbc.queryForList("SELECT action_code, http_method, route_template, status_code, COUNT(*) AS n "
                 + "FROM audit_log WHERE route_template LIKE '%/direction/%' GROUP BY action_code, http_method, route_template, status_code "
@@ -431,7 +431,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("lignes", lignes);
         jdbc.update("DELETE FROM audit_log WHERE route_template LIKE '%/direction/%'");
-        arbrePd("audit", m);
+        arbrePd("audit_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ méthodes et en-têtes
@@ -469,7 +469,7 @@ class LeRapportDeLaDirectionPl9CharacterizationIntegrationTest extends PilotageD
                 java.net.URI.create(DIRECTION + "/snapshots/" + m1 + "/report")).header("Accept", "application/json").with(direction())));
         cas.put("GET /report avec corps JSON", etat(request(HttpMethod.GET, java.net.URI.create(DIRECTION + "/report" + q))
                 .contentType("application/json").content("{\"from\":\"2020-01-01\"}").with(direction())));
-        arbrePd("methodes_chemins_et_accept", Map.of("cas", cas));
+        arbrePd("methodes_chemins_et_accept_nouveau_code", Map.of("cas", cas));
     }
 
     @SuppressWarnings("unused")

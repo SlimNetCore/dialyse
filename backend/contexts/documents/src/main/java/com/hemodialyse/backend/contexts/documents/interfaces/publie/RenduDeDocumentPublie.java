@@ -17,6 +17,11 @@ public class RenduDeDocumentPublie implements RenduDeDocument {
     }
 
     @Override
+    public DocumentRendu rendrePourLaSociete(UUID societe, String typeDeDocument, Map<String, Object> donnees, String format) {
+        return rendre.rendrePourLaSociete(societe, typeDeDocument, donnees, format);
+    }
+
+    @Override
     public DocumentRendu rendre(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format) {
         return rendre.rendre(centre, typeDeDocument, donnees, format);
     }

@@ -19,4 +19,12 @@ public interface RenduDeDocument {
      * @param format         {@code PDF}, {@code EXCEL} ou {@code HTML} ; {@code null} pour le format du modèle
      */
     DocumentRendu rendre(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format);
+
+    /**
+     * PL9 (ADR 0148) : rend le document d'un type pour une SOCIÉTÉ sans centre (documents de direction) avec le gabarit standard livré
+     * (aucun modèle de centre, donc ni désactivation ni version personnalisée) et le papier en-tête de la société.
+     */
+    default DocumentRendu rendrePourLaSociete(UUID societe, String typeDeDocument, Map<String, Object> donnees, String format) {
+        throw new UnsupportedOperationException("Rendu sans centre non fourni");
+    }
 }

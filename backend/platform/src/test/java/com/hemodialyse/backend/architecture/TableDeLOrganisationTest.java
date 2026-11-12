@@ -60,6 +60,9 @@ class TableDeLOrganisationTest {
             // Admin générique (ADR 0070) : écrit `medecin` (désactivation, décision du 2026-11-02) ; salle et position_creneau par SQL dynamique.
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",
+            // PL9 (ADR 0148, 2026-11-12) : la garde de société de la direction pour le rapport PDF servi par le Pilotage ; même requête que
+            // DirectionAccessGuard, retirée avec Identité et accès.
+            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/acl/legacyidentite/SessionLegacy.java",
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/UserRestController.java");
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
@@ -140,7 +143,7 @@ class TableDeLOrganisationTest {
     /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A, 18 après le lot B, 15 après le lot C, 9 après le lot D, 7 après le lot E (2026-11-09). Le baisser avec chaque lot. */
     @Test
     void le_nombre_de_lecteurs_connus_est_le_critere_d_avancement_de_o4() {
-        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot E de O4 : 9 -> 7)").hasSize(7);
+        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot E de O4 : 9 -> 7, puis +1 avec la garde du rapport PL9 : 8)").hasSize(8);
     }
 
     /**

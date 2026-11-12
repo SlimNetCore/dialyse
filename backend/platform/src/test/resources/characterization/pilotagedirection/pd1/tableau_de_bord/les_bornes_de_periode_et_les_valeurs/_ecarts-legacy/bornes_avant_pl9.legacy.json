@@ -1,0 +1,43 @@
+{
+  "/breakdown" : {
+    "5 ans et 1 jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+    "date illisible (from=hier)" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "debut apres fin" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "debut seul : fin = aujourd'hui du Pilotage (horloge injectee, fuseau de reference Africa/Algiers : le lendemain de la date UTC)" : "200 ok | to est aujourd'hui du Pilotage : true | to n'est pas la date UTC de l'instant : true",
+    "debut seul dans le futur (fin = aujourd'hui)" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "exactement 5 ans" : "200 ok",
+    "fin seule : debut = 1er janvier de l'annee de la fin" : "200 ok | from=<D+0> | to=<D+100>",
+    "sans parametre : du 1er janvier de l'annee courante a aujourd'hui du Pilotage" : "200 ok | from est le 1er janvier de cette annee : true | to est aujourd'hui du Pilotage : true",
+    "societeId en parametre : ignore, perimetre du jeton" : "200 ok | societeId=<SOCIETE>"
+  },
+  "/overview" : {
+    "5 ans et 1 jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+    "date illisible (from=hier)" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "debut apres fin" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "debut seul : fin = aujourd'hui du Pilotage (horloge injectee, fuseau de reference Africa/Algiers : le lendemain de la date UTC)" : "200 ok | to est aujourd'hui du Pilotage : true | to n'est pas la date UTC de l'instant : true",
+    "debut seul dans le futur (fin = aujourd'hui)" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+    "exactement 5 ans" : "200 ok",
+    "fin seule : debut = 1er janvier de l'annee de la fin" : "200 ok | from=<D+0> | to=<D+100>",
+    "sans parametre : du 1er janvier de l'annee courante a aujourd'hui du Pilotage" : "200 ok | from est le 1er janvier de cette annee : true | to est aujourd'hui du Pilotage : true",
+    "societeId en parametre : ignore, perimetre du jeton" : "200 ok | societeId=<SOCIETE>"
+  },
+  "date illisible par un profil sans droit : 403 avant le 400 (KB-DIR-02, lot L6)" : {
+    "/alerts/history" : "403 ACCESS_DENIED | Accès refusé",
+    "/breakdown" : "403 ACCESS_DENIED | Accès refusé",
+    "/gmao" : "403 ACCESS_DENIED | Accès refusé",
+    "/indicators" : "403 ACCESS_DENIED | Accès refusé",
+    "/overview" : "403 ACCESS_DENIED | Accès refusé",
+    "/report" : "403 ACCESS_DENIED | Accès refusé"
+  },
+  "date illisible selon la route (KB-DIR-02 corrige, lot L6 : 400 sur les 8 routes, c'etait un 500 sur /overview, /breakdown, /report, /gmao)" : {
+    "/absences" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/breakdown" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/capacite" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/gmao" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/indicators" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/overview" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/report" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "/stock-groupes" : "400 BAD_REQUEST | Paramètre illisible : from"
+  },
+  "valeur illisible de limit sur l'historique des alertes (KB-DIR-02, lot L6 : 400, c'etait un 500)" : "400 BAD_REQUEST | Paramètre illisible : limit"
+}

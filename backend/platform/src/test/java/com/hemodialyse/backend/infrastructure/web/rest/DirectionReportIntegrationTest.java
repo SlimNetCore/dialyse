@@ -126,7 +126,7 @@ class DirectionReportIntegrationTest {
 
         // en-tête : raison sociale, coordonnées, mentions légales ; pied de page personnalisé ; pagination
         assertTrue(text.contains("Clinique Rapport Test"), text);
-        assertTrue(text.contains("12 rue des Fleurs"));
+        assertTrue(text.contains("12 rue des Fleurs"), text);
         assertTrue(text.contains("NIF : 099912345678901"));
         assertTrue(text.contains("Pied personnalisé 2026"));
         assertTrue(text.contains("Page 1 /"), "numéro de page");

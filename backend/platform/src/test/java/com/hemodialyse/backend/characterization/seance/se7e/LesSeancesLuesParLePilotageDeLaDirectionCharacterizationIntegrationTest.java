@@ -234,6 +234,6 @@ class LesSeancesLuesParLePilotageDeLaDirectionCharacterizationIntegrationTest ex
             }
         }
         m.put("lignes du PDF qui portent les seances, les centres ou la periode", lignes);
-        arbre("rapport_pdf", m);
+        arbre("rapport_pdf_nouveau_code", m);
     }
 }

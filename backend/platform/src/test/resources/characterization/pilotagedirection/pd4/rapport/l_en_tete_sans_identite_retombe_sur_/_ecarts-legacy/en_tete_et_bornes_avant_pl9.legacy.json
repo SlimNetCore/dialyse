@@ -1,0 +1,83 @@
+{
+  "01 autre societe sans NIF, adresse ni pied de page : en-tete et pied = raison sociale" : "Autre Societe Confidentielle Rapport de direction <D+0> au <D+100> Autre Societe Confidentielle Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Autre Societe Confidentielle — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+  "02 bornes de la periode du rapport en direct" : {
+    "5 ans et 1 jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+    "date illisible" : "400 BAD_REQUEST | Paramètre illisible : from",
+    "debut apres fin" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin"
+  },
+  "03 onze profils et l'anonyme sur le rapport, les instantanes et l'historique" : {
+    "ADMIN" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "ADMIN sans centre" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "DIRECTION" : {
+      "GET /alerts/history" : "200 ok",
+      "GET /report" : "200",
+      "GET /snapshots" : "200 ok",
+      "POST /snapshots/<M-1>" : "200 ok"
+    },
+    "INFIRMIER seul" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "MEDECIN + INFIRMIER" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "MEDECIN seul" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "SECRETAIRE" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "SUPERADMIN" : {
+      "GET /alerts/history" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "POST /snapshots/<M-1>" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+    },
+    "SUPERADMIN + ADMIN" : {
+      "GET /alerts/history" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+      "POST /snapshots/<M-1>" : "403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource."
+    },
+    "anonyme" : {
+      "GET /alerts/history" : "403",
+      "GET /report" : "403",
+      "GET /snapshots" : "403",
+      "GET /snapshots/<M-1>/report" : "403"
+    },
+    "aucun role" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    },
+    "role inconnu (COMPTABLE)" : {
+      "GET /alerts/history" : "403 ACCESS_DENIED | Access Denied",
+      "GET /report" : "403",
+      "GET /snapshots" : "403 ACCESS_DENIED | Access Denied",
+      "POST /snapshots/<M-1>" : "403 ACCESS_DENIED | Access Denied"
+    }
+  },
+  "04 lignes direction_snapshot creees par la matrice (seule la DIRECTION ecrit)" : [ "<M-1>" ]
+}

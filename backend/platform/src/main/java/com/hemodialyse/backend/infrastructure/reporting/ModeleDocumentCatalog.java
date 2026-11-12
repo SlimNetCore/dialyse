@@ -19,6 +19,7 @@ public final class ModeleDocumentCatalog {
     public static final String PLANNING_PRESENCE_INFIRMIERS = "PLANNING_PRESENCE_INFIRMIERS";
     public static final String CAHIER_DIALYSE = "CAHIER_DIALYSE";
     public static final String PLANNING_OPTIMISE = "PLANNING_OPTIMISE";
+    public static final String RAPPORT_DIRECTION = "RAPPORT_DIRECTION";
     private static final List<Entry> ENTRIES = List.of(
             new Entry("FICHE_PATIENT", "Fiche signalétique patient", "reports/fiche_patient.jrxml",
                     "Fiche complète du patient avec ses informations personnelles et médicales"),
@@ -49,7 +50,10 @@ public final class ModeleDocumentCatalog {
                             + "lignes, jours en colonnes, avec patients, générateurs et infirmiers"),
             new Entry(CAHIER_DIALYSE, "Cahier de dialyse", "reports/cahier_dialyse.jrxml",
                     "Cahier de dialyse d'un patient : une page par séance (paramédical, consommables valorisés, "
-                            + "dossier et prescription médicale)"));
+                            + "dossier et prescription médicale)"),
+            new Entry(RAPPORT_DIRECTION, "Rapport de synthèse de la direction", "reports/rapport_direction.jrxml",
+                    "Rapport de la direction : chiffres clés, alertes, finances, évolution mensuelle, qualité des soins, stock et "
+                            + "répartitions par centre (agrégats anonymes)"));
 
     private ModeleDocumentCatalog() {
     }

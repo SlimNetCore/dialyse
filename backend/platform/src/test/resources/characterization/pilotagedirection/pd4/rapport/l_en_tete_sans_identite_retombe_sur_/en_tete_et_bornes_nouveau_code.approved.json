@@ -1,5 +1,5 @@
 {
-  "01 autre societe sans NIF, adresse ni pied de page : en-tete et pied = raison sociale" : "Autre Societe Confidentielle Rapport de direction <D+0> au <D+100> Autre Societe Confidentielle Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Autre Societe Confidentielle — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+  "01 autre societe sans NIF, adresse ni pied de page : en-tete et pied = raison sociale" : "Rapport de direction Autre Societe Confidentielle — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) Autre Societe Confidentielle Rapport de direction Patients Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux d'encaisseme nt < seuil 0 0 0 DA 0 DA 0 DA 0 DA —",
   "02 bornes de la periode du rapport en direct" : {
     "5 ans et 1 jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
     "date illisible" : "400 BAD_REQUEST | Paramètre illisible : from",

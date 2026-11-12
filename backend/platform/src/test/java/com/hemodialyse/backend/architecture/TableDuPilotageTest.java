@@ -170,8 +170,6 @@ class TableDuPilotageTest {
     }
 
     private static final Map<String, Reste> RESTE_DANS_APPLICATION_DIRECTION = new TreeMap<>(Map.ofEntries(
-            Map.entry("DirectionReportPdfService.java", new Reste("rendu PDF", "plateforme (rendu seul : le contenu vient du Pilotage par son langage publié)")),
-            Map.entry("SocieteLetterheadPort.java", new Reste("rendu PDF", "plateforme (en-tête du rapport)")),
             Map.entry("DirectionAccountService.java", new Reste("comptes", "Organisation / IAM")),
             Map.entry("SocieteAdminAccountService.java", new Reste("comptes", "Organisation / IAM")),
             Map.entry("PasswordPolicy.java", new Reste("comptes", "Organisation / IAM")),
@@ -182,7 +180,6 @@ class TableDuPilotageTest {
             Map.entry("AnonymityPolicy.java", new Reste("lecture d'un autre contexte", "plateforme : masquage des lectures ci-dessus (le Pilotage a son SeuilDAnonymat : égalité des deux seuils testée)"))));
 
     private static final Set<String> COMPTES = Set.of("DirectionAccountService.java", "SocieteAdminAccountService.java", "PasswordPolicy.java");
-    private static final Set<String> RENDU_PDF = Set.of("DirectionReportPdfService.java", "SocieteLetterheadPort.java");
     private static final Pattern SQL_EN_MAJUSCULES = Pattern.compile("\\b(FROM|JOIN)\\s+[A-Za-z_]+\\b", Pattern.CASE_INSENSITIVE);
 
     /** Chemins relatifs à application/direction, récursifs : un sous-package échapperait sinon à la garde. */
@@ -229,9 +226,10 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void la_liste_du_reste_compte_dix_entrees_dont_deux_de_rendu_et_trois_de_comptes_et_plus_aucune_composition_du_pilotage() {
-        assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(10).doesNotContainKey("DirectionIndicatorsQueryService.java");
-        assertThat(RESTE_DANS_APPLICATION_DIRECTION.keySet()).containsAll(RENDU_PDF).containsAll(COMPTES);
+    void la_liste_du_reste_compte_huit_entrees_dont_trois_de_comptes_et_plus_aucun_rendu_ni_composition_du_pilotage() {
+        assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(8).doesNotContainKey("DirectionIndicatorsQueryService.java")
+                .doesNotContainKeys("DirectionReportPdfService.java", "SocieteLetterheadPort.java");
+        assertThat(RESTE_DANS_APPLICATION_DIRECTION.keySet()).containsAll(COMPTES);
         RESTE_DANS_APPLICATION_DIRECTION.forEach((nom, reste) -> {
             assertThat(reste.categorie()).as("catégorie de " + nom).isNotBlank();
             assertThat(reste.proprietaire()).as("propriétaire de " + nom).isNotBlank();

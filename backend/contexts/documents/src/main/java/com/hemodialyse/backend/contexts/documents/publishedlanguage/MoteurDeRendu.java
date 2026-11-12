@@ -24,6 +24,11 @@ public interface MoteurDeRendu {
      */
     Rendu rendreParType(UUID centre, String type, Map<String, Object> donnees, String formatDemande);
 
+    /** PL9 : comme {@link #rendreParType} pour une société sans centre : gabarit standard du catalogue, identité de la société seule. */
+    default Rendu rendreParTypePourLaSociete(UUID societe, String type, Map<String, Object> donnees, String formatDemande) {
+        throw new UnsupportedOperationException("Rendu sans centre non fourni");
+    }
+
     /** Le document produit et son format ({@code PDF}, {@code EXCEL} ou {@code HTML}). */
     record Rendu(byte[] octets, String format) {
     }

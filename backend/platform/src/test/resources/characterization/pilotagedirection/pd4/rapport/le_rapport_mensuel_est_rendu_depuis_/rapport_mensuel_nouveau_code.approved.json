@@ -1,0 +1,32 @@
+{
+  "01 rapport mensuel (titre, nom de fichier, periode = le mois, horodatage de l'instantane)" : {
+    "cacheControl" : "no-store",
+    "contentDisposition" : "attachment; filename=\"rapport-direction-<M-1>.pdf\"",
+    "contentType" : "application/pdf",
+    "sections" : {
+      "Caisses d'assurance par centre" : "Caisses d'assurance par centre Patients — caisse Centre A Centre B Total société Caisse non renseignée 5 0 5 Séances — caisse Centre A Centre B Total société Caisse non renseignée 0 0 0 CA HT — caisse Centre A Centre B Total société Caisse non renseignée 0 DA 0 DA 0 DA",
+      "Finances et activité par centre" : "Finances et activité par centre Centre Patients Dont sous KT Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux Part du CA Centre A 5 0 0 0 0 DA 0 DA 0 DA 0 DA — 0 % Centre B 0 0 0 0 0 DA 0 DA 0 DA 0 DA — 0 % Total société 5 0 0 0 0 DA 0 DA 0 DA 0 DA —",
+      "Les effectifs de moins de" : "Les effectifs de moins de 5 patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL). Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 2 / 2",
+      "Qualité des soins" : "Qualité des soins — part des patients dans la cible KDIGO Centre Kt/V Hb Phosphore PTH Albumine AgHBs + Anti-VHC + VIH + Traitement en retard Attente greffe Bilans greffe en cours Greffes (période) Centre A — — — — — 0 0 0 0 0 0 0 Centre B — — — — — 0 0 0 0 0 0 0 Total société — — — — — 0 0 0 0 0 0 0",
+      "Répartition des patients par sexe et par âge" : "Répartition des patients par sexe et par âge Centre Hommes Femmes Autre / inconnu Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> Centre A 5 0 0 Centre B 0 0 0 Centre 0-17 ans 18-29 ans 30-44 ans 45-59 ans 60 ans et + Non renseigné Centre A 0 0 0 0 5 0 Centre B 0 0 0 0 0 0",
+      "Stock" : "Stock Centre Articles actifs Sous le seuil Lots périmés Péremption < 90 j Valeur du stock Centre A 0 0 0 0 0 DA Centre B 0 0 0 0 0 DA Total société 0 0 0 0 0 DA",
+      "Traitement de l'anémie par centre" : "Traitement de l'anémie par centre Centre Sous EPO (prescrit) Sous fer (prescrit) Patients traités EPO Patients traités fer Administration s EPO Administration s fer Non administrées Taux d'administratio n Centre A 0 0 0 0 0 0 0 — Centre B 0 0 0 0 0 0 0 —",
+      "en-tete" : "Rapport mensuel — <M-1> Clinique Pilotage & Fils — période <M-1.DEBUT> au <M-1.FIN> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> Patients Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux d'encaisseme nt 5 0 0 0 DA 0 DA 0 DA 0 DA —"
+    },
+    "status" : 200
+  },
+  "02 instantane ancien sans 'breakdown' : sections de repartition absentes, alertes libellees (code inconnu rendu brut), totaux masques « < seuil »" : {
+    "cacheControl" : "no-store",
+    "contentDisposition" : "attachment; filename=\"rapport-direction-<M-1>.pdf\"",
+    "contentType" : "application/pdf",
+    "sections" : {
+      "Alertes" : "Alertes Centre A — Lots périmés encore en stock (2) Centre A — INCONNU_DU_LEGACY",
+      "Finances et activité par centre" : "Finances et activité par centre Centre Patients Dont sous KT Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux Part du CA Total société < seuil < seuil 3 1 1 000 DA 1 190 DA 600 DA 590 DA 50.4 %",
+      "Les effectifs de moins de" : "Les effectifs de moins de 5 patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL). Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1",
+      "Qualité des soins" : "Qualité des soins — part des patients dans la cible KDIGO Centre Kt/V Hb Phosphore PTH Albumine AgHBs + Anti-VHC + VIH + Traitement en retard Attente greffe Bilans greffe en cours Greffes (période) Total société — — — — — < seuil < seuil < seuil < seuil < seuil < seuil < seuil",
+      "Stock" : "Stock Centre Articles actifs Sous le seuil Lots périmés Péremption < 90 j Valeur du stock Total société — — — — —",
+      "en-tete" : "Rapport mensuel — <M-1> Ancien — période <M-1.DEBUT> au <M-1.FIN> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> Patients Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux d'encaisseme nt < seuil 3 1 1 000 DA 1 190 DA 600 DA 590 DA 50.4 %"
+    },
+    "status" : 200
+  }
+}

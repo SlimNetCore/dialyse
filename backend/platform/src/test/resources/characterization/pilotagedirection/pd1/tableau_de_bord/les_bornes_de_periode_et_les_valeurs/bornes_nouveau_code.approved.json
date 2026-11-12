@@ -27,7 +27,7 @@
     "/gmao" : "403 ACCESS_DENIED | Accès refusé",
     "/indicators" : "403 ACCESS_DENIED | Accès refusé",
     "/overview" : "403 ACCESS_DENIED | Accès refusé",
-    "/report" : "403 ACCESS_DENIED | Accès refusé"
+    "/report" : "403 ACCESS_DENIED | Access Denied"
   },
   "date illisible selon la route (KB-DIR-02 corrige, lot L6 : 400 sur les 8 routes, c'etait un 500 sur /overview, /breakdown, /report, /gmao)" : {
     "/absences" : "400 BAD_REQUEST | Paramètre illisible : from",

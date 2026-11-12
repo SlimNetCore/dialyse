@@ -16,6 +16,12 @@ public class RendreUnDocument {
         this.moteur = moteur;
     }
 
+    public DocumentRendu rendrePourLaSociete(UUID societe, String typeDeDocument, Map<String, Object> donnees, String format) {
+        MoteurDeRendu.Rendu rendu = moteur.rendreParTypePourLaSociete(societe, typeDeDocument, donnees, format);
+        FormatDeSortie sortie = FormatDeSortie.de(rendu.format());
+        return new DocumentRendu(rendu.octets(), sortie.typeMime(), sortie.nomDeFichier(typeDeDocument.trim()));
+    }
+
     public DocumentRendu rendre(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format) {
         MoteurDeRendu.Rendu rendu = moteur.rendreParType(centre, typeDeDocument, donnees, format);
         FormatDeSortie sortie = FormatDeSortie.de(rendu.format());

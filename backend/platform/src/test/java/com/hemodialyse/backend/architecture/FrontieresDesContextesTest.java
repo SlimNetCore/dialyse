@@ -461,9 +461,8 @@ class FrontieresDesContextesTest {
     @ArchTest
     static final ArchRule le_tableau_de_bord_et_le_rapport_sont_servis_par_le_pilotage_direction_via_son_langage_publie = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionReportPdfService")
             .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage..")
-            .because("le contrôleur et le rendu PDF consomment le Pilotage direction par son langage publié (PD1, PD4, ADR 0102)");
+            .because("le contrôleur consomme le Pilotage direction par son langage publié (PD1, PD4, ADR 0102)");
 
     /**
      * PD3 (ADR 0104) : les alertes et le temps réel de la direction sont repris par le Pilotage direction. Les signaleurs de la plateforme
@@ -576,6 +575,33 @@ class FrontieresDesContextesTest {
         String xml = java.nio.file.Files.readString(gabarit);
         org.assertj.core.api.Assertions.assertThat(xml).doesNotContain("<queryString").doesNotContain("<![CDATA[\n        SELECT")
                 .doesNotContainIgnoringCase(" FROM factures").doesNotContainIgnoringCase("facture_lignes");
+    }
+
+    /** PL9 (ADR 0148) : le rapport de la direction est rendu par l'ACL du Pilotage vers documents.v1 ; les classes de la plateforme ne reviennent pas. */
+    @ArchTest
+    static final ArchRule le_rapport_de_la_direction_n_est_plus_rendu_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionReportPdfService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.SocieteLetterheadPort")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.SocieteLetterheadAdapter")
+            .allowEmptyShould(true)
+            .because("le rapport de la direction est rendu par contexts/pilotage-direction via documents.v1 (PL9, ADR 0148)");
+
+    @ArchTest
+    static final ArchRule le_rapport_de_la_direction_est_rendu_par_le_langage_publie_de_documents = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.documents.RapportRenduParDocuments")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
+            .because("le rapport de la direction est rendu par documents.v1 (PL9, ADR 0148)");
+
+    /** PL9 : le gabarit du rapport de la direction ne contient aucune requête (ADR 0140 D3 : le Pilotage fournit ses données). */
+    @org.junit.jupiter.api.Test
+    void le_gabarit_du_rapport_de_la_direction_ne_contient_aucune_requete() throws java.io.IOException {
+        java.nio.file.Path gabarit = java.nio.file.Path.of("src/main/resources/reports/rapport_direction.jrxml");
+        if (!java.nio.file.Files.exists(gabarit)) {
+            gabarit = java.nio.file.Path.of("platform/src/main/resources/reports/rapport_direction.jrxml");
+        }
+        String xml = java.nio.file.Files.readString(gabarit);
+        org.assertj.core.api.Assertions.assertThat(xml).doesNotContain("<queryString").doesNotContainIgnoringCase("SELECT ")
+                .doesNotContainIgnoringCase(" FROM ");
     }
 
     @ArchTest

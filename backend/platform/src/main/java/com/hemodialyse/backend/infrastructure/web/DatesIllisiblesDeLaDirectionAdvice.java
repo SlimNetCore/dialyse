@@ -160,6 +160,34 @@ class DatesIllisiblesDeLaDirectionAdvice {
             this.gestionnaireCommun = gestionnaireCommun;
         }
 
+        /** PL9, KB-PL9-4 : une route voisine du rapport (/report/, /report.pdf, /Report) répond 404 (c'était un 500). */
+        @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+        ResponseEntity<ProblemDetail> routeInconnue(org.springframework.web.servlet.resource.NoResourceFoundException erreur,
+                                                    HttpServletRequest requete) {
+            if (!requete.getRequestURI().startsWith("/api/v1/direction/")
+                    || !requete.getRequestURI().toLowerCase(java.util.Locale.ROOT).contains("report")) {
+                ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
+                return ResponseEntity.status(commun.getStatus()).body(commun);
+            }
+            ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+            probleme.setTitle("Ressource introuvable");
+            probleme.setDetail("Route inconnue");
+            probleme.setProperty("code", "NOT_FOUND");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(probleme);
+        }
+
+        /** PL9, KB-PL9-4 : un {@code Accept} sans PDF sur le rapport répond 406 (l'en-tête était ignoré). */
+        @ExceptionHandler(org.springframework.web.HttpMediaTypeNotAcceptableException.class)
+        ResponseEntity<ProblemDetail> typeNonAcceptable(org.springframework.web.HttpMediaTypeNotAcceptableException erreur,
+                                                        HttpServletRequest requete) {
+            if (!requete.getRequestURI().startsWith("/api/v1/direction/")
+                    || !requete.getRequestURI().toLowerCase(java.util.Locale.ROOT).contains("report")) {
+                ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
+                return ResponseEntity.status(commun.getStatus()).body(commun);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        }
+
         @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
         ResponseEntity<ProblemDetail> methodeNonSupportee(HttpRequestMethodNotSupportedException erreur, HttpServletRequest requete) {
             if (PREFIXES.stream().noneMatch(requete.getRequestURI()::startsWith)) {

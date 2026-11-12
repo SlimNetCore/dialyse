@@ -38,6 +38,7 @@ public final class ParametresReserves {
         return estUneIdentite(nom) || cle.equals("CENTER_ID") || cle.equals("TOTAL_HT_FACTURES") || cle.equals("TOTAL_TVA_FACTURES")
                 || cle.equals("TOTAL_TTC_FACTURES") || cle.equals("LIGNES") || cle.equals("TOTAL_PATIENTS") || cle.equals("TOTAL_SEANCES")
                 || cle.equals("TOTAL_FACTURES") || cle.equals("DISTRIBUTION_BY_CAISSE_TEXT") || cle.equals("DISTRIBUTION_BY_STATUS_TEXT")
+                || cle.startsWith("RAPPORT_") // PL9 : données du rapport de la direction, fournies par le Pilotage seul
                 || cle.startsWith("REPORT_") || cle.startsWith("JASPER_")
                 || cle.equals("IS_IGNORE_PAGINATION");
     }

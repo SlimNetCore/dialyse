@@ -61,6 +61,32 @@ public class ModeleDocumentPrinter implements MoteurDeRendu {
         return new Rendu(document.content(), document.format());
     }
 
+    /**
+     * PL9 : document d'une société SANS centre (rapport de la direction) : gabarit standard du catalogue, sans modèle de centre, avec
+     * l'identité de la société seule ({@code SOCIETE_*}, jamais {@code CENTRE_*}).
+     */
+    @Override
+    public Rendu rendreParTypePourLaSociete(UUID societe, String type, Map<String, Object> donnees, String formatDemande) {
+        ModeleDocumentCatalog.Entry entry = ModeleDocumentCatalog.find(type).orElseThrow(() -> new BusinessException(
+                "DOCUMENT_TYPE_UNKNOWN", "Type de document inconnu : " + type));
+        String format = formatDemande != null ? formatDemande : "PDF";
+        Map<String, Object> all = new HashMap<>(papier.ecarterLIdentiteDeLAppelant(donnees));
+        all.putIfAbsent(JRParameter.REPORT_FORMAT_FACTORY, new FrenchFormatFactory());
+        papier.enTeteDeLaSociete(societe).ifPresent(e -> {
+            all.put("SOCIETE_NOM", e.nom());
+            all.put("SOCIETE_CONTACT", e.contact());
+            all.put("SOCIETE_LEGAL", e.legal());
+            all.put("SOCIETE_PIED_PAGE", e.piedDePage());
+            if (e.logo() != null && e.logo().length >= 4) all.put("SOCIETE_LOGO", new java.io.ByteArrayInputStream(e.logo()));
+        });
+        try {
+            return new Rendu(jasper.generateReport(entry.cheminJrxml(), avecSourceDeDonnees(all), format), format);
+        } catch (Exception e) {
+            throw new BusinessException("DOCUMENT_GENERATION_FAILED",
+                    "Impossible de générer « " + entry.libelle() + " » : " + rootMessage(e));
+        }
+    }
+
     private static Map<String, Object> lower(Map<String, Object> row) {
         Map<String, Object> out = new HashMap<>();
         row.forEach((k, v) -> out.put(k.toLowerCase(), v));

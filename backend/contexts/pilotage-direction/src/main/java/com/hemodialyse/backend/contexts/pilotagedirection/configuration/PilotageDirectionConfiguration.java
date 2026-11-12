@@ -228,9 +228,33 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    RapportDeSyntheseDeLaDirection rapportDeSyntheseDeLaDirection(TableauDeBordDeLaDirection tableau,
-                                                                  IndicateursDeLaDirectionFournis indicateurs,
-                                                                  HorlogeDuPilotage horloge) {
-        return new RapportDeSynthesePublie(new ConstituerLeRapportDeSynthese(tableau, indicateurs, horloge));
+    ConstituerLeRapportDeSynthese constituerLeRapportDeSynthese(TableauDeBordDeLaDirection tableau,
+                                                                IndicateursDeLaDirectionFournis indicateurs,
+                                                                HorlogeDuPilotage horloge) {
+        return new ConstituerLeRapportDeSynthese(tableau, indicateurs, horloge);
+    }
+
+    @Bean
+    RapportDeSyntheseDeLaDirection rapportDeSyntheseDeLaDirection(ConstituerLeRapportDeSynthese rapport) {
+        return new RapportDeSynthesePublie(rapport);
+    }
+
+    // ───────────── PL9 (ADR 0148) : le rapport PDF de la direction, rendu par Documents (documents.v1) ─────────────
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection sessionDeLaDirection(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.ImprimerLeRapport imprimerLeRapport(
+            ConstituerLeRapportDeSynthese rapport, InstantanesMensuelsDeLaDirection instantanes, SocietesSuivies societes,
+            com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument documents,
+            @Value(HorlogeDuPilotage.PROPRIETE_DU_FUSEAU) String fuseau) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.application.ImprimerLeRapport(rapport,
+                new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.instantane.SourceDuRapportParLesInstantanes(instantanes),
+                societes,
+                new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.documents.RapportRenduParDocuments(documents),
+                ZoneId.of(fuseau));
     }
 }

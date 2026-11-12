@@ -72,7 +72,7 @@ class LeRapportImprimeDeLaDirectionCharacterizationIntegrationTest extends Pilot
                         + "{\"centre\":\"Centre A\",\"code\":\"INCONNU_DU_LEGACY\",\"severity\":\"WARNING\",\"valeur\":null}]}}", SOCIETE, m1.toString());
         m.put("02 instantane ancien sans 'breakdown' : sections de repartition absentes, alertes libellees (code inconnu rendu brut), totaux masques « < seuil »",
                 rapport(binaire(DIRECTION + "/snapshots/" + m1 + "/report", direction())));
-        arbrePd("rapport_mensuel", m);
+        arbrePd("rapport_mensuel_nouveau_code", m);
     }
 
     /** KB-DIR-01 corrige (L1, 2026-11-09) : le rapport d'un instantane ANCIEN aux totaux bruts imprime « < seuil » pour les totaux dont un centre est masque. */

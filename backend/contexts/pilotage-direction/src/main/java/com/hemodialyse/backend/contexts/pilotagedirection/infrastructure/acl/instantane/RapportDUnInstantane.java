@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.acl.pilotagedirection;
+package com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.instantane;
 
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirectionFournis.AlerteDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirectionFournis.Clinique;
@@ -39,6 +39,11 @@ public final class RapportDUnInstantane {
 
     public static SourceDuRapport source(String titre, OffsetDateTime genereLe, JsonNode overview, JsonNode indicateurs,
                                          JsonNode repartition) {
+        // PL9, KB-PL9-3 corrigé : un contenu figé en JSON valide mais VIDE (pas de vue d'ensemble) est illisible : 422, pas un rapport vide
+        if (overview == null || !overview.isObject() || overview.isEmpty()) {
+            throw new com.hemodialyse.backend.contexts.pilotagedirection.domain.RegleDuPilotageViolee("INSTANTANE_ILLISIBLE",
+                    "Cet instantané mensuel est illisible");
+        }
         return new SourceDuRapport(titre, genereLe, vue(overview), indicateurs(indicateurs),
                 absent(repartition) ? null : repartition(repartition));
     }

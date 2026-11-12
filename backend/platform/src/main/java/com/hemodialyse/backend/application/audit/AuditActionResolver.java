@@ -33,6 +33,10 @@ public final class AuditActionResolver {
     private static final String ROUTE_PV_INVENTAIRE = "/api/v1/stock/inventaires/{id}/rapport";
     private static final String ROUTE_FEUILLE_COMPTAGE = "/api/v1/stock/inventaires/{id}/feuille-comptage";
 
+    /** Consultation du rapport PDF de la direction, en direct ou d'un mois figé (PL9, KB-PL9-8, décision du 2026-11-12). */
+    private static final String ROUTE_RAPPORT_DIRECTION = "/api/v1/direction/report";
+    private static final String ROUTE_RAPPORT_DIRECTION_MENSUEL = "/api/v1/direction/snapshots/{mois}/report";
+
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
      */
@@ -41,7 +45,9 @@ public final class AuditActionResolver {
             ROUTE_CAHIER,
             ROUTE_BON,
             ROUTE_PV_INVENTAIRE,
-            ROUTE_FEUILLE_COMPTAGE
+            ROUTE_FEUILLE_COMPTAGE,
+            ROUTE_RAPPORT_DIRECTION,
+            ROUTE_RAPPORT_DIRECTION_MENSUEL
     );
 
     private static final Resolved ACTION_STATISTIQUES_PATIENT =
@@ -93,6 +99,9 @@ public final class AuditActionResolver {
             Map.entry("POST " + ROUTE_SYNTHESE, new Resolved("SYNTHESE_FACTURATION_IMPRESSION", "facturation", "Synthèse de facturation imprimée")),
             Map.entry("GET " + ROUTE_BON, new Resolved("BON_INTERVENTION_IMPRESSION", "gmao", "Bon d'intervention imprimé")),
             Map.entry("GET " + ROUTE_PV_INVENTAIRE, new Resolved("INVENTAIRE_PV_IMPRESSION", "stock", "Procès-verbal d'inventaire imprimé")),
+            Map.entry("GET " + ROUTE_RAPPORT_DIRECTION, new Resolved("DIRECTION_RAPPORT_IMPRESSION", "direction", "Rapport de la direction consulté")),
+            Map.entry("GET " + ROUTE_RAPPORT_DIRECTION_MENSUEL,
+                    new Resolved("DIRECTION_RAPPORT_IMPRESSION", "direction", "Rapport mensuel de la direction consulté")),
             Map.entry("GET " + ROUTE_FEUILLE_COMPTAGE,
                     new Resolved("INVENTAIRE_FEUILLE_TELECHARGEMENT", "stock", "Feuille de comptage téléchargée")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),

@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection.Info;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.InstantanesMensuelsDeLaDirection.Instantane;
@@ -33,13 +32,9 @@ public class DirectionSnapshotRestController {
 
     private final DirectionAccessGuard guard;
     private final InstantanesMensuelsDeLaDirection snapshots;
-    private final DirectionReportPdfService reports;
-
-    public DirectionSnapshotRestController(DirectionAccessGuard guard, InstantanesMensuelsDeLaDirection snapshots,
-                                           DirectionReportPdfService reports) {
+    public DirectionSnapshotRestController(DirectionAccessGuard guard, InstantanesMensuelsDeLaDirection snapshots) {
         this.guard = guard;
         this.snapshots = snapshots;
-        this.reports = reports;
     }
 
     @GetMapping
@@ -63,16 +58,5 @@ public class DirectionSnapshotRestController {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(snapshots.figer(societeId, mois));
     }
 
-    @GetMapping("/{mois}/report")
-    public ResponseEntity<byte[]> report(@PathVariable String mois) {
-        UUID societeId = guard.requireSociete();
-        Instantane snapshot = snapshots.lire(societeId, mois);
-        byte[] pdf = reports.pdf(societeId, snapshot);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-                        .filename("rapport-direction-" + snapshot.mois() + ".pdf").build().toString())
-                .body(pdf);
-    }
+    // PL9 (ADR 0148) : GET /{mois}/report est servi par le Pilotage direction (RapportDeLaDirectionControleur).
 }

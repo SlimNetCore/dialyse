@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Rapport de synthèse de la direction (PL9, ADR 0148). AUCUNE requête (ADR 0140 D3) : le Pilotage direction fournit les lignes comme source de
+  données (champs SECTION, TITRE, GENRE, C1 à C13 : textes déjà formatés) et le titre, la ligne de contexte, l'horodatage et la note comme
+  paramètres RAPPORT_*. GENRE : ENTETE, LIGNE, TOTAL (tableau de 13 cellules au plus) ou TEXTE, TEXTE_CRITIQUE (phrase pleine largeur).
+  Le papier en-tête vient de Documents (SOCIETE_*). Les cellules s'étirent en hauteur : les textes longs passent à la ligne.
+-->
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="rapport_direction" pageWidth="842" pageHeight="595" orientation="Landscape"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" columnWidth="802">
+
+    <style name="base" isDefault="true" fontSize="8" forecolor="#111111"/>
+    <style name="cellule" vTextAlign="Top" hTextAlign="Right">
+        <box padding="2">
+            <pen lineWidth="0.5" lineColor="#CCD6D9"/>
+        </box>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["ENTETE".equals($F{GENRE})]]></conditionExpression>
+            <style mode="Opaque" backcolor="#EAF3F2" forecolor="#0D5750" isBold="true"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["TOTAL".equals($F{GENRE})]]></conditionExpression>
+            <style mode="Opaque" backcolor="#F4F8F8" isBold="true"/>
+        </conditionalStyle>
+    </style>
+    <style name="texte">
+        <conditionalStyle>
+            <conditionExpression><![CDATA["TEXTE_CRITIQUE".equals($F{GENRE})]]></conditionExpression>
+            <style mode="Opaque" backcolor="#FDECEC" forecolor="#C62828" isBold="true"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["TEXTE".equals($F{GENRE})]]></conditionExpression>
+            <style mode="Opaque" backcolor="#FDF3E8"/>
+        </conditionalStyle>
+    </style>
+
+    <parameter name="RAPPORT_TITRE" class="java.lang.String"/>
+    <parameter name="RAPPORT_SOCIETE" class="java.lang.String"/>
+    <parameter name="RAPPORT_CONTEXTE" class="java.lang.String"/>
+    <parameter name="RAPPORT_HORODATAGE" class="java.lang.String"/>
+    <parameter name="RAPPORT_NOTE" class="java.lang.String"/>
+    <parameter name="SOCIETE_NOM" class="java.lang.String"/>
+    <parameter name="SOCIETE_CONTACT" class="java.lang.String"/>
+    <parameter name="SOCIETE_LEGAL" class="java.lang.String"/>
+    <parameter name="SOCIETE_PIED_PAGE" class="java.lang.String"/>
+    <parameter name="SOCIETE_LOGO" class="java.io.InputStream"/>
+
+    <field name="SECTION" class="java.lang.String"/>
+    <field name="TITRE" class="java.lang.String"/>
+    <field name="GENRE" class="java.lang.String"/>
+    <field name="C1" class="java.lang.String"/>
+    <field name="C2" class="java.lang.String"/>
+    <field name="C3" class="java.lang.String"/>
+    <field name="C4" class="java.lang.String"/>
+    <field name="C5" class="java.lang.String"/>
+    <field name="C6" class="java.lang.String"/>
+    <field name="C7" class="java.lang.String"/>
+    <field name="C8" class="java.lang.String"/>
+    <field name="C9" class="java.lang.String"/>
+    <field name="C10" class="java.lang.String"/>
+    <field name="C11" class="java.lang.String"/>
+    <field name="C12" class="java.lang.String"/>
+    <field name="C13" class="java.lang.String"/>
+
+    <group name="section">
+        <groupExpression><![CDATA[$F{SECTION}]]></groupExpression>
+        <groupHeader>
+            <band height="24">
+                <printWhenExpression><![CDATA[$F{TITRE} != null && !$F{TITRE}.isEmpty()]]></printWhenExpression>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="6" width="802" height="16" forecolor="#0D5750"/>
+                    <textElement verticalAlignment="Bottom"><font size="12" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[$F{TITRE}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupHeader>
+        <groupFooter>
+            <band height="6"/>
+        </groupFooter>
+    </group>
+
+    <title>
+        <band height="46">
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement x="0" y="0" width="802" height="24" forecolor="#0D5750"/>
+                <textElement><font size="19" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{RAPPORT_TITRE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement positionType="Float" x="0" y="26" width="802" height="18" forecolor="#555555"/>
+                <textElement><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{RAPPORT_CONTEXTE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <pageHeader>
+        <band height="56">
+            <image scaleImage="RetainShape" hAlign="Left" vAlign="Middle" onErrorType="Blank" isUsingCache="true">
+                <reportElement x="0" y="0" width="64" height="50">
+                    <printWhenExpression><![CDATA[$P{SOCIETE_LOGO} != null]]></printWhenExpression>
+                </reportElement>
+                <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
+            </image>
+            <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                <reportElement x="72" y="0" width="520" height="18"/>
+                <textElement verticalAlignment="Middle"><font size="14" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_NOM} == null || $P{SOCIETE_NOM}.isBlank() ? $P{RAPPORT_SOCIETE} : $P{SOCIETE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="72" y="19" width="520" height="12" forecolor="#333333"/>
+                <textElement><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="72" y="32" width="520" height="12" forecolor="#333333"/>
+                <textElement><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_LEGAL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="600" y="0" width="202" height="16" forecolor="#333333"/>
+                <textElement textAlignment="Right"><font size="11" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{RAPPORT_TITRE}]]></textFieldExpression>
+            </textField>
+            <rectangle>
+                <reportElement x="0" y="52" width="802" height="2" mode="Opaque" backcolor="#0D5750" forecolor="#0D5750"/>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
+            </rectangle>
+        </band>
+    </pageHeader>
+
+    <!-- Tableaux : 13 cellules au plus, la première plus large -->
+    <detail>
+        <band height="16">
+            <printWhenExpression><![CDATA[!"TEXTE".equals($F{GENRE}) && !"TEXTE_CRITIQUE".equals($F{GENRE})]]></printWhenExpression>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="130" height="16"/>
+                <textElement textAlignment="Left"/>
+                <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="130" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C2}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="186" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C3}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="242" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C4}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="298" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C5}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="354" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C6}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="410" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C7}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="466" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C8}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="522" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C9}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="578" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C10}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="634" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C11}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="690" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C12}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="746" y="0" width="56" height="16"/>
+                <textFieldExpression><![CDATA[$F{C13}]]></textFieldExpression>
+            </textField>
+        </band>
+        <band height="16">
+            <printWhenExpression><![CDATA["TEXTE".equals($F{GENRE}) || "TEXTE_CRITIQUE".equals($F{GENRE})]]></printWhenExpression>
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement style="texte" stretchType="ContainerHeight" x="0" y="0" width="802" height="16"/>
+                <box padding="3"/>
+                <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="34">
+            <line>
+                <reportElement x="0" y="3" width="802" height="1" forecolor="#999999"/>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="6" width="700" height="12" forecolor="#444444"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_PIED_PAGE} == null || $P{SOCIETE_PIED_PAGE}.isBlank() ? ($P{SOCIETE_NOM} == null || $P{SOCIETE_NOM}.isBlank() ? $P{RAPPORT_SOCIETE} : $P{SOCIETE_NOM}) : $P{SOCIETE_PIED_PAGE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="19" width="700" height="12" forecolor="#444444"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA["Document confidentiel — édité le " + $P{RAPPORT_HORODATAGE}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="702" y="6" width="80" height="12" forecolor="#555555"/>
+                <textElement textAlignment="Right"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " / "]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="782" y="6" width="20" height="12" forecolor="#555555"/>
+                <textElement textAlignment="Left"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <summary>
+        <band height="40">
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement x="0" y="8" width="802" height="24" forecolor="#555555"/>
+                <textElement><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$P{RAPPORT_NOTE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>

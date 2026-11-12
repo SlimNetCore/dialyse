@@ -20,6 +20,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 class ErreursDuPilotageAdvice {
 
+    /** PL9 : date du rapport illisible = 400 (le 403 du profil sans droit passe avant : la garde précède le corps de la méthode). */
+    @ExceptionHandler(RapportDeLaDirectionControleur.ParametreIllisible.class)
+    ProblemDetail parametreIllisible(RapportDeLaDirectionControleur.ParametreIllisible erreur) {
+        ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        probleme.setTitle("Requete invalide");
+        probleme.setDetail("Paramètre illisible : " + erreur.nom());
+        probleme.setProperty("code", "BAD_REQUEST");
+        return probleme;
+    }
+
     @ExceptionHandler(RegleDuPilotageViolee.class)
     ProblemDetail regleViolee(RegleDuPilotageViolee erreur) {
         ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
