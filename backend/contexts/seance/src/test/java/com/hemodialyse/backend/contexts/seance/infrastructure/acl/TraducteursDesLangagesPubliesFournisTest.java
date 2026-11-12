@@ -4,9 +4,7 @@ import com.hemodialyse.backend.contexts.seance.application.FicheDuPatient;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.Seance;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
@@ -57,32 +55,5 @@ class TraducteursDesLangagesPubliesFournisTest {
         });
     }
 
-    @Test
-    void les_diffusions_portent_l_identite_du_patient_et_le_jour_en_texte_iso() {
-        DiffusionsFournies fourni = Mockito.mock(DiffusionsFournies.class);
-        var diffusions = new DiffusionsParLeLegacy(fourni);
-        var seance = Seance.creer(new SeanceId(SEANCE), new CentreId(CENTRE), new PatientId(PATIENT), JOUR, Instant.parse("2026-06-15T08:00:00Z"));
-        var patient = new FicheDuPatient(new PatientId(PATIENT), "P-1", "Nom", "Prenom", null, null, null, null, null, null, null, null,
-                null, null, null, null);
-
-        diffusions.seanceCreee(new CentreId(CENTRE), seance, patient);
-        diffusions.seanceValidee(new CentreId(CENTRE), seance, patient);
-        diffusions.saisieDeLInfirmier(new CentreId(CENTRE), "SEANCE_CREEE", seance, patient, "marie");
-        diffusions.voletParamedicalEnregistre(new CentreId(CENTRE), seance, patient);
-
-        Mockito.verify(fourni).seanceCreee(CENTRE, SEANCE, PATIENT, "Nom", "Prenom", "2026-06-15");
-        Mockito.verify(fourni).seanceValidee(CENTRE, SEANCE, PATIENT, "Nom", "Prenom", "2026-06-15");
-        Mockito.verify(fourni).saisieDeLInfirmier(CENTRE, "SEANCE_CREEE", PATIENT, "Nom", "Prenom", "marie", "2026-06-15");
-        Mockito.verify(fourni).voletParamedicalEnregistre(CENTRE, SEANCE, PATIENT, "Nom", "Prenom", "2026-06-15");
-    }
-
-    @Test
-    void la_diffusion_des_consommables_ne_porte_que_le_centre_et_la_seance() {
-        DiffusionsFournies fourni = Mockito.mock(DiffusionsFournies.class);
-        var seance = Seance.creer(new SeanceId(SEANCE), new CentreId(CENTRE), new PatientId(PATIENT), JOUR, Instant.parse("2026-06-15T08:00:00Z"));
-
-        new DiffusionsParLeLegacy(fourni).consommablesModifies(new CentreId(CENTRE), seance);
-
-        Mockito.verify(fourni).consommablesModifies(CENTRE, SEANCE);
-    }
+    // Les diffusions ne sont plus traduites ici : la Séance les compose elle-même (PL13b, ADR 0154, acl/notifications).
 }

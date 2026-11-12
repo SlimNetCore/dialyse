@@ -6,10 +6,10 @@ import com.hemodialyse.backend.contexts.seance.domain.PatientId;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
 import com.hemodialyse.backend.contexts.seance.domain.SuppressionDeSeance;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotificationAEnvoyer;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.SaisiesParLeLegacy;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.notifications.DiffusionsDeSeanceParLeCentreDeNotifications;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.ConsommationsAnnuleesParLeStock;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SaisiesDeSeanceFournies;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
@@ -74,12 +74,20 @@ class TraducteursDeLaSuppressionTest {
 
     @Test
     void should_publish_the_removal_with_the_identifiers_and_the_iso_day_of_the_session() {
-        var fournies = Mockito.mock(DiffusionsFournies.class);
+        var demandes = new java.util.ArrayList<com.hemodialyse.backend.contexts.notifications.publishedlanguage.DemandeDeNotification>();
         var suppression = new SuppressionDeSeance(new UUID(9, 1), CENTRE, SEANCE, PATIENT, LocalDate.of(2026, 6, 15), StatutDeSeance.SIGNEE,
                 new MotifDeSuppression("Doublon"), "u-admin", Instant.parse("2026-06-15T10:00:00Z"));
 
-        new DiffusionsParLeLegacy(fournies).seanceSupprimee(CENTRE, suppression);
+        new DiffusionsDeSeanceParLeCentreDeNotifications(demande -> {
+            demandes.add(demande);
+            return java.util.Optional.of(new NotificationAEnvoyer(demande.centre(), demande.type(), demande.contenu(), null,
+                    Instant.parse("2026-06-15T10:00:00Z"), null));
+        }, (centre, type, contenu, identifiant, emisLe) -> { }).seanceSupprimee(CENTRE, suppression);
 
-        Mockito.verify(fournies).seanceSupprimee(CENTRE.valeur(), SEANCE.valeur(), PATIENT.valeur(), "2026-06-15");
+        assertThat(demandes).singleElement().satisfies(demande -> {
+            assertThat(demande.type()).isEqualTo("SEANCE_SUPPRIMEE");
+            assertThat(demande.contenu()).containsEntry("seanceId", SEANCE.valeur().toString())
+                    .containsEntry("patientId", PATIENT.valeur().toString()).containsEntry("dateSeance", "2026-06-15");
+        });
     }
 }

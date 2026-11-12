@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Contrat du port {@link RappelsDeRegularisation} : un seul rappel par centre et par jour du centre (KB-SEA-35). Le double en mémoire
- * et l'ACL du langage publié passent le même jeu ; la variante de la plateforme (journal réel) est {@code RappelsFournisLegacyTest}.
+ * et l'ACL vers notifications.v1 passent le même jeu (PL13b).
  */
 abstract class RappelsContrat {
 

@@ -7,6 +7,7 @@ import com.tngtech.archunit.lang.ArchRule;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
 /**
  * Frontière des contextes refaits sur place, vue depuis le legacy ({@code platform}, {@code bc-*}), que
@@ -130,23 +131,38 @@ class FrontieresDesContextesTest {
 
     /**
      * SE4 (ADR 0091) : le rappel quotidien des séances à régulariser vit dans {@code contexts/seance} (cas d'usage, planificateur de
-     * 07:00 unique). Le service et le scheduler legacy sont supprimés (le compilateur interdit tout retour) ; seul le fournisseur du
-     * langage publié {@code RappelsFournis} (plateforme, ACL) appelle encore {@code NotificationService.notifySeancesARegulariser}, et
-     * aucune classe hors du contexte ne dépend du cas d'usage : un second déclencheur provoquerait un double rappel.
+     * 07:00 unique). Le service et le scheduler legacy sont supprimés (le compilateur interdit tout retour) ; depuis PL13b (ADR 0154) le
+     * message est composé et émis par la Séance (ACL vers notifications.v1) et aucune classe hors du contexte ne dépend du cas d'usage : un
+     * second déclencheur provoquerait un double rappel.
      */
     @ArchTest
-    static final ArchRule seul_le_fournisseur_du_langage_publie_emet_le_rappel_de_regularisation = noClasses()
-            .that().resideOutsideOfPackage("com.hemodialyse.backend.infrastructure.acl.seance..")
-            .and().doNotHaveFullyQualifiedName("com.hemodialyse.backend.application.notification.NotificationService")
-            .should().callMethodWhere(new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaMethodCall>(
-                    "émet le rappel de régularisation (SEANCES_A_REGULARISER)") {
-                @Override
-                public boolean test(com.tngtech.archunit.core.domain.JavaMethodCall appel) {
-                    return appel.getTargetOwner().isAssignableTo("com.hemodialyse.backend.application.notification.NotificationService")
-                            && appel.getName().equals("notifySeancesARegulariser");
-                }
-            })
-            .because("le rappel vit dans contexts/seance ; l'identifiant déterministe évite le doublon (KB-SEA-35)");
+    static final ArchRule les_notifications_de_la_seance_ne_passent_plus_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.seance.DiffusionsFournieesLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.seance.RappelsFournisLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis")
+            .allowEmptyShould(true)
+            .because("le catalogue des notifications de la Séance est dans contexts/seance (PL13b, ADR 0154)");
+
+    /** PL13b (ADR 0154) : la Séance émet par notifications.v1, sans dépendre de la plateforme ni du Dossier médical (émetteur voisin). */
+    @ArchTest
+    static final ArchRule la_seance_ne_depend_ni_de_la_plateforme_ni_d_un_autre_emetteur = noClasses()
+            .that().resideInAPackage("com.hemodialyse.backend.contexts.seance..")
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.application..",
+                    "com.hemodialyse.backend.infrastructure.acl..", "com.hemodialyse.backend.contexts.dossiermedical..",
+                    "com.hemodialyse.backend.contexts.notifications.domain..", "com.hemodialyse.backend.contexts.notifications.application..",
+                    "com.hemodialyse.backend.contexts.notifications.infrastructure..", "com.hemodialyse.backend.contexts.notifications.interfaces..",
+                    "com.hemodialyse.backend.contexts.notifications.configuration..")
+            .allowEmptyShould(true)
+            .because("la Séance ne parle à Notifications que par notifications.v1 (PL13b, ADR 0154)");
+
+    /** PL13b : seule la plateforme (et la Séance) émet encore par NotificationService la saisie ABSENCE (PL13d) ; les messages de la Séance n'y reviennent pas. */
+    @ArchTest
+    static final ArchRule les_methodes_de_seance_ne_reviennent_pas_dans_le_service_de_notification = noMethods()
+            .that().areDeclaredIn("com.hemodialyse.backend.application.notification.NotificationService")
+            .should().haveNameMatching("notifySeance(Created|Validated|MedicalSaved|ParamedicalSaved|Updated|Supprimee|Deverrouillee)|notifySeancesARegulariser")
+            .allowEmptyShould(true)
+            .because("les notifications de la Séance sont dans contexts/seance (PL13b, ADR 0154)");
 
     @ArchTest
     static final ArchRule seul_contexts_seance_declenche_le_rappel_de_regularisation = noClasses()

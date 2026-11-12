@@ -241,3 +241,6 @@ garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-S
 **Catalogue des notifications chez les émetteurs (PL13a, ADR 0153).** `CatalogueDesNotificationsDeLaFiche` (Patient et couverture : `PATIENT_*`,
 `PEC_*`, `ATTESTATION_*`) et `CatalogueDesNotificationsDuDossierMedical` (`PRESCRIPTION_CHANGED`, `OBSERVANCE_NON_RESPECTEE`) portent RG-NOT-001
 (types et destinataires, chapitre 15) ; `OBSERVANCE_NON_RESPECTEE` reste durable (RG-NOT-005, RG-MED-073).
+**La Séance construit ses notifications (PL13b, ADR 0154).** `CatalogueDesNotificationsDeLaSeance` (`SEANCE_*`, `SAISIE_INFIRMIER` dont
+`ANEMIE`, `SEANCES_A_REGULARISER` durable à identifiant déterministe, KB-SEA-35) et trois ACL vers `notifications.v1` portent RG-NOT-001 et
+RG-NOT-005 pour la Séance ; seule la saisie `ABSENCE` reste émise par la plateforme jusqu'à PL13d.

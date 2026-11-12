@@ -7,8 +7,8 @@
 
 > **Catalogue chez les émetteurs (PL13a, ADR 0153).** Le contexte Notifications n'invente aucun message : chaque émetteur construit sa
 > demande (type, contenu, audience). Patient et couverture (`PATIENT_*`, `PEC_*`, `ATTESTATION_*`) et Dossier médical
-> (`PRESCRIPTION_CHANGED`, `OBSERVANCE_NON_RESPECTEE`) tiennent désormais leur catalogue (`infrastructure/acl/notifications`) ; les
-> autres émetteurs suivent (PL13b à d). Types, contenus, destinataires et règles ci-dessous sont inchangés.
+> (`PRESCRIPTION_CHANGED`, `OBSERVANCE_NON_RESPECTEE`) tiennent désormais leur catalogue (`infrastructure/acl/notifications`), ainsi que la
+> Séance (`SEANCE_*`, `SAISIE_INFIRMIER`, `SEANCES_A_REGULARISER`, PL13b, ADR 0154) ; les autres émetteurs suivent (PL13c à d). Types, contenus, destinataires et règles ci-dessous sont inchangés.
 
 ## 15.1 Mécanisme
 

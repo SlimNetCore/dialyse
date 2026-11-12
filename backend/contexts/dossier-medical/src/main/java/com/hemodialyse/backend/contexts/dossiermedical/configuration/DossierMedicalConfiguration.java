@@ -165,7 +165,7 @@ public class DossierMedicalConfiguration {
     NotificationsDuDossierMedicalParLeCentreDeNotifications notificationsDuDossierMedical(
             com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
             com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
-            com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SaisieDeLAdministrationSignalee saisies) {
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.SignalementDesAdministrationsSaisies saisies) {
         return new NotificationsDuDossierMedicalParLeCentreDeNotifications(notifier, diffusion, saisies);
     }
 

@@ -41,7 +41,7 @@ public class NotificationService implements DiffusionEnTempsReel {
      */
     static final Set<String> DURABLES = Set.of(
             "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
-            "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
+            "ABSENCES_A_QUALIFIER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
             "INFIRMIER_SUREFFECTIF", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
             "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE", "RETOUR_SALLE_ORDINAIRE_PROPOSE",
@@ -75,45 +75,12 @@ public class NotificationService implements DiffusionEnTempsReel {
 
     // Patient et couverture (fiche, PEC, attestations) et Dossier médical (prescription, observance) : catalogue chez les émetteurs (PL13a, ADR 0153)
 
-    // ---------------------------------------------------------------- séances
-
-    public void notifySeanceCreated(UUID centerId, UUID seanceId, UUID patientId,
-                                    String patientNom, String patientPrenom, String dateSeance) {
-        // le médecin est prévenu par l'évènement SAISIE_INFIRMIER (qui nomme l'auteur), pas par celui-ci
-        send(centerId, "SEANCE_CREATED", seanceDuPatient(seanceId, patientId, patientNom, patientPrenom, dateSeance, "INFIRMIER,SECRETAIRE"));
-    }
-
-    public void notifySeanceValidated(UUID centerId, UUID seanceId, UUID patientId,
-                                      String patientNom, String patientPrenom, String dateSeance) {
-        send(centerId, "SEANCE_VALIDATED", seanceDuPatient(seanceId, patientId, patientNom, patientPrenom, dateSeance, "INFIRMIER,SECRETAIRE"));
-    }
-
-    public void notifySeanceMedicalSaved(UUID centerId, UUID seanceId, UUID patientId,
-                                         String patientNom, String patientPrenom, String dateSeance) {
-        send(centerId, "SEANCE_MEDICAL_SAVED",
-                seanceDuPatient(seanceId, patientId, patientNom, patientPrenom, dateSeance, "INFIRMIER,MEDECIN,SECRETAIRE"));
-    }
-
-    public void notifySeanceParamedicalSaved(UUID centerId, UUID seanceId, UUID patientId,
-                                             String patientNom, String patientPrenom, String dateSeance) {
-        send(centerId, "SEANCE_PARAMEDICAL_SAVED",
-                seanceDuPatient(seanceId, patientId, patientNom, patientPrenom, dateSeance, "INFIRMIER,SECRETAIRE"));
-    }
-
-    /** Notify that a seance consommable was added, updated or removed (stock changed). */
-    public void notifySeanceUpdated(UUID centerId, UUID seanceId) {
-        send(centerId, "SEANCE_CONSOMMABLE_CHANGED", contenu("seanceId", seanceId.toString(), CLE_DES_ROLES, "INFIRMIER,SECRETAIRE"));
-    }
-
-    /** Une séance a été supprimée par l'administrateur (listes, poste infirmier et planning se rafraîchissent). */
-    public void notifySeanceSupprimee(UUID centerId, UUID seanceId, UUID patientId, LocalDate dateSeance) {
-        send(centerId, "SEANCE_SUPPRIMEE", contenu("seanceId", seanceId.toString(), "patientId", patientId.toString(),
-                "dateSeance", dateSeance == null ? "" : dateSeance.toString(), CLE_DES_ROLES, "ADMIN,INFIRMIER,SECRETAIRE"));
-    }
+    // Séance (créée, validée, volets, consommables, supprimée, déverrouillée, saisies de l'infirmier, séances à régulariser) : catalogue
+    // dans contexts/seance (PL13b, ADR 0154). Reste ici la seule saisie ABSENCE, jusqu'à PL13d.
 
     /**
-     * Toute saisie de l'infirmier (séance créée ou validée, volet paramédical, consommables, administration EPO/fer,
-     * absence de patient) est signalée au <b>médecin</b> du centre dans son centre de notifications.
+     * La saisie {@code ABSENCE} d'une absence de patient (seule saisie encore émise par la plateforme) est signalée au <b>médecin</b> du
+     * centre dans son centre de notifications.
      *
      * @param type    l'une de {@link #SAISIES_INFIRMIER}
      * @param patient identité du patient concerné (peut être vide pour une saisie sans patient)
@@ -128,31 +95,6 @@ public class NotificationService implements DiffusionEnTempsReel {
         send(centerId, "SAISIE_INFIRMIER", contenu("saisie", type, "patientId", patientId == null ? "" : patientId.toString(),
                 "patientNom", ouVide(patientNom), "patientPrenom", ouVide(patientPrenom), "auteur", ouVide(auteur),
                 "date", ouVide(date), CLE_DES_ROLES, "MEDECIN"));
-    }
-
-    /** L'administrateur a déverrouillé une séance oubliée : les infirmiers peuvent la valider. */
-    public void notifySeanceDeverrouillee(UUID centerId, UUID seanceId, String patientNom, String patientPrenom,
-                                          String dateSeance) {
-        send(centerId, "SEANCE_DEVERROUILLEE", contenu("seanceId", seanceId.toString(), "patientNom", ouVide(patientNom),
-                "patientPrenom", ouVide(patientPrenom), "dateSeance", ouVide(dateSeance), CLE_DES_ROLES, "INFIRMIER"));
-    }
-
-    /**
-     * Des séances des jours précédents n'ont jamais été validées : l'administrateur doit les régulariser, sinon les
-     * patients concernés sont comptés absents.
-     */
-    public void notifySeancesARegulariser(UUID centerId, long nbSeances, LocalDate plusAncienne) {
-        notifySeancesARegulariser(centerId, nbSeances, plusAncienne, null);
-    }
-
-    /**
-     * Variante à identifiant déterministe (un par centre et par jour du centre, calculé par l'appelant) : déjà enregistré, le rappel
-     * n'est ni renvoyé ni dupliqué, même si deux instances du serveur le déclenchent ensemble (KB-SEA-35). Sans identifiant imposé,
-     * comportement historique : un identifiant aléatoire à chaque appel.
-     */
-    public void notifySeancesARegulariser(UUID centerId, long nbSeances, LocalDate plusAncienne, UUID idImpose) {
-        send(centerId, "SEANCES_A_REGULARISER", contenu("nbSeances", String.valueOf(nbSeances),
-                "plusAncienne", plusAncienne == null ? "" : plusAncienne.toString(), CLE_DES_ROLES, "ADMIN"), idImpose);
     }
 
     // ---------------------------------------------------------------- présence des infirmiers
@@ -393,12 +335,6 @@ public class NotificationService implements DiffusionEnTempsReel {
 
     private static String ouVide(String valeur) {
         return valeur == null ? "" : valeur;
-    }
-
-    private static Map<String, String> seanceDuPatient(UUID seanceId, UUID patientId, String patientNom, String patientPrenom,
-                                                       String dateSeance, String roles) {
-        return contenu("seanceId", seanceId.toString(), "patientId", patientId.toString(), "patientNom", ouVide(patientNom),
-                "patientPrenom", ouVide(patientPrenom), "dateSeance", ouVide(dateSeance), CLE_DES_ROLES, roles);
     }
 
     private static Map<String, String> absenceInfirmier(String infirmier, LocalDate debut, LocalDate fin, String roles) {

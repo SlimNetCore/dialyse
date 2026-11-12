@@ -73,9 +73,14 @@ import com.hemodialyse.backend.contexts.seance.application.VoletsDeLaSeance;
 import com.hemodialyse.backend.contexts.seance.application.ImposerUnForfait;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.Seances;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.DiffusionsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.PatientsParLeLegacy;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.DiffusionsFournies;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.notifications.DiffusionsDeSeanceParLeCentreDeNotifications;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.notifications.RappelsDeRegularisationParLeCentreDeNotifications;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.notifications.SignalementDesAdministrationsSaisiesParLeCentreDeNotifications;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SignalementDesAdministrationsSaisies;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesPublieesDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.FacturationDesSeancesJdbc;
@@ -112,9 +117,7 @@ import com.hemodialyse.backend.contexts.seance.application.RappelerLesSeancesARe
 import com.hemodialyse.backend.contexts.seance.application.RappelsDeRegularisation;
 import com.hemodialyse.backend.contexts.seance.application.VerrousDesRappels;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.CentresARappelerPublies;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyseance.RappelsParLeLegacy;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VerrousDesRappelsJdbc;
-import com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis;
 import com.hemodialyse.backend.contexts.seance.interfaces.jobs.RappelDesRegularisationsPlanifie;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -307,9 +310,19 @@ public class SeanceConfiguration {
         return new PatientsParLeLegacy(fiches);
     }
 
+    // ---- Notifications (PL13b, ADR 0154) : catalogue des messages dans la Séance, émission par notifications.v1
+
     @Bean
-    DiffusionsDeSeance diffusionsDeLaSeance(DiffusionsFournies diffusions) {
-        return new DiffusionsParLeLegacy(diffusions);
+    DiffusionsDeSeance diffusionsDeLaSeance(NotifierEnDeuxTemps notifier, DiffusionEnTempsReel diffusion) {
+        return new DiffusionsDeSeanceParLeCentreDeNotifications(notifier, diffusion);
+    }
+
+    /** Fournit au Dossier médical le signal de la saisie {@code ANEMIE} (seance.v1). */
+    @Bean
+    SignalementDesAdministrationsSaisies signalementDesAdministrationsSaisiesParLaSeance(
+            NotifierEnDeuxTemps notifier, DiffusionEnTempsReel diffusion, FichesDesPatients patients,
+            @Qualifier("sessionCouranteDeLaSeance") SessionCourante session) {
+        return new SignalementDesAdministrationsSaisiesParLeCentreDeNotifications(notifier, diffusion, patients, session);
     }
 
     // ---- SE7f : saisie du volet paramédical (ADR 0100)
@@ -407,8 +420,8 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    RappelsDeRegularisation rappelsDeRegularisationDeLaSeance(RappelsFournis rappels) {
-        return new RappelsParLeLegacy(rappels);
+    RappelsDeRegularisation rappelsDeRegularisationDeLaSeance(NotifierEnDeuxTemps notifier, DiffusionEnTempsReel diffusion) {
+        return new RappelsDeRegularisationParLeCentreDeNotifications(notifier, diffusion);
     }
 
     @Bean

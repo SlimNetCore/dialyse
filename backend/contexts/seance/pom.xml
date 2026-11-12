@@ -110,6 +110,12 @@
             <artifactId>contexts-planification</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Notifications (notifications.v1 : NotifierEnDeuxTemps, DiffusionEnTempsReel), PL13b, ADR 0154. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-notifications</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publié de Documents : RenduDeDocument (rendu du cahier de dialyse), PL5, ADR 0144. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

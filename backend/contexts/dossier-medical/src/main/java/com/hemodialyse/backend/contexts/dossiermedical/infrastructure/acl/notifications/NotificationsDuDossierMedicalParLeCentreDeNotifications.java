@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.notifications;
 
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.NotificationsDeLAnemie;
-import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SaisieDeLAdministrationSignalee;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SignalementDesPrescriptions;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.SignalementDesAdministrationsSaisies;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DemandeDeNotification;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotificationAEnvoyer;
@@ -22,7 +22,7 @@ import java.util.UUID;
  * {@link NotificationsDeLAnemie} (alerte durable d'observance) et {@link SignalementDesPrescriptions} (diffusion {@code PRESCRIPTION_CHANGED}).
  * Les messages viennent du {@link CatalogueDesNotificationsDuDossierMedical}. Dans une transaction, le signal attend la validation (jamais
  * d'alerte fantôme si l'écriture est annulée) ; sans transaction, il part aussitôt. La saisie {@code ANEMIE} de l'infirmier n'est pas du
- * catalogue du Dossier médical : elle est déléguée au port {@link SaisieDeLAdministrationSignalee} jusqu'à PL13b.
+ * catalogue du Dossier médical : elle est déléguée au port {@link SignalementDesAdministrationsSaisies}, fourni par la Séance (PL13b, ADR 0154).
  */
 public class NotificationsDuDossierMedicalParLeCentreDeNotifications implements NotificationsDeLAnemie, SignalementDesPrescriptions {
 
@@ -30,10 +30,10 @@ public class NotificationsDuDossierMedicalParLeCentreDeNotifications implements 
 
     private final NotifierEnDeuxTemps notifier;
     private final DiffusionEnTempsReel diffusion;
-    private final SaisieDeLAdministrationSignalee saisies;
+    private final SignalementDesAdministrationsSaisies saisies;
 
     public NotificationsDuDossierMedicalParLeCentreDeNotifications(NotifierEnDeuxTemps notifier, DiffusionEnTempsReel diffusion,
-                                                                   SaisieDeLAdministrationSignalee saisies) {
+                                                                   SignalementDesAdministrationsSaisies saisies) {
         this.notifier = notifier;
         this.diffusion = diffusion;
         this.saisies = saisies;

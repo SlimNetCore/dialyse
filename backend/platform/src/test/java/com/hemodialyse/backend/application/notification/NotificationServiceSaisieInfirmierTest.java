@@ -64,7 +64,7 @@ class NotificationServiceSaisieInfirmierTest {
 
     @Test
     void a_durable_alert_is_journaled_and_pushed_with_its_identifier() {
-        service.notifySeancesARegulariser(centre, 2, LocalDate.of(2026, 10, 1));
+        service.notifyAbsencesAQualifier(centre, 2, 1);
         service.notifyGenerateurIndisponible(centre, "A-G1", "HORS_SERVICE", java.util.List.of("BENALI Karim"));
 
         Map<String, Object> evt = publieTous().get(1);
@@ -76,7 +76,7 @@ class NotificationServiceSaisieInfirmierTest {
 
     @Test
     void a_transient_event_is_pushed_without_being_journaled() {
-        service.notifySeanceUpdated(centre, UUID.randomUUID());
+        service.notifySaisieInfirmier(centre, "ABSENCE", UUID.randomUUID(), "N", "P", "inf-01", "2026-10-04");
 
         verify(journal, org.mockito.Mockito.never()).enregistrer(any(Notification.class));
         assertNull(publieTous().get(0).get("id"));
@@ -119,24 +119,6 @@ class NotificationServiceSaisieInfirmierTest {
         assertEquals(8, NotificationService.SAISIES_INFIRMIER.size());
         assertThrows(IllegalArgumentException.class,
                 () -> service.notifySaisieInfirmier(centre, "INCONNU", null, null, null, null, null));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void the_legacy_session_events_no_longer_target_the_doctor() {
-        UUID s = UUID.randomUUID();
-        UUID p = UUID.randomUUID();
-        service.notifySeanceCreated(centre, s, p, "N", "P", "2026-10-04");
-        service.notifySeanceValidated(centre, s, p, "N", "P", "2026-10-04");
-        service.notifySeanceParamedicalSaved(centre, s, p, "N", "P", "2026-10-04");
-        service.notifySeanceUpdated(centre, s);
-
-        ArgumentCaptor<Object> events = ArgumentCaptor.forClass(Object.class);
-        verify(messaging, org.mockito.Mockito.times(4)).convertAndSend(eq("/topic/center/" + centre + "/events"), events.capture());
-        for (Object o : events.getAllValues()) {
-            Map<String, String> payload = (Map<String, String>) ((Map<String, Object>) o).get("payload");
-            assertFalse(payload.get("targetRoles").contains("MEDECIN"), String.valueOf(((Map<String, Object>) o).get("type")));
-        }
     }
 
     @Test
