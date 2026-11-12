@@ -141,7 +141,7 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         m.put("05 instantanes en base apres la matrice (societes actives : une capture par societe autorisee)",
                 lignes("SELECT societe_id, mois FROM direction_snapshot WHERE societe_id IN (?, ?, ?, ?) ORDER BY societe_id, mois",
                         SOCIETE, AUTRE_SOCIETE, SOCIETE_INACTIVE, SOCIETE_SANS_CENTRE));
-        arbrePd("garde_roles_et_jetons", m);
+        arbrePd("garde_roles_et_jetons_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ mois du chemin et paramètres
@@ -195,7 +195,7 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         corps.put("capture avec un corps illisible", etat(doPost(SNAPSHOTS + "/" + m1, "{pas du json", direction()), false));
         corps.put("lignes de l'autre societe", jdbc.queryForObject("SELECT COUNT(*) FROM direction_snapshot WHERE societe_id = ?", Integer.class, AUTRE_SOCIETE));
         m.put("03 corps de la capture ignore", corps);
-        arbrePd("mois_du_chemin_et_parametres", m);
+        arbrePd("mois_du_chemin_et_parametres_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ contenus stockés
@@ -265,7 +265,7 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         g.put("totaux.seances", c.path("overview").path("totaux").path("seances").asString());
         g.put("capture (deja figee)", etat(doPost(SNAPSHOTS + "/" + m1, "", direction()), false));
         m.put("02 gros instantane", g);
-        arbrePd("contenus_stockes_atypiques", m);
+        arbrePd("contenus_stockes_atypiques_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ seuil d'anonymat à la capture
@@ -349,7 +349,7 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         String genere = noeud(capture).path("generatedAt").asString();
         OffsetDateTime g = OffsetDateTime.parse(genere);
         horo.put("forme de generatedAt apres capture", formes(genere));
-        horo.put("capture horodatee par la base (heure reelle), pas par l'horloge figee du Pilotage (23:30 UTC la veille)", g.toInstant().isAfter(INSTANT_FIXE));
+        horo.put("capture horodatee par l'horloge du Pilotage (figee a 23:30 UTC), plus par l'heure de la base (KB-DIR-06 d, PL10a)", g.toInstant().equals(INSTANT_FIXE));
         jdbc.update("INSERT INTO direction_snapshot (id, societe_id, mois, payload, generated_at) VALUES (?, ?, ?, ?, ?)", UUID.randomUUID(), SOCIETE,
                 mois(-2).toString(), vide, OffsetDateTime.parse("2026-01-01T10:00:00+05:00"));
         horo.put("forme servie d'un instantane stocke avec un decalage +05:00 (lecture)",
@@ -392,7 +392,7 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         } finally {
             pool.shutdownNow();
         }
-        arbrePd("hors_bornes_tri_horodatages_concurrence", m);
+        arbrePd("hors_bornes_tri_horodatages_concurrence_nouveau_code", m);
     }
 
     private List<String> noeudMois(Resp r) {
@@ -441,7 +441,7 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("lignes", lignes);
         jdbc.update("DELETE FROM audit_log WHERE route_template LIKE '%/direction/%'");
-        arbrePd("audit", m);
+        arbrePd("audit_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ méthodes et en-têtes
@@ -498,6 +498,6 @@ class LesInstantanesDeLaDirectionPl10aCharacterizationIntegrationTest extends Pi
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cas", cas);
         m.put("lignes en base apres ces appels", jdbc.queryForObject("SELECT COUNT(*) FROM direction_snapshot WHERE societe_id IN (?, ?)", Integer.class, SOCIETE, AUTRE_SOCIETE));
-        arbrePd("methodes_chemins_et_en_tetes", m);
+        arbrePd("methodes_chemins_et_en_tetes_nouveau_code", m);
     }
 }

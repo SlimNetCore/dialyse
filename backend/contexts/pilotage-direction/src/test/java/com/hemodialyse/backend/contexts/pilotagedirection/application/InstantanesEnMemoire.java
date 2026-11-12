@@ -35,9 +35,19 @@ public final class InstantanesEnMemoire implements InstantanesMensuels {
 
     @Override
     public boolean enregistrer(InstantaneMensuel instantane) {
+        return enregistrer(instantane, horodatage);
+    }
+
+    @Override
+    public boolean enregistrer(InstantaneMensuel instantane, OffsetDateTime genereLe) {
         String cle = cle(instantane.societeId(), instantane.mois().texte());
         if (figes.containsKey(cle)) return false;
-        figes.put(cle, new InstantaneFige(instantane.mois().texte(), horodatage, instantane.contenu().texte()));
+        figes.put(cle, new InstantaneFige(instantane.mois().texte(), genereLe, instantane.contenu().texte()));
         return true;
+    }
+
+    /** Insère une ligne telle quelle (mois quelconque), comme un {@code INSERT} direct en base : pour les lignes illisibles déjà présentes. */
+    public void inserer(UUID societeId, String mois, String contenu) {
+        figes.put(cle(societeId, mois), new InstantaneFige(mois, horodatage, contenu));
     }
 }

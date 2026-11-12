@@ -38,7 +38,7 @@ public final class CapturerLesInstantanesDuMoisEcoule {
             try {
                 boolean existe = instantanes.lister(societeId).stream().anyMatch(i -> i.mois().equals(precedent.texte()));
                 if (!existe && instantanes.enregistrer(InstantaneMensuel.figerLeMoisEcoule(societeId, courant,
-                        contenu.constituer(societeId, precedent.debut(), precedent.fin())))) {
+                        contenu.constituer(societeId, precedent.debut(), precedent.fin())), horloge.maintenant())) {
                     crees++;
                 }
             } catch (RuntimeException e) {

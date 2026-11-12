@@ -56,12 +56,27 @@ public final class InstantanesMensuelsPublies implements InstantanesMensuelsDeLa
         return capturerLeMoisEcoule.execute();
     }
 
+    private static boolean contientUneValeurNonFinie(JsonNode noeud) {
+        if (noeud.isFloatingPointNumber()) return !Double.isFinite(noeud.doubleValue());
+        if (noeud.isObject() || noeud.isArray()) {
+            for (JsonNode enfant : noeud) {
+                if (contientUneValeurNonFinie(enfant)) return true;
+            }
+        }
+        return false;
+    }
+
     private Instantane traduire(InstantaneFige i) {
         JsonNode racine;
         try {
             racine = mapper.readTree(i.contenu());
         } catch (JacksonException e) {
             // KB-DIR-06 (e) corrigé (lot L6, ADR 0119) : refus métier 422, sans le détail technique de l'analyse du JSON
+            throw new RegleDuPilotageViolee("INSTANTANE_ILLISIBLE", "Cet instantané mensuel est illisible");
+        }
+        // KB-PL10a-2 corrigé (2026-11-12, comme KB-PL9-3) : un contenu vide ou qui n'est pas un objet, ou portant une valeur non finie
+        // (1e999999), est illisible : 422, jamais un 200 aux sections nulles ou « Infinity »
+        if (racine == null || !racine.isObject() || racine.size() == 0 || contientUneValeurNonFinie(racine)) {
             throw new RegleDuPilotageViolee("INSTANTANE_ILLISIBLE", "Cet instantané mensuel est illisible");
         }
         // KB-DIR-01 / KB-MED-104 corrigés (2026-11-09) : les totaux bruts d'un instantané ancien sont supprimés À LA LECTURE (arbre en

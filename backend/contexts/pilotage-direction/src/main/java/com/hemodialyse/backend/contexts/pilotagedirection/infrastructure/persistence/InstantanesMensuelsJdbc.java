@@ -51,4 +51,16 @@ public final class InstantanesMensuelsJdbc implements InstantanesMensuels {
             return false;
         }
     }
+
+    /** PL10a : l'instant de capture vient de l'horloge du Pilotage (même instant que l'ancien {@code CURRENT_TIMESTAMP}, mais testable). */
+    @Override
+    public boolean enregistrer(InstantaneMensuel instantane, OffsetDateTime genereLe) {
+        try {
+            jdbc.update("INSERT INTO direction_snapshot (id, societe_id, mois, payload, generated_at) VALUES (?, ?, ?, ?, ?)",
+                    UUID.randomUUID(), instantane.societeId(), instantane.mois().texte(), instantane.contenu().texte(), genereLe);
+            return true;
+        } catch (DuplicateKeyException e) {
+            return false;
+        }
+    }
 }

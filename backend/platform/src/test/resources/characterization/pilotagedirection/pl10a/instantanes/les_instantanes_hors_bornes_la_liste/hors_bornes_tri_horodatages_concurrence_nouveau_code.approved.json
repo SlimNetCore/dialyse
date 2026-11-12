@@ -1,0 +1,34 @@
+{
+  "01 instantane deja present mais hors des bornes de capture : lu, jamais re-capturable" : {
+    "mois <M+0>" : "lecture : 200 ok | capture : 422 MOIS_NON_TERMINE | Seul un mois écoulé peut être figé",
+    "mois <M+14>" : "lecture : 200 ok | capture : 422 MOIS_NON_TERMINE | Seul un mois écoulé peut être figé",
+    "mois <M+1>" : "lecture : 200 ok | capture : 422 MOIS_NON_TERMINE | Seul un mois écoulé peut être figé",
+    "mois <M-120>" : "lecture : 200 ok | capture : 422 MOIS_TROP_ANCIEN | Mois trop ancien",
+    "mois <M-61>" : "lecture : 200 ok | capture : 422 MOIS_TROP_ANCIEN | Mois trop ancien"
+  },
+  "02 liste (tri par mois decroissant, texte compris les mois non canoniques)" : [ "<M+14>", "<M+1>", "<M+0>", "<M-61>", "<M-120>", "0001-01" ],
+  "03 lecture des mois non canoniques presents en base" : {
+    "0001-01" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+    "2026-1" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "26-1-01" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "abc" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)"
+  },
+  "04 horodatages" : {
+    "capture horodatee par l'horloge du Pilotage (figee a 23:30 UTC), plus par l'heure de la base (KB-DIR-06 d, PL10a)" : true,
+    "cle de la reponse de liste" : [ "mois", "generatedAt" ],
+    "forme de generatedAt apres capture" : "<HORODATAGE>",
+    "forme servie d'un instantane stocke avec un decalage +05:00 (lecture)" : "<HORODATAGE> | meme instant : true",
+    "forme servie dans la liste" : "<HORODATAGE>"
+  },
+  "05 volume" : {
+    "dernier" : "2020-09",
+    "lecture du plus ancien (hors borne de capture)" : "200 ok",
+    "nombre de mois listes" : 74,
+    "premier" : "<M-1>"
+  },
+  "06 captures simultanees du meme mois" : {
+    "corps distincts" : 1,
+    "lignes en base" : 1,
+    "statuts distincts des quatre captures simultanees" : [ 200 ]
+  }
+}

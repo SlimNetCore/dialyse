@@ -45,8 +45,25 @@ final class MasqueDesTotauxFiges {
         return n != null && n.isArray();
     }
 
+    /**
+     * KB-PL10a-5 corrigé (2026-11-12, PD5-R9) : le seuil est unique et celui du Pilotage ({@link SeuilDAnonymat#SEUIL}) ; un effectif de centre de
+     * 1 à 4 stocké en clair est masqué à la relecture (le {@code seuilAnonymat} stocké n'est pas relu : ce n'est pas un second jeu de règles).
+     * Le total qui le compose est ensuite supprimé par la suppression complémentaire.
+     */
+    private static void masquerLEffectif(JsonNode parent, String champ) {
+        if (!objet(parent)) return;
+        JsonNode valeur = parent.path(champ);
+        if ((valeur.isNumber() || valeur.isString()) && SeuilDAnonymat.estMasque(valeur.asLong())) {
+            ((ObjectNode) parent).putNull(champ);
+        }
+    }
+
     private static void vueDEnsemble(JsonNode overview) {
         if (!objet(overview) || !objet(overview.path("totaux")) || !tableau(overview.path("centres"))) return;
+        for (JsonNode c : overview.path("centres")) {
+            masquerLEffectif(c, "patients");
+            masquerLEffectif(c, "patientsSousKt");
+        }
         ObjectNode totaux = (ObjectNode) overview.path("totaux");
         for (String champ : List.of("patients", "patientsSousKt")) {
             List<Long> centres = new ArrayList<>();
@@ -58,6 +75,16 @@ final class MasqueDesTotauxFiges {
     private static void indicateurs(JsonNode indicateurs) {
         if (!objet(indicateurs) || !objet(indicateurs.path("totaux").path("clinique")) || !tableau(indicateurs.path("centres"))) return;
         ObjectNode total = (ObjectNode) indicateurs.path("totaux").path("clinique");
+        for (JsonNode c : indicateurs.path("centres")) {
+            JsonNode clinique = c.path("clinique");
+            for (String champ : EFFECTIFS_CLINIQUES) masquerLEffectif(clinique, champ);
+            for (String marqueur : MARQUEURS) {
+                JsonNode m = clinique.path(marqueur);
+                if (objet(m) && m.path("evalues").isNumber() && SeuilDAnonymat.estMasque(m.path("evalues").asLong())) {
+                    for (String mesure : MESURES_D_UN_MARQUEUR) ((ObjectNode) m).putNull(mesure);
+                }
+            }
+        }
         for (String champ : EFFECTIFS_CLINIQUES) {
             List<Long> centres = new ArrayList<>();
             for (JsonNode c : indicateurs.path("centres")) centres.add(effectif(c.path("clinique").path(champ)));
@@ -76,6 +103,7 @@ final class MasqueDesTotauxFiges {
 
     private static void repartition(JsonNode repartition) {
         if (!objet(repartition) || !tableau(repartition.path("caisseTotaux")) || !tableau(repartition.path("caisses"))) return;
+        for (JsonNode c : repartition.path("caisses")) masquerLEffectif(c, "patients");
         for (JsonNode total : repartition.path("caisseTotaux")) {
             if (!objet(total)) continue;
             List<Long> centres = new ArrayList<>();

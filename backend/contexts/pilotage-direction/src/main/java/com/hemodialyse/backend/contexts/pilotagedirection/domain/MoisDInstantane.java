@@ -33,6 +33,16 @@ public record MoisDInstantane(YearMonth mois) {
         }
     }
 
+    /** Vrai si le texte est un mois {@code AAAA-MM} réel (les lignes stockées qui ne le sont pas sont ignorées, KB-PL10a-4). */
+    public static boolean estLisible(String texte) {
+        try {
+            lire(texte);
+            return true;
+        } catch (RegleDuPilotageViolee e) {
+            return false;
+        }
+    }
+
     private static RegleDuPilotageViolee illisible() {
         return new RegleDuPilotageViolee("MOIS_INVALIDE", "Mois invalide (attendu : AAAA-MM)");
     }

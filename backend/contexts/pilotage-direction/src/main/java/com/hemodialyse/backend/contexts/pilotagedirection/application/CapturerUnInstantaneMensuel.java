@@ -32,7 +32,7 @@ public final class CapturerUnInstantaneMensuel {
         boolean dejaFige = instantanes.lister(societeId).stream().anyMatch(i -> i.mois().equals(mois.texte()));
         if (!dejaFige) {
             instantanes.enregistrer(InstantaneMensuel.figer(societeId, mois, courant,
-                    contenu.constituer(societeId, mois.debut(), mois.fin())));
+                    contenu.constituer(societeId, mois.debut(), mois.fin())), horloge.maintenant());
         }
         return consulter.execute(societeId, mois.texte());
     }

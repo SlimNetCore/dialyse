@@ -1,0 +1,48 @@
+{
+  "01 profils de Planification (le profil DIRECTION est le nominal)" : {
+    "ADMIN" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "ADMIN sans centre" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "DIRECTION" : "liste : 200 ok x1 | lecture : 200 ok | capture : 200 ok",
+    "DIRECTION portant un centre" : "liste : 200 ok x1 | lecture : 200 ok | capture : 200 ok",
+    "INFIRMIER seul" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "MEDECIN + INFIRMIER" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "MEDECIN seul" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "SECRETAIRE" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "SUPERADMIN" : "liste : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource. | lecture : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource. | capture : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "SUPERADMIN + ADMIN" : "liste : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource. | lecture : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource. | capture : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "aucun role" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "role inconnu (COMPTABLE)" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied"
+  },
+  "02 cumuls de roles" : {
+    "DIRECTION + ADMIN" : "liste : 200 ok x1 | lecture : 200 ok | capture : 200 ok",
+    "DIRECTION + MEDECIN" : "liste : 200 ok x1 | lecture : 200 ok | capture : 200 ok",
+    "DIRECTION + SUPERADMIN" : "liste : 200 ok x1 | lecture : 200 ok | capture : 200 ok",
+    "SUPERADMIN sans societe" : "liste : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource. | lecture : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource. | capture : 403 ROLE_SCOPE | Ce profil n'a pas accès à cette ressource.",
+    "role en minuscules" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied",
+    "role sans prefixe" : "liste : 403 ACCESS_DENIED | Access Denied | lecture : 403 ACCESS_DENIED | Access Denied | capture : 403 ACCESS_DENIED | Access Denied"
+  },
+  "03 garde de societe" : {
+    "identifiant d'utilisateur illisible" : "liste : 400 BAD_REQUEST | Jeton de session illisible | lecture : 400 BAD_REQUEST | Jeton de session illisible | capture : 400 BAD_REQUEST | Jeton de session illisible",
+    "jeton d'une autre societe, utilisateur membre de la premiere" : "liste : 403 ACCESS_DENIED | Accès à cette société refusé | lecture : 403 ACCESS_DENIED | Accès à cette société refusé | capture : 403 ACCESS_DENIED | Accès à cette société refusé",
+    "societe active sans centre" : "liste : 200 ok x0 | lecture : 422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois | capture : 200 ok",
+    "societe du jeton blanche" : "liste : 403 ACCESS_DENIED | Session sans société | lecture : 403 ACCESS_DENIED | Session sans société | capture : 403 ACCESS_DENIED | Session sans société",
+    "societe du jeton illisible" : "liste : 400 BAD_REQUEST | Jeton de session illisible | lecture : 400 BAD_REQUEST | Jeton de session illisible | capture : 400 BAD_REQUEST | Jeton de session illisible",
+    "societe inactive" : "liste : 403 ACCESS_DENIED | Accès à cette société refusé | lecture : 403 ACCESS_DENIED | Accès à cette société refusé | capture : 403 ACCESS_DENIED | Accès à cette société refusé",
+    "utilisateur detache (jeton portant la societe)" : "liste : 403 ACCESS_DENIED | Accès à cette société refusé | lecture : 403 ACCESS_DENIED | Accès à cette société refusé | capture : 403 ACCESS_DENIED | Accès à cette société refusé",
+    "utilisateur inactif" : "liste : 403 ACCESS_DENIED | Accès à cette société refusé | lecture : 403 ACCESS_DENIED | Accès à cette société refusé | capture : 403 ACCESS_DENIED | Accès à cette société refusé",
+    "utilisateur inconnu en base" : "liste : 403 ACCESS_DENIED | Accès à cette société refusé | lecture : 403 ACCESS_DENIED | Accès à cette société refusé | capture : 403 ACCESS_DENIED | Accès à cette société refusé",
+    "utilisateur sans rattachement (jeton sans societe)" : "liste : 403 ACCESS_DENIED | Session sans société | lecture : 403 ACCESS_DENIED | Session sans société | capture : 403 ACCESS_DENIED | Session sans société"
+  },
+  "04 anonyme" : {
+    "capture" : "403",
+    "lecture" : "403",
+    "liste" : "403"
+  },
+  "05 instantanes en base apres la matrice (societes actives : une capture par societe autorisee)" : [ {
+    "mois" : "<M-1>",
+    "societe_id" : "<SOCIETE_SANS_CENTRE>"
+  }, {
+    "mois" : "<M-1>",
+    "societe_id" : "<SOCIETE>"
+  } ]
+}

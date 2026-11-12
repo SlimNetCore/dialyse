@@ -37,6 +37,10 @@ public final class AuditActionResolver {
     private static final String ROUTE_RAPPORT_DIRECTION = "/api/v1/direction/report";
     private static final String ROUTE_RAPPORT_DIRECTION_MENSUEL = "/api/v1/direction/snapshots/{mois}/report";
 
+    /** Liste et lecture des instantanés mensuels de la direction (PL10a, KB-PL10a-3, décision du 2026-11-12). */
+    private static final String ROUTE_INSTANTANES = "/api/v1/direction/snapshots";
+    private static final String ROUTE_INSTANTANE = "/api/v1/direction/snapshots/{mois}";
+
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
      */
@@ -47,7 +51,9 @@ public final class AuditActionResolver {
             ROUTE_PV_INVENTAIRE,
             ROUTE_FEUILLE_COMPTAGE,
             ROUTE_RAPPORT_DIRECTION,
-            ROUTE_RAPPORT_DIRECTION_MENSUEL
+            ROUTE_RAPPORT_DIRECTION_MENSUEL,
+            ROUTE_INSTANTANES,
+            ROUTE_INSTANTANE
     );
 
     private static final Resolved ACTION_STATISTIQUES_PATIENT =
@@ -102,6 +108,10 @@ public final class AuditActionResolver {
             Map.entry("GET " + ROUTE_RAPPORT_DIRECTION, new Resolved("DIRECTION_RAPPORT_IMPRESSION", "direction", "Rapport de la direction consulté")),
             Map.entry("GET " + ROUTE_RAPPORT_DIRECTION_MENSUEL,
                     new Resolved("DIRECTION_RAPPORT_IMPRESSION", "direction", "Rapport mensuel de la direction consulté")),
+            Map.entry("GET " + ROUTE_INSTANTANES,
+                    new Resolved("DIRECTION_INSTANTANE_CONSULTATION", "direction", "Instantanés mensuels de la direction consultés")),
+            Map.entry("GET " + ROUTE_INSTANTANE,
+                    new Resolved("DIRECTION_INSTANTANE_CONSULTATION", "direction", "Instantané mensuel de la direction consulté")),
             Map.entry("GET " + ROUTE_FEUILLE_COMPTAGE,
                     new Resolved("INVENTAIRE_FEUILLE_TELECHARGEMENT", "stock", "Feuille de comptage téléchargée")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),

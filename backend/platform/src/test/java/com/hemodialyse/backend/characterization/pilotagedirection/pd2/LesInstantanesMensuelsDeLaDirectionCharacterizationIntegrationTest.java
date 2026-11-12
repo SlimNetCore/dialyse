@@ -83,7 +83,10 @@ class LesInstantanesMensuelsDeLaDirectionCharacterizationIntegrationTest extends
         m.put("03 capture (POST) : instantane complet du mois ecoule", instantane(capture));
         m.put("04 vue d'ensemble figee (corps complet)", corps(capture).path("overview"));
         List<Map<String, Object>> lignes = lignes("SELECT id, societe_id, mois, generated_at, LENGTH(payload) AS taille FROM direction_snapshot WHERE societe_id = ?", SOCIETE);
-        lignes.forEach(l -> l.put("taille", l.get("taille") == null ? null : "non nulle : " + (Long.parseLong(String.valueOf(l.get("taille"))) > 100)));
+        // PL10a : l'instant de capture vient de l'horloge du Pilotage (23:30:00Z) ; rendu avec ses secondes pour être masqué comme avant
+        lignes.forEach(l -> l.put("generated_at", l.get("generated_at") == null ? null
+                : java.time.OffsetDateTime.parse(String.valueOf(l.get("generated_at"))).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)));
+        lignes.forEach(l -> l.put("taille",l.get("taille") == null ? null : "non nulle : " + (Long.parseLong(String.valueOf(l.get("taille"))) > 100)));
         m.put("05 ligne en base", lignes);
         String premierHorodatage = jdbc.queryForObject("SELECT CAST(generated_at AS VARCHAR) FROM direction_snapshot WHERE societe_id = ?", String.class, SOCIETE);
         Resp seconde = doPost(SNAPSHOTS + "/" + m1, "", direction());

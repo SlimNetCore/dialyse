@@ -1,5 +1,5 @@
 {
   "01 rapport en direct : horodatages imprimes (horloge figee a 23:30 UTC la veille = 00:30 a Alger)" : [ "<HEURE_D_ALGER_DE_L_HORLOGE_FIGEE>" ],
-  "02 rapport d'un instantane fige a la meme horloge" : [ "<HEURE_REELLE_DE_LA_JVM>" ],
+  "02 rapport d'un instantane fige a la meme horloge" : [ "<HEURE_D_ALGER_DE_L_HORLOGE_FIGEE>" ],
   "03 instantane dont le contenu ne porte aucune date de generation" : [ ]
 }

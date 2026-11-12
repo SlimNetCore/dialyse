@@ -19,6 +19,14 @@ public interface InstantanesMensuels {
     /** @return {@code false} si l'instantané existe déjà (créé entre-temps par une autre demande) : il reste inchangé */
     boolean enregistrer(InstantaneMensuel instantane);
 
+    /**
+     * PL10a (KB-DIR-06 d, décision du 2026-11-12) : l'instant de capture est celui de l'horloge du Pilotage, injectée (et non l'heure de la
+     * base). Par défaut, repli sur {@link #enregistrer(InstantaneMensuel)} pour les doubles qui ne portent pas l'instant.
+     */
+    default boolean enregistrer(InstantaneMensuel instantane, OffsetDateTime genereLe) {
+        return enregistrer(instantane);
+    }
+
     record InstantaneListe(String mois, OffsetDateTime genereLe) {
     }
 

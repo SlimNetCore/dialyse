@@ -164,8 +164,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
         @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
         ResponseEntity<ProblemDetail> routeInconnue(org.springframework.web.servlet.resource.NoResourceFoundException erreur,
                                                     HttpServletRequest requete) {
-            if (!requete.getRequestURI().startsWith("/api/v1/direction/")
-                    || !requete.getRequestURI().toLowerCase(java.util.Locale.ROOT).contains("report")) {
+            if (!estUneRouteDuRapportOuDesInstantanes(requete)) {
                 ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
                 return ResponseEntity.status(commun.getStatus()).body(commun);
             }
@@ -180,12 +179,18 @@ class DatesIllisiblesDeLaDirectionAdvice {
         @ExceptionHandler(org.springframework.web.HttpMediaTypeNotAcceptableException.class)
         ResponseEntity<ProblemDetail> typeNonAcceptable(org.springframework.web.HttpMediaTypeNotAcceptableException erreur,
                                                         HttpServletRequest requete) {
-            if (!requete.getRequestURI().startsWith("/api/v1/direction/")
-                    || !requete.getRequestURI().toLowerCase(java.util.Locale.ROOT).contains("report")) {
+            if (!estUneRouteDuRapportOuDesInstantanes(requete)) {
                 ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
                 return ResponseEntity.status(commun.getStatus()).body(commun);
             }
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        }
+
+        /** Le rapport (PL9, KB-PL9-4) et les instantanés mensuels (PL10a, KB-PL10a-1) de la Direction : chemins voisins en 404, Accept refusé en 406. */
+        private static boolean estUneRouteDuRapportOuDesInstantanes(HttpServletRequest requete) {
+            String uri = requete.getRequestURI().toLowerCase(java.util.Locale.ROOT);
+            return requete.getRequestURI().startsWith("/api/v1/direction/")
+                    && (uri.contains("report") || uri.startsWith("/api/v1/direction/snapshots"));
         }
 
         @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

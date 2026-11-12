@@ -586,6 +586,19 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("le rapport de la direction est rendu par contexts/pilotage-direction via documents.v1 (PL9, ADR 0148)");
 
+    /** PL10a (ADR 0150) : les routes des instantanés mensuels sont servies par le Pilotage ; le contrôleur de la plateforme ne revient pas. */
+    @ArchTest
+    static final ArchRule les_instantanes_mensuels_de_la_direction_ne_sont_plus_servis_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionSnapshotRestController")
+            .allowEmptyShould(true)
+            .because("les instantanés mensuels de la direction sont servis par contexts/pilotage-direction (PL10a, ADR 0150)");
+
+    @ArchTest
+    static final ArchRule les_instantanes_mensuels_sont_servis_par_la_session_de_la_direction_du_pilotage = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.InstantanesDeLaDirectionControleur")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection")
+            .because("la société vient de la session, jamais d'un paramètre (PL10a, ADR 0150)");
+
     @ArchTest
     static final ArchRule le_rapport_de_la_direction_est_rendu_par_le_langage_publie_de_documents = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.documents.RapportRenduParDocuments")
