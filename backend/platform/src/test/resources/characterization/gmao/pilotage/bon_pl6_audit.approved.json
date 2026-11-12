@@ -1,0 +1,6 @@
+[
+  "GET /bon suivi par le resolveur d'audit = false",
+  "POST /bon suivi par le resolveur d'audit = true",
+  "lignes de journal = 0",
+  "interventions, lignes de cout et rectifications inchangees = true"
+]

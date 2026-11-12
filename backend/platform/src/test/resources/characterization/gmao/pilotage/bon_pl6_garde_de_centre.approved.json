@@ -1,0 +1,13 @@
+[
+  "ADMIN du centre A -> 200 PDF pages=1",
+  "ADMIN du centre A + ?centerId=B -> 200 PDF pages=1",
+  "ADMIN du centre B + ?centerId=A -> 400 BAD_REQUEST Intervention non trouvée",
+  "ADMIN du centre B + ?centreId=A -> 400 BAD_REQUEST Intervention non trouvée",
+  "ADMIN sans centre -> 500 INTERNAL_ERROR <technique>",
+  "ADMIN d'un centre inexistant -> 400 BAD_REQUEST Intervention non trouvée",
+  "ADMIN dont le centre est illisible -> 400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+  "ADMIN dont le centre est vide -> 400 BAD_REQUEST Invalid UUID string: ",
+  "ADMIN d'un centre d'une autre societe -> 400 BAD_REQUEST Intervention non trouvée",
+  "SUPERADMIN sans centre -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "SUPERADMIN + ADMIN sans centre -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource."
+]

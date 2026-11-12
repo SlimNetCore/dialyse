@@ -1,0 +1,11 @@
+[
+  "statut=200 pages=3",
+  "contient FIN-DESCRIPTION = true",
+  "contient FIN-SYMPTOME = true",
+  "contient FIN-CAUSE = true",
+  "contient FIN-ACTIONS = true",
+  "contient COÛT TOTAL = true",
+  "contient Signature = true",
+  "contient Ligne de temps = true",
+  "lignes de texte = 132"
+]
