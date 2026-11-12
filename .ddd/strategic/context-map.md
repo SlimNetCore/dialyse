@@ -1,6 +1,7 @@
 ---
 status: approved
 date: 2026-10-09
+amendment: 2026-11-12 contextes Documents et Notifications (R24-R29, ADR 0140, status proposed) ; reste approuvé inchangé
 sources:
   - .ddd/strategic/bounded-contexts.md
   - .ddd/discovery/event-storming.md (politiques, systèmes externes, crons)
@@ -31,7 +32,9 @@ flowchart LR
   MED[Dossier médical]:::supp
   GMA[GMAO]:::supp
   DIR[Pilotage direction]:::supp
-  GEN[Génériques : Accès, Notifications, Audit, Licence]:::gen
+  GEN[Génériques restants : Accès, Audit, Licence]:::gen
+  DOC[Documents - SD16]:::gen
+  NOT[Notifications - SD13]:::gen
   LEG[(Legacy platform + schéma partagé 124 tables — Big Ball of Mud)]:::legacy
   XCPT[Logiciel comptable]:::ext
   XFHIR[Échanges FHIR]:::ext
@@ -60,6 +63,11 @@ flowchart LR
   MED -- "PL FHIR" --> XFHIR
   SEA & PLA & ABS & STK & FAC -- "PL → CF (lecture)" --> DIR
   SEA & PLA & ABS & STK & MED & PAT -- "PL → CF" --> GEN
+  ORG -- "OHS : IdentiteImprimable → ACL" --> DOC
+  DOC -- "U OHS/PL documents.v1 → D ACL" --> SEA & GMA & STK & FAC & DIR & MED & PLA & PAT
+  NOT -- "U OHS/PL notifications.v1 → D ACL" --> PAT & MED & SEA & PLA & ABS & STK & GMA
+  PLATF[Plateforme : sécurité, STOMP] -. "Conformist / ACL" .-> NOT
+  PLATF -. "Conformist" .-> DOC
 
   LEG -. "ACL (lecture/écriture transitoire)" .- SEA
   LEG -. "ACL" .- PLA
@@ -94,9 +102,16 @@ flowchart LR
 | R18 | Patient & couverture | Dossier médical | Conformist | requête | identité patient | 0 arête aujourd'hui |
 | R19 | Dossier médical | Patient & couverture | Published Language | événement | `GreffeRéalisée` → proposition de sortie | **à valider** (H7) |
 | R20 | Séance, Planif., Absences, Stock, Facturation | Pilotage direction | Published Language / Conformist | événements → projections | indicateurs, instantané mensuel | CQRS, aucune écriture amont |
-| R21 | tous | Génériques | PL / Conformist | événements | notifications, audit | — |
+| R21 | tous | Génériques restants (Identité & accès, Audit, Licence) | PL / Conformist | événements | audit ; *(les notifications passent à R28, ADR 0140)* | — |
 | R22 | Comptabilité | Logiciel comptable | OHS + PL (format d'export) | fichier | écritures exportées | RG-CPT-004 |
 | R23 | Dossier médical | Échanges FHIR | Published Language (FHIR) | export | — | — |
+| R24 *(proposed, ADR 0140)* | Organisation | Documents | Customer–Supplier, OHS ; **ACL** côté Documents | requête | `IdentiteImprimable` : nom, adresse, logo, pied de la société/centre | remplace la lecture JPA de `societes` par `SocieteLogoService` |
+| R25 | Documents | Séance (cahier de dialyse), GMAO (bon d'intervention), Stock (inventaire, feuille de comptage), Facturation (synthèse mensuelle), Pilotage (rapport PDF Direction), Dossier médical (greffe, statistiques PDF), Planification (présence, calendrier de proposition) | **OHS + PL** (`documents.v1`) / **ACL** côté consommateur | requête synchrone | `RenduDeDocument`, `PapierEnTeteDuCentre` | PL5-PL9 ; chaque contexte garde mise en page et données |
+| R26 | chaque contexte producteur | Documents | Published Language (`TypeDeDocumentDeclare`) / Conformist côté Documents | déclaration au démarrage | type, libellé, gabarit par défaut, paramètres attendus | Documents ne dépend d'aucun contexte ; contrat de paramètres versionné |
+| R27 | plateforme (sécurité, rôles, audit) | Documents, Notifications | Conformist | session | rôle ADMIN/SUPERADMIN sur les écritures de modèles ; garde de centre | A1-A3 restent plateforme |
+| R28 | Notifications | Patient & couverture, Dossier médical, Séance, Planification, Absences patients, Stock, GMAO | **OHS + PL** (`notifications.v1`) / **ACL** côté émetteur | appel synchrone, après commit | `DemandeDeNotification` (centre, type, contenu, audience) | remplace R21 pour les notifications ; retire les ACL `*Legacy` (PL13) |
+| R29 | plateforme (transport STOMP) | Notifications | ACL (port `DiffusionEnTempsReel`) | appel | diffusion temps réel aux connectés du centre | A6 reste plateforme |
+| — | Pilotage direction | Notifications | Separate Ways (à confirmer, Q11) | — | alertes de direction ≠ notifications | — |
 | — | Dossier médical | Facturation, Stock, GMAO… | Separate Ways | — | — | aucun besoin identifié |
 | — | GMAO | Stock | Separate Ways (à valider) | — | — | 0 arête gmao↔stock ; pièces détachées ? |
 
@@ -119,6 +134,8 @@ Crons métier : chacun devient une **politique** dans son contexte propriétaire
 | Patient & couverture | restant | 4 `bc-*` | 7 |
 | Séance | restant | `bc-seance/domain/seance`, `SeanceRestController` (1209 l.) | 8 (cœur, le plus couplé : en dernier, quand ses voisins consomment ses événements) |
 | Dossier médical, Organisation, Direction, Génériques | restant | `bc-medical`, `bc-referential`, `platform` | à planifier |
+| Documents *(proposed, ADR 0140)* | restant (moteur, modèles, papier en-tête en plateforme) | `reporting/*`, `DocumentRestController`, `ModeleDocumentTemplateRestController` | sur place : DOC1 → PL5-PL9 ; DOC2-DOC4 en tâche de fond |
+| Notifications *(proposed, ADR 0140)* | restant (`NotificationService` 654 l. + 12 ACL `*Legacy`) | `application/notification`, `NotificationRestController` | sur place : NOT1 → NOT2 → PL13a-d |
 | **Extraits** | **6** : GMAO, Comptabilité, Facturation, Absences patients, Stock, Planification (`backend/contexts`) | — | 1 à 6 livrées |
 
 Règle de transition : tant qu'un contexte est dans le legacy, les contextes extraits lui parlent **uniquement via une ACL** (adapter qui traduit le modèle legacy — ex. `SeanceStatus.ABSENT` → « exclue de facturation ») ; le legacy lit les données extraites via la façade de routage, jamais par leurs tables.
@@ -128,3 +145,4 @@ Règle de transition : tant qu'un contexte est dans le legacy, les contextes ext
 2. Ordre des clôtures mensuelles : la clôture comptable exige-t-elle facturation et stock clos ? Hypothèse : oui (absences → facturation → stock → comptable).
 3. La GMAO consomme-t-elle des pièces détachées du stock ? Hypothèse : non (Separate Ways).
 4. Ordre d'extraction : la direction préfère-t-elle sécuriser l'argent d'abord (comptabilité/facturation) plutôt que GMAO ? Hypothèse : GMAO d'abord pour roder le pipeline, puis comptabilité.
+5. Voir `bounded-contexts.md` § Questions ouvertes — amendement 2026-11-12 (Q5-Q12, ADR 0140 `proposed`) : audience des notifications, gabarits standards, SQL dans les gabarits, Excel, logo, purge, alertes de direction, envoi après commit.

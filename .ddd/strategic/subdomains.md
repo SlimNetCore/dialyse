@@ -1,6 +1,7 @@
 ---
 status: approved
 date: 2026-10-09
+amendment: 2026-11-12 SD13 redéfini et SD16 ajouté (ADR 0140, status proposed, gate strategic à rejouer pour ces deux lignes)
 sources:
   - .ddd/discovery/domain-vision.md
   - .ddd/discovery/event-storming.md (timeline, hotspots, réponses utilisateur du 2026-10-09)
@@ -27,9 +28,10 @@ validation: classification proposée par l'architecte ; à valider au gate `stra
 | SD10 | Organisation (société, centres, référentiel salles/créneaux) | Supporting | basse | basse | moyenne | moyen (hub `CenterId` 321 importeurs) | CRUD + règles de transfert de centre | Dimension transverse d'isolement par centre (RG-TRV-002) |
 | SD11 | Pilotage de direction (tableaux de bord, instantanés, alertes) | Supporting | moyenne | moyenne | haute (client société) | bas | Modèle de lecture (projections), pas de règles d'écriture | Agrège stock/absences/capacité ; instantané mensuel figé (RG-DIR-090) |
 | SD12 | Identité et accès (comptes utilisateurs, MFA) | Generic | basse | basse | — | moyen (sécurité) | Adopter (Spring Security / IdP) derrière un port | Problème résolu par le marché |
-| SD13 | Notifications | Generic | basse | basse | — | bas | Composant technique abonné aux événements | Catalogue RG-NOT, purge |
+| SD13 | Notifications (acheminement, journal, lecture) — *amendé 2026-11-12, ADR 0140 proposed* | Generic | basse | basse | — | bas | Contexte dédié `notifications` ; le catalogue RG-NOT (messages) passe aux contextes émetteurs | Journal, lecture par utilisateur, purge ; messages = langage des émetteurs |
 | SD14 | Journal d'audit | Generic | basse | basse | conformité | moyen | Composant transverse asynchrone | Traçabilité des écritures/dossier médical |
 | SD15 | Licence logicielle | Generic | basse | basse | commerciale | bas | Client du serveur de licences | Contrôle nocturne 03:15 |
+| SD16 | Documents imprimables (rendu PDF/Excel, modèles par centre, papier en-tête) — *ajouté 2026-11-12, ADR 0140 proposed* | Generic | moyenne (sécurité des gabarits) | basse | — | moyen (injection JRXML) | Moteur adopté (Jasper, openhtmltopdf, POI) derrière un port publié ; contexte dédié `documents` | Moteur ≈ 3 000 l. consommé par ≥ 8 contextes ; mise en page et données restent aux contextes métier |
 | — | Import / reprise de données (`bc-migration`) | Hors domaine (outillage) | — | — | — | — | Outil ponctuel, hors contextes | Hypothèse Q12 legacy-analysis |
 
 ## Core Domain Chart (complexité × différenciation)

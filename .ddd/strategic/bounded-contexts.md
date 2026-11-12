@@ -1,6 +1,7 @@
 ---
 status: approved
 date: 2026-10-09
+amendment: 2026-11-12 contextes Notifications et Documents ajoutés (ADR 0140, approuvé par l'utilisateur le 2026-11-12 ; Q5-Q12 : défauts retenus, à confirmer métiers/DPO ≤ 2026-12-15) ; reste du document approuvé inchangé
 sources:
   - .ddd/strategic/subdomains.md
   - .ddd/discovery/event-storming.md (timeline #1-74, hotspots H1-H13, réponses Q1/Q2/Q5/Q9)
@@ -28,7 +29,9 @@ Sigles : ES = event-storming.md, H = hotspot, C = cluster du scan.
 | GMAO (`gmao`) | SD9 | Supporting | équipement, intervention, plan de maintenance | `bc-gmao` |
 | Organisation (`organisation`) | SD10 | Supporting | société, centre, salles, créneaux, paramètres de centre | `bc-referential` (partie organisation) |
 | Pilotage direction (`pilotage-direction`) | SD11 | Supporting | instantanés mensuels, alertes de direction (lecture seule ailleurs) | `platform/application/direction` (C8) |
-| Génériques : Identité & accès · Notifications · Audit · Licence | SD12-15 | Generic | comptes utilisateurs ; notifications ; journal d'audit ; licence | `platform` (sécurité, `NotificationService`, `Audit*`, `License*`) |
+| Notifications (`notifications`) *(proposed, ADR 0140)* | SD13 | Generic | notification (journal), lecture par utilisateur, purge | `platform/application/notification`, `NotificationRestController`, `NotificationPurgeScheduler` |
+| Documents (`documents`) *(proposed, ADR 0140)* | SD16 | Generic | modèle de document, version de modèle | `platform/infrastructure/reporting`, `DocumentRestController`, `ModeleDocumentTemplateRestController` |
+| Génériques restant en plateforme : Identité & accès · Audit · Licence | SD12, SD14, SD15 | Generic | comptes utilisateurs ; journal d'audit ; licence | `platform` (sécurité, `Audit*`, `License*`) |
 
 `bc-migration` (import) : outillage hors contexte, utilise les API d'écriture des contextes (pas d'accès direct aux tables en cible).
 
@@ -45,6 +48,8 @@ Sigles : ES = event-storming.md, H = hotspot, C = cluster du scan.
 | Patient & couverture ∣ Séance/Planification | trois modèles du statut patient (H5) ; 4 micro-modules cohérents (C5, C25) ; mouvements administratifs vs place de dialyse |
 | Dossier médical ∣ reste | 0 arête medical↔patient ; vocabulaire clinique propre (ordonnance, RCP, KDIGO) ; acteur médecin ; données de santé (cloisonnement d'accès) |
 | GMAO ∣ reste | Ca 2 / Ce 1, cohésion 0.8 ; « générateur » (place) ≠ « équipement » (GMAO) ; acteur technicien |
+| Documents ∣ contextes métier *(ADR 0140, proposed)* | linguistique (« modèle de document », « gabarit », « papier en-tête » ≠ vocabulaire métier ; homonymes « rapport », « modèle ») ; propriété des données (`modele_document*` sans autre propriétaire) ; sécurité et cadence propres (validation de JRXML téléversé, bibliothèques de rendu) |
+| Notifications ∣ contextes émetteurs *(ADR 0140, proposed)* | linguistique (« alerte » ×3 sens) ; propriété des données (journal + lecture) ; invariants propres (visibilité par rôle, lecture par utilisateur, idempotence) ; cadence (purge, push) |
 
 ## Canvas
 
@@ -128,11 +133,35 @@ Sigles : ES = event-storming.md, H = hotspot, C = cluster du scan.
 ### Pilotage direction — Supporting
 - **But** : vue société anonymisée multi-centres ; instantané mensuel figé ; alertes. Conformiste en lecture des événements publiés ; aucune écriture dans les autres contextes.
 
-### Génériques
-Identité & accès (comptes utilisateurs, MFA), Notifications (abonnées aux événements, catalogue RG-NOT), Audit (asynchrone), Licence (contrôle nocturne). Adoptés derrière des ports ; ne portent aucune règle métier.
+### Génériques (amendé 2026-11-12, ADR 0140 `proposed`)
+Identité & accès (comptes utilisateurs, MFA), Audit (asynchrone), Licence (contrôle nocturne) : restent en plateforme, derrière des ports, sans règle métier. **Notifications** et **Documents** deviennent des contextes dédiés (canvases ci-dessous).
+
+### Notifications — Generic (SD13) · [canvas complet](canvas-notifications.md)
+- **But** : acheminer les notifications des contextes vers les bonnes personnes du centre (temps réel + journal durable), suivre la lecture, purger. Rôle : gateway.
+- **Langage** : notification, type, contenu, audience, journal, lue/non lue, diffusion en temps réel (glossaire [notifications](glossaries/notifications.md)). « Alerte » ≠ Alerte de direction.
+- **Règles** : visibilité par rôle et centre ; lecture par utilisateur ; idempotence par identifiant déterministe ; purge 03:40.
+- **Reçoit** : `DemandeDeNotification` (`notifications.v1`) des émetteurs ; **émet** : diffusion STOMP via port. **Données** : `notification_evenement`, `notification_lecture`. Les messages appartiennent aux émetteurs.
+
+### Documents — Generic (SD16) · [canvas complet](canvas-documents.md)
+- **But** : rendre en PDF/Excel les documents du centre avec papier en-tête et gabarit actif ; administrer les modèles par centre. Rôle : gateway. Aucune mise en page ni donnée métier.
+- **Langage** : type de document, modèle de document, version, gabarit, rendu, papier en-tête, identité imprimée (glossaire [documents](glossaries/documents.md)).
+- **Règles** : un modèle actif par (centre, type) ; gabarit validé par liste blanche ; pas de SQL dans un gabarit livré.
+- **Reçoit** : `rendre`/`habiller` (`documents.v1`) ; **lit** `IdentiteImprimable` (Organisation). **Données** : `modele_document`, `modele_document_version`.
 
 ## Questions ouvertes
 1. Placement : acte explicite ou effet de l'optimisation (ES Q11) ? Hypothèse : acte explicite, l'optimisation produit des propositions.
 2. La place (salle·créneau·générateur·jours) appartient-elle bien à la Planification et non au dossier administratif du patient ? Hypothèse : oui (ADR 0005).
 3. Le règlement reste-t-il avec la facturation (même équipe, même agrégat) ? Hypothèse : oui.
 4. Greffe réalisée ⇒ sortie du patient (H7, ES Q7) ? Hypothèse : non automatique, proposition à la secrétaire.
+
+### Questions ouvertes — amendement 2026-11-12 (ADR 0140, `proposed`)
+| # | Question (langage métier) | Hypothèse par défaut |
+|---|---|---|
+| 5 | Qui décide à qui s'adresse une notification (infirmiers, médecins, administrateurs) : le contexte qui la déclenche, ou une table de réglage par type dans le centre de notifications ? | L'émetteur déclare l'audience dans sa demande ; Notifications la filtre par centre et rôle. |
+| 6 | Les documents dont la mise en page ne dépend d'aucune donnée calculée (attestation, ordonnance, fiche patient, listes, plannings imprimés) : à qui appartiennent leurs gabarits ? | Ils restent dans Documents comme « gabarits standards » jusqu'à ce que leur contexte les déclare. |
+| 7 | Un gabarit personnalisé par un administrateur de centre peut-il lire la base lui-même (requêtes dans le gabarit), ou uniquement les données que le contexte lui fournit ? | Uniquement les données fournies (aucun SQL dans un gabarit livré ; cas de la synthèse mensuelle de facturation, RF3c-J1). |
+| 8 | La feuille de comptage Excel de l'inventaire : Stock garde sa propre mise en forme Excel, ou Documents fournit un rendu tabulaire générique ? | Documents fournit `RenduTabulaire` ; Stock décrit colonnes et lignes ; si la mise en forme exige plus, Stock garde POI (à trancher en PL7). |
+| 9 | Le logo et le pied de page sont-ils bien des données de la société (Organisation), simplement lues pour imprimer ? | Oui ; la route de dépôt du logo reste à Organisation, Documents lit `IdentiteImprimable`. |
+| 10 | Combien de temps conserve-t-on une notification avant la purge de 03:40 ? | Durée actuelle conservée telle quelle (à relever dans le code au NOT1). |
+| 11 | Les alertes de la direction (seuils dépassés) restent-elles hors du centre de notifications ? | Oui : Separate Ways, ce sont deux fonctions distinctes. |
+| 12 | Une notification doit-elle partir si la transaction de l'émetteur est annulée ? | Non : envoi uniquement après validation (comportement actuel `NotificationService.java:644`). |
