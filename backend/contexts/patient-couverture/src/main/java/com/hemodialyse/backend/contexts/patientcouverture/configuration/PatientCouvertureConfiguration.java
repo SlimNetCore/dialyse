@@ -62,14 +62,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.notifications.NotificationsDeLaFicheParLeCentreDeNotifications;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 
 /**
  * Composition du contexte Patient et couverture (slice PC1, refonte sur place, ADR 0024) : mêmes tables ({@code patients},
- * {@code mouvement_patient}), mêmes URLs. Seul endroit qui connaît toutes les couches. Le port {@code NotificationsDeLaFiche} est
- * fourni par la plateforme (service de notification actuel).
+ * {@code mouvement_patient}), mêmes URLs. Seul endroit qui connaît toutes les couches. Les ports de notification ({@code NotificationsDeLaFiche},
+ * {@code NotificationsDeLaPec}, {@code NotificationsDesAttestations}) sont fournis par l'ACL vers Notifications (PL13a, ADR 0153).
  */
 @Configuration
 public class PatientCouvertureConfiguration {
@@ -77,6 +81,12 @@ public class PatientCouvertureConfiguration {
     @Bean
     SessionCourante sessionDeLaFiche() {
         return new SessionLegacy();
+    }
+
+    /** Fournit les ports {@code NotificationsDeLaFiche}, {@code NotificationsDeLaPec} et {@code NotificationsDesAttestations} (PL13a, ADR 0153). */
+    @Bean
+    NotificationsDeLaFicheParLeCentreDeNotifications notificationsDeLaFiche(NotifierEnDeuxTemps notifier, DiffusionEnTempsReel diffusion) {
+        return new NotificationsDeLaFicheParLeCentreDeNotifications(notifier, diffusion);
     }
 
     @Bean

@@ -43,7 +43,7 @@ public class NotificationService implements DiffusionEnTempsReel {
             "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
-            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
+            "INFIRMIER_SUREFFECTIF", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE",
             "LOTS_PROCHES_PEREMPTION", "INFIRMIER_ABSENCE_RETIREE", "RETOUR_SALLE_ORDINAIRE_PROPOSE",
             "LIBERATION_PLACES_EN_ECHEC", "INFIRMIER_ROULEMENT_MODIFIE", "INFIRMIER_REMPLACEMENT_AFFECTE");
 
@@ -73,35 +73,7 @@ public class NotificationService implements DiffusionEnTempsReel {
         this.notifierEnDeuxTemps = notifierEnDeuxTemps;
     }
 
-    // ---------------------------------------------------------------- patients, prises en charge, attestations
-
-    public void notifyPatientCreated(UUID centerId, UUID patientId, String patientCode, String patientNom, String patientPrenom) {
-        send(centerId, "PATIENT_CREATED", identitePatient(patientId, patientCode, patientNom, patientPrenom));
-    }
-
-    public void notifyPatientUpdated(UUID centerId, UUID patientId, String patientCode, String patientNom, String patientPrenom) {
-        send(centerId, "PATIENT_UPDATED", identitePatient(patientId, patientCode, patientNom, patientPrenom));
-    }
-
-    public void notifyPecValidated(UUID centerId, UUID pecId, UUID patientId, String patientNom) {
-        send(centerId, "PEC_VALIDATED", Map.of("pecId", pecId.toString(), "patientId", patientId.toString(), "patientNom", patientNom));
-    }
-
-    public void notifyPecClosed(UUID centerId, UUID pecId, UUID patientId, String patientNom) {
-        send(centerId, "PEC_CLOSED", Map.of("pecId", pecId.toString(), "patientId", patientId.toString(), "patientNom", patientNom));
-    }
-
-    public void notifyPecDeleted(UUID centerId, UUID pecId, UUID patientId) {
-        send(centerId, "PEC_DELETED", avecPatientFacultatif("pecId", pecId, patientId));
-    }
-
-    public void notifyAttestationCreated(UUID centerId, UUID attestationId, UUID patientId) {
-        send(centerId, "ATTESTATION_CREATED", avecPatientFacultatif("attestationId", attestationId, patientId));
-    }
-
-    public void notifyAttestationDeleted(UUID centerId, UUID attestationId, UUID patientId) {
-        send(centerId, "ATTESTATION_DELETED", avecPatientFacultatif("attestationId", attestationId, patientId));
-    }
+    // Patient et couverture (fiche, PEC, attestations) et Dossier médical (prescription, observance) : catalogue chez les émetteurs (PL13a, ADR 0153)
 
     // ---------------------------------------------------------------- séances
 
@@ -131,14 +103,6 @@ public class NotificationService implements DiffusionEnTempsReel {
     /** Notify that a seance consommable was added, updated or removed (stock changed). */
     public void notifySeanceUpdated(UUID centerId, UUID seanceId) {
         send(centerId, "SEANCE_CONSOMMABLE_CHANGED", contenu("seanceId", seanceId.toString(), CLE_DES_ROLES, "INFIRMIER,SECRETAIRE"));
-    }
-
-    /**
-     * La prescription d'un patient a changé (création, modification, suppression) : le poste de l'infirmier qui a ce
-     * patient à l'écran recalcule ce qu'il reste à administrer, sans rechargement. Évènement technique, absent de la cloche.
-     */
-    public void notifyPrescriptionChanged(UUID centerId, UUID patientId) {
-        send(centerId, "PRESCRIPTION_CHANGED", contenu("patientId", patientId.toString(), CLE_DES_ROLES, "INFIRMIER,MEDECIN,ADMIN"));
     }
 
     /** Une séance a été supprimée par l'administrateur (listes, poste infirmier et planning se rafraîchissent). */
@@ -189,25 +153,6 @@ public class NotificationService implements DiffusionEnTempsReel {
     public void notifySeancesARegulariser(UUID centerId, long nbSeances, LocalDate plusAncienne, UUID idImpose) {
         send(centerId, "SEANCES_A_REGULARISER", contenu("nbSeances", String.valueOf(nbSeances),
                 "plusAncienne", plusAncienne == null ? "" : plusAncienne.toString(), CLE_DES_ROLES, "ADMIN"), idImpose);
-    }
-
-    // ---------------------------------------------------------------- observance
-
-    public void notifyObservanceNonRespectee(UUID centerId, UUID patientId, String message) {
-        notifyObservanceNonRespectee(centerId, patientId, message, Map.of());
-    }
-
-    /**
-     * Retard constaté ou rappel d'échéance sur un traitement de l'anémie. {@code details} (nature de l'alerte, traitement,
-     * période, quantité attendue et administrée, unité) permet à l'écran de l'expliquer dans la langue de l'utilisateur ;
-     * {@code message} reste le texte complet de repli.
-     */
-    public void notifyObservanceNonRespectee(UUID centerId, UUID patientId, String message, Map<String, String> details) {
-        var payload = new HashMap<String, String>(details);
-        payload.put("patientId", patientId.toString());
-        payload.put("message", message);
-        payload.put(CLE_DES_ROLES, "MEDECIN");
-        send(centerId, "OBSERVANCE_NON_RESPECTEE", payload);
     }
 
     // ---------------------------------------------------------------- présence des infirmiers
@@ -448,18 +393,6 @@ public class NotificationService implements DiffusionEnTempsReel {
 
     private static String ouVide(String valeur) {
         return valeur == null ? "" : valeur;
-    }
-
-    private static Map<String, String> identitePatient(UUID patientId, String patientCode, String patientNom, String patientPrenom) {
-        return Map.of("patientId", patientId.toString(), "patientCode", patientCode, "nom", patientNom, "prenom", patientPrenom);
-    }
-
-    private static Map<String, String> avecPatientFacultatif(String cle, UUID identifiant, UUID patientId) {
-        var payload = contenu(cle, identifiant.toString());
-        if (patientId != null) {
-            payload.put("patientId", patientId.toString());
-        }
-        return payload;
     }
 
     private static Map<String, String> seanceDuPatient(UUID seanceId, UUID patientId, String patientNom, String patientPrenom,

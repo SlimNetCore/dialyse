@@ -237,3 +237,7 @@ garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-S
 | `PurgeNocturneDesNotifications`    | 03:40 chaque jour (contexte `notifications`) | RG-NOT-005                |
 | `ReplanificationDe0230`            | 02:30 chaque nuit                         | RG-PLN-100                   |
 | `ComptabilisationDuStockPlanifiee` | 03:15 chaque jour                         | RG-CPT-015                   |
+
+**Catalogue des notifications chez les émetteurs (PL13a, ADR 0153).** `CatalogueDesNotificationsDeLaFiche` (Patient et couverture : `PATIENT_*`,
+`PEC_*`, `ATTESTATION_*`) et `CatalogueDesNotificationsDuDossierMedical` (`PRESCRIPTION_CHANGED`, `OBSERVANCE_NON_RESPECTEE`) portent RG-NOT-001
+(types et destinataires, chapitre 15) ; `OBSERVANCE_NON_RESPECTEE` reste durable (RG-NOT-005, RG-MED-073).

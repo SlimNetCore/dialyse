@@ -762,6 +762,18 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("le journal, les trois routes de notifications et la purge sont servis par contexts/notifications (NOT1, ADR 0141)");
 
+    /**
+     * PL13a (ADR 0153) : les messages de Patient et couverture et du Dossier médical sont construits et émis par ces contextes (ACL vers
+     * {@code notifications.v1}) ; les anciennes ACL de la plateforme vers {@code NotificationService} ne doivent pas réapparaître.
+     */
+    @ArchTest
+    static final ArchRule les_notifications_de_la_fiche_et_du_dossier_medical_ne_passent_plus_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.patientcouverture.NotificationsDeLaFicheParLaPlateforme")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.dossiermedical.NotificationsDeLAnemieLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.dossiermedical.SignalementDesPrescriptionsLegacy")
+            .allowEmptyShould(true)
+            .because("le catalogue de ces notifications est chez les émetteurs (PL13a, ADR 0153)");
+
     private static final String DOCUMENTS = "com.hemodialyse.backend.contexts.documents";
 
     /** DOC1 (ADR 0142) : les Documents ne s'utilisent que par leur langage publie {@code documents.v1}. */

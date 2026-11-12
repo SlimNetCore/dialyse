@@ -96,7 +96,12 @@ class ArchitectureHexagonaleTest {
                     "com.hemodialyse.backend.contexts.organisation.configuration..",
                     "com.hemodialyse.backend.contexts.stock.domain..", "com.hemodialyse.backend.contexts.stock.application..",
                     "com.hemodialyse.backend.contexts.stock.infrastructure..", "com.hemodialyse.backend.contexts.stock.interfaces..",
-                    "com.hemodialyse.backend.contexts.stock.configuration..");
+                    "com.hemodialyse.backend.contexts.stock.configuration..",
+                    "com.hemodialyse.backend.contexts.notifications.domain..",
+                    "com.hemodialyse.backend.contexts.notifications.application..",
+                    "com.hemodialyse.backend.contexts.notifications.infrastructure..",
+                    "com.hemodialyse.backend.contexts.notifications.interfaces..",
+                    "com.hemodialyse.backend.contexts.notifications.configuration..");
 
     /**
      * Revue SE7d m4 : la dépendance Maven {@code contexts-seance} met sur le classpath, par transitivité, les Absences, la Facturation et la

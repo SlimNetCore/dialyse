@@ -76,26 +76,10 @@ class NotificationServiceSaisieInfirmierTest {
 
     @Test
     void a_transient_event_is_pushed_without_being_journaled() {
-        service.notifyPatientCreated(centre, UUID.randomUUID(), "P1", "Benali", "Karim");
+        service.notifySeanceUpdated(centre, UUID.randomUUID());
 
         verify(journal, org.mockito.Mockito.never()).enregistrer(any(Notification.class));
         assertNull(publieTous().get(0).get("id"));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void a_prescription_change_refreshes_the_clinical_roles_of_its_center_without_being_journaled() {
-        UUID patient = UUID.randomUUID();
-
-        service.notifyPrescriptionChanged(centre, patient);
-
-        Map<String, Object> evt = publieTous().get(0);
-        Map<String, String> payload = (Map<String, String>) evt.get("payload");
-        assertEquals("PRESCRIPTION_CHANGED", evt.get("type"));
-        assertEquals(centre.toString(), evt.get("centerId"));
-        assertEquals(patient.toString(), payload.get("patientId"));
-        assertEquals("INFIRMIER,MEDECIN,ADMIN", payload.get("targetRoles"));
-        verify(journal, org.mockito.Mockito.never()).enregistrer(any(Notification.class));
     }
 
     @Test

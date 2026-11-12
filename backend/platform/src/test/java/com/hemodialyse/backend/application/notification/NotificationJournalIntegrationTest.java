@@ -39,6 +39,8 @@ class NotificationJournalIntegrationTest {
     @Autowired
     private NotificationService notifications;
     @Autowired
+    private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.NotificationsDeLaFiche fiches;
+    @Autowired
     private NotificationsDuJournal journal;
     @Autowired
     private JdbcTemplate jdbc;
@@ -140,7 +142,7 @@ class NotificationJournalIntegrationTest {
 
     @Test
     void transient_events_are_not_kept_in_the_journal() {
-        notifications.notifyPatientCreated(CENTRE, UUID.randomUUID(), "P1", "Benali", "Karim");
+        fiches.ficheCreee(CENTRE, UUID.randomUUID(), "P1", "Benali", "Karim");
 
         assertEquals(0, pour(CENTRE, "admin-1", "ADMIN").total());
     }

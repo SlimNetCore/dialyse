@@ -134,6 +134,7 @@ import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistenc
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.BilansBiologiquesJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.AnemieControleur;
 import com.hemodialyse.backend.contexts.dossiermedical.interfaces.jobs.ControleDeNuitDeLObservance;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.notifications.NotificationsDuDossierMedicalParLeCentreDeNotifications;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.NotificationsDeLAnemie;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.ConsommationsDeSeance;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -158,6 +159,15 @@ public class DossierMedicalConfiguration {
 
     /** Fuseau du centre : la table des centres n'en a pas, tous suivent Africa/Algiers (comme les Absences). */
     private static final ZoneId FUSEAU_DES_CENTRES = ZoneId.of("Africa/Algiers");
+
+    /** Fournit les ports {@code NotificationsDeLAnemie} et {@code SignalementDesPrescriptions} (PL13a, ADR 0153). */
+    @Bean
+    NotificationsDuDossierMedicalParLeCentreDeNotifications notificationsDuDossierMedical(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.SaisieDeLAdministrationSignalee saisies) {
+        return new NotificationsDuDossierMedicalParLeCentreDeNotifications(notifier, diffusion, saisies);
+    }
 
     @Bean
     SessionCourante sessionCouranteDossierMedical() {

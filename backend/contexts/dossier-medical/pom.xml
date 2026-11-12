@@ -91,6 +91,12 @@
             <artifactId>contexts-patient-couverture</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publie de Notifications (notifications.v1 : NotifierEnDeuxTemps, DiffusionEnTempsReel), PL13a, ADR 0153. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-notifications</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publie de la Planification : ReaffectationEnIsolement (P5) et VerrouDesPlacesDuCentre, DM4 sérologies, ADR 0083. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

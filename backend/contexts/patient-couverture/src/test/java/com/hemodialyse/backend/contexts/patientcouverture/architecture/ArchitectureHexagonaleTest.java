@@ -112,5 +112,10 @@ class ArchitectureHexagonaleTest {
                     "com.hemodialyse.backend.contexts.organisation.application..",
                     "com.hemodialyse.backend.contexts.organisation.infrastructure..",
                     "com.hemodialyse.backend.contexts.organisation.interfaces..",
-                    "com.hemodialyse.backend.contexts.organisation.configuration..");
+                    "com.hemodialyse.backend.contexts.organisation.configuration..",
+                    "com.hemodialyse.backend.contexts.notifications.domain..",
+                    "com.hemodialyse.backend.contexts.notifications.application..",
+                    "com.hemodialyse.backend.contexts.notifications.infrastructure..",
+                    "com.hemodialyse.backend.contexts.notifications.interfaces..",
+                    "com.hemodialyse.backend.contexts.notifications.configuration..");
 }

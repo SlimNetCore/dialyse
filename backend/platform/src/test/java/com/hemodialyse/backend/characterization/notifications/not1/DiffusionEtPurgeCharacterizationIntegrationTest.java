@@ -40,6 +40,8 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
     @Autowired
     private NotificationService notifications;
     @Autowired
+    private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.NotificationsDeLaFiche fiches;
+    @Autowired
     private PurgeNocturneDesNotifications purge;
     @Autowired
     private PlatformTransactionManager transactions;
@@ -99,7 +101,7 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
 
     @Test
     void un_evenement_ponctuel_est_diffuse_mais_n_est_pas_au_journal() throws Exception {
-        notifications.notifyPatientCreated(CENTRE_A, nid(50), "P-50", "Benali", "Karim");
+        fiches.ficheCreee(CENTRE_A, nid(50), "P-50", "Benali", "Karim");
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("diffusions", new ArrayList<>(diffusions));
         cas.put("journal admin", vue(get(null, admin())));
