@@ -1,0 +1,44 @@
+{
+  "01 formes du mois (le mois figé existe : <M-1>)" : {
+    "annee 0000" : "lecture : 422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois | capture : 422 MOIS_TROP_ANCIEN | Mois trop ancien",
+    "annee 0001" : "lecture : 422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois | capture : 422 MOIS_TROP_ANCIEN | Mois trop ancien",
+    "annee 9999" : "lecture : 422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois | capture : 422 MOIS_NON_TERMINE | Seul un mois écoulé peut être figé",
+    "annee sur cinq chiffres" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "annee sur deux chiffres" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "barre finale" : "lecture : 500 INTERNAL_ERROR | capture : 500 INTERNAL_ERROR",
+    "barre oblique encodee" : "lecture : 400 | capture : 400",
+    "chiffres arabes-indiens" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "espace final" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "espace initial" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "extension .json" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois 99" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "null" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "octet nul" : "lecture : 400 | capture : 400",
+    "point-virgule (parametre de chemin)" : "lecture : 400 | capture : 400",
+    "retour ligne final" : "lecture : 400 | capture : 400",
+    "tiret long" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "undefined" : "lecture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM) | capture : 422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)"
+  },
+  "02 parametres de requete : la societe vient toujours de la session" : {
+    "capture, parametre centreId" : "meme corps : true",
+    "capture, parametre from" : "meme corps : true",
+    "capture, parametre mois" : "meme corps : true",
+    "capture, parametre page" : "meme corps : true",
+    "capture, parametre societeId" : "meme corps : true",
+    "lecture, parametre centreId" : "meme corps : true",
+    "lecture, parametre from" : "meme corps : true",
+    "lecture, parametre mois" : "meme corps : true",
+    "lecture, parametre page" : "meme corps : true",
+    "lecture, parametre societeId" : "meme corps : true",
+    "liste, parametre centreId" : "meme corps : true",
+    "liste, parametre from" : "meme corps : true",
+    "liste, parametre mois" : "meme corps : true",
+    "liste, parametre page" : "meme corps : true",
+    "liste, parametre societeId" : "meme corps : true"
+  },
+  "03 corps de la capture ignore" : {
+    "capture avec un corps JSON quelconque" : "200 ok",
+    "capture avec un corps illisible" : "200 ok",
+    "lignes de l'autre societe" : 0
+  }
+}

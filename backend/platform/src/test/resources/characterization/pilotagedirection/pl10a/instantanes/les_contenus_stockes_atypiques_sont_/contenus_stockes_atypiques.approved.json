@@ -1,0 +1,250 @@
+{
+  "01 contenus" : {
+    "JSON tronque" : {
+      "capture (deja figee)" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "contenu stocke inchange" : true,
+      "lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "liste" : "200 ok x1"
+    },
+    "NaN non standard" : {
+      "capture (deja figee)" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "contenu stocke inchange" : true,
+      "lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "liste" : "200 ok x1"
+    },
+    "accents, emoji, caracteres de controle echappes" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : {
+          "societeNom" : "Société 😀 \u0000 <b>"
+        }
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "blancs" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : null
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "centre sous le seuil stocke en clair (seuil stocke 2) : la relecture ne masque pas un centre isole" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : {
+          "centres" : [ {
+            "nom" : "Petit",
+            "patients" : 3
+          } ],
+          "seuilAnonymat" : 2,
+          "totaux" : {
+            "patients" : 3
+          }
+        }
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "centres qui ne sont pas des objets" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : {
+          "centres" : [ 1, "a", null ],
+          "totaux" : {
+            "patients" : null
+          }
+        }
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "chaine vide" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : null
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "cle dupliquee" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : {
+          "a" : 2
+        }
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "commentaire" : {
+      "capture (deja figee)" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "contenu stocke inchange" : true,
+      "lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "liste" : "200 ok x1"
+    },
+    "effectifs en texte ou decimaux" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : {
+          "centres" : [ {
+            "patients" : "7"
+          }, {
+            "patients" : 7.9
+          } ],
+          "totaux" : {
+            "patients" : "12"
+          }
+        }
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "marque d'ordre des octets" : {
+      "capture (deja figee)" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "contenu stocke inchange" : true,
+      "lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "liste" : "200 ok x1"
+    },
+    "nombre" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : null
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "nombre astronomique" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : {
+          "v" : "Infinity",
+          "w" : 123456789012345678901234567890
+        }
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "null JSON" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : null
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "objet vide" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : null
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "overview texte, breakdown nombre" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : 5,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : [ ],
+        "mois" : "<M-1>",
+        "overview" : "x"
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "profondeur 2000" : {
+      "capture (deja figee)" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "contenu stocke inchange" : true,
+      "lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "liste" : "200 ok x1"
+    },
+    "tableau vide" : {
+      "capture (deja figee)" : "200 ok",
+      "contenu stocke inchange" : true,
+      "corps" : {
+        "breakdown" : null,
+        "generatedAt" : "<HORODATAGE>",
+        "indicators" : null,
+        "mois" : "<M-1>",
+        "overview" : null
+      },
+      "lecture" : "200 ok",
+      "liste" : "200 ok x1"
+    },
+    "texte apres le JSON" : {
+      "capture (deja figee)" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "contenu stocke inchange" : true,
+      "lecture" : "422 INSTANTANE_ILLISIBLE | Cet instantané mensuel est illisible",
+      "liste" : "200 ok x1"
+    }
+  },
+  "02 gros instantane" : {
+    "alertes servies" : 2000,
+    "capture (deja figee)" : "200 ok",
+    "centres servis" : 3000,
+    "mois servis" : 24,
+    "statut" : "200 ok",
+    "taille de la reponse >= contenu stocke" : true,
+    "taille du contenu stocke (caracteres)" : 218664,
+    "totaux.patients : supprime car un centre est masque" : true,
+    "totaux.seances" : "9"
+  }
+}

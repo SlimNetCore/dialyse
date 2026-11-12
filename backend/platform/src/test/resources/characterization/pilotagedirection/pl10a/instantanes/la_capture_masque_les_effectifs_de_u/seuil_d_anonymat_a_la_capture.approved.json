@@ -1,0 +1,51 @@
+{
+  "01 captures successives (les effectifs changent entre deux captures)" : {
+    "étape 1 : A=4, B=0 patients, mois <M-1>" : {
+      "centres" : [ "Centre A : patients masque", "Centre B : patients 0" ],
+      "contenu stocke deja masque (aucun effectif brut de 1 a 4)" : true,
+      "seuilAnonymat" : "5",
+      "statut" : "200 ok",
+      "totaux.patients" : "masque",
+      "totaux.patientsSousKt" : "0"
+    },
+    "étape 2 : A=4, B=3 patients, mois <M-2>" : {
+      "centres" : [ "Centre A : patients masque", "Centre B : patients masque" ],
+      "contenu stocke deja masque (aucun effectif brut de 1 a 4)" : true,
+      "seuilAnonymat" : "5",
+      "statut" : "200 ok",
+      "totaux.patients" : "masque",
+      "totaux.patientsSousKt" : "0"
+    },
+    "étape 3 : A=5, B=5 patients, mois <M-3>" : {
+      "centres" : [ "Centre A : patients 5", "Centre B : patients 5" ],
+      "contenu stocke deja masque (aucun effectif brut de 1 a 4)" : true,
+      "seuilAnonymat" : "5",
+      "statut" : "200 ok",
+      "totaux.patients" : "10",
+      "totaux.patientsSousKt" : "0"
+    },
+    "étape 4 : A=6, B=5 patients, mois <M-4>" : {
+      "centres" : [ "Centre A : patients 6", "Centre B : patients 5" ],
+      "contenu stocke deja masque (aucun effectif brut de 1 a 4)" : true,
+      "seuilAnonymat" : "5",
+      "statut" : "200 ok",
+      "totaux.patients" : "11",
+      "totaux.patientsSousKt" : "0"
+    },
+    "étape 5 : A=6, B=1 patients, mois <M-5>" : {
+      "centres" : [ "Centre A : patients 6", "Centre B : patients masque" ],
+      "contenu stocke deja masque (aucun effectif brut de 1 a 4)" : true,
+      "seuilAnonymat" : "5",
+      "statut" : "200 ok",
+      "totaux.patients" : "masque",
+      "totaux.patientsSousKt" : "0"
+    }
+  },
+  "02 relectures apres changement des effectifs" : {
+    "étape 1" : "relecture identique a la capture : true",
+    "étape 2" : "relecture identique a la capture : true",
+    "étape 3" : "relecture identique a la capture : true",
+    "étape 4" : "relecture identique a la capture : true",
+    "étape 5" : "relecture identique a la capture : true"
+  }
+}
