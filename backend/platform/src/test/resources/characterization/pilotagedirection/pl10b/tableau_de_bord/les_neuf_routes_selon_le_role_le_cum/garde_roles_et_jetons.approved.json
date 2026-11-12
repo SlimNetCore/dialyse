@@ -1,0 +1,72 @@
+{
+  "01 profils (DIRECTION est le nominal)" : {
+    "ADMIN" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "ADMIN sans centre" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "DIRECTION" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "DIRECTION portant un centre" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "INFIRMIER seul" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "MEDECIN + INFIRMIER" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "MEDECIN seul" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "SECRETAIRE" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "SUPERADMIN" : "/societe=403 ROLE_SCOPE | /overview=403 ROLE_SCOPE | /breakdown=403 ROLE_SCOPE | /indicators=403 ROLE_SCOPE | /gmao=403 ROLE_SCOPE | /stock-groupes=403 ROLE_SCOPE | /capacite=403 ROLE_SCOPE | /absences=403 ROLE_SCOPE | /alerts/history=403 ROLE_SCOPE | ",
+    "SUPERADMIN + ADMIN" : "/societe=403 ROLE_SCOPE | /overview=403 ROLE_SCOPE | /breakdown=403 ROLE_SCOPE | /indicators=403 ROLE_SCOPE | /gmao=403 ROLE_SCOPE | /stock-groupes=403 ROLE_SCOPE | /capacite=403 ROLE_SCOPE | /absences=403 ROLE_SCOPE | /alerts/history=403 ROLE_SCOPE | ",
+    "aucun role" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "role inconnu (COMPTABLE)" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | "
+  },
+  "02 cumuls de roles" : {
+    "DIRECTION + ADMIN" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "DIRECTION + INFIRMIER" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "DIRECTION + MEDECIN" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "DIRECTION + SECRETAIRE" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "DIRECTION + SUPERADMIN" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "SUPERADMIN sans societe" : "/societe=403 ROLE_SCOPE | /overview=403 ROLE_SCOPE | /breakdown=403 ROLE_SCOPE | /indicators=403 ROLE_SCOPE | /gmao=403 ROLE_SCOPE | /stock-groupes=403 ROLE_SCOPE | /capacite=403 ROLE_SCOPE | /absences=403 ROLE_SCOPE | /alerts/history=403 ROLE_SCOPE | ",
+    "role en minuscules" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "role sans prefixe" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | "
+  },
+  "03 garde de societe" : {
+    "identifiant d'utilisateur illisible" : "/societe=400 BAD_REQUEST | /overview=400 BAD_REQUEST | /breakdown=400 BAD_REQUEST | /indicators=400 BAD_REQUEST | /gmao=400 BAD_REQUEST | /stock-groupes=400 BAD_REQUEST | /capacite=400 BAD_REQUEST | /absences=400 BAD_REQUEST | /alerts/history=400 BAD_REQUEST | ",
+    "jeton d'une autre societe, utilisateur membre de la premiere" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "jeton sans societe" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "societe active sans centre" : "/societe=200 | /overview=200 | /breakdown=200 | /indicators=200 | /gmao=200 | /stock-groupes=200 | /capacite=200 | /absences=200 | /alerts/history=200 | ",
+    "societe du jeton blanche" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "societe du jeton illisible" : "/societe=400 BAD_REQUEST | /overview=400 BAD_REQUEST | /breakdown=400 BAD_REQUEST | /indicators=400 BAD_REQUEST | /gmao=400 BAD_REQUEST | /stock-groupes=400 BAD_REQUEST | /capacite=400 BAD_REQUEST | /absences=400 BAD_REQUEST | /alerts/history=400 BAD_REQUEST | ",
+    "societe inactive" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "utilisateur detache, jeton portant la societe" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "utilisateur inactif" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | ",
+    "utilisateur inconnu en base" : "/societe=403 ACCESS_DENIED | /overview=403 ACCESS_DENIED | /breakdown=403 ACCESS_DENIED | /indicators=403 ACCESS_DENIED | /gmao=403 ACCESS_DENIED | /stock-groupes=403 ACCESS_DENIED | /capacite=403 ACCESS_DENIED | /absences=403 ACCESS_DENIED | /alerts/history=403 ACCESS_DENIED | "
+  },
+  "04 anonyme" : {
+    "/absences" : "403",
+    "/alerts/history" : "403",
+    "/breakdown" : "403",
+    "/capacite" : "403",
+    "/gmao" : "403",
+    "/indicators" : "403",
+    "/overview" : "403",
+    "/societe" : "403",
+    "/stock-groupes" : "403"
+  },
+  "05 un parametre illisible n'ouvre rien : 403 ou garde avant le 400" : {
+    "/absences MEDECIN, from=hier" : "400 BAD_REQUEST",
+    "/absences anonyme, from=hier" : "403",
+    "/absences societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/breakdown MEDECIN, from=hier" : "403 ACCESS_DENIED",
+    "/breakdown anonyme, from=hier" : "403",
+    "/breakdown societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/capacite MEDECIN, from=hier" : "400 BAD_REQUEST",
+    "/capacite anonyme, from=hier" : "403",
+    "/capacite societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/gmao MEDECIN, from=hier" : "403 ACCESS_DENIED",
+    "/gmao anonyme, from=hier" : "403",
+    "/gmao societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/indicators MEDECIN, from=hier" : "403 ACCESS_DENIED",
+    "/indicators anonyme, from=hier" : "403",
+    "/indicators societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/overview MEDECIN, from=hier" : "403 ACCESS_DENIED",
+    "/overview anonyme, from=hier" : "403",
+    "/overview societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/stock-groupes MEDECIN, from=hier" : "400 BAD_REQUEST",
+    "/stock-groupes anonyme, from=hier" : "403",
+    "/stock-groupes societe inactive, from=hier" : "400 BAD_REQUEST"
+  }
+}

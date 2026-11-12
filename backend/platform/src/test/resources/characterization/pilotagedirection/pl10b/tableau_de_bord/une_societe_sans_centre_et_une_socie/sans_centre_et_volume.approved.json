@@ -1,0 +1,237 @@
+{
+  "01 sans centre /absences" : {
+    "body" : {
+      "centres" : [ ],
+      "centresMasques" : 0,
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "mensuel" : [ ],
+      "motifs" : [ ],
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>",
+      "total" : {
+        "caHt" : 0,
+        "nbAQualifier" : 0,
+        "nbAbsences" : 0,
+        "nbJustifiees" : 0,
+        "nbNonJustifiees" : 0,
+        "nbRattrapees" : 0,
+        "nbSeances" : 0,
+        "partCaHt" : null,
+        "tauxAbsenteisme" : null,
+        "valorisationHt" : 0,
+        "valorisationTtc" : 0
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /alerts/history" : {
+    "body" : [ ],
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /breakdown" : {
+    "body" : {
+      "ages" : [ ],
+      "anemie" : [ ],
+      "caisseTotaux" : [ ],
+      "caisses" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "sexe" : [ ],
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /capacite" : {
+    "body" : {
+      "centres" : [ ],
+      "centresMasques" : 0,
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "regle" : {
+        "generateursParSecours" : 8,
+        "seuilProchePourcent" : 90
+      },
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>",
+      "total" : {
+        "atteinte" : false,
+        "capacite" : 0,
+        "fileActive" : 0,
+        "generateurs" : 0,
+        "generateursSecours" : 0,
+        "niveau" : "SANS_CAPACITE",
+        "patientsParPosteEtSerie" : 0,
+        "postesActifs" : 0,
+        "series" : 0,
+        "tauxOccupation" : null
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /gmao" : {
+    "body" : {
+      "alertes" : [ ],
+      "centres" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>",
+      "totaux" : {
+        "centerId" : null,
+        "coutMaintenancePeriode" : 0,
+        "indisponibiliteHeuresCumulees" : 0.0,
+        "interventionsEnCours" : 0,
+        "nbEnMaintenance" : 0,
+        "nbEquipements" : 0,
+        "nbHorsService" : 0,
+        "nbReformeRecommandee" : 0,
+        "nbReformes" : 0,
+        "nom" : null,
+        "patientsSurEquipementIndisponible" : 0,
+        "topEquipements" : [ ]
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /indicators" : {
+    "body" : {
+      "alertes" : [ ],
+      "centres" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "centerId" : null,
+        "clinique" : {
+          "albumine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "greffeBilanEnCours" : 0,
+          "greffeListeAttente" : 0,
+          "greffesPeriode" : 0,
+          "hemoglobine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "ktV" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "patientsObservanceEnRetard" : 0,
+          "phosphore" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "pth" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "vhbPositifs" : 0,
+          "vhcPositifs" : 0,
+          "vihPositifs" : 0
+        },
+        "nom" : null,
+        "stock" : {
+          "articlesActifs" : 0,
+          "articlesSousSeuil" : 0,
+          "lotsPeremptionProche" : 0,
+          "lotsPerimes" : 0,
+          "valeurStock" : 0.0
+        }
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /overview" : {
+    "body" : {
+      "centres" : [ ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "mensuel" : [ ],
+      "periodePrecedente" : null,
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "societeNom" : "Societe Sans Centre",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : null,
+        "encaisse" : 0.0,
+        "factures" : 0,
+        "nom" : null,
+        "patients" : 0,
+        "patientsSousKt" : 0,
+        "resteARecouvrer" : 0.0,
+        "seances" : 0,
+        "tauxEncaissement" : null
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /societe" : {
+    "body" : {
+      "centres" : [ ],
+      "id" : "<SOCIETE_SANS_CENTRE>",
+      "raisonSociale" : "Societe Sans Centre"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "01 sans centre /stock-groupes" : {
+    "body" : {
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "groupes" : [ ],
+      "societeId" : "<SOCIETE_SANS_CENTRE>",
+      "to" : "<D+100>"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 soixante centres actifs de plus (centres A et B inclus : 62)" : {
+    "/absences" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : 62 | cles : [societeId, from, to, generatedAt, total, centres, motifs, mensuel, centresMasques]",
+    "/alerts/history" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : -2 | cles : tableau x0",
+    "/breakdown" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : -2 | cles : [societeId, from, to, generatedAt, seuilAnonymat, sexe, ages, caisses, caisseTotaux, anemie]",
+    "/capacite" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : 62 | cles : [societeId, from, to, generatedAt, regle, total, centres, centresMasques]",
+    "/gmao" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : 62 | cles : [societeId, from, to, generatedAt, centres, totaux, alertes]",
+    "/indicators" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : 62 | cles : [societeId, from, to, generatedAt, seuilAnonymat, centres, totaux, alertes]",
+    "/overview" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : 62 | cles : [societeId, societeNom, from, to, generatedAt, seuilAnonymat, centres, totaux, mensuel, periodePrecedente]",
+    "/societe" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : 62 | cles : [id, raisonSociale, centres]",
+    "/stock-groupes" : "200 | rapide (< 20 s) : true | nb de centres dans le corps : -2 | cles : [societeId, from, to, generatedAt, groupes]"
+  }
+}

@@ -1,0 +1,357 @@
+{
+  "/absences" : {
+    "body" : {
+      "centres" : [ {
+        "actif" : true,
+        "centerId" : "<CENTRE_A>",
+        "motifs" : [ ],
+        "nom" : "Centre A",
+        "stats" : {
+          "caHt" : 1750.0,
+          "nbAQualifier" : 0,
+          "nbAbsences" : 0,
+          "nbJustifiees" : 0,
+          "nbNonJustifiees" : 0,
+          "nbRattrapees" : 0,
+          "nbSeances" : 4,
+          "partCaHt" : 0.0,
+          "tauxAbsenteisme" : 0.0,
+          "valorisationHt" : 0,
+          "valorisationTtc" : 0
+        }
+      }, {
+        "actif" : true,
+        "centerId" : "<CENTRE_B>",
+        "motifs" : [ ],
+        "nom" : "Centre B",
+        "stats" : {
+          "caHt" : 0,
+          "nbAQualifier" : 0,
+          "nbAbsences" : 0,
+          "nbJustifiees" : 0,
+          "nbNonJustifiees" : 0,
+          "nbRattrapees" : 0,
+          "nbSeances" : 2,
+          "partCaHt" : null,
+          "tauxAbsenteisme" : 0.0,
+          "valorisationHt" : 0,
+          "valorisationTtc" : 0
+        }
+      } ],
+      "centresMasques" : 0,
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "mensuel" : [ ],
+      "motifs" : [ ],
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>",
+      "total" : {
+        "caHt" : 1750.0,
+        "nbAQualifier" : 0,
+        "nbAbsences" : 0,
+        "nbJustifiees" : 0,
+        "nbNonJustifiees" : 0,
+        "nbRattrapees" : 0,
+        "nbSeances" : 6,
+        "partCaHt" : 0.0,
+        "tauxAbsenteisme" : 0.0,
+        "valorisationHt" : 0,
+        "valorisationTtc" : 0
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "/capacite" : {
+    "body" : {
+      "centres" : [ {
+        "actif" : true,
+        "capacite" : {
+          "atteinte" : false,
+          "capacite" : 0,
+          "fileActive" : 7,
+          "generateurs" : 0,
+          "generateursSecours" : 0,
+          "niveau" : "SANS_CAPACITE",
+          "patientsParPosteEtSerie" : 3,
+          "postesActifs" : 0,
+          "series" : 0,
+          "tauxOccupation" : null
+        },
+        "centerId" : "<CENTRE_A>",
+        "nom" : "Centre A"
+      }, {
+        "actif" : true,
+        "capacite" : {
+          "atteinte" : null,
+          "capacite" : null,
+          "fileActive" : null,
+          "generateurs" : 0,
+          "generateursSecours" : 0,
+          "niveau" : null,
+          "patientsParPosteEtSerie" : 3,
+          "postesActifs" : 0,
+          "series" : 0,
+          "tauxOccupation" : null
+        },
+        "centerId" : "<CENTRE_B>",
+        "nom" : "Centre B"
+      } ],
+      "centresMasques" : 1,
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "regle" : {
+        "generateursParSecours" : 8,
+        "seuilProchePourcent" : 90
+      },
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>",
+      "total" : {
+        "atteinte" : false,
+        "capacite" : 0,
+        "fileActive" : 7,
+        "generateurs" : 0,
+        "generateursSecours" : 0,
+        "niveau" : "SANS_CAPACITE",
+        "patientsParPosteEtSerie" : 0,
+        "postesActifs" : 0,
+        "series" : 0,
+        "tauxOccupation" : null
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "/gmao" : {
+    "body" : {
+      "alertes" : [ ],
+      "centres" : [ {
+        "centerId" : "<CENTRE_A>",
+        "coutMaintenancePeriode" : 0,
+        "indisponibiliteHeuresCumulees" : 0.0,
+        "interventionsEnCours" : 0,
+        "nbEnMaintenance" : 0,
+        "nbEquipements" : 0,
+        "nbHorsService" : 0,
+        "nbReformeRecommandee" : 0,
+        "nbReformes" : 0,
+        "nom" : "Centre A",
+        "patientsSurEquipementIndisponible" : 0,
+        "topEquipements" : [ ]
+      }, {
+        "centerId" : "<CENTRE_B>",
+        "coutMaintenancePeriode" : 0,
+        "indisponibiliteHeuresCumulees" : 0.0,
+        "interventionsEnCours" : 0,
+        "nbEnMaintenance" : 0,
+        "nbEquipements" : 0,
+        "nbHorsService" : 0,
+        "nbReformeRecommandee" : 0,
+        "nbReformes" : 0,
+        "nom" : "Centre B",
+        "patientsSurEquipementIndisponible" : 0,
+        "topEquipements" : [ ]
+      } ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>",
+      "totaux" : {
+        "centerId" : null,
+        "coutMaintenancePeriode" : 0,
+        "indisponibiliteHeuresCumulees" : 0.0,
+        "interventionsEnCours" : 0,
+        "nbEnMaintenance" : 0,
+        "nbEquipements" : 0,
+        "nbHorsService" : 0,
+        "nbReformeRecommandee" : 0,
+        "nbReformes" : 0,
+        "nom" : null,
+        "patientsSurEquipementIndisponible" : 0,
+        "topEquipements" : [ ]
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "/indicators" : {
+    "body" : {
+      "alertes" : [ ],
+      "centres" : [ {
+        "actif" : true,
+        "centerId" : "<CENTRE_A>",
+        "clinique" : {
+          "albumine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "greffeBilanEnCours" : 0,
+          "greffeListeAttente" : 0,
+          "greffesPeriode" : 0,
+          "hemoglobine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "ktV" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "patientsObservanceEnRetard" : 0,
+          "phosphore" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "pth" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "vhbPositifs" : 0,
+          "vhcPositifs" : 0,
+          "vihPositifs" : 0
+        },
+        "nom" : "Centre A",
+        "stock" : {
+          "articlesActifs" : 0,
+          "articlesSousSeuil" : 0,
+          "lotsPeremptionProche" : 0,
+          "lotsPerimes" : 0,
+          "valeurStock" : 0.0
+        }
+      }, {
+        "actif" : true,
+        "centerId" : "<CENTRE_B>",
+        "clinique" : {
+          "albumine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "greffeBilanEnCours" : 0,
+          "greffeListeAttente" : 0,
+          "greffesPeriode" : 0,
+          "hemoglobine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "ktV" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "patientsObservanceEnRetard" : 0,
+          "phosphore" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "pth" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "vhbPositifs" : 0,
+          "vhcPositifs" : 0,
+          "vihPositifs" : 0
+        },
+        "nom" : "Centre B",
+        "stock" : {
+          "articlesActifs" : 0,
+          "articlesSousSeuil" : 0,
+          "lotsPeremptionProche" : 0,
+          "lotsPerimes" : 0,
+          "valeurStock" : 0.0
+        }
+      } ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "centerId" : null,
+        "clinique" : {
+          "albumine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "greffeBilanEnCours" : 0,
+          "greffeListeAttente" : 0,
+          "greffesPeriode" : 0,
+          "hemoglobine" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "ktV" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "patientsObservanceEnRetard" : 0,
+          "phosphore" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "pth" : {
+            "evalues" : 0,
+            "pctAuDessus" : null,
+            "pctDansCible" : null,
+            "pctSousCible" : null
+          },
+          "vhbPositifs" : 0,
+          "vhcPositifs" : 0,
+          "vihPositifs" : 0
+        },
+        "nom" : null,
+        "stock" : {
+          "articlesActifs" : 0,
+          "articlesSousSeuil" : 0,
+          "lotsPeremptionProche" : 0,
+          "lotsPerimes" : 0,
+          "valeurStock" : 0.0
+        }
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "/stock-groupes" : {
+    "body" : {
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "groupes" : [ ],
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

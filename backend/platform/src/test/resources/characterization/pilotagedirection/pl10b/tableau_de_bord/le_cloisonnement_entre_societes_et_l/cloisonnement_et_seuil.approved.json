@@ -1,0 +1,51 @@
+{
+  "01 cloisonnement (jeu complet, un patient dans l'autre societe)" : {
+    "/absences" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/alerts/history" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : true",
+    "/breakdown" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/capacite" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/gmao" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/indicators" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/overview" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/societe" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false",
+    "/stock-groupes" : "la societe voit 'Centre Confidentiel' : false | l'autre societe voit 'Centre A' : false | l'autre voit 'Centre B' : false | corps identiques : false"
+  },
+  "02 seuil d'anonymat par route (PD5-R9 : 4 masque, 5 publie ?)" : {
+    "centre B a 3 patients (A en a 9, jeu complet)" : {
+      "/absences" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 1 | centresMasques : 0 | seuilAnonymat : absent",
+      "/breakdown" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 19 | centresMasques : absent | seuilAnonymat : 5",
+      "/capacite" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 7 | centresMasques : 1 | seuilAnonymat : absent",
+      "/gmao" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 2 | centresMasques : absent | seuilAnonymat : absent",
+      "/indicators" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 47 | centresMasques : absent | seuilAnonymat : 5",
+      "/overview" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 7 | centresMasques : absent | seuilAnonymat : 5",
+      "/stock-groupes" : "200 | 'Centre B' present : false | 'Centre A' present : false | nulls : 0 | centresMasques : absent | seuilAnonymat : absent"
+    },
+    "centre B a 4 patients (A en a 9, jeu complet)" : {
+      "/absences" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 1 | centresMasques : 0 | seuilAnonymat : absent",
+      "/breakdown" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 19 | centresMasques : absent | seuilAnonymat : 5",
+      "/capacite" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 7 | centresMasques : 1 | seuilAnonymat : absent",
+      "/gmao" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 2 | centresMasques : absent | seuilAnonymat : absent",
+      "/indicators" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 47 | centresMasques : absent | seuilAnonymat : 5",
+      "/overview" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 7 | centresMasques : absent | seuilAnonymat : 5",
+      "/stock-groupes" : "200 | 'Centre B' present : false | 'Centre A' present : false | nulls : 0 | centresMasques : absent | seuilAnonymat : absent"
+    },
+    "centre B a 5 patients (A en a 9, jeu complet)" : {
+      "/absences" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 1 | centresMasques : 0 | seuilAnonymat : absent",
+      "/breakdown" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 16 | centresMasques : absent | seuilAnonymat : 5",
+      "/capacite" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 3 | centresMasques : 0 | seuilAnonymat : absent",
+      "/gmao" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 2 | centresMasques : absent | seuilAnonymat : absent",
+      "/indicators" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 47 | centresMasques : absent | seuilAnonymat : 5",
+      "/overview" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 5 | centresMasques : absent | seuilAnonymat : 5",
+      "/stock-groupes" : "200 | 'Centre B' present : false | 'Centre A' present : false | nulls : 0 | centresMasques : absent | seuilAnonymat : absent"
+    },
+    "centre B a 6 patients (A en a 9, jeu complet)" : {
+      "/absences" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 1 | centresMasques : 0 | seuilAnonymat : absent",
+      "/breakdown" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 16 | centresMasques : absent | seuilAnonymat : 5",
+      "/capacite" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 3 | centresMasques : 0 | seuilAnonymat : absent",
+      "/gmao" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 2 | centresMasques : absent | seuilAnonymat : absent",
+      "/indicators" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 47 | centresMasques : absent | seuilAnonymat : 5",
+      "/overview" : "200 | 'Centre B' present : true | 'Centre A' present : true | nulls : 5 | centresMasques : absent | seuilAnonymat : 5",
+      "/stock-groupes" : "200 | 'Centre B' present : false | 'Centre A' present : false | nulls : 0 | centresMasques : absent | seuilAnonymat : absent"
+    }
+  }
+}

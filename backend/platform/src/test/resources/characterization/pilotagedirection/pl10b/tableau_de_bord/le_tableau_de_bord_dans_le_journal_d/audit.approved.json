@@ -1,0 +1,3 @@
+{
+  "lignes" : [ "GET /societe suivi = false", "GET /overview suivi = false", "GET /breakdown suivi = false", "GET /indicators suivi = false", "GET /gmao suivi = false", "GET /stock-groupes suivi = false", "GET /capacite suivi = false", "GET /absences suivi = false", "GET /alerts/history suivi = false" ]
+}
