@@ -73,6 +73,12 @@
             <artifactId>contexts-pilotage-direction</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Notifications (NOT1, ADR 0140, 0141) : journal, lecture, purge ; memes URL /api/v1/notifications -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-notifications</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>ai.timefold.solver</groupId>
             <artifactId>timefold-solver-core</artifactId>

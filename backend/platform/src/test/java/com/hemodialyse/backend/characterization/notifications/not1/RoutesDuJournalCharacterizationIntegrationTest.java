@@ -72,7 +72,7 @@ class RoutesDuJournalCharacterizationIntegrationTest extends Not1Support {
         cas.put("role GMAO_REFORME (N01 cible ; N02 vise GMAOXREFORME)", resume(get(null, qui(CENTRE_A, USER_ADMIN, "GMAO_REFORME"))));
         cas.put("role GMAOXREFORME (N02 cible)", resume(get(null, qui(CENTRE_A, USER_ADMIN, "GMAOXREFORME"))));
         cas.put("role GMAO_RECTIFICATION (autre nom)", resume(get(null, qui(CENTRE_A, USER_ADMIN, "GMAO_RECTIFICATION"))));
-        golden("role_avec_souligne", cas);
+        golden("role_avec_souligne_nouveau_code", cas);
     }
 
     @Test
@@ -101,7 +101,7 @@ class RoutesDuJournalCharacterizationIntegrationTest extends Not1Support {
         for (String q : List.of("page=abc", "size=abc", "page=1.5", "size=", "centerId=pas-un-uuid", "page=99999999999")) {
             cas.put(q, vue(get(q, admin())));
         }
-        golden("parametres_illisibles", cas);
+        golden("parametres_illisibles_nouveau_code", cas);
     }
 
     @Test
@@ -116,10 +116,10 @@ class RoutesDuJournalCharacterizationIntegrationTest extends Not1Support {
                 lecture(nid(1), nid(1), UUID.fromString("99998140-0000-0000-0000-000000000199")), admin())));
         cas.put("5 liste vide d'ids", vue(post("/lecture", null, lecture(), admin())));
         cas.put("6 N07 est au centre B (ignore)", vue(post("/lecture", null, lecture(nid(7)), admin())));
-        cas.put("7 N04 reserve aux infirmiers, marque par un admin (accepte)", vue(post("/lecture", null, lecture(nid(4)), admin())));
+        cas.put("7 N04 reserve aux infirmiers, marque par un admin (ignore : hors audience, KB-NOT1-3)", vue(post("/lecture", null, lecture(nid(4)), admin())));
         cas.put("8 N08 hors fenetre (accepte)", vue(post("/lecture", null, lecture(nid(8)), admin())));
         cas.put("lignes de lecture de l'admin / du second admin", List.of(lectures(USER_ADMIN), lectures(USER_ADMIN_2)));
-        golden("marquer_lues", cas);
+        golden("marquer_lues_nouveau_code", cas);
     }
 
     @Test
@@ -152,7 +152,7 @@ class RoutesDuJournalCharacterizationIntegrationTest extends Not1Support {
         cas.put("json casse", vue(post("/lecture", null, "{\"ids\":[", admin())));
         cas.put("champ inconnu seul", vue(post("/lecture", null, "{\"id\":\"x\"}", admin())));
         cas.put("lignes de lecture apres tous ces essais", lectures(USER_ADMIN));
-        golden("corps_mal_formes", cas);
+        golden("corps_mal_formes_nouveau_code", cas);
     }
 
     @Test

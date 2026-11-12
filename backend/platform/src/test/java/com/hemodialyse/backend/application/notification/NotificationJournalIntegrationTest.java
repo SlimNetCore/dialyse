@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort.Alerte;
+import com.hemodialyse.backend.contexts.notifications.application.NotificationDuJournal;
+import com.hemodialyse.backend.contexts.notifications.application.NotificationsDuJournal;
+import com.hemodialyse.backend.contexts.notifications.domain.NotificationId;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +17,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,8 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Journal durable des alertes sur base réelle : une alerte envoyée la nuit est retrouvée à la connexion, par les seuls
- * rôles ciblés et le seul centre concerné ; la lecture est propre à chaque utilisateur ; une alerte ancienne est purgée.
+ * Les alertes émises par {@link NotificationService} sont enregistrées au journal du contexte Notifications (NOT1) sur base réelle : une
+ * alerte envoyée la nuit est retrouvée à la connexion, par les seuls rôles ciblés et le seul centre concerné ; la lecture est propre à chaque
+ * utilisateur. Les règles du journal lui-même (pagination, purge, visibilité exacte) sont dans les tests de contrat du module.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
@@ -36,7 +39,7 @@ class NotificationJournalIntegrationTest {
     @Autowired
     private NotificationService notifications;
     @Autowired
-    private NotificationJournalPort journal;
+    private NotificationsDuJournal journal;
     @Autowired
     private JdbcTemplate jdbc;
 
@@ -49,8 +52,8 @@ class NotificationJournalIntegrationTest {
         jdbc.update("DELETE FROM infirmier WHERE center_id IN (?, ?)", CENTRE, AUTRE_CENTRE);
     }
 
-    private PagedResult<Alerte> pour(UUID centre, String utilisateur, String... roles) {
-        return journal.lister(centre, utilisateur, Set.of(roles), 0, 50);
+    private PagedResult<NotificationDuJournal> pour(UUID centre, String utilisateur, String... roles) {
+        return journal.lister(new CentreId(centre), utilisateur, Set.of(roles), Instant.now().minus(30, ChronoUnit.DAYS), 0, 50);
     }
 
     @Test
@@ -59,12 +62,12 @@ class NotificationJournalIntegrationTest {
 
         notifications.notifyOptimisationProposition(CENTRE, run, "COUVERTURE", "SOUS_EFFECTIF", 3);
 
-        PagedResult<Alerte> admin = pour(CENTRE, "admin-1", "ADMIN");
+        PagedResult<NotificationDuJournal> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total());
-        Alerte alerte = admin.items().get(0);
-        assertEquals("OPTIMISATION_PROPOSITION", alerte.type());
-        assertEquals(run.toString(), alerte.payload().get("runId"));
-        assertEquals("3", alerte.payload().get("valeur"));
+        NotificationDuJournal alerte = admin.items().get(0);
+        assertEquals("OPTIMISATION_PROPOSITION", alerte.type().valeur());
+        assertEquals(run.toString(), alerte.contenu().get("runId"));
+        assertEquals("3", alerte.contenu().get("valeur"));
         assertFalse(alerte.lue());
     }
 
@@ -72,10 +75,10 @@ class NotificationJournalIntegrationTest {
     void the_summary_of_the_night_is_kept_for_the_administrator_even_when_nothing_was_proposed() {
         notifications.notifyReplanificationNocturne(CENTRE, "RIEN", 0, 0);
 
-        PagedResult<Alerte> admin = pour(CENTRE, "admin-1", "ADMIN");
+        PagedResult<NotificationDuJournal> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total(), "retrouvé à la connexion, personne n'étant connecté la nuit");
-        assertEquals("REPLANIFICATION_NOCTURNE", admin.items().get(0).type());
-        assertEquals("RIEN", admin.items().get(0).payload().get("issue"));
+        assertEquals("REPLANIFICATION_NOCTURNE", admin.items().get(0).type().valeur());
+        assertEquals("RIEN", admin.items().get(0).contenu().get("issue"));
         assertEquals(0, pour(CENTRE, "medecin-1", "MEDECIN").total());
         assertEquals(0, pour(AUTRE_CENTRE, "admin-2", "ADMIN").total());
     }
@@ -118,60 +121,21 @@ class NotificationJournalIntegrationTest {
     void reading_is_personal_and_can_be_done_for_one_alert_or_for_all() {
         notifications.notifyGenerateurIndisponible(CENTRE, "A-G1", "HORS_SERVICE", List.of("BENALI Karim"));
         notifications.notifyGenerateurIndisponible(CENTRE, "A-G2", "EN_MAINTENANCE", List.of());
-        List<Alerte> alertes = pour(CENTRE, "admin-1", "ADMIN").items();
+        List<NotificationDuJournal> alertes = pour(CENTRE, "admin-1", "ADMIN").items();
         assertEquals(2, alertes.size());
+        Instant maintenant = Instant.now();
+        Instant depuis = maintenant.minus(30, ChronoUnit.DAYS);
 
-        journal.marquerLues(CENTRE, "admin-1", List.of(alertes.get(0).id()));
+        journal.marquerLues(new CentreId(CENTRE), "admin-1", Set.of("ADMIN"), List.<NotificationId>of(alertes.get(0).id()), maintenant);
 
-        assertEquals(List.of(true, false), pour(CENTRE, "admin-1", "ADMIN").items().stream().map(Alerte::lue).toList());
-        assertTrue(pour(CENTRE, "secretaire-1", "SECRETAIRE", "ADMIN").items().stream().noneMatch(Alerte::lue),
+        assertEquals(List.of(true, false), pour(CENTRE, "admin-1", "ADMIN").items().stream().map(NotificationDuJournal::lue).toList());
+        assertTrue(pour(CENTRE, "secretaire-1", "SECRETAIRE", "ADMIN").items().stream().noneMatch(NotificationDuJournal::lue),
                 "la lecture de l'un ne vaut pas pour les autres");
 
-        journal.toutMarquerLu(CENTRE, "admin-1", Set.of("ADMIN"));
-        assertTrue(pour(CENTRE, "admin-1", "ADMIN").items().stream().allMatch(Alerte::lue));
-        journal.toutMarquerLu(CENTRE, "admin-1", Set.of("ADMIN"));
+        journal.toutMarquerLu(new CentreId(CENTRE), "admin-1", Set.of("ADMIN"), depuis, maintenant);
+        assertTrue(pour(CENTRE, "admin-1", "ADMIN").items().stream().allMatch(NotificationDuJournal::lue));
+        journal.toutMarquerLu(new CentreId(CENTRE), "admin-1", Set.of("ADMIN"), depuis, maintenant);
         assertEquals(2, pour(CENTRE, "admin-1", "ADMIN").total(), "relire ne duplique rien");
-    }
-
-    @Test
-    void marking_an_alert_of_another_center_as_read_does_nothing() {
-        notifications.notifyGenerateurIndisponible(CENTRE, "A-G1", "HORS_SERVICE", List.of());
-        UUID id = pour(CENTRE, "admin-1", "ADMIN").items().get(0).id();
-
-        journal.marquerLues(AUTRE_CENTRE, "admin-1", List.of(id));
-
-        assertFalse(pour(CENTRE, "admin-1", "ADMIN").items().get(0).lue());
-    }
-
-    @Test
-    void the_list_is_paginated_from_the_most_recent_alert() {
-        for (int i = 1; i <= 5; i++) {
-            journal.enregistrer(UUID.randomUUID(), CENTRE, "GENERATEUR_INDISPONIBLE",
-                    Map.of("generateur", "G" + i, "targetRoles", "ADMIN"), Instant.now().minus(10 - i, ChronoUnit.MINUTES));
-        }
-
-        PagedResult<Alerte> premiere = journal.lister(CENTRE, "u", Set.of("ADMIN"), 0, 2);
-        PagedResult<Alerte> derniere = journal.lister(CENTRE, "u", Set.of("ADMIN"), 2, 2);
-
-        assertEquals(5, premiere.total());
-        assertEquals(List.of("G5", "G4"), premiere.items().stream().map(a -> a.payload().get("generateur")).toList());
-        assertEquals(List.of("G1"), derniere.items().stream().map(a -> a.payload().get("generateur")).toList());
-    }
-
-    @Test
-    void alerts_older_than_the_retention_are_purged_with_their_readings() {
-        UUID ancienne = UUID.randomUUID();
-        journal.enregistrer(ancienne, CENTRE, "GENERATEUR_INDISPONIBLE", Map.of("targetRoles", "ADMIN"),
-                Instant.now().minus(90, ChronoUnit.DAYS));
-        journal.marquerLues(CENTRE, "admin-1", List.of(ancienne));
-        notifications.notifyGenerateurIndisponible(CENTRE, "A-G1", "HORS_SERVICE", List.of());
-
-        assertEquals(1, pour(CENTRE, "admin-1", "ADMIN").total(), "au-delà de 30 jours, plus proposée");
-        assertEquals(1, journal.purger(Instant.now().minus(60, ChronoUnit.DAYS)));
-
-        assertEquals(1, pour(CENTRE, "admin-1", "ADMIN").total());
-        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM notification_lecture WHERE notification_id = ?",
-                Long.class, ancienne));
     }
 
     @Test
@@ -192,15 +156,15 @@ class NotificationJournalIntegrationTest {
         notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi, lundi, true);
         notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi.plusDays(7), lundi.plusDays(7), false);
 
-        PagedResult<Alerte> admin = pour(CENTRE, "admin-1", "ADMIN");
+        PagedResult<NotificationDuJournal> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total(), "l'absence saisie par l'administrateur ne le prévient pas");
-        assertEquals("INFIRMIER_ABSENCE_ENREGISTREE", admin.items().get(0).type());
-        assertTrue(admin.items().get(0).payload().get("infirmier").contains("Amrani"));
+        assertEquals("INFIRMIER_ABSENCE_ENREGISTREE", admin.items().get(0).type().valeur());
+        assertTrue(admin.items().get(0).contenu().get("infirmier").contains("Amrani"));
         assertEquals(0, pour(CENTRE, "secretaire-1", "SECRETAIRE").total());
 
-        PagedResult<Alerte> medecin = pour(CENTRE, "medecin-1", "MEDECIN");
+        PagedResult<NotificationDuJournal> medecin = pour(CENTRE, "medecin-1", "MEDECIN");
         assertEquals(2, medecin.total(), "le médecin est prévenu des deux absences, quel que soit l'auteur de la saisie");
-        assertTrue(medecin.items().stream().allMatch(a -> "INFIRMIER_ABSENCE_ENREGISTREE".equals(a.type())));
+        assertTrue(medecin.items().stream().allMatch(a -> "INFIRMIER_ABSENCE_ENREGISTREE".equals(a.type().valeur())));
         assertEquals(0, pour(AUTRE_CENTRE, "medecin-2", "MEDECIN").total(), "jamais les alertes d'un autre centre");
     }
 }

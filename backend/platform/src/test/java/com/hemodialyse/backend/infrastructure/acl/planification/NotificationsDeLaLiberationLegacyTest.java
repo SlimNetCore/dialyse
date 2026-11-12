@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.application.notification.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,7 +25,7 @@ class NotificationsDeLaLiberationLegacyTest {
     static final UUID CENTRE = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
     static final LocalDate JOUR = LocalDate.of(2026, 10, 27);
 
-    NotificationJournalPort journal = Mockito.mock(NotificationJournalPort.class);
+    JournalDesNotifications journal = Mockito.mock(JournalDesNotifications.class);
     NotificationService notifications = Mockito.mock(NotificationService.class);
     NotificationsDeLaLiberationLegacy acl = new NotificationsDeLaLiberationLegacy(journal, notifications);
 

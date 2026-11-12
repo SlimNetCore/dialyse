@@ -27,7 +27,7 @@
 | Clés étrangères             | 5 seulement dans le schéma de base (liens par UUID, sans FK) : bonne nouvelle, rien ne bloque la partition.           |
 | Multi-centre                | Toute requête filtre `center_id` (règle AGENTS §2) : la sélectivité vient déjà de ce critère.                         |
 | Volumes (RENADIAL, 12 mois) | ~410 patients, ~13 000 séances, ~4 400 factures, ~3 700 règlements, ~3 900 biologies, ~3 600 administrations EPO/fer. |
-| Rétention existante         | `audit_log` : 365 j (purge `DELETE` quotidienne) ; `notification_evenement` : 30 j (`NotificationPurgeScheduler`).    |
+| Rétention existante         | `audit_log` : 365 j (purge `DELETE` quotidienne) ; `notification_evenement` : 60 j (`PurgeNocturneDesNotifications`, contexte `notifications`).    |
 
 ### 2.1 Ce que montrent la production, la CI et `schema_prod.sql`
 
@@ -180,10 +180,10 @@ s'exécute avant le backend (`service_completed_successfully`) : pendant la copi
 celle de la durée de la migration. Prévoir une fenêtre de déploiement hors heures de séance, et un `pg_dump` préalable
 (`infra/backup-db.sh`). Même schéma pour `notification_evenement` (clé de partition `cree_le`).
 
-Impact applicatif **minimal** : `AuditWriterService`, `AuditQueryService` et `NotificationJournalJdbcAdapter` sont en
+Impact applicatif **minimal** : `AuditWriterService`, `AuditQueryService` et `NotificationsDuJournalJdbc` (contexte `notifications`) sont en
 JDBC pur, sans `@Entity` ; leurs requêtes (`INSERT`, filtres par `center_id` et période) ne changent pas. À modifier :
 
-- `AuditWriterService.purgeOlderThan` / `NotificationJournalJdbcAdapter` : remplacer `DELETE … WHERE date < ?` par
+- `AuditWriterService.purgeOlderThan` / `NotificationsDuJournalJdbc.purger` : remplacer `DELETE … WHERE date < ?` par
   `DROP TABLE <partition>` des mois entièrement périmés (liste via `pg_inherits`), en conservant le `DELETE` comme repli
   sur H2 (pas de partition en dev).
 - **Entretien des partitions** : tâche planifiée (comme `AuditScheduler`) qui crée les partitions des 3 prochains mois

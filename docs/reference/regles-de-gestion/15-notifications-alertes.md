@@ -29,10 +29,14 @@
   proposition calculée à 02:30 est donc retrouvée même si personne n'était connecté. La **lecture est propre à chaque
   utilisateur** (`POST /api/v1/notifications/lecture` et `/lecture-tout`) ; une alerte d'un autre centre ne peut ni se
   lire
-  ni se marquer lue. Le journal ne ralentit ni ne fait échouer l'alerte temps réel (une base indisponible est ignorée) ;
-  les alertes de plus de 60 jours sont purgées chaque jour à 03:40 (`NotificationPurgeScheduler`). *Source :*
-  `NotificationService`, `NotificationJournalPort`, `NotificationJournalJdbcAdapter`,
-  `NotificationRestController`.
+  ni se marquer lue. **Depuis NOT1 (ADR 0141)** : une alerte ne peut être marquée lue que si l'audience de l'utilisateur
+  l'inclut (sinon ignorée, sans réponse différente d'un identifiant inconnu) ; les rôles ciblés se comparent
+  **exactement** (le souligne d'un nom de rôle n'est pas un joker) ; une page, une taille, un centre ou un corps
+  illisibles donnent un 400 (`BAD_REQUEST`, ou `VALIDATION_ERROR` si les identifiants manquent). Le journal ne ralentit
+  ni ne fait échouer l'alerte temps réel (une base indisponible est ignorée) ; les alertes de plus de 60 jours sont
+  purgées chaque jour à 03:40 (`PurgeNocturneDesNotifications`). *Source :* contexte `notifications`
+  (`JournalDesNotificationsControleur`, `ConsulterLeJournal`, `MarquerLesNotificationsLues`, `ToutMarquerLu`,
+  `PurgerLesNotifications`, `NotificationsDuJournalJdbc`), `NotificationService` (émetteur, jusqu'à NOT2).
 - **RG-NOT-006** — **Alertes liées à l'exploitation.** Un **générateur de dialyse en service qui devient indisponible**
   (maintenance, attente de pièce, panne, réforme — par la fiche équipement ou une intervention GMAO) alerte `ADMIN` et
   `SECRETAIRE` (`GENERATEUR_INDISPONIBLE`) avec le code du générateur, son nouveau statut, le nombre de patients dont
@@ -79,7 +83,7 @@
   d'accueil. Les évènements purement techniques (`PRESCRIPTION_CHANGED`, `STOCK_RECALC_LOCKS_CHANGED`) rafraîchissent
   les écrans sans apparaître dans la cloche. Sur un téléphone, l'action figure directement sous chaque notification.
   *Source :* `notification-presentation.util.ts` (`presenterNotification`), `NotificationBellComponent` →
-  `NotificationBellStore` → `NotificationApiService` → `NotificationRestController`.
+  `NotificationBellStore` → `NotificationApiService` → `JournalDesNotificationsControleur`.
 
 - **RG-NOT-004** — **Toute saisie d'un infirmier prévient le médecin du centre** : l'évènement `SAISIE_INFIRMIER`
   (destinataire `MEDECIN`) nomme l'auteur, le patient, la date et la nature de la saisie — séance créée ou validée

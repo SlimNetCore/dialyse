@@ -530,7 +530,7 @@
   lié, à l'administration seule. Une seule alerte par exécution, infirmier et case (identifiant déterministe : un rejeu ne
   duplique pas). Le contenu (infirmier, date, salle, créneau) se lit au journal des alertes, filtré par compte ; le canal temps
   réel du centre ne porte que la cible. `SEANCES_DEPLACEES` (médecin, secrétariat) part après le commit de l'application.
-  *Sources :* `AlertesDeLOptimisationLegacy`, `NotificationService`, `NotificationJournalJdbcAdapter`.
+  *Sources :* `AlertesDeLOptimisationLegacy`, `NotificationService`, `NotificationsDuJournalJdbc` (contexte `notifications`).
 - **RG-PLN-103** — **Infirmiers sur le planning de la semaine et accès du médecin.** Le planning de la semaine
   (RG-PLN-043)
   affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les **infirmiers** de la

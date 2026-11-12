@@ -1,0 +1,84 @@
+{
+  "sans corps" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "corps vide {}" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Les identifiants des notifications à marquer sont requis",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Validation",
+      "code" : "VALIDATION_ERROR"
+    }
+  },
+  "ids null" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Les identifiants des notifications à marquer sont requis",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Validation",
+      "code" : "VALIDATION_ERROR"
+    }
+  },
+  "ids illisible" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "ids n'est pas un tableau" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "ids contient null" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "json casse" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "champ inconnu seul" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Les identifiants des notifications à marquer sont requis",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 400,
+      "title" : "Validation",
+      "code" : "VALIDATION_ERROR"
+    }
+  },
+  "lignes de lecture apres tous ces essais" : 0
+}

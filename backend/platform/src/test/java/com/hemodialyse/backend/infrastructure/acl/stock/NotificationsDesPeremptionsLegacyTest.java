@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.acl.stock;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.NotificationsDesPeremptions.LotSignale;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class NotificationsDesPeremptionsLegacyTest {
     private static final UUID CENTRE = UUID.fromString("99997500-0000-0000-0000-00000000000a");
     private static final LocalDate JOUR = LocalDate.parse("2026-10-24");
 
-    private final NotificationJournalPort journal = mock(NotificationJournalPort.class);
+    private final JournalDesNotifications journal = mock(JournalDesNotifications.class);
     private final NotificationService service = mock(NotificationService.class);
     private final NotificationsDesPeremptionsLegacy acl = new NotificationsDesPeremptionsLegacy(journal, service);
 

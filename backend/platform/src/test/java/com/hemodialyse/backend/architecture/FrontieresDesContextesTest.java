@@ -596,4 +596,30 @@ class FrontieresDesContextesTest {
                     PILOTAGE_DIRECTION + ".interfaces..", PILOTAGE_DIRECTION + ".configuration..")
             .allowEmptyShould(true)
             .because("le Pilotage direction ne s'utilise que par son langage publie (ADR 0009, 0066)");
+
+    private static final String NOTIFICATIONS = "com.hemodialyse.backend.contexts.notifications";
+
+    /** NOT1 (ADR 0140, 0141) : les Notifications ne s'utilisent que par leur langage publie {@code notifications.v1}. */
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_les_notifications_que_par_leur_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(NOTIFICATIONS + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    NOTIFICATIONS + ".domain..", NOTIFICATIONS + ".application..", NOTIFICATIONS + ".infrastructure..",
+                    NOTIFICATIONS + ".interfaces..", NOTIFICATIONS + ".configuration..")
+            .allowEmptyShould(true)
+            .because("les Notifications ne s'utilisent que par leur langage publie (ADR 0140, 0141)");
+
+    /**
+     * NOT1 (ADR 0141) : le journal des notifications, ses trois routes {@code /api/v1/notifications} et la purge de 03:40 vivent dans
+     * {@code contexts/notifications} ; le port, l'adaptateur JDBC, le contrôleur et le planificateur de la plateforme ne doivent pas
+     * réapparaître (deux contrôleurs sur la même URL empêcheraient le démarrage, deux écritures sur les mêmes tables diverge).
+     */
+    @ArchTest
+    static final ArchRule le_journal_des_notifications_n_est_plus_servi_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.NotificationRestController")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.notification.NotificationJournalPort")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.notification.NotificationJournalJdbcAdapter")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.scheduling.NotificationPurgeScheduler")
+            .allowEmptyShould(true)
+            .because("le journal, les trois routes de notifications et la purge sont servis par contexts/notifications (NOT1, ADR 0141)");
 }

@@ -36,7 +36,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/dto/response/PagedResponse.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/AuditRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/ModeleDocumentTemplateRestController.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/NotificationRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/ReferentialAdminRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/TenantScope.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/erreur/BusinessException.java",
@@ -83,8 +82,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/NotificationsDeLaLiberationLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/AlertesDeLOptimisationLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/planification/ImpressionDuCalendrierDeLaPropositionLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/NotificationJournalPort.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/notification/NotificationJournalJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/patientcouverture/NotificationsDeLaFicheParLaPlateforme.java",
     "backend/contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/application/GererLesAssures.java",
     "backend/contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/application/AssuresDuCentre.java",
@@ -152,7 +149,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/model/IdMapping.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/port/MigrationRollbackPort.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/IdMappingJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/NotificationPurgeScheduler.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/JasperReportService.java"
   ],
   "seamAllowed": []

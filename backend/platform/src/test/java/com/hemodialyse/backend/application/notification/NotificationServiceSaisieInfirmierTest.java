@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
 class NotificationServiceSaisieInfirmierTest {
 
     private final SimpMessagingTemplate messaging = mock(SimpMessagingTemplate.class);
-    private final NotificationJournalPort journal = mock(NotificationJournalPort.class);
+    private final JournalDesNotifications journal = mock(JournalDesNotifications.class);
     private final NotificationService service = new NotificationService(messaging, mock(TempsReelDeLaDirection.class),
             journal);
     private final UUID centre = UUID.randomUUID();

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDeLaPresence;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -22,10 +22,10 @@ public class NotificationsDeLaPresenceLegacy implements NotificationsDeLaPresenc
     static final String SOUS_EFFECTIF = "INFIRMIER_SOUS_EFFECTIF";
     static final String SUREFFECTIF = "INFIRMIER_SUREFFECTIF";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public NotificationsDeLaPresenceLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public NotificationsDeLaPresenceLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }

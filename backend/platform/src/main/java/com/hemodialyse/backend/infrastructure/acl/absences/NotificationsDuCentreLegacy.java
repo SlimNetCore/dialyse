@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.acl.absences;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.NotificationsDuCentre;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -20,10 +20,10 @@ public class NotificationsDuCentreLegacy implements NotificationsDuCentre {
 
     static final String TYPE = "ABSENCES_A_QUALIFIER";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public NotificationsDuCentreLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public NotificationsDuCentreLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }

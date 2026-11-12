@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDeLOptimisation;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -21,10 +21,10 @@ public class AlertesDeLOptimisationLegacy implements AlertesDeLOptimisation {
     static final String ROULEMENT_MODIFIE = "INFIRMIER_ROULEMENT_MODIFIE";
     static final String REMPLACEMENT_AFFECTE = "INFIRMIER_REMPLACEMENT_AFFECTE";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public AlertesDeLOptimisationLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public AlertesDeLOptimisationLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }

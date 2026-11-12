@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.characterization.notifications.not1;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
-import com.hemodialyse.backend.infrastructure.scheduling.NotificationPurgeScheduler;
+import com.hemodialyse.backend.contexts.notifications.domain.DureesDuJournal;
+import com.hemodialyse.backend.contexts.notifications.interfaces.planifie.PurgeNocturneDesNotifications;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
     @Autowired
     private NotificationService notifications;
     @Autowired
-    private NotificationPurgeScheduler purge;
+    private PurgeNocturneDesNotifications purge;
     @Autowired
     private PlatformTransactionManager transactions;
     @Autowired
@@ -190,17 +191,15 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
 
     @Test
     void la_purge_est_planifiee_chaque_jour_a_03h40_et_garde_soixante_jours() throws Exception {
-        Scheduled s = NotificationPurgeScheduler.class.getMethod("purger").getAnnotation(Scheduled.class);
+        Scheduled s = PurgeNocturneDesNotifications.class.getMethod("purger").getAnnotation(Scheduled.class);
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("cron", s.cron());
         cas.put("conservation en jours (champ package-private)", conservation());
         golden("planification", cas);
     }
 
-    private long conservation() throws Exception {
-        var f = NotificationPurgeScheduler.class.getDeclaredField("CONSERVATION");
-        f.setAccessible(true);
-        return ((java.time.Duration) f.get(null)).toDays();
+    private long conservation() {
+        return DureesDuJournal.CONSERVATION.toDays();
     }
 
     private List<String> restants() {

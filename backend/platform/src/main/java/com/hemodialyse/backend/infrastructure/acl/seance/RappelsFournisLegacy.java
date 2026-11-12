@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.seance;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.RappelsFournis;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +26,10 @@ public class RappelsFournisLegacy implements RappelsFournis {
 
     static final String TYPE = "SEANCES_A_REGULARISER";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public RappelsFournisLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public RappelsFournisLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }

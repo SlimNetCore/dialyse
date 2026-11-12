@@ -1,0 +1,108 @@
+{
+  "page=abc" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Paramètre illisible : page",
+      "instance" : "/api/v1/notifications",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "size=abc" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Paramètre illisible : size",
+      "instance" : "/api/v1/notifications",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "page=1.5" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Paramètre illisible : page",
+      "instance" : "/api/v1/notifications",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "size=" : {
+    "statut" : 200,
+    "cacheControl" : "no-store",
+    "corps" : {
+      "items" : [ {
+        "id" : "<N05>",
+        "type" : "INFIRMIER_ROULEMENT_MODIFIE",
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "cle" : "v5",
+          "targetRoles" : "ADMIN",
+          "targetUserId" : "<INF>"
+        },
+        "timestamp" : "<HORLOGE>",
+        "lue" : false
+      }, {
+        "id" : "<N03>",
+        "type" : "REPLANIFICATION_NOCTURNE",
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "cle" : "v3",
+          "targetRoles" : ""
+        },
+        "timestamp" : "<HORLOGE>",
+        "lue" : false
+      }, {
+        "id" : "<N02>",
+        "type" : "OPTIMISATION_PROPOSITION",
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "cle" : "v2",
+          "targetRoles" : "ADMIN,SECRETAIRE"
+        },
+        "timestamp" : "<HORLOGE>",
+        "lue" : false
+      }, {
+        "id" : "<N01>",
+        "type" : "GENERATEUR_INDISPONIBLE",
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "cle" : "v1",
+          "targetRoles" : "ADMIN"
+        },
+        "timestamp" : "<HORLOGE>",
+        "lue" : false
+      } ],
+      "total" : 4,
+      "page" : 0,
+      "size" : 50
+    }
+  },
+  "centerId=pas-un-uuid" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/notifications",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "page=99999999999" : {
+    "statut" : 400,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Paramètre illisible : page",
+      "instance" : "/api/v1/notifications",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.gmao.interventions;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
+import com.hemodialyse.backend.contexts.notifications.application.NotificationsDuJournal;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.UtilisateurId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.CauseDIndisponibilite;
@@ -40,7 +40,7 @@ class InterventionReformeProposeeNouveauCodeIntegrationTest extends Intervention
     @Autowired
     TransactionTemplate transaction;
     @Autowired
-    NotificationJournalPort journal;
+    NotificationsDuJournal journal;
     @Autowired
     ApplicationEvents publies;
 
@@ -77,12 +77,13 @@ class InterventionReformeProposeeNouveauCodeIntegrationTest extends Intervention
     void seuls_les_detenteurs_de_l_habilitation_de_reforme_du_centre_voient_la_proposition() throws Exception {
         cloturerEn("A_REFORMER");
 
-        assertEquals(1, journal.lister(CENTRE_A, ADMIN_A.toString(), Set.of("GMAO_REFORME"), 0, 20).items().size());
-        assertEquals(1, journal.lister(CENTRE_A, ADMIN_A.toString(), Set.of("ADMIN", "GMAO_REFORME"), 0, 20).items().stream()
-                .filter(a -> a.type().equals("REFORME_PROPOSEE")).count());
-        assertTrue(journal.lister(CENTRE_A, ADMIN_A.toString(), Set.of("ADMIN", "SECRETAIRE"), 0, 20).items().stream()
-                .noneMatch(a -> a.type().equals("REFORME_PROPOSEE")));
-        assertEquals(0, journal.lister(CENTRE_B, ADMIN_B.toString(), Set.of("GMAO_REFORME"), 0, 20).items().size());
+        Instant depuis = Instant.now().minus(java.time.Duration.ofDays(30));
+        assertEquals(1, journal.lister(new CentreId(CENTRE_A), ADMIN_A.toString(), Set.of("GMAO_REFORME"), depuis, 0, 20).items().size());
+        assertEquals(1, journal.lister(new CentreId(CENTRE_A), ADMIN_A.toString(), Set.of("ADMIN", "GMAO_REFORME"), depuis, 0, 20).items().stream()
+                .filter(a -> a.type().valeur().equals("REFORME_PROPOSEE")).count());
+        assertTrue(journal.lister(new CentreId(CENTRE_A), ADMIN_A.toString(), Set.of("ADMIN", "SECRETAIRE"), depuis, 0, 20).items().stream()
+                .noneMatch(a -> a.type().valeur().equals("REFORME_PROPOSEE")));
+        assertEquals(0, journal.lister(new CentreId(CENTRE_B), ADMIN_B.toString(), Set.of("GMAO_REFORME"), depuis, 0, 20).items().size());
     }
 
     @Test

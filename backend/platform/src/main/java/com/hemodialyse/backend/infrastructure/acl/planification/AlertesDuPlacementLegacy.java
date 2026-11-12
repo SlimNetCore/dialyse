@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -25,10 +25,10 @@ public class AlertesDuPlacementLegacy implements AlertesDuPlacement {
     static final String RETOUR_PROPOSE = "RETOUR_SALLE_ORDINAIRE_PROPOSE";
     static final String GENERATEUR_INDISPONIBLE = "GENERATEUR_INDISPONIBLE";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public AlertesDuPlacementLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public AlertesDuPlacementLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }

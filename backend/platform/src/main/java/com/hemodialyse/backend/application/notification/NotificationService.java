@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.application.notification;
 
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import java.util.UUID;
  * de l'événement (replanification de nuit, panne d'un générateur) les retrouve à sa connexion.
  */
 @Service
-public class NotificationService {
+public class NotificationService implements DiffusionEnTempsReel {
 
     /**
      * Types d'alerte conservés dans le journal ; les autres évènements (création, mise à jour) ne valent que sur le
@@ -36,10 +38,10 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messaging;
     private final TempsReelDeLaDirection directionRealtime;
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
 
     public NotificationService(SimpMessagingTemplate messaging, TempsReelDeLaDirection directionRealtime,
-                               NotificationJournalPort journal) {
+                               JournalDesNotifications journal) {
         this.messaging = messaging;
         this.directionRealtime = directionRealtime;
         this.journal = journal;
@@ -607,21 +609,13 @@ public class NotificationService {
         if (idImpose != null && DURABLES.contains(eventType) && journal.existe(idImpose)) {
             return;
         }
-        Map<String, Object> event = new java.util.HashMap<>();
         Instant maintenant = Instant.now();
-        event.put("type", eventType);
-        event.put("centerId", centerId.toString());
-        // Alerte personnelle : le canal temps réel du centre ne porte que la cible ; le contenu (infirmier, date, salle, créneau)
-        // se lit au journal, filtré par compte (revue P8, M2)
-        event.put("payload", payload.containsKey("targetUserId")
-                ? Map.of("targetRoles", payload.getOrDefault("targetRoles", ""), "targetUserId", payload.get("targetUserId"))
-                : payload);
-        event.put("timestamp", maintenant.toString());
+        UUID idJournalise = null;
         if (DURABLES.contains(eventType)) {
             UUID id = idImpose != null ? idImpose : UUID.randomUUID();
             try {
                 journal.enregistrer(id, centerId, eventType, payload, maintenant);
-                event.put("id", id.toString());
+                idJournalise = id;
             } catch (RuntimeException e) {
                 // identifiant imposé (alerte portée par un événement rejouable) : l'erreur remonte, rien n'est envoyé en
                 // temps réel, et l'événement rejoué recommencera l'enregistrement puis l'envoi
@@ -630,12 +624,8 @@ public class NotificationService {
                 log.warn("[NOTIFICATION] Alerte {} non enregistrée pour le centre {}", eventType, centerId, e);
             }
         }
-        Runnable tempsReel = () -> {
-            String destination = "/topic/center/" + centerId + "/events";
-            messaging.convertAndSend(destination, (Object) event);
-            // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.
-            directionRealtime.unCentreAChange(centerId);
-        };
+        final UUID idDiffuse = idJournalise;
+        Runnable tempsReel = () -> diffuser(centerId, eventType, payload, idDiffuse, maintenant);
         // Alerte à identifiant imposé (P3 à P5) émise dans une transaction : le temps réel part APRÈS le commit, pour qu'une
         // transaction annulée (409, 422, échec du commit) ne diffuse jamais d'alerte fantôme (revue P5, constat 4).
         if ((idImpose != null || apresLeCommit) && TransactionSynchronizationManager.isSynchronizationActive()) {
@@ -648,6 +638,28 @@ public class NotificationService {
         } else {
             tempsReel.run();
         }
+    }
+
+    /**
+     * Transport temps réel (port {@link DiffusionEnTempsReel} du contexte Notifications, NOT1, ADR 0141) : le message STOMP du centre, puis
+     * l'avertissement de la direction de la société. Les destinations et la forme du message sont celles d'avant le contexte.
+     */
+    @Override
+    public void diffuser(UUID centerId, String eventType, Map<String, String> payload, UUID id, Instant maintenant) {
+        Map<String, Object> event = new java.util.HashMap<>();
+        event.put("type", eventType);
+        event.put("centerId", centerId.toString());
+        // Alerte personnelle : le canal temps réel du centre ne porte que la cible ; le contenu (infirmier, date, salle, créneau)
+        // se lit au journal, filtré par compte (revue P8, M2)
+        event.put("payload", payload.containsKey("targetUserId")
+                ? Map.of("targetRoles", payload.getOrDefault("targetRoles", ""), "targetUserId", payload.get("targetUserId"))
+                : payload);
+        event.put("timestamp", maintenant.toString());
+        if (id != null) event.put("id", id.toString());
+        String destination = "/topic/center/" + centerId + "/events";
+        messaging.convertAndSend(destination, (Object) event);
+        // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.
+        directionRealtime.unCentreAChange(centerId);
     }
 }
 

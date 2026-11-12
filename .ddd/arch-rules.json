@@ -42,6 +42,7 @@
       "patient-couverture",
       "dossier-medical",
       "pilotage-direction",
+      "notifications",
       "shared-kernel"
     ],
     "publicApi": ["backend/contexts/**/publishedlanguage/**", "backend/contexts/shared-kernel/**"]

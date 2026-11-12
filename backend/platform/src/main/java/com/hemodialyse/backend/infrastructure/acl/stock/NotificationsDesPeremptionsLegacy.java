@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.stock;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.NotificationsDesPeremptions;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -22,10 +22,10 @@ public class NotificationsDesPeremptionsLegacy implements NotificationsDesPeremp
 
     static final String TYPE = "LOTS_PROCHES_PEREMPTION";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public NotificationsDesPeremptionsLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public NotificationsDesPeremptionsLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }

@@ -36,6 +36,7 @@
         <module>contexts/dossier-medical</module>
         <module>contexts/seance</module>
         <module>contexts/pilotage-direction</module>
+        <module>contexts/notifications</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
-import com.hemodialyse.backend.application.notification.NotificationJournalPort;
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDeLaLiberation;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -20,10 +20,10 @@ public class NotificationsDeLaLiberationLegacy implements NotificationsDeLaLiber
 
     static final String LIBERATION_EN_ECHEC = "LIBERATION_PLACES_EN_ECHEC";
 
-    private final NotificationJournalPort journal;
+    private final JournalDesNotifications journal;
     private final NotificationService notifications;
 
-    public NotificationsDeLaLiberationLegacy(NotificationJournalPort journal, NotificationService notifications) {
+    public NotificationsDeLaLiberationLegacy(JournalDesNotifications journal, NotificationService notifications) {
         this.journal = journal;
         this.notifications = notifications;
     }
