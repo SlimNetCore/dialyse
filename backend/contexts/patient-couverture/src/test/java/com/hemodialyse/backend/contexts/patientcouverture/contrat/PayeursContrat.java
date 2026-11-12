@@ -393,4 +393,20 @@ abstract class PayeursContrat {
         assertThat(details.get(1)).isEqualTo(new ChoixDesPayeurs.DetailDeCentrePayeur(cp2.id(), "CP-2", "Zeta", "Rue 2", "AG-1", "Agence 1",
                 "CNAS", "Caisse nationale"));
     }
+
+    /** PL8b : la caisse de chaque agence demandée, SANS borne de centre (reproduction de KB-FAC-65 / KB-RF3-07). */
+    @Test
+    void la_caisse_d_une_agence_est_publiee_par_identite_d_agence_sans_borne_de_centre() {
+        CaisseDAssurance c = caisse(CENTRE, "CNAS", "Caisse nationale", "STANDARD");
+        Agence a = agence(CENTRE, c, "AG-1", "Agence 1");
+        CaisseDAssurance etrangere = caisse(AUTRE, "CE", "Caisse etrangere", null);
+        Agence ae = agence(AUTRE, etrangere, "AGE", "Agence etrangere");
+
+        var caisses = publie().caissesDesAgences(List.of(a.id(), ae.id(), UUID.randomUUID()));
+
+        assertThat(caisses).containsOnlyKeys(a.id(), ae.id());
+        assertThat(caisses.get(a.id())).isEqualTo(new PayeursDuCentre.CaissePubliee(c.id(), "CNAS", "Caisse nationale", "STANDARD"));
+        assertThat(caisses.get(ae.id()).code()).isEqualTo("CE");
+        assertThat(publie().caissesDesAgences(List.of())).isEmpty();
+    }
 }

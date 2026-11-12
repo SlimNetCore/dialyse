@@ -208,8 +208,9 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    SituationsDesFactures facturationSituationsDesFactures(JdbcTemplate jdbc) {
-        return new SituationsDesFacturesJdbc(jdbc);
+    SituationsDesFactures facturationSituationsDesFactures(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new SituationsDesFacturesJdbc(jdbc, annuaire);
     }
 
     @Bean
@@ -230,8 +231,9 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    LectureDuTableauDeBord facturationLectureDuTableauDeBord(JdbcTemplate jdbc, SeancesDesFacturesFournies seances) {
-        return new LectureDuTableauDeBordJdbc(jdbc, seances);
+    LectureDuTableauDeBord facturationLectureDuTableauDeBord(JdbcTemplate jdbc, SeancesDesFacturesFournies seances,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new LectureDuTableauDeBordJdbc(jdbc, seances, annuaire);
     }
 
     @Bean
@@ -264,8 +266,9 @@ public class FacturationContexteConfiguration {
 
     /** Lecture publiée consommée par le pilotage de la Direction (slice F5). */
     @Bean
-    SyntheseFinanciereDesCentres facturationSyntheseFinanciere(JdbcTemplate jdbc) {
-        return new SyntheseFinanciereDesCentresJdbc(jdbc);
+    SyntheseFinanciereDesCentres facturationSyntheseFinanciere(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new SyntheseFinanciereDesCentresJdbc(jdbc, annuaire);
     }
 
     @Bean

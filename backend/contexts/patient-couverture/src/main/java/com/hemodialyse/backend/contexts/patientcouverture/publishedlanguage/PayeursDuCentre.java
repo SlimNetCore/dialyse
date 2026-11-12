@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +29,13 @@ public interface PayeursDuCentre {
 
     /** La chaîne de CHAQUE centre payeur du centre, par code de centre payeur (une seule lecture pour un regroupement). */
     List<ChaineDuPayeur> chaines(UUID centre);
+
+    /**
+     * La caisse de chacune de ces agences, par identité d'agence, SANS borne de centre (ni l'agence ni la caisse) : exception unique à la
+     * règle du centre, qui reproduit KB-FAC-65 / KB-RF3-07 (tableau de bord et chiffre d'affaires par caisse de la Facturation, instantané
+     * figé de la facture) en attendant la décision de la direction. Agence inconnue ou sans caisse : absente de la réponse.
+     */
+    Map<UUID, CaissePubliee> caissesDesAgences(Collection<UUID> agences);
 
     /** Ce centre payeur existe-t-il dans ce centre ? */
     boolean existe(UUID centre, UUID centrePayeur);

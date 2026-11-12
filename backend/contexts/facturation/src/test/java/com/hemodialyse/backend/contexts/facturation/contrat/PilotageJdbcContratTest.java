@@ -40,7 +40,7 @@ class PilotageJdbcContratTest extends PilotageJdbcContrat {
         jdbc.execute("CREATE TABLE IF NOT EXISTS agence (id UUID PRIMARY KEY, center_id UUID NOT NULL, caisse_id UUID NOT NULL, "
                 + "code VARCHAR(50) NOT NULL, nom VARCHAR(255) NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
-                + "code VARCHAR(50) NOT NULL, nom VARCHAR(255) NOT NULL)");
+                + "code VARCHAR(50) NOT NULL, nom VARCHAR(255) NOT NULL, type_caisse VARCHAR(50))");
         viderLesLignesDeTest();
     }
 

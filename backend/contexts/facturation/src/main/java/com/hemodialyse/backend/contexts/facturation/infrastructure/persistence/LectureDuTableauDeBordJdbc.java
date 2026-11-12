@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesDes
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois.RepartitionParCaisse;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.TableauDeBordDuMois.RepartitionParSituation;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -23,7 +24,7 @@ import java.util.UUID;
 
 /**
  * Lecture JDBC du tableau de bord de facturation (mêmes tables et mêmes requêtes que le legacy, slice F5) : {@code factures}
- * (totaux enregistrés), {@code agence} et {@code caisse_assurance}. Les jointures du référentiel ne filtrent
+ * (totaux enregistrés) ; la caisse de l'agence figée vient du langage publié {@link PayeursDuCentre} (PL8b, ADR 0149), qui ne filtre
  * pas par centre, comme avant (KB-FAC-65). Les séances viennent de la Séance (ADR 0097), sous les DEUX définitions
  * de « facturée » conservées (KB-SEA-75, {@link SeancesDesFacturesFournies}) : l'en-tête compte le statut {@code FACTUREE} par date de séance, les répartitions comptent les séances
  * rattachées aux factures du mois. Le tri d'avant est conservé : lignes triées par code selon la base, puis tri STABLE (patients ou séances
@@ -35,9 +36,12 @@ public class LectureDuTableauDeBordJdbc implements LectureDuTableauDeBord {
 
     private final SeancesDesFacturesFournies seancesDesFactures;
 
-    public LectureDuTableauDeBordJdbc(JdbcTemplate jdbc, SeancesDesFacturesFournies seancesDesFactures) {
+    private final PayeursDuCentre annuaire;
+
+    public LectureDuTableauDeBordJdbc(JdbcTemplate jdbc, SeancesDesFacturesFournies seancesDesFactures, PayeursDuCentre annuaire) {
         this.jdbc = jdbc;
         this.seancesDesFactures = seancesDesFactures;
+        this.annuaire = annuaire;
     }
 
     @Override
@@ -56,20 +60,17 @@ public class LectureDuTableauDeBordJdbc implements LectureDuTableauDeBord {
         Long factures = valeur("SELECT COUNT(1) FROM factures WHERE center_id = ? AND date_facturation BETWEEN ? AND ?",
                 Long.class, 0L, criteres);
 
-        List<LigneDeFacture> parCaisseBrut = jdbc.query("""
-                SELECT f.id AS facture_id, f.patient_id,
-                       COALESCE(ca.code, 'INCONNU') AS insurance_code,
-                       COALESCE(ca.nom, 'Inconnu') AS insurance_label
+        // PL8b : l'agence figée de la facture est lue ici, la caisse vient de l'annuaire des payeurs (non bornée au centre, KB-FAC-65)
+        List<FactureAgence> facturesDuMois = jdbc.query("""
+                SELECT f.id AS facture_id, f.patient_id, f.agence_id_snapshot
                 FROM factures f
-                LEFT JOIN agence a ON a.id = f.agence_id_snapshot
-                LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id
                 WHERE f.center_id = ?
                   AND f.date_facturation BETWEEN ? AND ?
-                ORDER BY insurance_code ASC
                 """,
-                (rs, i) -> new LigneDeFacture(rs.getObject("facture_id", UUID.class), rs.getObject("patient_id", UUID.class),
-                        rs.getString("insurance_code"), rs.getString("insurance_label")),
+                (rs, i) -> new FactureAgence(rs.getObject("facture_id", UUID.class), rs.getObject("patient_id", UUID.class),
+                        rs.getObject("agence_id_snapshot", UUID.class)),
                 criteres);
+        List<LigneDeFacture> parCaisseBrut = ligneParCaisse(facturesDuMois);
 
         List<LigneDeFacture> parSituationBrut = jdbc.query("""
                 SELECT f.id AS facture_id, f.patient_id,
@@ -89,6 +90,30 @@ public class LectureDuTableauDeBordJdbc implements LectureDuTableauDeBord {
 
         return new TableauDeBordDuMois(centre.valeur(), mois, ttc, ht, seances, patients, factures,
                 repartitionParCaisse(parCaisseBrut, seancesParFacture), repartitionParSituation(parSituationBrut, seancesParFacture));
+    }
+
+    /**
+     * Résout la caisse de chaque facture en mémoire et trie par code (ordre des caractères, explicite, comme PL8) ; le tri est STABLE, comme
+     * l'était le tri de la base suivi du tri par effectif.
+     */
+    private List<LigneDeFacture> ligneParCaisse(List<FactureAgence> factures) {
+        Set<UUID> agences = new HashSet<>();
+        for (FactureAgence f : factures) {
+            if (f.agence() != null) agences.add(f.agence());
+        }
+        Map<UUID, PayeursDuCentre.CaissePubliee> caisses = annuaire.caissesDesAgences(agences);
+        List<LigneDeFacture> lignes = new ArrayList<>();
+        for (FactureAgence f : factures) {
+            PayeursDuCentre.CaissePubliee caisse = f.agence() == null ? null : caisses.get(f.agence());
+            lignes.add(new LigneDeFacture(f.facture(), f.patient(),
+                    caisse == null || caisse.code() == null ? "INCONNU" : caisse.code(),
+                    caisse == null || caisse.nom() == null ? "Inconnu" : caisse.nom()));
+        }
+        lignes.sort(Comparator.comparing(LigneDeFacture::code));
+        return lignes;
+    }
+
+    private record FactureAgence(UUID facture, UUID patient, UUID agence) {
     }
 
     /** Ordre d'avant : patients décroissants, puis code croissant (code déjà trié par la base, tri stable). */

@@ -37,7 +37,7 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
 
     @Override
     protected LectureDuTableauDeBord tableau() {
-        return new LectureDuTableauDeBordJdbc(jdbc(), new SeancesDesFacturesSurLaTable(jdbc()));
+        return new LectureDuTableauDeBordJdbc(jdbc(), new SeancesDesFacturesSurLaTable(jdbc()), annuaire());
     }
 
     @Override
@@ -57,7 +57,12 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
 
     @Override
     protected SyntheseFinanciereDesCentres finance() {
-        return new SyntheseFinanciereDesCentresJdbc(jdbc());
+        return new SyntheseFinanciereDesCentresJdbc(jdbc(), annuaire());
+    }
+
+    /** L'annuaire réel des payeurs (patient-couverture) sur les tables de test : le même adaptateur que la production. */
+    private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire() {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc());
     }
 
     private static UUID derive(String cle) {
@@ -137,6 +142,26 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
                 .satisfies(c -> assertThat(c.chiffreDAffairesHt()).isEqualByComparingTo("100.00"));
         assertThat(caisses).filteredOn(c -> c.codeCaisse().isEmpty()).singleElement()
                 .satisfies(c -> assertThat(c.chiffreDAffairesHt()).isEqualByComparingTo("40.00"));
+    }
+
+    /** KB-FAC-65 reproduit (PL8b) : le tableau de bord ne borne pas la caisse au centre ; le tri par code est celui des caractères. */
+    @Test
+    void should_name_the_fund_of_an_agency_snapshot_from_another_centre_in_the_dashboard_and_sort_funds_by_character_order() {
+        facture(CENTRE_B, PATIENT_3, "2026-02-05", "10.00", "0.00", "10.00", "CNAS", "CNAS du centre B", null);
+        UUID agenceDuCentreB = derive("agence:" + CENTRE_B.valeur() + ":CNAS");
+        facture(CENTRE_A, PATIENT_1, "2026-02-10", "100.00", "0.00", "100.00", "cnas", "Caisse minuscule", null);
+        facture(CENTRE_A, PATIENT_2, "2026-02-11", "100.00", "0.00", "100.00", "CASNOS", "CASNOS A", null);
+        UUID etrangere = UUID.randomUUID();
+        jdbc().update("INSERT INTO factures (id, center_id, patient_id, numero_facture, patient_status_snapshot, agence_id_snapshot, "
+                        + "period_start, period_end, date_facturation, tva_rate, total_ht, total_tva, total_ttc) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, ?)",
+                etrangere, CENTRE_A.valeur(), PATIENT_3, "FAC-F5-Y-" + etrangere, null, agenceDuCentreB, Date.valueOf("2026-02-12"),
+                Date.valueOf("2026-02-12"), Date.valueOf("2026-02-12"), new BigDecimal("40.00"), new BigDecimal("40.00"));
+
+        var codes = tableau().du(CENTRE_A, java.time.YearMonth.of(2026, 2)).parCaisse();
+
+        // un patient chacun : l'égalité conserve l'ordre des codes ('C' avant 'c', 'CASNOS' avant 'CNAS')
+        assertThat(codes).extracting(c -> c.code()).containsExactly("CASNOS", "CNAS", "cnas");
     }
 
     @Override

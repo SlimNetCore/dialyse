@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -9,8 +10,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -21,8 +25,11 @@ public class SyntheseFinanciereDesCentresJdbc implements SyntheseFinanciereDesCe
 
     private final JdbcTemplate jdbc;
 
-    public SyntheseFinanciereDesCentresJdbc(JdbcTemplate jdbc) {
+    private final PayeursDuCentre annuaire;
+
+    public SyntheseFinanciereDesCentresJdbc(JdbcTemplate jdbc, PayeursDuCentre annuaire) {
         this.jdbc = jdbc;
+        this.annuaire = annuaire;
     }
 
     @Override
@@ -72,17 +79,45 @@ public class SyntheseFinanciereDesCentresJdbc implements SyntheseFinanciereDesCe
         if (centres.isEmpty()) {
             return resultat;
         }
-        jdbc.query("SELECT f.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, "
-                        + "COALESCE(SUM(f.total_ht), 0) AS ht FROM factures f "
-                        // KB-SEA-84 (ADR 0118) : agence bornée au centre de la facture, comme le centre payeur des séances et des patients
-                        + "LEFT JOIN agence ag ON ag.id = f.agence_id_snapshot AND ag.center_id = f.center_id "
-                        + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id "
-                        + "WHERE f.center_id IN (" + marques(centres) + ") AND f.date_facturation BETWEEN ? AND ? "
-                        + "GROUP BY f.center_id, COALESCE(ca.code, '')",
+        // PL8b : montant par (centre, agence figée) lu sur les factures ; la caisse vient de l'annuaire des payeurs.
+        record MontantDeLAgence(UUID centre, UUID agence, BigDecimal ht) {
+        }
+        List<MontantDeLAgence> montants = new ArrayList<>();
+        jdbc.query("SELECT center_id, agence_id_snapshot, COALESCE(SUM(total_ht), 0) AS ht FROM factures "
+                        + "WHERE center_id IN (" + marques(centres) + ") AND date_facturation BETWEEN ? AND ? "
+                        + "GROUP BY center_id, agence_id_snapshot",
                 rs -> {
-                    resultat.add(new ChiffreDeLaCaisse(rs.getObject("center_id", UUID.class), rs.getString("code"),
-                            rs.getString("nom"), rs.getBigDecimal("ht")));
+                    montants.add(new MontantDeLAgence(rs.getObject("center_id", UUID.class), rs.getObject("agence_id_snapshot", UUID.class),
+                            rs.getBigDecimal("ht")));
                 }, parametres(centres, du, au));
+        // KB-SEA-84 (ADR 0118) : agence bornée au centre de la facture ; la caisse de cette agence, elle, n'est pas bornée (KB-RF3-07)
+        Map<UUID, Set<UUID>> agencesDuCentre = new HashMap<>();
+        for (UUID centre : centres) {
+            Set<UUID> ids = new HashSet<>();
+            annuaire.agences(centre).forEach(a -> ids.add(a.id()));
+            agencesDuCentre.put(centre, ids);
+        }
+        Set<UUID> aResoudre = new HashSet<>();
+        for (MontantDeLAgence m : montants) {
+            if (m.agence() != null && agencesDuCentre.getOrDefault(m.centre(), Set.of()).contains(m.agence())) aResoudre.add(m.agence());
+        }
+        Map<UUID, PayeursDuCentre.CaissePubliee> caisses = annuaire.caissesDesAgences(aResoudre);
+        record Cle(UUID centre, String code) {
+        }
+        Map<Cle, String> noms = new LinkedHashMap<>();
+        Map<Cle, BigDecimal> totaux = new LinkedHashMap<>();
+        for (MontantDeLAgence m : montants) {
+            PayeursDuCentre.CaissePubliee caisse = aResoudre.contains(m.agence()) && agencesDuCentre.get(m.centre()).contains(m.agence())
+                    ? caisses.get(m.agence()) : null;
+            Cle cle = new Cle(m.centre(), caisse == null || caisse.code() == null ? "" : caisse.code());
+            totaux.merge(cle, m.ht() == null ? BigDecimal.ZERO : m.ht(), BigDecimal::add);
+            String nom = caisse == null ? null : caisse.nom();
+            noms.merge(cle, nom == null ? "" : nom, (a, b) -> a.compareTo(b) >= 0 ? a : b);
+        }
+        totaux.forEach((cle, ht) -> {
+            String nom = noms.get(cle);
+            resultat.add(new ChiffreDeLaCaisse(cle.centre(), cle.code(), nom == null || nom.isEmpty() ? null : nom, ht));
+        });
         return resultat;
     }
 

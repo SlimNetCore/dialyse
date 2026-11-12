@@ -46,10 +46,13 @@ class ReglementsJdbcContratTest extends ReglementsJdbcContrat {
                 + "ON facture_reglements (center_id, facture_id, cle_idempotence)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, numero_assurance VARCHAR(255), "
                 + "nom VARCHAR(255), prenom VARCHAR(255), centre_payeur_id UUID)");
-        jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, nom VARCHAR(255), "
-                + "agence_id UUID)");
-        jdbc.execute("CREATE TABLE IF NOT EXISTS agence (id UUID PRIMARY KEY, center_id UUID NOT NULL, nom VARCHAR(255), caisse_id UUID)");
-        jdbc.execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, nom VARCHAR(255))");
+        // PL8b : les colonnes lues par l'annuaire des payeurs (code, adresse, type_caisse) en plus du nom
+        jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(255), "
+                + "nom VARCHAR(255), adresse VARCHAR(255), agence_id UUID)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS agence (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(255), "
+                + "nom VARCHAR(255), caisse_id UUID)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS caisse_assurance (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(255), "
+                + "nom VARCHAR(255), type_caisse VARCHAR(50))");
     }
 
     @Override

@@ -164,6 +164,17 @@ public class PayeursEnMemoire implements LectureDesPayeurs, UsageDesPayeurs, Cho
     }
 
     @Override
+    public Map<UUID, CaissePubliee> caissesDesAgences(java.util.Collection<UUID> ids) {
+        Map<UUID, CaissePubliee> resultat = new HashMap<>();
+        for (UUID id : ids) {
+            Agence agence = agences.get(id);
+            CaisseDAssurance caisse = agence == null ? null : caisses.get(agence.caisse());
+            if (caisse != null) resultat.put(id, new CaissePubliee(caisse.id(), caisse.code(), caisse.nom(), caisse.type()));
+        }
+        return resultat;
+    }
+
+    @Override
     public boolean existe(UUID centre, UUID centrePayeur) {
         return detail(centre, centrePayeur).isPresent();
     }

@@ -62,6 +62,19 @@ public class PayeursDuCentreJdbc implements PayeursDuCentre {
     }
 
     @Override
+    public java.util.Map<UUID, CaissePubliee> caissesDesAgences(java.util.Collection<UUID> agences) {
+        java.util.Map<UUID, CaissePubliee> resultat = new java.util.HashMap<>();
+        if (agences.isEmpty()) return resultat;
+        String marques = String.join(",", java.util.Collections.nCopies(agences.size(), "?"));
+        jdbc.query("SELECT ag.id AS agence_id, ca.id, ca.code, ca.nom, ca.type_caisse FROM agence ag "
+                + "JOIN caisse_assurance ca ON ca.id = ag.caisse_id WHERE ag.id IN (" + marques + ")", rs -> {
+            resultat.put(rs.getObject("agence_id", UUID.class), new CaissePubliee(rs.getObject("id", UUID.class), rs.getString("code"),
+                    rs.getString("nom"), rs.getString("type_caisse")));
+        }, agences.toArray());
+        return resultat;
+    }
+
+    @Override
     public boolean existe(UUID centre, UUID centrePayeur) {
         if (centre == null || centrePayeur == null) return false;
         Long nombre = jdbc.queryForObject("SELECT COUNT(*) FROM centre_payeur WHERE id = ? AND center_id = ?", Long.class,

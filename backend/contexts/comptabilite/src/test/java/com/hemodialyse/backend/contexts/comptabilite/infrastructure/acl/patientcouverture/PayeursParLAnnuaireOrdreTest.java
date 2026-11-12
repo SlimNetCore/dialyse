@@ -85,6 +85,11 @@ class PayeursParLAnnuaireOrdreTest {
         }
 
         @Override
+        public java.util.Map<UUID, CaissePubliee> caissesDesAgences(java.util.Collection<UUID> agences) {
+            return java.util.Map.of();
+        }
+
+        @Override
         public boolean existe(UUID centre, UUID centrePayeur) {
             return true;
         }
