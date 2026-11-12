@@ -1,0 +1,14 @@
+[
+  "5 Mo + 1 octet -> 422 application/problem+json {\"detail\":\"Le fichier dépasse 5 Mo.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"IMPORT_FILE_TOO_LARGE\"}",
+  "zip bidon -> 422 application/problem+json {\"detail\":\"Le classeur Excel est illisible ou endommagé.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"IMPORT_UNREADABLE_FILE\"}",
+  "OLE2 bidon -> 422 application/problem+json {\"detail\":\"Le classeur Excel est illisible ou endommagé.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"IMPORT_UNREADABLE_FILE\"}",
+  "texte de 3 octets -> 422 application/problem+json {\"detail\":\"Importez la feuille de comptage au format Excel (.xlsx), telle que téléchargée puis remplie.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"IMPORT_UNSUPPORTED_FORMAT\"}",
+  "sans partie file -> 400 n/a",
+  "import par PHARMACIEN -> 200 application/json",
+  "import par INFIRMIER -> 200 application/json",
+  "import par DIRECTEUR_ADMINISTRATIF -> 403 application/problem+json",
+  "import par MEDECIN -> 403 application/problem+json",
+  "import par SECRETAIRE -> 403 application/problem+json",
+  "import par un ADMIN d'un autre centre -> 422 application/problem+json {\"detail\":\"Inventaire introuvable pour ce centre.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"INVENTORY_NOT_FOUND\"}",
+  "import anonyme -> 403 null "
+]

@@ -1,11 +1,12 @@
-package com.hemodialyse.backend.infrastructure.importer;
+package com.hemodialyse.backend.contexts.stock.infrastructure.classeur;
 
 import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
+import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleInvalide;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.ComptageImporte;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.ResultatDImport.Anomalie;
-import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -24,7 +25,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,13 +43,13 @@ import java.util.UUID;
 
 /**
  * Feuille de comptage Excel d'un inventaire du contexte Stock (port {@link FeuilleDeComptage}) : génération (à imprimer ou à
- * remplir) et relecture une fois remplie. Les refus de fichier restent des règles métier de la plateforme (422).
+ * remplir) et relecture une fois remplie. Les refus de fichier sont des règles métier (422) ; une feuille sans titre de référence
+ * est refusée en 400 (PL7, KB-PL7-4).
  * <p>
  * La colonne A (masquée) porte l'identifiant de la ligne d'inventaire : c'est elle qui sert au rapprochement.
  * À défaut (ligne recopiée à la main), le rapprochement se fait par code article + n° de lot.
  */
-@Component
-public class FeuilleComptageExcel implements FeuilleDeComptage {
+public class FeuilleDeComptageExcel implements FeuilleDeComptage {
 
     public static final long MAX_FILE_BYTES = 5L * 1024 * 1024;
     static final String COL_ID = "ID";
@@ -86,7 +86,7 @@ public class FeuilleComptageExcel implements FeuilleDeComptage {
     /**
      * Refuse une feuille d'un autre inventaire (titre « Inventaire INV-… du … »).
      */
-    private static void verifierReference(Sheet sheet, DataFormatter formatter, FormulaEvaluator evaluator, String attendue) {
+    private static boolean verifierReference(Sheet sheet, DataFormatter formatter, FormulaEvaluator evaluator, String attendue) {
         for (int r = sheet.getFirstRowNum(); r <= Math.min(sheet.getLastRowNum(), 2); r++) {
             Row row = sheet.getRow(r);
             if (row == null || row.getLastCellNum() < 0) continue;
@@ -95,12 +95,23 @@ public class FeuilleComptageExcel implements FeuilleDeComptage {
                 if (value.startsWith("Inventaire ") && value.contains(" du ")) {
                     String reference = value.substring("Inventaire ".length(), value.indexOf(" du ")).trim();
                     if (!reference.equalsIgnoreCase(attendue)) {
-                        throw new BusinessException("INVENTORY_SHEET_OTHER_INVENTORY",
+                        throw new RefusDuReferentiel("INVENTORY_SHEET_OTHER_INVENTORY",
                                 "Cette feuille concerne l'inventaire " + reference + " et non " + attendue + ".");
                     }
-                    return;
+                    return true;
                 }
             }
+        }
+        return false;
+    }
+
+    /**
+     * PL7, KB-PL7-4 (corrigé le 2026-11-12) : sans titre de référence, on ne sait pas de quel inventaire vient la feuille (400).
+     */
+    private static void exigerLeTitre(boolean titrePresent, String attendue) {
+        if (!titrePresent) {
+            throw new FeuilleInvalide("INVENTORY_SHEET_NO_REFERENCE",
+                    "La feuille ne porte pas le titre « Inventaire " + attendue + " du … » : utilisez la feuille de comptage téléchargée.");
         }
     }
 
@@ -240,22 +251,22 @@ public class FeuilleComptageExcel implements FeuilleDeComptage {
     @Override
     public Lecture lire(byte[] content, String referenceAttendue) {
         if (content == null || content.length == 0) {
-            throw new BusinessException("IMPORT_EMPTY_FILE", "Le fichier est vide.");
+            throw new RefusDuReferentiel("IMPORT_EMPTY_FILE", "Le fichier est vide.");
         }
         if (content.length > MAX_FILE_BYTES) {
-            throw new BusinessException("IMPORT_FILE_TOO_LARGE", "Le fichier dépasse 5 Mo.");
+            throw new RefusDuReferentiel("IMPORT_FILE_TOO_LARGE", "Le fichier dépasse 5 Mo.");
         }
         boolean zip = content.length > 3 && content[0] == 'P' && content[1] == 'K';
         boolean ole2 = content.length > 7 && (content[0] & 0xFF) == 0xD0 && (content[1] & 0xFF) == 0xCF;
         if (!zip && !ole2) {
-            throw new BusinessException("IMPORT_UNSUPPORTED_FORMAT",
+            throw new RefusDuReferentiel("IMPORT_UNSUPPORTED_FORMAT",
                     "Importez la feuille de comptage au format Excel (.xlsx), telle que téléchargée puis remplie.");
         }
         try (Workbook wb = WorkbookFactory.create(new ByteArrayInputStream(content))) {
             Sheet sheet = wb.getSheetAt(0);
             DataFormatter formatter = new DataFormatter(Locale.FRANCE);
             FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
-            verifierReference(sheet, formatter, evaluator, referenceAttendue);
+            boolean titrePresent = verifierReference(sheet, formatter, evaluator, referenceAttendue);
 
             int headerRow = -1;
             Map<String, Integer> cols = Map.of();
@@ -268,9 +279,10 @@ public class FeuilleComptageExcel implements FeuilleDeComptage {
                 }
             }
             if (headerRow < 0 || (!cols.containsKey(key(COL_ID)) && !cols.containsKey(key(COL_CODE)))) {
-                throw new BusinessException("INVENTORY_SHEET_INVALID",
+                throw new RefusDuReferentiel("INVENTORY_SHEET_INVALID",
                         "Colonnes « " + COL_QTY + " » et « " + COL_CODE + " » introuvables : utilisez la feuille de comptage téléchargée.");
             }
+            exigerLeTitre(titrePresent, referenceAttendue);
 
             List<ComptageImporte> lignes = new ArrayList<>();
             List<Anomalie> anomalies = new ArrayList<>();
@@ -310,11 +322,11 @@ public class FeuilleComptageExcel implements FeuilleDeComptage {
             }
             return new Lecture(lignes, anomalies);
         } catch (EncryptedDocumentException e) {
-            throw new BusinessException("IMPORT_ENCRYPTED_FILE", "Le classeur est protégé par mot de passe : retirez la protection puis réessayez.");
-        } catch (BusinessException e) {
+            throw new RefusDuReferentiel("IMPORT_ENCRYPTED_FILE", "Le classeur est protégé par mot de passe : retirez la protection puis réessayez.");
+        } catch (RefusDuReferentiel | FeuilleInvalide e) {
             throw e;
         } catch (IOException | RuntimeException e) {
-            throw new BusinessException("IMPORT_UNREADABLE_FILE", "Le classeur Excel est illisible ou endommagé.");
+            throw new RefusDuReferentiel("IMPORT_UNREADABLE_FILE", "Le classeur Excel est illisible ou endommagé.");
         }
     }
 

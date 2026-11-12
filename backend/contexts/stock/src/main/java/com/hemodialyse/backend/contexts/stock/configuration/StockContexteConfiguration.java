@@ -333,6 +333,19 @@ public class StockContexteConfiguration {
                 UUID::randomUUID);
     }
 
+    /** PL7 : procès-verbal rendu par Documents (documents.v1), ACL du Stock. */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.inventaire.ProcesVerbalDInventaire stockProcesVerbalDInventaire(
+            com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument documents) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.ProcesVerbalRenduParDocuments(documents);
+    }
+
+    /** PL7 : feuille de comptage (classeur Excel). */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage stockFeuilleDeComptage() {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.classeur.FeuilleDeComptageExcel();
+    }
+
     // ------------------------------------------------------------------ slice S8 : contrôle des péremptions
 
     @Bean

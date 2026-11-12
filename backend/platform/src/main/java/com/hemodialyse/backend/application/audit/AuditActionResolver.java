@@ -28,13 +28,19 @@ public final class AuditActionResolver {
     /** Impression du bon d'intervention (PL6, KB-PL6-6, décision du 2026-11-12) : lecture journalisée comme l'impression du cahier. */
     private static final String ROUTE_BON = "/api/v1/gmao/interventions/{id}/bon";
 
+    /** Impression du PV d'inventaire et téléchargement de la feuille de comptage (PL7, KB-PL7-5, décision du 2026-11-12). */
+    private static final String ROUTE_PV_INVENTAIRE = "/api/v1/stock/inventaires/{id}/rapport";
+    private static final String ROUTE_FEUILLE_COMPTAGE = "/api/v1/stock/inventaires/{id}/feuille-comptage";
+
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
      */
     private static final Set<String> SENSITIVE_READS = Set.of(
             "/api/v1/patients/{patientId}/dossier-medical",
             ROUTE_CAHIER,
-            ROUTE_BON
+            ROUTE_BON,
+            ROUTE_PV_INVENTAIRE,
+            ROUTE_FEUILLE_COMPTAGE
     );
 
     private static final Resolved ACTION_STATISTIQUES_PATIENT =
@@ -82,6 +88,9 @@ public final class AuditActionResolver {
             // journalisées « PATIENTS_CREATION ». Le journal historique n'est pas réécrit.
             Map.entry("GET " + ROUTE_CAHIER, new Resolved("CAHIER_DIALYSE_IMPRESSION", "patients", "Cahier de dialyse imprimé")),
             Map.entry("GET " + ROUTE_BON, new Resolved("BON_INTERVENTION_IMPRESSION", "gmao", "Bon d'intervention imprimé")),
+            Map.entry("GET " + ROUTE_PV_INVENTAIRE, new Resolved("INVENTAIRE_PV_IMPRESSION", "stock", "Procès-verbal d'inventaire imprimé")),
+            Map.entry("GET " + ROUTE_FEUILLE_COMPTAGE,
+                    new Resolved("INVENTAIRE_FEUILLE_TELECHARGEMENT", "stock", "Feuille de comptage téléchargée")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/medical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT));

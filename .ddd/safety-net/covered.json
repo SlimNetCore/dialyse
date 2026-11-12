@@ -59,8 +59,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/SignalementDesSaisiesLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/NotificationsDuCentreLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/notification/NotificationService.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/importer/FeuilleComptageExcel.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/InventaireReportService.java",
     "backend/platform/src/main/resources/reports/inventaire_stock.jrxml",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/DatesIllisiblesDeLaDirectionAdvice.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketStockEventPublisher.java",

@@ -1,11 +1,12 @@
-package com.hemodialyse.backend.infrastructure.importer;
+package com.hemodialyse.backend.contexts.stock.infrastructure.classeur;
 
 import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
+import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleInvalide;
+import com.hemodialyse.backend.contexts.stock.domain.referentiel.RefusDuReferentiel;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.ComptageImporte;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
-import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -30,9 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Feuille de comptage : téléchargée, remplie dans un tableur, puis relue.
  */
-class FeuilleComptageExcelTest {
+class FeuilleDeComptageExcelTest {
 
-    private final FeuilleComptageExcel excel = new FeuilleComptageExcel();
+    private final FeuilleDeComptageExcel excel = new FeuilleDeComptageExcel();
 
     private static Inventaire inventaire() {
         LigneDInventaire a = LigneDInventaire.theorique(UUID.randomUUID(), UUID.randomUUID(), "DIAL-01", "Dialyseur", "U",
@@ -102,9 +103,16 @@ class FeuilleComptageExcelTest {
     void refusesASheetFromAnotherInventoryOrANonExcelFile() {
         byte[] xlsx = excel.ecrire(inventaire(), true);
         assertEquals("INVENTORY_SHEET_OTHER_INVENTORY",
-                assertThrows(BusinessException.class, () -> excel.lire(xlsx, "INV-00002")).getCode());
+                assertThrows(RefusDuReferentiel.class, () -> excel.lire(xlsx, "INV-00002")).code());
         assertEquals("IMPORT_UNSUPPORTED_FORMAT",
-                assertThrows(BusinessException.class, () -> excel.lire("code;qte".getBytes(), "INV-00001")).getCode());
+                assertThrows(RefusDuReferentiel.class, () -> excel.lire("code;qte".getBytes(), "INV-00001")).code());
+    }
+
+    @Test
+    void refusesASheetWithoutTheReferenceTitle() throws Exception {
+        byte[] sansTitre = remplir(excel.ecrire(inventaire(), true), sheet -> sheet.getRow(0).getCell(1).setCellValue("Comptage"));
+        assertEquals("INVENTORY_SHEET_NO_REFERENCE",
+                assertThrows(FeuilleInvalide.class, () -> excel.lire(sansTitre, "INV-00001")).code());
     }
 }
 

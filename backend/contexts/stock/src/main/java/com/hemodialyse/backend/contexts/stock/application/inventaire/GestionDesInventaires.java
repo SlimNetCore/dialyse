@@ -239,6 +239,11 @@ public final class GestionDesInventaires {
                             "Lot déjà renseigné à la ligne " + premiere + " du fichier : ligne ignorée."));
                     continue;
                 }
+                // PL7, KB-PL7-4 (corrigé le 2026-11-12) : un motif d'écart sur un lot compté conforme est refusé (400).
+                if (row.motif() != null && row.quantite().compareTo(ligne.quantiteTheorique()) == 0) {
+                    throw new FeuilleInvalide("INVENTORY_SHEET_MOTIF_WITHOUT_GAP", "Ligne " + row.ligneFichier()
+                            + " : un motif d'écart est renseigné alors que la quantité comptée est égale à la quantité théorique.");
+                }
                 // motif vide dans le fichier : le motif déjà saisi à l'écran est conservé
                 String motif = row.motif() != null ? row.motif() : ligne.motifEcart();
                 if (ligne.estComptee() && ligne.quantiteComptee().compareTo(row.quantite()) == 0

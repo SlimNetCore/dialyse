@@ -290,9 +290,9 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
     @Test
     void un_inventaire_sans_aucune_ligne_s_imprime_avec_des_indicateurs_a_zero() throws Exception {
         UUID inv = ouvertOk("Rien en stock");
-        goldenLignes("pv_pl7_sans_ligne_texte", pv(inv));
+        goldenLignes("pv_pl7_sans_ligne_texte_nouveau_code",pv(inv));
         assertEquals(200, action(INV + "/" + inv + "/cloturer", adminA()).status());
-        goldenLignes("pv_pl7_sans_ligne_cloture_texte", pv(inv));
+        goldenLignes("pv_pl7_sans_ligne_cloture_texte_nouveau_code",pv(inv));
     }
 
     @Test
@@ -395,7 +395,7 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
         l.add("/feuille-comptage en-tetes (ADMIN) -> " + masque(String.valueOf(bin(INV + "/" + inv + "/feuille-comptage").disposition())));
         l.add("DELETE /rapport -> " + mvc.perform(delete(java.net.URI.create(INV + "/" + inv + "/rapport")).with(adminA())).andReturn().getResponse().getStatus());
         l.add("POST /rapport -> " + mvc.perform(post(java.net.URI.create(INV + "/" + inv + "/rapport")).with(adminA())).andReturn().getResponse().getStatus());
-        goldenLignes("pv_pl7_garde_roles_parametres", l);
+        goldenLignes("pv_pl7_garde_roles_parametres_nouveau_code",l);
     }
 
     // ------------------------------------------------------------------ feuille : contenu
@@ -517,8 +517,7 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
                         m.setCellValue("perte / vol");
                     }
                     case "A1/L-TARD" -> {
-                        q.setCellFormula("2+3");
-                        m.setCellValue("PEREMPTION");
+                        q.setCellFormula("2+4"); // PL7 (KB-PL7-4) : un motif sans écart est refusé (400), couvert par ailleurs
                     }
                     case "A2/" -> {
                         q.setCellValue(" 1 000,5 ");
@@ -546,8 +545,8 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
             sansQuantite.createCell(7).setCellValue("autre");
             remplie = ecrireXlsx(wb);
         }
-        golden("import_pl7_cas_mixtes", importer(inv, remplie));
-        goldenLignesSql("import_pl7_cas_mixtes_lignes");
+        golden("import_pl7_cas_mixtes_nouveau_code",importer(inv, remplie));
+        goldenLignesSql("import_pl7_cas_mixtes_lignes_nouveau_code");
     }
 
     @Test
@@ -570,7 +569,7 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
             Row r = s.createRow(11);
             r.createCell(1).setCellValue("A1");
             r.createCell(2).setCellValue("L-TOT");
-            r.createCell(3).setCellValue(3);
+            r.createCell(3).setCellValue(2); // PL7 (KB-PL7-4) : un motif exige un écart (3 = théorique serait refusé en 400)
             r.createCell(4).setCellValue("casse");
             l.add("titre en minuscules, entetes deplaces (ligne 11), colonnes dans un autre ordre -> " + resume(importer(inv, ecrireXlsx(wb))));
         }
@@ -604,16 +603,17 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
         }
         try (Workbook wb = new HSSFWorkbook()) {
             Sheet s = wb.createSheet("Ancien");
-            Row h = s.createRow(0);
+            s.createRow(0).createCell(1).setCellValue("Inventaire " + ref + " du 01/01/2026");
+            Row h = s.createRow(1);
             h.createCell(0).setCellValue("Code");
             h.createCell(1).setCellValue("Quantité comptée");
-            Row r = s.createRow(1);
+            Row r = s.createRow(2);
             r.createCell(0).setCellValue("A6");
             r.createCell(1).setCellValue(9);
             l.add("classeur .xls reel -> " + resume(importer(inv, ecrireXlsx(wb))));
         }
-        goldenLignes("import_pl7_formats_et_entetes", l);
-        goldenLignesSql("import_pl7_formats_et_entetes_lignes");
+        goldenLignes("import_pl7_formats_et_entetes_nouveau_code",l);
+        goldenLignesSql("import_pl7_formats_et_entetes_lignes_nouveau_code");
     }
 
     private String resume(Resp r) {
@@ -645,10 +645,12 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
         byte[] valide;
         try (Workbook wb = new XSSFWorkbook()) {
             Sheet s = wb.createSheet("Ok");
-            Row h = s.createRow(0);
+            // PL7 (KB-PL7-4) : le titre de référence est exigé ; sans lui l'import serait refusé en 400
+            s.createRow(0).createCell(1).setCellValue("Inventaire " + reference(inv) + " du 01/01/2026");
+            Row h = s.createRow(1);
             h.createCell(0).setCellValue("Code");
             h.createCell(1).setCellValue("Quantité comptée");
-            Row r = s.createRow(1);
+            Row r = s.createRow(2);
             r.createCell(0).setCellValue("A2");
             r.createCell(1).setCellValue(1);
             valide = ecrireXlsx(wb);
@@ -659,7 +661,7 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
         }
         l.add("import par un ADMIN d'un autre centre -> " + resume(importer(inv, valide, adminB())));
         l.add("import anonyme -> " + resume(importer(inv, valide, request -> request)));
-        goldenLignes("import_pl7_refus", l);
+        goldenLignes("import_pl7_refus_nouveau_code",l);
         goldenLignesSql("import_pl7_refus_lignes");
     }
 
@@ -692,10 +694,12 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
         byte[] valide;
         try (Workbook wb = new XSSFWorkbook()) {
             Sheet s = wb.createSheet("Ok");
-            Row h = s.createRow(0);
+            // PL7 (KB-PL7-4) : le titre de référence est exigé ; sans lui l'import serait refusé en 400
+            s.createRow(0).createCell(1).setCellValue("Inventaire " + reference(inv) + " du 01/01/2026");
+            Row h = s.createRow(1);
             h.createCell(0).setCellValue("Code");
             h.createCell(1).setCellValue("Quantité comptée");
-            Row r = s.createRow(1);
+            Row r = s.createRow(2);
             r.createCell(0).setCellValue("A2");
             r.createCell(1).setCellValue(1);
             valide = ecrireXlsx(wb);
@@ -707,6 +711,6 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
                 + "ORDER BY route_template, http_method, status_code", CENTRE_A, CENTRE_B)) {
             l.add("journal : " + masque(row.toString()));
         }
-        goldenLignes("pv_pl7_audit", l);
+        goldenLignes("pv_pl7_audit_nouveau_code",l);
     }
 }

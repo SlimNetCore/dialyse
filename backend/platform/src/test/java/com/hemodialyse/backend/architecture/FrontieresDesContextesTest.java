@@ -537,6 +537,20 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
             .because("le bon est rendu par documents.v1 (PL6, ADR 0145)");
 
+    /** PL7 (ADR 0146) : le PV d'inventaire est rendu par l'ACL du Stock vers documents.v1 et la feuille de comptage vit dans le Stock. */
+    @ArchTest
+    static final ArchRule le_pv_et_la_feuille_d_inventaire_ne_sont_plus_servis_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.InventaireReportService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.importer.FeuilleComptageExcel")
+            .allowEmptyShould(true)
+            .because("le PV et la feuille de comptage sont servis par contexts/stock via documents.v1 (PL7, ADR 0146)");
+
+    @ArchTest
+    static final ArchRule le_pv_est_rendu_par_le_langage_publie_de_documents = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.ProcesVerbalRenduParDocuments")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
+            .because("le PV d'inventaire est rendu par documents.v1 (PL7, ADR 0146)");
+
     @ArchTest
     static final ArchRule le_catalogue_de_forfaits_compte_les_forfaits_imposes_par_le_langage_publie = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.UsageDuForfaitParLesSeances")

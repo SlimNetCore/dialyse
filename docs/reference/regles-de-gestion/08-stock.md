@@ -8,8 +8,7 @@
 > `RecalculMassifDuPmp`, `ControlerLesPeremptions`, `RegleDesPeremptions`, `Inventaire`, `PeriodeDeStock`, `GestionDesInventaires`, `EcrituresDuStock` (garde d'inventaire
 > sous verrou), `SortiePourSeances`, `GestionDesGroupesDArticles`, contrôleurs `*Controleur` ; plateforme :
 > `ValorisationStockCalculator`,
-> `StockDashboardService`, `StockDashboardAdapter`, `FeuilleComptageExcel`,
-> `InventaireReportService`.
+> `StockDashboardService`, `StockDashboardAdapter` (le PV et la feuille de comptage sont désormais dans le Stock, PL7).
 
 ## 8.1 Référentiel (articles, fournisseurs, emplacements)
 
@@ -195,7 +194,18 @@
   (filigrane « PROVISOIRE » tant que l'inventaire est en cours). Lecture/comptage : `ADMIN`, `PHARMACIEN`, `INFIRMIER` ;
   ouverture, report, clôture, annulation : `ADMIN`, `PHARMACIEN`.
   Chaque changement d'état notifie le centre. *Source :* `InventairesControleur`, `GestionDesInventaires`,
-  `InventaireReportService` (PV), `FeuilleComptageExcel` (feuille de comptage).
+  `ProcesVerbalRenduParDocuments` (PV, ACL vers Documents), `FeuilleDeComptageExcel` (feuille de comptage).
+- **RG-STK-086** — **PV d'inventaire et feuille de comptage** (`GET /{id}/rapport`, `GET|POST /{id}/feuille-comptage`, PL7, ADR 0146) :
+  le PV est rendu par Documents (type `INVENTAIRE_STOCK`) ; le Stock fournit l'en-tête, les indicateurs et l'analyse par motif.
+  Écarts décidés le 2026-11-12 : **KB-PL7-1** un identifiant, un `centerId` ou un `aveugle` illisible, ou un import sans partie
+  `file`, est rejeté en 400 (avant : 500) ; un autre verbe sur le PV ou la feuille répond 405 ; **KB-PL7-2** un PV sans ligne affiche
+  « Aucune ligne » (plus de ligne « Article / null ») ; **KB-PL7-4** l'import exige le titre « Inventaire INV-… du … » correspondant
+  à l'inventaire (400 sinon ; autre inventaire : 422 inchangé) et refuse un motif d'écart sur un lot compté conforme (400,
+  `INVENTORY_SHEET_MOTIF_WITHOUT_GAP`) ; **KB-PL7-5** l'impression du PV (`INVENTAIRE_PV_IMPRESSION`) et le téléchargement de la
+  feuille (`INVENTAIRE_FEUILLE_TELECHARGEMENT`) sont journalisés (la réponse 403/422 l'est aussi). Reproduits, à confirmer par les
+  métiers avant le 2026-12-15 : KB-PL7-3 (caractères hors police), lot « sans lot » = référence d'inventaire après clôture, lots
+  négatifs ou arrondis à 0 absents, quantité théorique de la feuille arrondie à 2 décimales.
+  *Source :* `InventairesControleur`, `ProcesVerbalRenduParDocuments`, `FeuilleDeComptageExcel`.
 
 ## 8.7 Alertes et traçabilité
 

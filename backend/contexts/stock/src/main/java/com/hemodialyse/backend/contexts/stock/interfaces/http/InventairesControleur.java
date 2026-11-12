@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.stock.interfaces.http;
 
 import com.hemodialyse.backend.contexts.stock.application.SessionCourante;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage;
+import com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleInvalide;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.GestionDesInventaires;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.ProcesVerbalDInventaire;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,8 +74,10 @@ public class InventairesControleur {
      */
     @PreAuthorize(LECTURE_SEULE)
     @GetMapping("/{id}/rapport")
-    public ResponseEntity<byte[]> rapport(@PathVariable UUID id, @RequestParam(required = false) UUID centerId) {
-        Inventaire inventaire = inventaires.consulter(session.centre(centerId), id);
+    public ResponseEntity<byte[]> rapport(@PathVariable String id, @RequestParam(required = false) String centerId) {
+        // PL7, KB-PL7-1 (corrigé le 2026-11-12) : paramètre illisible = 400 propre (le legacy répondait 500).
+        UUID identifiant = lire(id);
+        Inventaire inventaire = inventaires.consulter(session.centre(lireFacultatif(centerId)), identifiant);
         ProcesVerbalDInventaire.Document document = procesVerbal.imprimer(inventaire, session.nomUtilisateur());
         String base = "inventaire-" + inventaire.reference();
         return switch (document.format().toUpperCase(Locale.ROOT)) {
@@ -86,6 +90,41 @@ public class InventairesControleur {
                     .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
                             .filename(base + ".pdf", StandardCharsets.UTF_8).build().toString())
                     .body(document.contenu());
+        };
+    }
+
+    /** PL7, KB-PL7-1 (corrigé le 2026-11-12) : un autre verbe sur le PV ou la feuille = 405 (le legacy répondait 500). */
+    @PreAuthorize(LECTURE_SEULE)
+    @RequestMapping(value = "/{id}/rapport", method = {RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE})
+    public ResponseEntity<Void> rapportVerbeNonGere() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).header(HttpHeaders.ALLOW, "GET, HEAD, OPTIONS").build();
+    }
+
+    @PreAuthorize(LECTURE_SEULE)
+    @RequestMapping(value = "/{id}/feuille-comptage", method = {RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE})
+    public ResponseEntity<Void> feuilleVerbeNonGere() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).header(HttpHeaders.ALLOW, "GET, HEAD, POST, OPTIONS").build();
+    }
+
+    private static UUID lire(String brut) {
+        try {
+            return UUID.fromString(brut);
+        } catch (IllegalArgumentException e) {
+            throw new IdentifiantIllisible();
+        }
+    }
+
+    private static UUID lireFacultatif(String brut) {
+        return brut == null || brut.isBlank() ? null : lire(brut);
+    }
+
+    /** Booléen comme la conversion de Spring (true/on/yes/1, false/off/no/0) ; vide = vrai (défaut, « à l'aveugle »). */
+    private static boolean lireAveugle(String brut) {
+        if (brut == null || brut.isBlank()) return true;
+        return switch (brut.trim().toLowerCase(Locale.ROOT)) {
+            case "true", "on", "yes", "1" -> true;
+            case "false", "off", "no", "0" -> false;
+            default -> throw new IdentifiantIllisible();
         };
     }
 
@@ -166,14 +205,17 @@ public class InventairesControleur {
      */
     @PreAuthorize(LECTURE_SEULE)
     @GetMapping("/{id}/feuille-comptage")
-    public ResponseEntity<byte[]> feuilleDeComptage(@PathVariable UUID id, @RequestParam(required = false) UUID centerId,
-                                                    @RequestParam(defaultValue = "true") boolean aveugle) {
-        Inventaire inventaire = inventaires.consulter(session.centre(centerId), id);
+    public ResponseEntity<byte[]> feuilleDeComptage(@PathVariable String id, @RequestParam(required = false) String centerId,
+                                                    @RequestParam(required = false) String aveugle) {
+        UUID identifiant = lire(id);
+        UUID centre = lireFacultatif(centerId);
+        boolean sansTheorique = lireAveugle(aveugle);
+        Inventaire inventaire = inventaires.consulter(session.centre(centre), identifiant);
         HttpHeaders entetes = new HttpHeaders();
         entetes.setContentType(XLSX);
         entetes.setContentDisposition(ContentDisposition.attachment()
                 .filename("feuille-comptage-" + inventaire.reference() + ".xlsx", StandardCharsets.UTF_8).build());
-        return ResponseEntity.ok().headers(entetes).body(feuille.ecrire(inventaire, aveugle));
+        return ResponseEntity.ok().headers(entetes).body(feuille.ecrire(inventaire, sansTheorique));
     }
 
     /**
@@ -182,9 +224,15 @@ public class InventairesControleur {
      */
     @PreAuthorize(READ)
     @PostMapping(value = "/{id}/feuille-comptage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ImportReponse importerLaFeuille(@PathVariable UUID id, @RequestParam("file") MultipartFile fichier,
-                                           @RequestParam(required = false) UUID centerId) {
-        CentreId centre = session.centre(centerId);
+    public ImportReponse importerLaFeuille(@PathVariable("id") String identifiantBrut, @RequestParam(value = "file", required = false) MultipartFile fichier,
+                                           @RequestParam(required = false) String centerId) {
+        UUID id = lire(identifiantBrut);
+        UUID centreDemande = lireFacultatif(centerId);
+        // PL7, KB-PL7-1 (corrigé le 2026-11-12) : partie « file » absente = 400 propre (le legacy répondait 500).
+        if (fichier == null) {
+            throw new FeuilleInvalide("IMPORT_FILE_MISSING", "Le fichier à importer (partie « file ») est absent.");
+        }
+        CentreId centre = session.centre(centreDemande);
         Inventaire inventaire = inventaires.consulter(centre, id);
         inventaire.exigerEnCours();
         byte[] contenu;

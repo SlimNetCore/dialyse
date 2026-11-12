@@ -103,7 +103,7 @@ class InventaireStockReportTemplateTest {
         Inventaire inv = Inventaire.ouvrir(UUID.randomUUID(), new CentreId(UUID.randomUUID()), "INV-00042", LocalDate.of(2026, 9, 30),
                 "Inventaire annuel", "pharma", NOW, lignes).cloturer("pharma", NOW);
 
-        Map<String, Object> p = new InventaireReportService(null).params(inv, "admin", NOW);
+        Map<String, Object> p = com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.ProcesVerbalRenduParDocuments.params(inv, "admin", NOW);
         p.put("CENTER_ID", inv.centre().valeur().toString());
         p.put("SOCIETE_NOM", "Clinique Néphro Santé");
         p.put("SOCIETE_PIED_PAGE", "SARL au capital de 1 000 000 DA");

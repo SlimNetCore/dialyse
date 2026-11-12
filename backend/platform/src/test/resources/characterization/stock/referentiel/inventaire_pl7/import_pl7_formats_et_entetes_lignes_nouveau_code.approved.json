@@ -1,0 +1,64 @@
+[ {
+  "position_ligne" : "0",
+  "article_code" : "A1",
+  "numero_lot" : "L-TOT",
+  "quantite_theorique" : "3.000",
+  "quantite_comptee" : "2.000",
+  "motif_ecart" : "CASSE",
+  "compte_par" : "u",
+  "ajoutee" : "false"
+}, {
+  "position_ligne" : "1",
+  "article_code" : "A1",
+  "numero_lot" : "L-TARD",
+  "quantite_theorique" : "5.000",
+  "quantite_comptee" : null,
+  "motif_ecart" : null,
+  "compte_par" : null,
+  "ajoutee" : "false"
+}, {
+  "position_ligne" : "2",
+  "article_code" : "A2",
+  "numero_lot" : null,
+  "quantite_theorique" : "2.000",
+  "quantite_comptee" : null,
+  "motif_ecart" : null,
+  "compte_par" : null,
+  "ajoutee" : "false"
+}, {
+  "position_ligne" : "3",
+  "article_code" : "A4",
+  "numero_lot" : null,
+  "quantite_theorique" : "10.000",
+  "quantite_comptee" : null,
+  "motif_ecart" : null,
+  "compte_par" : null,
+  "ajoutee" : "false"
+}, {
+  "position_ligne" : "4",
+  "article_code" : "A5",
+  "numero_lot" : null,
+  "quantite_theorique" : "10.000",
+  "quantite_comptee" : null,
+  "motif_ecart" : null,
+  "compte_par" : null,
+  "ajoutee" : "false"
+}, {
+  "position_ligne" : "5",
+  "article_code" : "A6",
+  "numero_lot" : null,
+  "quantite_theorique" : "10.000",
+  "quantite_comptee" : "9.000",
+  "motif_ecart" : null,
+  "compte_par" : "u",
+  "ajoutee" : "false"
+}, {
+  "position_ligne" : "6",
+  "article_code" : "A7",
+  "numero_lot" : null,
+  "quantite_theorique" : "10.000",
+  "quantite_comptee" : null,
+  "motif_ecart" : null,
+  "compte_par" : null,
+  "ajoutee" : "false"
+} ]

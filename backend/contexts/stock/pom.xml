@@ -70,6 +70,18 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- PL7 : langage publié de Documents (documents.v1, RenduDeDocument) : seul point d'entrée vers Documents (ArchUnit) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!-- PL7 : feuille de comptage Excel, même version que la plateforme -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
 </dependencies>
 
     <build>

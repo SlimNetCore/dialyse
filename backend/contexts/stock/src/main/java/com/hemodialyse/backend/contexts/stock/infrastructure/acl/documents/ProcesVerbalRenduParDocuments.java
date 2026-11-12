@@ -1,17 +1,18 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.DocumentRendu;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
 import com.hemodialyse.backend.contexts.stock.application.inventaire.ProcesVerbalDInventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.StatutDInventaire;
-import net.sf.jasperreports.engine.JRParameter;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,24 +24,39 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Procès-verbal d'inventaire du contexte Stock (port {@link ProcesVerbalDInventaire}) : modèle de document
- * {@value ModeleDocumentCatalog#INVENTAIRE_STOCK}, imprimé via {@link ModeleDocumentPrinter} (version personnalisée du centre si
- * elle existe, identité société + centre posée par le serveur). Les lignes sont lues par la requête du modèle ; l'en-tête de
- * l'inventaire, les indicateurs et l'analyse des écarts par motif sont calculés ici et passés en paramètres.
+ * ACL vers Documents (documents.v1, PL7) : le procès-verbal d'inventaire est rendu par le port {@link RenduDeDocument}, type
+ * {@value #TYPE_DE_DOCUMENT}, avec le modèle actif du centre (format du modèle). Traduit l'inventaire en paramètres du modèle
+ * (en-tête, indicateurs, analyse des écarts par motif) ; les lignes sont lues par la requête du modèle ; Documents pose le papier
+ * en-tête. Les refus du rendu (modèle désactivé, génération impossible) remontent tels quels.
  */
-@Service
-public class InventaireReportService implements ProcesVerbalDInventaire {
+public class ProcesVerbalRenduParDocuments implements ProcesVerbalDInventaire {
 
+    public static final String TYPE_DE_DOCUMENT = "INVENTAIRE_STOCK";
+
+    private static final String TYPE_TABLEUR = "spreadsheetml";
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
     private static final Map<String, String> MOTIFS = Map.of(
             "CASSE", "Casse", "PEREMPTION", "Péremption", "ERREUR_SAISIE", "Erreur de saisie", "PERTE", "Perte / vol",
             "NON_ENREGISTRE", "Mouvement non enregistré", "RETOUR", "Retour", "AUTRE", "Autre");
 
-    private final ModeleDocumentPrinter printer;
+    private final RenduDeDocument documents;
 
-    public InventaireReportService(ModeleDocumentPrinter printer) {
-        this.printer = printer;
+    public ProcesVerbalRenduParDocuments(RenduDeDocument documents) {
+        this.documents = documents;
+    }
+
+    @Override
+    public Document imprimer(Inventaire inventaire, String editePar) {
+        DocumentRendu rendu = documents.rendre(inventaire.centre().valeur(), TYPE_DE_DOCUMENT,
+                params(inventaire, editePar, OffsetDateTime.now()), null);
+        return new Document(format(rendu.typeMime()), rendu.octets());
+    }
+
+    static String format(String typeMime) {
+        if (typeMime != null && typeMime.contains(TYPE_TABLEUR)) return "EXCEL";
+        if (typeMime != null && typeMime.startsWith("text/html")) return "HTML";
+        return "PDF";
     }
 
     private static void indicateurs(Map<String, Object> p, List<LigneDInventaire> lignes) {
@@ -140,14 +156,14 @@ public class InventaireReportService implements ProcesVerbalDInventaire {
      */
     private static String format(BigDecimal v, String pattern) {
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.FRANCE);
-        symbols.setGroupingSeparator('\u00A0');
+        symbols.setGroupingSeparator(' ');
         symbols.setDecimalSeparator(',');
         symbols.setMinusSign('-');
         return new DecimalFormat(pattern, symbols).format(v);
     }
 
     private static String stamp(OffsetDateTime t) {
-        return t == null ? "—" : t.atZoneSameInstant(java.time.ZoneOffset.UTC).format(STAMP);
+        return t == null ? "—" : t.atZoneSameInstant(ZoneOffset.UTC).format(STAMP);
     }
 
     private static String by(String user) {
@@ -158,16 +174,12 @@ public class InventaireReportService implements ProcesVerbalDInventaire {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    @Override
-    public Document imprimer(Inventaire inv, String editePar) {
-        ModeleDocumentPrinter.Document document = printer.print(inv.centre().valeur(), ModeleDocumentCatalog.INVENTAIRE_STOCK,
-                params(inv, editePar, OffsetDateTime.now()));
-        return new Document(document.format(), document.content());
-    }
-
-    Map<String, Object> params(Inventaire inv, String editePar, OffsetDateTime editeLe) {
+    /**
+     * Paramètres du modèle {@value #TYPE_DE_DOCUMENT} (public : le test du modèle, côté plateforme, les rejoue).
+     */
+    public static Map<String, Object> params(Inventaire inv, String editePar, OffsetDateTime editeLe) {
         Map<String, Object> p = new HashMap<>();
-        p.put(JRParameter.REPORT_LOCALE, Locale.FRANCE);
+        p.put("REPORT_LOCALE", Locale.FRANCE);
         StatutDInventaire statut = inv.statut();
         p.put("INVENTAIRE_ID", inv.id().toString());
         p.put("INV_REFERENCE", inv.reference());
@@ -207,4 +219,3 @@ public class InventaireReportService implements ProcesVerbalDInventaire {
         return p;
     }
 }
-
