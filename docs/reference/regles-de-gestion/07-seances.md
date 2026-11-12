@@ -356,7 +356,7 @@
   les tests, le PDF arrondit à 2 décimales). **KB-SEA-85 corrigé, à confirmer par les métiers (infirmier référent, médecins) et le DPO au plus tard
   le 2026-12-15** (mêmes rôles `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` ; export `ADMIN` ; les moyennes ne portent plus sur les séances non
   réalisées, ni sur un volet d'un autre centre).
-  *Source :* `StatistiquesDesSeancesPubliees`, `StatistiquesDesSeancesJdbc`, `PatientStatsQueryService`.
+  *Source :* `StatistiquesDesSeancesPubliees`, `StatistiquesDesSeancesJdbc`, `SeancesDuPatientPubliees` (ex `PatientStatsQueryService`, PL4).
 
 - **RG-SEA-067** — **Cahier de dialyse et usage d'un forfait : comptages publiés** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
   lecture seule, comportement inchangé). Le refus `CAHIER_VIDE` compte par le langage publié de la Séance les séances du patient au

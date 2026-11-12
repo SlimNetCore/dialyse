@@ -1,0 +1,17 @@
+{
+  "01 reponse" : {
+    "avgPoidsApresKg" : "69.625",
+    "avgPoidsAvantKg" : "71.625",
+    "avgUfReelleMl" : "1625.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ "date_seance=<D+10> poids_avant_kg=70.0 poids_apres_kg=68.0 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0", "date_seance=<D+20> poids_avant_kg=71.5 poids_apres_kg=69.5 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0", "date_seance=<D+30> poids_avant_kg=72.0 poids_apres_kg=70.0 poids_sec_cible_kg=68.0 uf_reelle_ml=1500.0", "date_seance=<D+40> poids_avant_kg=73.0 poids_apres_kg=71.0 poids_sec_cible_kg=66.5 uf_reelle_ml=1000.0", "date_seance=<D+50> poids_avant_kg=null poids_apres_kg=null poids_sec_cible_kg=66.5 uf_reelle_ml=null" ],
+    "poidsSecCibleKg" : "66.5",
+    "seanceCount" : "5",
+    "status" : 200,
+    "taEvolution" : [ "date_seance=<D+10> ta_systolique_avant=130 ta_diastolique_avant=80 ta_systolique_apres=120 ta_diastolique_apres=70", "date_seance=<D+20> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=<D+30> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=140 ta_diastolique_apres=90", "date_seance=<D+40> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=<D+50> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null" ]
+  },
+  "02 en-tete Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+  "03 la recherche par corps rend exactement la meme chose que la lecture" : true,
+  "04 type et format du corps ignores" : true,
+  "05 aucune ecriture" : true
+}

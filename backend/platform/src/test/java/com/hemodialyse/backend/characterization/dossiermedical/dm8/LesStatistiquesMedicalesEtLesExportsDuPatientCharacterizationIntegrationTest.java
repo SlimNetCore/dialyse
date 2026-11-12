@@ -149,7 +149,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
     }
 
     @Test
-    void sans_donnee_les_moyennes_valent_zero_et_les_tendances_sont_vides_meme_pour_un_patient_inconnu_ou_d_un_autre_centre() throws Exception {
+    void sans_donnee_les_moyennes_valent_zero_et_les_tendances_sont_vides_et_un_patient_inconnu_ou_d_un_autre_centre_est_refuse_en_404() throws Exception {
         jeuDeDonnees();
         UUID sans = patientDm8(CENTRE_A, "PAT_SANS");
         UUID valeursNulles = patientDm8(CENTRE_A, "PAT_NULLES");
@@ -284,7 +284,7 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
     }
 
     @Test
-    void le_centre_demande_doit_etre_celui_de_la_session_et_un_patient_d_un_autre_centre_ne_rend_rien() throws Exception {
+    void le_centre_demande_doit_etre_celui_de_la_session_et_un_patient_d_un_autre_centre_est_refuse_en_404() throws Exception {
         jeuDeDonnees();
         String avant = empreinteLecteurs();
         Map<String, Object> m = new LinkedHashMap<>();
@@ -300,15 +300,16 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         b.put("02 ADMIN sans centre de session : export", refus(doGet(exportApi(patientA, CENTRE_A, "csv", ""), as(null, "ADMIN"))));
         b.put("03 SUPERADMIN + ADMIN (session A) : export du centre B", refus(doGet(exportApi(patientB, CENTRE_B, "csv", ""), as(CENTRE_A, "SUPERADMIN", "ADMIN"))));
         b.put("04 session B lit le patient du centre A avec son propre centre : aucune donnee", synthese(doGet(medical(patientA, CENTRE_B, ""), medecinB())));
-        b.put("05 session B exporte le patient du centre A avec son propre centre (ADMIN B) : en-tete seul",
-                telechargement(binaire(exportApi(patientA, CENTRE_B, "csv", ""), as(CENTRE_B, "ADMIN"))).get("lignes"));
+        // PL4 (KB-PL4-2) : le patient d'un autre centre est refuse en 404 (avant : en-tete seul) ; on garde la reponse entiere, pas seulement ses lignes.
+        b.put("05 session B exporte le patient du centre A avec son propre centre (ADMIN B)",
+                telechargement(binaire(exportApi(patientA, CENTRE_B, "csv", ""), as(CENTRE_B, "ADMIN"))));
         m.put("02 sessions particulieres", b);
         m.put("03 aucune ecriture", empreinteLecteurs().equals(avant));
-        arbre("cloisonnement", m);
+        arbre("cloisonnement_nouveau_code", m);
     }
 
     @Test
-    void les_lectures_ne_sont_pas_journalisees_mais_les_recherches_par_corps_le_sont_comme_des_creations() throws Exception {
+    void les_lectures_ne_sont_pas_journalisees_mais_les_recherches_par_corps_le_sont_comme_des_consultations() throws Exception {
         jeuDeDonnees();
         monterLAudit();
         doGet(medical(patientA, CENTRE_A, ""), medecinA());
@@ -322,6 +323,6 @@ class LesStatistiquesMedicalesEtLesExportsDuPatientCharacterizationIntegrationTe
         doPost(PATIENTS_API + "/stats/medical/search", recherche(CENTRE_B, patientB, null, null, null), medecinA());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 }

@@ -1,0 +1,47 @@
+{
+  "01 patient sans seance" : {
+    "avgPoidsApresKg" : "0.0",
+    "avgPoidsAvantKg" : "0.0",
+    "avgUfReelleMl" : "0.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ ],
+    "poidsSecCibleKg" : "null",
+    "seanceCount" : "0",
+    "status" : 200,
+    "taEvolution" : [ ]
+  },
+  "02 patient inconnu" : {
+    "corps" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "status" : 404
+  },
+  "03 patient du centre B demande par la session A avec centerId=A" : {
+    "corps" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "status" : 404
+  },
+  "04 patient du centre A demande par la session B avec centerId=B" : {
+    "corps" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+    "status" : 404
+  },
+  "05 le centre B voit ses propres seances" : {
+    "avgPoidsApresKg" : "78.0",
+    "avgPoidsAvantKg" : "80.0",
+    "avgUfReelleMl" : "800.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ "date_seance=<D+15> poids_avant_kg=80.0 poids_apres_kg=78.0 poids_sec_cible_kg=null uf_reelle_ml=800.0" ],
+    "poidsSecCibleKg" : "null",
+    "seanceCount" : "1",
+    "status" : 200,
+    "taEvolution" : [ "date_seance=<D+15> ta_systolique_avant=110 ta_diastolique_avant=70 ta_systolique_apres=115 ta_diastolique_apres=75" ]
+  },
+  "06 recherche : patient sans seance" : {
+    "avgPoidsApresKg" : "0.0",
+    "avgPoidsAvantKg" : "0.0",
+    "avgUfReelleMl" : "0.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ ],
+    "poidsSecCibleKg" : "null",
+    "seanceCount" : "0",
+    "status" : 200,
+    "taEvolution" : [ ]
+  }
+}

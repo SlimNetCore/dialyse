@@ -53,15 +53,16 @@ class FrontieresDesContextesTest {
             .because("GET /api/v1/patients/{id}/greffe/kdigo est servi par contexts/dossier-medical (EvaluationKdigoControleur, DM9, ADR 0101)");
 
     /**
-     * DM9 (ADR 0101) : la plateforme lit le dossier de greffe, les statistiques, les indicateurs cliniques et l'anémie par les langages
-     * publiés du Dossier médical ; aucune de ces classes ne construit plus de requête SQL ({@code JdbcTemplate}).
+     * PL4 (ADR 0139) : les statistiques du patient (six routes, volets paramédical et médical, exports CSV et PDF) sont servies par
+     * {@code contexts/dossier-medical} ({@code StatistiquesDuPatientControleur}) ; le contrôleur, le service de présentation et le corps de
+     * recherche de la plateforme ne doivent pas réapparaître (deux contrôleurs sur la même URL empêcheraient le démarrage).
      */
     @ArchTest
-    static final ArchRule les_lecteurs_medicaux_de_la_plateforme_passent_par_les_langages_publies_du_dossier_medical = noClasses()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
-            .should().dependOnClassesThat().haveFullyQualifiedName("org.springframework.jdbc.core.JdbcTemplate")
-            .because("le calcul médical vit dans contexts/dossier-medical (DossierDeGreffePublie, StatistiquesMedicalesPubliees, "
-                    + "IndicateursCliniquesPublies, ADR 0101) ; la plateforme ne garde que la présentation");
+    static final ArchRule les_statistiques_du_patient_ne_sont_plus_servies_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.PatientStatsRestController")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.dto.request.PatientStatsSearchRequest")
+            .because("GET et POST stats/paramedical, stats/medical et stats/export sont servis par contexts/dossier-medical (PL4, ADR 0139)");
 
     /**
      * SE7f (ADR 0100) : le module Maven {@code bc-seance} est retiré ; aucune classe du dépôt ne doit réintroduire ses paquets legacy
@@ -501,9 +502,9 @@ class FrontieresDesContextesTest {
 
     @ArchTest
     static final ArchRule les_statistiques_du_patient_lisent_les_seances_par_le_langage_publie = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.SeancesDuPatientPubliees")
             .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "StatistiquesDesSeancesPubliees")
-            .because("les statistiques du patient lisent les séances par seance.v1 (ADR 0099, SE7e)");
+            .because("les statistiques du patient (Dossier médical, PL4) lisent les séances par seance.v1 (ADR 0099, SE7e)");
 
     @ArchTest
     static final ArchRule le_cahier_compte_ses_seances_par_le_langage_publie = classes()

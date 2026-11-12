@@ -1,0 +1,16 @@
+{
+  "01 GET centerId absent" : "400 BAD_REQUEST | Paramètre obligatoire absent : centerId",
+  "02 GET centerId illisible" : "400 BAD_REQUEST | Paramètre illisible : centerId",
+  "03 GET patientId illisible" : "400 BAD_REQUEST | Paramètre illisible : patientId",
+  "04 GET from illisible" : "400 BAD_REQUEST | Paramètre illisible : from",
+  "05 GET to au mauvais format (jj/mm/aaaa)" : "400 BAD_REQUEST | Paramètre illisible : to",
+  "06 GET from posterieur a to" : "400 INVALID_DATE_RANGE",
+  "07 POST centerId absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "08 POST patientId absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "09 POST dateFrom posterieure a dateTo" : "400 INVALID_DATE_RANGE",
+  "10 POST corps illisible" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "11 POST corps absent" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "12 POST dateFrom illisible" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "13 POST centre d'un autre et plage inversee : garde de centre d'abord (KB-PL4-5)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session",
+  "14 GET centre d'un autre et plage inversee : garde de centre d'abord (KB-PL4-5)" : "403 ACCESS_DENIED | Accès refusé : le centre demandé ne correspond pas à la session"
+}

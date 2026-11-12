@@ -36,6 +36,20 @@ class AuditActionResolverTest {
         assertFalse(AuditActionResolver.isTracked(null, "/api/v1/patients"));
     }
 
+    /** PL4 (KB-PL4-4, ADR 0139) : la consultation de statistiques par corps (POST) est une lecture, journalisee sous son action propre. */
+    @Test
+    void the_patient_statistics_searches_are_audited_as_a_consultation_not_as_a_creation() {
+        for (String route : new String[]{"/api/v1/patients/stats/paramedical/search", "/api/v1/patients/stats/medical/search",
+                "/api/v1/patients/stats/export/search"}) {
+            assertTrue(AuditActionResolver.isTracked("POST", route));
+            var action = AuditActionResolver.resolve("POST", route);
+            assertEquals("STATISTIQUES_PATIENT_CONSULTATION", action.actionCode());
+            assertEquals("patients", action.entityType());
+            assertEquals("Statistiques du patient consultées", action.libelle());
+        }
+        assertEquals("PATIENTS_CREATION", AuditActionResolver.resolve("POST", "/api/v1/patients/{id}/stats/autre").actionCode());
+    }
+
     @Test
     void resolves_a_readable_action_code_and_label_per_resource_and_verb() {
         var created = AuditActionResolver.resolve("POST", "/api/v1/patients");

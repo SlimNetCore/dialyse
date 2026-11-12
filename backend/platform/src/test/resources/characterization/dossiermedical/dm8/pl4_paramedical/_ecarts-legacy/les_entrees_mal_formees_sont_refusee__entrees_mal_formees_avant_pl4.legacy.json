@@ -1,0 +1,16 @@
+{
+  "01 GET centerId absent" : "500 INTERNAL_ERROR",
+  "02 GET centerId illisible" : "500 INTERNAL_ERROR",
+  "03 GET patientId illisible" : "500 INTERNAL_ERROR",
+  "04 GET from illisible" : "500 INTERNAL_ERROR",
+  "05 GET to au mauvais format (jj/mm/aaaa)" : "500 INTERNAL_ERROR",
+  "06 GET from posterieur a to" : "400 INVALID_DATE_RANGE",
+  "07 POST centerId absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "08 POST patientId absent" : "400 VALIDATION_ERROR | Invalid request content.",
+  "09 POST dateFrom posterieure a dateTo" : "400 INVALID_DATE_RANGE",
+  "10 POST corps illisible" : "500 INTERNAL_ERROR",
+  "11 POST corps absent" : "500 INTERNAL_ERROR",
+  "12 POST dateFrom illisible" : "500 INTERNAL_ERROR",
+  "13 POST centre d'un autre : plage inversee testee avant la garde de centre" : "400 INVALID_DATE_RANGE",
+  "14 GET centre d'un autre : plage inversee testee avant la garde de centre" : "400 INVALID_DATE_RANGE"
+}

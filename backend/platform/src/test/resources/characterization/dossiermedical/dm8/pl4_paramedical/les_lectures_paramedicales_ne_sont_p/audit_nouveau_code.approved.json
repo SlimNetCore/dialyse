@@ -1,0 +1,19 @@
+{
+  "journal" : [ {
+    "action_code" : "STATISTIQUES_PATIENT_CONSULTATION",
+    "entity_id" : null,
+    "entity_type" : "patients",
+    "http_method" : "POST",
+    "nombre" : "2",
+    "route_template" : "/api/v1/patients/stats/paramedical/search",
+    "status_code" : "200"
+  }, {
+    "action_code" : "STATISTIQUES_PATIENT_CONSULTATION",
+    "entity_id" : null,
+    "entity_type" : "patients",
+    "http_method" : "POST",
+    "nombre" : "1",
+    "route_template" : "/api/v1/patients/stats/paramedical/search",
+    "status_code" : "403"
+  } ]
+}

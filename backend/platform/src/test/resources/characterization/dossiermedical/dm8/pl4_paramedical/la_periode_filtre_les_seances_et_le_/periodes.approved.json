@@ -1,0 +1,76 @@
+{
+  "01 du 11 au 29 (une seule seance)" : {
+    "avgPoidsApresKg" : "69.5",
+    "avgPoidsAvantKg" : "71.5",
+    "avgUfReelleMl" : "2000.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ "date_seance=<D+20> poids_avant_kg=71.5 poids_apres_kg=69.5 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0" ],
+    "poidsSecCibleKg" : "68.0",
+    "seanceCount" : "1",
+    "status" : 200,
+    "taEvolution" : [ "date_seance=<D+20> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null" ]
+  },
+  "02 jusqu'a D+3 (poids sec : aucune prescription encore en vigueur)" : {
+    "avgPoidsApresKg" : "0.0",
+    "avgPoidsAvantKg" : "0.0",
+    "avgUfReelleMl" : "0.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ ],
+    "poidsSecCibleKg" : "null",
+    "seanceCount" : "0",
+    "status" : 200,
+    "taEvolution" : [ ]
+  },
+  "03 jusqu'a D+34 (poids sec de la premiere prescription)" : {
+    "avgPoidsApresKg" : "69.166666666667",
+    "avgPoidsAvantKg" : "71.166666666667",
+    "avgUfReelleMl" : "1833.333333333333",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ "date_seance=<D+10> poids_avant_kg=70.0 poids_apres_kg=68.0 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0", "date_seance=<D+20> poids_avant_kg=71.5 poids_apres_kg=69.5 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0", "date_seance=<D+30> poids_avant_kg=72.0 poids_apres_kg=70.0 poids_sec_cible_kg=68.0 uf_reelle_ml=1500.0" ],
+    "poidsSecCibleKg" : "68.0",
+    "seanceCount" : "3",
+    "status" : 200,
+    "taEvolution" : [ "date_seance=<D+10> ta_systolique_avant=130 ta_diastolique_avant=80 ta_systolique_apres=120 ta_diastolique_apres=70", "date_seance=<D+20> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=<D+30> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=140 ta_diastolique_apres=90" ]
+  },
+  "04 jusqu'a D+35 (borne incluse : seconde prescription)" : {
+    "avgPoidsApresKg" : "69.166666666667",
+    "avgPoidsAvantKg" : "71.166666666667",
+    "avgUfReelleMl" : "1833.333333333333",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ "date_seance=<D+10> poids_avant_kg=70.0 poids_apres_kg=68.0 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0", "date_seance=<D+20> poids_avant_kg=71.5 poids_apres_kg=69.5 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0", "date_seance=<D+30> poids_avant_kg=72.0 poids_apres_kg=70.0 poids_sec_cible_kg=68.0 uf_reelle_ml=1500.0" ],
+    "poidsSecCibleKg" : "66.5",
+    "seanceCount" : "3",
+    "status" : 200,
+    "taEvolution" : [ "date_seance=<D+10> ta_systolique_avant=130 ta_diastolique_avant=80 ta_systolique_apres=120 ta_diastolique_apres=70", "date_seance=<D+20> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null", "date_seance=<D+30> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=140 ta_diastolique_apres=90" ]
+  },
+  "05 periode vide apres toutes les seances" : {
+    "avgPoidsApresKg" : "0.0",
+    "avgPoidsAvantKg" : "0.0",
+    "avgUfReelleMl" : "0.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ ],
+    "poidsSecCibleKg" : "66.5",
+    "seanceCount" : "0",
+    "status" : 200,
+    "taEvolution" : [ ]
+  },
+  "06 from posterieur a to" : {
+    "corps" : "400 INVALID_DATE_RANGE",
+    "status" : 400
+  },
+  "07 recherche : dateFrom posterieure a dateTo" : {
+    "corps" : "400 INVALID_DATE_RANGE",
+    "status" : 400
+  },
+  "08 recherche : un seul jour" : {
+    "avgPoidsApresKg" : "69.5",
+    "avgPoidsAvantKg" : "71.5",
+    "avgUfReelleMl" : "2000.0",
+    "cles" : [ "seanceCount", "avgPoidsAvantKg", "avgPoidsApresKg", "avgUfReelleMl", "poidsSecCibleKg", "poidsEvolution", "taEvolution" ],
+    "poidsEvolution" : [ "date_seance=<D+20> poids_avant_kg=71.5 poids_apres_kg=69.5 poids_sec_cible_kg=68.0 uf_reelle_ml=2000.0" ],
+    "poidsSecCibleKg" : "68.0",
+    "seanceCount" : "1",
+    "status" : 200,
+    "taEvolution" : [ "date_seance=<D+20> ta_systolique_avant=null ta_diastolique_avant=null ta_systolique_apres=null ta_diastolique_apres=null" ]
+  }
+}

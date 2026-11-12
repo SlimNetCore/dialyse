@@ -469,8 +469,8 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 - **RG-MED-049d** — *Statistiques médicales du patient et leur export, garde DM8 (`stats/medical`, `stats/export`, y compris
   les POST de recherche, ADR 0087 ; complète RG-MED-101)* : calculs, clés de tendance en MAJUSCULES, moyennes à 0.0, formats
   CSV et PDF et droits **inchangés** (reproduit) ; date illisible, paramètre `format` absent ou corps de recherche illisible :
-  400 (avant : 500) ; 403 avant 400 ; les POST de recherche restent journalisés `PATIENTS_CREATION` (libellé trompeur
-  reproduit, KB-MED-100, à confirmer avec le DPO).
+  400 (avant : 500) ; 403 avant 400 ; les POST de recherche étaient journalisés `PATIENTS_CREATION` (KB-MED-100) : **corrigé par PL4**,
+  ils portent l'action de lecture `STATISTIQUES_PATIENT_CONSULTATION` (RG-MED-049i, KB-PL4-4).
 - **RG-MED-049e** — *Indicateurs Direction, période et totaux (`/api/v1/direction/indicators`, ADR 0087)* : `from` ou `to`
   illisible : 400 (avant : 500) ; 403 avant 400. **KB-MED-104 CORRIGÉ le 2026-11-09 (lot L1, RG-MED-049g, validation DPO attendue au plus
   tard le 2026-12-15)** : les effectifs inférieurs à 5 sont masqués par centre ; avant, les totaux additionnaient les valeurs non masquées et
@@ -495,7 +495,7 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   sérologie conclusive (positive ou négative) décide ; reproduits : à égalité totale le positif l'emporte
   (KB-MED-107), lecture par le centre de la sérologie ou de l'abord et non de la fiche (KB-MED-108) ;
   (d) **reproduits, à confirmer** : KB-MED-104 (CORRIGÉ depuis le 2026-11-09, voir RG-MED-049g), KB-MED-100 (audit inégal, trois `POST stats/*/search` sans appelant
-  frontend conservés), KB-MED-109 (ordre non défini à date égale dans les tendances, le CSV et le PDF ; double comptage des taux de la
+  frontend conservés ; libellé d'action CORRIGÉ par PL4, RG-MED-049i), KB-MED-109 (ordre non défini à date égale dans les tendances, le CSV et le PDF ; double comptage des taux de la
   Direction) ;
   (e) **effacement des administrations d'une séance supprimée** fourni à la Séance par le Dossier médical
   (`Administrations.effacerCellesDeLaSeance`, même unité de travail que la suppression, RG-SEA) ;
@@ -527,6 +527,24 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   par les médecins avant mise en production : détection §75.1 de `verifications-production.md`). **Non modifié** : la règle propre de l'indicateur
   Direction des porteurs positifs (RG-MED-049e, KB-MED-105), où un douteux plus récent compte encore « non positif ».
   *Source :* `RisqueInfectieux`, `PatientsARisqueInfectieuxJdbc`.
+- **RG-MED-049i** — *Statistiques du patient : reprise sur place PL4 (ADR 0139, 2026-11-12)* : les six routes (`GET` et `POST .../search` de
+  `stats/paramedical`, `stats/medical` et `stats/export`) sont servies par `contexts/dossier-medical` (`StatistiquesDuPatientControleur`, cas
+  d'usage `ConsulterLesStatistiquesParamedicales`, `ConsulterLesStatistiquesMedicales`, `ExporterLesStatistiquesDuPatient`) ; URL, droits
+  (volets : `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` ; exports : `ADMIN` seul), champs JSON, calculs, CSV (six colonnes) et PDF
+  **inchangés**. Ordre des gardes : (1) **centre de la session** : 403 `ACCESS_DENIED` (**KB-PL4-5 CORRIGÉ** : avant, une plage inversée
+  sur le centre d'un autre donnait 400 avant le 403) ; (2) **période** : début après fin = 400 `INVALID_DATE_RANGE` ; (3) **format**
+  (exports) : ni `pdf` ni `csv` = 400 `INVALID_EXPORT_FORMAT` ; (4) **patient du centre** : inconnu **ou d'un autre centre** = 404
+  `PATIENT_INTROUVABLE`, même réponse sans divulgation inter-centres (**KB-PL4-2 CORRIGÉ** : avant, 200 avec des zéros). **KB-PL4-1 CORRIGÉ** :
+  `centerId` absent ou illisible, `patientId`, `from`, `to` ou `dateFrom` illisibles, corps POST illisible ou absent = 400 `BAD_REQUEST`
+  (avant : 500 sur les volets paramédicaux ; le 403 d'un profil sans droit passe avant ce 400) ; centre ou patient absent d'un corps lisible =
+  400 `VALIDATION_ERROR`. **KB-PL4-3 REPRODUIT** (dette consignée) : une tension illisible (« bizarre », « 9/5 », « 1000/50 ») est rendue
+  `null` sans signal ; seuls 2 ou 3 chiffres de part et d'autre de `/` ou `-` sont lus. **KB-PL4-4 CORRIGÉ** : une consultation par corps
+  (`POST stats/paramedical/search`, `stats/medical/search`, `stats/export/search`) est journalisée sous l'action de lecture
+  `STATISTIQUES_PATIENT_CONSULTATION` (« Statistiques du patient consultées », entité `patients`), y compris sur un refus 403, et non plus
+  `PATIENTS_CREATION` ; le journal historique n'est pas réécrit. Le poids sec cible est celui de la dernière prescription datée au plus tard de
+  la fin de la période (sinon du jour UTC).
+  *Source :* `StatistiquesDuPatientControleur`, `GardeDesStatistiques`, `Tension`, `PeriodeDeStatistiques`, `FormatDExport`,
+  `SeancesDuPatientPubliees`, `StatistiquesDuPatientEnPdf`, `AuditActionResolver`.
 
 ## 11.11 Constantes, statistiques et export interopérable
 

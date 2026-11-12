@@ -2,6 +2,17 @@ package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.CalculerLesIndicateursCliniques;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConstituerLeDossierDeGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesStatistiquesMedicales;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLesStatistiquesParamedicales;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ExporterLesStatistiquesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ImpressionDesStatistiquesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.application.SeancesDuPatient;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.SeancesDuPatientPubliees;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.impression.StatistiquesDuPatientEnPdf;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.StatistiquesDuPatientControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.PapierEnTeteDuCentre;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees;
+import java.time.Clock;
 import com.hemodialyse.backend.contexts.dossiermedical.application.EvaluerLeCandidatALaGreffe;
 import com.hemodialyse.backend.contexts.dossiermedical.application.HorlogeDuCentre;
 import com.hemodialyse.backend.contexts.dossiermedical.application.IdentitesDesPatients;
@@ -89,6 +100,48 @@ public class IndicateursEtStatistiquesConfiguration {
     @Bean
     EvaluationKdigoControleur evaluationKdigoControleur(EvaluerLeCandidatALaGreffe evaluer) {
         return new EvaluationKdigoControleur(evaluer);
+    }
+
+    // ------------------------------------------------------------------ statistiques du patient (PL4)
+
+    /** ACL vers {@code seance.v1} : les séances du patient et leur volet paramédical. */
+    @Bean
+    SeancesDuPatient seancesDuPatientDuDossierMedical(StatistiquesDesSeancesPubliees statistiques) {
+        return new SeancesDuPatientPubliees(statistiques);
+    }
+
+    /** Le papier à en-tête du centre est fourni par la plateforme ; l'heure « Généré le » est celle du serveur, en UTC (règle d'architecture de la plateforme). */
+    @Bean
+    ImpressionDesStatistiquesDuPatient impressionDesStatistiquesDuPatient(PapierEnTeteDuCentre papierEnTete) {
+        return new StatistiquesDuPatientEnPdf(papierEnTete, Clock.systemUTC());
+    }
+
+    @Bean
+    ConsulterLesStatistiquesParamedicales consulterLesStatistiquesParamedicales(SessionCourante session, PatientsDuCentre patients,
+                                                                                SeancesDuPatient seances, StatistiquesMedicalesPubliees medicales,
+                                                                                @Qualifier("horlogeDuDossierDeBase") HorlogeDuCentre horloge) {
+        return new ConsulterLesStatistiquesParamedicales(session, patients, seances, medicales, horloge);
+    }
+
+    @Bean
+    ConsulterLesStatistiquesMedicales consulterLesStatistiquesMedicales(SessionCourante session, PatientsDuCentre patients,
+                                                                        StatistiquesMedicalesPubliees medicales) {
+        return new ConsulterLesStatistiquesMedicales(session, patients, medicales);
+    }
+
+    @Bean
+    ExporterLesStatistiquesDuPatient exporterLesStatistiquesDuPatient(SessionCourante session, PatientsDuCentre patients, SeancesDuPatient seances,
+                                                                      StatistiquesMedicalesPubliees medicales,
+                                                                      @Qualifier("horlogeDuDossierDeBase") HorlogeDuCentre horloge,
+                                                                      ImpressionDesStatistiquesDuPatient impression) {
+        return new ExporterLesStatistiquesDuPatient(session, patients, seances, medicales, horloge, impression);
+    }
+
+    @Bean
+    StatistiquesDuPatientControleur statistiquesDuPatientControleur(ConsulterLesStatistiquesParamedicales paramedicales,
+                                                                    ConsulterLesStatistiquesMedicales medicales,
+                                                                    ExporterLesStatistiquesDuPatient exporter) {
+        return new StatistiquesDuPatientControleur(paramedicales, medicales, exporter);
     }
 
     /** seance.v1 : fourni à la Séance pour la suppression d'une séance (SE6). */

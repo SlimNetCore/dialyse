@@ -9,9 +9,9 @@
     },
     "status" : 200
   },
-  "02 patient inconnu" : "avgHb=0.0 avgKtV=0.0 avgFerritine=0.0 ; hbTrend=[] ; epoTrend=[]",
-  "03 patient du centre B lu par la session A (centre A demande)" : "avgHb=0.0 avgKtV=0.0 avgFerritine=0.0 ; hbTrend=[] ; epoTrend=[]",
-  "04 patient du centre A lu par la session B (centre B demande)" : "avgHb=0.0 avgKtV=0.0 avgFerritine=0.0 ; hbTrend=[] ; epoTrend=[]",
+  "02 patient inconnu" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "03 patient du centre B lu par la session A (centre A demande)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
+  "04 patient du centre A lu par la session B (centre B demande)" : "404 PATIENT_INTROUVABLE | Patient introuvable dans ce centre",
   "05 bilan sans aucune des trois valeurs moyennees" : "avgHb=0.0 avgKtV=0.0 avgFerritine=0.0 ; hbTrend=[<D+10>://] ; epoTrend=[]",
   "06 centerId absent" : "400 BAD_REQUEST | Paramètre obligatoire absent : centerId",
   "07 centerId illisible" : "400 BAD_REQUEST | Paramètre illisible : centerId"

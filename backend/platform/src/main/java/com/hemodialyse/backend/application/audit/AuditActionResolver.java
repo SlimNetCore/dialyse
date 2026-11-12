@@ -29,6 +29,9 @@ public final class AuditActionResolver {
             "/api/v1/patients/{patientId}/dossier-medical"
     );
 
+    private static final Resolved ACTION_STATISTIQUES_PATIENT =
+            new Resolved("STATISTIQUES_PATIENT_CONSULTATION", "patients", "Statistiques du patient consultées");
+
     /**
      * Libellés métier des écritures du référentiel des infirmiers (slice P2, décision du 26/10/2026 : KB-PLN-17), par
      * « MÉTHODE gabarit de route ». L'identifiant tracé est celui de la fiche (variable de chemin, ou fiche créée).
@@ -66,7 +69,12 @@ public final class AuditActionResolver {
             Map.entry("DELETE /api/v1/pec/attestations/{attestationId}",
                     new Resolved("ATTESTATION_SUPPRESSION", "attestations", "Attestation supprimée")),
             Map.entry("POST /api/v1/pec/attestations-center/search",
-                    new Resolved("ATTESTATION_RECHERCHE", "attestations", "Recherche d'attestations")));
+                    new Resolved("ATTESTATION_RECHERCHE", "attestations", "Recherche d'attestations")),
+            // Statistiques du patient (PL4, décision du 2026-11-12, KB-PL4-4) : les recherches par corps sont des LECTURES ; elles ne sont plus
+            // journalisées « PATIENTS_CREATION ». Le journal historique n'est pas réécrit.
+            Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),
+            Map.entry("POST /api/v1/patients/stats/medical/search", ACTION_STATISTIQUES_PATIENT),
+            Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT));
 
     private AuditActionResolver() {
     }
