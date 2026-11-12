@@ -1,0 +1,13 @@
+{
+  "modeles avant" : [ ],
+  "format du document" : "PDF",
+  "document" : {
+    "entete" : "%PDF-",
+    "pages" : 1,
+    "images" : 2,
+    "texte par page" : [ "Societe Papier 1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz NIF : NIF-1 · NIS : NIS-2 · RC : RC-3 Centre Papier 2 rue Beta, Blida – Tipaza Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz LISTE DES PATIENTS Code Nom Prénom Sexe GS Naissance Admission N° Assurance Tél mobile État ZT-P2 BENALI Karim M 15/06/1975 00:00 02/01/2026 00:00 ASS-ZT-2 ACTIF ZT-P1 DURAND Amel F 01/01/1980 00:00 02/01/2026 00:00 ASS-ZT-1 ACTIF Imprimé le <HORODATAGE> Page 1 Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Mention legale de test" ]
+  },
+  "modeles apres" : [ "LISTE_PATIENTS|Liste des patients|LISTE_PATIENTS|reports/liste_patients.jrxml|PDF|true" ],
+  "seconde impression (casse differente) : modeles" : 1,
+  "seconde impression : meme texte" : true
+}

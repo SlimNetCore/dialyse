@@ -1,0 +1,31 @@
+{
+  "FICHE_PATIENT patient inconnu (tableur)" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=fiche-patient.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ ]
+  },
+  "FICHE_PATIENT patient du centre E demande au centre D (tableur)" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=fiche-patient.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ ]
+  },
+  "FICHE_PATIENT patientId illisible" : {
+    "statut" : 500,
+    "contentType" : "text/plain",
+    "corps" : "Erreur d'impression: Error executing SQL statement for: fiche_patient."
+  },
+  "ATTESTATION patient du centre E (tableur)" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=attestation.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ ]
+  }
+}

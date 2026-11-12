@@ -1,0 +1,79 @@
+{
+  "page=0&size=3" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 3,
+    "items" : [ "<N07> non lue", "<N06> non lue", "<N05> non lue" ]
+  },
+  "page=1&size=3" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 1,
+    "size" : 3,
+    "items" : [ "<N04> non lue", "<N03> non lue", "<N02> non lue" ]
+  },
+  "page=2&size=3" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 2,
+    "size" : 3,
+    "items" : [ "<N01> non lue" ]
+  },
+  "page=9&size=3" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 9,
+    "size" : 3,
+    "items" : [ ]
+  },
+  "size=0" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 1,
+    "items" : [ "<N07> non lue" ]
+  },
+  "size=-5" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 1,
+    "items" : [ "<N07> non lue" ]
+  },
+  "size=5000" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 100,
+    "items" : [ "<N07> non lue", "<N06> non lue", "<N05> non lue", "<N04> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "page=-3&size=2" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 2,
+    "items" : [ "<N07> non lue", "<N06> non lue" ]
+  },
+  "size=100" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 100,
+    "items" : [ "<N07> non lue", "<N06> non lue", "<N05> non lue", "<N04> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "size=101" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 0,
+    "size" : 100,
+    "items" : [ "<N07> non lue", "<N06> non lue", "<N05> non lue", "<N04> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "page=1" : {
+    "statut" : 200,
+    "total" : 7,
+    "page" : 1,
+    "size" : 50,
+    "items" : [ ]
+  }
+}

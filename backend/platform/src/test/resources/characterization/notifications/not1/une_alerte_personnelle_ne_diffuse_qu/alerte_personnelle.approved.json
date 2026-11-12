@@ -1,0 +1,51 @@
+{
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "payload" : {
+        "targetUserId" : "<INF>",
+        "targetRoles" : "ADMIN"
+      },
+      "id" : "<N62>",
+      "type" : "INFIRMIER_ROULEMENT_MODIFIE",
+      "timestamp" : "<HORLOGE>"
+    }
+  } ],
+  "journal du compte infirmier" : {
+    "statut" : 200,
+    "cacheControl" : "no-store",
+    "corps" : {
+      "items" : [ {
+        "id" : "<N62>",
+        "type" : "INFIRMIER_ROULEMENT_MODIFIE",
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "infirmierId" : "<N60>",
+          "targetRoles" : "ADMIN",
+          "targetUserId" : "<INF>",
+          "runId" : "<N61>"
+        },
+        "timestamp" : "<HORLOGE>",
+        "lue" : false
+      } ],
+      "total" : 1,
+      "page" : 0,
+      "size" : 50
+    }
+  },
+  "journal d'un autre infirmier" : {
+    "statut" : 200,
+    "total" : 0,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ ]
+  },
+  "journal admin" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N62> non lue" ]
+  }
+}

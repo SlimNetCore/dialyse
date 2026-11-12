@@ -1,0 +1,84 @@
+{
+  "sans corps" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "corps vide {}" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "ids null" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "ids illisible" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "ids n'est pas un tableau" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "ids contient null" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "json casse" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "champ inconnu seul" : {
+    "statut" : 500,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "<message technique Spring non verrouille>",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "lignes de lecture apres tous ces essais" : 0
+}

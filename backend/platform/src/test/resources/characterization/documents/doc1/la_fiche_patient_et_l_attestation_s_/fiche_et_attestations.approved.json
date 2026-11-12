@@ -1,0 +1,45 @@
+{
+  "FICHE_PATIENT pdf" : {
+    "statut" : 200,
+    "contentType" : "application/pdf",
+    "contentDisposition" : "inline; filename=fiche-patient.pdf",
+    "entete" : "%PDF-",
+    "pages" : 2,
+    "images" : 2,
+    "texte par page" : [ "Societe Papier 1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz NIF : NIF-1 · NIS : NIS-2 · RC : RC-3 Centre Papier 2 rue Beta, Blida – Tipaza Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Centre Papier FICHE SIGNALÉTIQUE DU PATIENT Imprimé le <HORODATAGE> Page 1 Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Mention legale de test", "Identité du patient Code patient : ZT-P1 N° Assurance : ASS-ZT-1 Civilité : Nom : DURAND Prénom : Amel Sexe : F Gr. sanguin : Date naissance : 01/01/1980 00:00 Lieu naissance : Date admission : 02/01/2026 00:00 Sit. familiale : Profession : Coordonnées Adresse : Tél personnel : Tél mobile : E-mail : État et observations État patient : ACTIF Patient sous KT : Non Observation : Informations de l'assuré Qualité : ASSURE Nom : Prénom : Imprimé le <HORODATAGE> Page 2 Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Mention legale de test" ]
+  },
+  "FICHE_PATIENT tableur" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=fiche-patient.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ "1: 10=Societe Papier | 38=Centre Papier", "3: 38=2 rue Beta, Blida – Tipaza", "5: 10=1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz", "7: 38=Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "9: 10=NIF : NIF-1 · NIS : NIS-2 · RC : RC-3", "13: 1=Centre Papier", "15: 1=FICHE SIGNALÉTIQUE DU PATIENT", "19: 1=Imprimé le <HORODATAGE> | 53=Page 1", "23: 1=Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "24: 1=Mention legale de test", "27: 1=Identité du patient", "29: 1=Code patient : | 14=ZT-P1 | 33=N° Assurance : | 45=ASS-ZT-1", "31: 1=Civilité : | 18=Nom : | 23=DURAND | 40=Prénom : | 51=Amel", "33: 1=Sexe : | 3=F | 16=Gr. sanguin : | 35=Date naissance : | 50=01/01/1980 00:00", "35: 1=Lieu naissance : | 33=Date admission : | 48=02/01/2026 00:00", "37: 1=Sit. familiale : | 26=Profession :", "39: 1=Coordonnées", "41: 1=Adresse :", "43: 1=Tél personnel : | 22=Tél mobile : | 47=E-mail :", "45: 1=État et observations", "47: 1=État patient : | 12=ACTIF | 30=Patient sous KT : | 43=Non", "49: 1=Observation :", "52: 1=Informations de l'assuré", "54: 1=Qualité : | 5=ASSURE | 20=Nom : | 42=Prénom :", "56: 1=Imprimé le <HORODATAGE> | 53=Page 2", "60: 1=Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "61: 1=Mention legale de test" ]
+  },
+  "ATTESTATION par patientId pdf" : {
+    "statut" : 200,
+    "contentType" : "application/pdf",
+    "contentDisposition" : "inline; filename=attestation.pdf",
+    "entete" : "%PDF-",
+    "pages" : 1,
+    "images" : 2,
+    "texte par page" : [ "Societe Papier 1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz NIF : NIF-1 · NIS : NIS-2 · RC : RC-3 Centre Papier 2 rue Beta, Blida – Tipaza Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Centre Papier ATTESTATION D'OUVERTURE DE DROIT N° Sécurité sociale : ASS-ZT-1 Nom : DURAND Prénom : Amel Date naissance : 01/01/1980 00:00 Période de validité Date début : 01/01/2026 00:00 Date fin : 01/01/2027 00:00 Imprimé le <HORODATAGE> Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Mention legale de test" ]
+  },
+  "ATTESTATION par attestationId pdf" : {
+    "statut" : 200,
+    "contentType" : "application/pdf",
+    "contentDisposition" : "inline; filename=attestation.pdf",
+    "entete" : "%PDF-",
+    "pages" : 1,
+    "images" : 2,
+    "texte par page" : [ "Societe Papier 1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz NIF : NIF-1 · NIS : NIS-2 · RC : RC-3 Centre Papier 2 rue Beta, Blida – Tipaza Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Centre Papier ATTESTATION D'OUVERTURE DE DROIT N° Sécurité sociale : ASS-ZT-1 Nom : DURAND Prénom : Amel Date naissance : 01/01/1980 00:00 Période de validité Date début : 01/01/2026 00:00 Date fin : 01/01/2027 00:00 Imprimé le <HORODATAGE> Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz Mention legale de test" ]
+  },
+  "LISTE_ATTESTATIONS tableur" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=liste-attestations.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ "1: 3=Societe Papier | 8=Centre Papier", "3: 8=2 rue Beta, Blida – Tipaza", "5: 3=1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz", "7: 8=Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "9: 3=NIF : NIF-1 · NIS : NIS-2 · RC : RC-3", "13: 1=LISTE DES OUVERTURES DE DROIT", "15: 1=Code | 4=Nom | 5=Prénom | 6=N° Assurance | 9=Date début | 10=Date fin", "17: 1=ZT-P1 | 4=DURAND | 5=Amel | 6=ASS-ZT-1 | 9=01/01/2026 00:00 | 10=01/01/2027 00:00", "21: 1=Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "22: 1=Mention legale de test" ]
+  }
+}

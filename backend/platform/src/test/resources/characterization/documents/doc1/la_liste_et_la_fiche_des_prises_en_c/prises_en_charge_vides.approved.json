@@ -1,0 +1,28 @@
+{
+  "LISTE_PEC tableur" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=liste-pec.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ ]
+  },
+  "LISTE_PEC pdf" : {
+    "statut" : 200,
+    "contentType" : "application/pdf",
+    "contentDisposition" : "inline; filename=liste-pec.pdf",
+    "entete" : "%PDF-",
+    "pages" : 1,
+    "images" : 0,
+    "texte par page" : [ "" ]
+  },
+  "PEC d'un patient sans prise en charge (pdf)" : {
+    "statut" : 200,
+    "contentType" : "application/pdf",
+    "contentDisposition" : "inline; filename=pec.pdf",
+    "entete" : "%PDF-",
+    "pages" : 1,
+    "images" : 0,
+    "texte par page" : [ "" ]
+  }
+}

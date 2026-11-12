@@ -1,0 +1,27 @@
+{
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "payload" : {
+        "patientId" : "<N50>",
+        "nom" : "Benali",
+        "patientCode" : "P-50",
+        "prenom" : "Karim"
+      },
+      "type" : "PATIENT_CREATED",
+      "timestamp" : "<HORLOGE>"
+    }
+  } ],
+  "journal admin" : {
+    "statut" : 200,
+    "cacheControl" : "no-store",
+    "corps" : {
+      "items" : [ ],
+      "total" : 0,
+      "page" : 0,
+      "size" : 50
+    }
+  },
+  "evenements en base" : 0
+}

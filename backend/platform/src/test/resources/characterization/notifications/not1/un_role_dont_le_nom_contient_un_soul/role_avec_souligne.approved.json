@@ -1,0 +1,23 @@
+{
+  "role GMAO_REFORME (N01 cible ; N02 vise GMAOXREFORME)" : {
+    "statut" : 200,
+    "total" : 2,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N02> non lue", "<N01> non lue" ]
+  },
+  "role GMAOXREFORME (N02 cible)" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N02> non lue" ]
+  },
+  "role GMAO_RECTIFICATION (autre nom)" : {
+    "statut" : 200,
+    "total" : 0,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ ]
+  }
+}

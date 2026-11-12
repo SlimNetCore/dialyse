@@ -1,0 +1,79 @@
+{
+  "ADMIN" : {
+    "statut" : 200,
+    "total" : 4,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "SECRETAIRE" : {
+    "statut" : 200,
+    "total" : 2,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N03> non lue", "<N02> non lue" ]
+  },
+  "MEDECIN" : {
+    "statut" : 200,
+    "total" : 2,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N06> non lue", "<N03> non lue" ]
+  },
+  "INFIRMIER (compte destinataire de N05)" : {
+    "statut" : 200,
+    "total" : 3,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> non lue", "<N04> non lue", "<N03> non lue" ]
+  },
+  "INFIRMIER (autre compte)" : {
+    "statut" : 200,
+    "total" : 2,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N04> non lue", "<N03> non lue" ]
+  },
+  "ADMIN + MEDECIN" : {
+    "statut" : 200,
+    "total" : 5,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N06> non lue", "<N05> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "SUPERADMIN seul" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N03> non lue" ]
+  },
+  "DIRECTION" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N03> non lue" ]
+  },
+  "COMPTABLE (role inconnu)" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N03> non lue" ]
+  },
+  "aucun role" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N03> non lue" ]
+  },
+  "ADMIN du centre B" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N07> non lue" ]
+  }
+}

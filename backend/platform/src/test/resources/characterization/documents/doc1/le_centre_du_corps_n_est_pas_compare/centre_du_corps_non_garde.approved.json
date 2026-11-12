@@ -1,0 +1,18 @@
+{
+  "session D, liste du centre E" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=liste-patients.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ "1: 3=Societe Nue | 11=Centre Nu", "13: 1=LISTE DES PATIENTS", "17: 1=Code | 2=Nom | 4=Prénom | 6=Sexe | 7=GS | 8=Naissance | 9=Admission | 12=N° Assurance | 14=Tél mobile | 15=État", "19: 1=ZT-PE | 2=MARTIN | 4=Zoe | 6=F | 8=03/03/1990 00:00 | 9=02/01/2026 00:00 | 12=ASS-ZT-E | 15=ACTIF", "21: 1=Imprimé le <HORODATAGE> | 13=Page 1", "25: 1=Centre Nu" ]
+  },
+  "session D, fiche d'un patient du centre E" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=fiche-patient.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ "1: 9=Societe Nue | 37=Centre Nu", "13: 1=Centre Nu", "15: 1=FICHE SIGNALÉTIQUE DU PATIENT", "19: 1=Imprimé le <HORODATAGE> | 52=Page 1", "23: 1=Centre Nu", "27: 1=Identité du patient", "29: 1=Code patient : | 13=ZT-PE | 32=N° Assurance : | 44=ASS-ZT-E", "31: 1=Civilité : | 17=Nom : | 22=MARTIN | 39=Prénom : | 50=Zoe", "33: 1=Sexe : | 3=F | 15=Gr. sanguin : | 34=Date naissance : | 49=03/03/1990 00:00", "35: 1=Lieu naissance : | 32=Date admission : | 47=02/01/2026 00:00", "37: 1=Sit. familiale : | 25=Profession :", "39: 1=Coordonnées", "41: 1=Adresse :", "43: 1=Tél personnel : | 21=Tél mobile : | 46=E-mail :", "45: 1=État et observations", "47: 1=État patient : | 11=ACTIF | 29=Patient sous KT : | 42=Non", "49: 1=Observation :", "52: 1=Informations de l'assuré", "54: 1=Qualité : | 5=ASSURE | 19=Nom : | 41=Prénom :", "56: 1=Imprimé le <HORODATAGE> | 52=Page 2", "60: 1=Centre Nu" ]
+  }
+}

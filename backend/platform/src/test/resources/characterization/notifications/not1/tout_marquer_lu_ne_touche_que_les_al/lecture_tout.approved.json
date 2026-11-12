@@ -1,0 +1,36 @@
+{
+  "1 lecture-tout (admin)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "2 liste admin" : {
+    "statut" : 200,
+    "total" : 4,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> lue", "<N03> lue", "<N02> lue", "<N01> lue" ]
+  },
+  "3 lignes de lecture admin (N01 N02 N03 N05 attendus)" : 4,
+  "4 rejouer" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "5 lignes de lecture apres rejeu" : 4,
+  "6 liste du medecin (non lues)" : {
+    "statut" : 200,
+    "total" : 2,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N06> non lue", "<N03> non lue" ]
+  },
+  "7 lecture-tout infirmier (compte destinataire)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "8 lignes de lecture de l'infirmier (N03 N04 N05)" : 3,
+  "9 lecture-tout sans aucun role (tout le monde seulement)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "10 lignes de lecture sans role" : 1
+}

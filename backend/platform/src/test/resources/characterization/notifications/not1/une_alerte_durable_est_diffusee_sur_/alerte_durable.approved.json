@@ -1,0 +1,42 @@
+{
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "payload" : {
+        "nbPatients" : "1",
+        "patients" : "BENALI Karim",
+        "generateur" : "A-G1",
+        "targetRoles" : "ADMIN,SECRETAIRE",
+        "statut" : "HORS_SERVICE"
+      },
+      "id" : "<UUID_INCONNU>",
+      "type" : "GENERATEUR_INDISPONIBLE",
+      "timestamp" : "<HORLOGE>"
+    }
+  } ],
+  "journal admin" : {
+    "statut" : 200,
+    "cacheControl" : "no-store",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID_INCONNU>",
+        "type" : "GENERATEUR_INDISPONIBLE",
+        "centerId" : "<CENTRE_A>",
+        "payload" : {
+          "nbPatients" : "1",
+          "patients" : "BENALI Karim",
+          "generateur" : "A-G1",
+          "targetRoles" : "ADMIN,SECRETAIRE",
+          "statut" : "HORS_SERVICE"
+        },
+        "timestamp" : "<HORLOGE>",
+        "lue" : false
+      } ],
+      "total" : 1,
+      "page" : 0,
+      "size" : 50
+    }
+  },
+  "la diffusion et le journal portent le meme identifiant" : true
+}

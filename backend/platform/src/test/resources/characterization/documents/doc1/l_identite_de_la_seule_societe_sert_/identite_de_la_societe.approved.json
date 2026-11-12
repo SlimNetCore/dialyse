@@ -1,0 +1,11 @@
+{
+  "societe connue" : {
+    "nom" : "Societe Papier",
+    "contact" : "1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz",
+    "legal" : "NIF : NIF-1 · NIS : NIS-2 · RC : RC-3",
+    "piedPage" : "Mention legale de test",
+    "logo (octets)" : 70
+  },
+  "societe inconnue" : false,
+  "societe null" : false
+}

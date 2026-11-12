@@ -1,0 +1,41 @@
+{
+  "1 marquer N01 et N02 (admin)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "2 liste admin" : {
+    "statut" : 200,
+    "total" : 4,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> non lue", "<N03> non lue", "<N02> lue", "<N01> lue" ]
+  },
+  "3 liste du second admin (rien de lu)" : {
+    "statut" : 200,
+    "total" : 4,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "4 rejouer N01 + doublon N01 + id inconnu" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "5 liste vide d'ids" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "6 N07 est au centre B (ignore)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "7 N04 reserve aux infirmiers, marque par un admin (accepte)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "8 N08 hors fenetre (accepte)" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "lignes de lecture de l'admin / du second admin" : [ 4, 0 ]
+}

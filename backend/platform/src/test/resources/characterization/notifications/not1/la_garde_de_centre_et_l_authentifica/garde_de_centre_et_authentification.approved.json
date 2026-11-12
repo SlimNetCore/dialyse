@@ -1,0 +1,83 @@
+{
+  "GET centerId = centre de la session" : {
+    "statut" : 200,
+    "total" : 4,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "GET centerId = autre centre (admin A)" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/notifications",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "POST lecture centerId = autre centre" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/notifications/lecture",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "POST lecture-tout centerId = autre centre" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/notifications/lecture-tout",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "GET anonyme" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "POST lecture anonyme" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "POST lecture-tout anonyme" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "GET session sans centre (admin)" : {
+    "statut" : 403,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "corps" : {
+      "detail" : "Session sans centre de rattachement",
+      "instance" : "/api/v1/notifications",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "GET SUPERADMIN+ADMIN centerId = centre B" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N07> non lue" ]
+  },
+  "GET SUPERADMIN seul centerId = centre B" : {
+    "statut" : 200,
+    "cacheControl" : "no-store",
+    "corps" : {
+      "items" : [ ],
+      "total" : 0,
+      "page" : 0,
+      "size" : 50
+    }
+  },
+  "lignes de lecture creees par les refus" : 0
+}

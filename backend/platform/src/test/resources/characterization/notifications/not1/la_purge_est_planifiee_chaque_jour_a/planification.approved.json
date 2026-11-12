@@ -1,0 +1,4 @@
+{
+  "cron" : "0 40 3 * * *",
+  "conservation en jours (champ package-private)" : 60
+}

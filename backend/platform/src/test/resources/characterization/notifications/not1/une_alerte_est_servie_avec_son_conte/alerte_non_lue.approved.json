@@ -1,0 +1,22 @@
+{
+  "statut" : 200,
+  "cacheControl" : "no-store",
+  "corps" : {
+    "items" : [ {
+      "id" : "<N01>",
+      "type" : "GENERATEUR_INDISPONIBLE",
+      "centerId" : "<CENTRE_A>",
+      "payload" : {
+        "generateur" : "A-G1",
+        "statut" : "HORS_SERVICE",
+        "patients" : "BENALI Karim",
+        "targetRoles" : "ADMIN,MEDECIN"
+      },
+      "timestamp" : "<HORLOGE>",
+      "lue" : false
+    } ],
+    "total" : 1,
+    "page" : 0,
+    "size" : 50
+  }
+}

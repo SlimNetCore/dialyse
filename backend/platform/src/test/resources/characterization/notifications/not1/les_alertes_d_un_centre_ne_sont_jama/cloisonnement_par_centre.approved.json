@@ -1,0 +1,25 @@
+{
+  "1 liste du centre B" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N07> non lue" ]
+  },
+  "2 B marque N01 (centre A) lue" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "3 lecture-tout du centre B" : {
+    "statut" : 204,
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate"
+  },
+  "4 liste admin A (N01 reste non lue)" : {
+    "statut" : 200,
+    "total" : 4,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<N05> non lue", "<N03> non lue", "<N02> non lue", "<N01> non lue" ]
+  },
+  "5 lignes de lecture de B (N07 seulement)" : 1
+}

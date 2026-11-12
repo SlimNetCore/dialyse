@@ -1,0 +1,53 @@
+{
+  "diffusions" : [ {
+    "destination" : "/topic/center/<CENTRE_A>/events",
+    "message" : {
+      "centerId" : "<CENTRE_A>",
+      "payload" : {
+        "valeur" : "3",
+        "perimetre" : "COUVERTURE",
+        "targetRoles" : "ADMIN",
+        "runId" : "<N80>",
+        "motif" : "SOUS_EFFECTIF"
+      },
+      "id" : "<UUID_INCONNU>",
+      "type" : "OPTIMISATION_PROPOSITION",
+      "timestamp" : "<HORLOGE>"
+    }
+  }, {
+    "destination" : "/topic/center/<CENTRE_B>/events",
+    "message" : {
+      "centerId" : "<CENTRE_B>",
+      "payload" : {
+        "debut" : "2026-09-28",
+        "infirmier" : "Sara Amrani",
+        "fin" : "2026-09-29",
+        "targetRoles" : "ADMIN,MEDECIN"
+      },
+      "id" : "<UUID_INCONNU>",
+      "type" : "INFIRMIER_ABSENCE_ENREGISTREE",
+      "timestamp" : "<HORLOGE>"
+    }
+  } ],
+  "journal admin A" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<UUID_INCONNU> non lue" ]
+  },
+  "journal medecin A" : {
+    "statut" : 200,
+    "total" : 0,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ ]
+  },
+  "journal medecin B" : {
+    "statut" : 200,
+    "total" : 1,
+    "page" : 0,
+    "size" : 50,
+    "items" : [ "<UUID_INCONNU> non lue" ]
+  }
+}

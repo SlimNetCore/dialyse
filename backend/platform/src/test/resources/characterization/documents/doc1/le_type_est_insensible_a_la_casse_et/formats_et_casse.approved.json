@@ -1,0 +1,47 @@
+{
+  "format [pdf]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=liste-patients.pdf",
+    "statut" : 200
+  },
+  "format [PDF]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=liste-patients.pdf",
+    "statut" : 200
+  },
+  "format [excel]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=liste-patients.xlsx",
+    "statut" : 200
+  },
+  "format [XLS]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=liste-patients.xlsx",
+    "statut" : 200
+  },
+  "format [xlsx]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=liste-patients.xlsx",
+    "statut" : 200
+  },
+  "format [HTML]" : {
+    "contentType" : "text/html",
+    "disposition" : "null",
+    "statut" : 200
+  },
+  "format [html]" : {
+    "contentType" : "text/html",
+    "disposition" : "null",
+    "statut" : 200
+  },
+  "format [DOCX]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=liste-patients.pdf",
+    "statut" : 200
+  },
+  "format []" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=liste-patients.pdf",
+    "statut" : 200
+  }
+}

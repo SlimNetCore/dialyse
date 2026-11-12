@@ -1,0 +1,7 @@
+{
+  "1 dans la transaction, avant commit : diffusions" : 0,
+  "2 apres commit : diffusions" : 1,
+  "3 apres commit : evenements en base" : 1,
+  "4 apres annulation : diffusions" : 0,
+  "5 apres annulation : evenements en base (le premier seulement)" : 1
+}
