@@ -460,9 +460,25 @@ class FrontieresDesContextesTest {
      */
     @ArchTest
     static final ArchRule le_tableau_de_bord_et_le_rapport_sont_servis_par_le_pilotage_direction_via_son_langage_publie = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.TableauDeBordDeLaDirectionControleur")
             .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage..")
             .because("le contrôleur consomme le Pilotage direction par son langage publié (PD1, PD4, ADR 0102)");
+
+    /**
+     * PL10b1 (ADR 0151) : les cinq routes du tableau de bord (societe, overview, breakdown, indicators, alerts/history) sont servies par le
+     * Pilotage avec sa session de la direction ; le contrôleur de la plateforme (gmao, stock-groupes, capacite, absences) n'y revient pas.
+     */
+    @ArchTest
+    static final ArchRule le_controleur_de_la_plateforme_ne_sert_plus_les_routes_du_tableau_de_bord_du_pilotage = noClasses()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
+            .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection..")
+            .because("le tableau de bord de la direction est servi par contexts/pilotage-direction (PL10b1, ADR 0151)");
+
+    @ArchTest
+    static final ArchRule le_tableau_de_bord_est_servi_par_la_session_de_la_direction_du_pilotage = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.TableauDeBordDeLaDirectionControleur")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection")
+            .because("la société vient de la session, jamais d'un paramètre (PL10b1, ADR 0151)");
 
     /**
      * PD3 (ADR 0104) : les alertes et le temps réel de la direction sont repris par le Pilotage direction. Les signaleurs de la plateforme
@@ -494,7 +510,7 @@ class FrontieresDesContextesTest {
 
     @ArchTest
     static final ArchRule le_controleur_des_indicateurs_les_lit_par_le_langage_publie_du_pilotage = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.interfaces.http.TableauDeBordDeLaDirectionControleur")
             .should().dependOnClassesThat().haveFullyQualifiedName(
                     "com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection")
             .because("GET /api/v1/direction/indicators est servi par IndicateursDeLaDirection (PD6, ADR 0106)");

@@ -1,0 +1,23 @@
+{
+  "limit=" : "400 BAD_REQUEST",
+  "limit=%205" : "400 BAD_REQUEST",
+  "limit=%D9%A5" : "400 BAD_REQUEST",
+  "limit=+7" : "400 BAD_REQUEST",
+  "limit=-2147483648" : "200 x1",
+  "limit=007" : "200 x7",
+  "limit=0x10" : "400 BAD_REQUEST",
+  "limit=1" : "200 x1",
+  "limit=1&limit=2" : "400 BAD_REQUEST",
+  "limit=1.5" : "400 BAD_REQUEST",
+  "limit=199" : "200 x199",
+  "limit=1e2" : "400 BAD_REQUEST",
+  "limit=200" : "200 x200",
+  "limit=201" : "200 x200",
+  "limit=2147483647" : "200 x200",
+  "limit=2147483648" : "400 BAD_REQUEST",
+  "limit=3 avec societeId et from illisible" : "200 x3",
+  "limit=5%20" : "400 BAD_REQUEST",
+  "limit=abc&limit=2" : "400 BAD_REQUEST",
+  "sans limit (50 par defaut)" : "200 x50",
+  "societe sans centre" : "200 x0"
+}

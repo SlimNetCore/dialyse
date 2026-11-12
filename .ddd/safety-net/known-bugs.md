@@ -2298,7 +2298,9 @@ Goldens : `backend/platform/src/test/resources/characterization/gmao/pilotage/bo
 
 ## Tableau de bord de la Direction PL10b (filet complémentaire de PD1/PD3/PD6, 2026-11-12) : KB-PL10b-1 à 6
 
-Neuf routes `GET /api/v1/direction/{societe,overview,breakdown,indicators,gmao,stock-groupes,capacite,absences,alerts/history}` (`DirectionDashboardRestController`). Non corrigés.
+Neuf routes `GET /api/v1/direction/{societe,overview,breakdown,indicators,gmao,stock-groupes,capacite,absences,alerts/history}` (`DirectionDashboardRestController`).
+
+**CORRIGÉ (2026-11-12, PL10b1, ADR 0151) pour les cinq routes servies par le Pilotage (`societe, overview, breakdown, indicators, alerts/history`, `TableauDeBordDeLaDirectionControleur`) ; décisions de l'utilisateur valables pour les 9 routes, À APPLIQUER en PL10b2 aux quatre autres (`gmao, stock-groupes, capacite, absences`) :** KB-PL10b-1 (garde avant paramètres : 403 avant 400, y compris société inactive), KB-PL10b-2 (consultation journalisée, action `DIRECTION_TABLEAU_DE_BORD_CONSULTATION`, refus 403 et 400 compris), KB-PL10b-3 (chemins voisins 404, `Accept` incompatible y compris XML 406), KB-PL10b-4 (déjà le jour d'Alger sur ces cinq routes ; à aligner sur les quatre autres), KB-PL10b-5 (seuil unique du Pilotage, PD5-R9 : à appliquer aux quatre autres ; à confirmer métiers/DPO avant le 2026-12-15), KB-PL10b-6 (`limit` en entiers décimaux ASCII ; `limit` vide, répété, `0x10`, `+7`, espaces, chiffres arabes-indiens = 400 ; `from`/`to` répétés = 400, `from`/`to` vides toujours ignorés comme avant, espace initial toujours 400). REPRODUIT (à confirmer) : cumul DIRECTION + ADMIN/SUPERADMIN/MEDECIN/INFIRMIER/SECRETAIRE. Les constats ci-dessous décrivent l'état AVANT correction.
 
 | Id | Constat | Preuve |
 |---|---|---|

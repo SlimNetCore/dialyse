@@ -32,7 +32,7 @@ class DatesIllisiblesDeLaDirectionAdviceTest {
     }
 
     private ProblemDetail periodeIllisibleAvec(String... roles) throws Exception {
-        return periodeIllisibleSur("/api/v1/direction/indicators", roles);
+        return periodeIllisibleSur("/api/v1/direction/gmao", roles);
     }
 
     private ProblemDetail periodeIllisibleSur(String chemin, String... roles) throws Exception {
@@ -60,8 +60,8 @@ class DatesIllisiblesDeLaDirectionAdviceTest {
 
     /** KB-DIR-02 (lot L6) : mêmes 400 que /absences, /stock-groupes, /capacite et /indicators (c'étaient des 500). */
     @ParameterizedTest
-    @ValueSource(strings = {"/api/v1/direction/overview", "/api/v1/direction/breakdown", "/api/v1/direction/report", "/api/v1/direction/gmao",
-            "/api/v1/direction/alerts/history"})
+    @ValueSource(strings = {"/api/v1/direction/gmao", "/api/v1/direction/capacite", "/api/v1/direction/absences",
+            "/api/v1/direction/stock-groupes"})
     void une_valeur_illisible_est_un_400_bad_request_sur_les_routes_du_tableau_de_bord_comme_sur_les_autres(String chemin) throws Exception {
         ProblemDetail reponse = periodeIllisibleSur(chemin, "ROLE_DIRECTION");
 
@@ -71,8 +71,7 @@ class DatesIllisiblesDeLaDirectionAdviceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/api/v1/direction/overview", "/api/v1/direction/breakdown", "/api/v1/direction/report", "/api/v1/direction/gmao",
-            "/api/v1/direction/alerts/history"})
+    @ValueSource(strings = {"/api/v1/direction/gmao"})
     void un_profil_sans_droit_recoit_403_avant_le_400_sur_les_routes_ajoutees(String chemin) throws Exception {
         ProblemDetail reponse = periodeIllisibleSur(chemin, "ROLE_MEDECIN");
 

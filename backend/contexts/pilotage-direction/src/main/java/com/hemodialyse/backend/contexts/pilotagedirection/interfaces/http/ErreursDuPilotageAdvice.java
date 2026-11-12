@@ -35,14 +35,15 @@ class ErreursDuPilotageAdvice {
      * (et non « Access Denied ») quand une date était illisible : message d'origine restauré, 403 inchangé. Limité au contrôleur du rapport.
      */
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    @RestControllerAdvice(assignableTypes = RapportDeLaDirectionControleur.class)
+    @RestControllerAdvice(assignableTypes = {RapportDeLaDirectionControleur.class, TableauDeBordDeLaDirectionControleur.class})
     static class RefusDuRapportAdvice {
 
         @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
         ProblemDetail refus(org.springframework.security.access.AccessDeniedException erreur,
                             jakarta.servlet.http.HttpServletRequest requete) {
-            boolean dateIllisible = RapportDeLaDirectionControleur.dateIllisible(requete, "from")
-                    || RapportDeLaDirectionControleur.dateIllisible(requete, "to");
+            boolean dateIllisible = requete.getRequestURI().endsWith("/report")
+                    ? RapportDeLaDirectionControleur.dateIllisible(requete, "from") || RapportDeLaDirectionControleur.dateIllisible(requete, "to")
+                    : !requete.getRequestURI().contains("/snapshots") && TableauDeBordDeLaDirectionControleur.parametreIllisible(requete);
             ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
             probleme.setTitle("Acces refuse");
             probleme.setDetail(dateIllisible ? "Accès refusé" : erreur.getMessage());

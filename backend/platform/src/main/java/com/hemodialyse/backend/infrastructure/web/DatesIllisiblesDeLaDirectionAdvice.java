@@ -46,13 +46,11 @@ import org.springframework.web.servlet.HandlerMapping;
 @RestControllerAdvice(basePackages = "com.hemodialyse.backend.infrastructure.web.rest")
 class DatesIllisiblesDeLaDirectionAdvice {
 
+    /** PL10b1 (ADR 0151) : /indicators, /overview, /breakdown, /alerts/history et /societe sont servies par le Pilotage (garde avant paramètres). */
     private static final java.util.Set<String> ROUTES = java.util.Set.of("/api/v1/direction/absences", "/api/v1/direction/stock-groupes",
-            "/api/v1/direction/capacite", "/api/v1/direction/indicators", "/api/v1/direction/overview", "/api/v1/direction/breakdown",
-            "/api/v1/direction/report", "/api/v1/direction/gmao", "/api/v1/direction/alerts/history");
-    /** KB-DIR-02 (lot L6) : les routes ajoutées renvoient le 403 du profil sans droit AVANT le 400 (les quatre routes d'origine gardent leur 400). */
-    private static final java.util.Set<String> ROUTES_AVEC_DROITS_A_VERIFIER = java.util.Set.of("/api/v1/direction/indicators",
-            "/api/v1/direction/overview", "/api/v1/direction/breakdown", "/api/v1/direction/report", "/api/v1/direction/gmao",
-            "/api/v1/direction/alerts/history");
+            "/api/v1/direction/capacite", "/api/v1/direction/gmao");
+    /** KB-DIR-02 (lot L6) : les routes ajoutées renvoient le 403 du profil sans droit AVANT le 400 (les trois routes d'origine gardent leur 400, KB-PL10b-1 pour PL10b2). */
+    private static final java.util.Set<String> ROUTES_AVEC_DROITS_A_VERIFIER = java.util.Set.of("/api/v1/direction/gmao");
     private static final java.util.regex.Pattern ADMINISTRATION_GENERIQUE =
             java.util.regex.Pattern.compile("/api/v1/admin/referentials(/|$)");
 
@@ -186,11 +184,17 @@ class DatesIllisiblesDeLaDirectionAdvice {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
 
-        /** Le rapport (PL9, KB-PL9-4) et les instantanés mensuels (PL10a, KB-PL10a-1) de la Direction : chemins voisins en 404, Accept refusé en 406. */
+        /**
+         * Le rapport (PL9, KB-PL9-4), les instantanés mensuels (PL10a, KB-PL10a-1) et le tableau de bord (PL10b1, KB-PL10b-3 : societe, overview,
+         * breakdown, indicators, alerts) de la Direction : chemins voisins en 404, Accept refusé en 406.
+         */
         private static boolean estUneRouteDuRapportOuDesInstantanes(HttpServletRequest requete) {
             String uri = requete.getRequestURI().toLowerCase(java.util.Locale.ROOT);
             return requete.getRequestURI().startsWith("/api/v1/direction/")
-                    && (uri.contains("report") || uri.startsWith("/api/v1/direction/snapshots"));
+                    && (uri.contains("report") || uri.startsWith("/api/v1/direction/snapshots")
+                    || java.util.stream.Stream.of("societe", "overview", "breakdown", "indicators", "alerts")
+                    .anyMatch(r -> uri.equals("/api/v1/direction/" + r) || uri.startsWith("/api/v1/direction/" + r + "/")
+                            || uri.startsWith("/api/v1/direction/" + r + ".")));
         }
 
         @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

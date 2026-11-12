@@ -1,17 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.Repartition;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.SocieteDeLaDirection;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection.VueDEnsemble;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AlertesDeLaDirection.EntreeDHistorique;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection;
-import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.IndicateursDeLaDirection.Indicateurs;
-import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
-import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.AbsencesOverview;
+import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
+import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService.GmaoOverview;
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService;
@@ -19,9 +11,6 @@ import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryS
 import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,20 +19,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 /**
- * Tableaux de bord de la direction d'une société : lecture seule, agrégats anonymes uniquement.
+ * Lectures de la direction d'une société encore hébergées par la plateforme : {@code /gmao}, {@code /stock-groupes}, {@code /capacite} et
+ * {@code /absences} (PL10b2 et PL10c les confieront à GMAO, Stock, Planification et Absences). La société vient du jeton de la session
+ * (jamais d'un paramètre) et est revérifiée à chaque appel.
  * <p>
- * La société vient du jeton de la session (jamais d'un paramètre) et est revérifiée à chaque appel ; ces routes sont
- * en outre les seules que le rôle DIRECTION peut appeler ({@code RoleScopeFilter}).
- * <p>
- * PD1 et PD4 (ADR 0102) : {@code /societe}, {@code /overview}, {@code /breakdown} et {@code /report} sont servies par le contexte Pilotage
- * direction (langage publié {@link TableauDeBordDeLaDirection}) ; ce contrôleur RESTE en plateforme : il porte le jeton et la garde de
- * société ({@link DirectionAccessGuard}, revérifiés à chaque appel) et héberge aussi les routes caractérisées par leurs contextes
- * ({@code /indicators}, {@code /capacite}, {@code /absences}, {@code /gmao}, {@code /stock-groupes}, {@code /alerts/history}). Mêmes URL,
- * mêmes rôles, mêmes codes.
+ * PL10b1 (ADR 0151) : {@code /societe}, {@code /overview}, {@code /breakdown}, {@code /indicators} et {@code /alerts/history} sont servies
+ * par le Pilotage direction ({@code TableauDeBordDeLaDirectionControleur}) ; {@code /report} et {@code /snapshots} l'étaient déjà (PL9, PL10a).
+ * Mêmes URL, mêmes rôles, mêmes codes.
  */
 @RestController
 @RequestMapping("/api/v1/direction")
@@ -51,17 +36,12 @@ import java.util.UUID;
 public class DirectionDashboardRestController {
 
     private final DirectionAccessGuard guard;
-    private final TableauDeBordDeLaDirection tableau;
-    private final IndicateursDeLaDirection indicators;
-    private final AlertesDeLaDirection alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
     private final DirectionStockGroupesQueryService stockGroupes;
     private final DirectionAbsencesQueryService absences;
     private final DirectionCapaciteQueryService capacites;
 
-    public DirectionDashboardRestController(DirectionAccessGuard guard, TableauDeBordDeLaDirection tableau,
-                                            IndicateursDeLaDirection indicators,
-                                            AlertesDeLaDirection alertHistory,
+    public DirectionDashboardRestController(DirectionAccessGuard guard,
                                             DirectionGmaoQueryService gmaoQueries,
                                             DirectionStockGroupesQueryService stockGroupes,
                                             DirectionAbsencesQueryService absences,
@@ -70,41 +50,7 @@ public class DirectionDashboardRestController {
         this.absences = absences;
         this.stockGroupes = stockGroupes;
         this.guard = guard;
-        this.tableau = tableau;
-        this.indicators = indicators;
-        this.alertHistory = alertHistory;
         this.gmaoQueries = gmaoQueries;
-    }
-
-    /**
-     * Société de la direction connectée et liste de ses centres (pour les filtres).
-     */
-    @GetMapping("/societe")
-    public ResponseEntity<SocieteDeLaDirection> societe() {
-        UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.societe(societeId));
-    }
-
-    /**
-     * Vue d'ensemble par centre et consolidée sur la période (par défaut : depuis le 1er janvier).
-     */
-    @GetMapping("/overview")
-    public ResponseEntity<VueDEnsemble> overview(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.vueDEnsemble(societeId, from, to));
-    }
-
-    /**
-     * Indicateurs médicaux (cibles KDIGO), de stock et alertes : agrégats anonymes par centre et consolidés.
-     */
-    @GetMapping("/indicators")
-    public ResponseEntity<Indicateurs> indicators(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(indicators.indicateurs(societeId, from, to));
     }
 
     /**
@@ -153,31 +99,5 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(absences.absences(societeId, from, to));
-    }
-
-    /**
-     * Répartitions par centre : patients par sexe et par âge, par caisse d'assurance (patients, séances, CA HT) et
-     * traitement de l'anémie. Agrégats anonymes.
-     */
-    @GetMapping("/breakdown")
-    public ResponseEntity<Repartition> breakdown(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(tableau.repartition(societeId, from, to));
-    }
-
-    // PL9 (ADR 0148) : GET /report est servi par le Pilotage direction (RapportDeLaDirectionControleur).
-
-    /**
-     * Historique récent des alertes (apparitions et résolutions), du plus récemment actif au plus ancien.
-     * Alimenté uniquement pendant que la direction est connectée (temps réel du Pilotage direction). PD3 (ADR 0104) : servi par le contexte
-     * Pilotage direction, qui borne {@code limit} à [1, 200].
-     */
-    @GetMapping("/alerts/history")
-    public ResponseEntity<List<EntreeDHistorique>> alertsHistory(
-            @RequestParam(required = false, defaultValue = "50") int limit) {
-        UUID societeId = guard.requireSociete();
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(alertHistory.historique(societeId, limit));
     }
 }

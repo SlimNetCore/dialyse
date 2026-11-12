@@ -151,7 +151,7 @@ class LeTableauDeBordDeLaDirectionPl10bCharacterizationIntegrationTest extends P
                     directionDe(U_DIRECTION_SOCIETE_INACTIVE, SOCIETE_INACTIVE))));
         }
         m.put("05 un parametre illisible n'ouvre rien : 403 ou garde avant le 400", sansDroitEtIllisible);
-        arbrePd("garde_roles_et_jetons", m);
+        arbrePd("garde_roles_et_jetons_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ periodes
@@ -207,7 +207,7 @@ class LeTableauDeBordDeLaDirectionPl10bCharacterizationIntegrationTest extends P
                     sansHorodatage(direction(route + periode() + "&societeId=" + AUTRE_SOCIETE + "&centreId=" + CENTRE_AUTRE))));
         }
         m.put("la societe vient toujours du jeton", memeCorps);
-        arbrePd("formes_de_periode_et_valeurs_par_defaut", m);
+        arbrePd("formes_de_periode_et_valeurs_par_defaut_nouveau_code", m);
     }
 
     @Test
@@ -228,7 +228,7 @@ class LeTableauDeBordDeLaDirectionPl10bCharacterizationIntegrationTest extends P
         cas.put("limit=3 avec societeId et from illisible", court(parasites) + (parasites.status() == 200 ? " x" + corps(parasites).size() : ""));
         Resp sansCentre = doGet(DIRECTION + "/alerts/history", directionDe(U_DIRECTION_SANS_CENTRE, SOCIETE_SANS_CENTRE));
         cas.put("societe sans centre", court(sansCentre) + " x" + corps(sansCentre).size());
-        arbrePd("limit_de_l_historique", cas);
+        arbrePd("limit_de_l_historique_nouveau_code", cas);
     }
 
     // ------------------------------------------------------------------ societe sans centre, volume
@@ -340,7 +340,7 @@ class LeTableauDeBordDeLaDirectionPl10bCharacterizationIntegrationTest extends P
         jdbc.update("DELETE FROM audit_log WHERE route_template LIKE '%/direction/%'");
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("lignes", lignes);
-        arbrePd("audit", m);
+        arbrePd("audit_nouveau_code", m);
     }
 
     // ------------------------------------------------------------------ methodes, chemins voisins, Accept
@@ -390,6 +390,6 @@ class LeTableauDeBordDeLaDirectionPl10bCharacterizationIntegrationTest extends P
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("01 methodes et Accept", cas);
         m.put("02 chemins voisins et en-tetes", voisins);
-        arbrePd("methodes_chemins_et_accept", m);
+        arbrePd("methodes_chemins_et_accept_nouveau_code", m);
     }
 }

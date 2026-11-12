@@ -41,6 +41,13 @@ public final class AuditActionResolver {
     private static final String ROUTE_INSTANTANES = "/api/v1/direction/snapshots";
     private static final String ROUTE_INSTANTANE = "/api/v1/direction/snapshots/{mois}";
 
+    /** Consultation du tableau de bord de la direction servi par le Pilotage (PL10b1, KB-PL10b-2, décision du 2026-11-12). */
+    private static final String ROUTE_SOCIETE_DIRECTION = "/api/v1/direction/societe";
+    private static final String ROUTE_VUE_D_ENSEMBLE = "/api/v1/direction/overview";
+    private static final String ROUTE_REPARTITION = "/api/v1/direction/breakdown";
+    private static final String ROUTE_INDICATEURS = "/api/v1/direction/indicators";
+    private static final String ROUTE_HISTORIQUE_DES_ALERTES = "/api/v1/direction/alerts/history";
+
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
      */
@@ -53,7 +60,12 @@ public final class AuditActionResolver {
             ROUTE_RAPPORT_DIRECTION,
             ROUTE_RAPPORT_DIRECTION_MENSUEL,
             ROUTE_INSTANTANES,
-            ROUTE_INSTANTANE
+            ROUTE_INSTANTANE,
+            ROUTE_SOCIETE_DIRECTION,
+            ROUTE_VUE_D_ENSEMBLE,
+            ROUTE_REPARTITION,
+            ROUTE_INDICATEURS,
+            ROUTE_HISTORIQUE_DES_ALERTES
     );
 
     private static final Resolved ACTION_STATISTIQUES_PATIENT =
@@ -114,6 +126,16 @@ public final class AuditActionResolver {
                     new Resolved("DIRECTION_INSTANTANE_CONSULTATION", "direction", "Instantané mensuel de la direction consulté")),
             Map.entry("GET " + ROUTE_FEUILLE_COMPTAGE,
                     new Resolved("INVENTAIRE_FEUILLE_TELECHARGEMENT", "stock", "Feuille de comptage téléchargée")),
+            Map.entry("GET " + ROUTE_SOCIETE_DIRECTION,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Société du tableau de bord de la direction consultée")),
+            Map.entry("GET " + ROUTE_VUE_D_ENSEMBLE,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Vue d'ensemble de la direction consultée")),
+            Map.entry("GET " + ROUTE_REPARTITION,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Répartitions de la direction consultées")),
+            Map.entry("GET " + ROUTE_INDICATEURS,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Indicateurs de la direction consultés")),
+            Map.entry("GET " + ROUTE_HISTORIQUE_DES_ALERTES,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Historique des alertes de la direction consulté")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/medical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT));
