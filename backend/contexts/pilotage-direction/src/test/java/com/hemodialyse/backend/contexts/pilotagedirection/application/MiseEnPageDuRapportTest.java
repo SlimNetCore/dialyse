@@ -93,6 +93,23 @@ class MiseEnPageDuRapportTest {
     }
 
     @Test
+    void les_tableaux_par_sexe_et_par_age_sont_cote_a_cote_sur_une_meme_rangee() {
+        var sexe = new com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.LigneParSexe(
+                "Centre A", 7L, null, 0L);
+        var age = new com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.RapportDeSyntheseDeLaDirection.LigneParAge(
+                "Centre A", java.util.Map.of("60_PLUS", 6L));
+        Repartitions repartitions = new Repartitions(List.of(sexe), List.of(age), null, List.of());
+
+        PageDuRapport page = MiseEnPageDuRapport.mettreEnPage(rapport(null, List.of(), repartitions, null), null, ALGER);
+
+        assertThat(page.lignes()).hasSize(2);
+        assertThat(page.lignes().get(0).cellules()).containsExactly("Centre", "Hommes", "Femmes", "Autre / inconnu", "Centre",
+                "0-17 ans", "18-29 ans", "30-44 ans", "45-59 ans", "60 ans et +", "Non renseigné");
+        assertThat(page.lignes().get(1).cellules()).containsExactly("Centre A", "7", "< seuil", "0", "Centre A",
+                "—", "—", "—", "—", "6", "—");
+    }
+
+    @Test
     void une_ligne_de_plus_de_treize_cellules_est_refusee() {
         List<String> quatorze = IntStream.range(0, 14).mapToObj(String::valueOf).toList();
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> new Ligne("01", "", Genre.LIGNE, quatorze));

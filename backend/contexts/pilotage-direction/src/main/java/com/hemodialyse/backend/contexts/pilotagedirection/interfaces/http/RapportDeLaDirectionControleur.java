@@ -87,6 +87,16 @@ public class RapportDeLaDirectionControleur {
         }
     }
 
+    /** Vrai si le paramètre de date est présent, non vide et illisible (le legacy répondait alors « Accès refusé » à un profil sans droit). */
+    static boolean dateIllisible(HttpServletRequest requete, String nom) {
+        try {
+            date(requete, nom);
+            return false;
+        } catch (ParametreIllisible e) {
+            return true;
+        }
+    }
+
     /** Un paramètre de date illisible : 400. */
     static final class ParametreIllisible extends RuntimeException {
         private final String nom;

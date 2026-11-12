@@ -219,21 +219,30 @@ public final class MiseEnPageDuRapport {
 
     private static void repartitions(List<Ligne> sortie, Repartitions b) {
         if (b == null) return; // instantané antérieur aux répartitions : rien à afficher
-        tableau(sortie, "07", "Répartition des patients par sexe et par âge", List.of("Centre", "Hommes", "Femmes", "Autre / inconnu"));
-        b.sexe().forEach(r -> ligne(sortie, "07", Genre.LIGNE,
-                List.of(texte(r.nom()), effectif(r.masculin()), effectif(r.feminin()), effectif(r.autre()))));
-        List<String> enteteAge = new ArrayList<>();
-        enteteAge.add("Centre");
-        enteteAge.addAll(TRANCHES.values());
-        tableau(sortie, "08", "", enteteAge);
-        b.ages().forEach(r -> {
+        // Le tableau par sexe et le tableau par âge sont côte à côte (une seule rangée de 11 cellules), comme à l'origine.
+        List<String> entete = new ArrayList<>(List.of("Centre", "Hommes", "Femmes", "Autre / inconnu", "Centre"));
+        entete.addAll(TRANCHES.values());
+        tableau(sortie, "07", "Répartition des patients par sexe et par âge", entete);
+        int rangees = Math.max(b.sexe().size(), b.ages().size());
+        for (int i = 0; i < rangees; i++) {
             List<String> cellules = new ArrayList<>();
-            cellules.add(texte(r.nom()));
-            for (String code : TRANCHES.keySet()) {
-                cellules.add(r.tranches().containsKey(code) ? effectif(r.tranches().get(code)) : "—");
+            if (i < b.sexe().size()) {
+                var r = b.sexe().get(i);
+                cellules.addAll(List.of(texte(r.nom()), effectif(r.masculin()), effectif(r.feminin()), effectif(r.autre())));
+            } else {
+                cellules.addAll(List.of("", "", "", ""));
             }
-            ligne(sortie, "08", Genre.LIGNE, cellules);
-        });
+            if (i < b.ages().size()) {
+                var r = b.ages().get(i);
+                cellules.add(texte(r.nom()));
+                for (String code : TRANCHES.keySet()) {
+                    cellules.add(r.tranches().containsKey(code) ? effectif(r.tranches().get(code)) : "—");
+                }
+            } else {
+                for (int k = 0; k <= TRANCHES.size(); k++) cellules.add("");
+            }
+            ligne(sortie, "07", Genre.LIGNE, cellules);
+        }
         caisses(sortie, b.caisses());
         anemie(sortie, b);
     }

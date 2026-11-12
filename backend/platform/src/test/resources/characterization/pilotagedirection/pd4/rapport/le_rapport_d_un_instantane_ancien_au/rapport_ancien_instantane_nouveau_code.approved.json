@@ -7,7 +7,7 @@
     "Les effectifs de moins de" : "Les effectifs de moins de 5 patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL). Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1",
     "Qualité des soins" : "Qualité des soins — part des patients dans la cible KDIGO Centre Kt/V Hb Phosphore PTH Albumine AgHBs + Anti-VHC + VIH + Traitement en retard Attente greffe Bilans greffe en cours Greffes (période) Total société — — — — — < seuil < seuil < seuil < seuil < seuil < seuil < seuil",
     "Stock" : "Stock Centre Articles actifs Sous le seuil Lots périmés Péremption < 90 j Valeur du stock Total société — — — — —",
-    "en-tete" : "Rapport mensuel — <M-1> Ancien — période <M-1.DEBUT> au <M-1.FIN> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> Patients Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux d'encaisseme nt < seuil 6 2 1 000 DA 1 190 DA 600 DA 590 DA 50.4 %"
+    "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> Rapport mensuel — <M-1> Ancien — période <M-1.DEBUT> au <M-1.FIN> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) Patients Séances Factures CA HT CA TTC Encaissé Reste à recouvrer Taux d'encaissement < seuil 6 2 1 000 DA 1 190 DA 600 DA 590 DA 50.4 %"
   },
   "status" : 200
 }

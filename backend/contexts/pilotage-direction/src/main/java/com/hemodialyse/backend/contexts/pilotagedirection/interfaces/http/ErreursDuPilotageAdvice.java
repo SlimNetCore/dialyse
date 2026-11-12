@@ -30,6 +30,27 @@ class ErreursDuPilotageAdvice {
         return probleme;
     }
 
+    /**
+     * PL9 : le rapport refuse un profil sans droit avant de lire les dates ; le legacy, qui lisait les dates d'abord, répondait « Accès refusé »
+     * (et non « Access Denied ») quand une date était illisible : message d'origine restauré, 403 inchangé. Limité au contrôleur du rapport.
+     */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @RestControllerAdvice(assignableTypes = RapportDeLaDirectionControleur.class)
+    static class RefusDuRapportAdvice {
+
+        @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+        ProblemDetail refus(org.springframework.security.access.AccessDeniedException erreur,
+                            jakarta.servlet.http.HttpServletRequest requete) {
+            boolean dateIllisible = RapportDeLaDirectionControleur.dateIllisible(requete, "from")
+                    || RapportDeLaDirectionControleur.dateIllisible(requete, "to");
+            ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+            probleme.setTitle("Acces refuse");
+            probleme.setDetail(dateIllisible ? "Accès refusé" : erreur.getMessage());
+            probleme.setProperty("code", "ACCESS_DENIED");
+            return probleme;
+        }
+    }
+
     @ExceptionHandler(RegleDuPilotageViolee.class)
     ProblemDetail regleViolee(RegleDuPilotageViolee erreur) {
         ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);

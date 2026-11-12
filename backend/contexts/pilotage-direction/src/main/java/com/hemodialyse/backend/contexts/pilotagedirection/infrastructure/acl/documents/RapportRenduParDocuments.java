@@ -50,6 +50,7 @@ public class RapportRenduParDocuments implements ImpressionDuRapport {
             champs.put("SECTION", ligne.section());
             champs.put("TITRE", ligne.titreDeSection());
             champs.put("GENRE", ligne.genre().name());
+            champs.put("NB", ligne.cellules().size()); // nombre de cellules : le gabarit choisit des largeurs de colonne lisibles
             for (int i = 0; i < PageDuRapport.CELLULES_MAX; i++) {
                 champs.put("C" + (i + 1), i < ligne.cellules().size() ? ligne.cellules().get(i) : "");
             }
