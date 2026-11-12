@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.query;
 
-import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaCapaciteDesCentres;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TableauDeBordDeLaDirection;
 import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLEffectif;
 import com.hemodialyse.backend.contexts.patientcouverture.application.CriteresDeRecherche;
@@ -48,7 +48,7 @@ class EffectifIntegrationTest {
     @Autowired
     private TableauDeBordDeLaDirection tableau;
     @Autowired
-    private DirectionCapaciteQueryService capacite;
+    private ConsulterLaCapaciteDesCentres capacite;
 
     @BeforeEach
     void seed() {
@@ -132,7 +132,7 @@ class EffectifIntegrationTest {
 
     @Test
     void the_active_queue_reported_to_the_capacity_ignores_exited_and_sleeping_patients() {
-        var centre = capacite.capacite(SOC, DEBUT, FIN).centres().getFirst().capacite();
+        var centre = capacite.execute(SOC, DEBUT, FIN).centres().getFirst().capacite();
 
         assertThat(centre.fileActive()).isEqualTo(6L);   // 7 de l'effectif, moins le patient en sommeil
     }

@@ -31,10 +31,6 @@ class DatesIllisiblesDeLaDirectionAdviceTest {
         SecurityContextHolder.clearContext();
     }
 
-    private ProblemDetail periodeIllisibleAvec(String... roles) throws Exception {
-        return periodeIllisibleSur("/api/v1/direction/gmao", roles);
-    }
-
     private ProblemDetail periodeIllisibleSur(String chemin, String... roles) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", roles));
         var requete = new MockHttpServletRequest("GET", chemin);
@@ -44,39 +40,18 @@ class DatesIllisiblesDeLaDirectionAdviceTest {
         return advice.parametreIllisible(erreur, requete);
     }
 
-    @Test
-    void un_profil_sans_droit_recoit_403_avant_le_400_d_une_periode_illisible() throws Exception {
-        ProblemDetail reponse = periodeIllisibleAvec("ROLE_MEDECIN");
-        assertThat(reponse.getStatus()).isEqualTo(403);
-        assertThat(reponse.getProperties()).containsEntry("code", "ACCESS_DENIED");
-    }
-
-    @Test
-    void le_profil_de_la_direction_recoit_400_pour_une_periode_illisible() throws Exception {
-        ProblemDetail reponse = periodeIllisibleAvec("ROLE_DIRECTION");
-        assertThat(reponse.getStatus()).isEqualTo(400);
-        assertThat(reponse.getProperties()).containsEntry("code", "BAD_REQUEST");
-    }
-
-    /** KB-DIR-02 (lot L6) : mêmes 400 que /absences, /stock-groupes, /capacite et /indicators (c'étaient des 500). */
+    /**
+     * PL10b1 (ADR 0151) et PL10b2 (ADR 0152) : les neuf routes de la Direction sont servies par le Pilotage, qui lit la garde AVANT les
+     * paramètres (403 avant 400, KB-PL10b-1) : cet advice n'y répond plus, la réponse reste celle du gestionnaire commun. Leurs 400/403 sont
+     * verrouillés par la caractérisation PL10b.
+     */
     @ParameterizedTest
     @ValueSource(strings = {"/api/v1/direction/gmao", "/api/v1/direction/capacite", "/api/v1/direction/absences",
-            "/api/v1/direction/stock-groupes"})
-    void une_valeur_illisible_est_un_400_bad_request_sur_les_routes_du_tableau_de_bord_comme_sur_les_autres(String chemin) throws Exception {
+            "/api/v1/direction/stock-groupes", "/api/v1/direction/indicators"})
+    void les_routes_de_la_direction_ne_sont_plus_reprises_par_cet_advice(String chemin) throws Exception {
         ProblemDetail reponse = periodeIllisibleSur(chemin, "ROLE_DIRECTION");
 
-        assertThat(reponse.getStatus()).isEqualTo(400);
-        assertThat(reponse.getProperties()).containsEntry("code", "BAD_REQUEST");
-        assertThat(reponse.getDetail()).isEqualTo("Paramètre illisible : from");
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/api/v1/direction/gmao"})
-    void un_profil_sans_droit_recoit_403_avant_le_400_sur_les_routes_ajoutees(String chemin) throws Exception {
-        ProblemDetail reponse = periodeIllisibleSur(chemin, "ROLE_MEDECIN");
-
-        assertThat(reponse.getStatus()).isEqualTo(403);
-        assertThat(reponse.getProperties()).containsEntry("code", "ACCESS_DENIED");
+        assertThat(reponse.getDetail()).isNotEqualTo("Paramètre illisible : from");
     }
 
     // ---- RF5 (revue complémentaire RF1-RF3d, constat 5) : refus par défaut sur l'administration générique

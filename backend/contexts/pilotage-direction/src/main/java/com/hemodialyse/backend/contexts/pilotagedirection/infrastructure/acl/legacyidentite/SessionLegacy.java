@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite;
 
+import com.hemodialyse.backend.contexts.pilotagedirection.application.HabilitationDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,7 +16,7 @@ import java.util.UUID;
  * visible du module : seuls ses accesseurs {@code getId()} et {@code getSocieteId()} sont lus par réflexion. Retirée quand Identité et
  * accès sera extrait.
  */
-public final class SessionLegacy implements SessionDeLaDirection {
+public final class SessionLegacy implements SessionDeLaDirection, HabilitationDeLaDirection {
 
     private final JdbcTemplate jdbc;
 
@@ -45,16 +46,22 @@ public final class SessionLegacy implements SessionDeLaDirection {
             // KB-PL9-5 (message) corrigé : 400 sans le message technique « Invalid UUID string »
             throw new IllegalArgumentException("Jeton de session illisible");
         }
+        if (!estHabilite(utilisateur, societeId)) {
+            throw new AccessDeniedException("Accès à cette société refusé");
+        }
+        return societeId;
+    }
+
+    /** Compte actif, rattaché à la société, société active : revérifié en base (PL10b2, remplace {@code DirectionAccessGuard.verifyMember}). */
+    @Override
+    public boolean estHabilite(UUID utilisateur, UUID societe) {
         Integer rattache = jdbc.queryForObject(
                 "SELECT COUNT(1) FROM app_user u "
                         + "INNER JOIN app_user_societe us ON us.user_id = u.id "
                         + "INNER JOIN societes s ON s.id = us.societe_id "
                         + "WHERE u.id = ? AND u.active = TRUE AND us.societe_id = ? AND s.actif = TRUE",
-                Integer.class, utilisateur, societeId);
-        if (rattache == null || rattache == 0) {
-            throw new AccessDeniedException("Accès à cette société refusé");
-        }
-        return societeId;
+                Integer.class, utilisateur, societe);
+        return rattache != null && rattache > 0;
     }
 
     private static boolean possede(Object principal) {

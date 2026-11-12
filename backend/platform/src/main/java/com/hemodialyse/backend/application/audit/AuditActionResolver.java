@@ -47,6 +47,11 @@ public final class AuditActionResolver {
     private static final String ROUTE_REPARTITION = "/api/v1/direction/breakdown";
     private static final String ROUTE_INDICATEURS = "/api/v1/direction/indicators";
     private static final String ROUTE_HISTORIQUE_DES_ALERTES = "/api/v1/direction/alerts/history";
+    /** Lectures de la direction fournies par GMAO, Stock, Planification et Absences, servies par le Pilotage (PL10b2, KB-PL10b-2, décision du 2026-11-12). */
+    private static final String ROUTE_GMAO_DIRECTION = "/api/v1/direction/gmao";
+    private static final String ROUTE_STOCK_GROUPES_DIRECTION = "/api/v1/direction/stock-groupes";
+    private static final String ROUTE_CAPACITE_DIRECTION = "/api/v1/direction/capacite";
+    private static final String ROUTE_ABSENCES_DIRECTION = "/api/v1/direction/absences";
 
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
@@ -65,7 +70,11 @@ public final class AuditActionResolver {
             ROUTE_VUE_D_ENSEMBLE,
             ROUTE_REPARTITION,
             ROUTE_INDICATEURS,
-            ROUTE_HISTORIQUE_DES_ALERTES
+            ROUTE_HISTORIQUE_DES_ALERTES,
+            ROUTE_GMAO_DIRECTION,
+            ROUTE_STOCK_GROUPES_DIRECTION,
+            ROUTE_CAPACITE_DIRECTION,
+            ROUTE_ABSENCES_DIRECTION
     );
 
     private static final Resolved ACTION_STATISTIQUES_PATIENT =
@@ -136,6 +145,14 @@ public final class AuditActionResolver {
                     new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Indicateurs de la direction consultés")),
             Map.entry("GET " + ROUTE_HISTORIQUE_DES_ALERTES,
                     new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Historique des alertes de la direction consulté")),
+            Map.entry("GET " + ROUTE_GMAO_DIRECTION,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Aide à la décision GMAO de la direction consultée")),
+            Map.entry("GET " + ROUTE_STOCK_GROUPES_DIRECTION,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Stock des groupes d'articles de la direction consulté")),
+            Map.entry("GET " + ROUTE_CAPACITE_DIRECTION,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Capacité des centres de la direction consultée")),
+            Map.entry("GET " + ROUTE_ABSENCES_DIRECTION,
+                    new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Absences des patients de la direction consultées")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/medical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT));

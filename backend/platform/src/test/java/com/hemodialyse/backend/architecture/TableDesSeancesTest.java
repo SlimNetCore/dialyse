@@ -209,12 +209,12 @@ class TableDesSeancesTest {
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
         // PD1 (ADR 0102) : DirectionDashboardQueryService et DirectionBreakdownQueryService ont disparu de la plateforme ; leur lecture des
         // séances est le port SeancesRealiseesDesCentres du Pilotage direction (SeancesRealiseesParLaSeance, langage publié de la Séance).
-        List<String> se7e = List.of(plateforme + "application/direction/DirectionAbsencesQueryService.java",
-                plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
+        // PL10b2 (ADR 0152) : DirectionAbsencesQueryService est devenu ConsulterLesAbsencesDesCentres, dans le Pilotage (mêmes ports de la Séance).
+        List<String> se7e = List.of(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminTables.java");
-        assertThat(se7e).as("les 5 fichiers de SE7e restés en plateforme existent (PatientStatsQueryService est parti au Dossier médical, PL4 ; CahierDialyseReportService à la Séance, PL5)").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
+        assertThat(se7e).as("les 4 fichiers de SE7e restés en plateforme existent (PatientStatsQueryService est parti au Dossier médical, PL4 ; CahierDialyseReportService à la Séance, PL5)").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
         // Sur la seule table seances (la garde des volets, SE7f, inscrit MigrationRollbackJdbcAdapter pour volet_medical / volet_paramedical, E-R6).
         Set<String> lecteursDeSeances = new TreeSet<>();
         for (Path source : sourcesDeProduction(backend())) {

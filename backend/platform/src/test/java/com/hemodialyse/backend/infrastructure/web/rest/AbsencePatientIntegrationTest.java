@@ -1,12 +1,12 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService;
-import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.AbsencesOverview;
-import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.CentreAbsences;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLesAbsencesDesCentres;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLesAbsencesDesCentres.AbsencesOverview;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLesAbsencesDesCentres.CentreAbsences;
 import com.hemodialyse.backend.contexts.absencespatients.application.DetectionAbsences;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.absencespatients.domain.PeriodeDeDetection;
-import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.pilotagedirection.domain.RegleDuPilotageViolee;
 import com.hemodialyse.backend.infrastructure.security.RoleScopeFilter;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
@@ -62,7 +62,7 @@ class AbsencePatientIntegrationTest {
     @Autowired
     private com.hemodialyse.backend.contexts.seance.application.ConsulterLeDetailDuTableauDeBord detail;
     @Autowired
-    private DirectionAbsencesQueryService direction;
+    private ConsulterLesAbsencesDesCentres direction;
     @Autowired
     private RoleScopeFilter roleScopeFilter;
     private UUID absent;
@@ -166,7 +166,7 @@ class AbsencePatientIntegrationTest {
                 Date.valueOf(jour), "AUTOMATIQUE", "A_QUALIFIER", 5000, 0, 5000);
         today(C1, "100000.00");
 
-        AbsencesOverview o = direction.absences(SOC, jour.minusDays(1), LocalDate.now());
+        AbsencesOverview o = direction.execute(SOC, jour.minusDays(1), LocalDate.now());
 
         assertEquals(2, o.centres().size());
         CentreAbsences c1 = o.centres().stream().filter(c -> c.centerId().equals(C1)).findFirst().orElseThrow();
@@ -190,9 +190,9 @@ class AbsencePatientIntegrationTest {
 
     @Test
     void the_direction_overview_rejects_an_invalid_period() {
-        assertThrows(BusinessException.class, () -> direction.absences(SOC, LocalDate.now(), LocalDate.now().minusDays(1)));
-        assertThrows(BusinessException.class,
-                () -> direction.absences(SOC, LocalDate.now().minusYears(6), LocalDate.now()));
+        assertThrows(RegleDuPilotageViolee.class, () -> direction.execute(SOC, LocalDate.now(), LocalDate.now().minusDays(1)));
+        assertThrows(RegleDuPilotageViolee.class,
+                () -> direction.execute(SOC, LocalDate.now().minusYears(6), LocalDate.now()));
     }
 
     @Test

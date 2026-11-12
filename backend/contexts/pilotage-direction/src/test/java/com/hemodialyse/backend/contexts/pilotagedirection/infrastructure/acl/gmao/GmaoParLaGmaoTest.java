@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.application.direction;
+package com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.gmao;
 
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre;
 import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre.Generateur;
@@ -6,7 +6,6 @@ import com.hemodialyse.backend.contexts.planification.publishedlanguage.Patients
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,10 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Le chiffre « patients sur équipement indisponible » : seuls les générateurs INDISPONIBLES DU CENTRE sont demandés à Planification
- * (revue P6 : un patient rattaché au générateur d'un autre centre, compté par l'ancienne jointure, ne l'est plus).
+ * Le chiffre « patients sur équipement indisponible » : seuls les générateurs INDISPONIBLES DU CENTRE sont demandés à la Planification
+ * (revue P6 : un patient rattaché au générateur d'un autre centre, compté par l'ancienne jointure, ne l'est plus). Repris de la plateforme
+ * (PatientsSurEquipementIndisponibleTest) avec la traduction qui l'a reçue (PL10b2, ADR 0152).
  */
-class PatientsSurEquipementIndisponibleTest {
+class GmaoParLaGmaoTest {
 
     private static final UUID CENTRE = UUID.fromString("99997806-0000-0000-0000-0000000000c1");
     private static final UUID AUTRE_CENTRE = UUID.fromString("99997806-0000-0000-0000-0000000000c2");
@@ -27,7 +27,7 @@ class PatientsSurEquipementIndisponibleTest {
     }
 
     @Test
-    void should_ask_the_planning_only_for_the_unavailable_generators_of_the_centre() {
+    void la_planification_ne_recoit_que_les_generateurs_indisponibles_du_centre() {
         List<UUID> demandes = new ArrayList<>();
         GenerateursDuCentre parc = centre -> centre.equals(CENTRE)
                 ? List.of(generateur(1, "EN_SERVICE", CENTRE), generateur(2, "EN_MAINTENANCE", CENTRE),
@@ -40,7 +40,7 @@ class PatientsSurEquipementIndisponibleTest {
             return generateurs.size();
         };
 
-        long nombre = new DirectionGmaoQueryService(null, null, parc, patients).countPatientsSurEquipementIndisponible(CENTRE);
+        long nombre = new GmaoParLaGmao(null, parc, patients).patientsSurGenerateurIndisponible(CENTRE);
 
         assertEquals(5, nombre);
         assertEquals(5, demandes.size());

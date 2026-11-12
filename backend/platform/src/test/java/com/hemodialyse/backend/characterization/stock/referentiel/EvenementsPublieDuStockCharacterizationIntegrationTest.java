@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.stock.referentiel;
 
-import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.StockDesGroupesParLeStock;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.InventaireModifie;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.MouvementsDeStockModifies;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrousDeRecalculModifies;
@@ -296,13 +296,13 @@ class EvenementsPublieDuStockCharacterizationIntegrationTest extends Referentiel
     // ------------------------------------------------------------------ relais des événements publiés
 
     private void sentinelle() {
-        var cache = caches.getCache(ValorisationArticlesService.CACHE);
+        var cache = caches.getCache(StockDesGroupesParLeStock.CACHE);
         cache.clear();
         cache.put("sentinelle", "valeur");
     }
 
     private boolean sentinellePresente() {
-        return caches.getCache(ValorisationArticlesService.CACHE).get("sentinelle") != null;
+        return caches.getCache(StockDesGroupesParLeStock.CACHE).get("sentinelle") != null;
     }
 
     private ObjectNode relais(String nom, Object evenement) {

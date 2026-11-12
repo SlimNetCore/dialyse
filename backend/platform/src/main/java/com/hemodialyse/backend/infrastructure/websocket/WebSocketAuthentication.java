@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
-import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AccesALaDirection;
 import com.hemodialyse.backend.infrastructure.security.JwtAuthenticationFactory;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import jakarta.servlet.http.Cookie;
@@ -37,14 +37,14 @@ public class WebSocketAuthentication implements HandshakeInterceptor, ChannelInt
     static final String SOCIETE_TOPIC_PREFIX = "/topic/societe/";
 
     private final JwtAuthenticationFactory authentications;
-    private final DirectionAccessGuard directionGuard;
+    private final AccesALaDirection acces;
 
     @Value("${app.auth.cookie.name:HEMO_AUTH}")
     private String authCookieName;
 
-    public WebSocketAuthentication(JwtAuthenticationFactory authentications, DirectionAccessGuard directionGuard) {
+    public WebSocketAuthentication(JwtAuthenticationFactory authentications, AccesALaDirection acces) {
         this.authentications = authentications;
-        this.directionGuard = directionGuard;
+        this.acces = acces;
     }
 
     // ───────────────────────────── Handshake HTTP ─────────────────────────────
@@ -98,8 +98,9 @@ public class WebSocketAuthentication implements HandshakeInterceptor, ChannelInt
             String requested = destination.substring(SOCIETE_TOPIC_PREFIX.length()).split("/", 2)[0];
             if (principal.getSocieteId().equals(requested)) {
                 try {
-                    directionGuard.verifyMember(UUID.fromString(principal.getId()), UUID.fromString(requested));
-                    return;
+                    if (acces.estHabilite(UUID.fromString(principal.getId()), UUID.fromString(requested))) {
+                        return;
+                    }
                 } catch (RuntimeException ignored) {
                     // refus ci-dessous
                 }

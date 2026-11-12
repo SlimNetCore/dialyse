@@ -35,7 +35,8 @@ class ErreursDuPilotageAdvice {
      * (et non « Access Denied ») quand une date était illisible : message d'origine restauré, 403 inchangé. Limité au contrôleur du rapport.
      */
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    @RestControllerAdvice(assignableTypes = {RapportDeLaDirectionControleur.class, TableauDeBordDeLaDirectionControleur.class})
+    @RestControllerAdvice(assignableTypes = {RapportDeLaDirectionControleur.class, TableauDeBordDeLaDirectionControleur.class,
+            LecturesDeLaDirectionControleur.class})
     static class RefusDuRapportAdvice {
 
         @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)

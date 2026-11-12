@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.application.direction;
 
-import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
-import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CentreCapacite;
-import com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres.Niveau;
-import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaCapaciteDesCentres.CapaciteOverview;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaCapaciteDesCentres.CentreCapacite;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.CapaciteDesCentres.Niveau;
+import com.hemodialyse.backend.contexts.pilotagedirection.domain.RegleDuPilotageViolee;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class DirectionCapaciteIntegrationTest {
     private final LocalDate debut = aujourdhui.minusDays(30);
 
     @Autowired
-    private DirectionCapaciteQueryService service;
+    private com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaCapaciteDesCentres service;
     @Autowired
     private JdbcTemplate jdbc;
 
@@ -103,7 +103,7 @@ class DirectionCapaciteIntegrationTest {
 
     @Test
     void computes_the_theoretical_capacity_per_centre_for_the_selected_period() {
-        CapaciteOverview o = service.capacite(SOC, debut, aujourdhui);
+        CapaciteOverview o = service.execute(SOC, debut, aujourdhui);
 
         assertEquals(debut, o.from());
         assertEquals(aujourdhui, o.to());
@@ -140,8 +140,8 @@ class DirectionCapaciteIntegrationTest {
 
     @Test
     void the_active_file_follows_the_selected_period() {
-        CapaciteOverview pendantLaSortie = service.capacite(SOC, debut.minusDays(20), debut.minusDays(5));
-        CapaciteOverview avantLesAdmissions = service.capacite(SOC, LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30));
+        CapaciteOverview pendantLaSortie = service.execute(SOC, debut.minusDays(20), debut.minusDays(5));
+        CapaciteOverview avantLesAdmissions = service.execute(SOC, LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30));
 
         assertEquals(9L, centre(pendantLaSortie, GRAND).capacite().fileActive(),
                 "le transfert tombe dans la période : le patient est encore compté");
@@ -153,13 +153,13 @@ class DirectionCapaciteIntegrationTest {
     void generators_installed_after_the_end_of_the_period_are_not_counted() {
         generateur(GRAND, "CP-FUTUR", "EN_SERVICE", OffsetDateTime.now(ZoneOffset.UTC).plusDays(60));
 
-        assertEquals(16, centre(service.capacite(SOC, debut, aujourdhui), GRAND).capacite().generateurs());
-        assertEquals(17, centre(service.capacite(SOC, debut, aujourdhui.plusDays(90)), GRAND).capacite().generateurs());
+        assertEquals(16, centre(service.execute(SOC, debut, aujourdhui), GRAND).capacite().generateurs());
+        assertEquals(17, centre(service.execute(SOC, debut, aujourdhui.plusDays(90)), GRAND).capacite().generateurs());
     }
 
     @Test
     void a_small_active_file_is_masked_with_its_rate() {
-        CentreCapacite petit = centre(service.capacite(SOC, debut, aujourdhui), PETIT);
+        CentreCapacite petit = centre(service.execute(SOC, debut, aujourdhui), PETIT);
 
         assertNull(petit.capacite().fileActive());
         assertNull(petit.capacite().tauxOccupation());
@@ -169,7 +169,7 @@ class DirectionCapaciteIntegrationTest {
     void the_capacity_is_reached_when_the_active_file_equals_it() {
         for (int i = 0; i < 12; i++) seance(patient(PETIT), PETIT, debut.plusDays(7), "VALIDEE");   // 2 + 12 = 14
 
-        CentreCapacite petit = centre(service.capacite(SOC, debut, aujourdhui), PETIT);
+        CentreCapacite petit = centre(service.execute(SOC, debut, aujourdhui), PETIT);
 
         assertEquals(14L, petit.capacite().fileActive());
         assertTrue(petit.capacite().atteinte());
@@ -179,17 +179,17 @@ class DirectionCapaciteIntegrationTest {
 
     @Test
     void another_societe_never_appears() {
-        CapaciteOverview o = service.capacite(SOC, debut, aujourdhui);
+        CapaciteOverview o = service.execute(SOC, debut, aujourdhui);
 
         assertTrue(o.centres().stream().noneMatch(c -> c.centerId().equals(AUTRE)));
         assertEquals(16, o.total().generateurs(), "le petit centre, masqué, n'est pas dans le total");
-        assertEquals(1, service.capacite(SOC_AUTRE, debut, aujourdhui).total().generateurs());
+        assertEquals(1, service.execute(SOC_AUTRE, debut, aujourdhui).total().generateurs());
     }
 
     @Test
     void an_invalid_period_is_rejected() {
-        assertThrows(BusinessException.class, () -> service.capacite(SOC, aujourdhui, aujourdhui.minusDays(1)));
-        assertThrows(BusinessException.class, () -> service.capacite(SOC, aujourdhui.minusYears(6), aujourdhui));
+        assertThrows(RegleDuPilotageViolee.class, () -> service.execute(SOC, aujourdhui, aujourdhui.minusDays(1)));
+        assertThrows(RegleDuPilotageViolee.class, () -> service.execute(SOC, aujourdhui.minusYears(6), aujourdhui));
     }
 
     private void societe(UUID id, String code) {

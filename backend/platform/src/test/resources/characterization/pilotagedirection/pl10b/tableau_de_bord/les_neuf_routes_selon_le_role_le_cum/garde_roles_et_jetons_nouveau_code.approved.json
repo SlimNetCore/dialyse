@@ -47,26 +47,26 @@
     "/stock-groupes" : "403"
   },
   "05 un parametre illisible n'ouvre rien : 403 ou garde avant le 400" : {
-    "/absences MEDECIN, from=hier" : "400 BAD_REQUEST",
+    "/absences MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/absences anonyme, from=hier" : "403",
-    "/absences societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/absences societe inactive, from=hier" : "403 ACCESS_DENIED",
     "/breakdown MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/breakdown anonyme, from=hier" : "403",
     "/breakdown societe inactive, from=hier" : "403 ACCESS_DENIED",
-    "/capacite MEDECIN, from=hier" : "400 BAD_REQUEST",
+    "/capacite MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/capacite anonyme, from=hier" : "403",
-    "/capacite societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/capacite societe inactive, from=hier" : "403 ACCESS_DENIED",
     "/gmao MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/gmao anonyme, from=hier" : "403",
-    "/gmao societe inactive, from=hier" : "400 BAD_REQUEST",
+    "/gmao societe inactive, from=hier" : "403 ACCESS_DENIED",
     "/indicators MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/indicators anonyme, from=hier" : "403",
     "/indicators societe inactive, from=hier" : "403 ACCESS_DENIED",
     "/overview MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/overview anonyme, from=hier" : "403",
     "/overview societe inactive, from=hier" : "403 ACCESS_DENIED",
-    "/stock-groupes MEDECIN, from=hier" : "400 BAD_REQUEST",
+    "/stock-groupes MEDECIN, from=hier" : "403 ACCESS_DENIED",
     "/stock-groupes anonyme, from=hier" : "403",
-    "/stock-groupes societe inactive, from=hier" : "400 BAD_REQUEST"
+    "/stock-groupes societe inactive, from=hier" : "403 ACCESS_DENIED"
   }
 }

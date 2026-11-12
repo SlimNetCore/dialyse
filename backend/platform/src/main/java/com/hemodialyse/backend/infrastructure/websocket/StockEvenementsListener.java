@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
-import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.MouvementsDeStockModifies;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrousDeRecalculModifies;
 import org.springframework.cache.Cache;
@@ -17,6 +16,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 public class StockEvenementsListener {
 
+    /** Cache de la valorisation des groupes d'articles, tenu par le Pilotage direction (PL10b2) : {@code StockDesGroupesParLeStock.CACHE}. */
+    static final String CACHE_DE_VALORISATION = "stock.valorisation.articles";
+
     private final WebSocketStockEventPublisher publisher;
     private final CacheManager caches;
 
@@ -27,7 +29,7 @@ public class StockEvenementsListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     void mouvementsModifies(MouvementsDeStockModifies evenement) {
-        Cache valorisation = caches.getCache(ValorisationArticlesService.CACHE);
+        Cache valorisation = caches.getCache(CACHE_DE_VALORISATION);
         if (valorisation != null) {
             valorisation.clear();
         }
@@ -36,7 +38,7 @@ public class StockEvenementsListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     void verrousDeRecalcul(VerrousDeRecalculModifies evenement) {
-        Cache valorisation = caches.getCache(ValorisationArticlesService.CACHE);
+        Cache valorisation = caches.getCache(CACHE_DE_VALORISATION);
         if (valorisation != null && !"STARTED".equals(evenement.etat())) {
             valorisation.clear();
         }

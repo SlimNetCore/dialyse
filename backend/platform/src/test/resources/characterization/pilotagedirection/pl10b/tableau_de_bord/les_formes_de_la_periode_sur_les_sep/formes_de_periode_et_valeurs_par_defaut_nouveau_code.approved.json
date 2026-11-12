@@ -12,7 +12,7 @@
     "espace initial encode" : "400 BAD_REQUEST",
     "exactement 5 ans" : "200",
     "fin au dernier jour de l'an 9999" : "422 PERIODE_TROP_LONGUE",
-    "from double (le premier gagne ?)" : "200",
+    "from double (le premier gagne ?)" : "400 BAD_REQUEST",
     "from double inverse" : "400 BAD_REQUEST",
     "from vide" : "200",
     "jour 00" : "400 BAD_REQUEST",
@@ -62,7 +62,7 @@
     "espace initial encode" : "400 BAD_REQUEST",
     "exactement 5 ans" : "200",
     "fin au dernier jour de l'an 9999" : "422 PERIODE_TROP_LONGUE",
-    "from double (le premier gagne ?)" : "200",
+    "from double (le premier gagne ?)" : "400 BAD_REQUEST",
     "from double inverse" : "400 BAD_REQUEST",
     "from vide" : "200",
     "jour 00" : "400 BAD_REQUEST",
@@ -87,7 +87,7 @@
     "espace initial encode" : "400 BAD_REQUEST",
     "exactement 5 ans" : "200",
     "fin au dernier jour de l'an 9999" : "422 PERIODE_TROP_LONGUE",
-    "from double (le premier gagne ?)" : "200",
+    "from double (le premier gagne ?)" : "400 BAD_REQUEST",
     "from double inverse" : "400 BAD_REQUEST",
     "from vide" : "200",
     "jour 00" : "400 BAD_REQUEST",
@@ -162,7 +162,7 @@
     "espace initial encode" : "400 BAD_REQUEST",
     "exactement 5 ans" : "200",
     "fin au dernier jour de l'an 9999" : "422 PERIODE_TROP_LONGUE",
-    "from double (le premier gagne ?)" : "200",
+    "from double (le premier gagne ?)" : "400 BAD_REQUEST",
     "from double inverse" : "400 BAD_REQUEST",
     "from vide" : "200",
     "jour 00" : "400 BAD_REQUEST",
@@ -182,10 +182,10 @@
     "/stock-groupes" : "societeId/centreId ignores : true"
   },
   "valeurs par defaut (fin = aujourd'hui : horloge du Pilotage a Alger ou horloge de la JVM ; debut = 1er janvier de l'annee)" : {
-    "/absences" : "sans parametre : 200 from=<D+0> to=jour de la JVM (horloge systeme) | from seul : 200 to=jour de la JVM (horloge systeme) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, total, centres, motifs, mensuel, centresMasques]",
-    "/capacite" : "sans parametre : 200 from=<D+0> to=jour de la JVM (horloge systeme) | from seul : 200 to=jour de la JVM (horloge systeme) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, regle, total, centres, centresMasques]",
-    "/gmao" : "sans parametre : 200 from=<D+0> to=jour de la JVM (horloge systeme) | from seul : 200 to=jour de la JVM (horloge systeme) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, centres, totaux, alertes]",
+    "/absences" : "sans parametre : 200 from=<D+0> to=aujourd'hui du Pilotage (Alger) | from seul : 200 to=aujourd'hui du Pilotage (Alger) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, total, centres, motifs, mensuel, centresMasques]",
+    "/capacite" : "sans parametre : 200 from=<D+0> to=aujourd'hui du Pilotage (Alger) | from seul : 200 to=aujourd'hui du Pilotage (Alger) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, regle, total, centres, centresMasques]",
+    "/gmao" : "sans parametre : 200 from=<D+0> to=aujourd'hui du Pilotage (Alger) | from seul : 200 to=aujourd'hui du Pilotage (Alger) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, centres, totaux, alertes]",
     "/indicators" : "sans parametre : 200 from=<D+0> to=aujourd'hui du Pilotage (Alger) | from seul : 200 to=aujourd'hui du Pilotage (Alger) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, seuilAnonymat, centres, totaux, alertes]",
-    "/stock-groupes" : "sans parametre : 200 from=<D+0> to=jour de la JVM (horloge systeme) | from seul : 200 to=jour de la JVM (horloge systeme) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, groupes]"
+    "/stock-groupes" : "sans parametre : 200 from=<D+0> to=aujourd'hui du Pilotage (Alger) | from seul : 200 to=aujourd'hui du Pilotage (Alger) | to seul : 200 from=<D+0> | cles : [societeId, from, to, generatedAt, groupes]"
   }
 }

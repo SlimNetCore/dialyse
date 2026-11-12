@@ -117,7 +117,7 @@ public class TableauDeBordDeLaDirectionControleur {
     }
 
     /** Date ISO (aaaa-mm-jj) ; paramètre absent ou vide : {@code null} (le Pilotage applique la période par défaut). */
-    private static LocalDate date(HttpServletRequest requete, String nom) {
+    static LocalDate date(HttpServletRequest requete, String nom) {
         String brut = valeur(requete, nom);
         if (brut == null || brut.isEmpty()) return null;
         try {

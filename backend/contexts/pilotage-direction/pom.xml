@@ -109,6 +109,23 @@
             <artifactId>contexts-stock</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- PL10b2 + PL10c (ADR 0152) : gmao.v1, planification (capacité, patients aux générateurs) et absencespatients.v1, lus par leurs
+             langages publiés seulement (ArchitectureHexagonaleTest). Aucun de ces modules ne dépend du Pilotage : aucun cycle. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-gmao</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-planification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-absences-patients</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

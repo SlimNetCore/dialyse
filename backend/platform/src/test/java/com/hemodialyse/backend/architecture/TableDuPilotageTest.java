@@ -27,13 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * date et son butoir. Une entrée dont le fichier ne lit plus la table est « morte » : elle est à retirer. Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
  * contextes par leurs langages publiés (ou, pour {@code patients} et {@code centers}, par les entrées nommées de leurs gardes).
  * <p>
- * PD5 (ADR 0105, clôture) : garde nominative de ce qui RESTE dans {@code application/direction} de la plateforme (rendu PDF, comptes de
- * l'Organisation / IAM, services de lecture des autres contextes), sans SQL ; revue au plus tard le 2026-12-15.
+ * PD5 (ADR 0105, clôture) puis PL10b2 + PL10c (ADR 0152) : règle PERMANENTE (sans date de revue) sur {@code application/direction} de la
+ * plateforme, qui ne garde que les comptes de l'Organisation / IAM.
  */
 class TableDuPilotageTest {
 
     private static final Set<String> TABLES_DU_PILOTAGE = Set.of("direction_snapshot", "direction_alert_history");
-    private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
 
     private record Lecteur(String nature, LocalDate butoir) {
     }
@@ -146,11 +145,11 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void la_liste_blanche_compte_deux_lecteurs_chacun_avec_un_butoir_apres_la_revue_du_2026_12_15() {
+    void la_liste_blanche_compte_deux_proprietaires_dates_et_sans_echeance() {
         assertThat(LECTEURS_CONNUS).hasSize(2);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).startsWith("2026-");
-            assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
+            assertThat(lecteur.butoir()).as("butoir de " + chemin + " : un propriétaire n'a pas d'échéance").isEqualTo(LocalDate.of(2099, 12, 31));
         });
     }
 
@@ -161,26 +160,11 @@ class TableDuPilotageTest {
     private static final String APPLICATION_DIRECTION = "platform/src/main/java/com/hemodialyse/backend/application/direction/";
 
     /**
-     * Ce qui RESTE dans {@code application/direction}, nominativement, avec son propriétaire cible et sa raison (revue au plus tard le
-     * 2026-12-15, butoir des résiduels PD5-R1 à R6 : 2027-03-31). Aucune de ces dix classes n'est du Pilotage : la onzième,
-     * {@code DirectionIndicatorsQueryService} (composition des indicateurs), est passée dans le contexte avec PD6 (ADR 0106) ; elle ne doit
-     * pas réapparaître ici.
+     * PL10b2 + PL10c (ADR 0152) : les quatre services de lecture (GMAO, Stock, Planification, Absences) et l'anonymat de la plateforme ont
+     * quitté {@code application/direction} ; il ne reste que les comptes de l'Organisation / IAM (leur retrait est suivi par
+     * {@code TableDeLOrganisationTest}, qui porte sa propre échéance). Cette garde est PERMANENTE : plus aucune date de revue.
      */
-    private record Reste(String categorie, String proprietaire) {
-    }
-
-    private static final Map<String, Reste> RESTE_DANS_APPLICATION_DIRECTION = new TreeMap<>(Map.ofEntries(
-            Map.entry("DirectionAccountService.java", new Reste("comptes", "Organisation / IAM")),
-            Map.entry("SocieteAdminAccountService.java", new Reste("comptes", "Organisation / IAM")),
-            Map.entry("PasswordPolicy.java", new Reste("comptes", "Organisation / IAM")),
-            Map.entry("DirectionAbsencesQueryService.java", new Reste("lecture d'un autre contexte", "Absences de patients (absencespatients.v1)")),
-            Map.entry("DirectionCapaciteQueryService.java", new Reste("lecture d'un autre contexte", "Planification (capacité) et GMAO")),
-            Map.entry("DirectionGmaoQueryService.java", new Reste("lecture d'un autre contexte", "GMAO (gmao.v1)")),
-            Map.entry("DirectionStockGroupesQueryService.java", new Reste("lecture d'un autre contexte", "Stock (stock.v1)")),
-            Map.entry("AnonymityPolicy.java", new Reste("lecture d'un autre contexte", "plateforme : masquage des lectures ci-dessus (le Pilotage a son SeuilDAnonymat : égalité des deux seuils testée)"))));
-
     private static final Set<String> COMPTES = Set.of("DirectionAccountService.java", "SocieteAdminAccountService.java", "PasswordPolicy.java");
-    private static final Pattern SQL_EN_MAJUSCULES = Pattern.compile("\\b(FROM|JOIN)\\s+[A-Za-z_]+\\b", Pattern.CASE_INSENSITIVE);
 
     /** Chemins relatifs à application/direction, récursifs : un sous-package échapperait sinon à la garde. */
     private static Set<String> fichiersDeApplicationDirection() throws IOException {
@@ -192,11 +176,11 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void application_direction_ne_contient_plus_que_le_rendu_pdf_les_comptes_et_les_lectures_des_autres_contextes() throws IOException {
+    void application_direction_ne_contient_plus_que_les_comptes() throws IOException {
         assertThat(fichiersDeApplicationDirection())
-                .as("fichiers de application/direction : tout fichier du Pilotage vit dans backend/contexts/pilotage-direction (PD5, ADR 0105) ; "
-                        + "tout nouveau fichier doit être nommé, avec son propriétaire, dans RESTE_DANS_APPLICATION_DIRECTION")
-                .containsExactlyElementsOf(RESTE_DANS_APPLICATION_DIRECTION.keySet());
+                .as("fichiers de application/direction : tout fichier du Pilotage vit dans backend/contexts/pilotage-direction (PD5, ADR 0105 ; "
+                        + "PL10b2 + PL10c, ADR 0152) ; il ne reste que les comptes de l'Organisation / IAM")
+                .containsExactlyInAnyOrderElementsOf(COMPTES);
     }
 
     @Test
@@ -204,7 +188,6 @@ class TableDuPilotageTest {
         Set<String> presents = fichiersDeApplicationDirection();
         assertThat(presents).as("les comptes relèvent de l'Organisation / IAM : PD5 ne les retire ni ne les déplace").containsAll(COMPTES);
         for (String compte : COMPTES) {
-            assertThat(RESTE_DANS_APPLICATION_DIRECTION.get(compte).proprietaire()).isEqualTo("Organisation / IAM");
             assertThat(lit(backend().resolve(APPLICATION_DIRECTION + compte), TABLES_DU_PILOTAGE)).as(compte + " ne touche pas les tables du Pilotage").isFalse();
         }
         for (Path source : sourcesDeProduction(backend())) {
@@ -215,46 +198,14 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void les_lectures_des_autres_contextes_et_le_rendu_pdf_n_ecrivent_aucun_sql() throws IOException {
-        Set<String> avecSql = new TreeSet<>();
-        for (String nom : RESTE_DANS_APPLICATION_DIRECTION.keySet()) {
-            if (COMPTES.contains(nom)) continue;
-            Matcher m = SQL_EN_MAJUSCULES.matcher(Files.readString(backend().resolve(APPLICATION_DIRECTION + nom)));
-            if (m.find()) avecSql.add(nom + " : " + m.group());
+    void le_seuil_d_anonymat_est_unique_et_le_pilotage_n_a_plus_de_copie_dans_la_plateforme() throws IOException {
+        // PL10b2 + PL10c (ADR 0152, KB-PL10b-5) : une seule politique, SeuilDAnonymat ; le DPO la modifie en un seul endroit.
+        // Valeur à confirmer métiers/DPO : question ouverte KB-DIR-01, portée par le Pilotage (plus de copie à tenir égale).
+        assertThat(com.hemodialyse.backend.contexts.pilotagedirection.domain.SeuilDAnonymat.SEUIL).isEqualTo(5);
+        try (Stream<Path> sources = Files.walk(backend().resolve("platform/src/main/java"))) {
+            assertThat(sources.map(p -> p.getFileName().toString())).as("AnonymityPolicy ne revient pas dans la plateforme")
+                    .doesNotContain("AnonymityPolicy.java");
         }
-        assertThat(avecSql).as("ces classes passent par des langages publiés : aucun SQL cross-context (PD5)").isEmpty();
-    }
-
-    @Test
-    void la_liste_du_reste_compte_huit_entrees_dont_trois_de_comptes_et_plus_aucun_rendu_ni_composition_du_pilotage() {
-        assertThat(RESTE_DANS_APPLICATION_DIRECTION).hasSize(8).doesNotContainKey("DirectionIndicatorsQueryService.java")
-                .doesNotContainKeys("DirectionReportPdfService.java", "SocieteLetterheadPort.java");
-        assertThat(RESTE_DANS_APPLICATION_DIRECTION.keySet()).containsAll(COMPTES);
-        RESTE_DANS_APPLICATION_DIRECTION.forEach((nom, reste) -> {
-            assertThat(reste.categorie()).as("catégorie de " + nom).isNotBlank();
-            assertThat(reste.proprietaire()).as("propriétaire de " + nom).isNotBlank();
-        });
-    }
-
-    /**
-     * Échéance EFFECTIVE (PD5, m3) : passé le 2026-12-15, ce test échoue tant que la revue des listes nominatives (propriétaires des
-     * résiduels PD5-R1 à R8, questions KB-DIR-01 à 08) n'est pas faite ; la faire = confirmer ou corriger les décisions, puis repousser
-     * {@link #REVUE} avec la nouvelle date dans l'ADR 0105. (Aucun autre garde du dépôt n'applique sa date : leurs « revue au plus tard »
-     * sont du texte de raison.)
-     */
-    @Test
-    void la_revue_du_2026_12_15_n_est_pas_depassee() {
-        assertThat(REVUE).as("la date de revue est celle de l'ADR 0105").isEqualTo(LocalDate.of(2026, 12, 15));
-        assertThat(LocalDate.now(java.time.ZoneOffset.UTC))
-                .as("revue des listes nominatives du Pilotage (ADR 0105) échue : confirmer métiers/DPO puis repousser REVUE")
-                .isBeforeOrEqualTo(REVUE);
-    }
-
-    @Test
-    void les_deux_seuils_d_anonymat_de_la_plateforme_et_du_pilotage_sont_egaux() {
-        assertThat(com.hemodialyse.backend.application.direction.AnonymityPolicy.THRESHOLD)
-                .as("KB-DIR-01 : le DPO modifiera les deux copies ensemble (plateforme et SeuilDAnonymat du Pilotage)")
-                .isEqualTo(com.hemodialyse.backend.contexts.pilotagedirection.domain.SeuilDAnonymat.SEUIL);
     }
 
     @Test

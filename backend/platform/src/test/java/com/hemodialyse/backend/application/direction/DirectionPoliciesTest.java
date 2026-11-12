@@ -8,15 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class DirectionPoliciesTest {
 
     @Test
-    void small_headcounts_are_masked_but_zero_and_large_counts_are_kept() {
-        assertEquals(0L, AnonymityPolicy.mask(0));
-        assertNull(AnonymityPolicy.mask(1));
-        assertNull(AnonymityPolicy.mask(AnonymityPolicy.THRESHOLD - 1));
-        assertEquals(AnonymityPolicy.THRESHOLD, AnonymityPolicy.mask(AnonymityPolicy.THRESHOLD));
-        assertEquals(250L, AnonymityPolicy.mask(250));
-    }
-
-    @Test
     void a_strong_password_is_accepted() {
         assertNull(PasswordPolicy.violation("Correct-Horse-42", "direction"));
     }

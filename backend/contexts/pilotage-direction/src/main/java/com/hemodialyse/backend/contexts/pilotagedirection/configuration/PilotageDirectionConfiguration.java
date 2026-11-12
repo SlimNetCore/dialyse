@@ -246,6 +246,73 @@ public class PilotageDirectionConfiguration {
         return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc);
     }
 
+    // ───────────── PL10b2 + PL10c (ADR 0152) : les lectures de GMAO, Stock, Planification et Absences, composées par le Pilotage ─────────────
+
+    /** Habilitation (compte actif, rattaché, société active) : publiée à la plateforme pour le suivi STOMP, qui n'a plus de garde propre. */
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AccesALaDirection accesALaDirection(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.AccesPublie(
+                new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.GmaoDesCentres gmaoDesCentres(
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre syntheses,
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursDuCentre generateurs,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PatientsAuxGenerateurs patients) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.gmao.GmaoParLaGmao(syntheses, generateurs, patients);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.StockDesGroupes stockDesGroupes(
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.GroupesDArticlesDesCentres groupes,
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationsDuStock valorisations) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.StockDesGroupesParLeStock(groupes, valorisations);
+    }
+
+    /** Fuseau du jour de fin de période pour les générateurs installés : celui de la planification (une société consolidée n'a pas un seul centre). */
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.CapaciteDesCentres capaciteDesCentres(
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursInstalles installes,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres capacites,
+            @Value("${app.planification.fuseau-par-defaut:Africa/Algiers}") String fuseauParDefaut) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.planification.CapaciteParLaPlanification(
+                installes, capacites, ZoneId.of(fuseauParDefaut));
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.AbsencesDesCentres absencesDesCentres(
+            com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.AbsencesDuPilotage absences) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.absencespatients.AbsencesParLesAbsencesDesPatients(absences);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaGmaoDesCentres consulterLaGmaoDesCentres(
+            SocietesSuivies societes, com.hemodialyse.backend.contexts.pilotagedirection.application.GmaoDesCentres gmao, HorlogeDuPilotage horloge) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaGmaoDesCentres(societes, gmao, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLeStockDesGroupes consulterLeStockDesGroupes(
+            SocietesSuivies societes, com.hemodialyse.backend.contexts.pilotagedirection.application.StockDesGroupes stock, HorlogeDuPilotage horloge) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLeStockDesGroupes(societes, stock, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaCapaciteDesCentres consulterLaCapaciteDesCentres(
+            SocietesSuivies societes, com.hemodialyse.backend.contexts.pilotagedirection.application.CapaciteDesCentres capacites,
+            HorlogeDuPilotage horloge) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLaCapaciteDesCentres(societes, capacites, horloge);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLesAbsencesDesCentres consulterLesAbsencesDesCentres(
+            SocietesSuivies societes, com.hemodialyse.backend.contexts.pilotagedirection.application.AbsencesDesCentres absences,
+            SeancesRealiseesDesCentres seances, FacturationDesCentres facturation, HorlogeDuPilotage horloge) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.application.ConsulterLesAbsencesDesCentres(
+                societes, absences, seances, facturation, horloge);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.pilotagedirection.application.ImprimerLeRapport imprimerLeRapport(
             ConstituerLeRapportDeSynthese rapport, InstantanesMensuelsDeLaDirection instantanes, SocietesSuivies societes,

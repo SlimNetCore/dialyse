@@ -46,11 +46,9 @@ import org.springframework.web.servlet.HandlerMapping;
 @RestControllerAdvice(basePackages = "com.hemodialyse.backend.infrastructure.web.rest")
 class DatesIllisiblesDeLaDirectionAdvice {
 
-    /** PL10b1 (ADR 0151) : /indicators, /overview, /breakdown, /alerts/history et /societe sont servies par le Pilotage (garde avant paramètres). */
-    private static final java.util.Set<String> ROUTES = java.util.Set.of("/api/v1/direction/absences", "/api/v1/direction/stock-groupes",
-            "/api/v1/direction/capacite", "/api/v1/direction/gmao");
-    /** KB-DIR-02 (lot L6) : les routes ajoutées renvoient le 403 du profil sans droit AVANT le 400 (les trois routes d'origine gardent leur 400, KB-PL10b-1 pour PL10b2). */
-    private static final java.util.Set<String> ROUTES_AVEC_DROITS_A_VERIFIER = java.util.Set.of("/api/v1/direction/gmao");
+    // PL10b1 (ADR 0151) et PL10b2 (ADR 0152) : toutes les routes de la Direction (societe, overview, breakdown, indicators, alerts/history,
+    // gmao, stock-groupes, capacite, absences) sont servies par le Pilotage, qui lit la garde AVANT les paramètres : plus de route de
+    // la Direction ici, il ne reste que l'administration générique.
     private static final java.util.regex.Pattern ADMINISTRATION_GENERIQUE =
             java.util.regex.Pattern.compile("/api/v1/admin/referentials(/|$)");
 
@@ -113,12 +111,11 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     /** Les indicateurs médicaux de la Direction : le 403 passe avant le 400 (les autres routes gardent leur 400). */
     private static boolean estUneRouteAvecDroitsAVerifier(HttpServletRequest requete) {
-        return estUneRouteDeLAdministrationGenerique(requete)
-                || ROUTES_AVEC_DROITS_A_VERIFIER.stream().anyMatch(requete.getRequestURI()::endsWith);
+        return estUneRouteDeLAdministrationGenerique(requete);
     }
 
     private static boolean estUneRouteReprise(HttpServletRequest requete) {
-        return ROUTES.stream().anyMatch(requete.getRequestURI()::endsWith) || estUneRouteDeLAdministrationGenerique(requete);
+        return estUneRouteDeLAdministrationGenerique(requete);
     }
 
     /** Évalue l'expression {@code @PreAuthorize} de la route avec la racine d'expressions de Spring Security (403 avant 400). */
@@ -192,7 +189,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
             String uri = requete.getRequestURI().toLowerCase(java.util.Locale.ROOT);
             return requete.getRequestURI().startsWith("/api/v1/direction/")
                     && (uri.contains("report") || uri.startsWith("/api/v1/direction/snapshots")
-                    || java.util.stream.Stream.of("societe", "overview", "breakdown", "indicators", "alerts")
+                    || java.util.stream.Stream.of("societe", "overview", "breakdown", "indicators", "alerts", "gmao", "stock-groupes", "capacite", "absences")
                     .anyMatch(r -> uri.equals("/api/v1/direction/" + r) || uri.startsWith("/api/v1/direction/" + r + "/")
                             || uri.startsWith("/api/v1/direction/" + r + ".")));
         }

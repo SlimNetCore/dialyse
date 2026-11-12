@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.application.stock;
 
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.MouvementsDeStockModifies;
-import com.hemodialyse.backend.contexts.stock.publishedlanguage.ValorisationDuStock;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.StockDesGroupes;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.StockDesGroupes.Valorisation;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.StockDesGroupesParLeStock;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,7 @@ class ValorisationArticlesCacheIntegrationTest {
     private static final OffsetDateTime FIN = OffsetDateTime.of(2026, 3, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     @Autowired
-    private ValorisationArticlesService service;
+    private StockDesGroupes service;
     @Autowired
     private ApplicationEventPublisher evenements;
     @Autowired
@@ -50,7 +52,7 @@ class ValorisationArticlesCacheIntegrationTest {
     @BeforeEach
     void seed() {
         cleanup();
-        cacheManager.getCache(ValorisationArticlesService.CACHE).clear();
+        cacheManager.getCache(StockDesGroupesParLeStock.CACHE).clear();
         insertArticle(CENTRE_A);
         insertMouvement(CENTRE_A, 10);
     }
@@ -63,41 +65,41 @@ class ValorisationArticlesCacheIntegrationTest {
 
     @Test
     void a_second_identical_call_is_a_cache_hit_even_if_the_database_changed_behind_its_back() {
-        ValorisationDuStock premier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        Valorisation premier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
         assertEquals(0, new BigDecimal("1000").compareTo(premier.valeurFin()));
 
         insertMouvement(CENTRE_A, 5);   // écriture JDBC directe : aucune éviction
-        ValorisationDuStock second = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        Valorisation second = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
 
         assertSame(premier, second);
-        assertNotNull(cacheManager.getCache(ValorisationArticlesService.CACHE));
+        assertNotNull(cacheManager.getCache(StockDesGroupesParLeStock.CACHE));
     }
 
     @Test
     void the_key_is_scoped_to_the_center_so_nothing_leaks_between_centers() {
         service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN);
 
-        Map<UUID, ValorisationDuStock> autreCentre = service.valoriser(CENTRE_B, Set.of(ARTICLE), DEBUT, FIN);
+        Map<UUID, Valorisation> autreCentre = service.valoriser(CENTRE_B, Set.of(ARTICLE), DEBUT, FIN);
 
         assertEquals(0, BigDecimal.ZERO.compareTo(autreCentre.get(ARTICLE).valeurFin()));
     }
 
     @Test
     void a_stock_movement_write_evicts_the_cache() {
-        ValorisationDuStock avant = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        Valorisation avant = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
         assertEquals(0, new BigDecimal("1000").compareTo(avant.valeurFin()));
 
         insertMouvement(CENTRE_A, 5);
         evenements.publishEvent(new MouvementsDeStockModifies(CENTRE_A, "ENTREE", "BR-TEST", 1));
-        ValorisationDuStock apres = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        Valorisation apres = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
 
         assertEquals(0, new BigDecimal("1500").compareTo(apres.valeurFin()));
     }
 
     @Test
     void a_different_period_is_a_different_cache_entry() {
-        ValorisationDuStock fevrier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
-        ValorisationDuStock janvier = service.valoriser(CENTRE_A, Set.of(ARTICLE),
+        Valorisation fevrier = service.valoriser(CENTRE_A, Set.of(ARTICLE), DEBUT, FIN).get(ARTICLE);
+        Valorisation janvier = service.valoriser(CENTRE_A, Set.of(ARTICLE),
                 OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), DEBUT).get(ARTICLE);
 
         assertEquals(0, new BigDecimal("1000").compareTo(fevrier.valeurFin()));

@@ -103,7 +103,7 @@ class FrontieresDesContextesTest {
     /** SE7f (ADR 0100) : la Direction calcule la capacité théorique par le langage publié de la Planification. */
     @ArchTest
     static final ArchRule la_direction_calcule_la_capacite_theorique_par_le_langage_publie_de_la_planification = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.planification.CapaciteParLaPlanification")
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteTheoriqueDesCentres")
             .because("la méthode de la capacité théorique appartient à la Planification (ADR 0100, SE7f), plus à bc-seance");
 
@@ -448,8 +448,7 @@ class FrontieresDesContextesTest {
 
     @ArchTest
     static final ArchRule le_pilotage_de_la_direction_lit_les_seances_realisees_par_le_langage_publie = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.seance.SeancesRealiseesParLaSeance")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.seance.SeancesRealiseesParLaSeance")
             .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesRealiseesDesCentresPubliees")
             .because("le pilotage compte les séances réalisées par seance.v1 (ADR 0099, SE7e) ; depuis PD1 (ADR 0102) le tableau de bord le fait dans le module");
 
@@ -469,10 +468,29 @@ class FrontieresDesContextesTest {
      * Pilotage avec sa session de la direction ; le contrôleur de la plateforme (gmao, stock-groupes, capacite, absences) n'y revient pas.
      */
     @ArchTest
-    static final ArchRule le_controleur_de_la_plateforme_ne_sert_plus_les_routes_du_tableau_de_bord_du_pilotage = noClasses()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DirectionDashboardRestController")
-            .should().dependOnClassesThat().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection..")
-            .because("le tableau de bord de la direction est servi par contexts/pilotage-direction (PL10b1, ADR 0151)");
+    static final ArchRule le_controleur_du_tableau_de_bord_ne_revient_pas_dans_la_plateforme = classes()
+            .that().haveSimpleName("DirectionDashboardRestController")
+            .should().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection..")
+            .allowEmptyShould(true)
+            .because("les neuf routes du tableau de bord de la direction sont servies par contexts/pilotage-direction (PL10b1 ADR 0151, PL10b2 ADR 0152)");
+
+    /**
+     * PL10b2 + PL10c (ADR 0152) : les quatre services de lecture de la direction (GMAO, Stock, Planification, Absences), la politique
+     * d'anonymat de la plateforme et le cache de valorisation ont quitté la plateforme : le Pilotage les compose depuis les langages publiés
+     * des contextes propriétaires, avec son seuil d'anonymat unique ({@code SeuilDAnonymat}). Ils n'y reviennent pas.
+     */
+    @ArchTest
+    static final ArchRule les_lectures_de_la_direction_et_son_anonymat_ne_reviennent_pas_dans_la_plateforme = classes()
+            .that().haveSimpleName("DirectionGmaoQueryService")
+            .or().haveSimpleName("DirectionStockGroupesQueryService")
+            .or().haveSimpleName("DirectionCapaciteQueryService")
+            .or().haveSimpleName("DirectionAbsencesQueryService")
+            .or().haveSimpleName("AnonymityPolicy")
+            .or().haveSimpleName("ValorisationArticlesService")
+            .or().haveSimpleName("DirectionAccessGuard")
+            .should().resideInAPackage("com.hemodialyse.backend.contexts.pilotagedirection..")
+            .allowEmptyShould(true)
+            .because("ces lectures sont composées par contexts/pilotage-direction depuis les langages publiés de GMAO, Stock, Planification et Absences (ADR 0152)");
 
     @ArchTest
     static final ArchRule le_tableau_de_bord_est_servi_par_la_session_de_la_direction_du_pilotage = classes()

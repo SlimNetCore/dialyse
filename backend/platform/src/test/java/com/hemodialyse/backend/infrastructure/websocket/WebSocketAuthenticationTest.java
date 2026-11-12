@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
-import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
+import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AccesALaDirection;
 import com.hemodialyse.backend.infrastructure.security.JwtAuthenticationFactory;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +10,6 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -36,7 +35,7 @@ class WebSocketAuthenticationTest {
     private static final UUID SOCIETE = UUID.randomUUID();
     private static final UUID USER = UUID.randomUUID();
 
-    private DirectionAccessGuard guard;
+    private AccesALaDirection guard;
     private WebSocketAuthentication ws;
 
     private static Authentication auth(String role, UUID societe) {
@@ -56,14 +55,15 @@ class WebSocketAuthenticationTest {
 
     @BeforeEach
     void setup() {
-        guard = mock(DirectionAccessGuard.class);
+        guard = mock(AccesALaDirection.class);
+        when(guard.estHabilite(any(), any())).thenReturn(true);
         ws = new WebSocketAuthentication(mock(JwtAuthenticationFactory.class), guard);
     }
 
     @Test
     void the_direction_of_the_societe_can_subscribe() {
         assertDoesNotThrow(() -> ws.preSend(subscribe("/topic/societe/" + SOCIETE + "/dashboard", auth("DIRECTION", SOCIETE)), null));
-        verify(guard).verifyMember(USER, SOCIETE);
+        verify(guard).estHabilite(USER, SOCIETE);
     }
 
     @Test
@@ -84,7 +84,7 @@ class WebSocketAuthenticationTest {
 
     @Test
     void a_deactivated_account_is_refused_even_with_a_valid_token() {
-        doThrow(new AccessDeniedException("désactivé")).when(guard).verifyMember(any(), any());
+        when(guard.estHabilite(any(), any())).thenReturn(false);
         assertThrows(MessagingException.class,
                 () -> ws.preSend(subscribe("/topic/societe/" + SOCIETE + "/dashboard", auth("DIRECTION", SOCIETE)), null));
     }
