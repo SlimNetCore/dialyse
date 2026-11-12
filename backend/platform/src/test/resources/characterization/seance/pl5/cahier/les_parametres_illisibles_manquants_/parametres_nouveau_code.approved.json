@@ -1,0 +1,92 @@
+{
+  "01 patientId illisible" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps ou paramètre illisible",
+    "status" : 400
+  },
+  "02 patientId inconnu" : {
+    "code" : "PATIENT_INTROUVABLE",
+    "detail" : "Patient introuvable",
+    "status" : 404
+  },
+  "03 patient sans seance" : {
+    "code" : "CAHIER_VIDE",
+    "detail" : "Aucune séance validée à imprimer pour ce patient",
+    "status" : 422
+  },
+  "04 from illisible" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps ou paramètre illisible",
+    "status" : 400
+  },
+  "05 from au format jj/mm/aaaa" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps ou paramètre illisible",
+    "status" : 400
+  },
+  "06 to : jour qui n'existe pas (30 fevrier)" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps ou paramètre illisible",
+    "status" : 400
+  },
+  "07 from vide" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-354ca79a.pdf\"; filename*=UTF-8''cahier-dialyse-354ca79a.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 10/02/2026 Statut : Validée", "Page 2 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=2" ]
+  },
+  "08 from posterieur a to" : {
+    "code" : "CAHIER_PERIODE_INVALIDE",
+    "detail" : "Période invalide : le début doit précéder la fin",
+    "status" : 422
+  },
+  "09 from seul (D+40)" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-354ca79a.pdf\"; filename*=UTF-8''cahier-dialyse-354ca79a.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 10/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "10 to seul (D+31)" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-354ca79a.pdf\"; filename*=UTF-8''cahier-dialyse-354ca79a.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "11 from=to=D+31" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-354ca79a.pdf\"; filename*=UTF-8''cahier-dialyse-354ca79a.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "12 from en 1800 et to en 3500 (les bornes par defaut ne valent que si les parametres sont absents)" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-354ca79a.pdf\"; filename*=UTF-8''cahier-dialyse-354ca79a.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 10/02/2026 Statut : Validée", "Page 2 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=2" ]
+  },
+  "13 from en l'an 3000 : aucune seance" : {
+    "code" : "CAHIER_VIDE",
+    "detail" : "Aucune séance validée à imprimer pour ce patient",
+    "status" : 422
+  },
+  "14 fuseau : decalage en heures de la date d'edition par rapport a UTC (arrondi a l'heure, l'heure de l'appel n'est pas figee)" : {
+    "tz='%20'" : "+0 h",
+    "tz='%20Asia/Tokyo%20'" : "+9 h",
+    "tz='%20UTC%20'" : "+0 h",
+    "tz=''" : "+0 h",
+    "tz='+01:00'" : "+1 h",
+    "tz='Africa/Algiers'" : "+1 h",
+    "tz='Asia/Tokyo'" : "+9 h",
+    "tz='GMT'" : "+0 h",
+    "tz='Nulle/Part'" : "+0 h",
+    "tz='europe/paris'" : "+0 h",
+    "tz='invalide'" : "+0 h"
+  },
+  "15 sans tz : meme texte que tz=UTC" : true,
+  "16 autre methode HTTP (POST)" : "405 METHOD_NOT_ALLOWED"
+}

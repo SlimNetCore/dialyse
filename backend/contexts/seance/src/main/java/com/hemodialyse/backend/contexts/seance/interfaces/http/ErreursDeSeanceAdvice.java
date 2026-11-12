@@ -33,7 +33,8 @@ import org.springframework.web.servlet.HandlerMapping;
  * introuvable reste un 400 (reproduit, KB-SEA-04). Aucun message ne reprend de donnée de santé ni de nom de classe (KB-SEA-07).
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = {SeancesControleur.class, RoutesResiduellesControleur.class, TableauDeBordDesSeancesControleur.class})
+@RestControllerAdvice(assignableTypes = {SeancesControleur.class, RoutesResiduellesControleur.class, TableauDeBordDesSeancesControleur.class,
+        CahierDeDialyseControleur.class})
 class ErreursDeSeanceAdvice {
 
     private static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {
@@ -49,6 +50,12 @@ class ErreursDeSeanceAdvice {
         return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), erreur.motif().code());
     }
 
+    /** Cahier de dialyse : période inversée ou aucune séance à imprimer (PL5) : 422 avec le code de l'ancienne plateforme. */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.seance.domain.CahierRefuse.class)
+    ProblemDetail cahierRefuse(com.hemodialyse.backend.contexts.seance.domain.CahierRefuse erreur) {
+        return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(), erreur.code());
+    }
+
     @ExceptionHandler(SaisieInvalide.class)
     ProblemDetail saisieInvalide(SaisieInvalide erreur) {
         return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", erreur.getMessage(), "BAD_REQUEST");
@@ -60,8 +67,10 @@ class ErreursDeSeanceAdvice {
     }
 
     @ExceptionHandler(PatientIntrouvable.class)
-    ProblemDetail patientIntrouvable(PatientIntrouvable erreur) {
-        return probleme(HttpStatus.NOT_FOUND, "Patient introuvable", erreur.getMessage(), "PATIENT_INTROUVABLE");
+    ProblemDetail patientIntrouvable(PatientIntrouvable erreur, HttpServletRequest requete) {
+        // PL5 : le cahier garde son message historique « Patient introuvable » (seul le code passe de 422 à 404, KB-PL5-6e)
+        boolean cahier = requete.getRequestURI().contains("/api/v1/cahier-dialyse/");
+        return probleme(HttpStatus.NOT_FOUND, "Patient introuvable", cahier ? "Patient introuvable" : erreur.getMessage(), "PATIENT_INTROUVABLE");
     }
 
     @ExceptionHandler(SeanceDuJourAmbigue.class)

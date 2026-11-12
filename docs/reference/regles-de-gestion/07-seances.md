@@ -369,7 +369,7 @@
   par documentation le 2026-11-10 (lot L5b, ADR 0118)** : le blocage sans borne de centre ni de statut est voulu (prudence : aucune référence
   orpheline), figé par le contrat `should_count_the_seances_imposing_a_package_in_any_centre_and_any_status`.
   *Source :* `SeancesDuCahierPubliees`, `ForfaitsImposesAuxSeancesPublies`, `SeancesDuCahierEtForfaitsImposesJdbc`,
-  `CahierDialyseReportService`, `ReferentialAdminJdbcAdapter`, `ReferentialAdminTables`.
+  `ImprimerLeCahierDeDialyse`, `ReferentialAdminJdbcAdapter`, `ReferentialAdminTables`.
 
 - **RG-SEA-068** — **Séances reprises de l'ancien logiciel : écritures publiées** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
   comportement inchangé). L'import des séances d'un lot de reprise et l'annulation du lot passent par le **seul** port publié qui écrit
@@ -624,3 +624,20 @@
   information absente est imprimée « - ». Chaque page porte l'en-tête (logo, société, centre, identité du patient) et
   le pied de page (édition, pagination, centre, pied de page société) du centre. Refus : patient hors du centre
   (`PATIENT_INTROUVABLE`), aucune séance à imprimer (`CAHIER_VIDE`), début après la fin (`CAHIER_PERIODE_INVALIDE`).
+- **RG-SEA-045a** — *Cahier de dialyse : reprise sur place PL5 (ADR 0144, 2026-11-12)* : la route est servie par `contexts/seance`
+  (`CahierDeDialyseControleur`, cas d'usage `ImprimerLeCahierDeDialyse`) et rendue par Documents (`RenduDeDocument`, type `CAHIER_DIALYSE`) ;
+  URL, droits, en-têtes, modèle de document et codes de refus (`CAHIER_VIDE` et `CAHIER_PERIODE_INVALIDE` en 422) **inchangés**. Ordre des
+  gardes : centre de la session (403 `ACCESS_DENIED`), période, patient du centre, cahier vide. **KB-PL5-1 CORRIGÉ** : `patientId`,
+  `centerId`, `from` ou `to` illisibles = 400 `BAD_REQUEST` (le 403 d'un profil sans droit passe avant), autre verbe HTTP = 405
+  `METHOD_NOT_ALLOWED` (avant : 500). **KB-PL5-6e CORRIGÉ** : patient inconnu ou d'un autre centre = 404 `PATIENT_INTROUVABLE`, message « Patient
+  introuvable » conservé (avant : 422). **KB-PL5-3 CORRIGÉ** : l'impression est journalisée sous l'action de lecture `CAHIER_DIALYSE_IMPRESSION`
+  (« Cahier de dialyse imprimé », entité `patients`). **KB-PL5-4 CORRIGÉ** : un utilisateur dont le seul profil est `SECRETAIRE` n'imprime plus
+  le volet médical (hépatites, néphropathie, observation, conclusions, prescription EPO/fer, volet médical de la séance) ; `ADMIN`, `MEDECIN` et
+  `INFIRMIER` (seuls ou cumulés avec `SECRETAIRE`) le lisent ; `DIRECTION` et `SUPERADMIN` restent refusés (403 `ROLE_SCOPE`) ; à confirmer
+  métiers/DPO avant le 2026-12-15. **KB-PL5-5 CORRIGÉ** : les mouvements `ENTREE` et `AJUSTEMENT` rattachés à la séance sont déduits des
+  sorties (quantité et valorisation nettes par article et prix unitaire) ; à confirmer métiers. **KB-PL5-2 CORRIGÉ** : la ligne d'identité du
+  patient est imprimée sur deux lignes au besoin. **KB-PL5-6 CORRIGÉ (b, c)** : « Prix : x DA » n'est imprimé que si le forfait a un prix ; poids
+  avant et après, ultrafiltration et poids sec s'impriment avec la virgule. **KB-PL5-6 REPRODUIT (a, d)** (dette d'affichage). **Limite** : un modèle
+  de document personnalisé par le centre n'a pas le masque du volet médical (question ouverte de l'ADR 0144).
+  *Source :* `CahierDeDialyseControleur`, `ImprimerLeCahierDeDialyse`, `CahierRenduParDocuments`, `SessionLegacy`, `AuditActionResolver`,
+  `cahier_dialyse.jrxml`.

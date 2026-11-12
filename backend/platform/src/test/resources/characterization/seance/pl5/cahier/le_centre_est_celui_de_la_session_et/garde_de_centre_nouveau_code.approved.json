@@ -1,0 +1,75 @@
+{
+  "01 centerId absent (centre de session)" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-7117fdd2.pdf\"; filename*=UTF-8''cahier-dialyse-7117fdd2.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "02 centerId = centre de session" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-7117fdd2.pdf\"; filename*=UTF-8''cahier-dialyse-7117fdd2.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "03 centerId = autre centre que celui de la session" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+    "status" : 403
+  },
+  "04 centerId inconnu" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+    "status" : 403
+  },
+  "05 centerId illisible" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps ou paramètre illisible",
+    "status" : 400
+  },
+  "06 centerId vide" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-7117fdd2.pdf\"; filename*=UTF-8''cahier-dialyse-7117fdd2.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "07 patient du centre B, session A, centerId absent" : {
+    "code" : "PATIENT_INTROUVABLE",
+    "detail" : "Patient introuvable",
+    "status" : 404
+  },
+  "08 patient du centre B, session A, centerId=B" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+    "status" : 403
+  },
+  "09 patient du centre B, session B" : {
+    "cacheControl" : "no-cache, no-store, max-age=0, must-revalidate",
+    "contentDisposition" : "inline; filename=\"cahier-dialyse-c5094015.pdf\"; filename*=UTF-8''cahier-dialyse-c5094015.pdf",
+    "contentType" : "application/pdf",
+    "status" : 200,
+    "texte" : [ "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "pages=1" ]
+  },
+  "10 patient du centre A, session B" : {
+    "code" : "PATIENT_INTROUVABLE",
+    "detail" : "Patient introuvable",
+    "status" : 404
+  },
+  "11 ADMIN sans centre de session, centerId=A" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement",
+    "status" : 403
+  },
+  "12 ADMIN sans centre de session, centerId absent" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement",
+    "status" : 403
+  },
+  "13 SUPERADMIN + ADMIN (session A) vise le centre B" : {
+    "code" : "ROLE_SCOPE",
+    "detail" : "Ce profil n'a pas accès à cette ressource.",
+    "status" : 403
+  }
+}

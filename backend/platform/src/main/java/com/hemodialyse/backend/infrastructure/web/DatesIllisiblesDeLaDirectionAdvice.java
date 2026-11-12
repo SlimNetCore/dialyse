@@ -150,7 +150,8 @@ class DatesIllisiblesDeLaDirectionAdvice {
     @RestControllerAdvice
     static class MethodesNonSupporteesDeLaDirectionAdvice {
 
-        private static final String PREFIXE = "/api/v1/direction/";
+        /** La Direction (KB-DIR-02) et le cahier de dialyse imprimé (PL5, KB-PL5-1 : un POST répondait 500). */
+        private static final java.util.List<String> PREFIXES = java.util.List.of("/api/v1/direction/", "/api/v1/cahier-dialyse/");
 
         private final ApiExceptionHandler gestionnaireCommun;
 
@@ -160,7 +161,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
         @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
         ResponseEntity<ProblemDetail> methodeNonSupportee(HttpRequestMethodNotSupportedException erreur, HttpServletRequest requete) {
-            if (!requete.getRequestURI().startsWith(PREFIXE)) {
+            if (PREFIXES.stream().noneMatch(requete.getRequestURI()::startsWith)) {
                 ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
                 return ResponseEntity.status(commun.getStatus()).body(commun);
             }

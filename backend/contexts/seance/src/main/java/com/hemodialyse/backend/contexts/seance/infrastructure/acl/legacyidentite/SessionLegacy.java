@@ -58,6 +58,12 @@ public class SessionLegacy implements SessionCourante {
         return possede(a, "ROLE_ADMIN") || possede(a, "ROLE_INFIRMIER");
     }
 
+    @Override
+    public boolean peutLireLeVoletMedical() {
+        Authentication a = SecurityContextHolder.getContext().getAuthentication();
+        return possede(a, "ROLE_ADMIN") || possede(a, "ROLE_MEDECIN") || possede(a, "ROLE_INFIRMIER");
+    }
+
     private static boolean possede(Authentication a, String role) {
         if (a == null || !a.isAuthenticated()) return false;
         return a.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(role::equals);

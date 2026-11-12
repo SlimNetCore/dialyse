@@ -21,4 +21,12 @@ public interface SessionCourante {
 
     /** L'utilisateur valide la séance au scan (administrateur ou infirmier) ; sinon (secrétaire) le scan crée sans valider. */
     boolean valideAuScan();
+
+    /**
+     * L'utilisateur peut lire le volet médical (hépatites, conclusions, prescription) : administrateur, médecin ou infirmier. Une secrétaire
+     * seule ne le peut pas (KB-PL5-4).
+     */
+    default boolean peutLireLeVoletMedical() {
+        return false;
+    }
 }

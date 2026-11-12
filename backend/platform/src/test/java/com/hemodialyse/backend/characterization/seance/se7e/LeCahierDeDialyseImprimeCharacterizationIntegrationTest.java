@@ -77,7 +77,7 @@ class LeCahierDeDialyseImprimeCharacterizationIntegrationTest extends Se7eCharac
         m.put("identifiants des deux seances du meme jour (8 premiers caracteres : l'ordre imprime est croissant)", ordre);
         m.put("periode D+31 a D+58", cahier(patient, fixe(31), fixe(58)));
         m.put("sans periode", cahier(patient, null, null));
-        arbre("statuts_bornes_et_egalite", m);
+        arbre("statuts_bornes_et_egalite_nouveau_code", m);
     }
 
     @Test
@@ -99,7 +99,7 @@ class LeCahierDeDialyseImprimeCharacterizationIntegrationTest extends Se7eCharac
         m.put("periode sans seance (D+41 a D+59)", cahier(realise, fixe(41), fixe(59)));
         m.put("debut apres la fin", cahier(realise, fixe(41), fixe(40)));
         m.put("un seul jour (D+40)", cahier(realise, fixe(40), fixe(40)));
-        arbre("refus", m);
+        arbre("refus_nouveau_code", m);
     }
 
     @Test

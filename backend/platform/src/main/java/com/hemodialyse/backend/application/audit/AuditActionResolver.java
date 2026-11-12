@@ -22,11 +22,15 @@ public final class AuditActionResolver {
 
     private static final Set<String> WRITE_METHODS = Set.of("POST", "PUT", "PATCH", "DELETE");
 
+    /** Impression du cahier de dialyse (PL5, KB-PL5-3, décision du 2026-11-12) : lecture de données de santé, journalisée. */
+    private static final String ROUTE_CAHIER = "/api/v1/cahier-dialyse/{patientId}/imprimer";
+
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
      */
     private static final Set<String> SENSITIVE_READS = Set.of(
-            "/api/v1/patients/{patientId}/dossier-medical"
+            "/api/v1/patients/{patientId}/dossier-medical",
+            ROUTE_CAHIER
     );
 
     private static final Resolved ACTION_STATISTIQUES_PATIENT =
@@ -72,6 +76,7 @@ public final class AuditActionResolver {
                     new Resolved("ATTESTATION_RECHERCHE", "attestations", "Recherche d'attestations")),
             // Statistiques du patient (PL4, décision du 2026-11-12, KB-PL4-4) : les recherches par corps sont des LECTURES ; elles ne sont plus
             // journalisées « PATIENTS_CREATION ». Le journal historique n'est pas réécrit.
+            Map.entry("GET " + ROUTE_CAHIER, new Resolved("CAHIER_DIALYSE_IMPRESSION", "patients", "Cahier de dialyse imprimé")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/medical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT));

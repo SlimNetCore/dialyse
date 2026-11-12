@@ -696,4 +696,26 @@ public class SeanceConfiguration {
                                       @Qualifier("forfaitsDeLaSeance") ForfaitsDeSeance forfaits) {
         return new ListerLesSeances(session, historique, forfaits);
     }
+
+    /** Cahier de dialyse (PL5, ADR 0144) : séances comptées par le langage publié de la Séance, rendu confié à Documents (documents.v1). */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.application.SeancesDuCahier seancesDuCahierDeLaSeance(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDuCahierPubliees publiees) {
+        return (centre, patient, periode) -> publiees.nombreDeSeancesAImprimer(centre.valeur(), patient.valeur(), periode.du(), periode.au());
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.seance.application.RenduDuCahier renduDuCahierDeLaSeance(
+            com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument documents) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.documents.CahierRenduParDocuments(documents);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.seance.application.ImprimerLeCahierDeDialyse imprimerLeCahierDeDialyse(
+            @Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
+            @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
+            @Qualifier("seancesDuCahierDeLaSeance") com.hemodialyse.backend.contexts.seance.application.SeancesDuCahier seances,
+            @Qualifier("renduDuCahierDeLaSeance") com.hemodialyse.backend.contexts.seance.application.RenduDuCahier rendu) {
+        return new com.hemodialyse.backend.contexts.seance.application.ImprimerLeCahierDeDialyse(session, patients, seances, rendu, Clock.systemUTC());
+    }
 }

@@ -171,7 +171,7 @@ class LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest extends Se7eCharac
         m.put("02 meme cahier lu par une secretaire : meme texte au nom de l'utilisateur pres (tout le volet medical est servi)",
                 cahier(api(patient, "?tz=Africa/Algiers"), secretaireA(), true).toString().replace("u-secretaire", "u-infirmier").equals(
                         cahier(api(patient, "?tz=Africa/Algiers"), infirmierA(), true).toString()));
-        arbre("complet", m);
+        arbre("complet_nouveau_code", m);
     }
 
     @Test
@@ -192,7 +192,7 @@ class LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest extends Se7eCharac
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("quatre seances : blancs, zeros, textes longs, volet sans valeur", cahier(api(patient, "?tz=UTC"), infirmierA(), true));
-        arbre("volets_et_dossier", m);
+        arbre("volets_et_dossier_nouveau_code", m);
     }
 
     @Test
@@ -222,7 +222,7 @@ class LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest extends Se7eCharac
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("cahier sans prise en charge, trois seances", cahier(api(patient, "?tz=UTC"), infirmierA(), true));
-        arbre("consommables_prescription_forfait_absent", m);
+        arbre("consommables_prescription_forfait_absent_nouveau_code", m);
     }
 
     @Test
@@ -283,7 +283,7 @@ class LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest extends Se7eCharac
         m.put("12 ADMIN sans centre de session, centerId absent", cahier(api(patient, "?tz=UTC"), as(null, "ADMIN"), false));
         m.put("13 SUPERADMIN + ADMIN (session A) vise le centre B", cahier(api(patientB, "?tz=UTC&centerId=" + CENTRE_B), as(CENTRE_A, "SUPERADMIN", "ADMIN"),
                 false));
-        arbre("garde_de_centre", m);
+        arbre("garde_de_centre_nouveau_code", m);
     }
 
     @Test
@@ -317,7 +317,7 @@ class LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest extends Se7eCharac
         Map<String, Object> sansTz = cahier(api(patient, ""), infirmierA(), true);
         m.put("15 sans tz : meme texte que tz=UTC", sansTz.equals(reference));
         m.put("16 autre methode HTTP (POST)", statutEtCode(doPost(api(patient, ""), "{}", infirmierA())));
-        arbre("parametres", m);
+        arbre("parametres_nouveau_code", m);
     }
 
     @Test
@@ -332,6 +332,6 @@ class LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest extends Se7eCharac
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("journal", journalDAudit());
         m.put("aucune ecriture sur les seances", empreinteDesSeances().equals(avant));
-        arbre("audit", m);
+        arbre("audit_nouveau_code", m);
     }
 }

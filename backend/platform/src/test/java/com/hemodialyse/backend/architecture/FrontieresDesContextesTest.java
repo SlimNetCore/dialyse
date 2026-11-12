@@ -506,11 +506,23 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "StatistiquesDesSeancesPubliees")
             .because("les statistiques du patient (Dossier médical, PL4) lisent les séances par seance.v1 (ADR 0099, SE7e)");
 
+    /**
+     * PL5 (ADR 0144) : l'impression du cahier de dialyse vit dans {@code contexts/seance} (cas d'usage {@code ImprimerLeCahierDeDialyse},
+     * rendu confié à Documents par {@code RenduDeDocument}) ; le contrôleur et le service de la plateforme ne doivent pas réapparaître
+     * (deux gardes de centre, deux règles de portée du volet médical).
+     */
     @ArchTest
-    static final ArchRule le_cahier_compte_ses_seances_par_le_langage_publie = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.CahierDialyseReportService")
-            .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesDuCahierPubliees")
-            .because("le refus CAHIER_VIDE compte les séances par seance.v1 (ADR 0099, SE7e)");
+    static final ArchRule le_cahier_n_est_plus_servi_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.CahierDialyseRestController")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.CahierDialyseReportService")
+            .allowEmptyShould(true)
+            .because("le cahier de dialyse imprimé est servi par contexts/seance et rendu par contexts/documents (PL5, ADR 0144)");
+
+    @ArchTest
+    static final ArchRule le_cahier_est_rendu_par_le_langage_publie_de_documents = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.documents.CahierRenduParDocuments")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
+            .because("le cahier est rendu par documents.v1 (PL5, ADR 0144)");
 
     @ArchTest
     static final ArchRule le_catalogue_de_forfaits_compte_les_forfaits_imposes_par_le_langage_publie = classes()

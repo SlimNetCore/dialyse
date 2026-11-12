@@ -110,6 +110,12 @@
             <artifactId>contexts-planification</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Documents : RenduDeDocument (rendu du cahier de dialyse), PL5, ADR 0144. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Exports du tableau de bord mensuel (CSV, XLSX, PDF), SE7b, ADR 0095 : mêmes bibliothèques et versions que la plateforme. -->
         <dependency>
             <groupId>com.openhtmltopdf</groupId>

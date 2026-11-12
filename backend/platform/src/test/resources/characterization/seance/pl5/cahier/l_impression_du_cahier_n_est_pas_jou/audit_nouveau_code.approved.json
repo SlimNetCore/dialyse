@@ -1,0 +1,20 @@
+{
+  "aucune ecriture sur les seances" : true,
+  "journal" : [ {
+    "action_code" : "CAHIER_DIALYSE_IMPRESSION",
+    "entity_id" : "<PL5A>",
+    "entity_type" : "patients",
+    "http_method" : "GET",
+    "nombre" : "2",
+    "route_template" : "/api/v1/cahier-dialyse/{patientId}/imprimer",
+    "status_code" : "200"
+  }, {
+    "action_code" : "CAHIER_DIALYSE_IMPRESSION",
+    "entity_id" : "<PL5A>",
+    "entity_type" : "patients",
+    "http_method" : "GET",
+    "nombre" : "1",
+    "route_template" : "/api/v1/cahier-dialyse/{patientId}/imprimer",
+    "status_code" : "400"
+  } ]
+}

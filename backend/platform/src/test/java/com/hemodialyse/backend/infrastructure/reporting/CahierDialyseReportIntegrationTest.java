@@ -55,8 +55,8 @@ class CahierDialyseReportIntegrationTest {
     private JdbcTemplate jdbc;
     @Autowired
     private DataSource dataSource;
-    @Autowired
-    private CahierDialyseReportService report;
+    private static final LocalDate DEBUT_PAR_DEFAUT = LocalDate.of(1900, 1, 1);
+    private static final LocalDate FIN_PAR_DEFAUT = LocalDate.of(2999, 12, 31);
 
     private UUID patient;
     private UUID autrePatient;
@@ -167,8 +167,8 @@ class CahierDialyseReportIntegrationTest {
         Map<String, Object> params = new HashMap<>();
         params.put("CENTER_ID", centre.toString());
         params.put("PATIENT_ID", patientId.toString());
-        params.put("DATE_DEBUT", Date.valueOf(CahierDialyseReportService.DEBUT_PAR_DEFAUT));
-        params.put("DATE_FIN", Date.valueOf(CahierDialyseReportService.FIN_PAR_DEFAUT));
+        params.put("DATE_DEBUT", Date.valueOf(DEBUT_PAR_DEFAUT));
+        params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
         try (Connection connection = dataSource.getConnection()) {
             JasperPrint print = JasperFillManager.fillReport(compiled, params, connection);
             return print.getPages().stream().map(JRPrintPage::getElements).flatMap(List::stream)
@@ -185,8 +185,8 @@ class CahierDialyseReportIntegrationTest {
         Map<String, Object> params = new HashMap<>();
         params.put("CENTER_ID", centre.toString());
         params.put("PATIENT_ID", patientId.toString());
-        params.put("DATE_DEBUT", Date.valueOf(CahierDialyseReportService.DEBUT_PAR_DEFAUT));
-        params.put("DATE_FIN", Date.valueOf(CahierDialyseReportService.FIN_PAR_DEFAUT));
+        params.put("DATE_DEBUT", Date.valueOf(DEBUT_PAR_DEFAUT));
+        params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
         try (Connection connection = dataSource.getConnection()) {
             JasperPrint print = JasperFillManager.fillReport(compiled, params, connection);
             return List.of(print.getPages().size());
@@ -212,7 +212,7 @@ class CahierDialyseReportIntegrationTest {
         // forfait
         assertThat(textes).contains("Forfait : FH1 — Forfait hémodialyse");
         // volet paramédical (10 informations)
-        assertThat(textes).contains("Poids avant (kg) : 72.5", "TA avant : 13/8", "TA après : 12/7", "Durée (min) : 240",
+        assertThat(textes).contains("Poids avant (kg) : 72,5", "TA avant : 13/8", "TA après : 12/7", "Durée (min) : 240",
                 "Débit sang (mL/min) : 300", "Type de dialysat : Bicarbonate", "Anticoagulant : Héparine",
                 "Incidents / remarques : Crampes en fin de séance");
         assertThat(textes.stream().anyMatch(t -> t.equals("Poids après (kg) : 70"))).isTrue();
@@ -239,7 +239,7 @@ class CahierDialyseReportIntegrationTest {
         List<String> textes = textes(C1, patient);
 
         // séance du 10/09 : prescription du 01/01 ; séance du 12/09 : celle du 11/09 (pas celle du 01/10, postérieure)
-        assertThat(textes).contains("Poids sec : 69.5 kg", "Poids sec : 68 kg");
+        assertThat(textes).contains("Poids sec : 69,5 kg", "Poids sec : 68 kg");
         assertThat(textes).contains("EPO : Époétine alfa — 6000 UI SC 1/semaine", "EPO : Époétine alfa — 4000 UI SC 1/semaine");
         assertThat(textes).doesNotContain("Poids sec : 71 kg");
     }
@@ -251,24 +251,29 @@ class CahierDialyseReportIntegrationTest {
         assertThat(textes(C2, autrePatient)).noneMatch(t -> t.contains("FH1") || t.contains("EPO01"));
     }
 
-    @Test
-    void the_document_is_generated_through_the_center_document_model() {
-        ModeleDocumentPrinter.Document doc = report.imprimer(C1, patient, null, null, ZoneOffset.UTC, "admin");
-
-        assertThat(doc.format()).isNotBlank();
-        assertThat(new String(doc.content(), 0, 4, StandardCharsets.ISO_8859_1)).isEqualTo("%PDF");
-    }
+    // PL5 : le rendu par le modèle du centre et les refus (CAHIER_VIDE, CAHIER_PERIODE_INVALIDE, PATIENT_INTROUVABLE) sont portés par
+    // contexts/seance (ImprimerLeCahierDeDialyse) et le filet HTTP LeCahierDeDialyseHttpPl5CharacterizationIntegrationTest.
 
     @Test
-    void the_period_limits_the_printed_sessions_and_empty_or_foreign_requests_are_refused() {
-        ModeleDocumentPrinter.Document seule = report.imprimer(C1, patient, J2, J2, ZoneOffset.UTC, "admin");
-        assertThat(new String(seule.content(), 0, 4, StandardCharsets.ISO_8859_1)).isEqualTo("%PDF");
-
-        assertEquals("CAHIER_VIDE", assertThrows(BusinessException.class,
-                () -> report.imprimer(C1, patient, J2.plusDays(30), null, ZoneOffset.UTC, "admin")).getCode());
-        assertEquals("CAHIER_PERIODE_INVALIDE", assertThrows(BusinessException.class,
-                () -> report.imprimer(C1, patient, J2, J1, ZoneOffset.UTC, "admin")).getCode());
-        assertEquals("PATIENT_INTROUVABLE", assertThrows(BusinessException.class,
-                () -> report.imprimer(C1, autrePatient, null, null, ZoneOffset.UTC, "admin")).getCode());
+    void the_volet_medical_is_not_read_when_it_is_not_visible() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put("CENTER_ID", C1.toString());
+        params.put("PATIENT_ID", patient.toString());
+        params.put("DATE_DEBUT", Date.valueOf(DEBUT_PAR_DEFAUT));
+        params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
+        params.put("VOLET_MEDICAL_VISIBLE", Boolean.FALSE);
+        JasperReport compiled;
+        try (InputStream is = Files.newInputStream(Path.of("src/main/resources/reports/cahier_dialyse.jrxml"))) {
+            compiled = JasperCompileManager.compileReport(is);
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            JasperPrint print = JasperFillManager.fillReport(compiled, params, connection);
+            List<String> textes = print.getPages().stream().map(JRPrintPage::getElements).flatMap(List::stream)
+                    .filter((JRPrintElement e) -> e instanceof JRPrintText).map(e -> ((JRPrintText) e).getFullText())
+                    .collect(Collectors.toList());
+            assertThat(textes).isNotEmpty();
+            assertThat(textes).noneMatch(t -> t.startsWith("Statut hépatite") || t.startsWith("Poids sec") || t.startsWith("EPO")
+                    || t.startsWith("Conclusion") || t.contains("Volet médical"));
+        }
     }
 }
