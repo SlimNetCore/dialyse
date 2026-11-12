@@ -1,0 +1,9 @@
+[
+  "GET rapport suivi = false",
+  "GET feuille-comptage suivi = false",
+  "POST feuille-comptage suivi = true",
+  "lignes de journal apres 2 impressions et 1 telechargement = 0",
+  "lignes inchangees = true",
+  "import -> 200",
+  "journal : {ACTION_CODE=STOCK_CREATION, HTTP_METHOD=POST, ROUTE_TEMPLATE=/api/v1/stock/inventaires/{id}/feuille-comptage, STATUS_CODE=200, N=1}"
+]

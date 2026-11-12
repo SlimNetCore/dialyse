@@ -1,0 +1,7 @@
+[
+  "titre en minuscules, entetes deplaces (ligne 11), colonnes dans un autre ordre -> 200 comptees=1 ecarts=0 misesAJour=1 inchangees=0 vides=0 anomalies=[]",
+  "sans titre (aucune verification de reference) -> 200 comptees=2 ecarts=0 misesAJour=1 inchangees=0 vides=0 anomalies=[]",
+  "entetes apres la ligne 21 -> 422 application/problem+json {\"detail\":\"Colonnes « Quantité comptée » et « Code » introuvables : utilisez la feuille de comptage téléchargée.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"INVENTORY_SHEET_INVALID\"}",
+  "seule la premiere feuille est lue (premiere vide) -> 422 application/problem+json {\"detail\":\"Colonnes « Quantité comptée » et « Code » introuvables : utilisez la feuille de comptage téléchargée.\",\"instance\":\"/api/v1/stock/inventaires/<UUID>/feuille-comptage\",\"status\":422,\"title\":\"Regle metier violee\",\"code\":\"INVENTORY_SHEET_INVALID\"}",
+  "classeur .xls reel -> 200 comptees=3 ecarts=1 misesAJour=1 inchangees=0 vides=0 anomalies=[]"
+]

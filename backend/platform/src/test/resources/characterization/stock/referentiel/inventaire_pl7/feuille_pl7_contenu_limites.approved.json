@@ -1,0 +1,22 @@
+[
+  "--- aveugle=true statut=200 type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "feuilles=1 nom=Comptage",
+  "colonne A masquee=true validations=2 derniere ligne=6",
+  "0:  | Inventaire <REFERENCE> du <J-1>",
+  "1:  | Renseignez la colonne « Quantité comptée » (0 si le lot est absent) et le motif en cas d'écart, puis importez ce fichier depuis l'écran de comptage. Ne modifiez pas la colonne A (masquée).",
+  "2: <absente>",
+  "3: ID | Code | Article | Unité | N° de lot | Péremption | Quantité comptée | Motif écart | Compté par",
+  "4: <ID> | S2 | Sans lot | piece |  |  | 0 | Perte / vol | Ünï <b>",
+  "5: <ID> | S1 | Solution <b>saline</b> & \"stérile\" =SUM(1+1) 日本語 longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue  | piece | LOT'; DROP-- | <J-30> |  |  | ",
+  "6: <ID> | S1 | Solution <b>saline</b> & \"stérile\" =SUM(1+1) 日本語 longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue  | piece | L-DECIMAL | 17/12/2027 | 0.5 | Autre | u",
+  "--- aveugle=false statut=200 type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "feuilles=1 nom=Comptage",
+  "colonne A masquee=true validations=2 derniere ligne=6",
+  "0:  | Inventaire <REFERENCE> du <J-1>",
+  "1:  | Renseignez la colonne « Quantité comptée » (0 si le lot est absent) et le motif en cas d'écart, puis importez ce fichier depuis l'écran de comptage. Ne modifiez pas la colonne A (masquée).",
+  "2: <absente>",
+  "3: ID | Code | Article | Unité | N° de lot | Péremption | Théorique | Quantité comptée | Motif écart | Compté par",
+  "4: <ID> | S2 | Sans lot | piece |  |  | 3 | 0 | Perte / vol | Ünï <b>",
+  "5: <ID> | S1 | Solution <b>saline</b> & \"stérile\" =SUM(1+1) 日本語 longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue  | piece | LOT'; DROP-- | <J-30> | 4 |  |  | ",
+  "6: <ID> | S1 | Solution <b>saline</b> & \"stérile\" =SUM(1+1) 日本語 longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue longue  | piece | L-DECIMAL | 17/12/2027 | 0.13 | 0.5 | Autre | u"
+]
