@@ -131,7 +131,7 @@ class ImpressionDeLOrdonnanceCharacterizationIntegrationTest extends Prescriptio
         cas.put("centre absent", resume(imprimer("{\"typeDocument\":\"ORDONNANCE\",\"params\":{\"ordonnanceId\":\"" + o + "\"}}", as(CENTRE_A, "MEDECIN"))));
         jdbc.update("UPDATE modele_document SET active = FALSE WHERE id = ?", MODELE_A);
         cas.put("aucun modele actif", resume(imprimer(corpsImpression(CENTRE_A, "EXCEL", o.toString()), as(CENTRE_A, "MEDECIN"))));
-        arbre("erreurs", cas);
+        arbre("erreurs_nouveau_code", cas);
     }
 
     @Test

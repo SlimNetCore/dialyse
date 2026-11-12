@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.organisation;
 
-import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentProvisioner;
 import org.junit.jupiter.api.AfterEach;
@@ -15,7 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Filet de caractérisation O4 lot E : cas limites de l'identité imprimée ({@code DocumentIdentityProvider}) et du provisionnement des
+ * Filet de caractérisation O4 lot E : cas limites de l'identité imprimée (papier en-tête, ex {@code DocumentIdentityProvider}) et du provisionnement des
  * modèles de documents ({@code ModeleDocumentProvisioner}) sans filet jusqu'ici : société nue (le centre sans société est impossible : {@code centers.societe_id NOT NULL}), société inactive, logo vide,
  * pied de page vide ou blanc, textes à blancs de bord, ville identique à la wilaya, société inconnue, centre inactif provisionné,
  * modèle désactivé conservé. Écrit VERT sur les lecteurs SQL d'origine, avant leur remplacement par {@code IdentiteImprimee} et
@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends OrganisationCharacterizationSupport {
 
     @Autowired
-    private DocumentIdentityProvider identite;
+    private PapierEnTeteDuCentre identite;
     @Autowired
     private ModeleDocumentProvisioner provisionneur;
 
@@ -61,7 +61,7 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
                 societe, CODE_PREFIXE + "E-NUE", "Société nue");
         UUID centre = centreComplet("E-NU", societe, true);
 
-        Map<String, Object> p = identite.paramsFor(centre);
+        Map<String, Object> p = identite.parametresDeLEnTete(centre);
 
         assertThat(p.get("CENTRE_NOM")).isEqualTo("Centre E-NU");
         assertThat(p.get("CENTRE_ADRESSE")).isEqualTo("Blida – Tipaza");
@@ -71,7 +71,7 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
         assertThat(p.get("SOCIETE_LEGAL")).isEqualTo("");
         assertThat(p.get("SOCIETE_PIED_PAGE")).isEqualTo("");
         assertThat(p.get("SOCIETE_LOGO")).isNull();
-        assertThat(identite.decorateHtml("<html><body>X</body></html>", centre)).doesNotContain("<img");
+        assertThat(identite.habiller("<html><body>X</body></html>", centre)).doesNotContain("<img");
     }
 
     @Test
@@ -79,7 +79,7 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
         UUID societe = societeComplete("E-INACTIVE", false, new byte[]{(byte) 0xFF, 1, 2, 3, 4}, "Pied inactif");
         UUID centre = centreComplet("E-INACTIF", societe, false);
 
-        Map<String, Object> p = identite.paramsFor(centre);
+        Map<String, Object> p = identite.parametresDeLEnTete(centre);
 
         assertThat(p.get("SOCIETE_NOM")).isEqualTo("Société E-INACTIVE");
         assertThat(p.get("SOCIETE_ADRESSE")).isEqualTo("1 rue A, Alger");
@@ -88,9 +88,9 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
         assertThat(p.get("SOCIETE_PIED_PAGE")).isEqualTo("Pied inactif");
         assertThat(p.get("CENTRE_NOM")).isEqualTo("Centre E-INACTIF");
         assertThat(p.get("SOCIETE_LOGO")).isInstanceOf(InputStream.class);
-        assertThat(identite.decorateHtml("<html><body>X</body></html>", centre)).contains("data:image/jpeg;base64,");
+        assertThat(identite.habiller("<html><body>X</body></html>", centre)).contains("data:image/jpeg;base64,");
         // Un flux neuf à chaque impression.
-        assertThat(((InputStream) identite.paramsFor(centre).get("SOCIETE_LOGO")).readAllBytes())
+        assertThat(((InputStream) identite.parametresDeLEnTete(centre).get("SOCIETE_LOGO")).readAllBytes())
                 .containsExactly((byte) 0xFF, 1, 2, 3, 4);
     }
 
@@ -99,14 +99,14 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
         UUID societe = societeComplete("E-VIDE", true, new byte[0], "   ");
         UUID centre = centreComplet("E-VIDE", societe, true);
 
-        Map<String, Object> p = identite.paramsFor(centre);
+        Map<String, Object> p = identite.parametresDeLEnTete(centre);
 
         assertThat(p.get("SOCIETE_LOGO")).isNull();
         assertThat(p.get("SOCIETE_PIED_PAGE")).isEqualTo("");
-        assertThat(identite.decorateHtml("<html><body>X</body></html>", centre)).doesNotContain("<img");
-        assertThat(identite.societeIdentity(societe)).hasValueSatisfying(s -> {
+        assertThat(identite.habiller("<html><body>X</body></html>", centre)).doesNotContain("<img");
+        assertThat(identite.enTeteDeLaSociete(societe)).hasValueSatisfying(s -> {
             assertThat(s.logo()).isNull();
-            assertThat(s.piedPage()).isEqualTo("");
+            assertThat(s.piedDePage()).isEqualTo("");
         });
     }
 
@@ -115,7 +115,7 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
         UUID societe = societeComplete("E-VILLE", true, null, null);
         UUID centre = centreComplet("E-VILLE", societe, true);
 
-        Map<String, Object> p = identite.paramsFor(centre);
+        Map<String, Object> p = identite.parametresDeLEnTete(centre);
 
         assertThat(p.get("SOCIETE_ADRESSE")).isEqualTo("1 rue A, Alger");
         assertThat(p.get("CENTRE_ADRESSE")).isEqualTo("Blida – Tipaza");
@@ -125,13 +125,13 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
     void l_identite_de_la_seule_societe_est_vide_si_la_societe_est_inconnue_ou_absente() throws Exception {
         UUID societe = societeComplete("E-SEULE", false, new byte[]{1, 2, 3, 4, 5}, "Pied seul");
 
-        assertThat(identite.societeIdentity(null)).isEmpty();
-        assertThat(identite.societeIdentity(UUID.randomUUID())).isEmpty();
-        assertThat(identite.societeIdentity(societe)).hasValueSatisfying(s -> {
+        assertThat(identite.enTeteDeLaSociete(null)).isEmpty();
+        assertThat(identite.enTeteDeLaSociete(UUID.randomUUID())).isEmpty();
+        assertThat(identite.enTeteDeLaSociete(societe)).hasValueSatisfying(s -> {
             assertThat(s.nom()).isEqualTo("Société E-SEULE");
             assertThat(s.contact()).isEqualTo("1 rue A, Alger · Tél : 021 00 · Web : https://s.dz");
             assertThat(s.legal()).isEqualTo("NIF : NIF-E-SEULE");
-            assertThat(s.piedPage()).isEqualTo("Pied seul");
+            assertThat(s.piedDePage()).isEqualTo("Pied seul");
             assertThat(s.logo()).containsExactly(1, 2, 3, 4, 5);
         });
     }

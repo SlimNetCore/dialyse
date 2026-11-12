@@ -1,0 +1,22 @@
+package com.hemodialyse.backend.contexts.documents.publishedlanguage;
+
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Port de rendu publié par Documents (documents.v1, ADR 0140 D2) : rend le document d'un type pour un centre avec le modèle actif du
+ * centre et le papier en-tête, à partir des données que le contexte demandeur fournit. Appel synchrone.
+ *
+ * <p>Transitoire (DOC1) : le rendu est confié au moteur de la plateforme ({@link MoteurDeRendu}) ; ses refus restent ceux du moteur
+ * (modèle désactivé, type inconnu, génération impossible), repris par DOC2.
+ */
+public interface RenduDeDocument {
+
+    /**
+     * @param centre         le centre de l'impression
+     * @param typeDeDocument le code du type (insensible à la casse)
+     * @param donnees        les paramètres fournis par le contexte demandeur ; l'identité du papier en-tête est toujours posée par Documents
+     * @param format         {@code PDF}, {@code EXCEL} ou {@code HTML} ; {@code null} pour le format du modèle
+     */
+    DocumentRendu rendre(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format);
+}

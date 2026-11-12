@@ -79,6 +79,12 @@
             <artifactId>contexts-notifications</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Contexte Documents (DOC1, ADR 0140, 0142) : routes d'impression POST /api/v1/documents/print[/{modeleId}], papier en-tete ; le moteur Jasper reste ici jusqu'a DOC2 -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>ai.timefold.solver</groupId>
             <artifactId>timefold-solver-core</artifactId>

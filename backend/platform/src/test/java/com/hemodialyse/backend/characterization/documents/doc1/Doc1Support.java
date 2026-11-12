@@ -172,6 +172,11 @@ abstract class Doc1Support {
         return qui(CENTRE_D, USER_ADMIN, "ADMIN");
     }
 
+    /** Administrateur de la session d'un centre donne : depuis KB-DOC1-1 (corrige) le centre du corps doit etre celui de la session. */
+    static RequestPostProcessor adminDe(UUID centre) {
+        return qui(centre, USER_ADMIN, "ADMIN");
+    }
+
     // ------------------------------------------------------------------ HTTP
 
     static final class Resp {

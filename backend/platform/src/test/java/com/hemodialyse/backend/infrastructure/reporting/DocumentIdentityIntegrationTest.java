@@ -42,7 +42,7 @@ class DocumentIdentityIntegrationTest {
     private static final UUID ATTESTATION = UUID.fromString("99995000-0000-0000-0000-000000000004");
 
     @Autowired
-    private DocumentIdentityProvider identity;
+    private com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre identity;
     @Autowired
     private JasperReportService jasper;
     @Autowired
@@ -92,7 +92,7 @@ class DocumentIdentityIntegrationTest {
 
     @Test
     void the_identity_of_the_centre_and_its_societe_is_resolved_from_the_database() {
-        Map<String, Object> p = identity.paramsFor(CENTRE);
+        Map<String, Object> p = identity.parametresDeLEnTete(CENTRE);
         assertEquals("Société d'identité", p.get("SOCIETE_NOM"));
         assertEquals("NIF : NIF-1 · NIS : NIS-2 · RC : RC-3", p.get("SOCIETE_LEGAL"));
         assertEquals("Mention légale de test", p.get("SOCIETE_PIED_PAGE"));
@@ -105,17 +105,17 @@ class DocumentIdentityIntegrationTest {
 
     @Test
     void an_unknown_centre_yields_empty_strings_and_no_logo() {
-        Map<String, Object> p = identity.paramsFor(UUID.randomUUID());
+        Map<String, Object> p = identity.parametresDeLEnTete(UUID.randomUUID());
         assertEquals("", p.get("SOCIETE_NOM"));
         assertEquals("", p.get("CENTRE_LIGNE"));
         assertNull(p.get("SOCIETE_LOGO"));
-        assertFalse(identity.paramsFor(null).isEmpty());
+        assertFalse(identity.parametresDeLEnTete(null).isEmpty());
     }
 
     @Test
     void html_documents_get_an_escaped_identity_header_and_footer() {
         jdbc.update("UPDATE societes SET raison_sociale = ? WHERE id = ?", "<script>alert(1)</script> & Cie", SOCIETE);
-        String html = identity.decorateHtml("<html><head></head><body><h1>Doc</h1></body></html>", CENTRE);
+        String html = identity.habiller("<html><head></head><body><h1>Doc</h1></body></html>", CENTRE);
         assertTrue(html.contains("&lt;script&gt;alert(1)&lt;/script&gt; &amp; Cie"), "le nom est échappé : " + html);
         assertFalse(html.contains("<script>"), "aucun HTML injecté");
         assertTrue(html.contains("data:image/png;base64,"), "logo intégré en data URI");
@@ -125,7 +125,7 @@ class DocumentIdentityIntegrationTest {
 
     @Test
     void reserved_identity_parameters_sent_by_the_client_are_ignored() {
-        Map<String, String> safe = DocumentIdentityProvider.stripReservedParams(Map.of(
+        Map<String, Object> safe = identity.ecarterLIdentiteDeLAppelant(Map.of(
                 "patientId", "p1", "SOCIETE_NOM", "Usurpation", "centre_nom", "Faux", "SOCIETE_LOGO", "x"));
         assertEquals(Map.of("patientId", "p1"), safe);
     }
@@ -136,7 +136,7 @@ class DocumentIdentityIntegrationTest {
         {
             Map<String, Object> params = new HashMap<>();
             params.put("CENTER_ID", CENTRE.toString());
-            params.putAll(identity.paramsFor(CENTRE));
+            params.putAll(identity.parametresDeLEnTete(CENTRE));
 
             JasperReport report = jasper.compileReport("reports/liste_attestations.jrxml");
             JasperPrint print = jasper.fillReport(report, params);
@@ -168,7 +168,7 @@ class DocumentIdentityIntegrationTest {
                 params.put("CENTER_ID", CENTRE.toString());
                 params.put("patientId", patientId);
                 params.put("attestationId", "");
-                params.putAll(identity.paramsFor(CENTRE));
+                params.putAll(identity.parametresDeLEnTete(CENTRE));
 
                 JasperPrint print = jasper.fillReport(jasper.compileReport("reports/" + template + ".jrxml"), params);
                 assertFalse(print.getPages().isEmpty(), template + " : aucune page générée");

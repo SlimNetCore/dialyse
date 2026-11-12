@@ -118,7 +118,6 @@
     "backend/contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/NotificationsDeLAnemieLegacy.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/SignalementDesPrescriptionsLegacy.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/DocumentIdentityProvider.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionDashboardRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/DirectionSnapshotRestController.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/security/DirectionAccessGuard.java",

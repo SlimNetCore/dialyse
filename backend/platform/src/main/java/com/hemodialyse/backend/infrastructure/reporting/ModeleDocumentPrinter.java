@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
 import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import net.sf.jasperreports.engine.JRParameter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -20,26 +22,41 @@ import java.util.UUID;
  *   <li>la version personnalisée active du centre est utilisée si elle existe, sinon le modèle d'origine ;</li>
  *   <li>le document est exporté au format du modèle (PDF par défaut).</li>
  * </ol>
+ * <p>
+ * DOC1 (ADR 0142) : l'identité vient du papier en-tête du contexte Documents ({@link PapierEnTeteDuCentre}) et cette classe est le moteur
+ * de rendu TRANSITOIRE que le contexte consomme par le port {@link MoteurDeRendu} (le moteur migre en DOC2).
  */
 @Component
-public class ModeleDocumentPrinter {
+public class ModeleDocumentPrinter implements MoteurDeRendu {
 
     private final JdbcTemplate jdbc;
     private final JasperReportService jasper;
     private final ModeleDocumentTemplateService templates;
     private final CustomTemplateCompiler compiler;
-    private final DocumentIdentityProvider identity;
+    private final PapierEnTeteDuCentre papier;
     private final ModeleDocumentProvisioner provisioner;
 
     public ModeleDocumentPrinter(JdbcTemplate jdbc, JasperReportService jasper, ModeleDocumentTemplateService templates,
-                                 CustomTemplateCompiler compiler, DocumentIdentityProvider identity,
+                                 CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier,
                                  ModeleDocumentProvisioner provisioner) {
         this.jdbc = jdbc;
         this.jasper = jasper;
         this.templates = templates;
         this.compiler = compiler;
-        this.identity = identity;
+        this.papier = papier;
         this.provisioner = provisioner;
+    }
+
+    @Override
+    public byte[] rendreParModele(UUID modele, UUID centre, String cheminDuGabarit, Map<String, Object> parametres, String format)
+            throws Exception {
+        return render(modele, centre, cheminDuGabarit, parametres, format);
+    }
+
+    @Override
+    public Rendu rendreParType(UUID centre, String type, Map<String, Object> donnees, String formatDemande) {
+        Document document = print(centre, type, donnees, formatDemande);
+        return new Rendu(document.content(), document.format());
     }
 
     private static Map<String, Object> lower(Map<String, Object> row) {
@@ -61,6 +78,13 @@ public class ModeleDocumentPrinter {
      * @throws BusinessException modèle désactivé ou génération impossible (message lisible)
      */
     public Document print(UUID centerId, String type, Map<String, Object> params) {
+        return print(centerId, type, params, null);
+    }
+
+    /**
+     * Comme {@link #print(UUID, String, Map)} avec un format imposé par le demandeur ({@code null} = format du modèle).
+     */
+    public Document print(UUID centerId, String type, Map<String, Object> params, String formatDemande) {
         ModeleDocumentCatalog.Entry entry = ModeleDocumentCatalog.find(type).orElseThrow(() -> new BusinessException(
                 "DOCUMENT_TYPE_UNKNOWN", "Type de document inconnu : " + type));
         provisioner.ensure(centerId, entry);
@@ -76,7 +100,8 @@ public class ModeleDocumentPrinter {
         Map<String, Object> modele = lower(modeles.getFirst());
         UUID modeleId = UUID.fromString(String.valueOf(modele.get("id")));
         String chemin = modele.get("chemin_jrxml") == null ? entry.cheminJrxml() : modele.get("chemin_jrxml").toString();
-        String format = modele.get("format_impression") == null ? "PDF" : modele.get("format_impression").toString();
+        String format = formatDemande != null ? formatDemande
+                : modele.get("format_impression") == null ? "PDF" : modele.get("format_impression").toString();
 
         try {
             return new Document(render(modeleId, centerId, chemin, withIdentity(centerId, params), format), format);
@@ -103,17 +128,10 @@ public class ModeleDocumentPrinter {
     }
 
     private Map<String, Object> withIdentity(UUID centerId, Map<String, Object> params) {
-        Map<String, Object> all = new HashMap<>();
-        params.forEach((k, v) -> {
-            String key = k == null ? "" : k.toUpperCase();
-            if (!key.startsWith(DocumentIdentityProvider.RESERVED_PREFIX_SOCIETE)
-                    && !key.startsWith(DocumentIdentityProvider.RESERVED_PREFIX_CENTRE)) {
-                all.put(k, v);
-            }
-        });
+        Map<String, Object> all = new HashMap<>(papier.ecarterLIdentiteDeLAppelant(params));
         all.put("CENTER_ID", centerId.toString());
         all.putIfAbsent(JRParameter.REPORT_FORMAT_FACTORY, new FrenchFormatFactory());
-        all.putAll(identity.paramsFor(centerId));
+        all.putAll(papier.parametresDeLEnTete(centerId));
         return all;
     }
 

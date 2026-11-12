@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence;
-import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
 import com.hemodialyse.backend.infrastructure.reporting.FrenchFormatFactory;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
@@ -37,10 +37,10 @@ public class ImpressionDeLaPresenceLegacy implements ImpressionDeLaPresence {
     private final JdbcTemplate jdbc;
     private final JasperReportService jasper;
     private final ModeleDocumentPrinter printer;
-    private final DocumentIdentityProvider identite;
+    private final PapierEnTeteDuCentre identite;
 
     public ImpressionDeLaPresenceLegacy(JdbcTemplate jdbc, JasperReportService jasper, ModeleDocumentPrinter printer,
-                                        DocumentIdentityProvider identite) {
+                                        PapierEnTeteDuCentre identite) {
         this.jdbc = jdbc;
         this.jasper = jasper;
         this.printer = printer;
@@ -88,7 +88,7 @@ public class ImpressionDeLaPresenceLegacy implements ImpressionDeLaPresence {
             Map<String, Object> params = new HashMap<>(parametres(debutDeSemaine));
             params.put("CENTER_ID", centre.toString());
             params.putIfAbsent(JRParameter.REPORT_FORMAT_FACTORY, new FrenchFormatFactory());
-            params.putAll(identite.paramsFor(centre));
+            params.putAll(identite.parametresDeLEnTete(centre));
             byte[] contenu = modele != null ? printer.render(modele, centre, chemin, params, format)
                     : jasper.generateReport(chemin, params, format);
             return new Document(contenu, format);

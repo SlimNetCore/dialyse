@@ -86,7 +86,8 @@ class DocumentRestControllerPatientDatasetIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/documents/print")
-                        .with(user("admin").roles("ADMIN"))
+                        .with(user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(
+                                UUID.randomUUID().toString(), CENTER_ID.toString(), "admin", "", java.util.List.of("ADMIN"), true)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())

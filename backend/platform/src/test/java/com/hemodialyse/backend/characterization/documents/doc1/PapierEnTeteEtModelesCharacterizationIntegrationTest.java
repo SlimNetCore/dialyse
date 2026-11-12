@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.documents.doc1;
 
 import com.hemodialyse.backend.application.erreur.BusinessException;
-import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,8 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 /**
- * DOC1 : le papier en-tete ({@code DocumentIdentityProvider.paramsFor / decorateHtml / societeIdentity / stripReservedParams}) et
+ * DOC1 : le papier en-tete (ex {@code DocumentIdentityProvider.paramsFor / decorateHtml / societeIdentity / stripReservedParams}, desormais
+ * {@code documents.v1.PapierEnTeteDuCentre.parametresDeLEnTete / habiller / enTeteDeLaSociete / ecarterLIdentiteDeLAppelant}) et
  * l'impression par type de document ({@code ModeleDocumentPrinter.print}, la porte utilisee par les contextes consommateurs :
  * provisionnement a la premiere impression, refus de modele desactive, type inconnu).
  */
@@ -23,12 +24,12 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     private static final String HTML = "<html><head></head><body><h1>Doc</h1><p>Contenu</p></body></html>";
 
     @Autowired
-    private DocumentIdentityProvider identite;
+    private PapierEnTeteDuCentre identite;
     @Autowired
     private ModeleDocumentPrinter imprimeur;
 
     private Map<String, Object> parametres(UUID centre) throws Exception {
-        Map<String, Object> p = new TreeMap<>(identite.paramsFor(centre));
+        Map<String, Object> p = new TreeMap<>(identite.parametresDeLEnTete(centre));
         Map<String, Object> vue = new LinkedHashMap<>();
         for (var e : p.entrySet()) {
             if (e.getValue() instanceof InputStream in) {
@@ -65,7 +66,7 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     @Test
     void les_parametres_reserves_du_client_sont_retires_quelle_que_soit_la_casse() {
         Map<String, Object> cas = new LinkedHashMap<>();
-        cas.put("retires", DocumentIdentityProvider.stripReservedParams(new LinkedHashMap<>(Map.of(
+        cas.put("retires", identite.ecarterLIdentiteDeLAppelant(new LinkedHashMap<String, Object>(Map.of(
                 "patientId", "p1", "SOCIETE_NOM", "x", "centre_nom", "y", "Centre_Ligne", "z", "societe_logo", "w",
                 "CENTERID", "garde", "MON_CENTRE", "garde"))).entrySet().stream().sorted(Map.Entry.comparingByKey())
                 .map(e -> e.getKey() + "=" + e.getValue()).toList());
@@ -75,10 +76,10 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     @Test
     void le_html_recoit_un_en_tete_et_un_pied_de_page_echappes_avec_le_logo_en_data_uri() {
         Map<String, Object> cas = new LinkedHashMap<>();
-        cas.put("centre D", identite.decorateHtml(HTML, CENTRE_D));
-        cas.put("centre E (sans societe)", identite.decorateHtml(HTML, CENTRE_E));
-        cas.put("centre inconnu", identite.decorateHtml(HTML, UUID.fromString("99998150-0000-0000-0000-0000000009aa")));
-        cas.put("centre null", identite.decorateHtml(HTML, null));
+        cas.put("centre D", identite.habiller(HTML, CENTRE_D));
+        cas.put("centre E (sans societe)", identite.habiller(HTML, CENTRE_E));
+        cas.put("centre inconnu", identite.habiller(HTML, UUID.fromString("99998150-0000-0000-0000-0000000009aa")));
+        cas.put("centre null", identite.habiller(HTML, null));
         golden("decorate_html", cas);
     }
 
@@ -86,9 +87,9 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     void le_html_sans_balise_body_est_rendu_tel_quel_et_les_noms_sont_echappes() {
         jdbc.update("UPDATE societes SET raison_sociale = ?, pied_page = ? WHERE id = ?", "<b>Soc</b> & \"Cie\" 'x'", "<script>1</script>", SOCIETE);
         Map<String, Object> cas = new LinkedHashMap<>();
-        cas.put("sans body", identite.decorateHtml("<html><p>x</p></html>", CENTRE_D));
-        cas.put("body avec attribut (non reconnu)", identite.decorateHtml("<html><body class='a'>x</body></html>", CENTRE_D));
-        cas.put("noms echappes", identite.decorateHtml(HTML, CENTRE_D));
+        cas.put("sans body", identite.habiller("<html><p>x</p></html>", CENTRE_D));
+        cas.put("body avec attribut (non reconnu)", identite.habiller("<html><body class='a'>x</body></html>", CENTRE_D));
+        cas.put("noms echappes", identite.habiller(HTML, CENTRE_D));
         golden("decorate_html_cas_limites", cas);
     }
 
@@ -96,30 +97,30 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     void le_logo_jpeg_est_reconnu_par_son_premier_octet_et_tout_autre_contenu_est_traite_comme_png() {
         byte[] jpeg = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 16};
         jdbc.update("UPDATE societes SET logo = ?, logo_content_type = 'image/jpeg' WHERE id = ?", jpeg, SOCIETE);
-        String html = identite.decorateHtml(HTML, CENTRE_D);
+        String html = identite.habiller(HTML, CENTRE_D);
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("jpeg (0xFF en tete)", html.contains("data:image/jpeg;base64,/9j/4AAQ"));
         byte[] autre = {1, 2, 3, 4, 5};
         jdbc.update("UPDATE societes SET logo = ?, logo_content_type = 'image/webp' WHERE id = ?", autre, SOCIETE);
-        cas.put("autre contenu annonce webp : servi comme png", identite.decorateHtml(HTML, CENTRE_D).contains("data:image/png;base64,AQIDBAU="));
+        cas.put("autre contenu annonce webp : servi comme png", identite.habiller(HTML, CENTRE_D).contains("data:image/png;base64,AQIDBAU="));
         jdbc.update("UPDATE societes SET logo = NULL WHERE id = ?", SOCIETE);
-        cas.put("sans logo : aucune balise img", !identite.decorateHtml(HTML, CENTRE_D).contains("<img"));
+        cas.put("sans logo : aucune balise img", !identite.habiller(HTML, CENTRE_D).contains("<img"));
         golden("logo_type_detecte", cas);
     }
 
     @Test
     void l_identite_de_la_seule_societe_sert_aux_documents_de_direction() {
         Map<String, Object> cas = new LinkedHashMap<>();
-        var s = identite.societeIdentity(SOCIETE).orElseThrow();
+        var s = identite.enTeteDeLaSociete(SOCIETE).orElseThrow();
         Map<String, Object> vue = new LinkedHashMap<>();
         vue.put("nom", s.nom());
         vue.put("contact", s.contact());
         vue.put("legal", s.legal());
-        vue.put("piedPage", s.piedPage());
+        vue.put("piedPage", s.piedDePage());
         vue.put("logo (octets)", s.logo() == null ? null : s.logo().length);
         cas.put("societe connue", vue);
-        cas.put("societe inconnue", identite.societeIdentity(UUID.fromString("99998150-0000-0000-0000-0000000009aa")).isPresent());
-        cas.put("societe null", identite.societeIdentity(null).isPresent());
+        cas.put("societe inconnue", identite.enTeteDeLaSociete(UUID.fromString("99998150-0000-0000-0000-0000000009aa")).isPresent());
+        cas.put("societe null", identite.enTeteDeLaSociete(null).isPresent());
         golden("identite_de_la_societe", cas);
     }
 

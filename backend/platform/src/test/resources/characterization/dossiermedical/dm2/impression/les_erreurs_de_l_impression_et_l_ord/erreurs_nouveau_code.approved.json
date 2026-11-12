@@ -1,0 +1,32 @@
+{
+  "aucun modele actif" : {
+    "contentType" : "text/plain",
+    "disposition" : null,
+    "statut" : 400,
+    "texte" : "Aucun modèle actif trouvé pour ce centre/type: ORDONNANCE (centre=<CENTRE_A>)"
+  },
+  "centre absent" : {
+    "contentType" : "text/plain",
+    "disposition" : null,
+    "statut" : 400,
+    "texte" : "centerId est obligatoire"
+  },
+  "ordonnanceId absent" : {
+    "contentType" : "text/plain",
+    "disposition" : null,
+    "statut" : 400,
+    "texte" : "ordonnanceId est obligatoire pour ORDONNANCE"
+  },
+  "ordonnanceId illisible" : {
+    "contentType" : "text/plain",
+    "disposition" : null,
+    "statut" : 400,
+    "texte" : "ordonnanceId illisible : un identifiant est attendu"
+  },
+  "ordonnanceId inconnu" : {
+    "chaines du classeur" : [ ],
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=ordonnance.xlsx",
+    "statut" : 200
+  }
+}

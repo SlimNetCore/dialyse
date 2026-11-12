@@ -1,0 +1,12 @@
+{
+  "ADMIN" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "MEDECIN" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "SECRETAIRE" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "INFIRMIER" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "DIRECTION" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "SUPERADMIN seul" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "COMPTABLE (role inconnu)" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "aucun role" : [ 200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx" ],
+  "ADMIN sans centre de session" : [ 403, "application/problem+json", "{\"detail\":\"Session sans centre de rattachement\",\"instance\":\"" ],
+  "anonyme" : [ 403, "null" ]
+}

@@ -1,25 +1,15 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpressionDesTypesSensibles;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
-import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
-import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
-import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;
 import com.hemodialyse.backend.infrastructure.web.dto.request.DocumentSearchRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.PrintRequest;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -29,50 +19,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * Contrôleur REST pour la gestion des modèles de documents et l'impression.
+ * Contrôleur REST pour la gestion des modèles de documents (reste en plateforme jusqu'à DOC3 / DOC4).
  * <p>
- * Workflow impression :
- * 1. Le front envoie : POST /api/v1/documents/print
- * avec { centerId, typeDocument, params: { patientId, ... } }
- * 2. Le back récupère le modèle de document pour ce centre + type
- * 3. Il lit le chemin .jrxml et le format d'impression
- * 4. Il appelle JasperReportService.generateReport(chemin, params, format)
- * 5. Il retourne le fichier (PDF, Excel ou HTML)
+ * Les routes d'impression {@code POST /print} et {@code POST /print/{modeleId}} sont servies par le contexte Documents
+ * (DOC1, ADR 0142). Cette classe fournit encore à Documents, de façon TRANSITOIRE, les règles des types sensibles
+ * ({@link ReglesDImpressionDesTypesSensibles}) : profil exigé pour l'ordonnance et la synthèse de facturation, totaux de la synthèse.
  */
 @RestController
 @RequestMapping("/api/v1/documents")
-public class DocumentRestController {
-
-    private static final Logger log = LoggerFactory.getLogger(DocumentRestController.class);
+public class DocumentRestController implements ReglesDImpressionDesTypesSensibles {
 
     private final JdbcTemplate jdbc;
-    private final JasperReportService jasperService;
     /**
      * Chemins de modèles autorisés : uniquement les modèles livrés avec l'application (jamais un chemin disque libre).
      */
     private static final java.util.regex.Pattern SAFE_TEMPLATE_PATH =
             java.util.regex.Pattern.compile("reports/[A-Za-z0-9_\\-]+\\.jrxml");
     private final ModeleDocumentTemplateService templateService;
-    private final CustomTemplateCompiler customTemplateCompiler;
     private final CenterAccessGuard centerAccessGuard;
-    private final DocumentIdentityProvider identityProvider;
-    private final ModeleDocumentPrinter printer;
     private final SyntheseDeFacturation syntheseDeFacturation;
 
-    public DocumentRestController(JdbcTemplate jdbc, JasperReportService jasperService,
-                                  ModeleDocumentTemplateService templateService,
-                                  CustomTemplateCompiler customTemplateCompiler,
-                                  CenterAccessGuard centerAccessGuard,
-                                  DocumentIdentityProvider identityProvider,
-                                  ModeleDocumentPrinter printer,
-                                  SyntheseDeFacturation syntheseDeFacturation) {
+    public DocumentRestController(JdbcTemplate jdbc, ModeleDocumentTemplateService templateService,
+                                  CenterAccessGuard centerAccessGuard, SyntheseDeFacturation syntheseDeFacturation) {
         this.jdbc = jdbc;
-        this.jasperService = jasperService;
         this.templateService = templateService;
-        this.customTemplateCompiler = customTemplateCompiler;
         this.centerAccessGuard = centerAccessGuard;
-        this.identityProvider = identityProvider;
-        this.printer = printer;
         this.syntheseDeFacturation = syntheseDeFacturation;
     }
 
@@ -188,169 +159,33 @@ public class DocumentRestController {
     }
 
     // ═══════════════════════════════════════════════════════════════════
-    //  IMPRESSION
+    //  Règles des types sensibles, fournies au contexte Documents (transitoire)
     // ═══════════════════════════════════════════════════════════════════
 
-    /**
-     * Point d'entrée principal pour l'impression.
-     * Récupère le modèle → chemin .jrxml → compile → remplit → exporte.
-     */
-    @PostMapping("/print")
-    public ResponseEntity<byte[]> print(@RequestBody PrintRequest req) {
-        if (estLaSyntheseDeFacturation(req)) {
-            garderLaSyntheseDeFacturation(req);
-        }
-        if (estUneOrdonnance(req)) {
-            garderLOrdonnance(req);
-        }
-        try {
-            validatePrintRequest(req, true);
-            String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
-            // 1) Récupérer le modèle actif pour ce centre et ce type
-            var modeles = jdbc.queryForList(
-                    "SELECT id, chemin_jrxml, format_impression FROM modele_document " +
-                            "WHERE center_id = ? AND UPPER(type_document) = ? AND active = TRUE " +
-                            "ORDER BY created_at DESC",
-                    req.centerId(), normalizedType
-            );
-            if (modeles.isEmpty()) {
-                String msg = "Aucun modèle actif trouvé pour ce centre/type: " + normalizedType + " (centre=" + req.centerId() + ")";
-                log.warn(msg);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body(msg.getBytes());
-            }
-            Map<String, Object> modele = modeles.get(0);
-
-            String cheminJrxml = Objects.toString(
-                    modele.get("CHEMIN_JRXML"),
-                    Objects.toString(modele.get("chemin_jrxml"), ""));
-            String format = req.formatOverride() != null
-                    ? req.formatOverride()
-                    : Objects.toString(modele.get("FORMAT_IMPRESSION"),
-                    Objects.toString(modele.get("format_impression"), "PDF"));
-
-            // 2) Construire les paramètres Jasper
-            Map<String, Object> jasperParams = new HashMap<>();
-            jasperParams.put("CENTER_ID", req.centerId().toString());
-            DocumentIdentityProvider.stripReservedParams(normalizeParams(req.params())).forEach(jasperParams::put);
-            // Identité société + centre (en-tête et pied de page) : posée par le serveur, jamais par le client.
-            jasperParams.putAll(identityProvider.paramsFor(req.centerId()));
-            if (estLaSyntheseDeFacturation(req)) {
-                poserLesTotauxDeLaSynthese(req, jasperParams);
-            }
-
-            // 3) Générer le rapport
-            log.info("Impression: type={}, centre={}, jrxml={}, format={}",
-                    normalizedType, req.centerId(), cheminJrxml, format);
-            byte[] data = render(UUID.fromString(Objects.toString(
-                            modele.getOrDefault("ID", modele.get("id")))),
-                    req.centerId(), cheminJrxml, jasperParams, format);
-
-            // 4) Construire la réponse
-            return buildResponse(data, format, normalizedType);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(e.getMessage().getBytes());
-        } catch (Exception e) {
-            log.error("Erreur impression: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(("Erreur d'impression: " + e.getMessage()).getBytes());
-        } catch (Throwable t) {
-            // Capture errors like NoClassDefFoundError to avoid security fallback 403 on /error dispatch
-            log.error("Erreur critique impression: {}", t.getMessage(), t);
-            return ResponseEntity.internalServerError()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(("Erreur critique d'impression: " + t.getClass().getSimpleName() + " - " + t.getMessage()).getBytes());
-        }
-    }
-
-    /**
-     * Impression par ID de modèle spécifique (utile si plusieurs modèles du même type).
-     */
-    @PostMapping("/print/{modeleId}")
-    public ResponseEntity<byte[]> printById(@PathVariable UUID modeleId,
-                                            @RequestBody PrintRequest req) {
-        // Le type du modèle chargé (jamais un paramètre du client) décide de la garde de la synthèse de facturation.
-        boolean synthese = estUnModeleDeSynthese(modeleId);
-        if (synthese) {
-            garderLaSyntheseDeFacturation(req);
-        }
-        try {
-            validatePrintRequest(req, false);
-            Map<String, Object> modele = jdbc.queryForMap(
-                    "SELECT chemin_jrxml, format_impression, type_document FROM modele_document " +
-                            "WHERE id = ? AND center_id = ?",
-                    modeleId, req.centerId()
-            );
-
-            String cheminJrxml = Objects.toString(
-                    modele.get("CHEMIN_JRXML"),
-                    Objects.toString(modele.get("chemin_jrxml"), ""));
-            String typeDoc = Objects.toString(
-                    modele.get("TYPE_DOCUMENT"),
-                    Objects.toString(modele.get("type_document"), "CUSTOM"));
-            String format = req.formatOverride() != null
-                    ? req.formatOverride()
-                    : Objects.toString(modele.get("FORMAT_IMPRESSION"),
-                    Objects.toString(modele.get("format_impression"), "PDF"));
-
-            Map<String, Object> jasperParams = new HashMap<>();
-            jasperParams.put("CENTER_ID", req.centerId().toString());
-            DocumentIdentityProvider.stripReservedParams(normalizeParams(req.params())).forEach(jasperParams::put);
-            // Identité société + centre (en-tête et pied de page) : posée par le serveur, jamais par le client.
-            jasperParams.putAll(identityProvider.paramsFor(req.centerId()));
-            if (synthese) {
-                poserLesTotauxDeLaSynthese(req, jasperParams);
-            }
-
-            byte[] data = render(modeleId, req.centerId(), cheminJrxml, jasperParams, format);
-            return buildResponse(data, format, typeDoc);
-
-        } catch (EmptyResultDataAccessException e) {
-            String msg = "Modèle introuvable pour ce centre";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(msg.getBytes());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(e.getMessage().getBytes());
-        } catch (Exception e) {
-            log.error("Erreur impression par ID: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(("Erreur: " + e.getMessage()).getBytes());
-        } catch (Throwable t) {
-            log.error("Erreur critique impression par ID: {}", t.getMessage(), t);
-            return ResponseEntity.internalServerError()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(("Erreur critique: " + t.getClass().getSimpleName() + " - " + t.getMessage()).getBytes());
-        }
-    }
-
-    /**
-     * Génère le document : utilise la version personnalisée active du modèle si le centre en a téléversé une,
-     * sinon le modèle d'origine.
-     */
-    private byte[] render(UUID modeleId, UUID centerId, String cheminJrxml, Map<String, Object> params, String format)
-            throws Exception {
-        return printer.render(modeleId, centerId, cheminJrxml, params, format);
-    }
-
     private static final String SYNTHESE_FACTURATION = "SYNTHESE_FACTURATION_MENSUELLE";
+    private static final String ORDONNANCE = "ORDONNANCE";
 
-    private static boolean estLaSyntheseDeFacturation(PrintRequest req) {
-        return req != null && req.typeDocument() != null
-                && SYNTHESE_FACTURATION.equals(req.typeDocument().trim().toUpperCase(Locale.ROOT));
+    private static String normaliser(String type) {
+        return type == null ? null : type.trim().toUpperCase(Locale.ROOT);
     }
 
-    private static boolean estUneOrdonnance(PrintRequest req) {
-        return req != null && req.typeDocument() != null
-                && "ORDONNANCE".equals(req.typeDocument().trim().toUpperCase(Locale.ROOT));
+    @Override
+    public void garderParType(String type, UUID centreDemande) {
+        String normalise = normaliser(type);
+        if (SYNTHESE_FACTURATION.equals(normalise)) {
+            garderLaSyntheseDeFacturation(centreDemande);
+        }
+        if (ORDONNANCE.equals(normalise)) {
+            garderLOrdonnance(centreDemande);
+        }
+    }
+
+    @Override
+    public void garderParModele(String typeDuModele, UUID centreDemande) {
+        // Le type du modèle chargé (jamais un paramètre du client) décide de la garde de la synthèse de facturation.
+        if (SYNTHESE_FACTURATION.equals(normaliser(typeDuModele))) {
+            garderLaSyntheseDeFacturation(centreDemande);
+        }
     }
 
     /**
@@ -358,18 +193,12 @@ public class DocumentRestController {
      * (MEDECIN ou ADMIN) et le contrôle du centre du corps : 403 sinon, avant tout accès aux données (KB-MED-18 corrigé, ADR 0081,
      * à confirmer avec les métiers). Les autres types de document ne changent pas.
      */
-    private void garderLOrdonnance(PrintRequest req) {
+    private void garderLOrdonnance(UUID centreDemande) {
         var roles = centerAccessGuard.currentScope().roles();
         if (!roles.contains("ROLE_MEDECIN") && !roles.contains("ROLE_ADMIN")) {
             throw new AccessDeniedException("Profil insuffisant pour imprimer une ordonnance");
         }
-        centerAccessGuard.requireCenter(req.centerId());
-    }
-
-    private boolean estUnModeleDeSynthese(UUID modeleId) {
-        var types = jdbc.queryForList("SELECT type_document FROM modele_document WHERE id = ?", String.class, modeleId);
-        return !types.isEmpty() && types.get(0) != null
-                && SYNTHESE_FACTURATION.equals(types.get(0).trim().toUpperCase(Locale.ROOT));
+        centerAccessGuard.requireCenter(centreDemande);
     }
 
     /**
@@ -377,119 +206,38 @@ public class DocumentRestController {
      * {@code POST /facturation/synthese/print} (administrateur ou secrétaire ; le médecin seul est refusé) : 403 sinon
      * (KB-FAC-52 et KB-FAC-60 corrigés). Les autres types de document ne changent pas.
      */
-    private void garderLaSyntheseDeFacturation(PrintRequest req) {
+    private void garderLaSyntheseDeFacturation(UUID centreDemande) {
         if (!ProfilDeLaSynthese.autorise(centerAccessGuard.currentScope().roles())) {
             throw new AccessDeniedException("Profil insuffisant pour la synthèse de facturation");
         }
-        centerAccessGuard.requireCenter(req.centerId());
+        centerAccessGuard.requireCenter(centreDemande);
     }
 
     /**
      * Les montants globaux sont les totaux enregistrés des factures de la période (ADR 0034), posés par le serveur : un
-     * paramètre du même nom envoyé par le client est écarté. Période illisible ou inversée : rien n'est posé et le gabarit
-     * retombe sur la somme des lignes, comme avant.
+     * paramètre du même nom envoyé par le client est écarté (paramètres réservés de Documents, KB-DOC1-2). Période illisible ou
+     * inversée : rien n'est posé et le gabarit retombe sur la somme des lignes, comme avant.
      */
-    private void poserLesTotauxDeLaSynthese(PrintRequest req, Map<String, Object> jasperParams) {
-        jasperParams.keySet().removeAll(List.of("TOTAL_HT_FACTURES", "TOTAL_TVA_FACTURES", "TOTAL_TTC_FACTURES"));
+    @Override
+    public Map<String, Object> donneesDuServeur(String type, UUID centre, Map<String, String> params) {
+        if (!SYNTHESE_FACTURATION.equals(normaliser(type))) {
+            return Map.of();
+        }
         try {
-            Map<String, String> params = normalizeParams(req.params());
             java.time.LocalDate debut = java.time.LocalDate.parse(params.get("PERIOD_START"));
             java.time.LocalDate fin = java.time.LocalDate.parse(params.get("PERIOD_END"));
             if (debut.isAfter(fin)) {
-                return;
+                return Map.of();
             }
-            SyntheseMensuelle synthese = syntheseDeFacturation.de(req.centerId(), debut, fin);
-            jasperParams.put("TOTAL_HT_FACTURES", synthese.totalHt());
-            jasperParams.put("TOTAL_TVA_FACTURES", synthese.totalTva());
-            jasperParams.put("TOTAL_TTC_FACTURES", synthese.totalTtc());
+            SyntheseMensuelle synthese = syntheseDeFacturation.de(centre, debut, fin);
+            Map<String, Object> totaux = new HashMap<>();
+            totaux.put("TOTAL_HT_FACTURES", synthese.totalHt());
+            totaux.put("TOTAL_TVA_FACTURES", synthese.totalTva());
+            totaux.put("TOTAL_TTC_FACTURES", synthese.totalTtc());
+            return totaux;
         } catch (java.time.DateTimeException | NullPointerException e) {
             // période absente ou illisible : refusée par la suite comme avant
+            return Map.of();
         }
-    }
-
-    private void validatePrintRequest(PrintRequest req, boolean requireTypeDocument) {
-        if (req == null || req.centerId() == null) {
-            throw new IllegalArgumentException("centerId est obligatoire");
-        }
-        if (requireTypeDocument && (req.typeDocument() == null || req.typeDocument().isBlank())) {
-            throw new IllegalArgumentException("typeDocument est obligatoire");
-        }
-        if (!requireTypeDocument) return;
-
-        String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
-        Map<String, String> params = normalizeParams(req.params());
-        String patientId = params.get("patientId");
-        String attestationId = params.get("attestationId");
-        String pecId = params.get("pecId");
-        String ordonnanceId = params.get("ordonnanceId");
-
-        if ("FICHE_PATIENT".equals(normalizedType)) {
-            if (isBlank(patientId)) {
-                throw new IllegalArgumentException("patientId est obligatoire pour " + normalizedType);
-            }
-            return;
-        }
-
-        if ("ATTESTATION".equals(normalizedType) && isBlank(patientId) && isBlank(attestationId)) {
-            throw new IllegalArgumentException("patientId ou attestationId est obligatoire pour ATTESTATION");
-        }
-
-        if ("PEC".equals(normalizedType) && isBlank(patientId) && isBlank(pecId)) {
-            throw new IllegalArgumentException("patientId ou pecId est obligatoire pour PEC");
-        }
-
-        if ("ORDONNANCE".equals(normalizedType) && isBlank(ordonnanceId)) {
-            throw new IllegalArgumentException("ordonnanceId est obligatoire pour ORDONNANCE");
-        }
-
-        if ("SYNTHESE_FACTURATION_MENSUELLE".equals(normalizedType)) {
-            String periodStart = params.get("PERIOD_START");
-            String periodEnd = params.get("PERIOD_END");
-            if (isBlank(periodStart) || isBlank(periodEnd)) {
-                throw new IllegalArgumentException("PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE");
-            }
-        }
-    }
-
-    private Map<String, String> normalizeParams(Map<String, String> raw) {
-        if (raw == null || raw.isEmpty()) return Map.of();
-        Map<String, String> normalized = new HashMap<>();
-        raw.forEach((k, v) -> normalized.put(k, v == null ? null : v.trim()));
-        return normalized;
-    }
-
-    private boolean isBlank(String s) {
-        return s == null || s.isBlank();
-    }
-
-    // ─── Helper ─────────────────────────────────────────────────────────
-
-    private ResponseEntity<byte[]> buildResponse(byte[] data, String format, String typeDoc) {
-        String filename = typeDoc.toLowerCase().replace("_", "-");
-        HttpHeaders headers = new HttpHeaders();
-
-        return switch (format.toUpperCase()) {
-            case "EXCEL", "XLS", "XLSX" -> {
-                headers.setContentType(MediaType.parseMediaType(
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-                headers.add("Content-Disposition",
-                        "attachment; filename=" + filename + ".xlsx");
-                yield ResponseEntity.ok().headers(headers).body(data);
-            }
-            case "HTML" -> {
-                headers.setContentType(MediaType.TEXT_HTML);
-                yield ResponseEntity.ok().headers(headers).body(data);
-            }
-            default -> {
-                headers.setContentType(MediaType.APPLICATION_PDF);
-                headers.add("Content-Disposition",
-                        "inline; filename=" + filename + ".pdf");
-                yield ResponseEntity.ok().headers(headers).body(data);
-            }
-        };
     }
 }
-
-
-
-

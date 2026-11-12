@@ -37,6 +37,7 @@
         <module>contexts/seance</module>
         <module>contexts/pilotage-direction</module>
         <module>contexts/notifications</module>
+        <module>contexts/documents</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

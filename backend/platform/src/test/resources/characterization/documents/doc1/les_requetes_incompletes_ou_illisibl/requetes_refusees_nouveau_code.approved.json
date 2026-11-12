@@ -1,0 +1,82 @@
+{
+  "centerId absent" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "centerId est obligatoire"
+  },
+  "typeDocument absent" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "typeDocument est obligatoire"
+  },
+  "typeDocument blanc" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "typeDocument est obligatoire"
+  },
+  "type sans modele pour le centre" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "Aucun modèle actif trouvé pour ce centre/type: INCONNU (centre=<CENTRE_D>)"
+  },
+  "type connu sans modele pour le centre F" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "Aucun modèle actif trouvé pour ce centre/type: LISTE_PATIENTS (centre=<CENTRE_F>)"
+  },
+  "modele desactive" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "Aucun modèle actif trouvé pour ce centre/type: LISTE_PATIENTS (centre=<CENTRE_E>)"
+  },
+  "FICHE_PATIENT sans patientId" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "patientId est obligatoire pour FICHE_PATIENT"
+  },
+  "FICHE_PATIENT patientId blanc" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "patientId est obligatoire pour FICHE_PATIENT"
+  },
+  "ATTESTATION sans identifiant" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "patientId ou attestationId est obligatoire pour ATTESTATION"
+  },
+  "PEC sans identifiant" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "patientId ou pecId est obligatoire pour PEC"
+  },
+  "ORDONNANCE sans ordonnanceId (admin)" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "ordonnanceId est obligatoire pour ORDONNANCE"
+  },
+  "SYNTHESE sans periode (admin)" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE"
+  },
+  "corps absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : "{\"detail\":\"Corps de la requête illisible\",\"instance\":\"/api/v1/documents/print\",\"status\":400,\"title\":\"Requete invalide\",\"code\":\"BAD_REQUEST\"}"
+  },
+  "json casse" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : "{\"detail\":\"Corps de la requête illisible\",\"instance\":\"/api/v1/documents/print\",\"status\":400,\"title\":\"Requete invalide\",\"code\":\"BAD_REQUEST\"}"
+  },
+  "centerId illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : "{\"detail\":\"Corps de la requête illisible\",\"instance\":\"/api/v1/documents/print\",\"status\":400,\"title\":\"Requete invalide\",\"code\":\"BAD_REQUEST\"}"
+  },
+  "params de mauvais type" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : "{\"detail\":\"Corps de la requête illisible\",\"instance\":\"/api/v1/documents/print\",\"status\":400,\"title\":\"Requete invalide\",\"code\":\"BAD_REQUEST\"}"
+  }
+}

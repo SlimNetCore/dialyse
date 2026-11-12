@@ -1,0 +1,20 @@
+{
+  "corps centre D, params CENTER_ID = centre E (tableur)" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=liste-patients.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ "1: 4=Societe Papier | 12=Centre Papier", "3: 12=2 rue Beta, Blida – Tipaza", "5: 4=1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz", "7: 12=Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "9: 4=NIF : NIF-1 · NIS : NIS-2 · RC : RC-3", "13: 1=LISTE DES PATIENTS", "17: 1=Code | 2=Nom | 5=Prénom | 7=Sexe | 8=GS | 9=Naissance | 10=Admission | 13=N° Assurance | 15=Tél mobile | 16=État", "19: 1=ZT-P2 | 2=BENALI | 5=Karim | 7=M | 9=15/06/1975 00:00 | 10=02/01/2026 00:00 | 13=ASS-ZT-2 | 16=ACTIF", "21: 1=ZT-P1 | 2=DURAND | 5=Amel | 7=F | 9=01/01/1980 00:00 | 10=02/01/2026 00:00 | 13=ASS-ZT-1 | 16=ACTIF", "23: 1=Imprimé le <HORODATAGE> | 14=Page 1", "27: 1=Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "28: 1=Mention legale de test" ]
+  },
+  "corps centre D, params CENTER_ID = centre inconnu (tableur)" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "contentDisposition" : "attachment; filename=liste-patients.xlsx",
+    "entete" : "PK",
+    "feuilles" : 1,
+    "feuille 1" : [ "1: 4=Societe Papier | 12=Centre Papier", "3: 12=2 rue Beta, Blida – Tipaza", "5: 4=1 rue Alpha, Alger · Tél : 021 00 00 00 · Email : soc@x.dz · Web : https://soc.x.dz", "7: 12=Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "9: 4=NIF : NIF-1 · NIS : NIS-2 · RC : RC-3", "13: 1=LISTE DES PATIENTS", "17: 1=Code | 2=Nom | 5=Prénom | 7=Sexe | 8=GS | 9=Naissance | 10=Admission | 13=N° Assurance | 15=Tél mobile | 16=État", "19: 1=ZT-P2 | 2=BENALI | 5=Karim | 7=M | 9=15/06/1975 00:00 | 10=02/01/2026 00:00 | 13=ASS-ZT-2 | 16=ACTIF", "21: 1=ZT-P1 | 2=DURAND | 5=Amel | 7=F | 9=01/01/1980 00:00 | 10=02/01/2026 00:00 | 13=ASS-ZT-1 | 16=ACTIF", "23: 1=Imprimé le <HORODATAGE> | 14=Page 1", "27: 1=Centre Papier · 2 rue Beta, Blida – Tipaza · Tél : 025 11 11 11 · Email : c@x.dz · Web : https://c.x.dz", "28: 1=Mention legale de test" ]
+  },
+  "corps centre D, params center_id minuscule (tableur) : ignore" : false,
+  "params du moteur et totaux envoyes par le client : rendu identique au rendu sans parametre" : true
+}

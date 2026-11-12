@@ -43,6 +43,7 @@
       "dossier-medical",
       "pilotage-direction",
       "notifications",
+      "documents",
       "shared-kernel"
     ],
     "publicApi": ["backend/contexts/**/publishedlanguage/**", "backend/contexts/shared-kernel/**"]

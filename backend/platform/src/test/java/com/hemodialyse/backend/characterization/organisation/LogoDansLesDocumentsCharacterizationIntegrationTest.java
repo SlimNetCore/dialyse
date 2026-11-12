@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.organisation;
 
-import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.node.ObjectNode;
@@ -13,15 +13,16 @@ import java.util.UUID;
 
 /**
  * Filet de caractérisation O1/O5 : le logo et le pied de page d'une société, écrits par l'API des sociétés, sont lus en direct (table
- * {@code societes}) par {@code DocumentIdentityProvider} pour l'en-tête et le pied de page des documents. Le point d'observation est la
- * lecture publique de la plateforme ({@code paramsFor}, {@code decorateHtml}) : même scénario sur le legacy et sur le nouveau code.
+ * {@code societes}) par le papier en-tête (DOC1 : {@code documents.v1.PapierEnTeteDuCentre}, ex {@code DocumentIdentityProvider}) pour
+ * l'en-tête et le pied de page des documents. Le point d'observation est la lecture publique ({@code parametresDeLEnTete},
+ * {@code habiller}) : même scénario sur le legacy et sur le nouveau code.
  */
 class LogoDansLesDocumentsCharacterizationIntegrationTest extends OrganisationCharacterizationSupport {
 
     private static final String S = "/api/v1/societes";
 
     @Autowired
-    private DocumentIdentityProvider identite;
+    private PapierEnTeteDuCentre identite;
 
     @Override
     protected String theme() {
@@ -36,7 +37,7 @@ class LogoDansLesDocumentsCharacterizationIntegrationTest extends OrganisationCh
     }
 
     private ObjectNode observer(UUID centre, byte[] logoEnvoye) throws Exception {
-        Map<String, Object> params = identite.paramsFor(centre);
+        Map<String, Object> params = identite.parametresDeLEnTete(centre);
         ObjectNode n = mapper.createObjectNode();
         n.put("SOCIETE_NOM", String.valueOf(params.get("SOCIETE_NOM")));
         n.put("SOCIETE_PIED_PAGE", String.valueOf(params.get("SOCIETE_PIED_PAGE")));
@@ -46,7 +47,7 @@ class LogoDansLesDocumentsCharacterizationIntegrationTest extends OrganisationCh
         if (logo instanceof java.io.InputStream in) {
             n.put("logoIdentiqueAuLogoEnvoye", java.util.Arrays.equals(in.readAllBytes(), logoEnvoye));
         }
-        String html = identite.decorateHtml("<html><body>CORPS</body></html>", centre);
+        String html = identite.habiller("<html><body>CORPS</body></html>", centre);
         n.put("htmlContientLeLogoEnDataUri", html.contains("data:image/png;base64,"));
         n.put("htmlContientLePiedDePage", html.contains("Pied du document"));
         n.put("htmlContientLeCorps", html.contains("CORPS"));

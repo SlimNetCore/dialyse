@@ -22,11 +22,11 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         modele(CENTRE_E, "LISTE_PATIENTS", LISTE_PATIENTS);
         modele(CENTRE_F, "LISTE_PATIENTS", LISTE_PATIENTS);
         Map<String, Object> cas = new LinkedHashMap<>();
-        cas.put("centre E (un patient, societe sans coordonnees) PDF (format du modele)", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", null, null), adminD())));
-        cas.put("centre E EXCEL", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", "EXCEL", null), adminD())));
-        cas.put("centre E HTML", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", "HTML", null), adminD())));
-        cas.put("centre F (inconnu de l'annuaire, aucun patient) PDF", vue(imprimer(corps(CENTRE_F, "LISTE_PATIENTS", null, null), adminD())));
-        cas.put("centre F EXCEL", vue(imprimer(corps(CENTRE_F, "LISTE_PATIENTS", "EXCEL", null), adminD())));
+        cas.put("centre E (un patient, societe sans coordonnees) PDF (format du modele)", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", null, null), adminDe(CENTRE_E))));
+        cas.put("centre E EXCEL", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", "EXCEL", null), adminDe(CENTRE_E))));
+        cas.put("centre E HTML", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", "HTML", null), adminDe(CENTRE_E))));
+        cas.put("centre F (inconnu de l'annuaire, aucun patient) PDF", vue(imprimer(corps(CENTRE_F, "LISTE_PATIENTS", null, null), adminDe(CENTRE_F))));
+        cas.put("centre F EXCEL", vue(imprimer(corps(CENTRE_F, "LISTE_PATIENTS", "EXCEL", null), adminDe(CENTRE_F))));
         golden("liste_patients_petits_centres", cas);
     }
 
@@ -66,7 +66,17 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
                 Map.of("CENTER_ID", CENTRE_F.toString())), adminD())));
         cas.put("corps centre D, params center_id minuscule (tableur) : ignore", vue(imprimer(corps(CENTRE_D, "LISTE_PATIENTS", "EXCEL",
                 Map.of("center_id", CENTRE_E.toString())), adminD())).toString().contains("MARTIN"));
-        golden("center_id_du_client", cas);
+        // KB-DOC1-2 (corrige) : les parametres reserves (CENTER_ID, REPORT_*, TOTAL_*...) sont toujours fournis par le serveur
+        Map<String, String> moteur = new LinkedHashMap<>();
+        moteur.put("REPORT_LOCALE", "ar");
+        moteur.put("report_max_count", "1");
+        moteur.put("JASPER_REPORT", "x");
+        moteur.put("IS_IGNORE_PAGINATION", "true");
+        moteur.put("TOTAL_HT_FACTURES", "999");
+        var sansParametre = vue(imprimer(corps(CENTRE_D, "LISTE_PATIENTS", "EXCEL", null), adminD()));
+        cas.put("params du moteur et totaux envoyes par le client : rendu identique au rendu sans parametre",
+                vue(imprimer(corps(CENTRE_D, "LISTE_PATIENTS", "EXCEL", moteur), adminD())).equals(sansParametre));
+        golden("center_id_du_client_nouveau_code", cas);
     }
 
     @Test
@@ -97,7 +107,7 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
                 Map.of("patientId", "pas-un-uuid")), adminD())));
         cas.put("ATTESTATION patient du centre E (tableur)", vue(imprimer(corps(CENTRE_D, "ATTESTATION", "EXCEL",
                 Map.of("patientId", PATIENT_E.toString())), adminD())));
-        golden("patient_inconnu_ou_autre_centre", cas);
+        golden("patient_inconnu_ou_autre_centre_nouveau_code", cas);
     }
 
     @Test
@@ -117,7 +127,7 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         modele(CENTRE_E, "LISTE_PATIENTS", LISTE_PATIENTS);
         Map<String, Object> cas = new LinkedHashMap<>();
         for (String format : List.of("pdf", "PDF", "excel", "XLS", "xlsx", "HTML", "html", "DOCX", "")) {
-            Map<String, Object> v = vue(imprimer(corps(CENTRE_E, " liste_patients ", format, null), adminD()));
+            Map<String, Object> v = vue(imprimer(corps(CENTRE_E, " liste_patients ", format, null), adminDe(CENTRE_E)));
             cas.put("format [" + format + "]", Map.of("statut", v.get("statut"), "contentType", String.valueOf(v.get("contentType")),
                     "disposition", String.valueOf(v.get("contentDisposition"))));
         }
@@ -132,7 +142,7 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         cas.put("typeDocument absent", refus(imprimer(corps(CENTRE_D, null, null, null), adminD())));
         cas.put("typeDocument blanc", refus(imprimer(corps(CENTRE_D, "   ", null, null), adminD())));
         cas.put("type sans modele pour le centre", refus(imprimer(corps(CENTRE_D, "INCONNU", null, null), adminD())));
-        cas.put("type connu sans modele pour le centre F", refus(imprimer(corps(CENTRE_F, "LISTE_PATIENTS", null, null), adminD())));
+        cas.put("type connu sans modele pour le centre F", refus(imprimer(corps(CENTRE_F, "LISTE_PATIENTS", null, null), adminDe(CENTRE_F))));
         cas.put("modele desactive", refus(imprimerApresDesactivation()));
         cas.put("FICHE_PATIENT sans patientId", refus(imprimer(corps(CENTRE_D, "FICHE_PATIENT", null, null), adminD())));
         cas.put("FICHE_PATIENT patientId blanc", refus(imprimer(corps(CENTRE_D, "FICHE_PATIENT", null, Map.of("patientId", "  ")), adminD())));
@@ -145,12 +155,12 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         cas.put("centerId illisible", refus(envoyer("/api/v1/documents/print", "{\"centerId\":\"x\",\"typeDocument\":\"LISTE_PATIENTS\"}", adminD())));
         cas.put("params de mauvais type", refus(envoyer("/api/v1/documents/print", "{\"centerId\":\"" + CENTRE_D
                 + "\",\"typeDocument\":\"LISTE_PATIENTS\",\"params\":[1]}", adminD())));
-        golden("requetes_refusees", cas);
+        golden("requetes_refusees_nouveau_code", cas);
     }
 
     private Resp imprimerApresDesactivation() throws Exception {
         modele(CENTRE_E, "LISTE_PATIENTS", LISTE_PATIENTS, "PDF", false);
-        return imprimer(corps(CENTRE_E, "LISTE_PATIENTS", null, null), adminD());
+        return imprimer(corps(CENTRE_E, "LISTE_PATIENTS", null, null), adminDe(CENTRE_E));
     }
 
     @Test
@@ -161,7 +171,7 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         Resp a = imprimer(corps(CENTRE_D, "CUSTOM", null, null), adminD());
         cas.put("gabarit introuvable : statut / type / prefixe", List.of(a.status, String.valueOf(a.type()),
                 a.texte().length() > 28 ? a.texte().substring(0, 28) : a.texte()));
-        Resp b = imprimer(corps(CENTRE_E, "CUSTOM", null, null), adminD());
+        Resp b = imprimer(corps(CENTRE_E, "CUSTOM", null, null), adminDe(CENTRE_E));
         cas.put("chemin hors liste : statut / type / prefixe", List.of(b.status, String.valueOf(b.type()),
                 b.texte().length() > 28 ? b.texte().substring(0, 28) : b.texte()));
         golden("gabarit_introuvable", cas);
@@ -188,19 +198,24 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         }
         Resp anonyme = imprimer(corps(CENTRE_D, "LISTE_PATIENTS", "EXCEL", null), null);
         profils.put("anonyme", List.of(anonyme.status, String.valueOf(anonyme.type())));
-        golden("profils", profils);
+        golden("profils_nouveau_code", profils);
     }
 
     @Test
     void le_centre_du_corps_n_est_pas_compare_a_celui_de_la_session_pour_les_documents_generiques() throws Exception {
         modele(CENTRE_E, "LISTE_PATIENTS", LISTE_PATIENTS);
         modele(CENTRE_E, "FICHE_PATIENT", "reports/fiche_patient.jrxml");
+        modele(CENTRE_D, "LISTE_PATIENTS", LISTE_PATIENTS);
         RequestPostProcessor sessionD = qui(CENTRE_D, USER_MED, "MEDECIN");
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("session D, liste du centre E", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", "EXCEL", null), sessionD)));
         cas.put("session D, fiche d'un patient du centre E", vue(imprimer(corps(CENTRE_E, "FICHE_PATIENT", "EXCEL",
                 Map.of("patientId", PATIENT_E.toString())), sessionD)));
-        golden("centre_du_corps_non_garde", cas);
+        // KB-DOC1-1 (corrige) : 403 pour tout profil de centre ; seul le SUPERADMIN (transverse) imprime pour un autre centre
+        cas.put("session D en SUPERADMIN, liste du centre E", vue(imprimer(corps(CENTRE_E, "LISTE_PATIENTS", "EXCEL", null),
+                qui(CENTRE_D, USER_MED, "SUPERADMIN"))).get("statut"));
+        cas.put("session D, liste du centre D (controle)", vue(imprimer(corps(CENTRE_D, "LISTE_PATIENTS", "EXCEL", null), sessionD)).get("statut"));
+        golden("centre_du_corps_non_garde_nouveau_code", cas);
     }
 
     @Test
@@ -227,6 +242,6 @@ class RenduParLesRoutesCharacterizationIntegrationTest extends Doc1Support {
         cas.put("gabarit introuvable : statut / prefixe", List.of(r.status, r.texte().length() > 12 ? r.texte().substring(0, 12) : r.texte()));
         cas.put("identifiant de modele illisible dans le chemin", refus(envoyer("/api/v1/documents/print/pas-un-uuid",
                 corps(CENTRE_D, null, null, null), adminD())));
-        golden("impression_par_modele", cas);
+        golden("impression_par_modele_nouveau_code", cas);
     }
 }

@@ -1,0 +1,14 @@
+{
+  "session D, liste du centre E" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "json" : "{\"detail\":\"Accès refusé : le centre demandé ne correspond pas à la session\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}"
+  },
+  "session D, fiche d'un patient du centre E" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "json" : "{\"detail\":\"Accès refusé : le centre demandé ne correspond pas à la session\",\"instance\":\"/api/v1/documents/print\",\"status\":403,\"title\":\"Acces refuse\",\"code\":\"ACCESS_DENIED\"}"
+  },
+  "session D en SUPERADMIN, liste du centre E" : 200,
+  "session D, liste du centre D (controle)" : 200
+}

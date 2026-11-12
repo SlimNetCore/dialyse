@@ -103,6 +103,13 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 - **RG-DOC-006** — La liste des modèles (types et modèles du centre) est paginée ; création, modification et suppression
   d'un modèle de document : `ADMIN`, `SUPERADMIN` ; l'impression est ouverte aux profils
   de l'écran appelant.
+- **RG-DOC-007** — **Impression (contexte Documents, DOC1, ADR 0142)** : `POST /api/v1/documents/print` (par type) et
+  `/print/{modeleId}` (par modèle). Tout profil authentifié imprime (matrice rôle x type de document **à confirmer avant
+  le 2026-12-15**) ; l'anonyme est refusé. Le centre demandé doit être celui de la session (`403 ACCESS_DENIED`
+  sinon ; `SUPERADMIN` transverse). Les paramètres d'identité (`CENTER_ID`, `SOCIETE_*`, `CENTRE_*`) sont toujours
+  fournis par le serveur : la valeur du client est ignorée. Une entrée illisible (corps absent ou cassé, identifiant de
+  modèle non UUID) est refusée en `400 BAD_REQUEST`. Dette d'affichage reproduite : dates avec `00:00`, document sans
+  données imprimé vide, format inconnu servi en PDF.
 
 ## 14.4 Reprise de données d'un logiciel existant
 

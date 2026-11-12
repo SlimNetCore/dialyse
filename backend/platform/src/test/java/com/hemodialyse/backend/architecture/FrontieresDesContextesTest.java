@@ -622,4 +622,30 @@ class FrontieresDesContextesTest {
             .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.scheduling.NotificationPurgeScheduler")
             .allowEmptyShould(true)
             .because("le journal, les trois routes de notifications et la purge sont servis par contexts/notifications (NOT1, ADR 0141)");
+
+    private static final String DOCUMENTS = "com.hemodialyse.backend.contexts.documents";
+
+    /** DOC1 (ADR 0142) : les Documents ne s'utilisent que par leur langage publie {@code documents.v1}. */
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_les_documents_que_par_leur_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(DOCUMENTS + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    DOCUMENTS + ".domain..", DOCUMENTS + ".application..", DOCUMENTS + ".infrastructure..",
+                    DOCUMENTS + ".interfaces..", DOCUMENTS + ".configuration..")
+            .allowEmptyShould(true)
+            .because("les Documents ne s'utilisent que par leur langage publie (ADR 0140, 0142)");
+
+    /**
+     * DOC1 (ADR 0142) : les routes {@code POST /api/v1/documents/print[/{modeleId}]} et le papier en-tete vivent dans
+     * {@code contexts/documents} ; le fournisseur d'identite, la requete d'impression et le service de logo (mort, remplace par
+     * Organisation) de la plateforme ne doivent pas reapparaitre (deux fournisseurs d'en-tete divergent, deux gardes de centre aussi).
+     */
+    @ArchTest
+    static final ArchRule l_impression_et_le_papier_en_tete_ne_sont_plus_servis_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.dto.request.PrintRequest")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.SocieteLogoService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.reporting.LogoImageValidator")
+            .allowEmptyShould(true)
+            .because("l'impression et le papier en-tete sont servis par contexts/documents (DOC1, ADR 0142)");
 }
