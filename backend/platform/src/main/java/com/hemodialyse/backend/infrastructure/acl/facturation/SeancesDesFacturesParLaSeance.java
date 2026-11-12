@@ -29,6 +29,11 @@ public class SeancesDesFacturesParLaSeance implements SeancesDesFacturesFournies
     }
 
     @Override
+    public Map<UUID, Long> nombreParFactureAuStatutFacturee(UUID centre, Collection<UUID> factures) {
+        return seances.nombreParFactureAuStatutFacturee(centre, factures);
+    }
+
+    @Override
     public long nombreDeSeancesFactureesEntre(UUID centre, LocalDate debut, LocalDate fin) {
         return seances.nombreDeSeancesFactureesEntre(centre, debut, fin);
     }

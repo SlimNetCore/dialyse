@@ -287,9 +287,9 @@ class EcrituresEtLecturesDeSeancesParLaFacturationCharacterizationIntegrationTes
 
         assertThat(tableau.seancesFacturees()).as("statut FACTUREE exact et date de février : coherente, sans lien, autre centre")
                 .isEqualTo(3);
-        assertThat(s.seances()).as("facture_id de la facture de février, même centre : toutes les séances liées quel que soit "
-                + "leur statut ou leur date").isEqualTo(5);
-        goldenNode("deux_definitions_de_seance_facturee_tableau_de_bord_contre_synthese", racine);
+        assertThat(s.seances()).as("PL8 (KB-PL8-5, critère à confirmer métiers) : facture_id de la facture de février, même centre, "
+                + "statut FACTUREE exact seulement, quelle que soit la date (avant PL8 : toutes les séances liées, 5)").isEqualTo(2);
+        goldenNode("deux_definitions_de_seance_facturee_tableau_de_bord_contre_synthese_nouveau_code", racine);
     }
 
     private UUID seanceDeFevrier(String nom, String statut, UUID facture, String jour) {

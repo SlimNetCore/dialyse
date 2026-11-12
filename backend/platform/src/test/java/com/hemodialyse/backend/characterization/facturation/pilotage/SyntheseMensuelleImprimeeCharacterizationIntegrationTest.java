@@ -271,7 +271,7 @@ class SyntheseMensuelleImprimeeCharacterizationIntegrationTest extends PilotageF
         cas.put("champs inconnus ignores", resume(doPost(FACTURATION + "/synthese/print",
                 json("{'centerId':'" + CENTRE_A + "','periodStart':'2026-02-01','periodEnd':'2026-02-28','x':1}"), adminA())));
         cas.put("GET non supporte", resume(doGet(FACTURATION + "/synthese/print", adminA())));
-        goldenNode("refus_corps_et_periodes", mapper.valueToTree(cas));
+        goldenNode("refus_corps_et_periodes_nouveau_code", mapper.valueToTree(cas));
     }
 
     @Test

@@ -199,6 +199,14 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
     }
 
     @Override
+    public Map<UUID, Long> nombreParFactureAuStatutFacturee(UUID centre, Collection<UUID> factures) {
+        Map<UUID, Long> nombres = new HashMap<>();
+        seances.values().stream().filter(s -> s.centre.equals(centre) && s.facture != null && factures.contains(s.facture)
+                && "FACTUREE".equals(s.statut)).forEach(s -> nombres.merge(s.facture, 1L, Long::sum));
+        return nombres;
+    }
+
+    @Override
     public long nombreDeSeancesFactureesEntre(UUID centre, LocalDate debut, LocalDate fin) {
         return seances.values().stream().filter(s -> s.centre.equals(centre) && "FACTUREE".equals(s.statut)
                 && !s.date.isBefore(debut) && !s.date.isAfter(fin)).count();

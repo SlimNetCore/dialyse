@@ -116,6 +116,10 @@ public class JasperReportService {
      * La requête SQL est définie DANS le fichier .jrxml lui-même.
      */
     public JasperPrint fillReport(JasperReport report, Map<String, Object> params) throws Exception {
+        // PL8 : données fournies par le contexte demandeur (source de données) : le gabarit n'a alors pas de requête
+        if (params.get(JRParameter.REPORT_DATA_SOURCE) instanceof JRDataSource fournie) {
+            return JasperFillManager.fillReport(report, params, fournie);
+        }
         try (Connection conn = dataSource.getConnection()) {
             return JasperFillManager.fillReport(report, params, conn);
         }

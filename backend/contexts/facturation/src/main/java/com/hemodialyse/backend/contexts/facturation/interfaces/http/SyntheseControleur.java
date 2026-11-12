@@ -5,7 +5,9 @@ import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FormatDImp
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.ImprimerLaSynthese;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/facturation")
 public class SyntheseControleur {
 
+    /** Même valeur que {@code AuditRequestFilter.ATTRIBUT_LIBELLE} (le contexte ne dépend pas de la plateforme). */
+    static final String ATTRIBUT_LIBELLE_D_AUDIT = "hemodialyse.audit.libelle";
+
     private final SessionCourante session;
     private final ImprimerLaSynthese imprimer;
 
@@ -35,10 +40,16 @@ public class SyntheseControleur {
 
     @PreAuthorize(ProfilDeLaSynthese.EXPRESSION)
     @PostMapping("/synthese/print")
-    public ResponseEntity<byte[]> imprimer(@RequestBody @Valid SyntheseRequete requete) {
+    public ResponseEntity<byte[]> imprimer(@RequestBody @Valid SyntheseRequete requete, HttpServletRequest http) {
+        LocalDate debut = requete.debut();
+        LocalDate fin = requete.fin();
         CentreId centre = session.centre(requete.centerId());
+        // PL8, KB-PL8-7 : action d'audit dédiée, libellé = période et format ; identifiant tracé = centre
+        http.setAttribute("hemodialyse.audit.entityId", centre.valeur().toString());
+        http.setAttribute(ATTRIBUT_LIBELLE_D_AUDIT, "Synthèse de facturation imprimée du " + debut + " au " + fin + " ("
+                + formatPourLAudit(requete.format()) + ")");
         try {
-            byte[] document = imprimer.executer(centre, requete.periodStart(), requete.periodEnd(), requete.format());
+            byte[] document = imprimer.executer(centre, debut, fin, requete.format());
             return reponse(document, FormatDImpression.depuis(requete.format()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage().getBytes());
@@ -46,6 +57,15 @@ public class SyntheseControleur {
             return ResponseEntity.internalServerError().contentType(MediaType.TEXT_PLAIN)
                     .body(("Erreur impression synthese: " + e.getMessage()).getBytes());
         }
+    }
+
+    /** Le format tel que demandé, borné (le libellé d'audit tient en 500 caractères) ; un format inconnu est tracé tel quel, tronqué. */
+    private static String formatPourLAudit(String format) {
+        if (format == null || format.isBlank()) {
+            return "PDF";
+        }
+        String normalise = format.trim().toUpperCase(java.util.Locale.ROOT);
+        return normalise.length() > 20 ? normalise.substring(0, 20) : normalise;
     }
 
     private static ResponseEntity<byte[]> reponse(byte[] document, FormatDImpression format) {

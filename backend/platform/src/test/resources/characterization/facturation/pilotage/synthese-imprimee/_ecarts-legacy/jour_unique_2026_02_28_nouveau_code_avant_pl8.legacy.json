@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 1,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-02-28 au 2026-02-28\nForfait Inconnu HT Inconnu TTC Total HT Total TTC\nForfait HD 10,00 10,13 10,00 10,13\nVue d'ensemble mensuelle\nMontant HT\n10,00\nMontant TTC\n10,13\nMontant TVA\n0,13\nPatients\n1\nSeances\n1\nFactures\n1\nRepartition patients/seances par caisse Repartition patients/seances par situation patient\nInconnu\nP ########## 1 | S ########## 1\nInconnu\nP ########## 1 | S ########## 1\n"
+}

@@ -1,0 +1,47 @@
+{
+  "aucun modele pour le centre" : {
+    "contentType" : "text/plain",
+    "corps" : "Aucun modèle actif trouvé pour ce centre/type: SYNTHESE_FACTURATION_MENSUELLE (centre=<CENTRE_A>)",
+    "status" : 400
+  },
+  "date illisible" : {
+    "contentType" : "text/plain",
+    "corps" : "Erreur d'impression: Période illisible pour SYNTHESE_FACTURATION_MENSUELLE",
+    "status" : 500
+  },
+  "debut absent" : {
+    "contentType" : "text/plain",
+    "corps" : "PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE",
+    "status" : 400
+  },
+  "fin absente" : {
+    "contentType" : "text/plain",
+    "corps" : "PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE",
+    "status" : 400
+  },
+  "format absent (celui du modele)" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+    "status" : 200
+  },
+  "format excel" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=synthese-facturation-mensuelle.xlsx",
+    "status" : 200
+  },
+  "format html" : {
+    "contentType" : "text/html",
+    "disposition" : null,
+    "status" : 200
+  },
+  "modele desactive" : {
+    "contentType" : "text/plain",
+    "corps" : "Aucun modèle actif trouvé pour ce centre/type: SYNTHESE_FACTURATION_MENSUELLE (centre=<CENTRE_A>)",
+    "status" : 400
+  },
+  "periode inversee acceptee" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+    "status" : 200
+  }
+}

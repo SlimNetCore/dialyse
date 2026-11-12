@@ -10,7 +10,9 @@ import java.util.Map;
  * <ul>
  *   <li>identité : préfixes {@code SOCIETE_} et {@code CENTRE_} (posés par le papier en-tête) ;</li>
  *   <li>centre : {@code CENTER_ID} (le centre de l'impression, gardé par la session) ;</li>
- *   <li>totaux de la synthèse de facturation : {@code TOTAL_HT_FACTURES}, {@code TOTAL_TVA_FACTURES}, {@code TOTAL_TTC_FACTURES} ;</li>
+ *   <li>données de la synthèse de facturation (PL8) : {@code TOTAL_HT_FACTURES}, {@code TOTAL_TVA_FACTURES}, {@code TOTAL_TTC_FACTURES},
+ *       {@code TOTAL_PATIENTS}, {@code TOTAL_SEANCES}, {@code TOTAL_FACTURES}, {@code DISTRIBUTION_BY_CAISSE_TEXT},
+ *       {@code DISTRIBUTION_BY_STATUS_TEXT} et {@code LIGNES} (lignes du tableau, servies au gabarit comme source de données) ;</li>
  *   <li>moteur : préfixes {@code REPORT_} et {@code JASPER_}, et {@code IS_IGNORE_PAGINATION} (paramètres internes de Jasper).</li>
  * </ul>
  * Les appelants de confiance (autres contextes, qui passent par le port de rendu) gardent CENTER_ID et les paramètres du moteur : seule
@@ -34,7 +36,9 @@ public final class ParametresReserves {
     public static boolean estReserve(String nom) {
         String cle = majuscules(nom);
         return estUneIdentite(nom) || cle.equals("CENTER_ID") || cle.equals("TOTAL_HT_FACTURES") || cle.equals("TOTAL_TVA_FACTURES")
-                || cle.equals("TOTAL_TTC_FACTURES") || cle.startsWith("REPORT_") || cle.startsWith("JASPER_")
+                || cle.equals("TOTAL_TTC_FACTURES") || cle.equals("LIGNES") || cle.equals("TOTAL_PATIENTS") || cle.equals("TOTAL_SEANCES")
+                || cle.equals("TOTAL_FACTURES") || cle.equals("DISTRIBUTION_BY_CAISSE_TEXT") || cle.equals("DISTRIBUTION_BY_STATUS_TEXT")
+                || cle.startsWith("REPORT_") || cle.startsWith("JASPER_")
                 || cle.equals("IS_IGNORE_PAGINATION");
     }
 

@@ -37,6 +37,19 @@ final class SeancesDesFacturesSurLaTable implements SeancesDesFacturesFournies {
     }
 
     @Override
+    public Map<UUID, Long> nombreParFactureAuStatutFacturee(UUID centre, Collection<UUID> factures) {
+        Map<UUID, Long> nombres = new HashMap<>();
+        for (UUID facture : factures) {
+            Long n = jdbc.queryForObject("SELECT COUNT(1) FROM seances WHERE center_id = ? AND facture_id = ? AND statut = 'FACTUREE'",
+                    Long.class, centre, facture);
+            if (n != null && n > 0) {
+                nombres.put(facture, n);
+            }
+        }
+        return nombres;
+    }
+
+    @Override
     public long nombreDeSeancesFactureesEntre(UUID centre, LocalDate debut, LocalDate fin) {
         Long n = jdbc.queryForObject("SELECT COUNT(1) FROM seances WHERE center_id = ? AND statut = 'FACTUREE' AND date_seance BETWEEN ? AND ?",
                 Long.class, centre, Date.valueOf(debut), Date.valueOf(fin));

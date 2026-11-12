@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 1,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-08-01 au 2026-08-31\nForfait\nCaisse d'Or ] ]> & <b>\nHT\nCaisse d'Or ] ]> & <b>\nTTC\nTotal HT Total TTC\nForfait d'hémodialyse 100,00 119,00 100,00 119,00\nVue d'ensemble mensuelle\nMontant HT\n100,00\nMontant TTC\n119,00\nMontant TVA\n19,00\nPatients\n1\nSeances\n1\nFactures\n1\nRepartition patients/seances par caisse Repartition patients/seances par situation patient\nCaisse d'Or ]]> & <b>\nP ########## 1 | S ########## 1\nPERMANENT\nP ########## 1 | S ########## 1\n"
+}

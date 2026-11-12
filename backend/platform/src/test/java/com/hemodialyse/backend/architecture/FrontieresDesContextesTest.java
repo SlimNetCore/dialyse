@@ -551,6 +551,33 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
             .because("le PV d'inventaire est rendu par documents.v1 (PL7, ADR 0146)");
 
+    /** PL8 (ADR 0147) : la synthèse est rendue par l'ACL de la Facturation vers documents.v1 ; les classes de la plateforme ne reviennent pas. */
+    @ArchTest
+    static final ArchRule la_synthese_n_est_plus_rendue_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.FacturationSyntheseMensuelleReportService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.CaissesDesAgences")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.patientcouverture.CaissesDesAgencesParLAnnuaire")
+            .allowEmptyShould(true)
+            .because("la synthèse est rendue par contexts/facturation via documents.v1 (PL8, ADR 0147)");
+
+    @ArchTest
+    static final ArchRule la_synthese_est_rendue_par_le_langage_publie_de_documents = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.facturation.infrastructure.acl.documents.SyntheseRendueParDocuments")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
+            .because("la synthèse est rendue par documents.v1 (PL8, ADR 0147)");
+
+    /** PL8 : le gabarit livré ne contient plus de requête (ADR 0140 D3 : le contexte fournit ses données). */
+    @org.junit.jupiter.api.Test
+    void le_gabarit_de_la_synthese_ne_contient_aucune_requete() throws java.io.IOException {
+        java.nio.file.Path gabarit = java.nio.file.Path.of("src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
+        if (!java.nio.file.Files.exists(gabarit)) {
+            gabarit = java.nio.file.Path.of("platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
+        }
+        String xml = java.nio.file.Files.readString(gabarit);
+        org.assertj.core.api.Assertions.assertThat(xml).doesNotContain("<queryString").doesNotContain("<![CDATA[\n        SELECT")
+                .doesNotContainIgnoringCase(" FROM factures").doesNotContainIgnoringCase("facture_lignes");
+    }
+
     @ArchTest
     static final ArchRule le_catalogue_de_forfaits_compte_les_forfaits_imposes_par_le_langage_publie = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.UsageDuForfaitParLesSeances")
@@ -567,7 +594,7 @@ class FrontieresDesContextesTest {
     static final ArchRule les_lecteurs_annuaire_des_payeurs_passent_par_le_langage_publie = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ChaineDesPayeursParLAnnuaire")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.CaissesParLAnnuaireDesPayeurs")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.patientcouverture.CaissesDesAgencesParLAnnuaire")
+            .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.CaissesDesAgencesParLAnnuaire")
             // RF3c (ADR 0128) : Comptabilité (payeurs et leur compte client) et Facturation (agence figée à la reprise des soldes)
             .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.patientcouverture.PayeursParLAnnuaire")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.AgenceDuPayeurParLAnnuaire")

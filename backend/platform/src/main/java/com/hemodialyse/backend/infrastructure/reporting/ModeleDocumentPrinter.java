@@ -4,9 +4,11 @@ import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +121,7 @@ public class ModeleDocumentPrinter implements MoteurDeRendu {
      */
     public byte[] render(UUID modeleId, UUID centerId, String cheminJrxml, Map<String, Object> params, String format)
             throws Exception {
+        params = avecSourceDeDonnees(params);
         var custom = templates.activeCustom(centerId, modeleId);
         if (custom.isPresent()) {
             var report = compiler.compile(centerId, modeleId, custom.get().version(), custom.get().contenu());
@@ -132,6 +135,20 @@ public class ModeleDocumentPrinter implements MoteurDeRendu {
         all.put("CENTER_ID", centerId.toString());
         all.putIfAbsent(JRParameter.REPORT_FORMAT_FACTORY, new FrenchFormatFactory());
         all.putAll(papier.parametresDeLEnTete(centerId));
+        return all;
+    }
+
+    /**
+     * PL8 (ADR 0140 D3) : le contexte demandeur fournit ses lignes (clé {@code LIGNES} : liste de Map) ; le gabarit les lit comme source de
+     * données et ne contient plus de requête. Appliqué à toute génération (impression par type et par identifiant de modèle).
+     */
+    private static Map<String, Object> avecSourceDeDonnees(Map<String, Object> params) {
+        Map<String, Object> all = new HashMap<>(params);
+        if (all.remove("LIGNES") instanceof Collection<?> lignes) {
+            @SuppressWarnings("unchecked")
+            Collection<Map<String, ?>> cartes = (Collection<Map<String, ?>>) lignes;
+            all.put(JRParameter.REPORT_DATA_SOURCE, new JRMapCollectionDataSource(cartes));
+        }
         return all;
     }
 

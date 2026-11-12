@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 2,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-05-01 au 2026-05-31\nForfait\nCaisse nationale d'assurance\nsociale des travailleurs salariés\nCaisse nationale d'assurance\nsociale des travailleurs salariés\nCaisse nationale d'assurance\nsociale des travailleurs salariés\nCaisse nationale d'assurance\nsociale des travailleurs salariés\nHT TTC\nCaisse œuvre ü €   \nHT TTC\nTotal\nTotal HT Total TTC\nForfait ]]> & <b> $P{CENTER_ID} $P!{X} ' 0,00 0,00 10,00 10,00 10,00 10,00\nForfait d'hémodialyse très long Forfait\nd'hémodialyse très long Forfait\nd'hémodialyse très long Forfait\nd'hémodialyse très long Forfait\nd'hémodialyse très long Forfait\nd'hémodialyse très long Forfait\nd'hémodialyse très long Forfait\nd'hémodialyse très long\n100,00 100,00 0,00 0,00 100,00 100,00\nForfait œuvre ü €   0,00 0,00 50,00 50,00 50,00 50,00\nVue d'ensemble mensuelle\nMontant HT\n160,00\nMontant TTC\n160,00\nPatients\n1\nSeances\n0\nFactures\n3\nMontant TVA\n0,00\nRepartition patients/seances par caisse Repartition patients/seances par situation patient\nCaisse nationale d'assurance sociale des travailleurs salariés Caisse nationale d'assurance sociale des\ntravailleurs salariés Caisse nationale d'assurance sociale des travailleurs salariés Caisse nationale\nd'assurance sociale des travailleurs salariés\nP ########## 1 | S ---------- 0\nCaisse œuvre ü €   \nP ########## 1 | S ---------- 0\nPERMANENT\nP ########## 1 | S ---------- 0\n\n"
+}

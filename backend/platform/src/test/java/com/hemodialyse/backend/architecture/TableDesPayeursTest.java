@@ -53,8 +53,8 @@ class TableDesPayeursTest {
     static {
         String ctx = "contexts/";
         String facturation = ctx + "facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/";
-        LECTEURS_CONNUS.put(facturation + "LectureDeLaSyntheseJdbc.java", INSTANTANE
-                .replace("sans preuve de parité hors H2", "(ORDER BY du code et du libellé de la caisse selon la collation de la base)"));
+        // PL8 : LectureDeLaSyntheseJdbc et le gabarit synthese_mensuelle_facturation.jrxml ne joignent plus agence / caisse_assurance
+        // (annuaire des payeurs, ADR 0147) : leurs entrées sont retirées (KB-RF4-02 soldé).
         LECTEURS_CONNUS.put(facturation + "LectureDuTableauDeBordJdbc.java", INSTANTANE
                 .replace("sans preuve de parité hors H2", "(jointures NON bornées au centre, KB-FAC-65, que l'annuaire borne)"));
         LECTEURS_CONNUS.put(facturation + "SituationsDesFacturesJdbc.java", INSTANTANE
@@ -62,12 +62,6 @@ class TableDesPayeursTest {
                         + "et centre payeur, COUNT DISTINCT et LIMIT / OFFSET sur la chaîne)"));
         LECTEURS_CONNUS.put(facturation + "SyntheseFinanciereDesCentresJdbc.java", INSTANTANE
                 .replace("sans preuve de parité hors H2", "(somme par caisse de plusieurs centres en une requête, MAX(nom), caisse non bornée)"));
-        // RF4 (revue RF1-RF3d, constat 2) : le gabarit JRXML statique de l'impression de la synthèse lit encore les deux tables (RF3c-J1).
-        LECTEURS_CONNUS.put("platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml", INSTANTANE
-                .replace("avec agrégation GROUP BY / filtre SQL sur la chaîne", "avec agrégation GROUP BY par forfait et classement CNAS / CASNOS / "
-                        + "CAMSSP / autres par préfixe du code de caisse (ModeleDocumentCatalog, gabarit statique, impression de la synthèse)")
-                .replace("sans preuve de parité hors H2", "(le gabarit dynamique du même document lit déjà l'annuaire ; ce gabarit statique reste en "
-                        + "SQL, KB-RF4-02)"));
     }
 
     /**
@@ -153,7 +147,8 @@ class TableDesPayeursTest {
         assertThat(LECTEURS_CONNUS).as("RF3c : 4 lecteurs Java restent hors patient-couverture, les jointures sur l'instantané de la facture "
                 + "(11 à l'ouverture de la garde en RF3a, 4 lecteurs « annuaire » migrés en RF3b, puis Comptabilité, reprise des soldes et "
                 + "lectures communes de l'Organisation migrées ou déplacées en RF3c, le 2026-11-10) ; RF4 : + le gabarit JRXML statique de "
-                + "l'impression de la synthèse (constat 2 de la revue), soit 5").hasSize(5);
+                + "l'impression de la synthèse (constat 2 de la revue), soit 5 ; PL8 (ADR 0147) : la synthèse (lecteur Java et gabarit) lit "
+                + "l'annuaire, soit 3").hasSize(3);
     }
 
     @Test

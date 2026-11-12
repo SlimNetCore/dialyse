@@ -68,6 +68,12 @@ public class AuditRequestFilter extends OncePerRequestFilter {
      */
     public static final String ATTRIBUT_SANS_TRACE = "hemodialyse.audit.sansTrace";
 
+    /**
+     * Attribut de requête portant le libellé précis de l'évènement quand le contrôleur le connaît mieux que le gabarit de route (PL8,
+     * KB-PL8-7 : période et format de la synthèse imprimée). Même valeur que {@code SyntheseControleur.ATTRIBUT_LIBELLE_D_AUDIT}.
+     */
+    public static final String ATTRIBUT_LIBELLE = "hemodialyse.audit.libelle";
+
     @SuppressWarnings("unchecked")
     private static String entityId(HttpServletRequest request) {
         if (request.getAttribute(ATTRIBUT_IDENTIFIANT) instanceof String pose && !pose.isBlank()) return pose;
@@ -137,7 +143,7 @@ public class AuditRequestFilter extends OncePerRequestFilter {
                 resolved.actionCode(),
                 resolved.entityType(),
                 entityId(request),
-                resolved.libelle(),
+                request.getAttribute(ATTRIBUT_LIBELLE) instanceof String pose && !pose.isBlank() ? pose : resolved.libelle(),
                 method,
                 routeTemplate,
                 response.getStatus(),

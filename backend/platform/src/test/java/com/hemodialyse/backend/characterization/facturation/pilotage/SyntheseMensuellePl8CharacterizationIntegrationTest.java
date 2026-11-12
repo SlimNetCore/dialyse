@@ -94,8 +94,8 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         ligne(f5, CENTRE_A, "Forfait HD", "-40.00", 1, "-40.00");
         factureAvecLigne(AGENCE_2, "FAC-CENTIME", "2026-04-07", "0.01", "0.00", "0.01", "Forfait Centime", "0.01");
 
-        goldenPdf("montants_enormes_et_arrondis", synthese(CENTRE_A, "2026-04-01", "2026-04-30", "PDF", adminA()));
-        goldenNode("montants_enormes_et_arrondis_excel", contenuExcel(synthese(CENTRE_A, "2026-04-01", "2026-04-30", "EXCEL", adminA()).octets()));
+        goldenPdf("montants_enormes_et_arrondis_nouveau_code", synthese(CENTRE_A, "2026-04-01", "2026-04-30", "PDF", adminA()));
+        goldenNode("montants_enormes_et_arrondis_excel_nouveau_code", contenuExcel(synthese(CENTRE_A, "2026-04-01", "2026-04-30", "EXCEL", adminA()).octets()));
     }
 
     // ------------------------------------------------------------------ textes
@@ -110,7 +110,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         factureAvecLigne(ag2, "FAC-L2", "2026-05-03", "50.00", "0.00", "50.00", "Forfait œuvre ü € ★ مرافقة 中文", "50.00");
         factureAvecLigne(ag2, "FAC-L3", "2026-05-04", "10.00", "0.00", "10.00", "Forfait ]]> & <b> $P{CENTER_ID} $P!{X} '", "10.00");
 
-        goldenPdf("textes_longs_et_unicode", synthese(CENTRE_A, "2026-05-01", "2026-05-31", "PDF", adminA()));
+        goldenPdf("textes_longs_et_unicode_nouveau_code", synthese(CENTRE_A, "2026-05-01", "2026-05-31", "PDF", adminA()));
     }
 
     // ------------------------------------------------------------------ chaîne des payeurs
@@ -139,7 +139,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         factureAvecLigne(AGENCE_B, "FAC-6", "2026-06-07", "600.00", "0.00", "600.00", "Forfait HD", "600.00");
         factureAvecLigne(inconnue, "FAC-7", "2026-06-08", "700.00", "0.00", "700.00", "Forfait HD", "700.00");
 
-        goldenPdf("chaines_de_payeurs_atypiques", synthese(CENTRE_A, "2026-06-01", "2026-06-30", "PDF", adminA()));
+        goldenPdf("chaines_de_payeurs_atypiques_nouveau_code", synthese(CENTRE_A, "2026-06-01", "2026-06-30", "PDF", adminA()));
     }
 
     @Test
@@ -152,7 +152,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         factureAvecLigne(agPremiere, "FAC-1", "2026-07-02", "10.00", "0.00", "10.00", "Forfait HD", "10.00");
         factureAvecLigne(agSeconde, "FAC-2", "2026-07-03", "20.00", "0.00", "20.00", "Forfait HD", "20.00");
 
-        goldenPdf("agences_multiples_d_une_caisse", synthese(CENTRE_A, "2026-07-01", "2026-07-31", "PDF", adminA()));
+        goldenPdf("agences_multiples_d_une_caisse_nouveau_code", synthese(CENTRE_A, "2026-07-01", "2026-07-31", "PDF", adminA()));
     }
 
     // ------------------------------------------------------------------ cas limites
@@ -172,7 +172,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         seance(P_AMRANI, CENTRE_A, "2026-08-02", "PLANIFIEE", f2);
         seance(P_AMRANI, CENTRE_A, "2026-08-03", "FACTUREE", null);
 
-        goldenPdf("sans_seance_bornes_et_creation", synthese(CENTRE_A, "2026-08-01", "2026-08-31", "PDF", adminA()));
+        goldenPdf("sans_seance_bornes_et_creation_nouveau_code", synthese(CENTRE_A, "2026-08-01", "2026-08-31", "PDF", adminA()));
     }
 
     @Test
@@ -192,19 +192,19 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         ligne(g, CENTRE_A, "forfait 01", "1.00", 1, "1.00");
         ligne(g, CENTRE_A, "FORFAIT 01", "1.00", 1, "1.00");
 
-        goldenPdf("soixante_forfaits", synthese(CENTRE_A, "2026-09-01", "2026-09-30", "PDF", adminA()));
+        goldenPdf("soixante_forfaits_nouveau_code", synthese(CENTRE_A, "2026-09-01", "2026-09-30", "PDF", adminA()));
     }
 
     @Test
     void le_classeur_excel_hors_nominal_periode_vide_et_six_caisses() throws Exception {
-        goldenNode("excel_periode_sans_facture", contenuExcel(synthese(CENTRE_A, "2026-05-01", "2026-05-31", "EXCEL", adminA()).octets()));
+        goldenNode("excel_periode_sans_facture_nouveau_code", contenuExcel(synthese(CENTRE_A, "2026-05-01", "2026-05-31", "EXCEL", adminA()).octets()));
 
         for (int i = 1; i <= 6; i++) {
             UUID a = payeur("X" + i, CENTRE_A, "X" + i, "Caisse X" + i + " ]]> d'or");
             factureAvecLigne(a, "FAC-X" + i, "2026-10-0" + i, i + "00.00", i + ".00", i + "01.00", "Forfait HD", i + "00.00");
         }
         factureAvecLigne(null, "FAC-SANS-AGENCE", "2026-10-09", "5.00", "0.00", "5.00", "Forfait Transport", "5.00");
-        goldenNode("excel_six_caisses", contenuExcel(synthese(CENTRE_A, "2026-10-01", "2026-10-31", "EXCEL", adminA()).octets()));
+        goldenNode("excel_six_caisses_nouveau_code", contenuExcel(synthese(CENTRE_A, "2026-10-01", "2026-10-31", "EXCEL", adminA()).octets()));
     }
 
     // ------------------------------------------------------------------ garde, paramètres
@@ -237,7 +237,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         cas.put("dates blanches", resumePdf(doPost(FACTURATION + "/synthese/print",
                 json("{'centerId':'" + CENTRE_A + "','periodStart':' ','periodEnd':' '}"), adminA())));
         cas.put("tableau a la place de l'objet", resumePdf(doPost(FACTURATION + "/synthese/print", "[]", adminA())));
-        goldenNode("periodes_extremes_et_formes_du_corps", mapper.valueToTree(cas));
+        goldenNode("periodes_extremes_et_formes_du_corps_nouveau_code", mapper.valueToTree(cas));
     }
 
     @Test
@@ -258,7 +258,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
                 .put(java.net.URI.create(FACTURATION + "/synthese/print")).contentType(MediaType.APPLICATION_JSON).content(corps).with(adminA()))));
         cas.put("GET /synthese", statutEtType(doGet(FACTURATION + "/synthese", adminA())));
         cas.put("anonyme", statutEtType(doPostAnonyme(FACTURATION + "/synthese/print", corps)));
-        goldenNode("types_de_contenu_et_methodes", mapper.valueToTree(cas));
+        goldenNode("types_de_contenu_et_methodes_nouveau_code", mapper.valueToTree(cas));
     }
 
     // ------------------------------------------------------------------ audit
@@ -285,7 +285,7 @@ class SyntheseMensuellePl8CharacterizationIntegrationTest extends PilotageFactur
         }
         ObjectNode racine = mapper.createObjectNode();
         racine.set("lignes", lignes);
-        goldenNode("audit", racine);
+        goldenNode("audit_nouveau_code", racine);
         jdbc.update("DELETE FROM audit_log WHERE center_id IN (?, ?)", CENTRE_A, CENTRE_B);
     }
 

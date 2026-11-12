@@ -151,7 +151,8 @@ class DatesIllisiblesDeLaDirectionAdvice {
     static class MethodesNonSupporteesDeLaDirectionAdvice {
 
         /** La Direction (KB-DIR-02) et le cahier de dialyse imprimé (PL5, KB-PL5-1 : un POST répondait 500). */
-        private static final java.util.List<String> PREFIXES = java.util.List.of("/api/v1/direction/", "/api/v1/cahier-dialyse/");
+        private static final java.util.List<String> PREFIXES = java.util.List.of("/api/v1/direction/", "/api/v1/cahier-dialyse/",
+                "/api/v1/facturation/synthese/");
 
         private final ApiExceptionHandler gestionnaireCommun;
 

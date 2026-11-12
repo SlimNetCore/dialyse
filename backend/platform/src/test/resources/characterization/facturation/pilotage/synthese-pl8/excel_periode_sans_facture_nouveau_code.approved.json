@@ -1,0 +1,6 @@
+{
+  "feuilles" : [ {
+    "lignes" : [ [ "S:Synthèse mensuelle de facturation" ], [ "S:Période : 2026-05-01 au 2026-05-31" ], [ "S:Forfait", "S:Inconnu HT", "S:Inconnu TTC", "S:Total HT", "S:Total TTC" ], [ "S:Aucune facture sur la période." ], [ "S:Montant HT enregistré", "N:0.0" ], [ "S:Montant TVA enregistré", "N:0.0" ], [ "S:Montant TTC enregistré", "N:0.0" ], [ "S:Patients", "N:0.0" ], [ "S:Séances", "N:0.0" ], [ "S:Factures", "N:0.0" ], [ "S:Répartition par caisse", "S:Patients", "S:Séances" ], [ "S:Répartition par situation du patient", "S:Patients", "S:Séances" ] ],
+    "nom" : "Synthèse mensuelle facturation"
+  } ]
+}

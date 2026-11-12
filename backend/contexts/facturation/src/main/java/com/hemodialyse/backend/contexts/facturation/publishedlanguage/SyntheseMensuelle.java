@@ -25,8 +25,24 @@ public record SyntheseMensuelle(
         long seances,
         BigDecimal totalHt,
         BigDecimal totalTva,
-        BigDecimal totalTtc
+        BigDecimal totalTtc,
+        List<Ligne> lignes
 ) {
+
+    /** Sans tableau forfait x caisse (doubles de test, périodes sans ligne). */
+    public SyntheseMensuelle(UUID centre, LocalDate debut, LocalDate fin, List<Caisse> caisses, List<Repartition> parCaisse,
+                             List<Repartition> parSituation, long factures, long patients, long seances,
+                             BigDecimal totalHt, BigDecimal totalTva, BigDecimal totalTtc) {
+        this(centre, debut, fin, caisses, parCaisse, parSituation, factures, patients, seances, totalHt, totalTva, totalTtc, List.of());
+    }
+
+    /**
+     * Une cellule du tableau forfait x caisse (PL8, ADR 0140 D3 : la Facturation fournit les données au rendu) : le libellé du forfait,
+     * le code NORMALISÉ de la caisse (« INCONNU » sans caisse ni code), le HT des lignes et leur part du TTC enregistré de la facture
+     * (ADR 0034 ; facture à HT nul : TTC réparti à parts égales entre ses lignes), arrondis à 2 décimales.
+     */
+    public record Ligne(String forfait, String caisse, BigDecimal ht, BigDecimal ttc) {
+    }
 
     /** Une caisse d'assurance des factures de la période (« INCONNU » sans caisse). */
     public record Caisse(String code, String libelle) {

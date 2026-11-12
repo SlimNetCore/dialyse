@@ -30,6 +30,9 @@ class PilotageJdbcContratTest extends PilotageJdbcContrat {
                 + "period_start DATE NOT NULL, period_end DATE NOT NULL, date_facturation DATE NOT NULL, "
                 + "tva_rate DECIMAL(5,2) NOT NULL, total_ht DECIMAL(14,2) NOT NULL, total_tva DECIMAL(14,2) NOT NULL, "
                 + "total_ttc DECIMAL(14,2) NOT NULL, UNIQUE (center_id, numero_facture))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS facture_lignes (id UUID PRIMARY KEY, facture_id UUID NOT NULL, center_id UUID NOT NULL, "
+                + "forfait_id UUID, forfait_label VARCHAR(255) NOT NULL, unit_price_ht DECIMAL(14,2) NOT NULL, "
+                + "seance_count INTEGER NOT NULL, line_ht DECIMAL(14,2) NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS facture_reglements (id UUID PRIMARY KEY, facture_id UUID NOT NULL, "
                 + "center_id UUID NOT NULL, montant DECIMAL(14,2) NOT NULL, date_reglement DATE NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS seances (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "

@@ -14,6 +14,9 @@ public interface SeancesDesFacturesFournies {
     /** Séances du centre rattachées à chaque facture demandée, quels que soient leur statut et leur date ; une facture sans séance est absente. */
     Map<UUID, Long> nombreParFacture(UUID centre, Collection<UUID> factures);
 
+    /** Comme {@link #nombreParFacture} mais seules les séances au statut {@code FACTUREE} (casse exacte) comptent (synthèse imprimée, PL8, KB-PL8-5). */
+    Map<UUID, Long> nombreParFactureAuStatutFacturee(UUID centre, Collection<UUID> factures);
+
     /** Séances du centre au statut {@code FACTUREE} (casse exacte) datées de la période (bornes incluses), avec ou sans facture. */
     long nombreDeSeancesFactureesEntre(UUID centre, LocalDate debut, LocalDate fin);
 }

@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 1,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-09-01 au 2026-09-30\nForfait Caisse large 1 HT Caisse large 1 TTC Caisse large 2 HT Caisse large 2 TTC Caisse large 3 HT Caisse large 3 TTC Caisse large 4 HT Caisse large 4 TTC Caisse large 5 HT Caisse large 5 TTC Caisse large 6 HT Caisse large 6 TTC Total HT Total TTC\nForfait HD 100,00 100,00 200,00 200,00 300,00 300,00 400,00 400,00 500,00 500,00 600,00 600,00 2100,00 2100,00\nVue d'ensemble mensuelle\nMontant HT\n2100,00\nMontant TTC\n2100,00\nMontant TVA\n0,00\nPatients\n1\nSeances\n0\nFactures\n6\nRepartition patients/seances par caisse Repartition patients/seances par situation patient\nCaisse large 1\nP ########## 1 | S ---------- 0\nCaisse large 2\nP ########## 1 | S ---------- 0\nCaisse large 3\nP ########## 1 | S ---------- 0\nCaisse large 4\nP ########## 1 | S ---------- 0\nCaisse large 5\nP ########## 1 | S ---------- 0\nCaisse large 6\nP ########## 1 | S ---------- 0\nPERMANENT\nP ########## 1 | S ---------- 0\n"
+}

@@ -117,7 +117,7 @@ class SyntheseViaModeleDeDocumentCharacterizationIntegrationTest extends Pilotag
         cas.put("format excel", resume(imprimer(CENTRE_A, "2026-02-01", "2026-02-28", "EXCEL", adminA())));
         cas.put("format html", resume(imprimer(CENTRE_A, "2026-02-01", "2026-02-28", "HTML", adminA())));
         cas.put("format absent (celui du modele)", resume(imprimer(CENTRE_A, "2026-02-01", "2026-02-28", null, adminA())));
-        goldenNode("refus_et_formats", mapper.valueToTree(cas));
+        goldenNode("refus_et_formats_nouveau_code", mapper.valueToTree(cas));
     }
 
     @Test

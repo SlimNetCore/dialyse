@@ -110,7 +110,16 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   enregistrés des factures de la période (RG-FAC-024), y compris les factures sans ligne ; dans le tableau, le TTC d'une
   ligne est sa part du TTC enregistré de la facture. Sans facture dans la période, le document est vide. Les deux voies exigent
   le même profil (`ADMIN` ou `SECRETAIRE` ; `MEDECIN` seul refusé) et le **centre de la session** (403 sinon). *Source :*
-  `ImprimerLaSynthese`, `SyntheseControleur`, `FacturationSyntheseMensuelleReportService` (rendu, plateforme), `DocumentRestController`.
+  `ImprimerLaSynthese`, `SyntheseControleur`, `SyntheseRendueParDocuments` (ACL vers Documents), `DocumentRestController`.
+  **PL8 (2026-11-12, ADR 0147)** : la Facturation fournit elle-même les lignes du tableau (forfait x caisse, caisse de
+  l'agence figée lue dans l'annuaire des payeurs) ; le gabarit ne contient plus de requête. Le **code de caisse est normalisé**
+  (espaces retirés, majuscules) : un code blanc, une agence inconnue ou d'un autre centre vont dans l'unique colonne « Inconnu ».
+  Le tableau est cohérent avec le « Montant TTC » enregistré (facture à HT nul : TTC réparti à parts égales entre ses lignes ; cellules
+  arrondies à la paire) ; les **séances comptées** sont celles au statut `FACTUREE` (critère conservateur, à confirmer par les métiers avant
+  le 2026-12-15). Les libellés longs passent à la ligne (plus de troncature). L'**Excel** est un vrai classeur (une ligne par forfait,
+  valeurs numériques à 2 décimales, feuille « Synthèse mensuelle facturation », mention explicite sans facture). Un corps illisible ou une
+  date en entier répond 400, un autre verbe 405, un type de contenu autre que JSON 415 ; l'impression est journalisée
+  `SYNTHESE_FACTURATION_IMPRESSION` (période et format). Voie documents : classement CNAS / CASNOS / CAMSSP / Autres et graphique conservés.
 - **RG-FAC-026** — La **part financière du pilotage de la Direction** (vue d'ensemble, répartition par caisse, absences)
   lit la Facturation par son langage publié `SyntheseFinanciereDesCentres` : chiffre d'affaires HT et TTC (totaux enregistrés),
   nombre de factures, **encaissé** (somme signée des règlements de toutes dates des factures émises dans la période),

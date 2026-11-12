@@ -1,0 +1,34 @@
+{
+  "Accept json sur un pdf" : {
+    "contentType" : "application/pdf",
+    "status" : 200
+  },
+  "Accept pdf" : {
+    "contentType" : "application/pdf",
+    "status" : 200
+  },
+  "GET /synthese" : {
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "PUT" : {
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "anonyme" : {
+    "contentType" : null,
+    "status" : 403
+  },
+  "sans type de contenu" : {
+    "contentType" : "application/problem+json",
+    "status" : 415
+  },
+  "text/plain" : {
+    "contentType" : "application/problem+json",
+    "status" : 415
+  },
+  "xml" : {
+    "contentType" : "application/problem+json",
+    "status" : 400
+  }
+}

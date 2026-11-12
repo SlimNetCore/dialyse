@@ -240,11 +240,18 @@ public class FacturationContexteConfiguration {
     }
 
     @Bean
-    LectureDeLaSynthese facturationLectureDeLaSynthese(JdbcTemplate jdbc, SeancesDesFacturesFournies seances) {
-        return new LectureDeLaSyntheseJdbc(jdbc, seances);
+    LectureDeLaSynthese facturationLectureDeLaSynthese(JdbcTemplate jdbc, SeancesDesFacturesFournies seances,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
+        return new LectureDeLaSyntheseJdbc(jdbc, seances,
+                new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.patientcouverture.CaissesDesAgencesParLAnnuaire(annuaire));
     }
 
-    /** {@code impression} est l'adaptateur de la plateforme (moteur Jasper, gabarits). */
+    /** PL8 : la synthèse est rendue par Documents (documents.v1) avec les données de la Facturation ; Excel : classeur de la Facturation. */
+    @Bean
+    ImpressionDeLaSynthese facturationImpressionDeLaSynthese(com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument documents) {
+        return new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.documents.SyntheseRendueParDocuments(documents);
+    }
+
     @Bean
     ImprimerLaSynthese facturationImprimerLaSynthese(LectureDeLaSynthese lecture, ImpressionDeLaSynthese impression) {
         return new ImprimerLaSynthese(lecture, impression);

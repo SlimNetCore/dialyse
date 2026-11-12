@@ -511,6 +511,20 @@ public abstract class FacturationDesSeancesContrat {
     }
 
     @Test
+    void should_count_only_the_invoiced_status_seances_for_the_printed_summary_pl8() {
+        decor();
+        UUID f1 = UUID.randomUUID();
+        UUID f2 = UUID.randomUUID();
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 9, 1), "FACTUREE", f1);
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 9, 2), "PLANIFIEE", f1);
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 9, 3), "facturee", f2);
+        seance(UUID.randomUUID(), CENTRE_B, PATIENT_B, LocalDate.of(2026, 9, 4), "FACTUREE", f1);
+
+        assertThat(facturees().nombreParFactureAuStatutFacturee(CENTRE_A, List.of(f1, f2))).containsOnly(Map.entry(f1, 1L));
+        assertThat(facturees().nombreParFacture(CENTRE_A, List.of(f1, f2))).containsOnly(Map.entry(f1, 2L), Map.entry(f2, 1L));
+    }
+
+    @Test
     void should_count_the_seances_of_a_large_number_of_invoices() {
         decor();
         Collection<UUID> factures = IntStream.range(0, 1201).mapToObj(i -> UUID.randomUUID()).toList();

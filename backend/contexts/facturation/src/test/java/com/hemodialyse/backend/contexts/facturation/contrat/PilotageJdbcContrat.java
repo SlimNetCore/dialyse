@@ -42,7 +42,17 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
 
     @Override
     protected LectureDeLaSynthese synthese() {
-        return new LectureDeLaSyntheseJdbc(jdbc(), new SeancesDesFacturesSurLaTable(jdbc()));
+        // l'annuaire des payeurs (PL8) : la chaîne agence, caisse du centre, lue sur les tables de test, bornée au centre
+        return new LectureDeLaSyntheseJdbc(jdbc(), new SeancesDesFacturesSurLaTable(jdbc()), centre -> {
+            java.util.Map<UUID, com.hemodialyse.backend.contexts.facturation.application.pilotage.CaissesDesAgences.Caisse> caisses =
+                    new java.util.HashMap<>();
+            jdbc().query("SELECT a.id, ca.code, ca.nom FROM agence a JOIN caisse_assurance ca ON ca.id = a.caisse_id "
+                    + "AND ca.center_id = a.center_id WHERE a.center_id = ?", rs -> {
+                caisses.put(rs.getObject("id", UUID.class), new com.hemodialyse.backend.contexts.facturation.application.pilotage
+                        .CaissesDesAgences.Caisse(rs.getString("code"), rs.getString("nom")));
+            }, centre);
+            return caisses;
+        });
     }
 
     @Override
@@ -80,6 +90,31 @@ public abstract class PilotageJdbcContrat extends PilotageContrat {
     protected void poserLaSeance(UUID centre, UUID facture, LocalDate date, String statut) {
         jdbc().update("INSERT INTO seances (id, center_id, patient_id, date_seance, statut, facture_id) VALUES (?, ?, ?, ?, ?, ?)",
                 UUID.randomUUID(), centre, PATIENT_1, Date.valueOf(date), statut, facture);
+    }
+
+    private void ligne(UUID facture, String forfait, String ht) {
+        jdbc().update("INSERT INTO facture_lignes (id, facture_id, center_id, forfait_label, unit_price_ht, seance_count, line_ht) "
+                + "VALUES (?, ?, ?, ?, ?, 1, ?)", UUID.randomUUID(), facture, CENTRE_A.valeur(), forfait, new BigDecimal(ht), new BigDecimal(ht));
+    }
+
+    /** PL8 : le tableau forfait x caisse est trié en Java par ordre des caractères (même ordre sous H2 et PostgreSQL, quelle que soit la collation). */
+    @Test
+    void should_build_the_forfait_by_fund_table_in_character_order_with_the_share_of_the_recorded_ttc() {
+        UUID f1 = facture(CENTRE_A, PATIENT_1, "2026-02-10", "100.00", "19.00", "119.00", "cnas ", "CNAS Centre", null);
+        UUID f2 = facture(CENTRE_A, PATIENT_2, "2026-02-11", "0.00", "0.00", "5.00", null, null, null);
+        ligne(f1, "forfait 01", "60.00");
+        ligne(f1, "Forfait 01", "40.00");
+        ligne(f1, "FORFAIT 01", "0.00");
+        ligne(f2, "Gratuit", "0.00");
+        ligne(f2, "Gratuit 2", "0.00");
+
+        var lignes = synthese().de(CENTRE_A, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28)).lignes();
+
+        assertThat(lignes).extracting(l -> l.forfait() + "|" + l.caisse())
+                .containsExactly("FORFAIT 01|CNAS", "Forfait 01|CNAS", "Gratuit|INCONNU", "Gratuit 2|INCONNU", "forfait 01|CNAS");
+        assertThat(lignes).filteredOn(l -> l.forfait().equals("forfait 01")).singleElement()
+                .satisfies(l -> assertThat(l.ttc()).isEqualByComparingTo("71.40"));
+        assertThat(lignes).filteredOn(l -> l.forfait().startsWith("Gratuit")).allSatisfy(l -> assertThat(l.ttc()).isEqualByComparingTo("2.50"));
     }
 
     @Test

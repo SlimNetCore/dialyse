@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 1,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-02-01 au 2026-02-28\nForfait CNAS HT CNAS TTC CASNOS HT CASNOS TTC CAMSSP HT CAMSSP TTC Autres HT Autres TTC Total HT Total TTC\nForfait Dialyse Nuit 0,00 0,00 499,50 544,46 0,00 0,00 0,00 0,00 499,50 544,46\nForfait HD 900,45 1071,54 0,50 0,54 300,00 300,00 50,00 50,13 1250,95 1422,21\nForfait Transport 99,90 118,88 0,00 0,00 0,00 0,00 0,00 0,00 99,90 118,88\nTotaux globaux\nMontant HT: 1850.00\nMontant TTC: 2085.13\nMontant TVA: 235.13\n"
+}

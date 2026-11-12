@@ -18,6 +18,12 @@ public interface SeancesDesFacturesPubliees {
     Map<UUID, Long> nombreParFacture(UUID centre, Collection<UUID> factures);
 
     /**
+     * Définition de la synthèse imprimée (PL8, KB-PL8-5, critère conservateur à confirmer métiers avant le 2026-12-15) : comme
+     * {@link #nombreParFacture} mais seules les séances au statut {@code FACTUREE} (casse exacte) sont comptées.
+     */
+    Map<UUID, Long> nombreParFactureAuStatutFacturee(UUID centre, Collection<UUID> factures);
+
+    /**
      * Définition du tableau de bord : le nombre de séances du centre au statut {@code FACTUREE} (casse exacte) dont la date de séance est dans la
      * période (bornes incluses), avec ou sans facture.
      */

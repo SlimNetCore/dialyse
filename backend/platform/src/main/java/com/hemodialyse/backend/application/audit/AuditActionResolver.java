@@ -29,6 +29,7 @@ public final class AuditActionResolver {
     private static final String ROUTE_BON = "/api/v1/gmao/interventions/{id}/bon";
 
     /** Impression du PV d'inventaire et téléchargement de la feuille de comptage (PL7, KB-PL7-5, décision du 2026-11-12). */
+    private static final String ROUTE_SYNTHESE = "/api/v1/facturation/synthese/print";
     private static final String ROUTE_PV_INVENTAIRE = "/api/v1/stock/inventaires/{id}/rapport";
     private static final String ROUTE_FEUILLE_COMPTAGE = "/api/v1/stock/inventaires/{id}/feuille-comptage";
 
@@ -87,6 +88,9 @@ public final class AuditActionResolver {
             // Statistiques du patient (PL4, décision du 2026-11-12, KB-PL4-4) : les recherches par corps sont des LECTURES ; elles ne sont plus
             // journalisées « PATIENTS_CREATION ». Le journal historique n'est pas réécrit.
             Map.entry("GET " + ROUTE_CAHIER, new Resolved("CAHIER_DIALYSE_IMPRESSION", "patients", "Cahier de dialyse imprimé")),
+            // Synthèse mensuelle de facturation imprimée (PL8, KB-PL8-7, décision du 2026-11-12) : plus « FACTURATION_CREATION » ;
+            // le libellé porte la période et le format (posés par le contrôleur), l'identifiant tracé est celui du centre.
+            Map.entry("POST " + ROUTE_SYNTHESE, new Resolved("SYNTHESE_FACTURATION_IMPRESSION", "facturation", "Synthèse de facturation imprimée")),
             Map.entry("GET " + ROUTE_BON, new Resolved("BON_INTERVENTION_IMPRESSION", "gmao", "Bon d'intervention imprimé")),
             Map.entry("GET " + ROUTE_PV_INVENTAIRE, new Resolved("INVENTAIRE_PV_IMPRESSION", "stock", "Procès-verbal d'inventaire imprimé")),
             Map.entry("GET " + ROUTE_FEUILLE_COMPTAGE,

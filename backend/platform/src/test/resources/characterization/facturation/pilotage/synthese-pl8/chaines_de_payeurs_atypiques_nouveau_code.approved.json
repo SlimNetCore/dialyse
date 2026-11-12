@@ -1,0 +1,8 @@
+{
+  "status" : 200,
+  "contentType" : "application/pdf",
+  "contentDisposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+  "signaturePdf" : true,
+  "pages" : 1,
+  "texte" : "SYNTHESE MENSUELLE FACTURATION\nCentre: <CENTRE_A> Periode: 2026-06-01 au 2026-06-30\nForfait\nCNAS Centre 1\nHT TTC\nInconnu\nHT TTC\nTotal\nTotal HT Total TTC\nForfait HD 600,00 600,00 2 200,00 2 200,00 2 800,00 2 800,00\nVue d'ensemble mensuelle\nMontant HT\n2 800,00\nMontant TTC\n2 800,00\nPatients\n1\nSeances\n0\nFactures\n7\nMontant TVA\n0,00\nRepartition patients/seances par caisse Repartition patients/seances par situation patient\nCNAS Centre 1\nP ########## 1 | S ---------- 0\ncnas en minuscules\nP ########## 1 | S ---------- 0\nCNAS avec espaces\nP ########## 1 | S ---------- 0\nInconnu\nP ########## 1 | S ---------- 0\nPERMANENT\nP ########## 1 | S ---------- 0\n"
+}

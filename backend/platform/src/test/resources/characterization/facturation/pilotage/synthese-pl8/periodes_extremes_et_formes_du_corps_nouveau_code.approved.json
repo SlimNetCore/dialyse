@@ -1,0 +1,57 @@
+{
+  "0001-01-01 au 9999-12-31" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "periode" : "Periode: 0001-01-01 au 9999-12-31",
+    "status" : 200
+  },
+  "annee 10000" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "periode" : "",
+    "status" : 200
+  },
+  "centre en majuscules" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "periode" : "Periode: 2026-02-01 au 2026-02-28",
+    "status" : 200
+  },
+  "centre sans tirets" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "centre vide" : {
+    "code" : "VALIDATION_ERROR",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "date-heure" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "periode" : "Periode: 2026-02-01 au 2026-02-28",
+    "status" : 200
+  },
+  "dates blanches" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "periode" : "",
+    "status" : 200
+  },
+  "dates en entiers" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "format en nombre" : {
+    "contentType" : "text/plain",
+    "corps" : "format non supporte: 1",
+    "status" : 400
+  },
+  "tableau a la place de l'objet" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  }
+}

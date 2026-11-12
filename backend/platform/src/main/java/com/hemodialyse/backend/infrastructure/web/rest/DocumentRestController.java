@@ -230,14 +230,14 @@ public class DocumentRestController implements ReglesDImpressionDesTypesSensible
                 return Map.of();
             }
             SyntheseMensuelle synthese = syntheseDeFacturation.de(centre, debut, fin);
-            Map<String, Object> totaux = new HashMap<>();
-            totaux.put("TOTAL_HT_FACTURES", synthese.totalHt());
-            totaux.put("TOTAL_TVA_FACTURES", synthese.totalTva());
-            totaux.put("TOTAL_TTC_FACTURES", synthese.totalTtc());
-            return totaux;
-        } catch (java.time.DateTimeException | NullPointerException e) {
-            // période absente ou illisible : refusée par la suite comme avant
+            // PL8 : totaux ET lignes du tableau, répartitions, indicateurs : le gabarit ne lit plus aucune table (ADR 0140 D3)
+            return new HashMap<>(com.hemodialyse.backend.contexts.facturation.publishedlanguage.ModeleDeLaSynthese.parametresClasses(synthese));
+        } catch (NullPointerException e) {
+            // période absente : refusée par la suite comme avant
             return Map.of();
+        } catch (java.time.DateTimeException e) {
+            // période illisible : le gabarit n'a plus de requête qui échoue ; l'échec d'impression (500) d'avant est reproduit (PL8)
+            throw new IllegalStateException("Période illisible pour SYNTHESE_FACTURATION_MENSUELLE", e);
         }
     }
 }

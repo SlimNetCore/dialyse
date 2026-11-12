@@ -44,6 +44,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <!-- PL8 : port de rendu documents.v1 (synthèse mensuelle) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Export Excel des règlements (slice F4), même version que la plateforme -->
         <dependency>
             <groupId>org.apache.poi</groupId>

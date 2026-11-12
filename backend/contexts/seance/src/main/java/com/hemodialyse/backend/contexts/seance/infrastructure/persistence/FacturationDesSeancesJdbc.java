@@ -141,6 +141,15 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
 
     @Override
     public Map<UUID, Long> nombreParFacture(UUID centre, Collection<UUID> factures) {
+        return nombreParFacture(centre, factures, "");
+    }
+
+    @Override
+    public Map<UUID, Long> nombreParFactureAuStatutFacturee(UUID centre, Collection<UUID> factures) {
+        return nombreParFacture(centre, factures, " AND statut = 'FACTUREE'");
+    }
+
+    private Map<UUID, Long> nombreParFacture(UUID centre, Collection<UUID> factures, String filtre) {
         Map<UUID, Long> nombres = new HashMap<>();
         List<UUID> demandees = new ArrayList<>(new java.util.LinkedHashSet<>(factures));
         for (int debut = 0; debut < demandees.size(); debut += TAILLE_DU_LOT) {
@@ -151,7 +160,7 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
                 criteres[i + 1] = lot.get(i);
             }
             jdbc.query("SELECT facture_id, COUNT(1) AS nombre FROM seances WHERE center_id = ? AND facture_id IN ("
-                            + String.join(", ", java.util.Collections.nCopies(lot.size(), "?")) + ") GROUP BY facture_id",
+                            + String.join(", ", java.util.Collections.nCopies(lot.size(), "?")) + ")" + filtre + " GROUP BY facture_id",
                     rs -> {
                         nombres.put(rs.getObject("facture_id", UUID.class), rs.getLong("nombre"));
                     }, criteres);

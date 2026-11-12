@@ -1,0 +1,71 @@
+{
+  "GET non supporte" : {
+    "code" : "METHOD_NOT_ALLOWED",
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "centre absent" : {
+    "code" : "VALIDATION_ERROR",
+    "contentType" : "application/problem+json",
+    "status" : 400,
+    "titre" : "Validation echouee"
+  },
+  "centre illisible" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "champs inconnus ignores" : {
+    "contentType" : "application/pdf",
+    "corps" : "(pdf, non vide)",
+    "status" : 200
+  },
+  "corps vide" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "date au format francais" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "date impossible" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "debut absent" : {
+    "code" : "VALIDATION_ERROR",
+    "contentType" : "application/problem+json",
+    "status" : 400,
+    "titre" : "Validation echouee"
+  },
+  "debut apres fin" : {
+    "contentType" : "text/plain",
+    "corps" : "periodStart doit etre inferieure ou egale a periodEnd",
+    "status" : 400
+  },
+  "fin absente" : {
+    "code" : "VALIDATION_ERROR",
+    "contentType" : "application/problem+json",
+    "status" : 400,
+    "titre" : "Validation echouee"
+  },
+  "format inconnu" : {
+    "contentType" : "text/plain",
+    "corps" : "format non supporte: CSV",
+    "status" : 400
+  },
+  "json invalide" : {
+    "code" : "BAD_REQUEST",
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "objet vide" : {
+    "code" : "VALIDATION_ERROR",
+    "contentType" : "application/problem+json",
+    "status" : 400,
+    "titre" : "Validation echouee"
+  }
+}
