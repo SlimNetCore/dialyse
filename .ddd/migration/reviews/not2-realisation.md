@@ -1,27 +1,24 @@
 ---
 status: proposed
 date: 2026-11-12
-sources: ADR 0140, ADR 0141, not1-realisation.md
+sources: ADR 0140, ADR 0141, ADR 0143, not1-realisation.md
 ---
 
-# NOT2 - realisation (PARTIELLE : decision requise)
+# NOT2 - realisation
 
 ## Fait
-`backend/platform/.../application/notification/NotificationService.java` (seul fichier modifie, couvert, aucun BLOQUE) : ~654 -> ~480 lignes, 43 methodes `notifyXxx` conservees a l'identique (signatures, surcharges).
-- Contenu compose par un helper unique `contenu(paires...)` (HashMap, meme ordre d'insertion donc meme JSON) + helpers de forme (`seanceDuPatient`, `absenceInfirmier`, `patientDansLIsolement`, `avecPatientFacultatif`, `identitePatient`, `visantLeCompte`).
-- La `DemandeDeNotification` (notifications.v1) est construite en UN seul endroit (`demande(...)`) ; l'audience est deduite de `targetRoles`/`targetUserId`, le contenu reste inchange (cles de roles incluses). `emettre(demande, apresLeCommit)` execute la logique d'avant (idempotence, journal, apres commit, diffusion).
-- Goldens NOT1/DOC1 et tests des emetteurs : inchanges, verts (aucun golden modifie).
-
-## NON fait : delegation a `Notifier` (decision requise, pas d'ADR 0143 ecrit)
-Faire de `NotificationService` une facade sur `Notifier.notifier(...)` change le comportement, donc rompt la parite exigee :
-1. **Circularite** : `NotifierLesDestinataires` recoit `DiffusionEnTempsReel` = `NotificationService` ; il faudrait un injection paresseuse (`ObjectProvider`).
-2. **Journal dans la transaction vs apres commit** : aujourd'hui le journal s'ecrit DANS la transaction de l'emetteur (annule avec elle) et seule la diffusion part apres commit. `Notifier` journalise ET diffuse en un appel, a faire apres commit : le journal passerait hors transaction (alerte perdue si l'ecriture echoue apres commit ; plus d'annulation conjointe).
-3. **Panne du journal** : legacy = avale l'erreur et diffuse quand pas d'identifiant impose, propage si impose (REFORME_PROPOSEE et alertes rejouables). `NotifierLesDestinataires` propage toujours et ne diffuse pas.
-4. **Ordre du JSON** : `LinkedHashMap` + `targetRoles` ajoutes en fin changeraient l'ordre des cles si le contenu n'inclut pas deja ces cles (contourne ici en les gardant dans le contenu).
-Options : (a) ajouter au module Notifications une operation separant journalisation et diffusion differee (`Notifier` v1.1 ou port de planification apres commit) puis rebrancher ; (b) accepter 2-3 comme ecarts voulus (KB + accord utilisateur + ADR 0143). A trancher par l'utilisateur.
+- `NotificationService` (plateforme, seul fichier de production modifie, couvert, aucun BLOQUE) : ~654 -> ~480 lignes, 43 `notifyXxx` aux signatures inchangees ; contenu par un helper unique `contenu(paires...)` (HashMap, meme ordre d'insertion) ; `DemandeDeNotification` construite en un seul endroit (`demande`) ; emission via `NotifierEnDeuxTemps` (ADR 0143, option a).
+- Module notifications (notifications.v1) : `NotifierEnDeuxTemps`, `NotificationAEnvoyer` (publishedlanguage), `JournaliserLaNotification` (application), `NotifierEnDeuxTempsPublie` (interfaces/publie), 2 beans dans `NotificationsConfiguration`. Journal dans la transaction de l'emetteur (erreur avalee sans identifiant impose, propagee avec), diffusion apres commit par `NotificationService`. Cycle casse sans `@Lazy` : le cas d'usage ne depend pas du transport.
+- Ecart de contrat assume (documente ADR 0143) : `JournaliserLaNotification` n'ajoute pas `targetRoles` aux evenements ouverts a tous (sinon le JSON STOMP changeait, golden `evenement_ponctuel` en echec detecte puis corrige) ; `NotifierLesDestinataires` (Notifier) garde l'ajout systematique, teste.
+- Goldens NOT1/DOC1 : aucun modifie ni approuve. Ordre des cles et JSON inchanges.
 
 ## Tests
-Passe 1 (normale), passes 2 et 3 (`-Dsurefire.runOrder=random`) ciblees : NotificationService*Test, NotificationJournalIntegrationTest, DiffusionEtPurge (8), *LegacyTest (ACL), InterventionReformeProposee*, FrontieresDesContextesTest : vertes. `check-arch` : 0 violation. Suite complete `./mvnw -o test -fae` : voir le message de retour (log `not2-full.log` du scratchpad).
+- Nouveau : `JournaliserLaNotificationTest` (8 : journalisation immediate, ordre des cles, non journalisee, rejeu, panne avalee, panne propagee, centre absent, pas de cle ajoutee) sur double en memoire ; le journal reel est couvert par les tests de contrat existants et `NotificationJournalIntegrationTest`.
+- Modifie (justifie) : `NotificationServiceSaisieInfirmierTest` - seul le montage (constructeur : `NotifierEnDeuxTemps` au lieu de `JournalDesNotifications`) et les `verify` du journal (signature `enregistrer(Notification)`) ; memes scenarios et assertions de comportement.
+- 3 passes ciblees vertes (2 et 3 en `-Dsurefire.runOrder=random`), `check-arch` : 0 violation. Suite complete : voir retour.
 
 ## Docs
-Aucune regle de gestion touchee (comportement identique) : referentiel et annexe de tracabilite inchanges.
+Aucune regle de gestion modifiee : referentiel et annexe de tracabilite inchanges. ADR 0143 ajoute.
+
+## Restant
+Les 7 ACL `*Legacy` d'emission et `JournalDesNotifications` (transitoire) sont retires en PL13.

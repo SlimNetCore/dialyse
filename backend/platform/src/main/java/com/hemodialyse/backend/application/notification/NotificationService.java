@@ -3,7 +3,8 @@ package com.hemodialyse.backend.application.notification;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.Audience;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DemandeDeNotification;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
-import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotificationAEnvoyer;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,13 +61,16 @@ public class NotificationService implements DiffusionEnTempsReel {
 
     private final SimpMessagingTemplate messaging;
     private final TempsReelDeLaDirection directionRealtime;
-    private final JournalDesNotifications journal;
+    private final NotifierEnDeuxTemps notifierEnDeuxTemps;
 
+    /**
+     * {@code notifierEnDeuxTemps} (notifications.v1, ADR 0143) ne dépend pas du transport temps réel que ce service fournit : pas de cycle.
+     */
     public NotificationService(SimpMessagingTemplate messaging, TempsReelDeLaDirection directionRealtime,
-                               JournalDesNotifications journal) {
+                               NotifierEnDeuxTemps notifierEnDeuxTemps) {
         this.messaging = messaging;
         this.directionRealtime = directionRealtime;
-        this.journal = journal;
+        this.notifierEnDeuxTemps = notifierEnDeuxTemps;
     }
 
     // ---------------------------------------------------------------- patients, prises en charge, attestations
@@ -506,30 +511,21 @@ public class NotificationService implements DiffusionEnTempsReel {
     }
 
     private void emettre(DemandeDeNotification demande, boolean apresLeCommit) {
-        UUID centerId = demande.centre();
-        String eventType = demande.type();
-        Map<String, String> payload = demande.contenu();
         UUID idImpose = demande.identifiantDeterministe();
-        if (idImpose != null && demande.journalisee() && journal.existe(idImpose)) {
+        // premier temps, dans la transaction de l'émetteur : identifiant déjà journalisé = rien à faire ; journal en panne =
+        // l'erreur remonte si l'identifiant est imposé (rien n'est envoyé, l'événement rejoué recommencera), sinon elle est rendue
+        Optional<NotificationAEnvoyer> journalisee = notifierEnDeuxTemps.journaliser(demande);
+        if (journalisee.isEmpty()) {
             return;
         }
-        Instant maintenant = Instant.now();
-        UUID idJournalise = null;
-        if (demande.journalisee()) {
-            UUID id = idImpose != null ? idImpose : UUID.randomUUID();
-            try {
-                journal.enregistrer(id, centerId, eventType, payload, maintenant);
-                idJournalise = id;
-            } catch (RuntimeException e) {
-                // identifiant imposé (alerte portée par un événement rejouable) : l'erreur remonte, rien n'est envoyé en
-                // temps réel, et l'événement rejoué recommencera l'enregistrement puis l'envoi
-                if (idImpose != null) throw e;
-                // le temps réel reste prioritaire : une base indisponible n'empêche pas d'alerter les connectés
-                log.warn("[NOTIFICATION] Alerte {} non enregistrée pour le centre {}", eventType, centerId, e);
-            }
+        NotificationAEnvoyer aEnvoyer = journalisee.get();
+        if (aEnvoyer.panneDuJournal() != null) {
+            // le temps réel reste prioritaire : une base indisponible n'empêche pas d'alerter les connectés
+            log.warn("[NOTIFICATION] Alerte {} non enregistrée pour le centre {}", demande.type(), demande.centre(),
+                    aEnvoyer.panneDuJournal());
         }
-        final UUID idDiffuse = idJournalise;
-        Runnable tempsReel = () -> diffuser(centerId, eventType, payload, idDiffuse, maintenant);
+        Runnable tempsReel = () -> diffuser(aEnvoyer.centre(), aEnvoyer.type(), aEnvoyer.contenu(), aEnvoyer.identifiant(),
+                aEnvoyer.emisLe());
         // Alerte à identifiant imposé (P3 à P5) émise dans une transaction : le temps réel part APRÈS le commit, pour qu'une
         // transaction annulée (409, 422, échec du commit) ne diffuse jamais d'alerte fantôme (revue P5, constat 4).
         if ((idImpose != null || apresLeCommit) && TransactionSynchronizationManager.isSynchronizationActive()) {

@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.application.notification;
 
-import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
+import com.hemodialyse.backend.contexts.notifications.application.JournaliserLaNotification;
+import com.hemodialyse.backend.contexts.notifications.application.NotificationsDuJournal;
+import com.hemodialyse.backend.contexts.notifications.domain.Notification;
+import com.hemodialyse.backend.contexts.notifications.interfaces.publie.NotifierEnDeuxTempsPublie;
 import com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.TempsReelDeLaDirection;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import org.junit.jupiter.api.Test;
@@ -27,9 +30,9 @@ import static org.mockito.Mockito.when;
 class NotificationServiceSaisieInfirmierTest {
 
     private final SimpMessagingTemplate messaging = mock(SimpMessagingTemplate.class);
-    private final JournalDesNotifications journal = mock(JournalDesNotifications.class);
+    private final NotificationsDuJournal journal = mock(NotificationsDuJournal.class);
     private final NotificationService service = new NotificationService(messaging, mock(TempsReelDeLaDirection.class),
-            journal);
+            new NotifierEnDeuxTempsPublie(new JournaliserLaNotification(journal, java.time.Instant::now, UUID::randomUUID)));
     private final UUID centre = UUID.randomUUID();
 
     @SuppressWarnings("unchecked")
@@ -66,15 +69,16 @@ class NotificationServiceSaisieInfirmierTest {
 
         Map<String, Object> evt = publieTous().get(1);
         assertEquals("GENERATEUR_INDISPONIBLE", evt.get("type"));
-        verify(journal).enregistrer(eq(UUID.fromString((String) evt.get("id"))), eq(centre),
-                eq("GENERATEUR_INDISPONIBLE"), any(), any());
+        verify(journal).enregistrer(org.mockito.ArgumentMatchers.argThat((Notification n) ->
+                n.id().valeur().equals(UUID.fromString((String) evt.get("id"))) && n.centre().valeur().equals(centre)
+                        && n.type().valeur().equals("GENERATEUR_INDISPONIBLE")));
     }
 
     @Test
     void a_transient_event_is_pushed_without_being_journaled() {
         service.notifyPatientCreated(centre, UUID.randomUUID(), "P1", "Benali", "Karim");
 
-        verify(journal, org.mockito.Mockito.never()).enregistrer(any(), any(), any(), any(), any());
+        verify(journal, org.mockito.Mockito.never()).enregistrer(any(Notification.class));
         assertNull(publieTous().get(0).get("id"));
     }
 
@@ -91,12 +95,12 @@ class NotificationServiceSaisieInfirmierTest {
         assertEquals(centre.toString(), evt.get("centerId"));
         assertEquals(patient.toString(), payload.get("patientId"));
         assertEquals("INFIRMIER,MEDECIN,ADMIN", payload.get("targetRoles"));
-        verify(journal, org.mockito.Mockito.never()).enregistrer(any(), any(), any(), any(), any());
+        verify(journal, org.mockito.Mockito.never()).enregistrer(any(Notification.class));
     }
 
     @Test
     void a_journal_failure_never_blocks_the_real_time_alert() {
-        doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(), any(), any(), any(), any());
+        doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(Notification.class));
 
         service.notifyGenerateurIndisponible(centre, "A-G1", "HORS_SERVICE", java.util.List.of());
 
@@ -107,7 +111,7 @@ class NotificationServiceSaisieInfirmierTest {
 
     @Test
     void a_journal_failure_on_a_proposed_reform_is_raised_so_the_event_is_replayed_and_nothing_is_pushed() {
-        doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(), any(), any(), any(), any());
+        doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(Notification.class));
 
         assertThrows(IllegalStateException.class, () -> service.notifyReformeProposee(centre, UUID.randomUUID(), "G-01",
                 java.time.Instant.parse("2026-10-12T08:00:00Z")));

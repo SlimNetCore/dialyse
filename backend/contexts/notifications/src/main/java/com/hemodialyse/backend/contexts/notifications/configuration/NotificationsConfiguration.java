@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.notifications.configuration;
 import com.hemodialyse.backend.contexts.notifications.application.ConsulterLeJournal;
 import com.hemodialyse.backend.contexts.notifications.application.Horloge;
 import com.hemodialyse.backend.contexts.notifications.application.Identifiants;
+import com.hemodialyse.backend.contexts.notifications.application.JournaliserLaNotification;
 import com.hemodialyse.backend.contexts.notifications.application.MarquerLesNotificationsLues;
 import com.hemodialyse.backend.contexts.notifications.application.NotificationsDuJournal;
 import com.hemodialyse.backend.contexts.notifications.application.NotifierLesDestinataires;
@@ -15,10 +16,12 @@ import com.hemodialyse.backend.contexts.notifications.infrastructure.systeme.Hor
 import com.hemodialyse.backend.contexts.notifications.infrastructure.systeme.IdentifiantsAleatoires;
 import com.hemodialyse.backend.contexts.notifications.interfaces.planifie.PurgeNocturneDesNotifications;
 import com.hemodialyse.backend.contexts.notifications.interfaces.publie.JournalDesNotificationsPublie;
+import com.hemodialyse.backend.contexts.notifications.interfaces.publie.NotifierEnDeuxTempsPublie;
 import com.hemodialyse.backend.contexts.notifications.interfaces.publie.NotifierPublie;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications;
 import com.hemodialyse.backend.contexts.notifications.publishedlanguage.Notifier;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -86,6 +89,17 @@ public class NotificationsConfiguration {
     @Bean
     Notifier notifier(NotifierLesDestinataires cas) {
         return new NotifierPublie(cas);
+    }
+
+    /** Sans dépendance au transport temps réel (fourni par la plateforme) : pas de cycle avec l'émetteur qui le fournit. */
+    @Bean
+    JournaliserLaNotification journaliserLaNotification(NotificationsDuJournal journal, Horloge horloge, Identifiants identifiants) {
+        return new JournaliserLaNotification(journal, horloge, identifiants);
+    }
+
+    @Bean
+    NotifierEnDeuxTemps notifierEnDeuxTemps(JournaliserLaNotification cas) {
+        return new NotifierEnDeuxTempsPublie(cas);
     }
 
     @Bean
