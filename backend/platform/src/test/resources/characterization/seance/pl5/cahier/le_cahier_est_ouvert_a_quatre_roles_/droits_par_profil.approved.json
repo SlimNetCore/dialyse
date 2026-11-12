@@ -1,0 +1,48 @@
+{
+  "01 profils" : {
+    "ADMIN" : {
+      "200" : "01"
+    },
+    "ADMIN sans centre" : {
+      "403 ACCESS_DENIED" : "01"
+    },
+    "DIRECTION" : {
+      "403 ROLE_SCOPE" : "01"
+    },
+    "INFIRMIER + SECRETAIRE" : {
+      "200" : "01"
+    },
+    "INFIRMIER seul" : {
+      "200" : "01"
+    },
+    "MEDECIN + ADMIN" : {
+      "200" : "01"
+    },
+    "MEDECIN + INFIRMIER" : {
+      "200" : "01"
+    },
+    "MEDECIN seul" : {
+      "200" : "01"
+    },
+    "SECRETAIRE" : {
+      "200" : "01"
+    },
+    "SUPERADMIN" : {
+      "403 ROLE_SCOPE" : "01"
+    },
+    "SUPERADMIN + ADMIN" : {
+      "403 ROLE_SCOPE" : "01"
+    },
+    "anonyme" : "403",
+    "aucun role" : {
+      "403 ACCESS_DENIED" : "01"
+    },
+    "role inconnu (COMPTABLE)" : {
+      "403 ACCESS_DENIED" : "01"
+    },
+    "role personnalise (CHEF_DE_SALLE)" : {
+      "403 ACCESS_DENIED" : "01"
+    }
+  },
+  "02 aucune ecriture" : true
+}
