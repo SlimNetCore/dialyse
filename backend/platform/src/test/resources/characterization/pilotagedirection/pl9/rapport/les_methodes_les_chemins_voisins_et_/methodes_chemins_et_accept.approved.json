@@ -1,0 +1,28 @@
+{
+  "cas" : {
+    "DELETE /report" : "405 type=application/problem+json allow=GET cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=163",
+    "GET /Report (casse)" : "500 type=application/problem+json allow=null cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=195",
+    "GET /report" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: */*" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: application/json" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: application/pdf" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: application/xml" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: n'importe quoi" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: text/html" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report Accept: text/plain" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report avec corps JSON" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /report.pdf" : "500 type=application/problem+json allow=null cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=207",
+    "GET /report/ (barre finale)" : "500 type=application/problem+json allow=null cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=197",
+    "GET /report/<M-1> (sous-chemin)" : "500 type=application/problem+json allow=null cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=219",
+    "GET /snapshots/<M-1>/report Accept: application/json" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "GET /snapshots/report (mois = report)" : "422 type=application/problem+json allow=null cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=160",
+    "HEAD /report" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "HEAD /snapshots/<M-1>/report" : "200 type=application/pdf allow=null cache=no-store longueur-du-corps=pdf",
+    "OPTIONS /report" : "200 type=- allow=GET,HEAD,OPTIONS cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=0",
+    "PATCH /report" : "405 type=application/problem+json allow=GET cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=163",
+    "POST /report" : "405 type=application/problem+json allow=GET cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=163",
+    "POST /report anonyme" : "403 type=- allow=null cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=0",
+    "POST /snapshots/<M-1>/report" : "405 type=application/problem+json allow=GET cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=181",
+    "PUT /report" : "405 type=application/problem+json allow=GET cache=no-cache, no-store, max-age=0, must-revalidate longueur-du-corps=163"
+  }
+}

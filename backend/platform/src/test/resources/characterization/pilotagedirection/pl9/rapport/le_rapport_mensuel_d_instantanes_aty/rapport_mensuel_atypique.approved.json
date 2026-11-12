@@ -1,0 +1,51 @@
+{
+  "01 cloisonnement" : {
+    "l'autre direction lit son propre mois" : "200 <M-1.DEBUT> au <M-1.FIN>",
+    "la direction A lit le mois figé par l'autre societe seulement" : "422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois"
+  },
+  "02 mois demandes" : {
+    "anonyme" : "403",
+    "mois 2026-1" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois 2026-13" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois avec jour" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois courant non figé" : "422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois",
+    "mois futur" : "422 SNAPSHOT_INTROUVABLE | Aucun instantané pour ce mois",
+    "mois texte" : "422 MOIS_INVALIDE | Mois invalide (attendu : AAAA-MM)",
+    "mois vide" : "400"
+  },
+  "03 contenus figes atypiques" : {
+    "25 alertes, centres hostiles ou absents, valeurs enormes" : {
+      "Alertes" : "Alertes — — Lots périmés encore en stock Centre <&> 1 — CODE_1 (1000000000000) Centre <&> 2 — Lots périmés encore en stock (2000000000000) — — CODE_3 (3000000000000) Centre <&> 4 — Lots périmés encore en stock (4000000000000) Centre <&> 5 — CODE_5 — — Lots périmés encore en stock (6000000000000) Centre <&> 7 — CODE_7 (7000000000000) Centre <&> 8 — Lots périmés encore en stock (8000000000000) — — CODE_9 (9000000000000) Centre <&> 10 — Lots périmés encore en stock Centre <&> 11 — CODE_11 (11000000000000) — — Lots périmés encore en stock (12000000000000) Centre <&> 13 — CODE_13 (13000000000000) Centre <&> 14 — Lots périmés encore en stock (14000000000000) — — CODE_15 Centre <&> 16 — Lots périmés encore en stock (16000000000000) Centre <&> 17 — CODE_17 (17000000000000) — — Lots périmés encore en stock (18000000000000) Centre <&> 19 — CODE_19 (19000000000000) Centre <&> 20 — Lots périmés encore en stock — — CODE_21 (21000000000000) Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> <M-1.DEBUT> au <M-1.FIN> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 2 / 2 Centre <&> 22 — Lots périmés encore en stock (22000000000000) Centre <&> 23 — CODE_23 (23000000000000) — — Lots périmés encore en stock (24000000000000)",
+      "Finances et activité par centre" : "Finances et activité par centre Centre <script>x</script> ]]> LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL — Total société",
+      "Les effectifs de moins de" : "Les effectifs de moins de 5 patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "Qualité des soins" : "Qualité des soins — part des patients dans la cible KDIGO Centre Kt/V Hb Phosphore PTH Albumine AgHBs + Anti-VHC + VIH + Traitement en retard Attente greffe Bilans greffe en cours Greffes (période) Total société — — — — — < seuil < seuil < seuil < seuil < seuil < seuil < seuil",
+      "Stock" : "Stock Centre Articles actifs Sous le seuil Lots périmés Péremption < 90 j Valeur du stock Total société — — — — —",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> <M-1.DEBUT> au <M-1.FIN> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période <M-1.DEBUT> au <M-1.FIN> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 9999999999 FACTURES 1 CA HT 123 456 789 012 346 DA CA TTC 1 DA ENCAISSÉ -6 DA RESTE À RECOUVRER 2 DA TAUX D'ENCAISSEMENT 100.0 %",
+      "Évolution mensuelle" : "Évolution mensuelle Mois Séances CA HT CA TTC CA TTC 2024-01 2 3 DA 4 DA — 0 0 DA 0 DA"
+    },
+    "chaine" : {
+      "Les effectifs de moins de" : "Les effectifs de moins de — patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> — au — Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période — au — — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : —)"
+    },
+    "null JSON" : {
+      "Les effectifs de moins de" : "Les effectifs de moins de — patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> — au — Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période — au — — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : —)"
+    },
+    "objet vide" : {
+      "Les effectifs de moins de" : "Les effectifs de moins de — patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> — au — Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période — au — — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : —)"
+    },
+    "tableau" : {
+      "Les effectifs de moins de" : "Les effectifs de moins de — patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> — au — Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période — au — — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : —)"
+    },
+    "totaux sans centres ni indicateurs" : {
+      "Les effectifs de moins de" : "Les effectifs de moins de 5 patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> <M-1.DEBUT> au <M-1.FIN> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période <M-1.DEBUT> au <M-1.FIN> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 3 FACTURES 1 CA HT 1 000 DA CA TTC 1 190 DA ENCAISSÉ 600 DA RESTE À RECOUVRER 590 DA TAUX D'ENCAISSEMENT 50.4 %"
+    },
+    "tout absent" : {
+      "Les effectifs de moins de" : "Les effectifs de moins de — patients sont masqués (« < seuil ») et les taux calculés sur moins de patients évalués ne sont pas publiés. Cibles cliniques : KDIGO (Kt/V >= 1,2 ; hémoglobine 10 à 11,5 g/dL ; phosphore 2,5 à 4,5 mg/dL ; PTH 130 à 600 pg/mL ; albumine >= 4 g/dL).",
+      "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 NIF : 099900000000001 Rapport mensuel — <M-1> — au — Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 1 Rapport mensuel — <M-1> Clinique Pilotage & Fils — période — au — — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : —)"
+    }
+  }
+}

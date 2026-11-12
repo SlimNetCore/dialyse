@@ -1,0 +1,22 @@
+{
+  "01 sans parametre : du 1er janvier a aujourd'hui a Alger (et non a la date UTC)" : "200 <D+0> au <D+314>",
+  "02 fin seule" : "200 <D+0> au <D+100>",
+  "03 debut seul : fin = aujourd'hui" : "200 <D+0> au <D+314>",
+  "04 debut = fin" : "200 <D+10> au <D+10>",
+  "05 cinq ans pile" : "200 <D+0> au <D+1826>",
+  "06 cinq ans et un jour" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+  "07 fin dans le futur (dans la limite des 5 ans)" : "200 <D+314> au <D+1045>",
+  "08 debut tres ancien (1900) : plus de 5 ans" : "422 PERIODE_TROP_LONGUE | La période ne peut pas dépasser 5 ans",
+  "09 fin lointaine (2099) sans debut : le debut par defaut est le 1er janvier de l'annee de la FIN" : "200 <D+26663> au <D+27027>",
+  "10 debut vide" : "200 <D+0> au <D+100>",
+  "11 fin vide" : "200 <D+0> au <D+314>",
+  "12 debut repete" : "200 <D+0> au <D+100>",
+  "13 jour inexistant (30 fevrier)" : "400 BAD_REQUEST | Paramètre illisible : from",
+  "14 date-heure" : "400 BAD_REQUEST | Paramètre illisible : from",
+  "15 sans tirets" : "400 BAD_REQUEST | Paramètre illisible : from",
+  "16 jour sur un chiffre" : "400 BAD_REQUEST | Paramètre illisible : from",
+  "17 parametre inconnu ignore" : "200 <D+0> au <D+100>",
+  "18 debut apres fin d'un jour" : "422 PERIODE_INVALIDE | La date de début doit précéder la date de fin",
+  "19 annee bissextile : 29 fevrier 2028 accepte" : "200 <D+789> au <D+790>",
+  "20 annee 0001" : "200 <D-739616> au <D-739251>"
+}

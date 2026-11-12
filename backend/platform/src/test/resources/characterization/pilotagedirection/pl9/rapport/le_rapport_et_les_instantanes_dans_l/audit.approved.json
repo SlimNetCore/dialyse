@@ -1,0 +1,3 @@
+{
+  "lignes" : [ "GET /report suivi = false", "GET /snapshots/{mois}/report suivi = false", "POST /snapshots/{mois} suivi = true", "journal : DIRECTION_CREATION POST /api/v1/direction/snapshots/{mois} 200 x1" ]
+}

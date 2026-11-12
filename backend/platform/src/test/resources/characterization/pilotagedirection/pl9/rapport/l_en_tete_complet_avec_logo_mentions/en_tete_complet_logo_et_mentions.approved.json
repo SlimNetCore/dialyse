@@ -1,0 +1,32 @@
+{
+  "01 mentions legales completes, sans logo" : {
+    "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 · Email : contact@clinique-pilotage.dz · Web : https://www.clinique-pilotage.dz NIF : 099900000000001 · NIS : NIS-0042 · RC : RC-16/00-1234567B01 Rapport de direction <D+0> au <D+100> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Clinique Pilotage & Fils — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+    "images" : 0,
+    "status" : 200
+  },
+  "02 logo PNG valide" : {
+    "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 · Email : contact@clinique-pilotage.dz · Web : https://www.clinique-pilotage.dz NIF : 099900000000001 · NIS : NIS-0042 · RC : RC-16/00-1234567B01 Rapport de direction <D+0> au <D+100> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Clinique Pilotage & Fils — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+    "images" : 2,
+    "status" : 200
+  },
+  "03 logo dont le premier octet est 0xFF : declare JPEG, contenu illisible" : {
+    "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 · Email : contact@clinique-pilotage.dz · Web : https://www.clinique-pilotage.dz NIF : 099900000000001 · NIS : NIS-0042 · RC : RC-16/00-1234567B01 Rapport de direction <D+0> au <D+100> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Clinique Pilotage & Fils — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+    "images" : 0,
+    "status" : 200
+  },
+  "04 logo en octets quelconques : declare PNG, contenu illisible" : {
+    "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 · Email : contact@clinique-pilotage.dz · Web : https://www.clinique-pilotage.dz NIF : 099900000000001 · NIS : NIS-0042 · RC : RC-16/00-1234567B01 Rapport de direction <D+0> au <D+100> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Clinique Pilotage & Fils — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+    "images" : 0,
+    "status" : 200
+  },
+  "05 logo de deux octets : ignore" : {
+    "en-tete" : "Clinique Pilotage & Fils 12 rue des Tests, Annaba · Tél : 038 00 00 00 · Email : contact@clinique-pilotage.dz · Web : https://www.clinique-pilotage.dz NIF : 099900000000001 · NIS : NIS-0042 · RC : RC-16/00-1234567B01 Rapport de direction <D+0> au <D+100> Pied de page personnalise PD Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction Clinique Pilotage & Fils — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+    "images" : 0,
+    "status" : 200
+  },
+  "06 raison sociale et pied de page blancs" : {
+    "en-tete" : "12 rue des Tests, Annaba · Tél : 038 00 00 00 · Email : contact@clinique-pilotage.dz · Web : https://www.clinique-pilotage.dz NIF : 099900000000001 Rapport de direction <D+0> au <D+100> Document confidentiel — édité le <HORODATAGE> Page 1 / 2 Rapport de direction — période <D+0> au <D+100> — données au <HORODATAGE> — agrégats anonymes (seuil d'anonymat : 5) PATIENTS < seuil SÉANCES 0 FACTURES 0 CA HT 0 DA CA TTC 0 DA ENCAISSÉ 0 DA RESTE À RECOUVRER 0 DA TAUX D'ENCAISSEMENT —",
+    "images" : 0,
+    "status" : 200
+  }
+}
