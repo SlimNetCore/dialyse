@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.patientcouverture.configuration;
 import com.hemodialyse.backend.contexts.patientcouverture.application.AdmettreUnPatient;
 import com.hemodialyse.backend.contexts.patientcouverture.application.AssuresDuCentre;
 import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLEffectif;
+import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLeTableauDeBordAdministratif;
 import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLaFiche;
 import com.hemodialyse.backend.contexts.patientcouverture.application.ConsulterLesMouvements;
 import com.hemodialyse.backend.contexts.patientcouverture.application.CouvertureDeLaFiche;
@@ -254,6 +255,13 @@ public class PatientCouvertureConfiguration {
     @Bean
     ConsulterLEffectif consulterLEffectif(SessionCourante session, LectureDesPatients lecture, HorlogeDesCentres horloge) {
         return new ConsulterLEffectif(session, lecture, horloge);
+    }
+
+    @Bean
+    ConsulterLeTableauDeBordAdministratif consulterLeTableauDeBordAdministratif(SessionCourante session,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture compteurs,
+            HorlogeDesCentres horloge) {
+        return new ConsulterLeTableauDeBordAdministratif(session, compteurs, horloge);
     }
 
     @Bean

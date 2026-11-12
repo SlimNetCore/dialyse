@@ -211,7 +211,7 @@ class EffetsEtLecteursDesAttestationsCharacterizationIntegrationTest extends Att
         m.put("centre B", corps(b).path("attestationTotal") + " attestation(s), " + corps(b).path("attestationExpiring") + " à échéance");
         Resp s = doPost("/api/v1/dashboard/stats/search", json("{'centerId':'" + CENTRE_A + "','expirationDays':30}"), adminA());
         m.put("POST stats/search (30 jours)", s.status() == 200 ? corps(s).path("attestationTotal") + " attestation(s), " + corps(s).path("attestationExpiring") + " à échéance" : refus(s));
-        arbre("compteurs", m);
+        arbre("compteurs_nouveau_code", m);
     }
 
     @Test

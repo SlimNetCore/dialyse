@@ -1,0 +1,14 @@
+{
+  "A GET" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":30}",
+  "A GET&expirationDays=0" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":1,\"attestationTotal\":2,\"attestationExpiring\":0,\"patientCount\":2,\"expirationDays\":0}",
+  "A GET&expirationDays=15" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":15}",
+  "A GET&expirationDays=365" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":3,\"attestationTotal\":2,\"attestationExpiring\":2,\"patientCount\":2,\"expirationDays\":365}",
+  "A GET&month=&expirationDays=15" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":15}",
+  "A GET&month=2026-01" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":30,\"month\":\"2026-01\"}",
+  "A GET&month=2026-02" : "{\"pecCree\":0,\"pecValidee\":0,\"pecExpiring\":2,\"attestationTotal\":0,\"attestationExpiring\":1,\"patientCount\":0,\"expirationDays\":30,\"month\":\"2026-02\"}",
+  "A GET&month=2026-1" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":30}",
+  "A GET&month=n-importe-quoi" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":30}",
+  "A POST expirationDays=15 mois=2026-01" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":15,\"month\":\"2026-01\"}",
+  "A POST sans expirationDays (défaut 30)" : "{\"pecCree\":1,\"pecValidee\":3,\"pecExpiring\":2,\"attestationTotal\":2,\"attestationExpiring\":1,\"patientCount\":2,\"expirationDays\":30}",
+  "B GET" : "{\"pecCree\":0,\"pecValidee\":1,\"pecExpiring\":1,\"attestationTotal\":1,\"attestationExpiring\":1,\"patientCount\":1,\"expirationDays\":30}"
+}

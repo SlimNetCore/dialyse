@@ -393,15 +393,22 @@ public abstract class LecturesPublieesContrat {
     }
 
     @Test
-    void should_compter_les_pec_validees_a_echeance_echues_comprises() {
+    void should_compter_les_pec_validees_a_echeance_echues_exclues() {
         Patient p = patient(CENTRE);
         pec(CENTRE, p, StatutPec.VALIDEE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), null, null, null, null, T0);
+        pec(CENTRE, p, StatutPec.VALIDEE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 10, 31), null, null, null, null, T0);
+        pec(CENTRE, p, StatutPec.VALIDEE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 11, 1), null, null, null, null, T0);
         pec(CENTRE, p, StatutPec.VALIDEE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 11, 30), null, null, null, null, T0);
         pec(CENTRE, p, StatutPec.VALIDEE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 1), null, null, null, null, T0);
-        pec(CENTRE, p, StatutPec.CREE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), null, null, null, null, T0);
+        pec(CENTRE, p, StatutPec.CREE, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 11, 15), null, null, null, null, T0);
 
-        assertThat(compteurs().prisesEnChargeValideesAEcheance(CENTRE.valeur(), LocalDate.of(2026, 11, 30))).isEqualTo(2);
-        assertThat(compteurs().prisesEnChargeValideesAEcheance(AUTRE.valeur(), LocalDate.of(2026, 11, 30))).isZero();
+        // PL3, KB-PL3-3 : une PEC déjà échue (fin avant le jour du centre) n'est plus « à échéance » ; le jour même et le seuil sont inclus
+        assertThat(compteurs().prisesEnChargeValideesAEcheance(CENTRE.valeur(), LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30)))
+                .isEqualTo(2);
+        assertThat(compteurs().prisesEnChargeValideesAEcheance(CENTRE.valeur(), LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 30)))
+                .isEqualTo(1);
+        assertThat(compteurs().prisesEnChargeValideesAEcheance(AUTRE.valeur(), LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30)))
+                .isZero();
     }
 
     @Test
@@ -415,7 +422,10 @@ public abstract class LecturesPublieesContrat {
         assertThat(compteurs().attestations(CENTRE.valeur(), null, null)).isEqualTo(3);
         assertThat(compteurs().attestations(CENTRE.valeur(), LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30))).isEqualTo(3);
         assertThat(compteurs().attestations(CENTRE.valeur(), LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 31))).isZero();
-        assertThat(compteurs().attestationsAEcheance(CENTRE.valeur(), LocalDate.of(2026, 11, 30))).isEqualTo(2);
+        // PL3, KB-PL3-3 étendu : une attestation déjà échue (fin avant le jour du centre) n'est plus « à échéance »
+        assertThat(compteurs().attestationsAEcheance(CENTRE.valeur(), LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30))).isEqualTo(1);
+        assertThat(compteurs().attestationsAEcheance(CENTRE.valeur(), LocalDate.of(2026, 11, 30), LocalDate.of(2026, 11, 30))).isEqualTo(1);
+        assertThat(compteurs().attestationsAEcheance(CENTRE.valeur(), LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 31))).isEqualTo(1);
         assertThat(compteurs().attestations(AUTRE.valeur(), null, null)).isZero();
         assertThat(compteurs().patientsCrees(CENTRE.valeur(), LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30))).isEqualTo(1);
         assertThat(compteurs().patientsCrees(CENTRE.valeur(), LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 31))).isZero();

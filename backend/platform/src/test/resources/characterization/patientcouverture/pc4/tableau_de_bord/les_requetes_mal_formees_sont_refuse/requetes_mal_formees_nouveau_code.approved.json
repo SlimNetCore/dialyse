@@ -1,0 +1,13 @@
+{
+  "GET centerId illisible" : "400 BAD_REQUEST : Paramètre illisible : centerId",
+  "GET expirationDays illisible" : "400 BAD_REQUEST : Paramètre illisible : expirationDays",
+  "GET expirationDays négatif" : "400 BAD_REQUEST : expirationDays ne peut pas être négatif",
+  "GET sans centerId" : "400 BAD_REQUEST : Paramètre obligatoire absent : centerId",
+  "POST JSON invalide" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "POST centerId illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "POST centerId nul" : "400 VALIDATION_ERROR : Invalid request content.",
+  "POST corps absent" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "POST expirationDays illisible" : "400 BAD_REQUEST : Corps de la requête illisible",
+  "POST mois illisible" : "400 BAD_REQUEST : month illisible : attendu AAAA-MM",
+  "POST objet vide" : "400 VALIDATION_ERROR : Invalid request content."
+}

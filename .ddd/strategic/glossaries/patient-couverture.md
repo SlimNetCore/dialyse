@@ -35,7 +35,7 @@ Le code et l'API gardent le vocabulaire du **legacy** ; le glossaire donne le te
 | Date d'évènement | Date de sortie ou de fin de séjour | `dateEvenement` (colonne `date_evenement_etat`) | jamais avant l'admission |
 | Numéro d'assurance | Identifiant d'assurance du patient, unique par centre, normalisé | `NumeroAssurance` | espaces de bord retirés, majuscules |
 | Garde de centre | Toute lecture et toute écriture se font dans le centre du jeton | `SessionCourante` | 403 sinon |
-| Jour du centre | « Aujourd'hui » au fuseau du centre, y compris pour le tableau de bord et la séance sans date (PC4) ; jamais le jour de la JVM | `HorlogeDesCentres` (module), `JourDuCentre` / `JourDuCentreLegacy` (plateforme, PC4) | clé `app.planification.fuseau-par-defaut`, `centers.fuseau_horaire` |
+| Jour du centre | « Aujourd'hui » au fuseau du centre, y compris pour le tableau de bord et la séance sans date (PC4) ; jamais le jour de la JVM | `HorlogeDesCentres` (module) ; `JourDuCentre` / `JourDuCentreLegacy` de la plateforme retirés (PL3, ADR 0138) | clé `app.planification.fuseau-par-defaut`, `centers.fuseau_horaire` |
 
 ## Termes ajoutés par l'ADR 0121 (2026-11-10, référentiels orphelins ; statut `proposed`, à confirmer métiers <= 2026-12-15)
 
@@ -79,7 +79,10 @@ Les termes « Attestation de droits » et « Jour du centre » sont définis une
 | Attestation de la fiche | Attestation saisie avec la fiche du patient ; jamais dupliquée si la même période existe | `CouvertureDeLaFiche.enregistrer` | message « Date fin avant date debut » | proposed |
 | Patient introuvable pour l'attestation | Patient inexistant ou d'un autre centre | code `ATTESTATION_PATIENT_INTROUVABLE` | 422 ; à confirmer avec les métiers | proposed |
 | Attestation introuvable | Identifiant inconnu du centre (ou d'un autre patient) à la suppression | code `ATTESTATION_INTROUVABLE` | 404, sans diffusion ; à confirmer avec les métiers | proposed |
-| Attestation à échéance | Attestation dont la fin est avant le seuil d'alerte, échues comprises | compteur `attestationExpiring` | reproduit, à confirmer avec les métiers | proposed |
+| Attestation à échéance | Attestation dont la fin est entre le jour du centre et le seuil d'alerte, bornes incluses ; les échues sont exclues | compteur `attestationExpiring` | corrigé le 2026-11-12 (avant : échues comprises), à confirmer avec les métiers avant le 2026-12-15 (ADR 0138) | proposed |
+| Tableau de bord administratif | Compteurs du centre (PEC créées et validées, PEC et attestations à échéance, attestations, patients) à un jour du centre, éventuellement filtrés par mois | `ConsulterLeTableauDeBordAdministratif`, `TableauDeBordAdministratifControleur` (PL3) | garde de centre, 400 sur saisie illisible (ADR 0138) | proposed |
+| Délai d'échéance | Jours, à partir du jour du centre, qui fixent le seuil d'alerte (30 par défaut, zéro admis, négatif refusé) | `DelaiDEcheance` (champ `expirationDays`) | PL3 | proposed |
+| PEC à échéance | PEC validée dont la fin demandée est entre le jour du centre et le seuil, bornes incluses ; les échues sont exclues | compteur `pecExpiring` | corrigé le 2026-11-11, à confirmer avec les métiers avant le 2026-12-15 (ADR 0138) | proposed |
 
 ## Termes ajoutés par la reprise PC2 et PC3 (2026-11-03, statut `proposed`, ADR 0077)
 

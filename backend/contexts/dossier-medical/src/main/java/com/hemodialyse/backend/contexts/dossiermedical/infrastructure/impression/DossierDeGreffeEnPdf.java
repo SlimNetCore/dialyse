@@ -1,6 +1,8 @@
-package com.hemodialyse.backend.application.query;
+package com.hemodialyse.backend.contexts.dossiermedical.infrastructure.impression;
 
-import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie;
+import com.hemodialyse.backend.contexts.dossiermedical.application.CartesDesPatients.Carte;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ImpressionDuDossierDeGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.AntecedentActif;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Bilan;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.DecisionDeRcp;
@@ -8,45 +10,33 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Dossier
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.DossierDeGreffe;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Etape;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie.Serologie;
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.CarteDuPatient;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 /**
- * Génère le dossier de synthèse "préparation à la greffe rénale" (receveur + donneurs vivants candidats) en PDF, destiné au transfert vers
- * le centre de transplantation. Même patron que {@link PatientStatsQueryService#exportPdf} (openhtmltopdf : construction d'un HTML puis
- * rendu). DM9 (ADR 0101) : le contenu médical vient du langage publié du Dossier médical ({@link DossierDeGreffePublie}, qui garde le patient :
- * 404 par l'advice du contexte) ; la plateforme ne garde que l'identité du patient (fiche) et la présentation. Même HTML qu'avant.
+ * Mise en page PDF du dossier de préparation à la greffe rénale (receveur et donneurs vivants candidats) : construction d'un HTML puis
+ * rendu openhtmltopdf, HTML identique à celui de l'ancien {@code GreffePdfService} de la plateforme (PL2). L'en-tête et le pied de page
+ * d'identité viennent du port {@link PapierEnTeteDuCentre}.
  */
-@Service
-public class GreffePdfService {
+public class DossierDeGreffeEnPdf implements ImpressionDuDossierDeGreffe {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    /** Identité du patient : langage publié de Patient &amp; couverture (patientcouverture.v1, ADR 0133 S4). */
-    private final FichesDesPatients fiches;
-    private final DossierDeGreffePublie dossiers;
-    private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
+    private final PapierEnTeteDuCentre papierEnTete;
 
-    public GreffePdfService(FichesDesPatients fiches, DossierDeGreffePublie dossiers,
-                            com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity) {
-        this.fiches = fiches;
-        this.dossiers = dossiers;
-        this.identity = identity;
+    public DossierDeGreffeEnPdf(PapierEnTeteDuCentre papierEnTete) {
+        this.papierEnTete = papierEnTete;
     }
 
-    public byte[] exportPdf(CentreId centerId, UUID patientId) {
-        DossierDeGreffe dossier = dossiers.duPatient(centerId.valeur(), patientId);
-        CarteDuPatient patient = fiches.carte(centerId.valeur(), patientId).orElse(null);
-
-        String html = identity.decorateHtml(buildHtml(patient, dossier), centerId.valeur());
+    @Override
+    public byte[] enPdf(CentreId centre, Optional<Carte> carte, DossierDeGreffe dossier) {
+        String html = papierEnTete.habiller(html(carte.orElse(null), dossier), centre.valeur());
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -60,7 +50,7 @@ public class GreffePdfService {
         }
     }
 
-    private String buildHtml(CarteDuPatient patient, DossierDeGreffe dossier) {
+    private String html(Carte patient, DossierDeGreffe dossier) {
         Bilan bilan = dossier.bilan();
         List<Etape> etapes = dossier.etapes();
         List<Serologie> serologies = dossier.serologies();
@@ -175,15 +165,15 @@ public class GreffePdfService {
         return sb.toString();
     }
 
-    private String formatDate(java.time.LocalDate date) {
+    private static String formatDate(LocalDate date) {
         return date == null ? "-" : date.format(DATE_FMT);
     }
 
-    private String nullToDash(Object value) {
+    private static String nullToDash(Object value) {
         return value == null ? "-" : value.toString();
     }
 
-    private String escapeHtml(String raw) {
+    private static String escapeHtml(String raw) {
         if (raw == null) return "-";
         return raw
                 .replace("&", "&amp;")

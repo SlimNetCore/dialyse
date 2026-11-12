@@ -1,0 +1,11 @@
+{
+  "GET stats" : "5 attestation(s), 2 à échéance",
+  "GET stats&expirationDays=-1" : "400 BAD_REQUEST : expirationDays ne peut pas être négatif",
+  "GET stats&expirationDays=0" : "5 attestation(s), 0 à échéance",
+  "GET stats&expirationDays=30" : "5 attestation(s), 2 à échéance",
+  "GET stats&expirationDays=31" : "5 attestation(s), 3 à échéance",
+  "GET stats&month=2026-01" : "5 attestation(s), 2 à échéance",
+  "GET stats&month=2026-02" : "0 attestation(s), 2 à échéance",
+  "POST stats/search (30 jours)" : "5 attestation(s), 2 à échéance",
+  "centre B" : "1 attestation(s), 1 à échéance"
+}

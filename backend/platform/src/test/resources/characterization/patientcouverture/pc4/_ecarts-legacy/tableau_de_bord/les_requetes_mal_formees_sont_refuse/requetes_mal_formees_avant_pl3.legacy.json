@@ -1,0 +1,13 @@
+{
+  "GET centerId illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "GET expirationDays illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "GET expirationDays négatif" : "{\"pecCree\":0,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":0,\"attestationExpiring\":0,\"patientCount\":0,\"expirationDays\":-5}",
+  "GET sans centerId" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "POST JSON invalide" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "POST centerId illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "POST centerId nul" : "400 VALIDATION_ERROR : Invalid request content.",
+  "POST corps absent" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "POST expirationDays illisible" : "500 INTERNAL_ERROR : <message technique non verrouillé>",
+  "POST mois illisible" : "{\"pecCree\":0,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":0,\"attestationExpiring\":0,\"patientCount\":0,\"expirationDays\":30}",
+  "POST objet vide" : "400 VALIDATION_ERROR : Invalid request content."
+}

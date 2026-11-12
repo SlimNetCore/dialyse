@@ -7,7 +7,7 @@ import java.util.UUID;
 
 /**
  * Langage publié du Dossier médical (DM9, ADR 0101) : le dossier de synthèse « préparation à la greffe rénale » d'un patient d'un centre
- * (receveur et donneurs vivants candidats), pour l'export PDF encore rendu par la plateforme ({@code GreffePdfService}). La garde du
+ * (receveur et donneurs vivants candidats), pour l'export PDF, rendu depuis PL2 par le contexte ({@code ExporterLeDossierDeGreffe}). La garde du
  * patient est dans le cas d'usage : un patient inconnu ou d'un autre centre est refusé ({@code PatientIntrouvable}, 404
  * {@code PATIENT_INTROUVABLE} par l'advice du contexte sur les contrôleurs {@link SousLaGardeDuDossierMedical}). Les énumérations sont
  * rendues par leur nom. Ordres : décisions par date de réunion décroissante ; étapes par catégorie puis libellé ; sérologies par date de

@@ -1,5 +1,13 @@
 package com.hemodialyse.backend.contexts.dossiermedical.configuration;
 
+import com.hemodialyse.backend.contexts.dossiermedical.application.CartesDesPatients;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ExporterLeDossierDeGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.application.ImpressionDuDossierDeGreffe;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.PapierEnTeteDuCentre;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.patientcouverture.CartesDesPatientsDeLaFiche;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.impression.DossierDeGreffeEnPdf;
+import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.GreffeExportControleur;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DossierDeGreffePublie;
 import com.hemodialyse.backend.contexts.dossiermedical.application.ConsulterLeDossierMedicalDeBase;
 import com.hemodialyse.backend.contexts.dossiermedical.application.EnregistrerLeDossierMedicalDeBase;
 import com.hemodialyse.backend.contexts.dossiermedical.application.GenerateurDIdentifiants;
@@ -81,6 +89,30 @@ public class LecturesPublieesConfiguration {
     @Bean
     ExportFhirControleur exportFhirControleur(ExporterLeDossierMedical exporter) {
         return new ExportFhirControleur(exporter);
+    }
+
+    // ------------------------------------------------------------------ export PDF du dossier de greffe (PL2)
+
+    @Bean
+    CartesDesPatients cartesDesPatientsDuDossierMedical(FichesDesPatients fiches) {
+        return new CartesDesPatientsDeLaFiche(fiches);
+    }
+
+    /** Le papier à en-tête du centre est fourni par la plateforme (moteur de documents, identité imprimée). */
+    @Bean
+    ImpressionDuDossierDeGreffe impressionDuDossierDeGreffe(PapierEnTeteDuCentre papierEnTete) {
+        return new DossierDeGreffeEnPdf(papierEnTete);
+    }
+
+    @Bean
+    ExporterLeDossierDeGreffe exporterLeDossierDeGreffe(SessionCourante session, DossierDeGreffePublie dossiers, CartesDesPatients cartes,
+                                                        ImpressionDuDossierDeGreffe impression) {
+        return new ExporterLeDossierDeGreffe(session, dossiers, cartes, impression);
+    }
+
+    @Bean
+    GreffeExportControleur greffeExportControleur(ExporterLeDossierDeGreffe exporter) {
+        return new GreffeExportControleur(exporter);
     }
 
     @Bean

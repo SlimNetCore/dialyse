@@ -24,7 +24,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {PatientsControleur.class, MouvementsControleur.class, PecControleur.class,
-        AttestationsControleur.class})
+        AttestationsControleur.class, TableauDeBordAdministratifControleur.class})
 class ErreursDeLaFicheAdvice {
 
     static ProblemDetail probleme(HttpStatus statut, String titre, String detail, String code) {

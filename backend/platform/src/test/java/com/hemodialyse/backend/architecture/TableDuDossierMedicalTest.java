@@ -145,7 +145,6 @@ class TableDuDossierMedicalTest {
         assertThat(lecteurs).as("les lecteurs de la plateforme et de la Planification passent par dossier-medical.v1").doesNotContain(
                 plateforme + "application/direction/DirectionIndicatorsQueryService.java",
                 plateforme + "application/query/PatientStatsQueryService.java",
-                plateforme + "application/query/GreffePdfService.java",
                 "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java");
     }
 

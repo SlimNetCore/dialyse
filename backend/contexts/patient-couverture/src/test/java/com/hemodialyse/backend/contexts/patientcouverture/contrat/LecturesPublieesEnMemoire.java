@@ -196,9 +196,9 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
     }
 
     @Override
-    public long prisesEnChargeValideesAEcheance(UUID centre, LocalDate seuil) {
+    public long prisesEnChargeValideesAEcheance(UUID centre, LocalDate aujourdhui, LocalDate seuil) {
         return pecs.get().stream().filter(p -> p.centre().valeur().equals(centre) && p.statut() == StatutPec.VALIDEE
-                && p.demandeFin() != null && !p.demandeFin().isAfter(seuil)).count();
+                && p.demandeFin() != null && !p.demandeFin().isBefore(aujourdhui) && !p.demandeFin().isAfter(seuil)).count();
     }
 
     @Override
@@ -208,8 +208,9 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
     }
 
     @Override
-    public long attestationsAEcheance(UUID centre, LocalDate seuil) {
-        return attestations.get().stream().filter(a -> a.centre().valeur().equals(centre) && !a.fin().isAfter(seuil)).count();
+    public long attestationsAEcheance(UUID centre, LocalDate aujourdhui, LocalDate seuil) {
+        return attestations.get().stream().filter(a -> a.centre().valeur().equals(centre) && !a.fin().isBefore(aujourdhui)
+                && !a.fin().isAfter(seuil)).count();
     }
 
     @Override

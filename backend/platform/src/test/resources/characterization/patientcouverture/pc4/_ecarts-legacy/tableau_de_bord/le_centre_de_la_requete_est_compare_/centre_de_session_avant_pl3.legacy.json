@@ -1,0 +1,7 @@
+{
+  "GET centre A par l'ADMIN du centre B" : "{\"pecCree\":1,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":1,\"attestationExpiring\":1,\"patientCount\":1,\"expirationDays\":30}",
+  "GET centre A par un ADMIN sans centre de session" : "{\"pecCree\":1,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":1,\"attestationExpiring\":1,\"patientCount\":1,\"expirationDays\":30}",
+  "GET centre inconnu par l'ADMIN du centre A" : "{\"pecCree\":0,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":0,\"attestationExpiring\":0,\"patientCount\":0,\"expirationDays\":30}",
+  "POST centre A par l'ADMIN du centre B" : "{\"pecCree\":1,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":1,\"attestationExpiring\":1,\"patientCount\":1,\"expirationDays\":30}",
+  "POST centre A par un ADMIN sans centre de session" : "{\"pecCree\":1,\"pecValidee\":0,\"pecExpiring\":0,\"attestationTotal\":1,\"attestationExpiring\":1,\"patientCount\":1,\"expirationDays\":30}"
+}

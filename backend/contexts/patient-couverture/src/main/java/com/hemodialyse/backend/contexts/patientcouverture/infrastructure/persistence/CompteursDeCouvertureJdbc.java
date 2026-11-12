@@ -39,10 +39,11 @@ public class CompteursDeCouvertureJdbc implements CompteursDeCouverture {
     }
 
     @Override
-    public long prisesEnChargeValideesAEcheance(UUID centre, LocalDate seuil) {
+    public long prisesEnChargeValideesAEcheance(UUID centre, LocalDate aujourdhui, LocalDate seuil) {
         return compte(jdbc.queryForObject(
-                "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = 'VALIDEE' AND date_fin_demande <= ?",
-                Long.class, centre, seuil));
+                "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = 'VALIDEE' AND date_fin_demande >= ? "
+                        + "AND date_fin_demande <= ?",
+                Long.class, centre, aujourdhui, seuil));
     }
 
     @Override
@@ -56,9 +57,10 @@ public class CompteursDeCouvertureJdbc implements CompteursDeCouverture {
     }
 
     @Override
-    public long attestationsAEcheance(UUID centre, LocalDate seuil) {
-        return compte(jdbc.queryForObject("SELECT COUNT(1) FROM attestation_droit WHERE center_id = ? AND date_fin <= ?",
-                Long.class, centre, seuil));
+    public long attestationsAEcheance(UUID centre, LocalDate aujourdhui, LocalDate seuil) {
+        return compte(jdbc.queryForObject(
+                "SELECT COUNT(1) FROM attestation_droit WHERE center_id = ? AND date_fin >= ? AND date_fin <= ?",
+                Long.class, centre, aujourdhui, seuil));
     }
 
     @Override

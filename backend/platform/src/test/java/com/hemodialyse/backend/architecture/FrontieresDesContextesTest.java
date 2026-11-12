@@ -58,8 +58,7 @@ class FrontieresDesContextesTest {
      */
     @ArchTest
     static final ArchRule les_lecteurs_medicaux_de_la_plateforme_passent_par_les_langages_publies_du_dossier_medical = noClasses()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.GreffePdfService")
-            .or().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.query.PatientStatsQueryService")
             .should().dependOnClassesThat().haveFullyQualifiedName("org.springframework.jdbc.core.JdbcTemplate")
             .because("le calcul médical vit dans contexts/dossier-medical (DossierDeGreffePublie, StatistiquesMedicalesPubliees, "
                     + "IndicateursCliniquesPublies, ADR 0101) ; la plateforme ne garde que la présentation");

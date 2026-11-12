@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,7 +41,7 @@ class DashboardRestControllerMonthFilterTest {
 
     @BeforeEach
     void setup() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         centerId = UUID.randomUUID();
         cleanupTestData();
         seedTestData();
@@ -97,6 +102,7 @@ class DashboardRestControllerMonthFilterTest {
     @Test
     void getDashboardStats_without_month_filter_should_return_all_stats() throws Exception {
         mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(admin())
                         .param("centerId", centerId.toString())
                         .param("expirationDays", "30"))
                 .andExpect(status().isOk())
@@ -111,6 +117,7 @@ class DashboardRestControllerMonthFilterTest {
         String currentMonth = YearMonth.now().toString();
 
         mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(admin())
                         .param("centerId", centerId.toString())
                         .param("expirationDays", "30")
                         .param("month", currentMonth))
@@ -127,6 +134,7 @@ class DashboardRestControllerMonthFilterTest {
         String lastMonth = YearMonth.now().minusMonths(1).toString();
 
         mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(admin())
                         .param("centerId", centerId.toString())
                         .param("expirationDays", "30")
                         .param("month", lastMonth))
@@ -139,14 +147,29 @@ class DashboardRestControllerMonthFilterTest {
     }
 
     @Test
-    void getDashboardStats_with_invalid_month_format_should_handle_gracefully() throws Exception {
-        // Invalid month format should be ignored (treated as no filter)
+    void getDashboardStats_with_invalid_month_format_should_be_refused() throws Exception {
+        // PL3 (KB-PL3-4, décision du 2026-11-11) : un mois illisible est refusé en 400 (avant : ignoré, compteurs non filtrés)
         mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(admin())
                         .param("centerId", centerId.toString())
                         .param("expirationDays", "30")
                         .param("month", "invalid-month"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.patientCount", is(1)));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void getDashboardStats_of_another_center_should_be_forbidden() throws Exception {
+        // PL3 (KB-PL3-1, décision du 2026-11-11) : garde de centre, comme les autres routes
+        mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(user(UserPrincipal.create(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "u", "",
+                                List.of("ADMIN"), true)))
+                        .param("centerId", centerId.toString()))
+                .andExpect(status().isForbidden());
+    }
+
+    private RequestPostProcessor admin() {
+        return user(UserPrincipal.create(UUID.randomUUID().toString(), centerId.toString(), "u", "", List.of("ADMIN"), true));
     }
 
     @Test
@@ -162,6 +185,7 @@ class DashboardRestControllerMonthFilterTest {
                 """, centerId, currentMonth);
 
         mockMvc.perform(post("/api/v1/dashboard/stats/search")
+                        .with(admin())
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -183,6 +207,7 @@ class DashboardRestControllerMonthFilterTest {
         String currentMonth = YearMonth.now().toString();
 
         MvcResult result = mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(admin())
                         .param("centerId", centerId.toString())
                         .param("expirationDays", "30")
                         .param("month", currentMonth))
@@ -191,6 +216,7 @@ class DashboardRestControllerMonthFilterTest {
 
         // Should only count PEC for current center
         mockMvc.perform(get("/api/v1/dashboard/stats")
+                        .with(admin())
                         .param("centerId", centerId.toString())
                         .param("expirationDays", "30")
                         .param("month", currentMonth))
