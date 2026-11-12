@@ -82,7 +82,7 @@ class BonPdfPl6CharacterizationIntegrationTest extends PilotageCharacterizationS
         l.add("ADMIN d'un centre d'une autre societe -> " + essai(bon(i), principal(CENTRE_C.toString(), "ADMIN")));
         l.add("SUPERADMIN sans centre -> " + essai(bon(i), principal(null, "SUPERADMIN")));
         l.add("SUPERADMIN + ADMIN sans centre -> " + essai(bon(i), principal(null, "SUPERADMIN", "ADMIN")));
-        goldenLignes("bon_pl6_garde_de_centre", l);
+        goldenLignes("bon_pl6_garde_de_centre_nouveau_code", l);
     }
 
     // ------------------------------------------------------------------ parametres
@@ -122,7 +122,7 @@ class BonPdfPl6CharacterizationIntegrationTest extends PilotageCharacterizationS
                     : resume(r);
             l.add("tz " + e.getKey() + " -> " + (e.getKey().equals("tres long") ? suite.replace("X".repeat(100), "<X...>") : suite));
         }
-        goldenLignes("bon_pl6_parametres_hostiles", l);
+        goldenLignes("bon_pl6_parametres_hostiles_nouveau_code", l);
     }
 
     // ------------------------------------------------------------------ contenu
@@ -214,7 +214,7 @@ class BonPdfPl6CharacterizationIntegrationTest extends PilotageCharacterizationS
                     .filter(x -> x.startsWith("Pièces de rechange") || x.startsWith("Main d'œuvre :") || x.startsWith("Autres frais")
                             || x.startsWith("COÛT TOTAL")).toList());
         }
-        goldenLignes("bon_pl6_montants_limites", l);
+        goldenLignes("bon_pl6_montants_limites_nouveau_code", l);
     }
 
     @Test
@@ -232,7 +232,7 @@ class BonPdfPl6CharacterizationIntegrationTest extends PilotageCharacterizationS
         rectification(i, "Deuxième motif <b>gras</b> & \"cité\"", ADMIN_A, T0.plusDays(2), T0.plusHours(3), TECH);
         rectification(i, "Motif sans clôture antérieure", INCONNU, T0.plusDays(3), null, null);
         rectification(i, "   ", ADMIN_A, T0.plusDays(4), T0.plusHours(4), TECH);
-        goldenTexte("bon_pl6_rectifications_multiples_texte", textePdf(get(bon(i), adminA())));
+        goldenTexte("bon_pl6_rectifications_multiples_texte_nouveau_code", textePdf(get(bon(i), adminA())));
     }
 
     @Test
@@ -252,7 +252,7 @@ class BonPdfPl6CharacterizationIntegrationTest extends PilotageCharacterizationS
         l.add("lignes Équipement = " + texte.lines().filter(x -> x.startsWith("Équipement")).count());
         l.add("premiere ligne Équipement tronquee a 60 car. = " + texte.lines().filter(x -> x.startsWith("Équipement")).findFirst()
                 .map(x -> x.substring(0, Math.min(60, x.length()))).orElse("?"));
-        goldenLignes("bon_pl6_designation_tres_longue", l);
+        goldenLignes("bon_pl6_designation_tres_longue_nouveau_code", l);
     }
 
     // ------------------------------------------------------------------ audit
@@ -284,7 +284,7 @@ class BonPdfPl6CharacterizationIntegrationTest extends PilotageCharacterizationS
         l.add("lignes de journal = " + jdbc.queryForObject("SELECT COUNT(*) FROM audit_log WHERE center_id IN (?, ?)", Integer.class,
                 CENTRE_A, CENTRE_B));
         l.add("interventions, lignes de cout et rectifications inchangees = " + empreinteDesInterventions().equals(avant));
-        goldenLignes("bon_pl6_audit", l);
+        goldenLignes("bon_pl6_audit_nouveau_code", l);
         assertEquals(avant, empreinteDesInterventions());
     }
 

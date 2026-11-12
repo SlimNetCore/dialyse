@@ -1,0 +1,9 @@
+[
+  "GET /bon suivi par le resolveur d'audit = true",
+  "POST /bon suivi par le resolveur d'audit = true",
+  "journal : {ACTION_CODE=BON_INTERVENTION_IMPRESSION, HTTP_METHOD=GET, ROUTE_TEMPLATE=/api/v1/gmao/interventions/{id}/bon, STATUS_CODE=200, N=2}",
+  "journal : {ACTION_CODE=BON_INTERVENTION_IMPRESSION, HTTP_METHOD=GET, ROUTE_TEMPLATE=/api/v1/gmao/interventions/{id}/bon, STATUS_CODE=400, N=1}",
+  "journal : {ACTION_CODE=BON_INTERVENTION_IMPRESSION, HTTP_METHOD=GET, ROUTE_TEMPLATE=/api/v1/gmao/interventions/{id}/bon, STATUS_CODE=403, N=1}",
+  "lignes de journal = 4",
+  "interventions, lignes de cout et rectifications inchangees = true"
+]

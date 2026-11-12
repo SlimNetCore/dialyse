@@ -301,7 +301,7 @@ class BonPdfCharacterizationIntegrationTest extends PilotageCharacterizationSupp
         lignes.add("intervention dont l'équipement n'existe pas -> " + resume(get(bon(sansEquipement), adminA())));
         lignes.add("id illisible -> " + resume(get(GMAO + "/interventions/pas-un-uuid/bon", adminA())));
         lignes.add("méthode POST -> " + resume(call(org.springframework.http.HttpMethod.POST, bon(i), null, adminA())));
-        goldenLignes("bon_erreurs", lignes);
+        goldenLignes("bon_erreurs_nouveau_code", lignes);
     }
 
     @Test

@@ -41,7 +41,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/service/Email.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/service/PhoneNumber.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/gmao/CapaciteDesSallesDePlanification.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/BonInterventionReportService.java",
     "backend/platform/src/main/resources/reports/bon_intervention.jrxml",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionGmaoQueryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionCapaciteQueryService.java",

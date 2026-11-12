@@ -78,6 +78,12 @@
             <artifactId>contexts-organisation</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Port de rendu publié (RenduDeDocument, DocumentRendu) : module pur Java, partagé avec GMAO sans cycle Maven (PL6, ADR 0145). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

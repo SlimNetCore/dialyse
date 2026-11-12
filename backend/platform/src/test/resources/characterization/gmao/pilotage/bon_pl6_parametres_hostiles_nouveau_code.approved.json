@@ -1,0 +1,18 @@
+[
+  "id en majuscules -> 200 PDF pages=1",
+  "id nil -> 400 BAD_REQUEST Intervention non trouvée",
+  "id sans tirets -> 400 BAD_REQUEST Requête illisible",
+  "id tronque -> 400 BAD_REQUEST Requête illisible",
+  "suffixe .pdf -> 500 INTERNAL_ERROR <technique>",
+  "barre finale -> 500 INTERNAL_ERROR <technique>",
+  "pas d'id -> 400 BAD_REQUEST Invalid UUID string: bon",
+  "id numerique -> 400 BAD_REQUEST Requête illisible",
+  "tz balise -> [Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00, Heures exprimées dans le fuseau Z.]",
+  "tz gabarit Jasper -> [Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00, Heures exprimées dans le fuseau Z.]",
+  "tz tres long -> [Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00, Heures exprimées dans le fuseau Z.]",
+  "tz decalage hors bornes -> [Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00, Heures exprimées dans le fuseau Z.]",
+  "tz decalage valide avec secondes -> [Début : 10/03/2026 13:30 Fin : 10/03/2026 15:30, Heures exprimées dans le fuseau +05:30:15.]",
+  "tz GMT+1 -> [Début : 10/03/2026 09:00 Fin : 10/03/2026 11:00, Heures exprimées dans le fuseau GMT+01:00.]",
+  "tz UTC+01:00 -> [Début : 10/03/2026 09:00 Fin : 10/03/2026 11:00, Heures exprimées dans le fuseau UTC+01:00.]",
+  "tz Etc/GMT-14 -> [Début : 10/03/2026 22:00 Fin : 11/03/2026 00:00, Heures exprimées dans le fuseau Etc/GMT-14.]"
+]

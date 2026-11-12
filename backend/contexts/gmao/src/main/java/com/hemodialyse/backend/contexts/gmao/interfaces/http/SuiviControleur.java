@@ -78,10 +78,17 @@ public class SuiviControleur {
 
     /** Bon d'intervention imprimable : PDF en ligne, ou le format du modèle de document du centre (Excel, HTML). */
     @GetMapping(INTERVENTIONS + "/bon")
-    public ResponseEntity<byte[]> bon(@PathVariable UUID id, @RequestParam(required = false) String tz) {
-        DocumentImprime document = imprimerLeBon.executer(new InterventionId(id), session.centre(), zone(tz),
+    public ResponseEntity<byte[]> bon(@PathVariable String id, @RequestParam(required = false) String tz) {
+        UUID identifiant;
+        try {
+            identifiant = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            // KB-PL6-2 (corrigé le 2026-11-12) : identifiant mal formé = 400 propre (le legacy répondait 500).
+            throw new IdentifiantIllisible();
+        }
+        DocumentImprime document = imprimerLeBon.executer(new InterventionId(identifiant), session.centrePourImpression(), zone(tz),
                 session.identifiant());
-        String base = "bon-intervention-" + id.toString().substring(0, 8);
+        String base = "bon-intervention-" + identifiant.toString().substring(0, 8);
         return switch (document.format().toUpperCase(Locale.ROOT)) {
             case "EXCEL", "XLS", "XLSX" -> ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))

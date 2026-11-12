@@ -166,3 +166,13 @@
   (en service, en maintenance, hors service ; les autres statuts ne sont comptés que dans le total, KB-GMAO-77), d'interventions
   (total, en cours, terminées), plans actifs et en retard, interventions à relancer (RG-GMA-030) ; les éléments supprimés
   logiquement ne sont jamais comptés. *Source :* `ConsulterLesStatistiques`.
+- **RG-GMA-068** — **Impression du bon d'intervention** (`GET /api/v1/gmao/interventions/{id}/bon`, PL6, ADR 0145) : le bon est
+  rendu par Documents (type `BON_INTERVENTION`, modèle actif du centre, papier en-tête) ; la GMAO fournit les données (RG-GMA-031).
+  Écarts décidés le 2026-11-12 : **KB-PL6-1** un jeton sans centre est refusé (403) et un centre de session illisible rejeté (400,
+  sans message technique) ; **KB-PL6-2** un identifiant d'intervention mal formé est rejeté (400, avant : 500) ; **KB-PL6-3** les
+  montants de lignes ne sont plus rognés (champs élargis) ; les montants et quantités négatifs sont déjà refusés à la saisie
+  (RG-GMA-024) ; **KB-PL6-5** la désignation longue de l'équipement passe à la ligne ; **KB-PL6-6** l'impression est journalisée
+  (action de lecture `BON_INTERVENTION_IMPRESSION`, la réponse 400/403 l'est aussi), une clôture rejouée par une rectification
+  (même instant, même auteur) n'est imprimée qu'une fois et un motif blanc n'est pas imprimé. Reproduits : **KB-PL6-4** caractères
+  hors police perdus ; adresses `.../bon.pdf` et `.../bon/` en 500 (traitement transverse des routes inconnues). *Source :*
+  `BonRenduParDocuments`, `SuiviControleur`, `AuditActionResolver`.

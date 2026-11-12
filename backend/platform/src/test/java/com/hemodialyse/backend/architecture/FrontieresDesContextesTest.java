@@ -524,6 +524,19 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
             .because("le cahier est rendu par documents.v1 (PL5, ADR 0144)");
 
+    /** PL6 (ADR 0145) : le bon d'intervention est rendu par l'ACL de GMAO vers documents.v1 ; l'adaptateur de la plateforme ne réapparaît pas. */
+    @ArchTest
+    static final ArchRule le_bon_n_est_plus_rendu_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.BonInterventionReportService")
+            .allowEmptyShould(true)
+            .because("le bon d'intervention est rendu par contexts/gmao via documents.v1 (PL6, ADR 0145)");
+
+    @ArchTest
+    static final ArchRule le_bon_est_rendu_par_le_langage_publie_de_documents = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.gmao.infrastructure.acl.documents.BonRenduParDocuments")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument")
+            .because("le bon est rendu par documents.v1 (PL6, ADR 0145)");
+
     @ArchTest
     static final ArchRule le_catalogue_de_forfaits_compte_les_forfaits_imposes_par_le_langage_publie = classes()
             .that().haveFullyQualifiedName("com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.UsageDuForfaitParLesSeances")

@@ -1,5 +1,7 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.gmao.infrastructure.acl.documents;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.DocumentRendu;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.EquipementVue;
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.IntervenantVue;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.DocumentImprime;
@@ -7,7 +9,6 @@ import com.hemodialyse.backend.contexts.gmao.application.intervention.DonneesDuB
 import com.hemodialyse.backend.contexts.gmao.application.intervention.EvenementVu;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.ImpressionDuBon;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.InterventionVue;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.gmao.domain.equipement.StatutEquipement;
 import com.hemodialyse.backend.contexts.gmao.domain.intervenant.NatureIntervenant;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.EvenementDeChronologie;
@@ -15,8 +16,7 @@ import com.hemodialyse.backend.contexts.gmao.domain.intervention.PrioriteInterve
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.StatutIntervention;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.TypeIntervention;
 import com.hemodialyse.backend.contexts.gmao.domain.intervention.TypeLigneCout;
-import net.sf.jasperreports.engine.JRParameter;
-import org.springframework.stereotype.Service;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,33 +28,42 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Impression du bon d'intervention GMAO : adaptateur du port {@link ImpressionDuBon} du module GMAO. Le modèle de document
- * {@value ModeleDocumentCatalog#BON_INTERVENTION} est imprimé via {@link ModeleDocumentPrinter} (version personnalisée du
- * centre si elle existe, identité société + centre posée par le serveur). Les lignes de coût sont lues par la requête du
- * modèle ; le reste est calculé ici à partir des données du module et passé en paramètres. Les dates sont stockées en UTC et
- * mises en forme dans le fuseau demandé par l'utilisateur.
+ * ACL vers Documents (documents.v1, PL6) : le bon d'intervention est rendu par le port {@link RenduDeDocument}, type
+ * {@value #TYPE_DE_DOCUMENT}, avec le modèle actif du centre (format du modèle). Traduit les données du bon en paramètres du
+ * modèle (libellés, dates dans le fuseau demandé, coûts, chronologie) ; les lignes de coût sont lues par la requête du modèle ;
+ * Documents pose le papier en-tête. Les refus du rendu (modèle désactivé, génération impossible) remontent tels quels.
+ * Reproduit (KB-GMAO-70) : la première impression crée le modèle du centre.
  */
-@Service
-public class BonInterventionReportService implements ImpressionDuBon {
+public class BonRenduParDocuments implements ImpressionDuBon {
 
+    public static final String TYPE_DE_DOCUMENT = "BON_INTERVENTION";
+
+    private static final String TYPE_TABLEUR = "spreadsheetml";
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final ModeleDocumentPrinter printer;
+    private final RenduDeDocument documents;
 
-    public BonInterventionReportService(ModeleDocumentPrinter printer) {
-        this.printer = printer;
+    public BonRenduParDocuments(RenduDeDocument documents) {
+        this.documents = documents;
     }
 
     @Override
     public DocumentImprime imprimer(CentreId centre, DonneesDuBon donnees, ZoneId zone, String editePar) {
-        ModeleDocumentPrinter.Document document = printer.print(centre.valeur(), ModeleDocumentCatalog.BON_INTERVENTION,
-                params(donnees, zone, editePar));
-        return new DocumentImprime(document.format(), document.content());
+        DocumentRendu rendu = documents.rendre(centre.valeur(), TYPE_DE_DOCUMENT, params(donnees, zone, editePar), null);
+        return new DocumentImprime(format(rendu.typeMime()), rendu.octets());
+    }
+
+    static String format(String typeMime) {
+        if (typeMime != null && typeMime.contains(TYPE_TABLEUR)) return "EXCEL";
+        if (typeMime != null && typeMime.startsWith("text/html")) return "HTML";
+        return "PDF";
     }
 
     private static void couts(Map<String, Object> p, InterventionVue i) {
@@ -79,12 +88,18 @@ public class BonInterventionReportService implements ImpressionDuBon {
         return String.join("\n", blocs);
     }
 
-    private static String chronologieTexte(List<EvenementVu> events, ZoneId zone) {
+    /**
+     * Ligne de temps du bon. Décidé (KB-PL6-6, 2026-11-12) : une clôture rejouée par une rectification n'est imprimée qu'une fois
+     * (même instant, même auteur) et un motif blanc n'est pas imprimé.
+     */
+    static String chronologieTexte(List<EvenementVu> events, ZoneId zone) {
         List<String> lignes = new ArrayList<>();
+        Set<String> clotures = new HashSet<>();
         for (EvenementVu e : events) {
+            if (e.type() == EvenementDeChronologie.Type.TERMINEE && !clotures.add(e.le() + "|" + e.par())) continue;
             lignes.add(stamp(e.le(), zone) + " — " + libelle(e.type())
                     + (e.parNom() == null ? "" : " par " + e.parNom())
-                    + (e.detail() == null ? "" : " — motif : " + e.detail()));
+                    + (blankToNull(e.detail()) == null ? "" : " — motif : " + e.detail()));
         }
         lignes.add("Heures exprimées dans le fuseau " + zone.getId() + ".");
         return String.join("\n", lignes);
@@ -178,13 +193,13 @@ public class BonInterventionReportService implements ImpressionDuBon {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    Map<String, Object> params(DonneesDuBon donnees, ZoneId zone, String editePar) {
+    static Map<String, Object> params(DonneesDuBon donnees, ZoneId zone, String editePar) {
         InterventionVue i = donnees.intervention();
         EquipementVue e = donnees.equipement();
         IntervenantVue intervenant = donnees.intervenant();
         List<EvenementVu> chronologie = donnees.chronologie();
         Map<String, Object> p = new HashMap<>();
-        p.put(JRParameter.REPORT_LOCALE, Locale.FRANCE);
+        p.put("REPORT_LOCALE", Locale.FRANCE);
         p.put("INTERVENTION_ID", i.id().toString());
         p.put("BON_NUMERO", "BI-" + i.id().toString().substring(0, 8).toUpperCase(Locale.ROOT));
         p.put("BON_TYPE", type(i.type()));

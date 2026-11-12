@@ -25,6 +25,7 @@
 	</properties>
     <modules>
         <module>contexts/shared-kernel</module>
+        <module>contexts/documents-api</module>
         <module>contexts/gmao</module>
         <module>contexts/comptabilite</module>
         <module>contexts/facturation</module>

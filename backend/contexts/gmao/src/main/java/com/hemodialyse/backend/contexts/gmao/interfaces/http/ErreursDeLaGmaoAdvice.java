@@ -62,6 +62,18 @@ class ErreursDeLaGmaoAdvice {
                 "BAD_REQUEST");
     }
 
+    /** Impression du bon (PL6, KB-PL6-2) : identifiant mal formé ou centre de session illisible = 400, sans message technique. */
+    @ExceptionHandler({IdentifiantIllisible.class, com.hemodialyse.backend.contexts.gmao.application.CentreIllisible.class})
+    ProblemDetail requeteIllisible() {
+        return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", "Requête illisible", "BAD_REQUEST");
+    }
+
+    /** Impression du bon (PL6, KB-PL6-1) : jeton sans centre = 403 (le legacy répondait 500). */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.gmao.application.SessionSansCentre.class)
+    ProblemDetail sessionSansCentre() {
+        return probleme(HttpStatus.FORBIDDEN, "Acces refuse", "Accès refusé", "ACCESS_DENIED");
+    }
+
     /**
      * Équipement inconnu à l'établissement d'un plan : 400 avec le code stable {@code EQUIPEMENT_INCONNU} (écart décidé
      * KB-GMAO-14 : le legacy répondait 500 par violation de clé étrangère). 400 comme « Plan non trouvé »

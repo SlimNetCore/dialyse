@@ -1,0 +1,9 @@
+[
+  "quantite 0 -> [Pièces de rechange : 0,00 DA, Main d'œuvre : 0,00 DA, Autres frais : 0,00 DA, COÛT TOTAL : 0,00 DA]",
+  "prix 0 -> [Pièces de rechange : 0,00 DA, Main d'œuvre : 0,00 DA, Autres frais : 0,00 DA, COÛT TOTAL : 0,00 DA]",
+  "prix negatif (avoir) -> [Pièces de rechange : 0,00 DA, Main d'œuvre : 0,00 DA, Autres frais : -250,00 DA, COÛT TOTAL : -250,00 DA]",
+  "total negatif -> [Pièces de rechange : 100,00 DA, Main d'œuvre : 0,00 DA, Autres frais : -400,00 DA, COÛT TOTAL : -300,00 DA]",
+  "quantite negative -> [Pièces de rechange : 0,00 DA, Main d'œuvre : -600,00 DA, Autres frais : 0,00 DA, COÛT TOTAL : -600,00 DA]",
+  "enorme -> [Pièces de rechange : 9 999 999 899 000 000,01 DA, Main d'œuvre : 0,00 DA, Autres frais : 0,00 DA, COÛT TOTAL : 9 999 999 899 000 000,01 DA]",
+  "quantite tres precise -> [Pièces de rechange : 0,00 DA, Main d'œuvre : 0,00 DA, Autres frais : 0,00 DA, COÛT TOTAL : 0,00 DA]"
+]

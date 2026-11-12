@@ -95,7 +95,7 @@
                     <text><![CDATA[BON D'INTERVENTION]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="0" y="30" width="535" height="16"/>
+                    <reportElement x="0" y="30" width="535" height="16" positionType="Float"/>
                     <textElement textAlignment="Center">
                         <font size="10" isItalic="true"/>
                     </textElement>
@@ -104,13 +104,13 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="56" width="90" height="16"/>
+                    <reportElement x="0" y="56" width="90" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Équipement :]]></text>
                 </staticText>
-                <textField isBlankWhenNull="true">
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
                     <reportElement x="92" y="56" width="443" height="16"/>
                     <textElement>
                         <font size="9"/>
@@ -119,28 +119,28 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="76" width="90" height="16"/>
+                    <reportElement x="0" y="76" width="90" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[N° de série :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="92" y="76" width="170" height="16"/>
+                    <reportElement x="92" y="76" width="170" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
                     <textFieldExpression><![CDATA[$P{EQUIPEMENT_SERIE}]]></textFieldExpression>
                 </textField>
                 <staticText>
-                    <reportElement x="290" y="76" width="70" height="16"/>
+                    <reportElement x="290" y="76" width="70" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Priorité :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="362" y="76" width="173" height="16"/>
+                    <reportElement x="362" y="76" width="173" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
@@ -148,28 +148,28 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="96" width="90" height="16"/>
+                    <reportElement x="0" y="96" width="90" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Début :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="92" y="96" width="170" height="16"/>
+                    <reportElement x="92" y="96" width="170" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
                     <textFieldExpression><![CDATA[$P{DATE_DEBUT}]]></textFieldExpression>
                 </textField>
                 <staticText>
-                    <reportElement x="290" y="96" width="70" height="16"/>
+                    <reportElement x="290" y="96" width="70" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Fin :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="362" y="96" width="173" height="16"/>
+                    <reportElement x="362" y="96" width="173" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
@@ -177,28 +177,28 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="116" width="90" height="16"/>
+                    <reportElement x="0" y="116" width="90" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Durée :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="92" y="116" width="170" height="16"/>
+                    <reportElement x="92" y="116" width="170" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
                     <textFieldExpression><![CDATA[$P{DUREE}]]></textFieldExpression>
                 </textField>
                 <staticText>
-                    <reportElement x="290" y="116" width="70" height="16"/>
+                    <reportElement x="290" y="116" width="70" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Échéance :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="362" y="116" width="173" height="16"/>
+                    <reportElement x="362" y="116" width="173" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
@@ -206,14 +206,14 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="136" width="90" height="16"/>
+                    <reportElement x="0" y="136" width="90" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Intervenant :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="92" y="136" width="443" height="16"/>
+                    <reportElement x="92" y="136" width="443" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
@@ -221,28 +221,28 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="156" width="90" height="16"/>
+                    <reportElement x="0" y="156" width="90" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[État avant :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="92" y="156" width="170" height="16"/>
+                    <reportElement x="92" y="156" width="170" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
                     <textFieldExpression><![CDATA[$P{ETAT_AVANT}]]></textFieldExpression>
                 </textField>
                 <staticText>
-                    <reportElement x="290" y="156" width="70" height="16"/>
+                    <reportElement x="290" y="156" width="70" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9" isBold="true"/>
                     </textElement>
                     <text><![CDATA[État après :]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement x="362" y="156" width="173" height="16"/>
+                    <reportElement x="362" y="156" width="173" height="16" positionType="Float"/>
                     <textElement>
                         <font size="9"/>
                     </textElement>
@@ -250,14 +250,14 @@
                 </textField>
 
                 <staticText>
-                    <reportElement x="0" y="182" width="535" height="18" backcolor="#E8F5E9" mode="Opaque"/>
+                    <reportElement x="0" y="182" width="535" height="18" positionType="Float" backcolor="#E8F5E9" mode="Opaque"/>
                     <textElement>
                         <font size="10" isBold="true"/>
                     </textElement>
                     <text><![CDATA[  Constat et travaux réalisés]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true" isStretchWithOverflow="true">
-                    <reportElement x="0" y="204" width="535" height="60"/>
+                    <reportElement x="0" y="204" width="535" height="60" positionType="Float"/>
                     <textElement textAlignment="Left">
                         <font size="9"/>
                     </textElement>
@@ -277,7 +277,7 @@
                 <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
             </image>
             <textField isBlankWhenNull="true">
-                <reportElement x="78" y="0" width="235" height="16"/>
+                <reportElement x="78" y="0" width="235" height="16" positionType="Float"/>
                 <textElement textAlignment="Left">
                     <font size="12" isBold="true"/>
                 </textElement>
@@ -349,7 +349,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_TYPE}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true">
-                <reportElement x="112" y="1" width="190" height="15">
+                <reportElement x="112" y="1" width="130" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement>
@@ -358,7 +358,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_LIBELLE}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" pattern="#,##0.##">
-                <reportElement x="304" y="1" width="50" height="15">
+                <reportElement x="244" y="1" width="50" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement textAlignment="Right">
@@ -367,7 +367,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_QUANTITE}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" pattern="#,##0.00">
-                <reportElement x="358" y="1" width="82" height="15">
+                <reportElement x="296" y="1" width="82" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement textAlignment="Right">
@@ -376,7 +376,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_PRIX}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" pattern="#,##0.00">
-                <reportElement x="444" y="1" width="91" height="15">
+                <reportElement x="380" y="1" width="155" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement textAlignment="Right">
@@ -441,56 +441,56 @@
     <summary>
         <band height="300">
             <staticText>
-                <reportElement x="260" y="8" width="170" height="14"/>
+                <reportElement x="190" y="8" width="170" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <text><![CDATA[Pièces de rechange :]]></text>
             </staticText>
             <textField isBlankWhenNull="true">
-                <reportElement x="434" y="8" width="101" height="14"/>
+                <reportElement x="364" y="8" width="171" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{COUT_PIECES}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="260" y="24" width="170" height="14"/>
+                <reportElement x="190" y="24" width="170" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <text><![CDATA[Main d'œuvre :]]></text>
             </staticText>
             <textField isBlankWhenNull="true">
-                <reportElement x="434" y="24" width="101" height="14"/>
+                <reportElement x="364" y="24" width="171" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{COUT_MAIN_OEUVRE}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="260" y="40" width="170" height="14"/>
+                <reportElement x="190" y="40" width="170" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <text><![CDATA[Honoraires de l'intervenant :]]></text>
             </staticText>
             <textField isBlankWhenNull="true">
-                <reportElement x="434" y="40" width="101" height="14"/>
+                <reportElement x="364" y="40" width="171" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{COUT_INTERVENANT}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="260" y="56" width="170" height="14"/>
+                <reportElement x="190" y="56" width="170" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
                 <text><![CDATA[Autres frais :]]></text>
             </staticText>
             <textField isBlankWhenNull="true">
-                <reportElement x="434" y="56" width="101" height="14"/>
+                <reportElement x="364" y="56" width="171" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="9"/>
                 </textElement>
@@ -500,14 +500,14 @@
                 <reportElement x="260" y="73" width="275" height="1"/>
             </line>
             <staticText>
-                <reportElement x="260" y="77" width="170" height="16"/>
+                <reportElement x="190" y="77" width="170" height="16" positionType="Float"/>
                 <textElement textAlignment="Right">
                     <font size="10" isBold="true"/>
                 </textElement>
                 <text><![CDATA[COÛT TOTAL :]]></text>
             </staticText>
             <textField isBlankWhenNull="true">
-                <reportElement x="434" y="77" width="101" height="16"/>
+                <reportElement x="364" y="77" width="171" height="16" positionType="Float"/>
                 <textElement textAlignment="Right">
                     <font size="10" isBold="true"/>
                 </textElement>

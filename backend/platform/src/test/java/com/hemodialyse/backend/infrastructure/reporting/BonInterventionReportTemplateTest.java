@@ -90,8 +90,12 @@ class BonInterventionReportTemplateTest {
         List<EvenementVu> chrono = List.of(
                 new EvenementVu(EvenementDeChronologie.Type.CREEE, DEBUT.minusSeconds(3600), UUID.randomUUID(), "Samia Admin", null),
                 new EvenementVu(EvenementDeChronologie.Type.TERMINEE, DEBUT.plusSeconds(7200), UUID.randomUUID(), "Karim Benali", null));
-        Map<String, Object> p = new BonInterventionReportService(null)
-                .params(new DonneesDuBon(i, e, tech, chrono, DEBUT.plusSeconds(86400)), ALGER, "admin");
+        Map<String, Object> p = new HashMap<>();
+        new com.hemodialyse.backend.contexts.gmao.infrastructure.acl.documents.BonRenduParDocuments((centre, type, donnees, format) -> {
+            p.putAll(donnees);
+            return new com.hemodialyse.backend.contexts.documents.publishedlanguage.DocumentRendu(new byte[0], "application/pdf", "bon.pdf");
+        }).imprimer(new com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId(centreId),
+                new DonneesDuBon(i, e, tech, chrono, DEBUT.plusSeconds(86400)), ALGER, "admin");
         p.put("CENTER_ID", centreId.toString());
         p.put("SOCIETE_NOM", "Clinique Néphro Santé");
         p.put("SOCIETE_PIED_PAGE", "SARL au capital de 1 000 000 DA");

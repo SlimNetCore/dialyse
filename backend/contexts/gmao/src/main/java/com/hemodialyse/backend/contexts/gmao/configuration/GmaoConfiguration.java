@@ -455,7 +455,13 @@ public class GmaoConfiguration {
         return new LectureDesCoutsJpa(lignes);
     }
 
-    /** L'ACL du legacy fournit les noms d'utilisateurs ; la plateforme fournit l'impression du bon ({@code ImpressionDuBon}). */
+    /** Impression du bon : ACL vers le port publié de Documents (documents.v1, PL6). */
+    @Bean
+    ImpressionDuBon gmaoImpressionDuBon(com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument documents) {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.acl.documents.BonRenduParDocuments(documents);
+    }
+
+    /** L'ACL du legacy fournit les noms d'utilisateurs. */
     @Bean
     NomsDesUtilisateurs gmaoNomsDesUtilisateurs(JdbcTemplate jdbc) {
         return new NomsLegacy(jdbc);

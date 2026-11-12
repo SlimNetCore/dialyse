@@ -23,6 +23,17 @@ public class SessionLegacy implements SessionCourante {
     }
 
     @Override
+    public CentreId centrePourImpression() {
+        String centre = lire("getCenterId");
+        if (centre == null) throw new com.hemodialyse.backend.contexts.gmao.application.SessionSansCentre();
+        try {
+            return new CentreId(UUID.fromString(centre));
+        } catch (IllegalArgumentException e) {
+            throw new com.hemodialyse.backend.contexts.gmao.application.CentreIllisible();
+        }
+    }
+
+    @Override
     public UtilisateurId utilisateur() {
         return new UtilisateurId(UUID.fromString(lire("getId")));
     }
