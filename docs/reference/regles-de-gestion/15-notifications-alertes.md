@@ -9,7 +9,7 @@
 > demande (type, contenu, audience). Patient et couverture (`PATIENT_*`, `PEC_*`, `ATTESTATION_*`) et Dossier médical
 > (`PRESCRIPTION_CHANGED`, `OBSERVANCE_NON_RESPECTEE`) tiennent désormais leur catalogue (`infrastructure/acl/notifications`), ainsi que la
 > Séance (`SEANCE_*`, `SAISIE_INFIRMIER`, `SEANCES_A_REGULARISER`, PL13b, ADR 0154) et la Planification (présence, roulement, remplacement, absences d'infirmier, libération,
-> optimisation, replanification, séances déplacées, générateur, isolement, PL13c, ADR 0155) ; les autres émetteurs suivent (PL13d). Types, contenus, destinataires et règles ci-dessous sont inchangés.
+> optimisation, replanification, séances déplacées, générateur, isolement, PL13c, ADR 0155) , ainsi que les Absences de patients (`ABSENCES_A_QUALIFIER`, saisie `ABSENCE`), le Stock (`LOTS_PROCHES_PEREMPTION`) et la GMAO (`REFORME_PROPOSEE`) (PL13d, ADR 0156). `NotificationService` n'existe plus : la plateforme ne fournit que le transport STOMP (`DiffusionEnTempsReelStomp`). Types, contenus, destinataires et règles ci-dessous sont inchangés.
 
 ## 15.1 Mécanisme
 
@@ -97,7 +97,7 @@
   (`CONSOMMABLE_AJOUT`, `CONSOMMABLE_MODIF`, `CONSOMMABLE_RETRAIT`), traitement anémie (`ANEMIE`), absence de patient
   (`ABSENCE`). La notification accompagne la saisie sans jamais la faire échouer (une panne du canal temps réel est
   ignorée). Les évènements de séance historiques ne visent plus le médecin : il n'est prévenu que par ce message.
-  *Source :* `SaisieInfirmierNotifier`, `NotificationService.notifySaisieInfirmier`.
+  *Source :* `SignalementDesSaisiesParLeCentreDeNotifications` (Absences patients, saisie `ABSENCE`), catalogue de la Séance (autres saisies).
 
 ## 15.2 Catalogue des évènements de centre
 

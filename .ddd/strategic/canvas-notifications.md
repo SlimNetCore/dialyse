@@ -17,7 +17,7 @@ sources: [ADR 0140, .ddd/migration/reviews/inventaire-platform-restant.md (A7, A
 | Commandes reçues | `Notifier.notifier(DemandeDeNotification)` (`notifications.v1`) ; REST inchangé : `GET /api/v1/notifications`, `POST …/lecture`, `POST …/lecture-tout` ; tâche 03:40 |
 | Événements émis | aucun fait métier ; diffusion STOMP via le port `DiffusionEnTempsReel` (destinations inchangées) |
 | Dépendances | Amont de : Patient & couverture, Dossier médical, Séance, Planification, Absences patients, Stock, GMAO (OHS+PL `notifications.v1`, ACL côté émetteur). Aval de : plateforme (session/rôles : Conformist ; STOMP : adaptateur plateforme, ACL). Pilotage direction : Separate Ways (alertes de direction ≠ notifications, à confirmer). |
-| Reste en plateforme | transport STOMP (A6), session/rôles (A1), chaîne de sécurité ; `SaisieInfirmierNotifier`, `NotificationService` jusqu'à PL13d |
+| Reste en plateforme | transport STOMP (A6), session/rôles (A1), chaîne de sécurité ; `DiffusionEnTempsReelStomp` (seul fournisseur du transport, PL13d) |
 | Hypothèses | l'audience est déclarée par l'émetteur (Q5) ; les codes de type existants sont conservés tels quels (le front en dépend) |
 | Verdict | équipe plateforme ; PL13 est un chantier par émetteur, séquentiel |
 
@@ -27,7 +27,7 @@ sources: [ADR 0140, .ddd/migration/reviews/inventaire-platform-restant.md (A7, A
 | Patient & couverture, Dossier médical | patient créé/modifié, PEC validée/clôturée/supprimée, attestation créée/supprimée, prescription modifiée, observance non respectée | `NotificationsDeLaFicheParLaPlateforme`, `NotificationsDeLAnemieLegacy`, `SignalementDesPrescriptionsLegacy` | PL13a |
 | Séance | séance créée/validée/modifiée/supprimée/déverrouillée, volets médical/paramédical, saisie infirmier, séances à régulariser | `DiffusionsFournieesLegacy`, `RappelsFournisLegacy` (à vérifier) | PL13b |
 | Planification | présence sous/sur-effectif, libération en échec, optimisation, replanification, générateur indisponible, isolement, retour en salle ordinaire, séances déplacées, roulement, remplacement, absences d'infirmier | `NotificationsDeLaPresenceLegacy`, `NotificationsDeLaLiberationLegacy`, `NotificationsDesAbsencesDInfirmiersLegacy`, `AlertesDuPlacementLegacy`, `AlertesDeLOptimisationLegacy` (retirées, ADR 0155) | PL13c (fait) |
-| Absences patients, Stock, GMAO | absences à qualifier, lots proches de la péremption, réforme proposée | `NotificationsDuCentreLegacy`, `SignalementDesSaisiesLegacy`, `NotificationsDesPeremptionsLegacy`, `GmaoEvenementsReformeListener` | PL13d |
+| Absences patients, Stock, GMAO | absences à qualifier, lots proches de la péremption, réforme proposée | `NotificationsDuCentreLegacy`, `SignalementDesSaisiesLegacy`, `NotificationsDesPeremptionsLegacy`, `GmaoEvenementsReformeListener` (retirées, ADR 0156) ; `NotificationService` et `SaisieInfirmierNotifier` supprimés | PL13d (fait) |
 
 ## Slices
 NOT1 (module, journal, 3 routes, purge, ~12 f., ~800 l.) → NOT2 (façade `NotificationService` sur `Notifier`, ~700 l.) → PL13a → b → c → d (séquentiel, `NotificationService` partagé). Avant NOT1 : filet sur `NotificationRestController` (hors `covered.json`).

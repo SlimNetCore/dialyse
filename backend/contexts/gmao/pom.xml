@@ -122,6 +122,12 @@
             <artifactId>contexts-documents-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Notifications (notifications.v1), PL13d, ADR 0156 : seul point d'entrée (ArchUnit). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-notifications</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

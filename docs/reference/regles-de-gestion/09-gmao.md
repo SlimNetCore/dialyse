@@ -155,7 +155,7 @@
   `REFORME_PROPOSEE` (équipement, état constaté, suggestion de consulter l'aide à la décision, RG-GMA-062/063). Aucune
   réforme automatique : la décision reste humaine (RG-GMA-063). Aucune notification pour un autre état constaté, ni quand
   l'équipement était déjà `A_REFORMER` ; un événement rejoué ne crée pas de doublon. *Source :* `GmaoEvenementsReformeListener`,
-  `NotificationService.notifyReformeProposee`.
+  `ReformeProposeeParLeCentreDeNotifications` (GMAO, PL13d).
 - **RG-GMA-066** — **Disponibilité d'un équipement pour un patient** : avant d'affecter un patient à un générateur, l'écran
   demande si l'équipement est disponible ; il l'est **seulement s'il est `EN_SERVICE`** (en maintenance, en attente de pièce, hors
   service, à réformer, réformé et **désactivé** ne le sont pas : KB-GMAO-73 corrigé, décision du 2026-10-12). Avertissement non

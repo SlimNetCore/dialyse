@@ -164,6 +164,15 @@ public class GmaoConfiguration {
         return new JournalDesEvenements();
     }
 
+    /** Proposition de réforme vers Notifications (PL13d, ADR 0156) : écouteur de l'événement publié par la GMAO elle-même. */
+    @Bean
+    com.hemodialyse.backend.contexts.gmao.infrastructure.acl.notifications.ReformeProposeeParLeCentreDeNotifications gmaoReformeProposee(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion) {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.acl.notifications.ReformeProposeeParLeCentreDeNotifications(
+                notifier, diffusion);
+    }
+
     // ------------------------------------------------------------------ équipements (parc et cycle de vie)
 
     /** Le repository est aussi le port des codes du centre (R7). {@code CapaciteDesSalles} est fourni par l'ACL du legacy. */

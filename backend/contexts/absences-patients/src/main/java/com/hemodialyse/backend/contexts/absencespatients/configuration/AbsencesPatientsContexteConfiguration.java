@@ -321,6 +321,26 @@ public class AbsencesPatientsContexteConfiguration {
         return new DetecterUnePeriodePassee(horloge, reconciliation, detection);
     }
 
+    // PL13d (ADR 0156) : les messages des Absences vers notifications.v1 (alerte des absences à qualifier, saisie ABSENCE).
+
+    @Bean
+    NotificationsDuCentre absencesPatientsNotificationsDuCentre(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.notifications.NotificationsDuCentreParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
+
+    @Bean
+    SignalementDesSaisies absencesPatientsSignalementDesSaisies(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            FichesDesPatients fiches) {
+        return new com.hemodialyse.backend.contexts.absencespatients.infrastructure.acl.notifications.SignalementDesSaisiesParLeCentreDeNotifications(
+                notifier, diffusion, fiches);
+    }
+
     // Slice A4 : lectures publiées pour le pilotage (tableau de bord des séances, vue Direction).
 
     @Bean

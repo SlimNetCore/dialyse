@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Les alertes émises par {@link NotificationService} sont enregistrées au journal du contexte Notifications (NOT1) sur base réelle : une
+ * Les alertes émises par les contextes émetteurs (notifications.v1) sont enregistrées au journal du contexte Notifications (NOT1) sur base réelle : une
  * alerte envoyée la nuit est retrouvée à la connexion, par les seuls rôles ciblés et le seul centre concerné ; la lecture est propre à chaque
  * utilisateur. Les règles du journal lui-même (pagination, purge, visibilité exacte) sont dans les tests de contrat du module.
  */
@@ -36,8 +36,6 @@ class NotificationJournalIntegrationTest {
     private static final UUID CENTRE = UUID.fromString("99997000-0000-0000-0000-00000000000a");
     private static final UUID AUTRE_CENTRE = UUID.fromString("99997000-0000-0000-0000-00000000000b");
 
-    @Autowired
-    private NotificationService notifications;
     @Autowired
     private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.NotificationsDeLaFiche fiches;
     @Autowired

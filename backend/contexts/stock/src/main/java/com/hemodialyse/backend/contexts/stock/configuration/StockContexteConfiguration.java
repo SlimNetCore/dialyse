@@ -377,4 +377,14 @@ public class StockContexteConfiguration {
             com.hemodialyse.backend.contexts.stock.application.peremptions.ControlerLesPeremptions controler) {
         return new com.hemodialyse.backend.contexts.stock.interfaces.jobs.ControleDesPeremptionsPlanifie(controler);
     }
+
+    /** Le langage publié que le Stock attend de Notifications pour l'alerte des péremptions (PL13d, ADR 0156). */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.NotificationsDesPeremptions stockNotificationsDesPeremptions(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.notifications.NotificationsDesPeremptionsParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
 }

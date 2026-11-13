@@ -197,6 +197,34 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("les notifications de la Planification sont dans contexts/planification (PL13c, ADR 0155)");
 
+    /**
+     * PL13d (ADR 0156), clôture du chantier : tous les messages sont chez les contextes émetteurs ; {@code NotificationService}, ses
+     * assistants et les ACL {@code *Legacy} d'émission ne reviennent pas. La plateforme ne fournit plus que le transport STOMP.
+     */
+    @ArchTest
+    static final ArchRule le_service_de_notification_et_les_acl_legacy_d_emission_ne_reviennent_pas = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.application.notification.NotificationService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.notification.SaisieInfirmierNotifier")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.absences.NotificationsDuCentreLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.absences.SignalementDesSaisiesLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.stock.NotificationsDesPeremptionsLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.gmao.GmaoEvenementsReformeListener")
+            .allowEmptyShould(true)
+            .because("seul notifications.v1 sert à émettre ; le catalogue est chez les émetteurs (PL13d, ADR 0156)");
+
+    /** PL13d : Stock, Absences et GMAO n'émettent que par notifications.v1, sans dépendre de la plateforme ni des internes de Notifications. */
+    @ArchTest
+    static final ArchRule stock_absences_et_gmao_ne_parlent_a_notifications_que_par_son_langage_publie = noClasses()
+            .that().resideInAnyPackage("com.hemodialyse.backend.contexts.stock..", "com.hemodialyse.backend.contexts.absencespatients..",
+                    "com.hemodialyse.backend.contexts.gmao..")
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.application..",
+                    "com.hemodialyse.backend.infrastructure.acl..",
+                    "com.hemodialyse.backend.contexts.notifications.domain..", "com.hemodialyse.backend.contexts.notifications.application..",
+                    "com.hemodialyse.backend.contexts.notifications.infrastructure..", "com.hemodialyse.backend.contexts.notifications.interfaces..",
+                    "com.hemodialyse.backend.contexts.notifications.configuration..")
+            .allowEmptyShould(true)
+            .because("ces contextes ne parlent à Notifications que par notifications.v1 (PL13d, ADR 0156)");
+
     @ArchTest
     static final ArchRule seul_contexts_seance_declenche_le_rappel_de_regularisation = noClasses()
             .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")
@@ -554,7 +582,7 @@ class FrontieresDesContextesTest {
      */
     @ArchTest
     static final ArchRule les_alertes_et_le_temps_reel_de_la_direction_passent_par_le_langage_publie_du_pilotage = classes()
-            .that().haveFullyQualifiedName("com.hemodialyse.backend.application.notification.NotificationService")
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.DiffusionEnTempsReelStomp")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketStockEventPublisher")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.WebSocketInventaireEventPublisher")
             .or().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.websocket.DirectionSubscriptionTracker")

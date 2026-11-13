@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.notifications.not1;
 
-import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel;
 import com.hemodialyse.backend.contexts.notifications.domain.DureesDuJournal;
 import com.hemodialyse.backend.contexts.notifications.interfaces.planifie.PurgeNocturneDesNotifications;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +38,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
 
     @Autowired
-    private NotificationService notifications;
+    private DiffusionEnTempsReel notifications;
     @Autowired
     private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.NotificationsDeLaFiche fiches;
     @Autowired

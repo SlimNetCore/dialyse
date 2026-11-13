@@ -243,7 +243,7 @@ garde voit les noms de table calculés ou indirects (`NomsDeTableCalcules`, KB-S
 (types et destinataires, chapitre 15) ; `OBSERVANCE_NON_RESPECTEE` reste durable (RG-NOT-005, RG-MED-073).
 **La Séance construit ses notifications (PL13b, ADR 0154).** `CatalogueDesNotificationsDeLaSeance` (`SEANCE_*`, `SAISIE_INFIRMIER` dont
 `ANEMIE`, `SEANCES_A_REGULARISER` durable à identifiant déterministe, KB-SEA-35) et trois ACL vers `notifications.v1` portent RG-NOT-001 et
-RG-NOT-005 pour la Séance ; seule la saisie `ABSENCE` reste émise par la plateforme jusqu'à PL13d.
+RG-NOT-005 pour la Séance ; la saisie `ABSENCE`, l'alerte des absences à qualifier, les péremptions et la réforme proposée sont émises par leurs contextes (PL13d, ADR 0156) ; `NotificationService` est supprimé.
 **La Planification construit ses notifications (PL13c, ADR 0155).** `CatalogueDesNotificationsDeLaPlanification` (présence, roulement,
 remplacement, absences d'infirmier, libération des places, optimisation, replanification, séances déplacées, générateur indisponible,
 isolement, retour en salle ordinaire ; toutes durables, identifiants déterministes KB-PLN-46, 60, 63) et cinq ACL vers `notifications.v1`
