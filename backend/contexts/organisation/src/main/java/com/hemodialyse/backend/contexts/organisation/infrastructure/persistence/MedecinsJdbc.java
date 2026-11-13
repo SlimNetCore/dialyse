@@ -9,8 +9,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 public class MedecinsJdbc implements MedecinRepository {
@@ -39,9 +44,14 @@ public class MedecinsJdbc implements MedecinRepository {
     @Override
     public void sauvegarder(Medecin m) {
         ecrire(m);
-        // Les clés de ref.medecins portent la page et la taille : tout le cache est vidé, après le commit.
-        eviction.retirer("ref.medecins", null);
+        // Les clés de ref.medecins sont « centre:page:taille » : seules les pages déjà mises en cache pour CE centre sont retirées
+        // (isolation multi-centre, comme l'administration générique avant PL11-3), après le commit.
+        String centre = m.centreId().valeur().toString();
+        for (String cle : pagesEnCache.getOrDefault(centre, Set.of())) eviction.retirer("ref.medecins", cle);
     }
+
+    /** Pages ({@code centre:page:taille}) mises en cache par centre ; alimenté quand une page est lue hors cache. */
+    private final Map<String, Set<String>> pagesEnCache = new ConcurrentHashMap<>();
 
     private void ecrire(Medecin m) {
         int n = jdbc.update("UPDATE medecin SET center_id=?, nom=?, prenom=?, specialite=?, actif=? WHERE id=?",
@@ -53,8 +63,39 @@ public class MedecinsJdbc implements MedecinRepository {
     }
 
     @Override
+    public List<Medecin> listerTousParCentre(CentreId centreId) {
+        return jdbc.query("SELECT id, center_id, nom, prenom, specialite, actif FROM medecin WHERE center_id = ? ORDER BY nom, prenom, id",
+                MAPPER, centreId.valeur());
+    }
+
+    @Override
+    public PageDeMedecins page(CentreId centreId, String recherche, int page, int taille) {
+        List<Object> params = new ArrayList<>();
+        params.add(centreId.valeur());
+        String filtre = " WHERE center_id = ? AND actif = TRUE";
+        if (recherche != null && !recherche.isBlank()) {
+            String like = "%" + recherche.trim().toLowerCase(Locale.ROOT)
+                    .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+            filtre += " AND (LOWER(COALESCE(nom, '')) LIKE ? ESCAPE '\\' OR LOWER(COALESCE(prenom, '')) LIKE ? ESCAPE '\\'"
+                    + " OR LOWER(COALESCE(specialite, '')) LIKE ? ESCAPE '\\')";
+            params.add(like);
+            params.add(like);
+            params.add(like);
+        }
+        Long total = jdbc.queryForObject("SELECT COUNT(*) FROM medecin" + filtre, Long.class, params.toArray());
+        List<Object> pageParams = new ArrayList<>(params);
+        pageParams.add(taille);
+        pageParams.add((long) page * taille);
+        List<Medecin> lignes = jdbc.query("SELECT id, center_id, nom, prenom, specialite, actif FROM medecin" + filtre
+                + " ORDER BY nom, prenom, id LIMIT ? OFFSET ?", MAPPER, pageParams.toArray());
+        return new PageDeMedecins(lignes, total == null ? 0 : total);
+    }
+
+    @Override
     @Cacheable(cacheNames = "ref.medecins", key = "#centreId.valeur().toString() + ':' + #page + ':' + #size")
     public PagedResult<Medecin> listerParCentre(CentreId centreId, int page, int size) {
+        String centre = centreId.valeur().toString();
+        pagesEnCache.computeIfAbsent(centre, c -> ConcurrentHashMap.newKeySet()).add(centre + ":" + page + ":" + size);
         long total = Optional.ofNullable(jdbc.queryForObject("SELECT COUNT(*) FROM medecin WHERE center_id = ? AND actif = TRUE",
                 Long.class, centreId.valeur())).orElse(0L);
         int offset = page * size;

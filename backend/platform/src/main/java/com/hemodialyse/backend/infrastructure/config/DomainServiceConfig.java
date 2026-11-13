@@ -46,15 +46,23 @@ public class DomainServiceConfig {
         return new com.hemodialyse.backend.infrastructure.acl.organisation.CreneauxParOrganisation(creneaux);
     }
 
+    /** PL11-3 (ADR 0159) : les médecins sont gérés par l'Organisation ; l'administration générique lui délègue. */
+    @Bean
+    public com.hemodialyse.backend.infrastructure.acl.organisation.MedecinsParOrganisation medecinsParOrganisation(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesMedecins medecins) {
+        return new com.hemodialyse.backend.infrastructure.acl.organisation.MedecinsParOrganisation(medecins);
+    }
+
     /** PL11-1 (ADR 0157) : les fournisseurs de descripteurs et de gestion que la façade distribue. */
     @Bean
     public com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates referentialAdminDelegates(
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.TransporteursParPatientCouverture transporteurs,
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.ForfaitsParPatientCouverture forfaits,
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture payeurs,
-            com.hemodialyse.backend.infrastructure.acl.organisation.CreneauxParOrganisation creneaux) {
+            com.hemodialyse.backend.infrastructure.acl.organisation.CreneauxParOrganisation creneaux,
+            com.hemodialyse.backend.infrastructure.acl.organisation.MedecinsParOrganisation medecins) {
         return new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(
-                java.util.List.of(transporteurs, forfaits, payeurs, creneaux));
+                java.util.List.of(transporteurs, forfaits, payeurs, creneaux, medecins));
     }
 
     @Bean

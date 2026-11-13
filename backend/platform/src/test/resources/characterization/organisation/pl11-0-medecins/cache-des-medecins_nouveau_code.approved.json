@@ -1,0 +1,101 @@
+{
+  "01 mise en cache A" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : null,
+      "nom" : "Benali",
+      "prenom" : "Karim"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 mise en cache B" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : null,
+      "nom" : "Ouaret",
+      "prenom" : "Mustapha"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 creation par l'administration dans A" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "nom" : "Admin",
+        "prenom" : "A",
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "04 A relu (liste legacy : tous les actifs)" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<UUID_GENERE_1>",
+      "libelle" : null,
+      "nom" : "Admin",
+      "prenom" : "A"
+    }, {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<A2>",
+      "libelle" : null,
+      "nom" : "Ajout",
+      "prenom" : "DirectA"
+    }, {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : null,
+      "nom" : "Benali",
+      "prenom" : "Karim"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 B relu : cache du centre B intact apres ecriture administration" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : null,
+      "nom" : "Ouaret",
+      "prenom" : "Mustapha"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 creation par l'organisation dans A" : {
+    "body" : "<UUID_GENERE_2>",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 B relu : cache du centre B vide apres ecriture Organisation" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : null,
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : null,
+      "nom" : "Ouaret",
+      "prenom" : "Mustapha"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

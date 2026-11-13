@@ -1,0 +1,50 @@
+{
+  "01 organisation : creation" : {
+    "body" : "<UUID_GENERE_1>",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 organisation : meme identite" : {
+    "body" : {
+      "code" : "MEDECIN_DEJA_EXISTANT",
+      "detail" : "Un médecin avec ce nom et ce prénom existe déjà dans ce centre",
+      "instance" : "/api/v1/organisation/referentiels/medecins",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 administration : meme identite" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 etat : deux lignes identiques" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "specialite" : null
+    } ]
+  },
+  "05 liste de l'administration : statut" : {
+    "valeur" : "200"
+  },
+  "06 liste de l'administration : total (l'ordre de deux homonymes n'est pas fixe)" : {
+    "valeur" : "1"
+  }
+}

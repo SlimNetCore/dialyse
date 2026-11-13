@@ -13,6 +13,9 @@ public final class ReferentielsDeLOrganisation {
 
     public static final ReferentialKind CRENEAU = versKind(DescripteursDeLOrganisation.CRENEAU);
 
+    /** PL11-3 (ADR 0159) : les médecins traitants, décrits par l'Organisation. */
+    public static final ReferentialKind MEDECIN = versKind(DescripteursDeLOrganisation.MEDECIN);
+
     private ReferentielsDeLOrganisation() {
     }
 

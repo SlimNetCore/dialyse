@@ -97,7 +97,7 @@ class MedecinsPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         UUID mLibre = medecin(CENTRE_A, "ML", "Sans", "Usage", null);
         trace("medecin sans usage : desactive", supprimer("medecins", mLibre, CENTRE_A, admin()));
         traceSql("etat : seul le medecin libre est inactif", ETAT, CENTRE_A);
-        verrouiller("refus-d-usage");
+        verrouiller("refus-d-usage_nouveau_code"); // PL11-3 (D5) : désactivation autorisée ; ancien : _ecarts-legacy
     }
 
     @Test
@@ -113,7 +113,7 @@ class MedecinsPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("administration : 2e suppression = introuvable", supprimer("medecins", m, CENTRE_A, admin()));
         trace("organisation : 2e desactivation", doDelete(ORG + "/medecins/" + m + "?centreId=" + CENTRE_A, admin()));
         trace("administration : modification d'un desactive = introuvable", modifier("medecins", m, CENTRE_A, "{'nom':'Utilise','prenom':'Doc'}", admin()));
-        verrouiller("desactivation-d-un-medecin-utilise");
+        verrouiller("desactivation-d-un-medecin-utilise_nouveau_code"); // PL11-3 (D5)
     }
 
     @Test
@@ -129,7 +129,7 @@ class MedecinsPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("verification d'import du medecin desactive : a creer", importer("medecins", CENTRE_A, false, "nom,prenom,specialite\nOuaret,Mustapha,Neph\n", admin()));
         trace("import reel", importer("medecins", CENTRE_A, true, "nom,prenom,specialite\nOuaret,Mustapha,Neph\n", admin()));
         traceSql("etat apres reimport", ETAT, CENTRE_A);
-        verrouiller("medecin-desactive-recreation-et-reimport");
+        verrouiller("medecin-desactive-recreation-et-reimport_nouveau_code"); // PL11-3 (D6)
     }
 
     @Test
@@ -187,7 +187,7 @@ class MedecinsPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("B relu : cache du centre B intact apres ecriture administration", doGet(lectureB, as(CENTRE_B, "ADMIN")));
         trace("creation par l'organisation dans A", doPost(ORG + "/medecins", "{'centreId':'" + CENTRE_A + "','nom':'Org','prenom':'A'}", admin()));
         trace("B relu : cache du centre B vide apres ecriture Organisation", doGet(lectureB, as(CENTRE_B, "ADMIN")));
-        verrouiller("cache-des-medecins");
+        verrouiller("cache-des-medecins_nouveau_code"); // PL11-3 : la route d'Organisation évince seulement son centre
     }
 
     @Test
@@ -199,7 +199,7 @@ class MedecinsPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         Resp liste = lister("medecins", CENTRE_A, null, admin());
         traceNote("liste de l'administration : statut", String.valueOf(liste.status()));
         traceNote("liste de l'administration : total (l'ordre de deux homonymes n'est pas fixe)", mapper.readTree(liste.raw()).path("total").asString());
-        verrouiller("unicite-organisation-et-administration");
+        verrouiller("unicite-organisation-et-administration_nouveau_code"); // PL11-3 (D7)
     }
 
     @Test

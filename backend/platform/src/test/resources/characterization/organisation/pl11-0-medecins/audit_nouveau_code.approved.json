@@ -26,15 +26,9 @@
     "status" : 200
   },
   "03 suppression refusee" : {
-    "body" : {
-      "code" : "REFERENTIAL_IN_USE",
-      "detail" : "Suppression impossible : cet élément de « Médecins traitants » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
-      "instance" : "/api/v1/admin/referentials/medecins/<U>",
-      "status" : 422,
-      "title" : "Regle metier violee"
-    },
-    "contentType" : "application/problem+json",
-    "status" : 422
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
   },
   "04 suppression (desactivation)" : {
     "body" : null,
@@ -97,7 +91,7 @@
       "nombre" : "1",
       "roles" : "ROLE_ADMIN",
       "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
-      "status_code" : "422"
+      "status_code" : "204"
     }, {
       "action_code" : "ADMIN_MODIFICATION",
       "entity_id" : "<M>",

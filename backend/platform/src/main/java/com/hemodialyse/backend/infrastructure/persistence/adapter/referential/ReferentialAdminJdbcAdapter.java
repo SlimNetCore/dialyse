@@ -48,11 +48,14 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     private final ForfaitsDuCentre forfaits;
     private final GestionDesPayeurs payeurs;
     private final com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux;
+    private final com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesMedecins medecins;
 
     public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor, Transporteurs transporteurs,
                                        ForfaitsDuCentre forfaits, GestionDesPayeurs payeurs,
-                                       com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux) {
+                                       com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux,
+                                       com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesMedecins medecins) {
         this.jdbc = jdbc;
+        this.medecins = medecins;
         this.creneaux = creneaux;
         this.payeurs = payeurs;
         this.cacheEvictor = cacheEvictor;
@@ -78,21 +81,16 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         return sql.toString();
     }
 
-    /** Les médecins sont désactivés, jamais supprimés (V52) : les lectures ignorent les médecins inactifs. */
-    private static String actifSeulement(Table table) {
-        return "medecin".equals(table.name()) ? " AND t.actif = TRUE" : "";
-    }
-
     private static String where(Table table, CentreId centerId, String search, List<Object> params) {
         params.add(centerId.valeur());
-        if (search == null || search.isBlank()) return " WHERE t.center_id = ?" + actifSeulement(table);
+        if (search == null || search.isBlank()) return " WHERE t.center_id = ?";
         String like = "%" + search.trim().toLowerCase(Locale.ROOT)
                 .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
         String conditions = table.searchColumns().stream()
                 .map(col -> "LOWER(COALESCE(" + col + ", '')) LIKE ? ESCAPE '\\'")
                 .collect(Collectors.joining(" OR "));
         table.searchColumns().forEach(col -> params.add(like));
-        return " WHERE t.center_id = ? AND (" + conditions + ")" + actifSeulement(table);
+        return " WHERE t.center_id = ? AND (" + conditions + ")";
     }
 
     private static RowMapper<ReferentialEntry> mapper(Table table) {
@@ -157,7 +155,7 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     @Override
     public Optional<ReferentialEntry> findById(CentreId centerId, ReferentialKind kind, UUID id) {
         Table table = ReferentialAdminTables.of(kind);
-        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ? AND t.id = ?" + actifSeulement(table),
+        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ? AND t.id = ?",
                 mapper(table), centerId.valeur(), id).stream().findFirst();
     }
 
@@ -171,6 +169,17 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
                 valeurs.put("code", c.code());
                 valeurs.put("libelle", c.libelle());
                 return new ReferentialEntry(c.id(), valeurs, Map.of());
+            }).toList();
+        }
+        if (kind.equals(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN)) {
+            // PL11-3 (ADR 0159) : les médecins appartiennent à l'Organisation ; la reprise des patients les retrouve par nom et prénom
+            // (en attendant l'appariement par lectures publiées, PL11-5).
+            return medecins.proposes(centerId.valeur()).stream().map(m -> {
+                Map<String, String> valeurs = new LinkedHashMap<>();
+                valeurs.put("nom", m.nom());
+                valeurs.put("prenom", m.prenom());
+                valeurs.put("specialite", m.specialite());
+                return new ReferentialEntry(m.id(), valeurs, Map.of());
             }).toList();
         }
         if (kind.equals(ReferentielsDePatientCouverture.TRANSPORTEUR)) {
@@ -209,7 +218,7 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
             }).toList();
         }
         Table table = ReferentialAdminTables.of(kind);
-        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?" + actifSeulement(table), mapper(table), centerId.valeur());
+        return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?", mapper(table), centerId.valeur());
     }
 
     @Override
@@ -243,11 +252,7 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     @Override
     public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
         Table table = ReferentialAdminTables.of(kind);
-        if ("medecin".equals(table.name())) {
-            jdbc.update("UPDATE medecin SET actif = FALSE WHERE id = ? AND center_id = ?", id, centerId.valeur());
-        } else {
-            jdbc.update("DELETE FROM " + table.name() + " WHERE id = ? AND center_id = ?", id, centerId.valeur());
-        }
+        jdbc.update("DELETE FROM " + table.name() + " WHERE id = ? AND center_id = ?", id, centerId.valeur());
         cacheEvictor.evictAfterCommit(centerId, table.caches());
     }
 

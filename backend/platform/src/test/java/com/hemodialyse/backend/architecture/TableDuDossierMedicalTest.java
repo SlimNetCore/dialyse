@@ -61,9 +61,6 @@ class TableDuDossierMedicalTest {
         lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des données médicales)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des données médicales ; jamais sur une base partagée)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "infrastructure/persistence/adapter/referential/ReferentialAdminTables.java",
-                "référentiel d'administration : compte les prescriptions médicales d'un médecin avant sa suppression (descripteur de table) ; "
-                        + "échéance : lecture publiée du Dossier médical (prescriptions d'un médecin)", LECTURES_PUBLIEES);
         lecteur(ressources + "reports/cahier_dialyse.jrxml", "état imprimé du cahier de dialyse (SE7e, résidu E-R3) : lit dossier_medical_patient "
                 + "(hépatites) et prescriptions_medicales (cibles de séance) en SQL Jasper ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
         lecteur(ressources + "reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
@@ -150,7 +147,7 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(10);
+        assertThat(LECTEURS_CONNUS).hasSize(9);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);

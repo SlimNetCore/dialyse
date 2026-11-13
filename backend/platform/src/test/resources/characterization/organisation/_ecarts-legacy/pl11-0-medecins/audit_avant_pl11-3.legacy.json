@@ -1,0 +1,121 @@
+{
+  "01 creation" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "nom" : "Nouveau",
+        "prenom" : null,
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "02 modification" : {
+    "body" : {
+      "id" : "<M>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Karim",
+        "specialite" : "X"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 suppression refusee" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Médecins traitants » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/medecins/<U>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 suppression (desactivation)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 import reel" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 desactivation par l'organisation" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 200
+  },
+  "07 journal d'audit" : {
+    "lignes" : [ {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "<UUID_GENERE_1>",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}",
+      "status_code" : "201"
+    }, {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "medecins",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/import",
+      "status_code" : "200"
+    }, {
+      "action_code" : "ADMIN_SUPPRESSION",
+      "entity_id" : "<M>",
+      "entity_type" : "admin",
+      "http_method" : "DELETE",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "204"
+    }, {
+      "action_code" : "ADMIN_SUPPRESSION",
+      "entity_id" : "<U>",
+      "entity_type" : "admin",
+      "http_method" : "DELETE",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "422"
+    }, {
+      "action_code" : "ADMIN_MODIFICATION",
+      "entity_id" : "<M>",
+      "entity_type" : "admin",
+      "http_method" : "PUT",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "200"
+    }, {
+      "action_code" : "ORGANISATION_SUPPRESSION",
+      "entity_id" : "<U>",
+      "entity_type" : "organisation",
+      "http_method" : "DELETE",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/organisation/referentiels/medecins/{id}",
+      "status_code" : "200"
+    } ]
+  }
+}

@@ -287,7 +287,7 @@ public class PatientMigrator implements EntityMigrator {
             }
             return new Refs(
                     find(row, "centrePayeur", ReferentielsDePatientCouverture.CENTRE_PAYEUR, errors),
-                    find(row, "medecinTraitant", ReferentialKind.MEDECIN, errors),
+                    find(row, "medecinTraitant", com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN, errors),
                     salle,
                     find(row, "creneau", com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU, errors),
                     generateur,
@@ -346,7 +346,7 @@ public class PatientMigrator implements EntityMigrator {
                 Map<String, ReferentialEntry> index = new HashMap<>();
                 for (ReferentialEntry e : referentials.findAllForMatching(center, k)) {
                     Map<String, String> v = e.values();
-                    List<String> keys = k.equals(ReferentialKind.MEDECIN)
+                    List<String> keys = k.equals(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN)
                             ? List.of(v.get("nom") + " " + nz(v.get("prenom")), nz(v.get("prenom")) + " " + v.get("nom"))
                             : k.equals(ReferentielsDePatientCouverture.TRANSPORTEUR) ? List.of(nz(v.get("nom")))
                             : List.of(nz(v.get("code")));

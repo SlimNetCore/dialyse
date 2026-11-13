@@ -6,6 +6,7 @@ import com.hemodialyse.backend.contexts.organisation.domain.MachineRepository;
 import com.hemodialyse.backend.contexts.organisation.domain.Medecin;
 import com.hemodialyse.backend.contexts.organisation.domain.MedecinId;
 import com.hemodialyse.backend.contexts.organisation.domain.MedecinRepository;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.RefusDeMedecin;
 import com.hemodialyse.backend.contexts.organisation.domain.Protocole;
 import com.hemodialyse.backend.contexts.organisation.domain.ProtocoleId;
 import com.hemodialyse.backend.contexts.organisation.domain.ProtocoleRepository;
@@ -21,37 +22,45 @@ public class ReferentielsOrganisationService implements ReferentielsOrganisation
     private final ProtocoleRepository protocoles;
 
     private final GenerateurDIdentifiants identifiants;
+    private final GererLesMedecins gestionDesMedecins;
 
     public ReferentielsOrganisationService(MedecinRepository medecins, MachineRepository machines, ProtocoleRepository protocoles,
-                                           GenerateurDIdentifiants identifiants) {
+                                           GenerateurDIdentifiants identifiants, GererLesMedecins gestionDesMedecins) {
         this.medecins = medecins;
         this.machines = machines;
         this.protocoles = protocoles;
         this.identifiants = identifiants;
+        this.gestionDesMedecins = gestionDesMedecins;
     }
 
+    /** PL11-3, D7 : la route d'Organisation applique la règle d'unicité et de saisie de l'administration (D6 : réactive). */
     @Override
     public MedecinId referencerMedecin(CentreId centreId, String nom, String prenom, String specialite) {
-        MedecinId id = new MedecinId(identifiants.suivant());
-        Medecin m = new Medecin(id, centreId, nom, prenom, specialite);
-        medecins.sauvegarder(m);
-        return id;
+        try {
+            return new MedecinId(gestionDesMedecins.creer(centreId.valeur(), nom, prenom, specialite).id());
+        } catch (RefusDeMedecin refus) {
+            throw switch (refus.motif()) {
+                case DEJA_EXISTANT -> new IllegalArgumentException("MEDECIN_DEJA_EXISTANT");
+                case SAISIE_INVALIDE -> new IllegalArgumentException(refus.anomalies().stream()
+                        .anyMatch(a -> "nom".equals(a.champ()) && "REQUIRED".equals(a.code())) ? "Nom requis"
+                        : refus.anomalies().getFirst().message());
+                case INTROUVABLE -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Medecin inconnu");
+            };
+        }
     }
 
     @Override
     public void modifierMedecin(CentreId centreId, MedecinId id, String nom, String prenom, String specialite) {
-        Medecin m = medecins.trouver(id).filter(x -> x.centreId().equals(centreId))
-                .orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Medecin inconnu"));
-        m.modifier(nom, prenom, specialite);
-        medecins.sauvegarder(m);
+        try {
+            gestionDesMedecins.ajuster(centreId, id, nom, prenom, specialite);
+        } catch (RefusDeMedecin refus) {
+            throw new IllegalArgumentException("MEDECIN_DEJA_EXISTANT");
+        }
     }
 
     @Override
     public void desactiverMedecin(CentreId centreId, MedecinId id) {
-        Medecin m = medecins.trouver(id).filter(x -> x.centreId().equals(centreId))
-                .orElseThrow(() -> new com.hemodialyse.backend.contexts.organisation.domain.ElementIntrouvable("Medecin inconnu"));
-        m.desactiver();
-        medecins.sauvegarder(m);
+        gestionDesMedecins.desactiverSansEchec(centreId, id);
     }
 
     @Override

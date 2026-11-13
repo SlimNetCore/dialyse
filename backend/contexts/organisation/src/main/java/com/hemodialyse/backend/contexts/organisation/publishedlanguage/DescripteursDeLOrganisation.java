@@ -14,6 +14,13 @@ public final class DescripteursDeLOrganisation {
                             List.of("horaire", "plage horaire", "creneau"))),
             List.of("code"));
 
+    /** PL11-3 (ADR 0159) : les médecins traitants. Clé d'unicité : nom puis prénom. */
+    public static final DescripteurDeReferentiel MEDECIN = new DescripteurDeReferentiel("medecins", "Médecins traitants", 1,
+            List.of(new DescripteurDeReferentiel.Champ("nom", "Nom", true, 255, "OUARET", List.of("nom medecin")),
+                    new DescripteurDeReferentiel.Champ("prenom", "Prénom", false, 255, "Mustapha", List.of("prenom medecin")),
+                    new DescripteurDeReferentiel.Champ("specialite", "Spécialité", false, 255, "Néphrologue", List.of())),
+            List.of("nom", "prenom"));
+
     private DescripteursDeLOrganisation() {
     }
 }

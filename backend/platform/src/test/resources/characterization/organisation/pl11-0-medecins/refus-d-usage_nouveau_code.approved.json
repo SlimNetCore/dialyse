@@ -1,0 +1,55 @@
+{
+  "01 medecin traitant d'un patient" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "02 medecin d'une prescription" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "03 trois usages : le compte est dans le message" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "04 usage compte hors du centre (identifiant seul)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 medecin sans usage : desactive" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 etat : seul le medecin libre est inactif" : {
+    "lignes" : [ {
+      "actif" : "false",
+      "nom" : "Avec",
+      "prenom" : "AutreCentre",
+      "specialite" : null
+    }, {
+      "actif" : "false",
+      "nom" : "Avec",
+      "prenom" : "Deux",
+      "specialite" : null
+    }, {
+      "actif" : "false",
+      "nom" : "Avec",
+      "prenom" : "Patient",
+      "specialite" : null
+    }, {
+      "actif" : "false",
+      "nom" : "Avec",
+      "prenom" : "Prescription",
+      "specialite" : null
+    }, {
+      "actif" : "false",
+      "nom" : "Sans",
+      "prenom" : "Usage",
+      "specialite" : null
+    } ]
+  }
+}

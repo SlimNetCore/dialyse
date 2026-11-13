@@ -26,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
 
-    private static final Set<String> ENCORE_DIRECTS = Set.of("SALLE", "MEDECIN");
+    private static final Set<String> ENCORE_DIRECTS = Set.of("SALLE");
     private static final Pattern RETOUR = Pattern.compile(
-            "ReferentialKind\\.(TRANSPORTEUR|FORFAIT|CAISSE|AGENCE|CENTRE_PAYEUR|CRENEAU)\\b");
+            "ReferentialKind\\.(TRANSPORTEUR|FORFAIT|CAISSE|AGENCE|CENTRE_PAYEUR|CRENEAU|MEDECIN)\\b");
 
     @Test
     void les_creneaux_sont_publies_par_l_organisation_et_distribues_par_la_facade() {
@@ -39,14 +39,22 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
     }
 
     @Test
-    void la_facade_ne_connait_en_direct_que_salle_et_medecin() {
+    void les_medecins_sont_publies_par_l_organisation_et_distribues_par_la_facade() {
+        assertThat(com.hemodialyse.backend.contexts.organisation.publishedlanguage.DescripteursDeLOrganisation.MEDECIN.slug())
+                .isEqualTo("medecins");
+        assertThat(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN.slug())
+                .isEqualTo("medecins");
+    }
+
+    @Test
+    void la_facade_ne_connait_en_direct_que_salle() {
         Set<String> constantes = Arrays.stream(ReferentialKind.class.getDeclaredFields())
                 .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())
                         && f.getType() == ReferentialKind.class)
                 .map(java.lang.reflect.Field::getName).collect(Collectors.toCollection(TreeSet::new));
         assertThat(constantes).isEqualTo(new TreeSet<>(ENCORE_DIRECTS));
         assertThat(ReferentialKind.directs()).extracting(ReferentialKind::slug)
-                .containsExactly("salles", "medecins");
+                .containsExactly("salles");
     }
 
     @Test
@@ -76,6 +84,23 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
             String source = Files.readString(base.resolve(fichier));
             assertThat(source.replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "")).as(fichier).doesNotContain("position_creneau");
         }
+    }
+
+    /**
+     * PL11-3, garde anti-retour : la table {@code medecin} n'est plus écrite ni lue en SQL dynamique par l'administration générique
+     * (aucune table, aucune référence {@code MEDECIN} de la façade, aucun usage {@code medecin_*} dans ses fichiers de persistance).
+     */
+    @Test
+    void l_administration_generique_n_ecrit_ni_ne_lit_plus_la_table_medecin() throws IOException {
+        Path base = Path.of("src", "main", "java", "com", "hemodialyse", "backend", "infrastructure", "persistence", "adapter",
+                "referential").toAbsolutePath().normalize();
+        Pattern sqlMedecin = Pattern.compile("(?i)\\b(from|update|into|join)\\s+medecin\\b|\"medecin\"|ReferentialKind\\.MEDECIN|medecin_");
+        for (String fichier : List.of("ReferentialAdminTables.java", "ReferentialAdminJdbcAdapter.java")) {
+            String source = Files.readString(base.resolve(fichier)).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "");
+            assertThat(sqlMedecin.matcher(source).find()).as(fichier).isFalse();
+        }
+        assertThat(Files.readString(base.resolve("ReferentialAdminTables.java")).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", ""))
+                .as("ReferentialAdminTables").doesNotContain("MEDECIN");
     }
 
     @Test

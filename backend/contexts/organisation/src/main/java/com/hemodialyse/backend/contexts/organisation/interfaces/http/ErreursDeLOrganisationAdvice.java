@@ -30,6 +30,7 @@ class ErreursDeLOrganisationAdvice {
             Map.entry("SOCIETE_DERNIER_CENTRE",
                     "Une société doit conserver au moins un centre actif : impossible de désactiver ou retirer son dernier centre"),
             Map.entry("SOCIETE_INTROUVABLE", "Société introuvable"),
+            Map.entry("MEDECIN_DEJA_EXISTANT", "Un médecin avec ce nom et ce prénom existe déjà dans ce centre"),
             Map.entry("CENTRE_INTROUVABLE", "Centre introuvable dans cette société"),
             Map.entry("SOCIETE_CODE_DEJA_UTILISE", "Ce code de société est déjà utilisé"),
             Map.entry("CENTRE_CODE_DEJA_UTILISE", "Ce code de centre est déjà utilisé"),

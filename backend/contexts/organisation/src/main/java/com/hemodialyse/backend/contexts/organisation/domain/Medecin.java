@@ -60,8 +60,38 @@ public class Medecin {
         if (specialite != null) this.specialite = specialite;
     }
 
-    /** Désactive le médecin (idempotent) : il n'est plus proposé, mais ses références restent valides. */
+    /** Désactive le médecin (idempotent) : il n'est plus proposé, mais ses références restent valides (D5). */
     public void desactiver() {
         this.actif = false;
+    }
+
+    /** Corrige l'identité et la spécialité (remplacement complet, comme l'administration des référentiels l'a toujours fait). */
+    public void corriger(SaisieDeMedecin saisie) {
+        this.nom = saisie.nom();
+        this.prenom = saisie.prenom();
+        this.specialite = saisie.specialite();
+    }
+
+    /** Un médecin désactivé dont le nom et le prénom sont saisis à nouveau redevient proposé, avec la saisie (D6). */
+    public void reactiver(SaisieDeMedecin saisie) {
+        corriger(saisie);
+        this.actif = true;
+    }
+
+    /** Clé d'unicité : nom et prénom, casse et espaces ignorés, un prénom absent valant vide. */
+    public String cle() {
+        return SaisieDeMedecin.cleDe(nom, prenom);
+    }
+
+    /**
+     * Une seule règle d'unicité par centre (D7) : un nom et un prénom désignent un seul médecin proposé.
+     *
+     * @param autresDuCentre les médecins proposés (actifs) du centre
+     * @throws MedecinDejaExistant si un autre médecin porte déjà ce nom et ce prénom
+     */
+    public void verifierLUnicite(java.util.List<Medecin> autresDuCentre) {
+        String cle = cle();
+        boolean pris = autresDuCentre.stream().anyMatch(m -> !m.id().equals(id) && m.cle().equals(cle));
+        if (pris) throw new MedecinDejaExistant("Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.");
     }
 }

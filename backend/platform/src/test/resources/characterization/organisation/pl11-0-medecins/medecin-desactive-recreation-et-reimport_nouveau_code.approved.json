@@ -1,0 +1,94 @@
+{
+  "01 desactivation" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "02 recreation du meme nom : acceptee (doublon d'identite)" : {
+    "body" : {
+      "id" : "<M>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Karim",
+        "specialite" : "Nouveau"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "03 deux lignes, l'ancienne jamais reactivee" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "specialite" : "Nouveau"
+    } ]
+  },
+  "04 nouvelle tentative : refus car le nouveau est actif" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 desactivation de Ouaret" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 verification d'import du medecin desactive : a creer" : {
+    "body" : {
+      "applied" : false,
+      "created" : 0,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 import reel" : {
+    "body" : {
+      "applied" : true,
+      "created" : 0,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 etat apres reimport" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "specialite" : "Nouveau"
+    }, {
+      "actif" : "true",
+      "nom" : "Ouaret",
+      "prenom" : "Mustapha",
+      "specialite" : "Neph"
+    } ]
+  }
+}

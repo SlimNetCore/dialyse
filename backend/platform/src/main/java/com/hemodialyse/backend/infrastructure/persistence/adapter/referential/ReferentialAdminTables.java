@@ -30,11 +30,8 @@ final class ReferentialAdminTables {
                 List.of(new Usage("gmao_equipements", "salle_id"), new Usage("patients", "salle_id")),
                 List.of("ref.salles", "ref.generateurs")));
 
-        TABLES.put(ReferentialKind.MEDECIN, new Table("medecin",
-                List.of(text("nom", "nom"), text("prenom", "prenom"), text("specialite", "specialite")),
-                List.of(), List.of("t.nom", "t.prenom", "t.specialite"), "t.nom, t.prenom",
-                List.of(new Usage("patients", "medecin_traitant_id"), new Usage("prescriptions_medicales", "medecin_id")),
-                List.of("ref.medecins")));
+        // Médecins : retirés (PL11-3, ADR 0159) ; la table appartient à l'Organisation (GestionDesMedecins) : désactivation d'un
+        // médecin utilisé autorisée (D5), donc plus de comptage d'usage.
 
         // Caisses, agences, centres payeurs : retirés (RF3a, ADR 0126) ; les tables caisse_assurance, agence et centre_payeur
         // appartiennent à patient-couverture (chaîne des payeurs), qui publie aussi leurs descripteurs (PL11-1, ADR 0157).

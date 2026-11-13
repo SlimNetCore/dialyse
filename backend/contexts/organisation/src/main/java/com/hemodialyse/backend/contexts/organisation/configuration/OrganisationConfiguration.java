@@ -101,8 +101,19 @@ public class OrganisationConfiguration {
     }
 
     @Bean
-    public ReferentielsOrganisationUseCases referentielsOrganisationUseCases(MedecinRepository m, MachineRepository ma, ProtocoleRepository p) {
-        return new ReferentielsOrganisationService(m, ma, p, java.util.UUID::randomUUID);
+    public ReferentielsOrganisationUseCases referentielsOrganisationUseCases(MedecinRepository m, MachineRepository ma, ProtocoleRepository p,
+            com.hemodialyse.backend.contexts.organisation.application.GererLesMedecins medecins) {
+        return new ReferentielsOrganisationService(m, ma, p, java.util.UUID::randomUUID, medecins);
+    }
+
+    /**
+     * PL11-3 (ADR 0159) : la gestion des médecins, pour l'administration des référentiels (langage publié) et pour la route
+     * d'Organisation : une seule règle d'unicité, une désactivation sans contrôle d'usage (D5), une réactivation (D6).
+     */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.application.GererLesMedecins gestionDesMedecins(MedecinRepository medecins,
+            com.hemodialyse.backend.contexts.organisation.application.UniteDeTravail unite) {
+        return new com.hemodialyse.backend.contexts.organisation.application.GererLesMedecins(medecins, java.util.UUID::randomUUID, unite);
     }
 
     @Bean

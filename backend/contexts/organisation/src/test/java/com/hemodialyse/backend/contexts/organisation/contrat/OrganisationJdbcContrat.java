@@ -147,6 +147,36 @@ abstract class OrganisationJdbcContrat {
     }
 
     @Test
+    void should_list_all_doctors_of_the_centre_with_the_deactivated_ones_for_reactivation() {
+        MedecinsJdbc medecins = new MedecinsJdbc(jdbc());
+        Medecin desactive = new Medecin(new MedecinId(UUID.randomUUID()), CENTRE_A, "Benali", "Karim", "x");
+        desactive.desactiver();
+        medecins.sauvegarder(desactive);
+        medecins.sauvegarder(new Medecin(new MedecinId(UUID.randomUUID()), CENTRE_A, "Amrani", null, null));
+        medecins.sauvegarder(new Medecin(new MedecinId(UUID.randomUUID()), CENTRE_B, "Autre", "C", "x"));
+
+        assertThat(medecins.listerTousParCentre(CENTRE_A)).extracting(Medecin::nom).containsExactly("Amrani", "Benali");
+        assertThat(medecins.listerTousParCentre(CENTRE_A)).extracting(Medecin::actif).containsExactly(true, false);
+    }
+
+    @Test
+    void should_search_and_page_the_active_doctors_by_name_first_name_or_speciality() {
+        MedecinsJdbc medecins = new MedecinsJdbc(jdbc());
+        medecins.sauvegarder(new Medecin(new MedecinId(UUID.randomUUID()), CENTRE_A, "Zeroual", "Amine", "Nephrologue"));
+        medecins.sauvegarder(new Medecin(new MedecinId(UUID.randomUUID()), CENTRE_A, "Benali", "Karim", "Cardiologue"));
+        Medecin inactif = new Medecin(new MedecinId(UUID.randomUUID()), CENTRE_A, "Benali", "Abdel", null);
+        inactif.desactiver();
+        medecins.sauvegarder(inactif);
+
+        assertThat(medecins.page(CENTRE_A, "BENALI", 0, 10).lignes()).extracting(Medecin::prenom).containsExactly("Karim");
+        assertThat(medecins.page(CENTRE_A, "amine", 0, 10).total()).isEqualTo(1);
+        assertThat(medecins.page(CENTRE_A, "cardio", 0, 10).lignes()).extracting(Medecin::nom).containsExactly("Benali");
+        assertThat(medecins.page(CENTRE_A, null, 1, 1).lignes()).extracting(Medecin::nom).containsExactly("Zeroual");
+        assertThat(medecins.page(CENTRE_A, null, 0, 10).total()).isEqualTo(2);
+        assertThat(medecins.page(CENTRE_B, null, 0, 10).total()).isZero();
+    }
+
+    @Test
     void should_never_delete_a_machine_or_a_protocol_of_another_centre() {
         MachinesJdbc machines = new MachinesJdbc(jdbc());
         ProtocolesJdbc protocoles = new ProtocolesJdbc(jdbc());
