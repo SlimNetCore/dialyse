@@ -24,6 +24,16 @@ public interface MoteurDeRendu {
      */
     Rendu rendreParType(UUID centre, String type, Map<String, Object> donnees, String formatDemande);
 
+    /** PLN-DOC : format du modèle actif du centre pour ce type sans rien écrire ({@code PDF} sans modèle ; modèle désactivé : refus). */
+    default String formatDImpression(UUID centre, String type) {
+        throw new UnsupportedOperationException("Lecture sans écriture non fournie");
+    }
+
+    /** PLN-DOC (KB-PLN-51) : comme {@link #rendreParType} sans provisionner le modèle : sans modèle, gabarit livré en mémoire. */
+    default Rendu rendreParTypeSansProvisionner(UUID centre, String type, Map<String, Object> donnees, String formatDemande) {
+        throw new UnsupportedOperationException("Lecture sans écriture non fournie");
+    }
+
     /** PL9 : comme {@link #rendreParType} pour une société sans centre : gabarit standard du catalogue, identité de la société seule. */
     default Rendu rendreParTypePourLaSociete(UUID societe, String type, Map<String, Object> donnees, String formatDemande) {
         throw new UnsupportedOperationException("Rendu sans centre non fourni");

@@ -283,6 +283,33 @@ class LancementEtSuiviDesOptimisationsCharacterizationIntegrationTest extends Op
         arbre("impression", issues);
     }
 
+    /** PLN-DOC : le format de l'impression suit le modèle du centre (posé à la première impression) ; un modèle désactivé refuse en 422. */
+    @Test
+    void l_impression_du_calendrier_suit_le_format_du_modele_du_centre_et_refuse_un_modele_desactive() throws Exception {
+        unPatientEnAttente();
+        UUID run = calculer("RUN", "PATIENTS", semaine(1, JourSemaine.DIMANCHE), 1);
+        Map<String, Object> issues = new LinkedHashMap<>();
+        var premiere = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get(java.net.URI.create(OPTIMISATIONS + "/" + run + "/impression")).with(adminA())).andReturn().getResponse();
+        issues.put("premiere impression (modele provisionne)", premiere.getStatus());
+        issues.put("modeles du type apres la premiere impression", jdbc.queryForObject(
+                "SELECT COUNT(*) FROM modele_document WHERE center_id = ? AND UPPER(type_document) = 'PLANNING_OPTIMISE'", Integer.class, CENTRE_A));
+        for (String format : new String[]{"EXCEL", "HTML", "CSV"}) {
+            jdbc.update("UPDATE modele_document SET format_impression = ? WHERE center_id = ? AND UPPER(type_document) = 'PLANNING_OPTIMISE'",
+                    format, CENTRE_A);
+            var r = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .get(java.net.URI.create(OPTIMISATIONS + "/" + run + "/impression")).with(adminA())).andReturn().getResponse();
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("statut", r.getStatus());
+            m.put("type", r.getContentType());
+            m.put("en-tete Content-Disposition", String.valueOf(r.getHeader("Content-Disposition")).replace(run.toString(), "<RUN>"));
+            issues.put("format " + format, m);
+        }
+        jdbc.update("UPDATE modele_document SET active = FALSE WHERE center_id = ? AND UPPER(type_document) = 'PLANNING_OPTIMISE'", CENTRE_A);
+        issues.put("modele desactive", statutEtCode(doGet(OPTIMISATIONS + "/" + run + "/impression", adminA())));
+        arbre("impression_selon_le_modele", issues);
+    }
+
     // ------------------------------------------------------------------ suppression
 
     @Test

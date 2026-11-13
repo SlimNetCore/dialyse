@@ -108,7 +108,7 @@ Homonymes : *Absence d'infirmier* (ici) ≠ *Absence de patient* (Absences patie
 | Charge mensuelle | Séances du roulement, remplacements un jour de présence et d'ouverture, jours d'absence ; moyenne du centre | `ChargeDesInfirmiers` | `ChargeInfirmierService` | — | RG-INF-060 | proposed |
 | Ouverture du centre | Jours d'ouverture hebdomadaires moins fériés et fermetures exceptionnelles | `OuvertureDuCentre` | `CalendrierCentre` | — | RG-INF-042 | proposed |
 | Contrôle de la présence | Passage quotidien de 07:15 sur tous les centres actifs ; une alerte par type, centre et jour du centre | `ControlerLaPresence` | `PresenceInfirmierScheduler` | job de présence | RG-INF-046 | proposed |
-| Impression de la présence | Planning de présence d'une semaine au format du modèle du centre (PDF, HTML, EXCEL) ; sans modèle, le modèle livré | `ImprimerLaPresence` | `PresenceInfirmierReportService` | — | RG-INF-061 | proposed |
+| Impression de la présence | Planning de présence d'une semaine au format du modèle du centre (PDF, HTML, EXCEL) ; sans modèle, le modèle livré | `ImprimerLaPresence` (port `ImpressionDeLaPresence`, adaptateur `PresenceImprimeeParDocuments`, PLN-DOC) | `PresenceInfirmierReportService` | — | RG-INF-061 | proposed |
 
 ## Termes ajoutés par la slice P5 (2026-10-27) — statut `proposed`, à valider par les experts métier
 

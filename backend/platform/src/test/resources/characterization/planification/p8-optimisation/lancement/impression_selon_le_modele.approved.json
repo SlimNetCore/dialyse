@@ -1,0 +1,20 @@
+{
+  "format CSV" : {
+    "en-tete Content-Disposition" : "inline; filename=\"planning-propose-<RUN>.pdf\"; filename*=UTF-8''planning-propose-<RUN>.pdf",
+    "statut" : 200,
+    "type" : "application/pdf"
+  },
+  "format EXCEL" : {
+    "en-tete Content-Disposition" : "attachment; filename=\"planning-propose-<RUN>.xlsx\"; filename*=UTF-8''planning-propose-<RUN>.xlsx",
+    "statut" : 200,
+    "type" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "format HTML" : {
+    "en-tete Content-Disposition" : "null",
+    "statut" : 200,
+    "type" : "text/html"
+  },
+  "modele desactive" : "422 DOCUMENT_MODEL_INACTIVE",
+  "modeles du type apres la premiere impression" : 1,
+  "premiere impression (modele provisionne)" : 200
+}

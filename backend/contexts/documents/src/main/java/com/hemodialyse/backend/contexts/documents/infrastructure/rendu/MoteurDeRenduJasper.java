@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -95,6 +96,57 @@ public class MoteurDeRenduJasper implements MoteurDeRendu {
             throw new RenduRefuse("DOCUMENT_GENERATION_FAILED",
                     "Impossible de générer « " + entry.libelle() + " » : " + rootMessage(e));
         }
+    }
+
+    /**
+     * PLN-DOC (KB-PLN-51) : lecture sans écriture. Le modèle actif du centre s'il existe ; un centre sans aucun modèle de ce type (par type
+     * ou par code) utilise le gabarit livré en mémoire ; un modèle présent mais désactivé refuse. Rien n'est provisionné.
+     */
+    @Override
+    public String formatDImpression(UUID centre, String type) {
+        Optional<Map<String, Object>> modele = modeleActifSansProvisionner(centre, entree(type));
+        return modele.isPresent() && modele.get().get("format_impression") != null ? modele.get().get("format_impression").toString() : "PDF";
+    }
+
+    @Override
+    public Rendu rendreParTypeSansProvisionner(UUID centre, String type, Map<String, Object> donnees, String formatDemande) {
+        TypeDeDocumentDeclare entry = entree(type);
+        Optional<Map<String, Object>> modele = modeleActifSansProvisionner(centre, entry);
+        String format = formatDemande != null ? formatDemande
+                : modele.isPresent() && modele.get().get("format_impression") != null ? modele.get().get("format_impression").toString() : "PDF";
+        try {
+            Map<String, Object> parametres = avecIdentite(centre, donnees);
+            if (modele.isEmpty()) {
+                return new Rendu(rendreSansModele(entry.gabaritParDefaut(), parametres, format), format);
+            }
+            UUID modeleId = UUID.fromString(String.valueOf(modele.get().get("id")));
+            String chemin = modele.get().get("chemin_jrxml") == null ? entry.gabaritParDefaut() : modele.get().get("chemin_jrxml").toString();
+            return new Rendu(rendreParModele(modeleId, centre, chemin, parametres, format), format);
+        } catch (Exception e) {
+            throw new RenduRefuse("DOCUMENT_GENERATION_FAILED",
+                    "Impossible de générer « " + entry.libelle() + " » : " + rootMessage(e));
+        }
+    }
+
+    private TypeDeDocumentDeclare entree(String type) {
+        return catalogue.trouver(type).orElseThrow(() -> new RenduRefuse("DOCUMENT_TYPE_UNKNOWN", "Type de document inconnu : " + type));
+    }
+
+    /** Le modèle actif le plus récent ; vide si le centre n'a aucun modèle du type ; refus si tous sont désactivés. */
+    private Optional<Map<String, Object>> modeleActifSansProvisionner(UUID centre, TypeDeDocumentDeclare entry) {
+        List<Map<String, Object>> actifs = jdbc.queryForList(
+                "SELECT id, chemin_jrxml, format_impression FROM modele_document "
+                        + "WHERE center_id = ? AND UPPER(type_document) = ? AND active = TRUE ORDER BY created_at DESC",
+                centre, entry.code());
+        if (!actifs.isEmpty()) return Optional.of(lower(actifs.getFirst()));
+        Integer existants = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM modele_document WHERE center_id = ? AND (UPPER(type_document) = ? OR UPPER(code) = ?)",
+                Integer.class, centre, entry.code(), entry.code());
+        if (existants != null && existants > 0) {
+            throw new RenduRefuse("DOCUMENT_MODEL_INACTIVE", "Le modèle de document « " + entry.libelle()
+                    + " » est désactivé pour ce centre : réactivez-le dans Modèles de documents.");
+        }
+        return Optional.empty();
     }
 
     /**

@@ -515,7 +515,8 @@
   (`GET /api/v1/planning/optimisations/{id}/impression`) : modèle de document « Planning proposé par
   l'optimisation » (`planning_optimise`, §11.1 des règles du dépôt), A4 paysage, une page par semaine, identité de la
   société
-  et du centre, indicateurs avant/après en en-tête. **Isolation par centre** : chaque exécution, historique, calendrier,
+  et du centre, indicateurs avant/après en en-tête ; le rendu passe par le port publié de Documents (PLN-DOC, ADR 0167), le format
+  suit le modèle du centre (`EXCEL` : classeur, `HTML`, sinon PDF en ligne) et un modèle désactivé refuse (422). **Isolation par centre** : chaque exécution, historique, calendrier,
   impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
   (`PLANNING_OPTIMISATION_WORKERS`) est partagé, jamais les données.
 - **RG-PLN-102** — **Suppression d'une exécution** (`DELETE /api/v1/planning/optimisations/{id}`, `ADMIN`) : une

@@ -22,6 +22,16 @@ public class RendreUnDocument {
         return new DocumentRendu(rendu.octets(), sortie.typeMime(), sortie.nomDeFichier(typeDeDocument.trim()));
     }
 
+    public String formatDImpression(UUID centre, String typeDeDocument) {
+        return moteur.formatDImpression(centre, typeDeDocument);
+    }
+
+    public DocumentRendu rendreSansProvisionner(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format) {
+        MoteurDeRendu.Rendu rendu = moteur.rendreParTypeSansProvisionner(centre, typeDeDocument, donnees, format);
+        FormatDeSortie sortie = FormatDeSortie.de(rendu.format());
+        return new DocumentRendu(rendu.octets(), sortie.typeMime(), sortie.nomDeFichier(typeDeDocument.trim()));
+    }
+
     public DocumentRendu rendre(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format) {
         MoteurDeRendu.Rendu rendu = moteur.rendreParType(centre, typeDeDocument, donnees, format);
         FormatDeSortie sortie = FormatDeSortie.de(rendu.format());

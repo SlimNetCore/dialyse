@@ -22,6 +22,16 @@ public class RenduDeDocumentPublie implements RenduDeDocument {
     }
 
     @Override
+    public String formatDImpression(UUID centre, String typeDeDocument) {
+        return rendre.formatDImpression(centre, typeDeDocument);
+    }
+
+    @Override
+    public DocumentRendu rendreSansProvisionner(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format) {
+        return rendre.rendreSansProvisionner(centre, typeDeDocument, donnees, format);
+    }
+
+    @Override
     public DocumentRendu rendre(UUID centre, String typeDeDocument, Map<String, Object> donnees, String format) {
         return rendre.rendre(centre, typeDeDocument, donnees, format);
     }

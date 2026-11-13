@@ -251,7 +251,9 @@ et les
   embarque le PDF en base64) et `EXCEL`, `XLS`, `XLSX` (toujours un classeur `.xlsx`, en pièce jointe) ; tout autre format
   de modèle (`CSV`, `RTF`, inconnu) est refusé en 400 (27/10/2026). Un centre **sans** modèle utilise le modèle livré, sans
   que la lecture le crée (aucune écriture dans `modele_document`) ; un modèle **désactivé** refuse l'impression (422
-  `DOCUMENT_MODEL_INACTIVE`).
+  `DOCUMENT_MODEL_INACTIVE`). Depuis PLN-DOC (13/11/2026, ADR 0167) le rendu passe par le port publié de Documents en
+  option « **lecture sans écriture** » (`formatDImpression`, `rendreSansProvisionner`) : la Planification n'écrit ni ne lit plus la
+  table des modèles ; comportement inchangé (KB-PLN-51 déjà corrigé le 27/10/2026).
 
 ## 10.8 Roulement et remplacements issus de l'optimisation
 
