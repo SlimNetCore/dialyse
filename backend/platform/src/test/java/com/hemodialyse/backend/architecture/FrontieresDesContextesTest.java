@@ -786,6 +786,24 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DonneesMedicalesDeLaReprise")
             .because("l'annulation d'un lot lit et supprime le dossier médical et les analyses par dossier-medical.v1 (ADR 0170, RP2)");
 
+    /**
+     * RP3a (ADR 0171) : {@code RepriseDeLHistoriqueDeCouverture} est le SEUL port, hors de Patient et couverture, qui écrit des attestations
+     * de droits et des prises en charge ; réservé à l'adapter d'import de la reprise de données (l'annulation passe par
+     * {@code AnnulationDeLaReprise}).
+     */
+    @ArchTest
+    static final ArchRule seul_l_import_de_la_reprise_ecrit_la_couverture_historique = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.patientcouverture..")
+            .and().haveNameNotMatching(".*\\.(HistoricalRecordJdbcAdapter|MigrationRollbackJdbcAdapter)(\\$.*)?")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture")
+            .because("seule la reprise de données écrit des attestations et des prises en charge hors de Patient et couverture (ADR 0171, RP3a)");
+
+    @ArchTest
+    static final ArchRule l_import_de_la_reprise_ecrit_la_couverture_historique_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.migration.HistoricalRecordJdbcAdapter")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture")
+            .because("l'import des attestations et des prises en charge passe par patientcouverture.v1 (ADR 0171, RP3a)");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

@@ -75,6 +75,16 @@ class AnnulationDeLaRepriseEnMemoireContratTest extends AnnulationDeLaRepriseCon
         public void supprimerLAssure(UUID centre, String numeroAssurance) {
             if (assureDuCentre.getOrDefault(numeroAssurance, centre).equals(centre)) assures.remove(numeroAssurance);
         }
+
+        @Override
+        public void supprimerUneAttestation(UUID centre, UUID attestation) {
+            if (CENTRE.equals(centre)) attestations.remove(attestation); // le contrat pose ses lignes dans CENTRE
+        }
+
+        @Override
+        public void supprimerUnePriseEnCharge(UUID centre, UUID priseEnCharge) {
+            if (CENTRE.equals(centre)) pecs.remove(priseEnCharge);
+        }
     };
 
     private final Map<String, UUID> assureDuCentre = new HashMap<>();
@@ -118,6 +128,16 @@ class AnnulationDeLaRepriseEnMemoireContratTest extends AnnulationDeLaRepriseCon
     @Override
     protected boolean assureExiste(String numero) {
         return assures.contains(numero);
+    }
+
+    @Override
+    protected boolean attestationExiste(UUID id) {
+        return attestations.containsKey(id);
+    }
+
+    @Override
+    protected boolean priseEnChargeExiste(UUID id) {
+        return pecs.containsKey(id);
     }
 
     @Override

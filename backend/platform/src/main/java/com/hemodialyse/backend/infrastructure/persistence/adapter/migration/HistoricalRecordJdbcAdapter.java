@@ -1,5 +1,8 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture.ReportDUneAttestation;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture.ReportDUnePriseEnCharge;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
@@ -7,6 +10,7 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -28,11 +32,8 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     static final Map<MigrationEntity, Table> TABLES = new EnumMap<>(MigrationEntity.class);
 
     static {
-        TABLES.put(MigrationEntity.ATTESTATIONS, new Table("attestation_droit",
-                Set.of("patientId", "dateDebut", "dateFin"), true, false));
-        TABLES.put(MigrationEntity.PRISES_EN_CHARGE, new Table("prise_en_charge",
-                Set.of("patientId", "dateDebutDemande", "dateFinDemande", "forfaitDemandeId", "statut",
-                        "dateDebutEffectif", "dateFinEffectif", "forfaitEffectifId"), true, false));
+        // Les attestations de droits et les prises en charge ne sont plus décrites ici : Patient et couverture les reprend par son langage
+        // publié (RP3a, ADR 0171), avec les mêmes valeurs, la même date de création et les mêmes requêtes.
         TABLES.put(MigrationEntity.DOSSIERS_MEDICAUX, new Table("dossier_medical_patient",
                 Set.of("patientId", "dateMiseEnDialyse", "nephropathieInitiale", "hepatiteBStatut", "hepatiteCStatut",
                         "observationGlobale", "conclusionMedicale"), true, true));
@@ -54,10 +55,32 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
 
     private final JdbcTemplate jdbc;
     private final SeancesDeLaReprisePubliees seances;
+    /** Attestations de droits et prises en charge : écrites par le langage publié de Patient et couverture (RP3a, ADR 0171). */
+    private final RepriseDeLHistoriqueDeCouverture couverture;
 
-    public HistoricalRecordJdbcAdapter(JdbcTemplate jdbc, SeancesDeLaReprisePubliees seances) {
+    public HistoricalRecordJdbcAdapter(JdbcTemplate jdbc, SeancesDeLaReprisePubliees seances,
+                                       RepriseDeLHistoriqueDeCouverture couverture) {
         this.jdbc = jdbc;
         this.seances = seances;
+        this.couverture = couverture;
+    }
+
+    private static LocalDate date(Map<String, Object> valeurs, String champ) {
+        return (LocalDate) valeurs.get(champ);
+    }
+
+    private static UUID identifiant(Map<String, Object> valeurs, String champ) {
+        return (UUID) valeurs.get(champ);
+    }
+
+    private static ReportDUneAttestation attestation(Map<String, Object> valeurs) {
+        return new ReportDUneAttestation(date(valeurs, "dateDebut"), date(valeurs, "dateFin"));
+    }
+
+    private static ReportDUnePriseEnCharge priseEnCharge(Map<String, Object> valeurs) {
+        return new ReportDUnePriseEnCharge(date(valeurs, "dateDebutDemande"), date(valeurs, "dateFinDemande"),
+                identifiant(valeurs, "forfaitDemandeId"), (String) valeurs.get("statut"), date(valeurs, "dateDebutEffectif"),
+                date(valeurs, "dateFinEffectif"), identifiant(valeurs, "forfaitEffectifId"));
     }
 
     static Table table(MigrationEntity entity) {
@@ -83,6 +106,12 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     @Override
     public Optional<UUID> findExisting(CentreId centerId, MigrationEntity entity, Map<String, Object> key) {
         if (entity == MigrationEntity.SEANCES) return seances.seanceDejaPresente(centerId.valeur(), key);
+        if (entity == MigrationEntity.ATTESTATIONS) {
+            return couverture.attestationDebutee(centerId.valeur(), identifiant(key, "patientId"), date(key, "dateDebut"));
+        }
+        if (entity == MigrationEntity.PRISES_EN_CHARGE) {
+            return couverture.priseEnChargeDemandee(centerId.valeur(), identifiant(key, "patientId"), date(key, "dateDebutDemande"));
+        }
         Table table = table(entity);
         List<Object> params = new ArrayList<>(List.of(centerId.valeur()));
         StringBuilder where = new StringBuilder(" WHERE center_id = ?");
@@ -102,6 +131,12 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     @Override
     public UUID insert(CentreId centerId, MigrationEntity entity, Map<String, Object> values) {
         if (entity == MigrationEntity.SEANCES) return seances.reprendre(centerId.valeur(), values);
+        if (entity == MigrationEntity.ATTESTATIONS) {
+            return couverture.reprendreUneAttestation(centerId.valeur(), identifiant(values, "patientId"), attestation(values));
+        }
+        if (entity == MigrationEntity.PRISES_EN_CHARGE) {
+            return couverture.reprendreUnePriseEnCharge(centerId.valeur(), identifiant(values, "patientId"), priseEnCharge(values));
+        }
         Table table = table(entity);
         UUID id = UUID.randomUUID();
         OffsetDateTime now = OffsetDateTime.now();
@@ -129,6 +164,14 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
     public void update(CentreId centerId, MigrationEntity entity, UUID id, Map<String, Object> values) {
         if (entity == MigrationEntity.SEANCES) {
             seances.modifier(centerId.valeur(), id, values);
+            return;
+        }
+        if (entity == MigrationEntity.ATTESTATIONS) {
+            couverture.completerUneAttestation(centerId.valeur(), id, attestation(values));
+            return;
+        }
+        if (entity == MigrationEntity.PRISES_EN_CHARGE) {
+            couverture.completerUnePriseEnCharge(centerId.valeur(), id, priseEnCharge(values));
             return;
         }
         Table table = table(entity);

@@ -320,6 +320,14 @@ public class PatientCouvertureConfiguration {
                 new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.DonneesDeLaRepriseJdbc(jdbc));
     }
 
+    /** Langage publié {@code RepriseDeLHistoriqueDeCouverture} (RP3a, ADR 0171) : la reprise des attestations de droits et des prises en charge. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture repriseDeLHistoriqueDeCouverture(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.ReprendreLHistoriqueDeCouverture(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDeLaRepriseJdbc(jdbc));
+    }
+
     // ---- transporteurs et catégories de transport (RF1, ADR 0122) : mêmes tables, langage publié patientcouverture.v1
 
     @Bean

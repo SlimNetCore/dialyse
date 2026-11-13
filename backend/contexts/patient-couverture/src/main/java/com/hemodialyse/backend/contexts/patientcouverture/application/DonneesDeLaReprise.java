@@ -29,4 +29,8 @@ public interface DonneesDeLaReprise {
     void supprimerLePatient(UUID centre, UUID patient);
 
     void supprimerLAssure(UUID centre, String numeroAssurance);
+
+    void supprimerUneAttestation(UUID centre, UUID attestation);
+
+    void supprimerUnePriseEnCharge(UUID centre, UUID priseEnCharge);
 }

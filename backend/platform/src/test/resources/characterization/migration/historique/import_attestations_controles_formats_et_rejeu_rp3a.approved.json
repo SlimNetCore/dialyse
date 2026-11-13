@@ -1,0 +1,681 @@
+{
+  "0_anterieure_a_la_periode_reprise" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "OUT_OF_PERIOD",
+        "field" : "dateFin",
+        "message" : "Ligne antérieure à la période reprise (depuis le 30/09/2023) : ignorée.",
+        "params" : {
+          "date" : "30/09/2023"
+        },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "0_date_obligatoire_absente" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "dateFin",
+        "message" : "« Date de fin » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 2,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "dateDebut",
+        "message" : "Doublon : même patient et même date / clé qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : {
+    "correspondances" : [ ]
+  },
+  "0_fin_avant_debut" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateFin",
+        "message" : "La date de fin précède la date de début.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_patient_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « INCONNU » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_patient_vide" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "patient",
+        "message" : "« Patient (identifiant d'origine) » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat_apres_simulations" : {
+    "correspondances" : [ ]
+  },
+  "1_formats_de_date_en_simulation" : {
+    "dateDebut [  01/01/2026  ]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [01-01-2026]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [01.01.2026]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [01/01/2026]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [01/01/26]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « 01/01/26 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "01/01/26"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [1/1/2026]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [2026-01-01]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [2026-1-1]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « 2026-1-1 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "2026-1-1"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [2026-13-01]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « 2026-13-01 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "2026-13-01"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [2026/01/01]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « 2026/01/01 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "2026/01/01"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [20260101]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « 20260101 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "20260101"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [31/02/2026]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « 31/02/2026 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "31/02/2026"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateDebut [abc]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "attestations",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateDebut",
+          "message" : "« Date de début » : « abc » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "abc"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    }
+  },
+  "2_etat" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2025-01-01",
+      "date_fin" : "2025-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-03-01",
+      "date_fin" : "2027-02-28",
+      "patient_id" : "<PATIENT_ZC222>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "2_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 3,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2025-01-01",
+      "date_fin" : "2025-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-03-01",
+      "date_fin" : "2027-02-28",
+      "patient_id" : "<PATIENT_ZC222>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "3_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 3,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2025-01-01",
+      "date_fin" : "2025-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2027-06-30",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2024-01-01",
+      "date_fin" : "2024-12-31",
+      "patient_id" : "<PATIENT_ZC222>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-03-01",
+      "date_fin" : "2027-02-28",
+      "patient_id" : "<PATIENT_ZC222>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "4_rejeu_avec_nouvelle_fin_et_une_nouvelle_ligne" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "5_attestation_de_la_plateforme_au_meme_debut" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "5_etat" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2019-05-01",
+      "date_fin" : "2020-04-30",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2025-01-01",
+      "date_fin" : "2025-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2027-06-30",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2024-01-01",
+      "date_fin" : "2024-12-31",
+      "patient_id" : "<PATIENT_ZC222>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-03-01",
+      "date_fin" : "2027-02-28",
+      "patient_id" : "<PATIENT_ZC222>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "UPDATED"
+    } ]
+  }
+}

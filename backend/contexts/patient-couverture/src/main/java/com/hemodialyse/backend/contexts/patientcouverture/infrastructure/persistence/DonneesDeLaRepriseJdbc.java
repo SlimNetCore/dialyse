@@ -61,4 +61,14 @@ public class DonneesDeLaRepriseJdbc implements DonneesDeLaReprise {
     public void supprimerLAssure(UUID centre, String numeroAssurance) {
         jdbc.update("DELETE FROM assure WHERE numero_assurance = ? AND center_id = ?", numeroAssurance, centre);
     }
+
+    @Override
+    public void supprimerUneAttestation(UUID centre, UUID attestation) {
+        jdbc.update("DELETE FROM attestation_droit WHERE id = ? AND center_id = ?", attestation, centre);
+    }
+
+    @Override
+    public void supprimerUnePriseEnCharge(UUID centre, UUID priseEnCharge) {
+        jdbc.update("DELETE FROM prise_en_charge WHERE id = ? AND center_id = ?", priseEnCharge, centre);
+    }
 }

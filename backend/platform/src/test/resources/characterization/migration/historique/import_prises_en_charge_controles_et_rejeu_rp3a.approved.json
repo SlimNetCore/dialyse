@@ -1,0 +1,661 @@
+{
+  "0_anterieure_a_la_periode_reprise" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "OUT_OF_PERIOD",
+        "field" : "dateFinDemande",
+        "message" : "Ligne antérieure à la période reprise (depuis le 30/09/2023) : ignorée.",
+        "params" : {
+          "date" : "30/09/2023"
+        },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "0_dates_et_forfait_obligatoires_absents" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "dateDebutDemande",
+        "message" : "« Début demandé » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "REQUIRED",
+        "field" : "dateFinDemande",
+        "message" : "« Fin demandée » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "REQUIRED",
+        "field" : "forfaitDemande",
+        "message" : "« Forfait demandé (code) » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "dateDebutDemande",
+        "message" : "Doublon : même patient et même date / clé qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : {
+    "correspondances" : [ ]
+  },
+  "0_fin_demandee_avant_debut" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateFinDemande",
+        "message" : "La date de fin précède la date de début.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_fin_effective_avant_debut" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateFinEffectif",
+        "message" : "La date de fin précède la date de début.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_forfait_d_un_autre_centre" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "forfaitDemande",
+        "message" : "Forfait « HD-B » introuvable : créez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "forfaits",
+          "value" : "HD-B"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_forfait_effectif_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "forfaitEffectif",
+        "message" : "Forfait « XXX » introuvable : créez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "forfaits",
+          "value" : "XXX"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_forfait_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "REFERENCE_NOT_FOUND",
+        "field" : "forfaitDemande",
+        "message" : "Forfait « HD-INCONNU » introuvable : créez-le d'abord (Administration → Référentiels).",
+        "params" : {
+          "target" : "forfaits",
+          "value" : "HD-INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_statut_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "statut",
+        "message" : "« Statut » : la valeur « BIZARRE » n'est pas reconnue — associez-la à une valeur (CREE, VALIDEE, CLOTUREE).",
+        "params" : {
+          "allowed" : "CREE, VALIDEE, CLOTUREE",
+          "source" : "BIZARRE",
+          "value" : "BIZARRE"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat" : {
+    "correspondances" : [ {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-06-30",
+      "date_fin_effectif" : "2026-06-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-07-01",
+      "date_fin_demande" : "2026-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-02-01",
+      "date_fin_demande" : "2026-12-31",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "CLOTUREE"
+    } ]
+  },
+  "1_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 3,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "correspondances" : [ {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-06-30",
+      "date_fin_effectif" : "2026-06-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-07-01",
+      "date_fin_demande" : "2026-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-02-01",
+      "date_fin_demande" : "2026-12-31",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "CLOTUREE"
+    } ]
+  },
+  "2_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "correspondances" : [ {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-09-30",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CLOTUREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-07-01",
+      "date_fin_demande" : "2026-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2025-01-01",
+      "date_debut_effectif" : "2025-01-01",
+      "date_fin_demande" : "2025-12-31",
+      "date_fin_effectif" : "2025-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-02-01",
+      "date_fin_demande" : "2026-12-31",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "CLOTUREE"
+    } ]
+  },
+  "3_rejeu_avec_changement_de_statut_de_forfait_et_de_dates" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat_centre_A" : {
+    "correspondances" : [ {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2024-02-01",
+      "date_debut_effectif" : "2024-02-01",
+      "date_fin_demande" : "2024-12-31",
+      "date_fin_effectif" : "2024-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-09-30",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CLOTUREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-07-01",
+      "date_fin_demande" : "2026-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2025-01-01",
+      "date_debut_effectif" : "2025-01-01",
+      "date_fin_demande" : "2025-12-31",
+      "date_fin_effectif" : "2025-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-02-01",
+      "date_fin_demande" : "2026-12-31",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "CLOTUREE"
+    } ]
+  },
+  "4_etat_centre_B" : {
+    "correspondances" : [ ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2024-02-01",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "4_meme_debut_dans_un_autre_centre" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "prises-en-charge",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "5_etat_final" : {
+    "correspondances" : [ {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2024-02-01",
+      "date_debut_effectif" : "2024-02-01",
+      "date_fin_demande" : "2024-12-31",
+      "date_fin_effectif" : "2024-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-09-30",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CLOTUREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-07-01",
+      "date_fin_demande" : "2026-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "CREE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2025-01-01",
+      "date_debut_effectif" : "2025-01-01",
+      "date_fin_demande" : "2025-12-31",
+      "date_fin_effectif" : "2025-12-31",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-02-01",
+      "date_fin_demande" : "2026-12-31",
+      "date_fin_effectif" : "2026-09-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "CLOTUREE"
+    } ]
+  },
+  "5_roles" : {
+    "INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/prises-en-charge",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/prises-en-charge",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/prises-en-charge",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/prises-en-charge",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "admin B sur le lot de A" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/prises-en-charge",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "0_etat" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2025-01-01",
+      "date_fin" : "2025-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "UPDATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "UPDATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-06-30",
+      "date_fin_effectif" : "2026-06-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "1_annulation_bloquee" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (prise_en_charge)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "1_etat" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2025-01-01",
+      "date_fin" : "2025-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "UPDATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "UPDATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-06-30",
+      "date_fin_effectif" : "2026-06-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "2_annulation_apres_retrait" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : "2023-09-30",
+      "id" : "<LOT>",
+      "libelle" : "Reprise RP3a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "2_etat" : {
+    "correspondances" : [ ]
+  }
+}

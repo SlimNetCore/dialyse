@@ -1,0 +1,239 @@
+{
+  "0_etat_centre_B_avant" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-06-30",
+      "patient_id" : "<PATIENT_B_ZC-B>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-06-30",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ ]
+  },
+  "1_etat_centre_A" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "1_etat_centre_B_intact" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-06-30",
+      "patient_id" : "<PATIENT_B_ZC-B>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-06-30",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ ]
+  },
+  "1_import_au_centre_A" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "attestations",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat_apres_refus" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "2_roles" : {
+    "INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "MEDECIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "MEDECIN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "SECRETAIRE fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "SECRETAIRE fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "SUPERADMIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "SUPERADMIN fichier valide" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    }
+  },
+  "3_autres_centres" : {
+    "admin A vers le centre B (valide)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "admin B sur le lot de A (invalide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "admin B sur le lot de A (valide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/attestations",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "lot inconnu" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<UUID_GENERE_1>/import/attestations",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    }
+  },
+  "3_etat_centre_A" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "3_etat_centre_B" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-06-30",
+      "patient_id" : "<PATIENT_B_ZC-B>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-06-30",
+      "patient_id" : "<PATIENT_ZC111>"
+    } ],
+    "correspondances" : [ ]
+  }
+}

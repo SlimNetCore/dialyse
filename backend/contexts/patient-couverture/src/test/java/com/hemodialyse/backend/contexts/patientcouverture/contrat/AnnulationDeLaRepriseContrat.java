@@ -39,6 +39,37 @@ abstract class AnnulationDeLaRepriseContrat {
 
     protected abstract boolean affectationExiste(UUID id);
 
+    protected abstract boolean attestationExiste(UUID id);
+
+    protected abstract boolean priseEnChargeExiste(UUID id);
+
+    /** RP3a (ADR 0171) : l'annulation supprime les attestations et prises en charge du lot, bornées au centre. */
+    @Test
+    void supprimer_une_attestation_ou_une_prise_en_charge_est_borne_au_centre_et_laisse_les_autres_lignes() {
+        UUID pec = UUID.fromString("00000000-0000-0000-0000-0000000000c2");
+        UUID autrePec = UUID.fromString("00000000-0000-0000-0000-0000000000c3");
+        UUID attestation = UUID.fromString("00000000-0000-0000-0000-0000000000d2");
+        UUID autreAttestation = UUID.fromString("00000000-0000-0000-0000-0000000000d3");
+        patient(CENTRE, P1, null);
+        priseEnCharge(pec, P1);
+        priseEnCharge(autrePec, P1);
+        attestation(attestation, P1);
+        attestation(autreAttestation, P1);
+
+        annulation().supprimerUneAttestation(AUTRE, attestation);
+        annulation().supprimerUnePriseEnCharge(AUTRE, pec);
+        assertThat(attestationExiste(attestation)).isTrue();
+        assertThat(priseEnChargeExiste(pec)).isTrue();
+
+        annulation().supprimerUneAttestation(CENTRE, attestation);
+        annulation().supprimerUnePriseEnCharge(CENTRE, pec);
+        assertThat(attestationExiste(attestation)).isFalse();
+        assertThat(priseEnChargeExiste(pec)).isFalse();
+        assertThat(attestationExiste(autreAttestation)).isTrue();
+        assertThat(priseEnChargeExiste(autrePec)).isTrue();
+        assertThat(patientExiste(P1)).isTrue();
+    }
+
     @Test
     void un_assure_rattache_a_un_patient_qui_n_est_pas_du_lot_est_retenu() {
         assure(CENTRE, "ZA1");

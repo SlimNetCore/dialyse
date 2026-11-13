@@ -52,4 +52,14 @@ public class AnnulerLaReprise implements AnnulationDeLaReprise {
     public void supprimerLAssure(UUID centre, String numeroAssurance) {
         donnees.supprimerLAssure(centre, numeroAssurance);
     }
+
+    @Override
+    public void supprimerUneAttestation(UUID centre, UUID attestation) {
+        donnees.supprimerUneAttestation(centre, attestation);
+    }
+
+    @Override
+    public void supprimerUnePriseEnCharge(UUID centre, UUID priseEnCharge) {
+        donnees.supprimerUnePriseEnCharge(centre, priseEnCharge);
+    }
 }

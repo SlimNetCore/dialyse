@@ -90,6 +90,16 @@ class AnnulationDeLaRepriseJdbcContratTest extends AnnulationDeLaRepriseContrat 
     }
 
     @Override
+    protected boolean attestationExiste(UUID id) {
+        return jdbc.queryForObject("SELECT COUNT(*) FROM attestation_droit WHERE id = ?", Integer.class, id) > 0;
+    }
+
+    @Override
+    protected boolean priseEnChargeExiste(UUID id) {
+        return jdbc.queryForObject("SELECT COUNT(*) FROM prise_en_charge WHERE id = ?", Integer.class, id) > 0;
+    }
+
+    @Override
     protected boolean affectationExiste(UUID id) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM assure_patient WHERE id = ?", Integer.class, id) > 0;
     }

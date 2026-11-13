@@ -92,6 +92,16 @@ Les termes « Attestation de droits » et « Jour du centre » sont définis une
 | Données créées par le lot | Affectations et patients que le lot a créés : ils ne retiennent jamais l'assuré repris | `DonneesCreeesParLeLot` | |
 | Assuré retenu hors du lot | Assuré repris encore rattaché à une affectation ou à un patient du centre que le lot n'a pas créés : il ne peut plus être supprimé | `assureRetenuHorsDuLot` | refus `MIGRATION_CANCEL_BLOCKED` |
 
+## Termes ajoutés par RP3a (2026-11-13, statut `proposed`, ADR 0171)
+
+| Terme métier | Définition | Identifiant du code | Notes |
+|---|---|---|---|
+| Reprise de l'historique de couverture | Écriture, dans leur état final, des attestations de droits et des prises en charge d'un patient repris (aucun circuit de validation, aucune notification) ; l'outil de reprise contrôle le fichier avant d'écrire ; tout est borné au centre ; une valeur absente n'est jamais écrite | `RepriseDeLHistoriqueDeCouverture` (langage publié `patientcouverture.v1`), `ReprendreLHistoriqueDeCouverture`, `CouvertureDeLaReprise` | comportement inchangé |
+| Attestation débutée | Plus ancienne attestation du patient dans le centre qui commence le jour du fichier : la ligne est alors complétée au lieu d'être ajoutée | `attestationDebutee` | clé de rapprochement : patient + début |
+| Prise en charge demandée | Plus ancienne prise en charge du patient dans le centre dont la demande commence le jour du fichier | `priseEnChargeDemandee` | clé de rapprochement : patient + début de la demande |
+| Report d'une attestation / d'une prise en charge | Valeurs du fichier de reprise (dates, statut, forfaits) | `ReportDUneAttestation`, `ReportDUnePriseEnCharge` | |
+| Suppression d'une attestation ou d'une prise en charge du lot | Retrait par l'annulation du lot, borné au centre | `supprimerUneAttestation`, `supprimerUnePriseEnCharge` (`AnnulationDeLaReprise`) | |
+
 ## Termes ajoutés par la reprise PC2 et PC3 (2026-11-03, statut `proposed`, ADR 0077)
 
 | Terme métier | Définition | Identifiant du code | Notes |

@@ -32,4 +32,10 @@ public interface AnnulationDeLaReprise {
 
     /** Supprime l'assuré du centre (sans effet s'il est d'un autre centre). */
     void supprimerLAssure(UUID centre, String numeroAssurance);
+
+    /** Supprime l'attestation de droits reprise par le lot (sans effet si elle est d'un autre centre ; RP3a, ADR 0171). */
+    void supprimerUneAttestation(UUID centre, UUID attestation);
+
+    /** Supprime la prise en charge reprise par le lot (sans effet si elle est d'un autre centre ; RP3a, ADR 0171). */
+    void supprimerUnePriseEnCharge(UUID centre, UUID priseEnCharge);
 }

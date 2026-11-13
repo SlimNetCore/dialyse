@@ -1,0 +1,93 @@
+{
+  "0_etat_centre_A" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC111>"
+    }, {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_ZC222>"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ATTESTATIONS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "PRISES_EN_CHARGE",
+      "operation" : "CREATED"
+    } ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_debut_effectif" : "2026-01-01",
+      "date_fin_demande" : "2026-06-30",
+      "date_fin_effectif" : "2026-06-30",
+      "forfait_demande_id" : "<FORFAIT_HD_CONV>",
+      "forfait_effectif_id" : "<FORFAIT_HD_CONV>",
+      "patient_id" : "<PATIENT_ZC111>",
+      "statut" : "VALIDEE"
+    }, {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "date_fin_demande" : "2026-06-30",
+      "forfait_demande_id" : "<FORFAIT_HD_NUIT>",
+      "patient_id" : "<PATIENT_ZC222>",
+      "statut" : "CREE"
+    } ]
+  },
+  "0_etat_centre_B" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_B_ZC-B>"
+    } ],
+    "correspondances" : [ ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "patient_id" : "<PATIENT_B_ZC-B>",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "1_annulation" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : "2023-09-30",
+      "id" : "<LOT>",
+      "libelle" : "Reprise RP3a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "1_etat_centre_A" : {
+    "correspondances" : [ ]
+  },
+  "1_etat_centre_B_intact" : {
+    "attestation_droit" : [ {
+      "cree_horodate" : true,
+      "date_debut" : "2026-01-01",
+      "date_fin" : "2026-12-31",
+      "patient_id" : "<PATIENT_B_ZC-B>"
+    } ],
+    "correspondances" : [ ],
+    "prise_en_charge" : [ {
+      "cree_horodate" : true,
+      "date_debut_demande" : "2026-01-01",
+      "patient_id" : "<PATIENT_B_ZC-B>",
+      "statut" : "VALIDEE"
+    } ]
+  },
+  "1_patients_restants" : [ ]
+}

@@ -51,8 +51,6 @@ class TableDuPatientCouvertureTest {
             + "échéance : inversion de la propriété de la place, hors périmètre (aucune échéance)";
     private static final String CYCLE = "2026-11-04 : dépendance Maven CIRCULAIRE (contexts-patient-couverture dépend de "
             + "contexts-planification) ; échéance : extraction des interfaces publiées dans un module d'API partagé (le port est prêt)";
-    private static final String HORS_VERROU = "2026-11-05 : écrivain hors module et hors verrou du centre, à lancer hors activité du centre "
-            + "(ADR 0077 point 12, ADR 0078 point 10) ; échéance : reprise de la migration par le module";
     private static final String JOINTURE ="2026-11-04 : jointure avec les tables du contexte consommateur dans un GROUP BY / un tri "
             + "(la découper changerait le résultat) ; échéance : reprise du contexte consommateur";
 
@@ -94,8 +92,8 @@ class TableDuPatientCouvertureTest {
                     + "échéance : lecture publiée du Patient (programmation et situation d'une fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP1 (2026-11-13, ADR 0169), l'annulation passe par AnnulationDeLaReprise.
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java", HORS_VERROU
-                    + " : INSERT construit (« INSERT INTO » + nom de table) sur attestation_droit et prise_en_charge, import de la migration historique",
+            // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3a (2026-11-13, ADR 0171), attestations et prises en charge passent par
+            // RepriseDeLHistoriqueDeCouverture ; le butoir (2027-03-31 / 2027-06-30 des lecteurs de la reprise) n'est pas reporté.
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/HistoriqueDesSeancesJdbc.java",
             "2026-11-08 (déplacée de platform/.../acl/seance/HistoriqueFourniLegacy, SE7f, ADR 0100) : historique des séances (SE1, ADR 0088) : jointure "
                     + "séances-patients avec filtre, tri et pagination en SQL (la découper changerait le résultat), requête reprise mot pour mot ; "
@@ -229,6 +227,21 @@ class TableDuPatientCouvertureTest {
 
         assertThat(JALONS).doesNotContainKey(adapter);
         assertThat(sourcesFautives(backend, racinesHorsDuContexte(backend))).doesNotContain(adapter);
+    }
+
+    /**
+     * RP3a (2026-11-13, ADR 0171) : l'import des attestations et des prises en charge de la reprise passe par le langage publié
+     * {@code RepriseDeLHistoriqueDeCouverture} ; le jalon de {@code HistoricalRecordJdbcAdapter} est SOLDÉ (entrée supprimée, jamais
+     * reportée). Verrou : l'adaptateur ne figure plus dans la liste blanche, ne décrit plus ces tables et utilise le langage publié.
+     */
+    @Test
+    void l_import_de_la_couverture_historique_ne_touche_plus_les_tables_du_patient_couverture() throws IOException {
+        String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java";
+        Path backend = backend();
+
+        assertThat(JALONS).doesNotContainKey(adapter);
+        assertThat(sourcesFautives(backend, racinesHorsDuContexte(backend))).doesNotContain(adapter);
+        assertThat(Files.readString(backend.resolve(adapter))).contains("RepriseDeLHistoriqueDeCouverture");
     }
 
     @Test
