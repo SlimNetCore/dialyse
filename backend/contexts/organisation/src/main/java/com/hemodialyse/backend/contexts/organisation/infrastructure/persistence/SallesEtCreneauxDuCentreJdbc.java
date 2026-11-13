@@ -50,19 +50,19 @@ public class SallesEtCreneauxDuCentreJdbc implements SallesEtCreneauxDuCentre {
 
     @Override
     public List<CreneauDuCentre> creneauxParCode(UUID centre) {
-        return jdbc.query("SELECT id, libelle FROM position_creneau WHERE center_id = ? ORDER BY code",
+        return jdbc.query("SELECT id, libelle FROM position_creneau WHERE center_id = ? AND actif = TRUE ORDER BY code",
                 (rs, i) -> new CreneauDuCentre(rs.getObject("id", UUID.class), rs.getString("libelle")), centre);
     }
 
     @Override
     public boolean contientLeCreneau(UUID centre, UUID creneau) {
-        Long n = jdbc.queryForObject("SELECT COUNT(*) FROM position_creneau WHERE center_id = ? AND id = ?", Long.class, centre, creneau);
+        Long n = jdbc.queryForObject("SELECT COUNT(*) FROM position_creneau WHERE center_id = ? AND id = ? AND actif = TRUE", Long.class, centre, creneau);
         return n != null && n > 0;
     }
 
     @Override
     public int nombreDeCreneaux(UUID centre) {
-        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM position_creneau WHERE center_id = ?", Integer.class, centre);
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM position_creneau WHERE center_id = ? AND actif = TRUE", Integer.class, centre);
         return n == null ? 0 : n;
     }
 }

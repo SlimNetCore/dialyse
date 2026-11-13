@@ -1,0 +1,53 @@
+{
+  "01 creneau de deux patients" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "02 usage compte hors du centre (identifiant seul)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "03 creneau d'une affectation d'infirmier : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "04 creneau d'un mouvement de patient : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 creneau d'une case du calendrier : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 creneau d'une seance : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "07 creneaux restants" : {
+    "lignes" : [ {
+      "code" : "D1",
+      "libelle" : "Avec patient"
+    }, {
+      "code" : "D2",
+      "libelle" : "Patient d'un autre centre"
+    }, {
+      "code" : "D3",
+      "libelle" : "Affectation d'infirmier"
+    }, {
+      "code" : "D4",
+      "libelle" : "Mouvement"
+    }, {
+      "code" : "D5",
+      "libelle" : "Calendrier"
+    }, {
+      "code" : "D6",
+      "libelle" : "Seance"
+    } ]
+  }
+}

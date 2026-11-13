@@ -157,6 +157,8 @@ minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87)
 absences et la répartition par caisse, centre payeur borné au centre de la fiche, tri des caisses départagé par le code (KB-DIR-05, KB-SEA-83, 84),
 statistiques des séances réalisées seulement, volet borné au centre, compte entier dans le PDF (KB-SEA-85) ; KB-SEA-75, 80, 90, 91 clos sans
 changement de comportement.
+PL11-2 (ADR 0158, 2026-11-13) n'ajoute aucune route : `/api/v1/admin/referentials/creneaux` est servi par l'Organisation (`GestionDesCreneaux`), usages comptés par Patient et couverture, Séance et Planification, créneau utilisé désactivé (RG-REF-001).
+
 RF3a (ADR 0126, 2026-11-10) n'ajoute aucune route : `/api/v1/admin/referentials/{caisses,agences,centres-payeurs}` (`ReferentialAdminRestController`, déjà listé)
 délègue la chaîne des payeurs à Patient et couverture par `GestionDesPayeurs` (traducteur `infrastructure/acl/patientcouverture/PayeursParPatientCouverture`) ;
 mêmes URLs, mêmes rôles, mêmes codes et messages ; règles : RG-REF-002, 003, 005 (400 sur corps ou identifiant illisible depuis RF3d, ADR 0129 : KB-RF3-01 et 02 corrigés, étendu à toute l'administration générique).

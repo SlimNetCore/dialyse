@@ -19,11 +19,8 @@ final class ReferentialAdminTables {
         // Forfaits : retirés (RF2, ADR 0124) ; la table appartient à patient-couverture (catalogue de forfaits), les usages
         // (prises en charge, séances, lignes de facture) sont additionnés par ses propriétaires via UsageDuForfait.
 
-        TABLES.put(ReferentialKind.CRENEAU, new Table("position_creneau",
-                List.of(text("code", "code"), text("libelle", "libelle")),
-                List.of(), List.of("t.code", "t.libelle"), "t.code",
-                List.of(new Usage("patients", "position_id")),
-                List.of("ref.positions")));
+        // Créneaux : retirés (PL11-2, ADR 0158) ; les créneaux sont gérés par l'Organisation (GestionDesCreneaux), qui publie leur
+        // descripteur ; les usages sont additionnés par leurs propriétaires via UsageDuCreneau.
 
         TABLES.put(ReferentialKind.SALLE, new Table("salle",
                 List.of(text("code", "code"), text("nom", "nom"), text("isolement", "isolement"),

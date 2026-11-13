@@ -833,4 +833,10 @@ public class PlanificationConfiguration {
             com.hemodialyse.backend.contexts.planification.application.AlerterUnGenerateurIndisponible alerter) {
         return new com.hemodialyse.backend.contexts.planification.interfaces.evenements.GenerateurDevenuIndisponibleEcouteur(alerter);
     }
+
+    /** PL11-2 (ADR 0158) : ce que la Planification retient d'un créneau de l'Organisation (suppression ou désactivation). */
+    @Bean
+    com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau usageDuCreneauParLaPlanification(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.UsageDuCreneauParLaPlanification(jdbc);
+    }
 }

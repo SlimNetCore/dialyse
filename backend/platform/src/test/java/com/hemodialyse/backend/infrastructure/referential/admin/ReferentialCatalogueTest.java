@@ -67,9 +67,13 @@ class ReferentialCatalogueTest {
         };
     }
 
+    private static ReferentialAdminDelegate fournisseurDeLOrganisation() {
+        return delegue(List.of(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU));
+    }
+
     @Test
     void le_catalogue_garde_l_ordre_d_import_puis_l_ordre_d_affichage_historique_de_l_ecran() {
-        ReferentialCatalogue catalogue = new ReferentialCatalogue(List.of(fournisseurDePatientCouverture()));
+        ReferentialCatalogue catalogue = new ReferentialCatalogue(List.of(fournisseurDePatientCouverture(), fournisseurDeLOrganisation()));
 
         assertThat(catalogue.kinds()).extracting(ReferentialKind::slug).containsExactly("forfaits", "creneaux", "salles",
                 "medecins", "caisses", "transporteurs", "agences", "centres-payeurs");
@@ -86,9 +90,9 @@ class ReferentialCatalogueTest {
     }
 
     @Test
-    void sans_fournisseur_la_facade_ne_connait_que_les_trois_referentiels_encore_directs() {
+    void sans_fournisseur_la_facade_ne_connait_que_les_deux_referentiels_encore_directs() {
         assertThat(new ReferentialCatalogue(List.of()).kinds()).extracting(ReferentialKind::slug)
-                .containsExactly("creneaux", "salles", "medecins");
+                .containsExactly("salles", "medecins");
     }
 
     @Test

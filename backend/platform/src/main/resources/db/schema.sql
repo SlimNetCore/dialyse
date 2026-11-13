@@ -350,7 +350,8 @@ CREATE TABLE IF NOT EXISTS position_creneau (
     id UUID PRIMARY KEY,
     center_id UUID NOT NULL,
     code VARCHAR(50) NOT NULL,
-    libelle VARCHAR(255) NOT NULL
+    libelle VARCHAR(255) NOT NULL,
+    actif BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS transporteur (

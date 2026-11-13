@@ -130,7 +130,10 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/model/IdMapping.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/port/MigrationRollbackPort.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/IdMappingJdbcAdapter.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/JasperReportService.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/reporting/JasperReportService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/organisation/CreneauxParOrganisation.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/organisation/ReferentielsDeLOrganisation.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/AutorisationAvantLeCorpsDesReferentiels.java"
   ],
   "seamAllowed": []
 }

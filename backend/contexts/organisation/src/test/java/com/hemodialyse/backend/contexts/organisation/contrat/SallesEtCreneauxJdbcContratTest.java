@@ -43,7 +43,7 @@ class SallesEtCreneauxJdbcContratTest extends SallesEtCreneauxContrat {
         jdbc.execute("CREATE TABLE IF NOT EXISTS salle (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50) NOT NULL, "
                 + "nom VARCHAR(255) NOT NULL, isolement VARCHAR(3) NOT NULL DEFAULT 'NON', capacite INTEGER)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
-                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL)");
+                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL, actif BOOLEAN NOT NULL DEFAULT TRUE)");
         jdbc.update("DELETE FROM salle");
         jdbc.update("DELETE FROM position_creneau");
         jdbc.update("DELETE FROM centers");
@@ -86,6 +86,20 @@ class SallesEtCreneauxJdbcContratTest extends SallesEtCreneauxContrat {
         transaction.executeWithoutResult(statut -> commande().definir(CENTRE, Set.of(S1)));
         assertThat(lectures().salleDuCentre(CENTRE, S1)).get().extracting(s -> s.estSalleDIsolement()).isEqualTo(true);
         assertThat(lectures().salleDuCentre(CENTRE, S2)).get().extracting(s -> s.estSalleDIsolement()).isEqualTo(false);
+    }
+
+    @Test
+    void un_creneau_desactive_n_est_plus_propose_a_la_planification_ni_compte_dans_la_capacite() {
+        UUID propose = UUID.randomUUID();
+        UUID desactive = UUID.randomUUID();
+        creneau(CENTRE, propose, "C1", "Matin");
+        creneau(CENTRE, desactive, "C2", "Midi");
+        jdbc.update("UPDATE position_creneau SET actif = FALSE WHERE id = ?", desactive);
+
+        assertThat(lectures().creneauxParCode(CENTRE)).extracting(c -> c.id()).containsExactly(propose);
+        assertThat(lectures().contientLeCreneau(CENTRE, desactive)).isFalse();
+        assertThat(lectures().contientLeCreneau(CENTRE, propose)).isTrue();
+        assertThat(lectures().nombreDeCreneaux(CENTRE)).isEqualTo(1);
     }
 
     @Test

@@ -15,16 +15,11 @@ import static com.hemodialyse.backend.infrastructure.referential.admin.model.Ref
  * Description d'un référentiel administrable d'un centre : champs, clé naturelle (unicité + mise à jour à l'import) et ordre
  * d'import conseillé (un référentiel cible doit exister avant ceux qui le référencent).
  * <p>
- * PL11-1 (ADR 0157) : la façade ne connaît plus en direct que {@link #CRENEAU}, {@link #SALLE} et {@link #MEDECIN} (migrés par
- * PL11-2 à PL11-4). Les autres descripteurs sont publiés par leur contexte propriétaire et reçus par le SPI
- * {@code ReferentialAdminDelegate#descripteurs()}.
+ * PL11-1 (ADR 0157), PL11-2 (ADR 0158) : la façade ne connaît plus en direct que {@link #SALLE} et {@link #MEDECIN} (migrés par
+ * PL11-3 et PL11-4). Les autres descripteurs (dont les créneaux de l'Organisation) sont publiés par leur contexte propriétaire et
+ * reçus par le SPI {@code ReferentialAdminDelegate#descripteurs()}.
  */
 public final class ReferentialKind {
-
-    public static final ReferentialKind CRENEAU = new ReferentialKind("creneaux", "Créneaux", 1, List.of(
-            text("code", "Code", true, 50, "CR1", "code creneau", "code position"),
-            text("libelle", "Libellé", true, 255, "Matin (06h30 – 10h30)", "horaire", "plage horaire", "creneau")
-    ), List.of("code"));
 
     public static final ReferentialKind SALLE = new ReferentialKind("salles", "Salles", 1, List.of(
             text("code", "Code", true, 50, "S1", "code salle"),
@@ -40,7 +35,7 @@ public final class ReferentialKind {
             text("specialite", "Spécialité", false, 255, "Néphrologue")
     ), List.of("nom", "prenom"));
 
-    private static final List<ReferentialKind> DIRECTS = List.of(CRENEAU, SALLE, MEDECIN);
+    private static final List<ReferentialKind> DIRECTS = List.of(SALLE, MEDECIN);
 
     private final String slug;
     private final String label;

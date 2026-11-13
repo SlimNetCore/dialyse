@@ -66,7 +66,7 @@ class CreneauxPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("creneau d'une seance : supprime sans refus", supprimer("creneaux", cSeance, CENTRE_A, admin()));
 
         traceSql("creneaux restants", ETAT, CENTRE_A);
-        verrouiller("refus-d-usage-par-dependance");
+        verrouiller("refus-d-usage-par-dependance_nouveau_code"); // PL11-2 : D3/D4 (ancien : voir _ecarts-legacy)
     }
 
     @Test

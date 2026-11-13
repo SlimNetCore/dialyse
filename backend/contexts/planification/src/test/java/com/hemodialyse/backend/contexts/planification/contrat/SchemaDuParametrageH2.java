@@ -29,7 +29,7 @@ final class SchemaDuParametrageH2 {
         jdbc.execute("CREATE TABLE IF NOT EXISTS salle (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50) NOT NULL, "
                 + "nom VARCHAR(255) NOT NULL, isolement VARCHAR(3) NOT NULL DEFAULT 'NON', capacite INTEGER)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
-                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL)");
+                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL, actif BOOLEAN NOT NULL DEFAULT TRUE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS infirmier (id UUID PRIMARY KEY, center_id UUID NOT NULL, matricule VARCHAR(50) NOT NULL, "
                 + "nom VARCHAR(255) NOT NULL, prenom VARCHAR(255), telephone VARCHAR(50), qualification VARCHAR(30) NOT NULL, "
                 + "habilite_isolement BOOLEAN NOT NULL DEFAULT FALSE, actif BOOLEAN NOT NULL DEFAULT TRUE, user_id UUID, "

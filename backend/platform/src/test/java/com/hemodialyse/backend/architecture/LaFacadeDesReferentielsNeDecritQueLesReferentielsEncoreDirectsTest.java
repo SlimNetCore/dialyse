@@ -26,18 +26,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
 
-    private static final Set<String> ENCORE_DIRECTS = Set.of("CRENEAU", "SALLE", "MEDECIN");
-    private static final Pattern RETOUR = Pattern.compile("ReferentialKind\\.(TRANSPORTEUR|FORFAIT|CAISSE|AGENCE|CENTRE_PAYEUR)\\b");
+    private static final Set<String> ENCORE_DIRECTS = Set.of("SALLE", "MEDECIN");
+    private static final Pattern RETOUR = Pattern.compile(
+            "ReferentialKind\\.(TRANSPORTEUR|FORFAIT|CAISSE|AGENCE|CENTRE_PAYEUR|CRENEAU)\\b");
 
     @Test
-    void la_facade_ne_connait_en_direct_que_creneau_salle_et_medecin() {
+    void les_creneaux_sont_publies_par_l_organisation_et_distribues_par_la_facade() {
+        assertThat(com.hemodialyse.backend.contexts.organisation.publishedlanguage.DescripteursDeLOrganisation.CRENEAU.slug())
+                .isEqualTo("creneaux");
+        assertThat(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU.slug())
+                .isEqualTo("creneaux");
+    }
+
+    @Test
+    void la_facade_ne_connait_en_direct_que_salle_et_medecin() {
         Set<String> constantes = Arrays.stream(ReferentialKind.class.getDeclaredFields())
                 .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())
                         && f.getType() == ReferentialKind.class)
                 .map(java.lang.reflect.Field::getName).collect(Collectors.toCollection(TreeSet::new));
         assertThat(constantes).isEqualTo(new TreeSet<>(ENCORE_DIRECTS));
         assertThat(ReferentialKind.directs()).extracting(ReferentialKind::slug)
-                .containsExactly("creneaux", "salles", "medecins");
+                .containsExactly("salles", "medecins");
     }
 
     @Test
@@ -53,8 +62,20 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
                 }
             }).map(p -> racine.relativize(p).toString()).sorted().toList();
         }
-        assertThat(retours).as("ReferentialKind.TRANSPORTEUR/FORFAIT/CAISSE/AGENCE/CENTRE_PAYEUR n'existent plus : utiliser "
-                + "ReferentielsDePatientCouverture (ACL) alimenté par les descripteurs publiés").isEmpty();
+        assertThat(retours).as("ReferentialKind.TRANSPORTEUR/FORFAIT/CAISSE/AGENCE/CENTRE_PAYEUR/CRENEAU n'existent plus : utiliser "
+                + "ReferentielsDePatientCouverture / ReferentielsDeLOrganisation (ACL) alimentés par les descripteurs publiés")
+                .isEmpty();
+    }
+
+    /** PL11-2, garde anti-retour : la table des créneaux n'est plus écrite ni lue en SQL dynamique par l'administration générique. */
+    @Test
+    void l_administration_generique_n_ecrit_ni_ne_lit_plus_position_creneau() throws IOException {
+        Path base = Path.of("src", "main", "java", "com", "hemodialyse", "backend", "infrastructure", "persistence", "adapter",
+                "referential").toAbsolutePath().normalize();
+        for (String fichier : List.of("ReferentialAdminTables.java", "ReferentialAdminJdbcAdapter.java")) {
+            String source = Files.readString(base.resolve(fichier));
+            assertThat(source.replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "")).as(fichier).doesNotContain("position_creneau");
+        }
     }
 
     @Test

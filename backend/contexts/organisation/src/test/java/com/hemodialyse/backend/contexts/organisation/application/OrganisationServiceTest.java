@@ -358,5 +358,22 @@ class OrganisationServiceTest {
                 com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId) {
             return List.of();
         }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.organisation.domain.Creneau> listerTousParCentre(
+                com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId) {
+            return List.of();
+        }
+
+        @Override
+        public PageDeCreneaux page(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId, String recherche,
+                                   int page, int taille) {
+            return new PageDeCreneaux(List.of(), 0);
+        }
+
+        @Override
+        public void supprimer(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId,
+                              com.hemodialyse.backend.contexts.organisation.domain.CreneauId id) {
+        }
     }
 }

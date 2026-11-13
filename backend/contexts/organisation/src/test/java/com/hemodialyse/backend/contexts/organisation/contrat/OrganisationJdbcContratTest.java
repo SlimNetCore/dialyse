@@ -29,7 +29,7 @@ class OrganisationJdbcContratTest extends OrganisationJdbcContrat {
         jdbc.execute("CREATE TABLE IF NOT EXISTS salle (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50) NOT NULL, "
                 + "nom VARCHAR(255) NOT NULL, ouverte BOOLEAN NOT NULL DEFAULT TRUE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
-                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL)");
+                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL, actif BOOLEAN NOT NULL DEFAULT TRUE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS medecin (id UUID PRIMARY KEY, center_id UUID NOT NULL, nom VARCHAR(255) NOT NULL, "
                 + "prenom VARCHAR(255), specialite VARCHAR(255), actif BOOLEAN NOT NULL DEFAULT TRUE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS machine (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(100) NOT NULL, "

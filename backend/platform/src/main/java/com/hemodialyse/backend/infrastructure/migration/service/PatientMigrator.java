@@ -289,7 +289,7 @@ public class PatientMigrator implements EntityMigrator {
                     find(row, "centrePayeur", ReferentielsDePatientCouverture.CENTRE_PAYEUR, errors),
                     find(row, "medecinTraitant", ReferentialKind.MEDECIN, errors),
                     salle,
-                    find(row, "creneau", ReferentialKind.CRENEAU, errors),
+                    find(row, "creneau", com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU, errors),
                     generateur,
                     find(row, "transporteurAller", ReferentielsDePatientCouverture.TRANSPORTEUR, errors),
                     find(row, "transporteurRetour", ReferentielsDePatientCouverture.TRANSPORTEUR, errors));

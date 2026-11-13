@@ -466,4 +466,10 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.application.GererLesPayeurs(caisses, agences, centresPayeurs,
                 lecture, lecture, identifiants, unite);
     }
+
+    /** PL11-2 (ADR 0158) : ce que les patients et leurs mouvements retiennent d'un créneau de l'Organisation (suppression ou désactivation). */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau usageDuCreneauParLesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.UsageDuCreneauParLesPatients(jdbc);
+    }
 }

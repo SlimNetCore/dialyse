@@ -731,4 +731,10 @@ public class SeanceConfiguration {
             @Qualifier("renduDuCahierDeLaSeance") com.hemodialyse.backend.contexts.seance.application.RenduDuCahier rendu) {
         return new com.hemodialyse.backend.contexts.seance.application.ImprimerLeCahierDeDialyse(session, patients, seances, rendu, Clock.systemUTC());
     }
+
+    /** PL11-2 (ADR 0158) : ce que les séances retiennent d'un créneau de l'Organisation (suppression ou désactivation). */
+    @Bean
+    com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau usageDuCreneauParLesSeances(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.UsageDuCreneauParLesSeances(jdbc);
+    }
 }

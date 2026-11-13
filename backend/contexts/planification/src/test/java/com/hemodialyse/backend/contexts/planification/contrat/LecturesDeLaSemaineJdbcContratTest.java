@@ -37,7 +37,7 @@ class LecturesDeLaSemaineJdbcContratTest extends LecturesDeLaSemaineJdbcContrat 
                 + "patient_id UUID NOT NULL, date_seance DATE NOT NULL, salle_id UUID NOT NULL, creneau_id UUID NOT NULL, "
                 + "generateur_id UUID NOT NULL, motif VARCHAR(255), cree_le TIMESTAMP NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, center_id UUID NOT NULL, "
-                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL)");
+                + "code VARCHAR(50) NOT NULL, libelle VARCHAR(255) NOT NULL, actif BOOLEAN NOT NULL DEFAULT TRUE)");
         vider();
     }
 

@@ -95,7 +95,9 @@ public class ReferentialAdminRestController {
                 ReferentialEntryResponse::from);
     }
 
-    @PostMapping(value = "/{kind}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    // Pas de `consumes` ici (PL11-2) : il était évalué avant l'autorisation (415 au lieu de 403 pour un rôle non autorisé). Le type
+    // de contenu est refusé (415) par la résolution du corps, après AutorisationAvantLeCorpsDesReferentiels.
+    @PostMapping(value = "/{kind}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReferentialEntryResponse> create(@PathVariable String kind,
                                                            @RequestBody @Valid UpsertReferentialEntryRequest request,
                                                            HttpServletRequest http) {
@@ -114,7 +116,7 @@ public class ReferentialAdminRestController {
                 "Administration des référentiels : " + action + " (" + referential.slug() + ")");
     }
 
-    @PutMapping(value = "/{kind}/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{kind}/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ReferentialEntryResponse update(@PathVariable String kind, @PathVariable UUID id,
                                            @RequestBody @Valid UpsertReferentialEntryRequest request,
                                            HttpServletRequest http) {

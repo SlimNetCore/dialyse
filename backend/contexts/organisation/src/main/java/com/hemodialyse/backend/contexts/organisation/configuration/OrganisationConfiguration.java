@@ -159,6 +159,20 @@ public class OrganisationConfiguration {
         return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.IdentiteImprimeeJdbc(jdbc);
     }
 
+    /**
+     * Langage publié organisation.v1 (PL11-2, ADR 0158) : la gestion des créneaux pour l'administration des référentiels. Les
+     * propriétaires des références à un créneau (Patient et couverture, Séance, Planification) publient leur compte d'usage par un
+     * bean {@link com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau}.
+     */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux gestionDesCreneaux(
+            CreneauRepository creneaux,
+            com.hemodialyse.backend.contexts.organisation.application.UniteDeTravail unite,
+            org.springframework.beans.factory.ObjectProvider<com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau> usages) {
+        return new com.hemodialyse.backend.contexts.organisation.application.GererLesCreneaux(creneaux, java.util.UUID::randomUUID,
+                unite, usages.orderedStream().toList());
+    }
+
     @Bean
     public ReferentielsCommunsUseCases referentielsCommunsUseCases() {
         return new ReferentielsCommunsService();

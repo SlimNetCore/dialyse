@@ -13,7 +13,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 
 - **RG-REF-001** — Référentiels propres à chaque centre, gérés par `ADMIN` (le `SUPERADMIN` est refusé : 403 `ROLE_SCOPE`,
   décision reproduite à confirmer par les métiers avant le 2026-12-15). Une seule URL d'administration ; elle distribue chaque
-  référentiel au contexte qui le publie (descripteurs de Patient et couverture, PL11-1) ; JSON seul (405/406/415 propres), audit
+  référentiel au contexte qui le publie (descripteurs de Patient et couverture, PL11-1 ; créneaux de l'Organisation, PL11-2 :
+  supprimer un créneau déjà utilisé par un patient, une séance, un planning ou une affectation d'infirmier le désactive au lieu de
+  l'effacer, et si l'usage ne peut être vérifié la suppression est refusée ; ressaisir le code d'un créneau désactivé le réactive,
+  à confirmer par les métiers avant le 2026-12-15) ; JSON seul (405/406/415 propres), audit
   avec le type de référentiel et l'identifiant créé : **forfaits** (code,
   libellé, prix), **créneaux** (code, libellé), **salles** (code, nom, isolement oui/non, capacité en
   générateurs), **médecins traitants** (nom, prénom, spécialité), **caisses** (code, nom, type standard/vacancier),
@@ -34,7 +37,8 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   accents et casse tolérés (`INVALID_VALUE`).
 - **RG-REF-005** — **Suppression** : refusée tant que l'élément est utilisé (`REFERENTIAL_IN_USE` : patients, prises en
   charge, séances, équipements, autres référentiels) ; élément inconnu :
-  `REFERENTIAL_NOT_FOUND`. Les salles servent aux patients et équipements ; les forfaits aux PEC et séances ; etc.
+  `REFERENTIAL_NOT_FOUND`. **Créneaux (PL11-2)** : un créneau utilisé est désactivé (204) au lieu d'être supprimé ; si l'usage ne
+  peut être vérifié, la suppression est refusée (`REFERENTIAL_USAGE_UNVERIFIABLE`, 422). Les salles servent aux patients et équipements ; les forfaits aux PEC et séances ; etc.
   Pour un **transporteur**, seuls comptent les patients **du centre du transporteur** (aller ou retour), un patient d'un
   autre centre ne bloque pas la suppression (KB-RF1-03 corrigé, ADR 0123, à confirmer par les métiers avant le
   2026-12-15). Sur les routes d'administration des transporteurs, un corps ou un paramètre illisible répond **400**

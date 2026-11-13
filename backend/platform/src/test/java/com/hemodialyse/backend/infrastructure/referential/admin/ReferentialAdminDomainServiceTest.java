@@ -156,12 +156,12 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void dryRunCountsCreationsAndUpdatesWithoutWriting() {
-        repo.seed(CENTER, ReferentialKind.CRENEAU, Map.of("code", "CR1", "libelle", "Matin"));
+        repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1", "isolement", "NON"));
 
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.CRENEAU, table(
-                List.of("Code", "Libellé"),
-                List.of("CR1", "Matin (06h30 – 10h30)"),
-                List.of("CR2", "Après-midi"),
+        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE, table(
+                List.of("Code", "Nom"),
+                List.of("S1", "Salle un"),
+                List.of("S2", "Salle deux"),
                 List.of("", "")), true);
 
         assertTrue(report.isValid());
@@ -174,17 +174,17 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void importCreatesAndUpdatesByNaturalKey() {
-        UUID existing = repo.seed(CENTER, ReferentialKind.CRENEAU, Map.of("code", "CR1", "libelle", "Matin"));
+        UUID existing = repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1", "isolement", "NON"));
 
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.CRENEAU, table(
-                List.of("code", "libelle"),
-                List.of("cr1", "Matin (06h30 – 10h30)"),
-                List.of("CR2", "Après-midi")), false);
+        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE, table(
+                List.of("code", "nom"),
+                List.of("s1", "Salle un"),
+                List.of("S2", "Salle deux")), false);
 
         assertTrue(report.applied());
-        assertEquals(2, repo.of(CENTER, ReferentialKind.CRENEAU).size());
-        assertEquals("Matin (06h30 – 10h30)", repo.findById(CENTER, ReferentialKind.CRENEAU, existing)
-                .orElseThrow().values().get("libelle"));
+        assertEquals(2, repo.of(CENTER, ReferentialKind.SALLE).size());
+        assertEquals("Salle un", repo.findById(CENTER, ReferentialKind.SALLE, existing)
+                .orElseThrow().values().get("nom"));
     }
 
     @Test

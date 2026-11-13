@@ -47,10 +47,13 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
     private final Transporteurs transporteurs;
     private final ForfaitsDuCentre forfaits;
     private final GestionDesPayeurs payeurs;
+    private final com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux;
 
     public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor, Transporteurs transporteurs,
-                                       ForfaitsDuCentre forfaits, GestionDesPayeurs payeurs) {
+                                       ForfaitsDuCentre forfaits, GestionDesPayeurs payeurs,
+                                       com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux) {
         this.jdbc = jdbc;
+        this.creneaux = creneaux;
         this.payeurs = payeurs;
         this.cacheEvictor = cacheEvictor;
         this.forfaits = forfaits;
@@ -160,6 +163,16 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     @Override
     public List<ReferentialEntry> findAllForMatching(CentreId centerId, ReferentialKind kind) {
+        if (kind.equals(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU)) {
+            // PL11-2 (ADR 0158) : les créneaux appartiennent à l'Organisation ; la reprise des patients les retrouve par leur code
+            // (en attendant l'appariement par lectures publiées, PL11-5).
+            return creneaux.proposes(centerId.valeur()).stream().map(c -> {
+                Map<String, String> valeurs = new LinkedHashMap<>();
+                valeurs.put("code", c.code());
+                valeurs.put("libelle", c.libelle());
+                return new ReferentialEntry(c.id(), valeurs, Map.of());
+            }).toList();
+        }
         if (kind.equals(ReferentielsDePatientCouverture.TRANSPORTEUR)) {
             // RF1 (ADR 0122) : les transporteurs appartiennent à patient-couverture ; la reprise des patients les retrouve par leur nom.
             return transporteurs.lister(centerId.valeur()).stream()
