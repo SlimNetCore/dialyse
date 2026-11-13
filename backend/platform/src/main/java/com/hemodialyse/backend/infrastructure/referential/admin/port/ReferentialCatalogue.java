@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Le catalogue des référentiels que la façade d'administration distribue (PL11-1, ADR 0157) : ceux qu'elle décrit en direct
- * (créneaux, salles, médecins) et ceux que les contextes publient par leurs {@link ReferentialAdminDelegate#descripteurs()}.
+ * Le catalogue des référentiels que la façade d'administration distribue (PL11-1, ADR 0157) : uniquement ceux que les contextes
+ * publient par leurs {@link ReferentialAdminDelegate#descripteurs()} (PL11-6 : la façade n'en décrit plus aucun).
  */
 public final class ReferentialCatalogue {
 
     private final List<ReferentialKind> kinds;
 
     public ReferentialCatalogue(List<ReferentialAdminDelegate> delegues) {
-        List<ReferentialKind> tous = new ArrayList<>(ReferentialKind.directs());
+        List<ReferentialKind> tous = new ArrayList<>();
         delegues.forEach(d -> tous.addAll(d.descripteurs()));
         this.kinds = List.copyOf(tous);
     }

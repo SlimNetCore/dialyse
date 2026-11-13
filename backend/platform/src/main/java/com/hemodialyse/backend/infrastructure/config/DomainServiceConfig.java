@@ -94,8 +94,7 @@ public class DomainServiceConfig {
 
     @Bean
     public com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(
-            com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort repo,
             com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates delegues) {
-        return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(repo, delegues);
+        return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(delegues);
     }
 }

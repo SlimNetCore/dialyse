@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: superseded (ADR 0161, PL11-6 : administration générique retirée)
 date: 2026-11-02
 decision-makers: [utilisateur (à valider), architecte]
 context-scope: organisation

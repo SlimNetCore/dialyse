@@ -54,23 +54,6 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
                 .isEqualTo("salles");
     }
 
-    /**
-     * PL11-4, garde anti-retour : la table {@code salle} n'est plus écrite ni lue en SQL dynamique par l'administration générique (aucune
-     * table, aucune référence {@code SALLE} de la façade dans ses tables, aucun {@code ReferentialKind.SALLE}).
-     */
-    @Test
-    void l_administration_generique_n_ecrit_ni_ne_lit_plus_la_table_salle() throws IOException {
-        Path base = Path.of("src", "main", "java", "com", "hemodialyse", "backend", "infrastructure", "persistence", "adapter",
-                "referential").toAbsolutePath().normalize();
-        Pattern sqlSalle = Pattern.compile("(?i)\\b(from|update|into|join)\\s+salle\\b|\"salle\"|ReferentialKind\\.SALLE|salle_id");
-        for (String fichier : List.of("ReferentialAdminTables.java", "ReferentialAdminJdbcAdapter.java")) {
-            String source = Files.readString(base.resolve(fichier)).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "");
-            assertThat(sqlSalle.matcher(source).find()).as(fichier).isFalse();
-        }
-        assertThat(Files.readString(base.resolve("ReferentialAdminTables.java")).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", ""))
-                .as("ReferentialAdminTables").doesNotContain("SALLE").doesNotContain("salle");
-    }
-
     @Test
     void la_facade_ne_connait_plus_aucun_referentiel_en_direct() {
         Set<String> constantes = Arrays.stream(ReferentialKind.class.getDeclaredFields())
@@ -78,7 +61,6 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
                         && f.getType() == ReferentialKind.class)
                 .map(java.lang.reflect.Field::getName).collect(Collectors.toCollection(TreeSet::new));
         assertThat(constantes).isEqualTo(new TreeSet<>(ENCORE_DIRECTS));
-        assertThat(ReferentialKind.directs()).isEmpty();
     }
 
     @Test
@@ -99,32 +81,13 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
                 .isEmpty();
     }
 
-    /** PL11-2, garde anti-retour : la table des créneaux n'est plus écrite ni lue en SQL dynamique par l'administration générique. */
+    /** PL11-6 : l'adaptateur SQL dynamique et sa table de noms sont retirés ; la règle ArchUnit les interdit durablement. */
     @Test
-    void l_administration_generique_n_ecrit_ni_ne_lit_plus_position_creneau() throws IOException {
+    void l_adaptateur_sql_dynamique_et_ses_tables_sont_retires_des_sources() {
         Path base = Path.of("src", "main", "java", "com", "hemodialyse", "backend", "infrastructure", "persistence", "adapter",
                 "referential").toAbsolutePath().normalize();
-        for (String fichier : List.of("ReferentialAdminTables.java", "ReferentialAdminJdbcAdapter.java")) {
-            String source = Files.readString(base.resolve(fichier));
-            assertThat(source.replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "")).as(fichier).doesNotContain("position_creneau");
-        }
-    }
-
-    /**
-     * PL11-3, garde anti-retour : la table {@code medecin} n'est plus écrite ni lue en SQL dynamique par l'administration générique
-     * (aucune table, aucune référence {@code MEDECIN} de la façade, aucun usage {@code medecin_*} dans ses fichiers de persistance).
-     */
-    @Test
-    void l_administration_generique_n_ecrit_ni_ne_lit_plus_la_table_medecin() throws IOException {
-        Path base = Path.of("src", "main", "java", "com", "hemodialyse", "backend", "infrastructure", "persistence", "adapter",
-                "referential").toAbsolutePath().normalize();
-        Pattern sqlMedecin = Pattern.compile("(?i)\\b(from|update|into|join)\\s+medecin\\b|\"medecin\"|ReferentialKind\\.MEDECIN|medecin_");
-        for (String fichier : List.of("ReferentialAdminTables.java", "ReferentialAdminJdbcAdapter.java")) {
-            String source = Files.readString(base.resolve(fichier)).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "");
-            assertThat(sqlMedecin.matcher(source).find()).as(fichier).isFalse();
-        }
-        assertThat(Files.readString(base.resolve("ReferentialAdminTables.java")).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", ""))
-                .as("ReferentialAdminTables").doesNotContain("MEDECIN");
+        assertThat(base.resolve("ReferentialAdminJdbcAdapter.java")).doesNotExist();
+        assertThat(base.resolve("ReferentialAdminTables.java")).doesNotExist();
     }
 
     @Test

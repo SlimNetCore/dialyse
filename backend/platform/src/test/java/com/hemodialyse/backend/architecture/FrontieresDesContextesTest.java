@@ -876,4 +876,26 @@ class FrontieresDesContextesTest {
             .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.reporting.LogoImageValidator")
             .allowEmptyShould(true)
             .because("l'impression et le papier en-tete sont servis par contexts/documents (DOC1, ADR 0142)");
+
+    /**
+     * PL11-6 (ADR 0161), règle permanente sans date : l'administration générique des référentiels est une façade fine qui distribue aux
+     * contextes propriétaires ; aucune classe ne lit ni n'écrit en SQL dynamique des noms de table issus d'un descripteur, et l'adaptateur
+     * et la table de noms retirés ne doivent pas réapparaître.
+     */
+    @ArchTest
+    static final ArchRule la_facade_des_referentiels_ne_fait_aucun_sql = noClasses()
+            .that().resideInAnyPackage("com.hemodialyse.backend.infrastructure.referential.admin..",
+                    "com.hemodialyse.backend.application.referential..")
+            .should().dependOnClassesThat().resideInAnyPackage("org.springframework.jdbc..", "javax.sql..", "jakarta.persistence..")
+            .allowEmptyShould(true)
+            .because("la façade /admin/referentials distribue aux contextes (PL11-6, ADR 0161) : plus aucun SQL dynamique de plateforme");
+
+    @ArchTest
+    static final ArchRule l_adaptateur_sql_dynamique_des_referentiels_n_existe_plus = noClasses()
+            .should().haveSimpleName("ReferentialAdminJdbcAdapter")
+            .orShould().haveSimpleName("ReferentialAdminTables")
+            .orShould().haveSimpleName("ReferentialAdminRepositoryPort")
+            .orShould().haveSimpleName("ReferentialValuesValidator")
+            .allowEmptyShould(true)
+            .because("l'administration générique ne porte plus de table décrite (PL11-6, ADR 0161)");
 }

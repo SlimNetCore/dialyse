@@ -31,12 +31,10 @@ class ReferentialAdminDelegationTest {
     private final List<String> appels = new ArrayList<>();
     private final List<ReferentialAdminDelegate.Row> lignesRecues = new ArrayList<>();
     private List<ValidationIssue> anomaliesRendues = List.of();
-    private InMemoryReferentialAdminRepository repo;
     private ReferentialAdminDomainService service;
 
     @BeforeEach
     void setUp() {
-        repo = new InMemoryReferentialAdminRepository();
         ReferentialAdminDelegate delegate = new ReferentialAdminDelegate() {
             @Override
             public boolean prend(ReferentialKind kind) {
@@ -78,16 +76,15 @@ class ReferentialAdminDelegationTest {
                 return new Outcome(1, 2, anomaliesRendues, anomaliesRendues.isEmpty() && !dryRun);
             }
         };
-        service = new ReferentialAdminDomainService(repo, delegate);
+        service = new ReferentialAdminDomainService(delegate);
     }
 
     @Test
-    void la_liste_est_normalisee_puis_deleguee_sans_toucher_au_depot_generique() {
+    void la_liste_est_normalisee_puis_deleguee() {
         service.list(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, "  taxi ", -3, 1000);
         service.list(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, " ", 2, 0);
 
         assertThat(appels).containsExactly("list:taxi:0:100", "list:null:2:20");
-        assertThat(repo.writes).isZero();
     }
 
     @Test
@@ -98,7 +95,6 @@ class ReferentialAdminDelegationTest {
         service.delete(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, id);
 
         assertThat(appels).containsExactly("create:Taxi", "update:" + id, "delete:" + id);
-        assertThat(repo.writes).isZero();
     }
 
     @Test
@@ -106,16 +102,51 @@ class ReferentialAdminDelegationTest {
         List<String> vus = new ArrayList<>();
         ReferentialAdminDelegate forfaits = unDelegue(ReferentielsDePatientCouverture.FORFAIT, "forfaits", vus);
         ReferentialAdminDelegate transporteurs = unDelegue(ReferentielsDePatientCouverture.TRANSPORTEUR, "transporteurs", vus);
-        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(repo,
+        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(
                 new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of(transporteurs, forfaits)));
 
         assemble.create(CENTER, ReferentielsDePatientCouverture.FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
         assemble.create(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, Map.of("nom", "Taxi"));
-        assemble.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
         assertThat(vus).containsExactly("forfaits", "transporteurs");
-        assertThat(repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE)).hasSize(1);
-        assertThat(repo.of(CENTER, ReferentielsDePatientCouverture.FORFAIT)).isEmpty();
+    }
+
+    @Test
+    void un_referentiel_que_aucun_delegue_ne_prend_est_refuse() {
+        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(
+                new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of()));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> assemble.create(CENTER,
+                        com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1")))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void un_fichier_sans_en_tete_ou_trop_long_est_refuse_avant_toute_delegation() {
+        ImportReport vide = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR,
+                table(List.of("", " "), List.of()), false);
+        List<List<String>> beaucoup = new ArrayList<>();
+        for (int i = 0; i <= ReferentialAdminDomainService.MAX_IMPORT_ROWS; i++) beaucoup.add(List.of("Taxi " + i));
+        ImportReport trop = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR,
+                table(List.of("nom"), beaucoup), false);
+
+        assertThat(vide.errors()).extracting(ValidationIssue::code).containsExactly("EMPTY_FILE");
+        assertThat(trop.errors()).extracting(ValidationIssue::code).containsExactly("TOO_MANY_ROWS");
+        assertThat(appels).isEmpty();
+    }
+
+    @Test
+    void les_anomalies_deleguees_sont_tronquees_au_maximum_du_compte_rendu() {
+        List<ValidationIssue> nombreuses = new ArrayList<>();
+        for (int i = 0; i < ReferentialAdminDomainService.MAX_REPORTED_ERRORS + 3; i++) {
+            nombreuses.add(new ValidationIssue(i + 2, "nom", "REQUIRED", "Obligatoire.", Map.of()));
+        }
+        anomaliesRendues = nombreuses;
+        ImportReport refuse = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR,
+                table(List.of("nom"), List.of(List.of("Taxi"))), false);
+
+        assertThat(refuse.errors()).hasSize(ReferentialAdminDomainService.MAX_REPORTED_ERRORS + 1);
+        assertThat(refuse.errors().getLast().code()).isEqualTo("TOO_MANY_ERRORS");
     }
 
     @Test
@@ -161,7 +192,7 @@ class ReferentialAdminDelegationTest {
                 return new Outcome(0, 0, List.of(), !dryRun);
             }
         };
-        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(repo,
+        ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(
                 new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of(payeurs)));
         UUID id = UUID.randomUUID();
 
@@ -172,7 +203,6 @@ class ReferentialAdminDelegationTest {
         assemble.importEntries(CENTER, ReferentielsDePatientCouverture.CAISSE, table(List.of("code", "nom"), List.of(List.of("CNAS", "Caisse"))), true);
 
         assertThat(vus).containsExactly("create:caisses", "update:agences", "delete:centres-payeurs", "list:agences", "import:caisses");
-        assertThat(repo.writes).isZero();
     }
 
     private static ReferentialAdminDelegate unDelegue(ReferentialKind pris, String nom, List<String> vus) {
@@ -213,14 +243,6 @@ class ReferentialAdminDelegationTest {
                 throw new UnsupportedOperationException();
             }
         };
-    }
-
-    @Test
-    void les_autres_referentiels_restent_geres_par_le_service_generique() {
-        service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
-
-        assertThat(appels).isEmpty();
-        assertThat(repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE)).hasSize(1);
     }
 
     private static ImportTable table(List<String> headers, List<List<String>> rows) {

@@ -3,8 +3,8 @@
 > Préfixes `RG-REF` (référentiels), `RG-DOC` (modèles de documents), `RG-MIG` (reprise de données). Le système **valide
 chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 > contient une anomalie**, **rapproche** au lieu de dupliquer et **défait** une reprise qui n'a pas encore servi.
-> Sources : `ReferentialKind`, `ReferentialField`, `ReferentialValuesValidator`,
-> `ReferentialAdminDomainService`, `ReferentialAdminTables`, `ReferentialAdminRestController`, `ModeleDocumentCatalog`,
+> Sources : `ReferentialKind`, `ReferentialField`, 
+> `ReferentialAdminDomainService` (façade fine qui distribue aux contextes, ADR 0161), `ReferentialAdminRestController`, `ModeleDocumentCatalog`,
 > `ModeleDocumentProvisioner`, `ModeleDocumentPrinter`,
 > `ModeleDocumentTemplateService`, `JrxmlSecurityValidator`, `DocumentRestController`, `TabularFileReader`,
 > `MigrationDomainService`, `MigrationBatch`, `*Migrator`, `MigrationRestController`.

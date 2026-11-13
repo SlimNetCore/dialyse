@@ -7,10 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField.enumeration;
-import static com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField.integer;
-import static com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField.text;
-
 /**
  * Description d'un référentiel administrable d'un centre : champs, clé naturelle (unicité + mise à jour à l'import) et ordre
  * d'import conseillé (un référentiel cible doit exister avant ceux qui le référencent).
@@ -20,9 +16,6 @@ import static com.hemodialyse.backend.infrastructure.referential.admin.model.Ref
  * {@code ReferentialAdminDelegate#descripteurs()}.
  */
 public final class ReferentialKind {
-
-    /** PL11-4 (ADR 0160) : plus aucun référentiel n'est décrit en direct ; tous sont publiés par leur contexte propriétaire. */
-    private static final List<ReferentialKind> DIRECTS = List.of();
 
     private final String slug;
     private final String label;
@@ -36,16 +29,6 @@ public final class ReferentialKind {
         this.importOrder = importOrder;
         this.fields = List.copyOf(fields);
         this.naturalKey = List.copyOf(naturalKey);
-    }
-
-    /** Les référentiels encore décrits et servis en direct par la façade. */
-    public static List<ReferentialKind> directs() {
-        return DIRECTS;
-    }
-
-    /** Un référentiel servi en direct, par son segment d'URL (casse ignorée). */
-    public static Optional<ReferentialKind> direct(String slug) {
-        return DIRECTS.stream().filter(k -> k.slug.equalsIgnoreCase(slug)).findFirst();
     }
 
     public String slug() {

@@ -369,7 +369,7 @@
   par documentation le 2026-11-10 (lot L5b, ADR 0118)** : le blocage sans borne de centre ni de statut est voulu (prudence : aucune référence
   orpheline), figé par le contrat `should_count_the_seances_imposing_a_package_in_any_centre_and_any_status`.
   *Source :* `SeancesDuCahierPubliees`, `ForfaitsImposesAuxSeancesPublies`, `SeancesDuCahierEtForfaitsImposesJdbc`,
-  `ImprimerLeCahierDeDialyse`, `ReferentialAdminJdbcAdapter`, `ReferentialAdminTables`.
+  `ImprimerLeCahierDeDialyse` (l'ancien contrôle en SQL dynamique, `ReferentialAdminJdbcAdapter`, est retiré : ADR 0161).
 
 - **RG-SEA-068** — **Séances reprises de l'ancien logiciel : écritures publiées** (slice SE7e, ADR 0099 ; aucune route, aucune migration,
   comportement inchangé). L'import des séances d'un lot de reprise et l'annulation du lot passent par le **seul** port publié qui écrit

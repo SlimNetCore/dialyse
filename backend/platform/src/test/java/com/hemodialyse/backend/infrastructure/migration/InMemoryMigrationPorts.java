@@ -13,7 +13,6 @@ import com.hemodialyse.backend.infrastructure.migration.port.MigrationRollbackPo
 import com.hemodialyse.backend.infrastructure.migration.port.ValueMappingPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
-import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 

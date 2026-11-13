@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Orchestration transactionnelle de l'administration des référentiels : un import est « tout ou rien »,
- * et les caches ne sont invalidés qu'après le commit (voir ReferentialCacheEvictor).
+ * Orchestration transactionnelle de l'administration des référentiels : un import est « tout ou rien » ; l'invalidation des caches
+ * est portée par les contextes propriétaires.
  */
 @Service
 public class ReferentialAdminApplicationService {

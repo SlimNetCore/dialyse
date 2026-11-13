@@ -5,13 +5,10 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTabl
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
-import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialValidationException;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegate;
-import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminUseCase;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
-import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.ArrayList;
@@ -23,9 +20,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Domain Service — administration des référentiels d'un centre.
+ * Façade fine de l'administration des référentiels d'un centre (PL11-6, ADR 0161) : elle normalise la pagination, lit le fichier
+ * d'import (en-têtes, bornes, compte rendu) et distribue tout le reste au contexte propriétaire par le SPI
+ * {@link ReferentialAdminDelegate}. Elle ne connaît aucune table, aucune règle de référentiel.
  * <p>
- * Pure domain class (aucune dépendance Spring/JPA — AGENTS.md §3), câblée dans {@code DomainServiceConfig}.
  * La transaction (import tout-ou-rien) est portée par le service applicatif.
  */
 public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
@@ -40,30 +38,13 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
     public static final int MAX_REPORTED_ERRORS = 500;
     private static final int MAX_PAGE_SIZE = 100;
 
-    private final ReferentialAdminRepositoryPort repo;
     private final ReferentialAdminDelegate delegate;
-    private final ReferentialValuesValidator validator = new ReferentialValuesValidator();
-
-    public ReferentialAdminDomainService(ReferentialAdminRepositoryPort repo) {
-        this(repo, null);
-    }
 
     /**
-     * @param delegate gestionnaire des référentiels dont un contexte est propriétaire (RF1 : les transporteurs) ; {@code null} : aucun
+     * @param delegate gestionnaire des référentiels, assemblé depuis les contextes propriétaires
      */
-    public ReferentialAdminDomainService(ReferentialAdminRepositoryPort repo, ReferentialAdminDelegate delegate) {
-        this.repo = repo;
+    public ReferentialAdminDomainService(ReferentialAdminDelegate delegate) {
         this.delegate = delegate;
-    }
-
-    private boolean delegated(ReferentialKind kind) {
-        return delegate != null && delegate.prend(kind);
-    }
-
-    private static String naturalKeyLabel(ReferentialKind kind) {
-        return String.join(" + ", kind.naturalKey().stream()
-                .map(k -> kind.field(k).map(f -> f.label().toLowerCase(java.util.Locale.ROOT)).orElse(k))
-                .toList());
     }
 
     private static ImportReport rejected(ReferentialKind kind, int rows, List<String> missing, List<String> ignored,
@@ -89,41 +70,22 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
         int safePage = Math.max(page, 0);
         int safeSize = size <= 0 ? 20 : Math.min(size, MAX_PAGE_SIZE);
         String term = search == null || search.isBlank() ? null : search.trim();
-        if (delegated(kind)) return delegate.list(centerId, kind, term, safePage, safeSize);
-        return repo.findPaged(centerId, kind, term, safePage, safeSize);
+        return delegate.list(centerId, kind, term, safePage, safeSize);
     }
 
     @Override
     public ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values) {
-        if (delegated(kind)) return delegate.create(centerId, kind, values);
-        Map<String, String> normalized = validateForSave(centerId, kind, values, null);
-        UUID id = repo.insert(centerId, kind, normalized);
-        return repo.findById(centerId, kind, id).orElseThrow();
+        return delegate.create(centerId, kind, values);
     }
 
     @Override
     public ReferentialEntry update(CentreId centerId, ReferentialKind kind, UUID id, Map<String, String> values) {
-        if (delegated(kind)) return delegate.update(centerId, kind, id, values);
-        requireExisting(centerId, kind, id);
-        Map<String, String> normalized = validateForSave(centerId, kind, values, id);
-        repo.update(centerId, kind, id, normalized);
-        return repo.findById(centerId, kind, id).orElseThrow();
+        return delegate.update(centerId, kind, id, values);
     }
 
     @Override
     public void delete(CentreId centerId, ReferentialKind kind, UUID id) {
-        if (delegated(kind)) {
-            delegate.delete(centerId, kind, id);
-            return;
-        }
-        requireExisting(centerId, kind, id);
-        long usages = repo.countUsages(centerId, kind, id);
-        if (usages > 0) {
-            throw new BusinessException("REFERENTIAL_IN_USE",
-                    "Suppression impossible : cet élément de « " + kind.label() + " » est encore utilisé ("
-                            + usages + " référence(s) : patients, prises en charge, séances ou autres référentiels).");
-        }
-        repo.delete(centerId, kind, id);
+        delegate.delete(centerId, kind, id);
     }
 
     @Override
@@ -168,134 +130,16 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
                     Map.of("count", String.valueOf(dataRows.size()), "max", String.valueOf(MAX_IMPORT_ROWS)))));
         }
 
-        if (delegated(kind)) {
-            List<ReferentialAdminDelegate.Row> rows = new ArrayList<>();
-            for (ImportTable.Row row : dataRows) {
-                Map<String, String> raw = new HashMap<>();
-                columns.forEach((index, field) -> raw.put(field.key(), row.cell(index)));
-                rows.add(new ReferentialAdminDelegate.Row(row.lineNumber(), raw));
-            }
-            ReferentialAdminDelegate.Outcome outcome = delegate.importRows(centerId, kind, rows, dryRun);
-            List<ValidationIssue> reported = outcome.errors().isEmpty() ? List.of() : truncate(outcome.errors());
-            return new ImportReport(kind.slug(), dataRows.size(), outcome.toCreate(), outcome.toUpdate(), List.of(), ignored,
-                    reported, outcome.applied());
-        }
-
-        // 2. Lignes → valeurs validées, doublons, création ou mise à jour.
-        Matching matching = new Matching(centerId);
-        Map<String, UUID> existing = matching.index(kind).byKey();
-        Map<String, Integer> seenInFile = new HashMap<>();
-        List<ValidationIssue> errors = new ArrayList<>();
-        List<PlannedWrite> writes = new ArrayList<>();
-
+        // 2. Lignes → contexte propriétaire (contrôle, doublons, écriture tout ou rien).
+        List<ReferentialAdminDelegate.Row> rows = new ArrayList<>();
         for (ImportTable.Row row : dataRows) {
             Map<String, String> raw = new HashMap<>();
             columns.forEach((index, field) -> raw.put(field.key(), row.cell(index)));
-
-            ReferentialValuesValidator.Result result = validator.validate(kind, raw, matching::resolve);
-            if (!result.valid()) {
-                result.issues().forEach(issue -> errors.add(issue.atRow(row.lineNumber())));
-                continue;
-            }
-            String key = kind.naturalKeyOf(result.values());
-            Integer firstRow = seenInFile.putIfAbsent(key, row.lineNumber());
-            if (firstRow != null) {
-                errors.add(new ValidationIssue(row.lineNumber(), kind.naturalKey().getFirst(), "DUPLICATE_IN_FILE",
-                        "Doublon : même " + naturalKeyLabel(kind) + " qu'à la ligne " + firstRow + ".",
-                        Map.of("firstRow", String.valueOf(firstRow))));
-                continue;
-            }
-            writes.add(new PlannedWrite(existing.get(key), result.values()));
+            rows.add(new ReferentialAdminDelegate.Row(row.lineNumber(), raw));
         }
-
-        int toUpdate = (int) writes.stream().filter(w -> w.existingId() != null).count();
-        int toCreate = writes.size() - toUpdate;
-        if (!errors.isEmpty()) {
-            return new ImportReport(kind.slug(), dataRows.size(), toCreate, toUpdate, List.of(), ignored,
-                    truncate(errors), false);
-        }
-        if (dryRun) {
-            return new ImportReport(kind.slug(), dataRows.size(), toCreate, toUpdate, List.of(), ignored, List.of(), false);
-        }
-
-        // 3. Écriture (tout ou rien : la transaction est portée par l'appelant).
-        for (PlannedWrite write : writes) {
-            if (write.existingId() == null) repo.insert(centerId, kind, write.values());
-            else repo.update(centerId, kind, write.existingId(), write.values());
-        }
-        return new ImportReport(kind.slug(), dataRows.size(), toCreate, toUpdate, List.of(), ignored, List.of(), true);
-    }
-
-    private Map<String, String> validateForSave(CentreId centerId, ReferentialKind kind, Map<String, String> values,
-                                                UUID currentId) {
-        Matching matching = new Matching(centerId);
-        ReferentialValuesValidator.Result result = validator.validate(kind, values, matching::resolve);
-        if (!result.valid()) {
-            throw new ReferentialValidationException(result.issues());
-        }
-        UUID owner = matching.index(kind).byKey().get(kind.naturalKeyOf(result.values()));
-        if (owner != null && !owner.equals(currentId)) {
-            throw new ReferentialValidationException(List.of(new ValidationIssue(0, kind.naturalKey().getFirst(),
-                    "ALREADY_EXISTS", "Un élément de « " + kind.label() + " » avec ce " + naturalKeyLabel(kind)
-                    + " existe déjà.", Map.of())));
-        }
-        return result.values();
-    }
-
-    private void requireExisting(CentreId centerId, ReferentialKind kind, UUID id) {
-        if (repo.findById(centerId, kind, id).isEmpty()) {
-            throw new BusinessException("REFERENTIAL_NOT_FOUND",
-                    "Élément introuvable dans « " + kind.label() + " » pour ce centre.");
-        }
-    }
-
-    private record PlannedWrite(UUID existingId, Map<String, String> values) {
-    }
-
-    private record KeyIndex(Map<String, UUID> byKey, java.util.Set<UUID> ids) {
-    }
-
-    /**
-     * Index de clés naturelles chargés à la demande, une fois par opération, pour le centre courant.
-     */
-    private final class Matching {
-        private final CentreId centerId;
-        private final Map<ReferentialKind, KeyIndex> indexes = new HashMap<>();
-
-        private Matching(CentreId centerId) {
-            this.centerId = centerId;
-        }
-
-        KeyIndex index(ReferentialKind kind) {
-            return indexes.computeIfAbsent(kind, k -> {
-                Map<String, UUID> byKey = new HashMap<>();
-                java.util.Set<UUID> ids = new java.util.HashSet<>();
-                for (ReferentialEntry entry : repo.findAllForMatching(centerId, k)) {
-                    byKey.putIfAbsent(k.naturalKeyOf(entry.values()), entry.id());
-                    ids.add(entry.id());
-                }
-                return new KeyIndex(byKey, ids);
-            });
-        }
-
-        /**
-         * Identifiant (depuis un formulaire) ou code (depuis un fichier) → identifiant existant du centre.
-         */
-        Optional<UUID> resolve(String targetSlug, String idOrCode) {
-            Optional<ReferentialKind> found = ReferentialKind.direct(targetSlug);
-            if (found.isEmpty()) return Optional.empty();
-            ReferentialKind target = found.get();
-            KeyIndex index = index(target);
-            try {
-                UUID id = UUID.fromString(idOrCode.trim());
-                if (index.ids().contains(id)) return Optional.of(id);
-            } catch (IllegalArgumentException notAnId) {
-                // valeur saisie : c'est un code
-            }
-            Map<String, String> probe = new HashMap<>();
-            probe.put(target.naturalKey().getFirst(), idOrCode);
-            return Optional.ofNullable(index.byKey().get(target.naturalKeyOf(probe)));
-        }
+        ReferentialAdminDelegate.Outcome outcome = delegate.importRows(centerId, kind, rows, dryRun);
+        List<ValidationIssue> reported = outcome.errors().isEmpty() ? List.of() : truncate(outcome.errors());
+        return new ImportReport(kind.slug(), dataRows.size(), outcome.toCreate(), outcome.toUpdate(), List.of(), ignored,
+                reported, outcome.applied());
     }
 }
-

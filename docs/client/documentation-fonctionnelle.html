@@ -2364,7 +2364,7 @@ qu&#39;une séance <strong>de n&#39;importe quel centre et de n&#39;importe quel
 par documentation le 2026-11-10 (lot L5b, ADR 0118)</strong> : le blocage sans borne de centre ni de statut est voulu (prudence : aucune référence
 orpheline), figé par le contrat <code>should_count_the_seances_imposing_a_package_in_any_centre_and_any_status</code>.
 <em>Source :</em> <code>SeancesDuCahierPubliees</code>, <code>ForfaitsImposesAuxSeancesPublies</code>, <code>SeancesDuCahierEtForfaitsImposesJdbc</code>,
-<code>CahierDialyseReportService</code>, <code>ReferentialAdminJdbcAdapter</code>, <code>ReferentialAdminTables</code>.</p>
+<code>CahierDialyseReportService</code> (l&#39;ancien contrôle en SQL dynamique, <code>ReferentialAdminJdbcAdapter</code>, est retiré : ADR 0161).</p>
 </div></div>
 <div class="rule" id="RG-SEA-068"><div class="rid">RG-SEA-068</div><div class="rtxt"><p><strong>Séances reprises de l&#39;ancien logiciel : écritures publiées</strong> (slice SE7e, ADR 0099 ; aucune route, aucune migration,
 comportement inchangé). L&#39;import des séances d&#39;un lot de reprise et l&#39;annulation du lot passent par le <strong>seul</strong> port publié qui écrit
@@ -4810,8 +4810,8 @@ populations (question ouverte Direction) ; (2) la route <code>/gmao</code> calcu
 <p>Préfixes <code>RG-REF</code> (référentiels), <code>RG-DOC</code> (modèles de documents), <code>RG-MIG</code> (reprise de données). Le système <strong>valide
 chaque ligne</strong> avant d&#39;écrire, <strong>n&#39;enregistre rien tant qu&#39;un fichier
 contient une anomalie</strong>, <strong>rapproche</strong> au lieu de dupliquer et <strong>défait</strong> une reprise qui n&#39;a pas encore servi.
-Sources : <code>ReferentialKind</code>, <code>ReferentialField</code>, <code>ReferentialValuesValidator</code>,
-<code>ReferentialAdminDomainService</code>, <code>ReferentialAdminTables</code>, <code>ReferentialAdminRestController</code>, <code>ModeleDocumentCatalog</code>,
+Sources : <code>ReferentialKind</code>, <code>ReferentialField</code>,
+<code>ReferentialAdminDomainService</code> (façade fine qui distribue aux contextes, ADR 0161), <code>ReferentialAdminRestController</code>, <code>ModeleDocumentCatalog</code>,
 <code>ModeleDocumentProvisioner</code>, <code>ModeleDocumentPrinter</code>,
 <code>ModeleDocumentTemplateService</code>, <code>JrxmlSecurityValidator</code>, <code>DocumentRestController</code>, <code>TabularFileReader</code>,
 <code>MigrationDomainService</code>, <code>MigrationBatch</code>, <code>*Migrator</code>, <code>MigrationRestController</code>.</p>
