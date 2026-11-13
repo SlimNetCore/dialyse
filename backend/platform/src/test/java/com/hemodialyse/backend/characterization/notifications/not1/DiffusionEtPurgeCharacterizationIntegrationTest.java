@@ -42,7 +42,46 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
     @Autowired
     private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.NotificationsDeLaFiche fiches;
     @Autowired
+    private com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDeLOptimisation optimisation;
+    @Autowired
+    private com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement placement;
+    @Autowired
+    private com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDesAbsencesDInfirmiers absences;
+    @Autowired
+    private com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier;
+    @Autowired
     private PurgeNocturneDesNotifications purge;
+
+    /**
+     * Une alerte personnelle à identifiant IMPOSE par le scénario (le contrat de rejeu du journal, indépendant de l'émetteur : les ports de la
+     * Planification déduisent l'identifiant de leurs paramètres, PL13c). Mêmes deux temps que l'émission : journal dans la transaction, temps
+     * réel après son commit.
+     */
+    private void alertePersonnelleAIdentifiantImpose(UUID centre, UUID infirmier, UUID compte, UUID run, UUID id) {
+        var contenu = new java.util.HashMap<String, String>();
+        contenu.put("infirmierId", infirmier.toString());
+        contenu.put("runId", run.toString());
+        contenu.put("targetRoles", "ADMIN");
+        contenu.put("targetUserId", compte.toString());
+        var demande = new com.hemodialyse.backend.contexts.notifications.publishedlanguage.DemandeDeNotification(centre,
+                "INFIRMIER_ROULEMENT_MODIFIE", contenu,
+                new com.hemodialyse.backend.contexts.notifications.publishedlanguage.Audience(List.of("ADMIN"), compte.toString()), id, true);
+        notifier.journaliser(demande).ifPresent(aEnvoyer -> {
+            Runnable tempsReel = () -> notifications.diffuser(aEnvoyer.centre(), aEnvoyer.type(), aEnvoyer.contenu(),
+                    aEnvoyer.identifiant(), aEnvoyer.emisLe());
+            if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+                org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                        new org.springframework.transaction.support.TransactionSynchronization() {
+                            @Override
+                            public void afterCommit() {
+                                tempsReel.run();
+                            }
+                        });
+            } else {
+                tempsReel.run();
+            }
+        });
+    }
     @Autowired
     private PlatformTransactionManager transactions;
     @Autowired
@@ -89,7 +128,7 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
 
     @Test
     void une_alerte_durable_est_diffusee_sur_le_canal_du_centre_et_enregistree_au_journal() throws Exception {
-        notifications.notifyGenerateurIndisponible(CENTRE_A, "A-G1", "HORS_SERVICE", List.of("BENALI Karim"));
+        placement.generateurIndisponible(CENTRE_A, nid(40), "A-G1", "HORS_SERVICE", 1, List.of("BENALI Karim"), LocalDate.of(2026, 11, 2));
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("diffusions", new ArrayList<>(diffusions));
         var reponse = get(null, admin());
@@ -112,7 +151,7 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
     @Test
     void une_alerte_personnelle_ne_diffuse_que_sa_cible_et_garde_son_contenu_au_journal() throws Exception {
         UUID compte = UUID.fromString(USER_INF);
-        notifications.notifyRoulementModifie(CENTRE_A, nid(60), compte, nid(61), nid(62));
+        alertePersonnelleAIdentifiantImpose(CENTRE_A, nid(60), compte, nid(61), nid(62));
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("diffusions", new ArrayList<>(diffusions));
         cas.put("journal du compte infirmier", vue(get(null, qui(CENTRE_A, USER_INF, "INFIRMIER"))));
@@ -124,9 +163,9 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
     @Test
     void rejouer_un_evenement_a_identifiant_deterministe_ne_duplique_ni_le_journal_ni_la_diffusion() throws Exception {
         UUID compte = UUID.fromString(USER_INF);
-        notifications.notifyRoulementModifie(CENTRE_A, nid(60), compte, nid(61), nid(62));
-        notifications.notifyRoulementModifie(CENTRE_A, nid(60), compte, nid(61), nid(62));
-        notifications.notifyRoulementModifie(CENTRE_A, nid(60), compte, nid(61), nid(63));
+        alertePersonnelleAIdentifiantImpose(CENTRE_A, nid(60), compte, nid(61), nid(62));
+        alertePersonnelleAIdentifiantImpose(CENTRE_A, nid(60), compte, nid(61), nid(62));
+        alertePersonnelleAIdentifiantImpose(CENTRE_A, nid(60), compte, nid(61), nid(63));
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("nombre de diffusions pour 3 appels (2 identiques)", diffusions.size());
         cas.put("evenements en base", evenements());
@@ -145,14 +184,14 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
         TransactionTemplate tx = new TransactionTemplate(transactions);
         Map<String, Object> cas = new LinkedHashMap<>();
         tx.executeWithoutResult(s -> {
-            notifications.notifyRoulementModifie(CENTRE_A, nid(60), compte, nid(61), nid(62));
+            alertePersonnelleAIdentifiantImpose(CENTRE_A, nid(60), compte, nid(61), nid(62));
             cas.put("1 dans la transaction, avant commit : diffusions", diffusions.size());
         });
         cas.put("2 apres commit : diffusions", diffusions.size());
         cas.put("3 apres commit : evenements en base", evenements());
         diffusions.clear();
         tx.executeWithoutResult(s -> {
-            notifications.notifyRoulementModifie(CENTRE_A, nid(70), compte, nid(71), nid(72));
+            alertePersonnelleAIdentifiantImpose(CENTRE_A, nid(70), compte, nid(71), nid(72));
             s.setRollbackOnly();
         });
         cas.put("4 apres annulation : diffusions", diffusions.size());
@@ -162,8 +201,8 @@ class DiffusionEtPurgeCharacterizationIntegrationTest extends Not1Support {
 
     @Test
     void l_audience_ciblee_et_le_centre_sont_dans_le_journal_et_non_dans_la_destination() throws Exception {
-        notifications.notifyOptimisationProposition(CENTRE_A, nid(80), "COUVERTURE", "SOUS_EFFECTIF", 3);
-        notifications.notifyAbsenceInfirmierEnregistree(CENTRE_B, "Sara Amrani", LocalDate.of(2026, 9, 28), LocalDate.of(2026, 9, 29), true);
+        optimisation.propositionASignaler(CENTRE_A, nid(80), "COUVERTURE", "SOUS_EFFECTIF", 3);
+        absences.absenceEnregistree(CENTRE_B, "Sara Amrani", LocalDate.of(2026, 9, 28), LocalDate.of(2026, 9, 29), true);
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("diffusions", new ArrayList<>(diffusions));
         cas.put("journal admin A", resume(get(null, admin())));

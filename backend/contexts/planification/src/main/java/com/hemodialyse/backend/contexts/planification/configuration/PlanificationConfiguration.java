@@ -640,6 +640,53 @@ public class PlanificationConfiguration {
         return new com.hemodialyse.backend.contexts.planification.application.ControlerLaCapaciteDeLaSalle(salles);
     }
 
+    // ACL sortantes vers notifications.v1 (PL13c, ADR 0155) : le catalogue des messages est dans la Planification.
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDeLaPresence planificationNotificationsDeLaPresence(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.notifications.NotificationsDeLaPresenceParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDeLaLiberation planificationNotificationsDeLaLiberation(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.notifications.NotificationsDeLaLiberationParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement planificationAlertesDuPlacement(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.notifications.AlertesDuPlacementParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDeLOptimisation planificationAlertesDeLOptimisation(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.notifications.AlertesDeLOptimisationParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
+
+    @Bean
+    NotificationsDesAbsencesDInfirmiers planificationNotificationsDesAbsencesDInfirmiers(
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.NotifierEnDeuxTemps notifier,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.DiffusionEnTempsReel diffusion,
+            com.hemodialyse.backend.contexts.notifications.publishedlanguage.JournalDesNotifications journal) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.notifications.NotificationsDesAbsencesDInfirmiersParLeCentreDeNotifications(
+                notifier, diffusion, journal);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.planification.application.NotificationsDuPlacement planificationNotificationsDuPlacement(
             com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement alertes) {

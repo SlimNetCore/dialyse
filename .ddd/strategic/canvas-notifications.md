@@ -26,7 +26,7 @@ sources: [ADR 0140, .ddd/migration/reviews/inventaire-platform-restant.md (A7, A
 |---|---|---|---|
 | Patient & couverture, Dossier médical | patient créé/modifié, PEC validée/clôturée/supprimée, attestation créée/supprimée, prescription modifiée, observance non respectée | `NotificationsDeLaFicheParLaPlateforme`, `NotificationsDeLAnemieLegacy`, `SignalementDesPrescriptionsLegacy` | PL13a |
 | Séance | séance créée/validée/modifiée/supprimée/déverrouillée, volets médical/paramédical, saisie infirmier, séances à régulariser | `DiffusionsFournieesLegacy`, `RappelsFournisLegacy` (à vérifier) | PL13b |
-| Planification | présence sous/sur-effectif, libération en échec, optimisation, replanification, générateur indisponible, isolement, retour en salle ordinaire, séances déplacées, roulement, remplacement, absences d'infirmier | `NotificationsDeLaPresenceLegacy`, `NotificationsDeLaLiberationLegacy`, `NotificationsDesAbsencesDInfirmiersLegacy`, `AlertesDuPlacementLegacy`, `AlertesDeLOptimisationLegacy` | PL13c |
+| Planification | présence sous/sur-effectif, libération en échec, optimisation, replanification, générateur indisponible, isolement, retour en salle ordinaire, séances déplacées, roulement, remplacement, absences d'infirmier | `NotificationsDeLaPresenceLegacy`, `NotificationsDeLaLiberationLegacy`, `NotificationsDesAbsencesDInfirmiersLegacy`, `AlertesDuPlacementLegacy`, `AlertesDeLOptimisationLegacy` (retirées, ADR 0155) | PL13c (fait) |
 | Absences patients, Stock, GMAO | absences à qualifier, lots proches de la péremption, réforme proposée | `NotificationsDuCentreLegacy`, `SignalementDesSaisiesLegacy`, `NotificationsDesPeremptionsLegacy`, `GmaoEvenementsReformeListener` | PL13d |
 
 ## Slices

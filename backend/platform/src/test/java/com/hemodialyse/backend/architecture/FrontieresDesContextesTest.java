@@ -164,6 +164,39 @@ class FrontieresDesContextesTest {
             .allowEmptyShould(true)
             .because("les notifications de la Séance sont dans contexts/seance (PL13b, ADR 0154)");
 
+    /** PL13c (ADR 0155) : la Planification émet par notifications.v1, sans dépendre de la plateforme ni des internes de Notifications. */
+    @ArchTest
+    static final ArchRule la_planification_ne_depend_ni_de_la_plateforme_ni_des_internes_de_notifications = noClasses()
+            .that().resideInAPackage("com.hemodialyse.backend.contexts.planification..")
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.application..",
+                    "com.hemodialyse.backend.infrastructure.acl..", "com.hemodialyse.backend.contexts.seance..",
+                    "com.hemodialyse.backend.contexts.dossiermedical..", "com.hemodialyse.backend.contexts.patientcouverture..",
+                    "com.hemodialyse.backend.contexts.notifications.domain..", "com.hemodialyse.backend.contexts.notifications.application..",
+                    "com.hemodialyse.backend.contexts.notifications.infrastructure..", "com.hemodialyse.backend.contexts.notifications.interfaces..",
+                    "com.hemodialyse.backend.contexts.notifications.configuration..")
+            .allowEmptyShould(true)
+            .because("la Planification ne parle à Notifications que par notifications.v1 (PL13c, ADR 0155)");
+
+    /** PL13c : les ACL de notifications de la Planification ne reviennent pas dans la plateforme, ni ses méthodes dans NotificationService. */
+    @ArchTest
+    static final ArchRule les_notifications_de_la_planification_ne_passent_plus_par_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.planification.NotificationsDeLaPresenceLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.planification.NotificationsDeLaLiberationLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.planification.NotificationsDesAbsencesDInfirmiersLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.planification.AlertesDuPlacementLegacy")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.acl.planification.AlertesDeLOptimisationLegacy")
+            .allowEmptyShould(true)
+            .because("le catalogue des notifications de la Planification est dans contexts/planification (PL13c, ADR 0155)");
+
+    @ArchTest
+    static final ArchRule les_methodes_de_planification_ne_reviennent_pas_dans_le_service_de_notification = noMethods()
+            .that().areDeclaredIn("com.hemodialyse.backend.application.notification.NotificationService")
+            .should().haveNameMatching("notify(Presence\\w+|LiberationDesPlacesEnEchec|RoulementModifie|RemplacementAffecte|AbsenceInfirmier\\w+"
+                    + "|OptimisationProposition|ReplanificationNocturne|SeancesDeplacees|GenerateurIndisponible|IsolementImpossible"
+                    + "|PatientReplaceIsolement|RetourEnSalleOrdinairePropose)")
+            .allowEmptyShould(true)
+            .because("les notifications de la Planification sont dans contexts/planification (PL13c, ADR 0155)");
+
     @ArchTest
     static final ArchRule seul_contexts_seance_declenche_le_rappel_de_regularisation = noClasses()
             .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.seance..")

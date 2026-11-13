@@ -41,6 +41,12 @@ class NotificationJournalIntegrationTest {
     @Autowired
     private com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.NotificationsDeLaFiche fiches;
     @Autowired
+    private com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDeLOptimisation optimisation;
+    @Autowired
+    private com.hemodialyse.backend.contexts.planification.publishedlanguage.AlertesDuPlacement placement;
+    @Autowired
+    private com.hemodialyse.backend.contexts.planification.publishedlanguage.NotificationsDesAbsencesDInfirmiers absences;
+    @Autowired
     private NotificationsDuJournal journal;
     @Autowired
     private JdbcTemplate jdbc;
@@ -62,7 +68,7 @@ class NotificationJournalIntegrationTest {
     void a_night_proposal_is_found_again_by_the_administrator_who_was_not_connected() {
         UUID run = UUID.randomUUID();
 
-        notifications.notifyOptimisationProposition(CENTRE, run, "COUVERTURE", "SOUS_EFFECTIF", 3);
+        optimisation.propositionASignaler(CENTRE, run, "COUVERTURE", "SOUS_EFFECTIF", 3);
 
         PagedResult<NotificationDuJournal> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total());
@@ -75,7 +81,7 @@ class NotificationJournalIntegrationTest {
 
     @Test
     void the_summary_of_the_night_is_kept_for_the_administrator_even_when_nothing_was_proposed() {
-        notifications.notifyReplanificationNocturne(CENTRE, "RIEN", 0, 0);
+        optimisation.bilanDeLaNuit(CENTRE, "RIEN", 0, 0);
 
         PagedResult<NotificationDuJournal> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total(), "retrouvé à la connexion, personne n'étant connecté la nuit");
@@ -91,9 +97,9 @@ class NotificationJournalIntegrationTest {
         UUID compte = UUID.randomUUID();
         UUID run = UUID.randomUUID();
 
-        notifications.notifyRoulementModifie(CENTRE, infirmier, compte, run, UUID.randomUUID());
-        notifications.notifyRemplacementAffecte(CENTRE, infirmier, compte, LocalDate.of(2026, 11, 2), UUID.randomUUID(),
-                UUID.randomUUID(), run, UUID.randomUUID());
+        optimisation.roulementModifie(CENTRE, infirmier, compte, run);
+        optimisation.remplacementAffecte(CENTRE, infirmier, compte, LocalDate.of(2026, 11, 2), UUID.randomUUID(),
+                UUID.randomUUID(), run);
 
         assertEquals(2, pour(CENTRE, compte.toString(), "INFIRMIER").total(), "l'infirmier concerné, par son compte");
         assertEquals(2, pour(CENTRE, "admin-1", "ADMIN").total(), "l'administration du centre");
@@ -103,7 +109,7 @@ class NotificationJournalIntegrationTest {
 
     @Test
     void a_roster_change_alert_of_a_nurse_without_account_is_for_the_administrator_only() {
-        notifications.notifyRoulementModifie(CENTRE, UUID.randomUUID(), null, UUID.randomUUID(), UUID.randomUUID());
+        optimisation.roulementModifie(CENTRE, UUID.randomUUID(), null, UUID.randomUUID());
 
         assertEquals(1, pour(CENTRE, "admin-1", "ADMIN").total());
         assertEquals(0, pour(CENTRE, "inf-1", "INFIRMIER").total());
@@ -111,7 +117,7 @@ class NotificationJournalIntegrationTest {
 
     @Test
     void an_alert_is_only_visible_to_the_targeted_roles_of_its_own_center() {
-        notifications.notifyOptimisationProposition(CENTRE, UUID.randomUUID(), "PATIENTS", "GAIN", 2);
+        optimisation.propositionASignaler(CENTRE, UUID.randomUUID(), "PATIENTS", "GAIN", 2);
 
         assertEquals(1, pour(CENTRE, "u1", "ADMIN").total());
         assertEquals(0, pour(CENTRE, "u2", "MEDECIN").total(), "alerte réservée à l'administrateur");
@@ -121,8 +127,9 @@ class NotificationJournalIntegrationTest {
 
     @Test
     void reading_is_personal_and_can_be_done_for_one_alert_or_for_all() {
-        notifications.notifyGenerateurIndisponible(CENTRE, "A-G1", "HORS_SERVICE", List.of("BENALI Karim"));
-        notifications.notifyGenerateurIndisponible(CENTRE, "A-G2", "EN_MAINTENANCE", List.of());
+        LocalDate jour = LocalDate.of(2026, 11, 2);
+        placement.generateurIndisponible(CENTRE, UUID.randomUUID(), "A-G1", "HORS_SERVICE", 1, List.of("BENALI Karim"), jour);
+        placement.generateurIndisponible(CENTRE, UUID.randomUUID(), "A-G2", "EN_MAINTENANCE", 0, List.of(), jour);
         List<NotificationDuJournal> alertes = pour(CENTRE, "admin-1", "ADMIN").items();
         assertEquals(2, alertes.size());
         Instant maintenant = Instant.now();
@@ -155,8 +162,8 @@ class NotificationJournalIntegrationTest {
                 "INFIRMIER");
         LocalDate lundi = LocalDate.of(2026, 9, 28);
 
-        notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi, lundi, true);
-        notifications.notifyAbsenceInfirmierEnregistree(CENTRE, "Sara Amrani", lundi.plusDays(7), lundi.plusDays(7), false);
+        absences.absenceEnregistree(CENTRE, "Sara Amrani", lundi, lundi, true);
+        absences.absenceEnregistree(CENTRE, "Sara Amrani", lundi.plusDays(7), lundi.plusDays(7), false);
 
         PagedResult<NotificationDuJournal> admin = pour(CENTRE, "admin-1", "ADMIN");
         assertEquals(1, admin.total(), "l'absence saisie par l'administrateur ne le prévient pas");

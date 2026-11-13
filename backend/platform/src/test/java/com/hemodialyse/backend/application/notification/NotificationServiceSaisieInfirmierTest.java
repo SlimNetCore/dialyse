@@ -65,13 +65,13 @@ class NotificationServiceSaisieInfirmierTest {
     @Test
     void a_durable_alert_is_journaled_and_pushed_with_its_identifier() {
         service.notifyAbsencesAQualifier(centre, 2, 1);
-        service.notifyGenerateurIndisponible(centre, "A-G1", "HORS_SERVICE", java.util.List.of("BENALI Karim"));
+        service.notifyLotsProchesPeremption(centre, 3, 1, LocalDate.of(2026, 10, 4), null);
 
         Map<String, Object> evt = publieTous().get(1);
-        assertEquals("GENERATEUR_INDISPONIBLE", evt.get("type"));
+        assertEquals("LOTS_PROCHES_PEREMPTION", evt.get("type"));
         verify(journal).enregistrer(org.mockito.ArgumentMatchers.argThat((Notification n) ->
                 n.id().valeur().equals(UUID.fromString((String) evt.get("id"))) && n.centre().valeur().equals(centre)
-                        && n.type().valeur().equals("GENERATEUR_INDISPONIBLE")));
+                        && n.type().valeur().equals("LOTS_PROCHES_PEREMPTION")));
     }
 
     @Test
@@ -86,10 +86,10 @@ class NotificationServiceSaisieInfirmierTest {
     void a_journal_failure_never_blocks_the_real_time_alert() {
         doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(Notification.class));
 
-        service.notifyGenerateurIndisponible(centre, "A-G1", "HORS_SERVICE", java.util.List.of());
+        service.notifyAbsencesAQualifier(centre, 2, 1);
 
         Map<String, Object> evt = publieTous().get(0);
-        assertEquals("GENERATEUR_INDISPONIBLE", evt.get("type"));
+        assertEquals("ABSENCES_A_QUALIFIER", evt.get("type"));
         assertNull(evt.get("id"));
     }
 
