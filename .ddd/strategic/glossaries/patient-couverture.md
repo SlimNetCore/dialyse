@@ -84,6 +84,14 @@ Les termes « Attestation de droits » et « Jour du centre » sont définis une
 | Délai d'échéance | Jours, à partir du jour du centre, qui fixent le seuil d'alerte (30 par défaut, zéro admis, négatif refusé) | `DelaiDEcheance` (champ `expirationDays`) | PL3 | proposed |
 | PEC à échéance | PEC validée dont la fin demandée est entre le jour du centre et le seuil, bornes incluses ; les échues sont exclues | compteur `pecExpiring` | corrigé le 2026-11-11, à confirmer avec les métiers avant le 2026-12-15 (ADR 0138) | proposed |
 
+## Termes ajoutés par RP1 (2026-11-13, statut `proposed`, ADR 0169)
+
+| Terme métier | Définition | Identifiant du code | Notes |
+|---|---|---|---|
+| Annulation de la reprise | Suppression par Patient et couverture des patients, assurés et affectations qu'un lot de reprise a créés, bornée au centre ; l'appelant (outil de reprise) décide de l'ordre et du compte rendu des refus | `AnnulationDeLaReprise` (langage publié `patientcouverture.v1`), `AnnulerLaReprise` | comportement inchangé ; KB-S6a-8/9 à confirmer métiers/DPO <= 2026-12-15 |
+| Données créées par le lot | Affectations et patients que le lot a créés : ils ne retiennent jamais l'assuré repris | `DonneesCreeesParLeLot` | |
+| Assuré retenu hors du lot | Assuré repris encore rattaché à une affectation ou à un patient du centre que le lot n'a pas créés : il ne peut plus être supprimé | `assureRetenuHorsDuLot` | refus `MIGRATION_CANCEL_BLOCKED` |
+
 ## Termes ajoutés par la reprise PC2 et PC3 (2026-11-03, statut `proposed`, ADR 0077)
 
 | Terme métier | Définition | Identifiant du code | Notes |

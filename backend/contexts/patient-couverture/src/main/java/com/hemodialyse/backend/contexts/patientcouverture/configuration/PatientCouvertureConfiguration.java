@@ -313,6 +313,13 @@ public class PatientCouvertureConfiguration {
                 new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PatientsDeLaRepriseJdbc(jdbc));
     }
 
+    /** Langage publié {@code AnnulationDeLaReprise} (RP1, ADR 0169) : l'annulation d'un lot de reprise supprime patients, assurés et affectations. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.AnnulationDeLaReprise annulationDeLaReprise(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.application.AnnulerLaReprise(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.DonneesDeLaRepriseJdbc(jdbc));
+    }
+
     // ---- transporteurs et catégories de transport (RF1, ADR 0122) : mêmes tables, langage publié patientcouverture.v1
 
     @Bean

@@ -1,0 +1,121 @@
+{
+  "a_attestation_hors_lot" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (attestation_droit)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "b_seance_du_patient" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (seances)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "c_dossier_medical" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (dossier_medical_patient)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "d_etat" : {
+    "affectations" : [ {
+      "assure" : "ZP1",
+      "date_affectation" : "<HORODATAGE>",
+      "date_debut_affectation" : "2019-01-02",
+      "is_primary" : true,
+      "patient" : "ZP111"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP1",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZP1"
+    }, {
+      "entity" : "PATIENTS",
+      "legacy_id" : "P1",
+      "operation" : "CREATED",
+      "target_id" : "<PATIENT_ZP111>"
+    } ],
+    "patients" : [ {
+      "assure_numero_assurance" : "ZP1",
+      "code_patient" : "<CODE_PATIENT_GENERE>",
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2019-01-02",
+      "date_naissance" : "1962-03-15",
+      "etat_patient" : "PERMANENT",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZP111",
+      "prenom" : "Karim",
+      "qualite_assure" : "ENFANT",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "d_prise_en_charge_seance_et_dossier" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (prise_en_charge)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "e_seance_et_dossier" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (seances)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "f_dossier_seul" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (dossier_medical_patient)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "g_annulation_une_fois_le_patient_libre" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "g_etat" : { },
+  "g_lots" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "ANNULE"
+  } ]
+}

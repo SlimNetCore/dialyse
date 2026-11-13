@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.AnnulationDeLaReprise;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
@@ -50,8 +51,12 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     /** Assurés repris : l'état d'origine d'un assuré rapproché est mémorisé et restauré par Patient et couverture (KB-S6a-2). */
     private final RepriseDesAssures assures;
 
+    /** Patients, assurés et affectations créés par le lot : supprimés et contrôlés par le langage publié de Patient et couverture (RP1, ADR 0169). */
+    private final AnnulationDeLaReprise annulation;
+
     public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances,
-                                        RepriseDesAssures assures) {
+                                        RepriseDesAssures assures, AnnulationDeLaReprise annulation) {
+        this.annulation = annulation;
         this.assures = assures;
         this.reprise = reprise;
         this.jdbc = jdbc;
@@ -91,8 +96,11 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     for (String table : PATIENT_DATA) {
                         Set<String> ownRows = createdByTable.getOrDefault(table, Set.of());
                         // les factures sont celles de la Facturation, les séances celles de la Séance : lues par leur langage publié
+                        // prises en charge et attestations : langage publié de Patient et couverture (RP1, ADR 0169)
                         List<String> rows = "factures".equals(table) ? reprise.facturesDuPatient(patientId)
                                 : SeancesDeLaReprisePubliees.NATURE.equals(table) ? ids(() -> seances.seancesDuPatient(patientId))
+                                : "prise_en_charge".equals(table) ? ids(() -> uuids(annulation.prisesEnChargeDuPatient(patientId)))
+                                : "attestation_droit".equals(table) ? ids(() -> uuids(annulation.attestationsDuPatient(patientId)))
                                 : ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId);
                         boolean usedElsewhere = rows.stream().anyMatch(id -> !ownRows.contains(id));
                         if (usedElsewhere) {
@@ -102,16 +110,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     }
                 }
                 case ASSURES -> {
-                    long links = jdbc.queryForList("SELECT CAST(id AS VARCHAR(36)) AS id, CAST(patient_id AS VARCHAR(36)) AS patient_id "
-                                    + "FROM assure_patient WHERE center_id = ? AND numero_assurance = ?", centerId.valeur(), m.targetId())
-                            .stream()
-                            .filter(row -> !createdAffectations.contains(String.valueOf(row.get("id")))
-                                    && !createdPatients.contains(String.valueOf(row.get("patient_id"))))
-                            .count();
-                    long patients = jdbc.queryForList("SELECT CAST(id AS VARCHAR(36)) FROM patients WHERE center_id = ? "
-                                    + "AND assure_numero_assurance = ?", String.class, centerId.valeur(), m.targetId())
-                            .stream().filter(id -> !createdPatients.contains(id)).count();
-                    if (links + patients > 0)
+                    if (annulation.assureRetenuHorsDuLot(centerId.valeur(), m.targetId(), createdAffectations, createdPatients))
                         blockers.add("assuré « " + m.targetId() + " » (rattaché à un patient existant)");
                 }
                 case SEANCES -> {
@@ -142,15 +141,9 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
         UUID center = centerId.valeur();
         for (IdMapping m : created) {
             switch (m.entity()) {
-                case AFFECTATIONS -> jdbc.update("DELETE FROM assure_patient WHERE id = ? AND center_id = ?",
-                        UUID.fromString(m.targetId()), center);
-                case PATIENTS -> {
-                    UUID patientId = UUID.fromString(m.targetId());
-                    jdbc.update("DELETE FROM assure_patient WHERE patient_id = ? AND center_id = ?", patientId, center);
-                    jdbc.update("DELETE FROM patients WHERE id = ? AND center_id = ?", patientId, center);
-                }
-                case ASSURES ->
-                        jdbc.update("DELETE FROM assure WHERE numero_assurance = ? AND center_id = ?", m.targetId(), center);
+                case AFFECTATIONS -> annulation.supprimerLAffectation(center, UUID.fromString(m.targetId()));
+                case PATIENTS -> annulation.supprimerLePatient(center, UUID.fromString(m.targetId()));
+                case ASSURES -> annulation.supprimerLAssure(center, m.targetId());
                 case SOLDES_OUVERTURE -> reprise.supprimer(center, UUID.fromString(m.targetId()));
                 case SEANCES -> seances.retirer(center, UUID.fromString(m.targetId()));
                 default -> jdbc.update("DELETE FROM " + HistoricalRecordJdbcAdapter.table(m.entity()).name()
@@ -166,6 +159,10 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 assures.restaurer(centerId.valeur(), m.targetId(), m.etatOrigine());
             }
         }
+    }
+
+    private static List<String> uuids(List<UUID> identifiants) {
+        return identifiants.stream().map(UUID::toString).toList();
     }
 
     private List<String> ids(String sql, Object... args) {

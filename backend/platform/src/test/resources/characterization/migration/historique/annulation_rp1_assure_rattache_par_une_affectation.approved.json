@@ -1,0 +1,79 @@
+{
+  "a_assure_rattache_par_une_affectation_hors_lot" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — assuré « ZL1 » (rattaché à un patient existant)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "a_etat" : {
+    "affectations" : [ {
+      "assure" : "ZL1",
+      "date_affectation" : "<HORODATAGE>",
+      "is_primary" : true,
+      "patient" : "ZL-EXT"
+    } ],
+    "assures" : [ {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "BENALI",
+      "numero_assurance" : "ZL1",
+      "prenom" : "Ahmed",
+      "sexe" : "M"
+    }, {
+      "created_at" : "<HORODATAGE>",
+      "nom" : "KACI",
+      "numero_assurance" : "ZL2",
+      "prenom" : "Samir",
+      "sexe" : "M"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ASSURES",
+      "legacy_id" : "A1",
+      "operation" : "CREATED",
+      "target_id" : "ZL1"
+    }, {
+      "entity" : "ASSURES",
+      "legacy_id" : "A2",
+      "operation" : "CREATED",
+      "target_id" : "ZL2"
+    } ],
+    "patients" : [ {
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "EXTERNE",
+      "numero_assurance" : "ZL-EXT",
+      "prenom" : "Paul",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  },
+  "b_annulation_apres_retrait_de_l_affectation" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "b_etat" : {
+    "patients" : [ {
+      "created_at" : "<HORODATAGE>",
+      "date_admission" : "2018-01-01",
+      "etat_patient" : "PERMANENT",
+      "nom" : "EXTERNE",
+      "numero_assurance" : "ZL-EXT",
+      "prenom" : "Paul",
+      "sexe" : "M",
+      "type_patient" : "NON_VACANCIER"
+    } ]
+  }
+}

@@ -92,10 +92,7 @@ class TableDuPatientCouvertureTest {
             "2026-11-08 (déplacée de platform/.../persistence/adapter/SeancePlanningJdbcAdapter, SE7f, ADR 0100) : jours de dialyse, sommeil, état et "
                     + "dates de la fiche AU CENTRE pour le scan (requête reprise mot pour mot ; KB-SEA-95) ; " + PLACE + " (jours de dialyse) ; "
                     + "échéance : lecture publiée du Patient (programmation et situation d'une fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
-            "2026-11-04 : outil de migration, écrit/supprime en bloc (patients, assure, assure_patient) ; à lancer hors activité du centre (ADR 0077 point 12, ADR 0078 point 10) ; "
-                    + "échéance : la reprise (ADR 0134) passe par le module, mais l'ANNULATION d'un lot supprime encore patients et assure en SQL "
-                    + "(revue 2026-11-11) : faire reprendre l'annulation par le module ; Butoir : 2027-03-31",
+            // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP1 (2026-11-13, ADR 0169), l'annulation passe par AnnulationDeLaReprise.
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
             "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java", HORS_VERROU
                     + " : INSERT construit (« INSERT INTO » + nom de table) sur attestation_droit et prise_en_charge, import de la migration historique",
@@ -221,20 +218,17 @@ class TableDuPatientCouvertureTest {
     }
 
     /**
-     * Revue globale du 2026-11-11 (constat 4) : l'outil de migration supprime encore {@code patients} et {@code assure} en SQL
-     * ({@code MigrationRollbackJdbcAdapter}) : son jalon porte un butoir DATÉ et exécutable (même outillage que les gardes sœurs,
-     * {@link ButoirsDesGardesDeTables}), pas une échéance sans date.
+     * RP1 (2026-11-13, ADR 0169) : l'annulation d'un lot de reprise passe par le langage publié {@code AnnulationDeLaReprise} ;
+     * le jalon de {@code MigrationRollbackJdbcAdapter} et son butoir 2027-03-31 sont SOLDÉS (entrée supprimée, jamais reportée).
+     * Verrou : l'adaptateur ne figure plus dans la liste blanche ET ne lit plus ces tables.
      */
     @Test
-    void le_jalon_de_l_annulation_de_la_migration_porte_un_butoir_date_et_non_depasse() {
+    void l_annulation_d_un_lot_de_reprise_ne_touche_plus_les_tables_du_patient_couverture() throws IOException {
         String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java";
-        Map<String, String> jalon = Map.of(adapter, JALONS.get(adapter));
+        Path backend = backend();
 
-        assertThat(ButoirsDesGardesDeTables.butoir(jalon.get(adapter))).contains(java.time.LocalDate.of(2027, 3, 31));
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(jalon, java.time.LocalDate.now()))
-                .as("butoir (2027-03-31) dépassé : faire reprendre l'annulation par le module, ou reconduire AVEC une raison motivée "
-                        + "et une nouvelle date").isEmpty();
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(jalon, java.time.LocalDate.of(2027, 4, 1))).containsExactly(adapter);
+        assertThat(JALONS).doesNotContainKey(adapter);
+        assertThat(sourcesFautives(backend, racinesHorsDuContexte(backend))).doesNotContain(adapter);
     }
 
     @Test
