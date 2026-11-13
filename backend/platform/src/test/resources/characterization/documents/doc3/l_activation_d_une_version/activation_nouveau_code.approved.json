@@ -1,0 +1,134 @@
+{
+  "01 version 1" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "02 etat (une seule active)" : [ {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 1,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 2,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ],
+  "03 deja active (idempotente)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "04 version inexistante" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "05 version 0" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "06 version negative" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "07 version illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Paramètre illisible : version",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions/abc/activate",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "08 version hors des entiers" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Paramètre illisible : version",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions/99999999999/activate",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "09 modele inconnu" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "10 apres reinitialisation" : {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "11 reactivation apres reinitialisation" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 2,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "12 etat final" : [ {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 1,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 2,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ]
+}

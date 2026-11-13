@@ -53,6 +53,11 @@ public final class AuditActionResolver {
     private static final String ROUTE_CAPACITE_DIRECTION = "/api/v1/direction/capacite";
     private static final String ROUTE_ABSENCES_DIRECTION = "/api/v1/direction/absences";
 
+    /** Dépôt, activation et réinitialisation d'un gabarit de modèle d'un centre (DOC3, KB-DOC3-3, décision du 2026-11-13). */
+    private static final String ROUTE_GABARIT_TELEVERSE = "/api/v1/documents/modeles/{modeleId}/versions";
+    private static final String ROUTE_GABARIT_ACTIVE = "/api/v1/documents/modeles/{modeleId}/versions/{version}/activate";
+    private static final String ROUTE_GABARIT_REINITIALISE = "/api/v1/documents/modeles/{modeleId}/reset";
+
     /**
      * Gabarits de route (tels que renvoyés par Spring MVC) dont la simple lecture doit être tracée.
      */
@@ -155,7 +160,12 @@ public final class AuditActionResolver {
                     new Resolved("DIRECTION_TABLEAU_DE_BORD_CONSULTATION", "direction", "Absences des patients de la direction consultées")),
             Map.entry("POST /api/v1/patients/stats/paramedical/search", ACTION_STATISTIQUES_PATIENT),
             Map.entry("POST /api/v1/patients/stats/medical/search", ACTION_STATISTIQUES_PATIENT),
-            Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT));
+            Map.entry("POST /api/v1/patients/stats/export/search", ACTION_STATISTIQUES_PATIENT),
+            // Versions de gabarit par centre (DOC3, KB-DOC3-3, décision du 2026-11-13) : plus « DOCUMENTS_CREATION » ; l'identifiant tracé est
+            // celui du modèle (le libellé précis, avec le numéro de version, est posé par le contrôleur).
+            Map.entry("POST " + ROUTE_GABARIT_TELEVERSE, new Resolved("GABARIT_TELEVERSE", "documents", "Gabarit de modèle téléversé")),
+            Map.entry("POST " + ROUTE_GABARIT_ACTIVE, new Resolved("GABARIT_ACTIVE", "documents", "Version de gabarit activée")),
+            Map.entry("POST " + ROUTE_GABARIT_REINITIALISE, new Resolved("GABARIT_REINITIALISE", "documents", "Gabarit de modèle réinitialisé")));
 
     private AuditActionResolver() {
     }

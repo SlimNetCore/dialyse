@@ -1,0 +1,103 @@
+{
+  "01 medecin, identifiant de modele illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'modeleId': Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: pas-un-uuid",
+      "instance" : "/api/v1/documents/modeles/pas-un-uuid/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "02 medecin, taille illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'size': Failed to convert value of type 'java.lang.String' to required type 'int'; For input string: \"abc\"",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "03 medecin, version illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'version': Failed to convert value of type 'java.lang.String' to required type 'int'; For input string: \"abc\"",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions/abc/activate",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "04 medecin, corps JSON au lieu de multipart" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Content-Type 'application/json' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "05 medecin, sans la partie file" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Required part 'file' is not present.",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "06 medecin, centerId illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'centerId': Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: pas-un-uuid",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "07 sans session, version illisible" : {
+    "statut" : 403,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "08 admin d'un autre centre, version illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'version': Failed to convert value of type 'java.lang.String' to required type 'int'; For input string: \"abc\"",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions/abc/activate",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "09 admin d'un autre centre, sans la partie file" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Required part 'file' is not present.",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  }
+}

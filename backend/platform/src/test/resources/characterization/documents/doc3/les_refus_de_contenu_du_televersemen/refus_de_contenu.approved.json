@@ -1,0 +1,197 @@
+{
+  "01 extension" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "FILE_TYPE",
+        "detail" : "Extension .jrxml attendue."
+      } ]
+    }
+  },
+  "02 sans nom de fichier" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "FILE_TYPE",
+        "detail" : "Extension .jrxml attendue."
+      } ]
+    }
+  },
+  "03 fichier vide" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "EMPTY",
+        "detail" : "Le fichier est vide."
+      } ]
+    }
+  },
+  "04 modele sans gabarit livre" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "NOT_CUSTOMIZABLE",
+        "detail" : "Ce modèle n'a pas de modèle d'origine personnalisable."
+      } ]
+    }
+  },
+  "05 chemin de gabarit douteux" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "NOT_CUSTOMIZABLE",
+        "detail" : "Ce modèle n'a pas de modèle d'origine personnalisable."
+      } ]
+    }
+  },
+  "06 encodage non UTF-8" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "ENCODING",
+        "detail" : "Le fichier doit être encodé en UTF-8."
+      } ]
+    }
+  },
+  "07 requete SQL modifiee" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "QUERY_MODIFIED",
+        "detail" : "La requête de données ne peut pas être modifiée : seule la mise en page est personnalisable."
+      } ]
+    }
+  },
+  "08 expression de code" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "EXPRESSION_FORBIDDEN",
+        "detail" : "élément non autorisé près de « Runtime.getRuntime().exe »"
+      }, {
+        "code" : "IDENTITY_REMOVED",
+        "detail" : "l'en-tête doit conserver $P{SOCIETE_NOM} et $P{CENTRE_NOM}"
+      } ]
+    }
+  },
+  "09 pas du XML" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "XML_INVALID",
+        "detail" : "XML invalide ou contenant une déclaration DOCTYPE / entité externe interdite."
+      } ]
+    }
+  },
+  "10 XML d'une autre racine" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "ROOT_INVALID",
+        "detail" : "L'élément racine doit être <jasperReport>."
+      } ]
+    }
+  },
+  "11 DOCTYPE et entite externe" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "XML_INVALID",
+        "detail" : "XML invalide ou contenant une déclaration DOCTYPE / entité externe interdite."
+      } ]
+    }
+  },
+  "12 dimension de page illisible" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "COMPILE_FAILED",
+        "detail" : "For input string: \"beaucoup\""
+      } ]
+    }
+  },
+  "13 trop gros (512 Ko + 1 octet ou plus)" : {
+    "statut" : 422,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "violations" : [ {
+        "code" : "TOO_LARGE",
+        "detail" : "Taille maximale : 512 Ko."
+      } ]
+    }
+  },
+  "14 casse de l'extension acceptee" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "15 nom avec chemin accepte" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 2,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "16 etat stocke (seules les versions acceptees)" : [ {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 1,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 2,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ]
+}

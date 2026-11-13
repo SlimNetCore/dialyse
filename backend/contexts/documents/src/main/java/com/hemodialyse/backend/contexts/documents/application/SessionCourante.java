@@ -14,4 +14,11 @@ public interface SessionCourante {
      * @throws AccesRefuse si le centre demandé n'est pas celui de la session, ou la session est invalide
      */
     CentreId exigerLeCentre(UUID centreDemande);
+
+    /**
+     * Le nom d'utilisateur de la session (déposant d'une version de gabarit).
+     *
+     * @throws AccesRefuse si la session ne porte pas d'utilisateur identifié
+     */
+    String utilisateur();
 }

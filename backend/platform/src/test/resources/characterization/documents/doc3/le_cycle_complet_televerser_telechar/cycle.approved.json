@@ -1,0 +1,208 @@
+{
+  "01 source du gabarit d'origine" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "02 historique vide" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ ],
+      "total" : 0,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : null
+    }
+  },
+  "03 version 1 (commentaire)" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : "Marge élargie",
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "03b empreinte et taille stockees = celles des octets envoyes" : true,
+  "04 source = version active" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "36"
+    }
+  },
+  "05 version 2" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 2,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "06 activation de la version 1" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : "Marge élargie",
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "07 historique (2 versions, la 1 active)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : "Marge élargie",
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 2,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : 1
+    }
+  },
+  "08 source de la version 2 (inactive)" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d-v2.jrxml\"; filename*=UTF-8''att-d-v2.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "34"
+    }
+  },
+  "09 reinitialisation" : {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "10 source = gabarit d'origine" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "11 historique conserve, aucune active" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : "Marge élargie",
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 2,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : null
+    }
+  },
+  "12 version suivante apres reinitialisation" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 3,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "13 etat stocke" : [ {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 1,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : "Marge élargie",
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 2,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 3,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ]
+}

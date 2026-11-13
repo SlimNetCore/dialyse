@@ -6,7 +6,7 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 > Sources : `ReferentialKind`, `ReferentialField`, 
 > `ReferentialAdminDomainService` (façade fine qui distribue aux contextes, ADR 0161), `ReferentialAdminRestController`, `ModeleDocumentCatalog`,
 > `ModeleDocumentProvisioner`, `ModeleDocumentPrinter`,
-> `ModeleDocumentTemplateService`, `JrxmlSecurityValidator`, `DocumentRestController`, `TabularFileReader`,
+> `GererLesGabarits`, `HistoriqueDesVersions`, `JrxmlSecurityValidator`, `DocumentRestController`, `TabularFileReader`,
 > `MigrationDomainService`, `MigrationBatch`, `*Migrator`, `MigrationRestController`.
 
 ## 14.1 Référentiels administrables
@@ -129,6 +129,16 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   `DOCUMENT_TYPE_UNKNOWN`, modèle désactivé `DOCUMENT_MODEL_INACTIVE`, génération impossible `DOCUMENT_GENERATION_FAILED`)
   répond `422` avec ce code. Les caractères hors de la police du document (japonais, étoile, arabe) restent perdus sans
   erreur (dette KB-PL6-4, KB-PL7-3, KB-PL8-3, KB-PL9-6 : décision de l'utilisateur en attente, ADR 0162).
+- **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
+  (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
+  après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant
+  répond 404 sans corps ; le retour au modèle d'origine garde l'historique. Les règles de forme sont désormais propres :
+  paramètre illisible `400 BAD_REQUEST`, corps non multipart `415 UNSUPPORTED_MEDIA_TYPE`, partie `file` absente `400`, verbe non
+  géré `405` avec `Allow` (corrigé le 2026-11-13, KB-DOC3-1) ; le centre est contrôlé avant la forme des autres paramètres
+  (`403` avant `400`, KB-DOC3-2) ; le dépôt, l'activation et le retour au modèle d'origine ont leur propre action d'audit
+  `GABARIT_TELEVERSE`, `GABARIT_ACTIVE`, `GABARIT_REINITIALISE` (KB-DOC3-3). Reproduits, à confirmer par les métiers/DPO avant le
+  2026-12-15 : retour au modèle d'origine d'un modèle sans gabarit livré et répété = `204` ; `Accept: application/xml` sur la
+  liste répond en XML ; collision de dépôts simultanés (clé unique modèle + numéro) = `500 DATA_ACCESS_ERROR`.
 
 ## 14.4 Reprise de données d'un logiciel existant
 

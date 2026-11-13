@@ -20,13 +20,26 @@ import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.CustomTem
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.JasperReportService;
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.ModeleDocumentProvisioner;
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.MoteurDeRenduJasper;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.GabaritPersonnaliseDuCentre;
+import com.hemodialyse.backend.contexts.documents.application.GabaritPersonnaliseDuCentre;
+import com.hemodialyse.backend.contexts.documents.application.GabaritsLivres;
+import com.hemodialyse.backend.contexts.documents.application.GererLesGabarits;
+import com.hemodialyse.backend.contexts.documents.application.ModelesDuCentre;
+import com.hemodialyse.backend.contexts.documents.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.documents.domain.HistoriqueDesVersionsRepository;
+import com.hemodialyse.backend.contexts.documents.infrastructure.persistence.HistoriqueDesVersionsJdbc;
+import com.hemodialyse.backend.contexts.documents.infrastructure.persistence.ModelesDuCentreJdbc;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.GabaritsLivresDuClasspath;
+import com.hemodialyse.backend.contexts.documents.infrastructure.transaction.UniteDeTravailSpring;
+import com.hemodialyse.backend.contexts.documents.interfaces.publie.VersionsDeModelePublie;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.VerificationDeGabarit;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.VersionsDeModele;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Composition du contexte Documents (DOC1, ADR 0140, 0142) : le papier en-tête, les routes d'impression {@code /api/v1/documents/print} et
@@ -72,7 +85,41 @@ public class DocumentsConfiguration {
         return new ModeleDocumentProvisioner(jdbc, annuaireDesCentres);
     }
 
-    /** Le moteur de rendu (DOC2, ADR 0162) ; les gabarits personnalisés des centres sont fournis par la plateforme jusqu'à DOC3. */
+    /** L'historique des versions de gabarit (DOC3, ADR 0163) ; il sert aussi le moteur : la version en vigueur d'un modèle. */
+    @Bean
+    HistoriqueDesVersionsJdbc historiqueDesVersionsDeGabarit(JdbcTemplate jdbc) {
+        return new HistoriqueDesVersionsJdbc(jdbc);
+    }
+
+    @Bean
+    ModelesDuCentre modelesDuCentre(JdbcTemplate jdbc) {
+        return new ModelesDuCentreJdbc(jdbc);
+    }
+
+    @Bean
+    GabaritsLivres gabaritsLivres() {
+        return new GabaritsLivresDuClasspath();
+    }
+
+    @Bean
+    UniteDeTravail uniteDeTravailDesDocuments(PlatformTransactionManager transactionManager) {
+        return new UniteDeTravailSpring(new TransactionTemplate(transactionManager));
+    }
+
+    @Bean
+    GererLesGabarits gererLesGabarits(SessionCourante session, ModelesDuCentre modeles, GabaritsLivres livres,
+                                      HistoriqueDesVersionsRepository historiques, VerificationDeGabarit verification,
+                                      UniteDeTravail unite) {
+        return new GererLesGabarits(session, modeles, livres, historiques, verification, unite, java.time.Clock.systemUTC(),
+                java.util.UUID::randomUUID);
+    }
+
+    @Bean
+    VersionsDeModele versionsDeModele(GererLesGabarits gabarits) {
+        return new VersionsDeModelePublie(gabarits);
+    }
+
+    /** Le moteur de rendu (DOC2, ADR 0162) ; les gabarits personnalisés des centres sont ceux de ce contexte depuis DOC3 (ADR 0163). */
     @Bean
     MoteurDeRendu moteurDeRendu(JdbcTemplate jdbc, JasperReportService jasper, GabaritPersonnaliseDuCentre gabarits,
                                 CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner) {

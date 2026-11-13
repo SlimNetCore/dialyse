@@ -1,0 +1,138 @@
+{
+  "01 DELETE sur l'historique" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "Allow" : "GET, HEAD, POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : DELETE",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "02 PUT sur l'historique" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "Allow" : "GET, HEAD, POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : PUT",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "03 GET sur l'activation" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "Allow" : "POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : GET",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions/1/activate",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "04 GET sur la reinitialisation" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "Allow" : "POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : GET",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/reset",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "05 POST sur la source" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : POST",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "06 DELETE sur la source" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : DELETE",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "07 source en JSON demandé" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "08 historique en XML demandé" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : false,
+      "marge haute" : null
+    }
+  },
+  "09 source acceptant tout" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "10 DELETE sur l'historique, medecin" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "11 GET sur la reinitialisation, sans session" : {
+    "statut" : 403,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "12 chemin inconnu sous le modele" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "No static resource api/v1/documents/modeles/<ATTESTATION_D>/inconnu for request '/api/v1/documents/modeles/<ATTESTATION_D>/inconnu'.",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/inconnu",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  }
+}

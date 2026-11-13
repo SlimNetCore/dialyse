@@ -1,0 +1,65 @@
+{
+  "01 espaces autour" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : "Marge",
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "02 blanc" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 2,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : "",
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "03 absent" : {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 3,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  },
+  "04 600 caracteres: statut" : 201,
+  "05 etat stocke (longueur du commentaire)" : [ {
+    "version" : 1,
+    "longueur" : 5,
+    "commentaire" : "Marge"
+  }, {
+    "version" : 2,
+    "longueur" : 0,
+    "commentaire" : ""
+  }, {
+    "version" : 3,
+    "longueur" : null,
+    "commentaire" : null
+  }, {
+    "version" : 4,
+    "longueur" : 500,
+    "commentaire" : "<long>"
+  } ]
+}

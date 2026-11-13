@@ -50,6 +50,20 @@ class AuditActionResolverTest {
         assertEquals("PATIENTS_CREATION", AuditActionResolver.resolve("POST", "/api/v1/patients/{id}/stats/autre").actionCode());
     }
 
+    /** DOC3, KB-DOC3-3 : le dépôt, l'activation et la réinitialisation d'un gabarit ont leur action ; la lecture du gabarit n'est pas tracée. */
+    @Test
+    void the_three_template_writes_have_their_own_action_and_the_template_read_is_not_tracked() {
+        String racine = "/api/v1/documents/modeles/{modeleId}";
+        assertEquals("GABARIT_TELEVERSE", AuditActionResolver.resolve("POST", racine + "/versions").actionCode());
+        assertEquals("GABARIT_ACTIVE", AuditActionResolver.resolve("POST", racine + "/versions/{version}/activate").actionCode());
+        assertEquals("GABARIT_REINITIALISE", AuditActionResolver.resolve("POST", racine + "/reset").actionCode());
+        assertEquals("documents", AuditActionResolver.resolve("POST", racine + "/reset").entityType());
+        assertFalse(AuditActionResolver.isTracked("GET", racine + "/source"));
+        assertFalse(AuditActionResolver.isTracked("GET", racine + "/versions"));
+        // les autres routes de /documents gardent l'action générique
+        assertEquals("DOCUMENTS_CREATION", AuditActionResolver.resolve("POST", "/api/v1/documents/modeles").actionCode());
+    }
+
     @Test
     void resolves_a_readable_action_code_and_label_per_resource_and_verb() {
         var created = AuditActionResolver.resolve("POST", "/api/v1/patients");

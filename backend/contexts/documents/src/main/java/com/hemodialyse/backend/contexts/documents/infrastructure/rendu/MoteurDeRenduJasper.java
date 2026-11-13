@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
+import com.hemodialyse.backend.contexts.documents.application.GabaritPersonnaliseDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.FrenchFormatFactory;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.GabaritPersonnaliseDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;

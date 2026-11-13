@@ -1,0 +1,299 @@
+{
+  "01 defaut" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : 3
+    }
+  },
+  "02 taille 2 page 0" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 2,
+      "activeVersion" : 3
+    }
+  },
+  "03 taille 2 page 1" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 1,
+      "size" : 2,
+      "activeVersion" : 3
+    }
+  },
+  "04 page au-dela de la fin" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ ],
+      "total" : 3,
+      "page" : 9,
+      "size" : 20,
+      "activeVersion" : 3
+    }
+  },
+  "05 taille 0 (ramenee a 1)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 1,
+      "activeVersion" : 3
+    }
+  },
+  "06 taille negative (ramenee a 1)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 1,
+      "activeVersion" : 3
+    }
+  },
+  "07 taille 1000 (ramenee a 100)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 100,
+      "activeVersion" : 3
+    }
+  },
+  "08 page negative (ramenee a 0)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : 3
+    }
+  },
+  "09 taille illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'size': Failed to convert value of type 'java.lang.String' to required type 'int'; For input string: \"abc\"",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "10 page illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'page': Failed to convert value of type 'java.lang.String' to required type 'int'; For input string: \"1.5\"",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "11 taille vide" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 3,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 2,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      }, {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : false,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 3,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : 3
+    }
+  },
+  "12 modele sans version" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ ],
+      "total" : 0,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : null
+    }
+  }
+}

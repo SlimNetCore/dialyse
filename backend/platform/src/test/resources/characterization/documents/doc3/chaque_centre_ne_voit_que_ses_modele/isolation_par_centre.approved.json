@@ -1,0 +1,210 @@
+{
+  "01 admin D, modele de E, centre D (introuvable)" : [ {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  } ],
+  "02 admin D, modele de E, sans centerId (introuvable)" : [ {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }, {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  } ],
+  "03 admin D, centre E demande (403)" : [ {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>/versions",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  }, {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>/source",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  }, {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>/versions",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  }, {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>/versions/1/activate",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  }, {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>/reset",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  } ],
+  "04 superadmin D, centre E demande (transverse)" : [ {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "items" : [ {
+        "id" : "<UUID>",
+        "version" : 1,
+        "actif" : true,
+        "sha256" : "<SHA256>",
+        "tailleOctets" : "<TAILLE>",
+        "commentaire" : null,
+        "uploadedBy" : "u-admin",
+        "uploadedAt" : "<HORODATAGE>"
+      } ],
+      "total" : 1,
+      "page" : 0,
+      "size" : 20,
+      "activeVersion" : 1
+    }
+  }, {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-e.jrxml\"; filename*=UTF-8''att-e.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "31"
+    }
+  }, {
+    "statut" : 201,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 2,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-superadmin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  }, {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "id" : "<UUID>",
+      "version" : 1,
+      "actif" : true,
+      "sha256" : "<SHA256>",
+      "tailleOctets" : "<TAILLE>",
+      "commentaire" : null,
+      "uploadedBy" : "u-admin",
+      "uploadedAt" : "<HORODATAGE>"
+    }
+  }, {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  } ],
+  "05 superadmin D, modele de E, centre D (introuvable)" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "06 superadmin sans centre de session ni centerId" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "centerId requis pour un accès transverse",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "07 admin sans centre de session" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Session sans centre de rattachement",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "08 etat stocke" : [ {
+    "modele" : "<ATTESTATION_E>",
+    "centre" : "<CENTRE_E>",
+    "version" : 1,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_E>",
+    "centre" : "<CENTRE_E>",
+    "version" : 2,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-superadmin"
+  } ]
+}

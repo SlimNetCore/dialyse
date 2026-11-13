@@ -895,6 +895,19 @@ class FrontieresDesContextesTest {
             .because("le moteur de rendu est porté par contexts/documents (DOC2, ADR 0162)");
 
     /**
+     * DOC3 (ADR 0163), règle permanente sans date : les versions de gabarit par centre sont portées par contexts/documents ; la plateforme
+     * n'a plus ni leur contrôleur, ni leur service, ni leur entité JPA, ni leur dépôt Spring Data.
+     */
+    @ArchTest
+    static final ArchRule les_versions_de_gabarit_ne_sont_plus_a_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.ModeleDocumentTemplateRestController")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.entity.ModeleDocumentVersionJpaEntity")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.repository.ModeleDocumentVersionJpaRepository")
+            .allowEmptyShould(true)
+            .because("l'historique des versions de gabarit est porté par contexts/documents (DOC3, ADR 0163)");
+
+    /**
      * PL11-6 (ADR 0161), règle permanente sans date : l'administration générique des référentiels est une façade fine qui distribue aux
      * contextes propriétaires ; aucune classe ne lit ni n'écrit en SQL dynamique des noms de table issus d'un descripteur, et l'adaptateur
      * et la table de noms retirés ne doivent pas réapparaître.

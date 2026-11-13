@@ -1,0 +1,132 @@
+{
+  "01 DELETE sur l'historique" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'DELETE' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "02 PUT sur l'historique" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'PUT' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "03 GET sur l'activation" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'GET' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions/1/activate",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "04 GET sur la reinitialisation" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'GET' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/reset",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "05 POST sur la source" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'POST' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "06 DELETE sur la source" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'DELETE' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "07 source en JSON demandé" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "08 historique en XML demandé" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : false,
+      "marge haute" : null
+    }
+  },
+  "09 source acceptant tout" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "10 DELETE sur l'historique, medecin" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Request method 'DELETE' is not supported",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "11 GET sur la reinitialisation, sans session" : {
+    "statut" : 403,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "12 chemin inconnu sous le modele" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "No static resource api/v1/documents/modeles/<ATTESTATION_D>/inconnu for request '/api/v1/documents/modeles/<ATTESTATION_D>/inconnu'.",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/inconnu",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "01 corps JSON au lieu de multipart" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : multipart/form-data attendu",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "02 sans corps" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : multipart/form-data attendu",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "03 multipart sans la partie file" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Partie absente : file",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "04 partie nommee autrement" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Partie absente : file",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "05 centerId illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/versions",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "06 identifiant de modele illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Paramètre illisible : modeleId",
+      "instance" : "/api/v1/documents/modeles/pas-un-uuid/versions",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "07 etat stocke" : [ ]
+}

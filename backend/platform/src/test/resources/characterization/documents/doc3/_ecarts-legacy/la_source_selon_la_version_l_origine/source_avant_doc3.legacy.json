@@ -1,0 +1,126 @@
+{
+  "01 version active" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "36"
+    }
+  },
+  "02 origine forcee" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "03 origine=false" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "36"
+    }
+  },
+  "04 version 1" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d-v1.jrxml\"; filename*=UTF-8''att-d-v1.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "36"
+    }
+  },
+  "05 version 1 et origine (la version l'emporte)" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d-v1.jrxml\"; filename*=UTF-8''att-d-v1.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "36"
+    }
+  },
+  "06 version inexistante" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "07 version 0" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "08 version illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'version': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Integer'; For input string: \"abc\"",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "09 origine illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "detail" : "Method parameter 'origine': Failed to convert value of type 'java.lang.String' to required type 'boolean'; Invalid boolean value [peut-etre]",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_D>/source",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "10 modele inconnu" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "11 modele sans gabarit livre" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "12 chemin de gabarit douteux" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "13 nom de fichier d'un code etrange" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"rapport__t__2026__.jrxml\"; filename*=UTF-8''rapport__t__2026__.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "40"
+    }
+  },
+  "14 nom de fichier d'une version" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "15 sans centerId" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "Content-Disposition" : "attachment; filename=\"att-d.jrxml\"; filename*=UTF-8''att-d.jrxml",
+    "X-Content-Type-Options" : "nosniff",
+    "gabarit" : {
+      "racine jasperReport" : true,
+      "marge haute" : "36"
+    }
+  }
+}

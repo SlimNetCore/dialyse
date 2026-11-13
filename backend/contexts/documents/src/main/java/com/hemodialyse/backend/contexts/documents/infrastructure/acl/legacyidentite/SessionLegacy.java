@@ -6,6 +6,7 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
@@ -38,6 +39,15 @@ public class SessionLegacy implements SessionCourante {
             throw new AccesRefuse("Accès refusé : le centre demandé ne correspond pas à la session");
         }
         return new CentreId(centreDeSession);
+    }
+
+    @Override
+    public String utilisateur() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification != null && authentification.getPrincipal() instanceof UserDetails utilisateur) {
+            return utilisateur.getUsername();
+        }
+        throw new AccesRefuse("Utilisateur non identifié");
     }
 
     private static boolean possede(Object principal, String accesseur) {

@@ -1,0 +1,49 @@
+{
+  "01 admin D supprime le modele de E avec centerId D" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "02 etat apres (rien ne bouge)" : [ {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 1,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  }, {
+    "modele" : "<ATTESTATION_E>",
+    "centre" : "<CENTRE_E>",
+    "version" : 1,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ],
+  "03 modeles restants" : [ "ATT-D", "ATT-E", "CHEMIN-D", "PERSO-D", "Rapport été/2026 à" ],
+  "04 admin D supprime son modele" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "X-Content-Type-Options" : "nosniff",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "05 etat apres (versions de D retirees)" : [ {
+    "modele" : "<ATTESTATION_E>",
+    "centre" : "<CENTRE_E>",
+    "version" : 1,
+    "actif" : true,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ],
+  "06 modeles restants" : [ "ATT-E", "CHEMIN-D", "PERSO-D", "Rapport été/2026 à" ]
+}

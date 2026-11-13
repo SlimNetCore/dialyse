@@ -38,6 +38,11 @@ public final class Doubles {
             if (centreDemande != null && !centreDemande.equals(centre)) throw new AccesRefuse("Accès refusé : le centre demandé ne correspond pas à la session");
             return new CentreId(centre);
         }
+
+        @Override
+        public String utilisateur() {
+            return "admin-fictif";
+        }
     }
 
     /** Les modèles en mémoire : même sélection que la base (actif le plus récent du centre, type comparé sans casse). */

@@ -5,7 +5,7 @@ import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLa
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.VersionsDeModele;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;
 import com.hemodialyse.backend.infrastructure.web.dto.request.DocumentSearchRequest;
@@ -35,14 +35,14 @@ public class DocumentRestController implements ReglesDImpressionDesTypesSensible
      */
     private static final java.util.regex.Pattern SAFE_TEMPLATE_PATH =
             java.util.regex.Pattern.compile("reports/[A-Za-z0-9_\\-]+\\.jrxml");
-    private final ModeleDocumentTemplateService templateService;
+    private final VersionsDeModele versionsDeModele;
     private final CenterAccessGuard centerAccessGuard;
     private final SyntheseDeFacturation syntheseDeFacturation;
 
-    public DocumentRestController(JdbcTemplate jdbc, ModeleDocumentTemplateService templateService,
+    public DocumentRestController(JdbcTemplate jdbc, VersionsDeModele versionsDeModele,
                                   CenterAccessGuard centerAccessGuard, SyntheseDeFacturation syntheseDeFacturation) {
         this.jdbc = jdbc;
-        this.templateService = templateService;
+        this.versionsDeModele = versionsDeModele;
         this.centerAccessGuard = centerAccessGuard;
         this.syntheseDeFacturation = syntheseDeFacturation;
     }
@@ -140,9 +140,7 @@ public class DocumentRestController implements ReglesDImpressionDesTypesSensible
     @DeleteMapping("/modeles/{id}")
     public ResponseEntity<?> deleteModele(@PathVariable UUID id, @RequestParam UUID centerId) {
         centerId = centerAccessGuard.requireCenter(centerId).valeur();
-        if (templateService.findModele(centerId, id).isPresent()) {
-            templateService.deleteAllVersions(id);
-        }
+        versionsDeModele.retirerToutes(centerId, id);
         jdbc.update("DELETE FROM modele_document WHERE id = ? AND center_id = ?", id, centerId);
         return ResponseEntity.ok(Map.of("deleted", true));
     }

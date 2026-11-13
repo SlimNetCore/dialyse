@@ -1,0 +1,37 @@
+{
+  "01 reinitialisation" : {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "02 etat (version conservee, inactive)" : [ {
+    "modele" : "<ATTESTATION_D>",
+    "centre" : "<CENTRE_D>",
+    "version" : 1,
+    "actif" : false,
+    "tailleOctets" : "<TAILLE>",
+    "sha256" : "<SHA256>",
+    "commentaire" : null,
+    "deposePar" : "u-admin"
+  } ],
+  "03 reinitialisation repetee" : {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "04 modele sans version" : {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "05 modele sans gabarit livre mais connu" : {
+    "statut" : 204,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  },
+  "06 modele inconnu" : {
+    "statut" : 404,
+    "contentType" : null,
+    "X-Content-Type-Options" : "nosniff"
+  }
+}
