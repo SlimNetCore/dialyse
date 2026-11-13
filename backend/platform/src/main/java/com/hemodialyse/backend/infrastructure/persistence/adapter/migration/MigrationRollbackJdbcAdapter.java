@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DonneesMedicalesDeLaReprise;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.AnnulationDeLaReprise;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
@@ -35,15 +36,26 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
 
     private static final Logger log = LoggerFactory.getLogger(MigrationRollbackJdbcAdapter.class);
 
+    /** Seule donnée contrôlée ici qui n'est ni de Patient et couverture, ni de la Séance, ni de la Facturation, ni du Dossier médical (Stock). */
+    private static final String BONS_DE_SORTIE = "bons_sortie";
+
     /**
-     * Tables rattachées à un patient qui empêchent sa suppression (assure_patient est supprimée avec lui).
+     * Natures de données rattachées à un patient qui empêchent sa suppression (assure_patient est supprimée avec lui), dans l'ORDRE du
+     * contrôle : le refus nomme la première qui bloque (KB-S6a-9). Les natures du Dossier médical viennent de son langage publié (RP2).
      */
-    private static final List<String> PATIENT_DATA = List.of("prise_en_charge", "attestation_droit", SeancesDeLaReprisePubliees.NATURE,
-            "factures", "dossier_medical_patient", "prescriptions_medicales", "antecedents_medicaux", "allergies_patient",
-            "serologies_patient", "abords_vasculaires", "resultats_analyses", "observations_biologiques", "ordonnances",
-            "demandes_examen", "administrations_anemie", "bons_sortie", "bilans_pre_greffe");
+    private static final List<String> PATIENT_DATA = patientData();
+
+    private static List<String> patientData() {
+        List<String> natures = new ArrayList<>(List.of("prise_en_charge", "attestation_droit", SeancesDeLaReprisePubliees.NATURE, "factures"));
+        natures.addAll(DonneesMedicalesDeLaReprise.NATURES_CONTROLEES_AVANT_LES_BONS_DE_SORTIE);
+        natures.add(BONS_DE_SORTIE);
+        natures.addAll(DonneesMedicalesDeLaReprise.NATURES_CONTROLEES_APRES_LES_BONS_DE_SORTIE);
+        return List.copyOf(natures);
+    }
 
     private final JdbcTemplate jdbc;
+    /** Données médicales et analyses du lot : lues et supprimées par le langage publié du Dossier médical (RP2, ADR 0170), mêmes requêtes qu'avant. */
+    private final DonneesMedicalesDeLaReprise medical;
     private final RepriseDesSoldes reprise;
     /** Séances reprises : lues et supprimées par le langage publié de la Séance (SE7e, ADR 0099), mêmes requêtes qu'avant. */
     private final SeancesDeLaReprisePubliees seances;
@@ -55,7 +67,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     private final AnnulationDeLaReprise annulation;
 
     public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances,
-                                        RepriseDesAssures assures, AnnulationDeLaReprise annulation) {
+                                        RepriseDesAssures assures, AnnulationDeLaReprise annulation, DonneesMedicalesDeLaReprise medical) {
+        this.medical = medical;
         this.annulation = annulation;
         this.assures = assures;
         this.reprise = reprise;
@@ -101,7 +114,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                                 : SeancesDeLaReprisePubliees.NATURE.equals(table) ? ids(() -> seances.seancesDuPatient(patientId))
                                 : "prise_en_charge".equals(table) ? ids(() -> uuids(annulation.prisesEnChargeDuPatient(patientId)))
                                 : "attestation_droit".equals(table) ? ids(() -> uuids(annulation.attestationsDuPatient(patientId)))
-                                : ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId);
+                                : BONS_DE_SORTIE.equals(table) ? ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId)
+                                : ids(() -> medical.lignesDuPatient(patientId, table));
                         boolean usedElsewhere = rows.stream().anyMatch(id -> !ownRows.contains(id));
                         if (usedElsewhere) {
                             blockers.add("patient « " + m.legacyId() + " » (" + table + ")");
@@ -116,8 +130,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 case SEANCES -> {
                     UUID seanceId = UUID.fromString(m.targetId());
                     boolean billed = !ids(() -> seances.factureDeLaSeance(seanceId)).isEmpty();
-                    boolean completed = !ids("SELECT CAST(id AS VARCHAR(36)) FROM volet_medical WHERE seance_id = ?", seanceId).isEmpty()
-                            || !ids("SELECT CAST(id AS VARCHAR(36)) FROM volet_paramedical WHERE seance_id = ?", seanceId).isEmpty();
+                    // volet médical ou paramédical : lu par le langage publié de la Séance (RP2, ADR 0170)
+                    boolean completed = !ids(() -> seances.laSeanceEstCompletee(seanceId) ? List.of("volet") : List.of()).isEmpty();
                     if (billed || completed) {
                         blockers.add("séance « " + m.legacyId() + " » (" + (billed ? "facturée" : "complétée") + " dans la plateforme)");
                     }
@@ -146,8 +160,16 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 case ASSURES -> annulation.supprimerLAssure(center, m.targetId());
                 case SOLDES_OUVERTURE -> reprise.supprimer(center, UUID.fromString(m.targetId()));
                 case SEANCES -> seances.retirer(center, UUID.fromString(m.targetId()));
-                default -> jdbc.update("DELETE FROM " + HistoricalRecordJdbcAdapter.table(m.entity()).name()
-                        + " WHERE id = ? AND center_id = ?", UUID.fromString(m.targetId()), center);
+                default -> {
+                    String nature = HistoricalRecordJdbcAdapter.table(m.entity()).name();
+                    // dossier de base, antécédents, sérologies, abords, analyses : supprimés par le Dossier médical (RP2, ADR 0170) ;
+                    // attestations et prises en charge : requête inchangée (HistoricalRecordJdbcAdapter reste leur écrivain)
+                    if (DonneesMedicalesDeLaReprise.NATURES_DU_LOT.contains(nature)) {
+                        medical.supprimerLaDonneeDuLot(center, nature, UUID.fromString(m.targetId()));
+                    } else {
+                        jdbc.update("DELETE FROM " + nature + " WHERE id = ? AND center_id = ?", UUID.fromString(m.targetId()), center);
+                    }
+                }
             }
         }
     }

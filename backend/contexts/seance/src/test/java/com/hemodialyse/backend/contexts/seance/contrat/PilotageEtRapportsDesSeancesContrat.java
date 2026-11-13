@@ -78,6 +78,9 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
     protected abstract void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant,
                                   BigDecimal ultrafiltration);
 
+    /** Le volet médical de la séance (RP2 : seule sa présence compte). */
+    protected abstract void voletMedical(UUID centre, UUID seance);
+
     /** Un centre payeur du centre {@code centreDuPayeur} dont l'agence (et la caisse) est posée sous un AUTRE centre (L8, KB-SEA-84 : agence bornée). */
     protected abstract void payeurDontLAgenceEstDUnAutreCentre(UUID payeur, UUID caisse, UUID centreDuPayeur, UUID centreDeLAgence,
                                                               String codeCaisse, String nomCaisse);
@@ -555,5 +558,27 @@ public abstract class PilotageEtRapportsDesSeancesContrat {
         reprise().retirer(CENTRE_B, b);
         assertThat(statutDe(b)).isNull();
         assertThat(reprise().seancesDuPatient(PA1)).containsExactly(a.toString());
+    }
+
+    /** RP2 (ADR 0170), E17 : « complétée » = un volet médical OU paramédical existe, sans borne de centre. */
+    @Test
+    void should_tell_a_seance_is_completed_when_a_medical_or_a_paramedical_volet_exists_whatever_the_centre() {
+        patient(PA1, CENTRE_A, null);
+        UUID libre = UUID.randomUUID();
+        UUID medicale = UUID.randomUUID();
+        UUID paramedicale = UUID.randomUUID();
+        UUID autreCentre = UUID.randomUUID();
+        for (UUID s : List.of(libre, medicale, paramedicale, autreCentre)) {
+            seance(s, CENTRE_A, PA1, le("2026-01-0" + (1 + List.of(libre, medicale, paramedicale, autreCentre).indexOf(s))), "VALIDEE", DIX_HEURES);
+        }
+        voletMedical(CENTRE_A, medicale);
+        volet(CENTRE_A, paramedicale, d("70.00"), d("68.00"), "13/8", null);
+        voletMedical(CENTRE_B, autreCentre);
+
+        assertThat(reprise().laSeanceEstCompletee(libre)).as("aucun volet").isFalse();
+        assertThat(reprise().laSeanceEstCompletee(medicale)).as("volet médical").isTrue();
+        assertThat(reprise().laSeanceEstCompletee(paramedicale)).as("volet paramédical").isTrue();
+        assertThat(reprise().laSeanceEstCompletee(autreCentre)).as("volet posé sous un autre centre : compte aussi").isTrue();
+        assertThat(reprise().laSeanceEstCompletee(UUID.randomUUID())).as("séance inconnue").isFalse();
     }
 }

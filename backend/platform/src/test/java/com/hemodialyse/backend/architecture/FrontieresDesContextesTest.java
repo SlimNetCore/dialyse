@@ -769,6 +769,23 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName(PORTS_SE7E + "SeancesDeLaReprisePubliees")
             .because("la reprise lit, écrit et supprime les séances par seance.v1 (ADR 0099, SE7e)");
 
+    /**
+     * RP2 (ADR 0170) : {@code DonneesMedicalesDeLaReprise} est le SEUL port, hors du Dossier médical, qui lit et supprime les données médicales
+     * d'un lot de reprise ; réservé à l'adapter d'annulation de la reprise de données.
+     */
+    @ArchTest
+    static final ArchRule seule_l_annulation_d_un_lot_de_reprise_utilise_les_donnees_medicales_de_la_reprise = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.dossiermedical..")
+            .and().haveNameNotMatching(".*\\.MigrationRollbackJdbcAdapter(\\$.*)?")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DonneesMedicalesDeLaReprise")
+            .because("seule l'annulation d'un lot de reprise lit et supprime les données médicales du lot (ADR 0170, RP2)");
+
+    @ArchTest
+    static final ArchRule l_annulation_d_un_lot_de_reprise_lit_et_supprime_les_donnees_medicales_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.migration.MigrationRollbackJdbcAdapter")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DonneesMedicalesDeLaReprise")
+            .because("l'annulation d'un lot lit et supprime le dossier médical et les analyses par dossier-medical.v1 (ADR 0170, RP2)");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

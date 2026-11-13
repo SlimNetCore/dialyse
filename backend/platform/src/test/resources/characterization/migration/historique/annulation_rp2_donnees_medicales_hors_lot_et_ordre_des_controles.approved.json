@@ -1,0 +1,136 @@
+{
+  "0_avant" : {
+    "abords_vasculaires" : [ {
+      "cote" : "GAUCHE",
+      "patient_id" : "<PATIENT_ZM111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "libelle_libre" : "Diabete de type 2",
+      "patient_id" : "<PATIENT_ZM111>",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "dossier_medical_patient" : [ {
+      "date_mise_en_dialyse" : "2018-06-15",
+      "patient_id" : "<PATIENT_ZM111>"
+    } ],
+    "resultats_analyses" : [ {
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "patient_id" : "<PATIENT_ZM111>"
+    } ],
+    "serologies_patient" : [ {
+      "marqueur" : "AG_HBS",
+      "patient_id" : "<PATIENT_ZM111>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "a_analyse_hors_lot" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (resultats_analyses)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "a_etat" : {
+    "abords_vasculaires" : [ {
+      "cote" : "GAUCHE",
+      "patient_id" : "<PATIENT_ZM111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "libelle_libre" : "Diabete de type 2",
+      "patient_id" : "<PATIENT_ZM111>",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "dossier_medical_patient" : [ {
+      "date_mise_en_dialyse" : "2018-06-15",
+      "patient_id" : "<PATIENT_ZM111>"
+    } ],
+    "resultats_analyses" : [ {
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "patient_id" : "<PATIENT_ZM111>"
+    }, {
+      "date_prelevement" : "2026-04-04",
+      "hb_g_dl" : "9.50",
+      "patient_id" : "<PATIENT_ZM111>"
+    } ],
+    "serologies_patient" : [ {
+      "marqueur" : "AG_HBS",
+      "patient_id" : "<PATIENT_ZM111>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "b_antecedent_et_analyse_hors_lot" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (antecedents_medicaux)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "c_allergie_serologie_et_analyse_hors_lot" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (allergies_patient)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "d_serologie_et_analyse_hors_lot" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (serologies_patient)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "e_analyse_hors_lot_seule" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (resultats_analyses)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "f_analyse_du_meme_patient_posee_dans_un_autre_centre" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (resultats_analyses)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "g_annulation_une_fois_le_patient_libre" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "g_apres" : { },
+  "g_lots" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "ANNULE"
+  } ]
+}

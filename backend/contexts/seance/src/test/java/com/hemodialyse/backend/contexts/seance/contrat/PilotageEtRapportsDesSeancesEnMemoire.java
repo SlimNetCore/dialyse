@@ -72,6 +72,7 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     private final Map<UUID, Fiche> fiches = new HashMap<>();
     private final Map<UUID, Caisse> payeurs = new HashMap<>();
     private final Map<UUID, Volet> volets = new HashMap<>();
+    private final java.util.Set<UUID> voletsMedicaux = new java.util.HashSet<>();
 
     /** Le volet d'une séance, seulement s'il est posé sous le centre de la séance (KB-SEA-85 a). */
     private Volet voletDe(Ligne l) {
@@ -100,6 +101,10 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
 
     public void volet(UUID centre, UUID seance, BigDecimal poidsAvant, BigDecimal poidsApres, String tensionAvant, BigDecimal ultrafiltration) {
         volets.put(seance, new Volet(centre, poidsAvant, poidsApres, tensionAvant, ultrafiltration));
+    }
+
+    public void voletMedical(UUID seance) {
+        voletsMedicaux.add(seance);
     }
 
     public void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
@@ -314,6 +319,11 @@ public final class PilotageEtRapportsDesSeancesEnMemoire implements SeancesReali
     public List<String> factureDeLaSeance(UUID seance) {
         Ligne l = seances.get(seance);
         return l == null || l.facture == null ? List.of() : List.of(l.facture.toString());
+    }
+
+    @Override
+    public boolean laSeanceEstCompletee(UUID seance) {
+        return volets.containsKey(seance) || voletsMedicaux.contains(seance);
     }
 
     @Override

@@ -1,0 +1,71 @@
+{
+  "a_volet_medical" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — séance « S1 » (complétée dans la plateforme)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "b_une_seance_aux_deux_volets" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — séance « S2 » (complétée dans la plateforme)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "c_seance_facturee_et_completee" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — séance « S2 » (facturée dans la plateforme)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "d_annulation_une_fois_les_volets_retires" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "d_apres_centre_A" : { },
+  "d_apres_centre_B" : {
+    "volets" : [ {
+      "lignes" : "1",
+      "volet" : "medical"
+    } ]
+  },
+  "d_avant_annulation" : {
+    "seances" : [ {
+      "date_seance" : "2026-01-05",
+      "patient_id" : "<PATIENT_ZM111>",
+      "statut" : "SIGNEE"
+    }, {
+      "date_seance" : "2026-01-07",
+      "patient_id" : "<PATIENT_ZM111>",
+      "statut" : "SIGNEE"
+    }, {
+      "date_seance" : "2026-01-09",
+      "patient_id" : "<PATIENT_ZM111>",
+      "statut" : "SIGNEE"
+    } ]
+  },
+  "d_lots" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "ANNULE"
+  } ]
+}

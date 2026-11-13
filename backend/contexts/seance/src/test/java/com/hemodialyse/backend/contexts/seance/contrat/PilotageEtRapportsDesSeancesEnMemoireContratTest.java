@@ -63,6 +63,11 @@ class PilotageEtRapportsDesSeancesEnMemoireContratTest extends PilotageEtRapport
     }
 
     @Override
+    protected void voletMedical(UUID centre, UUID seance) {
+        seances.voletMedical(seance);
+    }
+
+    @Override
     protected void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
         seances.prescription(id, centre, patient, date, poidsSec, majLe);
     }

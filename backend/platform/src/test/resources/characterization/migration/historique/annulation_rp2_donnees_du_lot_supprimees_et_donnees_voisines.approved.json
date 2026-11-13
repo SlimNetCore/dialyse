@@ -1,0 +1,163 @@
+{
+  "0_avant_centre_A" : {
+    "abords_vasculaires" : [ {
+      "cote" : "GAUCHE",
+      "patient_id" : "<PATIENT_ZM111>",
+      "type_abord" : "FAV"
+    } ],
+    "allergies_patient" : [ {
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "substance_code" : "PENICILLINE"
+    } ],
+    "antecedents_medicaux" : [ {
+      "libelle_libre" : "HORS LOT",
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "libelle_libre" : "Diabete de type 2",
+      "patient_id" : "<PATIENT_ZM111>",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "dossier_medical_patient" : [ {
+      "patient_id" : "<PATIENT_ZM-EXT-A>"
+    }, {
+      "date_mise_en_dialyse" : "2018-06-15",
+      "patient_id" : "<PATIENT_ZM111>"
+    } ],
+    "resultats_analyses" : [ {
+      "date_prelevement" : "2026-02-02",
+      "hb_g_dl" : "9.50",
+      "patient_id" : "<PATIENT_ZM-EXT-A>"
+    }, {
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "patient_id" : "<PATIENT_ZM111>"
+    } ],
+    "seances" : [ {
+      "date_seance" : "2026-03-03",
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "statut" : "VALIDEE"
+    }, {
+      "date_seance" : "2026-01-05",
+      "patient_id" : "<PATIENT_ZM111>",
+      "statut" : "SIGNEE"
+    }, {
+      "date_seance" : "2026-01-07",
+      "patient_id" : "<PATIENT_ZM111>",
+      "statut" : "SIGNEE"
+    } ],
+    "serologies_patient" : [ {
+      "marqueur" : "AC_HBS",
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "resultat" : "POSITIF"
+    }, {
+      "marqueur" : "AG_HBS",
+      "patient_id" : "<PATIENT_ZM111>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "0_avant_centre_B" : {
+    "allergies_patient" : [ {
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "substance_code" : "PENICILLINE"
+    } ],
+    "antecedents_medicaux" : [ {
+      "libelle_libre" : "HORS LOT",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "dossier_medical_patient" : [ {
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>"
+    } ],
+    "resultats_analyses" : [ {
+      "date_prelevement" : "2026-02-02",
+      "hb_g_dl" : "9.50",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>"
+    } ],
+    "seances" : [ {
+      "date_seance" : "2026-03-03",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "statut" : "VALIDEE"
+    } ],
+    "serologies_patient" : [ {
+      "marqueur" : "AC_HBS",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "resultat" : "POSITIF"
+    } ]
+  },
+  "1_annulation" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : null,
+      "id" : "<LOT>",
+      "libelle" : "Reprise S6a",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "1_apres_centre_A" : {
+    "allergies_patient" : [ {
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "substance_code" : "PENICILLINE"
+    } ],
+    "antecedents_medicaux" : [ {
+      "libelle_libre" : "HORS LOT",
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "dossier_medical_patient" : [ {
+      "patient_id" : "<PATIENT_ZM-EXT-A>"
+    } ],
+    "resultats_analyses" : [ {
+      "date_prelevement" : "2026-02-02",
+      "hb_g_dl" : "9.50",
+      "patient_id" : "<PATIENT_ZM-EXT-A>"
+    } ],
+    "seances" : [ {
+      "date_seance" : "2026-03-03",
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "statut" : "VALIDEE"
+    } ],
+    "serologies_patient" : [ {
+      "marqueur" : "AC_HBS",
+      "patient_id" : "<PATIENT_ZM-EXT-A>",
+      "resultat" : "POSITIF"
+    } ]
+  },
+  "1_apres_centre_B" : {
+    "allergies_patient" : [ {
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "substance_code" : "PENICILLINE"
+    } ],
+    "antecedents_medicaux" : [ {
+      "libelle_libre" : "HORS LOT",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "dossier_medical_patient" : [ {
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>"
+    } ],
+    "resultats_analyses" : [ {
+      "date_prelevement" : "2026-02-02",
+      "hb_g_dl" : "9.50",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>"
+    } ],
+    "seances" : [ {
+      "date_seance" : "2026-03-03",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "statut" : "VALIDEE"
+    } ],
+    "serologies_patient" : [ {
+      "marqueur" : "AC_HBS",
+      "patient_id" : "<PATIENT_B_ZM-EXT-B>",
+      "resultat" : "POSITIF"
+    } ]
+  },
+  "1_lots" : [ {
+    "libelle" : "Reprise S6a",
+    "status" : "ANNULE"
+  } ]
+}

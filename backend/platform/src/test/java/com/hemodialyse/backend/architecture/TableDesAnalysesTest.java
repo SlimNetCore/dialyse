@@ -48,8 +48,8 @@ class TableDesAnalysesTest {
         // StatistiquesMedicalesPubliees ; retirés de la liste (8 → 6 entrées).
         lecteur(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
                 "reprise de données (ÉCRIT des analyses historiques, descripteur TABLES) ; échéance : reprise par le module", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
-                "annulation d'un lot de reprise (SUPPRIME les analyses du lot) ; échéance : reprise par le module", RETRAIT_DU_PILOTAGE_LEGACY);
+        // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; l'annulation d'un lot lit et supprime les analyses du
+        // lot par DonneesMedicalesDeLaReprise (dossier-medical.v1). Butoir supprimé, aucun report.
         String ressources = "platform/src/main/resources/";
         lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des analyses ; rejoué HORS profil prod seulement, voir TableDesSeancesTest)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des analyses)", RETRAIT_DU_PILOTAGE_LEGACY);
@@ -163,12 +163,23 @@ class TableDesAnalysesTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(6);
+        assertThat(LECTEURS_CONNUS).hasSize(5);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
         });
         assertThat(LECTEURS_CONNUS.keySet()).noneMatch(c -> c.startsWith("contexts/"));
+    }
+
+    /**
+     * RP2 (2026-11-13, ADR 0170) : l'annulation d'un lot de reprise passe par {@code DonneesMedicalesDeLaReprise} ; son entrée et son butoir
+     * 2027-06-30 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne lit plus la table.
+     */
+    @Test
+    void l_annulation_d_un_lot_de_reprise_ne_touche_plus_la_table_des_analyses() throws IOException {
+        String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java";
+        assertThat(LECTEURS_CONNUS).doesNotContainKey(adapter);
+        assertThat(lecteurs(sourcesDeProduction(backend()))).doesNotContain(adapter);
     }
 
     @Test

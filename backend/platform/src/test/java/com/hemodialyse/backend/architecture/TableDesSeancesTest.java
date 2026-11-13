@@ -69,9 +69,8 @@ class TableDesSeancesTest {
         // JPA SeanceJpaEntity, VoletParamedicalJpaEntity, VoletMedicalJpaEntity sont retirées. Restent l'état Jasper (justifié), les scripts de
         // données, le schéma H2 et les deux lecteurs des volets de la reprise (résidu E-R6).
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
-        lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
-                "annulation d'un lot de reprise : lit volet_medical et volet_paramedical pour « complétée » (résidu E-R6, ADR 0099 ; SE7f : "
-                        + "visible depuis que les volets sont gardés) ; échéance : lecture publiée de la Séance ou reprise par le module", LECTURES_PUBLIEES);
+        // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; le contrôle « complétée » lit les volets par
+        // SeancesDeLaReprisePubliees.laSeanceEstCompletee (butoir 2027-03-31 supprimé, aucun report).
         // Ressources SQL de production hors Flyway, révélées par le durcissement de la garde (revue SE7c1, 2026-11-08).
         String ressources = "platform/src/main/resources/";
         lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS seances, volet_paramedical, "
@@ -213,7 +212,7 @@ class TableDesSeancesTest {
         List<String> se7e = List.of(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
                 plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java");
         assertThat(se7e).as("les 2 fichiers de SE7e restés en plateforme existent (PatientStatsQueryService est parti au Dossier médical, PL4 ; CahierDialyseReportService à la Séance, PL5)").allMatch(c -> Files.isRegularFile(backend().resolve(c)));
-        // Sur la seule table seances (la garde des volets, SE7f, inscrit MigrationRollbackJdbcAdapter pour volet_medical / volet_paramedical, E-R6).
+        // Sur la seule table seances (les volets : voir l_annulation_d_un_lot_de_reprise_ne_lit_plus_les_volets_de_la_seance, RP2).
         Set<String> lecteursDeSeances = new TreeSet<>();
         for (Path source : sourcesDeProduction(backend())) {
             if (mentionne(source, Set.of("seances"))) lecteursDeSeances.add(relatif(source));
@@ -221,6 +220,19 @@ class TableDesSeancesTest {
         assertThat(se7e.stream().filter(lecteursDeSeances::contains).toList())
                 .as("ces fichiers passent par les ports publiés de la Séance (ADR 0099, SE7e), sans SQL ni nom de table calculé sur seances")
                 .isEmpty();
+    }
+
+    /**
+     * RP2 (2026-11-13, ADR 0170) : l'annulation d'un lot de reprise lit « volet complété » par {@code SeancesDeLaReprisePubliees} ; son
+     * entrée et son butoir 2027-03-31 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne
+     * lit plus les trois tables de la Séance (volets compris).
+     */
+    @Test
+    void l_annulation_d_un_lot_de_reprise_ne_lit_plus_les_volets_de_la_seance() throws IOException {
+        String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java";
+        assertThat(LECTEURS_CONNUS).doesNotContainKey(adapter);
+        assertThat(lecteurs(sourcesDeProduction(backend()))).as("ni SQL ni nom de table calculé sur seances, volet_medical, volet_paramedical")
+                .doesNotContain(adapter);
     }
 
     /** Lecture littérale d'une des {@code tables} dans un fichier (même détection que {@link #mentionneLaTableDeLaSeance}, tables choisies). */
@@ -324,22 +336,20 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_6_lecteurs_l_annulation_de_la_reprise_le_schema_h2_et_les_ressources_justifiees() {
+    void la_liste_blanche_compte_5_lecteurs_le_schema_h2_et_les_ressources_justifiees() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs des tables de la Séance compte 6 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis "
+                .as("la liste blanche des lecteurs des tables de la Séance compte 5 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis "
                         + "SE7d, 0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel sur seances depuis SE7e, "
-                        + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f ; restent l'annulation de la reprise qui lit les VOLETS (E-R6), "
+                        + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f, 0 lecteur Java des volets depuis RP2 ; restent "
                         + "le schéma H2, l'état Jasper du cahier (justifié) et 3 scripts de données) : toute entrée ajoutée ou retirée doit être "
                         + "décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
-                .hasSize(6);
+                .hasSize(5);
         // DOC2 (ADR 0162) : l'état Jasper du cahier (déjà justifié) a changé d'emplacement (module Documents) sans changer de nature
         assertThat(LECTEURS_CONNUS.keySet().stream()
                 .filter(c -> c.startsWith("contexts/") && !c.equals("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml")).count())
                 .as("dont 0 d'un autre contexte (SE7d)").isZero();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/java/")))
-                .as("dont 1 source Java, l'annulation d'un lot de reprise qui lit les volets (aucun ne touche seances)")
-                .containsExactlyInAnyOrder(
-                        "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java");
+                .as("dont 0 source Java : l'annulation d'un lot de reprise lit les volets par la Séance depuis RP2 (ADR 0170)").isEmpty();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
                 .as("dont 4 ressources SQL de la plateforme (le schéma H2 et 3 scripts de données ; l'état Jasper du cahier est au module "
                         + "Documents depuis DOC2, ADR 0162)").isEqualTo(4);

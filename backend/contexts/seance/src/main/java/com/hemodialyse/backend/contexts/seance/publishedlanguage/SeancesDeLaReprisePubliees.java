@@ -48,6 +48,13 @@ public interface SeancesDeLaReprisePubliees {
     /** L'identifiant (texte) de la facture de la séance s'il y en a une, recherché sans le centre (E15). */
     List<String> factureDeLaSeance(UUID seance);
 
+    /**
+     * Vrai si la séance est « complétée » : son volet médical OU son volet paramédical existe, sans borne de centre (RP2, ADR 0170 ; lecture
+     * reprise de {@code MigrationRollbackJdbcAdapter}, E17 : l'ancien contrôle « volet complété » de l'annulation d'un lot). Une séance
+     * complétée dans la plateforme depuis sa reprise empêche l'annulation du lot.
+     */
+    boolean laSeanceEstCompletee(UUID seance);
+
     /** Supprime la séance reprise, seulement dans le centre du lot (E16). */
     void retirer(UUID centre, UUID seance);
 }

@@ -51,8 +51,8 @@ class TableDuDossierMedicalTest {
         lecteur(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
                 "reprise de données (ÉCRIT des antécédents, sérologies et abords historiques, descripteur TABLES) ; échéance : reprise par le module",
                 RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(plateforme + "infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
-                "annulation d'un lot de reprise (SUPPRIME les lignes du lot) ; échéance : reprise par le module", RETRAIT_DU_PILOTAGE_LEGACY);
+        // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; l'annulation d'un lot lit et supprime ces tables par
+        // DonneesMedicalesDeLaReprise (dossier-medical.v1). Butoir supprimé, aucun report.
         String ressources = "platform/src/main/resources/";
         lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS ; DM9 : remplace "
                 + "les 17 entités JPA retirées) ; aucune lecture ni écriture de données", RETRAIT_DU_PILOTAGE_LEGACY);
@@ -147,7 +147,7 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(9);
+        assertThat(LECTEURS_CONNUS).hasSize(8);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
@@ -158,6 +158,17 @@ class TableDuDossierMedicalTest {
                 .containsExactly("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml",
                         "contexts/documents/src/main/resources/reports/ordonnance.jrxml",
                         "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java");
+    }
+
+    /**
+     * RP2 (2026-11-13, ADR 0170) : l'annulation d'un lot de reprise passe par {@code DonneesMedicalesDeLaReprise} ; son entrée et son butoir
+     * 2027-06-30 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne lit plus ces tables.
+     */
+    @Test
+    void l_annulation_d_un_lot_de_reprise_ne_touche_plus_les_tables_du_dossier_medical() throws IOException {
+        String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java";
+        assertThat(LECTEURS_CONNUS).doesNotContainKey(adapter);
+        assertThat(lecteurs(TableDesAnalysesTest.sourcesDeProduction(backend()))).doesNotContain(adapter);
     }
 
     @Test

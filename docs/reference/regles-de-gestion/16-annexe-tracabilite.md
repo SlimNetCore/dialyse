@@ -187,12 +187,13 @@ publié ; restent fournis `FichesFournies`, `DiffusionsFournies` (+ `voletParame
 (administrations de traitement seulement). `GET /api/v1/patients/{id}/greffe/kdigo` lit la dernière créatinine par `DerniereCreatininePubliee`
 (Dossier médical) et `GET /api/v1/direction/capacite` calcule la capacité théorique par `CapaciteTheoriqueDesCentres` (Planification) ;
 règle : RG-SEA-071 (lot L5a, ADR 0117 : départage déterministe à date égale de la dernière créatinine, KB-SEA-96 a ; le zéro est clos sans changement).
-Les 6 lecteurs SQL des tables de la Séance (`seances`, `volet_paramedical`, `volet_medical` depuis SE7f) hors du contexte Séance qui restent
+Les 5 lecteurs SQL des tables de la Séance (`seances`, `volet_paramedical`, `volet_medical` depuis SE7f) hors du contexte Séance qui restent
 (Facturation : 0 depuis SE7c2, autres contextes : 0 depuis SE7d, lecteurs Java du pilotage, des statistiques, du cahier, de la reprise et du
-référentiel sur `seances` : 0 depuis SE7e, fournisseurs de `seance.v1` et entités JPA : 0 depuis SE7f ; plateforme : l'annulation d'un lot de
-reprise qui lit les volets, le schéma H2 `db/schema.sql`, 3 scripts de données et l'état Jasper du cahier de dialyse, modèle personnalisable
-gardé avec sa requête, ADR 0099) sont inscrits dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le 2026-12-15, butoir
-propre à chacun). Les 8 lecteurs de `resultats_analyses` hors du Dossier médical sont inscrits dans `TableDesAnalysesTest`.
+référentiel sur `seances` : 0 depuis SE7e, fournisseurs de `seance.v1` et entités JPA : 0 depuis SE7f, annulation d'un lot de reprise et ses
+volets : 0 depuis RP2, ADR 0170 ; plateforme : le schéma H2 `db/schema.sql`, 3 scripts de données et l'état Jasper du cahier de dialyse, modèle
+personnalisable gardé avec sa requête, ADR 0099) sont inscrits dans la liste blanche datée de `TableDesSeancesTest` (revue au plus tard le
+2026-12-15, butoir propre à chacun). Les 5 lecteurs de `resultats_analyses` hors du Dossier médical (6 avant RP2) sont inscrits dans
+`TableDesAnalysesTest` ; l'annulation d'un lot de reprise ne figure plus dans `TableDuDossierMedicalTest` (9 entrées avant RP2, 8 après).
 PD1 et PD4 (ADR 0102, contexte `pilotage-direction`) n'ajoutent aucune route : `/api/v1/direction/societe`, `/overview`, `/breakdown` et `/report`
 restent servies par `DirectionDashboardRestController` (qui garde le jeton et la garde de société, et héberge les routes caractérisées par leurs
 contextes) mais calculent par le langage publié `TableauDeBordDeLaDirection` et `RapportDeSyntheseDeLaDirection` du Pilotage direction ;

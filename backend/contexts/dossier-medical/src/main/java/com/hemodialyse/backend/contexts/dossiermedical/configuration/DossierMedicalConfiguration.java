@@ -221,6 +221,15 @@ public class DossierMedicalConfiguration {
         return new com.hemodialyse.backend.contexts.dossiermedical.application.GardeDePatientDuCentre(patients);
     }
 
+    /**
+     * Langage publié RP2 (ADR 0170) : lecture et suppression des données médicales d'un lot de reprise, pour l'annulation du lot (réservé à
+     * l'adapter d'annulation de la plateforme, règle ArchUnit). Participe à la transaction de l'annulation.
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DonneesMedicalesDeLaReprise donneesMedicalesDeLaReprise(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.DonneesMedicalesDeLaRepriseJdbc(jdbc);
+    }
+
     /** Langage publié SE7f (ADR 0100) : la dernière créatinine du patient au centre pour l'évaluation KDIGO de la plateforme (KB-SEA-96 reproduit). */
     @Bean
     com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee derniereCreatininePubliee(JdbcTemplate jdbc) {

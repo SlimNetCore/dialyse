@@ -233,9 +233,13 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   (`MIGRATION_CANCEL_BLOCKED` avec la liste des blocages). Terminer un lot est définitif. Chaque exécution de fichier
   est journalisée (fichier, lignes, créations, mises à jour, anomalies, auteur, date). Depuis RP1 (ADR 0169) la suppression
   des patients, assurés et affectations créés par le lot est faite par **Patient et couverture** (langage publié
-  `AnnulationDeLaReprise`, bornée au centre) ; comportement inchangé. **Blocages** : un patient repris est refusé s'il a une
+  `AnnulationDeLaReprise`, bornée au centre) ; comportement inchangé. Depuis RP2 (ADR 0170) la lecture « séance complétée » (volet
+  médical ou paramédical) est faite par la **Séance** (`SeancesDeLaReprisePubliees.laSeanceEstCompletee`) et la lecture et la
+  suppression des données médicales et des analyses du lot par le **Dossier médical** (langage publié `DonneesMedicalesDeLaReprise`,
+  suppression bornée au centre) ; comportement inchangé. **Blocages** : un patient repris est refusé s'il a une
   prise en charge, une attestation, une séance, une facture ou des données de dossier médical que le lot n'a pas créées (le
-  refus nomme la première catégorie contrôlée) ; un assuré repris est refusé s'il est rattaché à une affectation ou à un
+  refus nomme la première catégorie contrôlée) ; une séance reprise est refusée si elle est facturée (motif prioritaire) ou
+  complétée par un volet dans la plateforme ; un assuré repris est refusé s'il est rattaché à une affectation ou à un
   patient du centre que le lot n'a pas créés. **Constats reproduits, à confirmer métiers/DPO avant le 2026-12-15** (KB-S6a-8,
   KB-S6a-9) : un patient modifié sur sa fiche depuis l'import est supprimé sans avertissement ; les contrôles de prise en
   charge, d'attestation et de séance ne sont pas bornés au centre.

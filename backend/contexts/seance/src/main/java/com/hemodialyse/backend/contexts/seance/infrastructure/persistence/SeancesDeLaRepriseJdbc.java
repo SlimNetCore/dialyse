@@ -107,6 +107,13 @@ public class SeancesDeLaRepriseJdbc implements SeancesDeLaReprisePubliees {
                 seance);
     }
 
+    /** RP2 (ADR 0170) : les deux lectures de l'ancien contrôle « complétée » de l'annulation d'un lot, mot pour mot, sans centre. */
+    @Override
+    public boolean laSeanceEstCompletee(UUID seance) {
+        return !jdbc.queryForList("SELECT CAST(id AS VARCHAR(36)) FROM volet_medical WHERE seance_id = ?", String.class, seance).isEmpty()
+                || !jdbc.queryForList("SELECT CAST(id AS VARCHAR(36)) FROM volet_paramedical WHERE seance_id = ?", String.class, seance).isEmpty();
+    }
+
     @Override
     public void retirer(UUID centre, UUID seance) {
         jdbc.update("DELETE FROM seances WHERE id = ? AND center_id = ?", seance, centre);

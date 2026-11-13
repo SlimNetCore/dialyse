@@ -436,9 +436,9 @@
   égale, une créatinine à 0 est retenue) et la **capacité théorique** des centres par le langage publié de la Planification
   (`CapaciteTheoriqueDesCentres` : un générateur de secours pour huit, capacité = postes actifs x séries x patients par poste et par série,
   seuil de proximité 90 %, même résultat). Les tables `seances`, `volet_paramedical` et `volet_medical` ne sont lues ou écrites hors de la
-  Séance que par une **liste blanche nominative datée** (`TableDesSeancesTest`, 6 entrées : l'annulation d'un lot de reprise pour les
-  volets, le schéma H2, l'état Jasper du cahier et trois scripts de données) ; `resultats_analyses` hors du Dossier médical de même
-  (`TableDesAnalysesTest`, 8 entrées) ; les entités JPA sont détectées. **KB-SEA-49 est clos** (le code qui effaçait `facture_id` n'existe plus).
+  Séance que par une **liste blanche nominative datée** (`TableDesSeancesTest`, 5 entrées depuis RP2 : le schéma H2, l'état Jasper du
+  cahier et trois scripts de données ; l'annulation d'un lot de reprise lit « volet complété » par `SeancesDeLaReprisePubliees`, ADR 0170) ;
+  `resultats_analyses` hors du Dossier médical de même (`TableDesAnalysesTest`, 5 entrées depuis RP2) ; les entités JPA sont détectées. **KB-SEA-49 est clos** (le code qui effaçait `facture_id` n'existe plus).
   *Source :* `KdigoGreffeQueryService`, `DerniereCreatinineJdbc`, `DirectionCapaciteQueryService`, `ConsulterLaCapaciteTheorique`,
   `CapaciteTheorique`, `TableDesSeancesTest`, `TableDesAnalysesTest`, `FrontieresDesContextesTest`.
 

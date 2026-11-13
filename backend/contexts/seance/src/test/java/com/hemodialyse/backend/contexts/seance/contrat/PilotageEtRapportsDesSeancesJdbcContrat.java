@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapportsDesSeancesContrat {
 
-    private static final List<String> TABLES = List.of("volet_paramedical", "prescriptions_medicales", "seances", "patients", "centre_payeur",
+    private static final List<String> TABLES = List.of("volet_paramedical", "volet_medical", "prescriptions_medicales", "seances", "patients", "centre_payeur",
             "agence", "caisse_assurance");
 
     protected abstract JdbcTemplate jdbc();
@@ -48,6 +48,8 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
                 + "incidents TEXT, poids_apres_kg NUMERIC(38, 2), poids_avant_kg NUMERIC(38, 2), seance_id UUID NOT NULL UNIQUE, "
                 + "ta_apres VARCHAR(30), ta_avant VARCHAR(30), type_dialysat VARCHAR(100), ultrafiltration_ml NUMERIC(38, 2), "
                 + "updated_at TIMESTAMP WITH TIME ZONE)");
+        jdbc().execute("CREATE TABLE IF NOT EXISTS volet_medical (id UUID PRIMARY KEY, center_id UUID NOT NULL, seance_id UUID NOT NULL UNIQUE, "
+                + "created_at TIMESTAMP WITH TIME ZONE, updated_at TIMESTAMP WITH TIME ZONE)");
         jdbc().execute("CREATE TABLE IF NOT EXISTS prescriptions_medicales (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "
                 + "date_prescription DATE NOT NULL, poids_sec_cible_kg NUMERIC(5, 2), created_at TIMESTAMP WITH TIME ZONE, "
                 + "updated_at TIMESTAMP WITH TIME ZONE)");
@@ -116,6 +118,11 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
                          BigDecimal ultrafiltration) {
         jdbc().update("INSERT INTO volet_paramedical (id, center_id, seance_id, poids_avant_kg, poids_apres_kg, ta_avant, ultrafiltration_ml) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)", UUID.randomUUID(), centre, seance, poidsAvant, poidsApres, tensionAvant, ultrafiltration);
+    }
+
+    @Override
+    protected void voletMedical(UUID centre, UUID seance) {
+        jdbc().update("INSERT INTO volet_medical (id, center_id, seance_id) VALUES (?, ?, ?)", UUID.randomUUID(), centre, seance);
     }
 
     @Override
