@@ -134,12 +134,26 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   même URL et mêmes champs (`code`, `label`) qu'avant. La liste est celle des types que les contextes **déclarent** à Documents (langage
   publié : code en majuscules, libellé, gabarit par défaut, version), dans l'ordre des déclarations, suivie du rapport personnalisé
   `CUSTOM` que Documents seul possède ; un type déclaré deux fois, ou le code `CUSTOM` déclaré par un autre, empêche le démarrage. Les
-  types livrés sont déclarés par Documents lui-même (le catalogue reste dans Documents, ADR 0165). Un verbe d'écriture répond `405`
+  types livrés sont déclarés par leur contexte propriétaire depuis DOC4c (ADR 0166) : Documents pour les six documents du patient et de
+  ses listes, Facturation (synthèse mensuelle), Dossier médical (ordonnance), Stock (inventaire), GMAO (bon d'intervention),
+  Planification (présence, planning optimisé), Séance (cahier de dialyse) et Pilotage de la direction (rapport) ; l'ordre est
+  inchangé. Un verbe d'écriture répond `405`
   avec `Allow` (journalisé sous `TYPE_DE_DOCUMENT_ECRITURE_REFUSEE`) et un `Accept` indisponible `406` (corrigé le 2026-11-13, KB-DOC4B-1, 2).
   La liste ne dépend ni du profil ni du centre (reproduit, à confirmer par les métiers/DPO avant le 2026-12-15, KB-DOC4B-3).
+- **RG-DOC-012** — **Règles d'impression des types sensibles (publiées à Documents, DOC4c, ADR 0166)** : chaque contexte qui possède un
+  type de document publie sa règle (garde de profil et de centre, paramètres posés par le serveur) ; Documents l'applique par le code
+  du type (sans casse ni espaces), **avant toute validation de la demande et toute lecture de données** (`403` avant `400`). Ordonnance
+  (`ORDONNANCE`, Dossier médical, KB-MED-18) : `MEDECIN` ou `ADMIN` (même s'ils portent d'autres rôles), puis le centre du corps doit
+  être celui de la session (`SUPERADMIN` transverse) ; `403 ACCESS_DENIED` sinon ; seule la voie par type est gardée (reproduit, à
+  confirmer avant le 2026-12-15, KB-DOC4C-1). Synthèse mensuelle (`SYNTHESE_FACTURATION_MENSUELLE`, Facturation, KB-FAC-52 et 60) :
+  `ADMIN` ou `SECRETAIRE`, même profil que `/facturation/synthese/print`, sur les deux voies (par type et par modèle, d'après le type du
+  modèle chargé, jamais un paramètre du client) ; les montants globaux sont les totaux enregistrés des factures de la période (ADR 0034),
+  posés par le serveur et prioritaires sur ceux du client ; période absente ou inversée : aucun total posé ; période illisible : échec
+  d'impression (`500`). Un SUPERADMIN seul est refusé pour ces deux types (KB-DOC4C-2). Un type sans règle n'est pas gardé (RG-DOC-007).
 - **RG-DOC-007** — **Impression (contexte Documents, DOC1, ADR 0142)** : `POST /api/v1/documents/print` (par type) et
-  `/print/{modeleId}` (par modèle). Tout profil authentifié imprime (matrice rôle x type de document **à confirmer avant
-  le 2026-12-15**) ; l'anonyme est refusé. Le centre demandé doit être celui de la session (`403 ACCESS_DENIED`
+  `/print/{modeleId}` (par modèle). Tout profil authentifié imprime un type sans règle propre (matrice rôle x type de document
+  **à confirmer avant le 2026-12-15**) ; l'anonyme est refusé. L'ordonnance et la synthèse mensuelle de facturation ont leur règle
+  propre, publiée par leur contexte (RG-DOC-012). Le centre demandé doit être celui de la session (`403 ACCESS_DENIED`
   sinon ; `SUPERADMIN` transverse). Les paramètres d'identité (`CENTER_ID`, `SOCIETE_*`, `CENTRE_*`) sont toujours
   fournis par le serveur : la valeur du client est ignorée. Une entrée illisible (corps absent ou cassé, identifiant de
   modèle non UUID) est refusée en `400 BAD_REQUEST`. Dette d'affichage reproduite : dates avec `00:00`, document sans

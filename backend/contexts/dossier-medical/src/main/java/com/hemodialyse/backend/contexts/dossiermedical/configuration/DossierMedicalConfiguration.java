@@ -175,6 +175,26 @@ public class DossierMedicalConfiguration {
     }
 
     @Bean
+    com.hemodialyse.backend.contexts.dossiermedical.application.ProfilDeLaSession profilDeLaSessionDossierMedical() {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.legacyidentite.ProfilLegacy();
+    }
+
+    /** Le type de document du Dossier médical, déclaré à Documents (DOC4c, ADR 0166) ; 8e dans l'ordre des types proposés. */
+    @Bean
+    @org.springframework.core.annotation.Order(30)
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.DeclarationDesTypesDeDocument dossierMedicalTypesDeDocument() {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.impression.TypesDeDocumentDuDossierMedical();
+    }
+
+    /** La règle d'impression de l'ordonnance, publiée à Documents (DOC4c, ADR 0166). */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType dossierMedicalRegleDImpressionDeLOrdonnance(
+            com.hemodialyse.backend.contexts.dossiermedical.application.ProfilDeLaSession profil, SessionCourante session) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.interfaces.publie.RegleDImpressionDeLOrdonnance(
+                new com.hemodialyse.backend.contexts.dossiermedical.application.GarderLImpressionDeLOrdonnance(profil, session));
+    }
+
+    @Bean
     @Primary
     HorlogeDuCentre horlogeDuDossierMedical() {
         return new HorlogeDuCentre(Clock.systemUTC(), FUSEAU_DES_CENTRES);

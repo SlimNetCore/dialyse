@@ -2,7 +2,6 @@ package com.hemodialyse.backend.characterization.organisation;
 
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.ModeleDocumentProvisioner;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,8 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
     private PapierEnTeteDuCentre identite;
     @Autowired
     private ModeleDocumentProvisioner provisionneur;
+    @Autowired
+    private com.hemodialyse.backend.contexts.documents.application.CatalogueDesTypesLivres catalogue;
 
     @Override
     protected String theme() {
@@ -144,7 +145,7 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
 
         provisionneur.run(null);
 
-        int attendu = ModeleDocumentCatalog.entries().size();
+        int attendu = catalogue.types().size();
         for (UUID centre : List.of(inactif, actif)) {
             Integer nombre = jdbc.queryForObject("SELECT COUNT(*) FROM modele_document WHERE center_id = ?", Integer.class, centre);
             assertThat(nombre).as("modèles du centre " + centre).isEqualTo(attendu);
@@ -157,18 +158,18 @@ class IdentiteImprimeeCasLimitesCharacterizationIntegrationTest extends Organisa
     @Test
     void un_modele_desactive_par_le_centre_reste_desactive_apres_le_provisionnement() throws Exception {
         UUID centre = centreComplet("E-PROV-D", societeComplete("E-PROVD", true, null, null), true);
-        ModeleDocumentCatalog.Entry entree = ModeleDocumentCatalog.entries().get(0);
+        var entree = catalogue.types().get(0);
         jdbc.update("INSERT INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, "
                         + "description, active) VALUES (?,?,?,?,?,?,'PDF',?,FALSE)",
-                UUID.randomUUID(), centre, entree.type(), "Libellé du centre", entree.type(), entree.cheminJrxml(), "d");
+                UUID.randomUUID(), centre, entree.code(), "Libellé du centre", entree.code(), entree.gabaritParDefaut(), "d");
 
         provisionneur.run(null);
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM modele_document WHERE center_id = ? AND UPPER(type_document) = ?",
-                Integer.class, centre, entree.type())).isEqualTo(1);
+                Integer.class, centre, entree.code())).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT active FROM modele_document WHERE center_id = ? AND UPPER(type_document) = ?",
-                Boolean.class, centre, entree.type())).isFalse();
+                Boolean.class, centre, entree.code())).isFalse();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM modele_document WHERE center_id = ?", Integer.class, centre))
-                .isEqualTo(ModeleDocumentCatalog.entries().size());
+                .isEqualTo(catalogue.types().size());
     }
 }

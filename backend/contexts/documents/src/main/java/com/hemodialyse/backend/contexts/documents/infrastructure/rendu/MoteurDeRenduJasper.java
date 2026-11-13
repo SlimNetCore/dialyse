@@ -2,7 +2,8 @@ package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
 import com.hemodialyse.backend.contexts.documents.application.GabaritPersonnaliseDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.FrenchFormatFactory;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.documents.application.CatalogueDesTypesLivres;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.TypeDeDocumentDeclare;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
@@ -35,9 +36,12 @@ public class MoteurDeRenduJasper implements MoteurDeRendu {
     private final CustomTemplateCompiler compiler;
     private final PapierEnTeteDuCentre papier;
     private final ModeleDocumentProvisioner provisioner;
+    private final CatalogueDesTypesLivres catalogue;
 
     public MoteurDeRenduJasper(JdbcTemplate jdbc, JasperReportService jasper, GabaritPersonnaliseDuCentre gabarits,
-                               CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner) {
+                               CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner,
+                               CatalogueDesTypesLivres catalogue) {
+        this.catalogue = catalogue;
         this.jdbc = jdbc;
         this.jasper = jasper;
         this.gabarits = gabarits;
@@ -65,21 +69,21 @@ public class MoteurDeRenduJasper implements MoteurDeRendu {
 
     @Override
     public Rendu rendreParType(UUID centre, String type, Map<String, Object> donnees, String formatDemande) {
-        ModeleDocumentCatalog.Entry entry = ModeleDocumentCatalog.find(type).orElseThrow(() -> new RenduRefuse(
+        TypeDeDocumentDeclare entry = catalogue.trouver(type).orElseThrow(() -> new RenduRefuse(
                 "DOCUMENT_TYPE_UNKNOWN", "Type de document inconnu : " + type));
         provisioner.ensure(centre, entry);
 
         List<Map<String, Object>> modeles = jdbc.queryForList(
                 "SELECT id, chemin_jrxml, format_impression FROM modele_document "
                         + "WHERE center_id = ? AND UPPER(type_document) = ? AND active = TRUE ORDER BY created_at DESC",
-                centre, entry.type());
+                centre, entry.code());
         if (modeles.isEmpty()) {
             throw new RenduRefuse("DOCUMENT_MODEL_INACTIVE", "Le modèle de document « " + entry.libelle()
                     + " » est désactivé pour ce centre : réactivez-le dans Modèles de documents.");
         }
         Map<String, Object> modele = lower(modeles.getFirst());
         UUID modeleId = UUID.fromString(String.valueOf(modele.get("id")));
-        String chemin = modele.get("chemin_jrxml") == null ? entry.cheminJrxml() : modele.get("chemin_jrxml").toString();
+        String chemin = modele.get("chemin_jrxml") == null ? entry.gabaritParDefaut() : modele.get("chemin_jrxml").toString();
         String format = formatDemande != null ? formatDemande
                 : modele.get("format_impression") == null ? "PDF" : modele.get("format_impression").toString();
 
@@ -99,7 +103,7 @@ public class MoteurDeRenduJasper implements MoteurDeRendu {
      */
     @Override
     public Rendu rendreParTypePourLaSociete(UUID societe, String type, Map<String, Object> donnees, String formatDemande) {
-        ModeleDocumentCatalog.Entry entry = ModeleDocumentCatalog.find(type).orElseThrow(() -> new RenduRefuse(
+        TypeDeDocumentDeclare entry = catalogue.trouver(type).orElseThrow(() -> new RenduRefuse(
                 "DOCUMENT_TYPE_UNKNOWN", "Type de document inconnu : " + type));
         String format = formatDemande != null ? formatDemande : "PDF";
         Map<String, Object> all = new HashMap<>(papier.ecarterLIdentiteDeLAppelant(donnees));
@@ -112,7 +116,7 @@ public class MoteurDeRenduJasper implements MoteurDeRendu {
             if (e.logo() != null && e.logo().length >= 4) all.put("SOCIETE_LOGO", new java.io.ByteArrayInputStream(e.logo()));
         });
         try {
-            return new Rendu(jasper.generateReport(entry.cheminJrxml(), avecSourceDeDonnees(all), format), format);
+            return new Rendu(jasper.generateReport(entry.gabaritParDefaut(), avecSourceDeDonnees(all), format), format);
         } catch (Exception e) {
             throw new RenduRefuse("DOCUMENT_GENERATION_FAILED",
                     "Impossible de générer « " + entry.libelle() + " » : " + rootMessage(e));

@@ -62,6 +62,15 @@ public class SessionLegacy implements SessionCourante {
     }
 
     @Override
+    public java.util.Collection<String> roles() {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification == null || !authentification.isAuthenticated() || authentification.getPrincipal() == null) {
+            throw new AccessDeniedException("Contexte d'authentification invalide : centre de rattachement introuvable");
+        }
+        return authentification.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+
+    @Override
     public CentreId centre(UUID centreDemande) {
         Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
         if (authentification == null || !authentification.isAuthenticated() || authentification.getPrincipal() == null

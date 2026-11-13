@@ -908,6 +908,24 @@ class FrontieresDesContextesTest {
             .because("l'historique des versions de gabarit est porté par contexts/documents (DOC3, ADR 0163)");
 
     /**
+     * DOC4c (ADR 0166), règle permanente sans date : plus aucun contrôleur de documents à la plateforme ; les règles d'impression des types
+     * sensibles (profil, centre, totaux) sont publiées par Facturation et Dossier médical à Documents, qui les orchestre. Aucune classe de la
+     * plateforme n'implémente le port {@code RegleDImpressionDUnType}.
+     */
+    @ArchTest
+    static final ArchRule le_controleur_de_documents_n_est_plus_a_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.web.rest.DocumentRestController")
+            .allowEmptyShould(true)
+            .because("les routes de documents sont servies par contexts/documents (DOC1 à DOC4c, ADR 0166)");
+
+    @ArchTest
+    static final ArchRule la_plateforme_ne_porte_aucune_regle_d_impression = noClasses()
+            .that().resideInAnyPackage("com.hemodialyse.backend.infrastructure..", "com.hemodialyse.backend.application..")
+            .should().implement(com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType.class)
+            .allowEmptyShould(true)
+            .because("la règle d'un type de document appartient à son contexte propriétaire (DOC4c, ADR 0166)");
+
+    /**
      * PL11-6 (ADR 0161), règle permanente sans date : l'administration générique des référentiels est une façade fine qui distribue aux
      * contextes propriétaires ; aucune classe ne lit ni n'écrit en SQL dynamique des noms de table issus d'un descripteur, et l'adaptateur
      * et la table de noms retirés ne doivent pas réapparaître.

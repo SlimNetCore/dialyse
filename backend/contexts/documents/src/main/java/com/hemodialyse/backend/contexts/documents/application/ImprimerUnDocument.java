@@ -6,7 +6,6 @@ import com.hemodialyse.backend.contexts.documents.domain.FormatDeSortie;
 import com.hemodialyse.backend.contexts.documents.domain.ModeleDeDocument;
 import com.hemodialyse.backend.contexts.documents.domain.ParametresReserves;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpressionDesTypesSensibles;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,8 @@ import java.util.UUID;
 /**
  * Cas d'usage des routes d'impression {@code POST /api/v1/documents/print} (par type) et {@code /print/{modeleId}} (par modèle).
  *
- * <p>Ordre (comme avant, plus la garde de centre) : (1) règles des types sensibles (profil, centre), AVANT toute validation ;
+ * <p>Ordre (comme avant, plus la garde de centre) : (1) règles des types sensibles, publiées par leurs contextes propriétaires (profil,
+ * centre, ADR 0166), AVANT toute validation et toute lecture ;
  * (2) validation de la demande (400) ; (3) garde de centre de la session (403, KB-DOC1-1) ; (4) lecture du modèle ; (5) paramètres :
  * ceux du client privés des noms réservés, puis ceux du serveur (centre, identité, données des types sensibles) qui l'emportent toujours
  * (KB-DOC1-2) ; (6) rendu. Tout ce qui suit la garde de profil et ne relève pas d'un refus est enveloppé en {@link RenduEchoue}.
@@ -26,10 +26,10 @@ public class ImprimerUnDocument {
     private final ModelesDeDocument modeles;
     private final PapierEnTeteDesDocuments papier;
     private final MoteurDeRendu moteur;
-    private final ReglesDImpressionDesTypesSensibles regles;
+    private final ReglesDImpression regles;
 
     public ImprimerUnDocument(SessionCourante session, ModelesDeDocument modeles, PapierEnTeteDesDocuments papier, MoteurDeRendu moteur,
-                              ReglesDImpressionDesTypesSensibles regles) {
+                              ReglesDImpression regles) {
         this.session = session;
         this.modeles = modeles;
         this.papier = papier;

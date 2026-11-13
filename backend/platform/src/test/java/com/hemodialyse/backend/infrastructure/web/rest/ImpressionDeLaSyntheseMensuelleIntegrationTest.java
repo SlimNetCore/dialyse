@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
-class DocumentRestControllerSyntheseMensuelleIntegrationTest {
+class ImpressionDeLaSyntheseMensuelleIntegrationTest {
 
     private static final UUID CENTER_ID = UUID.fromString("99992000-0000-0000-0000-000000000001");
     private static final UUID OTHER_CENTER_ID = UUID.fromString("99992000-0000-0000-0000-000000000002");

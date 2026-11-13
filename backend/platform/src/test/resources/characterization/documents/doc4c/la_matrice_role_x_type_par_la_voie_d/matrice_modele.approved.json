@@ -1,0 +1,190 @@
+{
+  "ORDONNANCE" : {
+    "ADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SECRETAIRE" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "MEDECIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "DIRECTION" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SUPERADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SOCIETE_ADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "MEDECIN+INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "ADMIN+INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SECRETAIRE+MEDECIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "ROLE_INCONNU" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "aucun role" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "anonyme" : {
+      "statut" : 403,
+      "contentType" : null
+    }
+  },
+  "SYNTHESE_FACTURATION_MENSUELLE" : {
+    "ADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SECRETAIRE" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "MEDECIN" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "INFIRMIER" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "DIRECTION" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "SUPERADMIN" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "SOCIETE_ADMIN" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "MEDECIN+INFIRMIER" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "ADMIN+INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SECRETAIRE+MEDECIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "ROLE_INCONNU" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "aucun role" : {
+      "statut" : 403,
+      "contentType" : "application/problem+json",
+      "code" : "ACCESS_DENIED",
+      "detail" : "Profil insuffisant pour la synthèse de facturation"
+    },
+    "anonyme" : {
+      "statut" : 403,
+      "contentType" : null
+    }
+  },
+  "LISTE_PATIENTS" : {
+    "ADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SECRETAIRE" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "MEDECIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "DIRECTION" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SUPERADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SOCIETE_ADMIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "MEDECIN+INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "ADMIN+INFIRMIER" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "SECRETAIRE+MEDECIN" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "ROLE_INCONNU" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "aucun role" : {
+      "statut" : 200,
+      "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    "anonyme" : {
+      "statut" : 403,
+      "contentType" : null
+    }
+  },
+  "modele inconnu (MEDECIN)" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "Modèle introuvable pour ce centre"
+  },
+  "modele inconnu (INFIRMIER)" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "Modèle introuvable pour ce centre"
+  }
+}

@@ -21,4 +21,11 @@ public interface SessionCourante {
      * sous forme d'identifiant.
      */
     UUID utilisateur();
+
+    /**
+     * Les rôles de la session (préfixe {@code ROLE_}, ex. {@code ROLE_ADMIN}).
+     *
+     * @throws org.springframework.security.access.AccessDeniedException si aucune session authentifiée (403)
+     */
+    java.util.Collection<String> roles();
 }

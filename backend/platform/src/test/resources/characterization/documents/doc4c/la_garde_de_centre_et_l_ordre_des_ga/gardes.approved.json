@@ -1,0 +1,135 @@
+{
+  "ORDONNANCE : session E, centre D dans le corps (MEDECIN)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "ORDONNANCE : session sans centre (MEDECIN)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement"
+  },
+  "ORDONNANCE : session sans centre, corps sans centre (MEDECIN)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement"
+  },
+  "ORDONNANCE : SUPERADMIN, centre D dans le corps" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "ordonnanceId est obligatoire pour ORDONNANCE"
+  },
+  "ORDONNANCE : par le modele, session E, centre D dans le corps (MEDECIN)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "SYNTHESE_FACTURATION_MENSUELLE : session E, centre D dans le corps (SECRETAIRE)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "SYNTHESE_FACTURATION_MENSUELLE : session sans centre (SECRETAIRE)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement"
+  },
+  "SYNTHESE_FACTURATION_MENSUELLE : session sans centre, corps sans centre (SECRETAIRE)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement"
+  },
+  "SYNTHESE_FACTURATION_MENSUELLE : SUPERADMIN, centre D dans le corps" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE"
+  },
+  "SYNTHESE_FACTURATION_MENSUELLE : par le modele, session E, centre D dans le corps (SECRETAIRE)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "LISTE_PATIENTS : session E, centre D dans le corps (INFIRMIER)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "LISTE_PATIENTS : session sans centre (INFIRMIER)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Session sans centre de rattachement"
+  },
+  "LISTE_PATIENTS : session sans centre, corps sans centre (INFIRMIER)" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "centerId est obligatoire"
+  },
+  "LISTE_PATIENTS : SUPERADMIN, centre D dans le corps" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "LISTE_PATIENTS : par le modele, session E, centre D dans le corps (INFIRMIER)" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Accès refusé : le centre demandé ne correspond pas à la session"
+  },
+  "ORDONNANCE, INFIRMIER, corps sans centre" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Profil insuffisant pour imprimer une ordonnance"
+  },
+  "ORDONNANCE, INFIRMIER, centre illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps de la requête illisible"
+  },
+  "ORDONNANCE, INFIRMIER, params illisibles" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps de la requête illisible"
+  },
+  "SYNTHESE, MEDECIN, params illisibles" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps de la requête illisible"
+  },
+  "ordonnance en minuscules et espaces, INFIRMIER" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Profil insuffisant pour imprimer une ordonnance"
+  },
+  "synthese en minuscules, MEDECIN" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "code" : "ACCESS_DENIED",
+    "detail" : "Profil insuffisant pour la synthèse de facturation"
+  },
+  "ORDONNANCE, MEDECIN, corps illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps de la requête illisible"
+  },
+  "ORDONNANCE, MEDECIN, sans corps" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "code" : "BAD_REQUEST",
+    "detail" : "Corps de la requête illisible"
+  }
+}

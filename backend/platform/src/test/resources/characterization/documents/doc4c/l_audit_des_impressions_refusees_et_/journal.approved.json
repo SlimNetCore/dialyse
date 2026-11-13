@@ -1,0 +1,33 @@
+[ {
+  "ACTION_CODE" : "DOCUMENTS_CREATION",
+  "ENTITY_TYPE" : "documents",
+  "ENTITY_ID" : null,
+  "HTTP_METHOD" : "POST",
+  "ROUTE_TEMPLATE" : "/api/v1/documents/print",
+  "STATUS_CODE" : 200,
+  "NOMBRE" : 1
+}, {
+  "ACTION_CODE" : "DOCUMENTS_CREATION",
+  "ENTITY_TYPE" : "documents",
+  "ENTITY_ID" : null,
+  "HTTP_METHOD" : "POST",
+  "ROUTE_TEMPLATE" : "/api/v1/documents/print",
+  "STATUS_CODE" : 400,
+  "NOMBRE" : 1
+}, {
+  "ACTION_CODE" : "DOCUMENTS_CREATION",
+  "ENTITY_TYPE" : "documents",
+  "ENTITY_ID" : null,
+  "HTTP_METHOD" : "POST",
+  "ROUTE_TEMPLATE" : "/api/v1/documents/print",
+  "STATUS_CODE" : 403,
+  "NOMBRE" : 2
+}, {
+  "ACTION_CODE" : "DOCUMENTS_CREATION",
+  "ENTITY_TYPE" : "documents",
+  "ENTITY_ID" : "<UUID>",
+  "HTTP_METHOD" : "POST",
+  "ROUTE_TEMPLATE" : "/api/v1/documents/print/{modeleId}",
+  "STATUS_CODE" : 403,
+  "NOMBRE" : 1
+} ]

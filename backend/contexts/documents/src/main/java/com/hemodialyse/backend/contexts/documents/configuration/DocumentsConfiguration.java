@@ -17,7 +17,10 @@ import com.hemodialyse.backend.contexts.documents.interfaces.publie.RenduDeDocum
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpressionDesTypesSensibles;
+import com.hemodialyse.backend.contexts.documents.application.CatalogueDesTypesLivres;
+import com.hemodialyse.backend.contexts.documents.application.ReglesDImpression;
+import com.hemodialyse.backend.contexts.documents.application.ReglesDesTypesDeclares;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.IdentiteImprimee;
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.CustomTemplateCompiler;
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.JasperReportService;
@@ -46,8 +49,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * Composition du contexte Documents (DOC1, ADR 0140, 0142) : le papier en-tête, les routes d'impression {@code /api/v1/documents/print} et
  * le langage publié {@code documents.v1}. Mêmes tables et mêmes URL que la plateforme d'avant ; aucun flag, aucune façade. Le moteur de
- * rendu ({@link MoteurDeRendu}) et les règles des types sensibles ({@link ReglesDImpressionDesTypesSensibles}) sont fournis par la
- * plateforme jusqu'à DOC2 et DOC4.
+ * rendu ({@link MoteurDeRendu}) est celui de ce contexte depuis DOC2 ; les règles des types sensibles ({@link RegleDImpressionDUnType}) sont
+ * publiées par les contextes propriétaires de ces types (DOC4c, ADR 0166) et orchestrées ici.
  */
 @Configuration(proxyBeanMethods = false)
 public class DocumentsConfiguration {
@@ -82,9 +85,16 @@ public class DocumentsConfiguration {
         return new CustomTemplateCompiler();
     }
 
+    /** Les types livrés : la réunion des types déclarés par les contextes propriétaires (DOC4c, ADR 0166), dans l'ordre des déclarations. */
     @Bean
-    ModeleDocumentProvisioner modeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres) {
-        return new ModeleDocumentProvisioner(jdbc, annuaireDesCentres);
+    CatalogueDesTypesLivres catalogueDesTypesLivres(java.util.List<DeclarationDesTypesDeDocument> declarations) {
+        return new CatalogueDesTypesLivres(declarations);
+    }
+
+    @Bean
+    ModeleDocumentProvisioner modeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres,
+                                                        CatalogueDesTypesLivres catalogue) {
+        return new ModeleDocumentProvisioner(jdbc, annuaireDesCentres, catalogue);
     }
 
     /** L'historique des versions de gabarit (DOC3, ADR 0163) ; il sert aussi le moteur : la version en vigueur d'un modèle. */
@@ -125,12 +135,17 @@ public class DocumentsConfiguration {
     /** Le moteur de rendu (DOC2, ADR 0162) ; les gabarits personnalisés des centres sont ceux de ce contexte depuis DOC3 (ADR 0163). */
     @Bean
     MoteurDeRendu moteurDeRendu(JdbcTemplate jdbc, JasperReportService jasper, GabaritPersonnaliseDuCentre gabarits,
-                                CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner) {
-        return new MoteurDeRenduJasper(jdbc, jasper, gabarits, compiler, papier, provisioner);
+                                CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner,
+                                CatalogueDesTypesLivres catalogue) {
+        return new MoteurDeRenduJasper(jdbc, jasper, gabarits, compiler, papier, provisioner, catalogue);
     }
 
-    /** Les types livrés, déclarés par Documents lui-même (DOC4b, ADR 0165) ; les autres contextes déclarent les leurs par le même port. */
+    /**
+     * Les six documents du patient et de ses listes, déclarés par Documents lui-même (DOC4b, ADR 0165) ; les autres contextes déclarent les
+     * leurs par le même port (DOC4c, ADR 0166). L'ordre des déclarations est celui des types proposés : {@code @Order} sur chaque bean.
+     */
     @Bean
+    @org.springframework.core.annotation.Order(10)
     DeclarationDesTypesDeDocument typesLivresDeDocuments() {
         return new TypesLivresDeDocuments();
     }
@@ -141,9 +156,15 @@ public class DocumentsConfiguration {
         return new ListerLesTypesDeDocument(declarations);
     }
 
+    /** Les règles d'impression publiées par les contextes propriétaires des types sensibles (DOC4c, ADR 0166), retrouvées par type. */
+    @Bean
+    ReglesDImpression reglesDImpressionDesTypes(java.util.List<RegleDImpressionDUnType> regles) {
+        return new ReglesDesTypesDeclares(regles);
+    }
+
     @Bean
     ImprimerUnDocument imprimerUnDocument(SessionCourante session, ModelesDeDocument modeles, PapierEnTeteDesDocuments papier,
-                                          MoteurDeRendu moteur, ReglesDImpressionDesTypesSensibles regles) {
+                                          MoteurDeRendu moteur, ReglesDImpression regles) {
         return new ImprimerUnDocument(session, modeles, papier, moteur, regles);
     }
 

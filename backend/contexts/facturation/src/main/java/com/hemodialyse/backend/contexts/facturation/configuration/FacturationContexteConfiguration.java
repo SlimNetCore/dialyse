@@ -281,6 +281,20 @@ public class FacturationContexteConfiguration {
         return (centre, debut, fin) -> synthese.executer(new CentreId(centre), debut, fin);
     }
 
+    /** Le type de document de la Facturation, déclaré à Documents (DOC4c, ADR 0166) ; 7e dans l'ordre des types proposés. */
+    @Bean
+    @org.springframework.core.annotation.Order(20)
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.DeclarationDesTypesDeDocument facturationTypesDeDocument() {
+        return new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.documents.TypesDeDocumentDeLaFacturation();
+    }
+
+    /** La règle d'impression de la synthèse mensuelle, publiée à Documents (DOC4c, ADR 0166). */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType facturationRegleDImpressionDeLaSynthese(
+            SessionCourante session, SyntheseDeFacturation synthese) {
+        return new com.hemodialyse.backend.contexts.facturation.interfaces.publie.RegleDImpressionDeLaSyntheseMensuelle(session, synthese);
+    }
+
     /** Lectures publiées de la Facturation consommées par les autres contextes (slice F6). */
     @Bean
     FacturationDuPatient facturationDuPatient(JdbcTemplate jdbc) {

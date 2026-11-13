@@ -11,7 +11,7 @@ import com.hemodialyse.backend.contexts.documents.application.SessionCourante;
 import com.hemodialyse.backend.contexts.documents.domain.IdentiteImprimable;
 import com.hemodialyse.backend.contexts.documents.domain.ModeleDeDocument;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpressionDesTypesSensibles;
+import com.hemodialyse.backend.contexts.documents.application.ReglesDImpression;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.ArrayList;
@@ -209,7 +209,7 @@ public final class Doubles {
     }
 
     /** Règles espion : ne refuse rien sauf demande contraire, rend des données serveur fixes. */
-    public static final class ReglesEspion implements ReglesDImpressionDesTypesSensibles {
+    public static final class ReglesEspion implements ReglesDImpression {
         public final List<String> appels = new ArrayList<>();
         public RuntimeException refus;
         public Map<String, Object> donnees = Map.of();

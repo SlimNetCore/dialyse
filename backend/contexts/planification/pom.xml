@@ -125,6 +125,13 @@
             <artifactId>contexts-organisation</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Documents (documents.v1) : déclaration des types de document de la Planification, DOC4c, ADR 0166. Aucun
+             cycle : documents-api ne dépend d'aucun contexte. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

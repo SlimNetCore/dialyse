@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.FrenchFormatFactory;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.TypeDeDocumentDeclare;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.TypesDeDocumentDeLaPlanification;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence;
@@ -22,7 +23,7 @@ import java.util.UUID;
 /**
  * Fournit au contexte Planification son port consommé {@link ImpressionDeLaPresence} (ACL vers les modèles de documents et le moteur
  * Jasper du legacy). Contrairement au rendu par type du moteur de Documents, elle LIT sans écrire (KB-PLN-51, décision du 27/10/2026) :
- * un centre sans modèle « {@value ModeleDocumentCatalog#PLANNING_PRESENCE_INFIRMIERS} » utilise le modèle livré (PDF) en mémoire ;
+ * un centre sans modèle « {@code PLANNING_PRESENCE_INFIRMIERS} » ({@link TypesDeDocumentDeLaPlanification}) utilise le modèle livré (PDF) en mémoire ;
  * un modèle désactivé refuse l'impression (422 {@code DOCUMENT_MODEL_INACTIVE}). Le modèle lit le roulement, les absences et les
  * remplacements du centre pour les sept dates passées en paramètres. Un format que le contexte ne sert pas n'est pas généré.
  */
@@ -55,18 +56,18 @@ public class ImpressionDeLaPresenceLegacy implements ImpressionDeLaPresence {
 
     @Override
     public Document imprimer(UUID centre, LocalDate debutDeSemaine) {
-        ModeleDocumentCatalog.Entry entree = ModeleDocumentCatalog.find(ModeleDocumentCatalog.PLANNING_PRESENCE_INFIRMIERS).orElseThrow();
+        TypeDeDocumentDeclare entree = TypesDeDocumentDeLaPlanification.PLANNING_PRESENCE_INFIRMIERS;
         List<Map<String, Object>> actifs = jdbc.queryForList(
                 "SELECT id, chemin_jrxml, format_impression FROM modele_document "
                         + "WHERE center_id = ? AND UPPER(type_document) = ? AND active = TRUE ORDER BY created_at DESC",
-                centre, entree.type());
+                centre, entree.code());
         UUID modele = null;
-        String chemin = entree.cheminJrxml();
+        String chemin = entree.gabaritParDefaut();
         String format = "PDF";
         if (actifs.isEmpty()) {
             Integer existants = jdbc.queryForObject(
                     "SELECT COUNT(*) FROM modele_document WHERE center_id = ? AND (UPPER(type_document) = ? OR UPPER(code) = ?)",
-                    Integer.class, centre, entree.type(), entree.type());
+                    Integer.class, centre, entree.code(), entree.code());
             if (existants != null && existants > 0) {
                 throw new ImpressionRefusee("DOCUMENT_MODEL_INACTIVE", "Le modèle de document « " + entree.libelle()
                         + " » est désactivé pour ce centre : réactivez-le dans Modèles de documents.");

@@ -3,7 +3,6 @@ package com.hemodialyse.backend.contexts.documents.application;
 import com.hemodialyse.backend.contexts.documents.domain.TypeDisponible;
 import com.hemodialyse.backend.contexts.documents.infrastructure.declaration.TypesLivresDeDocuments;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.DeclarationDesTypesDeDocument;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.TypeDeDocumentDeclare;
 import org.junit.jupiter.api.Test;
 
@@ -45,11 +44,12 @@ class ListerLesTypesDeDocumentTest {
     }
 
     @Test
-    void should_declare_the_delivered_types_of_the_catalogue_in_their_catalogue_order() {
+    void should_declare_the_six_documents_of_the_patient_in_their_historical_order() {
         var livres = new TypesLivresDeDocuments().types();
 
-        assertThat(livres).extracting(TypeDeDocumentDeclare::code).containsExactlyElementsOf(ModeleDocumentCatalog.entries().stream()
-                .map(ModeleDocumentCatalog.Entry::type).toList());
+        assertThat(livres).extracting(TypeDeDocumentDeclare::code).containsExactly("FICHE_PATIENT", "ATTESTATION", "PEC", "LISTE_PATIENTS",
+                "LISTE_PEC", "LISTE_ATTESTATIONS");
+        assertThat(livres).allSatisfy(t -> assertThat(t.description()).isNotBlank().isNotEqualTo(t.libelle()));
         assertThat(new ListerLesTypesDeDocument(List.of(new TypesLivresDeDocuments())).lister()).hasSize(livres.size() + 1);
     }
 

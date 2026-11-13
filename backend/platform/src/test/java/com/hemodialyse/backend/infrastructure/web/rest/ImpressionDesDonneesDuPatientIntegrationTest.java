@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
-class DocumentRestControllerPatientDatasetIntegrationTest {
+class ImpressionDesDonneesDuPatientIntegrationTest {
 
     private static final UUID CENTER_ID = UUID.fromString("99990000-0000-0000-0000-000000000001");
     private static final UUID PATIENT_ID = UUID.fromString("99990000-0000-0000-0000-000000000002");

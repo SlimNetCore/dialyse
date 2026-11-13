@@ -1,0 +1,54 @@
+{
+  "voie du type, periode 1" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du modele, periode 1" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du type, periode 2" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du modele, periode 2" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du type, periode 3" : {
+    "statut" : 500,
+    "contentType" : "text/plain",
+    "texte" : "Erreur d'impression: Période illisible pour SYNTHESE_FACTURATION_MENSUELLE"
+  },
+  "voie du modele, periode 3" : {
+    "statut" : 500,
+    "contentType" : "text/plain",
+    "texte" : "Erreur: Période illisible pour SYNTHESE_FACTURATION_MENSUELLE"
+  },
+  "voie du type, periode 4" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE"
+  },
+  "voie du modele, periode 4" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du type, periode 5" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "texte" : "PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE"
+  },
+  "voie du modele, periode 5" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du type, periode 6" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "voie du modele, periode 6" : {
+    "statut" : 200,
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  }
+}

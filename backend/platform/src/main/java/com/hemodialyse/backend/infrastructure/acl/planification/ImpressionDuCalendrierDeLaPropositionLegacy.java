@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDuCalendrierDeLaProposition;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.TypesDeDocumentDeLaPlanification;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
 import net.sf.jasperreports.engine.JRParameter;
@@ -15,7 +15,7 @@ import java.util.UUID;
 /**
  * Fournit au contexte Planification son port consommé {@link ImpressionDuCalendrierDeLaProposition} (ACL vers les modèles de
  * documents et le moteur Jasper du legacy) : le planning calendaire figé d'une proposition, modèle
- * {@value ModeleDocumentCatalog#PLANNING_OPTIMISE}, imprimé via {@link MoteurDeRendu}. Un refus du moteur (modèle désactivé...)
+ * {@code PLANNING_OPTIMISE} ({@link TypesDeDocumentDeLaPlanification}), imprimé via {@link MoteurDeRendu}. Un refus du moteur (modèle désactivé...)
  * est rendu en refus métier du contexte.
  */
 @Component
@@ -39,7 +39,7 @@ public class ImpressionDuCalendrierDeLaPropositionLegacy implements ImpressionDu
     @Override
     public Document imprimer(UUID centre, UUID execution, String titre, String resume) {
         try {
-            MoteurDeRendu.Rendu doc = moteur.rendreParType(centre, ModeleDocumentCatalog.PLANNING_OPTIMISE,
+            MoteurDeRendu.Rendu doc = moteur.rendreParType(centre, TypesDeDocumentDeLaPlanification.PLANNING_OPTIMISE.code(),
                     parametres(execution, titre, resume), null);
             return new Document(doc.octets(), doc.format());
         } catch (RenduRefuse e) {

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.documents.application.CatalogueDesTypesLivres;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.TypeDeDocumentDeclare;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 /**
  * Garantit que chaque centre dispose d'un modèle de document pour chaque document du
- * {@link ModeleDocumentCatalog} : au démarrage (tous les centres) et à la première impression (centre créé depuis).
+ * {@link CatalogueDesTypesLivres} (les types que les contextes propriétaires déclarent, ADR 0166) : au démarrage (tous les centres) et à la première impression (centre créé depuis).
  * Idempotent : un modèle existant (même code ou même type) n'est jamais modifié — un modèle désactivé par le
  * centre reste désactivé.
  */
@@ -24,9 +25,11 @@ public class ModeleDocumentProvisioner implements ApplicationRunner {
 
     private final JdbcTemplate jdbc;
     private final AnnuaireDesCentres annuaireDesCentres;
+    private final CatalogueDesTypesLivres catalogue;
 
     /** Les centres à provisionner sont lus par le langage publié d'Organisation (O4 lot E, ADR 0111) ; les modèles par centre sont lus et écrits ici jusqu'à DOC3 (le provisionnement est inséparable du rendu par type). */
-    public ModeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres) {
+    public ModeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres, CatalogueDesTypesLivres catalogue) {
+        this.catalogue = catalogue;
         this.jdbc = jdbc;
         this.annuaireDesCentres = annuaireDesCentres;
     }
@@ -37,7 +40,7 @@ public class ModeleDocumentProvisioner implements ApplicationRunner {
             List<UUID> centers = annuaireDesCentres.tous();
             int created = 0;
             for (UUID center : centers) {
-                for (ModeleDocumentCatalog.Entry entry : ModeleDocumentCatalog.entries()) {
+                for (TypeDeDocumentDeclare entry : catalogue.types()) {
                     if (ensure(center, entry)) created++;
                 }
             }
@@ -51,14 +54,14 @@ public class ModeleDocumentProvisioner implements ApplicationRunner {
     /**
      * Crée le modèle du centre pour ce document s'il n'existe pas ; {@code true} si créé.
      */
-    public boolean ensure(UUID centerId, ModeleDocumentCatalog.Entry entry) {
+    public boolean ensure(UUID centerId, TypeDeDocumentDeclare entry) {
         Integer existing = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM modele_document WHERE center_id = ? AND (UPPER(type_document) = ? OR UPPER(code) = ?)",
-                Integer.class, centerId, entry.type(), entry.type());
+                Integer.class, centerId, entry.code(), entry.code());
         if (existing != null && existing > 0) return false;
         jdbc.update("INSERT INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, "
                         + "format_impression, description, active) VALUES (?, ?, ?, ?, ?, ?, 'PDF', ?, TRUE)",
-                UUID.randomUUID(), centerId, entry.type(), entry.libelle(), entry.type(), entry.cheminJrxml(),
+                UUID.randomUUID(), centerId, entry.code(), entry.libelle(), entry.code(), entry.gabaritParDefaut(),
                 entry.description());
         return true;
     }
