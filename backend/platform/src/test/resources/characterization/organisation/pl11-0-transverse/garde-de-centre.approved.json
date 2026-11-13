@@ -1,0 +1,249 @@
+{
+  "01 admin : centre non indique = son centre" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "S1",
+          "isolement" : "NON",
+          "nom" : "Salle A"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 admin : son centre explicite" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "S1",
+          "isolement" : "NON",
+          "nom" : "Salle A"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 admin : centre B" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "04 admin : centre inconnu" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "05 admin : centerId vide" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "S1",
+          "isolement" : "NON",
+          "nom" : "Salle A"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 admin : centerId illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "07 admin sans centre de session, centre indique" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Session sans centre de rattachement",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "08 admin sans centre de session, centre omis" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Session sans centre de rattachement",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "09 superadmin : centre A" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "10 superadmin : centre B" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "11 superadmin : centre omis (centre de session)" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "12 superadmin sans centre de session : centre omis" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "13 superadmin sans centre de session : centre B" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "14 superadmin ecrit dans le centre B" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "15 superadmin : corps sans centerId" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "16 admin : corps sans centerId" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S3",
+        "isolement" : "NON",
+        "nom" : "Trois"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "17 admin : corps avec centerId nul" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S4",
+        "isolement" : "NON",
+        "nom" : "Quatre"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "18 suppression sans centerId (centre de session)" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Salles » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/salles/<UUID_GENERE_3>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "19 import sans centerId (centre de session)" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "20 etat A" : {
+    "lignes" : [ {
+      "code" : "S1",
+      "nom" : "Salle A"
+    }, {
+      "code" : "S3",
+      "nom" : "Trois"
+    }, {
+      "code" : "S4",
+      "nom" : "Quatre"
+    } ]
+  },
+  "21 etat B" : {
+    "lignes" : [ {
+      "code" : "S1",
+      "nom" : "Salle B"
+    } ]
+  }
+}

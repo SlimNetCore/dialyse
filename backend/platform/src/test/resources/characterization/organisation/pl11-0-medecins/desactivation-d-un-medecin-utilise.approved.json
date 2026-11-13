@@ -1,0 +1,68 @@
+{
+  "01 administration : refus" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Médecins traitants » est encore utilisé (2 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/medecins/<M>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 organisation : desactivation acceptee" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 200
+  },
+  "03 etat apres desactivation" : {
+    "lignes" : [ {
+      "actif" : "false",
+      "nom" : "Utilise",
+      "prenom" : "Doc",
+      "specialite" : "X"
+    } ]
+  },
+  "04 le patient et la prescription gardent leur reference" : {
+    "lignes" : [ {
+      "medecin_traitant_id" : "<M>"
+    } ]
+  },
+  "05 liste de l'administration : masque" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 administration : 2e suppression = introuvable" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Médecins traitants » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/medecins/<M>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 organisation : 2e desactivation" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 200
+  },
+  "08 administration : modification d'un desactive = introuvable" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Médecins traitants » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/medecins/<M>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  }
+}

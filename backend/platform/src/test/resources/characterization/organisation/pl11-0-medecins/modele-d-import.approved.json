@@ -1,0 +1,7 @@
+{
+  "01 modele csv" : {
+    "bodyText" : "﻿Nom;Prénom;Spécialité\r\nOUARET;Mustapha;Néphrologue\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "01 nom absent" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 nom blanc" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 nom de 255" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "nom" : "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "prenom" : null,
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "04 nom de 256" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » dépasse 255 caractères (256).",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "nom",
+        "message" : "« Nom » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 prenom de 256" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Prénom » dépasse 255 caractères (256).",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "prenom",
+        "message" : "« Prénom » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 specialite de 256" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Spécialité » dépasse 255 caractères (256).",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "specialite",
+        "message" : "« Spécialité » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 trois erreurs" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » est obligatoire. « Prénom » dépasse 255 caractères (256). « Spécialité » dépasse 255 caractères (256).",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      }, {
+        "code" : "TOO_LONG",
+        "field" : "prenom",
+        "message" : "« Prénom » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      }, {
+        "code" : "TOO_LONG",
+        "field" : "specialite",
+        "message" : "« Spécialité » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 values vide" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  }
+}

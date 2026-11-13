@@ -1,0 +1,328 @@
+{
+  "01 descripteurs (champs, libelles, alias, ordre d'import)" : {
+    "body" : [ {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "HD-CONV",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Hémodialyse conventionnelle",
+        "key" : "libelle",
+        "label" : "Libellé",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "5600.00",
+        "key" : "prix",
+        "label" : "Prix",
+        "maxLength" : 0,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "DECIMAL"
+      } ],
+      "importOrder" : 1,
+      "label" : "Forfaits",
+      "naturalKey" : [ "code" ],
+      "slug" : "forfaits"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "CR1",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Matin (06h30 – 10h30)",
+        "key" : "libelle",
+        "label" : "Libellé",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      } ],
+      "importOrder" : 1,
+      "label" : "Créneaux",
+      "naturalKey" : [ "code" ],
+      "slug" : "creneaux"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "S1",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Salle 1",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ "NON", "OUI" ],
+        "defaultValue" : "NON",
+        "example" : "NON",
+        "key" : "isolement",
+        "label" : "Salle d'isolement",
+        "maxLength" : 30,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : false,
+        "type" : "ENUM"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "12",
+        "key" : "capacite",
+        "label" : "Capacité (générateurs max.)",
+        "maxLength" : 0,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "INTEGER"
+      } ],
+      "importOrder" : 1,
+      "label" : "Salles",
+      "naturalKey" : [ "code" ],
+      "slug" : "salles"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "OUARET",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Mustapha",
+        "key" : "prenom",
+        "label" : "Prénom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Néphrologue",
+        "key" : "specialite",
+        "label" : "Spécialité",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "TEXT"
+      } ],
+      "importOrder" : 1,
+      "label" : "Médecins traitants",
+      "naturalKey" : [ "nom", "prenom" ],
+      "slug" : "medecins"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "CNAS",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Caisse nationale des assurances sociales",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ "STANDARD", "VACANCIER" ],
+        "defaultValue" : "STANDARD",
+        "example" : "STANDARD",
+        "key" : "typeCaisse",
+        "label" : "Type de caisse",
+        "maxLength" : 30,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : false,
+        "type" : "ENUM"
+      } ],
+      "importOrder" : 1,
+      "label" : "Caisses",
+      "naturalKey" : [ "code" ],
+      "slug" : "caisses"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Ambulances Rouiba",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "0795006136",
+        "key" : "telephone",
+        "label" : "Téléphone",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "PHONE"
+      } ],
+      "importOrder" : 1,
+      "label" : "Transporteurs",
+      "naturalKey" : [ "nom" ],
+      "slug" : "transporteurs"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "CNAS-AG1",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Agence CNAS Alger",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "CNAS",
+        "key" : "caisse",
+        "label" : "Caisse (code)",
+        "maxLength" : 0,
+        "reference" : "caisses",
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "REFERENCE"
+      } ],
+      "importOrder" : 2,
+      "label" : "Agences",
+      "naturalKey" : [ "code" ],
+      "slug" : "agences"
+    }, {
+      "fields" : [ {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "CP-ALG-01",
+        "key" : "code",
+        "label" : "Code",
+        "maxLength" : 50,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "Centre payeur Alger Centre",
+        "key" : "nom",
+        "label" : "Nom",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "12 rue Didouche Mourad, Alger",
+        "key" : "adresse",
+        "label" : "Adresse",
+        "maxLength" : 255,
+        "reference" : null,
+        "required" : false,
+        "requiredColumn" : false,
+        "type" : "TEXT"
+      }, {
+        "allowedValues" : [ ],
+        "defaultValue" : null,
+        "example" : "CNAS-AG1",
+        "key" : "agence",
+        "label" : "Agence (code)",
+        "maxLength" : 0,
+        "reference" : "agences",
+        "required" : true,
+        "requiredColumn" : true,
+        "type" : "REFERENCE"
+      } ],
+      "importOrder" : 3,
+      "label" : "Centres payeurs",
+      "naturalKey" : [ "code" ],
+      "slug" : "centres-payeurs"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 descripteurs par un superadmin" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  }
+}

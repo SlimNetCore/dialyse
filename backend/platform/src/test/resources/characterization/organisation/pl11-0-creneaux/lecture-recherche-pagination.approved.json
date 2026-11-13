@@ -1,0 +1,94 @@
+{
+  "01 tout" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "code" : "P1",
+          "libelle" : "Matin (06h30)"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "code" : "P2",
+          "libelle" : "Apres-midi (13h)"
+        }
+      }, {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "code" : "P3",
+          "libelle" : "Soir"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 3
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 recherche par libelle" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "code" : "P1",
+          "libelle" : "Matin (06h30)"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 recherche par code" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "code" : "P3",
+          "libelle" : "Soir"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 recherche sans resultat" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 page 1 de taille 2" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "code" : "P3",
+          "libelle" : "Soir"
+        }
+      } ],
+      "page" : 1,
+      "size" : 2,
+      "total" : 3
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

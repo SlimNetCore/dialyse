@@ -1,0 +1,13 @@
+{
+  "01 modele csv" : {
+    "bodyText" : "﻿Code;Nom;Salle d'isolement;Capacité (générateurs max.)\r\nS1;Salle 1;NON;12\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "02 modele format inconnu = xlsx (le contenu zip n'est pas deterministe) : statut" : {
+    "valeur" : "200"
+  },
+  "03 modele format inconnu = xlsx : type" : {
+    "valeur" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  }
+}

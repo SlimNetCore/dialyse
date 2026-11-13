@@ -1,0 +1,103 @@
+{
+  "01 salle d'un patient" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/salles/<S_PATIENT>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 salle d'un equipement GMAO" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/salles/<S_EQUIPEMENT>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 trois usages (2 patients, 1 equipement) : le compte est dans le message" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (3 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/salles/<S_DEUX>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 usage compte hors du centre (identifiant seul)" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/salles/<S_AUTRE_CENTRE>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 salle d'une affectation d'infirmier : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 salle d'un mouvement de patient : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "07 salle d'une case du calendrier : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "08 salle d'une seance : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "09 salles restantes" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "D1",
+      "isolement" : "NON",
+      "nom" : "Avec patient",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D2",
+      "isolement" : "NON",
+      "nom" : "Avec equipement GMAO",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D3",
+      "isolement" : "NON",
+      "nom" : "Patient et equipement",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D4",
+      "isolement" : "NON",
+      "nom" : "Usage par un patient d'un autre centre",
+      "ouverte" : "true"
+    } ]
+  },
+  "10 affectations orphelines apres suppression" : {
+    "lignes" : [ {
+      "lignes" : "1"
+    } ]
+  },
+  "11 seances orphelines apres suppression" : {
+    "lignes" : [ {
+      "lignes" : "1"
+    } ]
+  }
+}

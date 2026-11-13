@@ -1,0 +1,129 @@
+{
+  "01 creation" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "code" : "C1",
+        "libelle" : "Matin"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "02 liste triee par code" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<UUID_GENERE_1>",
+        "references" : { },
+        "values" : {
+          "code" : "C1",
+          "libelle" : "Matin"
+        }
+      }, {
+        "id" : "<EXISTANT>",
+        "references" : { },
+        "values" : {
+          "code" : "C2",
+          "libelle" : "Apres-midi"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 2
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 modification" : {
+    "body" : {
+      "id" : "<EXISTANT>",
+      "references" : { },
+      "values" : {
+        "code" : "C2",
+        "libelle" : "Apres-midi renomme"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 modification sans libelle" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Libellé » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/creneaux/<EXISTANT>",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "libelle",
+        "message" : "« Libellé » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 modification d'un creneau inconnu" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Créneaux » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/creneaux/<UUID_GENERE_2>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 modification d'un creneau d'un autre centre via A" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Créneaux » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/creneaux/<B>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 suppression d'un creneau d'un autre centre via A" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Créneaux » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/creneaux/<B>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 suppression" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "09 seconde suppression" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Créneaux » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/creneaux/<EXISTANT>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "10 etat A : suppression physique" : {
+    "lignes" : [ {
+      "code" : "C1",
+      "libelle" : "Matin"
+    } ]
+  },
+  "11 etat B intact" : {
+    "lignes" : [ {
+      "code" : "CB",
+      "libelle" : "Creneau B"
+    } ]
+  }
+}

@@ -1,0 +1,454 @@
+{
+  "01 POST JSON tronque" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "02 POST corps vide" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "03 POST sans corps ni type" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "04 POST tableau JSON" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "05 POST values nul" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "06 POST values chaine" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "07 POST values avec valeur imbriquee" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "08 POST centerId illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "09 POST texte brut" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "10 POST XML" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "11 PUT id illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/salles/pas-un-uuid",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "12 PUT JSON tronque" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "13 DELETE id illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/salles/pas-un-uuid",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "14 GET page illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : page",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "15 GET taille illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : size",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "16 GET taille enorme" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : size",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "17 PATCH sur une salle" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "18 PUT sans identifiant" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "19 DELETE sans identifiant" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "20 POST sur une salle identifiee" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "21 GET d'une salle identifiee" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "22 PUT sur les descripteurs" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "23 POST sur les descripteurs" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "24 DELETE sur le modele" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/salles/template",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "25 POST sur le modele" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/template",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "26 GET import" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "27 Accept XML sur la liste" : {
+    "bodyText" : "<PagedResponse><items><items><id><A></id><values><code>S1</code><nom>Salle A</nom><isolement>NON</isolement><capacite/></values><references/></items></items><total>1</total><page>0</page><size>20</size></PagedResponse>",
+    "contentType" : "application/xml",
+    "status" : 200
+  },
+  "28 Accept texte sur la liste" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "29 Accept XML sur les descripteurs" : {
+    "bodyText" : "<List><item><slug>forfaits</slug><label>Forfaits</label><importOrder>1</importOrder><naturalKey><naturalKey>code</naturalKey></naturalKey><fields><fields><key>code</key><label>Code</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>HD-CONV</example></fields><fields><key>libelle</key><label>Libellé</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Hémodialyse conventionnelle</example></fields><fields><key>prix</key><label>Prix</label><type>DECIMAL</type><required>false</required><requiredColumn>false</requiredColumn><maxLength>0</maxLength><allowedValues/><defaultValue/><reference/><example>5600.00</example></fields></fields></item><item><slug>creneaux</slug><label>Créneaux</label><importOrder>1</importOrder><naturalKey><naturalKey>code</naturalKey></naturalKey><fields><fields><key>code</key><label>Code</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>CR1</example></fields><fields><key>libelle</key><label>Libellé</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Matin (06h30 – 10h30)</example></fields></fields></item><item><slug>salles</slug><label>Salles</label><importOrder>1</importOrder><naturalKey><naturalKey>code</naturalKey></naturalKey><fields><fields><key>code</key><label>Code</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>S1</example></fields><fields><key>nom</key><label>Nom</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Salle 1</example></fields><fields><key>isolement</key><label>Salle d'isolement</label><type>ENUM</type><required>true</required><requiredColumn>false</requiredColumn><maxLength>30</maxLength><allowedValues><allowedValues>NON</allowedValues><allowedValues>OUI</allowedValues></allowedValues><defaultValue>NON</defaultValue><reference/><example>NON</example></fields><fields><key>capacite</key><label>Capacité (générateurs max.)</label><type>INTEGER</type><required>false</required><requiredColumn>false</requiredColumn><maxLength>0</maxLength><allowedValues/><defaultValue/><reference/><example>12</example></fields></fields></item><item><slug>medecins</slug><label>Médecins traitants</label><importOrder>1</importOrder><naturalKey><naturalKey>nom</naturalKey><naturalKey>prenom</naturalKey></naturalKey><fields><fields><key>nom</key><label>Nom</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>OUARET</example></fields><fields><key>prenom</key><label>Prénom</label><type>TEXT</type><required>false</required><requiredColumn>false</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Mustapha</example></fields><fields><key>specialite</key><label>Spécialité</label><type>TEXT</type><required>false</required><requiredColumn>false</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Néphrologue</example></fields></fields></item><item><slug>caisses</slug><label>Caisses</label><importOrder>1</importOrder><naturalKey><naturalKey>code</naturalKey></naturalKey><fields><fields><key>code</key><label>Code</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>CNAS</example></fields><fields><key>nom</key><label>Nom</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Caisse nationale des assurances sociales</example></fields><fields><key>typeCaisse</key><label>Type de caisse</label><type>ENUM</type><required>true</required><requiredColumn>false</requiredColumn><maxLength>30</maxLength><allowedValues><allowedValues>STANDARD</allowedValues><allowedValues>VACANCIER</allowedValues></allowedValues><defaultValue>STANDARD</defaultValue><reference/><example>STANDARD</example></fields></fields></item><item><slug>transporteurs</slug><label>Transporteurs</label><importOrder>1</importOrder><naturalKey><naturalKey>nom</naturalKey></naturalKey><fields><fields><key>nom</key><label>Nom</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Ambulances Rouiba</example></fields><fields><key>telephone</key><label>Téléphone</label><type>PHONE</type><required>false</required><requiredColumn>false</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>0795006136</example></fields></fields></item><item><slug>agences</slug><label>Agences</label><importOrder>2</importOrder><naturalKey><naturalKey>code</naturalKey></naturalKey><fields><fields><key>code</key><label>Code</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>CNAS-AG1</example></fields><fields><key>nom</key><label>Nom</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Agence CNAS Alger</example></fields><fields><key>caisse</key><label>Caisse (code)</label><type>REFERENCE</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>0</maxLength><allowedValues/><defaultValue/><reference>caisses</reference><example>CNAS</example></fields></fields></item><item><slug>centres-payeurs</slug><label>Centres payeurs</label><importOrder>3</importOrder><naturalKey><naturalKey>code</naturalKey></naturalKey><fields><fields><key>code</key><label>Code</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>50</maxLength><allowedValues/><defaultValue/><reference/><example>CP-ALG-01</example></fields><fields><key>nom</key><label>Nom</label><type>TEXT</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>Centre payeur Alger Centre</example></fields><fields><key>adresse</key><label>Adresse</label><type>TEXT</type><required>false</required><requiredColumn>false</requiredColumn><maxLength>255</maxLength><allowedValues/><defaultValue/><reference/><example>12 rue Didouche Mourad, Alger</example></fields><fields><key>agence</key><label>Agence (code)</label><type>REFERENCE</type><required>true</required><requiredColumn>true</requiredColumn><maxLength>0</maxLength><allowedValues/><defaultValue/><reference>agences</reference><example>CNAS-AG1</example></fields></fields></item></List>",
+    "contentType" : "application/xml",
+    "status" : 200
+  },
+  "30 Accept JSON sur le modele csv" : {
+    "bodyText" : "﻿Code;Nom;Salle d'isolement;Capacité (générateurs max.)\r\nS1;Salle 1;NON;12\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "31 Accept csv sur le modele csv" : {
+    "bodyText" : "﻿Code;Nom;Salle d'isolement;Capacité (générateurs max.)\r\nS1;Salle 1;NON;12\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "32 Accept XML sur la suppression" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Salles » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/salles/<UUID_GENERE_1>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "33 import sans fichier" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "34 import non multipart" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "35 import dryRun illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : dryRun",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "36 import dryRun=1" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "37 import dryRun=FALSE" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "38 import d'un fichier .pdf" : {
+    "body" : {
+      "code" : "IMPORT_UNSUPPORTED_FORMAT",
+      "detail" : "Format non pris en charge : utilisez un fichier .csv, .xlsx ou .xls.",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "39 import d'un faux .xlsx" : {
+    "body" : {
+      "code" : "IMPORT_UNREADABLE_FILE",
+      "detail" : "Le fichier porte l'extension Excel mais son contenu n'est pas un classeur Excel valide.",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "40 import sans nom de fichier" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "41 import d'un .txt" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "42 etat apres tous ces refus" : {
+    "lignes" : [ {
+      "code" : "S1",
+      "nom" : "Salle A"
+    }, {
+      "code" : "S8",
+      "nom" : "Huit"
+    } ]
+  }
+}

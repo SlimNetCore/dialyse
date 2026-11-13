@@ -1,0 +1,12 @@
+{
+  "01 modele csv" : {
+    "bodyText" : "﻿Code;Libellé\r\nCR1;Matin (06h30 – 10h30)\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "02 modele csv en majuscules" : {
+    "bodyText" : "﻿Code;Libellé\r\nCR1;Matin (06h30 – 10h30)\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  }
+}

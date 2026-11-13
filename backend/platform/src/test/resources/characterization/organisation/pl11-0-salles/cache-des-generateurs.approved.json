@@ -1,0 +1,39 @@
+{
+  "01 generateurs mis en cache" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 relecture : encore le cache" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 modification de la salle par l'administration" : {
+    "body" : {
+      "id" : "<A>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S1",
+        "isolement" : "NON",
+        "nom" : "Renommee"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 relecture : cache vide" : {
+    "body" : [ {
+      "adresse" : "<A>",
+      "code" : "PL11-EQ-1",
+      "gereParLot" : null,
+      "id" : "<UUID_GENERE_1>",
+      "libelle" : "EN_SERVICE",
+      "nom" : "Generateur",
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

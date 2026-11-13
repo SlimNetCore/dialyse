@@ -1,0 +1,184 @@
+{
+  "01 creation meme code" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Salles » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Salles » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 creation code en minuscules" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Salles » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Salles » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 creation code entoure d'espaces" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Salles » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Salles » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 creation code a espaces internes repetes puis code distinct" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S  3",
+        "isolement" : "NON",
+        "nom" : "Trois"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "05 creation de 'S 3' (espaces internes ramenes a un)" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Salles » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Salles » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 meme code dans le centre B : permis (cle par centre)" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S2",
+        "isolement" : "NON",
+        "nom" : "Deux B"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "07 modification vers le code d'une autre salle" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Salles » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/salles/<AUTRE>",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Salles » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 modification qui garde son propre code" : {
+    "body" : {
+      "id" : "<EXISTANTE>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S1",
+        "isolement" : "NON",
+        "nom" : "Une renommee"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 modification qui change la casse de son propre code" : {
+    "body" : {
+      "id" : "<EXISTANTE>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "s1",
+        "isolement" : "NON",
+        "nom" : "Une"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 etat centre A" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "S  3",
+      "isolement" : "NON",
+      "nom" : "Trois",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "S2",
+      "isolement" : "NON",
+      "nom" : "Salle deux",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "s1",
+      "isolement" : "NON",
+      "nom" : "Une",
+      "ouverte" : "true"
+    } ]
+  },
+  "11 etat centre B" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "S1",
+      "isolement" : "NON",
+      "nom" : "Salle une du centre B",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "S2",
+      "isolement" : "NON",
+      "nom" : "Deux B",
+      "ouverte" : "true"
+    } ]
+  }
+}

@@ -1,0 +1,384 @@
+{
+  "01 tout" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      }, {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "D4",
+          "isolement" : "NON",
+          "nom" : "Autre"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 recherche par nom (casse ignoree)" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 recherche par code" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 recherche avec pourcentage litteral" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 recherche avec soulignement litteral" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 recherche blanche = tout" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      }, {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "D4",
+          "isolement" : "NON",
+          "nom" : "Autre"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 recherche sans resultat" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 page 1 de taille 2" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "D4",
+          "isolement" : "NON",
+          "nom" : "Autre"
+        }
+      } ],
+      "page" : 1,
+      "size" : 2,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 taille 0 = 20 par defaut" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      }, {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "D4",
+          "isolement" : "NON",
+          "nom" : "Autre"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 taille negative = 20" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      }, {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "D4",
+          "isolement" : "NON",
+          "nom" : "Autre"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "11 taille 1000 bornee a 100" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      }, {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "C_3",
+          "isolement" : "NON",
+          "nom" : "Salle 100%"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "D4",
+          "isolement" : "NON",
+          "nom" : "Autre"
+        }
+      } ],
+      "page" : 0,
+      "size" : 100,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "12 page negative ramenee a 0" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "A1",
+          "isolement" : "NON",
+          "nom" : "Salle Alpha"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "B2",
+          "isolement" : "NON",
+          "nom" : "Salle Beta"
+        }
+      } ],
+      "page" : 0,
+      "size" : 2,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "13 page au-dela de la fin" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 9,
+      "size" : 2,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

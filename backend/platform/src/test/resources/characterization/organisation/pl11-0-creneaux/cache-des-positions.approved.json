@@ -1,0 +1,108 @@
+{
+  "01 lecture mise en cache A" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "P1",
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : "A",
+      "nom" : null,
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 lecture mise en cache B" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "P1",
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : "B",
+      "nom" : null,
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 creation par l'administration dans A" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "code" : "P3",
+        "libelle" : "Admin"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "04 relecture A : voit tout" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "P1",
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : "A",
+      "nom" : null,
+      "prenom" : null
+    }, {
+      "adresse" : null,
+      "code" : "P2",
+      "gereParLot" : null,
+      "id" : "<A2>",
+      "libelle" : "Ajout direct A",
+      "nom" : null,
+      "prenom" : null
+    }, {
+      "adresse" : null,
+      "code" : "P3",
+      "gereParLot" : null,
+      "id" : "<UUID_GENERE_1>",
+      "libelle" : "Admin",
+      "nom" : null,
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 relecture B : cache intact" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "P1",
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : "B",
+      "nom" : null,
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 suppression dans A" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "07 relecture A apres suppression" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "P1",
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : "A",
+      "nom" : null,
+      "prenom" : null
+    }, {
+      "adresse" : null,
+      "code" : "P3",
+      "gereParLot" : null,
+      "id" : "<UUID_GENERE_1>",
+      "libelle" : "Admin",
+      "nom" : null,
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

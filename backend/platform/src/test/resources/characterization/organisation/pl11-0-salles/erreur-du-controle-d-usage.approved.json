@@ -1,0 +1,26 @@
+{
+  "01 controle normal" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/salles/<S>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 table des equipements indisponible : suppression autorisee" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "03 salle en base" : {
+    "lignes" : [ ]
+  },
+  "04 equipement orphelin" : {
+    "lignes" : [ {
+      "lignes" : "1"
+    } ]
+  }
+}

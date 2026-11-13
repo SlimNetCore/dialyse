@@ -1,0 +1,132 @@
+{
+  "01 mise a jour de la specialite par nom et prenom" : {
+    "body" : {
+      "applied" : true,
+      "created" : 0,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 sans colonne prenom : le medecin sans prenom est retrouve, specialite mise a jour" : {
+    "body" : {
+      "applied" : true,
+      "created" : 0,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 sans colonne prenom : Benali (qui a un prenom) n'est pas retrouve, doublon de nom cree" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 en-tetes par alias" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 doublon dans le fichier" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "nom",
+        "message" : "Doublon : même nom + prénom qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 ligne trop longue" : {
+    "body" : {
+      "applied" : false,
+      "created" : 0,
+      "errors" : [ {
+        "code" : "TOO_LONG",
+        "field" : "nom",
+        "message" : "« Nom » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 2
+      } ],
+      "ignoredColumns" : [ ],
+      "kind" : "medecins",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 etat" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "BENALI",
+      "prenom" : "karim",
+      "specialite" : "Cardiologue"
+    }, {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : null,
+      "specialite" : "Autre"
+    }, {
+      "actif" : "true",
+      "nom" : "Hamidi",
+      "prenom" : "Sofiane",
+      "specialite" : "Generaliste"
+    }, {
+      "actif" : "true",
+      "nom" : "Seul",
+      "prenom" : null,
+      "specialite" : "Nouvelle"
+    } ]
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "01 GET inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : inconnu",
+      "instance" : "/api/v1/admin/referentials/inconnu",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "02 GET generateurs" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : generateurs",
+      "instance" : "/api/v1/admin/referentials/generateurs",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "03 GET SALLES" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 GET Creneaux" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 GET salles%20" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : salles ",
+      "instance" : "/api/v1/admin/referentials/salles%20",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "06 GET cr%C3%A9neaux" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : créneaux",
+      "instance" : "/api/v1/admin/referentials/cr%C3%A9neaux",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "07 GET medecin" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : medecin",
+      "instance" : "/api/v1/admin/referentials/medecin",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "08 GET salle" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : salle",
+      "instance" : "/api/v1/admin/referentials/salle",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "09 POST inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : inconnu",
+      "instance" : "/api/v1/admin/referentials/inconnu",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "10 PUT inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : inconnu",
+      "instance" : "/api/v1/admin/referentials/inconnu/<UUID_GENERE_1>",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "11 DELETE inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : inconnu",
+      "instance" : "/api/v1/admin/referentials/inconnu/<UUID_GENERE_1>",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "12 IMPORT inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : inconnu",
+      "instance" : "/api/v1/admin/referentials/inconnu/import",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "13 TEMPLATE inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Référentiel inconnu : inconnu",
+      "instance" : "/api/v1/admin/referentials/inconnu/template",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "14 PUT inconnu, JSON tronque" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/inconnu/<UUID_GENERE_1>",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "15 DELETE inconnu, id illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/inconnu/abc",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "16 POST inconnu, JSON tronque" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/inconnu",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "17 POST SALLES en majuscules" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S1",
+        "isolement" : "NON",
+        "nom" : "Une"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  }
+}

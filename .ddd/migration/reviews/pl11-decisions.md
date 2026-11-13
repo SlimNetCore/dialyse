@@ -19,4 +19,6 @@ Référence : D1..D12 de `pl11-analyse.md`. Les décisions sont définitives ; e
 | D7 | Une seule règle d'unicité par centre, appliquée partout (admin ET route d'Organisation). |
 | D8 | Une salle modifiée sans capacité conserve sa capacité existante. |
 | D9 | L'effet de la fermeture d'une salle sur la planification est hors PL11 (question ouverte à confirmer métiers ≤ 2026-12-15). |
+| KB-PL11-13 | SUPERADMIN reste refusé (403 ROLE_SCOPE) sur l'admin des référentiels : REPRODUIT, annotation trompeuse nettoyée, à confirmer métiers ≤ 2026-12-15. |
+| KB-PL11-12 | Formes illisibles → 400/405/406/415 propres (JSON seul). Audit enrichi : type de référentiel et identifiant créé enregistrés. |
 | D12 | AUCUN report : pas de nouvelle date de butoir, pas d'ADR de report. Les butoirs 2027-03-31 sont soldés par la suppression des entrées. Si un obstacle bloque, STOP et rapporter. |

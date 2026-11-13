@@ -1,0 +1,185 @@
+{
+  "01 meme nom et prenom" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 casse et espaces differents" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 meme nom, autre prenom : permis" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Sofiane",
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "04 meme nom sans prenom : permis" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : null,
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "05 sans prenom, doublon d'un medecin sans prenom" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 prenom vide = absent (doublon)" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 modification vers l'identite d'un autre" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins/<S>",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 modification qui garde son identite" : {
+    "body" : {
+      "id" : "<K>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Karim",
+        "specialite" : "Autre"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 doublon d'un medecin du centre B lui-meme : refuse" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+      "instance" : "/api/v1/admin/referentials/medecins",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "nom",
+        "message" : "Un élément de « Médecins traitants » avec ce nom + prénom existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "10 identite existant dans le centre A (Benali Sofiane), creee dans le centre B : permis (cle par centre)" : {
+    "body" : {
+      "id" : "<UUID_GENERE_3>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Sofiane",
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "11 etat A" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : null,
+      "specialite" : null
+    }, {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "specialite" : "Autre"
+    }, {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Sofiane",
+      "specialite" : null
+    }, {
+      "actif" : "true",
+      "nom" : "Seul",
+      "prenom" : null,
+      "specialite" : null
+    } ]
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "01 meme code" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Créneaux » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Créneaux » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 code en minuscules avec espaces" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Créneaux » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Créneaux » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 meme code dans le centre B : permis" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "code" : "C1",
+        "libelle" : "B"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "04 modification vers le code d'un autre" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "Un élément de « Créneaux » avec ce code existe déjà.",
+      "instance" : "/api/v1/admin/referentials/creneaux/<C2>",
+      "issues" : [ {
+        "code" : "ALREADY_EXISTS",
+        "field" : "code",
+        "message" : "Un élément de « Créneaux » avec ce code existe déjà.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 modification qui garde son code" : {
+    "body" : {
+      "id" : "<C1>",
+      "references" : { },
+      "values" : {
+        "code" : "C1",
+        "libelle" : "Matin bis"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 code absent" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 libelle absent" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Libellé » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "libelle",
+        "message" : "« Libellé » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 code de 51 caracteres" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » dépasse 50 caractères (51).",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "code",
+        "message" : "« Code » dépasse 50 caractères (51).",
+        "params" : {
+          "length" : "51",
+          "max" : "50"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "09 libelle de 255 caracteres" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "code" : "C8",
+        "libelle" : "lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "10 libelle de 256 caracteres" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Libellé » dépasse 255 caractères (256).",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "libelle",
+        "message" : "« Libellé » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "11 deux erreurs" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire. « Libellé » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/creneaux",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      }, {
+        "code" : "REQUIRED",
+        "field" : "libelle",
+        "message" : "« Libellé » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "12 etat A" : {
+    "lignes" : [ {
+      "code" : "C1",
+      "libelle" : "Matin bis"
+    }, {
+      "code" : "C2",
+      "libelle" : "Midi"
+    }, {
+      "code" : "C8",
+      "libelle" : "lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll"
+    } ]
+  },
+  "13 etat B" : {
+    "lignes" : [ {
+      "code" : "C1",
+      "libelle" : "B"
+    } ]
+  }
+}

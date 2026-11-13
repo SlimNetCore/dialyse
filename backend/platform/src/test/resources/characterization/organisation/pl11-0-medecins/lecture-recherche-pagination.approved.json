@@ -1,0 +1,142 @@
+{
+  "01 tout (tri nom puis prenom)" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "nom" : "Benali",
+          "prenom" : "Abdel",
+          "specialite" : null
+        }
+      }, {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "nom" : "Benali",
+          "prenom" : "Karim",
+          "specialite" : "Cardiologue"
+        }
+      }, {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "nom" : "Hamidi",
+          "prenom" : null,
+          "specialite" : "Generaliste"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "nom" : "Zeroual",
+          "prenom" : "Amine",
+          "specialite" : "Nephrologue"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 recherche par nom" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<C>",
+        "references" : { },
+        "values" : {
+          "nom" : "Benali",
+          "prenom" : "Abdel",
+          "specialite" : null
+        }
+      }, {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "nom" : "Benali",
+          "prenom" : "Karim",
+          "specialite" : "Cardiologue"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 2
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 recherche par prenom" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "nom" : "Zeroual",
+          "prenom" : "Amine",
+          "specialite" : "Nephrologue"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 recherche par specialite" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<B>",
+        "references" : { },
+        "values" : {
+          "nom" : "Benali",
+          "prenom" : "Karim",
+          "specialite" : "Cardiologue"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 1
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 recherche sans resultat" : {
+    "body" : {
+      "items" : [ ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 0
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 page 1 de taille 2" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<D>",
+        "references" : { },
+        "values" : {
+          "nom" : "Hamidi",
+          "prenom" : null,
+          "specialite" : "Generaliste"
+        }
+      }, {
+        "id" : "<A>",
+        "references" : { },
+        "values" : {
+          "nom" : "Zeroual",
+          "prenom" : "Amine",
+          "specialite" : "Nephrologue"
+        }
+      } ],
+      "page" : 1,
+      "size" : 2,
+      "total" : 4
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

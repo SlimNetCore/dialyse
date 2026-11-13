@@ -1,0 +1,53 @@
+{
+  "01 creneau de deux patients" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Créneaux » est encore utilisé (2 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/creneaux/<C_PATIENT>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 usage compte hors du centre (identifiant seul)" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Créneaux » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/creneaux/<C_AUTRE_CENTRE>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 creneau d'une affectation d'infirmier : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "04 creneau d'un mouvement de patient : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 creneau d'une case du calendrier : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 creneau d'une seance : supprime sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "07 creneaux restants" : {
+    "lignes" : [ {
+      "code" : "D1",
+      "libelle" : "Avec patient"
+    }, {
+      "code" : "D2",
+      "libelle" : "Patient d'un autre centre"
+    } ]
+  }
+}

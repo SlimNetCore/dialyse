@@ -1,0 +1,508 @@
+{
+  "01 code absent" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "02 code vide" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 code blanc" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 code de 50 caracteres" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "isolement" : "NON",
+        "nom" : "limite"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "05 code de 51 caracteres" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » dépasse 50 caractères (51).",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "code",
+        "message" : "« Code » dépasse 50 caractères (51).",
+        "params" : {
+          "length" : "51",
+          "max" : "50"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 nom de 255 caracteres" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "N255",
+        "isolement" : "NON",
+        "nom" : "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "07 nom de 256 caracteres" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » dépasse 255 caractères (256).",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "TOO_LONG",
+        "field" : "nom",
+        "message" : "« Nom » dépasse 255 caractères (256).",
+        "params" : {
+          "length" : "256",
+          "max" : "255"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 capacite 0" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INTEGER_OUT_OF_RANGE",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+        "params" : {
+          "max" : "999",
+          "value" : "0"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "09 capacite 1" : {
+    "body" : {
+      "id" : "<UUID_GENERE_3>",
+      "references" : { },
+      "values" : {
+        "capacite" : "1",
+        "code" : "K1",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "10 capacite 999" : {
+    "body" : {
+      "id" : "<UUID_GENERE_4>",
+      "references" : { },
+      "values" : {
+        "capacite" : "999",
+        "code" : "K999",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "11 capacite 1000" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INTEGER_OUT_OF_RANGE",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+        "params" : {
+          "max" : "999",
+          "value" : "1000"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "12 capacite negative" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INTEGER_OUT_OF_RANGE",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+        "params" : {
+          "max" : "999",
+          "value" : "-1"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "13 capacite texte" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Capacité (générateurs max.) » : « abc » n'est pas un nombre entier (ex. 12).",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INVALID_INTEGER",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » : « abc » n'est pas un nombre entier (ex. 12).",
+        "params" : {
+          "value" : "abc"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "14 capacite decimale" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Capacité (générateurs max.) » : « 12.5 » n'est pas un nombre entier (ex. 12).",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INVALID_INTEGER",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » : « 12.5 » n'est pas un nombre entier (ex. 12).",
+        "params" : {
+          "value" : "12.5"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "15 capacite entouree d'espaces" : {
+    "body" : {
+      "id" : "<UUID_GENERE_5>",
+      "references" : { },
+      "values" : {
+        "capacite" : "5",
+        "code" : "KESP",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "16 capacite vide" : {
+    "body" : {
+      "id" : "<UUID_GENERE_6>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "KVIDE",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "17 capacite JSON numerique" : {
+    "body" : {
+      "id" : "<UUID_GENERE_7>",
+      "references" : { },
+      "values" : {
+        "capacite" : "7",
+        "code" : "KNUM",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "18 isolement OUI en minuscules" : {
+    "body" : {
+      "id" : "<UUID_GENERE_8>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "I1",
+        "isolement" : "OUI",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "19 isolement avec accent/casse mixte" : {
+    "body" : {
+      "id" : "<UUID_GENERE_9>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "I2",
+        "isolement" : "OUI",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "20 isolement hors liste" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Salle d'isolement » : « PEUT-ETRE » n'est pas une valeur autorisée (NON, OUI).",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INVALID_VALUE",
+        "field" : "isolement",
+        "message" : "« Salle d'isolement » : « PEUT-ETRE » n'est pas une valeur autorisée (NON, OUI).",
+        "params" : {
+          "allowed" : "NON, OUI",
+          "value" : "PEUT-ETRE"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "21 isolement vide" : {
+    "body" : {
+      "id" : "<UUID_GENERE_10>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "I4",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "22 isolement JSON booleen" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Salle d'isolement » : « true » n'est pas une valeur autorisée (NON, OUI).",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "INVALID_VALUE",
+        "field" : "isolement",
+        "message" : "« Salle d'isolement » : « true » n'est pas une valeur autorisée (NON, OUI).",
+        "params" : {
+          "allowed" : "NON, OUI",
+          "value" : "true"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "23 champ inconnu ignore" : {
+    "body" : {
+      "id" : "<UUID_GENERE_11>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "F1",
+        "isolement" : "NON",
+        "nom" : "x"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "24 plusieurs erreurs a la fois" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire. « Nom » est obligatoire. « Salle d'isolement » : « Z » n'est pas une valeur autorisée (NON, OUI). « Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      }, {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      }, {
+        "code" : "INVALID_VALUE",
+        "field" : "isolement",
+        "message" : "« Salle d'isolement » : « Z » n'est pas une valeur autorisée (NON, OUI).",
+        "params" : {
+          "allowed" : "NON, OUI",
+          "value" : "Z"
+        },
+        "row" : 0
+      }, {
+        "code" : "INTEGER_OUT_OF_RANGE",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+        "params" : {
+          "max" : "999",
+          "value" : "0"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "25 etat en base" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "isolement" : "NON",
+      "nom" : "limite",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "F1",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "I1",
+      "isolement" : "OUI",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "I2",
+      "isolement" : "OUI",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "I4",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : "1",
+      "code" : "K1",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : "999",
+      "code" : "K999",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : "5",
+      "code" : "KESP",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : "7",
+      "code" : "KNUM",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "KVIDE",
+      "isolement" : "NON",
+      "nom" : "x",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "N255",
+      "isolement" : "NON",
+      "nom" : "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+      "ouverte" : "true"
+    } ]
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "01 creation complete" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "nom" : "Benali",
+        "prenom" : "Karim",
+        "specialite" : "Nephrologue"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "02 creation nom seul" : {
+    "body" : {
+      "id" : "<UUID_GENERE_2>",
+      "references" : { },
+      "values" : {
+        "nom" : "Seul",
+        "prenom" : null,
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "03 creation prenom vide et specialite vide" : {
+    "body" : {
+      "id" : "<UUID_GENERE_3>",
+      "references" : { },
+      "values" : {
+        "nom" : "Vide",
+        "prenom" : null,
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "04 creation avec espaces autour" : {
+    "body" : {
+      "id" : "<UUID_GENERE_4>",
+      "references" : { },
+      "values" : {
+        "nom" : "Espace",
+        "prenom" : "Doc",
+        "specialite" : "X"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "05 etat apres creations (valeurs normalisees ou non)" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "specialite" : "Nephrologue"
+    }, {
+      "actif" : "true",
+      "nom" : "Espace",
+      "prenom" : "Doc",
+      "specialite" : "X"
+    }, {
+      "actif" : "true",
+      "nom" : "Seul",
+      "prenom" : null,
+      "specialite" : null
+    }, {
+      "actif" : "true",
+      "nom" : "Vide",
+      "prenom" : null,
+      "specialite" : null
+    } ]
+  },
+  "06 liste triee nom, prenom" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<UUID_GENERE_1>",
+        "references" : { },
+        "values" : {
+          "nom" : "Benali",
+          "prenom" : "Karim",
+          "specialite" : "Nephrologue"
+        }
+      }, {
+        "id" : "<UUID_GENERE_4>",
+        "references" : { },
+        "values" : {
+          "nom" : "Espace",
+          "prenom" : "Doc",
+          "specialite" : "X"
+        }
+      }, {
+        "id" : "<M>",
+        "references" : { },
+        "values" : {
+          "nom" : "Ouaret",
+          "prenom" : "Mustapha",
+          "specialite" : "Cardiologue"
+        }
+      }, {
+        "id" : "<UUID_GENERE_2>",
+        "references" : { },
+        "values" : {
+          "nom" : "Seul",
+          "prenom" : null,
+          "specialite" : null
+        }
+      }, {
+        "id" : "<UUID_GENERE_3>",
+        "references" : { },
+        "values" : {
+          "nom" : "Vide",
+          "prenom" : null,
+          "specialite" : null
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 5
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 modification complete" : {
+    "body" : {
+      "id" : "<M>",
+      "references" : { },
+      "values" : {
+        "nom" : "Ouaret",
+        "prenom" : "Mustapha",
+        "specialite" : "Nephrologue"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 modification sans specialite ni prenom : remplacement complet" : {
+    "body" : {
+      "id" : "<M>",
+      "references" : { },
+      "values" : {
+        "nom" : "Ouaret",
+        "prenom" : null,
+        "specialite" : null
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 etat apres modification" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "Benali",
+      "prenom" : "Karim",
+      "specialite" : "Nephrologue"
+    }, {
+      "actif" : "true",
+      "nom" : "Espace",
+      "prenom" : "Doc",
+      "specialite" : "X"
+    }, {
+      "actif" : "true",
+      "nom" : "Ouaret",
+      "prenom" : null,
+      "specialite" : null
+    }, {
+      "actif" : "true",
+      "nom" : "Seul",
+      "prenom" : null,
+      "specialite" : null
+    }, {
+      "actif" : "true",
+      "nom" : "Vide",
+      "prenom" : null,
+      "specialite" : null
+    } ]
+  },
+  "10 modification sans nom" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/medecins/<M>",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "11 modification d'un medecin inconnu" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Médecins traitants » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/medecins/<UUID_GENERE_5>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "12 modification d'un medecin d'un autre centre via A" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Médecins traitants » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/medecins/<B>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "13 etat B intact" : {
+    "lignes" : [ {
+      "actif" : "true",
+      "nom" : "MedecinB",
+      "prenom" : "Pierre",
+      "specialite" : null
+    } ]
+  }
+}

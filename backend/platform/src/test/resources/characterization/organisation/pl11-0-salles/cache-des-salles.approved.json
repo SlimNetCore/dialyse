@@ -1,0 +1,97 @@
+{
+  "01 lecture mise en cache A" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "S1",
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : null,
+      "nom" : "Salle A",
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 lecture mise en cache B" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "S1",
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : null,
+      "nom" : "Salle B",
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 relecture A : encore le cache" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "S1",
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : null,
+      "nom" : "Salle A",
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 creation par l'administration dans A" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S3",
+        "isolement" : "NON",
+        "nom" : "Admin A"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "05 relecture A : cache vide, voit tout" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "S1",
+      "gereParLot" : null,
+      "id" : "<A>",
+      "libelle" : null,
+      "nom" : "Salle A",
+      "prenom" : null
+    }, {
+      "adresse" : null,
+      "code" : "S2",
+      "gereParLot" : null,
+      "id" : "<A2>",
+      "libelle" : null,
+      "nom" : "Ajout direct A (non vu : cache)",
+      "prenom" : null
+    }, {
+      "adresse" : null,
+      "code" : "S3",
+      "gereParLot" : null,
+      "id" : "<UUID_GENERE_1>",
+      "libelle" : null,
+      "nom" : "Admin A",
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 relecture B : cache du centre B intact" : {
+    "body" : [ {
+      "adresse" : null,
+      "code" : "S1",
+      "gereParLot" : null,
+      "id" : "<B>",
+      "libelle" : null,
+      "nom" : "Salle B",
+      "prenom" : null
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}
